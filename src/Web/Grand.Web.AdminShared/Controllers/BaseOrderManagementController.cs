@@ -24,7 +24,10 @@ public abstract class BaseOrderManagementController(
     IContextAccessor contextAccessor,
     IPdfService pdfService,
     IMediator mediator,
-    IAdminDataScope<Order> scope)
+    IAdminDataScope<Order> scope,
+    IOrderNoteViewModelService orderNoteViewModelService,
+    IOrderAddressViewModelService orderAddressViewModelService,
+    IOrderProductViewModelService orderProductViewModelService)
     : BaseOrderController(orderViewModelService, orderService, translationService, contextAccessor,
         pdfService, scope)
 {
@@ -484,7 +487,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
 
-        var model = await OrderViewModelService.PrepareAddOrderProductModel(order);
+        var model = await orderProductViewModelService.PrepareAddOrderProductModel(order);
         return View(model);
     }
 
@@ -521,7 +524,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
 
-        var model = await OrderViewModelService.PrepareAddProductToOrderModel(order, productId);
+        var model = await orderProductViewModelService.PrepareAddProductToOrderModel(order, productId);
         return View(model);
     }
 
@@ -532,10 +535,10 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
         if (denied != null) return denied;
 
-        var warnings = await OrderViewModelService.AddProductToOrderDetails(model);
+        var warnings = await orderProductViewModelService.AddProductToOrderDetails(model);
         if (!warnings.Any()) return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
-        var result = await OrderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
+        var result = await orderProductViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
         result.Warnings.AddRange(warnings);
         return View(result);
     }
@@ -564,7 +567,7 @@ public abstract class BaseOrderManagementController(
         if (address == null)
             throw new ArgumentException("No address found with the specified id", nameof(addressId));
 
-        var model = await OrderViewModelService.PrepareOrderAddressModel(order, address);
+        var model = await orderAddressViewModelService.PrepareOrderAddressModel(order, address);
         model.BillingAddress = billingAddress;
         return View(model);
     }
@@ -592,12 +595,12 @@ public abstract class BaseOrderManagementController(
         if (ModelState.IsValid)
         {
             var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-            await OrderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
+            await orderAddressViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
             return RedirectToAction("AddressEdit",
                 new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
         }
 
-        model = await OrderViewModelService.PrepareOrderAddressModel(order, address);
+        model = await orderAddressViewModelService.PrepareOrderAddressModel(order, address);
         return View(model);
     }
 
@@ -617,7 +620,7 @@ public abstract class BaseOrderManagementController(
         // deliberately not done here. See plan's Global Constraints.
         if (!await Scope.HasAccess(order)) return Content("");
 
-        var orderNoteModels = await OrderViewModelService.PrepareOrderNotes(order);
+        var orderNoteModels = await orderNoteViewModelService.PrepareOrderNotes(order);
         var gridModel = new Common.DataSource.DataSourceResult {
             Data = orderNoteModels,
             Total = orderNoteModels.Count
@@ -631,7 +634,7 @@ public abstract class BaseOrderManagementController(
         var order = await OrderService.GetOrderById(orderId);
         if (order == null || !await Scope.HasAccess(order)) return Json(new { Result = false });
 
-        await OrderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
+        await orderNoteViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
         return Json(new { Result = true });
     }
 
@@ -643,7 +646,7 @@ public abstract class BaseOrderManagementController(
             ?? throw new ArgumentException("No order found with the specified id");
         if (!await Scope.HasAccess(order)) return Json(new { Result = false });
 
-        await OrderViewModelService.DeleteOrderNote(order, id);
+        await orderNoteViewModelService.DeleteOrderNote(order, id);
         return new JsonResult("");
     }
 

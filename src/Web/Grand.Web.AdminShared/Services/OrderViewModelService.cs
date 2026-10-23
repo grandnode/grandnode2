@@ -1,22 +1,17 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
@@ -33,9 +28,7 @@ using Grand.Web.Common.Localization;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.Net;
-using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Web.Common.Extensions;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -45,7 +38,6 @@ public class OrderViewModelService : IOrderViewModelService
     #region Fields
 
     private readonly IOrderService _orderService;
-    private readonly IPricingService _pricingService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IDiscountService _discountService;
@@ -56,23 +48,17 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly ICountryService _countryService;
     private readonly IProductService _productService;
-    private readonly IOrderMessageProviderService _orderMessageProviderService;
-    private readonly IProductAttributeService _productAttributeService;
     private readonly IGiftVoucherService _giftVoucherService;
     private readonly IDownloadService _downloadService;
     private readonly IStoreService _storeService;
     private readonly IVendorService _vendorService;
     private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly IAddressAttributeParser _addressAttributeParser;
-    private readonly IAddressAttributeService _addressAttributeService;
     private readonly IAffiliateService _affiliateService;
     private readonly IPictureService _pictureService;
-    private readonly ITaxService _taxService;
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly ICustomerService _customerService;
     private readonly IWarehouseService _warehouseService;
-    private readonly IProductAttributeFormatter _productAttributeFormatter;
-    private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly CurrencySettings _currencySettings;
     private readonly TaxSettings _taxSettings;
     private readonly AddressSettings _addressSettings;
@@ -81,14 +67,12 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IMediator _mediator;
     private readonly IEnumTranslationService _enumTranslationService;
     private readonly IAdminDataScope<Order> _scope;
-    private readonly ILanguageService _languageService;
 
     #endregion
 
     #region Ctor
 
     public OrderViewModelService(IOrderService orderService,
-        IPricingService priceCalculationService,
         IDateTimeService dateTimeService,
         IPriceFormatter priceFormatter,
         IDiscountService discountService,
@@ -99,34 +83,27 @@ public class OrderViewModelService : IOrderViewModelService
         IPaymentTransactionService paymentTransactionService,
         ICountryService countryService,
         IProductService productService,
-        IOrderMessageProviderService orderMessageProviderService,
-        IProductAttributeService productAttributeService,
         IGiftVoucherService giftVoucherService,
         IDownloadService downloadService,
         IStoreService storeService,
         IVendorService vendorService,
         ISalesEmployeeService salesEmployeeService,
         IAddressAttributeParser addressAttributeParser,
-        IAddressAttributeService addressAttributeService,
         IAffiliateService affiliateService,
         IPictureService pictureService,
-        ITaxService taxService,
         IMerchandiseReturnService merchandiseReturnService,
         ICustomerService customerService,
         IWarehouseService warehouseService,
-        IShoppingCartValidator shoppingCartValidator,
         CurrencySettings currencySettings,
         TaxSettings taxSettings,
         AddressSettings addressSettings,
         IOrderTagService orderTagService,
         IOrderStatusService orderStatusService,
         IMediator mediator,
-        IProductAttributeFormatter productAttributeFormatter, IEnumTranslationService enumTranslationService,
-        IAdminDataScope<Order> scope,
-        ILanguageService languageService)
+        IEnumTranslationService enumTranslationService,
+        IAdminDataScope<Order> scope)
     {
         _orderService = orderService;
-        _pricingService = priceCalculationService;
         _dateTimeService = dateTimeService;
         _priceFormatter = priceFormatter;
         _discountService = discountService;
@@ -137,21 +114,16 @@ public class OrderViewModelService : IOrderViewModelService
         _paymentTransactionService = paymentTransactionService;
         _countryService = countryService;
         _productService = productService;
-        _orderMessageProviderService = orderMessageProviderService;
-        _productAttributeService = productAttributeService;
         _giftVoucherService = giftVoucherService;
         _downloadService = downloadService;
         _storeService = storeService;
         _vendorService = vendorService;
         _salesEmployeeService = salesEmployeeService;
         _addressAttributeParser = addressAttributeParser;
-        _addressAttributeService = addressAttributeService;
         _affiliateService = affiliateService;
         _pictureService = pictureService;
-        _taxService = taxService;
         _merchandiseReturnService = merchandiseReturnService;
         _warehouseService = warehouseService;
-        _shoppingCartValidator = shoppingCartValidator;
         _currencySettings = currencySettings;
         _taxSettings = taxSettings;
         _addressSettings = addressSettings;
@@ -159,10 +131,8 @@ public class OrderViewModelService : IOrderViewModelService
         _orderTagService = orderTagService;
         _orderStatusService = orderStatusService;
         _mediator = mediator;
-        _productAttributeFormatter = productAttributeFormatter;
         _enumTranslationService = enumTranslationService;
         _scope = scope;
-        _languageService = languageService;
     }
 
     #endregion
@@ -847,367 +817,6 @@ public class OrderViewModelService : IOrderViewModelService
         model.HasDownloadableProducts = hasDownloadableItems;
 
         #endregion
-    }
-
-    public virtual async Task<OrderModel.AddOrderProductModel> PrepareAddOrderProductModel(Order order)
-    {
-        var model = new OrderModel.AddOrderProductModel {
-            OrderId = order.Id,
-            OrderNumber = order.OrderNumber,
-            //product types
-            AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList()
-        };
-
-        model.AvailableProductTypes.Insert(0,
-            new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = "0" });
-
-        return await Task.FromResult(model);
-    }
-
-    public virtual async Task<OrderModel.AddOrderProductModel.ProductDetailsModel> PrepareAddProductToOrderModel(
-        Order order, string productId)
-    {
-        var product = await _productService.GetProductById(productId);
-        if (product == null)
-            throw new ArgumentException("No product found with the specified id");
-
-        var customer = await _customerService.GetCustomerById(order.CustomerId);
-        var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
-        var store = await _storeService.GetStoreById(order.StoreId);
-        var presetQty = 1;
-        var presetPrice = (await _pricingService.GetFinalPrice(product, customer, store, currency, 0, true, presetQty))
-            .finalPrice;
-        var productPrice = await _taxService.GetProductPrice(product, presetPrice, true, customer, store);
-        var presetPriceInclTax = productPrice.productprice;
-        var presetPriceExclTax =
-            (await _taxService.GetProductPrice(product, presetPrice, false, customer, store)).productprice;
-
-        var model = new OrderModel.AddOrderProductModel.ProductDetailsModel {
-            ProductId = product.Id,
-            OrderId = order.Id,
-            OrderNumber = order.OrderNumber,
-            Name = product.Name,
-            ProductType = product.ProductTypeId,
-            UnitPriceExclTax = presetPriceExclTax,
-            UnitPriceInclTax = presetPriceInclTax,
-            Quantity = presetQty,
-            TaxRate = productPrice.taxRate
-        };
-
-        //attributes
-        var attributes = product.ProductAttributeMappings;
-        foreach (var attribute in attributes)
-        {
-            var productAttribute =
-                await _productAttributeService.GetProductAttributeById(attribute.ProductAttributeId);
-            var attributeModel = new OrderModel.AddOrderProductModel.ProductAttributeModel {
-                Id = attribute.Id,
-                ProductAttributeId = attribute.ProductAttributeId,
-                Name = productAttribute.Name,
-                TextPrompt = attribute.TextPrompt,
-                IsRequired = attribute.IsRequired,
-                AttributeControlType = attribute.AttributeControlTypeId
-            };
-
-            if (attribute.ShouldHaveValues())
-            {
-                //values
-                var attributeValues = attribute.ProductAttributeValues;
-                foreach (var attributeValue in attributeValues)
-                {
-                    var attributeValueModel = new OrderModel.AddOrderProductModel.ProductAttributeValueModel {
-                        Id = attributeValue.Id,
-                        Name = attributeValue.Name,
-                        IsPreSelected = attributeValue.IsPreSelected
-                    };
-                    attributeModel.Values.Add(attributeValueModel);
-                }
-            }
-
-            model.ProductAttributes.Add(attributeModel);
-        }
-
-        //gift voucher
-        model.GiftVoucher.IsGiftVoucher = product.IsGiftVoucher;
-        if (model.GiftVoucher.IsGiftVoucher) model.GiftVoucher.GiftVoucherType = product.GiftVoucherTypeId;
-
-        return model;
-    }
-
-    public virtual async Task<OrderAddressModel> PrepareOrderAddressModel(Order order, Address address)
-    {
-        var model = new OrderAddressModel {
-            OrderId = order.Id,
-            Address = await address.ToModel(_countryService)
-        };
-        model.Address.Id = address.Id;
-        model.Address.NameEnabled = _addressSettings.NameEnabled;
-        model.Address.FirstNameEnabled = true;
-        model.Address.FirstNameRequired = true;
-        model.Address.LastNameEnabled = true;
-        model.Address.LastNameRequired = true;
-        model.Address.EmailEnabled = true;
-        model.Address.EmailRequired = true;
-        model.Address.CompanyEnabled = _addressSettings.CompanyEnabled;
-        model.Address.CompanyRequired = _addressSettings.CompanyRequired;
-        model.Address.VatNumberEnabled = _addressSettings.VatNumberEnabled;
-        model.Address.VatNumberRequired = _addressSettings.VatNumberRequired;
-        model.Address.CountryEnabled = _addressSettings.CountryEnabled;
-        model.Address.StateProvinceEnabled = _addressSettings.StateProvinceEnabled;
-        model.Address.CityEnabled = _addressSettings.CityEnabled;
-        model.Address.CityRequired = _addressSettings.CityRequired;
-        model.Address.StreetAddressEnabled = _addressSettings.StreetAddressEnabled;
-        model.Address.StreetAddressRequired = _addressSettings.StreetAddressRequired;
-        model.Address.StreetAddress2Enabled = _addressSettings.StreetAddress2Enabled;
-        model.Address.StreetAddress2Required = _addressSettings.StreetAddress2Required;
-        model.Address.ZipPostalCodeEnabled = _addressSettings.ZipPostalCodeEnabled;
-        model.Address.ZipPostalCodeRequired = _addressSettings.ZipPostalCodeRequired;
-        model.Address.PhoneEnabled = _addressSettings.PhoneEnabled;
-        model.Address.PhoneRequired = _addressSettings.PhoneRequired;
-        model.Address.FaxEnabled = _addressSettings.FaxEnabled;
-        model.Address.FaxRequired = _addressSettings.FaxRequired;
-        model.Address.NoteEnabled = _addressSettings.NoteEnabled;
-        model.Address.AddressTypeEnabled = _addressSettings.AddressTypeEnabled;
-
-        //countries
-        model.Address.AvailableCountries.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-        foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-            model.Address.AvailableCountries.Add(new SelectListItem { Text = c.Name, Value = c.Id, Selected = c.Id == address.CountryId });
-        //states
-        var states = !string.IsNullOrEmpty(address.CountryId)
-            ? (await _countryService.GetCountryById(address.CountryId))?.StateProvinces
-            : new List<StateProvince>();
-        if (states?.Count > 0)
-            foreach (var s in states)
-                model.Address.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id, Selected = s.Id == address.StateProvinceId });
-
-        //customer attribute services
-        await model.Address.PrepareCustomAddressAttributes(address, _addressAttributeService,
-            _addressAttributeParser);
-
-        return model;
-    }
-
-    public virtual async Task<IList<OrderModel.OrderNote>> PrepareOrderNotes(Order order)
-    {
-        //order notes
-        var orderNoteModels = new List<OrderModel.OrderNote>();
-        foreach (var orderNote in (await _orderService.GetOrderNotes(order.Id))
-                 .OrderByDescending(on => on.CreatedOnUtc))
-        {
-            var download = await _downloadService.GetDownloadById(orderNote.DownloadId);
-            orderNoteModels.Add(new OrderModel.OrderNote {
-                Id = orderNote.Id,
-                OrderId = order.Id,
-                DownloadId = string.IsNullOrEmpty(orderNote.DownloadId) ? "" : orderNote.DownloadId,
-                DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
-                DisplayToCustomer = orderNote.DisplayToCustomer,
-                Note = orderNote.Note,
-                CreatedOn = _dateTimeService.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc),
-                CreatedByCustomer = orderNote.CreatedByCustomer
-            });
-        }
-
-        return orderNoteModels;
-    }
-
-    public virtual async Task InsertOrderNote(Order order, string downloadId, bool displayToCustomer,
-        string message)
-    {
-        var orderNote = new OrderNote {
-            DisplayToCustomer = displayToCustomer,
-            Note = message,
-            DownloadId = downloadId,
-            OrderId = order.Id
-        };
-        await _orderService.InsertOrderNote(orderNote);
-
-        //new order notification
-        if (displayToCustomer)
-            //email
-            await _orderMessageProviderService.SendNewOrderNoteAddedCustomerMessage(order, orderNote);
-    }
-
-    public virtual async Task DeleteOrderNote(Order order, string id)
-    {
-        var orderNote = (await _orderService.GetOrderNotes(order.Id)).FirstOrDefault(on => on.Id == id);
-        if (orderNote == null)
-            throw new ArgumentException("No order note found with the specified id");
-
-        orderNote.OrderId = order.Id;
-        await _orderService.DeleteOrderNote(orderNote);
-
-        //delete an old "attachment" file
-        if (!string.IsNullOrEmpty(orderNote.DownloadId))
-        {
-            var attachment = await _downloadService.GetDownloadById(orderNote.DownloadId);
-            if (attachment != null)
-                await _downloadService.DeleteDownload(attachment);
-        }
-    }
-
-    public virtual async Task<Address> UpdateOrderAddress(Order order, Address address, OrderAddressModel model,
-        List<CustomAttribute> customAttributes)
-    {
-        address = model.Address.ToEntity(address);
-        address.Attributes = customAttributes;
-        await _orderService.UpdateOrder(order);
-
-        //add a note
-        await _orderService.InsertOrderNote(new OrderNote {
-            Note = "Address has been edited",
-            DisplayToCustomer = false,
-            OrderId = order.Id
-        });
-        return address;
-    }
-
-    public virtual async Task<IList<string>> AddProductToOrderDetails(AddProductToOrderModel model)
-    {
-        var order = await _orderService.GetOrderById(model.OrderId);
-        var product = await _productService.GetProductById(model.ProductId);
-        var customer = await _customerService.GetCustomerById(order.CustomerId);
-
-        var warnings = new List<string>();
-        var customattributes = new List<CustomAttribute>();
-
-        #region Product attributes
-
-        var attributes = product.ProductAttributeMappings;
-        foreach (var attribute in attributes)
-            switch (attribute.AttributeControlTypeId)
-            {
-                case AttributeControlType.DropdownList:
-                case AttributeControlType.RadioList:
-                case AttributeControlType.ColorSquares:
-                case AttributeControlType.ImageSquares:
-                    {
-                        var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                        if (!string.IsNullOrEmpty(ctrlAttributes))
-                            customattributes = ProductExtensions.AddProductAttribute(customattributes,
-                                attribute, ctrlAttributes).ToList();
-                    }
-                    break;
-                case AttributeControlType.Checkboxes:
-                    {
-                        var cblAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                        if (!string.IsNullOrEmpty(cblAttributes))
-                            foreach (var item in cblAttributes
-                                         .Split([','], StringSplitOptions.RemoveEmptyEntries))
-                                customattributes = ProductExtensions.AddProductAttribute(
-                                    customattributes,
-                                    attribute, item).ToList();
-                    }
-                    break;
-                case AttributeControlType.ReadonlyCheckboxes:
-                    {
-                        //load read-only (already server-side selected) values
-                        var attributeValues = attribute.ProductAttributeValues;
-                        foreach (var selectedAttributeId in attributeValues
-                                     .Where(v => v.IsPreSelected)
-                                     .Select(v => v.Id)
-                                     .ToList())
-                            customattributes = ProductExtensions.AddProductAttribute(customattributes,
-                                attribute, selectedAttributeId).ToList();
-                    }
-                    break;
-                case AttributeControlType.TextBox:
-                case AttributeControlType.MultilineTextbox:
-                case AttributeControlType.FileUpload:
-                    {
-                        var ctrlAttributes = model.SelectedAttributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
-                        if (!string.IsNullOrEmpty(ctrlAttributes))
-                        {
-                            var enteredText = ctrlAttributes.Trim();
-                            customattributes = ProductExtensions.AddProductAttribute(customattributes, attribute, enteredText).ToList();
-                        }
-                    }
-                    break;
-            }
-
-        //validate conditional attributes (if specified)
-        foreach (var attribute in attributes)
-        {
-            var conditionMet = product.IsConditionMet(attribute, customattributes);
-            if (conditionMet.HasValue && !conditionMet.Value)
-                customattributes = ProductExtensions
-                    .RemoveProductAttribute(customattributes, attribute).ToList();
-        }
-
-        #endregion
-
-        #region Gift vouchers
-
-        var recipientName = model.Giftvoucher?.RecipientName;
-        var recipientEmail = model.Giftvoucher?.RecipientEmail;
-        var senderName = model.Giftvoucher?.SenderName;
-        var senderEmail = model.Giftvoucher?.SenderEmail;
-        var giftVoucherMessage = model.Giftvoucher?.Message;
-        if (product.IsGiftVoucher)
-            customattributes = GiftVoucherExtensions.AddGiftVoucherAttribute(customattributes,
-                recipientName, recipientEmail, senderName, senderEmail, giftVoucherMessage).ToList();
-
-        #endregion
-
-        //warnings
-        var shoppingCartItem = new ShoppingCartItem {
-            ShoppingCartTypeId = ShoppingCartType.ShoppingCart,
-            Quantity = model.Quantity,
-            WarehouseId = product.WarehouseId,
-            Attributes = customattributes
-        };
-
-        warnings.AddRange(
-            await _shoppingCartValidator.GetShoppingCartItemAttributeWarnings(customer, product, shoppingCartItem,
-                _contextAccessor.WorkContext.WorkingLanguage));
-        warnings.AddRange(
-            await _shoppingCartValidator.GetShoppingCartItemGiftVoucherWarnings(customer, product,
-                shoppingCartItem, _contextAccessor.WorkContext.WorkingLanguage));
-        if (warnings.Count == 0)
-        {
-            //the description is stored on the order, so it is rendered for the order, not for the admin
-            var store = await _storeService.GetStoreById(order.StoreId) ?? _contextAccessor.StoreContext.CurrentStore;
-            var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode) ??
-                           _contextAccessor.WorkContext.WorkingCurrency;
-            var language = await _languageService.GetLanguageById(order.CustomerLanguageId) ??
-                           _contextAccessor.WorkContext.WorkingLanguage;
-            var host = store.Domains.FirstOrDefault(x => x.Primary) ?? store.Domains.FirstOrDefault();
-            var attributeDescription =
-                await _productAttributeFormatter.FormatAttributes(product, customattributes,
-                    new CalculationContext(customer, store, currency, order.CustomerTaxDisplayTypeId),
-                    language, host);
-
-            //save item
-            var orderItem = new OrderItem {
-                OrderItemGuid = Guid.NewGuid(),
-                ProductId = product.Id,
-                VendorId = product.VendorId,
-                WarehouseId = product.WarehouseId,
-                Sku = product.FormatSku(customattributes),
-                SeId = order.SeId,
-                UnitPriceInclTax = model.UnitPriceExclTax,
-                UnitPriceExclTax = model.UnitPriceInclTax,
-                PriceInclTax = Math.Round(model.UnitPriceInclTax * model.Quantity, 2),
-                PriceExclTax = Math.Round(model.UnitPriceExclTax * model.Quantity, 2),
-                TaxRate = model.TaxRate,
-                OriginalProductCost = await _pricingService.GetProductCost(product, customattributes),
-                AttributeDescription = attributeDescription,
-                Attributes = customattributes,
-                Quantity = model.Quantity,
-                OpenQty = model.Quantity,
-                DiscountAmountInclTax = 0,
-                DiscountAmountExclTax = 0,
-                DownloadCount = 0,
-                IsDownloadActivated = false,
-                LicenseDownloadId = "",
-                IsShipEnabled = product.IsShipEnabled,
-                CreatedOnUtc = DateTime.UtcNow
-            };
-
-            await _mediator.Send(new InsertOrderItemCommand { Order = order, OrderItem = orderItem, Product = product });
-        }
-
-        return warnings;
     }
 
     public virtual async Task<IList<Order>> PrepareOrders(OrderListModel model)

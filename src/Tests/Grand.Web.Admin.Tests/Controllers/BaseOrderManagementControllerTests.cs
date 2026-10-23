@@ -30,13 +30,18 @@ public class BaseOrderManagementControllerTests
         IContextAccessor contextAccessor,
         IPdfService pdfService,
         IMediator mediator,
-        IAdminDataScope<Order> scope)
+        IAdminDataScope<Order> scope,
+        IOrderNoteViewModelService orderNoteViewModelService,
+        IOrderAddressViewModelService orderAddressViewModelService,
+        IOrderProductViewModelService orderProductViewModelService)
         : BaseOrderManagementController(orderViewModelService, orderService, orderStatusService,
-            translationService, contextAccessor, pdfService, mediator, scope);
+            translationService, contextAccessor, pdfService, mediator, scope, orderNoteViewModelService,
+            orderAddressViewModelService, orderProductViewModelService);
 
     private TestOrderManagementController _controller;
     private Mock<IOrderService> _orderServiceMock;
-    private Mock<IOrderViewModelService> _orderViewModelServiceMock;
+    private Mock<IOrderNoteViewModelService> _orderNoteViewModelServiceMock;
+    private Mock<IOrderProductViewModelService> _orderProductViewModelServiceMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IAdminDataScope<Order>> _scopeMock;
 
@@ -44,7 +49,8 @@ public class BaseOrderManagementControllerTests
     public void Setup()
     {
         _orderServiceMock = new Mock<IOrderService>();
-        _orderViewModelServiceMock = new Mock<IOrderViewModelService>();
+        _orderNoteViewModelServiceMock = new Mock<IOrderNoteViewModelService>();
+        _orderProductViewModelServiceMock = new Mock<IOrderProductViewModelService>();
         _mediatorMock = new Mock<IMediator>();
         _scopeMock = new Mock<IAdminDataScope<Order>>();
 
@@ -52,10 +58,11 @@ public class BaseOrderManagementControllerTests
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new TestOrderManagementController(
-            _orderViewModelServiceMock.Object, _orderServiceMock.Object,
+            new Mock<IOrderViewModelService>().Object, _orderServiceMock.Object,
             new Mock<IOrderStatusService>().Object, translationServiceMock.Object,
             new Mock<IContextAccessor>().Object, new Mock<IPdfService>().Object,
-            _mediatorMock.Object, _scopeMock.Object);
+            _mediatorMock.Object, _scopeMock.Object, _orderNoteViewModelServiceMock.Object,
+            new Mock<IOrderAddressViewModelService>().Object, _orderProductViewModelServiceMock.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -268,7 +275,7 @@ public class BaseOrderManagementControllerTests
         var order = new Order { Id = "o1" };
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
-        _orderViewModelServiceMock
+        _orderProductViewModelServiceMock
             .Setup(v => v.AddProductToOrderDetails(It.IsAny<AddProductToOrderModel>()))
             .ReturnsAsync(new List<string>());
 
@@ -327,7 +334,7 @@ public class BaseOrderManagementControllerTests
         var json = result as JsonResult;
         Assert.IsNotNull(json);
         Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
-        _orderViewModelServiceMock.Verify(v => v.InsertOrderNote(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+        _orderNoteViewModelServiceMock.Verify(v => v.InsertOrderNote(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
     }
     private static object GridErrors(IActionResult result) =>
         ((result as JsonResult)?.Value as Grand.Web.Common.DataSource.DataSourceResult)?.Errors;
