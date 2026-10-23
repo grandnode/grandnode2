@@ -30,6 +30,12 @@ public class OidcLoginProviderTests
     public void SystemName_IsTheLinkName() =>
         Assert.AreEqual(OidcResourceServerDefaults.ProviderSystemName, new OidcLoginProvider(new OidcLoginConfig(), new Mock<IAuthenticationSchemeProvider>().Object).SystemName);
 
+    //the grid's configure link opens the read-only card below the grid, not the same page again
+    [TestMethod]
+    public void ConfigurationUrl_PointsAtTheCard() =>
+        Assert.AreEqual("../ExternalAuthentication/Methods#oidc-sign-in",
+            new OidcLoginProvider(new OidcLoginConfig(), new Mock<IAuthenticationSchemeProvider>().Object).ConfigurationUrl);
+
     [TestMethod]
     public void Priority_FromSettings() =>
         Assert.AreEqual(7, new OidcLoginProvider(new OidcLoginConfig { DisplayOrder = 7 }, new Mock<IAuthenticationSchemeProvider>().Object).Priority);

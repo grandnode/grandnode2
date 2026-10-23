@@ -12,6 +12,6 @@ public static class OidcLoginDefaults
     public const string BackChannelLogoutPath = "oidc/backchannel-logout";
     public const string LoginPath = "/oidc/login";
     public const string FailedPath = "/oidc/failed";
-    public const string ConfigurationUrl = "../ExternalAuthentication/Methods";
+    public const string ConfigurationUrl = "../ExternalAuthentication/Methods#oidc-sign-in";
     public static readonly TimeSpan PendingLifetime = TimeSpan.FromMinutes(15);
 }

@@ -37,9 +37,13 @@ public static class OidcBackChannelLogoutEndpoint
         if (string.IsNullOrEmpty(token))
             return Error("The logout_token parameter is missing");
 
+        //mapped on every installation: the caller gets the answer of a refused token, only the log says why
         if (await services.GetRequiredService<IAuthenticationSchemeProvider>()
                 .GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null)
-            return Error("OpenID Connect sign-in is not configured");
+        {
+            logger.LogWarning("Back-channel logout refused: OpenID Connect sign-in is not configured");
+            return Error("The logout token was refused");
+        }
 
         var options = services.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>()
             .Get(OidcLoginDefaults.AuthenticationScheme);

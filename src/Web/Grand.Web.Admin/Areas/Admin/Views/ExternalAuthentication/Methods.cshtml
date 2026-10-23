@@ -41,6 +41,8 @@
     @* the identity provider and the client come from appsettings and are shown read-only; the secret is never shown *@
     @if (Model != null)
     {
+        @* target of the grid's configure link of the OpenID Connect row (OidcLoginDefaults.ConfigurationUrl) *@
+        <span id="oidc-sign-in"></span>
         <admin-card title="OpenID Connect">
             <div class="note note-info">
                 @Html.Raw(Loc["Admin.Plugins.ExternalAuthenticationMethods.Oidc.Description"])

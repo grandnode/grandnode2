@@ -11,7 +11,7 @@ namespace Grand.Business.Authentication.Services;
 
 /// <summary>
 ///     OidcLogin:SsoOnly - an account connected to the identity provider with its password (a link not made by e-mail)
-///     signs in only through the provider, while the OpenID Connect login is installed, active and configured; a user
+///     signs in only through the provider, while the OpenID Connect login is configured and active; a user
 ///     disabled at the provider then cannot use a GrandNode password either. Accounts without such a link keep the
 ///     password: the break-glass account, and accounts still to be connected.
 ///     OidcLogin:SignInMode = ProviderOnly - every account signs in through the provider; the password stays only for

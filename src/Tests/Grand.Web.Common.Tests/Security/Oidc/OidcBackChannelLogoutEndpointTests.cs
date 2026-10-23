@@ -192,7 +192,13 @@ public class OidcBackChannelLogoutEndpointTests
     public async Task NotConfigured_400()
     {
         _schemeRegistered = false;
-        Assert.AreEqual(400, (await Post(Token())).Response.StatusCode);
+        var context = await Post(Token());
+        Assert.AreEqual(400, context.Response.StatusCode);
+        //the answer of a refused token: an outsider learns nothing about whether the sign-in is set up
+        context.Response.Body.Position = 0;
+        var body = await new StreamReader(context.Response.Body).ReadToEndAsync();
+        StringAssert.Contains(body, "The logout token was refused");
+        Assert.IsFalse(body.Contains("configured", StringComparison.OrdinalIgnoreCase), body);
     }
 
     [TestMethod]
