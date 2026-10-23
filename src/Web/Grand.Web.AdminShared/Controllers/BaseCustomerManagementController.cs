@@ -1,11 +1,8 @@
 #nullable enable
 
-using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.ExportImport;
-using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -13,7 +10,6 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
-using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Localization;
@@ -24,14 +20,8 @@ public abstract class BaseCustomerManagementController(
     ICustomerService customerService,
     ICustomerViewModelService customerViewModelService,
     ICustomerManagerService customerManagerService,
-    ICustomerProductService customerProductService,
-    IProductReviewService productReviewService,
-    IProductReviewViewModelService productReviewViewModelService,
-    IProductViewModelService productViewModelService,
     ICustomerAttributeParser customerAttributeParser,
     ICustomerAttributeService customerAttributeService,
-    IAddressAttributeParser addressAttributeParser,
-    IAddressAttributeService addressAttributeService,
     ICustomerMessageProviderService customerMessageProviderService,
     IGroupService groupService,
     IRequestTranslationService translationService,
@@ -41,9 +31,8 @@ public abstract class BaseCustomerManagementController(
     IRequestPermissionService permissionService,
     IExportManager<Customer> exportManager)
     : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
-        customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
-        customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-        customerMessageProviderService, groupService, translationService, contextAccessor, customerSettings, scope)
+        customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
+        translationService, contextAccessor, customerSettings, scope)
 {
     protected override void CheckTwoFactorEnabledWarning(Customer? existingCustomer, CustomerModel model)
     {
@@ -52,20 +41,6 @@ public abstract class BaseCustomerManagementController(
         if (!wasEnabled && model.TwoFactorEnabled)
             Warning(TranslationService.GetResource("Admin.Customers.Customers.CannotTwoFactorEnabled"));
     }
-
-    #region Message contact form
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> ContactFormList(DataSourceRequest command, string customerId)
-    {
-        var (contactFormModels, totalCount) =
-            await CustomerViewModelService.PrepareContactFormModel(customerId, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult { Data = contactFormModels.ToList(), Total = totalCount };
-        return Json(gridModel);
-    }
-
-    #endregion
 
     #region Impersonate / affiliate / bulk delete
 
@@ -111,44 +86,6 @@ public abstract class BaseCustomerManagementController(
     {
         if (selectedIds != null) await CustomerViewModelService.DeleteSelected(selectedIds.ToList());
         return Json(new { Result = true });
-    }
-
-    #endregion
-
-    #region Customer note
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> CustomerNotesSelect(string customerId, DataSourceRequest command)
-    {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) throw new ArgumentException("No customer found with the specified id");
-
-        var customerNoteModels = await CustomerViewModelService.PrepareCustomerNoteList(customerId);
-        var gridModel = new DataSourceResult { Data = customerNoteModels, Total = customerNoteModels.Count };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> CustomerNoteAdd(string customerId, string downloadId, bool displayToCustomer,
-        string title, string message)
-    {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) return Json(new { Result = false });
-
-        await CustomerViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title, message);
-        return Json(new { Result = true });
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> CustomerNoteDelete(string id, string customerId)
-    {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) throw new ArgumentException("No customer found with the specified id");
-
-        await CustomerViewModelService.DeleteCustomerNote(id, customerId);
-        return new JsonResult("");
     }
 
     #endregion

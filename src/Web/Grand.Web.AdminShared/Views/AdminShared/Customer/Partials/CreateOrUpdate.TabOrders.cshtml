@@ -6,7 +6,7 @@
         <partial name="Partials/WidgetZone.OrdersTop" model="Model"/>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="order-grid"
-                        read-url="@Url.Action("OrderList", "Customer", new { customerId = Model.Id, area = area })"
+                        read-url="@Url.Action("OrderList", "CustomerOrder", new { customerId = Model.Id, area = area })"
                         auto-bind="false">
                 <grid-column field="OrderNumber" title="@Loc["Admin.Customers.Customers.Orders.ID"]" width="90">
                     <cell-template>
@@ -34,7 +34,7 @@
                     <grid-column field="StoreName" title="@Loc["Admin.Customers.Customers.Orders.Store"]" width="200"/>
                 }
                 <grid-column field="CreatedOn" title="@Loc["Admin.Customers.Customers.Orders.CreatedOn"]" width="220" format="{0:G}"/>
-                <grid-detail read-url="@Url.Action("OrderDetails", "Customer", new { area = area })" param="orderId:Id">
+                <grid-detail read-url="@Url.Action("OrderDetails", "CustomerOrder", new { area = area })" param="orderId:Id">
                     <grid-column field="ProductName" title="@Loc["Admin.Orders.Products.ProductName"]" width="400">
                         <cell-template>
                             <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a>

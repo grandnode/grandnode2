@@ -4,15 +4,15 @@
     <div class="grand-card">
         <div class="grand-card__header">
             <h2 class="grand-card__title">@Html.Raw(Loc["Admin.Customers.Customers.PersonalizedProduct"])</h2>
-            <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "Customer", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
+            <a id="btnAddNewPersonalizedProduct" href="@(Url.Action("ProductAddPopup", "CustomerProduct", new { customerId = Model.Id, btnId = "btnRefreshPersonalizedProducts", formId = "customer-form", personalized = "true", area = area }))" class="btn btn-outline-secondary btn-sm"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.PersonalizedProduct.AddNew"]</a>
             <input type="submit" id="btnRefreshPersonalizedProducts" style="display: none"/>
         </div>
         <partial name="Partials/WidgetZone.ProductTop" model="Model"/>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="personalizedproduct-grid"
-                        read-url="@Url.Action("PersonalizedProducts", "Customer", new { customerId = Model.Id, area = area })"
-                        update-url="@Url.Action("UpdatePersonalizedProduct", "Customer", new { area = area })"
-                        destroy-url="@Url.Action("DeletePersonalizedProduct", "Customer", new { area = area })"
+                        read-url="@Url.Action("PersonalizedProducts", "CustomerProduct", new { customerId = Model.Id, area = area })"
+                        update-url="@Url.Action("UpdatePersonalizedProduct", "CustomerProduct", new { area = area })"
+                        destroy-url="@Url.Action("DeletePersonalizedProduct", "CustomerProduct", new { area = area })"
                         auto-bind="false"
                         edit-mode="Inline"
                         reload-after-save="false">

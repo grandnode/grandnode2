@@ -6,7 +6,7 @@
         <partial name="Partials/WidgetZone.BackInStockTop" model="Model"/>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="outofstock-subscriptions-grid"
-                        read-url="@Url.Action("OutOfStockSubscriptionList", "Customer", new { customerId = Model.Id, area = area })"
+                        read-url="@Url.Action("OutOfStockSubscriptionList", "CustomerOutOfStockSubscription", new { customerId = Model.Id, area = area })"
                         auto-bind="false">
                 @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
                 {

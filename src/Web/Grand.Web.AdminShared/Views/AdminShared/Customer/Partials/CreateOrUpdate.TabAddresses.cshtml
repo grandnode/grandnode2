@@ -5,13 +5,13 @@
 @* the grid in a card whose header carries its Add new *@
 <div class="grand-card">
     <div class="grand-card__header">
-        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href='@Url.Action("AddressCreate", new { customerId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.Addresses.AddButton"]</button>
+        <button type="button" class="btn btn-outline-secondary btn-sm" onclick="location.href='@Url.Action("AddressCreate", "CustomerAddress", new { customerId = Model.Id, area = area })'"><i class="bi bi-plus-lg"></i> @Loc["Admin.Customers.Customers.Addresses.AddButton"]</button>
     </div>
     <partial name="Partials/WidgetZone.AddressesTop" model="Model"/>
     <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="customer-addresses-grid"
-                    read-url="@Url.Action("AddressesSelect", "Customer", new { customerId = Model.Id, area = area })"
-                    destroy-url="@Url.Action("AddressDelete", "Customer", new { customerId = Model.Id, area = area })"
+                    read-url="@Url.Action("AddressesSelect", "CustomerAddress", new { customerId = Model.Id, area = area })"
+                    destroy-url="@Url.Action("AddressDelete", "CustomerAddress", new { customerId = Model.Id, area = area })"
                     server-paging="false"
                     auto-bind="false"
                     confirm-destroy="true">
@@ -24,7 +24,7 @@
             <grid-column field="AddressHtml" title="@Loc["Admin.Address"]" encoded="false"/>
             <grid-column field="Id" title="@Loc["Admin.Common.Edit"]" width="100">
                 <cell-template>
-                    <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("AddressEdit", "Customer", new { area = area })?customerId=@Model.Id&addressid={{ Id }}"><span class="bi bi-pencil"></span> {{ $texts.edit }}</a>
+                    <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("AddressEdit", "CustomerAddress", new { area = area })?customerId=@Model.Id&addressid={{ Id }}"><span class="bi bi-pencil"></span> {{ $texts.edit }}</a>
                 </cell-template>
             </grid-column>
             <grid-commands destroy="true" title="@Loc["Admin.Common.Delete"]" width="100"/>

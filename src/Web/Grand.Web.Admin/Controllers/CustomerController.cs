@@ -15,14 +15,8 @@ public class CustomerController(
     Grand.Business.Core.Interfaces.Customers.ICustomerService customerService,
     Grand.Web.AdminShared.Interfaces.ICustomerViewModelService customerViewModelService,
     Grand.Business.Core.Interfaces.Customers.ICustomerManagerService customerManagerService,
-    Grand.Business.Core.Interfaces.Marketing.Customers.ICustomerProductService customerProductService,
-    Grand.Business.Core.Interfaces.Catalog.Products.IProductReviewService productReviewService,
-    Grand.Web.AdminShared.Interfaces.IProductReviewViewModelService productReviewViewModelService,
-    Grand.Web.AdminShared.Interfaces.IProductViewModelService productViewModelService,
     Grand.Business.Core.Interfaces.Customers.ICustomerAttributeParser customerAttributeParser,
     Grand.Business.Core.Interfaces.Customers.ICustomerAttributeService customerAttributeService,
-    Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser addressAttributeParser,
-    Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService addressAttributeService,
     Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService customerMessageProviderService,
     Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService,
     Grand.Web.Common.Localization.IRequestTranslationService translationService,
@@ -32,7 +26,5 @@ public class CustomerController(
     IRequestPermissionService permissionService,
     Grand.Business.Core.Interfaces.ExportImport.IExportManager<Grand.Domain.Customers.Customer> exportManager)
     : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
-        customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
-        customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-        customerMessageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
-        permissionService, exportManager);
+        customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
+        translationService, contextAccessor, customerSettings, scope, permissionService, exportManager);

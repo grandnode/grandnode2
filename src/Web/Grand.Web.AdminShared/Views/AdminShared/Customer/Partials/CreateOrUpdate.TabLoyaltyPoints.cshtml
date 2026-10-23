@@ -9,7 +9,7 @@
     <partial name="Partials/WidgetZone.LoyaltyPointsTop" model="Model"/>
     <div class="grand-card__body grand-card__body--flush">
         <admin-grid id="customer-loyaltypoints-grid"
-                    read-url="@Url.Action("LoyaltyPointsHistorySelect", "Customer", new { customerId = Model.Id, area = area })"
+                    read-url="@Url.Action("LoyaltyPointsHistorySelect", "CustomerLoyaltyPoints", new { customerId = Model.Id, area = area })"
                     pager="Compact"
                     auto-bind="false">
             @if (area == "Admin" && !adminAreaSettings.HideStoreColumn)
@@ -67,7 +67,7 @@
                 $.ajax({
                     cache:false,
                     type: "POST",
-                    url: "@(Url.Action("LoyaltyPointsHistoryAdd", "Customer", new { area = area }))",
+                    url: "@(Url.Action("LoyaltyPointsHistoryAdd", "CustomerLoyaltyPoints", new { area = area }))",
                     data: postData,
                     success: function (data) {
                         var grid = GrandAdmin.grids.get("#customer-loyaltypoints-grid");

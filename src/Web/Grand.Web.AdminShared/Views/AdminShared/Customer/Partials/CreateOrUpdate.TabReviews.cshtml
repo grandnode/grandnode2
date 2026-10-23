@@ -5,8 +5,8 @@
         <partial name="Partials/WidgetZone.ReviewsTop" model="Model"/>
         <div class="grand-card__body grand-card__body--flush">
             <admin-grid id="review-grid"
-                        read-url="@Url.Action("ReviewList", "Customer", new { customerId = Model.Id, area = area })"
-                        destroy-url="@Url.Action("ReviewDelete", "Customer", new { area = area })"
+                        read-url="@Url.Action("ReviewList", "CustomerReview", new { customerId = Model.Id, area = area })"
+                        destroy-url="@Url.Action("ReviewDelete", "CustomerReview", new { area = area })"
                         auto-bind="false">
                 <grid-column field="ProductName" title="@Loc["Admin.Customers.Customers.Reviews.Product"]" width="90">
                     <cell-template>

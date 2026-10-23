@@ -1,11 +1,8 @@
 #nullable enable
 
 using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Catalog;
@@ -13,11 +10,8 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
-using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
-using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Models;
@@ -27,47 +21,30 @@ using Grand.Web.Common.Localization;
 
 namespace Grand.Web.AdminShared.Controllers;
 
-[PermissionAuthorize(PermissionSystemName.Customers)]
-[AutoValidateAntiforgeryToken]
+/// <summary>
+///     The customer list, the customer form and the actions on its Info tab. Every other edit tab has
+///     its own controller (BaseCustomerAddressController, BaseCustomerOrderController, ...).
+/// </summary>
 public abstract class BaseCustomerController(
     ICustomerService customerService,
     ICustomerViewModelService customerViewModelService,
     ICustomerManagerService customerManagerService,
-    ICustomerProductService customerProductService,
-    IProductReviewService productReviewService,
-    IProductReviewViewModelService productReviewViewModelService,
-    IProductViewModelService productViewModelService,
     ICustomerAttributeParser customerAttributeParser,
     ICustomerAttributeService customerAttributeService,
-    IAddressAttributeParser addressAttributeParser,
-    IAddressAttributeService addressAttributeService,
     ICustomerMessageProviderService customerMessageProviderService,
     IGroupService groupService,
     IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     CustomerSettings customerSettings,
     IAdminDataScope<Customer> scope)
-    : BaseController
+    : BaseCustomerScopedController(customerService, scope)
 {
     // Exposed for BaseCustomerManagementController (primary-constructor parameters aren't visible
     // to derived classes by name in C#).
-    protected ICustomerService CustomerService => customerService;
     protected ICustomerViewModelService CustomerViewModelService => customerViewModelService;
-    protected ICustomerManagerService CustomerManagerService => customerManagerService;
-    protected ICustomerProductService CustomerProductService => customerProductService;
-    protected IProductReviewService ProductReviewService => productReviewService;
-    protected IProductReviewViewModelService ProductReviewViewModelService => productReviewViewModelService;
-    protected IProductViewModelService ProductViewModelService => productViewModelService;
-    protected ICustomerAttributeParser CustomerAttributeParser => customerAttributeParser;
-    protected ICustomerAttributeService CustomerAttributeService => customerAttributeService;
-    protected IAddressAttributeParser AddressAttributeParser => addressAttributeParser;
-    protected IAddressAttributeService AddressAttributeService => addressAttributeService;
-    protected ICustomerMessageProviderService CustomerMessageProviderService => customerMessageProviderService;
     protected IGroupService GroupService => groupService;
     protected IRequestTranslationService TranslationService => translationService;
     protected IContextAccessor ContextAccessor => contextAccessor;
-    protected CustomerSettings CustomerSettings => customerSettings;
-    protected IAdminDataScope<Customer> Scope => scope;
 
     /// <summary>Store-only: forces StoreId/blanks Owner/VendorId/StaffStoreId/SeId/CustomerGroups
     /// on the posted model, ported from Store's original ApplyStoreConstraints. No-op for Admin
@@ -76,7 +53,7 @@ public abstract class BaseCustomerController(
 
     private void ClearAvailableStoresForStoreScope(CustomerModel model)
     {
-        if (scope.DefaultStoreId is not null)
+        if (Scope.DefaultStoreId is not null)
             model.AvailableStores.Clear();
     }
 
@@ -165,7 +142,7 @@ public abstract class BaseCustomerController(
     {
         var groupIds = searchCustomerGroupIds;
         string[]? tagIds = searchCustomerTagIds;
-        if (scope.DefaultStoreId is not null)
+        if (Scope.DefaultStoreId is not null)
         {
             // Store panel always restricts to the Registered group regardless of what was
             // submitted — ports Store's original hardcoded registered-only CustomerList.
@@ -175,7 +152,7 @@ public abstract class BaseCustomerController(
         }
 
         var (customerModelList, totalCount) = await customerViewModelService.PrepareCustomerList(model,
-            groupIds, tagIds, command.Page, command.PageSize, scope.DefaultStoreId ?? "");
+            groupIds, tagIds, command.Page, command.PageSize, Scope.DefaultStoreId ?? "");
         var gridModel = new DataSourceResult {
             Data = customerModelList.ToList(),
             Total = totalCount
@@ -230,17 +207,6 @@ public abstract class BaseCustomerController(
     }
 
     #endregion
-
-    /// <summary>DRY replacement for the repeated "load customer, redirect to List if not found or
-    /// not authorized" pattern in both original controllers — every action in both files redirects
-    /// to "List", never "Edit", on either condition.</summary>
-    protected async Task<(Customer? customer, IActionResult? denied)> LoadAuthorizedCustomer(string id)
-    {
-        var customer = await customerService.GetCustomerById(id);
-        if (customer == null) return (null, RedirectToAction("List"));
-        if (!await scope.HasAccess(customer)) return (null, RedirectToAction("List"));
-        return (customer, null);
-    }
 
     #region Edit / Delete
 
@@ -343,7 +309,7 @@ public abstract class BaseCustomerController(
         var (customer, denied) = await LoadAuthorizedCustomer(id);
         if (customer is null) return denied!;
 
-        await customerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
+        await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
             (int)Grand.Domain.Tax.VatNumberStatus.Valid);
         return RedirectToAction("Edit", new { id = customer.Id });
     }
@@ -355,7 +321,7 @@ public abstract class BaseCustomerController(
         var (customer, denied) = await LoadAuthorizedCustomer(id);
         if (customer is null) return denied!;
 
-        await customerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
+        await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
             (int)Grand.Domain.Tax.VatNumberStatus.Invalid);
         return RedirectToAction("Edit", new { id = customer.Id });
     }
@@ -380,7 +346,7 @@ public abstract class BaseCustomerController(
         var (customer, denied) = await LoadAuthorizedCustomer(id);
         if (customer is null) return denied!;
 
-        await customerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken,
+        await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken,
             Guid.NewGuid().ToString());
         await customerMessageProviderService.SendCustomerEmailValidationMessage(customer,
             contextAccessor.StoreContext.CurrentStore, contextAccessor.WorkContext.WorkingLanguage.Id);
@@ -418,52 +384,7 @@ public abstract class BaseCustomerController(
 
     #endregion
 
-    #region Loyalty points history
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> LoyaltyPointsHistorySelect(string customerId)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) throw new ArgumentException("No customer found with the specified id");
-
-        var model = (await customerViewModelService.PrepareLoyaltyPointsHistoryModel(customerId)).ToList();
-        var gridModel = new DataSourceResult { Data = model, Total = model.Count };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> LoyaltyPointsHistoryAdd(string customerId, string storeId,
-        int addLoyaltyPointsValue, string addLoyaltyPointsMessage)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) return Json(new { Result = false });
-
-        // Store scope always forces its own StaffStoreId, ignoring the caller-supplied storeId —
-        // ports the original controller's `CurrentStoreId` usage. Admin has no store concept here
-        // and keeps using whatever the caller (its own store picker) submitted.
-        var effectiveStoreId = scope.DefaultStoreId ?? storeId;
-
-        await customerViewModelService.InsertLoyaltyPointsHistory(customer, effectiveStoreId,
-            addLoyaltyPointsValue, addLoyaltyPointsMessage);
-        return Json(new { Result = true });
-    }
-
-    #endregion
-
-    #region Addresses
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> AddressesSelect(string customerId, DataSourceRequest command)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
-
-        var addresses = (await customerViewModelService.PrepareAddressModel(customer)).ToList();
-        var gridModel = new DataSourceResult { Data = addresses, Total = addresses.Count };
-        return Json(gridModel);
-    }
+    #region External authentication
 
     /// <summary>
     ///     Removes a link to an external sign-in (e.g. after the person was deleted and created again at the identity
@@ -480,404 +401,6 @@ public abstract class BaseCustomerController(
         if (!await linkService.Remove(customer, id))
             return ErrorForKendoGridJson("No external sign-in found with the specified id");
         return new JsonResult("");
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> AddressDelete(string id, string customerId)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
-
-        var address = customer.Addresses.FirstOrDefault(a => a.Id == id);
-        if (address == null) return Content("No customer found with the specified id");
-        if (ModelState.IsValid)
-        {
-            await customerViewModelService.DeleteAddress(customer, address);
-            return new JsonResult("");
-        }
-
-        return ErrorForKendoGridJson(ModelState);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> AddressCreate(string customerId)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) return denied!;
-
-        var model = new CustomerAddressModel();
-        await customerViewModelService.PrepareAddressModel(model, null, customer, false);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> AddressCreate(CustomerAddressModel model)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(model.CustomerId);
-        if (customer is null) return denied!;
-
-        if (ModelState.IsValid)
-        {
-            var customAttributes =
-                await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-            var address = await customerViewModelService.InsertAddressModel(customer, model, customAttributes);
-            Success(translationService.GetResource("Admin.Customers.Customers.Addresses.Added"));
-            return RedirectToAction("AddressEdit", new { addressId = address.Id, customerId = model.CustomerId });
-        }
-
-        await customerViewModelService.PrepareAddressModel(model, null, customer, true);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> AddressEdit(string addressId, string customerId)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) return denied!;
-
-        var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
-        if (address == null) return RedirectToAction("Edit", new { id = customer.Id });
-
-        var model = new CustomerAddressModel();
-        await customerViewModelService.PrepareAddressModel(model, address, customer, false);
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> AddressEdit(CustomerAddressModel model)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(model.CustomerId);
-        if (customer is null) return denied!;
-
-        var address = customer.Addresses.FirstOrDefault(x => x.Id == model.Address.Id);
-        if (address == null) return RedirectToAction("Edit", new { id = customer.Id });
-
-        if (ModelState.IsValid)
-        {
-            var customAttributes =
-                await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-            await customerViewModelService.UpdateAddressModel(customer, address, model, customAttributes);
-            Success(translationService.GetResource("Admin.Customers.Customers.Addresses.Updated"));
-            return RedirectToAction("AddressEdit", new { addressId = model.Address.Id, customerId = model.CustomerId });
-        }
-
-        await customerViewModelService.PrepareAddressModel(model, address, customer, true);
-        return View(model);
-    }
-
-    #endregion
-
-    #region Orders
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> OrderList(string customerId, DataSourceRequest command,
-        [FromServices] Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService orderService,
-        [FromServices] Grand.Web.AdminShared.Interfaces.IOrderViewModelService orderViewModelService,
-        [FromServices] IRequestPermissionService permissionService)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
-        }
-        else if (!await permissionService.Authorize(StandardPermission.ManageOrders))
-        {
-            return Json(new DataSourceResult { Data = null, Total = 0 });
-        }
-
-        var model = new Grand.Web.AdminShared.Models.Orders.OrderListModel {
-            CustomerId = customerId, StoreId = scope.DefaultStoreId ?? ""
-        };
-        var (orderModels, totalCount) = await orderViewModelService.PrepareOrderModel(model, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult { Data = orderModels.ToList(), Total = totalCount };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> OrderDetails(string orderId,
-        [FromServices] Grand.Business.Core.Interfaces.Checkout.Orders.IOrderService orderService,
-        [FromServices] Grand.Web.AdminShared.Interfaces.IOrderViewModelService orderViewModelService,
-        [FromServices] IRequestPermissionService permissionService)
-    {
-        Grand.Domain.Orders.Order order;
-        if (scope.DefaultStoreId is null)
-        {
-            if (!await permissionService.Authorize(StandardPermission.ManageOrders))
-                return Json(new DataSourceResult { Data = null, Total = 0 });
-
-            order = await orderService.GetOrderById(orderId);
-            if (order == null) throw new ArgumentException("No order found with the specified id");
-        }
-        else
-        {
-            order = await orderService.GetOrderById(orderId);
-            if (order == null || order.StoreId != scope.DefaultStoreId)
-                return Json(new DataSourceResult { Data = null, Total = 0 });
-        }
-
-        var ordermodel = new Grand.Web.AdminShared.Models.Orders.OrderModel();
-        await orderViewModelService.PrepareOrderDetailsModel(ordermodel, order);
-        var gridModel = new DataSourceResult { Data = ordermodel.Items, Total = ordermodel.Items.Count };
-        return Json(gridModel);
-    }
-
-    #endregion
-
-    #region Reviews
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> ReviewList(string customerId, DataSourceRequest command)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
-        }
-
-        var productReviews = await productReviewService.GetAllProductReviews(customerId, null,
-            null, null, "", scope.DefaultStoreId, "", command.Page - 1, command.PageSize);
-        var items = new List<Grand.Web.AdminShared.Models.Catalog.ProductReviewModel>();
-        foreach (var x in productReviews)
-        {
-            var m = new Grand.Web.AdminShared.Models.Catalog.ProductReviewModel();
-            await productViewModelService.PrepareProductReviewModel(m, x, false, true);
-            items.Add(m);
-        }
-
-        var gridModel = new DataSourceResult { Data = items, Total = productReviews.TotalCount };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> ReviewDelete(string id)
-    {
-        var productReview = await productReviewService.GetProductReviewById(id);
-        if (productReview == null) throw new ArgumentException("No review found with the specified id", nameof(id));
-        if (scope.DefaultStoreId is not null && productReview.StoreId != scope.DefaultStoreId)
-            throw new ArgumentException("No review found with the specified id", nameof(id));
-
-        await productReviewViewModelService.DeleteProductReview(productReview);
-        return new JsonResult("");
-    }
-
-    #endregion
-
-    #region Current shopping cart / wishlist
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> GetCartList(string customerId, int cartTypeId)
-    {
-        // Admin's original never checked ownership here at all — preserved exactly, see task note.
-        if (scope.DefaultStoreId is not null)
-        {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
-        }
-
-        var cart = await customerViewModelService.PrepareShoppingCartItemModel(customerId, cartTypeId);
-        var gridModel = new DataSourceResult { Data = cart, Total = cart.Count };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> UpdateCart(string id, string customerId, double? unitPriceValue)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
-
-        var warnings = await customerViewModelService.UpdateCart(customer, id, unitPriceValue);
-        if (warnings.Any()) return ErrorForKendoGridJson(string.Join(",", warnings));
-        return new JsonResult("");
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> DeleteCart(string id, string customerId)
-    {
-        var (customer, denied) = await LoadAuthorizedCustomer(customerId);
-        if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
-
-        await customerViewModelService.DeleteCart(customer, id);
-        return new JsonResult("");
-    }
-
-    #endregion
-
-    /// <summary>Non-redirecting ownership check for actions that soft-deny with an empty JSON
-    /// result instead of a redirect (e.g. UpdateProductPrice/DeleteProductPrice).</summary>
-    protected async Task<bool> HasAccessToCustomer(string customerId)
-    {
-        var customer = await customerService.GetCustomerById(customerId);
-        return customer != null && await scope.HasAccess(customer);
-    }
-
-    #region Customer Product Personalize / Price
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> ProductsPrice(DataSourceRequest command, string customerId)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
-        }
-
-        var (productPriceModels, totalCount) =
-            await customerViewModelService.PrepareProductPriceModel(customerId, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult { Data = productPriceModels.ToList(), Total = totalCount };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> PersonalizedProducts(DataSourceRequest command, string customerId)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
-        }
-
-        var (productModels, totalCount) =
-            await customerViewModelService.PreparePersonalizedProducts(customerId, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult { Data = productModels.ToList(), Total = totalCount };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> ProductAddPopup(string customerId)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return denied;
-        }
-
-        var model = await customerViewModelService.PrepareCustomerModelAddProductModel();
-        return View(model);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> ProductAddPopupList(DataSourceRequest command, CustomerModel.AddProductModel model)
-    {
-        var products = await customerViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult { Data = products.products.ToList(), Total = products.totalCount };
-        return Json(gridModel);
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> ProductAddPopup(string customerId, bool personalized,
-        CustomerModel.AddProductModel model)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Content("");
-        }
-
-        if (model.SelectedProductIds != null)
-            await customerViewModelService.InsertCustomerAddProductModel(customerId, personalized, model);
-        return Content("");
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> UpdateProductPrice(CustomerModel.ProductPriceModel model)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var productPrice = await customerProductService.GetCustomerProductPriceById(model.Id);
-            if (productPrice == null || !await HasAccessToCustomer(productPrice.CustomerId))
-                return new JsonResult("");
-        }
-
-        await customerViewModelService.UpdateProductPrice(model);
-        return new JsonResult("");
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> DeleteProductPrice(string id)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var productPrice = await customerProductService.GetCustomerProductPriceById(id);
-            if (productPrice == null || !await HasAccessToCustomer(productPrice.CustomerId))
-                return new JsonResult("");
-
-            await customerProductService.DeleteCustomerProductPrice(productPrice);
-            return new JsonResult("");
-        }
-
-        await customerViewModelService.DeleteProductPrice(id);
-        return new JsonResult("");
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> UpdatePersonalizedProduct(CustomerModel.ProductModel model)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var customerProduct = await customerProductService.GetCustomerProduct(model.Id);
-            if (customerProduct == null || !await HasAccessToCustomer(customerProduct.CustomerId))
-                return new JsonResult("");
-        }
-
-        await customerViewModelService.UpdatePersonalizedProduct(model);
-        return new JsonResult("");
-    }
-
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    [HttpPost]
-    public async Task<IActionResult> DeletePersonalizedProduct(string id)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var customerProduct = await customerProductService.GetCustomerProduct(id);
-            if (customerProduct == null || !await HasAccessToCustomer(customerProduct.CustomerId))
-                return new JsonResult("");
-
-            await customerProductService.DeleteCustomerProduct(customerProduct);
-            return new JsonResult("");
-        }
-
-        // Admin's original convenience method, preserved for the global-scope branch (still present
-        // on ICustomerViewModelService — no need to fall back to a two-step Get+Delete).
-        await customerViewModelService.DeletePersonalizedProduct(id);
-        return new JsonResult("");
-    }
-
-    #endregion
-
-    #region Out of stock subscriptions
-
-    [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    [HttpPost]
-    public async Task<IActionResult> OutOfStockSubscriptionList(DataSourceRequest command, string customerId)
-    {
-        if (scope.DefaultStoreId is not null)
-        {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
-        }
-
-        var (outOfStockSubscriptionModels, totalCount) =
-            await customerViewModelService.PrepareOutOfStockSubscriptionModel(customerId, command.Page, command.PageSize);
-        var gridModel = new DataSourceResult { Data = outOfStockSubscriptionModels.ToList(), Total = totalCount };
-        return Json(gridModel);
     }
 
     #endregion
