@@ -1,5 +1,4 @@
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Plugins;
 
 namespace Grand.Business.Authentication.Services;
 
@@ -9,17 +8,12 @@ namespace Grand.Business.Authentication.Services;
 /// </summary>
 public static class OidcSignInModeCheck
 {
-    public static string Problem(OidcLoginConfig config, OidcResourceServerConfig resourceServer,
-        IEnumerable<PluginInfo> plugins)
+    public static string Problem(OidcLoginConfig config, OidcResourceServerConfig resourceServer)
     {
         if (config is not { ProviderOnly: true })
             return null;
         if (!config.IsConfigured(resourceServer))
             return "OidcResourceServer:Authority or OidcLogin:ClientId is empty";
-        if (plugins?.Any(x => x.Installed &&
-                              string.Equals(x.SystemName, OidcCustomerResolver.ProviderSystemName,
-                                  StringComparison.OrdinalIgnoreCase)) != true)
-            return "the OpenID Connect login plugin is not installed";
         return null;
     }
 }

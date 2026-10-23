@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Plugins;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
@@ -32,7 +31,7 @@ public class StartupApplication : IStartupApplication
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
         var problem = OidcSignInModeCheck.Problem(application.Services.GetService<OidcLoginConfig>(),
-            application.Services.GetService<OidcResourceServerConfig>(), PluginManager.ReferencedPlugins);
+            application.Services.GetService<OidcResourceServerConfig>());
         if (problem != null)
             application.Services.GetRequiredService<ILogger<OidcSsoSignInPolicy>>().LogError(
                 "ProviderOnly sign-in mode without a working OpenID Connect login ({Problem}): only break-glass accounts can sign in",

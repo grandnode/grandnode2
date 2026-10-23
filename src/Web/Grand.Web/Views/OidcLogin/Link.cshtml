@@ -1,0 +1,11 @@
+@model Grand.Web.Models.Customer.OidcLinkModel
+@{
+    Layout = "_SingleColumn";
+}
+<div class="page oidc-link-page">
+    <div class="page-title"><h1>@Loc["Account.Oidc.Link.Title"]</h1></div>
+    <div class="page-body">
+        <p>@string.Format(Loc["Account.Oidc.Link.Text"], Model.Email)</p>
+        <a href="@Model.LoginUrl" class="btn btn-primary">@Loc["Account.Oidc.Link.SignIn"]</a>
+    </div>
+</div>

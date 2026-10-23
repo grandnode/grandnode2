@@ -66,4 +66,67 @@
 	<Resource Name="Account.AssociatedExternalAuth.RegistrationDisabled" Area="Front">
 		<Value>Registration of new customers is disabled, so this external account cannot be used to create one.</Value>
 	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.Authority" Area="Admin">
+		<Value>Identity provider (Authority)</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientId" Area="Admin">
+		<Value>Client ID</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret" Area="Admin">
+		<Value>Client secret</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret.Set" Area="Admin">
+		<Value>set</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.ClientSecret.NotSet" Area="Admin">
+		<Value>not set</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.Description" Area="Admin">
+		<Value>&lt;p&gt;The identity provider and the client are configured in the application settings file (appsettings), not here: section &lt;code&gt;OidcResourceServer&lt;/code&gt; holds the identity provider (Authority), section &lt;code&gt;OidcLogin&lt;/code&gt; holds the client of this store (ClientId, ClientSecret, Scopes).&lt;/p&gt;&lt;p&gt;Register this redirect URI at the identity provider for every URL of the store: &lt;code&gt;https://&amp;lt;store-url&amp;gt;/signin-oidc&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;Restart the application after changing the settings. Staff accounts connect once with their password; use the multi-factor authentication of the identity provider for them.&lt;/p&gt;&lt;p&gt;The order of the button is set by &lt;code&gt;OidcLogin:DisplayOrder&lt;/code&gt;.&lt;/p&gt;</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Login" Area="Front">
+		<Value>Sign in with your organization account</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Link.Title" Area="Front">
+		<Value>Connect your account</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Link.Text" Area="Front">
+		<Value>An account with the e-mail {0} already exists in this store. Sign in once with its password to connect it; next time the button is enough.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Link.SignIn" Area="Front">
+		<Value>Sign in with password</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Link.Mismatch" Area="Front">
+		<Value>You are signed in with a different e-mail address than the one from your identity provider. Nothing was connected.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.Title" Area="Front">
+		<Value>Sign-in failed</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.Generic" Area="Front">
+		<Value>Signing in with the identity provider did not succeed. Try again or use another sign-in method.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.AccountInactive" Area="Front">
+		<Value>Your account is not active yet. Use the activation link from the e-mail or wait for approval.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.RegistrationDisabled" Area="Front">
+		<Value>New accounts cannot be registered in this store.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.LinkedToOtherIdentity" Area="Front">
+		<Value>This account is already connected to another identity provider account.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.IdentityLinkedToOtherAccount" Area="Front">
+		<Value>Your identity provider account is already connected to another account in this store. Nothing was connected.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.SignedInAsOtherAccount" Area="Front">
+		<Value>You are already signed in with another account. Sign out first, then sign in with your identity provider.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.SessionUnavailable" Area="Front">
+		<Value>Signing in with the identity provider is not set up completely. Use another sign-in method, or ask the administrator.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.EmailNotVerified" Area="Front">
+		<Value>Your identity provider has not verified your e-mail address. Verify it there, then sign in again.</Value>
+	</Resource>
+	<Resource Name="Account.Oidc.Failed.ProviderChanged" Area="Front">
+		<Value>Signing in with the identity provider is paused while the administrator updates the store's connection to it. Try again later.</Value>
+	</Resource>
 </Language>

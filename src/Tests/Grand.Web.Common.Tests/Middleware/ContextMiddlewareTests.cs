@@ -64,7 +64,7 @@ public class ContextMiddlewareTests
         _workContextSetter.Verify(x => x.InitializeWorkContext("store1"), Times.Once);
     }
 
-    //a server-to-server endpoint (for example the back-channel logout of the login plugin) creates no guest
+    //a server-to-server endpoint (for example the OpenID Connect back-channel logout) creates no guest
     [TestMethod]
     public async Task NoRequestContextMetadata_NoStoreOrWorkContext()
     {

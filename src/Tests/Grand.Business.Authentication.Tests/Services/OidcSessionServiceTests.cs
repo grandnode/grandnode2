@@ -480,7 +480,7 @@ public class OidcSessionServiceTests
         Assert.IsNull(Stored(session.Id).EndedUtc);
     }
 
-    //the login plugin was uninstalled: every session ends at the next check
+    //the OpenID Connect sign-in is no longer configured: every session ends at the next check
     [TestMethod]
     public async Task NoRefresher_CountsAsRefused()
     {

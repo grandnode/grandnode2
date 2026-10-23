@@ -16,8 +16,8 @@ identity provider and never issues tokens, registers clients or shows a consent 
   a `WWW-Authenticate` header with `resource_metadata`.
 * Off by default (`OidcResourceServer:Enabled = false`): no scheme, no metadata endpoints, no behavior change.
 * One identity provider at a time. Not covered here: opaque tokens (see [Introspection](#8-introspection)) and
-  login to the admin panels. Browser sign-in of storefront users is a separate plugin
-  ([section 11](#11-browser-sign-in-openid-connect-login-plugin)).
+  login to the admin panels. Browser sign-in of storefront users is a separate, built-in
+  part ([section 11](#11-browser-sign-in-openid-connect)).
 
 Accepted signing algorithms: RS256/384/512, PS256/384/512, ES256/384/512. Tokens signed with HS\*, or with `alg: none`,
 are refused by the OpenID Connect scheme.
@@ -137,7 +137,7 @@ customer in this order.
      authentication** (enabled for the customer and in the store) are **never** linked by e-mail, verified or not
      (403 without a link). A provider where someone can mark an address as verified without owning it (an
      administrator of another organization or realm creating a user) must not be enough to take over such an account.
-     They are connected once with the account's password: through the browser sign-in plugin (section 11), which asks
+     They are connected once with the account's password: through browser sign-in (section 11), which asks
      for the store password and two-factor code; their tokens then use that link.
    * Ordinary customers are linked by a verified e-mail. With `RequireEmailVerified = false` they are linked by an
      unverified one too: only for providers that never send `email_verified` and do not let users choose an address.
@@ -180,8 +180,8 @@ A token alone grants no rights. To let a user call the API:
 The customer must be **linked** to the provider identity, and a link made by e-mail does not serve an account with
 admin panel access, a vendor or a staff store (section 3.1). Either:
 
-* connect the account once with the browser sign-in plugin (section 11), which asks for its password; or
-* without that plugin, let the token register the account (`AutoRegister = true`, section 3.2) and grant the access
+* connect the account once with browser sign-in (section 11), which asks for its password; or
+* without browser sign-in, let the token register the account (`AutoRegister = true`, section 3.2) and grant the access
   to that account: a link made by the registration is not a link made by e-mail.
 
 Granting back-office access to a customer linked by e-mail stops its tokens (403) until the account is connected with
@@ -218,7 +218,7 @@ on unless every endpoint the resource covers scopes its data.
 panels, within the panel's scope). Deleting the OpenID Connect row removes the link and ends the customer's sessions
 started at the provider; the next provider sign-in connects the account again by the rules above. Use it when a person
 was deleted and created again at the provider ("already connected to another identity provider account"). The row is
-listed even when only the resource server is used, without the sign-in plugin. Removing a link does not bring back
+listed even when only the resource server is used, without browser sign-in. Removing a link does not bring back
 tokens refused by a back-channel logout: revocations are kept apart from the links.
 
 **Changing `Authority`.** The store records the provider the links were made with (`OidcLinkSettings`; trailing slash
@@ -552,11 +552,11 @@ Ports are published on `127.0.0.1` only.
 Use the URLs above as `Authority` (`http://localhost:8080/realms/<realm>` for Keycloak, `http://localhost:8081` for
 Zitadel) with `RequireHttpsMetadata: false` in Development.
 
-## 11. Browser sign-in (OpenID Connect login plugin)
+## 11. Browser sign-in (OpenID Connect)
 
-The plugin `Authentication.OpenIdConnect` (system name `ExternalAuth.OpenIdConnect`) lets customers and staff sign in
+Browser sign-in (authentication method `ExternalAuth.OpenIdConnect`, built into GrandNode) lets customers and staff sign in
 to the storefront with the same provider that issues the API tokens. It is separate from the resource server: the
-resource server validates access tokens, the plugin runs the browser flow (authorization code with PKCE) and gives the
+resource server validates access tokens, browser sign-in runs the browser flow (authorization code with PKCE) and gives the
 visitor a normal GrandNode session. The provider proves who the user is; the customer's **groups and permissions in
 GrandNode** still decide what the user may do.
 
@@ -564,7 +564,7 @@ GrandNode** still decide what the user may do.
 
 * A **sign-in button** next to the other external authentication methods.
 * The provider and its claim names are the ones of `OidcResourceServer` (`Authority`, `RequireHttpsMetadata`,
-  `Claims:*`). The plugin adds one client of its own (section 11.3). `RequireEmailVerified` applies to API tokens
+  `Claims:*`). Browser sign-in adds one client of its own (section 11.3). `RequireEmailVerified` applies to API tokens
   only; browser sign-in links an account automatically only when the provider reports the e-mail as verified,
   whatever that setting says.
 * The link between the provider's `sub` and the customer is stored in the same place as for API tokens (provider name
@@ -612,13 +612,11 @@ Notes:
 
 ### 11.3 Configuration
 
-1. Build the plugin and install it in the admin panel (*Configuration > Plugins*). The plugin output contains only its
-   own assembly and `Microsoft.AspNetCore.Authentication.OpenIdConnect.dll`; it uses the `Microsoft.IdentityModel.*`
-   assemblies of the application.
-2. Enable it in *Configuration > External authentication*. The display order of the button is set on the plugin's
-   configuration page.
-3. Configure the provider (section 11.4 or 11.5) and add the `OidcLogin` section. The secret goes into an environment
-   variable, never into the database or the admin panel.
+1. Configure the provider (section 11.4 or 11.5) and add the `OidcLogin` section. The secret goes into an environment
+   variable, never into the database or the admin panel. Restart the application: the sign-in method exists only
+   while `OidcResourceServer:Authority` and `OidcLogin:ClientId` are set.
+2. Enable it in *Configuration > External authentication*. The same page shows the provider and the client
+   (read-only, the secret only as set or not set).
 
 Section `OidcLogin` of `appsettings.json`:
 
@@ -627,6 +625,7 @@ Section `OidcLogin` of `appsettings.json`:
 | `ClientId` | empty | Client id of the **confidential** client created for browser sign-in. |
 | `ClientSecret` | empty | Its secret. Prefer the environment variable `OidcLogin__ClientSecret`. |
 | `Scopes` | `openid profile email offline_access` | Space separated scopes requested at the provider. `openid` and `email` are needed. `offline_access` makes the provider issue a refresh token that outlives its ordinary session; every session needs that token (section 12.2). |
+| `DisplayOrder` | `0` | Order of the button among the external authentication methods. |
 
 The section has more keys for back-office sessions, sign-out and the sign-in policy; they are described in
 [section 12](#12-sessions-sign-out-and-back-office-policy).
@@ -644,11 +643,11 @@ The section has more keys for back-office sessions, sign-out and the sign-in pol
 ```
 
 `Authority`, `RequireHttpsMetadata` and the claim names come from `OidcResourceServer`. `OidcResourceServer:Enabled`
-does not have to be on for browser sign-in; the plugin only reads `Authority` and the other values above. It does not
+does not have to be on for browser sign-in; browser sign-in only reads `Authority` and the other values above. It does not
 read `RequireEmailVerified`: automatic linking always needs an e-mail the provider reports as verified.
 
-**Not configured.** When `Authority` or `ClientId` is empty the plugin registers no sign-in scheme and the button leads
-to the failure page; it never causes an error page.
+**Not configured.** When `Authority` or `ClientId` is empty no sign-in scheme and no authentication method are registered (the method
+is not listed in *External authentication*), and `/oidc/login` leads to the failure page; it never causes an error page.
 
 Handler settings (fixed): authorization code flow with PKCE (S256), response mode `query`, `sub`, e-mail,
 `email_verified`, `given_name` and `family_name` are also read from the **user info endpoint**, provider tokens are not
@@ -681,18 +680,18 @@ Use the realm of section 6. Create a **separate** client; do not reuse the publi
 Use the project of section 7. Create a **separate** application for the browser flow.
 
 1. In the project add an application of type **Web** with authentication method **Code** (authorization code with a
-   client secret). PKCE is sent by the plugin. Copy the client id and the generated client secret
+   client secret). PKCE is sent by GrandNode. Copy the client id and the generated client secret
    (`OidcLogin__ClientSecret`; the secret is shown once). In the grant types of the application also tick
    **Refresh Token** (needed for every session, section 12.4).
 2. Redirect URIs: `https://<store-url>/signin-oidc` (an `http` redirect needs *Development Mode*). Post logout URIs
    are used only in `ProviderOnly` mode (section 13.7); otherwise logout is local.
-3. The plugin reads the claims from the ID token or, when they are absent there, from the user info endpoint (the
+3. GrandNode reads the claims from the ID token or, when they are absent there, from the user info endpoint (the
    handler merges both); Zitadel answers the user info endpoint for the scope `email`. To have the ID token carry the
    user information as well, enable the application's option to put user information into the ID token (token
    settings of the application). The default scopes `openid profile email offline_access` are sufficient; Zitadel issues a refresh token only for
    `offline_access`.
 4. **The Actions v2 target of section 7 is not required for browser sign-in.** It runs on `preaccesstoken`, that is for
-   access tokens only, and the plugin does not use the access token. Verify this on your instance: after a test
+   access tokens only, and browser sign-in does not use the access token. Verify this on your instance: after a test
    sign-in with a verified e-mail the application log must not contain "OpenID Connect sign-in without a subject or an
    e-mail". If it does, enable the ID token option of step 3 and check that the user's e-mail is marked verified in
    Zitadel (an unverified e-mail is sent with `email_verified = false`).
@@ -727,7 +726,7 @@ Use the project of section 7. Create a **separate** application for the browser 
 
 | Symptom | Check |
 |---|---|
-| The button is not shown | `OidcResourceServer:Authority` and `OidcLogin:ClientId` set? The plugin installed and enabled in *External authentication*? The application restarted after the install or a settings change? Without both settings, or before the restart, no sign-in scheme exists and the button is hidden. |
+| The button is not shown | `OidcResourceServer:Authority` and `OidcLogin:ClientId` set? The method enabled in *External authentication*? The application restarted after a settings change? Without both settings, or before the restart, no sign-in scheme exists and the button is hidden. |
 | "Sign-in failed" after the provider page | The reason is in the application log (`OpenID Connect sign-in failed`, with the provider's error), never on the page. Common: wrong client secret, the user cancelled at the provider, the state/nonce cookie lost (a proxy, or a host name different from the one that started the flow). |
 | Provider error about the redirect URI | The redirect URI at the provider must equal `https://<store-url>/signin-oidc` exactly: scheme, host, port, no trailing slash. Behind a TLS-terminating proxy GrandNode must see `https` (forwarded headers) or it builds an `http` URI. |
 | Failure caused by token lifetime ("not yet valid", "expired") | Clock skew between the application server and the provider; synchronize the clocks (NTP). |
@@ -750,7 +749,7 @@ Back-Channel Logout 1.0).
 | The provider sends a back-channel logout (the user signs out at the provider, or an administrator ends the provider session) | The GrandNode sessions of that provider session (or of that user, when the logout names no session) end **at once**, for every kind of account. Access tokens of that user issued before the logout are refused too (section 12.2). |
 | The user signs out of GrandNode | The session ends at once. The provider session is not touched (section 12.7). |
 | The provider disables or deletes the user | **Every** session started by a provider sign-in, of a customer or of staff, ends at the next revalidation (`RevalidationMinutes`, section 12.2). Providers send no logout for a disabled or deleted user, so GrandNode notices at the next check. When the provider is unreachable, the session lasts until the last successful check is older than twice that interval, then ends. A refused revalidation also refuses the user's older access tokens. To end the sessions **at once**, sign the user out at the provider first (a back-channel logout), then disable the user. |
-| The login plugin is uninstalled (and the application restarted), or `Authority` or `ClientId` is removed from the settings | Every provider session (customers too) ends at the next revalidation: nothing can confirm it any more. The user's access tokens stay valid: the provider refused nothing. Only *deactivating* the authentication method does not end sessions: it hides the button and turns `SsoOnly` off (passwords work again), and existing provider sessions go on being revalidated. |
+| `Authority` or `ClientId` is removed from the settings (and the application restarted) | Every provider session (customers too) ends at the next revalidation: nothing can confirm it any more. The user's access tokens stay valid: the provider refused nothing. Only *deactivating* the authentication method does not end sessions: it hides the button and turns `SsoOnly` off (passwords work again), and existing provider sessions go on being revalidated. |
 | Idle time or total lifetime is exceeded | **Back-office sessions only** (`StaffIdleTimeoutMinutes`, `StaffMaxSessionHours`). Storefront customers are not limited by these settings. |
 
 After a registration through the provider or "Connect your account", the browser passes through the provider once more
@@ -815,7 +814,7 @@ Answers (always `Cache-Control: no-store`):
 | Status | Meaning |
 |---|---|
 | 200 | Sessions ended (also when there was nothing to end). |
-| 400 | JSON `{"error":"invalid_request", ...}`: no or invalid `logout_token`, the form could not be read, or browser sign-in is not configured. |
+| 400 | JSON `{"error":"invalid_request", ...}`: no or invalid `logout_token`, the form could not be read, or browser sign-in is not configured (answered like a refused token, `The logout token was refused`; only the log names the reason). |
 | 503 | The provider's metadata could not be obtained; the provider may retry. |
 | 500 | Ending the sessions failed; the provider may retry, and the same logout token is accepted again. |
 
@@ -851,11 +850,7 @@ Zitadel issues a refresh token only when the client requests the scope `offline_
 ```
 
 Without either, **sign-in through Zitadel is refused for every account**: the visitor sees the failure page "not set up
-completely" and the log has an error that names `offline_access`. The same happens with Keycloak when `offline_access` is not assigned to the client. The failure text is a
-plugin resource that existing installations do not have yet: add the resource
-`Plugins.ExternalAuth.OpenIdConnect.Failed.SessionUnavailable` in *Admin → Languages* (English text: "Signing in with the
-identity provider is not set up completely. Use another sign-in method, or ask the administrator."). Do not
-reinstall the plugin for it: uninstalling deletes its settings and the resources edited in the admin panel.
+completely" and the log has an error that names `offline_access`. The same happens with Keycloak when `offline_access` is not assigned to the client. The failure text is the resource `Account.Oidc.Failed.SessionUnavailable` (*Admin → Languages*).
 
 If the ASP.NET Core Data Protection keys change (a new key ring, a different server without the shared ring), the stored
 refresh tokens cannot be read any more and all provider sessions end at the next revalidation; users sign in again.
@@ -870,7 +865,7 @@ made by e-mail, section 3.1), customers included, signs in only through the prov
   sign-in of the Frontend API;
 * no password recovery e-mail is sent to it (a new password would be of no use), and a recovery link sent before reads
   as a wrong link;
-* the policy applies only while the login plugin is installed, enabled and configured (`Authority` and `ClientId`);
+* the policy applies only while browser sign-in is enabled and configured (`Authority` and `ClientId`);
   otherwise passwords work as before.
 
 An account that is **not** connected keeps its password: an account that has not signed in through the provider yet or
@@ -880,7 +875,7 @@ back-office accounts first (section 11.2), then turn the setting on.
 
 ### 12.6 Panel login pages
 
-The login pages of the Admin, Store and Vendor panels show the provider button when the login plugin is configured.
+The login pages of the Admin, Store and Vendor panels show the provider button when browser sign-in is configured and enabled.
 After the provider sign-in the visitor returns to the panel they came from (`/admin`, `/store` or `/vendor`). The account
 rules of section 11.2 and the session limits of section 12.2 apply.
 
@@ -902,7 +897,7 @@ rules of section 11.2 and the session limits of section 12.2 apply.
 |---|---|
 | Users are signed out every N minutes | The revalidation is refused. Check the client secret (`OidcLogin__ClientSecret`), that the user is still enabled at the provider, and that `offline_access` is in `OidcLogin:Scopes`. For back-office users also compare the interval with `StaffIdleTimeoutMinutes` and `StaffMaxSessionHours`. |
 | Sign-in shows "not set up completely" | No refresh token was issued: `offline_access` is missing from `OidcLogin:Scopes`, it is not assigned to the Keycloak client, or the Zitadel application lacks the Refresh Token grant (section 12.4); the error log names it. |
-| Everyone is signed out after the plugin was uninstalled or `Authority`/`ClientId` removed | Expected (section 12.1): no one can confirm the sessions at the provider. Deactivating the authentication method alone does not sign anyone out. |
+| Everyone is signed out after `Authority`/`ClientId` was removed | Expected (section 12.1): no one can confirm the sessions at the provider. Deactivating the authentication method alone does not sign anyone out. |
 | Every provider session ended during a provider outage | The provider was unreachable for longer than twice `RevalidationMinutes` since the last successful check. |
 | Back-channel logout has no effect | The URL must be reachable from the provider (its container or network), with the `https` URL of the store. Look for `Back-channel logout refused: ...` (warning) and the status the provider logs: 400 refused token, 503 metadata, 500 retry. For Keycloak check *Backchannel logout session required*. |
 | The provider reports repeated failures of the logout URL | 503 or 500 are retried by the provider; look for the error entry that precedes them. |
@@ -1002,7 +997,7 @@ username follows the e-mail only when usernames are disabled in the store.
 
 ### 13.6 Misconfiguration
 
-`ProviderOnly` without a working login (plugin not installed, not active for the store, or `Authority` or `ClientId`
+`ProviderOnly` without a working login (not active for the store, or `Authority` or `ClientId`
 empty) never opens password sign-in. At startup, and again (at most once in five minutes) when a sign-in is refused for
 that reason, the log gets an error:
 
@@ -1048,7 +1043,7 @@ step for that: sign in once in the browser first; the access token then uses tha
 
 | Symptom | Check |
 |---|---|
-| Nobody can sign in, the log has the error of section 13.6 | The plugin is installed, enabled in *External authentication* for the store, and `Authority` and `ClientId` are set. Use a break-glass account meanwhile. |
+| Nobody can sign in, the log has the error of section 13.6 | The method is enabled in *External authentication* for the store, and `Authority` and `ClientId` are set. Use a break-glass account meanwhile. |
 | A new user sees the registration form, or "New accounts cannot be registered" | `OidcLogin:AutoProvision` is `false` (section 13.4); set it to `true` to create accounts without the form. |
 | The Admin login page redirects and the password form does not show | Open `/admin/login?password=1` and sign in with an account listed in `BreakGlassAccounts` (the e-mail must match). |
 | Failure page about an unverified e-mail | The provider did not report `email_verified` as true; verify the e-mail at the provider (sections 11.4 and 11.5). |

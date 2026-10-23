@@ -1,0 +1,9 @@
+@{
+    Layout = "";
+}
+<div class="oidc-login-block mb-2">
+    <a href="@Url.RouteUrl("OidcLoginLogin", new { returnUrl = Context.Request.Query["ReturnUrl"].ToString() })"
+       class="btn btn-outline-secondary w-100">
+        <i class="bi bi-person-badge"></i> @Loc["Account.Oidc.Login"]
+    </a>
+</div>
