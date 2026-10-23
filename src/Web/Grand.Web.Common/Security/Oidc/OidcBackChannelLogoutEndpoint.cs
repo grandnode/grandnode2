@@ -23,11 +23,11 @@ public static class OidcBackChannelLogoutEndpoint
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(OidcBackChannelLogoutEndpoint));
 
         //mapped on every installation: without the sign-in nothing of the request is read, and the caller gets the
-        //answer of a refused token; only the log says why
+        //answer of a refused token; only the log says why, at debug level: anyone can post here
         if (await services.GetRequiredService<IAuthenticationSchemeProvider>()
                 .GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null)
         {
-            logger.LogWarning("Back-channel logout refused: OpenID Connect sign-in is not configured");
+            logger.LogDebug("Back-channel logout refused: OpenID Connect sign-in is not configured");
             return Error("The logout token was refused");
         }
 
