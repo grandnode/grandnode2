@@ -1,9 +1,10 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
@@ -500,12 +501,16 @@ public abstract class BaseOrderManagementController(
         Grand.Web.Common.DataSource.DataSourceRequest command, OrderModel.AddOrderProductModel model,
         [FromServices] Grand.Business.Core.Interfaces.Catalog.Products.IProductService productService)
     {
+        var (order, denied) = await LoadAuthorizedOrderForGrid(model.OrderId);
+        if (denied != null) return denied;
+
         var categoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId)) categoryIds.Add(model.SearchCategoryId);
 
+        //only what the order's store sells, the same rule AddProductToOrderDetails applies
         var gridModel = new Grand.Web.Common.DataSource.DataSourceResult();
         var products = (await productService.SearchProducts(
-            access: CatalogAccess.IncludingHidden(Scope.DefaultStoreId), categoryIds: categoryIds,
+            access: CatalogAccess.IncludingHidden(order.StoreId), categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             productType: model.SearchProductTypeId > 0 ? (Grand.Domain.Catalog.ProductType?)model.SearchProductTypeId : null,
@@ -528,7 +533,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
         var product = await LoadProductForOrder(order, productId, productService, aclService);
-        if (product == null) return RedirectToAction("AddProductToOrder", new { orderId });
+        if (product == null) return ProductNotInOrderStore(orderId);
 
         var model = await orderProductViewModelService.PrepareAddProductToOrderModel(order, product);
         return View(model);
@@ -542,7 +547,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
         if (denied != null) return denied;
         var product = await LoadProductForOrder(order, model.ProductId, productService, aclService);
-        if (product == null) return RedirectToAction("AddProductToOrder", new { orderId = model.OrderId });
+        if (product == null) return ProductNotInOrderStore(model.OrderId);
 
         var warnings = await orderProductViewModelService.AddProductToOrderDetails(order, product, model);
         if (!warnings.Any()) return RedirectToAction("Edit", "Order", new { id = model.OrderId });
@@ -553,11 +558,17 @@ public abstract class BaseOrderManagementController(
     }
 
     // A product id put into the URL by hand must not bring in a product the order's store doesn't sell.
-    private static async Task<Grand.Domain.Catalog.Product> LoadProductForOrder(Order order, string productId,
+    private static async Task<Product> LoadProductForOrder(Order order, string productId,
         IProductService productService, IAclService aclService)
     {
         var product = await productService.GetProductById(productId);
         return product != null && aclService.Authorize(product, order.StoreId) ? product : null;
+    }
+
+    private IActionResult ProductNotInOrderStore(string orderId)
+    {
+        Error(TranslationService.GetResource("Admin.Orders.Products.AddNew.NotInOrderStore"));
+        return RedirectToAction("AddProductToOrder", new { orderId });
     }
 
     #endregion
@@ -639,7 +650,12 @@ public abstract class BaseOrderManagementController(
         var order = await OrderService.GetOrderById(orderId);
         if (order == null || !await Scope.HasAccess(order)) return Json(new { Result = false });
 
-        await orderNoteViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
+        if (!await orderNoteViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message))
+            return Json(new {
+                Result = false,
+                Message = TranslationService.GetResource("Admin.Orders.OrderNotes.DownloadNotOfOrder")
+            });
+
         return Json(new { Result = true });
     }
 

@@ -64,6 +64,7 @@
 
     function additionalData() {
         var data = {
+            OrderId: '@Model.OrderId',
             SearchProductName: $('#@Html.IdFor(model => model.SearchProductName)').val(),
             SearchCategoryId: $('#SearchCategoryId').val(),
             SearchBrandId: $('#SearchBrandId').val(),

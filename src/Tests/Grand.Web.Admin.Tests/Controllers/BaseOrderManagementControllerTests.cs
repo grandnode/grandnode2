@@ -1,9 +1,11 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -348,6 +350,58 @@ public class BaseOrderManagementControllerTests
         Assert.IsInstanceOfType<ViewResult>(result);
         aclService.Verify(s => s.Authorize(product, "s1"), Times.Once);
         _orderProductViewModelServiceMock.Verify(v => v.PrepareAddProductToOrderModel(order, product), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderSearch_SearchesTheOrdersStore()
+    {
+        var order = new Order { Id = "o1", StoreId = "s1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        var productService = new Mock<IProductService>();
+        //answers only a search limited to the order's store
+        productService.Setup(s => s.SearchProducts(It.Is<CatalogAccess>(a => a.StoreId == "s1"),
+                It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IList<string>>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ProductType?>(),
+                It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(), It.IsAny<double?>(),
+                It.IsAny<double?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(),
+                It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<IList<string>>(), It.IsAny<IList<string>>(),
+                It.IsAny<ProductSortingEnum>(), It.IsAny<bool?>()))
+            .ReturnsAsync((new PagedList<Product>(new List<Product> { new() { Id = "p1" } }, 0, 10), new List<string>()));
+
+        var result = await _controller.AddProductToOrder(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 },
+            new OrderModel.AddOrderProductModel { OrderId = "o1" }, productService.Object);
+
+        Assert.AreEqual(1, ((result as JsonResult)?.Value as Grand.Web.Common.DataSource.DataSourceResult)?.Total);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderSearch_ScopeDenies_ReturnsGridError()
+    {
+        var order = new Order { Id = "o1", StoreId = "s1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.AddProductToOrder(new Grand.Web.Common.DataSource.DataSourceRequest(),
+            new OrderModel.AddOrderProductModel { OrderId = "o1" }, new Mock<IProductService>().Object);
+
+        Assert.IsNotNull(GridErrors(result));
+    }
+
+    [TestMethod]
+    public async Task OrderNoteAdd_FileRefused_ReturnsResultFalseWithMessage()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _orderNoteViewModelServiceMock.Setup(v => v.InsertOrderNote(order, "d1", false, "msg")).ReturnsAsync(false);
+
+        var result = await _controller.OrderNoteAdd("o1", "d1", false, "msg");
+
+        var value = (result as JsonResult)?.Value;
+        Assert.IsFalse((bool)value!.GetType().GetProperty("Result")!.GetValue(value)!);
+        Assert.AreEqual("resource", value.GetType().GetProperty("Message")!.GetValue(value));
     }
 
     private (IProductService, IAclService) ProductInScope(string productId, bool inScope)

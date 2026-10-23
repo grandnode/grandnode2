@@ -33,22 +33,34 @@ public class OrderNoteViewModelServiceTests
         _downloadService.Setup(s => s.GetDownloadById("d1"))
             .ReturnsAsync(new Download { Id = "d1", DownloadType = DownloadType.Order, ReferenceId = "o1" });
 
-        await _service.InsertOrderNote(_order, "d1", false, "msg");
+        var saved = await _service.InsertOrderNote(_order, "d1", false, "msg");
 
+        Assert.IsTrue(saved);
         _orderService.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.DownloadId == "d1")), Times.Once);
     }
 
     [TestMethod]
     [DataRow(DownloadType.Product, "o1")]
     [DataRow(DownloadType.Order, "o2")]
-    public async Task InsertOrderNote_FileNotOfThisOrder_IsNotAttached(DownloadType type, string referenceId)
+    public async Task InsertOrderNote_FileNotOfThisOrder_IsRefused_NothingSaved(DownloadType type, string referenceId)
     {
         _downloadService.Setup(s => s.GetDownloadById("d1"))
             .ReturnsAsync(new Download { Id = "d1", DownloadType = type, ReferenceId = referenceId });
 
-        await _service.InsertOrderNote(_order, "d1", false, "msg");
+        var saved = await _service.InsertOrderNote(_order, "d1", true, "msg");
 
-        _orderService.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.DownloadId == "")), Times.Once);
+        Assert.IsFalse(saved);
+        _orderService.Verify(s => s.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task InsertOrderNote_WithoutFile_IsSaved()
+    {
+        var saved = await _service.InsertOrderNote(_order, "", false, "msg");
+
+        Assert.IsTrue(saved);
+        _orderService.Verify(s => s.InsertOrderNote(It.Is<OrderNote>(n => n.Note == "msg")), Times.Once);
+        _downloadService.Verify(s => s.GetDownloadById(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]

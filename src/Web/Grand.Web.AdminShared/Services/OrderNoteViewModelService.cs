@@ -41,13 +41,13 @@ public class OrderNoteViewModelService(
         return orderNoteModels;
     }
 
-    public virtual async Task InsertOrderNote(Order order, string downloadId, bool displayToCustomer,
+    public virtual async Task<bool> InsertOrderNote(Order order, string downloadId, bool displayToCustomer,
         string message)
     {
-        //the id comes from the request; a file uploaded for another order is not attached
+        //the id comes from the request; a file uploaded for another order is refused
         if (!string.IsNullOrEmpty(downloadId) &&
             !IsAttachmentOf(await downloadService.GetDownloadById(downloadId), order))
-            downloadId = "";
+            return false;
 
         var orderNote = new OrderNote {
             DisplayToCustomer = displayToCustomer,
@@ -61,6 +61,8 @@ public class OrderNoteViewModelService(
         if (displayToCustomer)
             //email
             await orderMessageProviderService.SendNewOrderNoteAddedCustomerMessage(order, orderNote);
+
+        return true;
     }
 
     public virtual async Task DeleteOrderNote(Order order, string id)
