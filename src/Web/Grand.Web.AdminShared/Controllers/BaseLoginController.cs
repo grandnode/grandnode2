@@ -27,7 +27,7 @@ public abstract class BaseLoginController : BaseController
     private readonly ICustomerService _customerService;
     private readonly CustomerSettings _customerSettings;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
 
@@ -38,7 +38,7 @@ public abstract class BaseLoginController : BaseController
         ICustomerManagerService customerManagerService,
         ICustomerService customerService,
         IGrandAuthenticationService authenticationService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         IContextAccessor contextAccessor,
         IMediator mediator)
     {
@@ -48,7 +48,7 @@ public abstract class BaseLoginController : BaseController
         _customerManagerService = customerManagerService;
         _customerService = customerService;
         _authenticationService = authenticationService;
-        _messageProviderService = messageProviderService;
+        _customerMessageProviderService = customerMessageProviderService;
         _contextAccessor = contextAccessor;
         _mediator = mediator;
     }
@@ -254,7 +254,7 @@ public abstract class BaseLoginController : BaseController
                 _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage,
                 _customerSettings.TwoFactorAuthenticationType);
             if (_customerSettings.TwoFactorAuthenticationType == TwoFactorAuthenticationType.EmailVerification)
-                await _messageProviderService.SendCustomerEmailTokenValidationMessage(customer,
+                await _customerMessageProviderService.SendCustomerEmailTokenValidationMessage(customer,
                     _contextAccessor.StoreContext.CurrentStore, _contextAccessor.WorkContext.WorkingLanguage.Id);
         }
 

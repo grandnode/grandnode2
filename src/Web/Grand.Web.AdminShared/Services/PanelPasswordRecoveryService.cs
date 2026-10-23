@@ -20,7 +20,7 @@ public class PanelPasswordRecoveryService(
     IGroupService groupService,
     IPermissionService permissionService,
     IVendorService vendorService,
-    IMessageProviderService messageProviderService,
+    ICustomerMessageProviderService customerMessageProviderService,
     IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     CustomerSettings customerSettings,
@@ -44,7 +44,7 @@ public class PanelPasswordRecoveryService(
         await customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordRecoveryArea,
             area.ToLowerInvariant());
 
-        await messageProviderService.SendCustomerPasswordRecoveryMessage(customer,
+        await customerMessageProviderService.SendCustomerPasswordRecoveryMessage(customer,
             contextAccessor.StoreContext.CurrentStore, contextAccessor.WorkContext.WorkingLanguage.Id);
     }
 

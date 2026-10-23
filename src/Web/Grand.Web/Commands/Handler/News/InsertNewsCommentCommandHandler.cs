@@ -13,20 +13,20 @@ public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsComment
 {
     private readonly ICustomerService _customerService;
     private readonly LanguageSettings _languageSettings;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICmsMessageProviderService _cmsMessageProviderService;
     private readonly INewsService _newsService;
 
     private readonly NewsSettings _newsSettings;
     private readonly IContextAccessor _contextAccessor;
 
     public InsertNewsCommentCommandHandler(IContextAccessor contextAccessor, INewsService newsService,
-        ICustomerService customerService, IMessageProviderService messageProviderService, NewsSettings newsSettings,
+        ICustomerService customerService, ICmsMessageProviderService cmsMessageProviderService, NewsSettings newsSettings,
         LanguageSettings languageSettings)
     {
         _contextAccessor = contextAccessor;
         _newsService = newsService;
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _cmsMessageProviderService = cmsMessageProviderService;
 
         _newsSettings = newsSettings;
         _languageSettings = languageSettings;
@@ -52,7 +52,7 @@ public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsComment
 
         //notify a store owner;
         if (_newsSettings.NotifyAboutNewNewsComments)
-            await _messageProviderService.SendNewsCommentMessage(request.NewsItem, comment,
+            await _cmsMessageProviderService.SendNewsCommentMessage(request.NewsItem, comment,
                 _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
         return comment;

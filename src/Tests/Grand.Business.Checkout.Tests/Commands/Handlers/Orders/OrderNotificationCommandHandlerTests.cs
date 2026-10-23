@@ -17,15 +17,15 @@ namespace Grand.Business.Checkout.Tests.Commands.Handlers.Orders;
 public class OrderNotificationCommandHandlerTests
 {
     private OrderNotificationCommandHandler _handler;
-    private Mock<IMessageProviderService> _messageProviderServiceMock;
+    private Mock<IOrderMessageProviderService> _orderMessageProviderServiceMock;
     private Mock<IOrderService> _orderServiceMock;
 
     [TestInitialize]
     public void Init()
     {
         _orderServiceMock = new Mock<IOrderService>();
-        _messageProviderServiceMock = new Mock<IMessageProviderService>();
-        _handler = new OrderNotificationCommandHandler(_orderServiceMock.Object, _messageProviderServiceMock.Object,
+        _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
+        _handler = new OrderNotificationCommandHandler(_orderServiceMock.Object, _orderMessageProviderServiceMock.Object,
             new OrderSettings(), new LanguageSettings(), new Mock<IPdfService>().Object,
             new Mock<ILogger<OrderNotificationCommandHandler>>().Object, new Mock<IMediator>().Object);
     }
@@ -57,7 +57,7 @@ public class OrderNotificationCommandHandlerTests
         await _handler.Handle(new OrderNotificationCommand { Order = order, Customer = customer }, CancellationToken.None);
 
         //Assert
-        _messageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(order, customer, "en",
+        _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(order, customer, "en",
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>()), Times.Once);
     }
 }

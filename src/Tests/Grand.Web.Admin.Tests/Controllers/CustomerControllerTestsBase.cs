@@ -47,7 +47,7 @@ public abstract class CustomerControllerTestsBase<TController> where TController
     protected Mock<ICustomerAttributeService> CustomerAttributeServiceMock;
     protected Mock<IAddressAttributeParser> AddressAttributeParserMock;
     protected Mock<IAddressAttributeService> AddressAttributeServiceMock;
-    protected Mock<IMessageProviderService> MessageProviderServiceMock;
+    protected Mock<ICustomerMessageProviderService> CustomerMessageProviderServiceMock;
     protected Mock<IGroupService> GroupServiceMock;
     protected Mock<IRequestTranslationService> TranslationServiceMock;
     protected Mock<IContextAccessor> ContextAccessorMock;
@@ -80,7 +80,7 @@ public abstract class CustomerControllerTestsBase<TController> where TController
         AddressAttributeServiceMock = new Mock<IAddressAttributeService>();
         AddressAttributeServiceMock.Setup(a => a.GetAllAddressAttributes())
             .ReturnsAsync(new List<Grand.Domain.Common.AddressAttribute>());
-        MessageProviderServiceMock = new Mock<IMessageProviderService>();
+        CustomerMessageProviderServiceMock = new Mock<ICustomerMessageProviderService>();
         GroupServiceMock = new Mock<IGroupService>();
         TranslationServiceMock = new Mock<IRequestTranslationService>();
         TranslationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");

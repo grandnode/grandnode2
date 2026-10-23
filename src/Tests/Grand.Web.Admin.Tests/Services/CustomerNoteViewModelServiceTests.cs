@@ -31,7 +31,7 @@ public class CustomerNoteViewModelServiceTests
             _customerNoteServiceMock.Object,
             new Mock<ICustomerService>().Object,
             _downloadServiceMock.Object,
-            new Mock<IMessageProviderService>().Object,
+            new Mock<ICustomerMessageProviderService>().Object,
             new Mock<IDateTimeService>().Object,
             new Mock<IContextAccessor>().Object);
     }

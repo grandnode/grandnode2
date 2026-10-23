@@ -27,7 +27,7 @@ public class MerchandiseReturnViewModelService(
     ICustomerService customerService,
     IDateTimeService dateTimeService,
     IRequestTranslationService translationService,
-    IMessageProviderService messageProviderService,
+    IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
     LanguageSettings languageSettings,
     IMerchandiseReturnService merchandiseReturnService,
     IPriceFormatter priceFormatter,
@@ -197,7 +197,7 @@ public class MerchandiseReturnViewModelService(
     public virtual async Task NotifyCustomer(MerchandiseReturn merchandiseReturn)
     {
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
-        await messageProviderService.SendMerchandiseReturnStatusChangedCustomerMessage(merchandiseReturn, order,
+        await merchandiseReturnMessageProviderService.SendMerchandiseReturnStatusChangedCustomerMessage(merchandiseReturn, order,
             languageSettings.DefaultAdminLanguageId);
     }
 
@@ -309,7 +309,7 @@ public class MerchandiseReturnViewModelService(
         //new merchandise return notification
         if (displayToCustomer)
             //email
-            await messageProviderService.SendNewMerchandiseReturnNoteAddedCustomerMessage(merchandiseReturn,
+            await merchandiseReturnMessageProviderService.SendNewMerchandiseReturnNoteAddedCustomerMessage(merchandiseReturn,
                 merchandiseReturnNote, order);
     }
 

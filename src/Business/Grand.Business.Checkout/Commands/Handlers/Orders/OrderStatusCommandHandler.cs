@@ -13,7 +13,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
     private readonly ICustomerService _customerService;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly OrderSettings _orderSettings;
     private readonly IPdfService _pdfService;
@@ -23,7 +23,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         IOrderService orderService,
         ICustomerService customerService,
         IPdfService pdfService,
-        IMessageProviderService messageProviderService,
+        IOrderMessageProviderService orderMessageProviderService,
         IVendorService vendorService,
         IMediator mediator,
         OrderSettings orderSettings,
@@ -32,7 +32,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         _orderService = orderService;
         _customerService = customerService;
         _pdfService = pdfService;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _vendorService = vendorService;
         _mediator = mediator;
         _orderSettings = orderSettings;
@@ -79,7 +79,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
                 ]
                 : new List<string>();
 
-            await _messageProviderService
+            await _orderMessageProviderService
                 .SendOrderCompletedCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId,
                     orderCompletedAttachmentFilePath,
                     orderCompletedAttachmentFileName, orderCompletedAttachments);
@@ -90,7 +90,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
             && request.NotifyCustomer)
         {
             //notification customer
-            await _messageProviderService.SendOrderCancelledCustomerMessage(request.Order, customer,
+            await _orderMessageProviderService.SendOrderCancelledCustomerMessage(request.Order, customer,
                 request.Order.CustomerLanguageId);
 
             //notification for vendor
@@ -103,7 +103,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         {
             //notification store owner
             var orderCancelledStoreOwnerNotificationQueuedEmailId =
-                await _messageProviderService.SendOrderCancelledStoreOwnerMessage(request.Order, customer,
+                await _orderMessageProviderService.SendOrderCancelledStoreOwnerMessage(request.Order, customer,
                     request.Order.CustomerLanguageId);
             if (orderCancelledStoreOwnerNotificationQueuedEmailId > 0)
                 await _orderService.InsertOrderNote(new OrderNote {
@@ -147,7 +147,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
             if (string.IsNullOrEmpty(orderItem.VendorId)) continue;
             var vendor = await _vendorService.GetVendorById(orderItem.VendorId);
             if (vendor is { Deleted: false, Active: true })
-                await _messageProviderService.SendOrderCancelledVendorMessage(order, vendor, order.CustomerLanguageId);
+                await _orderMessageProviderService.SendOrderCancelledVendorMessage(order, vendor, order.CustomerLanguageId);
         }
     }
 }

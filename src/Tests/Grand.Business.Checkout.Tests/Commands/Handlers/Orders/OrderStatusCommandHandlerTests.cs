@@ -18,7 +18,7 @@ public class OrderStatusCommandHandlerTests
     private OrderStatusCommandHandler _handler;
     private LoyaltyPointsSettings _loyaltyPointsSettings;
     private Mock<IMediator> _mediatorMock;
-    private Mock<IMessageProviderService> _messageProviderServiceMock;
+    private Mock<IOrderMessageProviderService> _orderMessageProviderServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private OrderSettings _orderSettings;
     private Mock<IPdfService> _pdfServiceMock;
@@ -31,13 +31,13 @@ public class OrderStatusCommandHandlerTests
         _orderServiceMock = new Mock<IOrderService>();
         _customerServiceMock = new Mock<ICustomerService>();
         _pdfServiceMock = new Mock<IPdfService>();
-        _messageProviderServiceMock = new Mock<IMessageProviderService>();
+        _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
         _vendorServiceMock = new Mock<IVendorService>();
         _loyaltyPointsSettings = new LoyaltyPointsSettings();
         _orderSettings = new OrderSettings();
 
         _handler = new OrderStatusCommandHandler(_orderServiceMock.Object, _customerServiceMock.Object,
-            _pdfServiceMock.Object, _messageProviderServiceMock.Object, _vendorServiceMock.Object, _mediatorMock.Object,
+            _pdfServiceMock.Object, _orderMessageProviderServiceMock.Object, _vendorServiceMock.Object, _mediatorMock.Object,
             _orderSettings, _loyaltyPointsSettings);
     }
 

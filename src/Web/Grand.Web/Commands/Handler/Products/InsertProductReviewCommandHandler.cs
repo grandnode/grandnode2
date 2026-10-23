@@ -17,20 +17,20 @@ public class InsertProductReviewCommandHandler : IRequestHandler<InsertProductRe
     private readonly ICustomerService _customerService;
     private readonly LanguageSettings _languageSettings;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICatalogMessageProviderService _catalogMessageProviderService;
     private readonly IProductReviewService _productReviewService;
 
     public InsertProductReviewCommandHandler(
         IProductReviewService productReviewService,
         ICustomerService customerService,
-        IMessageProviderService messageProviderService,
+        ICatalogMessageProviderService catalogMessageProviderService,
         IMediator mediator,
         CatalogSettings catalogSettings,
         LanguageSettings languageSettings)
     {
         _productReviewService = productReviewService;
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _catalogMessageProviderService = catalogMessageProviderService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
         _languageSettings = languageSettings;
@@ -75,7 +75,7 @@ public class InsertProductReviewCommandHandler : IRequestHandler<InsertProductRe
 
         //notify store owner
         if (_catalogSettings.NotifyStoreOwnerAboutNewProductReviews)
-            await _messageProviderService.SendProductReviewMessage(request.Product, productReview, request.Store,
+            await _catalogMessageProviderService.SendProductReviewMessage(request.Product, productReview, request.Store,
                 _languageSettings.DefaultAdminLanguageId, host: request.Host);
 
         return productReview;

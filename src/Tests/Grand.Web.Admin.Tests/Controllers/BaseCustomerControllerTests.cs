@@ -20,14 +20,14 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
         Grand.Business.Core.Interfaces.Customers.ICustomerManagerService customerManagerService,
         Grand.Business.Core.Interfaces.Customers.ICustomerAttributeParser customerAttributeParser,
         Grand.Business.Core.Interfaces.Customers.ICustomerAttributeService customerAttributeService,
-        Grand.Business.Core.Interfaces.Messages.IMessageProviderService messageProviderService,
+        Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService customerMessageProviderService,
         Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService,
         Grand.Web.Common.Localization.IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings,
         Grand.Web.AdminShared.Interfaces.IAdminDataScope<Customer> scope)
         : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
-            customerAttributeParser, customerAttributeService, messageProviderService, groupService,
+            customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
             translationService, contextAccessor, customerSettings, scope)
     {
         public Task<(Customer, IActionResult)> LoadAuthorizedCustomerPublic(string id) => LoadAuthorizedCustomer(id);
@@ -39,7 +39,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
         CustomerManagerServiceMock.Object,
         CustomerAttributeParserMock.Object,
         CustomerAttributeServiceMock.Object,
-        MessageProviderServiceMock.Object,
+        CustomerMessageProviderServiceMock.Object,
         GroupServiceMock.Object,
         TranslationServiceMock.Object,
         ContextAccessorMock.Object,

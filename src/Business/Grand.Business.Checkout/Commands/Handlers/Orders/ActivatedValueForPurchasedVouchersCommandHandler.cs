@@ -13,16 +13,16 @@ public class
 {
     private readonly IGiftVoucherService _giftVoucherService;
     private readonly ILanguageService _languageService;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
 
     public ActivatedValueForPurchasedGiftVouchersCommandHandler(
         IGiftVoucherService giftVoucherService,
         ILanguageService languageService,
-        IMessageProviderService messageProviderService)
+        IOrderMessageProviderService orderMessageProviderService)
     {
         _giftVoucherService = giftVoucherService;
         _languageService = languageService;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
     }
 
     public async Task<bool> Handle(ActivatedValueForPurchasedGiftVouchersCommand request,
@@ -48,7 +48,7 @@ public class
                                 (await _languageService.GetAllLanguages()).FirstOrDefault();
                             if (customerLang == null)
                                 throw new Exception("No languages could be loaded");
-                            _ = await _messageProviderService.SendGiftVoucherMessage(gc, request.Order,
+                            _ = await _orderMessageProviderService.SendGiftVoucherMessage(gc, request.Order,
                                 customerLang.Id);
                             gc.IsRecipientNotified = true;
                         }

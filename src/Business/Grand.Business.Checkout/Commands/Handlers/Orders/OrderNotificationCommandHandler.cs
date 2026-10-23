@@ -13,7 +13,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 public class OrderNotificationCommandHandler : IRequestHandler<OrderNotificationCommand>
 {
     private readonly IOrderService _orderService;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly OrderSettings _orderSettings;
     private readonly LanguageSettings _languageSettings;
     private readonly IPdfService _pdfService;
@@ -22,7 +22,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
 
     public OrderNotificationCommandHandler(
         IOrderService orderService,
-        IMessageProviderService messageProviderService,
+        IOrderMessageProviderService orderMessageProviderService,
         OrderSettings orderSettings,
         LanguageSettings languageSettings,
         IPdfService pdfService,
@@ -30,7 +30,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
         IMediator mediator)
     {
         _orderService = orderService;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _orderSettings = orderSettings;
         _languageSettings = languageSettings;
         _pdfService = pdfService;
@@ -59,7 +59,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                 });
 
             //send email notifications
-            await _messageProviderService.SendOrderPlacedStoreOwnerMessage(request.Order, request.Customer,
+            await _orderMessageProviderService.SendOrderPlacedStoreOwnerMessage(request.Order, request.Customer,
                 _languageSettings.DefaultAdminLanguageId, request.Host);
 
             string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
@@ -87,7 +87,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                 _logger.LogError(ex, "Error - order placed attachment file {OrderOrderNumber}", request.Order.OrderNumber);
             }
 
-            await _messageProviderService.SendOrderPlacedCustomerMessage(request.Order, request.Customer,
+            await _orderMessageProviderService.SendOrderPlacedCustomerMessage(request.Order, request.Customer,
                 request.Order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName,
                 orderPlacedAttachments, request.Host);
 
@@ -95,7 +95,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
             {
                 var vendors = await _mediator.Send(new GetVendorsInOrderQuery { Order = request.Order });
                 foreach (var vendor in vendors)
-                    await _messageProviderService.SendOrderPlacedVendorMessage(request.Order, request.Customer, vendor,
+                    await _orderMessageProviderService.SendOrderPlacedVendorMessage(request.Order, request.Customer, vendor,
                         _languageSettings.DefaultAdminLanguageId, request.Host);
             }
         }

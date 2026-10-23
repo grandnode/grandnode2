@@ -12,13 +12,13 @@ namespace Grand.Modules.Tests.Commands;
 public class SendQuantityBelowStoreOwnerNotificationCommandHandlerTests
 {
     private SendQuantityBelowStoreOwnerNotificationCommandHandler _handler;
-    private Mock<IMessageProviderService> _messageProviderMock;
+    private Mock<ICatalogMessageProviderService> _messageProviderMock;
     private LanguageSettings _settings;
 
     [TestInitialize]
     public void Init()
     {
-        _messageProviderMock = new Mock<IMessageProviderService>();
+        _messageProviderMock = new Mock<ICatalogMessageProviderService>();
         _settings = new LanguageSettings();
         _handler = new SendQuantityBelowStoreOwnerNotificationCommandHandler(_messageProviderMock.Object, _settings);
     }

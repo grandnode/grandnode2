@@ -11,16 +11,16 @@ public class GetTwoFactorAuthenticationHandler : IRequestHandler<GetTwoFactorAut
     CustomerInfoModel.TwoFactorAuthenticationModel>
 {
     private readonly CustomerSettings _customerSetting;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly ITwoFactorAuthenticationService _twoFactorAuthenticationService;
 
     public GetTwoFactorAuthenticationHandler(
         ITwoFactorAuthenticationService twoFactorAuthenticationService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         CustomerSettings customerSetting)
     {
         _twoFactorAuthenticationService = twoFactorAuthenticationService;
-        _messageProviderService = messageProviderService;
+        _customerMessageProviderService = customerMessageProviderService;
         _customerSetting = customerSetting;
     }
 
@@ -36,7 +36,7 @@ public class GetTwoFactorAuthenticationHandler : IRequestHandler<GetTwoFactorAut
             TwoFactorAuthenticationType = _customerSetting.TwoFactorAuthenticationType
         };
         if (_customerSetting.TwoFactorAuthenticationType == TwoFactorAuthenticationType.EmailVerification)
-            await _messageProviderService.SendCustomerEmailTokenValidationMessage(request.Customer, request.Store,
+            await _customerMessageProviderService.SendCustomerEmailTokenValidationMessage(request.Customer, request.Store,
                 request.Customer.Id, host: request.Host);
 
         return model;

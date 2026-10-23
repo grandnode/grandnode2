@@ -31,7 +31,7 @@ public class PanelPasswordRecoveryServiceTests
     private Mock<IGroupService> _groupService;
     private Mock<IPermissionService> _permissionService;
     private Mock<IVendorService> _vendorService;
-    private Mock<IMessageProviderService> _messageProviderService;
+    private Mock<ICustomerMessageProviderService> _customerMessageProviderService;
     private Mock<IExternalSignInPolicy> _signInPolicy;
     private CustomerSettings _customerSettings;
     private Customer _customer;
@@ -49,7 +49,7 @@ public class PanelPasswordRecoveryServiceTests
         _groupService.Setup(x => x.IsRegistered(_customer)).ReturnsAsync(true);
         _permissionService = new Mock<IPermissionService>();
         _vendorService = new Mock<IVendorService>();
-        _messageProviderService = new Mock<IMessageProviderService>();
+        _customerMessageProviderService = new Mock<ICustomerMessageProviderService>();
         _signInPolicy = new Mock<IExternalSignInPolicy>();
         _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(PasswordSignInDecision.Password);
@@ -69,7 +69,7 @@ public class PanelPasswordRecoveryServiceTests
 
         _service = new PanelPasswordRecoveryService(_customerService.Object, _customerManagerService.Object,
             _historyService.Object, _groupService.Object, _permissionService.Object, _vendorService.Object,
-            _messageProviderService.Object, translationService.Object, contextAccessor.Object, _customerSettings,
+            _customerMessageProviderService.Object, translationService.Object, contextAccessor.Object, _customerSettings,
             _signInPolicy.Object);
     }
 
@@ -108,7 +108,7 @@ public class PanelPasswordRecoveryServiceTests
 
     private void VerifyMessageSent(Times times)
     {
-        _messageProviderService.Verify(x => x.SendCustomerPasswordRecoveryMessage(
+        _customerMessageProviderService.Verify(x => x.SendCustomerPasswordRecoveryMessage(
             It.IsAny<Customer>(), It.IsAny<Store>(), It.IsAny<string>()), times);
     }
 
@@ -123,7 +123,7 @@ public class PanelPasswordRecoveryServiceTests
             It.Is<string>(t => t.Length == 36), ""), Times.Once);
         _customerService.Verify(x => x.UpdateUserField(_customer, SystemCustomerFieldNames.PasswordRecoveryArea,
             "admin", ""), Times.Once);
-        _messageProviderService.Verify(x => x.SendCustomerPasswordRecoveryMessage(_customer,
+        _customerMessageProviderService.Verify(x => x.SendCustomerPasswordRecoveryMessage(_customer,
             It.Is<Store>(s => s.Id == "store"), "lang"), Times.Once);
     }
 

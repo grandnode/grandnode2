@@ -13,20 +13,20 @@ public class InsertVendorReviewCommandHandler : IRequestHandler<InsertVendorRevi
     private readonly ICustomerService _customerService;
 
     private readonly LanguageSettings _languageSettings;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IVendorMessageProviderService _vendorMessageProviderService;
     private readonly IVendorService _vendorService;
     private readonly VendorSettings _vendorSettings;
     private readonly IContextAccessor _contextAccessor;
 
 
     public InsertVendorReviewCommandHandler(IVendorService vendorService, IContextAccessor contextAccessor,
-        ICustomerService customerService, IMessageProviderService messageProviderService,
+        ICustomerService customerService, IVendorMessageProviderService vendorMessageProviderService,
         LanguageSettings languageSettings, VendorSettings vendorSettings)
     {
         _vendorService = vendorService;
         _contextAccessor = contextAccessor;
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _vendorMessageProviderService = vendorMessageProviderService;
         _languageSettings = languageSettings;
         _vendorSettings = vendorSettings;
     }
@@ -59,7 +59,7 @@ public class InsertVendorReviewCommandHandler : IRequestHandler<InsertVendorRevi
 
         //notify store owner
         if (_vendorSettings.NotifyVendorAboutNewVendorReviews)
-            await _messageProviderService.SendVendorReviewMessage(vendorReview, request.Store,
+            await _vendorMessageProviderService.SendVendorReviewMessage(vendorReview, request.Store,
                 _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
         return vendorReview;

@@ -23,14 +23,14 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
     private readonly ICustomerService _customerService;
     private readonly CustomerSettings _customerSettings;
     private readonly LanguageSettings _languageSettings;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
 
     private readonly TaxSettings _taxSettings;
 
     public CustomerRegisteredCommandHandler(
         IVatService checkVatService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         IAddressAttributeService addressAttributeService,
         ICountryService countryService,
@@ -41,7 +41,7 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
         LanguageSettings languageSettings)
     {
         _checkVatService = checkVatService;
-        _messageProviderService = messageProviderService;
+        _customerMessageProviderService = customerMessageProviderService;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _addressAttributeService = addressAttributeService;
         _countryService = countryService;
@@ -183,7 +183,7 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
 
         //notifications
         if (_customerSettings.NotifyNewCustomerRegistration)
-            await _messageProviderService.SendCustomerRegisteredMessage(request.Customer, request.Store,
+            await _customerMessageProviderService.SendCustomerRegisteredMessage(request.Customer, request.Store,
                 _languageSettings.DefaultAdminLanguageId, host: request.Host);
 
         //New customer has a free shipping for the first order

@@ -33,7 +33,7 @@ public class VendorController : BasePublicController
         IContextAccessor contextAccessor,
         IRequestTranslationService translationService,
         ICustomerService customerService,
-        IMessageProviderService messageProviderService,
+        IVendorMessageProviderService vendorMessageProviderService,
         IVendorService vendorService,
         ISlugService slugService,
         IPictureService pictureService,
@@ -47,7 +47,7 @@ public class VendorController : BasePublicController
         _contextAccessor = contextAccessor;
         _translationService = translationService;
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _vendorMessageProviderService = vendorMessageProviderService;
         _vendorService = vendorService;
         _slugService = slugService;
         _pictureService = pictureService;
@@ -77,7 +77,7 @@ public class VendorController : BasePublicController
     private readonly IContextAccessor _contextAccessor;
     private readonly IRequestTranslationService _translationService;
     private readonly ICustomerService _customerService;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IVendorMessageProviderService _vendorMessageProviderService;
     private readonly IVendorService _vendorService;
     private readonly ISlugService _slugService;
     private readonly IPictureService _pictureService;
@@ -167,7 +167,7 @@ public class VendorController : BasePublicController
                 _contextAccessor.WorkContext.CurrentCustomer.VendorId);
 
             //notify store owner here (email)
-            await _messageProviderService.SendNewVendorAccountApplyStoreOwnerMessage(_contextAccessor.WorkContext.CurrentCustomer,
+            await _vendorMessageProviderService.SendNewVendorAccountApplyStoreOwnerMessage(_contextAccessor.WorkContext.CurrentCustomer,
                 vendor, _contextAccessor.StoreContext.CurrentStore, _languageSettings.DefaultAdminLanguageId,
                 host: _contextAccessor.StoreContext.CurrentHost);
 

@@ -32,18 +32,18 @@ Do not use this skill as the primary review for MongoDB queries or security; com
 6. Use DotLiquid syntax: `{{Drop.Property}}` for values, `{% if condition %}...{% endif %}` for conditions, `{% for item in Collection %}...{% endfor %}` for loops.
 
 #### Sending Messages
-7. Add a typed send method to `IMessageProviderService` in `src/Business/Grand.Business.Core/Interfaces/Messages/IMessageProviderService.cs` when the trigger is a recurring, well-defined business event. Follow the signature pattern:
+7. Add a typed send method to the area interface that owns the recipient's flow, `I<Area>MessageProviderService` in `src/Business/Grand.Business.Core/Interfaces/Messages/` (Customer, Order, Newsletter, Catalog, MerchandiseReturn, Vendor, Cms), when the trigger is a recurring, well-defined business event. Follow the signature pattern:
    ```csharp
    Task<int> SendXxxMessage(TEntity entity, Store store, string languageId);
    ```
-8. Implement the method in `MessageProviderService` at `src/Business/Grand.Business.Messages/Services/MessageProviderService.cs`. The standard implementation pattern is:
-   1. Get `MessageTemplate` by name using `IMessageTemplateService.GetMessageTemplateByName(name, store.Id)`.
-   2. Return 0 if the template is not active.
-   3. Resolve `EmailAccount` using the template's `EmailAccountId` and `IEmailAccountService`.
+8. Implement the method in the matching `<Area>MessageProviderService` in `src/Business/Grand.Business.Messages/Services/`. The standard implementation pattern is:
+   1. Get the active `MessageTemplate` with `IMessageLookupService.GetMessageTemplate(name, store.Id)`.
+   2. Return 0 when it returns null (missing or inactive template).
+   3. Resolve `EmailAccount` with `IMessageLookupService.GetEmailAccountOfMessageTemplate`, and the language with `EnsureLanguageIsActive`.
    4. Build tokens with `LiquidObjectBuilder` using the appropriate `AddXxxTokens()` methods.
-   5. Call `await builder.Build()` to get the populated `LiquidObject`.
-   6. Call `await SendNotification(messageTemplate, emailAccount, languageId, liquidObject, toEmail, toName)`.
-9. Use the generic `SendNotification` overload directly when a one-off or plugin-triggered send does not justify a dedicated typed method.
+   5. Call `await builder.BuildAsync()` to get the populated `LiquidObject`.
+   6. Call `await _messageProviderService.SendNotification(messageTemplate, emailAccount, languageId, liquidObject, toEmail, toName)`.
+9. Use the generic `IMessageProviderService.SendNotification` directly when a one-off or plugin-triggered send does not justify a dedicated typed method.
 
 #### DotLiquid Drops and Tokens
 10. Add new token properties to an existing `Liquid*` drop class in `src/Business/Grand.Business.Messages/DotLiquidDrops/` when the data already belongs to that drop's entity. Do not add properties that require loading additional entities unless those are already available in the drop constructor.
@@ -66,7 +66,7 @@ Do not use this skill as the primary review for MongoDB queries or security; com
 2. Prefer the `MessageTokensAddedEvent` handler for plugin-specific tokens rather than modifying core drop classes.
 3. Prefer reusing `{{Store.Name}}`, `{{Store.URL}}`, and `{{Store.AdminEmail}}` tokens that are always available via `LiquidStore`.
 4. Prefer the `Reference` enum field on `QueuedEmail` (e.g., `Reference.Order`, `Reference.Customer`) to link queued emails to the source entity for audit purposes.
-5. Prefer testing `MessageProviderService` with a mock `IMessageTemplateService` that returns a pre-built `MessageTemplate` to verify the queuing call.
+5. Prefer testing an `<Area>MessageProviderService` built on a real `MessageLookupService` and `MessageProviderService` with a mock `IMessageTemplateService` that returns a pre-built `MessageTemplate` to verify the queuing call.
 
 ## Constraints
 - Never hardcode email addresses in `SendXxx` methods; always resolve them from `EmailAccount` or from the entity being notified.
@@ -74,19 +74,30 @@ Do not use this skill as the primary review for MongoDB queries or security; com
 - Never use tokens that are not backed by a drop property — they will render as empty strings.
 - Never add rendering logic (formatting, currency, date) to drop property getters unless the same pattern is already used in that drop.
 - Never store multiple language copies of a template as separate `MessageTemplate` documents; use the `Locales` collection.
-- Never call `IMessageProviderService` from inside a Razor view or a controller action directly — trigger sends from handlers or services.
+- Never call a message provider service from inside a Razor view or a controller action directly — trigger sends from handlers or services.
 
 ## Key Contracts
 
-### IMessageProviderService (`src/Business/Grand.Business.Core/Interfaces/Messages/IMessageProviderService.cs`)
-Typed send methods follow the pattern:
+### Message provider services (`src/Business/Grand.Business.Core/Interfaces/Messages/`)
+Typed send methods live in one interface per area, one method per template:
 ```csharp
-Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId);
-Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, Store store, string languageId);
-// ... one method per template
+// ICustomerMessageProviderService
+Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId, DomainHost host = null);
+// IOrderMessageProviderService
+Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string languageId, ...);
 ```
 
-Generic send:
+| Interface | Covers |
+|---|---|
+| `ICustomerMessageProviderService` | registration, welcome, email validation, password recovery, customer notes, account deletion, contact us |
+| `IOrderMessageProviderService` | order placed/paid/completed/cancelled/refunded for customer, store owner and vendor, shipments, order notes, gift vouchers |
+| `INewsletterMessageProviderService` | newsletter subscription activation and deactivation |
+| `ICatalogMessageProviderService` | email a friend, wishlist, product questions and reviews, low stock, back in stock, auctions and bids |
+| `IMerchandiseReturnMessageProviderService` | merchandise return created, status changed, notes |
+| `IVendorMessageProviderService` | vendor application, information change, vendor reviews, contact vendor |
+| `ICmsMessageProviderService` | blog, knowledgebase article and news comments |
+
+They share `IMessageLookupService` (store, active template, email account, language) and queue through `IMessageProviderService`, which holds only the generic send:
 ```csharp
 Task<int> SendNotification(
     MessageTemplate messageTemplate, EmailAccount emailAccount,
@@ -105,7 +116,7 @@ var liquidObject = await new LiquidObjectBuilder(_mediator)
     .AddStoreTokens(store, language, emailAccount)
     .AddOrderTokens(order, customer, store, host)
     .AddCustomerTokens(customer, store, host, language)
-    .Build();
+    .BuildAsync();
 ```
 
 The drops, the builder and the token commands belong to `Grand.Business.Messages`, not to `Grand.Business.Core`. Other Business projects and plugins compile against Core only, so they never use them directly: a campaign renders through `ICampaignMessageRenderer`, and a plugin adds tokens through `MessageTokensAddedEvent` / `EntityTokensAddedEvent<T>` and `LiquidObject.AdditionalTokens`, which expose drops only as `DotLiquid.Drop`.
@@ -126,8 +137,9 @@ public class MessageTokensAddedEvent : INotification {
 | QueuedEmail entity | `src/Core/Grand.Domain/Messages/QueuedEmail.cs` |
 | EmailAccount entity | `src/Core/Grand.Domain/Messages/EmailAccount.cs` |
 | MessageTemplateNames constants | `src/Business/Grand.Business.Messages/Services/MessageTemplateNames.cs` |
-| IMessageProviderService interface | `src/Business/Grand.Business.Core/Interfaces/Messages/IMessageProviderService.cs` |
-| MessageProviderService implementation | `src/Business/Grand.Business.Messages/Services/MessageProviderService.cs` |
+| IMessageProviderService (generic `SendNotification`) | `src/Business/Grand.Business.Core/Interfaces/Messages/IMessageProviderService.cs` |
+| I&lt;Area&gt;MessageProviderService interfaces, IMessageLookupService | `src/Business/Grand.Business.Core/Interfaces/Messages/` |
+| Implementations | `src/Business/Grand.Business.Messages/Services/<Area>MessageProviderService.cs`, `MessageLookupService.cs`, `MessageProviderService.cs` |
 | IMessageTemplateService interface | `src/Business/Grand.Business.Core/Interfaces/Messages/IMessageTemplateService.cs` |
 | IQueuedEmailService interface | `src/Business/Grand.Business.Core/Interfaces/Messages/IQueuedEmailService.cs` |
 | IEmailAccountService interface | `src/Business/Grand.Business.Core/Interfaces/Messages/IEmailAccountService.cs` |
@@ -191,9 +203,9 @@ Input: Send an email to the customer when an order reaches a custom "Ready for p
 Output:
 1. Add `const string SendOrderReadyForPickupCustomerMessage = "OrderReadyForPickup.CustomerNotification"` to `MessageTemplateNames`.
 2. Seed the template in `InstallDataMessageTemplates` with subject `"Your order {{Order.OrderNumber}} is ready"` and a body using `{{Order.*}}` and `{{Store.*}}` tokens.
-3. Add `Task<int> SendOrderReadyForPickupCustomerMessage(Order order, Customer customer, Store store, string languageId)` to `IMessageProviderService`.
-4. Implement the method in `MessageProviderService`: load template by name, return 0 if inactive, build `LiquidObjectBuilder` with `AddStoreTokens` + `AddOrderTokens` + `AddCustomerTokens`, call `SendNotification` with the customer's email.
-5. Publish `OrderReadyForPickupEvent` from the order status-change service and handle it in a `INotificationHandler<OrderReadyForPickupEvent>` that calls `_messageProviderService.SendOrderReadyForPickupCustomerMessage(...)`.
+3. Add `Task<int> SendOrderReadyForPickupCustomerMessage(Order order, Customer customer, Store store, string languageId)` to `IOrderMessageProviderService`.
+4. Implement the method in `OrderMessageProviderService`: load template by name, return 0 if inactive, build `LiquidObjectBuilder` with `AddStoreTokens` + `AddOrderTokens` + `AddCustomerTokens`, call `SendNotification` with the customer's email.
+5. Publish `OrderReadyForPickupEvent` from the order status-change service and handle it in a `INotificationHandler<OrderReadyForPickupEvent>` that calls `_orderMessageProviderService.SendOrderReadyForPickupCustomerMessage(...)` on the injected `IOrderMessageProviderService`.
 
 ### Example 2: Plugin Token Extension
 Input: A loyalty plugin needs to include a customer's loyalty points balance in existing order emails.

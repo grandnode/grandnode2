@@ -11,19 +11,19 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand,
 {
     private readonly ICustomerService _customerService;
     private readonly LanguageSettings _languageSettings;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
     private readonly IQueuedEmailService _queuedEmailService;
 
     public DeleteAccountCommandHandler(
         ICustomerService customerService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         IQueuedEmailService queuedEmailService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         LanguageSettings languageSettings)
     {
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _customerMessageProviderService = customerMessageProviderService;
         _queuedEmailService = queuedEmailService;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _languageSettings = languageSettings;
@@ -32,7 +32,7 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand,
     public async Task<bool> Handle(DeleteAccountCommand request, CancellationToken cancellationToken)
     {
         //send notification to customer
-        await _messageProviderService.SendCustomerDeleteStoreOwnerMessage(request.Customer,
+        await _customerMessageProviderService.SendCustomerDeleteStoreOwnerMessage(request.Customer,
             _languageSettings.DefaultAdminLanguageId, host: request.Host);
 
         //delete emails

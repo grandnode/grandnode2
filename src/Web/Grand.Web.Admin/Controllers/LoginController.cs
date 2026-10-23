@@ -15,7 +15,7 @@ namespace Grand.Web.Admin.Controllers;
 [Area(Constants.AreaAdmin)]
 public class LoginController : BaseLoginController
 {
-    public LoginController(CustomerSettings customerSettings, CaptchaSettings captchaSettings, IRequestTranslationService translationService, ICustomerManagerService customerManagerService, ICustomerService customerService, IGrandAuthenticationService authenticationService, IMessageProviderService messageProviderService, IContextAccessor contextAccessor, IMediator mediator) : base(customerSettings, captchaSettings, translationService, customerManagerService, customerService, authenticationService, messageProviderService, contextAccessor, mediator)
+    public LoginController(CustomerSettings customerSettings, CaptchaSettings captchaSettings, IRequestTranslationService translationService, ICustomerManagerService customerManagerService, ICustomerService customerService, IGrandAuthenticationService authenticationService, ICustomerMessageProviderService customerMessageProviderService, IContextAccessor contextAccessor, IMediator mediator) : base(customerSettings, captchaSettings, translationService, customerManagerService, customerService, authenticationService, customerMessageProviderService, contextAccessor, mediator)
     {
     }
 }

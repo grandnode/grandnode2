@@ -31,7 +31,7 @@ public abstract class BaseCustomerController(
     ICustomerManagerService customerManagerService,
     ICustomerAttributeParser customerAttributeParser,
     ICustomerAttributeService customerAttributeService,
-    IMessageProviderService messageProviderService,
+    ICustomerMessageProviderService customerMessageProviderService,
     IGroupService groupService,
     IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
@@ -333,7 +333,7 @@ public abstract class BaseCustomerController(
         var (customer, denied) = await LoadAuthorizedCustomer(id);
         if (customer is null) return denied!;
 
-        await messageProviderService.SendCustomerWelcomeMessage(customer, contextAccessor.StoreContext.CurrentStore,
+        await customerMessageProviderService.SendCustomerWelcomeMessage(customer, contextAccessor.StoreContext.CurrentStore,
             contextAccessor.WorkContext.WorkingLanguage.Id);
         Success(translationService.GetResource("Admin.Customers.Customers.SendWelcomeMessage.Success"));
         return RedirectToAction("Edit", new { id = customer.Id });
@@ -348,7 +348,7 @@ public abstract class BaseCustomerController(
 
         await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken,
             Guid.NewGuid().ToString());
-        await messageProviderService.SendCustomerEmailValidationMessage(customer,
+        await customerMessageProviderService.SendCustomerEmailValidationMessage(customer,
             contextAccessor.StoreContext.CurrentStore, contextAccessor.WorkContext.WorkingLanguage.Id);
         Success(translationService.GetResource("Admin.Customers.Customers.ReSendActivationMessage.Success"));
         return RedirectToAction("Edit", new { id = customer.Id });

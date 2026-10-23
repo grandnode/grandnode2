@@ -16,7 +16,7 @@ public class DeliveryCommandHandlerTests
 {
     private DeliveryCommandHandler _deliveryCommandHandler;
     private Mock<IMediator> _mediatorMock;
-    private Mock<IMessageProviderService> _messageProviderServiceMock;
+    private Mock<IOrderMessageProviderService> _orderMessageProviderServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IShipmentService> _shipmentServiceMock;
 
@@ -26,10 +26,10 @@ public class DeliveryCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _shipmentServiceMock = new Mock<IShipmentService>();
-        _messageProviderServiceMock = new Mock<IMessageProviderService>();
+        _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
 
         _deliveryCommandHandler = new DeliveryCommandHandler(_mediatorMock.Object, _orderServiceMock.Object,
-            _shipmentServiceMock.Object, _messageProviderServiceMock.Object);
+            _shipmentServiceMock.Object, _orderMessageProviderServiceMock.Object);
     }
 
     [TestMethod]

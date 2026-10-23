@@ -8,12 +8,12 @@ namespace Grand.Web.Commands.Handler.Orders;
 
 public class InsertOrderNoteCommandHandler : IRequestHandler<InsertOrderNoteCommand, OrderNote>
 {
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
 
-    public InsertOrderNoteCommandHandler(IMessageProviderService messageProviderService, IOrderService orderService)
+    public InsertOrderNoteCommandHandler(IOrderMessageProviderService orderMessageProviderService, IOrderService orderService)
     {
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _orderService = orderService;
     }
 
@@ -28,7 +28,7 @@ public class InsertOrderNoteCommandHandler : IRequestHandler<InsertOrderNoteComm
         await _orderService.InsertOrderNote(orderNote);
 
         //email
-        await _messageProviderService.SendNewOrderNoteAddedCustomerMessage(request.Order, orderNote,
+        await _orderMessageProviderService.SendNewOrderNoteAddedCustomerMessage(request.Order, orderNote,
             host: request.Host);
 
         return orderNote;

@@ -15,16 +15,16 @@ public class
     IList<OutOfStockSubscription>>
 {
     private readonly ICustomerService _customerService;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICatalogMessageProviderService _catalogMessageProviderService;
     private readonly IRepository<OutOfStockSubscription> _outOfStockSubscriptionRepository;
 
     public SendNotificationsToSubscribersCommandHandler(
         ICustomerService customerService,
-        IMessageProviderService messageProviderService,
+        ICatalogMessageProviderService catalogMessageProviderService,
         IRepository<OutOfStockSubscription> outOfStockSubscriptionRepository)
     {
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _catalogMessageProviderService = catalogMessageProviderService;
         _outOfStockSubscriptionRepository = outOfStockSubscriptionRepository;
     }
 
@@ -42,7 +42,7 @@ public class
             if (customer == null || !CommonHelper.IsValidEmail(customer.Email)) continue;
             var customerLanguageId =
                 customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId, subscription.StoreId);
-            await _messageProviderService.SendBackInStockMessage(customer, request.Product, subscription,
+            await _catalogMessageProviderService.SendBackInStockMessage(customer, request.Product, subscription,
                 customerLanguageId);
         }
 

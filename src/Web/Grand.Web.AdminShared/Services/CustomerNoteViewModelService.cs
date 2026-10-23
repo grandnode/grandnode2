@@ -13,7 +13,7 @@ public class CustomerNoteViewModelService(
     ICustomerNoteService customerNoteService,
     ICustomerService customerService,
     IDownloadService downloadService,
-    IMessageProviderService messageProviderService,
+    ICustomerMessageProviderService customerMessageProviderService,
     IDateTimeService dateTimeService,
     IContextAccessor contextAccessor)
     : ICustomerNoteViewModelService
@@ -58,7 +58,7 @@ public class CustomerNoteViewModelService(
         if (displayToCustomer)
         {
             //email
-            await messageProviderService.SendNewCustomerNoteMessage(customerNote,
+            await customerMessageProviderService.SendNewCustomerNoteMessage(customerNote,
                 await customerService.GetCustomerById(customerId), contextAccessor.StoreContext.CurrentStore,
                 contextAccessor.WorkContext.WorkingLanguage.Id);
         }

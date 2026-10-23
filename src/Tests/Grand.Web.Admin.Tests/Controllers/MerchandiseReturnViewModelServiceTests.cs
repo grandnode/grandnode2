@@ -122,7 +122,7 @@ public class MerchandiseReturnViewModelServiceTests
         var dateTimeServiceMock = new Mock<IDateTimeService>();
         dateTimeServiceMock.Setup(d => d.CurrentTimeZone).Returns(TimeZoneInfo.Utc);
         var translationServiceMock = new Mock<IRequestTranslationService>();
-        var messageProviderServiceMock = new Mock<IMessageProviderService>();
+        var merchandiseReturnMessageProviderServiceMock = new Mock<IMerchandiseReturnMessageProviderService>();
         var languageSettings = new LanguageSettings();
         var merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
         merchandiseReturnServiceMock
@@ -149,7 +149,7 @@ public class MerchandiseReturnViewModelServiceTests
             customerService,
             dateTimeServiceMock.Object,
             translationServiceMock.Object,
-            messageProviderServiceMock.Object,
+            merchandiseReturnMessageProviderServiceMock.Object,
             languageSettings,
             merchandiseReturnServiceMock.Object,
             priceFormatterMock.Object,
@@ -176,7 +176,7 @@ public class MerchandiseReturnViewModelServiceTests
         var dateTimeServiceMock = new Mock<IDateTimeService>();
         dateTimeServiceMock.Setup(d => d.CurrentTimeZone).Returns(TimeZoneInfo.Utc);
         var translationServiceMock = new Mock<IRequestTranslationService>();
-        var messageProviderServiceMock = new Mock<IMessageProviderService>();
+        var merchandiseReturnMessageProviderServiceMock = new Mock<IMerchandiseReturnMessageProviderService>();
         var languageSettings = new LanguageSettings();
         var priceFormatterMock = new Mock<IPriceFormatter>();
         var addressSettings = new AddressSettings();
@@ -194,7 +194,7 @@ public class MerchandiseReturnViewModelServiceTests
             customerServiceMock.Object,
             dateTimeServiceMock.Object,
             translationServiceMock.Object,
-            messageProviderServiceMock.Object,
+            merchandiseReturnMessageProviderServiceMock.Object,
             languageSettings,
             merchandiseReturnService,
             priceFormatterMock.Object,

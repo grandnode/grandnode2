@@ -6,16 +6,16 @@ namespace Grand.Module.ScheduledTasks.Commands.Handlers.Catalog;
 
 public class SendOutBidCustomerNotificationCommandHandler : IRequestHandler<SendOutBidCustomerCommand, bool>
 {
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICatalogMessageProviderService _catalogMessageProviderService;
 
-    public SendOutBidCustomerNotificationCommandHandler(IMessageProviderService messageProviderService)
+    public SendOutBidCustomerNotificationCommandHandler(ICatalogMessageProviderService catalogMessageProviderService)
     {
-        _messageProviderService = messageProviderService;
+        _catalogMessageProviderService = catalogMessageProviderService;
     }
 
     public async Task<bool> Handle(SendOutBidCustomerCommand request, CancellationToken cancellationToken)
     {
-        await _messageProviderService.SendOutBidCustomerMessage(request.Product, request.Language.Id, request.Bid);
+        await _catalogMessageProviderService.SendOutBidCustomerMessage(request.Product, request.Language.Id, request.Bid);
         return true;
     }
 }

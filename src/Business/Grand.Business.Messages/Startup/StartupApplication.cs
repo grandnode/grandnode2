@@ -17,6 +17,14 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IQueuedEmailService, QueuedEmailService>();
         services.AddScoped<IEmailAccountService, EmailAccountService>();
         services.AddScoped<IMessageProviderService, MessageProviderService>();
+        services.AddScoped<IMessageLookupService, MessageLookupService>();
+        services.AddScoped<ICustomerMessageProviderService, CustomerMessageProviderService>();
+        services.AddScoped<IOrderMessageProviderService, OrderMessageProviderService>();
+        services.AddScoped<INewsletterMessageProviderService, NewsletterMessageProviderService>();
+        services.AddScoped<ICatalogMessageProviderService, CatalogMessageProviderService>();
+        services.AddScoped<IMerchandiseReturnMessageProviderService, MerchandiseReturnMessageProviderService>();
+        services.AddScoped<IVendorMessageProviderService, VendorMessageProviderService>();
+        services.AddScoped<ICmsMessageProviderService, CmsMessageProviderService>();
         services.AddScoped<IMessageTokenProvider, MessageTokenProvider>();
         services.AddScoped<ICampaignMessageRenderer, CampaignMessageRenderer>();
         services.AddScoped<IEmailSender, EmailSender>();

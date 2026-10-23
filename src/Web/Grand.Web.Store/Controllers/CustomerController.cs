@@ -30,14 +30,14 @@ public class CustomerController(
     Grand.Business.Core.Interfaces.Customers.ICustomerManagerService customerManagerService,
     Grand.Business.Core.Interfaces.Customers.ICustomerAttributeParser customerAttributeParser,
     Grand.Business.Core.Interfaces.Customers.ICustomerAttributeService customerAttributeService,
-    Grand.Business.Core.Interfaces.Messages.IMessageProviderService messageProviderService,
+    Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService customerMessageProviderService,
     IGroupService groupService,
     Grand.Web.Common.Localization.IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     CustomerSettings customerSettings,
     IAdminDataScope<Customer> scope)
     : BaseCustomerController(customerService, customerViewModelService, customerManagerService,
-        customerAttributeParser, customerAttributeService, messageProviderService, groupService,
+        customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
         translationService, contextAccessor, customerSettings, scope)
 {
     /// <summary>Shown instead of the panel when per-store customer identity is disabled.</summary>

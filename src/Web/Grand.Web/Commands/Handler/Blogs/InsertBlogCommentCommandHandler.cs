@@ -16,17 +16,17 @@ public class InsertBlogCommentCommandHandler : IRequestHandler<InsertBlogComment
     private readonly ICustomerService _customerService;
 
     private readonly LanguageSettings _languageSettings;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICmsMessageProviderService _cmsMessageProviderService;
     private readonly IContextAccessor _contextAccessor;
 
     public InsertBlogCommentCommandHandler(IBlogService blogService, IContextAccessor contextAccessor,
-        ICustomerService customerService, IMessageProviderService messageProviderService,
+        ICustomerService customerService, ICmsMessageProviderService cmsMessageProviderService,
         LanguageSettings languageSettings, BlogSettings blogSettings)
     {
         _blogService = blogService;
         _contextAccessor = contextAccessor;
         _customerService = customerService;
-        _messageProviderService = messageProviderService;
+        _cmsMessageProviderService = cmsMessageProviderService;
 
         _languageSettings = languageSettings;
         _blogSettings = blogSettings;
@@ -51,7 +51,7 @@ public class InsertBlogCommentCommandHandler : IRequestHandler<InsertBlogComment
         if (!customer.HasContributions) await _customerService.UpdateContributions(customer);
         //notify a store owner
         if (_blogSettings.NotifyAboutNewBlogComments)
-            await _messageProviderService.SendBlogCommentMessage(request.BlogPost, comment,
+            await _cmsMessageProviderService.SendBlogCommentMessage(request.BlogPost, comment,
                 _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
 
         return comment;

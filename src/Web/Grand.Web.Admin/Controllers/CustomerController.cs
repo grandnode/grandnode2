@@ -17,7 +17,7 @@ public class CustomerController(
     Grand.Business.Core.Interfaces.Customers.ICustomerManagerService customerManagerService,
     Grand.Business.Core.Interfaces.Customers.ICustomerAttributeParser customerAttributeParser,
     Grand.Business.Core.Interfaces.Customers.ICustomerAttributeService customerAttributeService,
-    Grand.Business.Core.Interfaces.Messages.IMessageProviderService messageProviderService,
+    Grand.Business.Core.Interfaces.Messages.ICustomerMessageProviderService customerMessageProviderService,
     Grand.Business.Core.Interfaces.Common.Directory.IGroupService groupService,
     Grand.Web.Common.Localization.IRequestTranslationService translationService,
     Grand.Infrastructure.IContextAccessor contextAccessor,
@@ -26,5 +26,5 @@ public class CustomerController(
     IRequestPermissionService permissionService,
     Grand.Business.Core.Interfaces.ExportImport.IExportManager<Grand.Domain.Customers.Customer> exportManager)
     : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
-        customerAttributeParser, customerAttributeService, messageProviderService, groupService,
+        customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
         translationService, contextAccessor, customerSettings, scope, permissionService, exportManager);

@@ -13,7 +13,7 @@ namespace Grand.Business.Checkout.Commands.Handlers.Shipping;
 public class ShipCommandHandler : IRequestHandler<ShipCommand, bool>
 {
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly IShipmentService _shipmentService;
 
@@ -21,12 +21,12 @@ public class ShipCommandHandler : IRequestHandler<ShipCommand, bool>
         IMediator mediator,
         IOrderService orderService,
         IShipmentService shipmentService,
-        IMessageProviderService messageProviderService)
+        IOrderMessageProviderService orderMessageProviderService)
     {
         _mediator = mediator;
         _orderService = orderService;
         _shipmentService = shipmentService;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
     }
 
     public async Task<bool> Handle(ShipCommand request, CancellationToken cancellationToken)
@@ -67,7 +67,7 @@ public class ShipCommandHandler : IRequestHandler<ShipCommand, bool>
 
         if (request.NotifyCustomer)
             //notify customer
-            await _messageProviderService.SendShipmentSentCustomerMessage(request.Shipment, order);
+            await _orderMessageProviderService.SendShipmentSentCustomerMessage(request.Shipment, order);
         //check order status
         await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 

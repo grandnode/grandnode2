@@ -17,14 +17,14 @@ public class ActivatedValueForPurchasedGiftVouchersCommandHandlerTests
     private Mock<IGiftVoucherService> _giftVoucherMock;
     private ActivatedValueForPurchasedGiftVouchersCommandHandler _handler;
     private Mock<ILanguageService> _langService;
-    private Mock<IMessageProviderService> _messageProviderMock;
+    private Mock<IOrderMessageProviderService> _messageProviderMock;
 
     [TestInitialize]
     public void Init()
     {
         _giftVoucherMock = new Mock<IGiftVoucherService>();
         _langService = new Mock<ILanguageService>();
-        _messageProviderMock = new Mock<IMessageProviderService>();
+        _messageProviderMock = new Mock<IOrderMessageProviderService>();
         _handler = new ActivatedValueForPurchasedGiftVouchersCommandHandler(_giftVoucherMock.Object,
             _langService.Object, _messageProviderMock.Object);
     }

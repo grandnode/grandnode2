@@ -211,7 +211,7 @@ public class WishlistController : BasePublicController
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> EmailWishlist(WishlistEmailAFriendModel model,
-        [FromServices] IMessageProviderService messageProviderService,
+        [FromServices] ICatalogMessageProviderService catalogMessageProviderService,
         [FromServices] CaptchaSettings captchaSettings)
     {
         if (!await _permissionService.Authorize(StandardPermission.EnableWishlist) ||
@@ -225,7 +225,7 @@ public class WishlistController : BasePublicController
         if (ModelState.IsValid)
         {
             //email
-            await messageProviderService.SendWishlistEmailAFriendMessage(_contextAccessor.WorkContext.CurrentCustomer,
+            await catalogMessageProviderService.SendWishlistEmailAFriendMessage(_contextAccessor.WorkContext.CurrentCustomer,
                 _contextAccessor.StoreContext.CurrentStore,
                 _contextAccessor.WorkContext.WorkingLanguage.Id, model.YourEmailAddress,
                 model.FriendEmail, FormatText.ConvertText(model.PersonalMessage),

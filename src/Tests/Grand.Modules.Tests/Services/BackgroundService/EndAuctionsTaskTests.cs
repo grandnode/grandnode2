@@ -24,7 +24,7 @@ public class EndAuctionsTaskTests
     private Mock<ICustomerService> _customerServiceMock;
     private Mock<ILanguageService> _languageServiceMock;
     private Mock<ILogger<EndAuctionsTask>> _loggerMock;
-    private Mock<IMessageProviderService> _messageProviderMock;
+    private Mock<ICatalogMessageProviderService> _messageProviderMock;
     private LanguageSettings _settings;
     private Mock<IShoppingCartService> _shoppingCartMock;
     private EndAuctionsTask _task;
@@ -33,7 +33,7 @@ public class EndAuctionsTaskTests
     public void Init()
     {
         _auctionMock = new Mock<IAuctionService>();
-        _messageProviderMock = new Mock<IMessageProviderService>();
+        _messageProviderMock = new Mock<ICatalogMessageProviderService>();
         _shoppingCartMock = new Mock<IShoppingCartService>();
         _customerServiceMock = new Mock<ICustomerService>();
         _loggerMock = new Mock<ILogger<EndAuctionsTask>>();

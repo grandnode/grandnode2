@@ -35,7 +35,7 @@ public class LoginControllerExternalSignInTests
         _controller = new LoginController(new CustomerSettings(), new CaptchaSettings(),
             new Mock<IRequestTranslationService>().Object, new Mock<ICustomerManagerService>().Object,
             new Mock<ICustomerService>().Object, new Mock<IGrandAuthenticationService>().Object,
-            new Mock<IMessageProviderService>().Object, new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock }.Object,
+            new Mock<ICustomerMessageProviderService>().Object, new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock }.Object,
             new Mock<IMediator>().Object);
         var httpContext = new DefaultHttpContext();
         httpContext.Request.PathBase = "/shop";

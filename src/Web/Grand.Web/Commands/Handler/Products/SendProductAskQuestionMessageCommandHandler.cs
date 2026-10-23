@@ -7,16 +7,16 @@ namespace Grand.Web.Commands.Handler.Products;
 
 public class SendProductAskQuestionMessageCommandHandler : IRequestHandler<SendProductAskQuestionMessageCommand, bool>
 {
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly ICatalogMessageProviderService _catalogMessageProviderService;
 
-    public SendProductAskQuestionMessageCommandHandler(IMessageProviderService messageProviderService)
+    public SendProductAskQuestionMessageCommandHandler(ICatalogMessageProviderService catalogMessageProviderService)
     {
-        _messageProviderService = messageProviderService;
+        _catalogMessageProviderService = catalogMessageProviderService;
     }
 
     public async Task<bool> Handle(SendProductAskQuestionMessageCommand request, CancellationToken cancellationToken)
     {
-        await _messageProviderService.SendProductQuestionMessage(request.Customer, request.Store,
+        await _catalogMessageProviderService.SendProductQuestionMessage(request.Customer, request.Store,
             request.Language.Id, request.Product, request.Model.Email, request.Model.FullName, request.Model.Phone,
             FormatText.ConvertText(request.Model.Message), request.RemoteIpAddress, host: request.Host);
 

@@ -69,14 +69,14 @@ public class CustomerControllerTests
         ICustomerManagerService customerManagerService,
         ICustomerAttributeParser customerAttributeParser,
         ICustomerAttributeService customerAttributeService,
-        IMessageProviderService messageProviderService,
+        ICustomerMessageProviderService customerMessageProviderService,
         IGroupService groupService,
         IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings,
         IAdminDataScope<Customer> scope)
         : CustomerController(customerService, customerViewModelService, customerManagerService,
-            customerAttributeParser, customerAttributeService, messageProviderService, groupService,
+            customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
             translationService, contextAccessor, customerSettings, scope)
     {
         public Task ApplyPostConstraintsPublic(CustomerModel model) => ApplyPostConstraints(model);
@@ -91,7 +91,7 @@ public class CustomerControllerTests
             _customerManagerServiceMock.Object,
             new Mock<ICustomerAttributeParser>().Object,
             _customerAttributeServiceMock.Object,
-            new Mock<IMessageProviderService>().Object,
+            new Mock<ICustomerMessageProviderService>().Object,
             groupService ?? _groupServiceMock.Object,
             _translationServiceMock.Object,
             _contextAccessorMock.Object,

@@ -55,7 +55,7 @@ public class AccountControllerTwoFactorReturnUrlTests
         var settings = new CustomerSettings { TwoFactorAuthenticationEnabled = true };
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object, new Mock<IRequestTranslationService>().Object,
             context.Object, _customers.Object, new Mock<IGroupService>().Object, _manager.Object, new Mock<ICountryService>().Object,
-            new Mock<IMediator>().Object, new Mock<IMessageProviderService>().Object, new CaptchaSettings(), settings,
+            new Mock<IMediator>().Object, new Mock<ICustomerMessageProviderService>().Object, new CaptchaSettings(), settings,
             new CustomerConfig());
         var http = new DefaultHttpContext { Session = new TestSession() };
         _controller.ControllerContext = new ControllerContext { HttpContext = http };

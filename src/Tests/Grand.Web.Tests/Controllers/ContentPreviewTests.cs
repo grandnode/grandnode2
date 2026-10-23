@@ -108,7 +108,7 @@ public class ContentPreviewTests
         return new KnowledgebaseController(new KnowledgebaseSettings { Enabled = true },
             knowledgebaseServiceMock.Object, _contextAccessorMock.Object, new Mock<ICacheBase>().Object,
             _aclServiceMock.Object, new Mock<IRequestTranslationService>().Object,
-            new Mock<IMessageProviderService>().Object, new Mock<IDateTimeService>().Object,
+            new Mock<ICmsMessageProviderService>().Object, new Mock<IDateTimeService>().Object,
             _permissionServiceMock.Object, new CustomerSettings(), new CaptchaSettings(), new LanguageSettings()) {
             ControllerContext = GetContext(new ServiceCollection()
                 .AddSingleton(new Mock<IPageHeadBuilder>().Object)

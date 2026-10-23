@@ -18,7 +18,7 @@ public class PartiallyRefundOfflineCommandHandlerTests
 {
     private PartiallyRefundOfflineCommandHandler _handler;
     private Mock<IMediator> _mediatorMock;
-    private Mock<IMessageProviderService> _messageProviderServiceMock;
+    private Mock<IOrderMessageProviderService> _orderMessageProviderServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
 
@@ -28,10 +28,10 @@ public class PartiallyRefundOfflineCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
-        _messageProviderServiceMock = new Mock<IMessageProviderService>();
+        _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
 
         _handler = new PartiallyRefundOfflineCommandHandler(_orderServiceMock.Object, _paymentTransactionMock.Object,
-            _mediatorMock.Object, _messageProviderServiceMock.Object, new LanguageSettings());
+            _mediatorMock.Object, _orderMessageProviderServiceMock.Object, new LanguageSettings());
     }
 
     [TestMethod]

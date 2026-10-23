@@ -27,12 +27,12 @@ public class BaseCustomerManagementControllerTests
     private class TestManagementController(
         ICustomerService customerService, ICustomerViewModelService customerViewModelService,
         ICustomerManagerService customerManagerService, ICustomerAttributeParser customerAttributeParser,
-        ICustomerAttributeService customerAttributeService, IMessageProviderService messageProviderService,
+        ICustomerAttributeService customerAttributeService, ICustomerMessageProviderService customerMessageProviderService,
         IGroupService groupService, IRequestTranslationService translationService, IContextAccessor contextAccessor,
         CustomerSettings customerSettings, IAdminDataScope<Customer> scope,
         IRequestPermissionService permissionService, IExportManager<Customer> exportManager)
         : BaseCustomerManagementController(customerService, customerViewModelService, customerManagerService,
-            customerAttributeParser, customerAttributeService, messageProviderService, groupService,
+            customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
             translationService, contextAccessor, customerSettings, scope, permissionService, exportManager)
     {
         public void CheckTwoFactorEnabledWarningPublic(Customer existingCustomer, CustomerModel model) =>
@@ -64,7 +64,7 @@ public class BaseCustomerManagementControllerTests
         _controller = new TestManagementController(_customerServiceMock.Object,
             new Mock<ICustomerViewModelService>().Object, new Mock<ICustomerManagerService>().Object,
             new Mock<ICustomerAttributeParser>().Object, new Mock<ICustomerAttributeService>().Object,
-            new Mock<IMessageProviderService>().Object, _groupServiceMock.Object, translationServiceMock.Object,
+            new Mock<ICustomerMessageProviderService>().Object, _groupServiceMock.Object, translationServiceMock.Object,
             _contextAccessorMock.Object, new CustomerSettings(), scopeMock.Object,
             _permissionServiceMock.Object, new Mock<IExportManager<Customer>>().Object);
 

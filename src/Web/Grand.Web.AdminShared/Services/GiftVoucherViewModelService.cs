@@ -22,7 +22,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
 
     public GiftVoucherViewModelService(
         IGiftVoucherService giftVoucherService, IOrderService orderService,
-        IPriceFormatter priceFormatter, IMessageProviderService messageProviderService,
+        IPriceFormatter priceFormatter, IOrderMessageProviderService orderMessageProviderService,
         IDateTimeService dateTimeService,
         ICurrencyService currencyService,
         LanguageSettings languageSettings,
@@ -33,7 +33,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
         _giftVoucherService = giftVoucherService;
         _orderService = orderService;
         _priceFormatter = priceFormatter;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _dateTimeService = dateTimeService;
         _currencyService = currencyService;
         _languageSettings = languageSettings;
@@ -163,7 +163,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
             languageId = _languageSettings.DefaultAdminLanguageId;
         }
 
-        var queuedEmailId = await _messageProviderService.SendGiftVoucherMessage(giftVoucher, order, languageId);
+        var queuedEmailId = await _orderMessageProviderService.SendGiftVoucherMessage(giftVoucher, order, languageId);
         if (queuedEmailId > 0)
         {
             giftVoucher.IsRecipientNotified = true;
@@ -232,7 +232,7 @@ public class GiftVoucherViewModelService : IGiftVoucherViewModelService
     private readonly IGiftVoucherService _giftVoucherService;
     private readonly IOrderService _orderService;
     private readonly IPriceFormatter _priceFormatter;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IDateTimeService _dateTimeService;
     private readonly ICurrencyService _currencyService;
     private readonly LanguageSettings _languageSettings;

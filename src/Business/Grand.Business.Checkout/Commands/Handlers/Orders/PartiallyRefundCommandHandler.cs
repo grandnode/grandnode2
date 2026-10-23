@@ -18,7 +18,7 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
     private readonly LanguageSettings _languageSettings;
     private readonly ILogger<PartiallyRefundCommandHandler> _logger;
     private readonly IMediator _mediator;
-    private readonly IMessageProviderService _messageProviderService;
+    private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
@@ -27,7 +27,7 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
         IMediator mediator,
-        IMessageProviderService messageProviderService,
+        IOrderMessageProviderService orderMessageProviderService,
         ILogger<PartiallyRefundCommandHandler> logger,
         IOrderService orderService,
         LanguageSettings languageSettings)
@@ -36,7 +36,7 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
         _paymentTransactionService = paymentTransactionService;
         _orderService = orderService;
         _mediator = mediator;
-        _messageProviderService = messageProviderService;
+        _orderMessageProviderService = orderMessageProviderService;
         _logger = logger;
         _languageSettings = languageSettings;
     }
@@ -90,10 +90,10 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
                     await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
                     //notifications
-                    await _messageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund,
+                    await _orderMessageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund,
                         _languageSettings.DefaultAdminLanguageId);
 
-                    await _messageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund,
+                    await _orderMessageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund,
                         order.CustomerLanguageId);
                 }
 
