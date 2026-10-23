@@ -15,7 +15,7 @@
             </div>
             <div class="grand-card__body grand-card__body--flush">
                 <admin-grid id="contactform-grid"
-                            read-url="@Url.Action("ContactFormList", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin })"
+                            read-url="@Url.Action("ContactFormList", "CustomerContactForm", new { customerId = Model.Id, area = Constants.AreaAdmin })"
                             page-size="@(defaultGridPageSize)"
                             page-sizes="@(gridPageSizes)"
                             auto-bind="false">

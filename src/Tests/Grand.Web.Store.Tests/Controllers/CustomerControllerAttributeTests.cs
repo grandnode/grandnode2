@@ -1,6 +1,7 @@
 using System.Reflection;
 using Grand.Web.Common.Filters;
 using Grand.Web.Store.Controllers;
+using Grand.Web.Store.Filters;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -67,16 +68,49 @@ public class CustomerControllerAttributeTests
     }
 
     [TestMethod]
-    public void CustomerController_DeclaresOnlyItsThreeOwnMembers()
+    public void CustomerController_DeclaresOnlyItsStoreOnlyMembers()
     {
-        // The per-store gate override, PerStoreDisabled, and ApplyPostConstraints override are
-        // genuine Store-only infrastructure — everything else must live in BaseCustomerController.
+        // PerStoreDisabled and the ApplyPostConstraints override are genuine Store-only
+        // infrastructure — everything else must live in BaseCustomerController.
         var ownMethods = typeof(CustomerController).GetMethods(
             BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Instance | BindingFlags.DeclaredOnly);
         var ownMethodNames = ownMethods.Select(m => m.Name)
             .Where(n => !n.StartsWith("get_") && !n.StartsWith("set_")).ToHashSet();
-        var allowed = new HashSet<string> { "OnActionExecutionAsync", "PerStoreDisabled", "ApplyPostConstraints", ".ctor" };
+        var allowed = new HashSet<string> { "PerStoreDisabled", "ApplyPostConstraints", ".ctor" };
         Assert.IsTrue(ownMethodNames.IsSubsetOf(allowed),
             $"Unexpected own members on thin Store subclass: {string.Join(", ", ownMethodNames.Except(allowed))}");
+    }
+
+    private static readonly Type[] CustomerControllers = [
+        typeof(CustomerController),
+        typeof(CustomerAddressController),
+        typeof(CustomerLoyaltyPointsController),
+        typeof(CustomerShoppingCartController),
+        typeof(CustomerProductController),
+        typeof(CustomerOutOfStockSubscriptionController),
+        typeof(CustomerOrderController),
+        typeof(CustomerReviewController)
+    ];
+
+    [TestMethod]
+    public void CustomerControllers_AllCarryThePerStoreGate()
+    {
+        // The tab controllers serve the same customers as CustomerController, so turning
+        // Customer:RegisterCustomersPerStore off must close them too, not only the list and the form.
+        foreach (var type in CustomerControllers)
+            Assert.AreEqual(1, type.GetCustomAttributes(typeof(PerStoreCustomersAttribute), inherit: false).Length,
+                $"{type.Name} must carry [PerStoreCustomers].");
+    }
+
+    [TestMethod]
+    public void CustomerControllers_AllCarryStoreAreaAndAuthorization()
+    {
+        foreach (var type in CustomerControllers)
+        {
+            var area = type.GetCustomAttributes(typeof(AreaAttribute), inherit: false).Cast<AreaAttribute>().Single();
+            Assert.AreEqual("Store", area.RouteValue, type.Name);
+            Assert.AreEqual(1, type.GetCustomAttributes(typeof(AuthorizeStoreAttribute), inherit: false).Length, type.Name);
+            Assert.AreEqual(1, type.GetCustomAttributes(typeof(AuthorizeMenuAttribute), inherit: false).Length, type.Name);
+        }
     }
 }

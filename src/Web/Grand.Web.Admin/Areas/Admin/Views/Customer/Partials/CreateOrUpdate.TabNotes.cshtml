@@ -9,8 +9,8 @@
     <div class="grand-card__body grand-card__body--flush">
         <vc:admin-widget widget-zone="customer_details_notes_top" additional-data="Model"/>
         <admin-grid id="customernotes-grid"
-                    read-url="@Url.Action("CustomerNotesSelect", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin })"
-                    destroy-url="@Url.Action("CustomerNoteDelete", "Customer", new { customerId = Model.Id, area = Constants.AreaAdmin })"
+                    read-url="@Url.Action("CustomerNotesSelect", "CustomerNote", new { customerId = Model.Id, area = Constants.AreaAdmin })"
+                    destroy-url="@Url.Action("CustomerNoteDelete", "CustomerNote", new { customerId = Model.Id, area = Constants.AreaAdmin })"
                     pager="Compact"
                     auto-bind="false"
                     confirm-destroy="true">
@@ -102,7 +102,7 @@
             $.ajax({
                 cache:false,
                 type: "POST",
-                url: "@(Url.Action("CustomerNoteAdd", "Customer", new { area = Constants.AreaAdmin }))",
+                url: "@(Url.Action("CustomerNoteAdd", "CustomerNote", new { area = Constants.AreaAdmin }))",
                 data: postData,
                 success: function (data) {
                     var grid = GrandAdmin.grids.get("#customernotes-grid");

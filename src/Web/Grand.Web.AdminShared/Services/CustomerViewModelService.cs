@@ -1,115 +1,81 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Contacts;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Newsletters;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Domain.Directory;
 using Grand.Domain.Messages;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
-using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
-using Grand.Web.AdminShared.Models.Catalog;
-using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Customers;
-using Grand.Web.AdminShared.Models.Messages;
-using Grand.Web.AdminShared.Models.ShoppingCart;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Models;
 using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.DependencyInjection;
-using System.Net;
 using System.Text;
 
 namespace Grand.Web.AdminShared.Services;
 
 public class CustomerViewModelService : ICustomerViewModelService
 {
-    private readonly IAddressAttributeParser _addressAttributeParser;
-    private readonly IAddressAttributeService _addressAttributeService;
-    private readonly AddressSettings _addressSettings;
     private readonly IAffiliateService _affiliateService;
     private readonly CommonSettings _commonSettings;
     private readonly ICountryService _countryService;
     private readonly ICustomerAttributeParser _customerAttributeParser;
     private readonly ICustomerAttributeService _customerAttributeService;
-    private readonly ICustomerNoteService _customerNoteService;
-    private readonly ICustomerProductService _customerProductService;
     private readonly ICustomerService _customerService;
     private readonly CustomerSettings _customerSettings;
     private readonly ICustomerTagService _customerTagService;
     private readonly IDateTimeService _dateTimeService;
-    private readonly IDownloadService _downloadService;
     private readonly IGroupService _groupService;
     private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly ILoyaltyPointsService _loyaltyPointsService;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
     private readonly INewsLetterSubscriptionService _newsLetterSubscriptionService;
-    private readonly IProductService _productService;
     private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly IStoreService _storeService;
 
     private readonly TaxSettings _taxSettings;
     private readonly IRequestTranslationService _translationService;
-    private readonly IVendorService _vendorService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
     
     public CustomerViewModelService(
         ICustomerService customerService,
         IGroupService groupService,
-        ICustomerProductService customerProductService,
         INewsLetterSubscriptionService newsLetterSubscriptionService,
         IDateTimeService dateTimeService,
         IRequestTranslationService translationService,
-        ILoyaltyPointsService loyaltyPointsService,
         ICountryService countryService,
         IContextAccessor contextAccessor,
-        IVendorService vendorService,
         IStoreService storeService,
         ICustomerAttributeParser customerAttributeParser,
         ICustomerAttributeService customerAttributeService,
-        IAddressAttributeParser addressAttributeParser,
-        IAddressAttributeService addressAttributeService,
         IAffiliateService affiliateService,
         ICustomerTagService customerTagService,
-        IProductService productService,
         ISalesEmployeeService salesEmployeeService,
-        ICustomerNoteService customerNoteService,
-        IDownloadService downloadService,
         IHttpContextAccessor httpContextAccessor,
         CustomerSettings customerSettings,
         TaxSettings taxSettings,
         LoyaltyPointsSettings loyaltyPointsSettings,
-        AddressSettings addressSettings,
         CommonSettings commonSettings, 
         IEnumTranslationService enumTranslationService)
     {
         _customerService = customerService;
         _groupService = groupService;
-        _customerProductService = customerProductService;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
         _dateTimeService = dateTimeService;
         _translationService = translationService;
-        _loyaltyPointsService = loyaltyPointsService;
         _taxSettings = taxSettings;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _countryService = countryService;
@@ -117,19 +83,12 @@ public class CustomerViewModelService : ICustomerViewModelService
         _commonSettings = commonSettings;
         _enumTranslationService = enumTranslationService;
         _contextAccessor = contextAccessor;
-        _vendorService = vendorService;
-        _addressSettings = addressSettings;
         _storeService = storeService;
         _customerAttributeParser = customerAttributeParser;
         _customerAttributeService = customerAttributeService;
-        _addressAttributeParser = addressAttributeParser;
-        _addressAttributeService = addressAttributeService;
         _affiliateService = affiliateService;
         _customerTagService = customerTagService;
-        _productService = productService;
         _salesEmployeeService = salesEmployeeService;
-        _customerNoteService = customerNoteService;
-        _downloadService = downloadService;
         _httpContextAccessor = httpContextAccessor;
     }
 
@@ -692,500 +651,6 @@ public class CustomerViewModelService : ICustomerViewModelService
                 : _dateTimeService.ConvertToUtcTime(model.DontSendBeforeDate.Value)
         };
         await queuedEmailService.InsertQueuedEmail(email);
-    }
-
-    public virtual async Task<IEnumerable<CustomerModel.LoyaltyPointsHistoryModel>> PrepareLoyaltyPointsHistoryModel(
-        string customerId)
-    {
-        var model = new List<CustomerModel.LoyaltyPointsHistoryModel>();
-        foreach (var rph in await _loyaltyPointsService.GetLoyaltyPointsHistory(customerId, showAll: true))
-        {
-            var store = await _storeService.GetStoreById(rph.StoreId);
-            model.Add(new CustomerModel.LoyaltyPointsHistoryModel {
-                StoreName = store != null ? store.Shortcut : "Unknown",
-                Points = rph.Points,
-                PointsBalance = rph.PointsBalance,
-                Message = rph.Message,
-                CreatedOn = _dateTimeService.ConvertToUserTime(rph.CreatedOnUtc, DateTimeKind.Utc)
-            });
-        }
-
-        return model;
-    }
-
-    public virtual async Task<LoyaltyPointsHistory> InsertLoyaltyPointsHistory(Customer customer, string storeId,
-        int addLoyaltyPointsValue, string addLoyaltyPointsMessage)
-    {
-        return await _loyaltyPointsService.AddLoyaltyPointsHistory(customer.Id, addLoyaltyPointsValue, storeId,
-            addLoyaltyPointsMessage);
-    }
-
-    public virtual async Task<IEnumerable<AddressModel>> PrepareAddressModel(Customer customer)
-    {
-        var addresses = customer.Addresses.ToList();
-        var addressesListModel = new List<AddressModel>();
-        foreach (var x in addresses)
-        {
-            var model = await x.ToModel(_countryService);
-            var addressHtmlSb = new StringBuilder("<div>");
-            if (_addressSettings.CompanyEnabled && !string.IsNullOrEmpty(model.Company))
-                addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Company));
-            if (_addressSettings.StreetAddressEnabled && !string.IsNullOrEmpty(model.Address1))
-                addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Address1));
-            if (_addressSettings.StreetAddress2Enabled && !string.IsNullOrEmpty(model.Address2))
-                addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.Address2));
-            if (_addressSettings.CityEnabled && !string.IsNullOrEmpty(model.City))
-                addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.City));
-            if (_addressSettings.StateProvinceEnabled && !string.IsNullOrEmpty(model.StateProvinceName))
-                addressHtmlSb.AppendFormat("{0},", WebUtility.HtmlEncode(model.StateProvinceName));
-            if (_addressSettings.ZipPostalCodeEnabled && !string.IsNullOrEmpty(model.ZipPostalCode))
-                addressHtmlSb.AppendFormat("{0}<br />", WebUtility.HtmlEncode(model.ZipPostalCode));
-            if (_addressSettings.CountryEnabled && !string.IsNullOrEmpty(model.CountryName))
-                addressHtmlSb.AppendFormat("{0}", WebUtility.HtmlEncode(model.CountryName));
-            var customAttributesFormatted =
-                await _addressAttributeParser.FormatAttributes(_contextAccessor.WorkContext.WorkingLanguage, x.Attributes);
-            if (!string.IsNullOrEmpty(customAttributesFormatted))
-                //already encoded
-                addressHtmlSb.AppendFormat("<br />{0}", customAttributesFormatted);
-            addressHtmlSb.Append("</div>");
-            model.AddressHtml = addressHtmlSb.ToString();
-            addressesListModel.Add(model);
-        }
-
-        return addressesListModel;
-    }
-
-    public virtual async Task DeleteAddress(Customer customer, Address address)
-    {
-        customer.RemoveAddress(address);
-        await _customerService.UpdateCustomerInAdminPanel(customer);
-    }
-
-    public virtual async Task<Address> InsertAddressModel(Customer customer, CustomerAddressModel model,
-        List<CustomAttribute> customAttributes)
-    {
-        var address = model.Address.ToEntity();
-        address.Attributes = customAttributes;
-        customer.Addresses.Add(address);
-        await _customerService.UpdateCustomerInAdminPanel(customer);
-        return address;
-    }
-
-    public virtual async Task PrepareAddressModel(CustomerAddressModel model, Address address, Customer customer,
-        bool excludeProperties)
-    {
-        ArgumentNullException.ThrowIfNull(customer);
-
-        model.CustomerId = customer.Id;
-        if (address != null)
-            if (!excludeProperties)
-                model.Address = await address.ToModel(_countryService);
-
-        model.Address ??= new AddressModel();
-
-        model.Address.NameEnabled = _addressSettings.NameEnabled;
-        model.Address.FirstNameEnabled = true;
-        model.Address.FirstNameRequired = true;
-        model.Address.LastNameEnabled = true;
-        model.Address.LastNameRequired = true;
-        model.Address.EmailEnabled = true;
-        model.Address.EmailRequired = true;
-        model.Address.CompanyEnabled = _addressSettings.CompanyEnabled;
-        model.Address.CompanyRequired = _addressSettings.CompanyRequired;
-        model.Address.VatNumberEnabled = _addressSettings.VatNumberEnabled;
-        model.Address.VatNumberRequired = _addressSettings.VatNumberRequired;
-        model.Address.CountryEnabled = _addressSettings.CountryEnabled;
-        model.Address.StateProvinceEnabled = _addressSettings.StateProvinceEnabled;
-        model.Address.CityEnabled = _addressSettings.CityEnabled;
-        model.Address.CityRequired = _addressSettings.CityRequired;
-        model.Address.StreetAddressEnabled = _addressSettings.StreetAddressEnabled;
-        model.Address.StreetAddressRequired = _addressSettings.StreetAddressRequired;
-        model.Address.StreetAddress2Enabled = _addressSettings.StreetAddress2Enabled;
-        model.Address.StreetAddress2Required = _addressSettings.StreetAddress2Required;
-        model.Address.ZipPostalCodeEnabled = _addressSettings.ZipPostalCodeEnabled;
-        model.Address.ZipPostalCodeRequired = _addressSettings.ZipPostalCodeRequired;
-        model.Address.PhoneEnabled = _addressSettings.PhoneEnabled;
-        model.Address.PhoneRequired = _addressSettings.PhoneRequired;
-        model.Address.FaxEnabled = _addressSettings.FaxEnabled;
-        model.Address.FaxRequired = _addressSettings.FaxRequired;
-        model.Address.NoteEnabled = _addressSettings.NoteEnabled;
-        model.Address.AddressTypeEnabled = _addressSettings.AddressTypeEnabled;
-
-        //countries
-        model.Address.AvailableCountries.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
-        foreach (var c in await _countryService.GetAllCountries(showHidden: true))
-            model.Address.AvailableCountries.Add(new SelectListItem
-                { Text = c.Name, Value = c.Id, Selected = c.Id == model.Address.CountryId });
-        //states
-        var states = !string.IsNullOrEmpty(model.Address.CountryId)
-            ? (await _countryService.GetCountryById(model.Address.CountryId))?.StateProvinces
-            : new List<StateProvince>();
-        if (states?.Count > 0)
-            foreach (var s in states)
-                model.Address.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == model.Address.StateProvinceId });
-
-        //customer attribute services
-        await model.Address.PrepareCustomAddressAttributes(address, _addressAttributeService, _addressAttributeParser);
-    }
-
-    public virtual async Task<Address> UpdateAddressModel(Customer customer, Address address,
-        CustomerAddressModel model, List<CustomAttribute> customAttributes)
-    {
-        address = model.Address.ToEntity(address);
-        address.Attributes = customAttributes;
-        await _customerService.UpdateCustomerInAdminPanel(customer);
-        return address;
-    }
-
-    public virtual async Task<IList<ShoppingCartItemModel>> PrepareShoppingCartItemModel(string customerId,
-        int cartTypeId)
-    {
-        var customer = await _customerService.GetCustomerById(customerId);
-        var cart = customer.ShoppingCartItems.Where(x => x.ShoppingCartTypeId == (ShoppingCartType)cartTypeId).ToList();
-        var items = new List<ShoppingCartItemModel>();
-        if (cart.Any())
-        {
-            var taxService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<ITaxService>();
-            var priceCalculationService =
-                _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IPricingService>();
-            var priceFormatter =
-                _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IPriceFormatter>();
-            var productAttributeFormatter = _httpContextAccessor.HttpContext!.RequestServices
-                .GetRequiredService<IProductAttributeFormatter>();
-            foreach (var sci in cart)
-            {
-                var store = await _storeService.GetStoreById(sci.StoreId);
-                var priceStore = store ?? _contextAccessor.StoreContext.CurrentStore;
-                var product = await _productService.GetProductById(sci.ProductId);
-                if (product != null)
-                {
-                    var price = (await taxService.GetProductPrice(product,
-                        (await priceCalculationService.GetUnitPrice(sci, product,
-                            customer, priceStore,
-                            _contextAccessor.WorkContext.WorkingCurrency)).unitprice,
-                            _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                            customer, priceStore)).productprice;
-                    var sciModel = new ShoppingCartItemModel {
-                        Id = sci.Id,
-                        Store = store != null ? store.Shortcut : "Unknown",
-                        ProductId = sci.ProductId,
-                        Quantity = sci.Quantity,
-                        ProductName = product.Name,
-                        AttributeInfo = await productAttributeFormatter.FormatAttributes(product, sci.Attributes,
-                            _contextAccessor.CalculationContext() with { Customer = customer, Store = priceStore },
-                            _contextAccessor.WorkContext.WorkingLanguage, _contextAccessor.StoreContext.CurrentHost),
-                        UnitPrice = priceFormatter.FormatPrice(price, _contextAccessor.WorkContext.WorkingCurrency),
-                        UnitPriceValue = price,
-                        Total = priceFormatter.FormatPrice((await taxService.GetProductPrice(product,
-                            (await priceCalculationService.GetSubTotal(sci, product,
-                                customer, priceStore,
-                                _contextAccessor.WorkContext.WorkingCurrency)).subTotal,
-                                _contextAccessor.WorkContext.TaxDisplayType == TaxDisplayType.IncludingTax,
-                                customer, priceStore)).productprice,
-                                _contextAccessor.WorkContext.WorkingCurrency),
-                        UpdatedOn = sci.UpdatedOnUtc.HasValue
-                            ? _dateTimeService.ConvertToUserTime(sci.UpdatedOnUtc.Value, DateTimeKind.Utc)
-                            : _dateTimeService.ConvertToUserTime(sci.CreatedOnUtc, DateTimeKind.Utc)
-                    };
-                    items.Add(sciModel);
-                }
-            }
-        }
-
-        return items;
-    }
-
-    public virtual async Task DeleteCart(Customer customer, string id)
-    {
-        var cart = customer.ShoppingCartItems.FirstOrDefault(a => a.Id == id);
-        if (cart != null)
-        {
-            await _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IShoppingCartService>()
-                .DeleteShoppingCartItem(customer, cart, ensureOnlyActiveCheckoutAttributes: true);
-            await _customerService.UpdateCustomerInAdminPanel(customer);
-        }
-    }
-
-    public virtual async Task<IList<string>> UpdateCart(Customer customer, string shoppingCartId, double? unitprice)
-    {
-        var cart = customer.ShoppingCartItems.FirstOrDefault(a => a.Id == shoppingCartId);
-        if (cart != null)
-            return await _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IShoppingCartService>()
-                .UpdateShoppingCartItem(
-                    customer, _contextAccessor.WorkContext.WorkingLanguage,
-                    shoppingCartId,
-                    cart.WarehouseId,
-                    cart.Attributes,
-                    unitprice,
-                    cart.RentalStartDateUtc,
-                    cart.RentalEndDateUtc,
-                    cart.Quantity,
-                    true,
-                    cart.ReservationId,
-                    shoppingCartId);
-        return new List<string>();
-    }
-
-    public virtual async Task<(IEnumerable<CustomerModel.ProductPriceModel> productPriceModels, int totalCount)>
-        PrepareProductPriceModel(string customerId, int pageIndex, int pageSize)
-    {
-        var productPrices =
-            await _customerProductService.GetProductsPriceByCustomer(customerId, pageIndex - 1, pageSize);
-        var items = new List<CustomerModel.ProductPriceModel>();
-        foreach (var x in productPrices)
-        {
-            var m = new CustomerModel.ProductPriceModel {
-                Id = x.Id,
-                Price = x.Price,
-                ProductId = x.ProductId,
-                ProductName = (await _productService.GetProductById(x.ProductId))?.Name
-            };
-            items.Add(m);
-        }
-
-        return (items, productPrices.TotalCount);
-    }
-
-    public virtual async Task<(IEnumerable<CustomerModel.ProductModel> productModels, int totalCount)>
-        PreparePersonalizedProducts(string customerId, int pageIndex, int pageSize)
-    {
-        var products = await _customerProductService.GetProductsByCustomer(customerId, pageIndex - 1, pageSize);
-        var items = new List<CustomerModel.ProductModel>();
-        foreach (var x in products)
-        {
-            var m = new CustomerModel.ProductModel {
-                Id = x.Id,
-                DisplayOrder = x.DisplayOrder,
-                ProductId = x.ProductId,
-                ProductName = (await _productService.GetProductById(x.ProductId))?.Name
-            };
-            items.Add(m);
-        }
-
-        return (items, products.TotalCount);
-    }
-
-    public virtual async Task<CustomerModel.AddProductModel> PrepareCustomerModelAddProductModel()
-    {
-        var model = new CustomerModel.AddProductModel();
-
-        //stores
-        model.AvailableStores.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var s in await _storeService.GetAllStores())
-            model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
-
-        //vendors
-        model.AvailableVendors.Add(new SelectListItem
-            { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var v in await _vendorService.GetAllVendors(showHidden: true))
-            model.AvailableVendors.Add(new SelectListItem { Text = v.Name, Value = v.Id });
-
-        //product types
-        model.AvailableProductTypes = _enumTranslationService.ToSelectList(ProductType.SimpleProduct, false).ToList();
-        model.AvailableProductTypes.Insert(0, new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-
-        return model;
-    }
-
-    public virtual async Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(
-        CustomerModel.AddProductModel model, int pageIndex, int pageSize)
-    {
-        var products = await _productService.PrepareProductList(model.SearchCategoryId, model.SearchBrandId,
-            model.SearchCollectionId, model.SearchStoreId, model.SearchVendorId, model.SearchProductTypeId,
-            model.SearchProductName, pageIndex, pageSize);
-        return (products.Select(x => x.ToModel()).ToList(), products.TotalCount);
-    }
-
-    public virtual async Task InsertCustomerAddProductModel(string customerId, bool personalized,
-        CustomerModel.AddProductModel model)
-    {
-        foreach (var id in model.SelectedProductIds)
-        {
-            var product = await _productService.GetProductById(id);
-            if (product != null)
-            {
-                if (!personalized)
-                {
-                    if (!(await _customerProductService.GetPriceByCustomerProduct(customerId, id)).HasValue)
-                        await _customerProductService.InsertCustomerProductPrice(new CustomerProductPrice
-                            { CustomerId = customerId, ProductId = id, Price = product.Price });
-                }
-                else
-                {
-                    if (await _customerProductService.GetCustomerProduct(customerId, id) == null)
-                        await _customerProductService.InsertCustomerProduct(new CustomerProduct
-                            { CustomerId = customerId, ProductId = id, DisplayOrder = 0 });
-                }
-            }
-        }
-    }
-
-    public virtual async Task UpdateProductPrice(CustomerModel.ProductPriceModel model)
-    {
-        var productPrice = await _customerProductService.GetCustomerProductPriceById(model.Id);
-        if (productPrice != null)
-        {
-            productPrice.Price = model.Price;
-            await _customerProductService.UpdateCustomerProductPrice(productPrice);
-        }
-    }
-
-    public virtual async Task DeleteProductPrice(string id)
-    {
-        var productPrice = await _customerProductService.GetCustomerProductPriceById(id);
-        if (productPrice == null)
-            throw new ArgumentException("No productPrice found with the specified id");
-
-        await _customerProductService.DeleteCustomerProductPrice(productPrice);
-    }
-
-    public virtual async Task UpdatePersonalizedProduct(CustomerModel.ProductModel model)
-    {
-        var customerproduct = await _customerProductService.GetCustomerProduct(model.Id);
-        if (customerproduct != null)
-        {
-            customerproduct.DisplayOrder = model.DisplayOrder;
-            await _customerProductService.UpdateCustomerProduct(customerproduct);
-        }
-    }
-
-    public virtual async Task DeletePersonalizedProduct(string id)
-    {
-        var customerproduct = await _customerProductService.GetCustomerProduct(id);
-        if (customerproduct == null)
-            throw new ArgumentException("No customerproduct found with the specified id");
-
-        await _customerProductService.DeleteCustomerProduct(customerproduct);
-    }
-
-    public virtual async Task<(IEnumerable<ContactFormModel> contactFormModels, int totalCount)>
-        PrepareContactFormModel(string customerId, int pageIndex, int pageSize)
-    {
-        var contactUsService =
-            _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IContactUsService>();
-        var contactform = await contactUsService.GetAllContactUs(storeId: "", vendorId: "", customerId: customerId,
-            pageIndex: pageIndex - 1, pageSize: pageSize);
-        var items = new List<ContactFormModel>();
-        foreach (var x in contactform)
-        {
-            var store = await _storeService.GetStoreById(x.StoreId);
-            var m = x.ToModel();
-            m.CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc);
-            m.Enquiry = "";
-            m.Email = m.FullName + " - " + m.Email;
-            m.Store = store != null ? store.Shortcut : "-empty-";
-            items.Add(m);
-        }
-
-        return (items, contactform.TotalCount);
-    }
-
-    public virtual async
-        Task<(IEnumerable<CustomerModel.OutOfStockSubscriptionModel> outOfStockSubscriptionModels, int totalCount)>
-        PrepareOutOfStockSubscriptionModel(string customerId, int pageIndex, int pageSize)
-    {
-        var outOfStockSubscriptionService = _httpContextAccessor.HttpContext!.RequestServices
-            .GetRequiredService<IOutOfStockSubscriptionService>();
-        var subscriptions =
-            await outOfStockSubscriptionService.GetAllSubscriptionsByCustomerId(customerId, "", pageIndex - 1,
-                pageSize);
-        var items = new List<CustomerModel.OutOfStockSubscriptionModel>();
-        if (subscriptions.Any())
-        {
-            var productAttributeFormatter = _httpContextAccessor.HttpContext!.RequestServices
-                .GetRequiredService<IProductAttributeFormatter>();
-            foreach (var x in subscriptions)
-            {
-                var store = await _storeService.GetStoreById(x.StoreId);
-                var product = await _productService.GetProductById(x.ProductId);
-                var m = new CustomerModel.OutOfStockSubscriptionModel {
-                    Id = x.Id,
-                    StoreName = store != null ? store.Shortcut : "Unknown",
-                    ProductId = x.ProductId,
-                    ProductName = product != null ? product.Name : "Unknown",
-                    AttributeDescription = x.Attributes == null || !x.Attributes.Any()
-                        ? ""
-                        : await productAttributeFormatter.FormatAttributes(product, x.Attributes,
-                            _contextAccessor.CalculationContext(), _contextAccessor.WorkContext.WorkingLanguage,
-                            _contextAccessor.StoreContext.CurrentHost),
-                    CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
-                };
-                items.Add(m);
-            }
-        }
-
-        return (items, subscriptions.TotalCount);
-    }
-
-    public virtual async Task<IList<CustomerModel.CustomerNote>> PrepareCustomerNoteList(string customerId)
-    {
-        var downloadService = _httpContextAccessor.HttpContext!.RequestServices.GetRequiredService<IDownloadService>();
-        var customerNoteModels = new List<CustomerModel.CustomerNote>();
-        foreach (var customerNote in (await _customerNoteService.GetCustomerNotes(customerId))
-                 .OrderByDescending(on => on.CreatedOnUtc))
-        {
-            var download = !string.IsNullOrEmpty(customerNote.DownloadId)
-                ? await downloadService.GetDownloadById(customerNote.DownloadId)
-                : null;
-            customerNoteModels.Add(new CustomerModel.CustomerNote {
-                Id = customerNote.Id,
-                CustomerId = customerId,
-                DownloadId = string.IsNullOrEmpty(customerNote.DownloadId) ? "" : customerNote.DownloadId,
-                DownloadGuid = download?.DownloadGuid ?? Guid.Empty,
-                DisplayToCustomer = customerNote.DisplayToCustomer,
-                Title = customerNote.Title,
-                Note = customerNote.Note,
-                CreatedOn = _dateTimeService.ConvertToUserTime(customerNote.CreatedOnUtc, DateTimeKind.Utc)
-            });
-        }
-
-        return customerNoteModels;
-    }
-
-    public virtual async Task<CustomerNote> InsertCustomerNote(string customerId, string downloadId,
-        bool displayToCustomer, string title, string message)
-    {
-        var customerNote = new CustomerNote {
-            DisplayToCustomer = displayToCustomer,
-            Title = title,
-            Note = message,
-            DownloadId = downloadId,
-            CustomerId = customerId
-        };
-        await _customerNoteService.InsertCustomerNote(customerNote);
-
-        //new customer note notification
-        if (displayToCustomer)
-        {
-            //email
-            var messageProviderService = _httpContextAccessor.HttpContext!.RequestServices
-                .GetRequiredService<IMessageProviderService>();
-            await messageProviderService.SendNewCustomerNoteMessage(customerNote,
-                await _customerService.GetCustomerById(customerId), _contextAccessor.StoreContext.CurrentStore,
-                _contextAccessor.WorkContext.WorkingLanguage.Id);
-        }
-
-        return customerNote;
-    }
-
-    public virtual async Task DeleteCustomerNote(string id, string customerId)
-    {
-        var customerNote = await _customerNoteService.GetCustomerNote(id);
-        if (customerNote == null)
-            throw new ArgumentException("No customer note found with the specified id");
-
-        await _customerNoteService.DeleteCustomerNote(customerNote);
-
-        //delete an old "attachment" file
-        if (!string.IsNullOrEmpty(customerNote.DownloadId))
-        {
-            var attachment = await _downloadService.GetDownloadById(customerNote.DownloadId);
-            if (attachment != null)
-                await _downloadService.DeleteDownload(attachment);
-        }
     }
 
     #region Utilities

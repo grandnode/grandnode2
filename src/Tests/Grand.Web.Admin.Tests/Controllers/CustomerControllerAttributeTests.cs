@@ -93,4 +93,29 @@ public class CustomerControllerAttributeTests
 
         Assert.AreEqual(PermissionActionName.Create, attr.PermissionAction);
     }
+
+    [TestMethod]
+    public void CustomerTabControllers_AllCarryAdminAreaAndAuthorization()
+    {
+        Type[] tabControllers = [
+            typeof(CustomerAddressController),
+            typeof(CustomerLoyaltyPointsController),
+            typeof(CustomerShoppingCartController),
+            typeof(CustomerProductController),
+            typeof(CustomerOutOfStockSubscriptionController),
+            typeof(CustomerOrderController),
+            typeof(CustomerReviewController),
+            typeof(CustomerNoteController),
+            typeof(CustomerContactFormController)
+        ];
+        foreach (var type in tabControllers)
+        {
+            var area = type.GetCustomAttributes(typeof(AreaAttribute), inherit: false).Cast<AreaAttribute>().Single();
+            Assert.AreEqual("Admin", area.RouteValue, type.Name);
+            Assert.AreEqual(1, type.GetCustomAttributes(typeof(AuthorizeAdminAttribute), inherit: false).Length, type.Name);
+            Assert.AreEqual(1, type.GetCustomAttributes(typeof(AuthorizeMenuAttribute), inherit: false).Length, type.Name);
+            // [PermissionAuthorize(Customers)] and antiforgery arrive from BaseCustomerScopedController.
+            Assert.IsTrue(typeof(BaseCustomerScopedController).IsAssignableFrom(type), type.Name);
+        }
+    }
 }

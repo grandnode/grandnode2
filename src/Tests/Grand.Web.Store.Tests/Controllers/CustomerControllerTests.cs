@@ -1,8 +1,5 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
@@ -12,9 +9,9 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.Models;
 using Grand.Web.Store.Controllers;
+using Grand.Web.Store.Filters;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.Controllers;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -25,10 +22,9 @@ using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Store.Tests.Controllers;
 
-// Trimmed for the Task 11 thin-subclass cutover: business logic now shared through
-// BaseCustomerController is exercised by BaseCustomerControllerTests.cs (Admin.Tests, Tasks 4-8)
-// and applies identically to Store. What remains here is genuinely Store-only: the per-store
-// feature gate (OnActionExecutionAsync), the PerStoreDisabled page, and the
+// Business logic shared through BaseCustomerController and the customer tab controllers is
+// exercised in Admin.Tests and applies identically to Store. What remains here is genuinely
+// Store-only: the per-store feature gate ([PerStoreCustomers]), the PerStoreDisabled page, and the
 // ApplyPostConstraints override's anti-smuggling contract.
 [TestClass]
 public class CustomerControllerTests
@@ -71,52 +67,36 @@ public class CustomerControllerTests
         ICustomerService customerService,
         ICustomerViewModelService customerViewModelService,
         ICustomerManagerService customerManagerService,
-        ICustomerProductService customerProductService,
-        IProductReviewService productReviewService,
-        IProductReviewViewModelService productReviewViewModelService,
-        IProductViewModelService productViewModelService,
         ICustomerAttributeParser customerAttributeParser,
         ICustomerAttributeService customerAttributeService,
-        IAddressAttributeParser addressAttributeParser,
-        IAddressAttributeService addressAttributeService,
         IMessageProviderService messageProviderService,
         IGroupService groupService,
         IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
         CustomerSettings customerSettings,
-        IAdminDataScope<Customer> scope,
-        CustomerConfig customerConfig)
+        IAdminDataScope<Customer> scope)
         : CustomerController(customerService, customerViewModelService, customerManagerService,
-            customerProductService, productReviewService, productReviewViewModelService, productViewModelService,
-            customerAttributeParser, customerAttributeService, addressAttributeParser, addressAttributeService,
-            messageProviderService, groupService, translationService, contextAccessor, customerSettings, scope,
-            customerConfig)
+            customerAttributeParser, customerAttributeService, messageProviderService, groupService,
+            translationService, contextAccessor, customerSettings, scope)
     {
         public Task ApplyPostConstraintsPublic(CustomerModel model) => ApplyPostConstraints(model);
     }
 
-    private TestableCustomerController BuildStoreController(bool perStoreEnabled = true,
-        IGroupService groupService = null, IAdminDataScope<Customer> scope = null)
+    private TestableCustomerController BuildStoreController(IGroupService groupService = null,
+        IAdminDataScope<Customer> scope = null)
     {
         var controller = new TestableCustomerController(
             _customerServiceMock.Object,
             _customerViewModelServiceMock.Object,
             _customerManagerServiceMock.Object,
-            new Mock<ICustomerProductService>().Object,
-            new Mock<IProductReviewService>().Object,
-            new Mock<IProductReviewViewModelService>().Object,
-            new Mock<IProductViewModelService>().Object,
             new Mock<ICustomerAttributeParser>().Object,
             _customerAttributeServiceMock.Object,
-            new Mock<IAddressAttributeParser>().Object,
-            new Mock<IAddressAttributeService>().Object,
             new Mock<IMessageProviderService>().Object,
             groupService ?? _groupServiceMock.Object,
             _translationServiceMock.Object,
             _contextAccessorMock.Object,
             new CustomerSettings(),
-            scope ?? _scopeMock.Object,
-            new CustomerConfig { RegisterCustomersPerStore = perStoreEnabled });
+            scope ?? _scopeMock.Object);
 
         var httpContext = new DefaultHttpContext();
         controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
@@ -124,45 +104,54 @@ public class CustomerControllerTests
         return controller;
     }
 
-    private static ActionExecutingContext BuildGate(CustomerController controller, string actionName)
+    private static async Task<(ActionExecutingContext context, bool nextCalled)> RunGate(bool perStoreEnabled,
+        string controllerName, string actionName)
     {
-        var actionContext = new ActionContext(controller.ControllerContext.HttpContext, new RouteData(),
-            new ControllerActionDescriptor { ActionName = actionName });
-        return new ActionExecutingContext(actionContext, new List<IFilterMetadata>(),
-            new Dictionary<string, object>(), controller);
+        var filter = new PerStoreCustomersAttribute.PerStoreCustomersFilter(
+            new CustomerConfig { RegisterCustomersPerStore = perStoreEnabled });
+        var actionContext = new ActionContext(new DefaultHttpContext(), new RouteData(),
+            new ControllerActionDescriptor { ControllerName = controllerName, ActionName = actionName });
+        var context = new ActionExecutingContext(actionContext, new List<IFilterMetadata>(),
+            new Dictionary<string, object>(), null);
+        var nextCalled = false;
+
+        await filter.OnActionExecutionAsync(context, () =>
+        {
+            nextCalled = true;
+            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), null));
+        });
+
+        return (context, nextCalled);
     }
 
     [TestMethod]
     public async Task Gate_PerStoreDisabled_RedirectsToPerStoreDisabled()
     {
-        var controller = BuildStoreController(perStoreEnabled: false);
-        var context = BuildGate(controller, nameof(CustomerController.List));
-        var nextCalled = false;
-
-        await controller.OnActionExecutionAsync(context, () =>
-        {
-            nextCalled = true;
-            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), controller));
-        });
+        var (context, nextCalled) = await RunGate(false, "Customer", nameof(CustomerController.List));
 
         Assert.IsFalse(nextCalled);
         var redirect = context.Result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual(nameof(CustomerController.PerStoreDisabled), redirect.ActionName);
+        Assert.AreEqual("Customer", redirect.ControllerName);
+    }
+
+    [TestMethod]
+    public async Task Gate_PerStoreDisabled_TabControllerAction_RedirectsToCustomerPerStoreDisabled()
+    {
+        var (context, nextCalled) = await RunGate(false, "CustomerAddress", "AddressCreate");
+
+        Assert.IsFalse(nextCalled);
+        var redirect = context.Result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual(nameof(CustomerController.PerStoreDisabled), redirect.ActionName);
+        Assert.AreEqual("Customer", redirect.ControllerName);
     }
 
     [TestMethod]
     public async Task Gate_PerStoreDisabled_AllowsPerStoreDisabledAction()
     {
-        var controller = BuildStoreController(perStoreEnabled: false);
-        var context = BuildGate(controller, nameof(CustomerController.PerStoreDisabled));
-        var nextCalled = false;
-
-        await controller.OnActionExecutionAsync(context, () =>
-        {
-            nextCalled = true;
-            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), controller));
-        });
+        var (context, nextCalled) = await RunGate(false, "Customer", nameof(CustomerController.PerStoreDisabled));
 
         Assert.IsTrue(nextCalled);
         Assert.IsNull(context.Result);
@@ -171,15 +160,7 @@ public class CustomerControllerTests
     [TestMethod]
     public async Task Gate_PerStoreEnabled_CallsNext()
     {
-        var controller = BuildStoreController(perStoreEnabled: true);
-        var context = BuildGate(controller, nameof(CustomerController.List));
-        var nextCalled = false;
-
-        await controller.OnActionExecutionAsync(context, () =>
-        {
-            nextCalled = true;
-            return Task.FromResult(new ActionExecutedContext(context, new List<IFilterMetadata>(), controller));
-        });
+        var (context, nextCalled) = await RunGate(true, "Customer", nameof(CustomerController.List));
 
         Assert.IsTrue(nextCalled);
         Assert.IsNull(context.Result);
@@ -188,7 +169,7 @@ public class CustomerControllerTests
     [TestMethod]
     public void PerStoreDisabled_ReturnsView()
     {
-        var controller = BuildStoreController(perStoreEnabled: false);
+        var controller = BuildStoreController();
         var result = controller.PerStoreDisabled();
         Assert.IsInstanceOfType(result, typeof(ViewResult));
     }

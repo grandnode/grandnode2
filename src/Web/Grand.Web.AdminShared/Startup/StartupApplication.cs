@@ -47,6 +47,13 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<ICurrencyViewModelService, CurrencyViewModelService>();
         services.AddScoped<ICustomerAttributeViewModelService, CustomerAttributeViewModelService>();
         services.AddScoped<ICustomerViewModelService, CustomerViewModelService>();
+        services.AddScoped<ICustomerAddressViewModelService, CustomerAddressViewModelService>();
+        services.AddScoped<ICustomerLoyaltyPointsViewModelService, CustomerLoyaltyPointsViewModelService>();
+        services.AddScoped<ICustomerShoppingCartViewModelService, CustomerShoppingCartViewModelService>();
+        services.AddScoped<ICustomerProductViewModelService, CustomerProductViewModelService>();
+        services.AddScoped<ICustomerOutOfStockSubscriptionViewModelService, CustomerOutOfStockSubscriptionViewModelService>();
+        services.AddScoped<ICustomerNoteViewModelService, CustomerNoteViewModelService>();
+        services.AddScoped<ICustomerContactFormViewModelService, CustomerContactFormViewModelService>();
         services.AddScoped<ICustomerReportViewModelService, CustomerReportViewModelService>();
         services.AddScoped<ICustomerGroupViewModelService, CustomerGroupViewModelService>();
         services.AddScoped<ICustomerTagViewModelService, CustomerTagViewModelService>();
