@@ -7,11 +7,15 @@ const require = createRequire(import.meta.url)
 let $
 
 beforeAll(() => {
-    //jquery 2.2.4, the version the panels load; with a global document the module is
+    //jquery 3.7.1, the version the panels load; with a global document the module is
     //jQuery itself, without one it is a factory taking a window
     const jquery = require('jquery')
     $ = typeof jquery.param === 'function' ? jquery : jquery(window)
 })
+
+//jQuery 3 writes a space as %20, jQuery 2 and the Kendo transports wrote '+', which param
+//keeps; the model binders decode both the same
+const jqueryParam = data => $.param(data).replace(/%20/g, '+')
 
 const cases = {
     'read request with paging and additional data': {
@@ -43,13 +47,13 @@ const cases = {
 describe('param', () => {
     for (const [name, data] of Object.entries(cases)) {
         it(`matches jQuery.param: ${name}`, () => {
-            expect(param(data)).toBe($.param(data))
+            expect(param(data)).toBe(jqueryParam(data))
         })
     }
 
     it('serializes an array of name/value pairs like jQuery', () => {
         const fields = [{ name: 'a', value: '1' }, { name: 'a', value: '2 3' }, { name: 'b', value: null }]
-        expect(param(fields)).toBe($.param(fields))
+        expect(param(fields)).toBe(jqueryParam(fields))
     })
 
     it('returns an empty string for null', () => {

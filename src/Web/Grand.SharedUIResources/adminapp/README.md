@@ -238,8 +238,10 @@ npm run lint
 npm test
 ```
 
-The serializer tests compare against `jQuery.param` from jQuery 2.2.4, a dev dependency
-only (the panels load their own copy).
+The serializer tests compare against `jQuery.param` from jQuery 3.7.1, a dev dependency
+only (the panels load their own copy). The serializer keeps writing a space as `+`, as
+jQuery 2 and the Kendo transports did; jQuery 3 writes `%20`, and the tests treat the two
+as equal because the model binders decode both the same.
 
 ## End-to-end smoke tests
 
