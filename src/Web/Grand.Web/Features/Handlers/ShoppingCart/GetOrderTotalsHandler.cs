@@ -22,6 +22,9 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
     private readonly IMediator _mediator;
     private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
+    private readonly IShoppingCartShippingService _shoppingCartShippingService;
+    private readonly IShoppingCartTaxService _shoppingCartTaxService;
     private readonly IPaymentService _paymentService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly ITaxService _taxService;
@@ -30,6 +33,9 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
 
     public GetOrderTotalsHandler(
         IOrderCalculationService orderTotalCalculationService,
+        IShoppingCartSubTotalService shoppingCartSubTotalService,
+        IShoppingCartShippingService shoppingCartShippingService,
+        IShoppingCartTaxService shoppingCartTaxService,
         ICurrencyService currencyService,
         IPriceFormatter priceFormatter,
         IPaymentService paymentService,
@@ -39,6 +45,9 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         LoyaltyPointsSettings loyaltyPointsSettings)
     {
         _orderTotalCalculationService = orderTotalCalculationService;
+        _shoppingCartSubTotalService = shoppingCartSubTotalService;
+        _shoppingCartShippingService = shoppingCartShippingService;
+        _shoppingCartTaxService = shoppingCartTaxService;
         _currencyService = currencyService;
         _priceFormatter = priceFormatter;
         _paymentService = paymentService;
@@ -81,7 +90,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                    !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
         var shoppingCartSubTotal =
-            await _orderTotalCalculationService.GetShoppingCartSubTotal(request.Cart, context, subTotalIncludingTax);
+            await _shoppingCartSubTotalService.GetShoppingCartSubTotal(request.Cart, context, subTotalIncludingTax);
         model.SubTotalIncludingTax = subTotalIncludingTax;
         model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.SubTotalWithoutDiscount, request.Currency);
         model.SubTotalValue = shoppingCartSubTotal.SubTotalWithoutDiscount;
@@ -101,7 +110,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         if (model.RequiresShipping)
         {
             var shoppingCartShippingBase =
-                (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, context))
+                (await _shoppingCartShippingService.GetShoppingCartShippingTotal(request.Cart, context))
                 .ShippingTotal;
             if (shoppingCartShippingBase.HasValue)
             {
@@ -146,7 +155,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         }
         else
         {
-            var taxtotal = await _orderTotalCalculationService.GetTaxTotal(request.Cart, context);
+            var taxtotal = await _shoppingCartTaxService.GetTaxTotal(request.Cart, context);
             var taxRates = taxtotal.TaxRates;
 
             if (taxtotal.TaxTotal == 0 && _taxSettings.HideZeroTax)
@@ -213,7 +222,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
             shoppingCartTotalBase.HasValue)
         {
             var shippingBaseInclTax = model.RequiresShipping
-                ? (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, context, true))
+                ? (await _shoppingCartShippingService.GetShoppingCartShippingTotal(request.Cart, context, true))
                 .ShippingTotal
                 : 0;
             var earnLoyaltyPoints = shoppingCartTotalBase.Value - shippingBaseInclTax ?? 0;

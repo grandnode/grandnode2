@@ -13,14 +13,14 @@ public class ValidateMinShoppingCartSubtotalAmountCommandHandlerTests
 {
     private ValidateMinShoppingCartSubtotalAmountCommandHandler _handler;
     private OrderSettings _orderSettings;
-    private Mock<IOrderCalculationService> _orderTotalCalculationServiceMock;
+    private Mock<IShoppingCartSubTotalService> _shoppingCartSubTotalServiceMock;
 
     [TestInitialize]
     public void Init()
     {
-        _orderTotalCalculationServiceMock = new Mock<IOrderCalculationService>();
+        _shoppingCartSubTotalServiceMock = new Mock<IShoppingCartSubTotalService>();
         _orderSettings = new OrderSettings { MinOrderSubtotalAmount = 10 };
-        _handler = new ValidateMinShoppingCartSubtotalAmountCommandHandler(_orderTotalCalculationServiceMock.Object,
+        _handler = new ValidateMinShoppingCartSubtotalAmountCommandHandler(_shoppingCartSubTotalServiceMock.Object,
             _orderSettings);
     }
 
@@ -35,7 +35,7 @@ public class ValidateMinShoppingCartSubtotalAmountCommandHandlerTests
                 Grand.Domain.Tax.TaxDisplayType.ExcludingTax)
         };
 
-        _orderTotalCalculationServiceMock
+        _shoppingCartSubTotalServiceMock
             .Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<Grand.Business.Core.Utilities.Checkout.CalculationContext>(), false)).Returns(() =>
                 Task.FromResult(new Grand.Business.Core.Utilities.Checkout.ShoppingCartSubTotal(20, null, 100, 100,
                     null)));

@@ -47,6 +47,8 @@ public class PlaceOrderCommandHandlerTests
             new Mock<IProductService>().Object, new Mock<IInventoryManageService>().Object,
             new Mock<IPaymentService>().Object, new Mock<IPaymentTransactionService>().Object,
             new Mock<ILogger<PlaceOrderCommandHandler>>().Object, new Mock<IOrderCalculationService>().Object,
+            new Mock<IShoppingCartSubTotalService>().Object, new Mock<IShoppingCartShippingService>().Object,
+            new Mock<IShoppingCartTaxService>().Object,
             new Mock<IPricingService>().Object, new Mock<IProductAttributeFormatter>().Object,
             new Mock<IGiftVoucherService>().Object, _checkoutAttributeFormatterMock.Object,
             new Mock<ITaxService>().Object, new Mock<ICustomerService>().Object, new Mock<IDiscountService>().Object,

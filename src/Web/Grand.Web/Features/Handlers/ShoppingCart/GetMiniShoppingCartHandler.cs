@@ -33,7 +33,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
     private readonly IMediator _mediator;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
-    private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
     private readonly IPictureService _pictureService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IPricingService _pricingService;
@@ -47,7 +47,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
 
     public GetMiniShoppingCartHandler(
         IShoppingCartService shoppingCartService,
-        IOrderCalculationService orderTotalCalculationService,
+        IShoppingCartSubTotalService shoppingCartSubTotalService,
         IPriceFormatter priceFormatter,
         ITaxService taxService,
         ICheckoutAttributeService checkoutAttributeService,
@@ -66,7 +66,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         MediaSettings mediaSettings)
     {
         _shoppingCartService = shoppingCartService;
-        _orderTotalCalculationService = orderTotalCalculationService;
+        _shoppingCartSubTotalService = shoppingCartSubTotalService;
         _priceFormatter = priceFormatter;
         _taxService = taxService;
         _checkoutAttributeService = checkoutAttributeService;
@@ -114,7 +114,7 @@ public class GetMiniShoppingCartHandler : IRequestHandler<GetMiniShoppingCart, M
         var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                    !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
         var shoppingCartSubTotal =
-            await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, subTotalIncludingTax);
+            await _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart, context, subTotalIncludingTax);
 
         model.SubTotalIncludingTax = subTotalIncludingTax;
         model.SubTotal = _priceFormatter.FormatPrice(shoppingCartSubTotal.SubTotalWithoutDiscount, request.Currency);

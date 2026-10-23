@@ -52,6 +52,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
+    private readonly IShoppingCartShippingService _shoppingCartShippingService;
+    private readonly IShoppingCartTaxService _shoppingCartTaxService;
     private readonly IPaymentService _paymentService;
     private readonly PaymentSettings _paymentSettings;
     private readonly IPaymentTransactionService _paymentTransactionService;
@@ -76,6 +79,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         IPaymentTransactionService paymentTransactionService,
         ILogger<PlaceOrderCommandHandler> logger,
         IOrderCalculationService orderTotalCalculationService,
+        IShoppingCartSubTotalService shoppingCartSubTotalService,
+        IShoppingCartShippingService shoppingCartShippingService,
+        IShoppingCartTaxService shoppingCartTaxService,
         IPricingService priceCalculationService,
         IProductAttributeFormatter productAttributeFormatter,
         IGiftVoucherService giftVoucherService,
@@ -109,6 +115,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _paymentTransactionService = paymentTransactionService;
         _logger = logger;
         _orderTotalCalculationService = orderTotalCalculationService;
+        _shoppingCartSubTotalService = shoppingCartSubTotalService;
+        _shoppingCartShippingService = shoppingCartShippingService;
+        _shoppingCartTaxService = shoppingCartTaxService;
         _pricingService = priceCalculationService;
         _productAttributeFormatter = productAttributeFormatter;
         _giftVoucherService = giftVoucherService;
@@ -497,7 +506,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //sub total
         //sub total (incl tax)
-        var shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, details.Context, true);
+        var shoppingCartSubTotal = await _shoppingCartSubTotalService.GetShoppingCartSubTotal(details.Cart, details.Context, true);
         var orderSubTotalDiscountAmount = shoppingCartSubTotal.DiscountAmount;
         var orderSubTotalAppliedDiscounts = shoppingCartSubTotal.AppliedDiscounts;
         var subTotalWithoutDiscountBase = shoppingCartSubTotal.SubTotalWithoutDiscount;
@@ -510,7 +519,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             details.AppliedDiscounts.Add(disc);
 
         //sub total (excl tax)
-        shoppingCartSubTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(details.Cart, details.Context, false);
+        shoppingCartSubTotal = await _shoppingCartSubTotalService.GetShoppingCartSubTotal(details.Cart, details.Context, false);
         orderSubTotalDiscountAmount = shoppingCartSubTotal.DiscountAmount;
         subTotalWithoutDiscountBase = shoppingCartSubTotal.SubTotalWithoutDiscount;
 
@@ -565,10 +574,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //shipping total
 
         var shippingTotalInclTax =
-            await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, details.Context, true);
+            await _shoppingCartShippingService.GetShoppingCartShippingTotal(details.Cart, details.Context, true);
         var orderShippingTotalInclTax = shippingTotalInclTax.ShippingTotal;
         var orderShippingTotalExclTax =
-            (await _orderTotalCalculationService.GetShoppingCartShippingTotal(details.Cart, details.Context, false))
+            (await _shoppingCartShippingService.GetShoppingCartShippingTotal(details.Cart, details.Context, false))
             .ShippingTotal;
         if (!orderShippingTotalInclTax.HasValue || !orderShippingTotalExclTax.HasValue)
             throw new GrandException("Shipping total couldn't be calculated");
@@ -595,7 +604,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
         //tax total
         //tax amount
-        var taxTotal = await _orderTotalCalculationService.GetTaxTotal(details.Cart, details.Context);
+        var taxTotal = await _shoppingCartTaxService.GetTaxTotal(details.Cart, details.Context);
         details.OrderTaxTotal = taxTotal.TaxTotal;
 
         //tax rates

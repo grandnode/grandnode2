@@ -70,6 +70,9 @@ public class PluginDependencyCycleTests
         var services = new ServiceCollection();
         services.AddScoped<IOrderCalculationService, OrderCalculationService>();
         services.AddScoped<IShoppingCartSubTotalService, ShoppingCartSubTotalService>();
+        services.AddScoped<IShoppingCartShippingService, ShoppingCartShippingService>();
+        services.AddScoped<IShoppingCartTaxService, ShoppingCartTaxService>();
+        services.AddScoped<ILoyaltyPointsCalculationService, LoyaltyPointsCalculationService>();
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IPaymentProvider, CashOnDeliveryPaymentProvider>();
         services.AddScoped<IPaymentProvider, BrainTreePaymentProvider>();

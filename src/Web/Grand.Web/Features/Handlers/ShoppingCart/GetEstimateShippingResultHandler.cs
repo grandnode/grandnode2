@@ -18,7 +18,7 @@ namespace Grand.Web.Features.Handlers.ShoppingCart;
 public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShippingResult, EstimateShippingResultModel>
 {
     private readonly IContextAccessor _contextAccessor;
-    private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly IShoppingCartShippingService _shoppingCartShippingService;
     private readonly IPickupPointService _pickupPointService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IShippingService _shippingService;
@@ -30,7 +30,7 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
     public GetEstimateShippingResultHandler(
         IShippingService shippingService,
         IPickupPointService pickupPointService,
-        IOrderCalculationService orderTotalCalculationService,
+        IShoppingCartShippingService shoppingCartShippingService,
         ITaxService taxService,
         IRequestTranslationService translationService,
         IPriceFormatter priceFormatter,
@@ -40,7 +40,7 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
         _contextAccessor = contextAccessor;
         _shippingService = shippingService;
         _pickupPointService = pickupPointService;
-        _orderTotalCalculationService = orderTotalCalculationService;
+        _shoppingCartShippingService = shoppingCartShippingService;
         _taxService = taxService;
         _translationService = translationService;
         _priceFormatter = priceFormatter;
@@ -78,7 +78,7 @@ public class GetEstimateShippingResultHandler : IRequestHandler<GetEstimateShipp
                     };
 
                     //calculate discounted and taxed rate
-                    var total = await _orderTotalCalculationService.AdjustShippingRate(shippingOption.Rate,
+                    var total = await _shoppingCartShippingService.AdjustShippingRate(shippingOption.Rate,
                         request.Cart, _contextAccessor.CalculationContext());
                     var shippingTotal = total.ShippingRate;
 
