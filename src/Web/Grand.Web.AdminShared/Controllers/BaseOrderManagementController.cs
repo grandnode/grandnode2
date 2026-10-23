@@ -1,4 +1,4 @@
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Pdf;
@@ -9,6 +9,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Extensions;
+using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Security.Authorization;
@@ -526,10 +527,10 @@ public abstract class BaseOrderManagementController(
     {
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
-        if (!await CanAddProduct(productId, productService, aclService))
-            return RedirectToAction("AddProductToOrder", new { orderId });
+        var product = await LoadProductForOrder(order, productId, productService, aclService);
+        if (product == null) return RedirectToAction("AddProductToOrder", new { orderId });
 
-        var model = await orderProductViewModelService.PrepareAddProductToOrderModel(order, productId);
+        var model = await orderProductViewModelService.PrepareAddProductToOrderModel(order, product);
         return View(model);
     }
 
@@ -540,24 +541,23 @@ public abstract class BaseOrderManagementController(
     {
         var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
         if (denied != null) return denied;
-        if (!await CanAddProduct(model.ProductId, productService, aclService))
-            return RedirectToAction("AddProductToOrder", new { orderId = model.OrderId });
+        var product = await LoadProductForOrder(order, model.ProductId, productService, aclService);
+        if (product == null) return RedirectToAction("AddProductToOrder", new { orderId = model.OrderId });
 
-        var warnings = await orderProductViewModelService.AddProductToOrderDetails(model);
+        var warnings = await orderProductViewModelService.AddProductToOrderDetails(order, product, model);
         if (!warnings.Any()) return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
-        var result = await orderProductViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
+        var result = await orderProductViewModelService.PrepareAddProductToOrderModel(order, product);
         result.Warnings.AddRange(warnings);
         return View(result);
     }
 
-    // The product search above lists only the products of the panel's store; a product id put into
-    // the URL by hand must not reach any further.
-    private async Task<bool> CanAddProduct(string productId, IProductService productService,
-        IAclService aclService)
+    // A product id put into the URL by hand must not bring in a product the order's store doesn't sell.
+    private static async Task<Grand.Domain.Catalog.Product> LoadProductForOrder(Order order, string productId,
+        IProductService productService, IAclService aclService)
     {
         var product = await productService.GetProductById(productId);
-        return product != null && aclService.Authorize(product, Scope.DefaultStoreId);
+        return product != null && aclService.Authorize(product, order.StoreId) ? product : null;
     }
 
     #endregion
@@ -570,19 +570,8 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
 
-        Grand.Domain.Common.Address address = null;
-        switch (billingAddress)
-        {
-            case true when order.BillingAddress != null:
-                if (order.BillingAddress.Id == addressId) address = order.BillingAddress;
-                break;
-            case false when order.ShippingAddress != null:
-                if (order.ShippingAddress.Id == addressId) address = order.ShippingAddress;
-                break;
-        }
-
-        if (address == null)
-            throw new ArgumentException("No address found with the specified id", nameof(addressId));
+        var address = billingAddress ? order.BillingAddress : order.ShippingAddress;
+        if (address == null) return RedirectToAction("Edit", "Order", new { id = orderId });
 
         var model = await orderAddressViewModelService.PrepareOrderAddressModel(order, address);
         model.BillingAddress = billingAddress;
@@ -598,29 +587,24 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
         if (denied != null) return denied;
 
-        Grand.Domain.Common.Address address = null;
-        switch (model.BillingAddress)
-        {
-            case true when order.BillingAddress != null:
-                if (order.BillingAddress.Id == model.Address.Id) address = order.BillingAddress;
-                break;
-            case false when order.ShippingAddress != null:
-                if (order.ShippingAddress.Id == model.Address.Id) address = order.ShippingAddress;
-                break;
-        }
+        var address = model.BillingAddress ? order.BillingAddress : order.ShippingAddress;
+        if (address == null) return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
-        if (address == null)
-            throw new ArgumentException("No address found with the specified id", nameof(model));
-
+        var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
         if (ModelState.IsValid)
         {
-            var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
             await orderAddressViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
             return RedirectToAction("AddressEdit",
-                new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
+                new { addressId = address.Id, orderId = model.OrderId, model.BillingAddress });
         }
 
-        model = await orderAddressViewModelService.PrepareOrderAddressModel(order, address);
+        //show the form again with what was typed, not with the saved address
+        var typed = model.Address.ToEntity();
+        typed.Id = address.Id;
+        typed.Attributes = customAttributes;
+        var billingAddress = model.BillingAddress;
+        model = await orderAddressViewModelService.PrepareOrderAddressModel(order, typed);
+        model.BillingAddress = billingAddress;
         return View(model);
     }
 

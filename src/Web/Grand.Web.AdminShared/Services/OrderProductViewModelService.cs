@@ -21,8 +21,6 @@ using Microsoft.AspNetCore.Mvc.Rendering;
 namespace Grand.Web.AdminShared.Services;
 
 public class OrderProductViewModelService(
-    IOrderService orderService,
-    IProductService productService,
     IProductAttributeService productAttributeService,
     IProductAttributeFormatter productAttributeFormatter,
     ICustomerService customerService,
@@ -38,7 +36,7 @@ public class OrderProductViewModelService(
     IMediator mediator)
     : IOrderProductViewModelService
 {
-    public virtual async Task<OrderModel.AddOrderProductModel> PrepareAddOrderProductModel(Order order)
+    public virtual Task<OrderModel.AddOrderProductModel> PrepareAddOrderProductModel(Order order)
     {
         var model = new OrderModel.AddOrderProductModel {
             OrderId = order.Id,
@@ -50,16 +48,12 @@ public class OrderProductViewModelService(
         model.AvailableProductTypes.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "0" });
 
-        return await Task.FromResult(model);
+        return Task.FromResult(model);
     }
 
     public virtual async Task<OrderModel.AddOrderProductModel.ProductDetailsModel> PrepareAddProductToOrderModel(
-        Order order, string productId)
+        Order order, Product product)
     {
-        var product = await productService.GetProductById(productId);
-        if (product == null)
-            throw new ArgumentException("No product found with the specified id");
-
         var customer = await customerService.GetCustomerById(order.CustomerId);
         var currency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
         var store = await storeService.GetStoreById(order.StoreId);
@@ -123,10 +117,12 @@ public class OrderProductViewModelService(
         return model;
     }
 
-    public virtual async Task<IList<string>> AddProductToOrderDetails(AddProductToOrderModel model)
+    public virtual async Task<IList<string>> AddProductToOrderDetails(Order order, Product product,
+        AddProductToOrderModel model)
     {
-        var order = await orderService.GetOrderById(model.OrderId);
-        var product = await productService.GetProductById(model.ProductId);
+        if (model.Quantity <= 0)
+            return [translationService.GetResource("ShoppingCart.QuantityShouldPositive")];
+
         var customer = await customerService.GetCustomerById(order.CustomerId);
 
         var warnings = new List<string>();

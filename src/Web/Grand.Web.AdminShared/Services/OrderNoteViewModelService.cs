@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
@@ -22,7 +23,9 @@ public class OrderNoteViewModelService(
         foreach (var orderNote in (await orderService.GetOrderNotes(order.Id))
                  .OrderByDescending(on => on.CreatedOnUtc))
         {
-            var download = await downloadService.GetDownloadById(orderNote.DownloadId);
+            var download = string.IsNullOrEmpty(orderNote.DownloadId)
+                ? null
+                : await downloadService.GetDownloadById(orderNote.DownloadId);
             orderNoteModels.Add(new OrderModel.OrderNote {
                 Id = orderNote.Id,
                 OrderId = order.Id,
@@ -41,6 +44,11 @@ public class OrderNoteViewModelService(
     public virtual async Task InsertOrderNote(Order order, string downloadId, bool displayToCustomer,
         string message)
     {
+        //the id comes from the request; a file uploaded for another order is not attached
+        if (!string.IsNullOrEmpty(downloadId) &&
+            !IsAttachmentOf(await downloadService.GetDownloadById(downloadId), order))
+            downloadId = "";
+
         var orderNote = new OrderNote {
             DisplayToCustomer = displayToCustomer,
             Note = message,
@@ -61,15 +69,18 @@ public class OrderNoteViewModelService(
         if (orderNote == null)
             throw new ArgumentException("No order note found with the specified id");
 
-        orderNote.OrderId = order.Id;
         await orderService.DeleteOrderNote(orderNote);
 
         //delete an old "attachment" file
         if (!string.IsNullOrEmpty(orderNote.DownloadId))
         {
             var attachment = await downloadService.GetDownloadById(orderNote.DownloadId);
-            if (attachment != null)
+            if (IsAttachmentOf(attachment, order))
                 await downloadService.DeleteDownload(attachment);
         }
     }
+
+    //the notes form uploads with DownloadType.Order and the order id as the reference
+    private static bool IsAttachmentOf(Download download, Order order) =>
+        download is { DownloadType: DownloadType.Order } && download.ReferenceId == order.Id;
 }
