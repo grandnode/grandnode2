@@ -814,7 +814,7 @@ Answers (always `Cache-Control: no-store`):
 | Status | Meaning |
 |---|---|
 | 200 | Sessions ended (also when there was nothing to end). |
-| 400 | JSON `{"error":"invalid_request", ...}`: no or invalid `logout_token`, the form could not be read, or browser sign-in is not configured. |
+| 400 | JSON `{"error":"invalid_request", ...}`: no or invalid `logout_token`, the form could not be read, or browser sign-in is not configured (answered like a refused token, `The logout token was refused`; only the log names the reason). |
 | 503 | The provider's metadata could not be obtained; the provider may retry. |
 | 500 | Ending the sessions failed; the provider may retry, and the same logout token is accepted again. |
 
