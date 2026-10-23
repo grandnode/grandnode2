@@ -25,6 +25,13 @@ RUN dotnet publish /app/Web/Grand.Web/Grand.Web.csproj -c Release -o ./build/rel
 
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
+LABEL org.opencontainers.image.title="GrandNode" \
+      org.opencontainers.image.description="GrandNode e-commerce platform" \
+      org.opencontainers.image.url="https://grandnode.com" \
+      org.opencontainers.image.documentation="https://grandnode.com/knowledgebase" \
+      org.opencontainers.image.source="https://github.com/grandnode/grandnode2" \
+      org.opencontainers.image.vendor="GrandNode" \
+      org.opencontainers.image.licenses="GPL-3.0-only"
 
 EXPOSE 8080
 WORKDIR /app
