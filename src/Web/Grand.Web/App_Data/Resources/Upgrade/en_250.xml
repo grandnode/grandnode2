@@ -129,4 +129,10 @@
 	<Resource Name="Account.Oidc.Failed.ProviderChanged" Area="Front">
 		<Value>Signing in with the identity provider is paused while the administrator updates the store's connection to it. Try again later.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.OrderNotes.DownloadNotOfOrder" Area="Admin">
+		<Value>The attached file was not uploaded for this order. Upload it again here.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Products.AddNew.NotInOrderStore" Area="Admin">
+		<Value>This product is not available in the order's store.</Value>
+	</Resource>
 </Language>

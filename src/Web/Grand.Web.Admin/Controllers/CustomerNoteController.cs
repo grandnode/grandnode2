@@ -34,6 +34,7 @@ public class CustomerNoteController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> CustomerNoteAdd(string customerId, string downloadId, bool displayToCustomer,
         string title, string message)
     {

@@ -101,6 +101,11 @@
                 url: "@(Url.Action("OrderNoteAdd", "Order", new { area = area }))",
                 data: postData,
                 success: function (data) {
+                    if (!data.Result) {
+                        alert(data.Message || 'Failed to add order note.');
+                        $('#addOrderNote').attr('disabled', false);
+                        return;
+                    }
                     var grid = GrandAdmin.grids.get("#ordernotes-grid");
                     grid.dataSource.read();
                     $('#addOrderNote').attr('disabled', false);

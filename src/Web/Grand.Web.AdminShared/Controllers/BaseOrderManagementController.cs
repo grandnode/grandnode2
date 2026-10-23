@@ -1,12 +1,16 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Extensions;
+using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Security.Authorization;
@@ -24,7 +28,10 @@ public abstract class BaseOrderManagementController(
     IContextAccessor contextAccessor,
     IPdfService pdfService,
     IMediator mediator,
-    IAdminDataScope<Order> scope)
+    IAdminDataScope<Order> scope,
+    IOrderNoteViewModelService orderNoteViewModelService,
+    IOrderAddressViewModelService orderAddressViewModelService,
+    IOrderProductViewModelService orderProductViewModelService)
     : BaseOrderController(orderViewModelService, orderService, translationService, contextAccessor,
         pdfService, scope)
 {
@@ -484,7 +491,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
 
-        var model = await OrderViewModelService.PrepareAddOrderProductModel(order);
+        var model = await orderProductViewModelService.PrepareAddOrderProductModel(order);
         return View(model);
     }
 
@@ -494,12 +501,16 @@ public abstract class BaseOrderManagementController(
         Grand.Web.Common.DataSource.DataSourceRequest command, OrderModel.AddOrderProductModel model,
         [FromServices] Grand.Business.Core.Interfaces.Catalog.Products.IProductService productService)
     {
+        var (order, denied) = await LoadAuthorizedOrderForGrid(model.OrderId);
+        if (denied != null) return denied;
+
         var categoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId)) categoryIds.Add(model.SearchCategoryId);
 
+        //only what the order's store sells, the same rule AddProductToOrderDetails applies
         var gridModel = new Grand.Web.Common.DataSource.DataSourceResult();
         var products = (await productService.SearchProducts(
-            access: CatalogAccess.IncludingHidden(Scope.DefaultStoreId), categoryIds: categoryIds,
+            access: CatalogAccess.IncludingHidden(order.StoreId), categoryIds: categoryIds,
             brandId: model.SearchBrandId,
             collectionId: model.SearchCollectionId,
             productType: model.SearchProductTypeId > 0 ? (Grand.Domain.Catalog.ProductType?)model.SearchProductTypeId : null,
@@ -516,28 +527,48 @@ public abstract class BaseOrderManagementController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> AddProductToOrderDetails(string orderId, string productId)
+    public async Task<IActionResult> AddProductToOrderDetails(string orderId, string productId,
+        [FromServices] IProductService productService, [FromServices] IAclService aclService)
     {
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
+        var product = await LoadProductForOrder(order, productId, productService, aclService);
+        if (product == null) return ProductNotInOrderStore(orderId);
 
-        var model = await OrderViewModelService.PrepareAddProductToOrderModel(order, productId);
+        var model = await orderProductViewModelService.PrepareAddProductToOrderModel(order, product);
         return View(model);
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> AddProductToOrderDetails(AddProductToOrderModel model)
+    public async Task<IActionResult> AddProductToOrderDetails(AddProductToOrderModel model,
+        [FromServices] IProductService productService, [FromServices] IAclService aclService)
     {
         var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
         if (denied != null) return denied;
+        var product = await LoadProductForOrder(order, model.ProductId, productService, aclService);
+        if (product == null) return ProductNotInOrderStore(model.OrderId);
 
-        var warnings = await OrderViewModelService.AddProductToOrderDetails(model);
+        var warnings = await orderProductViewModelService.AddProductToOrderDetails(order, product, model);
         if (!warnings.Any()) return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
-        var result = await OrderViewModelService.PrepareAddProductToOrderModel(order, model.ProductId);
+        var result = await orderProductViewModelService.PrepareAddProductToOrderModel(order, product);
         result.Warnings.AddRange(warnings);
         return View(result);
+    }
+
+    // A product id put into the URL by hand must not bring in a product the order's store doesn't sell.
+    private static async Task<Product> LoadProductForOrder(Order order, string productId,
+        IProductService productService, IAclService aclService)
+    {
+        var product = await productService.GetProductById(productId);
+        return product != null && aclService.Authorize(product, order.StoreId) ? product : null;
+    }
+
+    private IActionResult ProductNotInOrderStore(string orderId)
+    {
+        Error(TranslationService.GetResource("Admin.Orders.Products.AddNew.NotInOrderStore"));
+        return RedirectToAction("AddProductToOrder", new { orderId });
     }
 
     #endregion
@@ -550,21 +581,10 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
 
-        var address = new Grand.Domain.Common.Address();
-        switch (billingAddress)
-        {
-            case true when order.BillingAddress != null:
-                if (order.BillingAddress.Id == addressId) address = order.BillingAddress;
-                break;
-            case false when order.ShippingAddress != null:
-                if (order.ShippingAddress.Id == addressId) address = order.ShippingAddress;
-                break;
-        }
+        var address = billingAddress ? order.BillingAddress : order.ShippingAddress;
+        if (address == null) return RedirectToAction("Edit", "Order", new { id = orderId });
 
-        if (address == null)
-            throw new ArgumentException("No address found with the specified id", nameof(addressId));
-
-        var model = await OrderViewModelService.PrepareOrderAddressModel(order, address);
+        var model = await orderAddressViewModelService.PrepareOrderAddressModel(order, address);
         model.BillingAddress = billingAddress;
         return View(model);
     }
@@ -578,26 +598,24 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
         if (denied != null) return denied;
 
-        var address = new Grand.Domain.Common.Address();
-        switch (model.BillingAddress)
-        {
-            case true when order.BillingAddress != null:
-                if (order.BillingAddress.Id == model.Address.Id) address = order.BillingAddress;
-                break;
-            case false when order.ShippingAddress != null:
-                if (order.ShippingAddress.Id == model.Address.Id) address = order.ShippingAddress;
-                break;
-        }
+        var address = model.BillingAddress ? order.BillingAddress : order.ShippingAddress;
+        if (address == null) return RedirectToAction("Edit", "Order", new { id = model.OrderId });
 
+        var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
         if (ModelState.IsValid)
         {
-            var customAttributes = await model.Address.ParseCustomAddressAttributes(addressAttributeParser, addressAttributeService);
-            await OrderViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
+            await orderAddressViewModelService.UpdateOrderAddress(order, address, model, customAttributes);
             return RedirectToAction("AddressEdit",
-                new { addressId = model.Address.Id, orderId = model.OrderId, model.BillingAddress });
+                new { addressId = address.Id, orderId = model.OrderId, model.BillingAddress });
         }
 
-        model = await OrderViewModelService.PrepareOrderAddressModel(order, address);
+        //show the form again with what was typed, not with the saved address
+        var typed = model.Address.ToEntity();
+        typed.Id = address.Id;
+        typed.Attributes = customAttributes;
+        var billingAddress = model.BillingAddress;
+        model = await orderAddressViewModelService.PrepareOrderAddressModel(order, typed);
+        model.BillingAddress = billingAddress;
         return View(model);
     }
 
@@ -617,7 +635,7 @@ public abstract class BaseOrderManagementController(
         // deliberately not done here. See plan's Global Constraints.
         if (!await Scope.HasAccess(order)) return Content("");
 
-        var orderNoteModels = await OrderViewModelService.PrepareOrderNotes(order);
+        var orderNoteModels = await orderNoteViewModelService.PrepareOrderNotes(order);
         var gridModel = new Common.DataSource.DataSourceResult {
             Data = orderNoteModels,
             Total = orderNoteModels.Count
@@ -626,12 +644,18 @@ public abstract class BaseOrderManagementController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> OrderNoteAdd(string orderId, string downloadId, bool displayToCustomer, string message)
     {
         var order = await OrderService.GetOrderById(orderId);
         if (order == null || !await Scope.HasAccess(order)) return Json(new { Result = false });
 
-        await OrderViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message);
+        if (!await orderNoteViewModelService.InsertOrderNote(order, downloadId, displayToCustomer, message))
+            return Json(new {
+                Result = false,
+                Message = TranslationService.GetResource("Admin.Orders.OrderNotes.DownloadNotOfOrder")
+            });
+
         return Json(new { Result = true });
     }
 
@@ -643,7 +667,7 @@ public abstract class BaseOrderManagementController(
             ?? throw new ArgumentException("No order found with the specified id");
         if (!await Scope.HasAccess(order)) return Json(new { Result = false });
 
-        await OrderViewModelService.DeleteOrderNote(order, id);
+        await orderNoteViewModelService.DeleteOrderNote(order, id);
         return new JsonResult("");
     }
 

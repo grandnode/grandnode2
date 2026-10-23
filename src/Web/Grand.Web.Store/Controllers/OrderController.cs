@@ -24,6 +24,10 @@ public class OrderController(
     IContextAccessor contextAccessor,
     IPdfService pdfService,
     IMediator mediator,
-    IAdminDataScope<Order> scope)
+    IAdminDataScope<Order> scope,
+    IOrderNoteViewModelService orderNoteViewModelService,
+    IOrderAddressViewModelService orderAddressViewModelService,
+    IOrderProductViewModelService orderProductViewModelService)
     : BaseOrderManagementController(orderViewModelService, orderService, orderStatusService,
-        translationService, contextAccessor, pdfService, mediator, scope);
+        translationService, contextAccessor, pdfService, mediator, scope, orderNoteViewModelService,
+        orderAddressViewModelService, orderProductViewModelService);

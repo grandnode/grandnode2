@@ -32,9 +32,13 @@ public class OrderController(
     IPdfService pdfService,
     IMediator mediator,
     IAdminDataScope<Order> scope,
+    IOrderNoteViewModelService orderNoteViewModelService,
+    IOrderAddressViewModelService orderAddressViewModelService,
+    IOrderProductViewModelService orderProductViewModelService,
     IExportManager<Order> exportManager)
     : BaseOrderManagementController(orderViewModelService, orderService, orderStatusService,
-        translationService, contextAccessor, pdfService, mediator, scope)
+        translationService, contextAccessor, pdfService, mediator, scope, orderNoteViewModelService,
+        orderAddressViewModelService, orderProductViewModelService)
 {
     // Admin-exclusive: Store already holds the Export/Delete PermissionActionName grants (used by
     // PdfInvoiceAll/PdfInvoiceSelected/Delete today), so these three stay off both base classes -

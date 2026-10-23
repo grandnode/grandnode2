@@ -1,12 +1,20 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain;
+using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Mapper;
+using Grand.Mapping;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
+using Grand.Web.AdminShared.Mapper;
 using Grand.Web.AdminShared.Models.Orders;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -30,13 +38,19 @@ public class BaseOrderManagementControllerTests
         IContextAccessor contextAccessor,
         IPdfService pdfService,
         IMediator mediator,
-        IAdminDataScope<Order> scope)
+        IAdminDataScope<Order> scope,
+        IOrderNoteViewModelService orderNoteViewModelService,
+        IOrderAddressViewModelService orderAddressViewModelService,
+        IOrderProductViewModelService orderProductViewModelService)
         : BaseOrderManagementController(orderViewModelService, orderService, orderStatusService,
-            translationService, contextAccessor, pdfService, mediator, scope);
+            translationService, contextAccessor, pdfService, mediator, scope, orderNoteViewModelService,
+            orderAddressViewModelService, orderProductViewModelService);
 
     private TestOrderManagementController _controller;
     private Mock<IOrderService> _orderServiceMock;
-    private Mock<IOrderViewModelService> _orderViewModelServiceMock;
+    private Mock<IOrderNoteViewModelService> _orderNoteViewModelServiceMock;
+    private Mock<IOrderProductViewModelService> _orderProductViewModelServiceMock;
+    private Mock<IOrderAddressViewModelService> _orderAddressViewModelServiceMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IAdminDataScope<Order>> _scopeMock;
 
@@ -44,7 +58,9 @@ public class BaseOrderManagementControllerTests
     public void Setup()
     {
         _orderServiceMock = new Mock<IOrderService>();
-        _orderViewModelServiceMock = new Mock<IOrderViewModelService>();
+        _orderNoteViewModelServiceMock = new Mock<IOrderNoteViewModelService>();
+        _orderProductViewModelServiceMock = new Mock<IOrderProductViewModelService>();
+        _orderAddressViewModelServiceMock = new Mock<IOrderAddressViewModelService>();
         _mediatorMock = new Mock<IMediator>();
         _scopeMock = new Mock<IAdminDataScope<Order>>();
 
@@ -52,10 +68,11 @@ public class BaseOrderManagementControllerTests
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new TestOrderManagementController(
-            _orderViewModelServiceMock.Object, _orderServiceMock.Object,
+            new Mock<IOrderViewModelService>().Object, _orderServiceMock.Object,
             new Mock<IOrderStatusService>().Object, translationServiceMock.Object,
             new Mock<IContextAccessor>().Object, new Mock<IPdfService>().Object,
-            _mediatorMock.Object, _scopeMock.Object);
+            _mediatorMock.Object, _scopeMock.Object, _orderNoteViewModelServiceMock.Object,
+            _orderAddressViewModelServiceMock.Object, _orderProductViewModelServiceMock.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -268,16 +285,133 @@ public class BaseOrderManagementControllerTests
         var order = new Order { Id = "o1" };
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
-        _orderViewModelServiceMock
-            .Setup(v => v.AddProductToOrderDetails(It.IsAny<AddProductToOrderModel>()))
+        _orderProductViewModelServiceMock
+            .Setup(v => v.AddProductToOrderDetails(order, It.IsAny<Product>(), It.IsAny<AddProductToOrderModel>()))
             .ReturnsAsync(new List<string>());
 
+        var (productService, aclService) = ProductInScope("p1", true);
+
         var result = await _controller.AddProductToOrderDetails(
-            new AddProductToOrderModel("o1", "p1", 0, 0, 1, 0));
+            new AddProductToOrderModel("o1", "p1", 0, 0, 1, 0), productService, aclService);
 
         var redirect = result as RedirectToActionResult;
         Assert.AreEqual("Edit", redirect?.ActionName);
         Assert.AreEqual("o1", redirect?.RouteValues["id"]);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderDetailsPost_ProductOutsideScope_RedirectsBack_NothingAdded()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        var (productService, aclService) = ProductInScope("p1", false);
+
+        var result = await _controller.AddProductToOrderDetails(
+            new AddProductToOrderModel("o1", "p1", 0, 0, 1, 0), productService, aclService);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.AreEqual("AddProductToOrder", redirect?.ActionName);
+        Assert.AreEqual("o1", redirect?.RouteValues["orderId"]);
+        _orderProductViewModelServiceMock.Verify(v => v.AddProductToOrderDetails(It.IsAny<Order>(),
+            It.IsAny<Product>(), It.IsAny<AddProductToOrderModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderDetailsGet_ProductOutsideScope_RedirectsBack()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        var (productService, aclService) = ProductInScope("p1", false);
+
+        var result = await _controller.AddProductToOrderDetails("o1", "p1", productService, aclService);
+
+        Assert.AreEqual("AddProductToOrder", (result as RedirectToActionResult)?.ActionName);
+        _orderProductViewModelServiceMock.Verify(v => v.PrepareAddProductToOrderModel(It.IsAny<Order>(), It.IsAny<Product>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderDetailsGet_ChecksProductAgainstOrderStore()
+    {
+        //Main Admin has no panel store, so the order's store is the only one to check against
+        var order = new Order { Id = "o1", StoreId = "s1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        var product = new Product { Id = "p1" };
+        var productService = new Mock<IProductService>();
+        productService.Setup(s => s.GetProductById("p1", It.IsAny<bool>())).ReturnsAsync(product);
+        var aclService = new Mock<IAclService>();
+        aclService.Setup(s => s.Authorize(product, "s1")).Returns(true);
+
+        var result = await _controller.AddProductToOrderDetails("o1", "p1", productService.Object, aclService.Object);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        aclService.Verify(s => s.Authorize(product, "s1"), Times.Once);
+        _orderProductViewModelServiceMock.Verify(v => v.PrepareAddProductToOrderModel(order, product), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderSearch_SearchesTheOrdersStore()
+    {
+        var order = new Order { Id = "o1", StoreId = "s1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        var productService = new Mock<IProductService>();
+        //answers only a search limited to the order's store
+        productService.Setup(s => s.SearchProducts(It.Is<CatalogAccess>(a => a.StoreId == "s1"),
+                It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<IList<string>>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<ProductType?>(),
+                It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<bool?>(), It.IsAny<bool?>(), It.IsAny<double?>(),
+                It.IsAny<double?>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<bool>(),
+                It.IsAny<bool>(), It.IsAny<string>(), It.IsAny<IList<string>>(), It.IsAny<IList<string>>(),
+                It.IsAny<ProductSortingEnum>(), It.IsAny<bool?>()))
+            .ReturnsAsync((new PagedList<Product>(new List<Product> { new() { Id = "p1" } }, 0, 10), new List<string>()));
+
+        var result = await _controller.AddProductToOrder(
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 },
+            new OrderModel.AddOrderProductModel { OrderId = "o1" }, productService.Object);
+
+        Assert.AreEqual(1, ((result as JsonResult)?.Value as Grand.Web.Common.DataSource.DataSourceResult)?.Total);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderSearch_ScopeDenies_ReturnsGridError()
+    {
+        var order = new Order { Id = "o1", StoreId = "s1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
+
+        var result = await _controller.AddProductToOrder(new Grand.Web.Common.DataSource.DataSourceRequest(),
+            new OrderModel.AddOrderProductModel { OrderId = "o1" }, new Mock<IProductService>().Object);
+
+        Assert.IsNotNull(GridErrors(result));
+    }
+
+    [TestMethod]
+    public async Task OrderNoteAdd_FileRefused_ReturnsResultFalseWithMessage()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _orderNoteViewModelServiceMock.Setup(v => v.InsertOrderNote(order, "d1", false, "msg")).ReturnsAsync(false);
+
+        var result = await _controller.OrderNoteAdd("o1", "d1", false, "msg");
+
+        var value = (result as JsonResult)?.Value;
+        Assert.IsFalse((bool)value!.GetType().GetProperty("Result")!.GetValue(value)!);
+        Assert.AreEqual("resource", value.GetType().GetProperty("Message")!.GetValue(value));
+    }
+
+    private (IProductService, IAclService) ProductInScope(string productId, bool inScope)
+    {
+        var product = new Product { Id = productId };
+        var productService = new Mock<IProductService>();
+        productService.Setup(s => s.GetProductById(productId, It.IsAny<bool>())).ReturnsAsync(product);
+        var aclService = new Mock<IAclService>();
+        aclService.Setup(s => s.Authorize(product, It.IsAny<string>())).Returns(inScope);
+        return (productService.Object, aclService.Object);
     }
 
     [TestMethod]
@@ -290,6 +424,65 @@ public class BaseOrderManagementControllerTests
         var result = await _controller.AddressEdit("a1", "o1", true);
 
         Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+    }
+
+    [TestMethod]
+    public async Task AddressEditGet_NoSuchAddressOnOrder_RedirectsToEdit()
+    {
+        var order = new Order { Id = "o1", BillingAddress = new Grand.Domain.Common.Address { Id = "a1" } };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.AddressEdit("a2", "o1", false);
+
+        Assert.AreEqual("Edit", (result as RedirectToActionResult)?.ActionName);
+    }
+
+    [TestMethod]
+    public async Task AddressEditGet_StaleAddressId_EditsTheOrdersAddress()
+    {
+        //an address stored without _id gets a new id on every load, so the id in the link can't be relied on
+        var order = new Order { Id = "o1", BillingAddress = new Grand.Domain.Common.Address { Id = "a1" } };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _orderAddressViewModelServiceMock.Setup(v => v.PrepareOrderAddressModel(order, order.BillingAddress))
+            .ReturnsAsync(new OrderAddressModel());
+
+        var result = await _controller.AddressEdit("stale", "o1", true);
+
+        Assert.IsTrue(((result as ViewResult)?.Model as OrderAddressModel)?.BillingAddress);
+    }
+
+    [TestMethod]
+    public async Task AddressEditPost_InvalidModel_ShowsTypedValues_NothingSaved()
+    {
+        AutoMapperConfig.Init(new MapperConfiguration(cfg => cfg.AddProfile<AddressProfile>()));
+        var order = new Order { Id = "o1", BillingAddress = new Grand.Domain.Common.Address { Id = "a1", City = "Saved" } };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        Grand.Domain.Common.Address shown = null;
+        _orderAddressViewModelServiceMock
+            .Setup(v => v.PrepareOrderAddressModel(order, It.IsAny<Grand.Domain.Common.Address>()))
+            .Callback<Order, Grand.Domain.Common.Address>((_, a) => shown = a)
+            .ReturnsAsync(new OrderAddressModel());
+        var addressAttributeService = new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>();
+        addressAttributeService.Setup(s => s.GetAllAddressAttributes())
+            .ReturnsAsync(new List<Grand.Domain.Common.AddressAttribute>());
+        _controller.ModelState.AddModelError("Address.FirstName", "required");
+        var model = new OrderAddressModel {
+            OrderId = "o1", BillingAddress = true,
+            Address = new Grand.Web.AdminShared.Models.Common.AddressModel { Id = "a1", City = "Typed" }
+        };
+
+        var result = await _controller.AddressEdit(model, addressAttributeService.Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object);
+
+        Assert.AreEqual("Typed", shown?.City);
+        Assert.AreEqual("Saved", order.BillingAddress.City);
+        Assert.IsTrue(((result as ViewResult)?.Model as OrderAddressModel)?.BillingAddress);
+        _orderAddressViewModelServiceMock.Verify(v => v.UpdateOrderAddress(It.IsAny<Order>(),
+            It.IsAny<Grand.Domain.Common.Address>(), It.IsAny<OrderAddressModel>(),
+            It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()), Times.Never);
     }
 
     [TestMethod]
@@ -327,7 +520,7 @@ public class BaseOrderManagementControllerTests
         var json = result as JsonResult;
         Assert.IsNotNull(json);
         Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
-        _orderViewModelServiceMock.Verify(v => v.InsertOrderNote(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
+        _orderNoteViewModelServiceMock.Verify(v => v.InsertOrderNote(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()), Times.Never);
     }
     private static object GridErrors(IActionResult result) =>
         ((result as JsonResult)?.Value as Grand.Web.Common.DataSource.DataSourceResult)?.Errors;

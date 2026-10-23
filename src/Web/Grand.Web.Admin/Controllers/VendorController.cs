@@ -283,6 +283,7 @@ public class VendorController : BaseAdminController
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> VendorNoteAdd(string vendorId, string message)
     {
         if (ModelState.IsValid)
