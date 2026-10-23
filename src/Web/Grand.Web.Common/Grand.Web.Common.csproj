@@ -12,6 +12,7 @@
 		<PackageReference Include="System.Configuration.ConfigurationManager" />
 		<PackageReference Include="NetEscapades.AspNetCore.SecurityHeaders" />
 		<PackageReference Include="Microsoft.AspNetCore.Mvc.Razor.RuntimeCompilation" />
+		<PackageReference Include="Microsoft.AspNetCore.Authentication.OpenIdConnect" />
 	</ItemGroup>
 
 	<ItemGroup>

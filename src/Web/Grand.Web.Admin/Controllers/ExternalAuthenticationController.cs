@@ -44,20 +44,32 @@ public class ExternalAuthenticationController : BaseAdminController
     #region Methods
 
     public async Task<IActionResult> Methods([FromServices] OidcResourceServerConfig resourceServerConfig,
-        [FromServices] IOidcLinkService linkService)
+        [FromServices] OidcLoginConfig loginConfig, [FromServices] IOidcLinkService linkService)
     {
-        //the account links of the OpenID Connect provider, only while it is configured
-        if (!ResourceServerConfigured(resourceServerConfig))
+        //the sign-in card follows the sign-in method (Authority and ClientId), the links card the resource server
+        var signInConfigured = loginConfig.IsConfigured(resourceServerConfig);
+        var linksConfigured = ResourceServerConfigured(resourceServerConfig);
+        if (!signInConfigured && !linksConfigured)
             return View();
 
-        var state = await linkService.GetState();
-        return View(new OidcLinksModel {
-            ConfiguredAuthority = state.ConfiguredAuthority,
-            LinkedAuthority = state.LinkedAuthority,
-            LinkCount = state.LinkCount,
-            ProviderChanged = state.ProviderChanged,
-            ProviderUnknown = state.ProviderUnknown
-        });
+        var model = new OidcLinksModel {
+            SignInConfigured = signInConfigured,
+            LinksConfigured = linksConfigured,
+            ConfiguredAuthority = resourceServerConfig.Authority,
+            ClientId = loginConfig.ClientId,
+            ClientSecretSet = !string.IsNullOrWhiteSpace(loginConfig.ClientSecret)
+        };
+        if (linksConfigured)
+        {
+            var state = await linkService.GetState();
+            model.ConfiguredAuthority = state.ConfiguredAuthority;
+            model.LinkedAuthority = state.LinkedAuthority;
+            model.LinkCount = state.LinkCount;
+            model.ProviderChanged = state.ProviderChanged;
+            model.ProviderUnknown = state.ProviderUnknown;
+        }
+
+        return View(model);
     }
 
     /// <summary>Another identity provider: every OpenID Connect link is removed, people connect again at their next sign-in</summary>

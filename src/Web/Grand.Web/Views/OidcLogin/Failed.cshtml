@@ -1,0 +1,27 @@
+@using Grand.Business.Core.Utilities.Authentication
+@model Grand.Web.Models.Customer.OidcFailedModel
+@{
+    Layout = "_SingleColumn";
+    var key = Model.Mismatch
+        ? "Account.Oidc.Link.Mismatch"
+        : Model.IdentityTaken
+        ? "Account.Oidc.Failed.IdentityLinkedToOtherAccount"
+        : Model.SignedInAsOtherAccount
+        ? "Account.Oidc.Failed.SignedInAsOtherAccount"
+        : Model.SessionUnavailable
+        ? "Account.Oidc.Failed.SessionUnavailable"
+        : Model.Reason switch {
+            OidcLoginRefusal.AccountInactive => "Account.Oidc.Failed.AccountInactive",
+            OidcLoginRefusal.RegistrationDisabled => "Account.Oidc.Failed.RegistrationDisabled",
+            OidcLoginRefusal.LinkedToOtherIdentity => "Account.Oidc.Failed.LinkedToOtherIdentity",
+            OidcLoginRefusal.EmailNotVerified => "Account.Oidc.Failed.EmailNotVerified",
+            OidcLoginRefusal.ProviderChanged => "Account.Oidc.Failed.ProviderChanged",
+            _ => "Account.Oidc.Failed.Generic"
+        };
+}
+<div class="page oidc-failed-page">
+    <div class="page-title"><h1>@Loc["Account.Oidc.Failed.Title"]</h1></div>
+    <div class="page-body">
+        <div class="alert alert-danger">@Loc[key]</div>
+    </div>
+</div>

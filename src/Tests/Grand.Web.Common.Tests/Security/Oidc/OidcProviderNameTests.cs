@@ -7,7 +7,7 @@ namespace Grand.Web.Common.Tests.Security.Oidc;
 [TestClass]
 public class OidcProviderNameTests
 {
-    //the link written by the resolver must be the one the web layer and the login plugin look up
+    //the link written by the resolver must be the one the web layer and the OpenID Connect sign-in look up
     [TestMethod]
     public void ResolverAndWebDefaults_UseTheSameLinkName() =>
         Assert.AreEqual(OidcCustomerResolver.ProviderSystemName, OidcResourceServerDefaults.ProviderSystemName);
