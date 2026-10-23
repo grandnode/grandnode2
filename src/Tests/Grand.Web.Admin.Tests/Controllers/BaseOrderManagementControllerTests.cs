@@ -1,7 +1,10 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Mediator;
@@ -281,12 +284,57 @@ public class BaseOrderManagementControllerTests
             .Setup(v => v.AddProductToOrderDetails(It.IsAny<AddProductToOrderModel>()))
             .ReturnsAsync(new List<string>());
 
+        var (productService, aclService) = ProductInScope("p1", true);
+
         var result = await _controller.AddProductToOrderDetails(
-            new AddProductToOrderModel("o1", "p1", 0, 0, 1, 0));
+            new AddProductToOrderModel("o1", "p1", 0, 0, 1, 0), productService, aclService);
 
         var redirect = result as RedirectToActionResult;
         Assert.AreEqual("Edit", redirect?.ActionName);
         Assert.AreEqual("o1", redirect?.RouteValues["id"]);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderDetailsPost_ProductOutsideScope_RedirectsBack_NothingAdded()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        var (productService, aclService) = ProductInScope("p1", false);
+
+        var result = await _controller.AddProductToOrderDetails(
+            new AddProductToOrderModel("o1", "p1", 0, 0, 1, 0), productService, aclService);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.AreEqual("AddProductToOrder", redirect?.ActionName);
+        Assert.AreEqual("o1", redirect?.RouteValues["orderId"]);
+        _orderProductViewModelServiceMock.Verify(v => v.AddProductToOrderDetails(It.IsAny<AddProductToOrderModel>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddProductToOrderDetailsGet_ProductOutsideScope_RedirectsBack()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        var (productService, aclService) = ProductInScope("p1", false);
+
+        var result = await _controller.AddProductToOrderDetails("o1", "p1", productService, aclService);
+
+        Assert.AreEqual("AddProductToOrder", (result as RedirectToActionResult)?.ActionName);
+        _orderProductViewModelServiceMock.Verify(v => v.PrepareAddProductToOrderModel(It.IsAny<Order>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    private (IProductService, IAclService) ProductInScope(string productId, bool inScope)
+    {
+        var product = new Product { Id = productId };
+        var productService = new Mock<IProductService>();
+        productService.Setup(s => s.GetProductById(productId, It.IsAny<bool>())).ReturnsAsync(product);
+        var aclService = new Mock<IAclService>();
+        aclService.Setup(s => s.Authorize(product, It.IsAny<string>())).Returns(inScope);
+        return (productService.Object, aclService.Object);
     }
 
     [TestMethod]

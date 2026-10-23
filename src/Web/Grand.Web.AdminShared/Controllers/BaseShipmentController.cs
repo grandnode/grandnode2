@@ -595,6 +595,7 @@ public abstract class BaseShipmentController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> ShipmentNoteAdd(string shipmentId, string downloadId, bool displayToCustomer,
         string message)
     {

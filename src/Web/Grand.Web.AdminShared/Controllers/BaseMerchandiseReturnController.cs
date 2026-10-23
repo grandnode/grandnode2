@@ -195,6 +195,7 @@ public abstract class BaseMerchandiseReturnController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
     public async Task<IActionResult> MerchandiseReturnNoteAdd(string merchandiseReturnId, string downloadId,
         bool displayToCustomer, string message)
     {
