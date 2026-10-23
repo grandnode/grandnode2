@@ -3,9 +3,11 @@
   <ItemGroup>
   	<PackageReference Include="ExcelMapper" />
   	<PackageReference Include="Microsoft.Build.Tasks.Git" PrivateAssets="All" />
-	<PackageReference Include="Scryber.Core" />
-    <PackageReference Include="Scryber.Core.OpenType" />
-    <PackageReference Include="System.Security.Cryptography.Xml" />   
+    <PackageReference Include="PdfPig" />
+    <PackageReference Include="System.Security.Cryptography.Xml" />
+  </ItemGroup>
+  <ItemGroup>
+    <EmbeddedResource Include="Services\Pdf\Fonts\*.ttf" LogicalName="Grand.Business.Common.Pdf.Fonts.%(Filename)%(Extension)" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\..\Core\Grand.Domain\Grand.Domain.csproj" />

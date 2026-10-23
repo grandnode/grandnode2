@@ -114,7 +114,6 @@ Important folders:
 - `Controllers`
 - `Views`
 - `Views/Shared`
-- `Views/PdfTemplates`
 - `Components`
 - `Commands`
 - `Features`
