@@ -553,7 +553,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(orderId);
         if (denied != null) return denied;
 
-        var address = new Grand.Domain.Common.Address();
+        Grand.Domain.Common.Address address = null;
         switch (billingAddress)
         {
             case true when order.BillingAddress != null:
@@ -581,7 +581,7 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
         if (denied != null) return denied;
 
-        var address = new Grand.Domain.Common.Address();
+        Grand.Domain.Common.Address address = null;
         switch (model.BillingAddress)
         {
             case true when order.BillingAddress != null:
@@ -591,6 +591,9 @@ public abstract class BaseOrderManagementController(
                 if (order.ShippingAddress.Id == model.Address.Id) address = order.ShippingAddress;
                 break;
         }
+
+        if (address == null)
+            throw new ArgumentException("No address found with the specified id", nameof(model));
 
         if (ModelState.IsValid)
         {

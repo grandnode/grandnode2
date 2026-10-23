@@ -42,6 +42,7 @@ public class BaseOrderManagementControllerTests
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IOrderNoteViewModelService> _orderNoteViewModelServiceMock;
     private Mock<IOrderProductViewModelService> _orderProductViewModelServiceMock;
+    private Mock<IOrderAddressViewModelService> _orderAddressViewModelServiceMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IAdminDataScope<Order>> _scopeMock;
 
@@ -51,6 +52,7 @@ public class BaseOrderManagementControllerTests
         _orderServiceMock = new Mock<IOrderService>();
         _orderNoteViewModelServiceMock = new Mock<IOrderNoteViewModelService>();
         _orderProductViewModelServiceMock = new Mock<IOrderProductViewModelService>();
+        _orderAddressViewModelServiceMock = new Mock<IOrderAddressViewModelService>();
         _mediatorMock = new Mock<IMediator>();
         _scopeMock = new Mock<IAdminDataScope<Order>>();
 
@@ -62,7 +64,7 @@ public class BaseOrderManagementControllerTests
             new Mock<IOrderStatusService>().Object, translationServiceMock.Object,
             new Mock<IContextAccessor>().Object, new Mock<IPdfService>().Object,
             _mediatorMock.Object, _scopeMock.Object, _orderNoteViewModelServiceMock.Object,
-            new Mock<IOrderAddressViewModelService>().Object, _orderProductViewModelServiceMock.Object);
+            _orderAddressViewModelServiceMock.Object, _orderProductViewModelServiceMock.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -297,6 +299,35 @@ public class BaseOrderManagementControllerTests
         var result = await _controller.AddressEdit("a1", "o1", true);
 
         Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
+    }
+
+    [TestMethod]
+    public async Task AddressEditGet_AddressNotOnOrder_Throws()
+    {
+        var order = new Order { Id = "o1", BillingAddress = new Grand.Domain.Common.Address { Id = "a1" } };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.AddressEdit("other", "o1", true));
+    }
+
+    [TestMethod]
+    public async Task AddressEditPost_AddressNotOnOrder_Throws_NothingSaved()
+    {
+        var order = new Order { Id = "o1", BillingAddress = new Grand.Domain.Common.Address { Id = "a1" } };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        var model = new OrderAddressModel {
+            OrderId = "o1", BillingAddress = true,
+            Address = new Grand.Web.AdminShared.Models.Common.AddressModel { Id = "other" }
+        };
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.AddressEdit(model,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object));
+        _orderAddressViewModelServiceMock.Verify(v => v.UpdateOrderAddress(It.IsAny<Order>(),
+            It.IsAny<Grand.Domain.Common.Address>(), It.IsAny<OrderAddressModel>(),
+            It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()), Times.Never);
     }
 
     [TestMethod]
