@@ -34,7 +34,6 @@ public class PdfService : IPdfService
     private readonly ICountryService _countryService;
     private readonly IRepository<Download> _downloadRepository;
     private readonly IGiftVoucherService _giftVoucherService;
-    private readonly ILanguageService _languageService;
     private readonly ILogger<PdfService> _logger;
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
@@ -49,7 +48,6 @@ public class PdfService : IPdfService
 
     public PdfService(
         IRepository<Download> downloadRepository,
-        ILanguageService languageService,
         ITranslationService translationService,
         IStoreFilesContext storeFilesContext,
         IWebHostEnvironment webHostEnvironment,
@@ -65,7 +63,6 @@ public class PdfService : IPdfService
         ILogger<PdfService> logger)
     {
         _downloadRepository = downloadRepository;
-        _languageService = languageService;
         _translationService = translationService;
         _storeFilesContext = storeFilesContext;
         _webHostEnvironment = webHostEnvironment;
@@ -123,10 +120,7 @@ public class PdfService : IPdfService
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(shipments);
 
-        var lang = await _languageService.GetLanguageById(languageId);
-        if (lang == null)
-            throw new ArgumentException($"Cannot load language. ID={languageId}");
-
+        //each slip is printed in its order's customer language
         using var pdf = new PdfComposer();
         foreach (var shipment in shipments)
         {
@@ -169,7 +163,7 @@ public class PdfService : IPdfService
         pdf.Text(PdfHtmlText.ToPlainText(_pdfSettings.InvoiceHeaderText), 9, gray: 90);
         pdf.Text(store?.CompanyName, 14, true);
         pdf.Text($"{Format("PDFInvoice.Order#", lang, order.OrderNumber)} ({order.CreatedOnUtc})", 11, true);
-        if (logo != null) pdf.Space(Math.Max(0, LogoMaxHeight - 40));
+        pdf.ClearImage();
         pdf.Space(8);
 
         var billing = PdfCell.Empty;
@@ -363,9 +357,15 @@ public class PdfService : IPdfService
             var binary = await _pictureService.LoadPictureBinary(picture);
             if (binary is not { Length: > 0 }) return null;
 
-            return picture.MimeType?.Contains("png", StringComparison.OrdinalIgnoreCase) == true
-                ? binary
-                : _pictureService.ConvertPicture(binary, 100, "Png");
+            var isPng = picture.MimeType?.Contains("png", StringComparison.OrdinalIgnoreCase) == true;
+            var png = isPng ? binary : _pictureService.ConvertPicture(binary, 100, "Png");
+            //a PNG PdfPig cannot decode, e.g. interlaced, is written again as a plain one
+            if (isPng && !PdfComposer.CanEmbedPng(png)) png = _pictureService.ConvertPicture(binary, 100, "Png");
+            if (PdfComposer.CanEmbedPng(png)) return png;
+
+            _logger.LogWarning("PDF logo {PictureId} is not a PNG the PDF writer can embed",
+                _pdfSettings.LogoPictureId);
+            return null;
         }
         catch (Exception ex)
         {

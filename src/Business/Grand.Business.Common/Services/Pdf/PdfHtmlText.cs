@@ -13,7 +13,9 @@ internal static partial class PdfHtmlText
     {
         if (string.IsNullOrWhiteSpace(html)) return string.Empty;
 
-        var text = LineBreak().Replace(html, "\n");
+        var text = Hidden().Replace(html, string.Empty);
+        text = LineBreak().Replace(text, "\n");
+        text = CellEnd().Replace(text, " ");
         text = Tag().Replace(text, string.Empty);
         text = WebUtility.HtmlDecode(text).Replace(' ', ' ');
 
@@ -23,8 +25,16 @@ internal static partial class PdfHtmlText
         return string.Join("\n", lines);
     }
 
-    [GeneratedRegex(@"<br\s*/?>|</(p|div|li|tr|h[1-6])\s*>", RegexOptions.IgnoreCase)]
+    //content that is never shown on a page
+    [GeneratedRegex(@"<(script|style)\b[^>]*>.*?</\1\s*>|<!--.*?-->", RegexOptions.IgnoreCase | RegexOptions.Singleline)]
+    private static partial Regex Hidden();
+
+    [GeneratedRegex(@"<(br|hr)\b[^>]*>|</(p|div|li|tr|table|ul|ol|h[1-6])\s*>", RegexOptions.IgnoreCase)]
     private static partial Regex LineBreak();
+
+    //table cells next to each other keep a space between their texts
+    [GeneratedRegex(@"</t[dh]\s*>", RegexOptions.IgnoreCase)]
+    private static partial Regex CellEnd();
 
     [GeneratedRegex("<[^>]*>")]
     private static partial Regex Tag();

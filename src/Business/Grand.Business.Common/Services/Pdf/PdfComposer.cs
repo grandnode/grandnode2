@@ -14,11 +14,15 @@ internal sealed class PdfComposer : IDisposable
     private const double LineSpacing = 1.3;
     private const double CellPadding = 4;
     private const double FooterSize = 8;
+    private const double ImageGap = 10;
     private const string MissingGlyph = "?";
 
     //A4 in points
     private const double PageWidth = 595;
     private const double PageHeight = 842;
+
+    //the footer is cut to a quarter of the page, so a long footer cannot leave no room for the content
+    private static readonly int MaxFooterLines = (int)((PageHeight - 2 * Margin) / 4 / (FooterSize * LineSpacing));
 
     private static readonly Lazy<byte[]> RegularFontData = new(() => ReadFont("NotoSans-Regular.ttf"));
     private static readonly Lazy<byte[]> BoldFontData = new(() => ReadFont("NotoSans-Bold.ttf"));
@@ -33,6 +37,10 @@ internal sealed class PdfComposer : IDisposable
     private double _y;
     private string _footerText;
     private IReadOnlyList<string> _footer = [];
+
+    //a right-aligned image narrows the text beside it down to this y
+    private double _asideBottom = double.MaxValue;
+    private double _asideWidth;
 
     public PdfComposer()
     {
@@ -56,8 +64,11 @@ internal sealed class PdfComposer : IDisposable
     {
         _page = _builder.AddPage(PageWidth, PageHeight);
         _y = PageHeight - Margin;
+        _asideBottom = double.MaxValue;
         _footerText = footer;
-        _footer = string.IsNullOrWhiteSpace(footer) ? [] : Wrap(footer, FooterSize, _regular, ContentWidth);
+        _footer = string.IsNullOrWhiteSpace(footer)
+            ? []
+            : Wrap(footer, FooterSize, _regular, _ => ContentWidth).Take(MaxFooterLines).ToList();
         DrawFooter();
     }
 
@@ -72,23 +83,29 @@ internal sealed class PdfComposer : IDisposable
         if (string.IsNullOrWhiteSpace(text)) return;
 
         var font = bold ? _bold : _regular;
-        foreach (var line in Wrap(text, size, font, ContentWidth))
+        var lineHeight = size * LineSpacing;
+        //lines that start above the bottom of a right-aligned image are wrapped short of it
+        var besideImage = _y > _asideBottom ? (int)Math.Ceiling((_y - _asideBottom) / lineHeight) : 0;
+        foreach (var line in Wrap(text, size, font,
+                     i => i < besideImage ? ContentWidth - _asideWidth : ContentWidth))
         {
-            EnsureSpace(size * LineSpacing);
+            EnsureSpace(lineHeight);
             DrawLine(line, size, font, Margin, _y, ContentWidth, align, gray);
-            _y -= size * LineSpacing;
+            _y -= lineHeight;
         }
     }
 
     public void HorizontalRule(byte gray = 0, double width = 0.5)
     {
+        ClearImage();
         _page.SetStrokeColor(gray, gray, gray);
         _page.DrawLine(new PdfPoint(Margin, _y), new PdfPoint(PageWidth - Margin, _y), width);
         _page.ResetColor();
     }
 
     /// <summary>
-    ///     Draws a PNG at the current position without moving the cursor, scaled down to fit the box.
+    ///     Draws a PNG at the current position without moving the cursor, scaled down to fit the box. Text that
+    ///     follows a right-aligned image wraps beside it until <see cref="ClearImage" />, a rule or a table.
     /// </summary>
     public void Image(byte[] png, double maxWidth, double maxHeight, PdfAlign align)
     {
@@ -104,15 +121,31 @@ internal sealed class PdfComposer : IDisposable
             _page.AddImage(added, rectangle);
         else
             _images[png] = _page.AddPng(png, rectangle);
+
+        if (align != PdfAlign.Right) return;
+        _asideBottom = _y - h;
+        _asideWidth = w + ImageGap;
+    }
+
+    /// <summary>
+    ///     Moves the cursor below the image drawn beside the text, if it is not already there.
+    /// </summary>
+    public void ClearImage()
+    {
+        if (_asideBottom == double.MaxValue) return;
+        _y = Math.Min(_y, _asideBottom);
+        _asideBottom = double.MaxValue;
     }
 
     /// <summary>
     ///     Draws a table. Column widths are relative weights of the content width. A row that does not fit on
-    ///     the page moves to the next one, repeating the header.
+    ///     the page moves to the next one, repeating the header; a row taller than a whole page is split
+    ///     between its lines.
     /// </summary>
     public void Table(IReadOnlyList<PdfColumn> columns, IReadOnlyList<string> header,
         IEnumerable<IReadOnlyList<PdfCell>> rows, double size = 10, bool rowLines = true)
     {
+        ClearImage();
         var totalWeight = columns.Sum(c => c.Weight);
         var widths = columns.Select(c => ContentWidth * c.Weight / totalWeight).ToArray();
 
@@ -126,11 +159,12 @@ internal sealed class PdfComposer : IDisposable
             {
                 cells[i] = [];
                 var cell = i < row.Count ? row[i] : PdfCell.Empty;
+                var width = widths[i] - 2 * CellPadding;
                 foreach (var line in cell.Lines)
                 {
                     var lineSize = line.Small ? size - 2 : size;
                     var font = line.Bold ? _bold : _regular;
-                    cells[i].AddRange(Wrap(line.Text, lineSize, font, widths[i] - 2 * CellPadding)
+                    cells[i].AddRange(Wrap(line.Text, lineSize, font, _ => width)
                         .Select(text => (text, lineSize, font)));
                 }
 
@@ -138,40 +172,98 @@ internal sealed class PdfComposer : IDisposable
             }
 
             height += 2 * CellPadding;
-            if (_y - height < Bottom)
-            {
-                NewPage(_footerText);
-                if (header != null) DrawHeader(columns, widths, header, size);
-            }
+            //a row that fits on an empty page is kept whole
+            var pageRoom = PageHeight - Margin - Bottom - HeaderHeight(header, size);
+            if (_y - height < Bottom && height <= pageRoom)
+                NewTablePage(columns, widths, header, size);
 
-            var x = Margin;
-            for (var i = 0; i < columns.Count; i++)
+            var next = new int[columns.Count];
+            while (true)
             {
-                var top = _y - CellPadding;
-                foreach (var (text, lineSize, font) in cells[i])
+                var room = _y - 2 * CellPadding - Bottom;
+                var used = 0d;
+                var done = true;
+                var x = Margin;
+                for (var i = 0; i < columns.Count; i++)
                 {
-                    DrawLine(text, lineSize, font, x + CellPadding, top, widths[i] - 2 * CellPadding,
-                        columns[i].Align, 0);
-                    top -= lineSize * LineSpacing;
+                    var top = _y - CellPadding;
+                    var cellHeight = 0d;
+                    while (next[i] < cells[i].Count)
+                    {
+                        var (text, lineSize, font) = cells[i][next[i]];
+                        var lineHeight = lineSize * LineSpacing;
+                        if (cellHeight + lineHeight > room) break;
+
+                        DrawLine(text, lineSize, font, x + CellPadding, top, widths[i] - 2 * CellPadding,
+                            columns[i].Align, 0);
+                        top -= lineHeight;
+                        cellHeight += lineHeight;
+                        next[i]++;
+                    }
+
+                    done &= next[i] == cells[i].Count;
+                    used = Math.Max(used, cellHeight);
+                    x += widths[i];
                 }
 
-                x += widths[i];
+                if (done)
+                {
+                    _y -= used + 2 * CellPadding;
+                    break;
+                }
+
+                //not even one line fits at the top of a page: stop rather than add pages forever
+                if (used == 0 && room >= pageRoom - 2 * CellPadding) break;
+
+                NewTablePage(columns, widths, header, size);
             }
 
-            _y -= height;
             if (rowLines) HorizontalRule(220);
         }
     }
 
     public byte[] Build()
     {
+        //a PDF needs at least one page, also when there was nothing to print
+        if (_page == null) NewPage();
         return _builder.Build();
+    }
+
+    /// <summary>
+    ///     Checks that PdfPig can embed the PNG, so a file its decoder rejects is found before the document is
+    ///     laid out instead of failing it half way.
+    /// </summary>
+    public static bool CanEmbedPng(byte[] png)
+    {
+        if (!TryReadPngSize(png, out _, out _)) return false;
+        try
+        {
+            using var builder = new PdfDocumentBuilder();
+            builder.AddPage(PageWidth, PageHeight).AddPng(png, new PdfRectangle(0, 0, 10, 10));
+            return true;
+        }
+        catch (Exception)
+        {
+            return false;
+        }
+    }
+
+    private void NewTablePage(IReadOnlyList<PdfColumn> columns, double[] widths, IReadOnlyList<string> header,
+        double size)
+    {
+        NewPage(_footerText);
+        if (header != null) DrawHeader(columns, widths, header, size);
+    }
+
+    private static double HeaderHeight(IReadOnlyList<string> header, double size)
+    {
+        return header == null ? 0 : size * LineSpacing + 2 * CellPadding;
     }
 
     private void DrawHeader(IReadOnlyList<PdfColumn> columns, double[] widths, IReadOnlyList<string> header,
         double size)
     {
-        var height = size * LineSpacing + 2 * CellPadding;
+        var height = HeaderHeight(header, size);
         EnsureSpace(height);
         _page.SetStrokeColor(128, 128, 128);
         _page.SetTextAndFillColor(128, 128, 128);
@@ -182,9 +274,9 @@ internal sealed class PdfComposer : IDisposable
         for (var i = 0; i < columns.Count; i++)
         {
             var text = i < header.Count ? header[i] : string.Empty;
-            var line = Wrap(text, size, _bold, widths[i] - 2 * CellPadding).FirstOrDefault();
-            DrawLine(line, size, _bold, x + CellPadding, _y - CellPadding, widths[i] - 2 * CellPadding,
-                columns[i].Align, 255);
+            var width = widths[i] - 2 * CellPadding;
+            var line = Wrap(text, size, _bold, _ => width).FirstOrDefault();
+            DrawLine(line, size, _bold, x + CellPadding, _y - CellPadding, width, columns[i].Align, 255);
             x += widths[i];
         }
 
@@ -220,39 +312,65 @@ internal sealed class PdfComposer : IDisposable
         if (gray != 0) _page.ResetColor();
     }
 
-    private List<string> Wrap(string text, double size, PdfDocumentBuilder.AddedFont font, double width)
+    /// <summary>
+    ///     Breaks text into lines, <paramref name="width" /> giving the width of the n-th line. Each word is
+    ///     measured once and a line is as wide as its words and the spaces between them.
+    /// </summary>
+    private List<string> Wrap(string text, double size, PdfDocumentBuilder.AddedFont font, Func<int, double> width)
     {
         var lines = new List<string>();
         if (string.IsNullOrEmpty(text)) return lines;
 
+        var space = Measure(" ", size, font);
         foreach (var paragraph in Supported(text, font).Split('\n'))
         {
-            var line = string.Empty;
+            var line = new StringBuilder();
+            var lineWidth = 0d;
             foreach (var word in paragraph.Split(' ', StringSplitOptions.RemoveEmptyEntries))
             {
-                var candidate = line.Length == 0 ? word : line + " " + word;
-                if (Measure(candidate, size, font) <= width)
+                var wordWidth = Measure(word, size, font);
+                if (line.Length > 0 && lineWidth + space + wordWidth <= width(lines.Count))
                 {
-                    line = candidate;
+                    line.Append(' ').Append(word);
+                    lineWidth += space + wordWidth;
                     continue;
                 }
 
-                if (line.Length > 0) lines.Add(line);
-                line = word;
+                if (line.Length > 0) lines.Add(line.ToString());
+                var rest = word;
                 //a single word wider than the column is broken between characters
-                while (line.Length > 1 && Measure(line, size, font) > width)
+                while (rest.Length > 1 && wordWidth > width(lines.Count))
                 {
-                    var cut = line.Length - 1;
-                    while (cut > 1 && Measure(line[..cut], size, font) > width) cut--;
-                    lines.Add(line[..cut]);
-                    line = line[cut..];
+                    var cut = FittingLength(rest, size, font, width(lines.Count));
+                    lines.Add(rest[..cut]);
+                    rest = rest[cut..];
+                    wordWidth = Measure(rest, size, font);
                 }
+
+                line.Clear().Append(rest);
+                lineWidth = wordWidth;
             }
 
-            lines.Add(line);
+            lines.Add(line.ToString());
         }
 
         return lines;
+    }
+
+    /// <summary>
+    ///     The length of the longest prefix of <paramref name="text" /> that fits the width, at least one.
+    /// </summary>
+    private int FittingLength(string text, double size, PdfDocumentBuilder.AddedFont font, double width)
+    {
+        int low = 1, high = text.Length - 1;
+        while (low < high)
+        {
+            var mid = (low + high + 1) / 2;
+            if (Measure(text[..mid], size, font) <= width) low = mid;
+            else high = mid - 1;
+        }
+
+        return low;
     }
 
     private double Measure(string text, double size, PdfDocumentBuilder.AddedFont font)
