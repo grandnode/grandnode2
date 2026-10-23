@@ -283,6 +283,122 @@ public class OrderCalculationServiceTests
         Assert.AreEqual(0, result.Total);
     }
 
+    private OrderCalculationService CreateServiceWithSubTotal(double subTotal)
+    {
+        var shoppingCartSubTotalService = new Mock<IShoppingCartSubTotalService>();
+        shoppingCartSubTotalService
+            .Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(),
+                It.IsAny<CalculationContext>(), It.IsAny<bool>()))
+            .ReturnsAsync(new ShoppingCartSubTotal(0, [], subTotal, subTotal, new SortedDictionary<double, double>()));
+        _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).ReturnsAsync(new List<CustomerGroup>());
+        _currencyServiceMock.Setup(x => x.ConvertFromPrimaryStoreCurrency(It.IsAny<double>(), It.IsAny<Currency>()))
+            .ReturnsAsync((double amount, Currency _) => amount);
+        _currencyServiceMock.Setup(x => x.ConvertToPrimaryStoreCurrency(It.IsAny<double>(), It.IsAny<Currency>()))
+            .ReturnsAsync((double amount, Currency _) => amount);
+        _loyaltyPointsSettings.Enabled = true;
+        _loyaltyPointsSettings.ExchangeRate = 1;
+
+        return new OrderCalculationService(shoppingCartSubTotalService.Object,
+            _taxServiceMock.Object, _shippingServiceMock.Object,
+            _paymentServiceMock.Object, _discountServiceMock.Object,
+            _giftVoucherServiceMock.Object,
+            _loyaltyPointsServiceMock.Object, _currencyServiceMock.Object,
+            _groupServiceMock.Object, _discountValidationService.Object,
+            _taxSettings, _loyaltyPointsSettings, _shippingSettings, _shoppingCartSettings, _catalogSettings);
+    }
+
+    private static List<ShoppingCartItem> FreeShippingCart()
+    {
+        return [new ShoppingCartItem { Quantity = 1, IsShipEnabled = true, IsFreeShipping = true }];
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_RedeemsTheWholeLoyaltyPointsBalanceBelowTheTotal()
+    {
+        //Arrange
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(30);
+
+        //Act
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, true, false);
+
+        //Assert
+        Assert.AreEqual(30, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(30, result.RedeemedLoyaltyPointsAmount);
+        Assert.AreEqual(70, result.Total);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_RedeemsOnlyThePointsTheTotalNeeds()
+    {
+        //Arrange
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsSettings.ExchangeRate = 0.5;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(500);
+
+        //Act
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, true, false);
+
+        //Assert
+        Assert.AreEqual(200, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(100, result.RedeemedLoyaltyPointsAmount);
+        Assert.AreEqual(0, result.Total);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_DoesNotRedeemBelowTheMinimumBalance()
+    {
+        //Arrange
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsSettings.MinimumLoyaltyPointsToUse = 50;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(30);
+
+        //Act
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, true, false);
+
+        //Assert
+        Assert.AreEqual(0, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(100, result.Total);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_ReadsTheLoyaltyPointsChoiceFromTheCustomer()
+    {
+        //Arrange
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(30);
+
+        //Act
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, null, false);
+
+        //Assert
+        Assert.AreEqual(0, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(100, result.Total);
+        _loyaltyPointsServiceMock.Verify(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_DoesNotRedeemWhenLoyaltyPointsAreDisabled()
+    {
+        //Arrange
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsSettings.Enabled = false;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(30);
+
+        //Act
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, true, false);
+
+        //Assert
+        Assert.AreEqual(0, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(100, result.Total);
+    }
+
     [TestMethod]
     public async Task ConvertLoyaltyPointsToAmountTest()
     {
