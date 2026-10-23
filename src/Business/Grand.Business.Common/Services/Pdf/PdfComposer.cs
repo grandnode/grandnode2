@@ -27,6 +27,7 @@ internal sealed class PdfComposer : IDisposable
     private readonly PdfDocumentBuilder.AddedFont _regular;
     private readonly PdfDocumentBuilder.AddedFont _bold;
     private readonly Dictionary<(bool Bold, int Rune), bool> _glyphs = new();
+    private readonly Dictionary<byte[], PdfPageBuilder.AddedImage> _images = new(ReferenceEqualityComparer.Instance);
 
     private PdfPageBuilder _page;
     private double _y;
@@ -97,7 +98,12 @@ internal sealed class PdfComposer : IDisposable
         var w = width * scale;
         var h = height * scale;
         var x = align == PdfAlign.Right ? PageWidth - Margin - w : Margin;
-        _page.AddPng(png, new PdfRectangle(x, _y - h, x + w, _y));
+        var rectangle = new PdfRectangle(x, _y - h, x + w, _y);
+        //the image is written into the document once and every later page refers to it
+        if (_images.TryGetValue(png, out var added))
+            _page.AddImage(added, rectangle);
+        else
+            _images[png] = _page.AddPng(png, rectangle);
     }
 
     /// <summary>

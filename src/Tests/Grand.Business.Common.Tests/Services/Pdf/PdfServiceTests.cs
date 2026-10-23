@@ -33,6 +33,7 @@ public class PdfServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IOrderService> _orderServiceMock;
     private PdfSettings _pdfSettings;
+    private Mock<IPictureService> _pictureServiceMock;
     private Mock<IProductService> _productServiceMock;
     private PdfService _service;
 
@@ -42,6 +43,7 @@ public class PdfServiceTests
         _languageServiceMock = new Mock<ILanguageService>();
         _orderServiceMock = new Mock<IOrderService>();
         _productServiceMock = new Mock<IProductService>();
+        _pictureServiceMock = new Mock<IPictureService>();
         _pdfSettings = new PdfSettings();
         _mediatorMock = new Mock<IMediator>();
 
@@ -65,7 +67,7 @@ public class PdfServiceTests
         _service = new PdfService(new Mock<IRepository<Download>>().Object, _languageServiceMock.Object,
             translationServiceMock.Object, new Mock<IStoreFilesContext>().Object,
             new Mock<IWebHostEnvironment>().Object, _productServiceMock.Object, new Mock<ICountryService>().Object,
-            storeServiceMock.Object, new Mock<IPictureService>().Object, new Mock<IPaymentService>().Object,
+            storeServiceMock.Object, _pictureServiceMock.Object, new Mock<IPaymentService>().Object,
             giftVoucherServiceMock.Object, _orderServiceMock.Object, _pdfSettings, _mediatorMock.Object,
             new Mock<ILogger<PdfService>>().Object);
     }
@@ -112,6 +114,35 @@ public class PdfServiceTests
         var text = await PrintOrders([CreateOrder()]);
         //Assert
         StringAssert.Contains(text, "Transfer title: 1001");
+    }
+
+    [TestMethod]
+    public async Task PrintOrdersToPdf_EmbedsTheLogoOnceForAllOrders()
+    {
+        //Arrange
+        const string onePixelPng =
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8DwHwAFBQIAX8jx0gAAAABJRU5ErkJggg==";
+        _pdfSettings.LogoPictureId = "logo";
+        var logo = new Picture { Id = "logo", MimeType = "image/png" };
+        _pictureServiceMock.Setup(p => p.GetPictureById("logo")).ReturnsAsync(logo);
+        _pictureServiceMock.Setup(p => p.LoadPictureBinary(logo)).ReturnsAsync(Convert.FromBase64String(onePixelPng));
+        //Act
+        using var single = new MemoryStream();
+        await _service.PrintOrdersToPdf(single, [CreateOrder()]);
+        using var stream = new MemoryStream();
+        await _service.PrintOrdersToPdf(stream, [CreateOrder(), CreateOrder(), CreateOrder()]);
+        //Assert
+        using var pdf = PdfDocument.Open(stream.ToArray());
+        Assert.AreEqual(3, pdf.NumberOfPages);
+        foreach (var page in pdf.GetPages())
+            Assert.HasCount(1, page.GetImages());
+        //an RGBA PNG is written as an image plus its alpha mask; three pages must not add more of them
+        Assert.AreEqual(ImageObjects(single), ImageObjects(stream));
+    }
+
+    private static int ImageObjects(MemoryStream pdf)
+    {
+        return Encoding.Latin1.GetString(pdf.ToArray()).Split("/Subtype /Image").Length - 1;
     }
 
     [TestMethod]
