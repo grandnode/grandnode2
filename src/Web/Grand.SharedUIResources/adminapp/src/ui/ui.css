@@ -441,6 +441,179 @@ body.grand-modal-open {
     margin: 0;
 }
 
+/* ----------------------------------------------------------- file manager */
+
+/* GrandAdmin.fileManager (ui/filemanager.js): the window of the editor's "Manage pictures" */
+.grand-filemanager {
+    gap: .75rem;
+}
+
+.grand-filemanager__toolbar {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: .5rem;
+}
+
+.grand-filemanager__crumbs {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: .25rem;
+    min-width: 0;
+    font-size: .875rem;
+}
+
+.grand-filemanager__crumb {
+    padding: 0;
+    color: var(--grand-accent);
+    background: none;
+    border: 0;
+    cursor: pointer;
+}
+
+span.grand-filemanager__crumb {
+    font-weight: 600;
+    color: inherit;
+    cursor: default;
+}
+
+.grand-filemanager__crumb-separator {
+    color: var(--bs-secondary-color);
+}
+
+.grand-filemanager__tools {
+    display: flex;
+    flex-wrap: wrap;
+    gap: .375rem;
+}
+
+.grand-filemanager__name {
+    display: flex;
+    align-items: center;
+    gap: .5rem;
+}
+
+.grand-filemanager__name[hidden] {
+    display: none;
+}
+
+.grand-filemanager__name-label {
+    flex: none;
+    font-size: .875rem;
+    font-weight: 500;
+}
+
+.grand-filemanager__name .form-control {
+    max-width: 18rem;
+}
+
+.grand-filemanager__message {
+    font-size: .875rem;
+    white-space: pre-line;
+    color: var(--bs-secondary-color);
+}
+
+.grand-filemanager__message.is-error {
+    color: var(--bs-danger-text-emphasis);
+}
+
+.grand-filemanager__list {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(8.5rem, 1fr));
+    gap: .5rem;
+    min-height: 12rem;
+    max-height: 26rem;
+    margin: 0;
+    padding: .5rem;
+    overflow-y: auto;
+    list-style: none;
+    border: 1px solid var(--grand-border);
+    border-radius: .5rem !important;
+}
+
+.grand-filemanager__list.is-drop-target {
+    border-color: var(--grand-accent);
+    background: var(--grand-accent-soft);
+}
+
+.grand-filemanager__item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: .25rem;
+    padding: .5rem;
+    font-size: .8125rem;
+    text-align: center;
+    border: 1px solid transparent;
+    border-radius: .5rem !important;
+    cursor: pointer;
+    user-select: none;
+}
+
+.grand-filemanager__item:hover {
+    background: var(--bs-tertiary-bg);
+}
+
+.grand-filemanager__item:focus-visible {
+    outline: 2px solid var(--grand-accent);
+    outline-offset: 1px;
+}
+
+.grand-filemanager__item.is-selected {
+    background: var(--grand-accent-soft);
+    border-color: var(--grand-accent);
+}
+
+.grand-filemanager__thumb {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    height: 5.5rem;
+    overflow: hidden;
+    font-size: 2.75rem;
+    color: var(--bs-secondary-color);
+}
+
+.grand-filemanager__thumb .bi-folder-fill {
+    color: var(--grand-amber);
+}
+
+.grand-filemanager__thumb img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.grand-filemanager__label {
+    width: 100%;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.grand-filemanager__size {
+    color: var(--bs-secondary-color);
+}
+
+.grand-filemanager__empty {
+    padding: 2rem 0;
+    text-align: center;
+    color: var(--bs-secondary-color);
+}
+
+.grand-filemanager__empty[hidden] {
+    display: none;
+}
+
+.grand-filemanager__footer {
+    display: flex;
+    justify-content: flex-end;
+    gap: .5rem;
+}
+
 /* ----------------------------------------------------------- numeric field */
 
 /* The spinner the Kendo NumericTextBox drew, in Bootstrap's input group. The buttons are

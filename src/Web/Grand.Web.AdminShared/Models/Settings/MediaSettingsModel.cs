@@ -78,12 +78,6 @@ public class MediaSettingsModel : BaseModel
     [GrandResourceDisplayName("Admin.Settings.Media.AllowedFileTypes")]
     public string AllowedFileTypes { get; set; }
 
-    [GrandResourceDisplayName("Admin.Settings.Media.FileManagerEnabledCommands")]
-    public string FileManagerEnabledCommands { get; set; }
-
-    [GrandResourceDisplayName("Admin.Settings.Media.FileManagerDisabledUICommands")]
-    public string FileManagerDisabledUICommands { get; set; }
-
     [GrandResourceDisplayName("Admin.Settings.Media.DefaultImageName")]
     public string DefaultImageName { get; set; } = "no-image.png";
 

@@ -8,7 +8,6 @@
     <PackageVersion Include="Microsoft.Build.Tasks.Git" Version="10.0.401" />
     <PackageVersion Include="HtmlSanitizer" Version="9.2.1039" />
     <PackageVersion Include="MessagePack" Version="3.1.10" />
-    <PackageVersion Include="Microsoft.AspNetCore.Http" Version="2.3.13" />
     <PackageVersion Include="Microsoft.AspNetCore.OpenApi" Version="10.0.12" />
     <PackageVersion Include="Microsoft.FeatureManagement.AspNetCore" Version="4.8.0" />
     <PackageVersion Include="Microsoft.OpenApi" Version="2.12.2" />
@@ -48,9 +47,6 @@
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
     <PackageVersion Include="System.Xml.XPath.XmlDocument" Version="4.7.0" />
     <PackageVersion Include="Stripe.net" Version="52.4.2" />
-    <PackageVersion Include="elFinder.Net.AspNetCore" Version="1.5.0" />
-    <PackageVersion Include="elFinder.Net.Core" Version="1.5.0" />
-    <PackageVersion Include="elFinder.Net.Drivers.FileSystem" Version="1.5.0" />
     <PackageVersion Include="Azure.Extensions.AspNetCore.DataProtection.Blobs" Version="1.5.4" />
     <PackageVersion Include="Azure.Extensions.AspNetCore.DataProtection.Keys" Version="1.6.4" />
     <PackageVersion Include="Azure.Identity" Version="1.21.0" />

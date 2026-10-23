@@ -78,7 +78,7 @@ of each area) load, under `Constants.WwwRoot` + `/administration/`:
 
 1. `admin.theme.js` synchronously in `<head>`, before anything paints (dark mode, below);
 2. the vendored stylesheets still in use (daterangepicker, magnific-popup, summernote,
-   the jQuery UI smoothness theme, elFinder in Admin, farbtastic), then
+   the jQuery UI smoothness theme, farbtastic), then
    `bundles/admin.grid.css`, `bundles/admin.ui.css`, and
    `bundles/admin.bootstrap.css` - or `bundles/admin.bootstrap.rtl.css` when the working
    language is right-to-left and `IgnoreRtlPropertyForAdminArea` is off;
@@ -86,7 +86,7 @@ of each area) load, under `Constants.WwwRoot` + `/administration/`:
    `admin.search.js` in Admin), jquery.validate (+ unobtrusive), `admin.common.js`, then
    `bundles/admin.grid.js`, `bundles/admin.ui.js`;
 4. in the footer: `bundles/admin.bootstrap.js`, `build/js/smartresize.js`,
-   `build/js/custom.js`, summernote, elFinder (Admin), magnific-popup, jquery.tmpl,
+   `build/js/custom.js`, summernote, magnific-popup, jquery.tmpl,
    farbtastic.
 
 They also render `<admin-culture/>`, the request culture as a JSON island the bundles read.
@@ -220,8 +220,10 @@ Widgets live in `src/ui/`, one module per widget with a `*.test.js` next to it (
 Kendo UI, Bootstrap 4, Font Awesome and simple-line-icons are no longer loaded by any
 panel, and their files are gone from `wwwroot/administration/`. So are Roxy Fileman, the
 unused jQuery UI sources/stylesheets/themes, the glyphicons font, unused webfonts, the
-unminified duplicates of elFinder and Fine Uploader, and the CodeMirror demo pages. A
-plugin that linked any of those paths directly must ship its own copy.
+unminified duplicate of Fine Uploader, and the CodeMirror demo pages. elFinder is gone as a
+whole: the editor's "Manage pictures" opens `GrandAdmin.fileManager` (`src/ui/filemanager.js`,
+served by the Admin `FileManager` controller). A plugin that linked any of those paths
+directly must ship its own copy.
 
 There is no compatibility layer either: `$.fn.kendoGrid`, the other Kendo widgets,
 `kendo.*` helpers, the `k-*` classes and the Bootstrap 4 `data-toggle` / `data-target` /

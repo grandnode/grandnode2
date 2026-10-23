@@ -19,54 +19,52 @@
     ViewData.TemplateInfo.FormattedModelValue /* Initial value */
 )
 <script>
-    function elfinderDialog@(random)(context) { // <------------------ +context
-        var fm = $('<div/>').dialogelfinder({
-            url: '@Url.Action("Connector", "ElFinder")',
-            customHeaders: {
-                'X-CSRF-TOKEN': '@requestToken'
+    function fileManager@(random)() {
+        GrandAdmin.fileManager.open({
+            urls: {
+                list: '@Url.Action("List", "FileManager", new { area = "Admin" })',
+                upload: '@Url.Action("Upload", "FileManager", new { area = "Admin" })',
+                createFolder: '@Url.Action("CreateFolder", "FileManager", new { area = "Admin" })',
+                rename: '@Url.Action("Rename", "FileManager", new { area = "Admin" })',
+                delete: '@Url.Action("Delete", "FileManager", new { area = "Admin" })'
             },
-            baseUrl: '@(Grand.SharedUIResources.Constants.WwwRoot)/administration/elfinder/',
-            lang: 'en',
-            width: 840,
-            height: 450,
-            destroyOnClose: true,
-            uiOptions: { // UI buttons available to the user
-                toolbar: [
-                    ['home', 'up'],
-                    ['mkdir', 'mkfile', 'upload'],
-                    ['open', 'download'],
-                    ['copy', 'cut', 'paste'],
-                    ['rm'],
-                    ['duplicate', 'rename', 'edit'],
-                    ['view', 'sort']
-                ]
-            },
-            requestType: 'post',
-            getFileCallback: function (file, fm) {
-                var fulltype = file.mime;
-                if (fulltype.includes("video")) {
+            token: '@requestToken',
+            texts: @Json.Serialize(new {
+                title = Loc["Admin.FileManager.Picture"].Value,
+                up = Loc["Admin.FileManager.Up"].Value,
+                newFolder = Loc["Admin.FileManager.NewFolder"].Value,
+                upload = Loc["Admin.FileManager.Upload"].Value,
+                rename = Loc["Admin.FileManager.Rename"].Value,
+                delete = Loc["Admin.Common.Delete"].Value,
+                insert = Loc["Admin.FileManager.Insert"].Value,
+                cancel = Loc["Admin.Common.Cancel"].Value,
+                ok = Loc["Admin.Common.Save"].Value,
+                empty = Loc["Admin.FileManager.Empty"].Value,
+                root = Loc["Admin.FileManager.Root"].Value,
+                folderName = Loc["Admin.FileManager.FolderName"].Value,
+                newName = Loc["Admin.FileManager.NewName"].Value,
+                deleteConfirm = Loc["Admin.FileManager.DeleteConfirm"].Value,
+                deleteFolderConfirm = Loc["Admin.FileManager.DeleteFolderConfirm"].Value,
+                uploading = Loc["Admin.FileManager.Uploading"].Value,
+                failed = Loc["Admin.FileManager.Error.Failed"].Value
+            }),
+            onPick: function (file) {
+                var editor = $('#s-@(random)-summernote');
+                if (file.kind === 'video') {
                     var node = document.createElement('iframe');
                     node.src = file.url;
-                    $('#s-@(random)-summernote').summernote('editor.insertNode', node);
-                }
-                if (fulltype.includes("image")) {
-                    $('#s-@(random)-summernote').summernote('editor.insertImage', file.url);
-                }
-                if (!fulltype.includes("image") && !fulltype.includes("video")) {
-                    $('#s-@(random)-summernote').summernote('editor.createLink', {
+                    editor.summernote('editor.insertNode', node);
+                } else if (file.kind === 'image') {
+                    editor.summernote('editor.insertImage', file.url);
+                } else {
+                    editor.summernote('editor.createLink', {
                         text: file.name,
                         url: file.url,
                         isNewWindow: false
                     });
                 }
-            },
-            commandsOptions: {
-                getfile: {
-                    oncomplete: 'close',
-                    folders: false
-                }
             }
-        }).dialogelfinder('instance');
+        });
     }
 </script>
 <script>
@@ -78,7 +76,7 @@
                 contents: '<i class="note-icon-picture"/>',
                 tooltip: '@Loc["Admin.FileManager.Picture"]',
                 click: function () {
-                    elfinderDialog@(random)();
+                    fileManager@(random)();
                 }
             });
             return button.render();   // return button as jquery object
@@ -92,13 +90,13 @@
                 ['color', ['color']],
                 ['para', ['ul', 'ol', 'paragraph']],
                 ['table', ['table']],
-                ['insert', ['link', 'image', 'elfinder', 'hr']],
+                ['insert', ['link', 'image', 'filemanager', 'hr']],
                 ['view', ['fullscreen', 'codeview', 'help']],
             ],
             buttons: {
                 @if (allowFileman)
                 {
-                    <text> elfinder: FileManager, </text>
+                    <text> filemanager: FileManager, </text>
                 }
             },
             callbacks: {

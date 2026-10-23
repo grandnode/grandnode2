@@ -786,22 +786,6 @@ legend {
     padding-top: 10px;
 }
 
-/* elfinder */
-
-.elfinder.ui-helper-clearfix:before {
-    content: "";
-    position: fixed;
-    top: 0;
-    inset-inline-end: 0;
-    bottom: 0;
-    inset-inline-start: 0;
-    display: flex;
-    background-color: rgba(0,0,0,.5);
-    z-index: -1;
-}
-
-/* end elfinder */
-
 table.tile h3, table.tile h4, table.tile span {
     font-weight: bold;
     vertical-align: middle !important
