@@ -15,17 +15,18 @@ public class ExternalAuthenticationControllerTests
 {
     private const string Authority = "https://idp.test";
 
-    private static async Task<IActionResult> Methods(bool resourceServerEnabled, string clientSecret)
+    private readonly Mock<IOidcLinkService> _linkService = new();
+
+    private async Task<IActionResult> Methods(bool resourceServerEnabled, string clientSecret, string clientId = "shop")
     {
-        var linkService = new Mock<IOidcLinkService>();
-        linkService.Setup(x => x.GetState()).ReturnsAsync(new OidcLinkState(Authority, Authority, 3));
+        _linkService.Setup(x => x.GetState()).ReturnsAsync(new OidcLinkState(Authority, Authority, 3));
         var controller = new ExternalAuthenticationController(new Mock<IExternalAuthenticationService>().Object,
             new ExternalAuthenticationSettings(), new Mock<ISettingService>().Object, new Mock<IServiceProvider>().Object);
 
         return await controller.Methods(
             new OidcResourceServerConfig { Enabled = resourceServerEnabled, Authority = Authority },
-            new OidcLoginConfig { ClientId = "shop", ClientSecret = clientSecret },
-            linkService.Object);
+            new OidcLoginConfig { ClientId = clientId, ClientSecret = clientSecret },
+            _linkService.Object);
     }
 
     [TestMethod]
@@ -50,8 +51,41 @@ public class ExternalAuthenticationControllerTests
     }
 
     [TestMethod]
-    public async Task Methods_ResourceServerDisabled_ReturnsViewWithoutModel()
+    public async Task Methods_Configured_ShowsBothCards()
     {
-        Assert.IsNull(((ViewResult)await Methods(false, "s3cr3t")).Model);
+        var model = (OidcLinksModel)((ViewResult)await Methods(true, "s3cr3t")).Model!;
+
+        Assert.IsTrue(model.SignInConfigured);
+        Assert.IsTrue(model.LinksConfigured);
+        Assert.AreEqual(3, model.LinkCount);
+    }
+
+    //browser sign-in needs only Authority and ClientId: the grid lists it and its configure link needs the card
+    [TestMethod]
+    public async Task Methods_ResourceServerDisabled_ShowsSignInCardOnly()
+    {
+        var model = (OidcLinksModel)((ViewResult)await Methods(false, "s3cr3t")).Model!;
+
+        Assert.IsTrue(model.SignInConfigured);
+        Assert.IsFalse(model.LinksConfigured);
+        Assert.AreEqual(Authority, model.ConfiguredAuthority);
+        Assert.AreEqual("shop", model.ClientId);
+        _linkService.Verify(x => x.GetState(), Times.Never);
+    }
+
+    //the resource server alone: the links card, no sign-in card with an empty client
+    [TestMethod]
+    public async Task Methods_ClientIdEmpty_ShowsLinksCardOnly()
+    {
+        var model = (OidcLinksModel)((ViewResult)await Methods(true, "", clientId: "")).Model!;
+
+        Assert.IsFalse(model.SignInConfigured);
+        Assert.IsTrue(model.LinksConfigured);
+    }
+
+    [TestMethod]
+    public async Task Methods_NothingConfigured_ReturnsViewWithoutModel()
+    {
+        Assert.IsNull(((ViewResult)await Methods(false, "", clientId: "")).Model);
     }
 }

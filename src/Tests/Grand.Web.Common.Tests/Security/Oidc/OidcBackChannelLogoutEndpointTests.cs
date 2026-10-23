@@ -201,6 +201,35 @@ public class OidcBackChannelLogoutEndpointTests
         Assert.IsFalse(body.Contains("configured", StringComparison.OrdinalIgnoreCase), body);
     }
 
+    //without the sign-in nothing of the request is read: the body stays unconsumed and the answer is the same
+    [TestMethod]
+    public async Task NotConfigured_BodyNotRead()
+    {
+        _schemeRegistered = false;
+        var context = new DefaultHttpContext { RequestServices = Services() };
+        context.Request.Method = "POST";
+        context.Request.ContentType = "application/x-www-form-urlencoded";
+        context.Request.Body = new UnreadableStream();
+        context.Response.Body = new MemoryStream();
+
+        var result = await OidcBackChannelLogoutEndpoint.Handle(context);
+        await result.ExecuteAsync(context);
+
+        Assert.AreEqual(400, context.Response.StatusCode);
+    }
+
+    private sealed class UnreadableStream : MemoryStream
+    {
+        public override int Read(byte[] buffer, int offset, int count) =>
+            throw new InvalidOperationException("the form was read");
+
+        public override ValueTask<int> ReadAsync(Memory<byte> buffer, CancellationToken cancellationToken = default) =>
+            throw new InvalidOperationException("the form was read");
+
+        public override Task<int> ReadAsync(byte[] buffer, int offset, int count, CancellationToken cancellationToken) =>
+            throw new InvalidOperationException("the form was read");
+    }
+
     [TestMethod]
     public async Task MetadataUnobtainable_503()
     {

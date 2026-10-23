@@ -22,6 +22,15 @@ public static class OidcBackChannelLogoutEndpoint
         var services = context.RequestServices;
         var logger = services.GetRequiredService<ILoggerFactory>().CreateLogger(typeof(OidcBackChannelLogoutEndpoint));
 
+        //mapped on every installation: without the sign-in nothing of the request is read, and the caller gets the
+        //answer of a refused token; only the log says why
+        if (await services.GetRequiredService<IAuthenticationSchemeProvider>()
+                .GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null)
+        {
+            logger.LogWarning("Back-channel logout refused: OpenID Connect sign-in is not configured");
+            return Error("The logout token was refused");
+        }
+
         if (!context.Request.HasFormContentType)
             return Error("The request must be a form post");
         IFormCollection form;
@@ -36,14 +45,6 @@ public static class OidcBackChannelLogoutEndpoint
         var token = form["logout_token"].ToString();
         if (string.IsNullOrEmpty(token))
             return Error("The logout_token parameter is missing");
-
-        //mapped on every installation: the caller gets the answer of a refused token, only the log says why
-        if (await services.GetRequiredService<IAuthenticationSchemeProvider>()
-                .GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null)
-        {
-            logger.LogWarning("Back-channel logout refused: OpenID Connect sign-in is not configured");
-            return Error("The logout token was refused");
-        }
 
         var options = services.GetRequiredService<IOptionsMonitor<OpenIdConnectOptions>>()
             .Get(OidcLoginDefaults.AuthenticationScheme);

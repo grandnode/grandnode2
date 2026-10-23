@@ -9,6 +9,12 @@ public class OidcLinksModel
     public bool ProviderChanged { get; set; }
     public bool ProviderUnknown { get; set; }
 
+    /// <summary>Browser sign-in configured (OidcResourceServer:Authority and OidcLogin:ClientId): the sign-in card</summary>
+    public bool SignInConfigured { get; set; }
+
+    /// <summary>Resource server enabled: the account links card</summary>
+    public bool LinksConfigured { get; set; }
+
     /// <summary>OidcLogin:ClientId of the browser sign-in</summary>
     public string ClientId { get; set; }
 

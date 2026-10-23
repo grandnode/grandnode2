@@ -39,7 +39,7 @@
     </admin-card>
 
     @* the identity provider and the client come from appsettings and are shown read-only; the secret is never shown *@
-    @if (Model != null)
+    @if (Model?.SignInConfigured == true)
     {
         @* target of the grid's configure link of the OpenID Connect row (OidcLoginDefaults.ConfigurationUrl) *@
         <span id="oidc-sign-in"></span>
@@ -66,7 +66,7 @@
     }
 
     @* the OpenID Connect account links belong to one identity provider: a subject is unique only there *@
-    @if (Model != null)
+    @if (Model?.LinksConfigured == true)
     {
         <admin-card title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.OidcLinks"]">
             @if (Model.ProviderUnknown)
