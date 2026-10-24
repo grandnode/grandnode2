@@ -12,8 +12,7 @@
     <PackageVersion Include="Microsoft.FeatureManagement.AspNetCore" Version="4.8.0" />
     <PackageVersion Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.17.13" />
-    <PackageVersion Include="Scryber.Core" Version="9.7.4.4" />
-    <PackageVersion Include="Scryber.Core.OpenType" Version="9.7.4" />
+    <PackageVersion Include="PdfPig" Version="0.1.16" />
     <PackageVersion Include="MailKit" Version="4.18.1" />
     <PackageVersion Include="AWSSDK.Core" Version="4.0.102.8" />
     <PackageVersion Include="AWSSDK.S3" Version="4.0.104.1" />

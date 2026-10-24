@@ -100,14 +100,15 @@ Follow existing patterns:
 - Preserve Vue props, component names, and model shape.
 - Keep generated bundle requirements in sync with `src/Web/Grand.Web/vueapp`.
 
-## PDF Templates
-Use for PDF views under:
-- `src/Web/Grand.Web/Views/PdfTemplates`
+## PDF documents
+Order invoices and packaging slips are not views. `PdfService` in
+`src/Business/Grand.Business.Common/Services/Pdf` lays them out in code through `PdfComposer`
+(text, tables, images, page breaks) on top of PdfPig.
 
-Follow existing PDF patterns:
-- Keep markup simple and deterministic.
-- Avoid interactive JavaScript.
-- Use inline or existing PDF-compatible styling.
+- Change the layout in `PdfService`; add a layout primitive to `PdfComposer` only when two documents need it.
+- HTML from the database (attribute descriptions, invoice header and footer) goes through `PdfHtmlText`, which drops markup.
+- Text is drawn with the embedded Noto Sans fonts; characters outside them print as `?`.
+- Plugins add lines below the payment method by handling `OrderPdfPaymentLinesEvent`; views and widget zones do not reach a PDF.
 - Preserve order, shipment, address, tax, and currency formatting.
 
 ## DotLiquid Message Templates

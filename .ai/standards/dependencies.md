@@ -29,8 +29,8 @@ Do not add a new third-party package when the repository already has a capabilit
 | MongoDB | `MongoDB.Driver` |
 | Caching / distributed cache | `Microsoft.Extensions.Caching.Memory`, `StackExchange.Redis` |
 | Templating for messages | `DotLiquid` |
-| PDF | `Scryber.Core` |
-| Images | `SixLabors.ImageSharp`, `SkiaSharp` |
+| PDF | `PdfPig` for writing PDF objects; layout in `Grand.Business.Common/Services/Pdf/PdfComposer` |
+| Images | `SkiaSharp` |
 | Mail | `MailKit` |
 | DI scanning | `Scrutor` |
 | API docs | `Microsoft.AspNetCore.OpenApi`, `Scalar.AspNetCore` |
