@@ -277,7 +277,7 @@ public class OrderCalculationServiceTests
     }
 
     [TestMethod]
-    public async Task GetShoppingCartTotal_ComparesTheLoyaltyPointsBalanceInTheWorkingCurrency()
+    public async Task GetShoppingCartTotal_WhenBalanceIsWorthMoreThanTotalInWorkingCurrency_ThenRedeemsOnlyPointsCoveringTotal()
     {
         //Arrange - 1 unit of the primary currency is 150 units of the working currency
         var service = CreateServiceWithSubTotalAndExchangeRate(1000, 150);
@@ -292,7 +292,7 @@ public class OrderCalculationServiceTests
     }
 
     [TestMethod]
-    public async Task GetShoppingCartTotal_NeverRedeemsMoreLoyaltyPointsThanTheBalance()
+    public async Task GetShoppingCartTotal_WhenBalanceIsWorthLessThanTotalInWorkingCurrency_ThenRedeemsWholeBalance()
     {
         //Arrange - 1 unit of the primary currency is 0.01 units of the working currency
         var service = CreateServiceWithSubTotalAndExchangeRate(100, 0.01);
@@ -304,6 +304,40 @@ public class OrderCalculationServiceTests
         Assert.AreEqual(5, result.redeemedLoyaltyPointsAmount, 0.0001);
         Assert.AreEqual(500, result.redeemedLoyaltyPoints);
         Assert.AreEqual(95, result.shoppingCartTotal!.Value, 0.0001);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_WhenPointsForTotalRoundUpPastBalance_ThenRedeemsAtMostTheBalance()
+    {
+        //Arrange - 0.07 / 0.01 is 7.000000000000001 in double, which rounds up to 8 points
+        var service = CreateServiceWithSubTotalAndExchangeRate(0.07, 1);
+        _loyaltyPointsSettings.ExchangeRate = 0.01;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(7);
+        //Act
+        var result = await service.GetShoppingCartTotal(new List<ShoppingCartItem>(), true, false);
+        //Assert
+        Assert.AreEqual(7, result.redeemedLoyaltyPoints);
+        Assert.AreEqual(0.07, result.redeemedLoyaltyPointsAmount, 0.0001);
+        Assert.AreEqual(0, result.shoppingCartTotal!.Value, 0.0001);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_WhenRoundingToWorkingCurrencyWithoutDecimals_ThenRoundsAfterConversion()
+    {
+        //Arrange - the balance is worth 0.40 in the primary currency and 60 in the working currency
+        var service = CreateServiceWithSubTotalAndExchangeRate(1000, 150);
+        _loyaltyPointsSettings.ExchangeRate = 0.01;
+        _shoppingCartSettings.RoundPrices = true;
+        _workContextMock.Object.WorkContext.WorkingCurrency.NumberDecimal = 0;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(40);
+        //Act
+        var result = await service.GetShoppingCartTotal(new List<ShoppingCartItem>(), true, false);
+        //Assert - rounding 0.40 to no decimals before the conversion would make the balance worth 0
+        Assert.AreEqual(40, result.redeemedLoyaltyPoints);
+        Assert.AreEqual(60, result.redeemedLoyaltyPointsAmount, 0.0001);
+        Assert.AreEqual(940, result.shoppingCartTotal!.Value, 0.0001);
     }
 
     private OrderCalculationService CreateServiceWithSubTotalAndExchangeRate(double subTotal, double rate)

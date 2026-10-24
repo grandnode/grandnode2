@@ -890,9 +890,13 @@ public class OrderCalculationService : IOrderCalculationService
                 if (CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
                     //the order total is in the working currency, so the balance is compared in that currency
+                    //and rounded only after the conversion
                     var loyaltyPointsBalanceAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(
-                        await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance),
+                        loyaltyPointsBalance * _loyaltyPointsSettings.ExchangeRate,
                         _contextAccessor.WorkContext.WorkingCurrency);
+                    if (_shoppingCartSettings.RoundPrices)
+                        loyaltyPointsBalanceAmount = RoundingHelper.RoundPrice(loyaltyPointsBalanceAmount,
+                            _contextAccessor.WorkContext.WorkingCurrency);
                     if (orderTotal > 0)
                     {
                         if (orderTotal > loyaltyPointsBalanceAmount)
@@ -903,9 +907,10 @@ public class OrderCalculationService : IOrderCalculationService
                         else
                         {
                             redeemedLoyaltyPointsAmount = orderTotal;
-                            redeemedLoyaltyPoints = ConvertAmountToLoyaltyPoints(
+                            //rounding can push the points one over the balance
+                            redeemedLoyaltyPoints = Math.Min(loyaltyPointsBalance, ConvertAmountToLoyaltyPoints(
                                 await _currencyService.ConvertToPrimaryStoreCurrency(redeemedLoyaltyPointsAmount,
-                                    _contextAccessor.WorkContext.WorkingCurrency));
+                                    _contextAccessor.WorkContext.WorkingCurrency)));
                         }
                     }
                 }
