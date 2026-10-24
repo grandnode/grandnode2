@@ -19,5 +19,9 @@
 		     Microsoft.AspNetCore.Http 2.1.1 has a known high severity advisory (GHSA-hxrm-9w7p-39cc).
 		     This reference lifts it to a patched 2.x. Remove only together with elFinder. -->
 		<PackageReference Include="Microsoft.AspNetCore.Http" />
+		<!-- Not used in code. elFinder.Net.Core 1.5.0 asks for SixLabors.ImageSharp 2.0.0, which has known
+		     high severity advisories. This reference keeps it at the 3.x line elFinder already runs on.
+		     Remove only together with elFinder. -->
+		<PackageReference Include="SixLabors.ImageSharp" />
 	</ItemGroup>
 </Project>
