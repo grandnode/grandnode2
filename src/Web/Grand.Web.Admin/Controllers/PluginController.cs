@@ -292,7 +292,7 @@ public class PluginController(
         finally
         {
             // Delete temporary file
-            DeleteDirectory(tempDirectory);
+            DeleteTempDirectory(tempDirectory);
         }
 
         logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
@@ -302,6 +302,20 @@ public class PluginController(
         applicationLifetime.StopApplication();
 
         return RedirectToAction("List");
+    }
+
+    private void DeleteTempDirectory(string tempDirectory)
+    {
+        try
+        {
+            DeleteDirectory(tempDirectory);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            //the previous plugin version moved here can hold an assembly this process has loaded;
+            //it is not loaded from here on the next start and the next upload removes it
+            logger.LogWarning(ex, "The temporary upload folder {TempDirectory} could not be deleted", tempDirectory);
+        }
     }
 
     private void Upload(string archivePath)
