@@ -8,8 +8,8 @@ namespace Grand.Business.Authentication.Services.Scim;
 
 /// <summary>
 ///     Locks a SCIM-managed account out at once: inactive (refused by the cookie, Frontend API and Backend API checks on the next
-///     request), its provider sessions ended, the provider access tokens of its subject refused and its Frontend API refresh
-///     token dropped
+///     request), its provider sessions ended, the provider access tokens of its subject refused, its Frontend API refresh
+///     token dropped and its password token rotated (cookies issued before do not come back with a reactivation)
 /// </summary>
 public class ScimAccountLock(
     ICustomerService customerService,
@@ -33,6 +33,8 @@ public class ScimAccountLock(
 
         //an empty value removes the user field
         await customerService.UpdateUserField(customer, SystemCustomerFieldNames.RefreshToken, "");
+        //a new password token invalidates the cookies issued so far, so they stay dead after a reactivation
+        await customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordToken, Guid.NewGuid().ToString());
         logger.LogInformation("SCIM deactivated customer {CustomerId}", customer.Id);
     }
 

@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
@@ -7,6 +8,7 @@ using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Models.ExternalAuthentication;
@@ -31,6 +33,9 @@ public class ExternalAuthenticationControllerScimTests
     private readonly Mock<IVendorService> _vendors = new();
     private readonly Mock<ICustomerService> _customers = new();
     private readonly Mock<IRequestTranslationService> _translation = new();
+    private readonly Mock<IGroupService> _customerGroups = new();
+    private readonly Mock<IContextAccessor> _context = new();
+    private readonly Customer _currentCustomer = new() { Id = "me" };
     private ExternalAuthenticationController _controller;
 
     [TestInitialize]
@@ -58,6 +63,13 @@ public class ExternalAuthenticationControllerScimTests
         _customers.Setup(x => x.GetCustomersByIds(It.IsAny<string[]>()))
             .ReturnsAsync([new Customer { Id = "c1", Email = "jan@example.com" }]);
         _translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => key);
+        var workContext = new Mock<IWorkContext>();
+        workContext.Setup(x => x.CurrentCustomer).Returns(_currentCustomer);
+        _context.Setup(x => x.WorkContext).Returns(workContext.Object);
+        _customerGroups.Setup(x => x.IsAdmin(_currentCustomer)).ReturnsAsync(true);
+        _customerGroups.Setup(x => x.GetCustomerGroupById("g-admin")).ReturnsAsync(new CustomerGroup {
+            Id = "g-admin", IsSystem = true, SystemName = SystemCustomerGroupNames.Administrators
+        });
     }
 
     private Task<IActionResult> Scim(string token = Token, bool moduleOn = true, string clientId = "shop") =>
@@ -126,7 +138,7 @@ public class ExternalAuthenticationControllerScimTests
 
         var result = await _controller.ScimGroupEdit(new ScimGroupMappingModel {
             Id = "sg1", CustomerGroupId = "g-sm", StaffStoreId = "", VendorId = ""
-        }, _groups.Object, _stores.Object, _vendors.Object, _translation.Object);
+        }, _groups.Object, _stores.Object, _vendors.Object, _translation.Object, _customerGroups.Object, _context.Object);
 
         Assert.IsInstanceOfType<ViewResult>(result);
         Assert.IsFalse(_controller.ModelState.IsValid);
@@ -136,11 +148,46 @@ public class ExternalAuthenticationControllerScimTests
     public async Task ScimGroupEdit_Post_Valid_SavesAndRedirects()
     {
         _groups.Setup(x => x.SetMapping("sg1", "g-admin", null, null)).ReturnsAsync(ScimOutcome.Ok);
+        _groups.Setup(x => x.Get("sg1")).ReturnsAsync(new ScimGroupResult(ScimOutcome.Ok,
+            new ScimGroupView("sg1", "Shop admins", null, [], DateTime.UtcNow, null)));
 
         var result = await _controller.ScimGroupEdit(new ScimGroupMappingModel { Id = "sg1", CustomerGroupId = "g-admin" },
-            _groups.Object, _stores.Object, _vendors.Object, _translation.Object);
+            _groups.Object, _stores.Object, _vendors.Object, _translation.Object, _customerGroups.Object, _context.Object);
 
         Assert.AreEqual("Scim", ((RedirectToActionResult)result).ActionName);
         _groups.Verify(x => x.SetMapping("sg1", "g-admin", null, null), Times.Once);
+    }
+
+    //only an administrator gives the Administrators role, as on the customer edit screen
+    [TestMethod]
+    public async Task ScimGroupEdit_Post_AdministratorsByNonAdmin_Refused()
+    {
+        _customerGroups.Setup(x => x.IsAdmin(_currentCustomer)).ReturnsAsync(false);
+        _groups.Setup(x => x.Get("sg1")).ReturnsAsync(new ScimGroupResult(ScimOutcome.Ok,
+            new ScimGroupView("sg1", "Shop admins", null, [], DateTime.UtcNow, null)));
+
+        var result = await _controller.ScimGroupEdit(new ScimGroupMappingModel { Id = "sg1", CustomerGroupId = "g-admin" },
+            _groups.Object, _stores.Object, _vendors.Object, _translation.Object, _customerGroups.Object, _context.Object);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.IsFalse(_controller.ModelState.IsValid);
+        _groups.Verify(x => x.SetMapping(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    //nor takes it away: changing a group mapped to Administrators is an administrator's decision too
+    [TestMethod]
+    public async Task ScimGroupEdit_Post_ChangeAwayFromAdministratorsByNonAdmin_Refused()
+    {
+        _customerGroups.Setup(x => x.IsAdmin(_currentCustomer)).ReturnsAsync(false);
+        _groups.Setup(x => x.Get("sg1")).ReturnsAsync(new ScimGroupResult(ScimOutcome.Ok,
+            new ScimGroupView("sg1", "Shop admins", null, [], DateTime.UtcNow, null)));
+
+        var result = await _controller.ScimGroupEdit(new ScimGroupMappingModel { Id = "sg1", CustomerGroupId = "" },
+            _groups.Object, _stores.Object, _vendors.Object, _translation.Object, _customerGroups.Object, _context.Object);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _groups.Verify(x => x.SetMapping(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
     }
 }

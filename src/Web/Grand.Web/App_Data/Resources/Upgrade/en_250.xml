@@ -91,7 +91,7 @@
 		<Value>Entra ID or Okta can create, update and lock out the accounts of your employees through SCIM 2.0.</Value>
 	</Resource>
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Description" Area="Admin">
-		<Value>Entra ID or Okta creates, updates and locks out the accounts of your employees through SCIM 2.0. A group from the identity provider grants nothing until you map it to a customer group below. Accounts managed by SCIM are linked to the identity provider before their first sign-in. The endpoint and its token are set in appsettings (module Grand.Module.Scim, section Scim); see docs/scim.md.</Value>
+		<Value>Entra ID or Okta creates, updates and locks out the accounts of your employees through SCIM 2.0. A group from the identity provider grants nothing until you map it to a customer group below. Accounts SCIM creates are linked to the identity provider before their first sign-in; existing staff accounts it takes over connect once with their password. The endpoint and its token are set in appsettings (module Grand.Module.Scim, section Scim); see docs/scim.md.</Value>
 	</Resource>
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.ModuleOff" Area="Admin">
 		<Value>Module Grand.Module.Scim is off (FeatureManagement in appsettings): the endpoint does not exist.</Value>
@@ -155,6 +155,9 @@
 	</Resource>
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Saved" Area="Admin">
 		<Value>The mapping is saved and the roles of the members are updated.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.AdministratorsOnly" Area="Admin">
+		<Value>Only an administrator can map a group to Administrators or change such a mapping.</Value>
 	</Resource>
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Conflicts" Area="Admin">
 		<Value>Role conflicts</Value>

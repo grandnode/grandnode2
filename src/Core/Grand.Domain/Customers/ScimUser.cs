@@ -23,4 +23,16 @@ public class ScimUser : BaseEntity
 
     /// <summary>The mapped groups of the user give back-office roles that cannot be combined: SCIM granted none of them</summary>
     public bool RoleConflict { get; set; }
+
+    /// <summary>
+    ///     SCIM created the account (it had no owner before), so SCIM links it to the user's OpenID Connect subject. A taken-over
+    ///     account is connected at sign-in by the usual rules (password and second factor for staff)
+    /// </summary>
+    public bool RegisteredByScim { get; set; }
+
+    /// <summary>
+    ///     The identity provider deleted the user: the record stays (inactive account, no roles) so a user created again is
+    ///     recognised as the same managed account, but SCIM no longer shows it
+    /// </summary>
+    public bool Deprovisioned { get; set; }
 }

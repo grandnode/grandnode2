@@ -2,6 +2,8 @@ using Grand.Business.Authentication.Services;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Events;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -127,7 +129,7 @@ public class ScimUserServiceTests
     [TestMethod]
     public async Task Create_AccountLinkedToOtherSubject_Conflict()
     {
-        var existing = await _f.AddCustomer("jan@example.com");
+        var existing = await _f.AddCustomer("jan@example.com", ScimFixture.Administrators.Id);
         await _f.Links.InsertAsync(new ExternalAuthentication {
             CustomerId = existing.Id, ExternalIdentifier = "other-sub",
             ProviderSystemName = OidcCustomerResolver.ProviderSystemName
@@ -230,7 +232,7 @@ public class ScimUserServiceTests
         Assert.IsNotNull(customer);
         Assert.IsFalse(customer.Active);
         Assert.IsFalse(customer.Groups.Contains(ScimFixture.Administrators.Id));
-        Assert.IsNull(await _f.Users.GetByIdAsync(created.User.Id));
+        Assert.IsTrue((await _f.Users.GetByIdAsync(created.User.Id)).Deprovisioned);
         Assert.AreEqual(0, _f.Links.Table.Count(x => x.CustomerId == created.User.Id));
         Assert.IsFalse(_f.Groups.Table.First().Members.Contains(created.User.Id));
         Assert.AreEqual(ScimOutcome.NotFound, (await _f.UserService().Get(created.User.Id)).Outcome);
@@ -273,4 +275,155 @@ public class ScimUserServiceTests
         await _f.AddCustomer("jan@example.com");
         Assert.AreEqual(0, (await _f.UserService().List("jan@example.com", null, 0, 10)).Total);
     }
+
+    //review H1: a taken-over account keeps the resolver's rules (password and second factor for staff) - SCIM vouches only
+    //for accounts it created, or anyone able to edit an e-mail at the provider would sign in as the account's owner
+    [TestMethod]
+    public async Task Create_TakenOverAccount_NotLinkedAhead()
+    {
+        await _f.AddCustomer("jan@example.com", ScimFixture.Administrators.Id);
+
+        var result = await _f.UserService().Create(ScimFixture.Data());
+
+        Assert.AreEqual(ScimOutcome.Created, result.Outcome);
+        _f.Resolver.Verify(x => x.LinkIdentity(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
+        Assert.IsFalse((await _f.Users.GetByIdAsync(result.User.Id)).RegisteredByScim);
+    }
+
+    //only staff accounts are taken over: a shopper with the e-mail is not the provider's to manage
+    [TestMethod]
+    public async Task Create_ShopperAccount_Conflict()
+    {
+        var shopper = await _f.AddCustomer("jan@example.com");
+
+        Assert.AreEqual(ScimOutcome.Conflict, (await _f.UserService().Create(ScimFixture.Data())).Outcome);
+        Assert.IsNull(await _f.Users.GetByIdAsync(shopper.Id));
+    }
+
+    [TestMethod]
+    public async Task Delete_BreakGlassSinceProvisioning_ConflictAccountUntouched()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        _f.LoginConfig.BreakGlassAccounts = ["jan@example.com"];
+
+        Assert.AreEqual(ScimOutcome.Conflict, await _f.UserService().Delete(created.User.Id));
+        Assert.IsTrue((await _f.Reload(created.User.Id)).Active);
+        Assert.IsNotNull(await _f.Users.GetByIdAsync(created.User.Id));
+    }
+
+    //a managed account must not move onto a break-glass address: it would get the Admin password sign-in out of SCIM's reach
+    [TestMethod]
+    public async Task Replace_ToBreakGlassEmail_Conflict()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        _f.LoginConfig.BreakGlassAccounts = ["rescue@example.com"];
+
+        var result = await _f.UserService().Replace(created.User.Id, ScimFixture.Data(userName: "rescue@example.com"));
+
+        Assert.AreEqual(ScimOutcome.Conflict, result.Outcome);
+        Assert.AreEqual("jan@example.com", (await _f.Reload(created.User.Id)).Email);
+    }
+
+    //a refused replace writes nothing
+    [TestMethod]
+    public async Task Replace_NewEmailWithTakenExternalId_ConflictEmailUnchanged()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        await _f.UserService().Create(ScimFixture.Data(userName: "ola@example.com", externalId: "oid-2"));
+
+        var result = await _f.UserService().Replace(created.User.Id,
+            ScimFixture.Data(userName: "jan.nowak@example.com", externalId: "oid-2"));
+
+        Assert.AreEqual(ScimOutcome.Conflict, result.Outcome);
+        Assert.AreEqual("jan@example.com", (await _f.Reload(created.User.Id)).Email);
+    }
+
+    //Entra deactivates, deletes, and creates the user again when it is restored or reassigned
+    [TestMethod]
+    public async Task Create_AfterDeleteOfScimDeactivatedAccount_ActiveAgain()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        await _f.UserService().Replace(created.User.Id, ScimFixture.Data(active: false));
+        await _f.UserService().Delete(created.User.Id);
+
+        var again = await _f.UserService().Create(ScimFixture.Data());
+
+        Assert.AreEqual(ScimOutcome.Created, again.Outcome);
+        Assert.IsTrue((await _f.Reload(created.User.Id)).Active);
+    }
+
+    [TestMethod]
+    public async Task Create_AfterDeleteOfHandDisabledAccount_StaysInactive()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        await _f.Customers.UpdateField(created.User.Id, x => x.Active, false);
+        await _f.UserService().Delete(created.User.Id);
+
+        await _f.UserService().Create(ScimFixture.Data());
+
+        Assert.IsFalse((await _f.Reload(created.User.Id)).Active);
+    }
+
+    //review I4: a sync holding an older copy of the record must not undo a deactivation written meanwhile
+    [TestMethod]
+    public async Task Sync_WithStaleRecord_KeepsDeactivatedByScim()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        var stale = await _f.Users.GetByIdAsync(created.User.Id);
+        await _f.UserService().Replace(created.User.Id, ScimFixture.Data(active: false));
+
+        await _f.RoleSync().Sync(await _f.Reload(created.User.Id), stale);
+
+        Assert.IsTrue((await _f.Users.GetByIdAsync(created.User.Id)).DeactivatedByScim);
+    }
+
+    //an old cookie or API token must not come back to life when the account is activated again
+    [TestMethod]
+    public async Task Deactivate_RotatesPasswordToken()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+
+        await _f.UserService().Replace(created.User.Id, ScimFixture.Data(active: false));
+
+        _f.CustomerService.Verify(x => x.UpdateUserField(It.Is<Customer>(c => c.Id == created.User.Id),
+            SystemCustomerFieldNames.PasswordToken, It.Is<string>(v => IsGuid(v)), ""), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CreateAndDelete_PublishEntityEvents()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        await _f.UserService().Delete(created.User.Id);
+
+        _f.Mediator.Verify(x => x.Publish(It.IsAny<EntityInserted<ScimUser>>(), It.IsAny<CancellationToken>()), Times.Once);
+        _f.Mediator.Verify(x => x.Publish(It.IsAny<EntityUpdated<ScimUser>>(), It.IsAny<CancellationToken>()),
+            Times.AtLeastOnce);
+    }
+
+    //a deleted user is gone for SCIM but recognised when the provider creates it again
+    [TestMethod]
+    public async Task Delete_UserNotListedNorCounted()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        await _f.UserService().Delete(created.User.Id);
+
+        Assert.AreEqual(0, (await _f.UserService().List(null, "oid-1", 0, 10)).Total);
+        Assert.AreEqual(0, await _f.UserService().Count());
+        Assert.AreEqual(ScimOutcome.NotFound, (await _f.UserService().Replace(created.User.Id, ScimFixture.Data())).Outcome);
+    }
+
+    [TestMethod]
+    public async Task Create_AfterDelete_SameAccountAndLinkedAgain()
+    {
+        var created = await _f.UserService().Create(ScimFixture.Data());
+        await _f.UserService().Delete(created.User.Id);
+
+        var again = await _f.UserService().Create(ScimFixture.Data());
+
+        Assert.AreEqual(created.User.Id, again.User.Id);
+        Assert.AreEqual(1, _f.Links.Table.Count(x => x.CustomerId == created.User.Id));
+    }
+
+    private static bool IsGuid(string value) => Guid.TryParse(value, out _);
 }

@@ -2,6 +2,10 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Stores;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Business.Authentication.Services.Scim;
+using Grand.Infrastructure.Events;
+using Grand.Domain.Customers;
+using Microsoft.Extensions.Logging.Abstractions;
 
 namespace Grand.Business.Authentication.Tests.Services.Scim;
 
@@ -27,12 +31,21 @@ public class ScimGroupServiceTests
         Assert.AreEqual(ScimOutcome.Invalid,
             (await _f.GroupServiceUnderTest().Create(new ScimGroupData(" ", null, []))).Outcome);
 
+    //Entra allows two groups with one name; refusing the second would fail its provisioning for good
     [TestMethod]
-    public async Task Create_SameDisplayNameTwice_Conflict()
+    public async Task Create_SameDisplayNameTwice_Allowed()
     {
         await Group("Shop admins");
-        Assert.AreEqual(ScimOutcome.Conflict,
+        Assert.AreEqual(ScimOutcome.Created,
             (await _f.GroupServiceUnderTest().Create(new ScimGroupData("shop ADMINS", null, []))).Outcome);
+    }
+
+    [TestMethod]
+    public async Task Create_SameExternalIdTwice_Conflict()
+    {
+        await _f.GroupServiceUnderTest().Create(new ScimGroupData("One", "ext-1", []));
+        Assert.AreEqual(ScimOutcome.Conflict,
+            (await _f.GroupServiceUnderTest().Create(new ScimGroupData("Two", "ext-1", []))).Outcome);
     }
 
     //a group pushed by the identity provider grants nothing by itself
@@ -244,5 +257,57 @@ public class ScimGroupServiceTests
             ScimFixture.Administrators.Id, ScimFixture.StoreManager.Id, ScimFixture.Vendors.Id, ScimFixture.Custom.Id,
             ScimFixture.OtherCustom.Id
         }, ids);
+    }
+
+    //a break-glass account keeps its roles whatever the provider's groups say
+    [TestMethod]
+    public async Task BreakGlassMember_LeavingGroup_KeepsAdministrators()
+    {
+        var user = await User();
+        var group = await Group("Shop admins", user);
+        await _f.GroupServiceUnderTest().SetMapping(group, ScimFixture.Administrators.Id, null, null);
+        _f.LoginConfig.BreakGlassAccounts = ["jan@example.com"];
+
+        await _f.GroupServiceUnderTest().ModifyMembers(group, [], [user], false);
+
+        Assert.IsTrue(await HasGroup(user, ScimFixture.Administrators.Id));
+    }
+
+    //review I5: one membership change recomputes the members it changed, not the whole group
+    [TestMethod]
+    public async Task ModifyMembers_SyncsOnlyChangedMembers()
+    {
+        var jan = await User();
+        var ola = await User("ola@example.com", "oid-2");
+        var ewa = await User("ewa@example.com", "oid-3");
+        var group = await Group("Shop admins", jan, ola);
+        var spy = new SyncSpy(_f);
+
+        await _f.GroupServiceUnderTest(spy).ModifyMembers(group, [ewa], [ola], false);
+
+        CollectionAssert.AreEquivalent(new[] { ewa, ola }, spy.Synced);
+    }
+
+    [TestMethod]
+    public async Task CreateAndDelete_PublishEntityEvents()
+    {
+        var group = await Group("Shop admins");
+        await _f.GroupServiceUnderTest().Delete(group);
+
+        _f.Mediator.Verify(x => x.Publish(It.IsAny<EntityInserted<ScimGroup>>(), It.IsAny<CancellationToken>()), Times.Once);
+        _f.Mediator.Verify(x => x.Publish(It.IsAny<EntityDeleted<ScimGroup>>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    private class SyncSpy(ScimFixture f) : ScimRoleSync(f.Users, f.Groups, f.CustomerService.Object, f.GroupService.Object,
+        f.LoginConfig, f.Mediator.Object, NullLogger<ScimRoleSync>.Instance)
+    {
+        public List<string> Synced { get; } = [];
+
+        public override Task SyncMembers(IEnumerable<string> customerIds)
+        {
+            var ids = customerIds.ToList();
+            Synced.AddRange(ids);
+            return base.SyncMembers(ids);
+        }
     }
 }

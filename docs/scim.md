@@ -32,10 +32,14 @@ What it is not:
 | Key | Default | Meaning |
 |---|---|---|
 | `Token` | empty | The Bearer token the identity provider sends. At least 32 characters; shorter means every request is refused. Keep it out of source control (`Scim__Token` or a secret store). Generate it, for example, with `openssl rand -base64 48`. |
-| `ExternalIdIsSubject` | `true` | The SCIM `externalId` of a user is its OpenID Connect subject. Every SCIM write links the account to it, so the first sign-in needs no password. See section 3. |
+| `ExternalIdIsSubject` | `true` | The SCIM `externalId` of a user is its OpenID Connect subject. An account SCIM **creates** is linked to it, so its first sign-in needs no password. A taken-over account is not (section 4). See section 3. |
 | `MaxResults` | `100` | Largest page of a list response. |
 
-4. Restart, open **SCIM provisioning** in the admin panel, and copy the **SCIM endpoint (tenant URL)**.
+4. Put your own administrator e-mail in `OidcLogin:BreakGlassAccounts`. SCIM never touches a break-glass account. Every
+   other staff account that SCIM takes over loses its back-office roles until its groups are mapped (section 5), and that
+   includes yours.
+5. Restart, open **SCIM provisioning** in the admin panel, and copy the **SCIM endpoint (tenant URL)**. Push the groups and
+   map them before you assign users, so the first cycle does not demote the staff it takes over.
 
 ## 3. Identity providers
 
@@ -47,6 +51,9 @@ What it is not:
   OpenID Connect identity.
 * **OpenID Connect:** set `OidcResourceServer:Claims:Subject = "oid"`. Entra's `sub` is different for every application and
   never equals the object id. The `oid` claim comes with the `profile` scope, which `OidcLogin:Scopes` requests by default.
+  On an installation whose staff already sign in through Entra, the links stored so far hold the old `sub`. After the change
+  no stored link matches any more. Remove them (**External authentication > OpenID Connect account links > Remove**) and
+  let everybody connect again.
 * `userName` is the account's e-mail. Entra sends the UPN. If your UPNs are not mailboxes, map `userName` to `mail`.
 * Groups: assign the groups to the application. Entra reads them with `excludedAttributes=members`, and GrandNode
   supports that.
@@ -65,25 +72,38 @@ What it is not:
 
 ## 4. Behaviour
 
-**Create.** No account with the e-mail: a registered, active account is created. It belongs to no store, so with per-store
-identity it is usable on every store host. Its password is random and nobody knows it, and no welcome e-mail is sent. An
-account with the e-mail already exists: **SCIM takes it over** and manages it from then on (section 5). Refused with
-`409 uniqueness`: system accounts, deleted accounts, break-glass accounts (`OidcLogin:BreakGlassAccounts`), a store-bound
-account with per-store identity, an account linked to another OpenID Connect identity, a second user with the same
-`externalId`.
+**Create.** No account with the e-mail: a registered, active account is created and linked to the user's OpenID Connect
+subject. It belongs to no store, so with per-store identity it is usable on every store host. Its password is random and
+nobody knows it, and no welcome e-mail is sent.
 
-**Update.** E-mail (and a user name that was the e-mail), first and last name. A new e-mail that belongs to another account
-is refused with `409`.
+A **staff** account (admin panel access, a staff store or a vendor) with the e-mail already exists: **SCIM takes it over** and
+manages its roles from then on (section 5). It is **not** linked ahead. An e-mail at the identity provider proves nothing about
+who owns the GrandNode account, so the employee connects once at the first sign-in with the account's password (and second
+factor), exactly as without SCIM.
+
+Refused with `409 uniqueness`:
+* an account that is not staff (a storefront customer);
+* system accounts, deleted accounts and break-glass accounts (`OidcLogin:BreakGlassAccounts`);
+* a store-bound account with per-store identity;
+* an account linked to another OpenID Connect identity;
+* a second user with the same `externalId`.
+
+**Update.** E-mail (and a user name that was the e-mail), first and last name. Refused with `409`, with nothing written:
+* a new e-mail that belongs to another account, or a break-glass address;
+* an `externalId` another user has.
 
 **Deactivate** (`active: false`). The account becomes inactive, which the cookie, Frontend API and Backend API checks refuse on
 the next request. Its OpenID Connect sessions end, the provider access tokens of its subject issued so far are refused, and
-its Frontend API refresh token is dropped.
+its Frontend API refresh token is dropped, and its password token changes, so cookies issued before stay invalid after a
+reactivation.
 
 **Reactivate** (`active: true`). Only an account SCIM deactivated. An account an administrator disabled by hand stays disabled,
 and SCIM reports it as inactive.
 
 **Delete.** The account is deactivated, loses every role SCIM granted and its OpenID Connect link, and leaves every group. The
-customer itself is kept with its orders and history. A later create with the same e-mail takes it over again.
+customer itself is kept with its orders and history, and SCIM no longer shows it. When the provider creates the same user
+again, it gets the same account back, active again if SCIM had deactivated it. A break-glass account is refused with `409`.
+A customer deleted in the admin panel leaves SCIM entirely. The provider can then create the user again as a new account.
 
 **Unknown attributes** of a user (title, department, phone numbers...) are accepted and ignored.
 
@@ -98,8 +118,10 @@ Map each group on the admin screen to one of:
 | Vendors | a vendor | the Vendor panel of that vendor (`VendorId`) |
 | a custom (non-system) group | - | that group |
 
-Sales managers cannot be mapped, because they need a sales employee.
+Sales managers cannot be mapped, because they need a sales employee. Only an administrator can map a group to
+Administrators, or change a group mapped to it. Group display names may repeat, as in Entra.
 
+* **Break-glass accounts** keep their roles whatever their groups say.
 * **Granted by SCIM only.** SCIM remembers what it granted and takes away only that. Groups an administrator assigned by hand
   stay. Removing or changing a mapping takes its role away from every member at once.
 * **Takeover.** When SCIM takes over an existing account, its Administrators / Store managers / Vendors roles, its store and
@@ -137,7 +159,8 @@ Errors use the SCIM error schema: `400 invalidFilter` / `invalidValue` / `invali
 
 Two collections, created on first use (no migration):
 
-* `ScimUser`: one document per managed account, its id **is** the customer id. It holds the `externalId` and what SCIM granted.
+* `ScimUser`: one document per managed account, its id **is** the customer id. It holds the `externalId`, what SCIM granted,
+  whether SCIM created the account, and whether the provider deleted the user.
 * `ScimGroup`: the groups received and their mapping.
 
 Turning the module off stops provisioning. Accounts, roles and the stored records stay as they are.

@@ -3,9 +3,9 @@ using Grand.Business.Core.Utilities.Authentication;
 namespace Grand.Business.Core.Interfaces.Authentication;
 
 /// <summary>
-///     SCIM provisioning of staff accounts: the identity provider creates (or takes over by e-mail), updates, deactivates and
-///     deletes the GrandNode account of an employee. A deleted SCIM user keeps its customer, inactive and without the roles SCIM
-///     granted. System, deleted and break-glass accounts are never managed
+///     SCIM provisioning of staff accounts: the identity provider creates (or takes over a staff account by e-mail), updates,
+///     deactivates and deletes the GrandNode account of an employee. A deleted SCIM user keeps its customer, inactive and without
+///     the roles SCIM granted. Shopper, system, deleted and break-glass accounts are never managed
 /// </summary>
 public interface IScimUserService
 {

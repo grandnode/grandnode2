@@ -1,11 +1,13 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Permissions;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -171,8 +173,22 @@ public class ExternalAuthenticationController : BaseAdminController
     [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> ScimGroupEdit(ScimGroupMappingModel model,
         [FromServices] IScimGroupService scimGroupService, [FromServices] IStoreService storeService,
-        [FromServices] IVendorService vendorService, [FromServices] IRequestTranslationService translationService)
+        [FromServices] IVendorService vendorService, [FromServices] IRequestTranslationService translationService,
+        [FromServices] IGroupService groupService, [FromServices] IContextAccessor contextAccessor)
     {
+        var group = await scimGroupService.Get(model.Id);
+        if (group.Outcome != ScimOutcome.Ok)
+            return RedirectToAction("Scim");
+
+        //as on the customer screens, only an administrator gives (or takes away) the Administrators role
+        if (!await groupService.IsAdmin(contextAccessor.WorkContext.CurrentCustomer))
+        {
+            var current = (await scimGroupService.GetMappings()).FirstOrDefault(x => x.GroupId == model.Id)?.CustomerGroupId;
+            if (await IsAdministrators(groupService, model.CustomerGroupId) || await IsAdministrators(groupService, current))
+                return await ScimGroupEditError(model, group.Group, "Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.AdministratorsOnly",
+                    scimGroupService, storeService, vendorService, translationService);
+        }
+
         var outcome = await scimGroupService.SetMapping(model.Id, model.CustomerGroupId, model.StaffStoreId, model.VendorId);
         if (outcome == ScimOutcome.Ok)
         {
@@ -180,14 +196,27 @@ public class ExternalAuthenticationController : BaseAdminController
             return RedirectToAction("Scim");
         }
 
-        var group = await scimGroupService.Get(model.Id);
-        if (outcome == ScimOutcome.NotFound || group.Outcome != ScimOutcome.Ok)
+        if (outcome == ScimOutcome.NotFound)
             return RedirectToAction("Scim");
+        return await ScimGroupEditError(model, group.Group, "Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Invalid",
+            scimGroupService, storeService, vendorService, translationService);
+    }
 
-        ModelState.AddModelError("",
-            translationService.GetResource("Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Invalid"));
-        await PrepareScimGroupMapping(model, group.Group, scimGroupService, storeService, vendorService);
+    private async Task<IActionResult> ScimGroupEditError(ScimGroupMappingModel model, ScimGroupView group, string resource,
+        IScimGroupService scimGroupService, IStoreService storeService, IVendorService vendorService,
+        IRequestTranslationService translationService)
+    {
+        ModelState.AddModelError("", translationService.GetResource(resource));
+        await PrepareScimGroupMapping(model, group, scimGroupService, storeService, vendorService);
         return View(model);
+    }
+
+    private static async Task<bool> IsAdministrators(IGroupService groupService, string customerGroupId)
+    {
+        if (string.IsNullOrEmpty(customerGroupId))
+            return false;
+        var customerGroup = await groupService.GetCustomerGroupById(customerGroupId);
+        return customerGroup is { IsSystem: true, SystemName: SystemCustomerGroupNames.Administrators };
     }
 
     private static async Task PrepareScimGroupMapping(ScimGroupMappingModel model, ScimGroupView group,

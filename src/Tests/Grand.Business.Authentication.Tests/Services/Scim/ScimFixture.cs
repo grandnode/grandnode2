@@ -2,6 +2,7 @@ using Grand.Business.Authentication.Services;
 using Grand.Business.Authentication.Services.Scim;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
@@ -11,9 +12,11 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Configuration;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System.Linq.Expressions;
@@ -52,6 +55,8 @@ public class ScimFixture
     public Mock<IOidcTokenRevocationService> Revocation { get; } = new();
     public Mock<IStoreService> StoreService { get; } = new();
     public Mock<IVendorService> VendorService { get; } = new();
+    public Mock<IPermissionService> PermissionService { get; } = new();
+    public Mock<IMediator> Mediator { get; } = new();
 
     public ScimConfig Config { get; } = new() { Token = new string('t', 32) };
     public OidcLoginConfig LoginConfig { get; } = new();
@@ -138,6 +143,10 @@ public class ScimFixture
                 return true;
             });
 
+        //a back-office account: admin panel access (Administrators here), a staff store or a vendor
+        PermissionService.Setup(x => x.Authorize(It.IsAny<Permission>(), It.IsAny<Customer>()))
+            .ReturnsAsync((Permission _, Customer c) => c.Groups.Contains(Administrators.Id));
+
         StoreService.Setup(x => x.GetStoreById(It.IsAny<string>()))
             .ReturnsAsync((string id) => new Store { Id = id });
         VendorService.Setup(x => x.GetVendorById(It.IsAny<string>()))
@@ -148,18 +157,20 @@ public class ScimFixture
         new() { Id = id, SystemName = systemName, Name = id, IsSystem = isSystem, Active = true };
 
     public ScimRoleSync RoleSync() =>
-        new(Users, Groups, CustomerService.Object, GroupService.Object, NullLogger<ScimRoleSync>.Instance);
+        new(Users, Groups, CustomerService.Object, GroupService.Object, LoginConfig, Mediator.Object,
+            NullLogger<ScimRoleSync>.Instance);
 
     public ScimAccountLock AccountLock() =>
         new(CustomerService.Object, Links, Sessions.Object, Revocation.Object, NullLogger<ScimAccountLock>.Instance);
 
     public ScimUserService UserService() =>
-        new(Users, Groups, Links, CustomerService.Object, CustomerManager.Object, GroupService.Object, Resolver.Object,
-            LinkService.Object, RoleSync(), AccountLock(), Config, LoginConfig, CustomerConfig, NullLogger<ScimUserService>.Instance);
+        new(Users, Groups, Links, CustomerService.Object, CustomerManager.Object, GroupService.Object,
+            PermissionService.Object, Resolver.Object, LinkService.Object, RoleSync(), AccountLock(), Mediator.Object, Config,
+            LoginConfig, CustomerConfig, NullLogger<ScimUserService>.Instance);
 
-    public ScimGroupService GroupServiceUnderTest() =>
-        new(Groups, Users, GroupService.Object, StoreService.Object, VendorService.Object, RoleSync(),
-            NullLogger<ScimGroupService>.Instance);
+    public ScimGroupService GroupServiceUnderTest(ScimRoleSync roleSync = null) =>
+        new(Groups, Users, GroupService.Object, StoreService.Object, VendorService.Object, roleSync ?? RoleSync(),
+            Mediator.Object, NullLogger<ScimGroupService>.Instance);
 
     public async Task<Customer> AddCustomer(string email, params string[] groupIds)
     {

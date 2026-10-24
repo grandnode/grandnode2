@@ -2,6 +2,9 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Extensions;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 using System.Linq.Expressions;
 
@@ -10,13 +13,16 @@ namespace Grand.Business.Authentication.Services.Scim;
 /// <summary>
 ///     Writes the roles a SCIM-managed account gets from its mapped groups (<see cref="ScimRoles" />): customer groups, staff
 ///     store and vendor. It takes away only what SCIM granted (<see cref="ScimUser" />), so groups an administrator assigned by
-///     hand stay
+///     hand stay. System, deleted and break-glass accounts are never touched. Only the fields of the record it owns are
+///     written, so a concurrent change of another field (a deactivation) is not overwritten
 /// </summary>
 public class ScimRoleSync(
     IRepository<ScimUser> users,
     IRepository<ScimGroup> groups,
     ICustomerService customerService,
     IGroupService groupService,
+    OidcLoginConfig loginConfig,
+    IMediator mediator,
     ILogger<ScimRoleSync> logger)
 {
     private static readonly string[] BackOfficeGroups = [
@@ -27,11 +33,18 @@ public class ScimRoleSync(
     public static bool IsMappable(CustomerGroup group) =>
         group != null && (!group.IsSystem || BackOfficeGroups.Contains(group.SystemName));
 
-    /// <summary>Recomputes the roles of the account from the groups it belongs to and stores the record</summary>
+    /// <summary>Recomputes the roles of the account from the groups it belongs to and stores what SCIM granted</summary>
     public virtual async Task Sync(Customer customer, ScimUser record)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(record);
+
+        //an account may have become a break-glass account since it was provisioned
+        if (ScimProtection.Refusal(customer, loginConfig) != null)
+        {
+            logger.LogWarning("SCIM user {CustomerId} is a protected account; its roles are left as they are", customer.Id);
+            return;
+        }
 
         var customerId = customer.Id;
         var memberOf = await groups.ToListAsync(groups.Table.Where(x => x.Members.Contains(customerId)));
@@ -60,10 +73,10 @@ public class ScimRoleSync(
         foreach (var id in customerIds.Where(x => !string.IsNullOrEmpty(x)).Distinct())
         {
             var record = await users.GetByIdAsync(id);
-            if (record == null)
+            if (record is not { Deprovisioned: false })
                 continue;
             var customer = await customerService.GetCustomerById(id);
-            if (customer is { Deleted: false })
+            if (customer != null)
                 await Sync(customer, record);
         }
     }
@@ -110,14 +123,44 @@ public class ScimRoleSync(
         foreach (var id in toAdd.Where(known.ContainsKey))
             await customerService.InsertCustomerGroupInCustomer(known[id], customer.Id);
 
-        record.GrantedStaffStoreId = await ApplyField(customer.Id, customer.StaffStoreId, record.GrantedStaffStoreId,
+        var grantedGroups = wanted.GroupIds.Where(x => current.Contains(x) || known.ContainsKey(x)).ToList();
+        var grantedStore = await ApplyField(customer.Id, customer.StaffStoreId, record.GrantedStaffStoreId,
             wanted.StaffStoreId, x => x.StaffStoreId);
-        record.GrantedVendorId = await ApplyField(customer.Id, customer.VendorId, record.GrantedVendorId, wanted.VendorId,
+        var grantedVendor = await ApplyField(customer.Id, customer.VendorId, record.GrantedVendorId, wanted.VendorId,
             x => x.VendorId);
 
-        record.GrantedGroupIds = wanted.GroupIds.Where(x => current.Contains(x) || known.ContainsKey(x)).ToList();
-        record.RoleConflict = wanted.Conflict;
-        await users.UpdateAsync(record);
+        //each field alone: a whole-record write would undo a concurrent change of another field
+        var recordChanged = false;
+        if (!grantedGroups.ToHashSet().SetEquals(granted))
+        {
+            await users.UpdateField(record.Id, x => x.GrantedGroupIds, grantedGroups);
+            record.GrantedGroupIds = grantedGroups;
+            recordChanged = true;
+        }
+
+        if (grantedStore != record.GrantedStaffStoreId)
+        {
+            await users.UpdateField(record.Id, x => x.GrantedStaffStoreId, grantedStore);
+            record.GrantedStaffStoreId = grantedStore;
+            recordChanged = true;
+        }
+
+        if (grantedVendor != record.GrantedVendorId)
+        {
+            await users.UpdateField(record.Id, x => x.GrantedVendorId, grantedVendor);
+            record.GrantedVendorId = grantedVendor;
+            recordChanged = true;
+        }
+
+        if (wanted.Conflict != record.RoleConflict)
+        {
+            await users.UpdateField(record.Id, x => x.RoleConflict, wanted.Conflict);
+            record.RoleConflict = wanted.Conflict;
+            recordChanged = true;
+        }
+
+        if (recordChanged)
+            await mediator.EntityUpdated(record);
 
         if (toRemove.Count > 0 || toAdd.Count > 0)
             logger.LogInformation("SCIM user {CustomerId}: {Added} customer groups granted, {Removed} taken away", customer.Id,
