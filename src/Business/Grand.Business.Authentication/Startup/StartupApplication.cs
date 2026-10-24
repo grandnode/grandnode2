@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Authentication.Services;
+using Grand.Business.Authentication.Services.Scim;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -26,6 +27,9 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IOidcSessionService, OidcSessionService>();
         services.AddScoped<IOidcLinkService, OidcLinkService>();
         services.AddScoped<IExternalSignInPolicy, OidcSsoSignInPolicy>();
+        services.AddScoped<ScimRoleSync>();
+        services.AddScoped<ScimAccountLock>();
+        services.AddScoped<IScimUserService, ScimUserService>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
