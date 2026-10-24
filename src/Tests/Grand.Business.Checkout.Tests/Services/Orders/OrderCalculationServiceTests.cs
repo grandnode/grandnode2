@@ -275,4 +275,99 @@ public class OrderCalculationServiceTests
         //Assert
         Assert.IsFalse(result);
     }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_WhenBalanceIsWorthMoreThanTotalInWorkingCurrency_ThenRedeemsOnlyPointsCoveringTotal()
+    {
+        //Arrange - 1 unit of the primary currency is 150 units of the working currency
+        var service = CreateServiceWithSubTotalAndExchangeRate(1000, 150);
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(10);
+        //Act
+        var result = await service.GetShoppingCartTotal(new List<ShoppingCartItem>(), true, false);
+        //Assert - the balance is worth 1500, so only the points covering 1000 are redeemed
+        Assert.AreEqual(1000, result.redeemedLoyaltyPointsAmount, 0.0001);
+        Assert.AreEqual(7, result.redeemedLoyaltyPoints);
+        Assert.AreEqual(0, result.shoppingCartTotal);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_WhenBalanceIsWorthLessThanTotalInWorkingCurrency_ThenRedeemsWholeBalance()
+    {
+        //Arrange - 1 unit of the primary currency is 0.01 units of the working currency
+        var service = CreateServiceWithSubTotalAndExchangeRate(100, 0.01);
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(500);
+        //Act
+        var result = await service.GetShoppingCartTotal(new List<ShoppingCartItem>(), true, false);
+        //Assert - the balance is worth 5, so the whole balance is redeemed
+        Assert.AreEqual(5, result.redeemedLoyaltyPointsAmount, 0.0001);
+        Assert.AreEqual(500, result.redeemedLoyaltyPoints);
+        Assert.AreEqual(95, result.shoppingCartTotal!.Value, 0.0001);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_WhenPointsForTotalRoundUpPastBalance_ThenRedeemsAtMostTheBalance()
+    {
+        //Arrange - 0.07 / 0.01 is 7.000000000000001 in double, which rounds up to 8 points
+        var service = CreateServiceWithSubTotalAndExchangeRate(0.07, 1);
+        _loyaltyPointsSettings.ExchangeRate = 0.01;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(7);
+        //Act
+        var result = await service.GetShoppingCartTotal(new List<ShoppingCartItem>(), true, false);
+        //Assert
+        Assert.AreEqual(7, result.redeemedLoyaltyPoints);
+        Assert.AreEqual(0.07, result.redeemedLoyaltyPointsAmount, 0.0001);
+        Assert.AreEqual(0, result.shoppingCartTotal!.Value, 0.0001);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_WhenRoundingToWorkingCurrencyWithoutDecimals_ThenRoundsAfterConversion()
+    {
+        //Arrange - the balance is worth 0.40 in the primary currency and 60 in the working currency
+        var service = CreateServiceWithSubTotalAndExchangeRate(1000, 150);
+        _loyaltyPointsSettings.ExchangeRate = 0.01;
+        _shoppingCartSettings.RoundPrices = true;
+        _workContextMock.Object.WorkContext.WorkingCurrency.NumberDecimal = 0;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(40);
+        //Act
+        var result = await service.GetShoppingCartTotal(new List<ShoppingCartItem>(), true, false);
+        //Assert - rounding 0.40 to no decimals before the conversion would make the balance worth 0
+        Assert.AreEqual(40, result.redeemedLoyaltyPoints);
+        Assert.AreEqual(60, result.redeemedLoyaltyPointsAmount, 0.0001);
+        Assert.AreEqual(940, result.shoppingCartTotal!.Value, 0.0001);
+    }
+
+    private OrderCalculationService CreateServiceWithSubTotalAndExchangeRate(double subTotal, double rate)
+    {
+        _loyaltyPointsSettings.Enabled = true;
+        _loyaltyPointsSettings.ExchangeRate = 1;
+        _catalogSettings.IgnoreDiscounts = true;
+        var currency = new Currency { CurrencyCode = "CTX", Rate = rate };
+        _workContextMock.Setup(c => c.WorkContext.WorkingCurrency).Returns(currency);
+        _currencyServiceMock.Setup(x => x.ConvertFromPrimaryStoreCurrency(It.IsAny<double>(), currency))
+            .ReturnsAsync((double amount, Currency _) => amount * rate);
+        _currencyServiceMock.Setup(x => x.ConvertToPrimaryStoreCurrency(It.IsAny<double>(), currency))
+            .ReturnsAsync((double amount, Currency _) => amount / rate);
+
+        var serviceMock = new Mock<OrderCalculationService>(_workContextMock.Object, _pricingServiceMock.Object,
+            _taxServiceMock.Object, _shippingServiceMock.Object,
+            _paymentServiceMock.Object, _checkoutAttributeParserMock.Object, _discountServiceMock.Object,
+            _giftVoucherServiceMock.Object,
+            _loyaltyPointsServiceMock.Object, _productServiceMock.Object, _currencyServiceMock.Object,
+            _groupServiceMock.Object, _discountValidationService.Object,
+            _taxSettings, _loyaltyPointsSettings, _shippingSettings, _shoppingCartSettings, _catalogSettings) {
+            CallBase = true
+        };
+        serviceMock.Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(), false))
+            .ReturnsAsync((0, [], subTotal, subTotal, new SortedDictionary<double, double>()));
+        serviceMock.Setup(x => x.GetShoppingCartShippingTotal(It.IsAny<IList<ShoppingCartItem>>(), false))
+            .ReturnsAsync((0, 0, []));
+        serviceMock.Setup(x => x.GetTaxTotal(It.IsAny<IList<ShoppingCartItem>>(), false))
+            .ReturnsAsync((0, new SortedDictionary<double, double>()));
+
+        return serviceMock.Object;
+    }
 }
