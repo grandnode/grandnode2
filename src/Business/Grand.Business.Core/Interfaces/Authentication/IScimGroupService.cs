@@ -1,4 +1,5 @@
 using Grand.Business.Core.Utilities.Authentication;
+using Grand.Domain.Customers;
 
 namespace Grand.Business.Core.Interfaces.Authentication;
 
@@ -26,6 +27,9 @@ public interface IScimGroupService
     Task<ScimGroupResult> Rename(string id, string displayName, string externalId);
 
     Task<IList<ScimGroupMapping>> GetMappings();
+
+    /// <summary>The customer groups a SCIM group can be mapped to</summary>
+    Task<IList<CustomerGroup>> GetMappableGroups();
 
     /// <summary>
     ///     Maps the group to a customer group (Administrators; StoreManager with a store; Vendors with a vendor; a custom group);

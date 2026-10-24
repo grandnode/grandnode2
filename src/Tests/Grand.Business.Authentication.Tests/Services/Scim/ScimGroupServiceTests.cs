@@ -234,4 +234,15 @@ public class ScimGroupServiceTests
         Assert.AreEqual(1, mapping.MemberCount);
         Assert.AreEqual(ScimFixture.Administrators.Id, mapping.CustomerGroupId);
     }
+
+    //the mapping screen offers only the targets SetMapping accepts
+    [TestMethod]
+    public async Task GetMappableGroups_BackOfficeAndCustomOnly()
+    {
+        var ids = (await _f.GroupServiceUnderTest().GetMappableGroups()).Select(x => x.Id).ToList();
+        CollectionAssert.AreEquivalent(new[] {
+            ScimFixture.Administrators.Id, ScimFixture.StoreManager.Id, ScimFixture.Vendors.Id, ScimFixture.Custom.Id,
+            ScimFixture.OtherCustom.Id
+        }, ids);
+    }
 }

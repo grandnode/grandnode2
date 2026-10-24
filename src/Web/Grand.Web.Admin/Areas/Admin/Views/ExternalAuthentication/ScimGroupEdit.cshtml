@@ -1,0 +1,36 @@
+@model ScimGroupMappingModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.EditMapping"];
+    var none = new SelectListItem(Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.None"], "");
+}
+@* the group's name comes from the identity provider; only the role its members get is edited here *@
+<form asp-area="@Constants.AreaAdmin" asp-controller="ExternalAuthentication" asp-action="ScimGroupEdit" method="post">
+    <input type="hidden" asp-for="Id"/>
+    <admin-page sticky
+                title="@Model.DisplayName"
+                icon="bi-people"
+                meta="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.EditMapping"]"
+                back-url="@Url.Action("Scim", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
+                back-text="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div asp-validation-summary="All"></div>
+            <div class="note note-info">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Info"]</div>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="CustomerGroupId" asp-items="new[] { none }.Concat(Model.AvailableCustomerGroups)"/>
+                <admin-field asp-for="StaffStoreId" asp-items="new[] { none }.Concat(Model.AvailableStores)"/>
+                <admin-field asp-for="VendorId" asp-items="new[] { none }.Concat(Model.AvailableVendors)"/>
+            </div>
+            <div class="grand-facts">
+                <div class="grand-fact__label">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.MemberCount"]</div>
+                <div class="grand-fact__value">@Model.MemberCount</div>
+            </div>
+        </admin-card>
+    </admin-page>
+</form>

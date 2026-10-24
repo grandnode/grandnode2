@@ -8,6 +8,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
@@ -113,6 +114,9 @@ public class ScimFixture
             .ReturnsAsync((string id) => AllGroups.FirstOrDefault(g => g.Id == id));
         GroupService.Setup(x => x.GetCustomerGroupBySystemName(It.IsAny<string>()))
             .ReturnsAsync((string name) => AllGroups.FirstOrDefault(g => g.SystemName == name));
+        GroupService.Setup(x => x.GetAllCustomerGroups(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync(new PagedList<CustomerGroup>(AllGroups, 0, int.MaxValue));
         GroupService.Setup(x => x.IsRegistered(It.IsAny<Customer>()))
             .ReturnsAsync((Customer c) => c.Groups.Contains(Registered.Id));
 

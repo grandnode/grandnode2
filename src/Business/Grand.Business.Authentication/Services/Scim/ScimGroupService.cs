@@ -149,6 +149,9 @@ public class ScimGroupService(
             x.VendorId))
         .ToList();
 
+    public virtual async Task<IList<CustomerGroup>> GetMappableGroups() =>
+        (await groupService.GetAllCustomerGroups(showHidden: true)).Where(ScimRoleSync.IsMappable).ToList();
+
     public virtual async Task<ScimOutcome> SetMapping(string groupId, string customerGroupId, string staffStoreId,
         string vendorId)
     {
