@@ -284,6 +284,11 @@ public class PluginController(
             var message = translationService.GetResource("Admin.Plugins.Uploaded");
             Success(message);
         }
+        catch (Exception exc)
+        {
+            Error(exc);
+            return RedirectToAction("List");
+        }
         finally
         {
             // Delete temporary file
@@ -374,11 +379,27 @@ public class PluginController(
 
         var pathToUpload = Path.Combine(pluginsPath, uploadedItemDirectoryName);
 
-        //a failed delete (e.g. a locked assembly) must stop the upload instead of extracting over the old files
-        if (Directory.Exists(pathToUpload))
-            DeleteDirectory(pathToUpload);
+        if (!Directory.Exists(pathToUpload))
+        {
+            ZipFile.ExtractToDirectory(archivePath, pluginsPath);
+            return;
+        }
 
-        ZipFile.ExtractToDirectory(archivePath, pluginsPath);
+        //move the previous version into the temp upload folder instead of deleting it in place:
+        //a locked assembly fails the move before anything is changed, and a failed extraction puts it back
+        var previousVersionPath = Path.Combine(Path.GetDirectoryName(archivePath)!, Guid.NewGuid().ToString());
+        Directory.Move(pathToUpload, previousVersionPath);
+        try
+        {
+            ZipFile.ExtractToDirectory(archivePath, pluginsPath);
+        }
+        catch
+        {
+            if (Directory.Exists(pathToUpload))
+                DeleteDirectory(pathToUpload);
+            Directory.Move(previousVersionPath, pathToUpload);
+            throw;
+        }
     }
 
     #endregion
