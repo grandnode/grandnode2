@@ -1,4 +1,3 @@
-using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.System.Admin;
 using Grand.Data;
 using Grand.Infrastructure;
@@ -22,7 +21,6 @@ using Grand.Web.Common.TagHelpers;
 using Grand.Web.Common.Themes;
 using Grand.Web.Common.Validators;
 using Grand.Web.Common.View;
-using Grand.Web.Common.ViewRender;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Caching.Memory;
@@ -157,7 +155,5 @@ public class StartupApplication : IStartupApplication
         //request reCAPTCHA service
         serviceCollection.AddHttpClient<IGoogleReCaptchaValidator, GoogleReCaptchaValidator>(client =>
             client.Timeout = TimeSpan.FromSeconds(10));
-
-        serviceCollection.AddScoped<IViewRenderService, ViewRenderService>();
     }
 }

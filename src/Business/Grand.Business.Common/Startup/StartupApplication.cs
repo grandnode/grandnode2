@@ -51,7 +51,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IAddressAttributeParser, AddressAttributeParser>();
         serviceCollection.AddScoped<IAddressAttributeService, AddressAttributeService>();
         serviceCollection.AddScoped<IHistoryService, HistoryService>();
-        serviceCollection.AddScoped<IPdfService, HtmlToPdfService>();
+        serviceCollection.AddScoped<IPdfService, PdfService>();
     }
 
     private static void RegisterDirectoryService(IServiceCollection serviceCollection)
