@@ -19,6 +19,7 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
     public ShoppingCartTotalAmountValidator(
         IGroupService groupService,
         IOrderCalculationService orderTotalCalculationService,
+        IShoppingCartSubTotalService shoppingCartSubTotalService,
         ICurrencyService currencyService,
         IPriceFormatter priceFormatter,
         ITranslationService translationService,
@@ -47,7 +48,7 @@ public class ShoppingCartTotalAmountValidator : AbstractValidator<ShoppingCartTo
                 context.AddFailure(translationService.GetResource("Checkout.MinMaxOrderTotalAmount", value.Language.Id));
 
             //subtotal
-            var subTotal = await orderTotalCalculationService.GetShoppingCartSubTotal(value.Cart, value.Context, false);
+            var subTotal = await shoppingCartSubTotalService.GetShoppingCartSubTotal(value.Cart, value.Context, false);
             if (subTotal.SubTotalWithoutDiscount < orderSettings.MinOrderSubtotalAmount)
             {
                 var minOrderSubtotalAmount =

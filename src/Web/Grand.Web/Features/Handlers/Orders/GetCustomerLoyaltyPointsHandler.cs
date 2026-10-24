@@ -14,19 +14,19 @@ public class GetCustomerLoyaltyPointsHandler : IRequestHandler<GetCustomerLoyalt
     private readonly IDateTimeService _dateTimeService;
     private readonly ILoyaltyPointsService _loyaltyPointsService;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
-    private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly ILoyaltyPointsCalculationService _loyaltyPointsCalculationService;
     private readonly IPriceFormatter _priceFormatter;
 
     public GetCustomerLoyaltyPointsHandler(ILoyaltyPointsService loyaltyPointsService, IDateTimeService dateTimeService,
         ICurrencyService currencyService, IPriceFormatter priceFormatter,
-        IOrderCalculationService orderTotalCalculationService,
+        ILoyaltyPointsCalculationService loyaltyPointsCalculationService,
         LoyaltyPointsSettings loyaltyPointsSettings)
     {
         _loyaltyPointsService = loyaltyPointsService;
         _dateTimeService = dateTimeService;
         _currencyService = currencyService;
         _priceFormatter = priceFormatter;
-        _orderTotalCalculationService = orderTotalCalculationService;
+        _loyaltyPointsCalculationService = loyaltyPointsCalculationService;
         _loyaltyPointsSettings = loyaltyPointsSettings;
     }
 
@@ -45,7 +45,7 @@ public class GetCustomerLoyaltyPointsHandler : IRequestHandler<GetCustomerLoyalt
         var loyaltyPointsBalance =
             await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
         var loyaltyPointsAmountBase =
-            await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
+            await _loyaltyPointsCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
         var loyaltyPointsAmount =
             await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsAmountBase, request.Currency);
         model.LoyaltyPointsBalance = loyaltyPointsBalance;
@@ -53,7 +53,7 @@ public class GetCustomerLoyaltyPointsHandler : IRequestHandler<GetCustomerLoyalt
         //minimum amount/balance
         var minimumLoyaltyPointsBalance = _loyaltyPointsSettings.MinimumLoyaltyPointsToUse;
         var minimumLoyaltyPointsAmountBase =
-            await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(minimumLoyaltyPointsBalance);
+            await _loyaltyPointsCalculationService.ConvertLoyaltyPointsToAmount(minimumLoyaltyPointsBalance);
         var minimumLoyaltyPointsAmount =
             await _currencyService.ConvertFromPrimaryStoreCurrency(minimumLoyaltyPointsAmountBase, request.Currency);
         model.MinimumLoyaltyPointsBalance = minimumLoyaltyPointsBalance;

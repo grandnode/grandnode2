@@ -46,6 +46,9 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IOrderStatusService, OrderStatusService>();
         serviceCollection.AddScoped<IOrderCalculationService, OrderCalculationService>();
         serviceCollection.AddScoped<IShoppingCartSubTotalService, ShoppingCartSubTotalService>();
+        serviceCollection.AddScoped<IShoppingCartShippingService, ShoppingCartShippingService>();
+        serviceCollection.AddScoped<IShoppingCartTaxService, ShoppingCartTaxService>();
+        serviceCollection.AddScoped<ILoyaltyPointsCalculationService, LoyaltyPointsCalculationService>();
         serviceCollection.AddScoped<IMerchandiseReturnService, MerchandiseReturnService>();
         serviceCollection.AddScoped<ILoyaltyPointsService, LoyaltyPointsService>();
         serviceCollection.AddScoped<IShoppingCartService, ShoppingCartService>();

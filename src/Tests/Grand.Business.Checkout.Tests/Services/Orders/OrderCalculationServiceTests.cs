@@ -1,4 +1,4 @@
-﻿using Grand.Business.Checkout.Services.Orders;
+using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -19,7 +19,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
-using Grand.Infrastructure;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -52,23 +51,23 @@ public class OrderCalculationServiceTests
     [TestInitialize]
     public void Init()
     {
-        _pricingServiceMock = new Mock<IPricingService>();
-        _taxServiceMock = new Mock<ITaxService>();
-        _shippingServiceMock = new Mock<IShippingService>();
-        _paymentServiceMock = new Mock<IPaymentService>();
+        _catalogSettings = new CatalogSettings();
         _checkoutAttributeParserMock = new Mock<ICheckoutAttributeParser>();
-        _discountServiceMock = new Mock<IDiscountService>();
-        _giftVoucherServiceMock = new Mock<IGiftVoucherService>();
-        _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();
-        _productServiceMock = new Mock<IProductService>();
         _currencyServiceMock = new Mock<ICurrencyService>();
+        _discountServiceMock = new Mock<IDiscountService>();
+        _discountValidationService = new Mock<IDiscountValidationService>();
+        _giftVoucherServiceMock = new Mock<IGiftVoucherService>();
         _groupServiceMock = new Mock<IGroupService>();
-        _taxSettings = new TaxSettings();
+        _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();
         _loyaltyPointsSettings = new LoyaltyPointsSettings();
+        _paymentServiceMock = new Mock<IPaymentService>();
+        _pricingServiceMock = new Mock<IPricingService>();
+        _productServiceMock = new Mock<IProductService>();
+        _shippingServiceMock = new Mock<IShippingService>();
         _shippingSettings = new ShippingSettings();
         _shoppingCartSettings = new ShoppingCartSettings();
-        _catalogSettings = new CatalogSettings();
-        _discountValidationService = new Mock<IDiscountValidationService>();
+        _taxServiceMock = new Mock<ITaxService>();
+        _taxSettings = new TaxSettings();
         var customer = new Customer();
         customer.Groups.Add("1");
         _context = new CalculationContext(customer, new Store { Id = "", Name = "test store" }, new Currency(),
@@ -79,179 +78,48 @@ public class OrderCalculationServiceTests
             _discountServiceMock.Object, _discountValidationService.Object, _productServiceMock.Object,
             _currencyServiceMock.Object, _shoppingCartSettings, _catalogSettings);
 
-        _service = new OrderCalculationService(shoppingCartSubTotalService,
-            _taxServiceMock.Object, _shippingServiceMock.Object,
-            _paymentServiceMock.Object, _discountServiceMock.Object,
-            _giftVoucherServiceMock.Object,
-            _loyaltyPointsServiceMock.Object, _currencyServiceMock.Object,
-            _groupServiceMock.Object, _discountValidationService.Object,
-            _taxSettings, _loyaltyPointsSettings, _shippingSettings, _shoppingCartSettings, _catalogSettings);
+        _service = CreateService(shoppingCartSubTotalService);
     }
 
-    [TestMethod]
-    public async Task IsFreeShipping_UsesTheCustomerOfTheContext()
+    private OrderCalculationService CreateService(IShoppingCartSubTotalService shoppingCartSubTotalService)
     {
-        //Arrange
-        var customer = new Customer { FreeShipping = true };
-        var context = new CalculationContext(customer, new Store { Id = "s1" }, new Currency(),
-            TaxDisplayType.ExcludingTax);
+        var shoppingCartShippingService = new ShoppingCartShippingService(shoppingCartSubTotalService,
+            _taxServiceMock.Object, _shippingServiceMock.Object, _discountServiceMock.Object,
+            _discountValidationService.Object, _currencyServiceMock.Object, _groupServiceMock.Object,
+            _shippingSettings, _shoppingCartSettings, _catalogSettings);
+        var shoppingCartTaxService = new ShoppingCartTaxService(shoppingCartSubTotalService,
+            shoppingCartShippingService, _paymentServiceMock.Object, _taxServiceMock.Object, _taxSettings,
+            _shoppingCartSettings);
+        var loyaltyPointsCalculationService = new LoyaltyPointsCalculationService(_loyaltyPointsServiceMock.Object,
+            _currencyServiceMock.Object, _loyaltyPointsSettings, _shoppingCartSettings);
 
-        //Act
-        var free = await _service.IsFreeShipping(new List<ShoppingCartItem> { new() { IsShipEnabled = true } },
-            context);
-
-        //Assert
-        Assert.IsTrue(free);
+        return new OrderCalculationService(shoppingCartSubTotalService, shoppingCartShippingService,
+            shoppingCartTaxService, loyaltyPointsCalculationService, _taxServiceMock.Object,
+            _paymentServiceMock.Object, _discountServiceMock.Object, _discountValidationService.Object,
+            _giftVoucherServiceMock.Object, _shoppingCartSettings, _catalogSettings);
     }
 
-    [TestMethod]
-    public async Task GetShoppingCartSubTotal_PricesItemsForTheContextCustomerStoreAndCurrency()
+    private OrderCalculationService CreateServiceWithSubTotal(double subTotal)
     {
-        //Arrange
-        var product = new Product { Id = "1", Published = true, Price = 10 };
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).ReturnsAsync(product);
-        _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>()))
-            .ReturnsAsync(new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>());
-        var customer = new Customer();
-        var store = new Store { Id = "s1" };
-        var currency = new Currency { CurrencyCode = "EUR" };
-        var context = new CalculationContext(customer, store, currency, TaxDisplayType.ExcludingTax);
+        var shoppingCartSubTotalService = new Mock<IShoppingCartSubTotalService>();
+        shoppingCartSubTotalService
+            .Setup(x => x.GetShoppingCartSubTotal(It.IsAny<IList<ShoppingCartItem>>(),
+                It.IsAny<CalculationContext>(), It.IsAny<bool>()))
+            .ReturnsAsync(new ShoppingCartSubTotal(0, [], subTotal, subTotal, new SortedDictionary<double, double>()));
+        _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>())).ReturnsAsync(new List<CustomerGroup>());
+        _currencyServiceMock.Setup(x => x.ConvertFromPrimaryStoreCurrency(It.IsAny<double>(), It.IsAny<Currency>()))
+            .ReturnsAsync((double amount, Currency _) => amount);
+        _currencyServiceMock.Setup(x => x.ConvertToPrimaryStoreCurrency(It.IsAny<double>(), It.IsAny<Currency>()))
+            .ReturnsAsync((double amount, Currency _) => amount);
+        _loyaltyPointsSettings.Enabled = true;
+        _loyaltyPointsSettings.ExchangeRate = 1;
 
-        //Act
-        await _service.GetShoppingCartSubTotal(new List<ShoppingCartItem> { new() { Quantity = 1 } }, context, false);
-
-        //Assert
-        _pricingServiceMock.Verify(p => p.GetSubTotal(It.IsAny<ShoppingCartItem>(), product, customer, store,
-            currency, true), Times.Once);
+        return CreateService(shoppingCartSubTotalService.Object);
     }
 
-    [TestMethod]
-    public async Task GetShoppingCartSubTotalTest()
+    private static List<ShoppingCartItem> FreeShippingCart()
     {
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
-        _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>()))
-            .Returns(() =>
-                Task.FromResult(
-                    (IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>)
-                    new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>()));
-        _discountServiceMock
-            .Setup(a => a.GetDiscountsQuery(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(() => Task.FromResult((IList<Discount>)new List<Discount>()));
-
-        var shoppingCartItem = new List<ShoppingCartItem> { new() { Quantity = 1 } };
-        var result = await _service.GetShoppingCartSubTotal(shoppingCartItem, _context, false);
-        
-        Assert.IsTrue(result.SubTotalWithDiscount >= 0);
-    }
-
-    [TestMethod]
-    public async Task GetShoppingCartAdditionalShippingChargeTest()
-    {
-        //Arrange
-        var cgs = new List<CustomerGroup> { new() };
-        _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
-            .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
-
-        var shoppingCartItem = new List<ShoppingCartItem>
-            { new() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10 } };
-        //Act
-        var result = await _service.GetShoppingCartAdditionalShippingCharge(shoppingCartItem, _context);
-        //Assert
-        Assert.AreEqual(10, result);
-    }
-
-    [TestMethod]
-    public async Task IsFreeShippingTest()
-    {
-        //Arrange
-        var cgs = new List<CustomerGroup> { new() };
-        _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
-            .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
-
-        var shoppingCartItem = new List<ShoppingCartItem> {
-            new() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true }
-        };
-        //Act
-        var result = await _service.GetShoppingCartAdditionalShippingCharge(shoppingCartItem, _context);
-        //Assert
-        Assert.AreEqual(0, result);
-    }
-
-    [TestMethod]
-    public async Task AdjustShippingRateTest()
-    {
-        //Arrange
-        var cgs = new List<CustomerGroup> { new() };
-        _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
-            .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
-
-        var shoppingCartItem = new List<ShoppingCartItem>
-            { new() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10 } };
-        //Act
-        var result = await _service.AdjustShippingRate(10, shoppingCartItem, _context);
-
-        //Assert
-        Assert.AreEqual(20, result.ShippingRate);
-    }
-
-    [TestMethod]
-    public async Task GetShoppingCartShippingTotalTest()
-    {
-        //Arrange
-        var cgs = new List<CustomerGroup> { new() };
-        _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
-            .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
-        _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>()))
-            .Returns(() =>
-                Task.FromResult(
-                    (IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>)
-                    new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>()));
-        _discountServiceMock
-            .Setup(a => a.GetDiscountsQuery(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(() => Task.FromResult((IList<Discount>)new List<Discount>()));
-
-        var shoppingCartItem = new List<ShoppingCartItem> {
-            new() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true }
-        };
-        //Act
-        var result = await _service.GetShoppingCartShippingTotal(shoppingCartItem, _context);
-
-        //Assert
-        Assert.AreEqual(0, result.ShippingTotal);
-    }
-
-    [TestMethod]
-    public async Task GetTaxTotalTest()
-    {
-        //TODO
-        //Arrange
-        var cgs = new List<CustomerGroup> { new() };
-        _groupServiceMock.Setup(c => c.GetAllByIds(It.IsAny<string[]>()))
-            .Returns(Task.FromResult<IList<CustomerGroup>>(cgs));
-        _productServiceMock.Setup(a => a.GetProductById(It.IsAny<string>(), false)).Returns(() =>
-            Task.FromResult(new Product { Id = "1", Published = true, Price = 10 }));
-        _checkoutAttributeParserMock.Setup(a => a.ParseCheckoutAttributeValue(It.IsAny<List<CustomAttribute>>()))
-            .Returns(() =>
-                Task.FromResult(
-                    (IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>)
-                    new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>()));
-        _discountServiceMock
-            .Setup(a => a.GetDiscountsQuery(DiscountType.AssignedToOrderSubTotal, It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns(() => Task.FromResult((IList<Discount>)new List<Discount>()));
-
-        var shoppingCartItem = new List<ShoppingCartItem> {
-            new() { Quantity = 1, IsShipEnabled = true, AdditionalShippingChargeProduct = 10, IsFreeShipping = true }
-        };
-        //Act
-        var result = await _service.GetTaxTotal(shoppingCartItem, _context, false);
-        //Assert
-        Assert.AreEqual(0, result.TaxTotal);
+        return [new ShoppingCartItem { Quantity = 1, IsShipEnabled = true, IsFreeShipping = true }];
     }
 
     [TestMethod]
@@ -284,49 +152,89 @@ public class OrderCalculationServiceTests
     }
 
     [TestMethod]
-    public async Task ConvertLoyaltyPointsToAmountTest()
+    public async Task GetShoppingCartTotal_RedeemsTheWholeLoyaltyPointsBalanceBelowTheTotal()
     {
         //Arrange
-        _loyaltyPointsSettings.ExchangeRate = 1;
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(30);
+
         //Act
-        var result = await _service.ConvertLoyaltyPointsToAmount(10);
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, true, false);
+
         //Assert
-        Assert.AreEqual(10, result);
+        Assert.AreEqual(30, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(30, result.RedeemedLoyaltyPointsAmount);
+        Assert.AreEqual(70, result.Total);
     }
 
     [TestMethod]
-    public async Task ConvertLoyaltyPointsToAmount_RoundsInThePrimaryStoreCurrency()
+    public async Task GetShoppingCartTotal_RedeemsOnlyThePointsTheTotalNeeds()
     {
         //Arrange
-        _loyaltyPointsSettings.ExchangeRate = 0.33;
-        _shoppingCartSettings.RoundPrices = true;
-        _currencyServiceMock.Setup(x => x.GetPrimaryStoreCurrency())
-            .ReturnsAsync(new Currency { CurrencyCode = "USD", NumberDecimal = 2 });
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsSettings.ExchangeRate = 0.5;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(500);
+
         //Act
-        var result = await _service.ConvertLoyaltyPointsToAmount(15);
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, true, false);
+
         //Assert
-        Assert.AreEqual(4.95, result, 0.0001);
+        Assert.AreEqual(200, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(100, result.RedeemedLoyaltyPointsAmount);
+        Assert.AreEqual(0, result.Total);
     }
 
     [TestMethod]
-    public void ConvertAmountToLoyaltyPointsTest()
+    public async Task GetShoppingCartTotal_DoesNotRedeemBelowTheMinimumBalance()
     {
         //Arrange
-        _loyaltyPointsSettings.ExchangeRate = 1;
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsSettings.MinimumLoyaltyPointsToUse = 50;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(30);
+
         //Act
-        var result = _service.ConvertAmountToLoyaltyPoints(10);
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, true, false);
+
         //Assert
-        Assert.AreEqual(10, result);
+        Assert.AreEqual(0, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(100, result.Total);
     }
 
     [TestMethod]
-    public void CheckMinimumLoyaltyPointsToUseRequirementTest()
+    public async Task GetShoppingCartTotal_ReadsTheLoyaltyPointsChoiceFromTheCustomer()
     {
-        //Assert
-        _loyaltyPointsSettings.MinimumLoyaltyPointsToUse = 20;
+        //Arrange
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(30);
+
         //Act
-        var result = _service.CheckMinimumLoyaltyPointsToUseRequirement(10);
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, null, false);
+
         //Assert
-        Assert.IsFalse(result);
+        Assert.AreEqual(0, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(100, result.Total);
+        _loyaltyPointsServiceMock.Verify(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GetShoppingCartTotal_DoesNotRedeemWhenLoyaltyPointsAreDisabled()
+    {
+        //Arrange
+        var service = CreateServiceWithSubTotal(100);
+        _loyaltyPointsSettings.Enabled = false;
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(30);
+
+        //Act
+        var result = await service.GetShoppingCartTotal(FreeShippingCart(), _context, true, false);
+
+        //Assert
+        Assert.AreEqual(0, result.RedeemedLoyaltyPoints);
+        Assert.AreEqual(100, result.Total);
     }
 }

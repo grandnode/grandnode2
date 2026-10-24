@@ -78,7 +78,7 @@ public class GetProductStructuredDataHandler : IRequestHandler<GetProductStructu
 
     /// <summary>
     ///     What shipping this product on its own costs, in the request currency, or null when the store's
-    ///     data does not say. Mirrors OrderCalculationService.IsFreeShipping / AdjustShippingRate for a cart
+    ///     data does not say. Mirrors ShoppingCartShippingService.IsFreeShipping / AdjustShippingRate for a cart
     ///     holding just this product; the shipping providers are never asked - their rates depend on the
     ///     address and the cart, so the fallback is the rate the store declares in ShippingSettings.
     ///     Visitor-specific free shipping (customer, customer group) and shipping discounts are left out:

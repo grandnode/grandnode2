@@ -22,7 +22,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
 {
     private readonly IAuctionService _auctionService;
     private readonly MediaSettings _mediaSettings;
-    private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
     private readonly IPictureService _pictureService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IPricingService _pricingService;
@@ -41,7 +41,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
         IPricingService priceCalculationService,
         IPriceFormatter priceFormatter,
         IShoppingCartService shoppingCartService,
-        IOrderCalculationService orderTotalCalculationService,
+        IShoppingCartSubTotalService shoppingCartSubTotalService,
         IPictureService pictureService,
         IProductService productService,
         IAuctionService auctionService,
@@ -55,7 +55,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
         _pricingService = priceCalculationService;
         _priceFormatter = priceFormatter;
         _shoppingCartService = shoppingCartService;
-        _orderTotalCalculationService = orderTotalCalculationService;
+        _shoppingCartSubTotalService = shoppingCartSubTotalService;
         _pictureService = pictureService;
         _productService = productService;
         _auctionService = auctionService;
@@ -159,7 +159,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                 var subTotalIncludingTax = request.TaxDisplayType == TaxDisplayType.IncludingTax &&
                                            !_taxSettings.ForceTaxExclusionFromOrderSubtotal;
                 var shoppingCartSubTotal =
-                    await _orderTotalCalculationService.GetShoppingCartSubTotal(cart,
+                    await _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart,
                         request.CalculationContext(), subTotalIncludingTax);
                 model.SubTotalIncludingTax = subTotalIncludingTax;
                 model.SubTotal =

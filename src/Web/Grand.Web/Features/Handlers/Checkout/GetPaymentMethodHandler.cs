@@ -23,6 +23,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
 
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
     private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly ILoyaltyPointsCalculationService _loyaltyPointsCalculationService;
     private readonly IPaymentService _paymentService;
     private readonly PaymentSettings _paymentSettings;
     private readonly IPriceFormatter _priceFormatter;
@@ -30,6 +31,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
 
     public GetPaymentMethodHandler(ILoyaltyPointsService loyaltyPointsService,
         IOrderCalculationService orderTotalCalculationService,
+        ILoyaltyPointsCalculationService loyaltyPointsCalculationService,
         ICurrencyService currencyService,
         IPriceFormatter priceFormatter,
         IPaymentService paymentService,
@@ -39,6 +41,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
     {
         _loyaltyPointsService = loyaltyPointsService;
         _orderTotalCalculationService = orderTotalCalculationService;
+        _loyaltyPointsCalculationService = loyaltyPointsCalculationService;
         _currencyService = currencyService;
         _priceFormatter = priceFormatter;
         _paymentService = paymentService;
@@ -57,10 +60,10 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             var loyaltyPointsBalance =
                 await _loyaltyPointsService.GetLoyaltyPointsBalance(request.Customer.Id, request.Store.Id);
             var loyaltyPointsAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(
-                await _orderTotalCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance),
+                await _loyaltyPointsCalculationService.ConvertLoyaltyPointsToAmount(loyaltyPointsBalance),
                 request.Currency);
             if (loyaltyPointsAmount > 0 &&
-                _orderTotalCalculationService.CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
+                _loyaltyPointsCalculationService.CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
             {
                 model.DisplayLoyaltyPoints = true;
                 model.LoyaltyPointsAmount = _priceFormatter.FormatPrice(loyaltyPointsAmount, request.Currency);

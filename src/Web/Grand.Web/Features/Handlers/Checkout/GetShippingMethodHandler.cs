@@ -18,7 +18,7 @@ namespace Grand.Web.Features.Handlers.Checkout;
 public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, CheckoutShippingMethodModel>
 {
     private readonly IContextAccessor _contextAccessor;
-    private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly IShoppingCartShippingService _shoppingCartShippingService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IShippingService _shippingService;
     private readonly ITaxService _taxService;
@@ -26,7 +26,7 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
 
     public GetShippingMethodHandler(IShippingService shippingService,
         ICustomerService customerService,
-        IOrderCalculationService orderTotalCalculationService,
+        IShoppingCartShippingService shoppingCartShippingService,
         ITaxService taxService,
         IPriceFormatter priceFormatter,
         IContextAccessor contextAccessor)
@@ -34,7 +34,7 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
         _contextAccessor = contextAccessor;
         _shippingService = shippingService;
         _customerService = customerService;
-        _orderTotalCalculationService = orderTotalCalculationService;
+        _shoppingCartShippingService = shoppingCartShippingService;
         _taxService = taxService;
         _priceFormatter = priceFormatter;
     }
@@ -67,7 +67,7 @@ public class GetShippingMethodHandler : IRequestHandler<GetShippingMethod, Check
                 };
 
                 //adjust rate
-                var shippingTotal = (await _orderTotalCalculationService.AdjustShippingRate(
+                var shippingTotal = (await _shoppingCartShippingService.AdjustShippingRate(
                     shippingOption.Rate, request.Cart, _contextAccessor.CalculationContext())).ShippingRate;
 
                 var rateBase = (await _taxService.GetShippingPrice(shippingTotal,

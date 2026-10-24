@@ -92,7 +92,7 @@ Do not use this skill for order processing business logic outside the payment fl
 ### Recommendations
 1. Prefer `Payments.CashOnDelivery` as a template for Standard payment and `Payments.StripeCheckout` for Redirect payment.
 2. Prefer returning `TransactionStatus.Pending` from `ProcessPayment` for Standard methods unless the gateway confirms synchronously.
-3. Prefer `GetAdditionalHandlingFee` for fixed or percentage fees; use `IOrderCalculationService.GetShoppingCartSubTotal` for percentage-based calculation.
+3. Prefer `GetAdditionalHandlingFee` for fixed or percentage fees; use `IShoppingCartSubTotalService.GetShoppingCartSubTotal` for percentage-based calculation (a provider must not depend on `IOrderCalculationService`: it depends on `IPaymentService`, which loads every provider).
 
 ## Key Contracts
 

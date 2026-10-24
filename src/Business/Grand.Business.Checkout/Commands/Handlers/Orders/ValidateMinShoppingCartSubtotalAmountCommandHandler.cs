@@ -11,13 +11,13 @@ public class
     bool>
 {
     private readonly OrderSettings _orderSettings;
-    private readonly IOrderCalculationService _orderTotalCalculationService;
+    private readonly IShoppingCartSubTotalService _shoppingCartSubTotalService;
 
     public ValidateMinShoppingCartSubtotalAmountCommandHandler(
-        IOrderCalculationService orderTotalCalculationService,
+        IShoppingCartSubTotalService shoppingCartSubTotalService,
         OrderSettings orderSettings)
     {
-        _orderTotalCalculationService = orderTotalCalculationService;
+        _shoppingCartSubTotalService = shoppingCartSubTotalService;
         _orderSettings = orderSettings;
     }
 
@@ -42,7 +42,7 @@ public class
         if (!(_orderSettings.MinOrderSubtotalAmount > 0)) return true;
 
         //subtotal
-        var subTotal = await _orderTotalCalculationService.GetShoppingCartSubTotal(cart, context, false);
+        var subTotal = await _shoppingCartSubTotalService.GetShoppingCartSubTotal(cart, context, false);
         return !(subTotal.SubTotalWithoutDiscount < _orderSettings.MinOrderSubtotalAmount);
     }
 }
