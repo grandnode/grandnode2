@@ -119,15 +119,15 @@ public class LoyaltyPointsCalculationService : ILoyaltyPointsCalculationService
                         context.Store.Id);
                 if (CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
-                    var loyaltyPointsBalanceAmount = await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
+                    //the order total is in the context currency, so the balance is compared in that currency
+                    var loyaltyPointsBalanceAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(
+                        await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance), context.Currency);
                     if (orderTotal > 0)
                     {
                         if (orderTotal > loyaltyPointsBalanceAmount)
                         {
                             redeemedLoyaltyPoints = loyaltyPointsBalance;
-                            redeemedLoyaltyPointsAmount =
-                                await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsBalanceAmount,
-                                    context.Currency);
+                            redeemedLoyaltyPointsAmount = loyaltyPointsBalanceAmount;
                         }
                         else
                         {

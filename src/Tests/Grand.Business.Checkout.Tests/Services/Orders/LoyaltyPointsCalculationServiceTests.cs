@@ -91,4 +91,46 @@ public class LoyaltyPointsCalculationServiceTests
         //Assert
         Assert.IsFalse(result);
     }
+
+    [TestMethod]
+    public async Task GetLoyaltyPointsRedemption_ComparesTheBalanceInTheContextCurrency()
+    {
+        //Arrange - 1 unit of the primary currency is 150 units of the context currency
+        var context = CreateContextWithExchangeRate(150);
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(10);
+        //Act
+        var result = await _service.GetLoyaltyPointsRedemption(context, 1000, true);
+        //Assert - the balance is worth 1500, so only the points covering 1000 are redeemed
+        Assert.AreEqual(1000, result.Amount, 0.0001);
+        Assert.AreEqual(7, result.Points);
+    }
+
+    [TestMethod]
+    public async Task GetLoyaltyPointsRedemption_NeverRedeemsMorePointsThanTheBalance()
+    {
+        //Arrange - 1 unit of the primary currency is 0.01 units of the context currency
+        var context = CreateContextWithExchangeRate(0.01);
+        _loyaltyPointsServiceMock.Setup(x => x.GetLoyaltyPointsBalance(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(500);
+        //Act
+        var result = await _service.GetLoyaltyPointsRedemption(context, 100, true);
+        //Assert - the balance is worth 5, so the whole balance is redeemed
+        Assert.AreEqual(5, result.Amount, 0.0001);
+        Assert.AreEqual(500, result.Points);
+    }
+
+    private CalculationContext CreateContextWithExchangeRate(double rate)
+    {
+        _loyaltyPointsSettings.Enabled = true;
+        _loyaltyPointsSettings.ExchangeRate = 1;
+        var currency = new Currency { CurrencyCode = "CTX", Rate = rate };
+        _currencyServiceMock.Setup(x => x.ConvertFromPrimaryStoreCurrency(It.IsAny<double>(), currency))
+            .ReturnsAsync((double amount, Currency _) => amount * rate);
+        _currencyServiceMock.Setup(x => x.ConvertToPrimaryStoreCurrency(It.IsAny<double>(), currency))
+            .ReturnsAsync((double amount, Currency _) => amount / rate);
+
+        return new CalculationContext(new Customer(), new Store { Id = "" }, currency,
+            TaxDisplayType.ExcludingTax);
+    }
 }
