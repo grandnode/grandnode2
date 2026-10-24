@@ -68,16 +68,70 @@ public class FileSystemStoreTests
     }
 
     [TestMethod]
-    [Ignore] //TMP
     public async Task TryRenameDirectoryTest()
     {
         //Arrange
-        _store.TryCreateDirectory("Test");
-        await _store.TryDeleteDirectory("Test2");
+        await _store.TryDeleteDirectory("RenameTest");
+        await _store.TryDeleteDirectory("RenameTest2");
+        _store.TryCreateDirectory("RenameTest");
         //Act
-        var result = await _store.TryRenameDirectory("Test", "Test2");
+        var result = await _store.TryRenameDirectory("RenameTest", "RenameTest2");
         //Assert
         Assert.IsTrue(result);
+        Assert.IsNotNull(_store.GetDirectoryInfo("RenameTest2"));
+        Assert.IsNull(_store.GetDirectoryInfo("RenameTest"));
+    }
+
+    [TestMethod]
+    public async Task TryRenameDirectory_Nested_StaysInItsParent()
+    {
+        //Arrange
+        await _store.TryDeleteDirectory("RenameNested");
+        _store.TryCreateDirectory("RenameNested/a/old");
+        //Act
+        var result = await _store.TryRenameDirectory("RenameNested/a/old", "new");
+        //Assert
+        Assert.IsTrue(result);
+        Assert.IsNotNull(_store.GetDirectoryInfo("RenameNested/a/new"));
+        await _store.TryDeleteDirectory("RenameNested");
+    }
+
+    [TestMethod]
+    [DataRow("../moved")]
+    [DataRow("a/b")]
+    [DataRow("a\\b")]
+    [DataRow("..")]
+    public async Task Rename_NewNameWithAPath_Throws(string newName)
+    {
+        //Arrange
+        await _store.TryDeleteDirectory("RenameGuard");
+        _store.TryCreateDirectory("RenameGuard/folder");
+        await _store.WriteAllText("RenameGuard/file.txt", "test");
+        //Act & Assert
+        await Assert.ThrowsAsync<ArgumentException>(() => _store.TryRenameDirectory("RenameGuard/folder", newName));
+        await Assert.ThrowsAsync<ArgumentException>(() => _store.RenameFile("RenameGuard/file.txt", newName));
+        await _store.TryDeleteDirectory("RenameGuard");
+    }
+
+    [TestMethod]
+    public void GetDirectoryInfo_SiblingSharingTheRootPrefix_Throws()
+    {
+        //Arrange - "<root>-old" starts with the root's path but lies outside it
+        var root = Path.Combine(Path.GetTempPath(), $"store-{Guid.NewGuid():N}");
+        Directory.CreateDirectory(root);
+        Directory.CreateDirectory(root + "-old");
+        try
+        {
+            var store = new FileSystemStore(root);
+            //Act & Assert
+            Assert.ThrowsExactly<Exception>(() => store.GetDirectoryInfo($"../{Path.GetFileName(root)}-old"));
+            Assert.IsNotNull(store.GetDirectoryInfo(""));
+        }
+        finally
+        {
+            Directory.Delete(root, true);
+            Directory.Delete(root + "-old", true);
+        }
     }
 
     [TestMethod]

@@ -16,6 +16,9 @@ public class FileManagerService : IFileManagerService
     /// <summary>The largest file accepted, as elFinder's volume did before</summary>
     public const long MaxUploadBytes = 4 * 1024 * 1024;
 
+    /// <summary>The largest upload request, several files at once</summary>
+    public const long MaxUploadRequestBytes = 8 * MaxUploadBytes;
+
     private const int MaxNameLength = 255;
 
     //the characters Windows refuses in a name, checked on every platform so a name valid here is valid on any host

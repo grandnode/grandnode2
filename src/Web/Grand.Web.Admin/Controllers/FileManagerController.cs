@@ -54,7 +54,10 @@ public class FileManagerController : BaseAdminController
         });
     }
 
+    //the form is read whole before any file's size is checked, so the request itself has a ceiling
     [HttpPost]
+    [RequestSizeLimit(FileManagerService.MaxUploadRequestBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = FileManagerService.MaxUploadRequestBytes)]
     public async Task<IActionResult> Upload(string path)
     {
         if (!await CanManage())

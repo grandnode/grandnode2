@@ -104,7 +104,9 @@ public class FileSystemStore : IFileStore
         if (!Directory.Exists(physicalPath)) return Task.FromResult(false);
         var directoryInfo = new DirectoryInfo(physicalPath);
 
-        var newphysicalPath = GetPhysicalPath(Path.Combine(directoryInfo.Parent.FullName, newName));
+        //the new path is built from the store path, not from Parent.FullName: an absolute path loses its leading
+        //slash in NormalizePath and lands under the root a second time on Linux
+        var newphysicalPath = GetPhysicalPath(SiblingPath(path, newName));
 
         if (Directory.Exists(newphysicalPath)) return Task.FromResult(false);
         directoryInfo.MoveTo(newphysicalPath);
@@ -165,17 +167,17 @@ public class FileSystemStore : IFileStore
         File.Copy(physicalSrcPath, physicalDstPath);
     }
 
-    public async Task RenameFile(string file, string newName)
+    public Task RenameFile(string file, string newName)
     {
         var physicalSrcFile = GetPhysicalPath(file);
 
         if (!File.Exists(physicalSrcFile)) throw new Exception($"The file '{file}' does not exist.");
 
-        var physicalFile = await GetFileInfo(file);
-
-        var newphysicalFile = GetPhysicalPath(Path.Combine(physicalFile.DirectoryPath, newName));
+        var newphysicalFile = GetPhysicalPath(SiblingPath(file, newName));
         if (File.Exists(newphysicalFile)) throw new Exception($"The file '{newName}' does exist.");
         File.Move(physicalSrcFile, newphysicalFile);
+
+        return Task.CompletedTask;
     }
 
     public Task<Stream> GetFileStream(string path)
@@ -250,12 +252,30 @@ public class FileSystemStore : IFileStore
 
         var physicalPath = string.IsNullOrEmpty(path) ? _fileSystemPath : Path.Combine(_fileSystemPath, path);
 
-        // Verify that the resulting path is inside the root file system path.
-        var pathIsAllowed = Path.GetFullPath(physicalPath)
-            .StartsWith(_fileSystemPath, StringComparison.OrdinalIgnoreCase);
+        // Verify that the resulting path is inside the root file system path - the root itself or below a separator,
+        // so a sibling folder sharing the root's name as a prefix ("wwwroot-old") is outside.
+        var fullPath = Path.GetFullPath(physicalPath);
+        var root = Path.TrimEndingDirectorySeparator(_fileSystemPath);
+        var pathIsAllowed = fullPath.Equals(root, StringComparison.OrdinalIgnoreCase) ||
+                            fullPath.StartsWith(root + Path.DirectorySeparatorChar, StringComparison.OrdinalIgnoreCase);
         if (!pathIsAllowed)
             throw new Exception($"The path '{path}' resolves to a physical path outside the file system store root.");
 
         return physicalPath;
+    }
+
+    /// <summary>
+    ///     The store path of an entry named <paramref name="newName" /> next to <paramref name="path" />. The new name is
+    ///     a single name: a separator or a dot segment would move the entry instead of renaming it.
+    /// </summary>
+    private string SiblingPath(string path, string newName)
+    {
+        if (string.IsNullOrWhiteSpace(newName) || newName is "." or ".." ||
+            newName.IndexOfAny(['/', '\\']) >= 0)
+            throw new ArgumentException($"'{newName}' is not a valid name.", nameof(newName));
+
+        var normalized = this.NormalizePath(path) ?? "";
+        var separator = normalized.LastIndexOf('/');
+        return separator < 0 ? newName : $"{normalized[..separator]}/{newName}";
     }
 }
