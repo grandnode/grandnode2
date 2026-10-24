@@ -20,10 +20,11 @@ namespace Grand.Business.Authentication.Services.Scim;
 /// <summary>
 ///     SCIM provisioning of staff accounts (<see cref="IScimUserService" />). New accounts are store-less (usable on every store
 ///     host with per-store identity) and registered without a password anyone knows: they sign in through the identity provider,
-///     linked ahead by <see cref="ScimConfig.ExternalIdIsSubject" />. Only staff accounts are taken over by e-mail, and they are
-///     not linked ahead: an e-mail at the provider proves nothing about who owns the GrandNode account, so they connect once by
-///     the usual rules (password and second factor). No welcome message is sent - SCIM provisions employees, not shoppers.
-///     Logs carry customer ids, never e-mails
+///     linked ahead by <see cref="ScimConfig.ExternalIdIsSubject" />. Only staff accounts, and shopper accounts of the company's
+///     domains (<see cref="ScimConfig.TakeOverDomains" />), are taken over by e-mail, and they are not linked ahead: an e-mail at
+///     the provider proves nothing about who owns the GrandNode account, so they connect once by the usual rules (password and
+///     second factor). No welcome message is sent - SCIM provisions employees, not shoppers. Logs carry customer ids, never
+///     e-mails
 /// </summary>
 public class ScimUserService(
     IRepository<ScimUser> users,
@@ -355,9 +356,9 @@ public class ScimUserService(
         if (!await groupService.IsRegistered(customer))
             return "Only registered accounts can be managed by SCIM";
 
-        //a shopper with the e-mail is not the provider's to manage
-        if (mustBeStaff && !await permissionService.IsBackOfficeAccount(customer))
-            return "Only staff accounts are taken over by SCIM";
+        //a shopper with the e-mail is the provider's to manage only on the company's own domains (an employee's shopping account)
+        if (mustBeStaff && !config.IsTakeOverDomain(customer.Email) && !await permissionService.IsBackOfficeAccount(customer))
+            return "Only staff accounts and accounts of the company's e-mail domains are taken over by SCIM";
 
         if (!config.ExternalIdIsSubject || externalId == "")
             return null;

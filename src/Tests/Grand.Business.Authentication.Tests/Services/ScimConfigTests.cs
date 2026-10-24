@@ -38,4 +38,29 @@ public class ScimConfigTests
     [DataRow(-3)]
     public void NonPositiveMaxResults_FallsBackToDefault(int value) =>
         Assert.AreEqual(100, new ScimConfig { MaxResults = value }.PageSize(null));
+
+    //shopper accounts are taken over only with an e-mail of the company's own domains
+    [TestMethod]
+    [DataRow("jan@firma.pl", true)]
+    [DataRow("Jan@FIRMA.PL", true)]
+    [DataRow(" jan@firma.pl ", true)]
+    [DataRow("jan@dzial.firma.pl", false)]
+    [DataRow("jan@firma.pl.evil.com", false)]
+    [DataRow("jan@gmail.com", false)]
+    [DataRow("firma.pl", false)]
+    [DataRow("", false)]
+    [DataRow(null, false)]
+    public void IsTakeOverDomain(string email, bool expected) =>
+        Assert.AreEqual(expected, new ScimConfig { TakeOverDomains = ["firma.pl", " @Other.com "] }.IsTakeOverDomain(email));
+
+    [TestMethod]
+    public void IsTakeOverDomain_LeadingAtInConfig() =>
+        Assert.IsTrue(new ScimConfig { TakeOverDomains = [" @Other.com "] }.IsTakeOverDomain("ola@other.com"));
+
+    [TestMethod]
+    public void IsTakeOverDomain_NoneConfigured_False()
+    {
+        Assert.IsFalse(new ScimConfig().IsTakeOverDomain("jan@firma.pl"));
+        Assert.IsFalse(new ScimConfig { TakeOverDomains = null }.IsTakeOverDomain("jan@firma.pl"));
+    }
 }

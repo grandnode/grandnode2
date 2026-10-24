@@ -425,5 +425,32 @@ public class ScimUserServiceTests
         Assert.AreEqual(1, _f.Links.Table.Count(x => x.CustomerId == created.User.Id));
     }
 
+    //an employee's shopping account on the company's domain is taken over: it keeps its orders and its password, and connects
+    //once with that password - it is not linked ahead
+    [TestMethod]
+    public async Task Create_ShopperOnTakeOverDomain_TakenOverNotLinkedAhead()
+    {
+        _f.Config.TakeOverDomains = ["example.com"];
+        var shopper = await _f.AddCustomer("jan@example.com");
+
+        var result = await _f.UserService().Create(ScimFixture.Data());
+
+        Assert.AreEqual(ScimOutcome.Created, result.Outcome);
+        Assert.AreEqual(shopper.Id, result.User.Id);
+        _f.Resolver.Verify(x => x.LinkIdentity(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
+        _f.CustomerManager.Verify(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Create_ShopperOnOtherDomain_Conflict()
+    {
+        _f.Config.TakeOverDomains = ["firma.pl"];
+        var shopper = await _f.AddCustomer("jan@example.com");
+
+        Assert.AreEqual(ScimOutcome.Conflict, (await _f.UserService().Create(ScimFixture.Data())).Outcome);
+        Assert.IsNull(await _f.Users.GetByIdAsync(shopper.Id));
+    }
+
     private static bool IsGuid(string value) => Guid.TryParse(value, out _);
 }

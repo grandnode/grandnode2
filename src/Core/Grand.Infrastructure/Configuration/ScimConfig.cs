@@ -18,11 +18,30 @@ public class ScimConfig
     /// </summary>
     public bool ExternalIdIsSubject { get; set; } = true;
 
+    /// <summary>
+    ///     E-mail domains of the company (e.g. firma.pl). An existing shopper account with an e-mail in one of them is taken over
+    ///     like a staff account (an employee's shopping account); any other shopper account is refused. Exact domains only, no
+    ///     subdomains
+    /// </summary>
+    public string[] TakeOverDomains { get; set; } = [];
+
     /// <summary>Largest page of a list response</summary>
     public int MaxResults { get; set; } = DefaultMaxResults;
 
     /// <summary>A token shorter than 32 characters is a configuration mistake: the endpoint refuses every request</summary>
     public bool TokenUsable => !string.IsNullOrEmpty(Token) && Token.Length >= MinTokenLength;
+
+    /// <summary>The e-mail is in one of <see cref="TakeOverDomains" /> (case-insensitive, exact domain)</summary>
+    public bool IsTakeOverDomain(string email)
+    {
+        var at = email?.Trim().LastIndexOf('@') ?? -1;
+        if (at < 1 || TakeOverDomains == null)
+            return false;
+        var domain = email.Trim()[(at + 1)..];
+        return TakeOverDomains.Any(x =>
+            !string.IsNullOrWhiteSpace(x) &&
+            string.Equals(x.Trim().TrimStart('@'), domain, StringComparison.OrdinalIgnoreCase));
+    }
 
     /// <summary>The page size of a list request: the requested count within 0..MaxResults, MaxResults when none was given</summary>
     public int PageSize(int? requested)

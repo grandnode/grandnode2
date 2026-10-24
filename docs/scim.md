@@ -33,6 +33,7 @@ What it is not:
 |---|---|---|
 | `Token` | empty | The Bearer token the identity provider sends. At least 32 characters; shorter means every request is refused. Keep it out of source control (`Scim__Token` or a secret store). Generate it, for example, with `openssl rand -base64 48`. |
 | `ExternalIdIsSubject` | `true` | The SCIM `externalId` of a user is its OpenID Connect subject. An account SCIM **creates** is linked to it, so its first sign-in needs no password. A taken-over account is not (section 4). See section 3. |
+| `TakeOverDomains` | `[]` | E-mail domains of the company, e.g. `["firma.pl"]`. An existing shopper account with such an e-mail (an employee's shopping account) is taken over like a staff account. Exact domains only, no subdomains. See section 4. |
 | `MaxResults` | `100` | Largest page of a list response. |
 
 4. Put your own administrator e-mail in `OidcLogin:BreakGlassAccounts`. SCIM never touches a break-glass account. Every
@@ -73,16 +74,19 @@ What it is not:
 ## 4. Behaviour
 
 **Create.** No account with the e-mail: a registered, active account is created and linked to the user's OpenID Connect
-subject. It belongs to no store, so with per-store identity it is usable on every store host. Its password is random and
+subject. Without a mapped back-office group it is an ordinary customer account, and the employee shops with it. Map a group to
+a custom customer group (e.g. "Employees") for employee prices or discounts. It belongs to no store, so with per-store identity it is usable on every store host. Its password is random and
 nobody knows it, and no welcome e-mail is sent.
 
-A **staff** account (admin panel access, a staff store or a vendor) with the e-mail already exists: **SCIM takes it over** and
-manages its roles from then on (section 5). It is **not** linked ahead. An e-mail at the identity provider proves nothing about
+A **staff** account (admin panel access, a staff store or a vendor) with the e-mail already exists, or a **shopper** account
+whose e-mail is in `Scim:TakeOverDomains`: **SCIM takes it over** and manages its roles from then on (section 5). An
+employee's shopping account keeps its orders, addresses and password, and is deactivated when the employee leaves. It is **not** linked ahead. An e-mail at the identity provider proves nothing about
 who owns the GrandNode account, so the employee connects once at the first sign-in with the account's password (and second
 factor), exactly as without SCIM.
 
 Refused with `409 uniqueness`:
-* an account that is not staff (a storefront customer);
+* a shopper account whose e-mail is not in `Scim:TakeOverDomains`. Without this rule, a user admin at the identity provider
+  could lock out, or give roles to, any storefront customer;
 * system accounts, deleted accounts and break-glass accounts (`OidcLogin:BreakGlassAccounts`);
 * a store-bound account with per-store identity;
 * an account linked to another OpenID Connect identity;
