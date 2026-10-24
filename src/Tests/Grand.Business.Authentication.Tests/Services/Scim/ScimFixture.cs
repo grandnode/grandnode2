@@ -153,6 +153,10 @@ public class ScimFixture
         new(Users, Groups, Links, CustomerService.Object, CustomerManager.Object, GroupService.Object, Resolver.Object,
             LinkService.Object, RoleSync(), AccountLock(), Config, LoginConfig, CustomerConfig, NullLogger<ScimUserService>.Instance);
 
+    public ScimGroupService GroupServiceUnderTest() =>
+        new(Groups, Users, GroupService.Object, StoreService.Object, VendorService.Object, RoleSync(),
+            NullLogger<ScimGroupService>.Instance);
+
     public async Task<Customer> AddCustomer(string email, params string[] groupIds)
     {
         var customer = new Customer {

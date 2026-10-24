@@ -30,6 +30,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<ScimRoleSync>();
         services.AddScoped<ScimAccountLock>();
         services.AddScoped<IScimUserService, ScimUserService>();
+        services.AddScoped<IScimGroupService, ScimGroupService>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
