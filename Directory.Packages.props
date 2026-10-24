@@ -13,7 +13,7 @@
     <PackageVersion Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.17.13" />
     <PackageVersion Include="PdfPig" Version="0.1.16" />
-    <PackageVersion Include="MailKit" Version="4.18.1" />
+    <PackageVersion Include="MailKit" Version="4.18.2" />
     <PackageVersion Include="AWSSDK.Core" Version="4.0.102.8" />
     <PackageVersion Include="AWSSDK.S3" Version="4.0.104.1" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.0" />
@@ -43,7 +43,6 @@
     <PackageVersion Include="Braintree" Version="5.41.0" />
     <PackageVersion Include="System.Configuration.ConfigurationManager" Version="10.0.12" />
     <PackageVersion Include="System.Linq.Dynamic.Core" Version="1.7.4" />
-    <PackageVersion Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
     <PackageVersion Include="System.Security.Cryptography.Xml" Version="10.0.13" />
     <PackageVersion Include="System.Xml.XPath.XmlDocument" Version="4.7.0" />
     <PackageVersion Include="Stripe.net" Version="52.4.2" />
