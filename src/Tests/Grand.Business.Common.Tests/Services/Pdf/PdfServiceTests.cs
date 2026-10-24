@@ -18,6 +18,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
+using Grand.Domain.Tax;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
@@ -145,16 +146,41 @@ public class PdfServiceTests
     }
 
     [TestMethod]
-    public async Task PrintOrdersToPdf_ForVendor_PrintsOnlyVendorLinesWithoutTotals()
+    public async Task PrintOrdersToPdf_ForVendor_PrintsOnlyVendorLinesAndTheirTotals()
     {
         //Arrange
         var order = CreateOrder();
+        order.OrderItems.Single(x => x.Id == "i1").PriceInclTax = 123;
+        order.OrderItems.Single(x => x.Id == "i2").PriceInclTax = 61.5;
+        order.CustomerTaxDisplayTypeId = TaxDisplayType.ExcludingTax;
         //Act
         var text = await PrintOrders([order], "vendor-1");
         //Assert
         StringAssert.Contains(text, "Product p1");
         Assert.DoesNotContain("Product p2", text);
-        Assert.DoesNotContain("PDFInvoice.OrderTotal", text);
+        StringAssert.Contains(text, "PDFInvoice.Sub-Total {0}100.00 PLN");
+        StringAssert.Contains(text, "PDFInvoice.Tax {0}23.00 PLN");
+        StringAssert.Contains(text, "PDFInvoice.OrderTotal {0}123.00 PLN");
+        //order-level amounts are not the vendor's
+        Assert.DoesNotContain("PDFInvoice.Shipping {0}", text);
+        Assert.DoesNotContain("202.95", text);
+    }
+
+    [TestMethod]
+    public async Task PrintOrdersToPdf_VeryLongWord_IsBrokenInsideTheColumn()
+    {
+        //Arrange
+        var order = CreateOrder();
+        order.OrderItems.First().AttributeDescription = new string('W', 5000);
+        //Act
+        using var stream = new MemoryStream();
+        await _service.PrintOrdersToPdf(stream, [order]);
+        //Assert
+        using var pdf = PdfDocument.Open(stream.ToArray());
+        var letters = pdf.GetPages().SelectMany(p => p.Letters).Where(l => l.Value == "W").ToList();
+        Assert.HasCount(5000, letters);
+        //the product name column ends well before the price column at the right edge of the page
+        Assert.IsTrue(letters.All(l => l.GlyphRectangle.Right < 595 - 40 - 150));
     }
 
     [TestMethod]

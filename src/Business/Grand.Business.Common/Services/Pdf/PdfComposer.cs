@@ -339,13 +339,8 @@ internal sealed class PdfComposer : IDisposable
                 if (line.Length > 0) lines.Add(line.ToString());
                 var rest = word;
                 //a single word wider than the column is broken between characters
-                while (rest.Length > 1 && wordWidth > width(lines.Count))
-                {
-                    var cut = FittingLength(rest, size, font, width(lines.Count));
-                    lines.Add(rest[..cut]);
-                    rest = rest[cut..];
-                    wordWidth = Measure(rest, size, font);
-                }
+                if (rest.Length > 1 && wordWidth > width(lines.Count))
+                    (rest, wordWidth) = BreakWord(rest, size, font, width, lines);
 
                 line.Clear().Append(rest);
                 lineWidth = wordWidth;
@@ -358,19 +353,33 @@ internal sealed class PdfComposer : IDisposable
     }
 
     /// <summary>
-    ///     The length of the longest prefix of <paramref name="text" /> that fits the width, at least one.
+    ///     Adds the full-width pieces of a word wider than the column to <paramref name="lines" /> and returns the
+    ///     last piece with its width. The word is measured once, so a very long token (a pasted text attribute,
+    ///     a URL) costs linear time instead of a measurement per piece.
     /// </summary>
-    private int FittingLength(string text, double size, PdfDocumentBuilder.AddedFont font, double width)
+    private (string Tail, double Width) BreakWord(string word, double size, PdfDocumentBuilder.AddedFont font,
+        Func<int, double> width, List<string> lines)
     {
-        int low = 1, high = text.Length - 1;
-        while (low < high)
+        var letters = _page.MeasureText(word, size, new PdfPoint(0, 0), font);
+        //one letter per rune; charEnds[i] is where rune i ends in the string
+        var charEnds = new List<int>(word.Length);
+        foreach (var rune in word.EnumerateRunes())
+            charEnds.Add((charEnds.Count == 0 ? 0 : charEnds[^1]) + rune.Utf16SequenceLength);
+        if (letters.Count != charEnds.Count) return (word, Measure(word, size, font));
+
+        var start = 0;
+        var offset = 0d;
+        while (letters.Count - start > 1 && letters[^1].EndBaseLine.X - offset > width(lines.Count))
         {
-            var mid = (low + high + 1) / 2;
-            if (Measure(text[..mid], size, font) <= width) low = mid;
-            else high = mid - 1;
+            var limit = width(lines.Count);
+            var end = start + 1;
+            while (end < letters.Count && letters[end].EndBaseLine.X - offset <= limit) end++;
+            lines.Add(word[(start == 0 ? 0 : charEnds[start - 1])..charEnds[end - 1]]);
+            offset = letters[end - 1].EndBaseLine.X;
+            start = end;
         }
 
-        return low;
+        return (word[(start == 0 ? 0 : charEnds[start - 1])..], letters[^1].EndBaseLine.X - offset);
     }
 
     private double Measure(string text, double size, PdfDocumentBuilder.AddedFont font)

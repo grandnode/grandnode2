@@ -188,8 +188,9 @@ public class PdfService : IPdfService
         pdf.Text(_translationService.GetResource("PDFInvoice.Product(s)", lang));
         pdf.Space(4);
 
+        var items = order.OrderItems.Where(x => !limitByVendor || x.VendorId == vendorId).ToList();
         var rows = new List<IReadOnlyList<PdfCell>>();
-        foreach (var item in order.OrderItems.Where(x => !limitByVendor || x.VendorId == vendorId))
+        foreach (var item in items)
         {
             var product = await _productService.GetProductByIdIncludeArch(item.ProductId);
             var name = new List<PdfLine> { new(product?.GetTranslation(x => x.Name, lang) ?? item.ProductId) };
@@ -217,16 +218,39 @@ public class PdfService : IPdfService
             ],
             rows);
 
-        //totals cover the whole order, so a vendor's copy leaves them out
-        if (limitByVendor) return;
-
         pdf.Space(10);
-        pdf.Text(PdfHtmlText.ToPlainText(order.CheckoutAttributeDescription), 9);
+        if (!limitByVendor) pdf.Text(PdfHtmlText.ToPlainText(order.CheckoutAttributeDescription), 9);
         pdf.Table(
             [new PdfColumn(5), new PdfColumn(3, PdfAlign.Right), new PdfColumn(2, PdfAlign.Right)],
             null,
-            await Totals(order, priceIncludesTax, lang),
+            limitByVendor
+                ? VendorTotals(order, items, priceIncludesTax, lang)
+                : await Totals(order, priceIncludesTax, lang),
             rowLines: false);
+    }
+
+    /// <summary>
+    ///     Totals of a vendor's own lines. Shipping, order discounts, gift vouchers and the payment fee belong to
+    ///     the whole order and are not split between vendors, so they are left out.
+    /// </summary>
+    private List<IReadOnlyList<PdfCell>> VendorTotals(Order order, IList<OrderItem> items, bool priceIncludesTax,
+        string lang)
+    {
+        var inclTax = items.Sum(x => x.PriceInclTax);
+        var exclTax = items.Sum(x => x.PriceExclTax);
+        var totals = new List<IReadOnlyList<PdfCell>> {
+            TotalRow(order, _translationService.GetResource("PDFInvoice.Sub-Total", lang),
+                priceIncludesTax ? inclTax : exclTax)
+        };
+        if (inclTax - exclTax > 0)
+            totals.Add(TotalRow(order, _translationService.GetResource("PDFInvoice.Tax", lang), inclTax - exclTax));
+        totals.Add(TotalRow(order, _translationService.GetResource("PDFInvoice.OrderTotal", lang), inclTax, true));
+        return totals;
+    }
+
+    private static IReadOnlyList<PdfCell> TotalRow(Order order, string label, double amount, bool bold = false)
+    {
+        return [PdfCell.Empty, PdfCell.Of(label, bold), PdfCell.Of(Money(order, amount), bold)];
     }
 
     private async Task<List<IReadOnlyList<PdfCell>>> Totals(Order order, bool priceIncludesTax, string lang)
@@ -235,7 +259,7 @@ public class PdfService : IPdfService
 
         void Add(string label, double amount, bool bold = false)
         {
-            totals.Add([PdfCell.Empty, PdfCell.Of(label, bold), PdfCell.Of(Money(order, amount), bold)]);
+            totals.Add(TotalRow(order, label, amount, bold));
         }
 
         Add(_translationService.GetResource("PDFInvoice.Sub-Total", lang),
