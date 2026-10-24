@@ -43,27 +43,31 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
         {
             var customer = await customerService.GetCustomerById(x.Id);
 
+            //ownership first: a missing id and someone else's account get the same answer whatever its state,
+            //so the answer reveals neither which ids exist nor what state they are in
+            if (customer == null || customer.OwnerId != contextAccessor.WorkContext.CurrentCustomer.Id)
+            {
+                context.AddFailure(translationService.GetResource("Account.SubAccounts.NotOwner"));
+                return;
+            }
+
             switch (customer)
             {
-                case null:
-                    context.AddFailure(
-                        translationService.GetResource("Account.NoExists"));
-                    break;
                 case { Deleted: true }:
                     context.AddFailure(
                         translationService.GetResource("Account.DeleteAccount"));
-                    break;
+                    return;
                 case not null when !await groupService.IsRegistered(customer):
                     context.AddFailure(
-                        translationService.GetResource(
-                            "Account is not registered"));
-                    break;
+                        translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
+                    return;
             }
 
-            if (customer != null && customer.OwnerId != contextAccessor.WorkContext.CurrentCustomer.Id)
-                context.AddFailure("You are not owner of this account");
+            //an empty email is already reported by the NotEmpty rule
+            if (string.IsNullOrWhiteSpace(x.Email))
+                return;
 
-            if (customer != null && customer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)
+            if (customer.Email != x.Email.Trim().ToLowerInvariant() && customerSettings.AllowUsersToChangeEmail)
             {
                 if (!CommonHelper.IsValidEmail(x.Email))
                     context.AddFailure(

@@ -38,7 +38,7 @@ public class CustomerValidatorsStoreScopingTests
     private static IContextAccessor Context(string currentCustomerEmail = "owner@x.com")
     {
         var work = new Mock<IWorkContext>();
-        work.Setup(w => w.CurrentCustomer).Returns(new Customer { Email = currentCustomerEmail });
+        work.Setup(w => w.CurrentCustomer).Returns(new Customer { Id = "owner", Email = currentCustomerEmail });
         var store = new Mock<IStoreContext>();
         store.Setup(s => s.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = StoreId });
         var ctx = new Mock<IContextAccessor>();
@@ -176,7 +176,7 @@ public class CustomerValidatorsStoreScopingTests
     {
         var customerService = new Mock<ICustomerService>();
         customerService.Setup(c => c.GetCustomerById("c1"))
-            .ReturnsAsync(new Customer { Id = "c1", Email = "old@x.com" });
+            .ReturnsAsync(new Customer { Id = "c1", Email = "old@x.com", OwnerId = "owner" });
         var groupService = new Mock<IGroupService>();
         groupService.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
 
