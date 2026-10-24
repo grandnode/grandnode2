@@ -134,7 +134,7 @@ public class OidcProfileSynchronizerTests
         VerifyEmail("new@shop.com", Times.Never());
         Assert.AreEqual("old@shop.com", _customer.Email);
         _logger.Verify(x => x.Log(LogLevel.Warning, It.IsAny<EventId>(),
-            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("keeps old@shop.com") && v.ToString()!.Contains("customer c2")),
+            It.Is<It.IsAnyType>((v, _) => v.ToString()!.Contains("customer c2") && !v.ToString()!.Contains("@shop.com")),
             It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
