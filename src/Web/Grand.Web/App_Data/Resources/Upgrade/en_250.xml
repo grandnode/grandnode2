@@ -135,4 +135,67 @@
 	<Resource Name="Admin.Orders.Products.AddNew.NotInOrderStore" Area="Admin">
 		<Value>This product is not available in the order's store.</Value>
 	</Resource>
+	<Resource Name="Admin.FileManager.Up" Area="Admin">
+		<Value>Up</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.NewFolder" Area="Admin">
+		<Value>New folder</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Upload" Area="Admin">
+		<Value>Upload</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Rename" Area="Admin">
+		<Value>Rename</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Insert" Area="Admin">
+		<Value>Insert</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Empty" Area="Admin">
+		<Value>This folder is empty</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Root" Area="Admin">
+		<Value>Files</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.FolderName" Area="Admin">
+		<Value>Folder name</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.NewName" Area="Admin">
+		<Value>New name</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.DeleteConfirm" Area="Admin">
+		<Value>Delete {0}?</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.DeleteFolderConfirm" Area="Admin">
+		<Value>Delete the folder {0} and everything in it?</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Uploading" Area="Admin">
+		<Value>Uploading...</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.InvalidPath" Area="Admin">
+		<Value>The folder path is not valid.</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.InvalidName" Area="Admin">
+		<Value>This name cannot be used. A name cannot start or end with a dot or a space, or contain \ / : * ? " &lt; &gt; |.</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.NotFound" Area="Admin">
+		<Value>The file or folder no longer exists.</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.AlreadyExists" Area="Admin">
+		<Value>A file or folder with this name already exists.</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.NotAllowedType" Area="Admin">
+		<Value>This file type is not allowed. The allowed types are set in Configuration > Settings > Media.</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.TooLarge" Area="Admin">
+		<Value>The file is larger than {0} MB.</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.RootLocked" Area="Admin">
+		<Value>The main folder cannot be renamed or deleted.</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.AccessDenied" Area="Admin">
+		<Value>You do not have permission to manage pictures.</Value>
+	</Resource>
+	<Resource Name="Admin.FileManager.Error.Failed" Area="Admin">
+		<Value>The request failed. Try again.</Value>
+	</Resource>
 </Language>

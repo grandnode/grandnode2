@@ -597,17 +597,13 @@ public class SettingController(
         var storeScope = GetStoreScope();
         var mediaSettings = await settingService.LoadSetting<MediaSettings>(storeScope);
 
-        // Preserve file manager settings - store owners cannot change these
+        // Preserve the allowed file types - store owners cannot change them
         var allowedFileTypes = mediaSettings.AllowedFileTypes;
-        var fileManagerEnabledCommands = mediaSettings.FileManagerEnabledCommands;
-        var fileManagerDisabledUICommands = mediaSettings.FileManagerDisabledUICommands;
 
         mediaSettings = model.ToEntity(mediaSettings);
 
-        // Restore preserved file manager settings
+        // Restore the preserved allowed file types
         mediaSettings.AllowedFileTypes = allowedFileTypes;
-        mediaSettings.FileManagerEnabledCommands = fileManagerEnabledCommands;
-        mediaSettings.FileManagerDisabledUICommands = fileManagerDisabledUICommands;
 
         await settingService.SaveSetting(mediaSettings, storeScope);
         await ClearCache();

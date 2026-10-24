@@ -1,6 +1,7 @@
 //Entry point of admin.ui.js: the admin widgets that used to be Kendo UI - the tab strip,
 //the window, the numeric text box, the date/time pickers and the drop-down and multiselect
-//lists. Loaded by HeadAdmin, HeadStore and HeadVendor next to admin.grid.js.
+//lists, and the file manager of the rich text editor. Loaded by HeadAdmin, HeadStore and HeadVendor
+//next to admin.grid.js.
 import 'tom-select/dist/css/tom-select.bootstrap5.css'
 import './ui/ui.css'
 import { pageCulture, pageTexts } from './ui/culture.js'
@@ -11,6 +12,7 @@ import { createNumeric, getNumeric, initNumeric } from './ui/numeric.js'
 import { createDateInput, getDateInput, initDateInputs } from './ui/datetime.js'
 import { createSelect, createLookup, getSelect, initSelects } from './ui/select.js'
 import { createBulkBar, getBulkBar, initBulkBars } from './ui/bulkbar.js'
+import { fileManager } from './ui/filemanager.js'
 import { formatValue, formatDate, formatNumber, toDate } from './grid/format.js'
 
 const GrandAdmin = (window.GrandAdmin = window.GrandAdmin || {})
@@ -38,6 +40,7 @@ if (!GrandAdmin.ui) {
     GrandAdmin.numeric = { create: (el, o) => createNumeric(el, { culture: culture(), ...o }), get: getNumeric }
     GrandAdmin.dateInput = { create: (el, o) => createDateInput(el, { culture: culture(), texts: texts(), ...o }), get: getDateInput }
     GrandAdmin.bulkBar = { create: createBulkBar, get: getBulkBar }
+    GrandAdmin.fileManager = fileManager
     GrandAdmin.select = {
         create: (el, o) => createSelect(el, { texts: texts(), ...o }),
         lookup: (el, o) => createLookup(el, { texts: texts(), ...o }),

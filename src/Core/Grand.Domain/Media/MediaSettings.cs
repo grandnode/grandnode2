@@ -36,9 +36,4 @@ public class MediaSettings : ISettings
     public int ImageQuality { get; set; } = 80;
 
     public string AllowedFileTypes { get; set; }
-
-    public string FileManagerEnabledCommands { get; set; } =
-        "abort,open,file,mkdir,mkfile,parents,tmb,dim,paste,duplicate,get,rm,ls,put,size,rename,tree,resize,search,upload";
-
-    public string FileManagerDisabledUICommands { get; set; } = "ping,hide,archive,extract,netmount,netunmount,zipdl";
 }

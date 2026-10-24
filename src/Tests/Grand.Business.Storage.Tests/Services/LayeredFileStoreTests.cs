@@ -100,7 +100,7 @@ public class LayeredFileStoreTests
     [TestMethod]
     public void GetDirectoryInfo_UploadedShippedInWebRoot_FileManagerRootIsOnVolume()
     {
-        //Arrange - wwwroot ships assets/images/uploaded with a placeholder.txt; elFinder takes PhysicalPath as its root
+        //Arrange - wwwroot ships assets/images/uploaded with a placeholder.txt; the file manager writes under it
         Directory.CreateDirectory(Path.Combine(_webRoot, "assets", "images", "uploaded"));
         File.WriteAllText(Path.Combine(_webRoot, "assets", "images", "uploaded", "legacy.jpg"), "old");
         //Act

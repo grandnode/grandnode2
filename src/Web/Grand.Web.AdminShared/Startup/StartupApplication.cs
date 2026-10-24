@@ -1,5 +1,3 @@
-using elFinder.Net.AspNetCore.Extensions;
-using elFinder.Net.Drivers.FileSystem.Extensions;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -28,12 +26,6 @@ public class StartupApplication : IStartupApplication
 {
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        #region elFinder
-
-        services.AddElFinderAspNetCore().AddFileSystemDriver();
-
-        #endregion
-
         services.AddScoped<IAddressAttributeViewModelService, AddressAttributeViewModelService>();
         services.AddScoped<IAffiliateViewModelService, AffiliateViewModelService>();
         services.AddScoped<IBlogViewModelService, BlogViewModelService>();
@@ -90,7 +82,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IProductAttributeMappingViewModelService, ProductAttributeMappingViewModelService>();
         services.AddScoped<IProductAttributeCombinationViewModelService, ProductAttributeCombinationViewModelService>();
         services.AddScoped<IPictureViewModelService, PictureViewModelService>();
-        services.AddScoped<IElFinderViewModelService, ElFinderViewModelService>();
+        services.AddScoped<IFileManagerService, FileManagerService>();
         services.AddScoped<IMenuViewModelService, MenuViewModelService>();
         services.AddScoped<IPanelPasswordRecoveryService, PanelPasswordRecoveryService>();
 

@@ -1,10 +1,2 @@
 # Findings accepted after review. Each entry expires and is reported again
 # on that date, so it has to be reviewed rather than forgotten.
-
-# SixLabors.ImageSharp 3.1.12 (fixed in 4.1.2), a transitive dependency of
-# elFinder.Net.Core 1.5.0, lifted from 2.0.0 by Grand.Web.AdminShared.
-# GrandNode does not reference ImageSharp in code. 4.x is not verified with
-# elFinder. Drop these entries once ImageSharp moves to 4.1.2 or elFinder goes.
-CVE-2026-106110 exp:2027-01-16
-CVE-2026-106113 exp:2027-01-16
-CVE-2026-106115 exp:2027-01-16

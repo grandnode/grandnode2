@@ -6,10 +6,13 @@ public static class FileExtensions
     {
         if (string.IsNullOrEmpty(allowedFileTypes))
             return new List<string> { ".gif", ".jpg", ".jpeg", ".png", ".bmp", ".webp" };
-        return allowedFileTypes.Split(',').Select(x => x.Trim().ToLowerInvariant()).ToList();
+        //a trailing or doubled comma leaves an empty entry, which would allow a file without an extension
+        return allowedFileTypes.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries)
+            .Select(x => x.ToLowerInvariant()).ToList();
     }
     public static bool IsAllowedMediaFileType(this IEnumerable<string> allowedFileTypes, string fileExtension)
     {
-        return allowedFileTypes.Any(ft => ft.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
+        return !string.IsNullOrEmpty(fileExtension) &&
+               allowedFileTypes.Any(ft => ft.Equals(fileExtension, StringComparison.OrdinalIgnoreCase));
     }
 }

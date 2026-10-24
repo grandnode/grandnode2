@@ -12,7 +12,5 @@
   ImageQuality: 80,
   DefaultPictureZoomEnabled: false,
   AutoCompleteSearchThumbPictureSize: 20,
-  FileManagerEnabledCommands: abort,open,file,mkdir,mkfile,parents,tmb,dim,paste,duplicate,get,rm,ls,put,size,rename,tree,resize,search,upload,
-  FileManagerDisabledUICommands: ping,hide,archive,extract,netmount,netunmount,zipdl,
   DefaultImageName: no-image.png
 }
