@@ -50,8 +50,8 @@ public class OidcProfileSynchronizer(
         //emergency access
         if (loginConfig.IsBreakGlass(customer.Email))
         {
-            logger.LogWarning("OpenID Connect profile sync: break-glass customer {CustomerId} keeps {OldEmail} " +
-                              "(the identity provider has {NewEmail})", customer.Id, customer.Email, newEmail);
+            logger.LogWarning("OpenID Connect profile sync: break-glass customer {CustomerId} keeps its e-mail " +
+                              "(the identity provider has a different one)", customer.Id);
             return;
         }
 
@@ -59,16 +59,16 @@ public class OidcProfileSynchronizer(
         //and keep it signed in past the provider
         if (loginConfig.IsBreakGlass(newEmail))
         {
-            logger.LogWarning("OpenID Connect profile sync: customer {CustomerId} keeps {OldEmail}: {NewEmail} is a " +
-                              "break-glass address", customer.Id, customer.Email, newEmail);
+            logger.LogWarning("OpenID Connect profile sync: customer {CustomerId} keeps its e-mail: the identity " +
+                              "provider's one is a break-glass address", customer.Id);
             return;
         }
 
         var owner = await customerService.GetCustomerByEmail(newEmail, customerConfig.RegisterCustomersPerStore ? storeId : "");
         if (owner != null && owner.Id != customer.Id)
         {
-            logger.LogWarning("OpenID Connect profile sync: customer {CustomerId} keeps {OldEmail}: {NewEmail} belongs to customer {OtherId}",
-                customer.Id, customer.Email, newEmail, owner.Id);
+            logger.LogWarning("OpenID Connect profile sync: customer {CustomerId} keeps its e-mail: the identity " +
+                              "provider's one belongs to customer {OtherId}", customer.Id, owner.Id);
             return;
         }
 

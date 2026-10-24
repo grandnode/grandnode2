@@ -13,7 +13,7 @@
     <PackageVersion Include="Microsoft.OpenApi" Version="2.12.2" />
     <PackageVersion Include="Scalar.AspNetCore" Version="2.17.13" />
     <PackageVersion Include="PdfPig" Version="0.1.16" />
-    <PackageVersion Include="MailKit" Version="4.18.1" />
+    <PackageVersion Include="MailKit" Version="4.18.2" />
     <PackageVersion Include="AWSSDK.Core" Version="4.0.102.8" />
     <PackageVersion Include="AWSSDK.S3" Version="4.0.104.1" />
     <PackageVersion Include="Azure.Storage.Blobs" Version="12.30.0" />
