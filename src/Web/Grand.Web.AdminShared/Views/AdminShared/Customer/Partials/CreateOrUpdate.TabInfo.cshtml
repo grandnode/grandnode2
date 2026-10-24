@@ -105,6 +105,39 @@
         </div>
     </admin-card>
 }
+@* read only on both panels: an owner lists its sub-accounts, a sub-account links its owner *@
+@if (Model.SubAccounts.Count > 0)
+{
+    <admin-card title="@Loc["Admin.Customers.Customers.SubAccounts"]">
+        <table class="table table-sm mb-0" id="customer-subaccounts">
+            <thead>
+            <tr>
+                <th>@Loc["Admin.Customers.Customers.Fields.Email"]</th>
+                <th>@Loc["Admin.Customers.Customers.Fields.FullName"]</th>
+                <th>@Loc["Admin.Customers.Customers.Fields.Active"]</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var subAccount in Model.SubAccounts)
+            {
+                <tr>
+                    <td><a href="@Url.Action("Edit", "Customer", new { id = subAccount.Id, area })">@subAccount.Email</a></td>
+                    <td>@subAccount.FullName</td>
+                    <td>@(subAccount.Active ? Loc["Admin.Common.Yes"] : Loc["Admin.Common.No"])</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </admin-card>
+}
+else if (!string.IsNullOrEmpty(Model.OwnerCustomerId))
+{
+    <admin-card title="@Loc["Admin.Customers.Customers.Fields.Owner"]">
+        <div class="grand-fact__value" id="customer-owner">
+            <a href="@Url.Action("Edit", "Customer", new { id = Model.OwnerCustomerId, area })">@Model.OwnerCustomerEmail</a>
+        </div>
+    </admin-card>
+}
 <admin-card>
     <div class="grand-fields grand-fields--2col">
         @if (Model.GenderEnabled)

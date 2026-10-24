@@ -173,6 +173,54 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
             return "";
         }
 
+        //sub-accounts are one level deep: an owner is never a sub-account itself and a customer with
+        //sub-accounts never becomes one, so the owner's access to their orders cannot chain further
+        async Task ValidateOwner(CustomerModel x, Customer customer, ValidationContext<CustomerModel> context)
+        {
+            if (string.IsNullOrWhiteSpace(x.Owner))
+                return;
+
+            var ownerEmail = x.Owner.Trim();
+
+            //the owner already linked stays valid, so an unrelated edit of an existing account is never blocked
+            if (!string.IsNullOrEmpty(customer?.OwnerId))
+            {
+                var currentOwner = await customerService.GetCustomerById(customer.OwnerId);
+                if (currentOwner != null &&
+                    string.Equals(currentOwner.Email, ownerEmail, StringComparison.OrdinalIgnoreCase))
+                    return;
+            }
+
+            if (string.Equals(ownerEmail, x.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
+            {
+                context.AddFailure(nameof(x.Owner),
+                    translationService.GetResource("Admin.Customers.Customers.Fields.Owner.Self"));
+                return;
+            }
+
+            var owner = await customerService.GetCustomerByEmail(ownerEmail, StoreScope(x));
+            if (owner == null || owner.Deleted)
+            {
+                context.AddFailure(nameof(x.Owner),
+                    translationService.GetResource("Admin.Customers.Customers.Fields.Owner.NotFound"));
+                return;
+            }
+
+            if (owner.Id == customer?.Id)
+                context.AddFailure(nameof(x.Owner),
+                    translationService.GetResource("Admin.Customers.Customers.Fields.Owner.Self"));
+            else if (!string.IsNullOrEmpty(owner.OwnerId))
+                context.AddFailure(nameof(x.Owner),
+                    translationService.GetResource("Admin.Customers.Customers.Fields.Owner.IsSubAccount"));
+            else if (!await groupService.IsRegistered(owner))
+                context.AddFailure(nameof(x.Owner),
+                    translationService.GetResource("Admin.Customers.Customers.Fields.Owner.NotRegistered"));
+            else if (customer != null &&
+                     (await customerService.GetAllCustomers(ownerId: customer.Id, pageSize: 1)).Count > 0)
+                context.AddFailure(nameof(x.Owner),
+                    translationService.GetResource("Admin.Customers.Customers.Fields.Owner.HasSubAccounts"));
+        }
+
         void CustomerCreateValidator()
         {
             When(x => string.IsNullOrEmpty(x.Id), () =>
@@ -194,12 +242,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                             context.AddFailure("Email is already registered");
                     }
 
-                    if (!string.IsNullOrWhiteSpace(x.Owner))
-                    {
-                        var customerOwner = await customerService.GetCustomerByEmail(x.Owner, StoreScope(x));
-                        if (customerOwner == null)
-                            context.AddFailure("Owner email is not exists");
-                    }
+                    await ValidateOwner(x, null, context);
 
                     if (!string.IsNullOrWhiteSpace(x.Username) && customerSettings.UsernamesEnabled)
                     {
@@ -235,17 +278,9 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                     var customerGroupsError = await ValidateCustomerGroups(newCustomerGroups, x);
                     if (!string.IsNullOrEmpty(customerGroupsError)) context.AddFailure(customerGroupsError);
 
-                    if (!string.IsNullOrWhiteSpace(x.Owner))
-                    {
-                        var customerByOwner = await customerService.GetCustomerByEmail(x.Owner, StoreScope(x));
-                        if (customerByOwner == null)
-                            context.AddFailure("Owner email is not exists");
-
-                        if (string.Equals(x.Owner, x.Email, StringComparison.CurrentCultureIgnoreCase))
-                            context.AddFailure("You can't assign own email");
-                    }
-
                     var customer = await customerService.GetCustomerById(x.Id);
+                    await ValidateOwner(x, customer, context);
+
                     if (await groupService.IsSalesManager(contextAccessor.WorkContext.CurrentCustomer) &&
                         customer?.Id == contextAccessor.WorkContext.CurrentCustomer.Id)
                         context.AddFailure("You can't edit own data from admin panel");

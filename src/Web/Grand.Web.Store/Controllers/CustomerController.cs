@@ -50,7 +50,13 @@ public class CustomerController(
     protected override async Task ApplyPostConstraints(CustomerModel model)
     {
         model.StoreId = Scope.DefaultStoreId;
-        model.Owner = "";
+        //the owner link is not the store manager's to change: a new customer gets none and an existing one
+        //keeps its own (blanking it here used to detach every sub-account the store manager saved)
+        var existing = string.IsNullOrEmpty(model.Id) ? null : await CustomerService.GetCustomerById(model.Id);
+        var owner = string.IsNullOrEmpty(existing?.OwnerId)
+            ? null
+            : await CustomerService.GetCustomerById(existing.OwnerId);
+        model.Owner = owner?.Email ?? "";
         model.VendorId = "";
         model.StaffStoreId = "";
         model.SeId = "";
