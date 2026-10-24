@@ -85,7 +85,7 @@ public class SystemController : BaseAdminController
             GitBranch = GrandVersion.GitBranch,
             GitCommit = GrandVersion.GitCommit,
             OperatingSystem = RuntimeInformation.OSDescription,
-            AspNetInfo = RuntimeEnvironment.GetSystemVersion()
+            AspNetInfo = RuntimeInformation.FrameworkDescription
         };
         model.MachineName = Environment.MachineName;
         model.WebRootPath = _webHostEnvironment.WebRootPath;
