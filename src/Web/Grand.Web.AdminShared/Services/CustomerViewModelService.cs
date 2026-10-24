@@ -124,7 +124,20 @@ public class CustomerViewModelService : ICustomerViewModelService
     {
         var salesEmployeeId = _contextAccessor.WorkContext.CurrentCustomer.SeId;
 
+        //the Store panel lists its store's customers, never the staff (see StoreCustomerDataScope); left out in the
+        //query, so paging and the total stay right
+        var staffExcluded = await _scope.GetDefaultStoreIdAsync() is not null;
+        var excludedGroupIds = new List<string>();
+        if (staffExcluded)
+            foreach (var systemName in StoreCustomerDataScope.StaffGroupSystemNames)
+            {
+                var group = await _groupService.GetCustomerGroupBySystemName(systemName);
+                if (group != null) excludedGroupIds.Add(group.Id);
+            }
+
         var customers = await _customerService.GetAllCustomers(
+            excludedCustomerGroupIds: staffExcluded ? excludedGroupIds.ToArray() : null,
+            excludeVendorAndStaffAccounts: staffExcluded,
             storeId: storeId,
             customerGroupIds: searchCustomerGroupIds,
             customerTagIds: searchCustomerTagIds,

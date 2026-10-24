@@ -445,6 +445,43 @@ public class CustomerViewModelServiceTests
         Assert.AreEqual(0, list.Count());
     }
 
+    #region Store panel list
+
+    private void VerifyListQuery(string[] excludedGroupIds, bool excludeVendorAndStaff) =>
+        _customerServiceMock.Verify(c => c.GetAllCustomers(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string[]>(), It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+            It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(),
+            It.Is<string[]>(ids => excludedGroupIds == null
+                ? ids == null
+                : ids != null && ids.OrderBy(x => x).SequenceEqual(excludedGroupIds.OrderBy(x => x))),
+            excludeVendorAndStaff), Times.Once);
+
+    [TestMethod]
+    public async Task PrepareCustomerList_StorePanel_LeavesTheStaffOutInTheQuery()
+    {
+        _scopeMock.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync("store-7");
+        foreach (var name in StoreCustomerDataScope.StaffGroupSystemNames)
+            _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(name))
+                .ReturnsAsync(new CustomerGroup { Id = "id-" + name, SystemName = name });
+
+        await _customerViewModelService.PrepareCustomerList(new CustomerListModel(), null, null, 1, 10, "store-7");
+
+        VerifyListQuery(StoreCustomerDataScope.StaffGroupSystemNames.Select(n => "id-" + n).ToArray(), true);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerList_AdminPanel_ExcludesNobody()
+    {
+        await _customerViewModelService.PrepareCustomerList(new CustomerListModel(), null, null, 1, 10);
+
+        VerifyListQuery(null, false);
+    }
+
+    #endregion
+
     #region Owner and sub-accounts
 
     [TestMethod]
@@ -621,7 +658,8 @@ public class CustomerViewModelServiceTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<bool>(), It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()))
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(),
+                It.IsAny<string[]>(), It.IsAny<bool>()))
             .ReturnsAsync(result);
     }
 }

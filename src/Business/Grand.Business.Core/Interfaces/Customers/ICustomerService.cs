@@ -43,6 +43,8 @@ public interface ICustomerService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <param name="orderBySelector"></param>
+    /// <param name="excludedCustomerGroupIds">Customers in any of these groups are left out</param>
+    /// <param name="excludeVendorAndStaffAccounts">Leaves out accounts tied to a vendor or a staff store</param>
     /// <returns>Customers</returns>
     Task<IPagedList<Customer>> GetAllCustomers(DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, string affiliateId = "", string vendorId = "", string storeId = "",
@@ -52,7 +54,8 @@ public interface ICustomerService
         string firstName = null, string lastName = null,
         string company = null, string phone = null, string zipPostalCode = null,
         bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-        int pageIndex = 0, int pageSize = int.MaxValue, Expression<Func<Customer, object>> orderBySelector = null);
+        int pageIndex = 0, int pageSize = int.MaxValue, Expression<Func<Customer, object>> orderBySelector = null,
+        string[] excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false);
 
 
     /// <summary>

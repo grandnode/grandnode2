@@ -79,6 +79,8 @@ public class CustomerService : ICustomerService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <param name="orderBySelector">order by selector</param>
+    /// <param name="excludedCustomerGroupIds">Customers in any of these groups are left out</param>
+    /// <param name="excludeVendorAndStaffAccounts">Leaves out accounts tied to a vendor or a staff store</param>
     /// <returns>Customers</returns>
     public virtual async Task<IPagedList<Customer>> GetAllCustomers(DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, string affiliateId = "", string vendorId = "", string storeId = "",
@@ -88,7 +90,8 @@ public class CustomerService : ICustomerService
         string firstName = null, string lastName = null,
         string company = null, string phone = null, string zipPostalCode = null,
         bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-        int pageIndex = 0, int pageSize = 2147483647, Expression<Func<Customer, object>> orderBySelector = null)
+        int pageIndex = 0, int pageSize = 2147483647, Expression<Func<Customer, object>> orderBySelector = null,
+        string[] excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false)
     {
         var queryModel = new GetCustomerQuery {
             CreatedFromUtc = createdFromUtc,
@@ -111,7 +114,9 @@ public class CustomerService : ICustomerService
             Sct = sct,
             PageIndex = pageIndex,
             PageSize = pageSize,
-            OrderBySelector = orderBySelector
+            OrderBySelector = orderBySelector,
+            ExcludedCustomerGroupIds = excludedCustomerGroupIds,
+            ExcludeVendorAndStaffAccounts = excludeVendorAndStaffAccounts
         };
         return await _mediator.Send(queryModel);
     }
