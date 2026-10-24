@@ -33,6 +33,7 @@
     <Project Path="src/Modules/Grand.Module.Installer/Grand.Module.Installer.csproj" />
     <Project Path="src/Modules/Grand.Module.Migration/Grand.Module.Migration.csproj" />
     <Project Path="src/Modules/Grand.Module.ScheduledTasks/Grand.Module.ScheduledTasks.csproj" />
+    <Project Path="src/Modules/Grand.Module.Scim/Grand.Module.Scim.csproj" />
   </Folder>
   <Folder Name="/Plugins/">
     <Project Path="src/Plugins/Authentication.Facebook/Authentication.Facebook.csproj" />
