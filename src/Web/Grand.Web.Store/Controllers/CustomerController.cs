@@ -50,6 +50,26 @@ public class CustomerController(
     protected override async Task ApplyPostConstraints(CustomerModel model)
     {
         model.StoreId = Scope.DefaultStoreId;
+
+        //where a customer belongs - owner, vendor, staff store, sales employee, groups - is not the store
+        //manager's to change. An existing customer keeps what it has (blanking these used to strip them on every
+        //save: a sub-account lost its owner, a customer its sales employee and its price groups, a colleague
+        //the Store manager role); the posted values are never used either way
+        var existing = string.IsNullOrEmpty(model.Id) ? null : await CustomerService.GetCustomerById(model.Id);
+        if (existing != null)
+        {
+            var owner = string.IsNullOrEmpty(existing.OwnerId)
+                ? null
+                : await CustomerService.GetCustomerById(existing.OwnerId);
+            model.Owner = owner?.Email ?? "";
+            model.VendorId = existing.VendorId ?? "";
+            model.StaffStoreId = existing.StaffStoreId ?? "";
+            model.SeId = existing.SeId ?? "";
+            model.CustomerGroups = existing.Groups.ToArray();
+            return;
+        }
+
+        //a new customer belongs nowhere and is registered only
         model.Owner = "";
         model.VendorId = "";
         model.StaffStoreId = "";

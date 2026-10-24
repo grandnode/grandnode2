@@ -31,6 +31,10 @@
                             <div class="card-header">
                                 <h5 class="mb-0">
                                     <strong>@account.FirstName @account.LastName</strong>
+                                    @if (!account.Active)
+                                    {
+                                        <span class="badge bg-secondary ms-2 subaccount-inactive">@Loc["Account.SubAccounts.Inactive"]</span>
+                                    }
                                 </h5>
                             </div>
                             <div class="card-body">

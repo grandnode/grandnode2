@@ -492,6 +492,9 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<Customer>.Create().Ascending(x => x.Email).Ascending(x => x.StoreId), "Email_StoreId");
         await dbContext.CreateIndex(_customerRepository,
             OrderBuilder<Customer>.Create().Ascending(x => x.Username).Ascending(x => x.StoreId), "Username_StoreId");
+        //an owner's sub-accounts
+        await dbContext.CreateIndex(_customerRepository,
+            OrderBuilder<Customer>.Create().Ascending(x => x.OwnerId), "OwnerId_1");
         await dbContext.CreateIndex(_customerRepository,
             OrderBuilder<Customer>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
 

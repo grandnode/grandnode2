@@ -43,27 +43,28 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
         {
             var customer = await customerService.GetCustomerById(x.Id);
 
-            switch (customer)
+            //ownership first: a missing id, a deleted account and someone else's account get the same answer
+            //(the edit page and the command treat them alike), so it reveals neither ids nor their state
+            if (customer == null || customer.Deleted ||
+                customer.OwnerId != contextAccessor.WorkContext.CurrentCustomer.Id)
             {
-                case null:
-                    context.AddFailure(
-                        translationService.GetResource("Account.NoExists"));
-                    break;
-                case { Deleted: true }:
-                    context.AddFailure(
-                        translationService.GetResource("Account.DeleteAccount"));
-                    break;
-                case not null when !await groupService.IsRegistered(customer):
-                    context.AddFailure(
-                        translationService.GetResource(
-                            "Account is not registered"));
-                    break;
+                context.AddFailure(translationService.GetResource("Account.SubAccounts.NotOwner"));
+                return;
             }
 
-            if (customer != null && customer.OwnerId != contextAccessor.WorkContext.CurrentCustomer.Id)
-                context.AddFailure("You are not owner of this account");
+            switch (customer)
+            {
+                case not null when !await groupService.IsRegistered(customer):
+                    context.AddFailure(
+                        translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
+                    return;
+            }
 
-            if (customer != null && customer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)
+            //an empty email is already reported by the NotEmpty rule
+            if (string.IsNullOrWhiteSpace(x.Email))
+                return;
+
+            if (customer.Email != x.Email.Trim().ToLowerInvariant() && customerSettings.AllowUsersToChangeEmail)
             {
                 if (!CommonHelper.IsValidEmail(x.Email))
                     context.AddFailure(

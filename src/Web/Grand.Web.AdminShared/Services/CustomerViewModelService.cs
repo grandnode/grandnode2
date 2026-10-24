@@ -14,6 +14,7 @@ using Grand.Domain.Messages;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
@@ -49,7 +50,9 @@ public class CustomerViewModelService : ICustomerViewModelService
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IEnumTranslationService _enumTranslationService;
-    
+    private readonly CustomerConfig _customerConfig;
+    private readonly IAdminDataScope<Customer> _scope;
+
     public CustomerViewModelService(
         ICustomerService customerService,
         IGroupService groupService,
@@ -68,9 +71,13 @@ public class CustomerViewModelService : ICustomerViewModelService
         CustomerSettings customerSettings,
         TaxSettings taxSettings,
         LoyaltyPointsSettings loyaltyPointsSettings,
-        CommonSettings commonSettings, 
-        IEnumTranslationService enumTranslationService)
+        CommonSettings commonSettings,
+        IEnumTranslationService enumTranslationService,
+        CustomerConfig customerConfig,
+        IAdminDataScope<Customer> scope)
     {
+        _customerConfig = customerConfig;
+        _scope = scope;
         _customerService = customerService;
         _groupService = groupService;
         _newsLetterSubscriptionService = newsLetterSubscriptionService;
@@ -146,6 +153,7 @@ public class CustomerViewModelService : ICustomerViewModelService
         {
             model.Id = customer.Id;
             model.ShowMessageContactForm = _commonSettings.StoreInDatabaseContactUsForm;
+            await PrepareSubAccounts(model, customer);
             if (!excludeProperties)
             {
                 model.Email = customer.Email;
@@ -332,14 +340,71 @@ public class CustomerViewModelService : ICustomerViewModelService
             !customer.Active;
     }
 
+    /// <summary>
+    ///     The owner id the posted owner email stands for. The owner already linked is kept when its email is
+    ///     posted back unchanged; otherwise the email is looked up in the same store scope the validator used.
+    /// </summary>
+    private async Task<string> ResolveOwnerId(Customer customer, CustomerModel model)
+    {
+        if (string.IsNullOrWhiteSpace(model.Owner))
+            return string.Empty;
+
+        var ownerEmail = model.Owner.Trim();
+        if (!string.IsNullOrEmpty(customer?.OwnerId) &&
+            (!_customerConfig.RegisterCustomersPerStore || customer.StoreId == model.StoreId))
+        {
+            var currentOwner = await _customerService.GetCustomerById(customer.OwnerId);
+            if (currentOwner != null &&
+                string.Equals(currentOwner.Email, ownerEmail, StringComparison.OrdinalIgnoreCase))
+                return customer.OwnerId;
+        }
+
+        var storeId = _customerConfig.RegisterCustomersPerStore ? model.StoreId : "";
+        var owner = await _customerService.GetCustomerByEmail(ownerEmail, storeId);
+        return owner?.Id ?? customer?.OwnerId ?? string.Empty;
+    }
+
+    private async Task PrepareSubAccounts(CustomerModel model, Customer customer)
+    {
+        model.OwnerCustomerId = string.Empty;
+        model.OwnerCustomerEmail = string.Empty;
+        model.SubAccounts.Clear();
+        //sub-accounts are one level deep, so a sub-account never has its own - only an owner, linked when the
+        //panel may open it
+        if (!string.IsNullOrEmpty(customer.OwnerId))
+        {
+            var owner = await _customerService.GetCustomerById(customer.OwnerId);
+            if (owner != null && await _scope.HasAccess(owner))
+            {
+                model.OwnerCustomerId = owner.Id;
+                model.OwnerCustomerEmail = owner.Email;
+            }
+
+            return;
+        }
+
+        //scoped in the query like the customer list (store of the Store panel, sales employee of a sales
+        //manager); the panel's own access check then guards each row the same way it guards opening it
+        var storeId = await _scope.GetDefaultStoreIdAsync() ?? "";
+        var subAccounts = await _customerService.GetAllCustomers(ownerId: customer.Id, storeId: storeId,
+            salesEmployeeId: _contextAccessor.WorkContext.CurrentCustomer.SeId);
+        foreach (var item in subAccounts)
+        {
+            if (!await _scope.HasAccess(item))
+                continue;
+
+            model.SubAccounts.Add(new CustomerModel.SubAccountModel {
+                Id = item.Id,
+                Email = item.Email,
+                FullName = item.GetFullName(),
+                Active = item.Active
+            });
+        }
+    }
+
     public virtual async Task<Customer> InsertCustomerModel(CustomerModel model)
     {
-        var ownerId = string.Empty;
-        if (!string.IsNullOrEmpty(model.Owner))
-        {
-            var customerOwner = await _customerService.GetCustomerByEmail(model.Owner);
-            if (customerOwner != null) ownerId = customerOwner.Id;
-        }
+        var ownerId = await ResolveOwnerId(null, model);
 
         var customer = new Customer {
             CustomerGuid = Guid.NewGuid(),
@@ -470,15 +535,7 @@ public class CustomerViewModelService : ICustomerViewModelService
             _ => customer.Username
         };
 
-        if (!string.IsNullOrEmpty(model.Owner))
-        {
-            var customerOwner = await _customerService.GetCustomerByEmail(model.Owner);
-            if (customerOwner != null) customer.OwnerId = customerOwner.Id;
-        }
-        else
-        {
-            customer.OwnerId = string.Empty;
-        }
+        customer.OwnerId = await ResolveOwnerId(customer, model);
 
         //VAT number
         if (_taxSettings.EuVatEnabled)

@@ -26,12 +26,24 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
     {
         ArgumentNullException.ThrowIfNull(request.CurrentCustomer);
         var customer = await _customerService.GetCustomerById(request.EditModel.Id);
+        if (customer == null || customer.Deleted || customer.OwnerId != request.CurrentCustomer.Id)
+            return false;
 
-        //update email
-        if (customer.Email != request.EditModel.Email.ToLower() && _customerSettings.AllowUsersToChangeEmail)
+        //update email - stored lowercased like every other write, or the lowercased login lookup misses it. An
+        //address differing only in case is the same address, so it is repaired even when changing it is not
+        //allowed: older edits stored it as typed, which locked the account out and broke its password change
+        var email = request.EditModel.Email.Trim().ToLowerInvariant();
+        var sameAddress = string.Equals(customer.Email, email, StringComparison.OrdinalIgnoreCase);
+        if (customer.Email != email && (sameAddress || _customerSettings.AllowUsersToChangeEmail))
         {
-            customer.Email = request.EditModel.Email;
-            await _customerService.UpdateCustomerField(customer, x => x.Email, request.EditModel.Email);
+            customer.Email = email;
+            await _customerService.UpdateCustomerField(customer, x => x.Email, email);
+            //without usernames the username is the email (see SubAccountAddCommandHandler)
+            if (!_customerSettings.UsernamesEnabled)
+            {
+                customer.Username = email;
+                await _customerService.UpdateCustomerField(customer, x => x.Username, email);
+            }
         }
 
         //update password (scope the lookup to the sub-account's store - safe with or without per-store identity)
