@@ -170,6 +170,21 @@ public class SubAccountEditCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_EmailStoredInMixedCaseByOlderEdits_IsRepairedEvenWhenChangesAreNotAllowed()
+    {
+        //such a row cannot sign in, and its password change looked it up by that e-mail and threw
+        _customerSettings.AllowUsersToChangeEmail = false;
+        var customer = SubAccount();
+        customer.Email = "Sub@X.com";
+
+        await _handler.Handle(Command(email: "Sub@X.com", password: "newpass"), default);
+
+        Assert.AreEqual("sub@x.com", customer.Email);
+        _customerManagerServiceMock.Verify(m => m.ChangePassword(
+            It.Is<ChangePasswordRequest>(r => r.Email == "sub@x.com"), "store-9"), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Handle_EmailChangeNotAllowed_KeepsEmail()
     {
         _customerSettings.AllowUsersToChangeEmail = false;

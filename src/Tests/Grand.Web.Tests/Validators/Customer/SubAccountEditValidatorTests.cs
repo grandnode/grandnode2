@@ -71,6 +71,19 @@ public class SubAccountEditValidatorTests
     }
 
     [TestMethod]
+    public async Task OwnDeletedSubAccount_GetsTheSameAnswer()
+    {
+        //the edit page and the command treat it as not yours; "Delete account" was a button label, not an error
+        _customerService.Setup(c => c.GetCustomerById("c1"))
+            .ReturnsAsync(new Customer { Id = "c1", OwnerId = "owner", Deleted = true, Email = "d@x.com" });
+
+        var result = await _validator.ValidateAsync(Model());
+
+        CollectionAssert.AreEqual(new[] { "Account.SubAccounts.NotOwner" },
+            result.Errors.Select(e => e.ErrorMessage).ToArray());
+    }
+
+    [TestMethod]
     public async Task NotRegisteredSubAccount_UsesTheResourceNotARawKey()
     {
         var sub = new Customer { Id = "c1", OwnerId = "owner", Email = "sub@x.com" };

@@ -7,6 +7,7 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Validators.Customers;
 using Grand.Web.Common.Localization;
@@ -32,10 +33,15 @@ public class CustomerValidatorOwnerTests
     private Mock<ICustomerService> _customerService;
     private Mock<IGroupService> _groupService;
     private CustomerConfig _customerConfig;
+    private Mock<IAdminDataScope<Customer>> _scope;
 
     [TestInitialize]
     public void Setup()
     {
+        //Admin panel: no default store, the owner field is editable
+        _scope = new Mock<IAdminDataScope<Customer>>();
+        _scope.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync((string)null);
+
         _groupService = new Mock<IGroupService>();
         _groupService
             .Setup(g => g.GetAllCustomerGroups(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(), It.IsAny<bool>()))
@@ -70,7 +76,7 @@ public class CustomerValidatorOwnerTests
 
         return new CustomerValidator(new List<IValidatorConsumer<CustomerModel>>(), translation.Object,
             new Mock<ICountryService>().Object, context.Object, _customerService.Object, _groupService.Object,
-            new CustomerSettings(), _customerConfig);
+            new CustomerSettings(), _customerConfig, _scope.Object);
     }
 
     private void SubAccountsOf(string ownerId, int count)
@@ -205,6 +211,33 @@ public class CustomerValidatorOwnerTests
         OwnerAccount(ownerId: "top-owner");
 
         CollectionAssert.AreEqual(Array.Empty<string>(), await OwnerErrors(Edit("Boss@Firm.com")));
+    }
+
+    [TestMethod]
+    public async Task StorePanel_DoesNotCheckThePostedOwner()
+    {
+        //the Store panel replaces the posted owner before saving; checking it would answer a store manager
+        //whether another store's e-mail exists, is a sub-account, is registered or has sub-accounts
+        _scope.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync("s1");
+        Existing();
+        OwnerAccount(ownerId: "top-owner");
+
+        CollectionAssert.AreEqual(Array.Empty<string>(), await OwnerErrors(Edit("boss@firm.com")));
+        _customerService.Verify(c => c.GetCustomerByEmail("boss@firm.com", It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task OwnerAlreadyLinked_CustomerMovedToAnotherStore_MustHoldInTheNewStore()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        var customer = Existing(ownerId: "owner-1");
+        customer.StoreId = "store-a";
+        var owner = new Customer { Id = "owner-1", Email = "boss@firm.com" };
+        _customerService.Setup(c => c.GetCustomerById("owner-1")).ReturnsAsync(owner);
+        _customerService.Setup(c => c.GetCustomerByEmail("boss@firm.com", "store-a")).ReturnsAsync(owner);
+
+        //Edit() posts StoreId "s1": the owner lives in store-a only, so the link would cross stores
+        CollectionAssert.AreEqual(new[] { NotFound }, await OwnerErrors(Edit("boss@firm.com")));
     }
 
     [TestMethod]

@@ -29,9 +29,12 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
         if (customer == null || customer.Deleted || customer.OwnerId != request.CurrentCustomer.Id)
             return false;
 
-        //update email - stored lowercased like every other write, or the lowercased login lookup misses it
+        //update email - stored lowercased like every other write, or the lowercased login lookup misses it. An
+        //address differing only in case is the same address, so it is repaired even when changing it is not
+        //allowed: older edits stored it as typed, which locked the account out and broke its password change
         var email = request.EditModel.Email.Trim().ToLowerInvariant();
-        if (customer.Email != email && _customerSettings.AllowUsersToChangeEmail)
+        var sameAddress = string.Equals(customer.Email, email, StringComparison.OrdinalIgnoreCase);
+        if (customer.Email != email && (sameAddress || _customerSettings.AllowUsersToChangeEmail))
         {
             customer.Email = email;
             await _customerService.UpdateCustomerField(customer, x => x.Email, email);

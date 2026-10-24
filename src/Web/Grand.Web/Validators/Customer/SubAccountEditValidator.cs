@@ -43,9 +43,10 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
         {
             var customer = await customerService.GetCustomerById(x.Id);
 
-            //ownership first: a missing id and someone else's account get the same answer whatever its state,
-            //so the answer reveals neither which ids exist nor what state they are in
-            if (customer == null || customer.OwnerId != contextAccessor.WorkContext.CurrentCustomer.Id)
+            //ownership first: a missing id, a deleted account and someone else's account get the same answer
+            //(the edit page and the command treat them alike), so it reveals neither ids nor their state
+            if (customer == null || customer.Deleted ||
+                customer.OwnerId != contextAccessor.WorkContext.CurrentCustomer.Id)
             {
                 context.AddFailure(translationService.GetResource("Account.SubAccounts.NotOwner"));
                 return;
@@ -53,10 +54,6 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
 
             switch (customer)
             {
-                case { Deleted: true }:
-                    context.AddFailure(
-                        translationService.GetResource("Account.DeleteAccount"));
-                    return;
                 case not null when !await groupService.IsRegistered(customer):
                     context.AddFailure(
                         translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));

@@ -480,6 +480,22 @@ public class CustomerViewModelServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateCustomerModel_PerStore_CustomerMovedToAnotherStore_LooksTheOwnerUpAgain()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-a"))
+            .ReturnsAsync(new Customer { Id = "owner-a", Email = "boss@firm.com" });
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("boss@firm.com", "store-b"))
+            .ReturnsAsync(new Customer { Id = "owner-b" });
+        var customer = new Customer { Id = "c1", OwnerId = "owner-a", StoreId = "store-a" };
+
+        await _customerViewModelService.UpdateCustomerModel(customer,
+            new CustomerModel { Email = "c1@firm.com", StoreId = "store-b", Owner = "boss@firm.com" });
+
+        Assert.AreEqual("owner-b", customer.OwnerId);
+    }
+
+    [TestMethod]
     public async Task UpdateCustomerModel_OwnerCleared_UnlinksTheOwner()
     {
         var customer = new Customer { Id = "c1", OwnerId = "owner-1" };

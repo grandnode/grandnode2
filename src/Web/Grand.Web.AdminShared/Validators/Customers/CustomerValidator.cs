@@ -6,6 +6,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
 using System.Text.RegularExpressions;
 using Grand.Web.Common.Localization;
@@ -22,7 +23,8 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
         ICustomerService customerService,
         IGroupService groupService,
         CustomerSettings customerSettings,
-        CustomerConfig customerConfig)
+        CustomerConfig customerConfig,
+        IAdminDataScope<Customer> scope)
         : base(validators)
     {
         //when per-store customer identity is enabled, uniqueness is scoped to the customer's store
@@ -180,10 +182,17 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
             if (string.IsNullOrWhiteSpace(x.Owner))
                 return;
 
+            //a panel with a default store (Store) cannot change the owner - the posted value is replaced before
+            //the save - and checking it would tell a store manager about customers of other stores
+            if (await scope.GetDefaultStoreIdAsync() is not null)
+                return;
+
             var ownerEmail = x.Owner.Trim();
 
-            //the owner already linked stays valid, so an unrelated edit of an existing account is never blocked
-            if (!string.IsNullOrEmpty(customer?.OwnerId))
+            //the owner already linked stays valid, so an unrelated edit of an existing account is never blocked -
+            //unless the customer moves to another store, where the link has to hold in the new store's scope
+            if (!string.IsNullOrEmpty(customer?.OwnerId) &&
+                (!customerConfig.RegisterCustomersPerStore || customer.StoreId == x.StoreId))
             {
                 var currentOwner = await customerService.GetCustomerById(customer.OwnerId);
                 if (currentOwner != null &&

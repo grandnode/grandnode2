@@ -350,7 +350,8 @@ public class CustomerViewModelService : ICustomerViewModelService
             return string.Empty;
 
         var ownerEmail = model.Owner.Trim();
-        if (!string.IsNullOrEmpty(customer?.OwnerId))
+        if (!string.IsNullOrEmpty(customer?.OwnerId) &&
+            (!_customerConfig.RegisterCustomersPerStore || customer.StoreId == model.StoreId))
         {
             var currentOwner = await _customerService.GetCustomerById(customer.OwnerId);
             if (currentOwner != null &&
