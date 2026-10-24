@@ -80,14 +80,20 @@ nobody knows it, and no welcome e-mail is sent.
 
 A **staff** account (admin panel access, a staff store or a vendor) with the e-mail already exists, or a **shopper** account
 whose e-mail is in `Scim:TakeOverDomains`: **SCIM takes it over** and manages its roles from then on (section 5). An
-employee's shopping account keeps its orders, addresses and password, and is deactivated when the employee leaves. It is **not** linked ahead. An e-mail at the identity provider proves nothing about
+employee's shopping account keeps its orders and addresses, and is deactivated when the employee leaves. It is **not** linked ahead. An e-mail at the identity provider proves nothing about
 who owns the GrandNode account, so the employee connects once at the first sign-in with the account's password (and second
 factor), exactly as without SCIM.
+
+A shopper account **loses its credentials** when SCIM takes it over: GrandNode never verified who registered the address, and
+the roles the identity provider gives must not reach a stranger's password. Its password becomes one nobody knows, its
+sessions, Frontend API refresh token and second factor are dropped, and its external sign-ins other than OpenID Connect
+(Facebook, Google...) are removed. The employee sets a new password through password recovery (the e-mail goes to the
+company mailbox) and then connects. A staff account keeps its credentials: an administrator created it.
 
 Refused with `409 uniqueness`:
 * a shopper account whose e-mail is not in `Scim:TakeOverDomains`. Without this rule, a user admin at the identity provider
   could lock out, or give roles to, any storefront customer;
-* system accounts, deleted accounts and break-glass accounts (`OidcLogin:BreakGlassAccounts`);
+* system accounts, deleted accounts and break-glass addresses (`OidcLogin:BreakGlassAccounts`), also one without an account yet;
 * a store-bound account with per-store identity;
 * an account linked to another OpenID Connect identity;
 * a second user with the same `externalId`.

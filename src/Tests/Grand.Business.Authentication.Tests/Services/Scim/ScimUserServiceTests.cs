@@ -1,6 +1,7 @@
 using Grand.Business.Authentication.Services;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Utilities.Customers;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Events;
 using Grand.Mediator;
@@ -425,8 +426,7 @@ public class ScimUserServiceTests
         Assert.AreEqual(1, _f.Links.Table.Count(x => x.CustomerId == created.User.Id));
     }
 
-    //an employee's shopping account on the company's domain is taken over: it keeps its orders and its password, and connects
-    //once with that password - it is not linked ahead
+    //an employee's shopping account on the company's domain is taken over: it keeps its orders and is not linked ahead
     [TestMethod]
     public async Task Create_ShopperOnTakeOverDomain_TakenOverNotLinkedAhead()
     {
@@ -440,6 +440,63 @@ public class ScimUserServiceTests
         _f.Resolver.Verify(x => x.LinkIdentity(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>()), Times.Never);
         _f.CustomerManager.Verify(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
+    }
+
+    //anyone could have registered the address (nobody verified it): the provider's roles must not reach that person's password,
+    //sessions, second factor or social sign-ins
+    [TestMethod]
+    public async Task Create_ShopperOnTakeOverDomain_CredentialsResetBeforeRolesArrive()
+    {
+        _f.Config.TakeOverDomains = ["example.com"];
+        var shopper = await _f.AddCustomer("jan@example.com");
+        shopper.Password = "hash:shopper";
+        shopper.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.TwoFactorEnabled, Value = "True", StoreId = "" });
+        shopper.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.RefreshToken, Value = "rt", StoreId = "" });
+        shopper.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.PasswordToken, Value = "old", StoreId = "" });
+        await _f.Customers.UpdateAsync(shopper);
+        await _f.Links.InsertAsync(new ExternalAuthentication {
+            CustomerId = shopper.Id, ProviderSystemName = "ExternalAuth.Facebook", ExternalIdentifier = "fb-1"
+        });
+        await MapGroup(ScimFixture.Administrators.Id);
+        var group = _f.Groups.Table.Single();
+
+        var result = await _f.UserService().Create(ScimFixture.Data());
+        await _f.GroupServiceUnderTest().ModifyMembers(group.Id, [result.User.Id], [], false);
+
+        var customer = await _f.Reload(shopper.Id);
+        Assert.AreNotEqual("hash:shopper", customer.Password);
+        Assert.AreNotEqual("old", customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken));
+        Assert.IsNull(customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorEnabled));
+        Assert.IsNull(customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.RefreshToken));
+        Assert.IsFalse(_f.Links.Table.Any(x => x.CustomerId == shopper.Id));
+        _f.Sessions.Verify(x => x.EndByCustomer(shopper.Id), Times.Once);
+        Assert.IsTrue(customer.Groups.Contains(ScimFixture.Administrators.Id));
+    }
+
+    //a staff account was made by an administrator: its password and second factor stand behind its first link
+    [TestMethod]
+    public async Task Create_ExistingStaffAccount_KeepsCredentials()
+    {
+        var staff = await _f.AddCustomer("jan@example.com", ScimFixture.Administrators.Id);
+        staff.Password = "hash:staff";
+        await _f.Customers.UpdateAsync(staff);
+
+        await _f.UserService().Create(ScimFixture.Data());
+
+        Assert.AreEqual("hash:staff", (await _f.Reload(staff.Id)).Password);
+        _f.CustomerManager.Verify(x => x.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Create_BreakGlassAddressWithoutAccount_ConflictNothingRegistered()
+    {
+        _f.LoginConfig.BreakGlassAccounts = ["jan@example.com"];
+
+        var result = await _f.UserService().Create(ScimFixture.Data());
+
+        Assert.AreEqual(ScimOutcome.Conflict, result.Outcome);
+        _f.CustomerManager.Verify(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
+        Assert.AreEqual(0, _f.Customers.Table.Count());
     }
 
     [TestMethod]

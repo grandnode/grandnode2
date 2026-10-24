@@ -112,6 +112,17 @@ public class ScimFixture
                 r.Customer.Groups.Add(Registered.Id);
                 await Customers.UpdateAsync(r.Customer);
             });
+        CustomerManager.Setup(x => x.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()))
+            .Returns(async (ChangePasswordRequest r, string _) =>
+            {
+                var stored = await Customers.GetOneAsync(x => x.Email == r.Email);
+                stored.Password = "hash:" + r.NewPassword;
+                stored.UserFields = stored.UserFields.Where(x => x.Key != SystemCustomerFieldNames.PasswordToken).ToList();
+                stored.UserFields.Add(new UserField {
+                    Key = SystemCustomerFieldNames.PasswordToken, Value = Guid.NewGuid().ToString(), StoreId = ""
+                });
+                await Customers.UpdateAsync(stored);
+            });
 
         GroupService.Setup(x => x.GetAllByIds(It.IsAny<string[]>()))
             .ReturnsAsync((string[] ids) => (IList<CustomerGroup>)AllGroups.Where(g => ids.Contains(g.Id)).ToList());
@@ -161,7 +172,8 @@ public class ScimFixture
             NullLogger<ScimRoleSync>.Instance);
 
     public ScimAccountLock AccountLock() =>
-        new(CustomerService.Object, Links, Sessions.Object, Revocation.Object, NullLogger<ScimAccountLock>.Instance);
+        new(CustomerService.Object, CustomerManager.Object, Links, Sessions.Object, Revocation.Object,
+            NullLogger<ScimAccountLock>.Instance);
 
     public ScimUserService UserService() =>
         new(Users, Groups, Links, CustomerService.Object, CustomerManager.Object, GroupService.Object,

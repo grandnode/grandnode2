@@ -20,8 +20,8 @@ public class ScimConfig
 
     /// <summary>
     ///     E-mail domains of the company (e.g. firma.pl). An existing shopper account with an e-mail in one of them is taken over
-    ///     like a staff account (an employee's shopping account); any other shopper account is refused. Exact domains only, no
-    ///     subdomains
+    ///     like a staff account (an employee's shopping account), and its credentials are reset; any other shopper account is
+    ///     refused. Exact domains only, no subdomains
     /// </summary>
     public string[] TakeOverDomains { get; set; } = [];
 

@@ -23,7 +23,8 @@ namespace Grand.Business.Authentication.Services.Scim;
 ///     linked ahead by <see cref="ScimConfig.ExternalIdIsSubject" />. Only staff accounts, and shopper accounts of the company's
 ///     domains (<see cref="ScimConfig.TakeOverDomains" />), are taken over by e-mail, and they are not linked ahead: an e-mail at
 ///     the provider proves nothing about who owns the GrandNode account, so they connect once by the usual rules (password and
-///     second factor). No welcome message is sent - SCIM provisions employees, not shoppers. Logs carry customer ids, never
+///     second factor). A taken-over shopper account loses its credentials first (<see cref="ScimAccountLock.ResetCredentials" />):
+///     anyone could have registered the address. No welcome message is sent - SCIM provisions employees, not shoppers. Logs carry customer ids, never
 ///     e-mails
 /// </summary>
 public class ScimUserService(
@@ -53,6 +54,10 @@ public class ScimUserService(
         var email = EmailOf(data);
         if (email == null)
             return Invalid("userName or emails must hold an e-mail address");
+
+        //the Admin password sign-in of a break-glass address must stay out of the provider's reach, even before it has an account
+        if (loginConfig.IsBreakGlass(email))
+            return Conflict("Break-glass accounts are not managed by SCIM");
 
         var externalId = data.ExternalId ?? "";
         if (await ExternalIdTaken(externalId, null))
@@ -85,6 +90,14 @@ public class ScimUserService(
             if (!await Insert(record))
                 return Conflict("The user is already provisioned");
             logger.LogInformation("SCIM took over customer {CustomerId}", customer.Id);
+
+            //a shopper account (taken over for its domain) may have been registered by anyone with the address: its
+            //credentials go before the provider's roles arrive. A staff account was made by an administrator and keeps them
+            if (!await permissionService.IsBackOfficeAccount(customer))
+            {
+                await accountLock.ResetCredentials(customer);
+                customer = await customerService.GetCustomerById(customer.Id) ?? customer;
+            }
         }
         else
         {
