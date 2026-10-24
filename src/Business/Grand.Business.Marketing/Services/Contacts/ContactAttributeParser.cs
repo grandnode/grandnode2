@@ -318,16 +318,11 @@ public class ContactAttributeParser : IContactAttributeParser
                     var date = model.FirstOrDefault(x => x.Key == attribute.Id + "_day")?.Value;
                     var month = model.FirstOrDefault(x => x.Key == attribute.Id + "_month")?.Value;
                     var year = model.FirstOrDefault(x => x.Key == attribute.Id + "_year")?.Value;
-                    DateTime? selectedDate = null;
-                    try
-                    {
-                        selectedDate = new DateTime(int.Parse(year), int.Parse(month), int.Parse(date));
-                    }
-                    catch { }
-
-                    if (selectedDate.HasValue)
+                    if (int.TryParse(year, out var y) && y is >= 1 and <= 9999 &&
+                        int.TryParse(month, out var m) && m is >= 1 and <= 12 &&
+                        int.TryParse(date, out var d) && d >= 1 && d <= DateTime.DaysInMonth(y, m))
                         customAttributes = AddContactAttribute(customAttributes,
-                            attribute, selectedDate.Value.ToString("D")).ToList();
+                            attribute, new DateTime(y, m, d).ToString("D")).ToList();
                 }
                     break;
                 case AttributeControlType.FileUpload:

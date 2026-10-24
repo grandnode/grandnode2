@@ -374,11 +374,9 @@ public class PluginController(
 
         var pathToUpload = Path.Combine(pluginsPath, uploadedItemDirectoryName);
 
-        try
-        {
+        //a failed delete (e.g. a locked assembly) must stop the upload instead of extracting over the old files
+        if (Directory.Exists(pathToUpload))
             DeleteDirectory(pathToUpload);
-        }
-        catch { }
 
         ZipFile.ExtractToDirectory(archivePath, pluginsPath);
     }

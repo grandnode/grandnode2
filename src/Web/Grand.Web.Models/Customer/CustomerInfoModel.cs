@@ -162,14 +162,11 @@ public class CustomerInfoModel : BaseModel
         if (!DateOfBirthYear.HasValue || !DateOfBirthMonth.HasValue || !DateOfBirthDay.HasValue)
             return null;
 
-        DateTime? dateOfBirth = null;
-        try
-        {
-            dateOfBirth = new DateTime(DateOfBirthYear.Value, DateOfBirthMonth.Value, DateOfBirthDay.Value);
-        }
-        catch { }
+        int year = DateOfBirthYear.Value, month = DateOfBirthMonth.Value, day = DateOfBirthDay.Value;
+        if (year is < 1 or > 9999 || month is < 1 or > 12 || day < 1 || day > DateTime.DaysInMonth(year, month))
+            return null;
 
-        return dateOfBirth;
+        return new DateTime(year, month, day);
     }
 
 

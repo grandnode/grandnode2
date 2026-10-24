@@ -8,19 +8,13 @@ public class BlogPagingFilteringModel : BasePageableModel
 
     public virtual DateTime? GetParsedMonth()
     {
-        DateTime? result = null;
         if (string.IsNullOrEmpty(Month)) return null;
         var tempDate = Month.Split(['-']);
         if (tempDate.Length != 2) return null;
-        int.TryParse(tempDate[0], out var year);
-        int.TryParse(tempDate[1], out var month);
-        try
-        {
-            result = new DateTime(year, month, 1);
-        }
-        catch { }
+        if (!int.TryParse(tempDate[0], out var year) || year is < 1 or > 9999) return null;
+        if (!int.TryParse(tempDate[1], out var month) || month is < 1 or > 12) return null;
 
-        return result;
+        return new DateTime(year, month, 1);
     }
 
     public virtual DateTime? GetFromMonth()

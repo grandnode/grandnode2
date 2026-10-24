@@ -154,6 +154,30 @@ public class ContactAttributeParserTests
         Assert.AreEqual("text", result[0].Value);
     }
 
+    [TestMethod]
+    [DataRow("2024", "2", "29", true)]
+    [DataRow("2023", "2", "29", false)]
+    [DataRow("2024", "13", "1", false)]
+    [DataRow("abc", "1", "1", false)]
+    [DataRow(null, "1", "1", false)]
+    public async Task GetParseContactAttributes_Datepicker_AddsOnlyAValidDate(string year, string month, string day,
+        bool added)
+    {
+        var access = CatalogAccess.For(new Customer(), "store1");
+        _contactAttributeServiceMock.Setup(c => c.GetAllContactAttributes(access))
+            .ReturnsAsync([new ContactAttribute { Id = "date", AttributeControlType = AttributeControlType.Datepicker }]);
+        var model = new List<CustomAttribute> {
+            new() { Key = "date_month", Value = month },
+            new() { Key = "date_day", Value = day }
+        };
+        if (year != null)
+            model.Add(new CustomAttribute { Key = "date_year", Value = year });
+
+        var result = await _parser.GetParseContactAttributes(model, access);
+
+        Assert.AreEqual(added, result.Count == 1);
+    }
+
     private async Task<string> FormatFileUpload(DomainHost host, Guid? downloadGuid = null)
     {
         var attribute = new ContactAttribute {

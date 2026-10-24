@@ -83,20 +83,10 @@ public class SystemController : BaseAdminController
         var model = new SystemInfoModel {
             GrandVersion = GrandVersion.FullVersion,
             GitBranch = GrandVersion.GitBranch,
-            GitCommit = GrandVersion.GitCommit
+            GitCommit = GrandVersion.GitCommit,
+            OperatingSystem = RuntimeInformation.OSDescription,
+            AspNetInfo = RuntimeEnvironment.GetSystemVersion()
         };
-        try
-        {
-            model.OperatingSystem = RuntimeInformation.OSDescription;
-        }
-        catch (Exception) { }
-
-        try
-        {
-            model.AspNetInfo = RuntimeEnvironment.GetSystemVersion();
-        }
-        catch (Exception) { }
-
         model.MachineName = Environment.MachineName;
         model.WebRootPath = _webHostEnvironment.WebRootPath;
         model.ContentRootPath = _webHostEnvironment.ContentRootPath;
