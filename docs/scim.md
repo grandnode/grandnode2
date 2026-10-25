@@ -24,7 +24,9 @@ What it is not:
 ## 2. Configuration
 
 1. Configure and test the OpenID Connect sign-in first (`OidcResourceServer` and `OidcLogin`). Without it every SCIM
-   request is refused.
+   request is refused. On a fresh installation also switch the method on in **Admin > Configuration > External
+   authentication** (`ExternalAuth.OpenIdConnect`): until then the sign-in button fails, and provisioned staff cannot sign
+   in.
 2. Turn the module on: `FeatureManagement:Grand.Module.Scim = true`. The module is built with the solution
    (`src/Modules/Grand.Module.Scim`).
 3. Set section `Scim`:
