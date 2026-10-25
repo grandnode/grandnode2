@@ -4,14 +4,14 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
-using Grand.Web.Components;
+using Grand.Web.Common.Components;
 using Grand.Web.Models.Cms;
 using Microsoft.AspNetCore.Mvc.ViewComponents;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Web.Tests.Components;
+namespace Grand.Web.Common.Tests.Components;
 
 [TestClass]
 public class WidgetViewComponentTests

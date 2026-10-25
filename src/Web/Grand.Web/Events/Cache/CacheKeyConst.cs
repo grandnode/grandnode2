@@ -289,16 +289,6 @@ public static class CacheKeyConst
     public const string SITEMAP_PAGE_MODEL_KEY = "Grand.pres.sitemap.page-{0}-{1}-{2}";
 
     /// <summary>
-    ///     Key for widget info
-    /// </summary>
-    /// <remarks>
-    ///     {0} : current store ID
-    ///     {1} : customer groups
-    ///     {2} : widget zone
-    /// </remarks>
-    public const string WIDGET_MODEL_KEY = "Grand.pres.widget-{0}-{1}-{2}";
-
-    /// <summary>
     ///     Key for caching
     /// </summary>
     /// <remarks>
