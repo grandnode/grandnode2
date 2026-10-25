@@ -52,18 +52,18 @@
     <partial name="Partials/Breadcrumbs" model="Model.Breadcrumb"/>
 }
 
-<vc:widget widget-zone="productdetails_after_breadcrumb" additional-data="@Model.Id"></vc:widget>
+@await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_after_breadcrumb", additionalData = Model.Id })
 <div class="page product-details-page product-standard nordic-pd" vue-island="productreviews productreviewsoverview">
-    <vc:widget widget-zone="productdetails_top" additional-data="@Model.Id"></vc:widget>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_top", additionalData = Model.Id })
     <validation-observer ref="ProductFormObserver">
         <form asp-route="Product" asp-route-sename="@Model.SeName" method="post" id=@($"product-details-form-{Model.Id}") ref="form" v-on:submit.prevent="formSubmitParam($event, vm.$refs.ProductFormObserver)">
             <div itemscope itemtype="https://schema.org/Product" data-productid="@Model.Id">
                 <div class="container position-relative">
                     <div class="row nordic-pd__main">
-                        <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_before_pictures", additionalData = Model.Id })
                         <!--product pictures-->
                         <partial name="Partials/Pictures" model="Model"/>
-                        <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_after_pictures", additionalData = Model.Id })
                         @*Nordic: the info column in editorial order - brand, title, rating and codes,
                           price, delivery notes, short description, choices, buy row, then a perks list*@
                         <div class="col-12 overview nordic-pd__info">
@@ -92,7 +92,7 @@
                                 <!--Code products - SKU, MAN, GTIN, Vendor info -->
                                 <partial name="Partials/Codes" model="Model"/>
                             </div>
-                            <vc:widget widget-zone="productdetails_overview_top" additional-data="@Model.Id"></vc:widget>
+                            @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_overview_top", additionalData = Model.Id })
                             <!--price-->
                             <div class="overview-buttons generalMarginSupporter nordic-pd__price">
                                 @if (Model.TierPrices.Any())
@@ -192,7 +192,7 @@
                                     <partial name="Partials/ShareButton" model="Model"/>
                                 </div>
                             }
-                            <vc:widget widget-zone="productdetails_overview_bottom" additional-data="@Model.Id"></vc:widget>
+                            @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_overview_bottom", additionalData = Model.Id })
                         </div>
                     </div>
                 </div>
@@ -236,10 +236,10 @@
                         </gn-tabs>
                     </div>
                 </div>
-                <vc:products-also-purchased product-id="@Model.Id" product-thumb-picture-size="null"></vc:products-also-purchased>
-                <vc:related-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:related-products>
-                <vc:similar-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:similar-products>
-                <vc:recommended-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:recommended-products>
+                @await Component.InvokeAsync("ProductsAlsoPurchased", new { productId = Model.Id })
+                @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
+                @await Component.InvokeAsync("SimilarProducts", new { productId = Model.Id })
+                @await Component.InvokeAsync("RecommendedProducts", new { productId = Model.Id })
                 @if (Model.RenderCaptcha)
                 {
                     <partial name="Partials/Captcha"/>
@@ -251,5 +251,5 @@
     {
         @await Component.InvokeAsync("ProductEmailAFriend", new { productId = Model.Id })
     }
-    <vc:widget widget-zone="productdetails_bottom" additional-data="@Model.Id"></vc:widget>
+    @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_bottom", additionalData = Model.Id })
 </div>

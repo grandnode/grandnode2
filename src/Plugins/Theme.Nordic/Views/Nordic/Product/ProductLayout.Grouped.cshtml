@@ -59,10 +59,10 @@
             <div class="product-essential">
                 <div class="container">
                     <div class="row nordic-pd__main">
-                        <vc:widget widget-zone="productdetails_before_pictures" additional-data="@Model.Id"></vc:widget>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_before_pictures", additionalData = Model.Id })
                         <!--product pictures-->
                         <partial name="Partials/Pictures" model="Model"/>
-                        <vc:widget widget-zone="productdetails_after_pictures" additional-data="@Model.Id"></vc:widget>
+                        @await Component.InvokeAsync("Widget", new { widgetZone = "productdetails_after_pictures", additionalData = Model.Id })
                         <div class="col-12 overview nordic-pd__info">
                             @if (!string.IsNullOrEmpty(Model.Flag))
                             {
