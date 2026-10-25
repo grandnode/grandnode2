@@ -60,6 +60,15 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.FirstName, request.EditModel.FirstName);
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.LastName, request.EditModel.LastName);
 
+        //update role and order limit - only after the ownership check above. An approver orders without a limit,
+        //so whatever limit came with the request is dropped
+        var role = request.EditModel.Role;
+        var limit = role == SubAccountRole.Approver ? null : request.EditModel.OrderApprovalLimit;
+        customer.SubAccountRole = role;
+        customer.OrderApprovalLimit = limit;
+        await _customerService.UpdateCustomerField(customer, x => x.SubAccountRole, role);
+        await _customerService.UpdateCustomerField(customer, x => x.OrderApprovalLimit, limit);
+
         return true;
     }
 }

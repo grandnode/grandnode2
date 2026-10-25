@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
@@ -50,6 +51,8 @@ public class CustomerViewModelServiceTests
     private Customer _currentCustomer;
     private CustomerConfig _customerConfig;
     private Mock<IAdminDataScope<Customer>> _scopeMock;
+    private Mock<IPriceFormatter> _priceFormatterMock;
+    private Mock<ICurrencyService> _currencyServiceMock;
     private CustomerViewModelService _customerViewModelService;
 
     [TestInitialize]
@@ -125,6 +128,11 @@ public class CustomerViewModelServiceTests
         _scopeMock.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync((string)null);
         _scopeMock.Setup(s => s.HasAccess(It.IsAny<Customer>())).ReturnsAsync(true);
 
+        _priceFormatterMock = new Mock<IPriceFormatter>();
+        _currencyServiceMock = new Mock<ICurrencyService>();
+        _currencyServiceMock.Setup(c => c.GetPrimaryStoreCurrency())
+            .ReturnsAsync(new Grand.Domain.Directory.Currency { CurrencyCode = "EUR" });
+
         _customerViewModelService = new CustomerViewModelService(
             _customerServiceMock.Object,
             _groupServiceMock.Object,
@@ -146,7 +154,9 @@ public class CustomerViewModelServiceTests
             new CommonSettings(),
             _enumTranslationServiceMock.Object,
             _customerConfig,
-            _scopeMock.Object);
+            _scopeMock.Object,
+            _priceFormatterMock.Object,
+            _currencyServiceMock.Object);
     }
 
     [TestMethod]
@@ -577,6 +587,31 @@ public class CustomerViewModelServiceTests
         CollectionAssert.AreEqual(new[] { "sub-1", "sub-2" }, model.SubAccounts.Select(x => x.Id).ToArray());
         Assert.IsFalse(model.SubAccounts[1].Active);
         Assert.IsTrue(string.IsNullOrEmpty(model.OwnerCustomerId));
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_SubAccountsShowRoleAndLimit()
+    {
+        _enumTranslationServiceMock.Setup(e => e.GetTranslationEnum(SubAccountRole.Buyer)).Returns("Buyer text");
+        _enumTranslationServiceMock.Setup(e => e.GetTranslationEnum(SubAccountRole.Approver)).Returns("Approver text");
+        _priceFormatterMock.Setup(p => p.FormatPrice(1200, It.Is<Grand.Domain.Directory.Currency>(c => c.CurrencyCode == "EUR")))
+            .Returns("EUR 1,200.00");
+        SetupGetAllCustomers(new PagedList<Customer> {
+            new() { Id = "sub-1", Email = "a@firm.com", OwnerId = "owner-1", SubAccountRole = SubAccountRole.Buyer, OrderApprovalLimit = 1200 },
+            new() { Id = "sub-2", Email = "b@firm.com", OwnerId = "owner-1", SubAccountRole = SubAccountRole.Buyer },
+            new() { Id = "sub-3", Email = "c@firm.com", OwnerId = "owner-1", SubAccountRole = SubAccountRole.Approver }
+        });
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model, new Customer { Id = "owner-1" }, false);
+
+        Assert.AreEqual("Buyer text", model.SubAccounts[0].Role);
+        Assert.AreEqual("EUR 1,200.00", model.SubAccounts[0].OrderApprovalLimit);
+        //no limit is shown as empty, not as a zero price
+        Assert.AreEqual("Buyer text", model.SubAccounts[1].Role);
+        Assert.IsTrue(string.IsNullOrEmpty(model.SubAccounts[1].OrderApprovalLimit));
+        Assert.AreEqual("Approver text", model.SubAccounts[2].Role);
+        Assert.IsTrue(string.IsNullOrEmpty(model.SubAccounts[2].OrderApprovalLimit));
     }
 
     [TestMethod]

@@ -38,6 +38,20 @@ public class GetSubAccountHandlerTests
     }
 
     [TestMethod]
+    public async Task Get_ReturnsRoleAndLimit()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("sub")).ReturnsAsync(new Customer {
+            Id = "sub", OwnerId = "owner", Email = "sub@x.com",
+            SubAccountRole = SubAccountRole.Approver, OrderApprovalLimit = 750.25
+        });
+
+        var model = await _handler.Handle(Query("sub"), default);
+
+        Assert.AreEqual(SubAccountRole.Approver, model.Role);
+        Assert.AreEqual(750.25, model.OrderApprovalLimit);
+    }
+
+    [TestMethod]
     [DataRow("another-owner", false)]
     [DataRow("", false)]
     [DataRow("owner", true)]

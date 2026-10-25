@@ -115,6 +115,8 @@
                 <th>@Loc["Admin.Customers.Customers.Fields.Email"]</th>
                 <th>@Loc["Admin.Customers.Customers.Fields.FullName"]</th>
                 <th>@Loc["Admin.Customers.Customers.Fields.Active"]</th>
+                <th>@Loc["Admin.Customers.Customers.SubAccounts.Role"]</th>
+                <th>@Loc["Admin.Customers.Customers.SubAccounts.OrderApprovalLimit"]</th>
             </tr>
             </thead>
             <tbody>
@@ -124,6 +126,8 @@
                     <td><a href="@Url.Action("Edit", "Customer", new { id = subAccount.Id, area })">@subAccount.Email</a></td>
                     <td>@subAccount.FullName</td>
                     <td>@(subAccount.Active ? Loc["Admin.Common.Yes"] : Loc["Admin.Common.No"])</td>
+                    <td>@subAccount.Role</td>
+                    <td>@subAccount.OrderApprovalLimit</td>
                 </tr>
             }
             </tbody>

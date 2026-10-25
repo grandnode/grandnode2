@@ -39,6 +39,14 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
                 .WithMessage(string.Format(translationService.GetResource("Account.Fields.Password.Validation")))
                 .When(subAccount => !string.IsNullOrEmpty(subAccount.Password));
 
+        RuleFor(x => x.Role).IsInEnum()
+            .WithMessage(translationService.GetResource("Account.SubAccounts.Fields.Role.Invalid"));
+
+        //empty means no limit; NaN and infinity are not amounts either
+        RuleFor(x => x.OrderApprovalLimit)
+            .Must(limit => limit is null || (double.IsFinite(limit.Value) && limit.Value >= 0))
+            .WithMessage(translationService.GetResource("Account.SubAccounts.Fields.OrderApprovalLimit.Invalid"));
+
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var customer = await customerService.GetCustomerById(x.Id);

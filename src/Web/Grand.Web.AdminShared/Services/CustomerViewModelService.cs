@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -52,6 +53,8 @@ public class CustomerViewModelService : ICustomerViewModelService
     private readonly IEnumTranslationService _enumTranslationService;
     private readonly CustomerConfig _customerConfig;
     private readonly IAdminDataScope<Customer> _scope;
+    private readonly IPriceFormatter _priceFormatter;
+    private readonly ICurrencyService _currencyService;
 
     public CustomerViewModelService(
         ICustomerService customerService,
@@ -74,8 +77,12 @@ public class CustomerViewModelService : ICustomerViewModelService
         CommonSettings commonSettings,
         IEnumTranslationService enumTranslationService,
         CustomerConfig customerConfig,
-        IAdminDataScope<Customer> scope)
+        IAdminDataScope<Customer> scope,
+        IPriceFormatter priceFormatter,
+        ICurrencyService currencyService)
     {
+        _priceFormatter = priceFormatter;
+        _currencyService = currencyService;
         _customerConfig = customerConfig;
         _scope = scope;
         _customerService = customerService;
@@ -401,6 +408,10 @@ public class CustomerViewModelService : ICustomerViewModelService
         var storeId = await _scope.GetDefaultStoreIdAsync() ?? "";
         var subAccounts = await _customerService.GetAllCustomers(ownerId: customer.Id, storeId: storeId,
             salesEmployeeId: _contextAccessor.WorkContext.CurrentCustomer.SeId);
+        //the limit is kept in the primary store currency; loaded once, and only when some row has a limit
+        var currency = subAccounts.Any(x => x.OrderApprovalLimit.HasValue)
+            ? await _currencyService.GetPrimaryStoreCurrency()
+            : null;
         foreach (var item in subAccounts)
         {
             if (!await _scope.HasAccess(item))
@@ -410,7 +421,11 @@ public class CustomerViewModelService : ICustomerViewModelService
                 Id = item.Id,
                 Email = item.Email,
                 FullName = item.GetFullName(),
-                Active = item.Active
+                Active = item.Active,
+                Role = _enumTranslationService.GetTranslationEnum(item.SubAccountRole),
+                OrderApprovalLimit = item.OrderApprovalLimit.HasValue
+                    ? _priceFormatter.FormatPrice(item.OrderApprovalLimit.Value, currency)
+                    : string.Empty
             });
         }
     }

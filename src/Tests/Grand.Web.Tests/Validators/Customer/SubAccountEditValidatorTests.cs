@@ -95,6 +95,52 @@ public class SubAccountEditValidatorTests
         Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.Login.WrongCredentials.NotRegistered"));
     }
 
+    private void OwnSubAccount() => _customerService.Setup(c => c.GetCustomerById("c1"))
+        .ReturnsAsync(new Customer { Id = "c1", OwnerId = "owner", Email = "new@x.com" });
+
+    [TestMethod]
+    [DataRow(-0.01)]
+    [DataRow(double.NaN)]
+    [DataRow(double.PositiveInfinity)]
+    public async Task Validate_NegativeLimit_Fails(double limit)
+    {
+        OwnSubAccount();
+        var model = Model();
+        model.OrderApprovalLimit = limit;
+
+        var result = await _validator.ValidateAsync(model);
+
+        Assert.IsFalse(result.IsValid);
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.SubAccounts.Fields.OrderApprovalLimit.Invalid"));
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow(0.0)]
+    [DataRow(1500.5)]
+    public async Task Validate_EmptyZeroOrPositiveLimit_Passes(double? limit)
+    {
+        OwnSubAccount();
+        var model = Model();
+        model.OrderApprovalLimit = limit;
+
+        var result = await _validator.ValidateAsync(model);
+
+        Assert.IsTrue(result.IsValid);
+    }
+
+    [TestMethod]
+    public async Task Validate_UnknownRole_Fails()
+    {
+        OwnSubAccount();
+        var model = Model();
+        model.Role = (SubAccountRole)5;
+
+        var result = await _validator.ValidateAsync(model);
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.SubAccounts.Fields.Role.Invalid"));
+    }
+
     [TestMethod]
     public async Task EmptyEmail_FailsValidationWithoutThrowing()
     {
