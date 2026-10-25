@@ -1,5 +1,6 @@
 ﻿using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Interfaces.Messages;
@@ -110,4 +111,33 @@ public interface ICustomerMessageProviderService
     Task<int> SendContactUsMessage(Customer customer, Store store, string languageId, string senderEmail,
         string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes,
         string ipaddress, DomainHost host = null);
+
+    /// <summary>
+    ///     Sends an 'Order approval requested' message to the approver
+    /// </summary>
+    /// <param name="approval">Order approval</param>
+    /// <param name="buyer">Customer who asked for the approval</param>
+    /// <param name="approver">Customer who decides; the recipient</param>
+    /// <param name="store">Store</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendOrderApprovalRequestedMessage(OrderApproval approval, Customer buyer, Customer approver,
+        Store store, string languageId, DomainHost host = null);
+
+    /// <summary>
+    ///     Sends an 'Order approval decided' message to the buyer
+    /// </summary>
+    /// <param name="approval">Order approval</param>
+    /// <param name="buyer">Customer who asked for the approval; the recipient</param>
+    /// <param name="store">Store</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendOrderApprovalDecidedMessage(OrderApproval approval, Customer buyer, Store store,
+        string languageId, DomainHost host = null);
 }

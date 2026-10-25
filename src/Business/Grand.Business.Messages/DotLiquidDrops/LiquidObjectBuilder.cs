@@ -68,6 +68,20 @@ public class LiquidObjectBuilder
         return this;
     }
 
+    public LiquidObjectBuilder AddOrderApprovalTokens(OrderApproval approval, Customer buyer, Store store,
+        DomainHost host, Language language)
+    {
+        _chain.Add(async liquidObject =>
+        {
+            var liquidOrderApproval = await _mediator.Send(new GetOrderApprovalTokensCommand {
+                Approval = approval, Buyer = buyer, Store = store, Host = host, Language = language
+            });
+            liquidObject.OrderApproval = liquidOrderApproval;
+            await _mediator.EntityTokensAdded(approval, liquidOrderApproval, liquidObject);
+        });
+        return this;
+    }
+
     public LiquidObjectBuilder AddShipmentTokens(Shipment shipment, Order order, Store store, DomainHost host,
         Language language)
     {

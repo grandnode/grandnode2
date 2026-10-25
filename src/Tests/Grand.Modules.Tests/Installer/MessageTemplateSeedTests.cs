@@ -18,11 +18,11 @@ public class MessageTemplateSeedTests
             .Concat(TagVar.Matches(text).Select(m => m.Groups[1].Value)));
 
     [TestMethod]
-    public void Build_Returns51UniqueTemplates()
+    public void Build_Returns53UniqueTemplates()
     {
         var templates = MessageTemplateSeed.Build("ea");
-        Assert.AreEqual(51, templates.Count);
-        Assert.AreEqual(51, templates.Select(t => t.Name).Distinct().Count());
+        Assert.AreEqual(53, templates.Count);
+        Assert.AreEqual(53, templates.Select(t => t.Name).Distinct().Count());
         Assert.IsTrue(templates.All(t => t.EmailAccountId == "ea"));
     }
 
@@ -44,6 +44,8 @@ public class MessageTemplateSeedTests
             File.ReadAllText(Path.Combine(AppContext.BaseDirectory, "Installer", "message-template-tokens.baseline.json")))!;
         foreach (var t in MessageTemplateSeed.Build("ea"))
         {
+            //templates added after the baseline was taken have nothing to lose
+            if (!baseline.ContainsKey(t.Name)) continue;
             var now = Tokens(t.Subject + t.Body);
             var lost = baseline[t.Name].Where(x => !now.Contains(x)).ToList();
             Assert.AreEqual(0, lost.Count, $"{t.Name} lost tokens: {string.Join(", ", lost)}");

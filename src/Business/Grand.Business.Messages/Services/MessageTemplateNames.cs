@@ -9,6 +9,9 @@ public static class MessageTemplateNames
     public const string CustomerNewCustomerNote = "Customer.NewCustomerNote";
     public const string CustomerEmailTokenValidationMessage = "Customer.EmailTokenValidationMessage";
 
+    public const string OrderApprovalRequested = "OrderApproval.Requested";
+    public const string OrderApprovalDecided = "OrderApproval.Decided";
+
     public const string SendOrderPlacedStoreOwnerMessage = "OrderPlaced.StoreOwnerNotification";
     public const string SendOrderPaidStoreOwnerMessage = "OrderPaid.StoreOwnerNotification";
     public const string SendOrderCancelledStoreOwnerMessage = "OrderCancelled.StoreOwnerNotification";

@@ -5,6 +5,7 @@ using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
+using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Mediator;
 using Grand.SharedKernel.Extensions;
@@ -81,6 +82,73 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             languageId, liquidObject,
             toEmail, toName, reference: Reference.Customer, objectId: customer.Id);
+    }
+
+    /// <summary>
+    ///     Send an order approval message; the recipient also provides the customer tokens
+    /// </summary>
+    protected virtual async Task<int> SendOrderApprovalMessage(OrderApproval approval, Customer buyer,
+        Customer recipient, Store store, string languageId, string templateName, DomainHost host)
+    {
+        ArgumentNullException.ThrowIfNull(approval);
+        ArgumentNullException.ThrowIfNull(buyer);
+        ArgumentNullException.ThrowIfNull(recipient);
+
+        var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
+
+        var messageTemplate = await _messageLookupService.GetMessageTemplate(templateName, store.Id);
+        if (messageTemplate == null)
+            return 0;
+
+        var emailAccount = await _messageLookupService.GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
+
+        host = store.LinkHost(host);
+        var builder = new LiquidObjectBuilder(_mediator);
+        builder.AddStoreTokens(store, language, emailAccount)
+            .AddCustomerTokens(recipient, store, host, language)
+            .AddOrderApprovalTokens(approval, buyer, store, host, language);
+
+        var liquidObject = await builder.BuildAsync();
+        await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
+
+        return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
+            languageId, liquidObject,
+            recipient.Email, recipient.GetFullName(), reference: Reference.Customer, objectId: buyer.Id);
+    }
+
+    /// <summary>
+    ///     Sends an 'Order approval requested' message to the approver
+    /// </summary>
+    /// <param name="approval">Order approval</param>
+    /// <param name="buyer">Customer who asked for the approval</param>
+    /// <param name="approver">Customer who decides; the recipient</param>
+    /// <param name="store">Store</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendOrderApprovalRequestedMessage(OrderApproval approval, Customer buyer,
+        Customer approver, Store store, string languageId, DomainHost host = null)
+    {
+        return await SendOrderApprovalMessage(approval, buyer, approver, store, languageId,
+            MessageTemplateNames.OrderApprovalRequested, host);
+    }
+
+    /// <summary>
+    ///     Sends an 'Order approval decided' message to the buyer
+    /// </summary>
+    /// <param name="approval">Order approval</param>
+    /// <param name="buyer">Customer who asked for the approval; the recipient</param>
+    /// <param name="store">Store</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendOrderApprovalDecidedMessage(OrderApproval approval, Customer buyer,
+        Store store, string languageId, DomainHost host = null)
+    {
+        return await SendOrderApprovalMessage(approval, buyer, buyer, store, languageId,
+            MessageTemplateNames.OrderApprovalDecided, host);
     }
 
     /// <summary>
