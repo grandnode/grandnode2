@@ -94,6 +94,17 @@ public class Customer : BaseEntity
     public string OwnerId { get; set; }
 
     /// <summary>
+    ///     Gets or sets the purchasing role of a sub-account; meaningful only when <see cref="OwnerId" /> is set
+    /// </summary>
+    public SubAccountRole SubAccountRole { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the order limit of a buyer sub-account, in the primary store currency;
+    ///     null means no limit
+    /// </summary>
+    public double? OrderApprovalLimit { get; set; }
+
+    /// <summary>
     ///     Gets or sets the sales employee identifier
     /// </summary>
     public string SeId { get; set; }
