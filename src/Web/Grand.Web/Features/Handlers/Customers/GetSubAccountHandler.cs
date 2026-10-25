@@ -30,7 +30,7 @@ public class GetSubAccountHandler : IRequestHandler<GetSubAccount, SubAccountEdi
             Email = subaccount.Email,
             Active = subaccount.Active,
             Role = subaccount.SubAccountRole,
-            OrderApprovalLimit = subaccount.OrderApprovalLimit,
+            OrderApprovalLimit = OrderApprovalLimitText.Format(subaccount.OrderApprovalLimit),
             FirstName = subaccount.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName),
             LastName = subaccount.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName)
         };

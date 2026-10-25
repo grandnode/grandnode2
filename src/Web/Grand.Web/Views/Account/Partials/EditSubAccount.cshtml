@@ -54,7 +54,7 @@
     @* An approver orders without a limit, so the field goes away for that role; the server drops it anyway. *@
     <div class="form-group col-sm-12 col-md-6" v-if="createorupdatesubaccount.Role !== @approverRole">
         <label asp-for="OrderApprovalLimit" class="col-form-label">@Loc["Account.SubAccounts.Fields.OrderApprovalLimit"] (@primaryCurrency.CurrencyCode):</label>
-        <input asp-for="OrderApprovalLimit" type="number" min="0" step="any" v-model="createorupdatesubaccount.OrderApprovalLimit" class="form-control"/>
+        <input asp-for="OrderApprovalLimit" type="text" inputmode="decimal" autocomplete="off" v-model="createorupdatesubaccount.OrderApprovalLimit" class="form-control"/>
         <small class="form-text text-muted">@Loc["Account.SubAccounts.Fields.OrderApprovalLimit.Hint"]</small>
         <span asp-validation-for="OrderApprovalLimit" class="field-validation-error"></span>
     </div>

@@ -42,9 +42,9 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
         RuleFor(x => x.Role).IsInEnum()
             .WithMessage(translationService.GetResource("Account.SubAccounts.Fields.Role.Invalid"));
 
-        //empty means no limit; NaN and infinity are not amounts either
+        //empty means no limit; anything else must read as a non-negative number in the current culture
         RuleFor(x => x.OrderApprovalLimit)
-            .Must(limit => limit is null || (double.IsFinite(limit.Value) && limit.Value >= 0))
+            .Must(text => OrderApprovalLimitText.TryParse(text, out _))
             .WithMessage(translationService.GetResource("Account.SubAccounts.Fields.OrderApprovalLimit.Invalid"));
 
         RuleFor(x => x).CustomAsync(async (x, context, _) =>

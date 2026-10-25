@@ -25,10 +25,10 @@ public class SubAccountEditModel : BaseEntityModel
     public SubAccountRole Role { get; set; }
 
     /// <summary>
-    ///     Order total above which a buyer's order needs an approval, in the primary store currency; empty means
-    ///     no limit. An approver has none.
+    ///     Order total above which a buyer's order needs an approval, in the primary store currency, as text in the
+    ///     current culture (see <see cref="OrderApprovalLimitText" />); empty means no limit. An approver has none.
     /// </summary>
-    public double? OrderApprovalLimit { get; set; }
+    public string OrderApprovalLimit { get; set; }
 
     [DataType(DataType.Password)] public string Password { get; set; }
 }
