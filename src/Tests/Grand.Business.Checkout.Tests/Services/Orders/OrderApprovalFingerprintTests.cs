@@ -1,4 +1,4 @@
-using Grand.Business.Checkout.Services.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

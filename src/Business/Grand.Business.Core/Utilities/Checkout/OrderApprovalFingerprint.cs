@@ -2,7 +2,7 @@ using Grand.Domain.Orders;
 using System.Globalization;
 using System.Security.Cryptography;
 
-namespace Grand.Business.Checkout.Services.Orders;
+namespace Grand.Business.Core.Utilities.Checkout;
 
 /// <summary>
 ///     Identifies the content of a shopping cart, so that an approval holds for exactly the cart it was given for
