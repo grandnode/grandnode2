@@ -1,3 +1,5 @@
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Customers;
@@ -10,6 +12,13 @@ namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
 public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderApprovalTokensCommand, LiquidOrderApproval>
 {
+    private readonly ITranslationService _translationService;
+
+    public GetOrderApprovalTokensCommandHandler(ITranslationService translationService)
+    {
+        _translationService = translationService;
+    }
+
     public Task<LiquidOrderApproval> Handle(GetOrderApprovalTokensCommand request, CancellationToken cancellationToken)
     {
         var approval = request.Approval;
@@ -18,9 +27,9 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
         var liquidOrderApproval = new LiquidOrderApproval {
             BuyerName = request.Buyer.GetFullName(),
             BuyerEmail = request.Buyer.Email,
-            Status = approval.Status.ToString(),
+            Status = approval.Status.GetTranslationEnum(_translationService, request.Language.Id),
             Total = approval.Summary?.Total,
-            ItemsHtml = ItemsHtml(approval.Items),
+            ItemsHtml = ItemsHtml(approval.Items, request.Language.Id),
             DecisionComment = Encode(approval.DecisionComment),
             Url = $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}",
             CartUrl = $"{url}/cart"
@@ -33,18 +42,28 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
         return WebUtility.HtmlEncode(value ?? string.Empty);
     }
 
+    private string Label(string key, string defaultValue, string languageId)
+    {
+        return Encode(_translationService.GetResource(key, languageId, defaultValue));
+    }
+
     /// <summary>
-    ///     Every value in the table was typed or formatted outside of the template, so it is encoded here
+    ///     Every value in the table was typed or formatted outside of the template, so it is encoded here -
+    ///     the labels too, they come from a translator
     /// </summary>
-    private static string ItemsHtml(IEnumerable<OrderApprovalItem> items)
+    private string ItemsHtml(IEnumerable<OrderApprovalItem> items, string languageId)
     {
         var sb = new StringBuilder();
         sb.Append("<table style='width: 100%; border-collapse: collapse; font-size: 14px;' border='0'>");
         sb.Append("<tr style='background-color: #f4f4f5;'>");
-        sb.Append("<th style='padding: 0.6em 0.4em; text-align: left;'>Name</th>");
-        sb.Append("<th style='padding: 0.6em 0.4em; text-align: right;'>Price</th>");
-        sb.Append("<th style='padding: 0.6em 0.4em; text-align: center;'>Quantity</th>");
-        sb.Append("<th style='padding: 0.6em 0.4em; text-align: right;'>Total</th></tr>");
+        sb.Append("<th style='padding: 0.6em 0.4em; text-align: left;'>")
+            .Append(Label("OrderApproval.Email.Product", "Product", languageId)).Append("</th>");
+        sb.Append("<th style='padding: 0.6em 0.4em; text-align: right;'>")
+            .Append(Label("OrderApproval.Email.Price", "Price", languageId)).Append("</th>");
+        sb.Append("<th style='padding: 0.6em 0.4em; text-align: center;'>")
+            .Append(Label("OrderApproval.Email.Quantity", "Quantity", languageId)).Append("</th>");
+        sb.Append("<th style='padding: 0.6em 0.4em; text-align: right;'>")
+            .Append(Label("OrderApproval.Email.Total", "Total", languageId)).Append("</th></tr>");
 
         foreach (var item in items ?? [])
         {
@@ -53,7 +72,8 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
             if (!string.IsNullOrEmpty(item.AttributeDescription))
                 sb.Append("<br />").Append(Encode(item.AttributeDescription));
             if (!string.IsNullOrEmpty(item.Sku))
-                sb.Append("<br />Sku: ").Append(Encode(item.Sku));
+                sb.Append("<br />").Append(Label("OrderApproval.Email.Sku", "Sku", languageId)).Append(": ")
+                    .Append(Encode(item.Sku));
             sb.Append("</td>");
             sb.Append("<td style='padding: 0.6em 0.4em; text-align: right;'>").Append(Encode(item.UnitPrice))
                 .Append("</td>");

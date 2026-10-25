@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Handlers.Messages;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Domain.Customers;
@@ -5,6 +6,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Grand.Business.Messages.Tests.Commands;
 
@@ -12,11 +14,20 @@ namespace Grand.Business.Messages.Tests.Commands;
 public class GetOrderApprovalTokensCommandHandlerTests
 {
     private GetOrderApprovalTokensCommandHandler _handler;
+    private Dictionary<string, string> _resources;
+    private Mock<ITranslationService> _translationService;
 
     [TestInitialize]
     public void Init()
     {
-        _handler = new GetOrderApprovalTokensCommandHandler();
+        //resources the language has; a missing one gives the default, or an empty string when asked for that
+        _resources = new Dictionary<string, string>();
+        _translationService = new Mock<ITranslationService>();
+        _translationService
+            .Setup(x => x.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .Returns((string key, string _, string defaultValue, bool returnEmpty) =>
+                _resources.TryGetValue(key, out var value) ? value : returnEmpty ? string.Empty : defaultValue);
+        _handler = new GetOrderApprovalTokensCommandHandler(_translationService.Object);
     }
 
     private static OrderApproval Approval()
@@ -35,7 +46,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
             Buyer = new Customer { Email = "buyer@example.com", Username = "buyer" },
             Store = new Store { Url = "https://store.example/" },
             Host = host,
-            Language = new Language()
+            Language = new Language { Id = "lang1" }
         };
     }
 
@@ -112,5 +123,80 @@ public class GetOrderApprovalTokensCommandHandlerTests
         //Assert
         Assert.AreEqual(string.Empty, result.DecisionComment);
         Assert.IsNotNull(result.ItemsHtml);
+    }
+
+    [TestMethod]
+    public async Task Handle_TranslatesTheStatusInTheEmailLanguage()
+    {
+        //Arrange
+        _resources["Enums.Grand.Domain.Orders.OrderApprovalStatus.Rejected"] = "Odrzucone";
+        var approval = Approval();
+        approval.Status = OrderApprovalStatus.Rejected;
+
+        //Act
+        var result = await _handler.Handle(Command(approval), CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual("Odrzucone", result.Status);
+        _translationService.Verify(x => x.GetResource("Enums.Grand.Domain.Orders.OrderApprovalStatus.Rejected",
+            "lang1", It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_TranslatesTableHeadersAndSkuLabel()
+    {
+        //Arrange
+        _resources["OrderApproval.Email.Product"] = "Produkt";
+        _resources["OrderApproval.Email.Quantity"] = "Ilosc";
+        _resources["OrderApproval.Email.Price"] = "Cena";
+        _resources["OrderApproval.Email.Total"] = "Razem";
+        _resources["OrderApproval.Email.Sku"] = "Kod";
+        var approval = Approval();
+        approval.Items.Add(new OrderApprovalItem { ProductName = "Desk", Sku = "D-1", Quantity = 1 });
+
+        //Act
+        var result = await _handler.Handle(Command(approval), CancellationToken.None);
+
+        //Assert
+        StringAssert.Contains(result.ItemsHtml, ">Produkt</th>");
+        StringAssert.Contains(result.ItemsHtml, ">Ilosc</th>");
+        StringAssert.Contains(result.ItemsHtml, ">Cena</th>");
+        StringAssert.Contains(result.ItemsHtml, ">Razem</th>");
+        StringAssert.Contains(result.ItemsHtml, "Kod: D-1");
+        Assert.IsFalse(result.ItemsHtml.Contains("Quantity"));
+        Assert.IsFalse(result.ItemsHtml.Contains("Sku"));
+    }
+
+    [TestMethod]
+    public async Task Handle_MissingResources_FallBackToEnglish()
+    {
+        //Arrange
+        var approval = Approval();
+        approval.Items.Add(new OrderApprovalItem { ProductName = "Desk", Sku = "D-1", Quantity = 1 });
+
+        //Act
+        var result = await _handler.Handle(Command(approval), CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual("Pending", result.Status);
+        StringAssert.Contains(result.ItemsHtml, ">Product</th>");
+        StringAssert.Contains(result.ItemsHtml, ">Quantity</th>");
+        StringAssert.Contains(result.ItemsHtml, ">Price</th>");
+        StringAssert.Contains(result.ItemsHtml, ">Total</th>");
+        StringAssert.Contains(result.ItemsHtml, "Sku: D-1");
+    }
+
+    [TestMethod]
+    public async Task Handle_EncodesTranslatedLabels()
+    {
+        //Arrange - a translator's text must not break the table
+        _resources["OrderApproval.Email.Product"] = "<i>Produkt</i> & co";
+
+        //Act
+        var result = await _handler.Handle(Command(Approval()), CancellationToken.None);
+
+        //Assert
+        StringAssert.Contains(result.ItemsHtml, "&lt;i&gt;Produkt&lt;/i&gt; &amp; co");
+        Assert.IsFalse(result.ItemsHtml.Contains("<i>"));
     }
 }

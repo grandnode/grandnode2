@@ -222,4 +222,184 @@
 	<Resource Name="Admin.Customers.Customers.SubAccounts" Area="Admin">
 		<Value>Subaccounts</Value>
 	</Resource>
+	<Resource Name="Account.OrderApprovals" Area="Front">
+		<Value>Order approvals</Value>
+	</Resource>
+	<Resource Name="Account.SubAccounts.Fields.OrderApprovalLimit" Area="Front">
+		<Value>Order approval limit</Value>
+	</Resource>
+	<Resource Name="Account.SubAccounts.Fields.OrderApprovalLimit.Hint" Area="Front">
+		<Value>Orders above this amount are only placed after an approver has approved them. Leave empty for no limit. Approvers have no limit.</Value>
+	</Resource>
+	<Resource Name="Account.SubAccounts.Fields.OrderApprovalLimit.Invalid" Area="Front">
+		<Value>Enter an amount of zero or more.</Value>
+	</Resource>
+	<Resource Name="Account.SubAccounts.Fields.Role" Area="Front">
+		<Value>Role</Value>
+	</Resource>
+	<Resource Name="Account.SubAccounts.Fields.Role.Invalid" Area="Front">
+		<Value>Choose a valid role.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.SubAccounts.OrderApprovalLimit" Area="Admin">
+		<Value>Order approval limit</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.SubAccounts.Role" Area="Admin">
+		<Value>Role</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.Required" Area="Front">
+		<Value>This order is above your limit of {0}. It can only be placed after an approver has approved it.</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Customers.SubAccountRole.Approver" Area="Common">
+		<Value>Approver</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Customers.SubAccountRole.Buyer" Area="Common">
+		<Value>Buyer</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Approved" Area="Common">
+		<Value>Approved</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Pending" Area="Common">
+		<Value>Pending</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Rejected" Area="Common">
+		<Value>Rejected</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Used" Area="Common">
+		<Value>Used</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Withdrawn" Area="Common">
+		<Value>Withdrawn</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Approve" Area="Front">
+		<Value>Approve</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Buyer" Area="Front">
+		<Value>Requested by</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Cart.Approved" Area="Front">
+		<Value>This cart has been approved. You can place the order at the checkout.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Cart.Pending" Area="Front">
+		<Value>This cart is waiting for an approval (requested {0}).</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Comment" Area="Front">
+		<Value>Comment</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Confirm.Approved" Area="Front">
+		<Value>This order has been approved. You can place it now.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Confirm.Pending" Area="Front">
+		<Value>This order is waiting for an approval.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Confirm.PendingSince" Area="Front">
+		<Value>Requested on</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Confirm.Required" Area="Front">
+		<Value>This order is above your limit. It can only be placed after an approver has approved it.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Confirm.SendForApproval" Area="Front">
+		<Value>Send for approval</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Confirm.Withdraw" Area="Front">
+		<Value>Withdraw the request</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Date" Area="Front">
+		<Value>Requested on</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Decide.Approved" Area="Front">
+		<Value>The order has been approved.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Decide.Refused" Area="Front">
+		<Value>This request can no longer be decided.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Decide.Rejected" Area="Front">
+		<Value>The order has been rejected.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.DecidedBy" Area="Front">
+		<Value>Decided by</Value>
+	</Resource>
+	<Resource Name="OrderApproval.DecidedOn" Area="Front">
+		<Value>Decided on</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Details" Area="Front">
+		<Value>Order approval</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Discount" Area="Front">
+		<Value>Discount</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Email.Price" Area="Front">
+		<Value>Price</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Email.Product" Area="Front">
+		<Value>Product</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Email.Quantity" Area="Front">
+		<Value>Quantity</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Email.Sku" Area="Front">
+		<Value>Sku</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Email.Total" Area="Front">
+		<Value>Total</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Items" Area="Front">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="OrderApproval.LineTotal" Area="Front">
+		<Value>Total</Value>
+	</Resource>
+	<Resource Name="OrderApproval.NoApprovals" Area="Front">
+		<Value>There are no order approval requests.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Product" Area="Front">
+		<Value>Product</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Quantity" Area="Front">
+		<Value>Quantity</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Reject" Area="Front">
+		<Value>Reject</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Review" Area="Front">
+		<Value>Review</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Shipping" Area="Front">
+		<Value>Shipping</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Sku" Area="Front">
+		<Value>SKU</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Status" Area="Front">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="OrderApproval.SubTotal" Area="Front">
+		<Value>Subtotal</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Submit.Failed" Area="Front">
+		<Value>The request could not be sent for approval.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Submit.NotNeeded" Area="Front">
+		<Value>This order does not need an approval.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Submit.Success" Area="Front">
+		<Value>The order has been sent for approval.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Tax" Area="Front">
+		<Value>Tax</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Total" Area="Front">
+		<Value>Total</Value>
+	</Resource>
+	<Resource Name="OrderApproval.UnitPrice" Area="Front">
+		<Value>Price</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Withdraw" Area="Front">
+		<Value>Withdraw</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Withdraw.Refused" Area="Front">
+		<Value>This request can no longer be withdrawn.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Withdraw.Success" Area="Front">
+		<Value>The request has been withdrawn.</Value>
+	</Resource>
 </Language>
