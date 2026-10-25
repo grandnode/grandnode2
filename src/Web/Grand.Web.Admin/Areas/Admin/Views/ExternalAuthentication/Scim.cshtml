@@ -1,0 +1,67 @@
+@model ScimModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim"];
+}
+
+@* the endpoint comes from appsettings and is shown read-only; the token never reaches the page *@
+<admin-page title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim"]" icon="bi-people"
+            back-url="@Url.Action("Methods", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
+            back-text="@Loc["Admin.Plugins.ExternalAuthenticationMethods"]">
+    <admin-card>
+        <div class="note note-info">
+            @Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Description"]
+        </div>
+        @if (!Model.ModuleEnabled)
+        {
+            <div class="alert alert-warning">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.ModuleOff"]</div>
+        }
+        else if (!Model.SignInConfigured || !Model.TokenUsable)
+        {
+            <div class="alert alert-danger">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Refused"]</div>
+        }
+        <div class="grand-facts">
+            <div class="grand-fact__label">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Endpoint"]</div>
+            <div class="grand-fact__value"><code>@Model.EndpointUrl</code></div>
+            <div class="grand-fact__label">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Token"]</div>
+            <div class="grand-fact__value">
+                @(Model.TokenUsable ? Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Token.Set"] : Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Token.NotSet"])
+            </div>
+            <div class="grand-fact__label">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.ManagedAccounts"]</div>
+            <div class="grand-fact__value">@Model.ManagedAccounts</div>
+        </div>
+    </admin-card>
+
+    @* a group grants nothing until it is mapped here *@
+    <admin-card title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Groups"]" flush>
+        <admin-grid id="scimgroups-grid"
+                    key="Id"
+                    read-url="@Url.Action("ScimGroups", "ExternalAuthentication", new { area = Constants.AreaAdmin })"
+                    pager="Compact">
+            <grid-column field="DisplayName" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.DisplayName"]" width="250">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("ScimGroupEdit", "ExternalAuthentication", new { area = Constants.AreaAdmin })/{{ Id }}">{{ DisplayName }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="MemberCount" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.MemberCount"]" width="100" format="{0:0}"/>
+            <grid-column field="CustomerGroup" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.CustomerGroup"]" width="200"/>
+            <grid-column field="Store" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.StaffStore"]" width="150"/>
+            <grid-column field="Vendor" title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.Vendor"]" width="150"/>
+        </admin-grid>
+    </admin-card>
+
+    @if (Model.Conflicts.Any())
+    {
+        <admin-card title="@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Conflicts"]">
+            <div class="alert alert-warning">@Loc["Admin.Plugins.ExternalAuthenticationMethods.Scim.Conflicts.Info"]</div>
+            <ul class="mb-0">
+                @foreach (var conflict in Model.Conflicts)
+                {
+                    <li>
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { area = Constants.AreaAdmin, id = conflict.CustomerId })">@conflict.Email</a>
+                    </li>
+                }
+            </ul>
+        </admin-card>
+    }
+</admin-page>

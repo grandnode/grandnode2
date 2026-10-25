@@ -1,8 +1,13 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Permissions;
 using Grand.Domain.Customers;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -10,6 +15,8 @@ using Grand.Web.AdminShared.Models.ExternalAuthentication;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Configuration;
 using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
@@ -104,6 +111,126 @@ public class ExternalAuthenticationController : BaseAdminController
 
     private static bool ResourceServerConfigured(OidcResourceServerConfig config) =>
         config.Enabled && !string.IsNullOrWhiteSpace(config.Authority);
+
+    /// <summary>SCIM provisioning: the endpoint comes from appsettings and is shown read-only (never the token)</summary>
+    public async Task<IActionResult> Scim([FromServices] ScimConfig scimConfig, [FromServices] OidcLoginConfig loginConfig,
+        [FromServices] OidcResourceServerConfig resourceServerConfig, [FromServices] IConfiguration configuration,
+        [FromServices] IScimUserService scimUserService, [FromServices] ICustomerService customerService)
+    {
+        var conflictIds = await scimUserService.GetConflicts();
+        var conflicts = conflictIds.Count == 0 ? [] : await customerService.GetCustomersByIds(conflictIds.ToArray());
+        return View(new ScimModel {
+            ModuleEnabled = configuration.GetValue<bool>("FeatureManagement:Grand.Module.Scim"),
+            TokenUsable = scimConfig.TokenUsable,
+            SignInConfigured = loginConfig.IsConfigured(resourceServerConfig),
+            EndpointUrl = $"{Request.Scheme}://{Request.Host}{Request.PathBase}/scim/v2",
+            ManagedAccounts = await scimUserService.Count(),
+            Conflicts = conflicts.Select(x => new ScimConflictModel { CustomerId = x.Id, Email = x.Email }).ToList()
+        });
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> ScimGroups(DataSourceRequest command, [FromServices] IScimGroupService scimGroupService,
+        [FromServices] IStoreService storeService, [FromServices] IVendorService vendorService)
+    {
+        var groups = (await scimGroupService.GetMappableGroups()).ToDictionary(x => x.Id, x => x.Name);
+        var stores = (await storeService.GetAllStores()).ToDictionary(x => x.Id, x => x.Shortcut);
+        var vendors = (await vendorService.GetAllVendors(showHidden: true)).ToDictionary(x => x.Id, x => x.Name);
+        var rows = (await scimGroupService.GetMappings()).Select(x => new ScimGroupRowModel {
+            Id = x.GroupId,
+            DisplayName = x.DisplayName,
+            MemberCount = x.MemberCount,
+            CustomerGroup = groups.GetValueOrDefault(x.CustomerGroupId ?? ""),
+            Store = stores.GetValueOrDefault(x.StaffStoreId ?? ""),
+            Vendor = vendors.GetValueOrDefault(x.VendorId ?? "")
+        }).ToList();
+
+        return Json(new DataSourceResult {
+            Data = rows.Skip((command.Page - 1) * command.PageSize).Take(command.PageSize),
+            Total = rows.Count
+        });
+    }
+
+    public async Task<IActionResult> ScimGroupEdit(string id, [FromServices] IScimGroupService scimGroupService,
+        [FromServices] IStoreService storeService, [FromServices] IVendorService vendorService)
+    {
+        var group = await scimGroupService.Get(id);
+        if (group.Outcome != ScimOutcome.Ok)
+            return RedirectToAction("Scim");
+
+        var mapping = (await scimGroupService.GetMappings()).FirstOrDefault(x => x.GroupId == id);
+        var model = new ScimGroupMappingModel {
+            Id = group.Group.Id,
+            CustomerGroupId = mapping?.CustomerGroupId,
+            StaffStoreId = mapping?.StaffStoreId,
+            VendorId = mapping?.VendorId
+        };
+        await PrepareScimGroupMapping(model, group.Group, scimGroupService, storeService, vendorService);
+        return View(model);
+    }
+
+    [HttpPost]
+    [AutoValidateAntiforgeryToken]
+    public async Task<IActionResult> ScimGroupEdit(ScimGroupMappingModel model,
+        [FromServices] IScimGroupService scimGroupService, [FromServices] IStoreService storeService,
+        [FromServices] IVendorService vendorService, [FromServices] IRequestTranslationService translationService,
+        [FromServices] IGroupService groupService, [FromServices] IContextAccessor contextAccessor)
+    {
+        var group = await scimGroupService.Get(model.Id);
+        if (group.Outcome != ScimOutcome.Ok)
+            return RedirectToAction("Scim");
+
+        //as on the customer screens, only an administrator gives (or takes away) the Administrators role
+        if (!await groupService.IsAdmin(contextAccessor.WorkContext.CurrentCustomer))
+        {
+            var current = (await scimGroupService.GetMappings()).FirstOrDefault(x => x.GroupId == model.Id)?.CustomerGroupId;
+            if (await IsAdministrators(groupService, model.CustomerGroupId) || await IsAdministrators(groupService, current))
+                return await ScimGroupEditError(model, group.Group, "Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.AdministratorsOnly",
+                    scimGroupService, storeService, vendorService, translationService);
+        }
+
+        var outcome = await scimGroupService.SetMapping(model.Id, model.CustomerGroupId, model.StaffStoreId, model.VendorId);
+        if (outcome == ScimOutcome.Ok)
+        {
+            Success(translationService.GetResource("Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Saved"));
+            return RedirectToAction("Scim");
+        }
+
+        if (outcome == ScimOutcome.NotFound)
+            return RedirectToAction("Scim");
+        return await ScimGroupEditError(model, group.Group, "Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Invalid",
+            scimGroupService, storeService, vendorService, translationService);
+    }
+
+    private async Task<IActionResult> ScimGroupEditError(ScimGroupMappingModel model, ScimGroupView group, string resource,
+        IScimGroupService scimGroupService, IStoreService storeService, IVendorService vendorService,
+        IRequestTranslationService translationService)
+    {
+        ModelState.AddModelError("", translationService.GetResource(resource));
+        await PrepareScimGroupMapping(model, group, scimGroupService, storeService, vendorService);
+        return View(model);
+    }
+
+    private static async Task<bool> IsAdministrators(IGroupService groupService, string customerGroupId)
+    {
+        if (string.IsNullOrEmpty(customerGroupId))
+            return false;
+        var customerGroup = await groupService.GetCustomerGroupById(customerGroupId);
+        return customerGroup is { IsSystem: true, SystemName: SystemCustomerGroupNames.Administrators };
+    }
+
+    private static async Task PrepareScimGroupMapping(ScimGroupMappingModel model, ScimGroupView group,
+        IScimGroupService scimGroupService, IStoreService storeService, IVendorService vendorService)
+    {
+        model.DisplayName = group.DisplayName;
+        model.MemberCount = group.MemberIds.Count;
+        model.AvailableCustomerGroups = (await scimGroupService.GetMappableGroups())
+            .Select(x => new SelectListItem(x.Name, x.Id)).ToList();
+        model.AvailableStores = (await storeService.GetAllStores())
+            .Select(x => new SelectListItem(x.Shortcut, x.Id)).ToList();
+        model.AvailableVendors = (await vendorService.GetAllVendors(showHidden: true))
+            .Select(x => new SelectListItem(x.Name, x.Id)).ToList();
+    }
 
     [HttpPost]
     public IActionResult Methods(DataSourceRequest command)
