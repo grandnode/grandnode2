@@ -2,12 +2,11 @@
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
-using Grand.Web.Common.Components;
-using Grand.Web.Events.Cache;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Web.Models.Cms;
 using Microsoft.AspNetCore.Mvc;
 
-namespace Grand.Web.Components;
+namespace Grand.Web.Common.Components;
 
 public class WidgetViewComponent : BaseViewComponent
 {
@@ -24,7 +23,7 @@ public class WidgetViewComponent : BaseViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
     {
-        var cacheKey = string.Format(CacheKeyConst.WIDGET_MODEL_KEY, _contextAccessor.StoreContext.CurrentStore.Id,
+        var cacheKey = string.Format(CacheKey.WIDGET_MODEL_KEY, _contextAccessor.StoreContext.CurrentStore.Id,
             string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
             widgetZone);
 
