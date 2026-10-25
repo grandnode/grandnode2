@@ -575,7 +575,7 @@ public class CheckoutController : BasePublicController
                     SystemCustomerFieldNames.SelectedPaymentMethod, null, _contextAccessor.StoreContext.CurrentStore.Id);
 
                 var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
-                    Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage,
+                    Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
                     Store = _contextAccessor.StoreContext.CurrentStore
                 });
                 return Json(new {
@@ -642,7 +642,7 @@ public class CheckoutController : BasePublicController
                         _contextAccessor.StoreContext.CurrentStore.Id);
 
                 var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
-                    Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage,
+                    Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
                     Store = _contextAccessor.StoreContext.CurrentStore
                 });
                 return Json(new {
@@ -755,7 +755,7 @@ public class CheckoutController : BasePublicController
 
             //error
             var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
-                Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage,
+                Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
                 Store = _contextAccessor.StoreContext.CurrentStore
             });
             foreach (var error in placeOrderResult.Errors)
@@ -985,7 +985,7 @@ public class CheckoutController : BasePublicController
             SystemCustomerFieldNames.SelectedPaymentMethod, null, _contextAccessor.StoreContext.CurrentStore.Id);
 
         var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
-            Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
             Store = _contextAccessor.StoreContext.CurrentStore
         });
         return Json(new {
@@ -1006,7 +1006,7 @@ public class CheckoutController : BasePublicController
              && _paymentSettings.SkipPaymentInfo))
         {
             var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
-                Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage,
+                Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
                 Store = _contextAccessor.StoreContext.CurrentStore
             });
             return Json(new {

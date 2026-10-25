@@ -1,0 +1,139 @@
+@model OrderApprovalModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Account.OrderApprovals"]);
+
+    // a double click must not post a decision twice: the second submit is ignored and the buttons are
+    // disabled once the form is on its way (the clicked button's value is already in the form data by then)
+    const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
+}
+
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.OrderApprovals })
+}
+
+<div class="page account-page order-approval-page ps-lg-3 pt-lg-0 pt-3">
+    <a class="btn btn-secondary btn-sm float-sm-end mt-2" href="@Url.RouteUrl("CustomerOrderApprovals")">@Loc["Common.Back"]</a>
+    <h1 class="h2 generalTitle">@Loc["OrderApproval.Details"]</h1>
+
+    <div class="card mb-3 order-approval-info">
+        <div class="card-body">
+            <dl class="row mb-0">
+                <dt class="col-sm-3">@Loc["OrderApproval.Date"]</dt>
+                <dd class="col-sm-9">@Model.CreatedOn.ToString("g")</dd>
+                <dt class="col-sm-3">@Loc["OrderApproval.Status"]</dt>
+                <dd class="col-sm-9">
+                    <span class="badge status order-approval-status-@Model.StatusId @(Model.CanDecide ? "text-bg-warning" : "text-bg-secondary")">@Model.Status</span>
+                </dd>
+                @if (!string.IsNullOrEmpty(Model.Buyer))
+                {
+                    <dt class="col-sm-3">@Loc["OrderApproval.Buyer"]</dt>
+                    <dd class="col-sm-9" v-pre>@Model.Buyer</dd>
+                }
+                @if (Model.DecidedOn.HasValue)
+                {
+                    <dt class="col-sm-3">@Loc["OrderApproval.DecidedOn"]</dt>
+                    <dd class="col-sm-9">@Model.DecidedOn.Value.ToString("g")</dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.DecidedBy))
+                {
+                    <dt class="col-sm-3">@Loc["OrderApproval.DecidedBy"]</dt>
+                    <dd class="col-sm-9" v-pre>@Model.DecidedBy</dd>
+                }
+                @if (!string.IsNullOrEmpty(Model.DecisionComment))
+                {
+                    <dt class="col-sm-3">@Loc["OrderApproval.Comment"]</dt>
+                    <dd class="col-sm-9 order-approval-comment" v-pre>@Model.DecisionComment</dd>
+                }
+            </dl>
+        </div>
+    </div>
+
+    <div class="table-responsive">
+        <table class="table order-approval-items">
+            <thead>
+            <tr>
+                <th scope="col">@Loc["OrderApproval.Product"]</th>
+                <th scope="col">@Loc["OrderApproval.Sku"]</th>
+                <th scope="col">@Loc["OrderApproval.UnitPrice"]</th>
+                <th scope="col">@Loc["OrderApproval.Quantity"]</th>
+                <th scope="col">@Loc["OrderApproval.LineTotal"]</th>
+            </tr>
+            </thead>
+            <tbody v-pre>
+            @foreach (var item in Model.Items)
+            {
+                <tr>
+                    <td>
+                        <span class="product-name">@item.ProductName</span>
+                        @if (!string.IsNullOrEmpty(item.AttributeDescription))
+                        {
+                            <div class="small text-muted attributes">@item.AttributeDescription</div>
+                        }
+                    </td>
+                    <td>@item.Sku</td>
+                    <td>@item.UnitPrice</td>
+                    <td>@item.Quantity</td>
+                    <td>@item.LineTotal</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="row justify-content-end">
+        <div class="col-md-6 col-lg-5">
+            <table class="table table-sm order-approval-summary" v-pre>
+                <tbody>
+                @if (!string.IsNullOrEmpty(Model.Summary.SubTotal))
+                {
+                    <tr><th scope="row">@Loc["OrderApproval.SubTotal"]</th><td class="text-end">@Model.Summary.SubTotal</td></tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.Summary.Discount))
+                {
+                    <tr><th scope="row">@Loc["OrderApproval.Discount"]</th><td class="text-end">@Model.Summary.Discount</td></tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.Summary.Shipping))
+                {
+                    <tr>
+                        <th scope="row">@Loc["OrderApproval.Shipping"]@if (!string.IsNullOrEmpty(Model.Summary.ShippingMethod)) { <span class="small text-muted"> (@Model.Summary.ShippingMethod)</span> }</th>
+                        <td class="text-end">@Model.Summary.Shipping</td>
+                    </tr>
+                }
+                @if (!string.IsNullOrEmpty(Model.Summary.Tax))
+                {
+                    <tr><th scope="row">@Loc["OrderApproval.Tax"]</th><td class="text-end">@Model.Summary.Tax</td></tr>
+                }
+                <tr class="fw-bold"><th scope="row">@Loc["OrderApproval.Total"]</th><td class="text-end">@Model.Summary.Total</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    @if (Model.CanDecide)
+    {
+        <form asp-route="OrderApprovalDecide" method="post" class="card mb-3 order-approval-decide" onsubmit="@submitOnce">
+            <div class="card-body">
+                <input type="hidden" name="id" value="@Model.Id"/>
+                <div class="mb-3">
+                    <label class="form-label" for="comment">@Loc["OrderApproval.Comment"]</label>
+                    <textarea class="form-control" id="comment" name="comment" rows="3" maxlength="1000"></textarea>
+                </div>
+                <button type="submit" name="approve" value="true" class="btn btn-success me-2">@Loc["OrderApproval.Approve"]</button>
+                <button type="submit" name="approve" value="false" class="btn btn-danger">@Loc["OrderApproval.Reject"]</button>
+            </div>
+        </form>
+    }
+
+    @if (Model.CanWithdraw)
+    {
+        <form asp-route="OrderApprovalWithdraw" method="post" class="order-approval-withdraw" onsubmit="@submitOnce">
+            <input type="hidden" name="id" value="@Model.Id"/>
+            <button type="submit" class="btn btn-secondary">@Loc["OrderApproval.Withdraw"]</button>
+        </form>
+    }
+</div>
