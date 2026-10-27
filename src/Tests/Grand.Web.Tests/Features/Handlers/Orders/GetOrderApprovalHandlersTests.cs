@@ -17,6 +17,7 @@ public class GetOrderApprovalHandlersTests
 {
     private Mock<IOrderApprovalService> _approvals;
     private Mock<ICustomerService> _customers;
+    private Mock<IOrderService> _orders;
     private GetOrderApprovalHandler _detailsHandler;
     private GetOrderApprovalsHandler _listHandler;
     private Grand.Domain.Stores.Store _store;
@@ -27,15 +28,19 @@ public class GetOrderApprovalHandlersTests
         _store = new Grand.Domain.Stores.Store { Id = "s1" };
         _approvals = new Mock<IOrderApprovalService>();
         _customers = new Mock<ICustomerService>();
+        _orders = new Mock<IOrderService>();
+        var placed = new Order { Id = "o1", OrderNumber = 1007, CustomerId = "buyer", OwnerId = "owner" };
+        _orders.Setup(o => o.GetOrderById("o1")).ReturnsAsync(placed);
+        _orders.Setup(o => o.GetOrdersByIds(It.IsAny<string[]>())).ReturnsAsync([placed]);
         var dates = new Mock<IDateTimeService>();
         dates.Setup(d => d.ConvertToUserTime(It.IsAny<DateTime>(), DateTimeKind.Utc))
             .Returns((DateTime d, DateTimeKind _) => d);
         var enums = new Mock<IEnumTranslationService>();
         enums.Setup(e => e.GetTranslationEnum(It.IsAny<OrderApprovalStatus>()))
             .Returns((OrderApprovalStatus s) => s.ToString());
-        _detailsHandler = new GetOrderApprovalHandler(_approvals.Object, _customers.Object, dates.Object,
+        _detailsHandler = new GetOrderApprovalHandler(_approvals.Object, _customers.Object, _orders.Object, dates.Object,
             enums.Object);
-        _listHandler = new GetOrderApprovalsHandler(_approvals.Object, _customers.Object, dates.Object,
+        _listHandler = new GetOrderApprovalsHandler(_approvals.Object, _customers.Object, _orders.Object, dates.Object,
             enums.Object);
     }
 
@@ -43,7 +48,7 @@ public class GetOrderApprovalHandlersTests
         OrderApprovalStatus status = OrderApprovalStatus.Pending)
     {
         return new OrderApproval {
-            Id = id, CustomerId = buyer, CompanyOwnerId = "owner", StoreId = "s1", Status = status,
+            Id = id, CustomerId = buyer, CompanyOwnerId = "owner", StoreId = "s1", Status = status, OrderId = "o1",
             Items = [new OrderApprovalItem { ProductName = "Desk {{ 1 + 1 }}", Quantity = 2 }],
             Summary = new OrderApprovalSummary { Total = "300 EUR" }
         };
@@ -94,6 +99,46 @@ public class GetOrderApprovalHandlersTests
         Assert.AreEqual(1, model.Items.Count);
         Assert.AreEqual("300 EUR", model.Summary.Total);
         Assert.AreEqual("Pending", model.Status);
+    }
+
+    [TestMethod]
+    public async Task Details_ShowsTheOrderNumber_AndTheBuyerMayOpenTheOrder()
+    {
+        Found(Approval());
+
+        var model = await Details(new Customer { Id = "buyer", OwnerId = "owner" });
+
+        Assert.AreEqual("o1", model.OrderId);
+        Assert.AreEqual(1007, model.OrderNumber);
+        Assert.IsTrue(model.CanViewOrder);
+    }
+
+    [TestMethod]
+    public async Task Details_ApproverSubAccount_SeesTheNumberButCannotOpenTheOrder()
+    {
+        Found(Approval());
+        _customers.Setup(c => c.GetCustomerById("buyer")).ReturnsAsync(new Customer { Id = "buyer" });
+
+        var model = await Details(new Customer { Id = "appr", OwnerId = "owner", SubAccountRole = SubAccountRole.Approver });
+
+        Assert.AreEqual(1007, model.OrderNumber);
+        Assert.IsFalse(model.CanViewOrder);
+    }
+
+    [TestMethod]
+    public async Task List_RowsCarryTheOrderNumber()
+    {
+        _approvals.Setup(a => a.GetForCompany("owner", "s1", 0, 10)).ReturnsAsync(Page(Approval()));
+        _customers.Setup(c => c.GetCustomersByIds(It.IsAny<string[]>()))
+            .ReturnsAsync([new Customer { Id = "buyer", Email = "b@x.test" }]);
+
+        var model = await _listHandler.Handle(new GetOrderApprovals {
+            Customer = new Customer { Id = "owner" }, Store = _store
+        }, CancellationToken.None);
+
+        Assert.AreEqual(1007, model.Approvals[0].OrderNumber);
+        Assert.AreEqual("o1", model.Approvals[0].OrderId);
+        Assert.IsTrue(model.Approvals[0].CanViewOrder);
     }
 
     [TestMethod]

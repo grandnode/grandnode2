@@ -9,6 +9,18 @@ public class OrderApprovalModel : BaseEntityModel
     public string Status { get; set; }
     public string Buyer { get; set; }
 
+    /// <summary>
+    ///     The placed order awaiting the decision
+    /// </summary>
+    public string OrderId { get; set; }
+
+    public int OrderNumber { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the viewer may open the order's details page
+    /// </summary>
+    public bool CanViewOrder { get; set; }
+
     public DateTime? DecidedOn { get; set; }
     public string DecidedBy { get; set; }
     public string DecisionComment { get; set; }

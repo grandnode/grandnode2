@@ -16,12 +16,14 @@ public class GetOrderApprovalHandler : IRequestHandler<GetOrderApproval, OrderAp
     private readonly IDateTimeService _dateTimeService;
     private readonly IEnumTranslationService _enumTranslationService;
     private readonly IOrderApprovalService _orderApprovalService;
+    private readonly IOrderService _orderService;
 
     public GetOrderApprovalHandler(IOrderApprovalService orderApprovalService, ICustomerService customerService,
-        IDateTimeService dateTimeService, IEnumTranslationService enumTranslationService)
+        IOrderService orderService, IDateTimeService dateTimeService, IEnumTranslationService enumTranslationService)
     {
         _orderApprovalService = orderApprovalService;
         _customerService = customerService;
+        _orderService = orderService;
         _dateTimeService = dateTimeService;
         _enumTranslationService = enumTranslationService;
     }
@@ -60,6 +62,14 @@ public class GetOrderApprovalHandler : IRequestHandler<GetOrderApproval, OrderAp
             if (!string.IsNullOrEmpty(approval.DecidedByCustomerId))
                 model.DecidedBy = OrderApprovalBuyerName.For(
                     await _customerService.GetCustomerById(approval.DecidedByCustomerId));
+        }
+
+        var order = string.IsNullOrEmpty(approval.OrderId) ? null : await _orderService.GetOrderById(approval.OrderId);
+        if (order != null)
+        {
+            model.OrderId = order.Id;
+            model.OrderNumber = order.OrderNumber;
+            model.CanViewOrder = OrderApprovalRules.CanOpenOrder(request.Customer, order);
         }
 
         var buyer = isBuyer ? request.Customer : await _customerService.GetCustomerById(approval.CustomerId);

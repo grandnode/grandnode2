@@ -21,6 +21,7 @@
                 <thead>
                 <tr>
                     <th scope="col">@Loc["OrderApproval.Date"]</th>
+                    <th scope="col">@Loc["OrderApproval.Order"]</th>
                     @if (Model.IsCompanyList)
                     {
                         <th scope="col">@Loc["OrderApproval.Buyer"]</th>
@@ -36,6 +37,19 @@
                 {
                     <tr class="order-approval-row">
                         <td>@approval.CreatedOn.ToString("g")</td>
+                        <td>
+                            @if (approval.OrderNumber > 0)
+                            {
+                                if (approval.CanViewOrder)
+                                {
+                                    <a class="order-approval-order-link" href="@Url.RouteUrl("OrderDetails", new { orderId = approval.OrderId })">@approval.OrderNumber</a>
+                                }
+                                else
+                                {
+                                    <span>@approval.OrderNumber</span>
+                                }
+                            }
+                        </td>
                         @if (Model.IsCompanyList)
                         {
                             <td v-pre>@approval.Buyer</td>

@@ -20,12 +20,14 @@ public class GetOrderApprovalsHandler : IRequestHandler<GetOrderApprovals, Order
     private readonly IDateTimeService _dateTimeService;
     private readonly IEnumTranslationService _enumTranslationService;
     private readonly IOrderApprovalService _orderApprovalService;
+    private readonly IOrderService _orderService;
 
     public GetOrderApprovalsHandler(IOrderApprovalService orderApprovalService, ICustomerService customerService,
-        IDateTimeService dateTimeService, IEnumTranslationService enumTranslationService)
+        IOrderService orderService, IDateTimeService dateTimeService, IEnumTranslationService enumTranslationService)
     {
         _orderApprovalService = orderApprovalService;
         _customerService = customerService;
+        _orderService = orderService;
         _dateTimeService = dateTimeService;
         _enumTranslationService = enumTranslationService;
     }
@@ -54,7 +56,16 @@ public class GetOrderApprovalsHandler : IRequestHandler<GetOrderApprovals, Order
                          approvals.Select(x => x.CustomerId).Distinct().ToArray()))
                 buyers[buyer.Id] = buyer;
 
+        var orders = new Dictionary<string, Order>();
+        var orderIds = approvals.Where(x => !string.IsNullOrEmpty(x.OrderId)).Select(x => x.OrderId).Distinct()
+            .ToArray();
+        if (orderIds.Length > 0)
+            foreach (var order in await _orderService.GetOrdersByIds(orderIds))
+                orders[order.Id] = order;
+
         foreach (var approval in approvals)
+        {
+            var order = approval.OrderId != null ? orders.GetValueOrDefault(approval.OrderId) : null;
             model.Approvals.Add(new OrderApprovalListModel.OrderApprovalRowModel {
                 Id = approval.Id,
                 CreatedOn = _dateTimeService.ConvertToUserTime(approval.CreatedOnUtc, DateTimeKind.Utc),
@@ -64,9 +75,13 @@ public class GetOrderApprovalsHandler : IRequestHandler<GetOrderApprovals, Order
                 Buyer = isCompanyList
                     ? OrderApprovalBuyerName.For(buyers.GetValueOrDefault(approval.CustomerId))
                     : null,
+                OrderId = order?.Id,
+                OrderNumber = order?.OrderNumber ?? 0,
+                CanViewOrder = order != null && OrderApprovalRules.CanOpenOrder(request.Customer, order),
                 ItemCount = approval.Items.Count,
                 Total = approval.Summary?.Total
             });
+        }
 
         return model;
     }

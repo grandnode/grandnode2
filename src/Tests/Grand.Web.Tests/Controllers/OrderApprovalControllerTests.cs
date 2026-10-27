@@ -89,7 +89,7 @@ public class OrderApprovalControllerTests
 
         AssertRedirectTo(await _controller.Details("a1"), "CustomerInfo");
         AssertRedirectTo(await _controller.Decide("a1", true, null), "CustomerInfo");
-        AssertRedirectTo(await _controller.Withdraw("a1", false), "CustomerInfo");
+        AssertRedirectTo(await _controller.Withdraw("a1"), "CustomerInfo");
 
         _mediator.Verify(m => m.Send(It.IsAny<DecideOrderApprovalCommand>(), It.IsAny<CancellationToken>()),
             Times.Never);
@@ -195,16 +195,16 @@ public class OrderApprovalControllerTests
     //withdraw
 
     [TestMethod]
-    public async Task Withdraw_FromTheConfirmStep_ReturnsToCart()
+    public async Task Withdraw_SendsTheCurrentCustomersCommand()
     {
         WithdrawOrderApprovalCommand sent = null;
         _mediator.Setup(m => m.Send(It.IsAny<WithdrawOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
             .Callback<IRequest<bool>, CancellationToken>((c, _) => sent = (WithdrawOrderApprovalCommand)c)
             .ReturnsAsync(true);
 
-        var result = await _controller.Withdraw("a1", true);
+        var result = await _controller.Withdraw("a1");
 
-        AssertRedirectTo(result, "ShoppingCart");
+        AssertRedirectTo(result, "CustomerOrderApprovals");
         Assert.AreEqual(1, Notifications("Success").Count);
         Assert.AreSame(_customer, sent.Customer);
         Assert.AreSame(_store, sent.Store);
@@ -212,12 +212,23 @@ public class OrderApprovalControllerTests
     }
 
     [TestMethod]
-    public async Task Withdraw_FromTheList_ReturnsToTheList()
+    public async Task Decide_WithoutApproveValue_IsRefusedAndNothingIsSent()
+    {
+        var result = await _controller.Decide("a1", null, "ok");
+
+        AssertRedirectTo(result, "CustomerOrderApprovals");
+        CollectionAssert.AreEqual(new[] { "OrderApproval.Decide.Refused" }, Notifications("Error").ToArray());
+        _mediator.Verify(m => m.Send(It.IsAny<DecideOrderApprovalCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_ReturnsToTheList()
     {
         _mediator.Setup(m => m.Send(It.IsAny<WithdrawOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(true);
 
-        AssertRedirectTo(await _controller.Withdraw("a1", false), "CustomerOrderApprovals");
+        AssertRedirectTo(await _controller.Withdraw("a1"), "CustomerOrderApprovals");
     }
 
     [TestMethod]
@@ -226,9 +237,9 @@ public class OrderApprovalControllerTests
         _mediator.Setup(m => m.Send(It.IsAny<WithdrawOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(false);
 
-        var result = await _controller.Withdraw("a1", true);
+        var result = await _controller.Withdraw("a1");
 
-        AssertRedirectTo(result, "ShoppingCart");
+        AssertRedirectTo(result, "CustomerOrderApprovals");
         CollectionAssert.AreEqual(new[] { "OrderApproval.Withdraw.Refused" }, Notifications("Error").ToArray());
     }
 }

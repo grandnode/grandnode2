@@ -80,23 +80,30 @@ public class OrderApprovalController : BasePublicController
 
     [HttpPost]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> Decide(string id, bool approve, string comment)
+    public virtual async Task<IActionResult> Decide(string id, bool? approve, string comment)
     {
         if (FeatureOff)
             return RedirectToRoute("CustomerInfo");
+
+        // the decision must be explicit: a missing value is never read as a rejection or an approval
+        if (approve == null)
+        {
+            Error(_translationService.GetResource("OrderApproval.Decide.Refused"));
+            return RedirectToRoute("CustomerOrderApprovals");
+        }
 
         var decided = await _mediator.Send(new DecideOrderApprovalCommand {
             Approver = _contextAccessor.WorkContext.CurrentCustomer,
             Store = _contextAccessor.StoreContext.CurrentStore,
             ApprovalId = id,
-            Approve = approve,
+            Approve = approve.Value,
             Comment = comment,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Host = _contextAccessor.StoreContext.CurrentHost
         });
 
         if (decided)
-            Success(_translationService.GetResource(approve
+            Success(_translationService.GetResource(approve.Value
                 ? "OrderApproval.Decide.Approved"
                 : "OrderApproval.Decide.Rejected"));
         else
@@ -106,10 +113,9 @@ public class OrderApprovalController : BasePublicController
     }
 
     /// <param name="id">Approval identifier</param>
-    /// <param name="toCart">The request was withdrawn from the confirm step, so the buyer returns to the cart</param>
     [HttpPost]
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> Withdraw(string id, bool toCart)
+    public virtual async Task<IActionResult> Withdraw(string id)
     {
         if (FeatureOff)
             return RedirectToRoute("CustomerInfo");
@@ -125,6 +131,6 @@ public class OrderApprovalController : BasePublicController
         else
             Error(_translationService.GetResource("OrderApproval.Withdraw.Refused"));
 
-        return RedirectToRoute(toCart ? "ShoppingCart" : "CustomerOrderApprovals");
+        return RedirectToRoute("CustomerOrderApprovals");
     }
 }

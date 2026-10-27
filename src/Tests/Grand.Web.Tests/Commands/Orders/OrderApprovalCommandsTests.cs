@@ -1,3 +1,5 @@
+using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -13,6 +15,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Mediator;
@@ -21,6 +24,7 @@ using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using StoreEntity = Grand.Domain.Stores.Store;
@@ -36,6 +40,9 @@ public class OrderApprovalCommandsTests
     private Mock<IOrderApprovalService> _approvals;
     private Mock<ICustomerMessageProviderService> _messages;
     private Mock<ICustomerService> _customers;
+    private Mock<IOrderService> _orders;
+    private Mock<IMediator> _mediator;
+    private Order _order;
 
     private static IRequestTranslationService Translation()
     {
@@ -69,14 +76,24 @@ public class OrderApprovalCommandsTests
         _approvals = new Mock<IOrderApprovalService>();
         _messages = new Mock<ICustomerMessageProviderService>();
         _customers = new Mock<ICustomerService>();
+        _mediator = new Mock<IMediator>();
+        _order = new Order {
+            Id = "o1", CustomerId = "buyer", OwnerId = OwnerId, StoreId = StoreId,
+            OrderStatusId = (int)OrderStatusSystem.AwaitingApproval
+        };
+        _orders = new Mock<IOrderService>();
+        _orders.Setup(o => o.GetOrderById("o1")).ReturnsAsync(() => _order);
     }
+
+    
 
     #region Decide
 
     private DecideOrderApprovalCommandHandler Decider()
     {
         _customers.Setup(c => c.GetCustomerById("buyer")).ReturnsAsync(Buyer());
-        return new DecideOrderApprovalCommandHandler(_approvals.Object, _customers.Object, _messages.Object);
+        return new DecideOrderApprovalCommandHandler(_approvals.Object, _customers.Object, _messages.Object,
+            _orders.Object, _mediator.Object, new Mock<ILogger<DecideOrderApprovalCommandHandler>>().Object);
     }
 
     private static DecideOrderApprovalCommand DecideCommand(Customer approver, bool approve = true,
@@ -215,7 +232,7 @@ public class OrderApprovalCommandsTests
 
     #region Withdraw
 
-    private WithdrawOrderApprovalCommandHandler Withdrawer() => new(_approvals.Object);
+    private WithdrawOrderApprovalCommandHandler Withdrawer() => new(_approvals.Object, _orders.Object, _mediator.Object);
 
     [TestMethod]
     public async Task Withdraw_Own_Withdrawn()
@@ -269,6 +286,226 @@ public class OrderApprovalCommandsTests
             new WithdrawOrderApprovalCommand { Customer = Buyer(), Store = Shop(), ApprovalId = "nope" }, default);
 
         Assert.IsFalse(result);
+    }
+
+    #endregion
+
+    #region Orders awaiting approval
+
+    private List<object> Sent()
+    {
+        var sent = new List<object>();
+        _mediator.Setup(m => m.Send(It.IsAny<IRequest<bool>>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<bool>, CancellationToken>((c, _) => sent.Add(c)).ReturnsAsync(true);
+        _mediator.Setup(m => m.Send(It.IsAny<OrderNotificationCommand>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest, CancellationToken>((c, _) => sent.Add(c)).Returns(Task.CompletedTask);
+        return sent;
+    }
+
+    [TestMethod]
+    public async Task Approve_MovesOrderToPending_AndNotifiesStoreOwnerOnly()
+    {
+        var sent = Sent();
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
+
+        Assert.IsTrue(result);
+        var status = sent.OfType<SetOrderStatusCommand>().Single();
+        Assert.AreEqual(OrderStatusSystem.Pending, status.Os);
+        Assert.IsFalse(status.NotifyCustomer);
+        Assert.IsFalse(status.NotifyStoreOwner);
+        Assert.AreSame(_order, status.Order);
+        Assert.AreEqual(1, sent.OfType<CheckOrderStatusCommand>().Count());
+        var note = sent.OfType<OrderNotificationCommand>().Single();
+        Assert.IsFalse(note.NotifyCustomer);
+        Assert.IsTrue(note.NotifyStoreOwnerAndVendors);
+        Assert.AreEqual("buyer", note.Customer.Id);
+        Assert.AreEqual(0, sent.OfType<ProcessOrderPaidCommand>().Count());
+        Assert.AreEqual(0, sent.OfType<CancelOrderCommand>().Count());
+        // statuses first, then the e-mails
+        Assert.IsTrue(sent.IndexOf(status) < sent.IndexOf(note));
+    }
+
+    [TestMethod]
+    public async Task Approve_PaidOrder_ProcessesItAsPaid()
+    {
+        var sent = Sent();
+        _order.PaymentStatusId = PaymentStatus.Paid;
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
+
+        await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
+
+        Assert.AreEqual(1, sent.OfType<ProcessOrderPaidCommand>().Count());
+    }
+
+    [TestMethod]
+    public async Task Approve_OrderNoLongerAwaiting_Refused()
+    {
+        var sent = Sent();
+        _order.OrderStatusId = (int)OrderStatusSystem.Cancelled;
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        Assert.AreEqual(0, sent.Count);
+        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Approve_OrderMissing_Refused()
+    {
+        _order = null;
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
+
+        Assert.IsFalse(result);
+        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Approve_NotificationFails_DecisionStands()
+    {
+        Sent();
+        _mediator.Setup(m => m.Send(It.IsAny<OrderNotificationCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("smtp"));
+        _messages.Setup(m => m.SendOrderApprovalDecidedMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
+            It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>())).ThrowsAsync(new Exception("smtp"));
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
+
+        Assert.IsTrue(result);
+        Assert.AreEqual(OrderApprovalStatus.Approved, approval.Status);
+    }
+
+    [TestMethod]
+    public async Task Reject_CancelsOrderWithoutNotifyingAndTellsTheBuyer()
+    {
+        var sent = Sent();
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false), default);
+
+        Assert.IsTrue(result);
+        Assert.AreEqual(OrderApprovalStatus.Rejected, approval.Status);
+        var cancel = sent.OfType<CancelOrderCommand>().Single();
+        Assert.IsFalse(cancel.NotifyCustomer);
+        Assert.IsFalse(cancel.NotifyStoreOwner);
+        Assert.AreSame(_order, cancel.Order);
+        Assert.AreEqual(0, sent.OfType<SetOrderStatusCommand>().Count());
+        Assert.AreEqual(0, sent.OfType<OrderNotificationCommand>().Count());
+        _messages.Verify(m => m.SendOrderApprovalDecidedMessage(approval, It.IsAny<Customer>(),
+            It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Reject_OrderNoLongerAwaiting_Refused()
+    {
+        var sent = Sent();
+        _order.OrderStatusId = (int)OrderStatusSystem.Pending;
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false), default);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        Assert.AreEqual(0, sent.Count);
+    }
+
+    [TestMethod]
+    public async Task Decide_ApproverOfAnotherCompany_CannotTouchTheOrder()
+    {
+        var sent = Sent();
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+        var foreign = new Customer { Id = "ownerB", Active = true };
+
+        Assert.IsFalse(await Decider().Handle(DecideCommand(foreign), default));
+
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        Assert.AreEqual(0, sent.Count);
+    }
+
+    [TestMethod]
+    public async Task Decide_BuyerApprovingOwnOrder_Refused()
+    {
+        var sent = Sent();
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        Assert.IsFalse(await Decider().Handle(DecideCommand(Buyer()), default));
+
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        Assert.AreEqual(0, sent.Count);
+    }
+
+    [TestMethod]
+    public async Task TwoOrdersOfOneBuyer_AreDecidedIndependently()
+    {
+        var sent = Sent();
+        var order2 = new Order {
+            Id = "o2", CustomerId = "buyer", OwnerId = OwnerId, StoreId = StoreId,
+            OrderStatusId = (int)OrderStatusSystem.AwaitingApproval
+        };
+        _orders.Setup(o => o.GetOrderById("o2")).ReturnsAsync(order2);
+        var first = Approval(id: "a1");
+        var second = Approval(id: "a2");
+        second.OrderId = "o2";
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(first);
+        _approvals.Setup(a => a.GetById("a2", OwnerId)).ReturnsAsync(second);
+        var owner = new Customer { Id = OwnerId, Active = true };
+
+        Assert.IsTrue(await Decider().Handle(DecideCommand(owner, true, id: "a1"), default));
+
+        Assert.AreEqual(OrderApprovalStatus.Approved, first.Status);
+        Assert.AreEqual(OrderApprovalStatus.Pending, second.Status);
+        Assert.AreEqual((int)OrderStatusSystem.AwaitingApproval, order2.OrderStatusId);
+        Assert.IsTrue(sent.OfType<SetOrderStatusCommand>().All(c => c.Order.Id == "o1"));
+
+        Assert.IsTrue(await Decider().Handle(DecideCommand(owner, false, id: "a2"), default));
+        Assert.AreEqual(OrderApprovalStatus.Rejected, second.Status);
+        Assert.AreEqual("o2", sent.OfType<CancelOrderCommand>().Single().Order.Id);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_CancelsTheOrderWithoutNotifying()
+    {
+        var sent = Sent();
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Withdrawer().Handle(
+            new WithdrawOrderApprovalCommand { Customer = Buyer(), Store = Shop(), ApprovalId = "a1" }, default);
+
+        Assert.IsTrue(result);
+        var cancel = sent.OfType<CancelOrderCommand>().Single();
+        Assert.IsFalse(cancel.NotifyCustomer);
+        Assert.AreSame(_order, cancel.Order);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_OrderNoLongerAwaiting_Refused()
+    {
+        var sent = Sent();
+        _order.OrderStatusId = (int)OrderStatusSystem.Pending;
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Withdrawer().Handle(
+            new WithdrawOrderApprovalCommand { Customer = Buyer(), Store = Shop(), ApprovalId = "a1" }, default);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        Assert.AreEqual(0, sent.Count);
     }
 
     #endregion

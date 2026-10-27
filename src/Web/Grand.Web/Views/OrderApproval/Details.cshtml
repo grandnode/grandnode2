@@ -25,6 +25,20 @@
             <dl class="row mb-0">
                 <dt class="col-sm-3">@Loc["OrderApproval.Date"]</dt>
                 <dd class="col-sm-9">@Model.CreatedOn.ToString("g")</dd>
+                @if (Model.OrderNumber > 0)
+                {
+                    <dt class="col-sm-3">@Loc["OrderApproval.Order"]</dt>
+                    <dd class="col-sm-9 order-approval-order">
+                        @if (Model.CanViewOrder)
+                        {
+                            <a href="@Url.RouteUrl("OrderDetails", new { orderId = Model.OrderId })">@Model.OrderNumber</a>
+                        }
+                        else
+                        {
+                            @Model.OrderNumber
+                        }
+                    </dd>
+                }
                 <dt class="col-sm-3">@Loc["OrderApproval.Status"]</dt>
                 <dd class="col-sm-9">
                     <span class="badge status order-approval-status-@Model.StatusId @(Model.CanDecide ? "text-bg-warning" : "text-bg-secondary")">@Model.Status</span>

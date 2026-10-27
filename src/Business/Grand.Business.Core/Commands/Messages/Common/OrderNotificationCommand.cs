@@ -27,7 +27,13 @@ public class OrderNotificationCommand : IRequest
     /// <summary>
     ///     Gets or sets a value indicating whether the store owner and the vendors are told about the order;
     ///     false for an order that waits for an approval, they hear about it once it is approved.
-    ///     The customer's message is sent either way
+    ///     The customer's message is sent unless <see cref="NotifyCustomer" /> is off
     /// </summary>
     public bool NotifyStoreOwnerAndVendors { get; set; } = true;
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the customer gets the "order placed" message; off when the customer
+    ///     already got it at placement and only the store owner and the vendors are told later (approved order)
+    /// </summary>
+    public bool NotifyCustomer { get; set; } = true;
 }

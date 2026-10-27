@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Plugins;
@@ -14,6 +15,7 @@ using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Controllers;
@@ -230,6 +232,20 @@ public class PaymentController : BaseAdminController
         var paymentSettings = await _settingService.LoadSetting<PaymentSettings>(storeScope);
         var model = paymentSettings.ToModel();
 
+        // the order approval methods are one global list, whatever store is chosen above
+        var approvalSettings = await _settingService.LoadSetting<OrderApprovalSettings>();
+        model.OrderApprovalPaymentMethodSystemNames = approvalSettings.PaymentMethodSystemNames.ToList();
+        foreach (var method in await _paymentService.LoadAllPaymentMethods())
+            if (method.IsPaymentMethodActive(paymentSettings))
+                model.AvailableOrderApprovalPaymentMethods.Add(new SelectListItem {
+                    Text = $"{method.FriendlyName} ({method.SystemName})", Value = method.SystemName
+                });
+
+        // a chosen method that is no longer active stays visible, so saving does not drop it unseen
+        foreach (var name in model.OrderApprovalPaymentMethodSystemNames)
+            if (model.AvailableOrderApprovalPaymentMethods.All(x => x.Value != name))
+                model.AvailableOrderApprovalPaymentMethods.Add(new SelectListItem { Text = name, Value = name });
+
         return View(model);
     }
 
@@ -242,6 +258,11 @@ public class PaymentController : BaseAdminController
         paymentSettings = model.ToEntity(paymentSettings);
 
         await _settingService.SaveSetting(paymentSettings, storeScope);
+
+        var approvalSettings = await _settingService.LoadSetting<OrderApprovalSettings>();
+        approvalSettings.PaymentMethodSystemNames = (model.OrderApprovalPaymentMethodSystemNames ?? [])
+            .Where(x => !string.IsNullOrWhiteSpace(x)).Distinct().ToList();
+        await _settingService.SaveSetting(approvalSettings);
 
         Success(_translationService.GetResource("Admin.Configuration.Updated"));
         return RedirectToAction("Settings");

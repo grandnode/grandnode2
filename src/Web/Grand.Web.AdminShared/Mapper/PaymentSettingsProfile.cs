@@ -10,7 +10,9 @@ public class PaymentSettingsProfile : Profile, IAutoMapperProfile
     public PaymentSettingsProfile()
     {
         CreateMap<PaymentSettings, PaymentSettingsModel>()
-            .ForMember(dest => dest.UserFields, mo => mo.Ignore());
+            .ForMember(dest => dest.UserFields, mo => mo.Ignore())
+            .ForMember(dest => dest.OrderApprovalPaymentMethodSystemNames, mo => mo.Ignore())
+            .ForMember(dest => dest.AvailableOrderApprovalPaymentMethods, mo => mo.Ignore());
 
         CreateMap<PaymentSettingsModel, PaymentSettings>()
             .ForMember(dest => dest.ActivePaymentProviderSystemNames, mo => mo.Ignore());

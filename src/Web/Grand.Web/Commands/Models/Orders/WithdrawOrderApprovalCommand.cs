@@ -4,7 +4,7 @@ using Grand.Mediator;
 namespace Grand.Web.Commands.Models.Orders;
 
 /// <summary>
-///     Withdraws the buyer's own pending or approved order approval
+///     Withdraws the buyer's own pending order approval and cancels the order that waits for it
 /// </summary>
 public class WithdrawOrderApprovalCommand : IRequest<bool>
 {

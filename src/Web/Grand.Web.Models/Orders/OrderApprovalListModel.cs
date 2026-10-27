@@ -25,6 +25,18 @@ public class OrderApprovalListModel : BaseModel
         /// </summary>
         public string Buyer { get; set; }
 
+        /// <summary>
+        ///     The placed order awaiting the decision
+        /// </summary>
+        public string OrderId { get; set; }
+
+        public int OrderNumber { get; set; }
+
+        /// <summary>
+        ///     Gets or sets a value indicating whether the viewer may open the order's details page
+        /// </summary>
+        public bool CanViewOrder { get; set; }
+
         public int ItemCount { get; set; }
         public string Total { get; set; }
     }

@@ -80,6 +80,23 @@ public class OrderNotificationCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_WithoutCustomerNotification_SendsOnlyTheStoreOwnerMessage()
+    {
+        var customer = new Customer();
+        var order = new Order { Id = "order", CustomerLanguageId = "en" };
+
+        await _handler.Handle(new OrderNotificationCommand {
+            Order = order, Customer = customer, NotifyCustomer = false
+        }, CancellationToken.None);
+
+        _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(It.IsAny<Order>(),
+            It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<IEnumerable<string>>(), It.IsAny<DomainHost>()), Times.Never);
+        _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedStoreOwnerMessage(order, customer,
+            It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Handle_SendsTheCustomerMessageForTheCommandCustomer()
     {
         //Arrange
