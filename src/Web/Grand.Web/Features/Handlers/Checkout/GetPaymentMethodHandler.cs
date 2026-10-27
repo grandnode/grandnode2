@@ -10,6 +10,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Tax;
+using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.Checkout;
 using Grand.Web.Models.Checkout;
 using Grand.Mediator;
@@ -28,6 +29,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
     private readonly PaymentSettings _paymentSettings;
     private readonly IPriceFormatter _priceFormatter;
     private readonly ITaxService _taxService;
+    private readonly IOrderApprovalService _orderApprovalService;
+    private readonly IRequestTranslationService _translationService;
 
     public GetPaymentMethodHandler(ILoyaltyPointsService loyaltyPointsService,
         IOrderCalculationService orderTotalCalculationService,
@@ -36,6 +39,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         IPriceFormatter priceFormatter,
         IPaymentService paymentService,
         ITaxService taxService,
+        IOrderApprovalService orderApprovalService,
+        IRequestTranslationService translationService,
         LoyaltyPointsSettings loyaltyPointsSettings,
         PaymentSettings paymentSettings)
     {
@@ -46,6 +51,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         _priceFormatter = priceFormatter;
         _paymentService = paymentService;
         _taxService = taxService;
+        _orderApprovalService = orderApprovalService;
+        _translationService = translationService;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _paymentSettings = paymentSettings;
     }
@@ -84,6 +91,17 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         foreach (var pm in paymentMethods)
             if (!await pm.HidePaymentMethod(request.Cart))
                 availablepaymentMethods.Add(pm);
+
+        //an order over the buyer's limit waits for an approval and may only use the payment methods the admin chose
+        var approval = await _orderApprovalService.RequiresApproval(request.Cart,
+            new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType));
+        if (approval.Required)
+        {
+            availablepaymentMethods = availablepaymentMethods
+                .Where(pm => _orderApprovalService.IsPaymentMethodAllowed(pm.SystemName)).ToList();
+            if (availablepaymentMethods.Count == 0)
+                model.NoPaymentMethodMessage = _translationService.GetResource("Checkout.OrderApproval.NoPaymentMethod");
+        }
 
         foreach (var pm in availablepaymentMethods)
         {

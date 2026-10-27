@@ -36,6 +36,7 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
             // payment methods
             DisplayLoyaltyPoints: null,
             PaymentMethods: null,
+            NoPaymentMethodMessage: null,
             LoyaltyPointsAmount: null,
             LoyaltyPointsBalance: null,
             LoyaltyPointsEnoughToPayForOrder: null,
@@ -46,6 +47,9 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
             // confirm order
             OrderReviewData: null,
             MinOrderTotalWarning: null,
+            OrderApprovalRequired: false,
+            OrderApprovalMessage: null,
+            OrderApprovalButtonText: null,
             TermsOfServiceOnOrderConfirmPage: null,
             ConfirmWarnings: null,
             // terms of service
@@ -235,6 +239,7 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
                             var model = response.data.update_section.model;
                             vmorder.DisplayLoyaltyPoints = model.DisplayLoyaltyPoints;
                             vmorder.PaymentMethods = model.PaymentMethods;
+                            vmorder.NoPaymentMethodMessage = model.NoPaymentMethodMessage;
                             vmorder.LoyaltyPointsAmount = model.LoyaltyPointsAmount;
                             vmorder.LoyaltyPointsBalance = model.LoyaltyPointsBalance;
                             vmorder.LoyaltyPointsEnoughToPayForOrder = model.LoyaltyPointsEnoughToPayForOrder;
@@ -278,6 +283,9 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
                         if (response.data.goto_section == "confirm_order") {
                             var model = response.data.update_section.model;
                             vmorder.MinOrderTotalWarning = model.MinOrderTotalWarning;
+                            vmorder.OrderApprovalRequired = model.OrderApprovalRequired;
+                            vmorder.OrderApprovalMessage = model.OrderApprovalMessage;
+                            vmorder.OrderApprovalButtonText = model.OrderApprovalButtonText;
                             vmorder.ConfirmWarnings = model.Warnings;
                             vmorder.OrderReviewData = model.OrderReviewData;
                             vmorder.Confirm = true;

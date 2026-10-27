@@ -59,8 +59,9 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                 });
 
             //send email notifications
-            await _orderMessageProviderService.SendOrderPlacedStoreOwnerMessage(request.Order, request.Customer,
-                _languageSettings.DefaultAdminLanguageId, request.Host);
+            if (request.NotifyStoreOwnerAndVendors)
+                await _orderMessageProviderService.SendOrderPlacedStoreOwnerMessage(request.Order, request.Customer,
+                    _languageSettings.DefaultAdminLanguageId, request.Host);
 
             string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
             var orderPlacedAttachments = new List<string>();
@@ -91,7 +92,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                 request.Order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName,
                 orderPlacedAttachments, request.Host);
 
-            if (request.Order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
+            if (request.NotifyStoreOwnerAndVendors && request.Order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
             {
                 var vendors = await _mediator.Send(new GetVendorsInOrderQuery { Order = request.Order });
                 foreach (var vendor in vendors)

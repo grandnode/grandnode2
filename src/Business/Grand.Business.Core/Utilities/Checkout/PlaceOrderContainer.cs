@@ -38,6 +38,11 @@ public class PlaceOrderContainer
     public double CurrencyRate { get; set; }
     public string PrimaryCurrencyCode { get; set; }
     public string PaymentMethodSystemName { get; set; }
+
+    /// <summary>
+    ///     The order total exceeds the customer's order limit, so the order is placed awaiting an approval
+    /// </summary>
+    public bool ApprovalRequired { get; set; }
     public Address BillingAddress { get; set; }
     public Address ShippingAddress { get; set; }
     public ShippingStatus ShippingStatus { get; set; }

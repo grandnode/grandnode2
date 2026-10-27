@@ -13,6 +13,11 @@ public class CheckoutPaymentMethodModel : BaseModel
     public bool UseLoyaltyPoints { get; set; }
     public string PaymentMethod { get; set; }
 
+    /// <summary>
+    ///     Set when the order needs an approval and no payment method is allowed for such orders
+    /// </summary>
+    public string NoPaymentMethodMessage { get; set; }
+
     #region Nested classes
 
     public class PaymentMethodModel : BaseModel

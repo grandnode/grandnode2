@@ -23,4 +23,11 @@ public class OrderNotificationCommand : IRequest
     ///     Host of the storefront request that placed the order; the messages link to it
     /// </summary>
     public DomainHost Host { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the store owner and the vendors are told about the order;
+    ///     false for an order that waits for an approval, they hear about it once it is approved.
+    ///     The customer's message is sent either way
+    /// </summary>
+    public bool NotifyStoreOwnerAndVendors { get; set; } = true;
 }
