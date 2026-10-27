@@ -131,9 +131,9 @@ public class GetOrderApprovalHandlersTests
     }
 
     [TestMethod]
-    public async Task Details_UsedRequest_CannotBeWithdrawn()
+    public async Task Details_ApprovedRequest_CannotBeWithdrawn()
     {
-        Found(Approval(status: OrderApprovalStatus.Used));
+        Found(Approval(status: OrderApprovalStatus.Approved));
 
         var model = await Details(new Customer { Id = "buyer", OwnerId = "owner" });
 

@@ -20,10 +20,6 @@ public class ShoppingCartModel : BaseModel
     public IList<string> Warnings { get; set; } = new List<string>();
     public string MinOrderSubtotalWarning { get; set; }
 
-    /// <summary>
-    ///     Where the cart's order approval stands (waiting, approved); null when there is nothing to say
-    /// </summary>
-    public string OrderApprovalNote { get; set; }
     public bool ShowCheckoutAsGuestButton { get; set; }
     public bool IsGuest { get; set; }
     public bool TermsOfServiceOnShoppingCartPage { get; set; }

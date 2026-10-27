@@ -39,7 +39,6 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
     private readonly ICheckoutAttributeParser _checkoutAttributeParser;
     private readonly ICheckoutAttributeService _checkoutAttributeService;
     private readonly CommonSettings _commonSettings;
-    private readonly CustomerSettings _customerSettings;
     private readonly ICurrencyService _currencyService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IDiscountService _discountService;
@@ -49,7 +48,6 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
     private readonly LinkGenerator _linkGenerator;
     private readonly MediaSettings _mediaSettings;
     private readonly IMediator _mediator;
-    private readonly IOrderApprovalService _orderApprovalService;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly IRequestPermissionService _permissionService;
@@ -94,9 +92,7 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         ShoppingCartSettings shoppingCartSettings,
         CatalogSettings catalogSettings,
         CommonSettings commonSettings,
-        IEnumTranslationService enumTranslationService,
-        IOrderApprovalService orderApprovalService,
-        CustomerSettings customerSettings)
+        IEnumTranslationService enumTranslationService)
     {
         _productService = productService;
         _pictureService = pictureService;
@@ -127,8 +123,6 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
         _catalogSettings = catalogSettings;
         _commonSettings = commonSettings;
         _enumTranslationService = enumTranslationService;
-        _orderApprovalService = orderApprovalService;
-        _customerSettings = customerSettings;
     }
 
     public async Task<ShoppingCartModel> Handle(GetShoppingCart request, CancellationToken cancellationToken)
@@ -144,7 +138,6 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
         await PrepareSimpleProperties(model, request);
 
-        await PrepareOrderApprovalNote(model, request);
 
         await PrepareCheckoutAttributes(model, request);
 
@@ -219,35 +212,6 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
             model.Warnings.Add(warning);
 
         #endregion
-    }
-
-    /// <summary>
-    ///     Tells a limited sub-account buyer where the request for the cart stands. Nobody else has approvals, so
-    ///     they cost no query.
-    /// </summary>
-    private async Task PrepareOrderApprovalNote(ShoppingCartModel model, GetShoppingCart request)
-    {
-        var customer = request.Customer;
-        if (_customerSettings.HideSubAccountsTab || string.IsNullOrEmpty(customer.OwnerId) ||
-            OrderApprovalRules.CanApprove(customer))
-            return;
-
-        var approval = await _orderApprovalService.GetActive(customer.Id, request.Store.Id);
-        if (approval == null)
-            return;
-
-        if (approval.Status == OrderApprovalStatus.Pending)
-        {
-            var since = _dateTimeService.ConvertToUserTime(approval.CreatedOnUtc, DateTimeKind.Utc);
-            model.OrderApprovalNote = string.Format(_translationService.GetResource("OrderApproval.Cart.Pending"),
-                since.ToString("g"));
-        }
-        else if (approval.Status == OrderApprovalStatus.Approved &&
-                 approval.CartFingerprint == OrderApprovalFingerprint.Compute(request.Cart))
-        {
-            // an approval holds for exactly the cart it was given for
-            model.OrderApprovalNote = _translationService.GetResource("OrderApproval.Cart.Approved");
-        }
     }
 
     private async Task PrepareCheckoutAttributes(ShoppingCartModel model, GetShoppingCart request)

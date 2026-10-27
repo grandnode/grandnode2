@@ -168,10 +168,6 @@ public class EndpointProvider : IEndpointProvider
             pattern + "account/orderapproval",
             new { controller = "OrderApproval", action = "Details" });
 
-        endpointRouteBuilder.MapControllerRoute("OrderApprovalSubmit",
-            pattern + "orderapproval/submit",
-            new { controller = "OrderApproval", action = "Submit" });
-
         endpointRouteBuilder.MapControllerRoute("OrderApprovalDecide",
             pattern + "orderapproval/decide",
             new { controller = "OrderApproval", action = "Decide" });

@@ -30,6 +30,12 @@ public partial class InstallationService
                 StatusId = 40,
                 Name = "Cancelled",
                 DisplayOrder = 3
+            },
+            new() {
+                IsSystem = true,
+                StatusId = 5,
+                Name = "Awaiting approval",
+                DisplayOrder = 5
             }
         };
         statuses.ForEach(x => _orderStatusRepository.Insert(x));

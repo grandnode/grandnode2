@@ -164,13 +164,6 @@ public class ShoppingCartValidator : IShoppingCartValidator
                     new ShoppingCartTotalAmountValidatorRecord(shoppingCart, context, language));
             if (!resultCheckoutAttributes.IsValid)
                 warnings.AddRange(resultCheckoutAttributes.Errors.Select(x => x.ErrorMessage));
-
-            //over-limit company orders need an approval
-            var resultApproval = await _validatorFactory
-                .GetValidator<ShoppingCartApprovalValidatorRecord>().ValidateAsync(
-                    new ShoppingCartApprovalValidatorRecord(shoppingCart, context, language));
-            if (!resultApproval.IsValid)
-                warnings.AddRange(resultApproval.Errors.Select(x => x.ErrorMessage));
         }
 
         //event notification

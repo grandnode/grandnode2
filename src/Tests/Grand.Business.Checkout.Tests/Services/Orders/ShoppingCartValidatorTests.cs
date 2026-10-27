@@ -36,7 +36,6 @@ public class ShoppingCartValidatorTests
         Capture<ShoppingCartWarningsValidatorRecord>();
         Capture<ShoppingCartCheckoutAttributesValidatorRecord>();
         Capture<ShoppingCartTotalAmountValidatorRecord>();
-        Capture<ShoppingCartApprovalValidatorRecord>();
         Capture<ShoppingCartRequiredProductValidatorRecord>();
         _mediatorMock = new Mock<IMediator>();
         _validator = new ShoppingCartValidator(_mediatorMock.Object, _validatorFactoryMock.Object);
@@ -74,14 +73,10 @@ public class ShoppingCartValidatorTests
         var amount = _records.OfType<ShoppingCartTotalAmountValidatorRecord>().Single();
         Assert.AreSame(context, amount.Context);
         Assert.AreSame(Language, amount.Language);
-        var approval = _records.OfType<ShoppingCartApprovalValidatorRecord>().Single();
-        Assert.AreSame(cart, approval.Cart);
-        Assert.AreSame(context, approval.Context);
-        Assert.AreSame(Language, approval.Language);
     }
 
     [TestMethod]
-    public async Task GetShoppingCartWarnings_ValidateAmountFalse_DoesNotRunApproval()
+    public async Task GetShoppingCartWarnings_ValidateAmountFalse_DoesNotRunTotalAmount()
     {
         //Arrange
         var context = new CalculationContext(new Customer(), new Store { Id = "store" },
@@ -92,7 +87,6 @@ public class ShoppingCartValidatorTests
             Language, true, false);
 
         //Assert
-        Assert.AreEqual(0, _records.OfType<ShoppingCartApprovalValidatorRecord>().Count());
         Assert.AreEqual(0, _records.OfType<ShoppingCartTotalAmountValidatorRecord>().Count());
     }
 

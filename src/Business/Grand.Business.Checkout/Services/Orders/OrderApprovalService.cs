@@ -19,11 +19,13 @@ public class OrderApprovalService : IOrderApprovalService
     public OrderApprovalService(IRepository<OrderApproval> repository,
         IOrderCalculationService orderCalculationService,
         CustomerSettings customerSettings,
+        OrderApprovalSettings approvalSettings,
         IMediator mediator)
     {
         _repository = repository;
         _orderCalculationService = orderCalculationService;
         _customerSettings = customerSettings;
+        _approvalSettings = approvalSettings;
         _mediator = mediator;
     }
 
@@ -34,6 +36,7 @@ public class OrderApprovalService : IOrderApprovalService
     private readonly IRepository<OrderApproval> _repository;
     private readonly IOrderCalculationService _orderCalculationService;
     private readonly CustomerSettings _customerSettings;
+    private readonly OrderApprovalSettings _approvalSettings;
     private readonly IMediator _mediator;
 
     #endregion
@@ -49,16 +52,12 @@ public class OrderApprovalService : IOrderApprovalService
             _repository.Table.Where(x => x.Id == id && x.CompanyOwnerId == companyOwnerId));
     }
 
-    public virtual async Task<OrderApproval> GetActive(string customerId, string storeId)
+    public virtual async Task<OrderApproval> GetByOrderId(string orderId)
     {
-        if (string.IsNullOrEmpty(customerId))
+        if (string.IsNullOrEmpty(orderId))
             return null;
 
-        return await _repository.FirstOrDefaultAsync(
-            _repository.Table
-                .Where(x => x.CustomerId == customerId && x.StoreId == storeId &&
-                            (x.Status == OrderApprovalStatus.Pending || x.Status == OrderApprovalStatus.Approved))
-                .OrderByDescending(x => x.CreatedOnUtc));
+        return await _repository.FirstOrDefaultAsync(_repository.Table.Where(x => x.OrderId == orderId));
     }
 
     public virtual async Task<IPagedList<OrderApproval>> GetForCompany(string companyOwnerId, string storeId,
@@ -98,7 +97,7 @@ public class OrderApprovalService : IOrderApprovalService
         await _mediator.EntityUpdated(approval);
     }
 
-    public virtual async Task<OrderApprovalCheckoutState> GetCheckoutState(IList<ShoppingCartItem> cart,
+    public virtual async Task<OrderApprovalCheckoutState> RequiresApproval(IList<ShoppingCartItem> cart,
         CalculationContext context)
     {
         ArgumentNullException.ThrowIfNull(cart);
@@ -110,33 +109,19 @@ public class OrderApprovalService : IOrderApprovalService
         // not a limited buyer: nothing about approvals applies (also when the sub-account feature is off)
         if (_customerSettings.HideSubAccountsTab || string.IsNullOrEmpty(customer.OwnerId) ||
             OrderApprovalRules.CanApprove(customer) || !limit.HasValue)
-            return new OrderApprovalCheckoutState(false, limit, null, null);
+            return new OrderApprovalCheckoutState(false, limit, null);
 
         var total = (await _orderCalculationService.GetShoppingCartTotal(cart, context))?.Total;
 
         // the total is only known once shipping is chosen; until then the rule is not evaluated
-        if (!total.HasValue || total.Value <= limit.Value)
-            return new OrderApprovalCheckoutState(false, limit, total, null);
+        return new OrderApprovalCheckoutState(total.HasValue && total.Value > limit.Value, limit, total);
+    }
 
-        var fingerprint = OrderApprovalFingerprint.Compute(cart);
-        var storeId = context.Store.Id;
-        var amount = total.Value;
-
-        var approved = await _repository.FirstOrDefaultAsync(
-            _repository.Table
-                .Where(x => x.CustomerId == customer.Id && x.StoreId == storeId &&
-                            x.Status == OrderApprovalStatus.Approved && x.CartFingerprint == fingerprint &&
-                            x.Amount >= amount)
-                .OrderByDescending(x => x.CreatedOnUtc));
-        if (approved != null)
-            return new OrderApprovalCheckoutState(true, limit, total, approved);
-
-        var pending = await _repository.FirstOrDefaultAsync(
-            _repository.Table
-                .Where(x => x.CustomerId == customer.Id && x.StoreId == storeId &&
-                            x.Status == OrderApprovalStatus.Pending)
-                .OrderByDescending(x => x.CreatedOnUtc));
-        return new OrderApprovalCheckoutState(true, limit, total, pending);
+    public virtual bool IsPaymentMethodAllowed(string paymentMethodSystemName)
+    {
+        return !string.IsNullOrEmpty(paymentMethodSystemName) &&
+               _approvalSettings.PaymentMethodSystemNames?.Contains(paymentMethodSystemName,
+                   StringComparer.OrdinalIgnoreCase) == true;
     }
 
     #endregion

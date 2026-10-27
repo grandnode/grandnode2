@@ -1,12 +1,12 @@
 namespace Grand.Domain.Orders;
 
 /// <summary>
-///     Represents a request to approve a company sub-account's cart before the order is placed
+///     Represents a request to approve an order a company sub-account placed
 /// </summary>
 public class OrderApproval : BaseEntity
 {
     /// <summary>
-    ///     Gets or sets the store identifier the cart belongs to
+    ///     Gets or sets the store identifier the order belongs to
     /// </summary>
     public string StoreId { get; set; }
 
@@ -24,11 +24,6 @@ public class OrderApproval : BaseEntity
     ///     Gets or sets the status
     /// </summary>
     public OrderApprovalStatus Status { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the hash of the approved cart
-    /// </summary>
-    public string CartFingerprint { get; set; }
 
     /// <summary>
     ///     Gets or sets the cart lines as the approver sees them
@@ -66,7 +61,7 @@ public class OrderApproval : BaseEntity
     public string DecisionComment { get; set; }
 
     /// <summary>
-    ///     Gets or sets the identifier of the order that used the approval
+    ///     Gets or sets the identifier of the order awaiting the decision; set at creation
     /// </summary>
     public string OrderId { get; set; }
 }

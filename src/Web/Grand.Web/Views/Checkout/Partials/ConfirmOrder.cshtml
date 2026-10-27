@@ -1,10 +1,5 @@
 ﻿@*v-cloak: v-if does not suppress anything until Vue has mounted, so without it the
     raw {{ }} source of this block is on screen until the deferred bundle runs*@
-@{
-    // a double click must not post the form twice: the second submit is ignored and the buttons are
-    // disabled once the form is on its way (the posted values are collected before the timeout runs)
-    const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
-}
 <div v-if="vmorder.Confirm" v-cloak class="checkout-data order-summary-content col-12 px-0">
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_confirm_top" })
     <div class="order-summary mb-3">
@@ -16,15 +11,6 @@
                 {{vmorder.MinOrderTotalWarning}}
             </div>
         </div>
-        <div v-if="vmorder.OrderApproval && vmorder.OrderApproval.Required && !vmorder.OrderApproval.Approved" class="alert alert-warning my-3 order-approval-notice">
-            <div class="order-approval-message">{{vmorder.OrderApproval.Message}}</div>
-            <div v-if="vmorder.OrderApproval.Pending" class="order-approval-since small mt-1">
-                @Loc["OrderApproval.Confirm.PendingSince"] {{vmorder.OrderApproval.PendingSince}}
-            </div>
-        </div>
-        <div v-if="vmorder.OrderApproval && vmorder.OrderApproval.Approved" class="alert alert-success my-3 order-approval-approved">
-            @Loc["OrderApproval.Confirm.Approved"]
-        </div>
         <div v-if="vmorder.ConfirmWarnings !== 'undefined' && vmorder.ConfirmWarnings.length > 0" class="alert alert-danger my-3">
             <template v-for="warning in vmorder.ConfirmWarnings">
                 <span>{{warning}}</span>
@@ -33,19 +19,7 @@
     </div>
     @await Component.InvokeAsync("Widget", new { widgetZone = "checkout_confirm_bottom" })
     <div class="confirm-buttons">
-        @*the order needs an approval first: it is sent for approval (or the request withdrawn) instead of confirmed*@
-        <template v-if="vmorder.OrderApproval && vmorder.OrderApproval.Required && !vmorder.OrderApproval.Approved">
-            <button class="btn btn-secondary me-2" id="new-back-confirm_order" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</button>
-            <form v-if="vmorder.OrderApproval.Pending" asp-route="OrderApprovalWithdraw" method="post" class="d-inline order-approval-withdraw" onsubmit="@submitOnce">
-                <input type="hidden" name="id" :value="vmorder.OrderApproval.ApprovalId"/>
-                <input type="hidden" name="toCart" value="true"/>
-                <button type="submit" class="btn btn-secondary">@Loc["OrderApproval.Confirm.Withdraw"]</button>
-            </form>
-            <form v-else asp-route="OrderApprovalSubmit" method="post" class="d-inline order-approval-submit" onsubmit="@submitOnce">
-                <button type="submit" class="btn btn-info">@Loc["OrderApproval.Confirm.SendForApproval"]</button>
-            </form>
-        </template>
-        <template v-else-if="vmorder.MinOrderTotalWarning == null && vmorder.cart.TermsOfServiceOnOrderConfirmPage">
+        <template v-if="vmorder.MinOrderTotalWarning == null && vmorder.cart.TermsOfServiceOnOrderConfirmPage">
             <div class="w-100 mb-3">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" id="TermsOfService" name="TermsOfService" v-model="vmorder.terms">

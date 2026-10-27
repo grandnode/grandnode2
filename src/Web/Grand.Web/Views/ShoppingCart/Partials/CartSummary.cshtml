@@ -178,9 +178,6 @@
         <div v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning != null" class="alert alert-danger">
             {{vmorder.cart.MinOrderSubtotalWarning}}
         </div>
-        <div v-if="vmorder.cart.OrderApprovalNote" class="alert alert-info order-approval-note">
-            {{vmorder.cart.OrderApprovalNote}}
-        </div>
         <template v-if="vmorder.cart.IsEditable && vmorder.cart.MinOrderSubtotalWarning == null">
             <template v-if="vmorder.cart.TermsOfServiceOnShoppingCartPage">
                 <div class="w-100">

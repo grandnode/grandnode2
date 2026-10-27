@@ -15,8 +15,8 @@ using Microsoft.AspNetCore.Mvc;
 namespace Grand.Web.Controllers;
 
 /// <summary>
-///     Order approvals of a company: a limited sub-account asks for an approval of its cart, an approver
-///     decides it. Switched off together with the sub-accounts feature.
+///     Order approvals of a company: a limited sub-account's order waits for an approver's
+///     decision. Switched off together with the sub-accounts feature.
 /// </summary>
 [DenySystemAccount]
 [ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
@@ -76,32 +76,6 @@ public class OrderApprovalController : BasePublicController
             return RedirectToRoute("CustomerOrderApprovals");
 
         return View(model);
-    }
-
-    //Checkout confirm step: ask the approvers to approve the cart
-    [HttpPost]
-    [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> Submit()
-    {
-        if (FeatureOff)
-            return RedirectToRoute("CustomerInfo");
-
-        var (success, error) = await _mediator.Send(new SubmitOrderApprovalCommand {
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
-            Store = _contextAccessor.StoreContext.CurrentStore,
-            Language = _contextAccessor.WorkContext.WorkingLanguage,
-            // the calculation context is the request's own, nothing of it is posted
-            Context = _contextAccessor.CalculationContext(),
-            Host = _contextAccessor.StoreContext.CurrentHost
-        });
-
-        if (success)
-            Success(_translationService.GetResource("OrderApproval.Submit.Success"));
-        else
-            Error(string.IsNullOrEmpty(error) ? _translationService.GetResource("OrderApproval.Submit.Failed") : error);
-
-        // checkout data is reset when checkout is opened again, so the buyer goes back to the cart
-        return RedirectToRoute("ShoppingCart");
     }
 
     [HttpPost]

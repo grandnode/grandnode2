@@ -88,12 +88,9 @@ public class OrderApprovalControllerTests
         _customerSettings.HideSubAccountsTab = true;
 
         AssertRedirectTo(await _controller.Details("a1"), "CustomerInfo");
-        AssertRedirectTo(await _controller.Submit(), "CustomerInfo");
         AssertRedirectTo(await _controller.Decide("a1", true, null), "CustomerInfo");
         AssertRedirectTo(await _controller.Withdraw("a1", false), "CustomerInfo");
 
-        _mediator.Verify(m => m.Send(It.IsAny<SubmitOrderApprovalCommand>(), It.IsAny<CancellationToken>()),
-            Times.Never);
         _mediator.Verify(m => m.Send(It.IsAny<DecideOrderApprovalCommand>(), It.IsAny<CancellationToken>()),
             Times.Never);
         _mediator.Verify(m => m.Send(It.IsAny<WithdrawOrderApprovalCommand>(), It.IsAny<CancellationToken>()),
@@ -144,45 +141,6 @@ public class OrderApprovalControllerTests
 
         Assert.IsInstanceOfType<ViewResult>(result);
         Assert.AreSame(model, ((ViewResult)result).Model);
-    }
-
-    //submit
-
-    [TestMethod]
-    public async Task Submit_ReturnsToCartOnSuccess()
-    {
-        SubmitOrderApprovalCommand sent = null;
-        _mediator.Setup(m => m.Send(It.IsAny<SubmitOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
-            .Callback<IRequest<(bool success, string error)>, CancellationToken>((c, _) =>
-                sent = (SubmitOrderApprovalCommand)c)
-            .ReturnsAsync((true, (string)null));
-
-        var result = await _controller.Submit();
-
-        AssertRedirectTo(result, "ShoppingCart");
-        Assert.AreEqual(0, Notifications("Error").Count);
-        Assert.AreEqual(1, Notifications("Success").Count);
-        Assert.IsNotNull(sent);
-        Assert.AreSame(_customer, sent.Customer);
-        Assert.AreSame(_store, sent.Store);
-        Assert.AreEqual("shop.test", sent.Host.HostName);
-        //the calculation context comes from the request, never from posted data
-        Assert.AreSame(_customer, sent.Context.Customer);
-        Assert.AreSame(_store, sent.Context.Store);
-        Assert.AreSame(_currency, sent.Context.Currency);
-    }
-
-    [TestMethod]
-    public async Task Submit_Refused_ShowsTheErrorAndReturnsToCart()
-    {
-        _mediator.Setup(m => m.Send(It.IsAny<SubmitOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync((false, "OrderApproval.Submit.NotNeeded"));
-
-        var result = await _controller.Submit();
-
-        AssertRedirectTo(result, "ShoppingCart");
-        CollectionAssert.AreEqual(new[] { "OrderApproval.Submit.NotNeeded" }, Notifications("Error").ToArray());
-        Assert.AreEqual(0, Notifications("Success").Count);
     }
 
     //decide

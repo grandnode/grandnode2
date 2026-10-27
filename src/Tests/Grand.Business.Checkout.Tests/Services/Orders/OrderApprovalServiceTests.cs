@@ -26,6 +26,7 @@ public class OrderApprovalServiceTests
     private CustomerSettings _customerSettings;
     private Mock<IMediator> _mediatorMock;
     private IRepository<OrderApproval> _repository;
+    private OrderApprovalSettings _approvalSettings;
     private OrderApprovalService _service;
     private double? _total;
 
@@ -42,8 +43,10 @@ public class OrderApprovalServiceTests
                 It.IsAny<bool?>(), It.IsAny<bool>()))
             .ReturnsAsync(() => new ShoppingCartTotal(_total, 0, [], [], 0, 0));
 
+        _approvalSettings = new OrderApprovalSettings { PaymentMethodSystemNames = ["Payments.CashOnDelivery"] };
+
         _service = new OrderApprovalService(_repository, _calculationServiceMock.Object, _customerSettings,
-            _mediatorMock.Object);
+            _approvalSettings, _mediatorMock.Object);
     }
 
     private static Customer Buyer(double? limit = 100, SubAccountRole role = SubAccountRole.Buyer,
@@ -70,8 +73,8 @@ public class OrderApprovalServiceTests
         ];
     }
 
-    private async Task<OrderApproval> AddApproval(OrderApprovalStatus status, IList<ShoppingCartItem> cart,
-        double amount, string customerId = BuyerId, string storeId = StoreId, string companyOwnerId = OwnerId,
+    private async Task<OrderApproval> AddApproval(OrderApprovalStatus status, string orderId = "order1",
+        string customerId = BuyerId, string storeId = StoreId, string companyOwnerId = OwnerId,
         DateTime? createdOnUtc = null)
     {
         var approval = new OrderApproval {
@@ -79,8 +82,8 @@ public class OrderApprovalServiceTests
             CompanyOwnerId = companyOwnerId,
             CustomerId = customerId,
             Status = status,
-            CartFingerprint = OrderApprovalFingerprint.Compute(cart),
-            Amount = amount
+            OrderId = orderId,
+            Amount = 150
         };
         await _repository.InsertAsync(approval);
 
@@ -90,182 +93,134 @@ public class OrderApprovalServiceTests
         return approval;
     }
 
-    #region Checkout state
+    #region Requires approval
 
     [TestMethod]
-    public async Task GetCheckoutState_NoOwner_NotRequired()
+    public async Task RequiresApproval_NoOwner_NotRequired()
     {
         var customer = Buyer(100, ownerId: null);
 
-        var state = await _service.GetCheckoutState(Cart(), Context(customer));
+        var state = await _service.RequiresApproval(Cart(), Context(customer));
 
         Assert.IsFalse(state.Required);
-        Assert.IsFalse(state.Blocked);
         _calculationServiceMock.Verify(x => x.GetShoppingCartTotal(It.IsAny<IList<ShoppingCartItem>>(),
             It.IsAny<CalculationContext>(), It.IsAny<bool?>(), It.IsAny<bool>()), Times.Never);
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_NoLimit_NotRequired()
+    public async Task RequiresApproval_NoLimit_NotRequired()
     {
-        var state = await _service.GetCheckoutState(Cart(), Context(Buyer(null)));
+        var state = await _service.RequiresApproval(Cart(), Context(Buyer(null)));
 
         Assert.IsFalse(state.Required);
-        Assert.IsFalse(state.Blocked);
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_Approver_NotRequired()
+    public async Task RequiresApproval_Approver_NotRequired()
     {
-        var state = await _service.GetCheckoutState(Cart(), Context(Buyer(100, SubAccountRole.Approver)));
+        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100, SubAccountRole.Approver)));
 
         Assert.IsFalse(state.Required);
-        Assert.IsFalse(state.Blocked);
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_FeatureOff_NotRequired()
+    public async Task RequiresApproval_FeatureOff_NotRequired()
     {
         _customerSettings.HideSubAccountsTab = true;
 
-        var state = await _service.GetCheckoutState(Cart(), Context(Buyer(100)));
+        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
 
         Assert.IsFalse(state.Required);
-        Assert.IsFalse(state.Blocked);
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_TotalUnknown_NotRequired()
+    public async Task RequiresApproval_TotalUnknown_NotRequired()
     {
         _total = null;
 
-        var state = await _service.GetCheckoutState(Cart(), Context(Buyer(100)));
+        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
 
         Assert.IsFalse(state.Required);
-        Assert.IsFalse(state.Blocked);
         Assert.IsNull(state.Total);
         Assert.AreEqual(100, state.Limit);
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_TotalAtLimit_NotRequired()
+    public async Task RequiresApproval_TotalAtLimit_NotRequired()
     {
         _total = 100;
 
-        var state = await _service.GetCheckoutState(Cart(), Context(Buyer(100)));
+        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
 
         Assert.IsFalse(state.Required);
-        Assert.IsFalse(state.Blocked);
         Assert.AreEqual(100, state.Total);
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_OverLimit_Blocked()
+    public async Task RequiresApproval_OverLimit_Required()
     {
-        var state = await _service.GetCheckoutState(Cart(), Context(Buyer(100)));
+        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
 
         Assert.IsTrue(state.Required);
-        Assert.IsTrue(state.Blocked);
         Assert.AreEqual(100, state.Limit);
         Assert.AreEqual(150, state.Total);
-        Assert.IsNull(state.Active);
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_OverLimitWithPending_BlockedAndPendingIsActive()
+    public async Task RequiresApproval_ExistingApprovalsDoNotMatter()
     {
-        var cart = Cart();
-        var pending = await AddApproval(OrderApprovalStatus.Pending, cart, 150);
+        await AddApproval(OrderApprovalStatus.Approved);
 
-        var state = await _service.GetCheckoutState(cart, Context(Buyer(100)));
-
-        Assert.IsTrue(state.Blocked);
-        Assert.AreEqual(pending.Id, state.Active?.Id);
-    }
-
-    [TestMethod]
-    public async Task GetCheckoutState_ApprovedMatching_NotBlocked()
-    {
-        var cart = Cart();
-        var approval = await AddApproval(OrderApprovalStatus.Approved, cart, 150);
-
-        var state = await _service.GetCheckoutState(cart, Context(Buyer(100)));
+        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
 
         Assert.IsTrue(state.Required);
-        Assert.IsFalse(state.Blocked);
-        Assert.AreEqual(approval.Id, state.Active?.Id);
+    }
+
+    #endregion
+
+    #region Payment methods
+
+    [TestMethod]
+    public void IsPaymentMethodAllowed_ListedMethod_True()
+    {
+        _approvalSettings.PaymentMethodSystemNames = ["Payments.CashOnDelivery", "Payments.BankTransfer"];
+
+        Assert.IsTrue(_service.IsPaymentMethodAllowed("Payments.BankTransfer"));
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_ApprovedButCartChanged_Blocked()
+    public void IsPaymentMethodAllowed_IgnoresCase()
     {
-        await AddApproval(OrderApprovalStatus.Approved, Cart(1), 150);
+        _approvalSettings.PaymentMethodSystemNames = ["Payments.CashOnDelivery"];
 
-        var state = await _service.GetCheckoutState(Cart(2), Context(Buyer(100)));
-
-        Assert.IsTrue(state.Blocked);
-        Assert.IsNull(state.Active);
+        Assert.IsTrue(_service.IsPaymentMethodAllowed("payments.cashondelivery"));
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_ApprovedButTotalHigher_Blocked()
+    public void IsPaymentMethodAllowed_UnlistedMethod_False()
     {
-        var cart = Cart();
-        await AddApproval(OrderApprovalStatus.Approved, cart, 150);
-        _total = 150.01;
+        _approvalSettings.PaymentMethodSystemNames = ["Payments.CashOnDelivery"];
 
-        var state = await _service.GetCheckoutState(cart, Context(Buyer(100)));
-
-        Assert.IsTrue(state.Blocked);
+        Assert.IsFalse(_service.IsPaymentMethodAllowed("Payments.StripeCheckout"));
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_ApprovedButTotalLower_NotBlocked()
+    public void IsPaymentMethodAllowed_EmptyListOrName_False()
     {
-        var cart = Cart();
-        await AddApproval(OrderApprovalStatus.Approved, cart, 150);
-        _total = 120;
+        _approvalSettings.PaymentMethodSystemNames = [];
+        Assert.IsFalse(_service.IsPaymentMethodAllowed("Payments.CashOnDelivery"));
 
-        var state = await _service.GetCheckoutState(cart, Context(Buyer(100)));
-
-        Assert.IsFalse(state.Blocked);
+        _approvalSettings.PaymentMethodSystemNames = ["Payments.CashOnDelivery"];
+        Assert.IsFalse(_service.IsPaymentMethodAllowed(null));
+        Assert.IsFalse(_service.IsPaymentMethodAllowed(""));
     }
 
     [TestMethod]
-    public async Task GetCheckoutState_ApprovalOfOtherStore_Blocked()
+    public void IsPaymentMethodAllowed_NullList_False()
     {
-        var cart = Cart();
-        await AddApproval(OrderApprovalStatus.Approved, cart, 150, storeId: "other-store");
+        _approvalSettings.PaymentMethodSystemNames = null;
 
-        var state = await _service.GetCheckoutState(cart, Context(Buyer(100)));
-
-        Assert.IsTrue(state.Blocked);
-    }
-
-    [TestMethod]
-    public async Task GetCheckoutState_ApprovalOfOtherCustomer_Blocked()
-    {
-        var cart = Cart();
-        await AddApproval(OrderApprovalStatus.Approved, cart, 150, "another-buyer");
-
-        var state = await _service.GetCheckoutState(cart, Context(Buyer(100)));
-
-        Assert.IsTrue(state.Blocked);
-    }
-
-    [TestMethod]
-    [DataRow(OrderApprovalStatus.Rejected)]
-    [DataRow(OrderApprovalStatus.Withdrawn)]
-    [DataRow(OrderApprovalStatus.Used)]
-    public async Task GetCheckoutState_ApprovalNoLongerUsable_Blocked(OrderApprovalStatus status)
-    {
-        var cart = Cart();
-        await AddApproval(status, cart, 150);
-
-        var state = await _service.GetCheckoutState(cart, Context(Buyer(100)));
-
-        Assert.IsTrue(state.Blocked);
-        Assert.IsNull(state.Active);
+        Assert.IsFalse(_service.IsPaymentMethodAllowed("Payments.CashOnDelivery"));
     }
 
     #endregion
@@ -275,7 +230,7 @@ public class OrderApprovalServiceTests
     [TestMethod]
     public async Task GetById_OtherCompany_Null()
     {
-        var approval = await AddApproval(OrderApprovalStatus.Pending, Cart(), 150);
+        var approval = await AddApproval(OrderApprovalStatus.Pending);
 
         Assert.IsNull(await _service.GetById(approval.Id, "other-company"));
         Assert.IsNull(await _service.GetById(approval.Id, null));
@@ -285,7 +240,7 @@ public class OrderApprovalServiceTests
     [TestMethod]
     public async Task GetById_OwnCompany_ReturnsApproval()
     {
-        var approval = await AddApproval(OrderApprovalStatus.Pending, Cart(), 150);
+        var approval = await AddApproval(OrderApprovalStatus.Pending);
 
         var result = await _service.GetById(approval.Id, OwnerId);
 
@@ -293,38 +248,36 @@ public class OrderApprovalServiceTests
     }
 
     [TestMethod]
-    public async Task GetActive_ReturnsNewestPendingOrApproved()
+    public async Task GetByOrderId_ReturnsTheOrdersApproval()
     {
-        var now = DateTime.UtcNow;
-        await AddApproval(OrderApprovalStatus.Rejected, Cart(), 150, createdOnUtc: now);
-        await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, createdOnUtc: now.AddHours(-2));
-        var newest = await AddApproval(OrderApprovalStatus.Approved, Cart(), 150, createdOnUtc: now.AddHours(-1));
-        await AddApproval(OrderApprovalStatus.Approved, Cart(), 150, "another-buyer", createdOnUtc: now);
-        await AddApproval(OrderApprovalStatus.Approved, Cart(), 150, storeId: "other-store", createdOnUtc: now);
+        await AddApproval(OrderApprovalStatus.Pending, "order-other");
+        var approval = await AddApproval(OrderApprovalStatus.Pending, "order-2");
 
-        var result = await _service.GetActive(BuyerId, StoreId);
+        var result = await _service.GetByOrderId("order-2");
 
-        Assert.AreEqual(newest.Id, result?.Id);
+        Assert.AreEqual(approval.Id, result?.Id);
     }
 
     [TestMethod]
-    public async Task GetActive_NothingActive_Null()
+    public async Task GetByOrderId_UnknownOrEmpty_Null()
     {
-        await AddApproval(OrderApprovalStatus.Used, Cart(), 150);
+        await AddApproval(OrderApprovalStatus.Pending, "order-1");
 
-        Assert.IsNull(await _service.GetActive(BuyerId, StoreId));
+        Assert.IsNull(await _service.GetByOrderId("nope"));
+        Assert.IsNull(await _service.GetByOrderId(null));
+        Assert.IsNull(await _service.GetByOrderId(""));
     }
 
     [TestMethod]
     public async Task GetForCompany_PendingFirst()
     {
         var now = DateTime.UtcNow;
-        var oldPending = await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, createdOnUtc: now.AddDays(-3));
-        var newApproved = await AddApproval(OrderApprovalStatus.Approved, Cart(), 150, createdOnUtc: now);
-        var oldApproved = await AddApproval(OrderApprovalStatus.Approved, Cart(), 150, createdOnUtc: now.AddDays(-1));
-        var newPending = await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, createdOnUtc: now.AddDays(-2));
-        await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, companyOwnerId: "other-company");
-        await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, storeId: "other-store");
+        var oldPending = await AddApproval(OrderApprovalStatus.Pending, createdOnUtc: now.AddDays(-3));
+        var newApproved = await AddApproval(OrderApprovalStatus.Approved, createdOnUtc: now);
+        var oldApproved = await AddApproval(OrderApprovalStatus.Approved, createdOnUtc: now.AddDays(-1));
+        var newPending = await AddApproval(OrderApprovalStatus.Pending, createdOnUtc: now.AddDays(-2));
+        await AddApproval(OrderApprovalStatus.Pending, companyOwnerId: "other-company");
+        await AddApproval(OrderApprovalStatus.Pending, storeId: "other-store");
 
         var result = await _service.GetForCompany(OwnerId, StoreId, 0, 10);
 
@@ -338,7 +291,7 @@ public class OrderApprovalServiceTests
     public async Task GetForCompany_Paged()
     {
         for (var i = 0; i < 5; i++)
-            await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, createdOnUtc: DateTime.UtcNow.AddMinutes(-i));
+            await AddApproval(OrderApprovalStatus.Pending, createdOnUtc: DateTime.UtcNow.AddMinutes(-i));
 
         var result = await _service.GetForCompany(OwnerId, StoreId, 1, 2);
 
@@ -350,10 +303,10 @@ public class OrderApprovalServiceTests
     public async Task GetForCustomer_NewestFirstAndOnlyOwn()
     {
         var now = DateTime.UtcNow;
-        var older = await AddApproval(OrderApprovalStatus.Rejected, Cart(), 150, createdOnUtc: now.AddDays(-1));
-        var newer = await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, createdOnUtc: now);
-        await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, "another-buyer");
-        await AddApproval(OrderApprovalStatus.Pending, Cart(), 150, storeId: "other-store");
+        var older = await AddApproval(OrderApprovalStatus.Rejected, createdOnUtc: now.AddDays(-1));
+        var newer = await AddApproval(OrderApprovalStatus.Pending, createdOnUtc: now);
+        await AddApproval(OrderApprovalStatus.Pending, customerId: "another-buyer");
+        await AddApproval(OrderApprovalStatus.Pending, storeId: "other-store");
 
         var result = await _service.GetForCustomer(BuyerId, StoreId, 0, 10);
 
@@ -374,7 +327,7 @@ public class OrderApprovalServiceTests
     [TestMethod]
     public async Task Update_StoresAndPublishesEvent()
     {
-        var approval = await AddApproval(OrderApprovalStatus.Pending, Cart(), 150);
+        var approval = await AddApproval(OrderApprovalStatus.Pending);
         approval.Status = OrderApprovalStatus.Approved;
 
         await _service.Update(approval);
@@ -414,17 +367,6 @@ public class OrderApprovalServiceTests
             { OwnerId = OwnerId, SubAccountRole = SubAccountRole.Approver }));
         Assert.IsFalse(OrderApprovalRules.CanApprove(new Customer
             { OwnerId = OwnerId, SubAccountRole = SubAccountRole.Buyer }));
-    }
-
-    [TestMethod]
-    public void CheckoutState_Blocked_OnlyWhenRequiredAndNotApproved()
-    {
-        Assert.IsFalse(new OrderApprovalCheckoutState(false, null, null, null).Blocked);
-        Assert.IsTrue(new OrderApprovalCheckoutState(true, 1, 2, null).Blocked);
-        Assert.IsTrue(new OrderApprovalCheckoutState(true, 1, 2,
-            new OrderApproval { Status = OrderApprovalStatus.Pending }).Blocked);
-        Assert.IsFalse(new OrderApprovalCheckoutState(true, 1, 2,
-            new OrderApproval { Status = OrderApprovalStatus.Approved }).Blocked);
     }
 
     #endregion

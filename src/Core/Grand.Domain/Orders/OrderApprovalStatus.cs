@@ -11,7 +11,7 @@ public enum OrderApprovalStatus
     Pending = 0,
 
     /// <summary>
-    ///     Approved, not yet used by an order
+    ///     Approved; the order was released
     /// </summary>
     Approved = 10,
 
@@ -23,10 +23,5 @@ public enum OrderApprovalStatus
     /// <summary>
     ///     Withdrawn by the buyer
     /// </summary>
-    Withdrawn = 30,
-
-    /// <summary>
-    ///     Consumed by a placed order
-    /// </summary>
-    Used = 40
+    Withdrawn = 30
 }

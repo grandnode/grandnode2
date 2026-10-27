@@ -46,7 +46,6 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
             // confirm order
             OrderReviewData: null,
             MinOrderTotalWarning: null,
-            OrderApproval: null,
             TermsOfServiceOnOrderConfirmPage: null,
             ConfirmWarnings: null,
             // terms of service
@@ -280,7 +279,6 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
                             var model = response.data.update_section.model;
                             vmorder.MinOrderTotalWarning = model.MinOrderTotalWarning;
                             vmorder.ConfirmWarnings = model.Warnings;
-                            vmorder.OrderApproval = model.OrderApproval;
                             vmorder.OrderReviewData = model.OrderReviewData;
                             vmorder.Confirm = true;
                             vmorder.updateTotals();

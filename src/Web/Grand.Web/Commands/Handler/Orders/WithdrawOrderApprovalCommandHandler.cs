@@ -23,9 +23,9 @@ public class WithdrawOrderApprovalCommandHandler : IRequestHandler<WithdrawOrder
         var approval = await _orderApprovalService.GetById(request.ApprovalId,
             OrderApprovalRules.CompanyId(request.Customer));
 
-        // a request can be withdrawn only by its own buyer, while it is still open or waiting to be used
+        // a request can be withdrawn only by its own buyer, while it is still open
         if (approval == null || approval.CustomerId != request.Customer.Id || approval.StoreId != request.Store.Id ||
-            approval.Status is not (OrderApprovalStatus.Pending or OrderApprovalStatus.Approved))
+            approval.Status != OrderApprovalStatus.Pending)
             return false;
 
         approval.Status = OrderApprovalStatus.Withdrawn;

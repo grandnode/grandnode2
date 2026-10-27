@@ -51,7 +51,7 @@ public class GetOrderApprovalHandler : IRequestHandler<GetOrderApproval, OrderAp
             Status = _enumTranslationService.GetTranslationEnum(approval.Status),
             DecisionComment = approval.DecisionComment,
             CanDecide = isApprover && approval.Status == OrderApprovalStatus.Pending,
-            CanWithdraw = isBuyer && approval.Status is OrderApprovalStatus.Pending or OrderApprovalStatus.Approved
+            CanWithdraw = isBuyer && approval.Status == OrderApprovalStatus.Pending
         };
 
         if (approval.DecidedOnUtc.HasValue)

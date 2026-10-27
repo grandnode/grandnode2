@@ -5,7 +5,7 @@ using Grand.Domain.Orders;
 namespace Grand.Business.Core.Interfaces.Checkout.Orders;
 
 /// <summary>
-///     Order approval service: a company sub-account's cart is approved before the order is placed
+///     Order approval service: a company sub-account's order waits for an approver's decision
 /// </summary>
 public interface IOrderApprovalService
 {
@@ -18,12 +18,11 @@ public interface IOrderApprovalService
     Task<OrderApproval> GetById(string id, string companyOwnerId);
 
     /// <summary>
-    ///     Gets the newest pending or approved request of the customer in the store
+    ///     Gets the approval request of an order
     /// </summary>
-    /// <param name="customerId">Buyer identifier</param>
-    /// <param name="storeId">Store identifier</param>
-    /// <returns>Approval; null when there is none</returns>
-    Task<OrderApproval> GetActive(string customerId, string storeId);
+    /// <param name="orderId">Order identifier</param>
+    /// <returns>Approval; null when the order has none</returns>
+    Task<OrderApproval> GetByOrderId(string orderId);
 
     /// <summary>
     ///     Gets the company's requests in the store, pending first and then the newest
@@ -58,12 +57,17 @@ public interface IOrderApprovalService
     Task Update(OrderApproval approval);
 
     /// <summary>
-    ///     Works out whether the cart needs an approval before the order is placed.
-    ///     An approval is needed when the customer is a sub-account buyer with an order limit, the sub-account
-    ///     feature is on, the order total is known and exceeds the limit. It is satisfied by an approved request
-    ///     of the same customer and store for the same cart whose amount is not below the current total.
+    ///     Works out whether the order being placed from the cart has to wait for an approval.
+    ///     It does when the customer is a sub-account buyer with an order limit, the sub-account feature is on,
+    ///     the order total is known and exceeds the limit.
     /// </summary>
     /// <param name="cart">Shopping cart of the customer</param>
     /// <param name="context">Customer, store and currency the cart is calculated for</param>
-    Task<OrderApprovalCheckoutState> GetCheckoutState(IList<ShoppingCartItem> cart, CalculationContext context);
+    Task<OrderApprovalCheckoutState> RequiresApproval(IList<ShoppingCartItem> cart, CalculationContext context);
+
+    /// <summary>
+    ///     Gets a value indicating whether the payment method may be used for an order that needs an approval
+    /// </summary>
+    /// <param name="paymentMethodSystemName">Payment method system name</param>
+    bool IsPaymentMethodAllowed(string paymentMethodSystemName);
 }
