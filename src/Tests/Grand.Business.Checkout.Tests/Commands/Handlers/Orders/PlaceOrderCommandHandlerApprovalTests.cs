@@ -127,6 +127,29 @@ public class PlaceOrderCommandHandlerApprovalTests
         _approvalService.Verify(x => x.IsPaymentMethodAllowed(It.IsAny<string>()), Times.Never);
     }
 
+    [TestMethod]
+    public async Task Handle_PaidOrderAwaitingApproval_DoesNotProcessItAsPaid()
+    {
+        Requires(true);
+        _approvalService.Setup(x => x.IsPaymentMethodAllowed("Payments.Card")).Returns(true);
+        _handler.PaidResult = true;
+
+        await _handler.Handle(_command, CancellationToken.None);
+
+        _mediator.Verify(x => x.Send(It.IsAny<ProcessOrderPaidCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_PaidOrderNotAwaitingApproval_ProcessesItAsPaid()
+    {
+        Requires(false);
+        _handler.PaidResult = true;
+
+        await _handler.Handle(_command, CancellationToken.None);
+
+        _mediator.Verify(x => x.Send(It.IsAny<ProcessOrderPaidCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
     private class TestHandler : PlaceOrderCommandHandler
     {
         private readonly PlaceOrderContainer _details;
@@ -153,6 +176,7 @@ public class PlaceOrderCommandHandlerApprovalTests
         }
 
         public int PaymentCalls { get; private set; }
+        public bool PaidResult { get; set; }
         public Order LastHeader { get; private set; }
 
         protected override Task<PlaceOrderContainer> PreparePlaceOrderDetails(PlaceOrderCommand command)
@@ -165,7 +189,10 @@ public class PlaceOrderCommandHandlerApprovalTests
         {
             PaymentCalls++;
             return Task.FromResult((
-                new ProcessPaymentResult { NewPaymentTransactionStatus = TransactionStatus.Pending },
+                new ProcessPaymentResult {
+                    NewPaymentTransactionStatus = PaidResult ? TransactionStatus.Paid : TransactionStatus.Pending,
+                    PaidAmount = PaidResult ? details.OrderTotal : 0
+                },
                 new PaymentTransaction {
                     Id = "tx", StoreId = "store", PaymentMethodSystemName = details.PaymentMethodSystemName
                 }));

@@ -28,6 +28,7 @@ public class OrderPlacedOrderApprovalHandlerTests
     private OrderPlacedOrderApprovalHandler _handler;
     private Mock<ICustomerMessageProviderService> _messages;
     private Order _order;
+    private Mock<ILogger<OrderPlacedOrderApprovalHandler>> _logger;
     private Customer _owner;
     private OrderApproval _inserted;
 
@@ -56,9 +57,10 @@ public class OrderPlacedOrderApprovalHandlerTests
         priceFormatter.Setup(x => x.FormatPrice(It.IsAny<double>(), currency))
             .Returns<double, Currency>((p, _) => $"{p:0.00} EUR");
 
+        _logger = new Mock<ILogger<OrderPlacedOrderApprovalHandler>>();
         _handler = new OrderPlacedOrderApprovalHandler(_approvalService.Object, _customerService.Object,
             _messages.Object, storeService.Object, productService.Object, priceFormatter.Object,
-            currencyService.Object, new Mock<ILogger<OrderPlacedOrderApprovalHandler>>().Object);
+            currencyService.Object, _logger.Object);
 
         _owner = new Customer { Id = "owner", Email = "owner@acme.example", Active = true };
         _buyer = new Customer {
@@ -172,6 +174,30 @@ public class OrderPlacedOrderApprovalHandlerTests
         _messages.Verify(x => x.SendOrderApprovalRequestedMessage(_inserted, _buyer, Capture.In(recipients),
             It.IsAny<Store>(), "en", null), Times.Exactly(2));
         CollectionAssert.AreEquivalent(new[] { "owner", "a1" }, recipients.Select(x => x.Id).ToList());
+    }
+
+    [TestMethod]
+    public async Task Handle_InsertThrows_CompletesAndLogs()
+    {
+        Staff();
+        _approvalService.Setup(x => x.Insert(It.IsAny<OrderApproval>())).ThrowsAsync(new InvalidOperationException("db"));
+
+        await _handler.Handle(new OrderPlacedEvent(_order), CancellationToken.None);
+
+        _logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_BuyerMissing_CompletesAndLogs()
+    {
+        _customerService.Setup(x => x.GetCustomerById("buyer")).ReturnsAsync((Customer)null);
+
+        await _handler.Handle(new OrderPlacedEvent(_order), CancellationToken.None);
+
+        _approvalService.Verify(x => x.Insert(It.IsAny<OrderApproval>()), Times.Never);
+        _logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
     }
 
     [TestMethod]

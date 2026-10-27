@@ -57,13 +57,33 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         if (order.OrderStatusId != (int)OrderStatusSystem.AwaitingApproval)
             return;
 
+        try
+        {
+            await CreateApprovalRequest(order);
+        }
+        catch (Exception ex)
+        {
+            // the order is already placed: publishing must complete whatever happens here
+            _logger.LogError(ex,
+                "Order {OrderNumber} ({OrderId}) awaits approval but its approval request could not be created",
+                order.OrderNumber, order.Id);
+        }
+    }
+
+    private async Task CreateApprovalRequest(Order order)
+    {
         // one request per order, even if the event is raised twice
         if (await _orderApprovalService.GetByOrderId(order.Id) != null)
             return;
 
         var buyer = await _customerService.GetCustomerById(order.CustomerId);
         if (buyer == null)
+        {
+            _logger.LogError(
+                "Order {OrderNumber} ({OrderId}) awaits approval but its approval request could not be created: buyer {CustomerId} not found",
+                order.OrderNumber, order.Id, order.CustomerId);
             return;
+        }
 
         var companyOwnerId = string.IsNullOrEmpty(order.OwnerId) ? OrderApprovalRules.CompanyId(buyer) : order.OwnerId;
         var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);

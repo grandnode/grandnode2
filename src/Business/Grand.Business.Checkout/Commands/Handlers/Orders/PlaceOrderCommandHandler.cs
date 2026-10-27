@@ -220,7 +220,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 //raise event       
                 await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder), cancellationToken);
 
-                if (result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)
+                //an order awaiting approval is processed as paid once it is approved (store owner and vendors hear of it then)
+                if (!details.ApprovalRequired && result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)
                     await _mediator.Send(new ProcessOrderPaidCommand { Order = result.PlacedOrder }, cancellationToken);
 
                 #endregion
