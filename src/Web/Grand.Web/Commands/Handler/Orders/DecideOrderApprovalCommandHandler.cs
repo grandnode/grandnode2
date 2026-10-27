@@ -55,21 +55,39 @@ public class DecideOrderApprovalCommandHandler : IRequestHandler<DecideOrderAppr
         if (order == null || order.OrderStatusId != (int)OrderStatusSystem.AwaitingApproval)
             return false;
 
+        var buyer = await _customerService.GetCustomerById(approval.CustomerId);
+
+        // the order moves first: when that fails the request stays Pending and can be decided again
+        try
+        {
+            if (request.Approve)
+                // the order was placed in the awaiting status; nobody is told about the status change itself
+                await _mediator.Send(new SetOrderStatusCommand {
+                    Order = order, Os = OrderStatusSystem.Pending, NotifyCustomer = false, NotifyStoreOwner = false
+                }, cancellationToken);
+            else
+                // the customer is not told about the cancellation: the decision e-mail below says it
+                await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = false },
+                    cancellationToken);
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Order approval {Id}: the order could not be moved, the request stays pending",
+                approval.Id);
+            return false;
+        }
+
         approval.Status = request.Approve ? OrderApprovalStatus.Approved : OrderApprovalStatus.Rejected;
         approval.DecidedOnUtc = DateTime.UtcNow;
         approval.DecidedByCustomerId = request.Approver.Id;
         approval.DecisionComment = NormalizeComment(request.Comment);
         await _orderApprovalService.Update(approval);
 
-        var buyer = await _customerService.GetCustomerById(approval.CustomerId);
-
+        // from here the order is an ordinary one: a later failure must not undo or abort the decision
         if (request.Approve)
-            await Approve(order, buyer, request, cancellationToken);
-        else
-            // the customer is not told about the cancellation: the decision e-mail below says it
-            await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = false }, cancellationToken);
+            await ContinueApproved(order, buyer, request, cancellationToken);
 
-        await Notify(approval.Id, async () =>
+        await Guard(approval.Id, "decision e-mail", async () =>
         {
             if (buyer != null && !string.IsNullOrWhiteSpace(buyer.Email))
                 await _messageProviderService.SendOrderApprovalDecidedMessage(approval, buyer, request.Store,
@@ -79,38 +97,36 @@ public class DecideOrderApprovalCommandHandler : IRequestHandler<DecideOrderAppr
         return true;
     }
 
-    private async Task Approve(Order order, Customer buyer, DecideOrderApprovalCommand request,
+    private async Task ContinueApproved(Order order, Customer buyer, DecideOrderApprovalCommand request,
         CancellationToken cancellationToken)
     {
-        // the order was placed in the awaiting status; nobody is told about the status change itself
-        await _mediator.Send(new SetOrderStatusCommand {
-            Order = order, Os = OrderStatusSystem.Pending, NotifyCustomer = false, NotifyStoreOwner = false
-        }, cancellationToken);
-        await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
+        await Guard(order.Id, "order status check",
+            () => _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken));
 
         // the customer got the "order placed" e-mail at placement; the store owner and the vendors hear now
-        await Notify(order.Id, () => _mediator.Send(new OrderNotificationCommand {
+        await Guard(order.Id, "store owner and vendor e-mails", () => _mediator.Send(new OrderNotificationCommand {
             Order = order, Customer = buyer, Host = request.Host, NotifyCustomer = false,
             NotifyStoreOwnerAndVendors = true
         }, cancellationToken));
 
         // the "paid" processing was held back at placement
         if (order.PaymentStatusId == PaymentStatus.Paid)
-            await _mediator.Send(new ProcessOrderPaidCommand { Order = order }, cancellationToken);
+            await Guard(order.Id, "paid processing",
+                () => _mediator.Send(new ProcessOrderPaidCommand { Order = order }, cancellationToken));
     }
 
     /// <summary>
-    ///     A failed e-mail must neither undo nor abort a decision that is already saved
+    ///     A failed follow-up step must neither undo nor abort a decision that is already saved
     /// </summary>
-    private async Task Notify(string id, Func<Task> send)
+    private async Task Guard(string id, string step, Func<Task> run)
     {
         try
         {
-            await send();
+            await run();
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Order approval e-mail for {Id} could not be sent", id);
+            _logger.LogError(e, "Order approval {Id}: {Step} failed after the decision was saved", id, step);
         }
     }
 

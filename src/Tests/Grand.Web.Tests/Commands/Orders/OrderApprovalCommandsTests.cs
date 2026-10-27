@@ -42,6 +42,7 @@ public class OrderApprovalCommandsTests
     private Mock<ICustomerService> _customers;
     private Mock<IOrderService> _orders;
     private Mock<IMediator> _mediator;
+    private Mock<ILogger<DecideOrderApprovalCommandHandler>> _logger;
     private Order _order;
 
     private static IRequestTranslationService Translation()
@@ -77,6 +78,7 @@ public class OrderApprovalCommandsTests
         _messages = new Mock<ICustomerMessageProviderService>();
         _customers = new Mock<ICustomerService>();
         _mediator = new Mock<IMediator>();
+        _logger = new Mock<ILogger<DecideOrderApprovalCommandHandler>>();
         _order = new Order {
             Id = "o1", CustomerId = "buyer", OwnerId = OwnerId, StoreId = StoreId,
             OrderStatusId = (int)OrderStatusSystem.AwaitingApproval
@@ -85,7 +87,7 @@ public class OrderApprovalCommandsTests
         _orders.Setup(o => o.GetOrderById("o1")).ReturnsAsync(() => _order);
     }
 
-    
+
 
     #region Decide
 
@@ -93,7 +95,7 @@ public class OrderApprovalCommandsTests
     {
         _customers.Setup(c => c.GetCustomerById("buyer")).ReturnsAsync(Buyer());
         return new DecideOrderApprovalCommandHandler(_approvals.Object, _customers.Object, _messages.Object,
-            _orders.Object, _mediator.Object, new Mock<ILogger<DecideOrderApprovalCommandHandler>>().Object);
+            _orders.Object, _mediator.Object, _logger.Object);
     }
 
     private static DecideOrderApprovalCommand DecideCommand(Customer approver, bool approve = true,
@@ -232,7 +234,8 @@ public class OrderApprovalCommandsTests
 
     #region Withdraw
 
-    private WithdrawOrderApprovalCommandHandler Withdrawer() => new(_approvals.Object, _orders.Object, _mediator.Object);
+    private WithdrawOrderApprovalCommandHandler Withdrawer() => new(_approvals.Object, _orders.Object, _mediator.Object,
+        new Mock<ILogger<WithdrawOrderApprovalCommandHandler>>().Object);
 
     [TestMethod]
     public async Task Withdraw_Own_Withdrawn()
@@ -402,6 +405,77 @@ public class OrderApprovalCommandsTests
         Assert.AreSame(_order, cancel.Order);
         Assert.AreEqual(0, sent.OfType<SetOrderStatusCommand>().Count());
         Assert.AreEqual(0, sent.OfType<OrderNotificationCommand>().Count());
+        _messages.Verify(m => m.SendOrderApprovalDecidedMessage(approval, It.IsAny<Customer>(),
+            It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Reject_CancelThrows_ApprovalStaysPendingAndFailureIsReported()
+    {
+        Sent();
+        _mediator.Setup(m => m.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("boom"));
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false), default);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _messages.Verify(m => m.SendOrderApprovalDecidedMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
+            It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_CancelThrows_ApprovalStaysPendingAndFailureIsReported()
+    {
+        _mediator.Setup(m => m.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("boom"));
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Withdrawer().Handle(
+            new WithdrawOrderApprovalCommand { Customer = Buyer(), Store = Shop(), ApprovalId = "a1" }, default);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Approve_SetStatusThrows_ApprovalStaysPending()
+    {
+        var sent = Sent();
+        _mediator.Setup(m => m.Send(It.IsAny<SetOrderStatusCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("boom"));
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        Assert.AreEqual(0, sent.Count);
+    }
+
+    [TestMethod]
+    public async Task Approve_ProcessPaidThrows_DecisionStandsAndIsLogged()
+    {
+        Sent();
+        _order.PaymentStatusId = PaymentStatus.Paid;
+        _mediator.Setup(m => m.Send(It.IsAny<ProcessOrderPaidCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new Exception("boom"));
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
+
+        Assert.IsTrue(result);
+        Assert.AreEqual(OrderApprovalStatus.Approved, approval.Status);
+        _logger.Verify(l => l.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Once);
         _messages.Verify(m => m.SendOrderApprovalDecidedMessage(approval, It.IsAny<Customer>(),
             It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
     }
