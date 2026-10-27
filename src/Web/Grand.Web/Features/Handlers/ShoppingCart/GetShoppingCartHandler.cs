@@ -138,7 +138,6 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
 
         await PrepareSimpleProperties(model, request);
 
-
         await PrepareCheckoutAttributes(model, request);
 
         await PrepareCartItems(model, request);

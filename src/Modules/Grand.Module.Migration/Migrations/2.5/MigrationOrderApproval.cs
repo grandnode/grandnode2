@@ -12,10 +12,12 @@ using System.Text.Json;
 namespace Grand.Module.Migration.Migrations._2._5;
 
 /// <summary>
-///     Prepares an existing installation for B2B order approval: the indexes of the OrderApproval collection and the
-///     two e-mails it sends. The installer creates the same for new installations (it is not referenced from here,
+///     Prepares an existing installation for B2B order approval: the indexes of the OrderApproval collection, the
+///     two e-mails it sends, the "Awaiting approval" order status and the default payment methods allowed for such
+///     orders. The installer creates the same for new installations (it is not referenced from here,
 ///     so the template bodies are repeated below - a test keeps their subjects and tokens equal).
-///     Idempotent: a template with that name (the operator may have created or edited one) is never touched.
+///     Idempotent: a template, status or setting that exists (the operator may have created or edited one) is
+///     never touched.
 /// </summary>
 public class MigrationOrderApproval : IMigration
 {
@@ -25,12 +27,14 @@ public class MigrationOrderApproval : IMigration
     public int Priority => 1;
     public DbVersion Version => new(2, 5);
     public Guid Identity => new("b7c3e5a1-48d2-4f60-9b17-3a5e8d02c6f4");
-    public string Name => "Order approval indexes and message templates 2.5";
+    public string Name => "Order approval indexes, order status, settings and message templates 2.5";
 
     public async Task<bool> UpgradeProcess(IServiceProvider serviceProvider)
     {
         var orderApprovalRepository = serviceProvider.GetRequiredService<IRepository<OrderApproval>>();
         var templateRepository = serviceProvider.GetRequiredService<IRepository<MessageTemplate>>();
+        var orderStatusRepository = serviceProvider.GetRequiredService<IRepository<OrderStatus>>();
+        var settingRepository = serviceProvider.GetRequiredService<IRepository<Setting>>();
         var databaseContext = serviceProvider.GetRequiredService<IDatabaseContext>();
         var logService = serviceProvider.GetRequiredService<ILogger<MigrationOrderApproval>>();
 
@@ -57,12 +61,17 @@ public class MigrationOrderApproval : IMigration
                 inserted = true;
             }
 
-            //a lookup made before the upgrade may have cached "no such template"
-            if (inserted)
+            var statusInserted = await InsertAwaitingApprovalStatus(orderStatusRepository);
+            await InsertSettings(settingRepository);
+
+            //a lookup made before the upgrade may have cached "no such template" or the list of statuses without it
+            var cache = serviceProvider.GetService<ICacheBase>();
+            if (cache != null)
             {
-                var cache = serviceProvider.GetService<ICacheBase>();
-                if (cache != null)
+                if (inserted)
                     await cache.RemoveByPrefix(CacheKey.MESSAGETEMPLATES_PATTERN_KEY);
+                if (statusInserted)
+                    await cache.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
             }
         }
         catch (Exception ex)
@@ -72,6 +81,38 @@ public class MigrationOrderApproval : IMigration
         }
 
         return true;
+    }
+
+    /// <summary>
+    ///     Status 5 is reserved for the system: statuses an administrator adds get the highest id plus 10, so it never
+    ///     collides with a custom one. A row that has this id already is left as it is.
+    /// </summary>
+    private static async Task<bool> InsertAwaitingApprovalStatus(IRepository<OrderStatus> repository)
+    {
+        const int statusId = (int)OrderStatusSystem.AwaitingApproval;
+        var existing = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.StatusId == statusId));
+        if (existing != null) return false;
+
+        await repository.InsertAsync(new OrderStatus {
+            StatusId = statusId, Name = "Awaiting approval", DisplayOrder = 5, IsSystem = true
+        });
+        return true;
+    }
+
+    /// <summary>
+    ///     The global setting, as the installer saves it; an existing one (the operator may have chosen other
+    ///     methods already) is never overwritten
+    /// </summary>
+    private static async Task InsertSettings(IRepository<Setting> repository)
+    {
+        var name = nameof(OrderApprovalSettings).ToLowerInvariant();
+        var existing = await repository.FirstOrDefaultAsync(
+            repository.Table.Where(x => x.Name == name && (x.StoreId == null || x.StoreId == "")));
+        if (existing != null) return;
+
+        await repository.InsertAsync(SettingExtensions.CreateSetting(new OrderApprovalSettings {
+            PaymentMethodSystemNames = ["Payments.CashOnDelivery"]
+        }));
     }
 
     /// <summary>
@@ -108,13 +149,13 @@ public class MigrationOrderApproval : IMigration
     {
         yield return new MessageTemplate {
             Name = RequestedTemplateName,
-            Subject = "{{Store.Name}} — Order approval requested by {{OrderApproval.BuyerName}}",
+            Subject = "{{Store.Name}}: order approval requested by {{OrderApproval.BuyerName}}",
             Body = Layout(
-                "An order is waiting for your approval.",
+                "Order #{{OrderApproval.OrderNumber}} is waiting for your approval.",
                 "Order approval requested",
                 @"
 <p>Hello {{Customer.FullName | Escape}},</p>
-<p><strong>{{OrderApproval.BuyerName | Escape}}</strong> ({{OrderApproval.BuyerEmail | Escape}}) asked you to approve an order at <strong>{{Store.Name}}</strong>. It will not be placed until you decide.</p>"
+<p><strong>{{OrderApproval.BuyerName | Escape}}</strong> ({{OrderApproval.BuyerEmail | Escape}}) asked you to approve order <strong>#{{OrderApproval.OrderNumber}}</strong> at <strong>{{Store.Name}}</strong>. The order is on hold until you decide.</p>"
                 + Button("{{OrderApproval.Url}}", "Review the order") + @"
 <p>The order contains:</p>
 {{OrderApproval.ItemsHtml}}
@@ -124,18 +165,18 @@ public class MigrationOrderApproval : IMigration
         };
         yield return new MessageTemplate {
             Name = DecidedTemplateName,
-            Subject = "{{Store.Name}} — Your order approval request: {{OrderApproval.Status}}",
+            Subject = "{{Store.Name}}: your order approval request is {{OrderApproval.Status}}",
             Body = Layout(
                 "Your order approval request has been decided.",
                 "Order approval {{OrderApproval.Status}}",
                 @"
 <p>Hello {{Customer.FullName | Escape}},</p>
-<p>Your request to approve an order at <strong>{{Store.Name}}</strong> has been decided. Status: <strong>{{OrderApproval.Status}}</strong>.</p>
+<p>Your request to approve order <strong>#{{OrderApproval.OrderNumber}}</strong> at <strong>{{Store.Name}}</strong> has been decided. Status: <strong>{{OrderApproval.Status}}</strong>.</p>
 {% if OrderApproval.DecisionComment != null and OrderApproval.DecisionComment != '' %}
 <p>Comment from the approver:</p>
 <p style='padding: 0.8em 1em; background-color: #f4f4f5; border-radius: 6px;'>{{OrderApproval.DecisionComment}}</p>
 {% endif %}"
-                + Button("{{OrderApproval.CartUrl}}", "Go to your cart") + @"
+                + Button("{{OrderApproval.OrderUrl}}", "View your order") + @"
 <p>The order contains:</p>
 {{OrderApproval.ItemsHtml}}
 <p style='text-align: right;'><strong>Order total: {{OrderApproval.Total}}</strong></p>

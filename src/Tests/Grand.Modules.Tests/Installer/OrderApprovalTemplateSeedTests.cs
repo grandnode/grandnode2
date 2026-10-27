@@ -1,4 +1,4 @@
-using Grand.Business.Messages.DotLiquidDrops;
+﻿using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Messages;
 using Grand.Module.Installer.Services.MessageTemplates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -50,6 +50,38 @@ public class OrderApprovalTemplateSeedTests
         Assert.IsFalse(body.Contains("A <b>"));
         StringAssert.Contains(body, "<table>ITEMS</table>");
         StringAssert.Contains(body, "href='https://store.example/account/orderapproval?id=1'");
+    }
+
+    [TestMethod]
+    public void Requested_ShowsTheOrderNumber()
+    {
+        var body = LiquidExtensions.Render(
+            new LiquidObject { OrderApproval = new LiquidOrderApproval { OrderNumber = "1042" } },
+            Template("OrderApproval.Requested").Body);
+
+        StringAssert.Contains(body, "1042");
+    }
+
+    [TestMethod]
+    public void Decided_LinksToTheOrderNotTheCart()
+    {
+        var template = Template("OrderApproval.Decided");
+        var body = LiquidExtensions.Render(
+            new LiquidObject {
+                OrderApproval = new LiquidOrderApproval { OrderUrl = "https://store.example/orderdetails/o1" }
+            }, template.Body);
+
+        StringAssert.Contains(body, "href='https://store.example/orderdetails/o1'");
+        Assert.IsFalse(body.Contains("/cart"));
+        Assert.IsFalse(template.Body.Contains("OrderApproval.CartUrl"));
+    }
+
+    [TestMethod]
+    [DataRow("OrderApproval.Requested")]
+    [DataRow("OrderApproval.Decided")]
+    public void Subject_HasNoEmDash(string name)
+    {
+        Assert.IsFalse(Template(name).Subject.Contains('—'));
     }
 
     [TestMethod]

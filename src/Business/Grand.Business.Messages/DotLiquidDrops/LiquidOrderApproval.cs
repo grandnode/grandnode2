@@ -39,9 +39,14 @@ public class LiquidOrderApproval : Drop
     public string Url { get; set; }
 
     /// <summary>
-    ///     Absolute link to the buyer's cart
+    ///     Number of the order awaiting the decision; empty when the order no longer exists
     /// </summary>
-    public string CartUrl { get; set; }
+    public string OrderNumber { get; set; }
+
+    /// <summary>
+    ///     Absolute link to the order in the buyer's account
+    /// </summary>
+    public string OrderUrl { get; set; }
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

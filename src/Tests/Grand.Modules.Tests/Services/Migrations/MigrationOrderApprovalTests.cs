@@ -4,6 +4,7 @@ using Grand.Domain.Configuration;
 using Grand.Domain.Messages;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Module.Installer.Services.MessageTemplates;
 using Grand.Module.Migration.Migrations._2._5;
 using Grand.Modules.Tests.Installer;
@@ -23,6 +24,7 @@ public class MigrationOrderApprovalTests
     private LiteDBRepositoryMock<MessageTemplate> _templates;
     private LiteDBRepositoryMock<EmailAccount> _emailAccounts;
     private LiteDBRepositoryMock<Setting> _settings;
+    private LiteDBRepositoryMock<OrderStatus> _orderStatuses;
     private Mock<IDatabaseContext> _context;
     private Mock<ICacheBase> _cache;
     private IServiceProvider _serviceProvider;
@@ -34,6 +36,7 @@ public class MigrationOrderApprovalTests
         _templates = new LiteDBRepositoryMock<MessageTemplate>();
         _emailAccounts = new LiteDBRepositoryMock<EmailAccount>();
         _settings = new LiteDBRepositoryMock<Setting>();
+        _orderStatuses = new LiteDBRepositoryMock<OrderStatus>();
         _context = new Mock<IDatabaseContext>();
         _cache = new Mock<ICacheBase>();
         _serviceProvider = BuildServices();
@@ -46,6 +49,7 @@ public class MigrationOrderApprovalTests
         services.AddSingleton<IRepository<MessageTemplate>>(_templates);
         services.AddSingleton<IRepository<EmailAccount>>(_emailAccounts);
         services.AddSingleton<IRepository<Setting>>(_settings);
+        services.AddSingleton<IRepository<OrderStatus>>(_orderStatuses);
         services.AddSingleton(Mock.Of<IRepository<OrderApproval>>());
         services.AddSingleton(_context.Object);
         services.AddSingleton(_cache.Object);
@@ -76,7 +80,7 @@ public class MigrationOrderApprovalTests
             Assert.IsFalse(string.IsNullOrWhiteSpace(template.Body));
         }
 
-        _cache.Verify(x => x.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+        _cache.Verify(x => x.RemoveByPrefix(CacheKey.MESSAGETEMPLATES_PATTERN_KEY, It.IsAny<bool>()), Times.Once);
     }
 
     [TestMethod]
@@ -91,7 +95,7 @@ public class MigrationOrderApprovalTests
         var after = _templates.Table.OrderBy(x => x.Name).ToList().Select(x => (x.Id, x.Name, x.Subject, x.Body)).ToList();
         CollectionAssert.AreEqual(before, after);
         //nothing inserted, so no reason to drop the cached lookups again
-        _cache.Verify(x => x.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+        _cache.Verify(x => x.RemoveByPrefix(CacheKey.MESSAGETEMPLATES_PATTERN_KEY, It.IsAny<bool>()), Times.Once);
     }
 
     [TestMethod]
@@ -165,6 +169,86 @@ public class MigrationOrderApprovalTests
             .ThrowsAsync(new InvalidOperationException("index"));
 
         Assert.IsFalse(await _migration.UpgradeProcess(_serviceProvider));
+    }
+
+    [TestMethod]
+    public async Task Upgrade_SeedsTheAwaitingApprovalStatusOnce()
+    {
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+
+        var status = _orderStatuses.Table.Single(x => x.StatusId == (int)OrderStatusSystem.AwaitingApproval);
+        Assert.AreEqual("Awaiting approval", status.Name);
+        Assert.AreEqual(5, status.DisplayOrder);
+        Assert.IsTrue(status.IsSystem);
+        Assert.AreEqual(1, _orderStatuses.Table.Count());
+        //the cached list of statuses would not show the new one
+        _cache.Verify(x => x.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL, It.IsAny<bool>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Upgrade_ExistingStatusWithThatIdIsKept()
+    {
+        _orderStatuses.Insert(new OrderStatus { StatusId = 5, Name = "Our status", DisplayOrder = 9, IsSystem = false });
+
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+
+        var status = _orderStatuses.Table.Single();
+        Assert.AreEqual("Our status", status.Name);
+        Assert.AreEqual(9, status.DisplayOrder);
+        Assert.IsFalse(status.IsSystem);
+    }
+
+    [TestMethod]
+    public async Task Upgrade_LeavesTheOtherOrderStatusesAlone()
+    {
+        _orderStatuses.Insert(new OrderStatus { StatusId = 10, Name = "Pending", IsSystem = true });
+
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+
+        Assert.AreEqual(2, _orderStatuses.Table.Count());
+        Assert.AreEqual("Pending", _orderStatuses.Table.Single(x => x.StatusId == 10).Name);
+    }
+
+    [TestMethod]
+    public async Task Upgrade_SeedsTheOrderApprovalSettingsOnce()
+    {
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+
+        var name = nameof(OrderApprovalSettings).ToLowerInvariant();
+        var setting = _settings.Table.Single(x => x.Name == name);
+        Assert.IsTrue(string.IsNullOrEmpty(setting.StoreId));
+        var settings = System.Text.Json.JsonSerializer.Deserialize<OrderApprovalSettings>(setting.Metadata);
+        CollectionAssert.AreEqual(new[] { "Payments.CashOnDelivery" }, settings.PaymentMethodSystemNames);
+    }
+
+    [TestMethod]
+    public async Task Upgrade_ExistingOrderApprovalSettingsAreKept()
+    {
+        _settings.Insert(SettingExtensions.CreateSetting(new OrderApprovalSettings {
+            PaymentMethodSystemNames = ["Payments.Invoice", "Payments.BankTransfer"]
+        }));
+
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+
+        var name = nameof(OrderApprovalSettings).ToLowerInvariant();
+        var setting = _settings.Table.Single(x => x.Name == name);
+        var settings = System.Text.Json.JsonSerializer.Deserialize<OrderApprovalSettings>(setting.Metadata);
+        CollectionAssert.AreEqual(new[] { "Payments.Invoice", "Payments.BankTransfer" },
+            settings.PaymentMethodSystemNames);
+    }
+
+    [TestMethod]
+    public void Templates_RequestedShowsTheOrderNumber_DecidedLinksToTheOrder()
+    {
+        var requested = MigrationOrderApproval.Templates("ea").Single(x => x.Name == "OrderApproval.Requested");
+        var decided = MigrationOrderApproval.Templates("ea").Single(x => x.Name == "OrderApproval.Decided");
+
+        StringAssert.Contains(requested.Body, "{{OrderApproval.OrderNumber}}");
+        StringAssert.Contains(decided.Body, "{{OrderApproval.OrderUrl}}");
+        Assert.IsFalse(decided.Body.Contains("OrderApproval.CartUrl"));
+        Assert.IsFalse(requested.Subject.Contains('—') || decided.Subject.Contains('—'));
     }
 
     [TestMethod]

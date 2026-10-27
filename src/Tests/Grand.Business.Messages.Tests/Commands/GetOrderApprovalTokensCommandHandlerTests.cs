@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Handlers.Messages;
 using Grand.Business.Messages.Commands.Tokens;
@@ -16,6 +17,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
     private GetOrderApprovalTokensCommandHandler _handler;
     private Dictionary<string, string> _resources;
     private Mock<ITranslationService> _translationService;
+    private Mock<IOrderService> _orderService;
 
     [TestInitialize]
     public void Init()
@@ -27,13 +29,16 @@ public class GetOrderApprovalTokensCommandHandlerTests
             .Setup(x => x.GetResource(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
             .Returns((string key, string _, string defaultValue, bool returnEmpty) =>
                 _resources.TryGetValue(key, out var value) ? value : returnEmpty ? string.Empty : defaultValue);
-        _handler = new GetOrderApprovalTokensCommandHandler(_translationService.Object);
+        _orderService = new Mock<IOrderService>();
+        _orderService.Setup(x => x.GetOrderById("order1")).ReturnsAsync(new Order { Id = "order1", OrderNumber = 1042 });
+        _handler = new GetOrderApprovalTokensCommandHandler(_translationService.Object, _orderService.Object);
     }
 
     private static OrderApproval Approval()
     {
         return new OrderApproval {
             Id = "approval1",
+            OrderId = "order1",
             Status = OrderApprovalStatus.Pending,
             Summary = new OrderApprovalSummary { Total = "EUR 120.00" }
         };
@@ -83,7 +88,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
 
         //Assert
         Assert.AreEqual("https://store.example/account/orderapproval?id=approval1", result.Url);
-        Assert.AreEqual("https://store.example/cart", result.CartUrl);
+        Assert.AreEqual("https://store.example/orderdetails/order1", result.OrderUrl);
     }
 
     [TestMethod]
@@ -95,7 +100,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
 
         //Assert
         Assert.AreEqual("https://shop.example/account/orderapproval?id=approval1", result.Url);
-        Assert.AreEqual("https://shop.example/cart", result.CartUrl);
+        Assert.AreEqual("https://shop.example/orderdetails/order1", result.OrderUrl);
     }
 
     [TestMethod]
@@ -164,7 +169,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
         StringAssert.Contains(result.ItemsHtml, ">Razem</th>");
         StringAssert.Contains(result.ItemsHtml, "Kod: D-1");
         Assert.IsFalse(result.ItemsHtml.Contains("Quantity"));
-        Assert.IsFalse(result.ItemsHtml.Contains("Sku"));
+        Assert.IsFalse(result.ItemsHtml.Contains("SKU"));
     }
 
     [TestMethod]
@@ -183,7 +188,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
         StringAssert.Contains(result.ItemsHtml, ">Quantity</th>");
         StringAssert.Contains(result.ItemsHtml, ">Price</th>");
         StringAssert.Contains(result.ItemsHtml, ">Total</th>");
-        StringAssert.Contains(result.ItemsHtml, "Sku: D-1");
+        StringAssert.Contains(result.ItemsHtml, "SKU: D-1");
     }
 
     [TestMethod]
@@ -198,5 +203,30 @@ public class GetOrderApprovalTokensCommandHandlerTests
         //Assert
         StringAssert.Contains(result.ItemsHtml, "&lt;i&gt;Produkt&lt;/i&gt; &amp; co");
         Assert.IsFalse(result.ItemsHtml.Contains("<i>"));
+    }
+
+    [TestMethod]
+    public async Task Handle_FillsTheNumberOfTheOrderAwaitingTheDecision()
+    {
+        //Act
+        var result = await _handler.Handle(Command(Approval()), CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual("1042", result.OrderNumber);
+    }
+
+    [TestMethod]
+    public async Task Handle_OrderGone_LeavesTheNumberEmptyAndStillBuildsTheLink()
+    {
+        //Arrange
+        var approval = Approval();
+        approval.OrderId = "deleted";
+
+        //Act
+        var result = await _handler.Handle(Command(approval), CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(string.Empty, result.OrderNumber);
+        Assert.AreEqual("https://store.example/orderdetails/deleted", result.OrderUrl);
     }
 }

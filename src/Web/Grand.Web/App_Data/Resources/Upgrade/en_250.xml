@@ -229,7 +229,7 @@
 		<Value>Order approval limit</Value>
 	</Resource>
 	<Resource Name="Account.SubAccounts.Fields.OrderApprovalLimit.Hint" Area="Front">
-		<Value>Orders above this amount are only placed after an approver has approved them. Leave empty for no limit. Approvers have no limit.</Value>
+		<Value>Orders above this amount are held until an approver has approved them. Leave empty for no limit. Approvers have no limit.</Value>
 	</Resource>
 	<Resource Name="Account.SubAccounts.Fields.OrderApprovalLimit.Invalid" Area="Front">
 		<Value>Enter an amount of zero or more.</Value>
@@ -246,9 +246,6 @@
 	<Resource Name="Admin.Customers.Customers.SubAccounts.Role" Area="Admin">
 		<Value>Role</Value>
 	</Resource>
-	<Resource Name="Checkout.OrderApproval.Required" Area="Front">
-		<Value>This order is above your limit of {0}. It can only be placed after an approver has approved it.</Value>
-	</Resource>
 	<Resource Name="Enums.Grand.Domain.Customers.SubAccountRole.Approver" Area="Common">
 		<Value>Approver</Value>
 	</Resource>
@@ -264,9 +261,6 @@
 	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Rejected" Area="Common">
 		<Value>Rejected</Value>
 	</Resource>
-	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Used" Area="Common">
-		<Value>Used</Value>
-	</Resource>
 	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Withdrawn" Area="Common">
 		<Value>Withdrawn</Value>
 	</Resource>
@@ -276,32 +270,8 @@
 	<Resource Name="OrderApproval.Buyer" Area="Front">
 		<Value>Requested by</Value>
 	</Resource>
-	<Resource Name="OrderApproval.Cart.Approved" Area="Front">
-		<Value>This cart has been approved. You can place the order at the checkout.</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Cart.Pending" Area="Front">
-		<Value>This cart is waiting for an approval (requested {0}).</Value>
-	</Resource>
 	<Resource Name="OrderApproval.Comment" Area="Front">
 		<Value>Comment</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Confirm.Approved" Area="Front">
-		<Value>This order has been approved. You can place it now.</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Confirm.Pending" Area="Front">
-		<Value>This order is waiting for an approval.</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Confirm.PendingSince" Area="Front">
-		<Value>Requested on</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Confirm.Required" Area="Front">
-		<Value>This order is above your limit. It can only be placed after an approver has approved it.</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Confirm.SendForApproval" Area="Front">
-		<Value>Send for approval</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Confirm.Withdraw" Area="Front">
-		<Value>Withdraw the request</Value>
 	</Resource>
 	<Resource Name="OrderApproval.Date" Area="Front">
 		<Value>Requested on</Value>
@@ -337,7 +307,7 @@
 		<Value>Quantity</Value>
 	</Resource>
 	<Resource Name="OrderApproval.Email.Sku" Area="Front">
-		<Value>Sku</Value>
+		<Value>SKU</Value>
 	</Resource>
 	<Resource Name="OrderApproval.Email.Total" Area="Front">
 		<Value>Total</Value>
@@ -375,15 +345,6 @@
 	<Resource Name="OrderApproval.SubTotal" Area="Front">
 		<Value>Subtotal</Value>
 	</Resource>
-	<Resource Name="OrderApproval.Submit.Failed" Area="Front">
-		<Value>The request could not be sent for approval.</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Submit.NotNeeded" Area="Front">
-		<Value>This order does not need an approval.</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Submit.Success" Area="Front">
-		<Value>The order has been sent for approval.</Value>
-	</Resource>
 	<Resource Name="OrderApproval.Tax" Area="Front">
 		<Value>Tax</Value>
 	</Resource>
@@ -401,5 +362,23 @@
 	</Resource>
 	<Resource Name="OrderApproval.Withdraw.Success" Area="Front">
 		<Value>The request has been withdrawn.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Payment.Settings.OrderApprovalPaymentMethods" Area="Admin">
+		<Value>Payment methods for orders awaiting approval</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.NoPaymentMethod" Area="Front">
+		<Value>No payment method is available for orders that need approval. Please contact the store.</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.PaymentMethodNotAllowed" Area="Front">
+		<Value>This payment method cannot be used for an order that needs approval. Choose another one.</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.SendButton" Area="Front">
+		<Value>Send for approval</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.WillBeSent" Area="Front">
+		<Value>This order is above your limit of {0}. It is placed now, but not processed until an approver has approved it.</Value>
+	</Resource>
+	<Resource Name="OrderApproval.Order" Area="Front">
+		<Value>Order</Value>
 	</Resource>
 </Language>

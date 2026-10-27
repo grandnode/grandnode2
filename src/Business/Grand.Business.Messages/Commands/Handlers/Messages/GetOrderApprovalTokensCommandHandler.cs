@@ -1,4 +1,5 @@
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
@@ -12,17 +13,21 @@ namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
 public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderApprovalTokensCommand, LiquidOrderApproval>
 {
+    private readonly IOrderService _orderService;
     private readonly ITranslationService _translationService;
 
-    public GetOrderApprovalTokensCommandHandler(ITranslationService translationService)
+    public GetOrderApprovalTokensCommandHandler(ITranslationService translationService, IOrderService orderService)
     {
         _translationService = translationService;
+        _orderService = orderService;
     }
 
-    public Task<LiquidOrderApproval> Handle(GetOrderApprovalTokensCommand request, CancellationToken cancellationToken)
+    public async Task<LiquidOrderApproval> Handle(GetOrderApprovalTokensCommand request, CancellationToken cancellationToken)
     {
         var approval = request.Approval;
         var url = (request.Host?.Url ?? request.Store.Url).Trim('/');
+        //the order can be gone (deleted by an admin); the link then simply leads to a missing order
+        var order = string.IsNullOrEmpty(approval.OrderId) ? null : await _orderService.GetOrderById(approval.OrderId);
 
         var liquidOrderApproval = new LiquidOrderApproval {
             BuyerName = request.Buyer.GetFullName(),
@@ -32,9 +37,10 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
             ItemsHtml = ItemsHtml(approval.Items, request.Language.Id),
             DecisionComment = Encode(approval.DecisionComment),
             Url = $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}",
-            CartUrl = $"{url}/cart"
+            OrderNumber = order?.OrderNumber.ToString() ?? string.Empty,
+            OrderUrl = $"{url}/orderdetails/{WebUtility.UrlEncode(approval.OrderId)}"
         };
-        return Task.FromResult(liquidOrderApproval);
+        return liquidOrderApproval;
     }
 
     private static string Encode(string value)
@@ -72,7 +78,7 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
             if (!string.IsNullOrEmpty(item.AttributeDescription))
                 sb.Append("<br />").Append(Encode(item.AttributeDescription));
             if (!string.IsNullOrEmpty(item.Sku))
-                sb.Append("<br />").Append(Label("OrderApproval.Email.Sku", "Sku", languageId)).Append(": ")
+                sb.Append("<br />").Append(Label("OrderApproval.Email.Sku", "SKU", languageId)).Append(": ")
                     .Append(Encode(item.Sku));
             sb.Append("</td>");
             sb.Append("<td style='padding: 0.6em 0.4em; text-align: right;'>").Append(Encode(item.UnitPrice))
