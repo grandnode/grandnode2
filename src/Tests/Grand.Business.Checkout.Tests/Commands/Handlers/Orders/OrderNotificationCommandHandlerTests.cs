@@ -49,6 +49,31 @@ public class OrderNotificationCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_ByDefault_AddsTheOrderPlacedNote()
+    {
+        await _handler.Handle(new OrderNotificationCommand { Order = new Order { Id = "order" }, Customer = new Customer() },
+            CancellationToken.None);
+
+        _orderServiceMock.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
+            n.OrderId == "order" && n.Note == "Order placed")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithoutOrderPlacedNote_AddsNoNoteButStillNotifies()
+    {
+        var customer = new Customer();
+        var order = new Order { Id = "order", CustomerLanguageId = "en" };
+
+        await _handler.Handle(new OrderNotificationCommand {
+            Order = order, Customer = customer, AddOrderPlacedNote = false, NotifyCustomer = false
+        }, CancellationToken.None);
+
+        _orderServiceMock.Verify(x => x.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+        _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedStoreOwnerMessage(order, customer,
+            It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Handle_ByDefault_NotifiesStoreOwnerAndVendors()
     {
         var customer = new Customer();

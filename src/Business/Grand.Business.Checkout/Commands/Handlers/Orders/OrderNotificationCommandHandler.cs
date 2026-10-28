@@ -43,7 +43,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
 
         try
         {
-            if (request.OriginalCustomerIfImpersonated != null)
+            if (request.OriginalCustomerIfImpersonated != null && request.AddOrderPlacedNote)
                 //this order is placed by a store administrator impersonating a customer
                 await _orderService.InsertOrderNote(new OrderNote {
                     Note =
@@ -51,7 +51,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                     DisplayToCustomer = false,
                     OrderId = request.Order.Id
                 });
-            else
+            else if (request.AddOrderPlacedNote)
                 await _orderService.InsertOrderNote(new OrderNote {
                     Note = "Order placed",
                     DisplayToCustomer = false,

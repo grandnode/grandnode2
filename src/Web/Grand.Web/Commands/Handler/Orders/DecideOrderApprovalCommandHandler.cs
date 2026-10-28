@@ -100,13 +100,17 @@ public class DecideOrderApprovalCommandHandler : IRequestHandler<DecideOrderAppr
     private async Task ContinueApproved(Order order, Customer buyer, DecideOrderApprovalCommand request,
         CancellationToken cancellationToken)
     {
+        await Guard(order.Id, "order note", () => _orderService.InsertOrderNote(new OrderNote {
+            Note = "Order approved", DisplayToCustomer = false, OrderId = order.Id
+        }));
+
         await Guard(order.Id, "order status check",
             () => _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken));
 
         // the customer got the "order placed" e-mail at placement; the store owner and the vendors hear now
         await Guard(order.Id, "store owner and vendor e-mails", () => _mediator.Send(new OrderNotificationCommand {
             Order = order, Customer = buyer, Host = request.Host, NotifyCustomer = false,
-            NotifyStoreOwnerAndVendors = true
+            NotifyStoreOwnerAndVendors = true, AddOrderPlacedNote = false
         }, cancellationToken));
 
         // the "paid" processing was held back at placement

@@ -36,4 +36,10 @@ public class OrderNotificationCommand : IRequest
     ///     already got it at placement and only the store owner and the vendors are told later (approved order)
     /// </summary>
     public bool NotifyCustomer { get; set; } = true;
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the "Order placed" order note is added; off when the order already
+    ///     got it at placement (approved order)
+    /// </summary>
+    public bool AddOrderPlacedNote { get; set; } = true;
 }

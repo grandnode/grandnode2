@@ -325,10 +325,35 @@ public class OrderApprovalCommandsTests
         Assert.IsFalse(note.NotifyCustomer);
         Assert.IsTrue(note.NotifyStoreOwnerAndVendors);
         Assert.AreEqual("buyer", note.Customer.Id);
+        // the order got its "Order placed" note at placement
+        Assert.IsFalse(note.AddOrderPlacedNote);
         Assert.AreEqual(0, sent.OfType<ProcessOrderPaidCommand>().Count());
         Assert.AreEqual(0, sent.OfType<CancelOrderCommand>().Count());
         // statuses first, then the e-mails
         Assert.IsTrue(sent.IndexOf(status) < sent.IndexOf(note));
+    }
+
+    [TestMethod]
+    public async Task Approve_AddsOneOrderApprovedNote_HiddenFromTheCustomer()
+    {
+        Sent();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
+
+        await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
+
+        _orders.Verify(o => o.InsertOrderNote(It.Is<OrderNote>(n =>
+            n.OrderId == _order.Id && n.Note == "Order approved" && !n.DisplayToCustomer)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Reject_AddsNoOrderApprovedNote()
+    {
+        Sent();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
+
+        await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false), default);
+
+        _orders.Verify(o => o.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
     }
 
     [TestMethod]
