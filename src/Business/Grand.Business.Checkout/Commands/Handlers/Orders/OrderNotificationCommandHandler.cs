@@ -43,7 +43,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
 
         try
         {
-            if (request.OriginalCustomerIfImpersonated != null)
+            if (request.OriginalCustomerIfImpersonated != null && request.AddOrderPlacedNote)
                 //this order is placed by a store administrator impersonating a customer
                 await _orderService.InsertOrderNote(new OrderNote {
                     Note =
@@ -51,7 +51,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                     DisplayToCustomer = false,
                     OrderId = request.Order.Id
                 });
-            else
+            else if (request.AddOrderPlacedNote)
                 await _orderService.InsertOrderNote(new OrderNote {
                     Note = "Order placed",
                     DisplayToCustomer = false,
@@ -59,39 +59,43 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                 });
 
             //send email notifications
-            await _orderMessageProviderService.SendOrderPlacedStoreOwnerMessage(request.Order, request.Customer,
-                _languageSettings.DefaultAdminLanguageId, request.Host);
+            if (request.NotifyStoreOwnerAndVendors)
+                await _orderMessageProviderService.SendOrderPlacedStoreOwnerMessage(request.Order, request.Customer,
+                    _languageSettings.DefaultAdminLanguageId, request.Host);
 
-            string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
-            var orderPlacedAttachments = new List<string>();
-
-            try
+            if (request.NotifyCustomer)
             {
-                orderPlacedAttachmentFilePath =
-                    _orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !_orderSettings.AttachPdfInvoiceToBinary
-                        ? await _pdfService.PrintOrderToPdf(request.Order, request.Order.CustomerLanguageId)
-                        : null;
-                orderPlacedAttachmentFileName =
-                    _orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !_orderSettings.AttachPdfInvoiceToBinary
-                        ? "order.pdf"
-                        : null;
-                orderPlacedAttachments = _orderSettings.AttachPdfInvoiceToOrderPlacedEmail &&
-                                         _orderSettings.AttachPdfInvoiceToBinary
-                    ? [
-                        await _pdfService.SaveOrderToBinary(request.Order, request.Order.CustomerLanguageId)
-                    ]
-                    : [];
-            }
-            catch (Exception ex)
-            {
-                _logger.LogError(ex, "Error - order placed attachment file {OrderOrderNumber}", request.Order.OrderNumber);
+                string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
+                var orderPlacedAttachments = new List<string>();
+
+                try
+                {
+                    orderPlacedAttachmentFilePath =
+                        _orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !_orderSettings.AttachPdfInvoiceToBinary
+                            ? await _pdfService.PrintOrderToPdf(request.Order, request.Order.CustomerLanguageId)
+                            : null;
+                    orderPlacedAttachmentFileName =
+                        _orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !_orderSettings.AttachPdfInvoiceToBinary
+                            ? "order.pdf"
+                            : null;
+                    orderPlacedAttachments = _orderSettings.AttachPdfInvoiceToOrderPlacedEmail &&
+                                             _orderSettings.AttachPdfInvoiceToBinary
+                        ? [
+                            await _pdfService.SaveOrderToBinary(request.Order, request.Order.CustomerLanguageId)
+                        ]
+                        : [];
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "Error - order placed attachment file {OrderOrderNumber}", request.Order.OrderNumber);
+                }
+
+                await _orderMessageProviderService.SendOrderPlacedCustomerMessage(request.Order, request.Customer,
+                    request.Order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName,
+                    orderPlacedAttachments, request.Host);
             }
 
-            await _orderMessageProviderService.SendOrderPlacedCustomerMessage(request.Order, request.Customer,
-                request.Order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName,
-                orderPlacedAttachments, request.Host);
-
-            if (request.Order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
+            if (request.NotifyStoreOwnerAndVendors && request.Order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
             {
                 var vendors = await _mediator.Send(new GetVendorsInOrderQuery { Order = request.Order });
                 foreach (var vendor in vendors)

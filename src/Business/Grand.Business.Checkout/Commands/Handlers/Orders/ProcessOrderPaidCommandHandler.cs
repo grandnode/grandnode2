@@ -49,6 +49,10 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
     {
         ArgumentNullException.ThrowIfNull(order);
 
+        //an order waiting for an approval is processed as paid once it is approved, not before
+        if (order.OrderStatusId == (int)OrderStatusSystem.AwaitingApproval)
+            return;
+
         //raise event
         await _mediator.Publish(new OrderPaidEvent(order));
 

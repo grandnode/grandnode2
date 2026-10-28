@@ -6,6 +6,11 @@ namespace Grand.Domain.Orders;
 public enum OrderStatusSystem
 {
     /// <summary>
+    ///     Placed by a company buyer and waiting for an approver's decision
+    /// </summary>
+    AwaitingApproval = 5,
+
+    /// <summary>
     ///     Pending
     /// </summary>
     Pending = 10,

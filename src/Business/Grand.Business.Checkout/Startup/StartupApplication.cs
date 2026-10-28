@@ -50,6 +50,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IShoppingCartTaxService, ShoppingCartTaxService>();
         serviceCollection.AddScoped<ILoyaltyPointsCalculationService, LoyaltyPointsCalculationService>();
         serviceCollection.AddScoped<IMerchandiseReturnService, MerchandiseReturnService>();
+        serviceCollection.AddScoped<IOrderApprovalService, OrderApprovalService>();
         serviceCollection.AddScoped<ILoyaltyPointsService, LoyaltyPointsService>();
         serviceCollection.AddScoped<IShoppingCartService, ShoppingCartService>();
         serviceCollection.AddScoped<IShoppingCartValidator, ShoppingCartValidator>();

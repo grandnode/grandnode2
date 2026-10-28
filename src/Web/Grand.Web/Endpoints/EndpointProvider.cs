@@ -160,6 +160,22 @@ public class EndpointProvider : IEndpointProvider
             pattern + "account/subaccountdelete",
             new { controller = "Account", action = "SubAccountDelete" });
 
+        endpointRouteBuilder.MapControllerRoute("CustomerOrderApprovals",
+            pattern + "account/orderapprovals",
+            new { controller = "OrderApproval", action = "List" });
+
+        endpointRouteBuilder.MapControllerRoute("CustomerOrderApproval",
+            pattern + "account/orderapproval",
+            new { controller = "OrderApproval", action = "Details" });
+
+        endpointRouteBuilder.MapControllerRoute("OrderApprovalDecide",
+            pattern + "orderapproval/decide",
+            new { controller = "OrderApproval", action = "Decide" });
+
+        endpointRouteBuilder.MapControllerRoute("OrderApprovalWithdraw",
+            pattern + "orderapproval/withdraw",
+            new { controller = "OrderApproval", action = "Withdraw" });
+
         endpointRouteBuilder.MapControllerRoute("CustomerDownloadableProducts",
             pattern + "account/downloadableproducts",
             new { controller = "Account", action = "DownloadableProducts" });

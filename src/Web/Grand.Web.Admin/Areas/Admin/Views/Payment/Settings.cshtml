@@ -28,6 +28,12 @@
                 <admin-field asp-for="SkipPaymentInfo"/>
             </div>
         </admin-card>
+        @* one global list, not per store: orders that wait for a company approver are paid only with these methods *@
+        <admin-card>
+            <admin-field asp-for="OrderApprovalPaymentMethodSystemNames">
+                <admin-input asp-for="OrderApprovalPaymentMethodSystemNames" asp-template="MultiSelect" asp-selectitem="Model.AvailableOrderApprovalPaymentMethods"/>
+            </admin-field>
+        </admin-card>
         <vc:admin-widget widget-zone="payment_settings_bottom" additional-data="null"/>
     </admin-page>
 </form>

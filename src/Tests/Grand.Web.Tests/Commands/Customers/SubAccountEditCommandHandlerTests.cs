@@ -6,6 +6,7 @@ using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Models.Customer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Globalization;
 using System.Linq.Expressions;
 
 namespace Grand.Web.Tests.Commands.Customers;
@@ -23,10 +24,17 @@ public class SubAccountEditCommandHandlerTests
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
+        _culture = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = new CultureInfo("en-US");
         _customerSettings = new CustomerSettings { AllowUsersToChangeEmail = true };
         _handler = new SubAccountEditCommandHandler(_customerServiceMock.Object,
             _customerManagerServiceMock.Object, _customerSettings);
     }
+
+    private CultureInfo _culture;
+
+    [TestCleanup]
+    public void Restore() => CultureInfo.CurrentCulture = _culture;
 
     private Customer SubAccount(string ownerId = "owner")
     {
@@ -37,10 +45,12 @@ public class SubAccountEditCommandHandlerTests
         return customer;
     }
 
-    private static SubAccountEditCommand Command(string email = "sub@x.com", string password = null) => new() {
+    private static SubAccountEditCommand Command(string email = "sub@x.com", string password = null,
+        SubAccountRole role = SubAccountRole.Buyer, string limit = null) => new() {
         CurrentCustomer = new Customer { Id = "owner" },
         EditModel = new SubAccountEditModel {
-            Id = "c1", Email = email, Password = password, Active = true, FirstName = "John", LastName = "Doe"
+            Id = "c1", Email = email, Password = password, Active = true, FirstName = "John", LastName = "Doe",
+            Role = role, OrderApprovalLimit = limit
         }
     };
 
@@ -53,6 +63,69 @@ public class SubAccountEditCommandHandlerTests
             It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _customerManagerServiceMock.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(),
             It.IsAny<string>()), Times.Never);
+        _customerServiceMock.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
+            It.IsAny<Expression<Func<Customer, SubAccountRole>>>(), It.IsAny<SubAccountRole>()), Times.Never);
+        _customerServiceMock.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
+            It.IsAny<Expression<Func<Customer, double?>>>(), It.IsAny<double?>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_SetsRoleAndLimit()
+    {
+        var customer = SubAccount();
+
+        var result = await _handler.Handle(Command(role: SubAccountRole.Buyer, limit: "250.5"), default);
+
+        Assert.IsTrue(result);
+        Assert.AreEqual(SubAccountRole.Buyer, customer.SubAccountRole);
+        Assert.AreEqual(250.5, customer.OrderApprovalLimit);
+        _customerServiceMock.Verify(c => c.UpdateCustomerField(customer,
+            It.IsAny<Expression<Func<Customer, SubAccountRole>>>(), SubAccountRole.Buyer), Times.Once);
+        _customerServiceMock.Verify(c => c.UpdateCustomerField(customer,
+            It.IsAny<Expression<Func<Customer, double?>>>(), (double?)250.5), Times.Once);
+    }
+
+    [TestMethod]
+    [DataRow("pl-PL", "250,5", 250.5)]
+    [DataRow("de-DE", "1.500,50", 1500.5)]
+    [DataRow("en-US", "250.5", 250.5)]
+    [DataRow("pl-PL", "", null)]
+    [DataRow("pl-PL", "  ", null)]
+    public async Task Handle_ReadsTheLimitInTheCurrentCulture(string culture, string typed, double? expected)
+    {
+        CultureInfo.CurrentCulture = new CultureInfo(culture);
+        var customer = SubAccount();
+
+        await _handler.Handle(Command(limit: typed), default);
+
+        Assert.AreEqual(expected, customer.OrderApprovalLimit);
+    }
+
+    [TestMethod]
+    public async Task Handle_BuyerWithoutLimit_ClearsAPreviousLimit()
+    {
+        var customer = SubAccount();
+        customer.OrderApprovalLimit = 100;
+
+        await _handler.Handle(Command(role: SubAccountRole.Buyer, limit: null), default);
+
+        Assert.IsNull(customer.OrderApprovalLimit);
+        _customerServiceMock.Verify(c => c.UpdateCustomerField(customer,
+            It.IsAny<Expression<Func<Customer, double?>>>(), (double?)null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_Approver_ClearsLimit()
+    {
+        var customer = SubAccount();
+        customer.OrderApprovalLimit = 100;
+
+        await _handler.Handle(Command(role: SubAccountRole.Approver, limit: "500"), default);
+
+        Assert.AreEqual(SubAccountRole.Approver, customer.SubAccountRole);
+        Assert.IsNull(customer.OrderApprovalLimit);
+        _customerServiceMock.Verify(c => c.UpdateCustomerField(customer,
+            It.IsAny<Expression<Func<Customer, double?>>>(), (double?)null), Times.Once);
     }
 
     [TestMethod]

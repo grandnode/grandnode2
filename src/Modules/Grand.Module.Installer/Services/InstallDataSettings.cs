@@ -437,6 +437,10 @@ public partial class InstallationService
             SkipPaymentInfo = false
         });
 
+        await _settingRepository.SaveSetting(new OrderApprovalSettings {
+            PaymentMethodSystemNames = ["Payments.CashOnDelivery"]
+        });
+
         await _settingRepository.SaveSetting(new TaxSettings {
             TaxBasedOn = TaxBasedOn.BillingAddress,
             TaxDisplayType = TaxDisplayType.ExcludingTax,

@@ -19,6 +19,7 @@ public class CustomerNavigationModel : BaseModel
     public bool HideReviews { get; set; }
     public bool HideCourses { get; set; }
     public bool HideSubAccounts { get; set; }
+    public bool HideOrderApprovals { get; set; }
     public AccountNavigationEnum SelectedTab { get; set; }
 }
 
@@ -40,5 +41,6 @@ public enum AccountNavigationEnum
     Reviews = 140,
     Courses = 150,
     SubAccounts = 160,
+    OrderApprovals = 165,
     Others = 900
 }

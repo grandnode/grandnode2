@@ -59,6 +59,7 @@ public partial class InstallationService : IInstallationService
         IRepository<Campaign> campaignRepository,
         IRepository<Order> orderRepository,
         IRepository<OrderNote> orderNoteRepository,
+        IRepository<OrderApproval> orderApprovalRepository,
         IRepository<MerchandiseReturn> merchandiseReturnRepository,
         IRepository<MerchandiseReturnNote> merchandiseReturnNoteRepository,
         IRepository<Store> storeRepository,
@@ -156,6 +157,7 @@ public partial class InstallationService : IInstallationService
         _campaignHistoryRepository = campaignHistoryRepository;
         _campaignRepository = campaignRepository;
         _orderRepository = orderRepository;
+        _orderApprovalRepository = orderApprovalRepository;
         _orderNoteRepository = orderNoteRepository;
         _storeRepository = storeRepository;
         _measureDimensionRepository = measureDimensionRepository;
@@ -322,6 +324,7 @@ public partial class InstallationService : IInstallationService
     private readonly IRepository<CampaignHistory> _campaignHistoryRepository;
     private readonly IRepository<Campaign> _campaignRepository;
     private readonly IRepository<Order> _orderRepository;
+    private readonly IRepository<OrderApproval> _orderApprovalRepository;
     private readonly IRepository<OrderNote> _orderNoteRepository;
     private readonly IRepository<MerchandiseReturn> _merchandiseReturnRepository;
     private readonly IRepository<MerchandiseReturnNote> _merchandiseReturnNoteRepository;
@@ -940,6 +943,17 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<OidcSession>.Create().Ascending(x => x.CustomerId), "CustomerId");
         await dbContext.CreateIndex(_oidcSessionRepository,
             OrderBuilder<OidcSession>.Create().Ascending(x => x.EndedUtc), "EndedUtc");
+
+        //order approval
+        await dbContext.CreateIndex(_orderApprovalRepository,
+            OrderBuilder<OrderApproval>.Create().Ascending(x => x.CompanyOwnerId).Ascending(x => x.Status)
+                .Descending(x => x.CreatedOnUtc), "CompanyOwnerId_Status_CreatedOnUtc");
+        await dbContext.CreateIndex(_orderApprovalRepository,
+            OrderBuilder<OrderApproval>.Create().Ascending(x => x.CustomerId).Ascending(x => x.StoreId)
+                .Ascending(x => x.Status), "CustomerId_StoreId_Status");
+        //the request of an order: read at placement and when the order is cancelled
+        await dbContext.CreateIndex(_orderApprovalRepository,
+            OrderBuilder<OrderApproval>.Create().Ascending(x => x.OrderId), "OrderId");
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,

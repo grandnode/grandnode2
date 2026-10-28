@@ -260,6 +260,13 @@ public class CustomerModel : BaseEntityModel
         public string Email { get; set; }
         public string FullName { get; set; }
         public bool Active { get; set; }
+
+        [GrandResourceDisplayName("Admin.Customers.Customers.SubAccounts.Role")]
+        public string Role { get; set; }
+
+        //formatted in the primary store currency; empty when the account has no limit
+        [GrandResourceDisplayName("Admin.Customers.Customers.SubAccounts.OrderApprovalLimit")]
+        public string OrderApprovalLimit { get; set; }
     }
 
     public class LoyaltyPointsHistoryModel : BaseEntityModel

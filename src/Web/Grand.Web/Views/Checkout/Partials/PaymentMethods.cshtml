@@ -11,6 +11,9 @@
             </span>
         </label>
     </div>
+    <div v-if="vmorder.NoPaymentMethodMessage" class="message-error alert alert-danger my-3">
+        {{vmorder.NoPaymentMethodMessage}}
+    </div>
     <div v-if="vmorder.PaymentMethods !== []" class="list-inline col-12 mt-2 mb-2 px-0" id="payment-method-block">
         <div v-for="(paymentMethod, index) in vmorder.PaymentMethods" class="col-12 method-name px-0">
             <label class="form-check flex-row">

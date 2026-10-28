@@ -9,6 +9,7 @@ using Grand.Web.Models.Customer;
 using Grand.Web.Validators.Customer;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Globalization;
 
 namespace Grand.Web.Tests.Validators.Customers;
 
@@ -22,6 +23,8 @@ public class SubAccountEditValidatorTests
     [TestInitialize]
     public void Init()
     {
+        _culture = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = new CultureInfo("en-US");
         _customerService = new Mock<ICustomerService>();
         _groupService = new Mock<IGroupService>();
         _groupService.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
@@ -40,6 +43,11 @@ public class SubAccountEditValidatorTests
             _customerService.Object, _groupService.Object, translation.Object, context.Object,
             new CustomerSettings { AllowUsersToChangeEmail = true }, new CustomerConfig());
     }
+
+    private CultureInfo _culture;
+
+    [TestCleanup]
+    public void Restore() => CultureInfo.CurrentCulture = _culture;
 
     private static SubAccountEditModel Model(string email = "new@x.com") =>
         new() { Id = "c1", Email = email, FirstName = "A", LastName = "B" };
@@ -93,6 +101,60 @@ public class SubAccountEditValidatorTests
         var result = await _validator.ValidateAsync(Model());
 
         Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.Login.WrongCredentials.NotRegistered"));
+    }
+
+    private void OwnSubAccount() => _customerService.Setup(c => c.GetCustomerById("c1"))
+        .ReturnsAsync(new Customer { Id = "c1", OwnerId = "owner", Email = "new@x.com" });
+
+    [TestMethod]
+    [DataRow("en-US", "-0.01")]
+    [DataRow("en-US", "NaN")]
+    [DataRow("en-US", "Infinity")]
+    [DataRow("pl-PL", "-1")]
+    [DataRow("pl-PL", "abc")]
+    [DataRow("pl-PL", "12,5,5")]
+    public async Task Validate_NegativeLimit_Fails(string culture, string limit)
+    {
+        CultureInfo.CurrentCulture = new CultureInfo(culture);
+        OwnSubAccount();
+        var model = Model();
+        model.OrderApprovalLimit = limit;
+
+        var result = await _validator.ValidateAsync(model);
+
+        Assert.IsFalse(result.IsValid);
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.SubAccounts.Fields.OrderApprovalLimit.Invalid"));
+    }
+
+    [TestMethod]
+    [DataRow("en-US", null)]
+    [DataRow("en-US", "")]
+    [DataRow("en-US", "0")]
+    [DataRow("en-US", "250.5")]
+    [DataRow("pl-PL", "250,5")]
+    [DataRow("de-DE", "1.500,50")]
+    public async Task Validate_EmptyZeroOrPositiveLimit_Passes(string culture, string limit)
+    {
+        CultureInfo.CurrentCulture = new CultureInfo(culture);
+        OwnSubAccount();
+        var model = Model();
+        model.OrderApprovalLimit = limit;
+
+        var result = await _validator.ValidateAsync(model);
+
+        Assert.IsTrue(result.IsValid);
+    }
+
+    [TestMethod]
+    public async Task Validate_UnknownRole_Fails()
+    {
+        OwnSubAccount();
+        var model = Model();
+        model.Role = (SubAccountRole)5;
+
+        var result = await _validator.ValidateAsync(model);
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.SubAccounts.Fields.Role.Invalid"));
     }
 
     [TestMethod]

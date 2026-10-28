@@ -98,6 +98,20 @@ public abstract class BaseOrderManagementController(
         var (order, denied) = await LoadAuthorizedOrder(id);
         if (denied != null) return denied;
 
+        //an order leaves Awaiting approval through the approver's decision, the buyer's withdrawal or a cancel,
+        //which also close its approval request; only the checkout puts an order into that status
+        if (order.OrderStatusId == (int)OrderStatusSystem.AwaitingApproval)
+        {
+            Error(TranslationService.GetResource("Admin.Orders.Fields.OrderStatus.Change.AwaitingApproval"));
+            return RedirectToAction("Edit", "Order", new { id });
+        }
+
+        if (model.OrderStatusId == (int)OrderStatusSystem.AwaitingApproval)
+        {
+            Error(TranslationService.GetResource("Admin.Orders.Fields.OrderStatus.Change.ToAwaitingApproval"));
+            return RedirectToAction("Edit", "Order", new { id });
+        }
+
         try
         {
             var status = await orderStatusService.GetByStatusId(model.OrderStatusId);

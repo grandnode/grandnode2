@@ -3,6 +3,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
+using Grand.Domain.Shipping;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -24,6 +25,25 @@ public class CheckOrderStatusCommandHandlerTests
         _orderSerivce = new Mock<IOrderService>();
         _settings = new OrderSettings();
         _handler = new CheckOrderStatusCommandHandler(_mediatorMock.Object, _orderSerivce.Object, _settings);
+    }
+
+    [TestMethod]
+    public async Task Handle_OrderAwaitingApproval_IsNeverChanged()
+    {
+        var order = new Order {
+            PaymentStatusId = PaymentStatus.Paid,
+            PaidDateUtc = null,
+            ShippingStatusId = ShippingStatus.ShippingNotRequired,
+            OrderStatusId = (int)OrderStatusSystem.AwaitingApproval
+        };
+
+        var result = await _handler.Handle(new CheckOrderStatusCommand { Order = order }, default);
+
+        Assert.IsTrue(result);
+        Assert.AreEqual((int)OrderStatusSystem.AwaitingApproval, order.OrderStatusId);
+        Assert.IsNull(order.PaidDateUtc);
+        _orderSerivce.Verify(c => c.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        _mediatorMock.Verify(c => c.Send(It.IsAny<SetOrderStatusCommand>(), default), Times.Never);
     }
 
     [TestMethod]

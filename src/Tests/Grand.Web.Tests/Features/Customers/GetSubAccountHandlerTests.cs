@@ -4,6 +4,7 @@ using Grand.Web.Features.Handlers.Customers;
 using Grand.Web.Features.Models.Customers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Globalization;
 
 namespace Grand.Web.Tests.Features.Customers;
 
@@ -35,6 +36,68 @@ public class GetSubAccountHandlerTests
         Assert.AreEqual("sub", model.Id);
         Assert.AreEqual("sub@x.com", model.Email);
         Assert.IsTrue(model.Active);
+    }
+
+    [TestMethod]
+    public async Task Get_ReturnsRoleAndLimit()
+    {
+        var previous = CultureInfo.CurrentCulture;
+        CultureInfo.CurrentCulture = new CultureInfo("en-US");
+        try
+        {
+            await ReturnsRoleAndLimit();
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previous;
+        }
+    }
+
+    private async Task ReturnsRoleAndLimit()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("sub")).ReturnsAsync(new Customer {
+            Id = "sub", OwnerId = "owner", Email = "sub@x.com",
+            SubAccountRole = SubAccountRole.Approver, OrderApprovalLimit = 750.25
+        });
+
+        var model = await _handler.Handle(Query("sub"), default);
+
+        Assert.AreEqual(SubAccountRole.Approver, model.Role);
+        Assert.AreEqual("750.25", model.OrderApprovalLimit);
+    }
+
+    [TestMethod]
+    [DataRow("pl-PL", "1500,5")]
+    [DataRow("de-DE", "1500,5")]
+    [DataRow("en-US", "1500.5")]
+    public async Task Get_FormatsTheLimitInTheCurrentCulture(string culture, string expected)
+    {
+        var previous = CultureInfo.CurrentCulture;
+        try
+        {
+            CultureInfo.CurrentCulture = new CultureInfo(culture);
+            _customerServiceMock.Setup(c => c.GetCustomerById("sub")).ReturnsAsync(
+                new Customer { Id = "sub", OwnerId = "owner", Email = "sub@x.com", OrderApprovalLimit = 1500.5 });
+
+            var model = await _handler.Handle(Query("sub"), default);
+
+            Assert.AreEqual(expected, model.OrderApprovalLimit);
+        }
+        finally
+        {
+            CultureInfo.CurrentCulture = previous;
+        }
+    }
+
+    [TestMethod]
+    public async Task Get_NoLimit_IsEmptyText()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("sub"))
+            .ReturnsAsync(new Customer { Id = "sub", OwnerId = "owner", Email = "sub@x.com" });
+
+        var model = await _handler.Handle(Query("sub"), default);
+
+        Assert.AreEqual(string.Empty, model.OrderApprovalLimit);
     }
 
     [TestMethod]

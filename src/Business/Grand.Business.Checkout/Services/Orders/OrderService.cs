@@ -24,14 +24,17 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderRepository">Order repository</param>
     /// <param name="orderNoteRepository">Order note repository</param>
+    /// <param name="orderApprovalRepository">Order approval repository</param>
     /// <param name="mediator">Mediator</param>
     public OrderService(IRepository<Order> orderRepository,
         IRepository<OrderNote> orderNoteRepository,
+        IRepository<OrderApproval> orderApprovalRepository,
         IMediator mediator
     )
     {
         _orderRepository = orderRepository;
         _orderNoteRepository = orderNoteRepository;
+        _orderApprovalRepository = orderApprovalRepository;
         _mediator = mediator;
     }
 
@@ -46,6 +49,7 @@ public class OrderService : IOrderService
 
     private readonly IRepository<Order> _orderRepository;
     private readonly IRepository<OrderNote> _orderNoteRepository;
+    private readonly IRepository<OrderApproval> _orderApprovalRepository;
     private readonly IMediator _mediator;
 
     #endregion
@@ -254,7 +258,10 @@ public class OrderService : IOrderService
     /// <summary>
     ///     Cancel UnPaid Orders and has pending status
     /// </summary>
-    /// <param name="expirationDateUtc">Date at which all unPaid orders and has pending status Would be Canceled</param>
+    /// <param name="expirationDateUtc">
+    ///     Date at which all unPaid orders and has pending status Would be Canceled; for an approved order the
+    ///     approval date counts instead of the creation date
+    /// </param>
     /// <param name="cancellationToken">Checked between orders - an order is always cancelled completely</param>
     public async Task CancelExpiredOrders(DateTime expirationDateUtc, CancellationToken cancellationToken = default)
     {
@@ -265,7 +272,18 @@ public class OrderService : IOrderService
                          || o.ShippingStatusId == ShippingStatus.ShippingNotRequired))
             .ToList();
 
-        foreach (var order in orders)
+        //an approved order was held in status Awaiting approval until the decision,
+        //so its payment window starts at the approval, not at the placement
+        var orderIds = orders.Select(o => o.Id).ToList();
+        var approvedRecently = orderIds.Count > 0
+            ? _orderApprovalRepository.Table
+                .Where(a => orderIds.Contains(a.OrderId) && a.Status == OrderApprovalStatus.Approved &&
+                            a.DecidedOnUtc >= expirationDateUtc)
+                .Select(a => a.OrderId)
+                .ToList()
+            : [];
+
+        foreach (var order in orders.Where(o => !approvedRecently.Contains(o.Id)))
         {
             cancellationToken.ThrowIfCancellationRequested();
             await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = true });

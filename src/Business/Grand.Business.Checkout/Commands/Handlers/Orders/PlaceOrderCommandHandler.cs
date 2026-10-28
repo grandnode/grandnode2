@@ -47,6 +47,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly ILanguageService _languageService;
     private readonly ILogger<PlaceOrderCommandHandler> _logger;
     private readonly IMediator _mediator;
+    private readonly IOrderApprovalService _orderApprovalService;
+    private readonly ITranslationService _translationService;
     private readonly ICatalogMessageProviderService _catalogMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly OrderSettings _orderSettings;
@@ -100,6 +102,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         IAuctionService auctionService,
         ICountryService countryService,
         IShoppingCartValidator shoppingCartValidator,
+        IOrderApprovalService orderApprovalService,
+        ITranslationService translationService,
         ShippingSettings shippingSettings,
         ShoppingCartSettings shoppingCartSettings,
         PaymentSettings paymentSettings,
@@ -136,6 +140,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _auctionService = auctionService;
         _countryService = countryService;
         _shoppingCartValidator = shoppingCartValidator;
+        _orderApprovalService = orderApprovalService;
+        _translationService = translationService;
         _shippingSettings = shippingSettings;
         _shoppingCartSettings = shoppingCartSettings;
         _paymentSettings = paymentSettings;
@@ -162,6 +168,16 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             //return if exist errors
             if (result.Errors.Any())
                 return result;
+
+            //an order over the customer's limit is placed awaiting an approval, with an allowed payment method only
+            var approval = await _orderApprovalService.RequiresApproval(details.Cart, details.Context);
+            details.ApprovalRequired = approval.Required;
+            if (details.ApprovalRequired && !_orderApprovalService.IsPaymentMethodAllowed(details.PaymentMethodSystemName))
+            {
+                result.AddError(_translationService.GetResource("Checkout.OrderApproval.PaymentMethodNotAllowed",
+                    command.Language.Id));
+                return result;
+            }
 
             #region Payment workflow
 
@@ -194,7 +210,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                     Order = result.PlacedOrder,
                     Customer = details.Customer,
                     OriginalCustomerIfImpersonated = command.OriginalCustomerIfImpersonated,
-                    Host = command.Host
+                    Host = command.Host,
+                    NotifyStoreOwnerAndVendors = !details.ApprovalRequired
                 }, cancellationToken);
 
                 //check order status
@@ -203,7 +220,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 //raise event       
                 await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder), cancellationToken);
 
-                if (result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)
+                //an order awaiting approval is processed as paid once it is approved (store owner and vendors hear of it then)
+                if (!details.ApprovalRequired && result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)
                     await _mediator.Send(new ProcessOrderPaidCommand { Order = result.PlacedOrder }, cancellationToken);
 
                 #endregion
@@ -929,7 +947,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             CurrencyRate = details.CurrencyRate,
             Rate = details.Currency.Rate,
             AffiliateId = details.AffiliateId,
-            OrderStatusId = (int)OrderStatusSystem.Pending,
+            OrderStatusId = details.ApprovalRequired
+                ? (int)OrderStatusSystem.AwaitingApproval
+                : (int)OrderStatusSystem.Pending,
             PaymentMethodSystemName = paymentTransaction.PaymentMethodSystemName,
             PaymentOptionAttribute =
                 details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PaymentOptionAttribute,

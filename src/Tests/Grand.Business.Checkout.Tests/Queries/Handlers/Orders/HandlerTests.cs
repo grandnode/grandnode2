@@ -37,6 +37,18 @@ public class HandlerTests
     }
 
     [TestMethod]
+    public async Task CanCancelOrderQueryHandler_HandleTest_OrderStatus_AwaitingApproval_True()
+    {
+        var canCancelOrderQueryHandler = new CanCancelOrderQueryHandler();
+
+        var result = await canCancelOrderQueryHandler.Handle(
+            new CanCancelOrderQuery { Order = new Order { OrderStatusId = (int)OrderStatusSystem.AwaitingApproval } },
+            CancellationToken.None);
+
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
     public async Task CanCancelOrderQueryHandler_HandleTest_OrderStatus_Processing_False()
     {
         //Arrange

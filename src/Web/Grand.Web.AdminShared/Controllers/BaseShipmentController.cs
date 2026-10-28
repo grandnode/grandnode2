@@ -152,6 +152,19 @@ public abstract class BaseShipmentController(
 
     #region AddShipment
 
+    /// <summary>
+    ///     An order awaiting approval may still be rejected or withdrawn, and a shipment would block the cancel
+    ///     that both run; nothing ships before the approver decides
+    /// </summary>
+    private IActionResult RefuseOrderAwaitingApproval(Order order)
+    {
+        if (order.OrderStatusId != (int)OrderStatusSystem.AwaitingApproval)
+            return null;
+
+        Error(translationService.GetResource("Admin.Orders.Shipments.OrderAwaitsApproval"));
+        return RedirectToAction("Edit", "Order", new { id = order.Id });
+    }
+
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> AddShipment(string orderId)
     {
@@ -159,6 +172,9 @@ public abstract class BaseShipmentController(
         if (order == null || order.Deleted || !await orderScope.HasAccess(order))
             //No order found with the specified id
             return RedirectToAction("List");
+
+        var awaitingApproval = RefuseOrderAwaitingApproval(order);
+        if (awaitingApproval != null) return awaitingApproval;
 
         var model = await shipmentViewModelService.PrepareShipmentModel(order);
         return View(model);
@@ -173,6 +189,9 @@ public abstract class BaseShipmentController(
         if (order == null || order.Deleted || !await orderScope.HasAccess(order))
             //No order found with the specified id
             return RedirectToAction("List");
+
+        var awaitingApproval = RefuseOrderAwaitingApproval(order);
+        if (awaitingApproval != null) return awaitingApproval;
 
         var orderItems = scope.FilterOrderItems(order.OrderItems).ToList();
 

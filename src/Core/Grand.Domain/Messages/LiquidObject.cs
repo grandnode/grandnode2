@@ -27,6 +27,8 @@ public class LiquidObject
 
     public Drop Order { get; set; }
 
+    public Drop OrderApproval { get; set; }
+
     public Drop Product { get; set; }
 
     public Drop ProductReview { get; set; }

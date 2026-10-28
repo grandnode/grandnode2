@@ -3,6 +3,8 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Directory;
+using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Mapper;
@@ -41,6 +43,7 @@ public class PaymentControllerTests
         {
             cfg.AddProfile<PaymentMethodProfile>();
             cfg.AddProfile<CountryProfile>();
+            cfg.AddProfile<PaymentSettingsProfile>();
         });
         AutoMapperConfig.Init(mapperConfig);
 
@@ -161,5 +164,78 @@ public class PaymentControllerTests
             It.Is<List<string>>(x => x.Count == 0), StoreId), Times.Once);
         _paymentServiceMock.Verify(p => p.SaveRestrictedShippingIds(provider.Object,
             It.Is<List<string>>(x => x.Count == 0), StoreId), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Settings_Get_OffersActiveMethodsAndSelectsTheConfiguredOnes()
+    {
+        var cod = CreatePaymentProvider("Payments.CashOnDelivery");
+        var card = CreatePaymentProvider("Payments.Card");
+        var inactive = CreatePaymentProvider("Payments.Inactive");
+        _paymentServiceMock.Setup(p => p.LoadAllPaymentMethods(null, "", ""))
+            .ReturnsAsync(new List<IPaymentProvider> { cod.Object, card.Object, inactive.Object });
+        _settingServiceMock.Setup(s => s.LoadSetting<PaymentSettings>(StoreId)).ReturnsAsync(new PaymentSettings {
+            ActivePaymentProviderSystemNames = ["Payments.CashOnDelivery", "Payments.Card"]
+        });
+        _settingServiceMock.Setup(s => s.LoadSetting<OrderApprovalSettings>("")).ReturnsAsync(
+            new OrderApprovalSettings { PaymentMethodSystemNames = ["Payments.CashOnDelivery"] });
+
+        var result = await _controller.Settings();
+
+        var model = (PaymentSettingsModel)((ViewResult)result).Model;
+        CollectionAssert.AreEquivalent(new[] { "Payments.CashOnDelivery", "Payments.Card" },
+            model.AvailableOrderApprovalPaymentMethods.Select(x => x.Value).ToArray());
+        CollectionAssert.AreEqual(new[] { "Payments.CashOnDelivery" },
+            model.OrderApprovalPaymentMethodSystemNames.ToArray());
+        Assert.IsTrue(model.AvailableOrderApprovalPaymentMethods.First().Text.Contains("Test method"));
+    }
+
+    [TestMethod]
+    public async Task Settings_Get_KeepsAConfiguredMethodThatIsNoLongerActive()
+    {
+        _paymentServiceMock.Setup(p => p.LoadAllPaymentMethods(null, "", ""))
+            .ReturnsAsync(new List<IPaymentProvider>());
+        _settingServiceMock.Setup(s => s.LoadSetting<PaymentSettings>(StoreId))
+            .ReturnsAsync(new PaymentSettings());
+        _settingServiceMock.Setup(s => s.LoadSetting<OrderApprovalSettings>("")).ReturnsAsync(
+            new OrderApprovalSettings { PaymentMethodSystemNames = ["Payments.Gone"] });
+
+        var model = (PaymentSettingsModel)((ViewResult)await _controller.Settings()).Model;
+
+        Assert.AreEqual("Payments.Gone", model.AvailableOrderApprovalPaymentMethods.Single().Value);
+    }
+
+    [TestMethod]
+    public async Task SettingsSave_SavesOrderApprovalMethodsGloballyAndPaymentSettingsInTheStoreScope()
+    {
+        var paymentSettings = new PaymentSettings();
+        var approvalSettings = new OrderApprovalSettings { PaymentMethodSystemNames = ["Payments.Old"] };
+        _settingServiceMock.Setup(s => s.LoadSetting<PaymentSettings>(StoreId)).ReturnsAsync(paymentSettings);
+        _settingServiceMock.Setup(s => s.LoadSetting<OrderApprovalSettings>("")).ReturnsAsync(approvalSettings);
+
+        var result = await _controller.Settings(new PaymentSettingsModel {
+            SkipPaymentInfo = true,
+            OrderApprovalPaymentMethodSystemNames = ["Payments.CashOnDelivery", "Payments.Invoice"]
+        });
+
+        Assert.IsInstanceOfType<RedirectToActionResult>(result);
+        Assert.IsTrue(paymentSettings.SkipPaymentInfo);
+        CollectionAssert.AreEqual(new[] { "Payments.CashOnDelivery", "Payments.Invoice" },
+            approvalSettings.PaymentMethodSystemNames.ToArray());
+        _settingServiceMock.Verify(s => s.SaveSetting(approvalSettings, ""), Times.Once);
+        _settingServiceMock.Verify(s => s.SaveSetting(paymentSettings, StoreId), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SettingsSave_NothingSelected_SavesAnEmptyList()
+    {
+        var approvalSettings = new OrderApprovalSettings { PaymentMethodSystemNames = ["Payments.Old"] };
+        _settingServiceMock.Setup(s => s.LoadSetting<PaymentSettings>(StoreId)).ReturnsAsync(new PaymentSettings());
+        _settingServiceMock.Setup(s => s.LoadSetting<OrderApprovalSettings>("")).ReturnsAsync(approvalSettings);
+
+        await _controller.Settings(new PaymentSettingsModel());
+
+        Assert.AreEqual(0, approvalSettings.PaymentMethodSystemNames.Count);
+        _settingServiceMock.Verify(s => s.SaveSetting(approvalSettings, ""), Times.Once);
     }
 }

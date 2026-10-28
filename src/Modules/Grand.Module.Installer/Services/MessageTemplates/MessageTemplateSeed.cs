@@ -13,6 +13,7 @@ public static partial class MessageTemplateSeed
         templates.AddRange(AuctionTemplates(emailAccountId));
         templates.AddRange(OwnerNotificationTemplates(emailAccountId));
         templates.AddRange(ServiceTemplates(emailAccountId));
+        templates.AddRange(OrderApprovalTemplates(emailAccountId));
         return templates;
     }
 

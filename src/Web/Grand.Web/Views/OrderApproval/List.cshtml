@@ -1,0 +1,80 @@
+@model OrderApprovalListModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Account.OrderApprovals"]);
+}
+
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.OrderApprovals })
+}
+
+<div class="page account-page order-approvals-page ps-lg-3 pt-lg-0 pt-3">
+    <h1 class="h2 generalTitle">@Loc["Account.OrderApprovals"]</h1>
+    @if (Model.Approvals.Any())
+    {
+        <div class="table-responsive">
+            <table class="table hover-table order-approvals-table">
+                <thead>
+                <tr>
+                    <th scope="col">@Loc["OrderApproval.Date"]</th>
+                    <th scope="col">@Loc["OrderApproval.Order"]</th>
+                    @if (Model.IsCompanyList)
+                    {
+                        <th scope="col">@Loc["OrderApproval.Buyer"]</th>
+                    }
+                    <th scope="col">@Loc["OrderApproval.Status"]</th>
+                    <th scope="col">@Loc["OrderApproval.Items"]</th>
+                    <th scope="col">@Loc["OrderApproval.Total"]</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var approval in Model.Approvals)
+                {
+                    <tr class="order-approval-row">
+                        <td>@approval.CreatedOn.ToString("g")</td>
+                        <td>
+                            @if (approval.OrderNumber > 0)
+                            {
+                                if (approval.CanViewOrder)
+                                {
+                                    <a class="order-approval-order-link" href="@Url.RouteUrl("OrderDetails", new { orderId = approval.OrderId })">@approval.OrderNumber</a>
+                                }
+                                else
+                                {
+                                    <span>@approval.OrderNumber</span>
+                                }
+                            }
+                        </td>
+                        @if (Model.IsCompanyList)
+                        {
+                            <td v-pre>@approval.Buyer</td>
+                        }
+                        <td>
+                            <span class="badge status order-approval-status-@approval.StatusId @(approval.IsPending ? "text-bg-warning" : "text-bg-secondary")">@approval.Status</span>
+                        </td>
+                        <td>@approval.ItemCount</td>
+                        <td v-pre>@approval.Total</td>
+                        <td>
+                            <a class="btn btn-sm btn-info order-approval-details-button" href="@Url.RouteUrl("CustomerOrderApproval", new { id = approval.Id })">
+                                @(Model.IsCompanyList && approval.IsPending ? Loc["OrderApproval.Review"] : Loc["OrderApproval.Details"])
+                            </a>
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext"/>
+    }
+    else
+    {
+        <div class="no-data alert alert-info my-3">
+            @Loc["OrderApproval.NoApprovals"]
+        </div>
+    }
+</div>

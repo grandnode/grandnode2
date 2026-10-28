@@ -127,6 +127,14 @@
                 </a>
             </li>
         }
+        @if (!Model.HideOrderApprovals)
+        {
+            <li class="customer-orderapprovals">
+                <a href="@Url.RouteUrl("CustomerOrderApprovals")" class="@if (Model.SelectedTab == AccountNavigationEnum.OrderApprovals) { <text>active</text> }else { <text>inactive</text> }">
+                    <i class="b-icon bi bi-check2-square" aria-hidden="true"></i> <span>@Loc["Account.OrderApprovals"]</span>
+                </a>
+            </li>
+        }
         @await Component.InvokeAsync("Widget", new { widgetZone = "account_navigation_after", additionalData = Model })
     </ul>
 </div>

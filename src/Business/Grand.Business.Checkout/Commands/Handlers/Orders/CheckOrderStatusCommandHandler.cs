@@ -27,6 +27,10 @@ public class CheckOrderStatusCommandHandler : IRequestHandler<CheckOrderStatusCo
     {
         ArgumentNullException.ThrowIfNull(request.Order);
 
+        //an order waiting for an approval stays as it is until it is decided
+        if (request.Order.OrderStatusId == (int)OrderStatusSystem.AwaitingApproval)
+            return true;
+
         if (request.Order.PaymentStatusId == PaymentStatus.Paid && !request.Order.PaidDateUtc.HasValue)
         {
             //ensure that paid date is set

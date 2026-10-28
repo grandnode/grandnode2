@@ -2,6 +2,7 @@
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 using Grand.Web.Commands.Models.Customers;
+using Grand.Web.Models.Customer;
 using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Customers;
@@ -59,6 +60,17 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
         //update attributes
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.FirstName, request.EditModel.FirstName);
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.LastName, request.EditModel.LastName);
+
+        //update role and order limit - only after the ownership check above. An approver orders without a limit,
+        //so whatever limit came with the request is dropped
+        var role = request.EditModel.Role;
+        //the text was checked by the validator; unparseable text from a caller that skipped it means no limit
+        OrderApprovalLimitText.TryParse(request.EditModel.OrderApprovalLimit, out var typedLimit);
+        var limit = role == SubAccountRole.Approver ? null : typedLimit;
+        customer.SubAccountRole = role;
+        customer.OrderApprovalLimit = limit;
+        await _customerService.UpdateCustomerField(customer, x => x.SubAccountRole, role);
+        await _customerService.UpdateCustomerField(customer, x => x.OrderApprovalLimit, limit);
 
         return true;
     }

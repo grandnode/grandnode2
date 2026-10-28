@@ -76,6 +76,21 @@ public class ShoppingCartValidatorTests
     }
 
     [TestMethod]
+    public async Task GetShoppingCartWarnings_ValidateAmountFalse_DoesNotRunTotalAmount()
+    {
+        //Arrange
+        var context = new CalculationContext(new Customer(), new Store { Id = "store" },
+            new Currency { CurrencyCode = "EUR" }, TaxDisplayType.IncludingTax);
+
+        //Act
+        await _validator.GetShoppingCartWarnings(new List<ShoppingCartItem>(), new List<CustomAttribute>(), context,
+            Language, true, false);
+
+        //Assert
+        Assert.AreEqual(0, _records.OfType<ShoppingCartTotalAmountValidatorRecord>().Count());
+    }
+
+    [TestMethod]
     public async Task GetRequiredProductWarnings_UsesTheGivenCustomerAndStore()
     {
         //Arrange

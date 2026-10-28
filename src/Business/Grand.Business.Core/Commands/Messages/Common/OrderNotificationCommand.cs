@@ -23,4 +23,23 @@ public class OrderNotificationCommand : IRequest
     ///     Host of the storefront request that placed the order; the messages link to it
     /// </summary>
     public DomainHost Host { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the store owner and the vendors are told about the order;
+    ///     false for an order that waits for an approval, they hear about it once it is approved.
+    ///     The customer's message is sent unless <see cref="NotifyCustomer" /> is off
+    /// </summary>
+    public bool NotifyStoreOwnerAndVendors { get; set; } = true;
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the customer gets the "order placed" message; off when the customer
+    ///     already got it at placement and only the store owner and the vendors are told later (approved order)
+    /// </summary>
+    public bool NotifyCustomer { get; set; } = true;
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the "Order placed" order note is added; off when the order already
+    ///     got it at placement (approved order)
+    /// </summary>
+    public bool AddOrderPlacedNote { get; set; } = true;
 }

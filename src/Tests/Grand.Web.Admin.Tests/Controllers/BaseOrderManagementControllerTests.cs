@@ -53,6 +53,8 @@ public class BaseOrderManagementControllerTests
     private Mock<IOrderAddressViewModelService> _orderAddressViewModelServiceMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IAdminDataScope<Order>> _scopeMock;
+    private Mock<IOrderStatusService> _orderStatusServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -64,12 +66,15 @@ public class BaseOrderManagementControllerTests
         _mediatorMock = new Mock<IMediator>();
         _scopeMock = new Mock<IAdminDataScope<Order>>();
 
-        var translationServiceMock = new Mock<IRequestTranslationService>();
-        translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
+        _translationServiceMock = new Mock<IRequestTranslationService>();
+        _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
+        _orderStatusServiceMock = new Mock<IOrderStatusService>();
+        _orderStatusServiceMock.Setup(s => s.GetByStatusId(It.IsAny<int>()))
+            .ReturnsAsync((int statusId) => new OrderStatus { StatusId = statusId, Name = "status" });
 
         _controller = new TestOrderManagementController(
             new Mock<IOrderViewModelService>().Object, _orderServiceMock.Object,
-            new Mock<IOrderStatusService>().Object, translationServiceMock.Object,
+            _orderStatusServiceMock.Object, _translationServiceMock.Object,
             new Mock<IContextAccessor>().Object, new Mock<IPdfService>().Object,
             _mediatorMock.Object, _scopeMock.Object, _orderNoteViewModelServiceMock.Object,
             _orderAddressViewModelServiceMock.Object, _orderProductViewModelServiceMock.Object);
@@ -142,6 +147,56 @@ public class BaseOrderManagementControllerTests
 
         Assert.AreEqual("List", (result as RedirectToActionResult)?.ActionName);
         _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeOrderStatus_OrderAwaitingApproval_RefusesWithoutUpdate()
+    {
+        var order = new Order { Id = "o1", OrderStatusId = (int)OrderStatusSystem.AwaitingApproval };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.ChangeOrderStatus("o1",
+            new OrderModel { OrderStatusId = (int)OrderStatusSystem.Processing });
+
+        Assert.AreEqual("Edit", (result as RedirectToActionResult)?.ActionName);
+        Assert.AreEqual((int)OrderStatusSystem.AwaitingApproval, order.OrderStatusId);
+        _translationServiceMock.Verify(
+            t => t.GetResource("Admin.Orders.Fields.OrderStatus.Change.AwaitingApproval"), Times.Once);
+        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        _orderServiceMock.Verify(s => s.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeOrderStatus_ToAwaitingApproval_RefusesWithoutUpdate()
+    {
+        var order = new Order { Id = "o1", OrderStatusId = (int)OrderStatusSystem.Pending };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.ChangeOrderStatus("o1",
+            new OrderModel { OrderStatusId = (int)OrderStatusSystem.AwaitingApproval });
+
+        Assert.AreEqual("Edit", (result as RedirectToActionResult)?.ActionName);
+        Assert.AreEqual((int)OrderStatusSystem.Pending, order.OrderStatusId);
+        _translationServiceMock.Verify(
+            t => t.GetResource("Admin.Orders.Fields.OrderStatus.Change.ToAwaitingApproval"), Times.Once);
+        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeOrderStatus_OrdinaryChange_UpdatesOrder()
+    {
+        var order = new Order { Id = "o1", OrderStatusId = (int)OrderStatusSystem.Pending };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+
+        var result = await _controller.ChangeOrderStatus("o1",
+            new OrderModel { OrderStatusId = (int)OrderStatusSystem.Processing });
+
+        Assert.AreEqual("Edit", (result as RedirectToActionResult)?.ActionName);
+        Assert.AreEqual((int)OrderStatusSystem.Processing, order.OrderStatusId);
+        _orderServiceMock.Verify(s => s.UpdateOrder(order), Times.Once);
     }
 
     [TestMethod]

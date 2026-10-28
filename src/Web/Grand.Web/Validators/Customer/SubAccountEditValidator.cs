@@ -39,6 +39,14 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
                 .WithMessage(string.Format(translationService.GetResource("Account.Fields.Password.Validation")))
                 .When(subAccount => !string.IsNullOrEmpty(subAccount.Password));
 
+        RuleFor(x => x.Role).IsInEnum()
+            .WithMessage(translationService.GetResource("Account.SubAccounts.Fields.Role.Invalid"));
+
+        //empty means no limit; anything else must read as a non-negative number in the current culture
+        RuleFor(x => x.OrderApprovalLimit)
+            .Must(text => OrderApprovalLimitText.TryParse(text, out _))
+            .WithMessage(translationService.GetResource("Account.SubAccounts.Fields.OrderApprovalLimit.Invalid"));
+
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var customer = await customerService.GetCustomerById(x.Id);
