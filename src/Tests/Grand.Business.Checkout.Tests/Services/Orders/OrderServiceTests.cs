@@ -18,6 +18,8 @@ public class OrderServiceTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<OrderNote>> _orderNoteRepositoryMock;
     private Mock<IRepository<Order>> _orderRepositoryMock;
+    private List<OrderApproval> _orderApprovals;
+    private Mock<IRepository<OrderApproval>> _orderApprovalRepositoryMock;
     private OrderService _service;
 
     [TestInitialize]
@@ -26,7 +28,11 @@ public class OrderServiceTests
         _orderRepositoryMock = new Mock<IRepository<Order>>();
         _orderNoteRepositoryMock = new Mock<IRepository<OrderNote>>();
         _mediatorMock = new Mock<IMediator>();
-        _service = new OrderService(_orderRepositoryMock.Object, _orderNoteRepositoryMock.Object, _mediatorMock.Object);
+        _orderApprovals = [];
+        _orderApprovalRepositoryMock = new Mock<IRepository<OrderApproval>>();
+        _orderApprovalRepositoryMock.Setup(c => c.Table).Returns(() => _orderApprovals.AsQueryable());
+        _service = new OrderService(_orderRepositoryMock.Object, _orderNoteRepositoryMock.Object,
+            _orderApprovalRepositoryMock.Object, _mediatorMock.Object);
     }
 
     [TestMethod]
@@ -157,6 +163,62 @@ public class OrderServiceTests
 
         await Assert.ThrowsExactlyAsync<OperationCanceledException>(() =>
             _service.CancelExpiredOrders(DateTime.UtcNow, cts.Token));
+
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1"),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "2"),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CancelExpiredOrders_OrderWithoutApproval_IsCancelled()
+    {
+        _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order> { NewExpiredOrder("1") }.AsQueryable());
+
+        await _service.CancelExpiredOrders(DateTime.UtcNow.AddDays(-7));
+
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1" && x.NotifyCustomer),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CancelExpiredOrders_OrderApprovedAfterTheCutoff_IsSkipped()
+    {
+        _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order> { NewExpiredOrder("1") }.AsQueryable());
+        _orderApprovals.Add(new OrderApproval {
+            OrderId = "1", Status = OrderApprovalStatus.Approved, DecidedOnUtc = DateTime.UtcNow.AddDays(-1)
+        });
+
+        await _service.CancelExpiredOrders(DateTime.UtcNow.AddDays(-7));
+
+        _mediatorMock.Verify(c => c.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CancelExpiredOrders_OrderApprovedBeforeTheCutoff_IsCancelled()
+    {
+        _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order> { NewExpiredOrder("1") }.AsQueryable());
+        _orderApprovals.Add(new OrderApproval {
+            OrderId = "1", Status = OrderApprovalStatus.Approved, DecidedOnUtc = DateTime.UtcNow.AddDays(-8)
+        });
+
+        await _service.CancelExpiredOrders(DateTime.UtcNow.AddDays(-7));
+
+        _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CancelExpiredOrders_RecentApprovalOfAnotherOrder_DoesNotProtectThisOne()
+    {
+        _orderRepositoryMock.Setup(c => c.Table)
+            .Returns(new List<Order> { NewExpiredOrder("1"), NewExpiredOrder("2") }.AsQueryable());
+        _orderApprovals.Add(new OrderApproval {
+            OrderId = "2", Status = OrderApprovalStatus.Approved, DecidedOnUtc = DateTime.UtcNow.AddDays(-1)
+        });
+
+        await _service.CancelExpiredOrders(DateTime.UtcNow.AddDays(-7));
 
         _mediatorMock.Verify(c => c.Send(It.Is<CancelOrderCommand>(x => x.Order.Id == "1"),
             It.IsAny<CancellationToken>()), Times.Once);
