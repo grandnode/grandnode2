@@ -3,7 +3,6 @@ using Grand.Domain;
 using Grand.Domain.Audit;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
-using MongoDB.Bson;
 
 namespace Grand.Infrastructure.Audit;
 
@@ -28,7 +27,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
 
     private readonly List<AuditEntry> _bulk = [];
 
-    private readonly Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, BsonDocument>>>>
+    private readonly Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, IDictionary<string, string>>>>>
         _loaders = new();
 
     private readonly object _lock = new();
@@ -75,11 +74,12 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         if (flush)
             await FlushAsync();
 
-        BsonDocument before = null;
+        IDictionary<string, string> before = null;
         if (!isInsert)
             try
             {
-                before = (await access.LoadMany([id])).FirstOrDefault()?.ToBsonDocument();
+                var stored = (await access.LoadMany([id])).FirstOrDefault();
+                before = stored == null ? null : AuditSnapshot.Take(stored);
             }
             catch (Exception ex)
             {
@@ -91,7 +91,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         lock (_lock)
         {
             _loaders[typeof(T)] = async ids =>
-                (await access.LoadMany(ids)).ToDictionary(e => e.Id, e => e.ToBsonDocument());
+                (await access.LoadMany(ids)).ToDictionary(e => e.Id, e => AuditSnapshot.Take(e));
 
             if (_pending.TryGetValue(key, out var existing))
                 existing.Merge(writtenPaths);
@@ -108,7 +108,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         lock (_lock)
         {
             if (_pending.TryGetValue((typeof(T), entity.Id), out var pending))
-                pending.AfterHint = entity.ToBsonDocument();
+                pending.AfterHint = AuditSnapshot.Take(entity);
         }
     }
 
@@ -141,7 +141,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
 
         List<KeyValuePair<(Type Type, string Id), Pending>> pending;
         List<AuditEntry> bulk;
-        Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, BsonDocument>>>> loaders;
+        Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, IDictionary<string, string>>>>> loaders;
         lock (_lock)
         {
             if (_pending.Count == 0 && _bulk.Count == 0)
@@ -149,7 +149,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
 
             pending = _pending.ToList();
             bulk = _bulk.ToList();
-            loaders = new Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, BsonDocument>>>>(_loaders);
+            loaders = new Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, IDictionary<string, string>>>>>(_loaders);
             _pending.Clear();
             _bulk.Clear();
         }
@@ -192,7 +192,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
 
     private static async Task<List<AuditEntry>> BuildEntries(
         List<KeyValuePair<(Type Type, string Id), Pending>> pending,
-        Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, BsonDocument>>>> loaders)
+        Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, IDictionary<string, string>>>>> loaders)
     {
         var entries = new List<AuditEntry>();
         foreach (var group in pending.GroupBy(p => p.Key.Type))
@@ -200,7 +200,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
             var toRead = group.Where(p => p.Value.AfterHint == null).Select(p => p.Key.Id).ToList();
             var read = toRead.Count > 0
                 ? await loaders[group.Key](toRead)
-                : new Dictionary<string, BsonDocument>();
+                : new Dictionary<string, IDictionary<string, string>>();
 
             foreach (var item in group)
             {
@@ -228,7 +228,8 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         return entries;
     }
 
-    private static AuditEntry Build(string entityType, string entityId, Pending pending, BsonDocument after)
+    private static AuditEntry Build(string entityType, string entityId, Pending pending,
+        IDictionary<string, string> after)
     {
         var before = pending.Before;
         var entry = new AuditEntry {
@@ -264,11 +265,10 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         return entry;
     }
 
-    private static string StoreIdOf(BsonDocument document)
+    //"" is a record of all stores, null one without a store
+    private static string StoreIdOf(IDictionary<string, string> snapshot)
     {
-        return document != null && document.TryGetValue("StoreId", out var storeId) && storeId.IsString
-            ? storeId.AsString
-            : null;
+        return snapshot != null && snapshot.TryGetValue("StoreId", out var storeId) ? storeId : null;
     }
 
     private static bool Touches(string changePath, string writtenPath)
@@ -278,16 +278,16 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
                || changePath.StartsWith(writtenPath + "[", StringComparison.Ordinal);
     }
 
-    private sealed class Pending(BsonDocument before, IReadOnlyCollection<string> paths)
+    private sealed class Pending(IDictionary<string, string> before, IReadOnlyCollection<string> paths)
     {
-        public BsonDocument Before { get; } = before;
+        public IDictionary<string, string> Before { get; } = before;
 
         /// <summary>
         ///     The paths written in this scope; null means every field
         /// </summary>
         public HashSet<string> Paths { get; private set; } = paths == null ? null : [..paths];
 
-        public BsonDocument AfterHint { get; set; }
+        public IDictionary<string, string> AfterHint { get; set; }
 
         public void Merge(IReadOnlyCollection<string> writtenPaths)
         {

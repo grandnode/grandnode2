@@ -1,3 +1,4 @@
+using Grand.Data.Audit;
 using Grand.Domain.Audit;
 using Grand.Infrastructure.Audit;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -13,7 +14,9 @@ public class AuditDiffTests
     private static IList<AuditChange> Compare(BsonDocument before, BsonDocument after, string entityType = "Product",
         ISet<string> ignored = null)
     {
-        return AuditDiff.Compare(entityType, before, after, ignored ?? NoIgnored);
+        var isSetting = entityType == "Setting";
+        return AuditDiff.Compare(entityType, AuditSnapshot.Flatten(before, isSetting),
+            AuditSnapshot.Flatten(after, isSetting), ignored ?? NoIgnored);
     }
 
     [TestMethod]
@@ -190,21 +193,14 @@ public class AuditDiffTests
     }
 
     [TestMethod]
-    public void Compare_Binary_NeverStoresBytes()
+    public void Compare_Binary_NotCompared_ListedAsChanged()
     {
-        var changes = Compare(new BsonDocument("Binary", new BsonBinaryData([1, 2, 3])),
-            new BsonDocument("Binary", new BsonBinaryData([1, 2, 3, 4])));
+        var changes = Compare(new BsonDocument("PictureBinary", new BsonBinaryData([1, 2, 3])),
+            new BsonDocument("PictureBinary", new BsonBinaryData([1, 2, 3])));
 
         Assert.AreEqual(1, changes.Count);
-        Assert.AreEqual("<binary 3 bytes>", changes[0].OldValue);
-        Assert.AreEqual("<binary 4 bytes>", changes[0].NewValue);
-    }
-
-    [TestMethod]
-    public void Compare_Binary_SameBytes_ReturnsEmpty()
-    {
-        Assert.AreEqual(0, Compare(new BsonDocument("Binary", new BsonBinaryData([1, 2, 3])),
-            new BsonDocument("Binary", new BsonBinaryData([1, 2, 3]))).Count);
+        Assert.AreEqual("<binary>", changes[0].OldValue);
+        Assert.AreEqual("<binary>", changes[0].NewValue);
     }
 
     [TestMethod]
@@ -322,9 +318,11 @@ public class AuditDiffTests
     [TestMethod]
     public void EntityName_PicksFirstPresent()
     {
-        Assert.AreEqual("Blue", AuditDiff.EntityName(new BsonDocument { { "Email", "a@b.c" }, { "Name", "Blue" } }));
-        Assert.AreEqual("a@b.c", AuditDiff.EntityName(new BsonDocument { { "Name", "" }, { "Email", "a@b.c" } }));
-        Assert.IsNull(AuditDiff.EntityName(new BsonDocument("Price", 1)));
+        string Name(BsonDocument document) => AuditDiff.EntityName(AuditSnapshot.Flatten(document, false));
+
+        Assert.AreEqual("Blue", Name(new BsonDocument { { "Email", "a@b.c" }, { "Name", "Blue" } }));
+        Assert.AreEqual("a@b.c", Name(new BsonDocument { { "Name", "" }, { "Email", "a@b.c" } }));
+        Assert.IsNull(Name(new BsonDocument("Price", 1)));
         Assert.IsNull(AuditDiff.EntityName(null));
     }
 }
