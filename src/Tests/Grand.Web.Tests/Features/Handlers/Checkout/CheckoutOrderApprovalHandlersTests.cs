@@ -147,6 +147,18 @@ public class CheckoutOrderApprovalHandlersTests
     }
 
     [TestMethod]
+    public async Task Confirm_BrokenPlaceholderInTheEditedText_StillRendersTheText()
+    {
+        _translation.Setup(t => t.GetResource("Checkout.OrderApproval.WillBeSent")).Returns("Over {0 goes");
+        State(true, 100);
+
+        var model = await ConfirmHandler().Handle(ConfirmRequest(), CancellationToken.None);
+
+        Assert.IsTrue(model.OrderApprovalRequired);
+        Assert.AreEqual("Over {0 goes", model.OrderApprovalMessage);
+    }
+
+    [TestMethod]
     public async Task Confirm_ApprovalNotRequired_LeavesTheStateEmpty()
     {
         State(false);

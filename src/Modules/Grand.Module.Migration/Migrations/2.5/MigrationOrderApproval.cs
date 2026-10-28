@@ -151,14 +151,14 @@ public class MigrationOrderApproval : IMigration
             Name = RequestedTemplateName,
             Subject = "{{Store.Name}}: order approval requested by {{OrderApproval.BuyerName}}",
             Body = Layout(
-                "Order #{{OrderApproval.OrderNumber}} is waiting for your approval.",
+                "{% if OrderApproval.OrderNumber != '' %}Order #{{OrderApproval.OrderNumber}}{% else %}An order{% endif %} is waiting for your approval.",
                 "Order approval requested",
                 @"
 <p>Hello {{Customer.FullName | Escape}},</p>
-<p><strong>{{OrderApproval.BuyerName | Escape}}</strong> ({{OrderApproval.BuyerEmail | Escape}}) asked you to approve order <strong>#{{OrderApproval.OrderNumber}}</strong> at <strong>{{Store.Name}}</strong>. The order is on hold until you decide.</p>"
+<p><strong>{{OrderApproval.BuyerName | Escape}}</strong> ({{OrderApproval.BuyerEmail | Escape}}) asked you to approve order{% if OrderApproval.OrderNumber != '' %} <strong>#{{OrderApproval.OrderNumber}}</strong>{% endif %} at <strong>{{Store.Name}}</strong>. The order is on hold until you decide.</p>"
                 + Button("{{OrderApproval.Url}}", "Review the order") + @"
-<p>The order contains:</p>
-{{OrderApproval.ItemsHtml}}
+<p>The order contains:</p>"
+                + "{{OrderApproval.ItemsHtml}}" + @"
 <p style='text-align: right;'><strong>Order total: {{OrderApproval.Total}}</strong></p>"),
             IsActive = true,
             EmailAccountId = emailAccountId
@@ -171,14 +171,14 @@ public class MigrationOrderApproval : IMigration
                 "Order approval {{OrderApproval.Status}}",
                 @"
 <p>Hello {{Customer.FullName | Escape}},</p>
-<p>Your request to approve order <strong>#{{OrderApproval.OrderNumber}}</strong> at <strong>{{Store.Name}}</strong> has been decided. Status: <strong>{{OrderApproval.Status}}</strong>.</p>
+<p>Your request to approve order{% if OrderApproval.OrderNumber != '' %} <strong>#{{OrderApproval.OrderNumber}}</strong>{% endif %} at <strong>{{Store.Name}}</strong> has been decided. Status: <strong>{{OrderApproval.Status}}</strong>.</p>
 {% if OrderApproval.DecisionComment != null and OrderApproval.DecisionComment != '' %}
 <p>Comment from the approver:</p>
 <p style='padding: 0.8em 1em; background-color: #f4f4f5; border-radius: 6px;'>{{OrderApproval.DecisionComment}}</p>
 {% endif %}"
                 + Button("{{OrderApproval.OrderUrl}}", "View your order") + @"
-<p>The order contains:</p>
-{{OrderApproval.ItemsHtml}}
+<p>The order contains:</p>"
+                + "{{OrderApproval.ItemsHtml}}" + @"
 <p style='text-align: right;'><strong>Order total: {{OrderApproval.Total}}</strong></p>
 <p>You can follow the request at <a href='{{OrderApproval.Url}}'>{{OrderApproval.Url}}</a>.</p>"),
             IsActive = true,

@@ -240,11 +240,26 @@
 	<Resource Name="Account.SubAccounts.Fields.Role.Invalid" Area="Front">
 		<Value>Choose a valid role.</Value>
 	</Resource>
+	<Resource Name="Admin.Configuration.Payment.Settings.OrderApprovalPaymentMethods" Area="Admin">
+		<Value>Payment methods for orders awaiting approval</Value>
+	</Resource>
 	<Resource Name="Admin.Customers.Customers.SubAccounts.OrderApprovalLimit" Area="Admin">
 		<Value>Order approval limit</Value>
 	</Resource>
 	<Resource Name="Admin.Customers.Customers.SubAccounts.Role" Area="Admin">
 		<Value>Role</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.NoPaymentMethod" Area="Front">
+		<Value>No payment method is available for orders that need approval. Please contact the store.</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.PaymentMethodNotAllowed" Area="Front">
+		<Value>This payment method cannot be used for an order that needs approval. Choose another one.</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.SendButton" Area="Front">
+		<Value>Send for approval</Value>
+	</Resource>
+	<Resource Name="Checkout.OrderApproval.WillBeSent" Area="Front">
+		<Value>This order is above your limit of {0}. It is placed now, but not processed until an approver has approved it.</Value>
 	</Resource>
 	<Resource Name="Enums.Grand.Domain.Customers.SubAccountRole.Approver" Area="Common">
 		<Value>Approver</Value>
@@ -321,6 +336,9 @@
 	<Resource Name="OrderApproval.NoApprovals" Area="Front">
 		<Value>There are no order approval requests.</Value>
 	</Resource>
+	<Resource Name="OrderApproval.Order" Area="Front">
+		<Value>Order</Value>
+	</Resource>
 	<Resource Name="OrderApproval.Product" Area="Front">
 		<Value>Product</Value>
 	</Resource>
@@ -362,23 +380,5 @@
 	</Resource>
 	<Resource Name="OrderApproval.Withdraw.Success" Area="Front">
 		<Value>The request has been withdrawn.</Value>
-	</Resource>
-	<Resource Name="Admin.Configuration.Payment.Settings.OrderApprovalPaymentMethods" Area="Admin">
-		<Value>Payment methods for orders awaiting approval</Value>
-	</Resource>
-	<Resource Name="Checkout.OrderApproval.NoPaymentMethod" Area="Front">
-		<Value>No payment method is available for orders that need approval. Please contact the store.</Value>
-	</Resource>
-	<Resource Name="Checkout.OrderApproval.PaymentMethodNotAllowed" Area="Front">
-		<Value>This payment method cannot be used for an order that needs approval. Choose another one.</Value>
-	</Resource>
-	<Resource Name="Checkout.OrderApproval.SendButton" Area="Front">
-		<Value>Send for approval</Value>
-	</Resource>
-	<Resource Name="Checkout.OrderApproval.WillBeSent" Area="Front">
-		<Value>This order is above your limit of {0}. It is placed now, but not processed until an approver has approved it.</Value>
-	</Resource>
-	<Resource Name="OrderApproval.Order" Area="Front">
-		<Value>Order</Value>
 	</Resource>
 </Language>

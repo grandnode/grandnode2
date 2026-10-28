@@ -1,4 +1,4 @@
-﻿using Grand.Business.Messages.DotLiquidDrops;
+using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Messages;
 using Grand.Module.Installer.Services.MessageTemplates;
 using Microsoft.VisualStudio.TestTools.UnitTesting;

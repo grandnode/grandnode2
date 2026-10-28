@@ -13,6 +13,7 @@ using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Text.RegularExpressions;
 
 namespace Grand.Modules.Tests.Services.Migrations;
 
@@ -264,5 +265,28 @@ public class MigrationOrderApprovalTests
         CollectionAssert.AreEqual(
             MessageTemplateSeedTests.Tokens(seeded.Body).ToList(),
             MessageTemplateSeedTests.Tokens(migrated.Body).ToList());
+        // the markup too, whatever the indentation
+        Assert.AreEqual(Normalize(seeded.Body), Normalize(migrated.Body));
+    }
+
+    private static string Normalize(string body)
+    {
+        return Regex.Replace(body, @"\s+", " ");
+    }
+
+    [TestMethod]
+    [DataRow("OrderApproval.Requested")]
+    [DataRow("OrderApproval.Decided")]
+    public void Templates_DoNotRenderABareOrderSignWithoutAnOrderNumber(string name)
+    {
+        var body = MigrationOrderApproval.Templates("ea").Single(x => x.Name == name).Body;
+        var seeded = MessageTemplateSeed.Build("ea").Single(x => x.Name == name).Body;
+
+        foreach (var text in new[] { body, seeded })
+        {
+            var unguarded = Regex.Replace(text, @"\{% if OrderApproval\.OrderNumber != '' %\}.*?\{% (else|endif) %\}", "",
+                RegexOptions.Singleline);
+            Assert.IsFalse(unguarded.Contains("#{{OrderApproval.OrderNumber}}"));
+        }
     }
 }

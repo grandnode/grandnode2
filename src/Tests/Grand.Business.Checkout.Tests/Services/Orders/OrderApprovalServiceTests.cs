@@ -269,6 +269,17 @@ public class OrderApprovalServiceTests
     }
 
     [TestMethod]
+    public async Task GetForCompanyAndCustomer_EmptyId_GiveAnEmptyPage()
+    {
+        await _repository.InsertAsync(new OrderApproval { CompanyOwnerId = "", CustomerId = "", StoreId = StoreId });
+
+        Assert.AreEqual(0, (await _service.GetForCompany("", StoreId, 0, 10)).TotalCount);
+        Assert.AreEqual(0, (await _service.GetForCompany(OwnerId, "", 0, 10)).TotalCount);
+        Assert.AreEqual(0, (await _service.GetForCustomer("", StoreId, 0, 10)).TotalCount);
+        Assert.AreEqual(0, (await _service.GetForCustomer(BuyerId, "", 0, 10)).TotalCount);
+    }
+
+    [TestMethod]
     public async Task GetForCompany_PendingFirst()
     {
         var now = DateTime.UtcNow;

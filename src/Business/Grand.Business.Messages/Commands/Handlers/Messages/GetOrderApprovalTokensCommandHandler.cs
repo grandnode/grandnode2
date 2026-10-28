@@ -32,13 +32,16 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
         var liquidOrderApproval = new LiquidOrderApproval {
             BuyerName = request.Buyer.GetFullName(),
             BuyerEmail = request.Buyer.Email,
-            Status = approval.Status.GetTranslationEnum(_translationService, request.Language.Id),
+            Status = Encode(approval.Status.GetTranslationEnum(_translationService, request.Language.Id)),
             Total = approval.Summary?.Total,
             ItemsHtml = ItemsHtml(approval.Items, request.Language.Id),
             DecisionComment = Encode(approval.DecisionComment),
             Url = $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}",
             OrderNumber = order?.OrderNumber.ToString() ?? string.Empty,
-            OrderUrl = $"{url}/orderdetails/{WebUtility.UrlEncode(approval.OrderId)}"
+            // without an order the link leads to the request itself
+            OrderUrl = order == null
+                ? $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}"
+                : $"{url}/orderdetails/{WebUtility.UrlEncode(approval.OrderId)}"
         };
         return liquidOrderApproval;
     }

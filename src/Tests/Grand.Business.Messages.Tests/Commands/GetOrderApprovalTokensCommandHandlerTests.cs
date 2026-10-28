@@ -56,6 +56,28 @@ public class GetOrderApprovalTokensCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_WithoutAnOrderId_FallsBackToTheApprovalUrlAndLeavesTheNumberEmpty()
+    {
+        var approval = Approval();
+        approval.OrderId = string.Empty;
+
+        var tokens = await _handler.Handle(Command(approval), default);
+
+        Assert.AreEqual(string.Empty, tokens.OrderNumber);
+        Assert.AreEqual("https://store.example/account/orderapproval?id=approval1", tokens.OrderUrl);
+    }
+
+    [TestMethod]
+    public async Task Handle_EncodesTheStatus()
+    {
+        _resources[$"Enums.{typeof(OrderApprovalStatus).FullName}.Pending"] = "<b>Pending</b>";
+
+        var tokens = await _handler.Handle(Command(Approval()), default);
+
+        Assert.IsFalse(tokens.Status.Contains('<'));
+    }
+
+    [TestMethod]
     public async Task Handle_EncodesCommentAndItemValues()
     {
         //Arrange
@@ -216,7 +238,7 @@ public class GetOrderApprovalTokensCommandHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_OrderGone_LeavesTheNumberEmptyAndStillBuildsTheLink()
+    public async Task Handle_OrderGone_LeavesTheNumberEmptyAndLinksToTheRequest()
     {
         //Arrange
         var approval = Approval();
@@ -227,6 +249,6 @@ public class GetOrderApprovalTokensCommandHandlerTests
 
         //Assert
         Assert.AreEqual(string.Empty, result.OrderNumber);
-        Assert.AreEqual("https://store.example/orderdetails/deleted", result.OrderUrl);
+        Assert.AreEqual("https://store.example/account/orderapproval?id=approval1", result.OrderUrl);
     }
 }

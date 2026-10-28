@@ -11,11 +11,11 @@ public static partial class MessageTemplateSeed
                 Name = "OrderApproval.Requested",
                 Subject = "{{Store.Name}}: order approval requested by {{OrderApproval.BuyerName}}",
                 Body = Layout(
-                    "Order #{{OrderApproval.OrderNumber}} is waiting for your approval.",
+                    "{% if OrderApproval.OrderNumber != '' %}Order #{{OrderApproval.OrderNumber}}{% else %}An order{% endif %} is waiting for your approval.",
                     "Order approval requested",
                     @"
                 <p>Hello {{Customer.FullName | Escape}},</p>
-                <p><strong>{{OrderApproval.BuyerName | Escape}}</strong> ({{OrderApproval.BuyerEmail | Escape}}) asked you to approve order <strong>#{{OrderApproval.OrderNumber}}</strong> at <strong>{{Store.Name}}</strong>. The order is on hold until you decide.</p>"
+                <p><strong>{{OrderApproval.BuyerName | Escape}}</strong> ({{OrderApproval.BuyerEmail | Escape}}) asked you to approve order{% if OrderApproval.OrderNumber != '' %} <strong>#{{OrderApproval.OrderNumber}}</strong>{% endif %} at <strong>{{Store.Name}}</strong>. The order is on hold until you decide.</p>"
                     + Button("{{OrderApproval.Url}}", "Review the order") + @"
                 <p>The order contains:</p>"
                     + "{{OrderApproval.ItemsHtml}}" + @"
@@ -31,7 +31,7 @@ public static partial class MessageTemplateSeed
                     "Order approval {{OrderApproval.Status}}",
                     @"
                 <p>Hello {{Customer.FullName | Escape}},</p>
-                <p>Your request to approve order <strong>#{{OrderApproval.OrderNumber}}</strong> at <strong>{{Store.Name}}</strong> has been decided. Status: <strong>{{OrderApproval.Status}}</strong>.</p>
+                <p>Your request to approve order{% if OrderApproval.OrderNumber != '' %} <strong>#{{OrderApproval.OrderNumber}}</strong>{% endif %} at <strong>{{Store.Name}}</strong> has been decided. Status: <strong>{{OrderApproval.Status}}</strong>.</p>
                 {% if OrderApproval.DecisionComment != null and OrderApproval.DecisionComment != '' %}
                 <p>Comment from the approver:</p>
                 <p style='padding: 0.8em 1em; background-color: #f4f4f5; border-radius: 6px;'>{{OrderApproval.DecisionComment}}</p>

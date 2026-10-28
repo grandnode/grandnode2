@@ -75,8 +75,16 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
 
         model.OrderApprovalRequired = true;
         var limit = await _currencyService.ConvertFromPrimaryStoreCurrency(state.Limit ?? 0, request.Currency);
-        model.OrderApprovalMessage = string.Format(_translationService.GetResource("Checkout.OrderApproval.WillBeSent"),
-            _priceFormatter.FormatPrice(limit, request.Currency));
+        var message = _translationService.GetResource("Checkout.OrderApproval.WillBeSent");
+        try
+        {
+            model.OrderApprovalMessage = string.Format(message, _priceFormatter.FormatPrice(limit, request.Currency));
+        }
+        catch (FormatException)
+        {
+            //the text is editable by an operator: a broken placeholder must not break the confirm page
+            model.OrderApprovalMessage = message;
+        }
         model.OrderApprovalButtonText = _translationService.GetResource("Checkout.OrderApproval.SendButton");
     }
 

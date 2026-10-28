@@ -63,6 +63,10 @@ public class OrderApprovalService : IOrderApprovalService
     public virtual async Task<IPagedList<OrderApproval>> GetForCompany(string companyOwnerId, string storeId,
         int pageIndex, int pageSize)
     {
+        // an empty id would match nothing meaningful, as in GetById
+        if (string.IsNullOrEmpty(companyOwnerId) || string.IsNullOrEmpty(storeId))
+            return new PagedList<OrderApproval>([], pageIndex, pageSize);
+
         var query = _repository.Table
             .Where(x => x.CompanyOwnerId == companyOwnerId && x.StoreId == storeId)
             .OrderBy(x => x.Status == OrderApprovalStatus.Pending ? 0 : 1)
@@ -74,6 +78,9 @@ public class OrderApprovalService : IOrderApprovalService
     public virtual async Task<IPagedList<OrderApproval>> GetForCustomer(string customerId, string storeId,
         int pageIndex, int pageSize)
     {
+        if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(storeId))
+            return new PagedList<OrderApproval>([], pageIndex, pageSize);
+
         var query = _repository.Table
             .Where(x => x.CustomerId == customerId && x.StoreId == storeId)
             .OrderByDescending(x => x.CreatedOnUtc);

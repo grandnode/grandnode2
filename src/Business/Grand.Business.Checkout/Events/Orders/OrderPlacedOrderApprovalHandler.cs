@@ -164,13 +164,19 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
     /// <summary>
     ///     The attribute description carries markup; the approval stores plain text, the views and e-mails encode it
     /// </summary>
+    private static readonly System.Text.RegularExpressions.Regex LineBreak = new("<br\\s*/?>",
+        System.Text.RegularExpressions.RegexOptions.IgnoreCase | System.Text.RegularExpressions.RegexOptions.Compiled);
+
+    private static readonly System.Text.RegularExpressions.Regex Tag = new("<[^>]*>",
+        System.Text.RegularExpressions.RegexOptions.Compiled);
+
     private static string ToPlainText(string html)
     {
         if (string.IsNullOrWhiteSpace(html))
             return html;
 
-        var lines = System.Text.RegularExpressions.Regex.Split(html, "<br\\s*/?>", System.Text.RegularExpressions.RegexOptions.IgnoreCase)
-            .Select(x => System.Text.RegularExpressions.Regex.Replace(x, "<[^>]*>", string.Empty))
+        var lines = LineBreak.Split(html)
+            .Select(x => Tag.Replace(x, string.Empty))
             .Select(x => System.Net.WebUtility.HtmlDecode(x).Trim())
             .Where(x => x.Length > 0);
         return string.Join(", ", lines);
