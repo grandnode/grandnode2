@@ -1,6 +1,6 @@
 ﻿@model SalesSettingsModel
 
-<vc:admin-widget widget-zone="shopping_cart_settings_top" additional-data="null"/>
+<vc:store-widget widget-zone="shopping_cart_settings_top" additional-data="null"/>
 @* what adding to the cart or wishlist does and how many items they hold, what the cart shows,
    the wishlist e-mail and the mini cart with what they reveal, then the cart's behaviour *@
 <admin-card>
@@ -50,7 +50,7 @@
         <admin-field asp-for="ShoppingCartSettings.ReservationDateFormat" size="md"/>
     </div>
 </admin-card>
-<vc:admin-widget widget-zone="shopping_cart_settings_bottom" additional-data="null"/>
+<vc:store-widget widget-zone="shopping_cart_settings_bottom" additional-data="null"/>
 
 <script>
         $(document).ready(function () {

@@ -69,7 +69,9 @@ jobs:
       # The commit actually built; differs from github.sha when a tag is
       # built manually from a workflow on another branch.
       - name: Resolve revision
-        run: echo "REVISION=$(git rev-parse HEAD)" >> "${GITHUB_ENV}"
+        run: |
+          echo "REVISION=$(git rev-parse HEAD)" >> "${GITHUB_ENV}"
+          echo "CREATED=$(date -u +'%Y-%m-%dT%H:%M:%SZ')" >> "${GITHUB_ENV}"
 
       - name: Login to GHCR
         uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
@@ -99,6 +101,7 @@ jobs:
             org.opencontainers.image.source=https://github.com/grandnode/grandnode2
             org.opencontainers.image.version=${{ env.VERSION }}
             org.opencontainers.image.revision=${{ env.REVISION }}
+            org.opencontainers.image.created=${{ env.CREATED }}
             org.opencontainers.image.description=GrandNode Docker image
 
           # BuildKit attestations are unsigned and cosign cannot verify them;
@@ -123,6 +126,7 @@ jobs:
           echo "Git ref:     ${GITHUB_REF}"
           echo "Source:      ${SOURCE_REF}"
           echo "Git commit:  ${REVISION}"
+          echo "Build date:  ${CREATED}"
           echo "Digest:      ${DIGEST}"
           echo "========================================"
 

@@ -236,10 +236,10 @@
                         </gn-tabs>
                     </div>
                 </div>
-                <vc:products-also-purchased product-id="@Model.Id" product-thumb-picture-size="null"></vc:products-also-purchased>
-                <vc:related-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:related-products>
-                <vc:similar-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:similar-products>
-                <vc:recommended-products product-id="@Model.Id" product-thumb-picture-size="null"></vc:recommended-products>
+                @await Component.InvokeAsync("ProductsAlsoPurchased", new { productId = Model.Id })
+                @await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })
+                @await Component.InvokeAsync("SimilarProducts", new { productId = Model.Id })
+                @await Component.InvokeAsync("RecommendedProducts", new { productId = Model.Id })
                 @if (Model.RenderCaptcha)
                 {
                     <partial name="Partials/Captcha"/>
