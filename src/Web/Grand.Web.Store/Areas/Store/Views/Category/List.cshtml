@@ -8,7 +8,7 @@
    store's own) and no export or import. The ids the script below looks up are unchanged. *@
 <admin-page title="@Loc["Admin.Catalog.Categories.Manage"]" icon="bi-diagram-3">
     <page-actions>
-        <vc:admin-widget widget-zone="category_list_buttons" additional-data="null"/>
+        <vc:store-widget widget-zone="category_list_buttons" additional-data="null"/>
         <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
             <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
         </a>

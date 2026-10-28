@@ -44,7 +44,7 @@
    it is shown. The field order is the one this tab always had, except the picture, last
    because its upload box is the tallest control. The ids the script above shows and hides -
    pnlSearchBoxOrder, pnlPageSize, pnlPageSizeOptions - sit on the same fields as before. *@
-<vc:admin-widget widget-zone="category_details_info_top" additional-data="Model"/>
+<vc:store-widget widget-zone="category_details_info_top" additional-data="Model"/>
 <admin-card>
     <localized-editor localized-template="@template" name="category-info-localized" language-ids="@Model.Locales.Select(c => c.LanguageId).ToList()">
         <div class="grand-fields">
@@ -110,4 +110,4 @@
         <admin-field asp-for="ExternalId"/>
     </div>
 </admin-card>
-<vc:admin-widget widget-zone="category_details_info_bottom" additional-data="Model"/>
+<vc:store-widget widget-zone="category_details_info_bottom" additional-data="Model"/>

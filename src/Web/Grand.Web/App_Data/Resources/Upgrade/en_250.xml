@@ -84,6 +84,87 @@
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.Description" Area="Admin">
 		<Value>&lt;p&gt;The identity provider and the client are configured in the application settings file (appsettings), not here: section &lt;code&gt;OidcResourceServer&lt;/code&gt; holds the identity provider (Authority), section &lt;code&gt;OidcLogin&lt;/code&gt; holds the client of this store (ClientId, ClientSecret, Scopes).&lt;/p&gt;&lt;p&gt;Register this redirect URI at the identity provider for every URL of the store: &lt;code&gt;https://&amp;lt;store-url&amp;gt;/signin-oidc&lt;/code&gt;.&lt;/p&gt;&lt;p&gt;Restart the application after changing the settings. Staff accounts connect once with their password; use the multi-factor authentication of the identity provider for them.&lt;/p&gt;&lt;p&gt;The order of the button is set by &lt;code&gt;OidcLogin:DisplayOrder&lt;/code&gt;.&lt;/p&gt;</Value>
 	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim" Area="Admin">
+		<Value>SCIM provisioning</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Summary" Area="Admin">
+		<Value>Entra ID or Okta can create, update and lock out the accounts of your employees through SCIM 2.0.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Description" Area="Admin">
+		<Value>Entra ID or Okta creates, updates and locks out the accounts of your employees through SCIM 2.0. A group from the identity provider grants nothing until you map it to a customer group below. Accounts SCIM creates are linked to the identity provider before their first sign-in; existing staff accounts it takes over connect once with their password. The endpoint and its token are set in appsettings (module Grand.Module.Scim, section Scim); see docs/scim.md.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.ModuleOff" Area="Admin">
+		<Value>Module Grand.Module.Scim is off (FeatureManagement in appsettings): the endpoint does not exist.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Refused" Area="Admin">
+		<Value>Every SCIM request is refused: set Scim:Token (at least 32 characters) and configure the OpenID Connect sign-in (OidcLogin).</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Endpoint" Area="Admin">
+		<Value>SCIM endpoint (tenant URL)</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Token" Area="Admin">
+		<Value>Token</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Token.Set" Area="Admin">
+		<Value>Set</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Token.NotSet" Area="Admin">
+		<Value>Not set, or shorter than 32 characters</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.ManagedAccounts" Area="Admin">
+		<Value>Accounts managed by SCIM</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Groups" Area="Admin">
+		<Value>Groups from the identity provider</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.DisplayName" Area="Admin">
+		<Value>Group</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.MemberCount" Area="Admin">
+		<Value>Members</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.CustomerGroup" Area="Admin">
+		<Value>Customer group</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.CustomerGroup.Hint" Area="Admin">
+		<Value>The role the members get. Not mapped: the group grants nothing.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.StaffStore" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.StaffStore.Hint" Area="Admin">
+		<Value>Required with Store managers; leave empty otherwise.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.Vendor" Area="Admin">
+		<Value>Vendor</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.Vendor.Hint" Area="Admin">
+		<Value>Required with Vendors; leave empty otherwise.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Fields.None" Area="Admin">
+		<Value>(none)</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.EditMapping" Area="Admin">
+		<Value>Map a group</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Info" Area="Admin">
+		<Value>Administrators and custom groups take no store or vendor. A member whose groups give roles that cannot be combined (Administrators with Store managers, two stores...) gets none of these roles.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Invalid" Area="Admin">
+		<Value>This mapping is not allowed: choose Administrators or a custom group alone, Store managers with a store, or Vendors with a vendor.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Saved" Area="Admin">
+		<Value>The mapping is saved and the roles of the members are updated.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.AdministratorsOnly" Area="Admin">
+		<Value>Only an administrator can map a group to Administrators or change such a mapping.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Conflicts" Area="Admin">
+		<Value>Role conflicts</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Scim.Conflicts.Info" Area="Admin">
+		<Value>The mapped groups of these accounts give back-office roles that cannot be combined, so SCIM granted none of them. Change the groups at the identity provider or the mappings.</Value>
+	</Resource>
 	<Resource Name="Account.Oidc.Login" Area="Front">
 		<Value>Sign in with your organization account</Value>
 	</Resource>

@@ -41,6 +41,8 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: grandnode/grandnode2:${{ env.TAG }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}
       - name: Build and push on develop
         uses: docker/build-push-action@v6
         with:
@@ -51,3 +53,5 @@ jobs:
           push: true
           platforms: linux/amd64
           tags: grandnode/develop:${{ env.TAG }}
+          labels: |
+            org.opencontainers.image.revision=${{ github.sha }}

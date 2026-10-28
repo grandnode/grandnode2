@@ -22,6 +22,7 @@
     <ProjectReference Include="..\..\Modules\Grand.Module.Installer\Grand.Module.Installer.csproj" />
     <ProjectReference Include="..\..\Modules\Grand.Module.Migration\Grand.Module.Migration.csproj" />
     <ProjectReference Include="..\..\Modules\Grand.Module.ScheduledTasks\Grand.Module.ScheduledTasks.csproj" />
+    <ProjectReference Include="..\..\Modules\Grand.Module.Scim\Grand.Module.Scim.csproj" />
     <ProjectReference Include="..\..\Plugins\DiscountRules.Standard\DiscountRules.Standard.csproj" />
     <ProjectReference Include="..\..\Plugins\ExchangeRate.McExchange\ExchangeRate.McExchange.csproj" />
     <ProjectReference Include="..\..\Plugins\Payments.BrainTree\Payments.BrainTree.csproj" />

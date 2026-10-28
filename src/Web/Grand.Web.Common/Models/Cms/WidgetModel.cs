@@ -1,5 +1,6 @@
 ﻿using Grand.Infrastructure.Models;
 
+//the namespace stays from Grand.Web.Models: storefront and theme _ViewImports import it
 namespace Grand.Web.Models.Cms;
 
 public class WidgetModel : BaseModel

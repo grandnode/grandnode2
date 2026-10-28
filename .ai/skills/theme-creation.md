@@ -84,7 +84,8 @@ Do not use this skill for changes to `Grand.Web/Views` themselves — that is `.
 16. Add `Views/{ThemeName}/_ViewStart.cshtml`.
 17. Copy **only** the views the theme actually changes. Everything else resolves through the fallback locations. Each copied view is a file that must be re-reconciled on every upgrade.
 18. A copied view keeps the same `@model`, the same route names, and the same storefront data attributes — `data-cart-action`, product IDs, quick-view URLs, wishlist, compare, add-to-cart, image `alt` / `title` / `loading`.
-19. Keep widget zones (`@await Component.InvokeAsync("Widget", new { widgetZone = "..." })`) present in copied views. Dropping a zone silently disables every installed widget on that page.
+19. Keep widget zones (`<vc:widget widget-zone="..." />` or `@await Component.InvokeAsync("Widget", new { widgetZone = "..." })`) present in copied views. Dropping a zone silently disables every installed widget on that page.
+    A `<vc:...>` tag only works for a view component in an assembly the theme registers with `@addTagHelper`, which here is `Grand.Web.Common` (`<vc:widget>`). A theme cannot reference `Grand.Web` (`GRAND001`), so every other `<vc:...>` copied from a `Grand.Web` view, such as `<vc:related-products>`, renders as an empty unknown element with no build error. Rewrite those as `@await Component.InvokeAsync("RelatedProducts", new { productId = Model.Id })`.
 20. A theme must not change view models, controller actions, or route definitions. If a theme needs different data, the change belongs in `Grand.Web`, not the theme.
 
 #### Assets

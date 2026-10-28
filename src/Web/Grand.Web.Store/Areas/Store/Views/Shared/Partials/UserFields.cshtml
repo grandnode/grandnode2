@@ -13,7 +13,7 @@
                 Value = contextAccessor.WorkContext.StoreManager.Id
             });    
 }
-<vc:admin-widget widget-zone="userfield_details_info_top" additional-data="Model"/>
+<vc:store-widget widget-zone="userfield_details_info_top" additional-data="Model"/>
 @* one card: the add form on top, the fields under it - addUserFields() appends a new one to
    #form-userfield, so it lands right below the form; every row keeps .form-body, which
    deleteUserFields() renumbers by, and one text box, one hidden key and one select *@
@@ -133,4 +133,4 @@
         });
     }
 </script>
-<vc:admin-widget widget-zone="userfield_details_info_bottom" additional-data="Model"/>
+<vc:store-widget widget-zone="userfield_details_info_bottom" additional-data="Model"/>

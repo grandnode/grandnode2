@@ -1,6 +1,6 @@
 @model SalesSettingsModel
 
-<vc:admin-widget widget-zone="loyalty_points_settings_top" additional-data="null"/>
+<vc:store-widget widget-zone="loyalty_points_settings_top" additional-data="null"/>
 @* the program and what a point is worth, then how points are earned; the rate and the purchase
    rule read as the sentences they are, with the fields inside them *@
 <admin-card>
@@ -38,4 +38,4 @@
         <admin-field asp-for="LoyaltyPointsSettings.DisplayHowMuchWillBeEarned"/>
     </div>
 </admin-card>
-<vc:admin-widget widget-zone="loyalty_points_settings_bottom" additional-data="null"/>
+<vc:store-widget widget-zone="loyalty_points_settings_bottom" additional-data="null"/>

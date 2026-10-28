@@ -10,7 +10,7 @@
 <form asp-area="@Constants.AreaStore" asp-controller="Product" asp-action="List" method="post">
     <admin-page title="@Loc["Admin.Catalog.Products.Manage"]" icon="bi-boxes">
         <page-actions>
-            <vc:admin-widget widget-zone="product_list_buttons" additional-data="null"/>
+            <vc:store-widget widget-zone="product_list_buttons" additional-data="null"/>
             <a href="@Url.Action("Create", new { area = Constants.AreaStore })" class="btn btn-primary">
                 <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
             </a>

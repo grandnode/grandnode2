@@ -217,4 +217,18 @@ public static partial class CacheKey
     public static string PAGES_PATTERN_KEY => "Grand.pages.";
 
     #endregion
+
+    #region Widgets
+
+    /// <summary>
+    ///     Key for widget info
+    /// </summary>
+    /// <remarks>
+    ///     {0} : current store ID
+    ///     {1} : customer groups
+    ///     {2} : widget zone
+    /// </remarks>
+    public static string WIDGET_MODEL_KEY => "Grand.pres.widget-{0}-{1}-{2}";
+
+    #endregion
 }
