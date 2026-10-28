@@ -23,5 +23,10 @@ public enum OrderApprovalStatus
     /// <summary>
     ///     Withdrawn by the buyer
     /// </summary>
-    Withdrawn = 30
+    Withdrawn = 30,
+
+    /// <summary>
+    ///     Closed because the order was cancelled in the back office before anyone decided
+    /// </summary>
+    Cancelled = 40
 }

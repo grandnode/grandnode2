@@ -180,6 +180,7 @@ public class OrderApprovalCommandsTests
     [DataRow(OrderApprovalStatus.Approved)]
     [DataRow(OrderApprovalStatus.Rejected)]
     [DataRow(OrderApprovalStatus.Withdrawn)]
+    [DataRow(OrderApprovalStatus.Cancelled)]
     public async Task Decide_NotPending_Refused(OrderApprovalStatus status)
     {
         var approval = Approval(status);
@@ -269,6 +270,7 @@ public class OrderApprovalCommandsTests
     [TestMethod]
     [DataRow(OrderApprovalStatus.Rejected)]
     [DataRow(OrderApprovalStatus.Withdrawn)]
+    [DataRow(OrderApprovalStatus.Cancelled)]
     public async Task Withdraw_Finished_Refused(OrderApprovalStatus status)
     {
         var approval = Approval(status);
@@ -605,6 +607,66 @@ public class OrderApprovalCommandsTests
         Assert.IsFalse(result);
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
         Assert.AreEqual(0, sent.Count);
+    }
+
+    #endregion
+
+    #region Cancel closes a pending request
+
+    // the stored request, as the database keeps it: every read gets its own copy, every save replaces it
+    private OrderApproval _stored;
+
+    private static OrderApproval Copy(OrderApproval a) => new() {
+        Id = a.Id, CustomerId = a.CustomerId, CompanyOwnerId = a.CompanyOwnerId, StoreId = a.StoreId,
+        Status = a.Status, OrderId = a.OrderId, Amount = a.Amount, DecidedOnUtc = a.DecidedOnUtc,
+        DecidedByCustomerId = a.DecidedByCustomerId, DecisionComment = a.DecisionComment
+    };
+
+    // the cancel publishes OrderCancelledEvent, whose handler closes the still pending request
+    private void StoreBehindTheCancel()
+    {
+        _stored = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(() => Copy(_stored));
+        _approvals.Setup(a => a.GetByOrderId("o1")).ReturnsAsync(() => Copy(_stored));
+        _approvals.Setup(a => a.Update(It.IsAny<OrderApproval>()))
+            .Callback<OrderApproval>(a => _stored = Copy(a)).Returns(Task.CompletedTask);
+        var cancelled = new Grand.Business.Checkout.Events.Orders.OrderCancelledOrderApprovalHandler(_approvals.Object,
+            new Mock<ILogger<Grand.Business.Checkout.Events.Orders.OrderCancelledOrderApprovalHandler>>().Object);
+        _mediator.Setup(m => m.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()))
+            .Returns(async (IRequest<bool> command, CancellationToken token) =>
+            {
+                var order = ((CancelOrderCommand)command).Order;
+                order.OrderStatusId = (int)OrderStatusSystem.Cancelled;
+                await cancelled.Handle(new Grand.Business.Core.Events.Checkout.Orders.OrderCancelledEvent(order),
+                    token);
+                return true;
+            });
+    }
+
+    [TestMethod]
+    public async Task Decide_Reject_StoresRejectedOverTheCancelClose()
+    {
+        StoreBehindTheCancel();
+
+        var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false), default);
+
+        Assert.IsTrue(result);
+        Assert.AreEqual(OrderApprovalStatus.Rejected, _stored.Status);
+        Assert.AreEqual(OwnerId, _stored.DecidedByCustomerId);
+        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Exactly(2));
+    }
+
+    [TestMethod]
+    public async Task Withdraw_StoresWithdrawnOverTheCancelClose()
+    {
+        StoreBehindTheCancel();
+
+        var result = await Withdrawer().Handle(
+            new WithdrawOrderApprovalCommand { Customer = Buyer(), Store = Shop(), ApprovalId = "a1" }, default);
+
+        Assert.IsTrue(result);
+        Assert.AreEqual(OrderApprovalStatus.Withdrawn, _stored.Status);
+        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Exactly(2));
     }
 
     #endregion

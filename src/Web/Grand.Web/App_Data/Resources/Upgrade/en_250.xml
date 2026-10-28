@@ -279,6 +279,9 @@
 	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Approved" Area="Common">
 		<Value>Approved</Value>
 	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Cancelled" Area="Common">
+		<Value>Cancelled</Value>
+	</Resource>
 	<Resource Name="Enums.Grand.Domain.Orders.OrderApprovalStatus.Pending" Area="Common">
 		<Value>Pending</Value>
 	</Resource>
