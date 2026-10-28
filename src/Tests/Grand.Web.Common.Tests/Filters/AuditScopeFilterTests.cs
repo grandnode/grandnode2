@@ -75,7 +75,7 @@ public class AuditScopeFilterTests
         await Run(null);
 
         _tracker.Verify(t => t.Activate(It.IsAny<AuditActor>()), Times.Never);
-        _tracker.Verify(t => t.FlushAsync(), Times.Never);
+        _tracker.Verify(t => t.CompleteAsync(), Times.Never);
     }
 
     [TestMethod]
@@ -93,7 +93,7 @@ public class AuditScopeFilterTests
         Assert.AreEqual("UA", _activated.UserAgent);
         Assert.AreEqual("trace-1", _activated.OperationId);
         Assert.IsNull(_activated.ImpersonatedCustomerId);
-        _tracker.Verify(t => t.FlushAsync(), Times.Once);
+        _tracker.Verify(t => t.CompleteAsync(), Times.Once);
     }
 
     [TestMethod]
@@ -163,7 +163,7 @@ public class AuditScopeFilterTests
     {
         await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => Run("Admin", throws: true));
 
-        _tracker.Verify(t => t.FlushAsync(), Times.Once);
+        _tracker.Verify(t => t.CompleteAsync(), Times.Once);
     }
 
     [TestMethod]

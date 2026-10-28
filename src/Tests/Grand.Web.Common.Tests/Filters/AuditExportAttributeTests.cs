@@ -63,6 +63,35 @@ public class AuditExportAttributeTests
         _recorder.Verify(r => r.Export(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int?>()), Times.Never);
     }
 
+    [TestMethod]
+    public async Task UnreadableModel_ExportStillRecorded()
+    {
+        await Run(new FileContentResult([1], "text/csv"),
+            new Dictionary<string, object> { { "model", new UnreadableFilter() } });
+
+        _recorder.Verify(r => r.Export("Customer", "unreadable", null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task IndexerProperty_Skipped()
+    {
+        await Run(new FileContentResult([1], "text/csv"),
+            new Dictionary<string, object> { { "model", new IndexedFilter { Name = "vip" } } });
+
+        _recorder.Verify(r => r.Export("Customer", "Name=vip", null), Times.Once);
+    }
+
+    public class UnreadableFilter
+    {
+        public string Broken => throw new InvalidOperationException();
+    }
+
+    public class IndexedFilter
+    {
+        public string Name { get; set; }
+        public string this[int index] => Name;
+    }
+
     public class ExportFilter
     {
         public string SearchEmail { get; set; }

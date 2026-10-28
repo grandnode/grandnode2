@@ -19,6 +19,10 @@ public class AuditEntrySearch
     ///     Any of these entity names, e.g. the setting classes one settings page saves
     /// </summary>
     public IList<string> EntityNames { get; set; }
+
+    /// <summary>
+    ///     Entries made by that store's staff or changing a record of that store
+    /// </summary>
     public string StoreId { get; set; }
     public string OperationId { get; set; }
 }

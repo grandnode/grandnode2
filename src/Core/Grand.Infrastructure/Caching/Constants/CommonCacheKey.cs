@@ -231,4 +231,13 @@ public static partial class CacheKey
     public static string WIDGET_MODEL_KEY => "Grand.pres.widget-{0}-{1}-{2}";
 
     #endregion
+
+    #region Audit log
+
+    /// <summary>
+    ///     Key for the entity types present in the audit log
+    /// </summary>
+    public static string AUDIT_ENTITY_TYPES_KEY => "Grand.audit.entitytypes";
+
+    #endregion
 }

@@ -33,9 +33,13 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
 
     private readonly object _lock = new();
     private readonly Dictionary<(Type Type, string Id), Pending> _pending = new();
+
+    //set in the flow of the AuditEntryCreated handlers: what a handler writes (e.g. a forwarding outbox) is not a
+    //staff change, and recording it would publish again
+    private readonly AsyncLocal<bool> _publishing = new();
     private AuditActor _actor;
 
-    public bool IsActive => _actor != null;
+    public bool IsActive => _actor != null && !_publishing.Value;
 
     public void Activate(AuditActor actor)
     {
@@ -123,9 +127,16 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         }
     }
 
+    public async Task CompleteAsync()
+    {
+        await FlushAsync();
+        //anything written after the request scope would wait in _pending for a flush that never comes
+        _actor = null;
+    }
+
     public async Task FlushAsync()
     {
-        if (!IsActive)
+        if (_actor == null)
             return;
 
         List<KeyValuePair<(Type Type, string Id), Pending>> pending;
@@ -153,7 +164,10 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
 
             var now = DateTime.UtcNow;
             foreach (var entry in entries)
-                Stamp(entry, now);
+            {
+                entry.CreatedOnUtc = now;
+                _actor.Stamp(entry);
+            }
 
             await writer.InsertManyAsync(entries);
         }
@@ -164,6 +178,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
             return;
         }
 
+        _publishing.Value = true;
         foreach (var entry in entries)
             try
             {
@@ -261,21 +276,6 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         return changePath == writtenPath
                || changePath.StartsWith(writtenPath + ".", StringComparison.Ordinal)
                || changePath.StartsWith(writtenPath + "[", StringComparison.Ordinal);
-    }
-
-    private void Stamp(AuditEntry entry, DateTime now)
-    {
-        entry.CreatedOnUtc = now;
-        entry.Source = _actor.Source;
-        entry.ActorCustomerId = _actor.CustomerId;
-        entry.ActorEmail = _actor.Email;
-        entry.ImpersonatedCustomerId = _actor.ImpersonatedCustomerId;
-        entry.StoreId = _actor.StoreId;
-        entry.VendorId = _actor.VendorId;
-        entry.IpAddress = _actor.IpAddress;
-        entry.UserAgent = _actor.UserAgent;
-        entry.Action = _actor.Action;
-        entry.OperationId = _actor.OperationId;
     }
 
     private sealed class Pending(BsonDocument before, IReadOnlyCollection<string> paths)

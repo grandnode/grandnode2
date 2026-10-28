@@ -15,4 +15,19 @@ public record AuditActor(
     string IpAddress,
     string UserAgent,
     string Action,
-    string OperationId);
+    string OperationId)
+{
+    public void Stamp(AuditEntry entry)
+    {
+        entry.Source = Source;
+        entry.ActorCustomerId = CustomerId;
+        entry.ActorEmail = Email;
+        entry.ImpersonatedCustomerId = ImpersonatedCustomerId;
+        entry.StoreId = StoreId;
+        entry.VendorId = VendorId;
+        entry.IpAddress = IpAddress;
+        entry.UserAgent = UserAgent;
+        entry.Action = Action;
+        entry.OperationId = OperationId;
+    }
+}

@@ -1,16 +1,16 @@
+using Grand.Infrastructure.Audit;
 using Grand.Web.Common.Audit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using System.Collections;
-using System.Text.RegularExpressions;
 
 namespace Grand.Web.Common.Filters;
 
 /// <summary>
 ///     Records an audit Export event when the action hands out a file, with a summary of the filter it was given
 /// </summary>
-public partial class AuditExportAttribute : TypeFilterAttribute
+public class AuditExportAttribute : TypeFilterAttribute
 {
     public AuditExportAttribute(string entityType) : base(typeof(AuditExportFilter))
     {
@@ -23,7 +23,17 @@ public partial class AuditExportAttribute : TypeFilterAttribute
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
-            var summary = Summarize(context.ActionArguments);
+            //the summary is only for the log, so a model it cannot read must not fail the export
+            string summary;
+            try
+            {
+                summary = Summarize(context.ActionArguments);
+            }
+            catch (Exception)
+            {
+                summary = "unreadable";
+            }
+
             var executed = await next();
             if (executed.Exception == null && executed.Result is FileResult)
                 await recorder.Export(entityType, summary, null);
@@ -39,7 +49,8 @@ public partial class AuditExportAttribute : TypeFilterAttribute
                 if (IsSimple(value.GetType()))
                     Add(parts, name, value);
                 else if (value is not IEnumerable)
-                    foreach (var property in value.GetType().GetProperties().Where(p => p.CanRead))
+                    foreach (var property in value.GetType().GetProperties()
+                                 .Where(p => p.CanRead && p.GetIndexParameters().Length == 0))
                         Add(parts, property.Name, property.GetValue(value));
             }
 
@@ -49,7 +60,7 @@ public partial class AuditExportAttribute : TypeFilterAttribute
 
         private static void Add(List<string> parts, string name, object value)
         {
-            if (value == null || SensitiveName().IsMatch(name))
+            if (value == null || AuditDiff.IsSensitive(name))
                 return;
 
             var type = value.GetType();
@@ -74,7 +85,4 @@ public partial class AuditExportAttribute : TypeFilterAttribute
                    || type == typeof(DateTime) || type == typeof(Guid);
         }
     }
-
-    [GeneratedRegex("password|secret|token|apikey", RegexOptions.IgnoreCase)]
-    private static partial Regex SensitiveName();
 }

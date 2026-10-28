@@ -422,6 +422,62 @@ public class AuditTrackerTests
             Written.Single().Changes.Select(c => c.Path).ToArray());
     }
 
+    [TestMethod]
+    public async Task WriteByAuditEntryCreatedHandler_NotTracked()
+    {
+        _tracker.Activate(Actor);
+        Put("1");
+        Put("outbox");
+        var handlerSawActive = true;
+        _mediator.Setup(m => m.Publish(It.IsAny<AuditEntryCreated>(), It.IsAny<CancellationToken>()))
+            .Returns(async () =>
+            {
+                handlerSawActive = _tracker.IsActive;
+                await _tracker.BeforeWriteAsync("outbox", false, _access);
+            });
+
+        await _tracker.BeforeWriteAsync("1", false, _access, ["Price"]);
+        _store["1"].Price = 20;
+        await _tracker.CompleteAsync();
+
+        Assert.IsFalse(handlerSawActive);
+        Assert.AreEqual("1", Written.Single().EntityId);
+    }
+
+    [TestMethod]
+    public async Task Complete_FlushesAndStopsTracking()
+    {
+        _tracker.Activate(Actor);
+        Put("1");
+
+        await _tracker.BeforeWriteAsync("1", false, _access, ["Price"]);
+        _store["1"].Price = 20;
+        await _tracker.CompleteAsync();
+        var loadsAfterComplete = _loadCalls;
+        await _tracker.BeforeWriteAsync("1", false, _access, ["Price"]);
+
+        Assert.AreEqual(1, Written.Count);
+        Assert.IsFalse(_tracker.IsActive);
+        Assert.AreEqual(loadsAfterComplete, _loadCalls);
+    }
+
+    [TestMethod]
+    public async Task AfterBatchFlushPublish_CallerStillTracked()
+    {
+        _tracker.Activate(Actor);
+        for (var i = 0; i <= AuditTracker.BatchSize; i++)
+        {
+            Put(i.ToString());
+            //the 201st write flushes the first 200 and publishes them before it is queued itself
+            await _tracker.BeforeWriteAsync(i.ToString(), false, _access, ["Price"]);
+            _store[i.ToString()].Price = 20;
+        }
+
+        Assert.IsTrue(_tracker.IsActive);
+        await _tracker.FlushAsync();
+        Assert.AreEqual(AuditTracker.BatchSize + 1, Written.Count);
+    }
+
     public class TrackedThing : BaseEntity
     {
         public string Name { get; set; }

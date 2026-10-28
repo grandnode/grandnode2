@@ -19,7 +19,7 @@ public class AuditSignInEventHandler(IAuditEventRecorder recorder) :
 
     public Task Handle(CustomerLoginFailedEvent notification, CancellationToken cancellationToken)
     {
-        return recorder.SignInFailed(notification.Customer, "wrong credentials");
+        return recorder.SignInFailed(notification.Customer, notification.Reason);
     }
 
     public Task Handle(CustomerLoggedOutEvent notification, CancellationToken cancellationToken)

@@ -19,7 +19,6 @@ public class AuditEntryRowModel
     ///     "Path: before → after" of every change, shortened, for the change history popup
     /// </summary>
     public string ChangesText { get; set; }
-    public IList<AuditChangeModel> Changes { get; set; } = new List<AuditChangeModel>();
 }
 
 public class AuditChangeModel

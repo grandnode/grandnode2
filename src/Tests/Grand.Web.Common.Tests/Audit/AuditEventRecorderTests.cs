@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Audit;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Audit;
 using Grand.Web.Common.Audit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -79,6 +80,21 @@ public class AuditEventRecorderTests
         await _recorder.SignIn(Staff);
 
         Assert.AreEqual(AuditSource.Storefront, _recorded.Single().Source);
+    }
+
+    [TestMethod]
+    public async Task Event_MarkedEndpoint_SourceFromMark()
+    {
+        //an API or SCIM request: its data changes and its events must agree on the source
+        _httpContext.Request.RouteValues.Remove("area");
+        _httpContext.SetEndpoint(new Endpoint(null,
+            new EndpointMetadataCollection(new AuditSourceAttribute(AuditSource.Api)), "api"));
+
+        await _recorder.Export("Product", null, null);
+
+        var entry = _recorded.Single();
+        Assert.AreEqual(AuditSource.Api, entry.Source);
+        Assert.AreEqual("Api / Customer / ExportExcelAll", entry.Action);
     }
 
     [TestMethod]
@@ -206,11 +222,11 @@ public class AuditEventRecorderTests
         var handler = new AuditSignInEventHandler(recorder.Object);
 
         await handler.Handle(new CustomerLoggedInEvent(Staff, null, "s1", null), CancellationToken.None);
-        await handler.Handle(new CustomerLoginFailedEvent(Staff), CancellationToken.None);
+        await handler.Handle(new CustomerLoginFailedEvent(Staff, "wrong two-factor code"), CancellationToken.None);
         await handler.Handle(new CustomerLoggedOutEvent(Staff), CancellationToken.None);
 
         recorder.Verify(r => r.SignIn(Staff));
-        recorder.Verify(r => r.SignInFailed(Staff, "wrong credentials"));
+        recorder.Verify(r => r.SignInFailed(Staff, "wrong two-factor code"));
         recorder.Verify(r => r.SignOut(Staff));
     }
 }

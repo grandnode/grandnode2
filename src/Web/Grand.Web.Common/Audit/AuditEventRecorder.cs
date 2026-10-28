@@ -5,7 +5,6 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
-using System.Diagnostics;
 
 namespace Grand.Web.Common.Audit;
 
@@ -119,14 +118,14 @@ public class AuditEventRecorder(
     {
         try
         {
-            var entry = new AuditEntry {
-                Kind = kind,
-                ActorCustomerId = actor?.Id,
-                ActorEmail = actor?.Email,
-                StoreId = actor?.StaffStoreId,
-                VendorId = actor?.VendorId
-            };
-            FillRequest(entry);
+            //an event outside the panels (a storefront sign-in) is a storefront event
+            var httpContext = httpContextAccessor.HttpContext;
+            var routeValues = httpContext?.Request.RouteValues;
+            var source = AuditRequest.StaffSource(httpContext?.GetEndpoint()?.Metadata, routeValues)
+                         ?? AuditSource.Storefront;
+            var entry = new AuditEntry { Kind = kind };
+            AuditRequest.Actor(httpContext, routeValues, source, actor?.Id, actor?.Email, null, actor?.StaffStoreId,
+                actor?.VendorId).Stamp(entry);
             fill?.Invoke(entry);
             await auditService.InsertEvent(entry);
         }
@@ -134,24 +133,5 @@ public class AuditEventRecorder(
         {
             logger.LogError(ex, "Audit {Kind} of customer {CustomerId} was not recorded", kind, actor?.Id);
         }
-    }
-
-    private void FillRequest(AuditEntry entry)
-    {
-        var httpContext = httpContextAccessor.HttpContext;
-        if (httpContext == null)
-            return;
-
-        var routeValues = httpContext.Request.RouteValues;
-        entry.Source = (routeValues["area"] as string) switch {
-            "Admin" => AuditSource.Admin,
-            "Store" => AuditSource.Store,
-            "Vendor" => AuditSource.Vendor,
-            _ => AuditSource.Storefront
-        };
-        entry.IpAddress = httpContext.Connection.RemoteIpAddress?.ToString();
-        entry.UserAgent = httpContext.Request.Headers.UserAgent.ToString();
-        entry.Action = $"{entry.Source} / {routeValues["controller"]} / {routeValues["action"]}";
-        entry.OperationId = Activity.Current?.TraceId.ToString() ?? httpContext.TraceIdentifier;
     }
 }

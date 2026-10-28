@@ -29,4 +29,9 @@ public interface IAuditTracker
     void RecordBulk<T>(string operation, string filter) where T : BaseEntity;
 
     Task FlushAsync();
+
+    /// <summary>
+    ///     Flushes and stops tracking at the end of the request scope; later writes are not audited
+    /// </summary>
+    Task CompleteAsync();
 }

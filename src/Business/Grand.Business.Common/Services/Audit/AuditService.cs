@@ -4,6 +4,8 @@ using Grand.Data.Audit;
 using Grand.Domain;
 using Grand.Domain.Audit;
 using Grand.Infrastructure.Audit;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Mediator;
 using System.Runtime.CompilerServices;
 
@@ -12,9 +14,13 @@ namespace Grand.Business.Common.Services.Audit;
 public class AuditService(
     IRepository<AuditEntry> repository,
     IAuditEntryWriter writer,
-    IMediator mediator) : IAuditService
+    IMediator mediator,
+    ICacheBase cacheBase) : IAuditService
 {
     private const int StreamPageSize = 1000;
+
+    //a distinct over the whole log; a type that appears meanwhile shows up in the filter a little later
+    private const int EntityTypesCacheMinutes = 10;
 
     public Task<IPagedList<AuditEntry>> GetEntries(AuditEntrySearch search, int pageIndex = 0,
         int pageSize = int.MaxValue)
@@ -45,22 +51,35 @@ public class AuditService(
             OperationId = search.OperationId
         };
 
-        for (var pageIndex = 0;; pageIndex++)
+        //each page continues below the time of the previous one (on the CreatedOnUtc_Id index), skipping only the
+        //entries of that same time already yielded - one flush stamps many entries alike - so no page counts the
+        //whole result or skips everything before it
+        var skip = 0;
+        while (true)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            var page = await repository.PagedAsync(Query(bounded), pageIndex, StreamPageSize, cancellationToken);
+            var page = await repository.ToListAsync(Query(bounded).Skip(skip).Take(StreamPageSize),
+                cancellationToken);
             foreach (var entry in page)
                 yield return entry;
 
             if (page.Count < StreamPageSize)
                 yield break;
+
+            var last = page[^1].CreatedOnUtc;
+            skip = (bounded.ToUtc == last ? skip : 0) + page.Count(e => e.CreatedOnUtc == last);
+            bounded.ToUtc = last;
         }
     }
 
-    public async Task<IList<string>> GetEntityTypes()
+    public Task<IList<string>> GetEntityTypes()
     {
-        var types = await repository.ToListAsync(repository.Table.Select(x => x.EntityType).Distinct());
-        return types.Where(t => !string.IsNullOrEmpty(t)).OrderBy(t => t, StringComparer.Ordinal).ToList();
+        return cacheBase.GetAsync(CacheKey.AUDIT_ENTITY_TYPES_KEY, async () =>
+        {
+            var types = await repository.ToListAsync(repository.Table.Select(x => x.EntityType).Distinct());
+            return (IList<string>)types.Where(t => !string.IsNullOrEmpty(t)).OrderBy(t => t, StringComparer.Ordinal)
+                .ToList();
+        }, EntityTypesCacheMinutes);
     }
 
     public async Task InsertEvent(AuditEntry entry)
@@ -110,7 +129,7 @@ public class AuditService(
         }
 
         if (!string.IsNullOrEmpty(search.StoreId))
-            query = query.Where(x => x.StoreId == search.StoreId);
+            query = query.Where(x => x.StoreId == search.StoreId || x.EntityStoreId == search.StoreId);
         if (!string.IsNullOrEmpty(search.OperationId))
             query = query.Where(x => x.OperationId == search.OperationId);
 

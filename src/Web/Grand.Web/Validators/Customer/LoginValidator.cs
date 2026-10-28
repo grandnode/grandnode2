@@ -83,7 +83,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                         {
                             context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
                             await contextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
-                                .Publish(new CustomerLoginFailedEvent(customer), _);
+                                .Publish(new CustomerLoginFailedEvent(customer, "wrong credentials"), _);
                         }
                         else if (await externalSignInPolicy.PasswordSignIn(customer, SignInSurface.Storefront) is { Allowed: false } decision)
                         {

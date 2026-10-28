@@ -4,6 +4,9 @@ using Grand.Data.Audit;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Audit;
 using Grand.Infrastructure.Audit;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Tests.Caching;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -25,7 +28,8 @@ public class AuditServiceTests
         await _repository.ClearAsync();
         _writer = new Mock<IAuditEntryWriter>();
         _mediator = new Mock<IMediator>();
-        _service = new AuditService(_repository, _writer.Object, _mediator.Object);
+        _service = new AuditService(_repository, _writer.Object, _mediator.Object,
+            new MemoryCacheBase(MemoryCacheTest.Get(), _mediator.Object, new CacheConfig { DefaultCacheTimeMinutes = 1 }));
     }
 
     private async Task<AuditEntry> Add(string entityType, string entityId, DateTime createdOnUtc,
@@ -107,6 +111,39 @@ public class AuditServiceTests
             count++;
 
         Assert.AreEqual(1005, count);
+    }
+
+    [TestMethod]
+    public async Task StreamEntries_SameTimeAcrossPages_EachEntryOnce()
+    {
+        //one flush stamps all its entries with the same time
+        var time = new DateTime(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc);
+        for (var i = 0; i < 2100; i++)
+            await _repository.InsertAsync(new AuditEntry { EntityType = "Product", CreatedOnUtc = i < 1500 ? time : time.AddMinutes(-1) });
+
+        var ids = new List<string>();
+        await foreach (var entry in _service.StreamEntries(new AuditEntrySearch(), CancellationToken.None))
+            ids.Add(entry.Id);
+
+        Assert.AreEqual(2100, ids.Count);
+        Assert.AreEqual(2100, ids.Distinct().Count());
+    }
+
+    [TestMethod]
+    public async Task GetEntries_Store_MatchesActorStoreOrRecordStore()
+    {
+        var byStoreStaff = await Add("Product", "p1", DateTime.UtcNow);
+        byStoreStaff.StoreId = "s2";
+        await _repository.UpdateAsync(byStoreStaff);
+        var adminOnStoreRecord = await Add("Product", "p2", DateTime.UtcNow);
+        adminOnStoreRecord.EntityStoreId = "s2";
+        await _repository.UpdateAsync(adminOnStoreRecord);
+        await Add("Product", "p3", DateTime.UtcNow);
+
+        var result = await _service.GetEntries(new AuditEntrySearch { StoreId = "s2" });
+
+        CollectionAssert.AreEquivalent(new[] { byStoreStaff.Id, adminOnStoreRecord.Id },
+            result.Select(x => x.Id).ToArray());
     }
 
     [TestMethod]

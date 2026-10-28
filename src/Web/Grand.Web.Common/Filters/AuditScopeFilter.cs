@@ -1,9 +1,8 @@
 using Grand.Data.Audit;
 using Grand.Domain.Audit;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Audit;
+using Grand.Web.Common.Audit;
 using Microsoft.AspNetCore.Mvc.Filters;
-using System.Diagnostics;
 
 namespace Grand.Web.Common.Filters;
 
@@ -14,10 +13,6 @@ namespace Grand.Web.Common.Filters;
 /// </summary>
 public class AuditScopeFilter(IAuditTracker tracker, IContextAccessor contextAccessor) : IAsyncResourceFilter
 {
-    private const string AreaAdmin = "Admin";
-    private const string AreaStore = "Store";
-    private const string AreaVendor = "Vendor";
-
     public async Task OnResourceExecutionAsync(ResourceExecutingContext context, ResourceExecutionDelegate next)
     {
         var actor = ResolveActor(context);
@@ -34,7 +29,7 @@ public class AuditScopeFilter(IAuditTracker tracker, IContextAccessor contextAcc
         }
         finally
         {
-            await tracker.FlushAsync();
+            await tracker.CompleteAsync();
         }
     }
 
@@ -61,32 +56,16 @@ public class AuditScopeFilter(IAuditTracker tracker, IContextAccessor contextAcc
             email = "SCIM";
         }
 
-        var routeValues = context.RouteData.Values;
-        return new AuditActor(
-            source.Value,
-            customerId,
-            email,
-            original != null ? current?.Id : null,
-            staff?.StaffStoreId,
-            staff?.VendorId,
-            httpContext.Connection.RemoteIpAddress?.ToString(),
-            httpContext.Request.Headers.UserAgent.ToString(),
-            $"{source.Value} / {routeValues["controller"]} / {routeValues["action"]}",
-            Activity.Current?.TraceId.ToString() ?? httpContext.TraceIdentifier);
+        return AuditRequest.Actor(httpContext, context.RouteData.Values, source.Value, customerId, email,
+            original != null ? current?.Id : null, staff?.StaffStoreId, staff?.VendorId);
     }
 
     private static AuditSource? ResolveSource(ResourceExecutingContext context, bool impersonating)
     {
-        var marked = context.ActionDescriptor.EndpointMetadata?.OfType<AuditSourceAttribute>().LastOrDefault();
-        if (marked != null)
-            return marked.Source;
-
-        return context.RouteData.Values["area"] as string switch {
-            AreaAdmin => AuditSource.Admin,
-            AreaStore => AuditSource.Store,
-            AreaVendor => AuditSource.Vendor,
-            null or "" when impersonating => AuditSource.Storefront,
-            _ => null
-        };
+        var routeValues = context.RouteData.Values;
+        return AuditRequest.StaffSource(context.ActionDescriptor.EndpointMetadata, routeValues)
+               ?? (impersonating && string.IsNullOrEmpty(routeValues["area"] as string)
+                   ? AuditSource.Storefront
+                   : null);
     }
 }

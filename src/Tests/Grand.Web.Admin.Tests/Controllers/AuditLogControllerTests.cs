@@ -98,6 +98,26 @@ public class AuditLogControllerTests
         Assert.AreEqual(AuditKind.Update, search.Kind);
         var data = ((DataSourceResult)result.Value!).Data.Cast<AuditEntryRowModel>().Single();
         Assert.AreEqual("Price", data.ChangedFields);
+        Assert.IsNull(data.ChangesText);
+    }
+
+    [TestMethod]
+    public async Task List_Post_DatesAreUtc()
+    {
+        AuditEntrySearch search = null;
+        _auditService.Setup(s => s.GetEntries(It.IsAny<AuditEntrySearch>(), 0, 20))
+            .Callback<AuditEntrySearch, int, int>((s, _, _) => search = s)
+            .ReturnsAsync(new PagedList<AuditEntry>(new List<AuditEntry>(), 0, 20));
+
+        //as model binding produces them from the date inputs
+        await _controller.List(new DataSourceRequest { Page = 1, PageSize = 20 }, new AuditLogListModel {
+            FromUtc = new DateTime(2026, 10, 21), ToUtc = new DateTime(2026, 10, 22)
+        });
+
+        Assert.AreEqual(DateTimeKind.Utc, search.FromUtc!.Value.Kind);
+        Assert.AreEqual(new DateTime(2026, 10, 21, 0, 0, 0, DateTimeKind.Utc), search.FromUtc);
+        Assert.AreEqual(DateTimeKind.Utc, search.ToUtc!.Value.Kind);
+        Assert.AreEqual(new DateTime(2026, 10, 23, 0, 0, 0, DateTimeKind.Utc).AddTicks(-1), search.ToUtc);
     }
 
     [TestMethod]

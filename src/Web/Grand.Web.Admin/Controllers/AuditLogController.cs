@@ -71,7 +71,7 @@ public class AuditLogController(
         var entries = await auditService.GetEntries(ToSearch(model), command.Page - 1, command.PageSize);
         var stores = await StoreNames();
         return Json(new DataSourceResult {
-            Data = entries.Select(e => ToRow(e, stores)).ToList(),
+            Data = entries.Select(e => ToRow(e, stores, false)).ToList(),
             Total = entries.TotalCount
         });
     }
@@ -154,7 +154,7 @@ public class AuditLogController(
             : await auditService.GetEntries(search, command.Page - 1, HistoryPageSize);
         var stores = await StoreNames();
         return Json(new DataSourceResult {
-            Data = entries.Select(e => ToRow(e, stores)).ToList(),
+            Data = entries.Select(e => ToRow(e, stores, true)).ToList(),
             Total = string.IsNullOrEmpty(entityId) ? entries.Count : entries.TotalCount
         });
     }
@@ -199,8 +199,8 @@ public class AuditLogController(
     private static AuditEntrySearch ToSearch(AuditLogListModel model)
     {
         return new AuditEntrySearch {
-            FromUtc = model.FromUtc,
-            ToUtc = model.ToUtc?.Date.AddDays(1).AddTicks(-1),
+            FromUtc = AsUtc(model.FromUtc),
+            ToUtc = AsUtc(model.ToUtc?.Date.AddDays(1).AddTicks(-1)),
             ActorEmail = model.ActorEmail?.Trim(),
             Source = model.Source,
             Kind = model.Kind,
@@ -209,6 +209,12 @@ public class AuditLogController(
             StoreId = model.StoreId,
             OperationId = model.OperationId?.Trim()
         };
+    }
+
+    //the filter fields are labelled UTC, but bind as Unspecified, which the database driver would read as server time
+    private static DateTime? AsUtc(DateTime? value)
+    {
+        return value.HasValue ? DateTime.SpecifyKind(value.Value, DateTimeKind.Utc) : null;
     }
 
     private async Task<IDictionary<string, string>> StoreNames()
@@ -225,7 +231,8 @@ public class AuditLogController(
         return stores.TryGetValue(entry.EntityStoreId, out var name) ? name : entry.EntityStoreId;
     }
 
-    private AuditEntryRowModel ToRow(AuditEntry entry, IDictionary<string, string> stores)
+    //the list shows only the changed field names; the values are for the change history popup
+    private AuditEntryRowModel ToRow(AuditEntry entry, IDictionary<string, string> stores, bool withValues)
     {
         var fields = string.Join(", ", entry.Changes.Select(c => c.Path));
         var appliesTo = AppliesTo(entry, stores);
@@ -238,9 +245,10 @@ public class AuditLogController(
             What = string.Join(" ", new[] { entry.EntityType, entry.EntityName }.Where(s => !string.IsNullOrEmpty(s)))
                    + (appliesTo == null ? "" : $" ({appliesTo})"),
             ChangedFields = fields.Length > ChangedFieldsLength ? fields[..ChangedFieldsLength] + "…" : fields,
-            Changes = entry.Changes.Select(ToChange).ToList(),
-            ChangesText = string.Join(" · ", entry.Changes.Select(ToChange).Select(c =>
-                $"{c.Path}: {Shorten(c.OldValue)} → {Shorten(c.NewValue)}"))
+            ChangesText = withValues
+                ? string.Join(" · ", entry.Changes.Select(ToChange).Select(c =>
+                    $"{c.Path}: {Shorten(c.OldValue)} → {Shorten(c.NewValue)}"))
+                : null
         };
     }
 
