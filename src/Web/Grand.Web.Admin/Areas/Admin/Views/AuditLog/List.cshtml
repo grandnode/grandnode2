@@ -47,20 +47,6 @@
             <grid-column field="ChangedFields" title="@Loc["Admin.System.AuditLog.Fields.Changes"]"/>
         </admin-grid>
     </admin-card>
-
-    <form asp-area="@Constants.AreaAdmin" asp-controller="AuditLog" asp-action="Settings" method="post">
-        <admin-card title="@Loc["Admin.System.AuditLog.Settings"]">
-            <card-actions>
-                <button type="submit" class="btn btn-outline-secondary btn-sm">
-                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
-                </button>
-            </card-actions>
-            <div class="grand-fields grand-fields--2col">
-                <admin-field asp-for="Settings.RetentionDays" size="sm"/>
-                <admin-field asp-for="Settings.LogStaffSignIns"/>
-            </div>
-        </admin-card>
-    </form>
 </admin-page>
 
 <script>

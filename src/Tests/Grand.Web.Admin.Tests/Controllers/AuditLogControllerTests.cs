@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Audit;
-using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain;
 using Grand.Domain.Audit;
@@ -8,7 +7,6 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.Admin.Models.AuditLog;
-using Grand.Web.Admin.Validators.AuditLog;
 using Grand.Web.Common.Audit;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
@@ -40,7 +38,7 @@ public class AuditLogControllerTests
         var translation = new Mock<IRequestTranslationService>();
         translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(key => key);
         _controller = new AuditLogController(_auditService.Object, _recorder.Object,
-            new Mock<ISettingService>().Object, new AuditSettings(), storeService.Object, translation.Object);
+            storeService.Object, translation.Object);
         _httpContext = new DefaultHttpContext();
         _httpContext.Response.Body = new MemoryStream();
         _controller.ControllerContext = new ControllerContext { HttpContext = _httpContext };
@@ -210,17 +208,6 @@ public class AuditLogControllerTests
             .Cast<PermissionAuthorizeAttribute>().Single();
 
         Assert.AreEqual(PermissionSystemName.AuditLog, attribute.Permission);
-    }
-
-    [TestMethod]
-    public async Task SettingsValidator_RetentionZero_Invalid()
-    {
-        var translation = new Mock<IRequestTranslationService>();
-        translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns("message");
-        var validator = new AuditSettingsValidator([], translation.Object);
-
-        Assert.IsFalse((await validator.ValidateAsync(new AuditSettingsModel { RetentionDays = 0 })).IsValid);
-        Assert.IsTrue((await validator.ValidateAsync(new AuditSettingsModel { RetentionDays = 1 })).IsValid);
     }
 
     [TestMethod]

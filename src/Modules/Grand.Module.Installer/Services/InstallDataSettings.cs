@@ -1,5 +1,4 @@
 ﻿using Grand.Domain.Admin;
-using Grand.Domain.Audit;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
 using Grand.Domain.Cms;
@@ -64,7 +63,6 @@ public partial class InstallationService
         await _settingRepository.SaveSetting(new SystemSettings {
             DeleteGuestTaskOlderThanMinutes = 1440
         });
-        await _settingRepository.SaveSetting(new AuditSettings());
         await _settingRepository.SaveSetting(new SecuritySettings {
             AdminAreaAllowedIpAddresses = null
         });

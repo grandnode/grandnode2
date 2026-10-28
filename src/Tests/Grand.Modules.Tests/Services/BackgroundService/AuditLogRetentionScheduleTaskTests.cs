@@ -1,5 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Audit;
-using Grand.Domain.Audit;
+using Grand.Infrastructure.Configuration;
 using Grand.Module.ScheduledTasks.BackgroundServices;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -24,7 +24,7 @@ public class AuditLogRetentionScheduleTaskTests
     [TestMethod]
     public async Task Execute_DeletesOlderThanRetention()
     {
-        var task = new AuditLogRetentionScheduleTask(_auditService.Object, new AuditSettings { RetentionDays = 30 });
+        var task = new AuditLogRetentionScheduleTask(_auditService.Object, new AuditConfig { RetentionDays = 30 });
 
         await task.Execute(CancellationToken.None);
 
@@ -35,7 +35,7 @@ public class AuditLogRetentionScheduleTaskTests
     [TestMethod]
     public async Task Execute_Cancelled_DeletesNothing()
     {
-        var task = new AuditLogRetentionScheduleTask(_auditService.Object, new AuditSettings());
+        var task = new AuditLogRetentionScheduleTask(_auditService.Object, new AuditConfig());
 
         await Assert.ThrowsExactlyAsync<OperationCanceledException>(() => task.Execute(new CancellationToken(true)));
 
@@ -43,13 +43,12 @@ public class AuditLogRetentionScheduleTaskTests
     }
 
     [TestMethod]
-    public async Task Execute_RetentionZero_TreatedAsOneDay()
+    public async Task Execute_RetentionZero_KeepsEverything()
     {
-        var task = new AuditLogRetentionScheduleTask(_auditService.Object, new AuditSettings { RetentionDays = 0 });
+        var task = new AuditLogRetentionScheduleTask(_auditService.Object, new AuditConfig { RetentionDays = 0 });
 
         await task.Execute(CancellationToken.None);
 
-        var expected = DateTime.UtcNow.AddDays(-1);
-        Assert.IsTrue(Math.Abs((_cutoff - expected).TotalSeconds) < 5, _cutoff.ToString("o"));
+        _auditService.Verify(s => s.DeleteOlderThan(It.IsAny<DateTime>()), Times.Never);
     }
 }

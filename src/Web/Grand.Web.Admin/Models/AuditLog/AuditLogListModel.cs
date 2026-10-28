@@ -42,5 +42,4 @@ public class AuditLogListModel : BaseModel
     public IList<SelectListItem> AvailableKinds { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
-    public AuditSettingsModel Settings { get; set; } = new();
 }

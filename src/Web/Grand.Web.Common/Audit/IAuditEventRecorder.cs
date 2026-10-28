@@ -30,4 +30,14 @@ public interface IAuditEventRecorder
     Task AuditLogViewed();
 
     Task AuditLogExported(string filterSummary, int rowCount);
+
+    /// <summary>
+    ///     Records that the current staff member was refused an admin page or action for lack of a permission
+    /// </summary>
+    Task AccessDenied(string permission, string permissionAction);
+
+    /// <summary>
+    ///     Records a plugin installed, uninstalled, removed or uploaded by the current staff member
+    /// </summary>
+    Task Plugin(string pluginName, string change);
 }

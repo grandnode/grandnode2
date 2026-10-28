@@ -12,9 +12,11 @@ public enum AuditKind
     SignIn = 10,
     SignInFailed = 11,
     SignOut = 12,
+    AccessDenied = 13,
     Export = 20,
     ImpersonationStart = 30,
     ImpersonationEnd = 31,
     AuditLogViewed = 40,
-    AuditLogExported = 41
+    AuditLogExported = 41,
+    Plugin = 50
 }

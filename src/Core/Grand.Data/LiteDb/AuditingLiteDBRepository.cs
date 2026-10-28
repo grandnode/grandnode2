@@ -15,14 +15,14 @@ public class AuditingLiteDBRepository<T> : LiteDBRepository<T> where T : BaseEnt
     public AuditingLiteDBRepository(LiteDatabase database, IAuditInfoProvider auditInfoProvider,
         IAuditTracker tracker) : base(database, auditInfoProvider)
     {
-        _audit = new RepositoryAudit<T>(tracker, new AuditRepositoryAccess<T>(LoadMany));
+        _audit = new RepositoryAudit<T>(tracker, LoadMany);
     }
 
     //used before installation, when no database is registered yet
     public AuditingLiteDBRepository(IAuditInfoProvider auditInfoProvider, IAuditTracker tracker)
         : base(auditInfoProvider)
     {
-        _audit = new RepositoryAudit<T>(tracker, new AuditRepositoryAccess<T>(LoadMany));
+        _audit = new RepositoryAudit<T>(tracker, LoadMany);
     }
 
     //by id, one at a time: Table would read the whole collection
@@ -41,7 +41,7 @@ public class AuditingLiteDBRepository<T> : LiteDBRepository<T> where T : BaseEnt
 
     public override async Task<T> UpdateAsync(T entity)
     {
-        await _audit.BeforeFullUpdate(entity);
+        await _audit.BeforeWrite(entity);
         var updated = await base.UpdateAsync(entity);
         _audit.AfterFullUpdate(entity);
         return updated;
@@ -95,7 +95,7 @@ public class AuditingLiteDBRepository<T> : LiteDBRepository<T> where T : BaseEnt
 
     public override async Task<T> DeleteAsync(T entity)
     {
-        await _audit.BeforeDelete(entity);
+        await _audit.BeforeWrite(entity);
         return await base.DeleteAsync(entity);
     }
 

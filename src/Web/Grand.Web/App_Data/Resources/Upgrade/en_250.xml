@@ -504,9 +504,6 @@
 	<Resource Name="Admin.System.AuditLog.NoEntries" Area="Admin">
 		<Value>No changes recorded yet</Value>
 	</Resource>
-	<Resource Name="Admin.System.AuditLog.Settings" Area="Admin">
-		<Value>Settings</Value>
-	</Resource>
 	<Resource Name="Admin.System.AuditLog.AllStores" Area="Admin">
 		<Value>All stores</Value>
 	</Resource>
@@ -573,21 +570,6 @@
 	<Resource Name="Admin.System.AuditLog.Fields.ToUtc" Area="Admin">
 		<Value>To (UTC)</Value>
 	</Resource>
-	<Resource Name="Admin.System.AuditLog.Fields.RetentionDays" Area="Admin">
-		<Value>Retention (days)</Value>
-	</Resource>
-	<Resource Name="Admin.System.AuditLog.Fields.RetentionDays.Hint" Area="Admin">
-		<Value>Entries older than this are deleted by the 'Audit log retention' task. Changing this value is itself recorded.</Value>
-	</Resource>
-	<Resource Name="Admin.System.AuditLog.Fields.RetentionDays.Min" Area="Admin">
-		<Value>Keep entries for at least 1 day.</Value>
-	</Resource>
-	<Resource Name="Admin.System.AuditLog.Fields.LogStaffSignIns" Area="Admin">
-		<Value>Record staff sign-ins</Value>
-	</Resource>
-	<Resource Name="Admin.System.AuditLog.Fields.LogStaffSignIns.Hint" Area="Admin">
-		<Value>Records sign-ins, failed sign-ins and sign-outs of staff accounts. Data changes are always recorded.</Value>
-	</Resource>
 	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.Insert" Area="Common">
 		<Value>Insert</Value>
 	</Resource>
@@ -623,6 +605,12 @@
 	</Resource>
 	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.AuditLogExported" Area="Common">
 		<Value>Audit log exported</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.AccessDenied" Area="Common">
+		<Value>Access denied</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.Plugin" Area="Common">
+		<Value>Plugin change</Value>
 	</Resource>
 	<Resource Name="Enums.Grand.Domain.Audit.AuditSource.Admin" Area="Common">
 		<Value>Admin</Value>

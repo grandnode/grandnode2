@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Audit;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 
@@ -10,7 +11,7 @@ namespace Grand.Web.Common.Audit;
 
 public class AuditEventRecorder(
     IAuditService auditService,
-    AuditSettings auditSettings,
+    AuditConfig auditConfig,
     IGroupService groupService,
     IHttpContextAccessor httpContextAccessor,
     IContextAccessor contextAccessor,
@@ -69,11 +70,29 @@ public class AuditEventRecorder(
             entry => entry.Details = $"filter: {filterSummary}; rows: {rowCount}");
     }
 
+    public Task AccessDenied(string permission, string permissionAction)
+    {
+        var details = string.IsNullOrEmpty(permissionAction)
+            ? $"permission: {permission}"
+            : $"permission: {permission} / {permissionAction}";
+        return Record(AuditKind.AccessDenied, CurrentStaff(), entry => entry.Details = details);
+    }
+
+    public Task Plugin(string pluginName, string change)
+    {
+        return Record(AuditKind.Plugin, CurrentStaff(), entry =>
+        {
+            entry.EntityType = "Plugin";
+            entry.EntityName = pluginName;
+            entry.Details = change;
+        });
+    }
+
     private async Task RecordSignInEvent(AuditKind kind, Customer customer, string reason)
     {
         try
         {
-            if (!auditSettings.LogStaffSignIns || customer == null || !await IsStaff(customer))
+            if (!auditConfig.LogStaffSignIns || customer == null || !await IsStaff(customer))
                 return;
         }
         catch (Exception ex)

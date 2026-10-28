@@ -7,6 +7,7 @@ using Grand.Web.Admin.Extensions;
 using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Models.Plugins;
+using Grand.Web.Common.Audit;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
@@ -25,7 +26,8 @@ public class PluginController(
     IServiceProvider serviceProvider,
     IEnumTranslationService enumTranslationService,
     IWebHostEnvironment webHostEnvironment,
-    ExtensionsConfig extConfig)
+    ExtensionsConfig extConfig,
+    IAuditEventRecorder auditEventRecorder)
     : BaseAdminController
 {
     #region Utilities
@@ -148,6 +150,7 @@ public class PluginController(
             //install plugin
             var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
             await plugin.Install();
+            await auditEventRecorder.Plugin(systemName, "installed");
 
             Success(translationService.GetResource("Admin.Plugins.Installed"));
 
@@ -182,6 +185,7 @@ public class PluginController(
             //uninstall plugin
             var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
             await plugin.Uninstall();
+            await auditEventRecorder.Plugin(systemName, "uninstalled");
 
             Success(translationService.GetResource("Admin.Plugins.Uninstalled"));
 
@@ -200,7 +204,7 @@ public class PluginController(
     }
 
     [HttpPost]
-    public IActionResult Remove(string systemName)
+    public async Task<IActionResult> Remove(string systemName)
     {
         if (extConfig.DisableUploadExtensions)
         {
@@ -216,6 +220,7 @@ public class PluginController(
                 return RedirectToAction("List");
 
             DeleteDirectory(pluginInfo.OriginalAssemblyFile.DirectoryName);
+            await auditEventRecorder.Plugin(systemName, "removed");
 
             //uninstall plugin
             Success(translationService.GetResource("Admin.Plugins.Removed"));
@@ -246,7 +251,7 @@ public class PluginController(
 
 
     [HttpPost]
-    public IActionResult UploadPlugin(IFormFile zippedFile)
+    public async Task<IActionResult> UploadPlugin(IFormFile zippedFile)
     {
         if (extConfig.DisableUploadExtensions)
         {
@@ -280,6 +285,7 @@ public class PluginController(
             }
 
             Upload(zipFilePath);
+            await auditEventRecorder.Plugin(zippedFile.FileName, "uploaded");
 
             var message = translationService.GetResource("Admin.Plugins.Uploaded");
             Success(message);

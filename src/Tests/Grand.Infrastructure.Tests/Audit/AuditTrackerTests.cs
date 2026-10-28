@@ -14,7 +14,7 @@ public class AuditTrackerTests
 {
     private readonly Dictionary<string, TrackedThing> _store = new();
     private int _loadCalls;
-    private AuditRepositoryAccess<TrackedThing> _access;
+    private Func<IReadOnlyCollection<string>, Task<IList<TrackedThing>>> _access;
     private Mock<IMediator> _mediator;
     private CapturingWriter _writer;
     private AuditTracker _tracker;
@@ -28,12 +28,12 @@ public class AuditTrackerTests
         _writer = new CapturingWriter();
         _mediator = new Mock<IMediator>();
         _tracker = new AuditTracker(_writer, _mediator.Object, NullLogger<AuditTracker>.Instance);
-        _access = new AuditRepositoryAccess<TrackedThing>(ids =>
+        _access = ids =>
         {
             _loadCalls++;
             IList<TrackedThing> found = ids.Where(_store.ContainsKey).Select(id => Clone(_store[id])).ToList();
             return Task.FromResult(found);
-        });
+        };
     }
 
     private static TrackedThing Clone(TrackedThing t)
@@ -197,7 +197,8 @@ public class AuditTrackerTests
     public async Task BeforeRead_Throws_DoesNotFailTheWrite()
     {
         _tracker.Activate(Actor);
-        var failing = new AuditRepositoryAccess<TrackedThing>(_ => throw new InvalidOperationException("db down"));
+        Func<IReadOnlyCollection<string>, Task<IList<TrackedThing>>> failing =
+            _ => throw new InvalidOperationException("db down");
 
         await _tracker.BeforeWriteAsync("1", false, failing, ["Price"]);
         await _tracker.FlushAsync();

@@ -5,6 +5,7 @@ using Grand.Domain.Audit;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Audit;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Audit;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -23,7 +24,7 @@ public class AuditEventRecorderTests
     private Mock<IAuditService> _auditService;
     private Mock<IGroupService> _groupService;
     private Mock<IWorkContext> _workContext;
-    private AuditSettings _settings;
+    private AuditConfig _config;
     private DefaultHttpContext _httpContext;
     private List<AuditEntry> _recorded;
     private AuditEventRecorder _recorder;
@@ -42,14 +43,14 @@ public class AuditEventRecorderTests
         _workContext.SetupGet(w => w.CurrentCustomer).Returns(Staff);
         var contextAccessor = new Mock<IContextAccessor>();
         contextAccessor.SetupGet(c => c.WorkContext).Returns(_workContext.Object);
-        _settings = new AuditSettings();
+        _config = new AuditConfig();
         _httpContext = new DefaultHttpContext { TraceIdentifier = "trace-1" };
         _httpContext.Connection.RemoteIpAddress = IPAddress.Parse("10.0.0.1");
         _httpContext.Request.Headers.UserAgent = "UA";
         _httpContext.Request.RouteValues["area"] = "Admin";
         _httpContext.Request.RouteValues["controller"] = "Customer";
         _httpContext.Request.RouteValues["action"] = "ExportExcelAll";
-        _recorder = new AuditEventRecorder(_auditService.Object, _settings, _groupService.Object,
+        _recorder = new AuditEventRecorder(_auditService.Object, _config, _groupService.Object,
             new HttpContextAccessor { HttpContext = _httpContext }, contextAccessor.Object,
             NullLogger<AuditEventRecorder>.Instance);
     }
@@ -83,6 +84,29 @@ public class AuditEventRecorderTests
     }
 
     [TestMethod]
+    public async Task AccessDenied_RecordsPermissionAndAction()
+    {
+        await _recorder.AccessDenied("ManagePlugins", "Edit");
+
+        var entry = _recorded.Single();
+        Assert.AreEqual(AuditKind.AccessDenied, entry.Kind);
+        Assert.AreEqual("staff1", entry.ActorCustomerId);
+        Assert.AreEqual("permission: ManagePlugins / Edit", entry.Details);
+    }
+
+    [TestMethod]
+    public async Task Plugin_RecordsNameAndChange()
+    {
+        await _recorder.Plugin("Payments.StripeCheckout", "installed");
+
+        var entry = _recorded.Single();
+        Assert.AreEqual(AuditKind.Plugin, entry.Kind);
+        Assert.AreEqual("Plugin", entry.EntityType);
+        Assert.AreEqual("Payments.StripeCheckout", entry.EntityName);
+        Assert.AreEqual("installed", entry.Details);
+    }
+
+    [TestMethod]
     public async Task Event_MarkedEndpoint_SourceFromMark()
     {
         //an API or SCIM request: its data changes and its events must agree on the source
@@ -108,7 +132,7 @@ public class AuditEventRecorderTests
     [TestMethod]
     public async Task SignIn_SettingOff_NotRecorded()
     {
-        _settings.LogStaffSignIns = false;
+        _config.LogStaffSignIns = false;
 
         await _recorder.SignIn(Staff);
         await _recorder.SignInFailed(Staff, "wrong password");

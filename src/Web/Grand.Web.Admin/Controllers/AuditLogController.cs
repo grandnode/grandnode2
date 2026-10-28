@@ -1,5 +1,4 @@
 using Grand.Business.Core.Interfaces.Common.Audit;
-using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Audit;
 using Grand.Domain.Permissions;
@@ -15,14 +14,12 @@ using System.Text;
 namespace Grand.Web.Admin.Controllers;
 
 /// <summary>
-///     The staff audit trail: list, entry detail, CSV export and retention settings. Main Admin only.
+///     The staff audit trail: list, entry detail and CSV export. Main Admin only; retention is set in appsettings.
 /// </summary>
 [PermissionAuthorize(PermissionSystemName.AuditLog)]
 public class AuditLogController(
     IAuditService auditService,
     IAuditEventRecorder auditEventRecorder,
-    ISettingService settingService,
-    AuditSettings auditSettings,
     IStoreService storeService,
     IRequestTranslationService translationService) : BaseAdminController
 {
@@ -53,11 +50,7 @@ public class AuditLogController(
             //a link to one record or one operation shows its whole history
             FromUtc = string.IsNullOrEmpty(entityId) && string.IsNullOrEmpty(operationId)
                 ? DateTime.UtcNow.AddDays(-DefaultDays)
-                : null,
-            Settings = new AuditSettingsModel {
-                RetentionDays = auditSettings.RetentionDays,
-                LogStaffSignIns = auditSettings.LogStaffSignIns
-            }
+                : null
         };
         await PrepareLists(model);
         await auditEventRecorder.AuditLogViewed();
@@ -157,23 +150,6 @@ public class AuditLogController(
             Data = entries.Select(e => ToRow(e, stores, true)).ToList(),
             Total = string.IsNullOrEmpty(entityId) ? entries.Count : entries.TotalCount
         });
-    }
-
-    [HttpPost]
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> Settings([Bind(Prefix = "Settings")] AuditSettingsModel model)
-    {
-        if (!ModelState.IsValid)
-        {
-            Error(ModelState);
-            return RedirectToAction("List");
-        }
-
-        auditSettings.RetentionDays = model.RetentionDays;
-        auditSettings.LogStaffSignIns = model.LogStaffSignIns;
-        await settingService.SaveSetting(auditSettings);
-        Success(translationService.GetResource("Admin.Configuration.Updated"));
-        return RedirectToAction("List");
     }
 
     private async Task PrepareLists(AuditLogListModel model)

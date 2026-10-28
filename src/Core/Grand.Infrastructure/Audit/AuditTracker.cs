@@ -50,8 +50,9 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         return !ExcludedTypes.Contains(entityType.Name);
     }
 
-    public async Task BeforeWriteAsync<T>(string id, bool isInsert, AuditRepositoryAccess<T> access,
-        IReadOnlyCollection<string> writtenPaths = null) where T : BaseEntity
+    public async Task BeforeWriteAsync<T>(string id, bool isInsert,
+        Func<IReadOnlyCollection<string>, Task<IList<T>>> loadMany, IReadOnlyCollection<string> writtenPaths = null)
+        where T : BaseEntity
     {
         if (!IsActive || string.IsNullOrEmpty(id))
             return;
@@ -78,7 +79,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         if (!isInsert)
             try
             {
-                var stored = (await access.LoadMany([id])).FirstOrDefault();
+                var stored = (await loadMany([id])).FirstOrDefault();
                 before = stored == null ? null : AuditSnapshot.Take(stored);
             }
             catch (Exception ex)
@@ -91,7 +92,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         lock (_lock)
         {
             _loaders[typeof(T)] = async ids =>
-                (await access.LoadMany(ids)).ToDictionary(e => e.Id, e => AuditSnapshot.Take(e));
+                (await loadMany(ids)).ToDictionary(e => e.Id, e => AuditSnapshot.Take(e));
 
             if (_pending.TryGetValue(key, out var existing))
                 existing.Merge(writtenPaths);
@@ -287,6 +288,9 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         /// </summary>
         public HashSet<string> Paths { get; private set; } = paths == null ? null : [..paths];
 
+        /// <summary>
+        ///     The state a full update wrote, so the flush does not re-read it
+        /// </summary>
         public IDictionary<string, string> AfterHint { get; set; }
 
         public void Merge(IReadOnlyCollection<string> writtenPaths)
