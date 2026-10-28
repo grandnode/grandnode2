@@ -1,4 +1,6 @@
 ﻿using Grand.Business.Common.Services.Addresses;
+using Grand.Business.Common.Services.Audit;
+using Grand.Business.Core.Interfaces.Common.Audit;
 using Grand.Business.Common.Services.Configuration;
 using Grand.Business.Common.Services.Directory;
 using Grand.Business.Common.Services.ExportImport;
@@ -51,6 +53,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IAddressAttributeParser, AddressAttributeParser>();
         serviceCollection.AddScoped<IAddressAttributeService, AddressAttributeService>();
         serviceCollection.AddScoped<IHistoryService, HistoryService>();
+        serviceCollection.AddScoped<IAuditService, AuditService>();
         serviceCollection.AddScoped<IPdfService, PdfService>();
     }
 

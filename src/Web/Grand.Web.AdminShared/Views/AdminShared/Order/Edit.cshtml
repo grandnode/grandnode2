@@ -23,6 +23,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Orders.BackToList"]">
         <page-actions>
+            <audit-history entity-type="Order" entity-id="@Model.Id"/>
             <a href="@Url.Action("PdfInvoice", new { orderId = Model.Id, area = area })" class="btn btn-outline-secondary">
                 <i class="bi bi-file-earmark-pdf"></i> @Loc["Admin.Orders.PdfInvoice"]
             </a>

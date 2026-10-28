@@ -46,6 +46,7 @@ public class OrderController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Order")]
     public async Task<IActionResult> ExportExcelAll(OrderListModel model)
     {
         var orders = await OrderViewModelService.PrepareOrders(model);
@@ -63,6 +64,7 @@ public class OrderController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Order")]
     public async Task<IActionResult> ExportExcelSelected(string selectedIds)
     {
         var orders = new List<Order>();

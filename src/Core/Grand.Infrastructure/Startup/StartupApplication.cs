@@ -1,6 +1,8 @@
 ﻿using Grand.Data;
+using Grand.Data.Audit;
 using Grand.Data.LiteDb;
 using Grand.Data.Mongo;
+using Grand.Infrastructure.Audit;
 using Grand.Infrastructure.Configuration;
 using LiteDB;
 using Microsoft.AspNetCore.Builder;
@@ -76,8 +78,10 @@ public class StartupApplication : IStartupApplication
             serviceCollection.AddScoped<IDatabaseContext, MongoDBContext>();
             //store files context - grid fs
             serviceCollection.AddScoped<IStoreFilesContext, MongoStoreFilesContext>();
-            //Mongo Repository
-            serviceCollection.AddScoped(typeof(IRepository<>), typeof(MongoRepository<>));
+            //Mongo Repository - reports staff writes to the audit tracker
+            serviceCollection.AddScoped(typeof(IRepository<>), typeof(AuditingMongoRepository<>));
+            serviceCollection.AddScoped<IAuditEntryWriter>(sp =>
+                new MongoAuditEntryWriter(sp.GetRequiredService<IMongoDatabase>));
         }
         else
         {
@@ -85,8 +89,12 @@ public class StartupApplication : IStartupApplication
             serviceCollection.AddScoped<IDatabaseContext, LiteDBContext>();
             //store files context - grid fs
             serviceCollection.AddScoped<IStoreFilesContext, LiteDBStoreFilesContext>();
-            //Mongo Repository
-            serviceCollection.AddScoped(typeof(IRepository<>), typeof(LiteDBRepository<>));
+            //LiteDB Repository - reports staff writes to the audit tracker
+            serviceCollection.AddScoped(typeof(IRepository<>), typeof(AuditingLiteDBRepository<>));
+            serviceCollection.AddScoped<IAuditEntryWriter>(sp =>
+                new LiteDBAuditEntryWriter(sp.GetRequiredService<LiteDatabase>));
         }
+
+        serviceCollection.AddScoped<IAuditTracker, AuditTracker>();
     }
 }

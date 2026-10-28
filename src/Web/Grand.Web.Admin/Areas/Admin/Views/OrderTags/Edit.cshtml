@@ -14,6 +14,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Orders.OrderTags.BackToList"]">
         <page-actions>
+            <audit-history entity-type="OrderTag" entity-id="@Model.Id"/>
             <button class="btn btn-primary" type="submit" name="save">
                 <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
             </button>

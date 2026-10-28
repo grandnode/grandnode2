@@ -13,6 +13,7 @@
                 back-url="@Url.Action("MerchandiseReturnReasonList", "Setting", new { area = Constants.AreaAdmin })"
                 back-text="@Loc["Admin.Settings.Order.MerchandiseReturnReasons.BackToList"]">
         <page-actions>
+            <audit-history entity-type="MerchandiseReturnReason" entity-id="@Model.Id"/>
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
             </button>

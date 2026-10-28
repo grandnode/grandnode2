@@ -9,6 +9,7 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Oidc;
 using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;
@@ -213,7 +214,11 @@ public static class ServiceCollectionExtensions
         });
 
         mvcBuilder.AddMvcOptions(options =>
-            options.Conventions.Add(new SharedViewFolderControllerNameConvention()));
+        {
+            options.Conventions.Add(new SharedViewFolderControllerNameConvention());
+            //records staff writes of panel, API and SCIM requests in the audit trail
+            options.Filters.Add<AuditScopeFilter>();
+        });
 
         //add view localization
         mvcBuilder.AddViewLocalization();

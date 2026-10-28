@@ -7,6 +7,7 @@ using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
+using Grand.Web.Common.Audit;
 using Grand.Web.Common.Helpers;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Menu;
@@ -129,6 +130,7 @@ public class StartupApplication : IStartupApplication
 
         serviceCollection.AddScoped<IRequestTranslationService, RequestTranslationService>();
         serviceCollection.AddScoped<IRequestPermissionService, RequestPermissionService>();
+        serviceCollection.AddScoped<IAuditEventRecorder, AuditEventRecorder>();
         serviceCollection.AddScoped<IGrandAuthenticationService, CookieAuthenticationService>();
         serviceCollection.AddScoped<IExternalSignInService, ExternalSignInService>();
         serviceCollection.AddScoped<ICookieOptionsFactory, CookieOptionsFactory>();

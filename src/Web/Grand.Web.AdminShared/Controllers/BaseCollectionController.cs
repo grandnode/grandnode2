@@ -250,6 +250,7 @@ public abstract class BaseCollectionController(
     #region Export / Import
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [AuditExport("Collection")]
     public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Collection> exportManager)
     {
         try

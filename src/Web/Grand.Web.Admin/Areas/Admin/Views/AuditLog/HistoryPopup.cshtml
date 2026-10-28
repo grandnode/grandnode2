@@ -1,0 +1,51 @@
+@model Grand.Web.Admin.Models.AuditLog.AuditHistoryPopupModel
+@{
+    Layout = "";
+    ViewBag.Title = Loc["Admin.System.AuditLog.ChangeHistory"];
+    var perRecord = !string.IsNullOrEmpty(Model.EntityId);
+}
+
+@* Opened from the "Change history" button of an edit or list screen. Values are grid text nodes,
+   never HTML; the full entry and the CSV export are one click away in the audit log. *@
+<admin-popup title="@($"{Loc["Admin.System.AuditLog.ChangeHistory"]} · {Model.EntityType}")" icon="bi-clock-history">
+    <admin-card flush>
+        <card-actions>
+            <a class="btn btn-outline-secondary btn-sm" target="_blank"
+               href="@Url.Action("List", "AuditLog", new { entityType = Model.EntityType, entityId = Model.EntityId, area = Constants.AreaAdmin })">
+                <i class="bi bi-box-arrow-up-right"></i> @Loc["Admin.System.AuditLog.OpenInAuditLog"]
+            </a>
+        </card-actions>
+        <admin-grid id="audit-history-grid"
+                    read-url="@Url.Action("HistoryList", "AuditLog", new { area = Constants.AreaAdmin })"
+                    additional-data="auditHistoryFilter"
+                    pager="@(perRecord ? Grand.Web.Common.TagHelpers.Admin.Grid.GridPager.Compact : Grand.Web.Common.TagHelpers.Admin.Grid.GridPager.None)">
+            <grid-column field="CreatedOn" title="@Loc["Admin.System.AuditLog.Fields.CreatedOnUtc"]" width="160">
+                <cell-template>
+                    <a class="text-decoration-none" target="_blank" href="@Url.Action("Detail", "AuditLog", new { area = Constants.AreaAdmin })/{{ Id }}">{{ CreatedOn }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="ActorEmail" title="@Loc["Admin.System.AuditLog.Fields.ActorEmail"]" width="200"/>
+            <grid-column field="Source" title="@Loc["Admin.System.AuditLog.Fields.Source"]" width="100"/>
+            <grid-column field="Kind" title="@Loc["Admin.System.AuditLog.Fields.Kind"]" width="130"/>
+            @if (!perRecord)
+            {
+                <grid-column field="What" title="@Loc["Admin.System.AuditLog.Fields.EntityName"]" width="200"/>
+            }
+            <grid-column field="ChangesText" title="@Loc["Admin.System.AuditLog.Fields.Changes"]"/>
+        </admin-grid>
+    </admin-card>
+</admin-popup>
+
+<div id="audit-history-filter" data-entity-type="@Model.EntityType" data-entity-id="@Model.EntityId" data-entity-names="@Model.EntityNames" hidden></div>
+<script>
+    function auditHistoryFilter() {
+        var filter = $('#audit-history-filter');
+        var data = {
+            entityType: filter.attr('data-entity-type'),
+            entityId: filter.attr('data-entity-id'),
+            entityNames: filter.attr('data-entity-names')
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

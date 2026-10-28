@@ -14,6 +14,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["admin.marketing.NewsletterCategory.BackToList"]">
         <page-actions>
+            <audit-history entity-type="NewsletterCategory" entity-id="@Model.Id"/>
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
             </button>

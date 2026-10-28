@@ -66,5 +66,14 @@ public static partial class StandardPermission
             { PermissionActionName.List, PermissionActionName.Edit, PermissionActionName.Preview }
     };
 
+    public static readonly Permission ManageAuditLog = new() {
+        Name = "Manage Audit Log",
+        SystemName = PermissionSystemName.AuditLog,
+        Area = "Admin area",
+        Category = CategorySystem,
+        Actions = new List<string>
+            { PermissionActionName.List, PermissionActionName.Preview, PermissionActionName.Export, PermissionActionName.Edit }
+    };
+
     private static string CategorySystem => "System";
 }

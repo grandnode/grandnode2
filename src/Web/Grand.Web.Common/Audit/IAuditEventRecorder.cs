@@ -1,0 +1,33 @@
+using Grand.Domain.Customers;
+
+namespace Grand.Web.Common.Audit;
+
+/// <summary>
+///     Records the audit events that are not data changes. Never throws: a failure is logged.
+/// </summary>
+public interface IAuditEventRecorder
+{
+    Task SignIn(Customer customer);
+
+    Task SignInFailed(Customer customer, string reason);
+
+    Task SignOut(Customer customer);
+
+    /// <summary>
+    ///     Records the sign-out of the staff member behind the current request
+    /// </summary>
+    Task SignOutCurrent();
+
+    /// <summary>
+    ///     Records that the current staff member exported entity data as a file
+    /// </summary>
+    Task Export(string entityType, string filterSummary, int? rowCount);
+
+    Task ImpersonationStart(Customer target);
+
+    Task ImpersonationEnd(Customer target);
+
+    Task AuditLogViewed();
+
+    Task AuditLogExported(string filterSummary, int rowCount);
+}

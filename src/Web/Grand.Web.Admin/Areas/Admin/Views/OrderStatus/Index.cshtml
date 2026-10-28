@@ -6,6 +6,9 @@
 @* The inline grid in a flush card: grid.js moves its Add new into the card header, which makes
    it the page's only add; there is nothing else to save. *@
 <admin-page title="@Loc["Admin.Orders.OrderStatus"]" icon="bi-card-list">
+    <page-actions>
+        <audit-history entity-type="OrderStatus"/>
+    </page-actions>
     <admin-card flush>
         <admin-grid id="orderstatus-grid"
                     read-url="@Url.Action("Statuses", "OrderStatus", new { area = Constants.AreaAdmin })"

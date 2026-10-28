@@ -217,6 +217,7 @@ public abstract class BaseCategoryController(
     #region Export / Import
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [AuditExport("Category")]
     public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Category> exportManager)
     {
         try

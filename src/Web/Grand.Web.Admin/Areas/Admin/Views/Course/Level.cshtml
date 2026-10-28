@@ -5,6 +5,9 @@
 
 @* an inline-edit grid in a flush card; grid.js moves its Add new into the card header *@
 <admin-page title="@Loc["Admin.Courses.Level"]" icon="bi-wrench">
+    <page-actions>
+        <audit-history entity-type="CourseLevel"/>
+    </page-actions>
     <admin-card flush>
         <admin-grid id="level-grid"
                     confirm-destroy="true"

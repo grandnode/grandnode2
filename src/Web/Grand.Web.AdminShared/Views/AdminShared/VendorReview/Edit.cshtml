@@ -16,6 +16,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc[$"{Scope.ResourceKeyPrefix}.VendorReviews.BackToList"]">
         <page-actions>
+            <audit-history entity-type="VendorReview" entity-id="@Model.Id"/>
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc[$"{Scope.ResourceKeyPrefix}.Common.SaveContinue"]
             </button>

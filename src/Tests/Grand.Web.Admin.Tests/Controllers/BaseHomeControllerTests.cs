@@ -15,6 +15,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Audit;
 using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Admin.Tests.Controllers;
@@ -149,10 +150,21 @@ public class BaseHomeControllerTests
 
         var providerSignOut = new Mock<IProviderSignOut>();
 
-        var result = (RedirectToRouteResult)await controller.Logout(providerSignOut.Object);
+        var result = (RedirectToRouteResult)await controller.Logout(providerSignOut.Object, new Mock<IAuditEventRecorder>().Object);
 
         providerSignOut.Verify(a => a.SignOut(), Times.Once);
         Assert.AreEqual("VendorLogin", result.RouteName);
+    }
+
+    [TestMethod]
+    public async Task Logout_RecordsSignOut()
+    {
+        var controller = CreateController("Admin.Address.SelectState", "VendorLogin");
+        var recorder = new Mock<IAuditEventRecorder>();
+
+        await controller.Logout(new Mock<IProviderSignOut>().Object, recorder.Object);
+
+        recorder.Verify(r => r.SignOutCurrent(), Times.Once);
     }
 
     [TestMethod]
@@ -162,7 +174,7 @@ public class BaseHomeControllerTests
         var providerSignOut = new Mock<IProviderSignOut>();
         providerSignOut.Setup(a => a.SignOut()).ReturnsAsync("https://idp.example/logout");
 
-        var result = (RedirectResult)await controller.Logout(providerSignOut.Object);
+        var result = (RedirectResult)await controller.Logout(providerSignOut.Object, new Mock<IAuditEventRecorder>().Object);
 
         Assert.AreEqual("https://idp.example/logout", result.Url);
     }

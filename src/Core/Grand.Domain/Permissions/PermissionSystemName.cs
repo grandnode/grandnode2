@@ -68,6 +68,7 @@ public static class PermissionSystemName
     public const string Pictures = "ManagePictures";
     public const string HtmlEditor = "HtmlEditor.ManagePictures";
     public const string ScheduleTasks = "ManageScheduleTasks";
+    public const string AuditLog = "ManageAuditLog";
 
     public const string AllowUseApi = "AllowUseApi";
 

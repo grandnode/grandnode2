@@ -1,6 +1,8 @@
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
+using Grand.Data.Audit;
 using Grand.Domain;
+using Grand.Domain.Audit;
 using Grand.Domain.Admin;
 using Grand.Domain.Affiliates;
 using Grand.Domain.Blogs;
@@ -125,6 +127,7 @@ public partial class InstallationService : IInstallationService
         IRepository<PermissionAction> permissionAction,
         IRepository<ExternalAuthentication> externalAuthenticationRepository,
         IRepository<OidcSession> oidcSessionRepository,
+        IRepository<AuditEntry> auditEntryRepository,
         IRepository<MerchandiseReturnReason> merchandiseReturnReasonRepository,
         IRepository<MerchandiseReturnAction> merchandiseReturnActionRepository,
         IRepository<ContactUs> contactUsRepository,
@@ -223,6 +226,7 @@ public partial class InstallationService : IInstallationService
         _vendorRepository = vendorRepository;
         _externalAuthenticationRepository = externalAuthenticationRepository;
         _oidcSessionRepository = oidcSessionRepository;
+        _auditEntryRepository = auditEntryRepository;
         _discountusageRepository = discountusageRepository;
         _merchandiseReturnReasonRepository = merchandiseReturnReasonRepository;
         _contactUsRepository = contactUsRepository;
@@ -391,6 +395,7 @@ public partial class InstallationService : IInstallationService
     private readonly IRepository<PermissionAction> _permissionAction;
     private readonly IRepository<ExternalAuthentication> _externalAuthenticationRepository;
     private readonly IRepository<OidcSession> _oidcSessionRepository;
+    private readonly IRepository<AuditEntry> _auditEntryRepository;
     private readonly IRepository<MerchandiseReturnReason> _merchandiseReturnReasonRepository;
     private readonly IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;
     private readonly IRepository<ContactUs> _contactUsRepository;
@@ -954,6 +959,9 @@ public partial class InstallationService : IInstallationService
         //the request of an order: read at placement and when the order is cancelled
         await dbContext.CreateIndex(_orderApprovalRepository,
             OrderBuilder<OrderApproval>.Create().Ascending(x => x.OrderId), "OrderId");
+
+        //audit log: the list by date, the history popup by entity, the actor filter and the operation link
+        await AuditIndexes.Create(dbContext, _auditEntryRepository);
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,

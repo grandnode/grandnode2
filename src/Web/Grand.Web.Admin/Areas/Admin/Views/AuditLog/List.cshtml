@@ -1,0 +1,95 @@
+@model Grand.Web.Admin.Models.AuditLog.AuditLogListModel
+@{
+    ViewBag.Title = Loc["Admin.System.AuditLog"];
+}
+
+@* The list shape without Add new: no primary action, Export CSV as an outline button in the header,
+   the actor e-mail as the quick search with the other criteria behind the Filters toggle, and the
+   grid in a flush card. The export posts the same filter form the grid reads. *@
+<admin-page title="@Loc["Admin.System.AuditLog"]" icon="bi-journal-text">
+    <page-actions>
+        <button type="submit" form="auditlog-filter-form" class="btn btn-outline-secondary">
+            <i class="bi bi-download"></i> @Loc["Admin.System.AuditLog.ExportCsv"]
+        </button>
+    </page-actions>
+
+    <form id="auditlog-filter-form" asp-area="@Constants.AreaAdmin" asp-controller="AuditLog" asp-action="ExportCsv" method="post">
+        <admin-filters id="auditlog-filters" submit-id="search-auditlog" expanded="@(!string.IsNullOrEmpty(Model.EntityId) || !string.IsNullOrEmpty(Model.OperationId))">
+            <filters-search>
+                <admin-input asp-for="ActorEmail"/>
+            </filters-search>
+            <div class="grand-range">
+                <admin-field asp-for="FromUtc"/>
+                <admin-field asp-for="ToUtc"/>
+            </div>
+            <admin-field asp-for="EntityType" asp-items="Model.AvailableEntityTypes"/>
+            <admin-field asp-for="EntityId"/>
+            <admin-field asp-for="Kind" asp-items="Model.AvailableKinds"/>
+            <admin-field asp-for="Source" asp-items="Model.AvailableSources"/>
+            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+            <admin-field asp-for="OperationId"/>
+        </admin-filters>
+    </form>
+
+    <admin-card flush>
+        <admin-grid id="auditlog-grid"
+                    read-url="@Url.Action("List", "AuditLog", new { area = Constants.AreaAdmin })"
+                    additional-data="auditLogFilters">
+            <grid-column field="CreatedOn" title="@Loc["Admin.System.AuditLog.Fields.CreatedOnUtc"]" width="170">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Detail", new { area = Constants.AreaAdmin })/{{ Id }}">{{ CreatedOn }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="ActorEmail" title="@Loc["Admin.System.AuditLog.Fields.ActorEmail"]" width="220"/>
+            <grid-column field="Source" title="@Loc["Admin.System.AuditLog.Fields.Source"]" width="110"/>
+            <grid-column field="Kind" title="@Loc["Admin.System.AuditLog.Fields.Kind"]" width="150"/>
+            <grid-column field="What" title="@Loc["Admin.System.AuditLog.Fields.EntityName"]"/>
+            <grid-column field="ChangedFields" title="@Loc["Admin.System.AuditLog.Fields.Changes"]"/>
+        </admin-grid>
+    </admin-card>
+
+    <form asp-area="@Constants.AreaAdmin" asp-controller="AuditLog" asp-action="Settings" method="post">
+        <admin-card title="@Loc["Admin.System.AuditLog.Settings"]">
+            <card-actions>
+                <button type="submit" class="btn btn-outline-secondary btn-sm">
+                    <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+                </button>
+            </card-actions>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="Settings.RetentionDays" size="sm"/>
+                <admin-field asp-for="Settings.LogStaffSignIns"/>
+            </div>
+        </admin-card>
+    </form>
+</admin-page>
+
+<script>
+    $(document).ready(function () {
+        $('#search-auditlog').click(function () {
+            GrandAdmin.grids.get('#auditlog-grid').dataSource.page(1);
+            return false;
+        });
+        $("#@Html.IdFor(model => model.ActorEmail)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-auditlog").click();
+                return false;
+            }
+        });
+    });
+
+    function auditLogFilters() {
+        var data = {
+            FromUtc: $('#@Html.IdFor(model => model.FromUtc)').val(),
+            ToUtc: $('#@Html.IdFor(model => model.ToUtc)').val(),
+            ActorEmail: $('#@Html.IdFor(model => model.ActorEmail)').val(),
+            EntityType: $('#@Html.IdFor(model => model.EntityType)').val(),
+            EntityId: $('#@Html.IdFor(model => model.EntityId)').val(),
+            Kind: $('#@Html.IdFor(model => model.Kind)').val(),
+            Source: $('#@Html.IdFor(model => model.Source)').val(),
+            StoreId: $('#@Html.IdFor(model => model.StoreId)').val(),
+            OperationId: $('#@Html.IdFor(model => model.OperationId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+</script>

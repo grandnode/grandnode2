@@ -101,6 +101,7 @@ public class CampaignController : BaseAdminController
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [AuditExport("Campaign")]
     public async Task<IActionResult> ExportCsv(string campaignId)
     {
         try

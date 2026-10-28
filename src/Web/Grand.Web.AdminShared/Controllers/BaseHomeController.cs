@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Web.Common.Audit;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Mvc;
@@ -60,8 +61,10 @@ public abstract class BaseHomeController(
         return Json(result);
     }
 
-    public async Task<IActionResult> Logout([FromServices] IProviderSignOut providerSignOut)
+    public async Task<IActionResult> Logout([FromServices] IProviderSignOut providerSignOut,
+        [FromServices] IAuditEventRecorder auditEventRecorder)
     {
+        await auditEventRecorder.SignOutCurrent();
         var providerUrl = await providerSignOut.SignOut();
         return providerUrl != null ? Redirect(providerUrl) : RedirectToRoute(LogoutRouteName);
     }

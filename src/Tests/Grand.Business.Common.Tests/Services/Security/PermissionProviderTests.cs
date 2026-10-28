@@ -20,4 +20,25 @@ public class PermissionProviderTests
         Assert.IsNotNull(storeManager);
         CollectionAssert.Contains(storeManager.Permissions.ToList(), StandardPermission.ManageCustomers);
     }
+
+    [TestMethod]
+    public void GetPermissions_ContainsManageAuditLog()
+    {
+        var permission = _provider.GetPermissions().Single(p => p.SystemName == PermissionSystemName.AuditLog);
+
+        Assert.AreEqual("Admin area", permission.Area);
+        CollectionAssert.AreEquivalent(
+            new[] { PermissionActionName.List, PermissionActionName.Preview, PermissionActionName.Export, PermissionActionName.Edit },
+            permission.Actions.ToArray());
+    }
+
+    [TestMethod]
+    public void GetDefaultPermissions_OnlyAdministratorsHaveManageAuditLog()
+    {
+        var holders = _provider.GetDefaultPermissions()
+            .Where(d => d.Permissions.Any(p => p.SystemName == PermissionSystemName.AuditLog))
+            .Select(d => d.CustomerGroupSystemName).ToList();
+
+        CollectionAssert.AreEqual(new[] { SystemCustomerGroupNames.Administrators }, holders);
+    }
 }

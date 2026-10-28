@@ -353,7 +353,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Clear entities
     /// </summary>
-    public Task ClearAsync()
+    public virtual Task ClearAsync()
     {
         return Collection.DeleteManyAsync(Builders<T>.Filter.Empty);
     }

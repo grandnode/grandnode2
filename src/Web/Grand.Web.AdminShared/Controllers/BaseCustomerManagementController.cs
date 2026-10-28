@@ -10,6 +10,8 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
+using Grand.Web.Common.Filters;
+using Grand.Web.Common.Audit;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Localization;
@@ -46,7 +48,7 @@ public abstract class BaseCustomerManagementController(
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpPost]
-    public async Task<IActionResult> Impersonate(string id)
+    public async Task<IActionResult> Impersonate(string id, [FromServices] IAuditEventRecorder auditEventRecorder)
     {
         var (customer, denied) = await LoadAuthorizedCustomer(id);
         if (customer is null) return denied!;
@@ -65,6 +67,7 @@ public abstract class BaseCustomerManagementController(
 
         await CustomerService.UpdateUserField(ContextAccessor.WorkContext.CurrentCustomer,
             SystemCustomerFieldNames.ImpersonatedCustomerId, customer.Id);
+        await auditEventRecorder.ImpersonationStart(customer);
         return RedirectToAction("Index", "Home", new { area = "" });
     }
 
@@ -94,6 +97,7 @@ public abstract class BaseCustomerManagementController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Customer")]
     public async Task<IActionResult> ExportExcelAll(CustomerListModel model)
     {
         var salesEmployeeId = await GroupService.IsSalesManager(ContextAccessor.WorkContext.CurrentCustomer)
@@ -126,6 +130,7 @@ public abstract class BaseCustomerManagementController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Customer")]
     public async Task<IActionResult> ExportExcelSelected(string selectedIds)
     {
         var customers = new List<Customer>();

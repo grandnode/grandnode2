@@ -15,6 +15,7 @@
                 back-url="@Url.Action("List", "ScheduleTask", new { area = Constants.AreaAdmin })"
                 back-text="@Loc["Admin.System.ScheduleTasks.BackToList"]">
         <page-actions>
+            <audit-history entity-type="ScheduleTask" entity-id="@Model.Id"/>
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
             </button>
