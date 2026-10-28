@@ -324,9 +324,11 @@ public class OrderViewModelService : IOrderViewModelService
         model.OrderGuid = order.OrderGuid;
 
         var status = await _orderStatusService.GetAll();
+        //Awaiting approval is set only by the checkout, so it is not offered as a target of a manual change
         if (_scope.DefaultVendorId is null)
-            model.OrderStatuses =
-                status.Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
+            model.OrderStatuses = status
+                .Where(x => x.StatusId != (int)OrderStatusSystem.AwaitingApproval || x.StatusId == order.OrderStatusId)
+                .Select(x => new SelectListItem { Value = x.StatusId.ToString(), Text = x.Name }).ToList();
         model.OrderStatus = status.FirstOrDefault(x => x.StatusId == order.OrderStatusId)?.Name;
         //cancelling runs the order's side effects (stock, gift vouchers) for the whole order, so it is
         //offered to the panels that own the order, not to a vendor who sees only his own items
@@ -703,6 +705,10 @@ public class OrderViewModelService : IOrderViewModelService
 
                 model.CanAddNewShipments = true;
             }
+
+            //nothing ships before the approver decides
+            if (order.OrderStatusId == (int)OrderStatusSystem.AwaitingApproval)
+                model.CanAddNewShipments = false;
         }
 
         #endregion

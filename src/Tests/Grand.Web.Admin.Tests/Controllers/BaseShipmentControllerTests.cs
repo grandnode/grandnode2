@@ -54,6 +54,7 @@ public class BaseShipmentControllerTests
     private Mock<IAdminDataScope<Order>> _orderScopeMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IPdfService> _pdfServiceMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -67,8 +68,9 @@ public class BaseShipmentControllerTests
         _orderScopeMock = new Mock<IAdminDataScope<Order>>();
         _orderScopeMock.Setup(s => s.HasAccess(It.IsAny<Order>())).ReturnsAsync(true);
 
-        var translationServiceMock = new Mock<IRequestTranslationService>();
-        translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
+        _translationServiceMock = new Mock<IRequestTranslationService>();
+        _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
+        var translationServiceMock = _translationServiceMock;
         var contextAccessorMock = new Mock<IContextAccessor>();
         var workContextMock = new Mock<IWorkContext>();
         workContextMock.Setup(w => w.WorkingLanguage).Returns(new Language { Id = "lang-1" });
@@ -231,6 +233,47 @@ public class BaseShipmentControllerTests
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
         _shipmentViewModelServiceMock.Verify(v => v.PrepareShipmentModel(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentGet_OrderAwaitingApproval_RefusesAndRedirectsToOrder()
+    {
+        var order = new Order { Id = "o1", OrderStatusId = (int)OrderStatusSystem.AwaitingApproval };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+
+        var result = await _controller.AddShipment("o1");
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("Order", redirect.ControllerName);
+        Assert.AreEqual("o1", redirect.RouteValues["id"]);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Shipments.OrderAwaitsApproval"), Times.Once);
+        _shipmentViewModelServiceMock.Verify(v => v.PrepareShipmentModel(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentPost_OrderAwaitingApproval_RefusesWithoutShipment()
+    {
+        var order = new Order { Id = "o1", OrderStatusId = (int)OrderStatusSystem.AwaitingApproval };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.FilterOrderItems(It.IsAny<IEnumerable<OrderItem>>()))
+            .Returns((IEnumerable<OrderItem> items) => items);
+        var shipment = new Shipment { Id = "s1", ShipmentItems = { new ShipmentItem() } };
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipment(order, It.IsAny<IEnumerable<OrderItem>>(), It.IsAny<AddShipmentModel>()))
+            .ReturnsAsync((shipment, (double?)1));
+        _shipmentViewModelServiceMock.Setup(v => v.ValidStockShipment(shipment)).ReturnsAsync((true, null));
+
+        var result = await _controller.AddShipment(new AddShipmentModel { OrderId = "o1" }, false);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("Order", redirect.ControllerName);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Shipments.OrderAwaitsApproval"), Times.Once);
+        _shipmentServiceMock.Verify(s => s.InsertShipment(It.IsAny<Shipment>()), Times.Never);
+        _orderServiceMock.Verify(s => s.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
     }
 
     [TestMethod]

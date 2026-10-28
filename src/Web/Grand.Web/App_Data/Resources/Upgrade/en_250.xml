@@ -249,6 +249,15 @@
 	<Resource Name="Admin.Customers.Customers.SubAccounts.Role" Area="Admin">
 		<Value>Role</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.Fields.OrderStatus.Change.AwaitingApproval" Area="Admin">
+		<Value>This order awaits approval: approve or reject it in the storefront, or cancel it.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.OrderStatus.Change.ToAwaitingApproval" Area="Admin">
+		<Value>The status Awaiting approval cannot be set by hand. The checkout sets it for an order that needs an approval.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Shipments.OrderAwaitsApproval" Area="Admin">
+		<Value>This order awaits approval. Shipments can be added after it has been approved.</Value>
+	</Resource>
 	<Resource Name="Checkout.OrderApproval.NoPaymentMethod" Area="Front">
 		<Value>No payment method is available for orders that need approval. Please contact the store.</Value>
 	</Resource>

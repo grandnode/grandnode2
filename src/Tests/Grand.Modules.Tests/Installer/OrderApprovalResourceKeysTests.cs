@@ -20,6 +20,8 @@ public class OrderApprovalResourceKeysTests
         @"|account\.subaccounts\.fields\.(orderapprovallimit|role)(\.|$)" +
         @"|admin\.customers\.customers\.subaccounts\.(orderapprovallimit|role)$" +
         @"|admin\.configuration\.payment\.settings\.orderapprovalpaymentmethods$" +
+        @"|admin\.orders\.fields\.orderstatus\.change\.(to)?awaitingapproval$" +
+        @"|admin\.orders\.shipments\.orderawaitsapproval$" +
         @"|enums\.grand\.domain\.orders\.orderapprovalstatus\." +
         @"|enums\.grand\.domain\.customers\.subaccountrole\.)",
         RegexOptions.Compiled | RegexOptions.IgnoreCase);
