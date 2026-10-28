@@ -124,6 +124,20 @@ public class OrderApprovalCommandsTests
     }
 
     [TestMethod]
+    public async Task Decide_SendsTheDecisionInTheBuyersLanguage()
+    {
+        // the approver works in English, the buyer placed the order in Polish
+        _order.CustomerLanguageId = "pl";
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
+
+        var result = await Decider().Handle(DecideCommand(SubAccount("approver", SubAccountRole.Approver)), default);
+
+        Assert.IsTrue(result);
+        _messages.Verify(m => m.SendOrderApprovalDecidedMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
+            It.IsAny<StoreEntity>(), "pl", It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Decide_Owner_Rejects()
     {
         var approval = Approval();
@@ -152,6 +166,22 @@ public class OrderApprovalCommandsTests
         _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
         _messages.Verify(m => m.SendOrderApprovalDecidedMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
             It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Decide_BuyerPromotedToApprover_CannotDecideOwnRequest()
+    {
+        // the buyer placed the order and was made an approver afterwards
+        var approval = Approval();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(approval);
+        var promoted = SubAccount("buyer", SubAccountRole.Approver);
+
+        var result = await Decider().Handle(DecideCommand(promoted), default);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _mediator.Verify(m => m.Send(It.IsAny<SetOrderStatusCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]

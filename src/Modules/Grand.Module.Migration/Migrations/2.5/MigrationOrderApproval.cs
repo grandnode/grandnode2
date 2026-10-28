@@ -47,6 +47,8 @@ public class MigrationOrderApproval : IMigration
             await databaseContext.CreateIndex(orderApprovalRepository,
                 OrderBuilder<OrderApproval>.Create().Ascending(x => x.CustomerId).Ascending(x => x.StoreId)
                     .Ascending(x => x.Status), "CustomerId_StoreId_Status");
+            await databaseContext.CreateIndex(orderApprovalRepository,
+                OrderBuilder<OrderApproval>.Create().Ascending(x => x.OrderId), "OrderId");
 
             var emailAccountId = await GetEmailAccountId(serviceProvider);
             var inserted = false;

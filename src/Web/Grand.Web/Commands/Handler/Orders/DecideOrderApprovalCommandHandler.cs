@@ -51,6 +51,10 @@ public class DecideOrderApprovalCommandHandler : IRequestHandler<DecideOrderAppr
         if (approval == null || approval.StoreId != request.Store.Id || approval.Status != OrderApprovalStatus.Pending)
             return false;
 
+        // nobody decides their own order, also not a buyer made an approver after placing it
+        if (approval.CustomerId == request.Approver.Id)
+            return false;
+
         var order = await _orderService.GetOrderById(approval.OrderId);
         if (order == null || order.OrderStatusId != (int)OrderStatusSystem.AwaitingApproval)
             return false;
@@ -90,8 +94,10 @@ public class DecideOrderApprovalCommandHandler : IRequestHandler<DecideOrderAppr
         await Guard(approval.Id, "decision e-mail", async () =>
         {
             if (buyer != null && !string.IsNullOrWhiteSpace(buyer.Email))
+                // the buyer reads it: in the language the order was placed in, not the approver's
                 await _messageProviderService.SendOrderApprovalDecidedMessage(approval, buyer, request.Store,
-                    request.Language?.Id, request.Host);
+                    string.IsNullOrEmpty(order.CustomerLanguageId) ? request.Language?.Id : order.CustomerLanguageId,
+                    request.Host);
         });
 
         return true;

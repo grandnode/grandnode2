@@ -68,13 +68,15 @@ public class GetOrderApprovalTokensCommandHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_EncodesTheStatus()
+    public async Task Handle_KeepsTheStatusAsTheResourceText()
     {
-        _resources[$"Enums.{typeof(OrderApprovalStatus).FullName}.Pending"] = "<b>Pending</b>";
+        //the status is a translation, not user input, and the subject uses it as plain text:
+        //an encoded "Approuvé" would reach the subject line as "Approuv&#233;"
+        _resources[$"Enums.{typeof(OrderApprovalStatus).FullName}.Pending"] = "Approuvé";
 
         var tokens = await _handler.Handle(Command(Approval()), default);
 
-        Assert.IsFalse(tokens.Status.Contains('<'));
+        Assert.AreEqual("Approuvé", tokens.Status);
     }
 
     [TestMethod]

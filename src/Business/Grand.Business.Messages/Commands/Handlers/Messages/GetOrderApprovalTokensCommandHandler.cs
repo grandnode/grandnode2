@@ -32,7 +32,8 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
         var liquidOrderApproval = new LiquidOrderApproval {
             BuyerName = request.Buyer.GetFullName(),
             BuyerEmail = request.Buyer.Email,
-            Status = Encode(approval.Status.GetTranslationEnum(_translationService, request.Language.Id)),
+            //resource text, used in the subject as well: encoding would turn "Approuvé" into "Approuv&#233;"
+            Status = approval.Status.GetTranslationEnum(_translationService, request.Language.Id),
             Total = approval.Summary?.Total,
             ItemsHtml = ItemsHtml(approval.Items, request.Language.Id),
             DecisionComment = Encode(approval.DecisionComment),

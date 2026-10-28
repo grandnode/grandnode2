@@ -160,6 +160,9 @@ public class MigrationOrderApprovalTests
             It.IsAny<OrderBuilder<OrderApproval>>(), "CompanyOwnerId_Status_CreatedOnUtc", false), Times.Once);
         _context.Verify(x => x.CreateIndex(It.IsAny<IRepository<OrderApproval>>(),
             It.IsAny<OrderBuilder<OrderApproval>>(), "CustomerId_StoreId_Status", false), Times.Once);
+        //read on every placement awaiting approval and on every cancel; not unique
+        _context.Verify(x => x.CreateIndex(It.IsAny<IRepository<OrderApproval>>(),
+            It.IsAny<OrderBuilder<OrderApproval>>(), "OrderId", false), Times.Once);
     }
 
     [TestMethod]

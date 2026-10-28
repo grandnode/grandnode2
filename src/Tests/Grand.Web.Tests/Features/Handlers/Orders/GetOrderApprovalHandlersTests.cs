@@ -166,6 +166,18 @@ public class GetOrderApprovalHandlersTests
     }
 
     [TestMethod]
+    public async Task Details_BuyerPromotedToApprover_CannotDecideOwnRequest()
+    {
+        Found(Approval());
+
+        var model = await Details(new Customer { Id = "buyer", OwnerId = "owner", SubAccountRole = SubAccountRole.Approver });
+
+        Assert.IsNotNull(model);
+        Assert.IsFalse(model.CanDecide);
+        Assert.IsTrue(model.CanWithdraw);
+    }
+
+    [TestMethod]
     public async Task Details_DecidedRequest_CannotBeDecidedAgain()
     {
         Found(Approval(status: OrderApprovalStatus.Rejected));

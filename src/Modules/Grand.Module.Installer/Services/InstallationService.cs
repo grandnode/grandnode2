@@ -951,6 +951,9 @@ public partial class InstallationService : IInstallationService
         await dbContext.CreateIndex(_orderApprovalRepository,
             OrderBuilder<OrderApproval>.Create().Ascending(x => x.CustomerId).Ascending(x => x.StoreId)
                 .Ascending(x => x.Status), "CustomerId_StoreId_Status");
+        //the request of an order: read at placement and when the order is cancelled
+        await dbContext.CreateIndex(_orderApprovalRepository,
+            OrderBuilder<OrderApproval>.Create().Ascending(x => x.OrderId), "OrderId");
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,
