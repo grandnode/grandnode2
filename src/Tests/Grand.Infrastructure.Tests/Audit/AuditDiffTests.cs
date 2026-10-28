@@ -73,31 +73,32 @@ public class AuditDiffTests
         var changes = Compare(before, after);
 
         Assert.AreEqual(2, changes.Count);
-        var added = changes.Single(c => c.Path == "TierPrices[id=x]");
+        var added = changes.Single(c => c.Path == "TierPrices[id=x].Quantity");
         Assert.IsNull(added.OldValue);
-        Assert.IsNotNull(added.NewValue);
-        var removed = changes.Single(c => c.Path == "TierPrices[id=old]");
-        Assert.IsNotNull(removed.OldValue);
+        Assert.AreEqual("2", added.NewValue);
+        var removed = changes.Single(c => c.Path == "TierPrices[id=old].Quantity");
+        Assert.AreEqual("1", removed.OldValue);
         Assert.IsNull(removed.NewValue);
     }
 
     [TestMethod]
-    public void Compare_ScalarArray_SetSemantics()
+    public void Compare_ScalarArray_OneValue()
     {
         var changes = Compare(new BsonDocument("Stores", new BsonArray { "a", "b" }),
             new BsonDocument("Stores", new BsonArray { "b", "c" }));
 
         Assert.AreEqual(1, changes.Count);
         Assert.AreEqual("Stores", changes[0].Path);
-        Assert.AreEqual("removed: a", changes[0].OldValue);
-        Assert.AreEqual("added: c", changes[0].NewValue);
+        Assert.AreEqual("[\"a\", \"b\"]", changes[0].OldValue);
+        Assert.AreEqual("[\"b\", \"c\"]", changes[0].NewValue);
     }
 
     [TestMethod]
-    public void Compare_ScalarArray_ReorderOnly_ReturnsEmpty()
+    public void Compare_EmptyStringAndEmptyArray_LikeMissing()
     {
-        Assert.AreEqual(0, Compare(new BsonDocument("Stores", new BsonArray { "a", "b" }),
-            new BsonDocument("Stores", new BsonArray { "b", "a" })).Count);
+        var before = new BsonDocument { { "Name", "" }, { "Stores", new BsonArray() } };
+
+        Assert.AreEqual(0, Compare(before, new BsonDocument()).Count);
     }
 
     [TestMethod]
@@ -138,8 +139,7 @@ public class AuditDiffTests
         var changes = Compare(new BsonDocument("UserFields", new BsonArray()),
             new BsonDocument("UserFields", new BsonArray { UserField("ImpersonatedCustomerId", "c9") }));
 
-        Assert.AreEqual("UserFields[ImpersonatedCustomerId]", changes.Single().Path);
-        Assert.AreEqual("c9", changes.Single().NewValue);
+        Assert.AreEqual("c9", changes.Single(c => c.Path == "UserFields[ImpersonatedCustomerId].Value").NewValue);
     }
 
     [TestMethod]
@@ -152,7 +152,8 @@ public class AuditDiffTests
 
         var changes = Compare(before, after);
 
-        Assert.AreEqual(2, changes.Count);
+        //the changed token, and the Key and Value of the added secret
+        Assert.AreEqual(3, changes.Count);
         foreach (var change in changes)
         {
             Assert.IsTrue(change.Masked, change.Path);
@@ -230,12 +231,13 @@ public class AuditDiffTests
     }
 
     [TestMethod]
-    public void Compare_SettingMetadata_InvalidJson_FallsBackToString()
+    public void Compare_SettingMetadata_InvalidJson_Masked()
     {
         var changes = Compare(new BsonDocument("Metadata", "{oops"), new BsonDocument("Metadata", "{}"), "Setting");
 
         Assert.AreEqual(1, changes.Count);
         Assert.AreEqual("Metadata", changes[0].Path);
+        Assert.IsTrue(changes[0].Masked);
     }
 
     [TestMethod]
@@ -287,7 +289,8 @@ public class AuditDiffTests
                 new BsonDocument { { "Key", "Gateway" }, { "Data", new BsonDocument("ApiKey", "k") } }
             }));
 
-        Assert.IsTrue(changes.Single().Masked);
+        Assert.IsTrue(changes.Single(c => c.Path == "Pairs[Gateway].Data.ApiKey").Masked);
+        Assert.IsFalse(changes.Any(c => c.NewValue == "k"));
     }
 
     [TestMethod]

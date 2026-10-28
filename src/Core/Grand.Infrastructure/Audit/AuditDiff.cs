@@ -1,17 +1,18 @@
 using Grand.Domain.Audit;
 using MongoDB.Bson;
-using System.Security.Cryptography;
-using System.Text;
 using System.Text.RegularExpressions;
 
 namespace Grand.Infrastructure.Audit;
 
 /// <summary>
-///     Compares two versions of a stored document and lists the changed fields, provider-independent.
+///     Compares two versions of a stored document field by field, provider-independent: both are flattened to
+///     "path → value" and the paths whose values differ are listed.
 /// </summary>
 public static partial class AuditDiff
 {
     public const int MaxValueLength = 1024;
+
+    private const string SettingMetadata = "Metadata";
 
     private static readonly string[] NameFields = ["Name", "Title", "Email", "OrderNumber", "Code", "SystemName"];
 
@@ -19,7 +20,15 @@ public static partial class AuditDiff
     private static partial Regex SensitiveName();
 
     /// <summary>
-    ///     Lists the changed leaf fields. <paramref name="before" /> is null for an insert, <paramref name="after" />
+    ///     Whether a field, path or argument name looks like it holds a secret, whose value is never stored
+    /// </summary>
+    public static bool IsSensitive(string name)
+    {
+        return SensitiveName().IsMatch(name);
+    }
+
+    /// <summary>
+    ///     Lists the changed fields. <paramref name="before" /> is null for an insert, <paramref name="after" />
     ///     is null for a delete (which lists nothing).
     /// </summary>
     public static IList<AuditChange> Compare(string entityType, BsonDocument before, BsonDocument after,
@@ -29,14 +38,23 @@ public static partial class AuditDiff
         if (after == null)
             return changes;
 
-        before ??= new BsonDocument();
-        if (entityType == "Setting")
+        var isSetting = entityType == "Setting";
+        var old = Flatten(before, isSetting);
+        var current = Flatten(after, isSetting);
+        foreach (var path in current.Keys.Concat(old.Keys.Where(k => !current.ContainsKey(k))))
         {
-            before = ExpandMetadata(before);
-            after = ExpandMetadata(after);
+            old.TryGetValue(path, out var oldValue);
+            current.TryGetValue(path, out var newValue);
+            if (Equals(oldValue, newValue) || ignoredPaths.Any(p => IsUnder(path, p)))
+                continue;
+
+            //settings JSON that does not parse stays one opaque field and may hold secrets
+            var masked = IsSensitive(path) || (isSetting && path == SettingMetadata);
+            changes.Add(masked
+                ? new AuditChange { Path = path, Masked = true }
+                : Change(path, Format(oldValue), Format(newValue)));
         }
 
-        CompareDocuments(string.Empty, false, before, after, ignoredPaths, changes);
         return changes;
     }
 
@@ -55,207 +73,83 @@ public static partial class AuditDiff
         return null;
     }
 
-    private static BsonDocument ExpandMetadata(BsonDocument document)
+    private static Dictionary<string, BsonValue> Flatten(BsonDocument document, bool isSetting)
     {
-        if (!document.TryGetValue("Metadata", out var metadata) || !metadata.IsString)
-            return document;
+        var leaves = new Dictionary<string, BsonValue>();
+        if (document == null)
+            return leaves;
 
-        BsonDocument parsed;
-        try
+        foreach (var element in document)
         {
-            parsed = BsonDocument.Parse(metadata.AsString);
-        }
-        catch (Exception)
-        {
-            //the raw text may hold secrets; a hash still shows whether it changed
-            var hash = Convert.ToHexString(SHA256.HashData(Encoding.UTF8.GetBytes(metadata.AsString)))[..12];
-            var masked = document.DeepClone().AsBsonDocument;
-            masked["Metadata"] = $"<unreadable settings, sha256 {hash}>";
-            return masked;
-        }
-
-        var copy = document.DeepClone().AsBsonDocument;
-        copy["Metadata"] = parsed;
-        return copy;
-    }
-
-    private static void CompareDocuments(string path, bool masked, BsonDocument before, BsonDocument after,
-        ISet<string> ignoredPaths, List<AuditChange> changes)
-    {
-        var names = after.Names.Concat(before.Names.Where(n => !after.Contains(n))).ToList();
-        foreach (var name in names)
-        {
-            if (path.Length == 0 && name == "_id")
+            if (element.Name == "_id")
                 continue;
 
-            before.TryGetValue(name, out var b);
-            after.TryGetValue(name, out var a);
-            var childPath = path.Length == 0 ? name : $"{path}.{name}";
-            CompareValues(childPath, masked || SensitiveName().IsMatch(name), b, a, ignoredPaths, changes);
+            var value = element.Value;
+            //a setting keeps its fields as JSON text, diffed field by field
+            if (isSetting && element.Name == SettingMetadata && value.IsString)
+                value = TryParse(value.AsString) ?? value;
+
+            Flatten(element.Name, value, leaves);
         }
+
+        return leaves;
     }
 
-    private static void CompareValues(string path, bool masked, BsonValue before, BsonValue after,
-        ISet<string> ignoredPaths, List<AuditChange> changes)
+    private static void Flatten(string path, BsonValue value, Dictionary<string, BsonValue> leaves)
     {
-        if (ignoredPaths.Contains(path))
-            return;
-        if (before == null && after == null)
-            return;
-
-        //null next to a container compares like a missing side, so its leaves are listed (and masked) one by one
-        if (before is { IsBsonNull: true } && after is { IsBsonDocument: true } or { IsBsonArray: true }) before = null;
-        if (after is { IsBsonNull: true } && before is { IsBsonDocument: true } or { IsBsonArray: true }) after = null;
-
-        //a missing side compares as an empty container, so an insert or a removal lists the leaves
-        if (before == null && after.IsBsonDocument) before = new BsonDocument();
-        if (after == null && before.IsBsonDocument) after = new BsonDocument();
-        if (before == null && after.IsBsonArray) before = new BsonArray();
-        if (after == null && before.IsBsonArray) after = new BsonArray();
-
-        if ((before == null && after.IsBsonNull) || (after == null && before.IsBsonNull))
-            return;
-
-        if (before is { IsBsonDocument: true } && after is { IsBsonDocument: true })
+        switch (value)
         {
-            CompareDocuments(path, masked, before.AsBsonDocument, after.AsBsonDocument, ignoredPaths, changes);
-            return;
+            //null and empty compare like a missing field, so an insert lists only what was set
+            case BsonNull or BsonString { Value: "" } or BsonArray { Count: 0 }:
+                break;
+            //an element's id is already in its path
+            case BsonDocument document:
+                foreach (var element in document.Where(e => e.Name != "_id"))
+                    Flatten($"{path}.{element.Name}", element.Value, leaves);
+                break;
+            case BsonArray array when array.Any(v => v.IsBsonDocument || v.IsBsonArray):
+                for (var i = 0; i < array.Count; i++)
+                    Flatten($"{path}[{ElementKey(array[i], i)}]", array[i], leaves);
+                break;
+            default:
+                //a scalar, or a list of scalars kept as one value; when element ids repeat, the first wins
+                leaves.TryAdd(path, value);
+                break;
         }
-
-        if (before is { IsBsonArray: true } && after is { IsBsonArray: true })
-        {
-            CompareArrays(path, masked, before.AsBsonArray, after.AsBsonArray, ignoredPaths, changes);
-            return;
-        }
-
-        if (Equals(before, after))
-            return;
-
-        AddChange(changes, path, masked || ContainsSensitive(before) || ContainsSensitive(after), Format(before),
-            Format(after));
     }
 
-    private static void CompareArrays(string path, bool masked, BsonArray before, BsonArray after,
-        ISet<string> ignoredPaths, List<AuditChange> changes)
+    //an array element is matched by its id, else by its key (user fields, once per store), else by position;
+    //the key is part of the path, so a user field named like a secret is masked
+    private static string ElementKey(BsonValue element, int index)
     {
-        var all = before.Concat(after).ToList();
-        if (all.Count == 0)
-            return;
-
-        if (all.All(v => v.IsBsonDocument && ElementId(v.AsBsonDocument) != null))
-        {
-            var beforeById = ById(before);
-            var afterById = ById(after);
-            foreach (var id in afterById.Keys.Concat(beforeById.Keys.Where(k => !afterById.ContainsKey(k))))
-            {
-                var elementPath = $"{path}[id={id}]";
-                beforeById.TryGetValue(id, out var b);
-                afterById.TryGetValue(id, out var a);
-                if (b != null && a != null)
-                    CompareDocuments(elementPath, masked, b, a, ignoredPaths, changes);
-                else if (!ignoredPaths.Contains(elementPath))
-                    AddChange(changes, elementPath, masked || ContainsSensitive(b) || ContainsSensitive(a),
-                        b == null ? null : Summary(b, id), a == null ? null : Summary(a, id));
-            }
-
-            return;
-        }
-
-        //key/value pairs (user fields): matched by key, and masked by the key's name - the leaf is always "Value",
-        //so a password token or a 2FA secret would otherwise be stored in clear
-        if (all.All(v => v.IsBsonDocument && ElementKey(v.AsBsonDocument) != null))
-        {
-            var beforeByKey = ByKey(before);
-            var afterByKey = ByKey(after);
-            foreach (var key in afterByKey.Keys.Concat(beforeByKey.Keys.Where(k => !afterByKey.ContainsKey(k))))
-            {
-                var elementPath = $"{path}[{key}]";
-                var keyMasked = masked || SensitiveName().IsMatch(key);
-                beforeByKey.TryGetValue(key, out var b);
-                afterByKey.TryGetValue(key, out var a);
-                if (b != null && a != null)
-                    CompareDocuments(elementPath, keyMasked, b, a, ignoredPaths, changes);
-                else if (!ignoredPaths.Contains(elementPath))
-                    AddChange(changes, elementPath, keyMasked || ContainsSensitive(b) || ContainsSensitive(a),
-                        b == null ? null : PairValue(b), a == null ? null : PairValue(a));
-            }
-
-            return;
-        }
-
-        if (all.All(v => !v.IsBsonDocument && !v.IsBsonArray))
-        {
-            var removed = before.Where(v => !after.Contains(v)).Select(Format).ToList();
-            var added = after.Where(v => !before.Contains(v)).Select(Format).ToList();
-            if (removed.Count == 0 && added.Count == 0)
-                return;
-
-            AddChange(changes, path, masked,
-                removed.Count > 0 ? "removed: " + string.Join(", ", removed) : null,
-                added.Count > 0 ? "added: " + string.Join(", ", added) : null);
-            return;
-        }
-
-        for (var i = 0; i < Math.Max(before.Count, after.Count); i++)
-            CompareValues($"{path}[{i}]", masked, i < before.Count ? before[i] : null,
-                i < after.Count ? after[i] : null, ignoredPaths, changes);
-    }
-
-    private static string ElementId(BsonDocument element)
-    {
-        if (element.TryGetValue("_id", out var id) || element.TryGetValue("Id", out id))
-            return id.IsBsonNull ? null : id.ToString();
-        return null;
-    }
-
-    //the first element wins when ids repeat; a malformed document must not lose the whole batch
-    private static Dictionary<string, BsonDocument> ById(BsonArray array)
-    {
-        var byId = new Dictionary<string, BsonDocument>();
-        foreach (var element in array.Select(v => v.AsBsonDocument))
-            byId.TryAdd(ElementId(element), element);
-        return byId;
-    }
-
-    private static bool ContainsSensitive(BsonValue value)
-    {
-        return value switch {
-            BsonDocument document => document.Elements.Any(e =>
-                SensitiveName().IsMatch(e.Name) || ContainsSensitive(e.Value)),
-            BsonArray array => array.Any(ContainsSensitive),
-            _ => false
-        };
-    }
-
-    private static string ElementKey(BsonDocument element)
-    {
-        if (element.Contains("_id") || element.Contains("Id"))
-            return null;
-        if (!element.TryGetValue("Key", out var key) || !key.IsString || string.IsNullOrEmpty(key.AsString))
-            return null;
-
-        //the same key can exist once per store
-        return element.TryGetValue("StoreId", out var storeId) && storeId.IsString && storeId.AsString != ""
+        if (element is not BsonDocument document)
+            return index.ToString();
+        if ((document.TryGetValue("_id", out var id) || document.TryGetValue("Id", out id)) && !id.IsBsonNull)
+            return $"id={id}";
+        if (!document.TryGetValue("Key", out var key) || !key.IsString || key.AsString == "")
+            return index.ToString();
+        return document.TryGetValue("StoreId", out var storeId) && storeId.IsString && storeId.AsString != ""
             ? $"{key.AsString}@{storeId.AsString}"
             : key.AsString;
     }
 
-    private static Dictionary<string, BsonDocument> ByKey(BsonArray array)
+    private static BsonDocument TryParse(string json)
     {
-        var byKey = new Dictionary<string, BsonDocument>();
-        foreach (var element in array.Select(v => v.AsBsonDocument))
-            byKey.TryAdd(ElementKey(element), element);
-        return byKey;
+        try
+        {
+            return BsonDocument.Parse(json);
+        }
+        catch (Exception)
+        {
+            return null;
+        }
     }
 
-    private static string PairValue(BsonDocument element)
+    private static bool IsUnder(string path, string parent)
     {
-        return element.TryGetValue("Value", out var value) ? Format(value) : element.ToJson();
-    }
-
-    private static string Summary(BsonDocument element, string id)
-    {
-        return EntityName(element) ?? id;
+        return path == parent
+               || path.StartsWith(parent + ".", StringComparison.Ordinal)
+               || path.StartsWith(parent + "[", StringComparison.Ordinal);
     }
 
     private static string Format(BsonValue value)
@@ -268,27 +162,20 @@ public static partial class AuditDiff
             return $"<binary {value.AsBsonBinaryData.Bytes.Length} bytes>";
         if (value.IsValidDateTime)
             return value.ToUniversalTime().ToString("o");
-        if (value.IsBsonDocument || value.IsBsonArray)
+        if (value.IsBsonArray)
             return value.ToJson();
         return value.ToString();
     }
 
-    private static void AddChange(List<AuditChange> changes, string path, bool masked, string oldValue,
-        string newValue)
+    private static AuditChange Change(string path, string oldValue, string newValue)
     {
-        if (masked)
-        {
-            changes.Add(new AuditChange { Path = path, Masked = true });
-            return;
-        }
-
         var change = new AuditChange {
             Path = path,
             OldValue = Truncate(oldValue, out var oldTruncated),
             NewValue = Truncate(newValue, out var newTruncated)
         };
         change.Truncated = oldTruncated || newTruncated;
-        changes.Add(change);
+        return change;
     }
 
     private static string Truncate(string value, out bool truncated)
