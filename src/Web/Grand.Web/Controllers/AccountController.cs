@@ -1310,15 +1310,27 @@ public class AccountController : BasePublicController
 
     #region My account / Sub accounts
 
-    [HttpGet]
-    [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> SubAccounts()
+    /// <summary>
+    ///     Null when the current customer may manage sub-accounts, otherwise the result to return. Every
+    ///     sub-account action goes through it, so hiding the tab switches the feature off and not only the link.
+    /// </summary>
+    private async Task<IActionResult> SubAccountsDenied()
     {
         if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
             return Challenge();
 
         if (_customerSettings.HideSubAccountsTab)
             return RedirectToRoute("CustomerInfo");
+
+        return null;
+    }
+
+    [HttpGet]
+    [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    public virtual async Task<IActionResult> SubAccounts()
+    {
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         var model = await _mediator.Send(new GetSubAccounts { Customer = _contextAccessor.WorkContext.CurrentCustomer });
 
@@ -1329,8 +1341,8 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountAdd()
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         var model = new SubAccountCreateModel {
             Active = true
@@ -1342,8 +1354,8 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountAdd(SubAccountCreateModel model)
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         if (!ModelState.IsValid) return View(model);
 
@@ -1360,11 +1372,13 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountEdit(string id)
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         var model = await _mediator.Send(new GetSubAccount
             { CustomerId = id, CurrentCustomer = _contextAccessor.WorkContext.CurrentCustomer });
+        if (model == null)
+            return RedirectToRoute("CustomerSubAccounts");
 
         return View(model);
     }
@@ -1373,11 +1387,12 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountEdit(SubAccountEditModel model)
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         if (!ModelState.IsValid) return View(model);
 
+        //the handler re-checks the ownership the validator already checked and changes nothing when it fails
         _ = await _mediator.Send(new SubAccountEditCommand {
             CurrentCustomer = _contextAccessor.WorkContext.CurrentCustomer,
             EditModel = model,
@@ -1391,26 +1406,18 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountDelete(string id)
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         var result = await _mediator.Send(new SubAccountDeleteCommand {
             CurrentCustomer = _contextAccessor.WorkContext.CurrentCustomer,
             CustomerId = id
         });
 
-        if (result.success)
-            return Json(new {
-                redirect = Url.RouteUrl("CustomerSubAccounts"),
-                success = true
-            });
-        //errors
         return Json(new {
             redirect = Url.RouteUrl("CustomerSubAccounts"),
-            success = false,
-            error = string.Join("; ", ModelState.Values
-                .SelectMany(x => x.Errors)
-                .Select(x => x.ErrorMessage))
+            success = result.success,
+            error = result.error
         });
     }
 

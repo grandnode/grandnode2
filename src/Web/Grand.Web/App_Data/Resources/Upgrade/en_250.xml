@@ -279,4 +279,28 @@
 	<Resource Name="Admin.FileManager.Error.Failed" Area="Admin">
 		<Value>The request failed. Try again.</Value>
 	</Resource>
+	<Resource Name="Account.SubAccounts.Inactive" Area="Front">
+		<Value>Inactive</Value>
+	</Resource>
+	<Resource Name="Account.SubAccounts.NotOwner" Area="Front">
+		<Value>This account is not one of your subaccounts.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.Owner.HasSubAccounts" Area="Admin">
+		<Value>This customer has subaccounts of its own, so it cannot become a subaccount.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.Owner.IsSubAccount" Area="Admin">
+		<Value>This customer is itself a subaccount. Enter the e-mail address of the main account.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.Owner.NotFound" Area="Admin">
+		<Value>No customer with this e-mail address was found.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.Owner.NotRegistered" Area="Admin">
+		<Value>The owner must be a registered customer.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.Owner.Self" Area="Admin">
+		<Value>A customer cannot be its own owner.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.SubAccounts" Area="Admin">
+		<Value>Subaccounts</Value>
+	</Resource>
 </Language>

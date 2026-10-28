@@ -6,6 +6,7 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Validators.Customers;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -52,7 +53,8 @@ public class CustomerValidatorTests
             new Mock<ICustomerService>().Object,
             _groupServiceMock.Object,
             new CustomerSettings(),
-            new CustomerConfig());
+            new CustomerConfig(),
+            new Mock<IAdminDataScope<Customer>>().Object);
     }
 
     private static CustomerModel BuildModel(string storeId) =>

@@ -19,6 +19,8 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Domain.Messages;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.Localization;
@@ -46,6 +48,8 @@ public class CustomerViewModelServiceTests
     private Mock<INewsLetterSubscriptionService> _newsLetterSubscriptionServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Customer _currentCustomer;
+    private CustomerConfig _customerConfig;
+    private Mock<IAdminDataScope<Customer>> _scopeMock;
     private CustomerViewModelService _customerViewModelService;
 
     [TestInitialize]
@@ -114,6 +118,13 @@ public class CustomerViewModelServiceTests
         _groupServiceMock.Setup(g => g.GetAllByIds(It.IsAny<string[]>()))
             .ReturnsAsync(new List<CustomerGroup>());
 
+        SetupGetAllCustomers(new PagedList<Customer>());
+        _customerConfig = new CustomerConfig();
+        //Admin panel: no default store, every customer in reach
+        _scopeMock = new Mock<IAdminDataScope<Customer>>();
+        _scopeMock.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync((string)null);
+        _scopeMock.Setup(s => s.HasAccess(It.IsAny<Customer>())).ReturnsAsync(true);
+
         _customerViewModelService = new CustomerViewModelService(
             _customerServiceMock.Object,
             _groupServiceMock.Object,
@@ -133,7 +144,9 @@ public class CustomerViewModelServiceTests
             new TaxSettings(),
             new LoyaltyPointsSettings(),
             new CommonSettings(),
-            _enumTranslationServiceMock.Object);
+            _enumTranslationServiceMock.Object,
+            _customerConfig,
+            _scopeMock.Object);
     }
 
     [TestMethod]
@@ -432,6 +445,210 @@ public class CustomerViewModelServiceTests
         Assert.AreEqual(0, list.Count());
     }
 
+    #region Store panel list
+
+    private void VerifyListQuery(string[] excludedGroupIds, bool excludeVendorAndStaff) =>
+        _customerServiceMock.Verify(c => c.GetAllCustomers(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string[]>(), It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+            It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(),
+            It.Is<string[]>(ids => excludedGroupIds == null
+                ? ids == null
+                : ids != null && ids.OrderBy(x => x).SequenceEqual(excludedGroupIds.OrderBy(x => x))),
+            excludeVendorAndStaff), Times.Once);
+
+    [TestMethod]
+    public async Task PrepareCustomerList_StorePanel_LeavesTheStaffOutInTheQuery()
+    {
+        _scopeMock.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync("store-7");
+        foreach (var name in StoreCustomerDataScope.StaffGroupSystemNames)
+            _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(name))
+                .ReturnsAsync(new CustomerGroup { Id = "id-" + name, SystemName = name });
+
+        await _customerViewModelService.PrepareCustomerList(new CustomerListModel(), null, null, 1, 10, "store-7");
+
+        VerifyListQuery(StoreCustomerDataScope.StaffGroupSystemNames.Select(n => "id-" + n).ToArray(), true);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerList_AdminPanel_ExcludesNobody()
+    {
+        await _customerViewModelService.PrepareCustomerList(new CustomerListModel(), null, null, 1, 10);
+
+        VerifyListQuery(null, false);
+    }
+
+    #endregion
+
+    #region Owner and sub-accounts
+
+    [TestMethod]
+    public async Task UpdateCustomerModel_OwnerEmailUnchanged_KeepsTheLinkedOwner()
+    {
+        //posted back as shown, the owner is kept even where an email lookup would find someone else
+        var owner = new Customer { Id = "owner-1", Email = "boss@firm.com" };
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-1")).ReturnsAsync(owner);
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("boss@firm.com", It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Id = "same-email-other-store" });
+        var customer = new Customer { Id = "c1", OwnerId = "owner-1" };
+
+        await _customerViewModelService.UpdateCustomerModel(customer,
+            new CustomerModel { Email = "c1@firm.com", Owner = "Boss@Firm.com " });
+
+        Assert.AreEqual("owner-1", customer.OwnerId);
+    }
+
+    [TestMethod]
+    public async Task UpdateCustomerModel_NewOwner_PerStore_IsLookedUpInTheCustomersStore()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("boss@firm.com", "store-2"))
+            .ReturnsAsync(new Customer { Id = "owner-store-2" });
+        var customer = new Customer { Id = "c1" };
+
+        await _customerViewModelService.UpdateCustomerModel(customer,
+            new CustomerModel { Email = "c1@firm.com", StoreId = "store-2", Owner = "boss@firm.com" });
+
+        //the same scope the validator checks in - the global lookup used to pick any store's account
+        Assert.AreEqual("owner-store-2", customer.OwnerId);
+        _customerServiceMock.Verify(c => c.GetCustomerByEmail("boss@firm.com", ""), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateCustomerModel_PerStore_CustomerMovedToAnotherStore_LooksTheOwnerUpAgain()
+    {
+        _customerConfig.RegisterCustomersPerStore = true;
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-a"))
+            .ReturnsAsync(new Customer { Id = "owner-a", Email = "boss@firm.com" });
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("boss@firm.com", "store-b"))
+            .ReturnsAsync(new Customer { Id = "owner-b" });
+        var customer = new Customer { Id = "c1", OwnerId = "owner-a", StoreId = "store-a" };
+
+        await _customerViewModelService.UpdateCustomerModel(customer,
+            new CustomerModel { Email = "c1@firm.com", StoreId = "store-b", Owner = "boss@firm.com" });
+
+        Assert.AreEqual("owner-b", customer.OwnerId);
+    }
+
+    [TestMethod]
+    public async Task UpdateCustomerModel_OwnerCleared_UnlinksTheOwner()
+    {
+        var customer = new Customer { Id = "c1", OwnerId = "owner-1" };
+
+        await _customerViewModelService.UpdateCustomerModel(customer,
+            new CustomerModel { Email = "c1@firm.com", Owner = "" });
+
+        Assert.AreEqual(string.Empty, customer.OwnerId);
+    }
+
+    [TestMethod]
+    public async Task InsertCustomerModel_WithOwner_LinksIt()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("boss@firm.com", ""))
+            .ReturnsAsync(new Customer { Id = "owner-1" });
+
+        var customer = await _customerViewModelService.InsertCustomerModel(
+            new CustomerModel { Email = "new@firm.com", Owner = "boss@firm.com" });
+
+        Assert.AreEqual("owner-1", customer.OwnerId);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_Owner_ListsItsSubAccounts()
+    {
+        var owner = new Customer { Id = "owner-1", Email = "boss@firm.com" };
+        _customerServiceMock
+            .Setup(c => c.GetAllCustomers(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), "owner-1", It.IsAny<string>(), It.IsAny<string[]>(),
+                It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+                It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()))
+            .ReturnsAsync(new PagedList<Customer> {
+                new() { Id = "sub-1", Email = "a@firm.com", Active = true, OwnerId = "owner-1" },
+                new() { Id = "sub-2", Email = "b@firm.com", Active = false, OwnerId = "owner-1" }
+            });
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model, owner, false);
+
+        CollectionAssert.AreEqual(new[] { "sub-1", "sub-2" }, model.SubAccounts.Select(x => x.Id).ToArray());
+        Assert.IsFalse(model.SubAccounts[1].Active);
+        Assert.IsTrue(string.IsNullOrEmpty(model.OwnerCustomerId));
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_StorePanel_QueriesOnlyItsStoreAndSkipsOutOfScopeRows()
+    {
+        _scopeMock.Setup(s => s.GetDefaultStoreIdAsync()).ReturnsAsync("store-7");
+        var foreign = new Customer { Id = "sub-x", Email = "x@firm.com", OwnerId = "owner-1" };
+        _scopeMock.Setup(s => s.HasAccess(foreign)).ReturnsAsync(false);
+        SetupGetAllCustomers(new PagedList<Customer> {
+            new() { Id = "sub-1", Email = "a@firm.com", OwnerId = "owner-1" }, foreign
+        });
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model, new Customer { Id = "owner-1" }, false);
+
+        CollectionAssert.AreEqual(new[] { "sub-1" }, model.SubAccounts.Select(x => x.Id).ToArray());
+        _customerServiceMock.Verify(c => c.GetAllCustomers(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+            It.IsAny<string>(), It.IsAny<string>(), "store-7", "owner-1", It.IsAny<string>(), It.IsAny<string[]>(),
+            It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+            It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_SalesManager_ListsOnlyTheirSubAccounts()
+    {
+        _currentCustomer.SeId = "se-1";
+
+        await _customerViewModelService.PrepareCustomerModel(new CustomerModel(), new Customer { Id = "owner-1" },
+            false);
+
+        _customerServiceMock.Verify(c => c.GetAllCustomers(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), "owner-1", "se-1", It.IsAny<string[]>(),
+            It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+            It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
+            It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_SubAccount_LinksTheOwnerInReach()
+    {
+        var owner = new Customer { Id = "owner-1", Email = "boss@firm.com" };
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-1")).ReturnsAsync(owner);
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model,
+            new Customer { Id = "sub-1", OwnerId = "owner-1" }, false);
+
+        Assert.AreEqual("owner-1", model.OwnerCustomerId);
+        Assert.AreEqual("boss@firm.com", model.OwnerCustomerEmail);
+        Assert.AreEqual(0, model.SubAccounts.Count);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_SubAccount_OwnerOutOfReach_IsNotShown()
+    {
+        var owner = new Customer { Id = "owner-1", Email = "boss@other-store.com" };
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-1")).ReturnsAsync(owner);
+        _scopeMock.Setup(s => s.HasAccess(owner)).ReturnsAsync(false);
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model,
+            new Customer { Id = "sub-1", OwnerId = "owner-1" }, false);
+
+        Assert.IsTrue(string.IsNullOrEmpty(model.OwnerCustomerId));
+        Assert.IsTrue(string.IsNullOrEmpty(model.OwnerCustomerEmail));
+    }
+
+    #endregion
+
     private void SetupGetAllCustomers(IPagedList<Customer> result)
     {
         _customerServiceMock
@@ -441,7 +658,8 @@ public class CustomerViewModelServiceTests
                 It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<bool>(), It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
-                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>()))
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(),
+                It.IsAny<string[]>(), It.IsAny<bool>()))
             .ReturnsAsync(result);
     }
 }

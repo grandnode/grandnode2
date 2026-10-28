@@ -210,6 +210,60 @@ public class CustomerControllerTests
     }
 
     [TestMethod]
+    public async Task ApplyPostConstraints_EditedSubAccount_KeepsItsRealOwner()
+    {
+        //blanking the owner here detached every sub-account a store manager saved; a crafted value must not
+        //move it to another owner either
+        _customerServiceMock.Setup(c => c.GetCustomerById("sub-1"))
+            .ReturnsAsync(new Customer { Id = "sub-1", OwnerId = "owner-1" });
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-1"))
+            .ReturnsAsync(new Customer { Id = "owner-1", Email = "boss@firm.com" });
+        var controller = BuildStoreController();
+
+        var model = new CustomerModel { Id = "sub-1", Owner = "attacker@evil.com" };
+        await controller.ApplyPostConstraintsPublic(model);
+
+        Assert.AreEqual("boss@firm.com", model.Owner);
+    }
+
+    [TestMethod]
+    public async Task ApplyPostConstraints_EditedCustomer_KeepsWhereItBelongs_IgnoringCraftedValues()
+    {
+        //blanking used to strip these on every save: the sales employee, the price groups, a colleague's
+        //Store manager role
+        _customerServiceMock.Setup(c => c.GetCustomerById("c1")).ReturnsAsync(new Customer {
+            Id = "c1", SeId = "se-1", VendorId = "vendor-1", StaffStoreId = StoreId,
+            Groups = { "registered-id", "wholesale-id", "storemanager-id" }
+        });
+        var controller = BuildStoreController();
+
+        var model = new CustomerModel {
+            Id = "c1", SeId = "attacker-se", VendorId = "attacker-vendor", StaffStoreId = "attacker-store",
+            CustomerGroups = new[] { "attacker-admin-group-id" }
+        };
+        await controller.ApplyPostConstraintsPublic(model);
+
+        Assert.AreEqual(StoreId, model.StoreId);
+        Assert.AreEqual("se-1", model.SeId);
+        Assert.AreEqual("vendor-1", model.VendorId);
+        Assert.AreEqual(StoreId, model.StaffStoreId);
+        CollectionAssert.AreEqual(new[] { "registered-id", "wholesale-id", "storemanager-id" },
+            model.CustomerGroups.ToArray());
+    }
+
+    [TestMethod]
+    public async Task ApplyPostConstraints_EditedCustomerWithoutOwner_GetsNone()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1" });
+        var controller = BuildStoreController();
+
+        var model = new CustomerModel { Id = "c1", Owner = "attacker@evil.com" };
+        await controller.ApplyPostConstraintsPublic(model);
+
+        Assert.AreEqual("", model.Owner);
+    }
+
+    [TestMethod]
     public async Task ApplyPostConstraints_NoRegisteredGroupFound_ClearsCustomerGroups()
     {
         // Edge case the crafted-POST test doesn't cover: if the Registered group is missing/

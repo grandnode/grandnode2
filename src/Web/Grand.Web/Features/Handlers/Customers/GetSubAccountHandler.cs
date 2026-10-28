@@ -20,18 +20,17 @@ public class GetSubAccountHandler : IRequestHandler<GetSubAccount, SubAccountEdi
     {
         ArgumentNullException.ThrowIfNull(request.CurrentCustomer);
 
-        var model = new SubAccountEditModel();
-
+        //null for a missing, deleted or someone else's account, so the caller can tell it from an empty form
         var subaccount = await _customerService.GetCustomerById(request.CustomerId);
-        if (subaccount != null && subaccount.OwnerId == request.CurrentCustomer.Id)
-            model = new SubAccountEditModel {
-                Id = subaccount.Id,
-                Email = subaccount.Email,
-                Active = subaccount.Active,
-                FirstName = subaccount.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName),
-                LastName = subaccount.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName)
-            };
+        if (subaccount == null || subaccount.Deleted || subaccount.OwnerId != request.CurrentCustomer.Id)
+            return null;
 
-        return model;
+        return new SubAccountEditModel {
+            Id = subaccount.Id,
+            Email = subaccount.Email,
+            Active = subaccount.Active,
+            FirstName = subaccount.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName),
+            LastName = subaccount.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName)
+        };
     }
 }

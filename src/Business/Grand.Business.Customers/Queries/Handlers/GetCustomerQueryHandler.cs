@@ -39,6 +39,11 @@ public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IPagedL
         query = query.Where(c => !c.Deleted);
         if (request.CustomerGroupIds is { Length: > 0 })
             query = query.Where(c => c.Groups.Any(x => request.CustomerGroupIds.Contains(x)));
+        if (request.ExcludedCustomerGroupIds is { Length: > 0 })
+            query = query.Where(c => !c.Groups.Any(x => request.ExcludedCustomerGroupIds.Contains(x)));
+        if (request.ExcludeVendorAndStaffAccounts)
+            query = query.Where(c => (c.VendorId == null || c.VendorId == "") &&
+                                     (c.StaffStoreId == null || c.StaffStoreId == ""));
         if (request.CustomerTagIds is { Length: > 0 })
             foreach (var item in request.CustomerTagIds)
                 query = query.Where(c => c.CustomerTags.Contains(item));

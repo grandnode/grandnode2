@@ -218,6 +218,13 @@ public class CustomerModel : BaseEntityModel
     public IList<AssociatedExternalAuthModel> AssociatedExternalAuthRecords { get; set; } =
         new List<AssociatedExternalAuthModel>();
 
+    //sub-accounts - display only, rebuilt from the entity on every render and never read back on save
+    public string OwnerCustomerId { get; set; }
+
+    public string OwnerCustomerEmail { get; set; }
+
+    public IList<SubAccountModel> SubAccounts { get; set; } = new List<SubAccountModel>();
+
     //customer notes
     [GrandResourceDisplayName("Admin.Customers.CustomerNotes.Fields.DisplayToCustomer")]
     public bool AddCustomerNoteDisplayToCustomer { get; set; }
@@ -246,6 +253,13 @@ public class CustomerModel : BaseEntityModel
 
         [GrandResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth.Fields.AuthMethodName")]
         public string AuthMethodName { get; set; }
+    }
+
+    public class SubAccountModel : BaseEntityModel
+    {
+        public string Email { get; set; }
+        public string FullName { get; set; }
+        public bool Active { get; set; }
     }
 
     public class LoyaltyPointsHistoryModel : BaseEntityModel

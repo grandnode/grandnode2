@@ -18,6 +18,13 @@ public class GetCustomerQuery : IRequest<IPagedList<Customer>>
     public string SalesEmployeeId { get; set; } = "";
     public string[] CustomerGroupIds { get; set; } = null;
     public string[] CustomerTagIds { get; set; } = null;
+
+    /// <summary>Customers in any of these groups are left out</summary>
+    public string[] ExcludedCustomerGroupIds { get; set; } = null;
+
+    /// <summary>Leaves out accounts tied to a vendor or a staff store</summary>
+    public bool ExcludeVendorAndStaffAccounts { get; set; } = false;
+
     public string Email { get; set; } = null;
     public string Username { get; set; } = null;
     public string FirstName { get; set; } = null;
