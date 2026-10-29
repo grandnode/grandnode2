@@ -8,7 +8,9 @@ namespace Grand.Data.LiteDb;
 /// </summary>
 public class LiteDBAuditRecordReader(Func<LiteDatabase> database) : IAuditRecordReader
 {
-    public Task<IDictionary<string, string>> Read(Type entityType, string value, string key = null)
+    //the embedded database reads the whole document either way, so the field is not projected
+    public Task<IDictionary<string, string>> Read(Type entityType, string value, string key = null,
+        string field = null)
     {
         var db = database();
         var collection = db.GetCollection(entityType.Name);

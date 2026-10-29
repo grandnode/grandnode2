@@ -448,7 +448,7 @@ public class BaseOrderManagementControllerTests
     [TestMethod]
     public async Task OrderNoteAdd_RecordedOnTheOrder()
     {
-        var order = new Order { Id = "o1", OrderNumber = 7 };
+        var order = new Order { Id = "o1", OrderNumber = 7, StoreId = "s1" };
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
         _orderNoteViewModelServiceMock.Setup(v => v.InsertOrderNote(order, null, false, "msg")).ReturnsAsync(true);
@@ -456,7 +456,7 @@ public class BaseOrderManagementControllerTests
 
         await _controller.OrderNoteAdd("o1", null, false, "msg", recorder.Object);
 
-        recorder.Verify(r => r.OwnedChange("Order", "o1", "7", "OrderNote", null, "msg"), Times.Once);
+        recorder.Verify(r => r.OwnedChange("Order", "o1", "7", "s1", "OrderNote", null, "msg"), Times.Once);
     }
 
     [TestMethod]

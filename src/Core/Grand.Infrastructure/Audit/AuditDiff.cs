@@ -64,7 +64,10 @@ public static partial class AuditDiff
                || path.StartsWith(parent + "[", StringComparison.Ordinal);
     }
 
-    private static AuditChange Change(string path, string oldValue, string newValue)
+    /// <summary>
+    ///     A change of one path, its values cut to <see cref="MaxValueLength" /> and marked when they were
+    /// </summary>
+    public static AuditChange Change(string path, string oldValue, string newValue)
     {
         var change = new AuditChange {
             Path = path,

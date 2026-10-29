@@ -1,6 +1,8 @@
 using Grand.Data.Audit;
 using Grand.Domain.Audit;
+using System.Collections.Concurrent;
 using System.Reflection;
+using System.Text.RegularExpressions;
 using System.Text.Json;
 
 namespace Grand.Infrastructure.Audit;
@@ -9,22 +11,30 @@ namespace Grand.Infrastructure.Audit;
 ///     Puts names next to the ids of [AuditReference] properties and the numbers of enums when a change is recorded,
 ///     so the entry stays readable after the referenced record is gone
 /// </summary>
-public class AuditReferences(IAuditRecordReader reader)
+public partial class AuditReferences(IAuditRecordReader reader)
 {
+    private static readonly ConcurrentDictionary<Type, string> NameProperties = new();
+    private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> Properties = new();
+
     private readonly Dictionary<(Type Target, string List, string Owner, string Id), string> _names = new();
+
+    [GeneratedRegex(@"\[[^\]]*\]")]
+    private static partial Regex ElementKeys();
 
     /// <summary>
     ///     The property that names a record of a type: the one marked [AuditName], else Name
     /// </summary>
     public static string NameProperty(Type type)
     {
-        return type.GetProperties().FirstOrDefault(p => p.IsDefined(typeof(AuditNameAttribute)))?.Name ?? "Name";
+        return NameProperties.GetOrAdd(type, t =>
+            t.GetProperties().FirstOrDefault(p => p.IsDefined(typeof(AuditNameAttribute)))?.Name ?? "Name");
     }
 
     public async Task Describe(Type entityType, IEnumerable<AuditChange> changes, IDictionary<string, string> before,
         IDictionary<string, string> after)
     {
-        foreach (var change in changes.Where(c => !c.Masked))
+        //a cut value is no longer a whole id list; it stays as stored
+        foreach (var change in changes.Where(c => !c.Masked && !c.Truncated))
         {
             var property = PropertyAt(entityType, change.Path);
             if (property == null)
@@ -33,8 +43,12 @@ public class AuditReferences(IAuditRecordReader reader)
             //a name that cannot be found leaves the ids, never the change out
             try
             {
-                change.OldValue = await Describe(property, change.Path, change.OldValue, before);
-                change.NewValue = await Describe(property, change.Path, change.NewValue, after);
+                var described = AuditDiff.Change(change.Path,
+                    await Describe(property, change.Path, change.OldValue, before),
+                    await Describe(property, change.Path, change.NewValue, after));
+                change.OldValue = described.OldValue;
+                change.NewValue = described.NewValue;
+                change.Truncated = described.Truncated;
             }
             catch (Exception)
             {
@@ -45,6 +59,12 @@ public class AuditReferences(IAuditRecordReader reader)
 
     //"ProductSpecificationAttributes[id=1].SpecificationAttributeOptionId" -> the property on the element type
     private static PropertyInfo PropertyAt(Type type, string path)
+    {
+        //cached by the path without its element keys, so the cache grows with the model, not with the data
+        return Properties.GetOrAdd((type, ElementKeys().Replace(path, "")), key => FindProperty(key.Item1, key.Item2));
+    }
+
+    private static PropertyInfo FindProperty(Type type, string path)
     {
         PropertyInfo property = null;
         foreach (var segment in path.Split('.'))
@@ -122,7 +142,10 @@ public class AuditReferences(IAuditRecordReader reader)
         if (string.IsNullOrEmpty(recordId))
             return null;
 
-        var record = await reader.Read(reference.Target, recordId, reference.List == null ? reference.Key : null);
+        //only the field holding the name is read, not the whole record
+        var record = reference.List == null
+            ? await reader.Read(reference.Target, recordId, reference.Key, NameProperty(reference.Target))
+            : await reader.Read(reference.Target, recordId, null, reference.List);
         var path = reference.List == null
             ? NameProperty(reference.Target)
             : $"{reference.List}[id={id}].{NameProperty(ElementType(reference.Target.GetProperty(reference.List)!.PropertyType)!)}";

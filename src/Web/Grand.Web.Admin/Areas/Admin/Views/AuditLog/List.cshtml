@@ -35,6 +35,7 @@
         <admin-grid id="auditlog-grid"
                     read-url="@Url.Action("List", "AuditLog", new { area = Constants.AreaAdmin })"
                     additional-data="auditLogFilters">
+            <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
             <grid-column field="CreatedOn" title="@Loc["Admin.System.AuditLog.Fields.CreatedOnUtc"]" width="170">
                 <cell-template>
                     <a class="text-decoration-none" href="@Url.Action("Detail", new { area = Constants.AreaAdmin })/{{ Id }}">{{ CreatedOn }}</a>
@@ -48,7 +49,7 @@
             <grid-column field="Id" title="" width="100">
                 <cell-template>
                     <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Detail", new { area = Constants.AreaAdmin })/{{ Id }}">
-                        <i class="bi bi-eye"></i> @Loc["Admin.Common.View"]
+                        <i class="bi bi-eye"></i> {{ $texts.view }}
                     </a>
                 </cell-template>
             </grid-column>

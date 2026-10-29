@@ -3,7 +3,6 @@ using Grand.Domain;
 using Grand.Domain.Audit;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 using System.Reflection;
 
 namespace Grand.Infrastructure.Audit;
@@ -30,9 +29,6 @@ public class AuditTracker(
         "UpdatedOnUtc", "UpdatedBy", "CreatedOnUtc", "CreatedBy", "Ticks",
         "LastActivityDateUtc", "LastIpAddress", "LastVisitedPage"
     ];
-
-    //the property that names a record of each type: [AuditName], else Name
-    private static readonly ConcurrentDictionary<Type, string> NameProperties = new();
 
     private readonly List<AuditEntry> _bulk = [];
 
@@ -298,7 +294,7 @@ public class AuditTracker(
 
     private static string NameOf(Type type, IDictionary<string, string> snapshot)
     {
-        var property = NameProperties.GetOrAdd(type, AuditReferences.NameProperty);
+        var property = AuditReferences.NameProperty(type);
         return snapshot != null && snapshot.TryGetValue(property, out var name) && name != "" ? name : null;
     }
 

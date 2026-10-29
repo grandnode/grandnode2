@@ -13,22 +13,23 @@ namespace Grand.Infrastructure.Tests.Audit;
 public class AuditReferencesTests
 {
     private readonly Dictionary<(Type, string), IDictionary<string, string>> _records = new();
+    private Mock<IAuditRecordReader> _reader;
     private AuditReferences _references;
 
     [TestInitialize]
     public void Init()
     {
-        var reader = new Mock<IAuditRecordReader>();
-        reader.Setup(r => r.Read(It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<string>()))
-            .Returns<Type, string, string>((type, value, key) =>
+        _reader = new Mock<IAuditRecordReader>();
+        _reader.Setup(r => r.Read(It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns<Type, string, string, string>((type, value, key, _) =>
                 Task.FromResult(_records.GetValueOrDefault((type, key == null ? value : $"{key}={value}"))));
-        _references = new AuditReferences(reader.Object);
+        _references = new AuditReferences(_reader.Object);
     }
 
     private async Task<AuditChange> Describe(Type type, string path, string oldValue, string newValue,
-        IDictionary<string, string> after = null)
+        IDictionary<string, string> after = null, bool truncated = false)
     {
-        var change = new AuditChange { Path = path, OldValue = oldValue, NewValue = newValue };
+        var change = new AuditChange { Path = path, OldValue = oldValue, NewValue = newValue, Truncated = truncated };
         await _references.Describe(type, [change], after, after);
         return change;
     }
@@ -150,6 +151,43 @@ public class AuditReferencesTests
         }
 
         Assert.AreEqual(0, problems.Count, string.Join(Environment.NewLine, problems));
+    }
+
+    [TestMethod]
+    public async Task Reference_ReadsOnlyTheNameField()
+    {
+        _records[(typeof(Brand), "b1")] = new Dictionary<string, string> { ["Name"] = "Aurora" };
+
+        await Describe(typeof(Product), "BrandId", null, "b1");
+
+        _reader.Verify(r => r.Read(typeof(Brand), "b1", null, "Name"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task TruncatedValue_KeepsTheStoredValue()
+    {
+        _records[(typeof(Store), "s1")] = new Dictionary<string, string> { ["Name"] = "Main" };
+
+        var change = await Describe(typeof(Product), "Stores", null, "[\"s1\", \"s", truncated: true);
+
+        Assert.AreEqual("[\"s1\", \"s", change.NewValue);
+        Assert.IsTrue(change.Truncated);
+        _reader.Verify(r => r.Read(It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task LongNames_CutToTheLimitAndMarked()
+    {
+        var ids = Enumerable.Range(0, 40).Select(i => $"s{i}").ToList();
+        foreach (var id in ids)
+            _records[(typeof(Store), id)] = new Dictionary<string, string> { ["Name"] = new string('n', 40) };
+
+        var change = await Describe(typeof(Product), "Stores", null,
+            "[" + string.Join(", ", ids.Select(id => $"\"{id}\"")) + "]");
+
+        Assert.AreEqual(AuditDiff.MaxValueLength, change.NewValue.Length);
+        Assert.IsTrue(change.Truncated);
     }
 
     [TestMethod]

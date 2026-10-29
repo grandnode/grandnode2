@@ -45,6 +45,6 @@ public interface IAuditEventRecorder
     ///     Records, on a record, a change made through a separate record that belongs to it (a note of an order), so it
     ///     shows in the owner's change history
     /// </summary>
-    Task OwnedChange(string entityType, string entityId, string entityName, string path, string oldValue,
-        string newValue);
+    Task OwnedChange(string entityType, string entityId, string entityName, string entityStoreId, string path,
+        string oldValue, string newValue);
 }

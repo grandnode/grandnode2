@@ -673,8 +673,8 @@ public abstract class BaseOrderManagementController(
             });
 
         //a note is a record of its own; this puts it in the order's change history
-        await auditEventRecorder.OwnedChange(nameof(Order), order.Id, order.OrderNumber.ToString(), "OrderNote", null,
-            message);
+        await auditEventRecorder.OwnedChange(nameof(Order), order.Id, order.OrderNumber.ToString(), order.StoreId,
+            "OrderNote", null, message);
         return Json(new { Result = true });
     }
 
@@ -689,8 +689,8 @@ public abstract class BaseOrderManagementController(
 
         var note = (await OrderService.GetOrderNotes(order.Id)).FirstOrDefault(n => n.Id == id);
         await orderNoteViewModelService.DeleteOrderNote(order, id);
-        await auditEventRecorder.OwnedChange(nameof(Order), order.Id, order.OrderNumber.ToString(), "OrderNote",
-            note?.Note, null);
+        await auditEventRecorder.OwnedChange(nameof(Order), order.Id, order.OrderNumber.ToString(), order.StoreId,
+            "OrderNote", note?.Note, null);
         return new JsonResult("");
     }
 

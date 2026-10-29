@@ -89,21 +89,17 @@ public class AuditEventRecorder(
         });
     }
 
-    public Task OwnedChange(string entityType, string entityId, string entityName, string path, string oldValue,
-        string newValue)
+    public Task OwnedChange(string entityType, string entityId, string entityName, string entityStoreId, string path,
+        string oldValue, string newValue)
     {
         return Record(AuditKind.Update, CurrentStaff(), entry =>
         {
             entry.EntityType = entityType;
             entry.EntityId = entityId;
             entry.EntityName = entityName;
-            entry.Changes = [new AuditChange { Path = path, OldValue = Shorten(oldValue), NewValue = Shorten(newValue) }];
+            entry.EntityStoreId = entityStoreId;
+            entry.Changes = [AuditDiff.Change(path, oldValue, newValue)];
         });
-    }
-
-    private static string Shorten(string value)
-    {
-        return value is { Length: > AuditDiff.MaxValueLength } ? value[..AuditDiff.MaxValueLength] : value;
     }
 
     private async Task RecordSignInEvent(AuditKind kind, Customer customer, string reason)
