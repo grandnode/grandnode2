@@ -93,11 +93,20 @@ public static class AuditFilterId
                     return false;
                 if (member.Expression != null && target == null)
                     return false;
-                value = member.Member switch {
-                    FieldInfo field => field.GetValue(target),
-                    PropertyInfo property => property.GetValue(target),
-                    _ => null
-                };
+                try
+                {
+                    value = member.Member switch {
+                        FieldInfo field => field.GetValue(target),
+                        PropertyInfo property => property.GetValue(target),
+                        _ => null
+                    };
+                }
+                catch (Exception)
+                {
+                    //a getter that throws: the write is recorded as a bulk write instead of failing
+                    return false;
+                }
+
                 return member.Member is FieldInfo or PropertyInfo;
             default:
                 return false;

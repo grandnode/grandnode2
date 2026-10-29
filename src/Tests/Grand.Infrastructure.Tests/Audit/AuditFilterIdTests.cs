@@ -34,6 +34,19 @@ public class AuditFilterIdTests
     }
 
     [TestMethod]
+    public void TryGetId_GetterThrows_FalseInsteadOfThrowing()
+    {
+        var source = new ThrowingSource();
+
+        Assert.IsFalse(AuditFilterId.TryGetId<Thing>(x => x.Id == source.Id, out _));
+    }
+
+    private class ThrowingSource
+    {
+        public string Id => throw new InvalidOperationException("broken getter");
+    }
+
+    [TestMethod]
     public void TryGetId_OtherFilter_False()
     {
         Assert.IsFalse(AuditFilterId.TryGetId<Thing>(x => x.Name == "a", out _));

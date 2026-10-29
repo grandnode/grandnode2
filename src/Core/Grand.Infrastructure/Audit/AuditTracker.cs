@@ -111,10 +111,27 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         if (!IsActive || entity == null)
             return;
 
+        var key = (typeof(T), entity.Id);
         lock (_lock)
         {
-            if (_pending.TryGetValue((typeof(T), entity.Id), out var pending))
-                pending.AfterHint = AuditSnapshot.Take(entity);
+            if (!_pending.ContainsKey(key))
+                return;
+        }
+
+        //runs after the write: a failure here must not turn a stored change into an error
+        try
+        {
+            var after = AuditSnapshot.Take(entity);
+            lock (_lock)
+            {
+                if (_pending.TryGetValue(key, out var pending))
+                    pending.AfterHint = after;
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "Audit could not keep {EntityType} {EntityId} after operation {OperationId}",
+                typeof(T).Name, entity.Id, _actor.OperationId);
         }
     }
 

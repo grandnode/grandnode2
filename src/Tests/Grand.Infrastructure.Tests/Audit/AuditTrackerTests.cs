@@ -480,6 +480,22 @@ public class AuditTrackerTests
     }
 
     [TestMethod]
+    public async Task AfterFullUpdate_SnapshotFails_DoesNotThrow()
+    {
+        _tracker.Activate(Actor);
+        var thing = new UnserializableThing { Id = "1" };
+        //an insert queues the entity without reading it, so the snapshot after the update is the first one
+        await _tracker.BeforeWriteAsync<UnserializableThing>("1", true, _ => Task.FromResult<IList<UnserializableThing>>([]));
+
+        _tracker.AfterFullUpdate(thing);
+    }
+
+    public class UnserializableThing : BaseEntity
+    {
+        public string Broken { get => throw new InvalidOperationException("broken getter"); set { } }
+    }
+
+    [TestMethod]
     public async Task EntityName_FromAuditNameProperty()
     {
         _tracker.Activate(Actor);
