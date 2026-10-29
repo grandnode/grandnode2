@@ -22,6 +22,7 @@ using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Grand.Web.Common.Audit;
 using Moq;
 using Grand.Web.Common.Localization;
 
@@ -445,6 +446,20 @@ public class BaseOrderManagementControllerTests
     }
 
     [TestMethod]
+    public async Task OrderNoteAdd_RecordedOnTheOrder()
+    {
+        var order = new Order { Id = "o1", OrderNumber = 7 };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
+        _orderNoteViewModelServiceMock.Setup(v => v.InsertOrderNote(order, null, false, "msg")).ReturnsAsync(true);
+        var recorder = new Mock<IAuditEventRecorder>();
+
+        await _controller.OrderNoteAdd("o1", null, false, "msg", recorder.Object);
+
+        recorder.Verify(r => r.OwnedChange("Order", "o1", "7", "OrderNote", null, "msg"), Times.Once);
+    }
+
+    [TestMethod]
     public async Task OrderNoteAdd_FileRefused_ReturnsResultFalseWithMessage()
     {
         var order = new Order { Id = "o1" };
@@ -452,7 +467,7 @@ public class BaseOrderManagementControllerTests
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(true);
         _orderNoteViewModelServiceMock.Setup(v => v.InsertOrderNote(order, "d1", false, "msg")).ReturnsAsync(false);
 
-        var result = await _controller.OrderNoteAdd("o1", "d1", false, "msg");
+        var result = await _controller.OrderNoteAdd("o1", "d1", false, "msg", new Mock<IAuditEventRecorder>().Object);
 
         var value = (result as JsonResult)?.Value;
         Assert.IsFalse((bool)value!.GetType().GetProperty("Result")!.GetValue(value)!);
@@ -570,7 +585,7 @@ public class BaseOrderManagementControllerTests
         _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
         _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(false);
 
-        var result = await _controller.OrderNoteAdd("o1", null, false, "msg");
+        var result = await _controller.OrderNoteAdd("o1", null, false, "msg", new Mock<IAuditEventRecorder>().Object);
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);

@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
+using Grand.Web.Common.Audit;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Mediator;
@@ -659,7 +660,8 @@ public abstract class BaseOrderManagementController(
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> OrderNoteAdd(string orderId, string downloadId, bool displayToCustomer, string message)
+    public async Task<IActionResult> OrderNoteAdd(string orderId, string downloadId, bool displayToCustomer, string message,
+        [FromServices] IAuditEventRecorder auditEventRecorder)
     {
         var order = await OrderService.GetOrderById(orderId);
         if (order == null || !await Scope.HasAccess(order)) return Json(new { Result = false });
@@ -670,18 +672,25 @@ public abstract class BaseOrderManagementController(
                 Message = TranslationService.GetResource("Admin.Orders.OrderNotes.DownloadNotOfOrder")
             });
 
+        //a note is a record of its own; this puts it in the order's change history
+        await auditEventRecorder.OwnedChange(nameof(Order), order.Id, order.OrderNumber.ToString(), "OrderNote", null,
+            message);
         return Json(new { Result = true });
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Delete)]
     [HttpPost]
-    public async Task<IActionResult> OrderNoteDelete(string id, string orderId)
+    public async Task<IActionResult> OrderNoteDelete(string id, string orderId,
+        [FromServices] IAuditEventRecorder auditEventRecorder)
     {
         var order = await OrderService.GetOrderById(orderId)
             ?? throw new ArgumentException("No order found with the specified id");
         if (!await Scope.HasAccess(order)) return Json(new { Result = false });
 
+        var note = (await OrderService.GetOrderNotes(order.Id)).FirstOrDefault(n => n.Id == id);
         await orderNoteViewModelService.DeleteOrderNote(order, id);
+        await auditEventRecorder.OwnedChange(nameof(Order), order.Id, order.OrderNumber.ToString(), "OrderNote",
+            note?.Note, null);
         return new JsonResult("");
     }
 

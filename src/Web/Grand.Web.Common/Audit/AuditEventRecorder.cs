@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Audit;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Audit;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -86,6 +87,23 @@ public class AuditEventRecorder(
             entry.EntityName = pluginName;
             entry.Details = change;
         });
+    }
+
+    public Task OwnedChange(string entityType, string entityId, string entityName, string path, string oldValue,
+        string newValue)
+    {
+        return Record(AuditKind.Update, CurrentStaff(), entry =>
+        {
+            entry.EntityType = entityType;
+            entry.EntityId = entityId;
+            entry.EntityName = entityName;
+            entry.Changes = [new AuditChange { Path = path, OldValue = Shorten(oldValue), NewValue = Shorten(newValue) }];
+        });
+    }
+
+    private static string Shorten(string value)
+    {
+        return value is { Length: > AuditDiff.MaxValueLength } ? value[..AuditDiff.MaxValueLength] : value;
     }
 
     private async Task RecordSignInEvent(AuditKind kind, Customer customer, string reason)
