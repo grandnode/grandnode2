@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Orders;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Orders;
 
 /// <summary>
 ///     Represents a merchandise return note
@@ -13,6 +15,7 @@ public class MerchandiseReturnNote : BaseEntity
     /// <summary>
     ///     Gets or sets the title
     /// </summary>
+    [AuditName]
     public string Title { get; set; }
 
     /// <summary>

@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Vendors;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Vendors;
 
 /// <summary>
 ///     Represents a vendor review
@@ -25,6 +27,7 @@ public class VendorReview : BaseEntity
     /// <summary>
     ///     Gets or sets the title
     /// </summary>
+    [AuditName]
     public string Title { get; set; }
 
     /// <summary>

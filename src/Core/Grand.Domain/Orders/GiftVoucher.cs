@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Catalog;
 
 namespace Grand.Domain.Orders;
@@ -32,6 +33,7 @@ public class GiftVoucher : BaseEntity
     /// <summary>
     ///     Gets or sets a gift voucher coupon code
     /// </summary>
+    [AuditName]
     public string Code { get; set; }
 
     /// <summary>

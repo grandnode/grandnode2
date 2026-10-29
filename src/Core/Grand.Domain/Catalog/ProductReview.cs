@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Catalog;
 
 /// <summary>
@@ -30,6 +32,7 @@ public class ProductReview : BaseEntity
     /// <summary>
     ///     Gets or sets the title
     /// </summary>
+    [AuditName]
     public string Title { get; set; }
 
     /// <summary>

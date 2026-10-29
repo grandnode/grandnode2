@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Admin;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Admin;
 
 /// <summary>
 ///     Represents an admin menu
@@ -14,6 +16,7 @@ public class AdminSiteMap : BaseEntity
     /// <summary>
     ///     Gets or sets the system name.
     /// </summary>
+    [AuditName]
     public string SystemName { get; set; }
 
     /// <summary>

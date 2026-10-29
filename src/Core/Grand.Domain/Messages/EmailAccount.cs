@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Messages;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Messages;
 
 /// <summary>
 ///     Represents an email account
@@ -8,6 +10,7 @@ public class EmailAccount : BaseEntity
     /// <summary>
     ///     Gets or sets an email address
     /// </summary>
+    [AuditName]
     public string Email { get; set; }
 
     /// <summary>

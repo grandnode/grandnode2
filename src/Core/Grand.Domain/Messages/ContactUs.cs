@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Common;
+﻿using Grand.Domain.Audit;
+using Grand.Domain.Common;
 
 namespace Grand.Domain.Messages;
 
@@ -25,6 +26,7 @@ public class ContactUs : BaseEntity
     /// <summary>
     ///     Gets or sets the email
     /// </summary>
+    [AuditName]
     public string Email { get; set; }
 
     /// <summary>

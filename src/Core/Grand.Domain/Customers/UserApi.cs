@@ -1,8 +1,11 @@
-﻿namespace Grand.Domain.Customers;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Customers;
 
 [Obsolete("API users with a shared SecretKey are deprecated - configure OidcResourceServer and use access tokens of your identity provider (docs/oidc-resource-server.md)")]
 public class UserApi : BaseEntity
 {
+    [AuditName]
     public string Email { get; set; }
     public string Password { get; set; }
     public string PrivateKey { get; set; }

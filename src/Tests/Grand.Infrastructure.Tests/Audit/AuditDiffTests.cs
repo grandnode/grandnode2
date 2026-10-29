@@ -314,15 +314,4 @@ public class AuditDiffTests
     {
         Assert.AreEqual(0, Compare(new BsonDocument("Name", "Shoes"), null).Count);
     }
-
-    [TestMethod]
-    public void EntityName_PicksFirstPresent()
-    {
-        string Name(BsonDocument document) => AuditDiff.EntityName(AuditSnapshot.Flatten(document, false));
-
-        Assert.AreEqual("Blue", Name(new BsonDocument { { "Email", "a@b.c" }, { "Name", "Blue" } }));
-        Assert.AreEqual("a@b.c", Name(new BsonDocument { { "Name", "" }, { "Email", "a@b.c" } }));
-        Assert.IsNull(Name(new BsonDocument("Price", 1)));
-        Assert.IsNull(AuditDiff.EntityName(null));
-    }
 }

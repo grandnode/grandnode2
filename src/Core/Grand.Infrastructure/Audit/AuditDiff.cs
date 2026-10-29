@@ -11,8 +11,6 @@ public static partial class AuditDiff
 {
     public const int MaxValueLength = 1024;
 
-    private static readonly string[] NameFields = ["Name", "Title", "Email", "OrderNumber", "Code", "SystemName"];
-
     [GeneratedRegex("password|salt|hash|secret|api_?key|token|privatekey", RegexOptions.IgnoreCase)]
     private static partial Regex SensitiveName();
 
@@ -52,14 +50,6 @@ public static partial class AuditDiff
         }
 
         return changes;
-    }
-
-    /// <summary>
-    ///     A display label for the entity: the first non-empty of Name, Title, Email, OrderNumber, Code, SystemName.
-    /// </summary>
-    public static string EntityName(IDictionary<string, string> snapshot)
-    {
-        return snapshot == null ? null : NameFields.Select(field => ValueOf(snapshot, field)).FirstOrDefault(v => v != null);
     }
 
     private static string ValueOf(IDictionary<string, string> snapshot, string path)

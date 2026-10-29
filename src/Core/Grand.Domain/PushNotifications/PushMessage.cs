@@ -1,7 +1,10 @@
-﻿namespace Grand.Domain.PushNotifications;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.PushNotifications;
 
 public class PushMessage : BaseEntity
 {
+    [AuditName]
     public string Title { get; set; }
 
     public string Text { get; set; }

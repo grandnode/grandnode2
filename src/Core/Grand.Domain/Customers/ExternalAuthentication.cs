@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Customers;
 
 /// <summary>
@@ -13,6 +15,7 @@ public class ExternalAuthentication : BaseEntity
     /// <summary>
     ///     Gets or sets the external email
     /// </summary>
+    [AuditName]
     public string Email { get; set; }
 
     /// <summary>

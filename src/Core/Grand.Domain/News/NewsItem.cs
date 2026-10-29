@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
@@ -15,6 +16,7 @@ public class NewsItem : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the news title
     /// </summary>
+    [AuditName]
     public string Title { get; set; }
 
     /// <summary>

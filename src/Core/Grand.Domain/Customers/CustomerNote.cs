@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Customers;
 
 /// <summary>
@@ -13,6 +15,7 @@ public class CustomerNote : BaseEntity
     /// <summary>
     ///     Gets or sets the title
     /// </summary>
+    [AuditName]
     public string Title { get; set; }
 
     /// <summary>

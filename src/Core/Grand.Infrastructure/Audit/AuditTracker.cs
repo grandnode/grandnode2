@@ -3,6 +3,8 @@ using Grand.Domain;
 using Grand.Domain.Audit;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
+using System.Reflection;
 
 namespace Grand.Infrastructure.Audit;
 
@@ -24,6 +26,9 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         "UpdatedOnUtc", "UpdatedBy", "CreatedOnUtc", "CreatedBy", "Ticks",
         "LastActivityDateUtc", "LastIpAddress", "LastVisitedPage"
     ];
+
+    //the property that names a record of each type: [AuditName], else Name
+    private static readonly ConcurrentDictionary<Type, string> NameProperties = new();
 
     private readonly List<AuditEntry> _bulk = [];
 
@@ -209,7 +214,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
                 AuditEntry entry;
                 try
                 {
-                    entry = Build(group.Key.Name, item.Key.Id, item.Value, after);
+                    entry = Build(group.Key, item.Key.Id, item.Value, after);
                 }
                 catch (Exception)
                 {
@@ -229,14 +234,15 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         return entries;
     }
 
-    private static AuditEntry Build(string entityType, string entityId, Pending pending,
+    private static AuditEntry Build(Type type, string entityId, Pending pending,
         IDictionary<string, string> after)
     {
+        var entityType = type.Name;
         var before = pending.Before;
         var entry = new AuditEntry {
             EntityType = entityType,
             EntityId = entityId,
-            EntityName = AuditDiff.EntityName(after ?? before),
+            EntityName = NameOf(type, after ?? before),
             EntityStoreId = StoreIdOf(after ?? before)
         };
 
@@ -264,6 +270,13 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         entry.Kind = AuditKind.Update;
         entry.Changes = changes;
         return entry;
+    }
+
+    private static string NameOf(Type type, IDictionary<string, string> snapshot)
+    {
+        var property = NameProperties.GetOrAdd(type, t =>
+            t.GetProperties().FirstOrDefault(p => p.IsDefined(typeof(AuditNameAttribute)))?.Name ?? "Name");
+        return snapshot != null && snapshot.TryGetValue(property, out var name) && name != "" ? name : null;
     }
 
     //"" is a record of all stores, null one without a store

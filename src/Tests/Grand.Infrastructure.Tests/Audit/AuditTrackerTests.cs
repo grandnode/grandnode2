@@ -479,6 +479,28 @@ public class AuditTrackerTests
         Assert.AreEqual(AuditTracker.BatchSize + 1, Written.Count);
     }
 
+    [TestMethod]
+    public async Task EntityName_FromAuditNameProperty()
+    {
+        _tracker.Activate(Actor);
+        var account = new LabelledThing { Id = "a1", Email = "anna@shop.com", Note = "x" };
+        Func<IReadOnlyCollection<string>, Task<IList<LabelledThing>>> load =
+            _ => Task.FromResult<IList<LabelledThing>>([account]);
+
+        await _tracker.BeforeWriteAsync("a1", true, load);
+        await _tracker.FlushAsync();
+
+        Assert.AreEqual("anna@shop.com", Written.Single().EntityName);
+    }
+
+    public class LabelledThing : BaseEntity
+    {
+        [AuditName]
+        public string Email { get; set; }
+
+        public string Note { get; set; }
+    }
+
     public class TrackedThing : BaseEntity
     {
         public string Name { get; set; }
