@@ -9,7 +9,10 @@ public class AuditEntrySearch
 {
     public DateTime? FromUtc { get; set; }
     public DateTime? ToUtc { get; set; }
-    public string ActorEmail { get; set; }
+    /// <summary>
+    ///     Part of the staff member's e-mail or of the record's name, any case
+    /// </summary>
+    public string SearchText { get; set; }
     public AuditSource? Source { get; set; }
     public AuditKind? Kind { get; set; }
     public string EntityType { get; set; }

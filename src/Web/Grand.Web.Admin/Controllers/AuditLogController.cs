@@ -177,7 +177,7 @@ public class AuditLogController(
         return new AuditEntrySearch {
             FromUtc = AsUtc(model.FromUtc),
             ToUtc = AsUtc(model.ToUtc?.Date.AddDays(1).AddTicks(-1)),
-            ActorEmail = model.ActorEmail?.Trim(),
+            SearchText = model.SearchText?.Trim(),
             Source = model.Source,
             Kind = model.Kind,
             EntityType = model.EntityType,
@@ -274,7 +274,7 @@ public class AuditLogController(
 
         Add("from", model.FromUtc?.ToString("yyyy-MM-dd"));
         Add("to", model.ToUtc?.ToString("yyyy-MM-dd"));
-        Add("actor", model.ActorEmail);
+        Add("search", model.SearchText);
         Add("source", model.Source);
         Add("kind", model.Kind);
         Add("entity type", model.EntityType);
