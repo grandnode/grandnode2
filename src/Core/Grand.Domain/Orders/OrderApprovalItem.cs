@@ -1,3 +1,6 @@
+using Grand.Domain.Catalog;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Orders;
 
 /// <summary>
@@ -8,6 +11,7 @@ public class OrderApprovalItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the product identifier
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string ProductId { get; set; }
 
     /// <summary>

@@ -17,4 +17,9 @@ public sealed class AuditReferenceAttribute(Type target, string list = null) : A
     ///     The sibling property holding the id of the target record that contains <see cref="List" />
     /// </summary>
     public string Owner { get; set; }
+
+    /// <summary>
+    ///     The property of the target that the value matches, when it is not the id (an order status number)
+    /// </summary>
+    public string Key { get; set; }
 }

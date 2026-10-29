@@ -10,10 +10,12 @@ namespace Grand.Data.Mongo;
 /// </summary>
 public class MongoAuditRecordReader(Func<IMongoDatabase> database) : IAuditRecordReader
 {
-    public async Task<IDictionary<string, string>> Read(Type entityType, string id)
+    public async Task<IDictionary<string, string>> Read(Type entityType, string value, string key = null)
     {
+        //a key other than the id may hold a number, stored as one
+        BsonValue match = key != null && int.TryParse(value, out var number) ? number : value;
         var document = await database().GetCollection<BsonDocument>(entityType.Name)
-            .Find(new BsonDocument("_id", id)).FirstOrDefaultAsync();
+            .Find(new BsonDocument(key ?? "_id", match)).FirstOrDefaultAsync();
         return AuditSnapshot.Flatten(document, entityType == typeof(Setting));
     }
 }

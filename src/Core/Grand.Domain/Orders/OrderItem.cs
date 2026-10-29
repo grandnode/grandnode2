@@ -1,3 +1,7 @@
+using Grand.Domain.Shipping;
+using Grand.Domain.Vendors;
+using Grand.Domain.Catalog;
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 
 namespace Grand.Domain.Orders;
@@ -15,6 +19,7 @@ public class OrderItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the product identifier
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string ProductId { get; set; }
 
     /// <summary>
@@ -25,11 +30,13 @@ public class OrderItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the vendor identifier
     /// </summary>
+    [AuditReference(typeof(Vendor))]
     public string VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
+    [AuditReference(typeof(Warehouse))]
     public string WarehouseId { get; set; }
 
     /// <summary>

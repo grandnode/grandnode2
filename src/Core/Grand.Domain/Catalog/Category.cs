@@ -1,3 +1,4 @@
+using Grand.Domain.Discounts;
 using Grand.Domain.Customers;
 using Grand.Domain.Audit;
 using Grand.Domain.Localization;
@@ -33,6 +34,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets a value of used category layout identifier
     /// </summary>
+    [AuditReference(typeof(CategoryLayout))]
     public string CategoryLayoutId { get; set; }
 
     /// <summary>
@@ -144,6 +146,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the collection of applied discounts
     /// </summary>
+    [AuditReference(typeof(Discount))]
     public virtual ICollection<string> AppliedDiscounts {
         get => _appliedDiscounts ??= new List<string>();
         protected set => _appliedDiscounts = value;

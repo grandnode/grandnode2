@@ -1,3 +1,6 @@
+using Grand.Domain.Customers;
+using Grand.Domain.Discounts;
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
@@ -30,6 +33,7 @@ public class Collection : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLin
     /// <summary>
     ///     Gets or sets a value of used collection layout identifier
     /// </summary>
+    [AuditReference(typeof(CollectionLayout))]
     public string CollectionLayoutId { get; set; }
 
     /// <summary>
@@ -110,6 +114,7 @@ public class Collection : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLin
     /// <summary>
     ///     Gets or sets the collection of applied discounts
     /// </summary>
+    [AuditReference(typeof(Discount))]
     public virtual ICollection<string> AppliedDiscounts {
         get => _appliedDiscounts ??= new List<string>();
         protected set => _appliedDiscounts = value;
@@ -120,6 +125,7 @@ public class Collection : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLin
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -132,6 +138,7 @@ public class Collection : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLin
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

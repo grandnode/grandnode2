@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
 
@@ -13,6 +14,7 @@ public class ProductAttributeMapping : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the product attribute identifier
     /// </summary>
+    [AuditReference(typeof(ProductAttribute))]
     public string ProductAttributeId { get; set; }
 
     /// <summary>

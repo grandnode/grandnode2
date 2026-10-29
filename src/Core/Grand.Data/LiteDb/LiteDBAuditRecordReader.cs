@@ -8,10 +8,14 @@ namespace Grand.Data.LiteDb;
 /// </summary>
 public class LiteDBAuditRecordReader(Func<LiteDatabase> database) : IAuditRecordReader
 {
-    public Task<IDictionary<string, string>> Read(Type entityType, string id)
+    public Task<IDictionary<string, string>> Read(Type entityType, string value, string key = null)
     {
         var db = database();
-        var document = db.GetCollection(entityType.Name).FindById(new BsonValue(id));
+        var collection = db.GetCollection(entityType.Name);
+        //a key other than the id may hold a number, stored as one
+        var document = key == null
+            ? collection.FindById(new BsonValue(value))
+            : collection.FindOne(Query.EQ(key, int.TryParse(value, out var number) ? new BsonValue(number) : new BsonValue(value)));
         //through the entity, so the snapshot has the same shape as on MongoDB
         var entity = document == null ? null : db.Mapper.ToObject(entityType, document);
         return Task.FromResult(entity == null ? null : AuditSnapshot.Take(entity, entityType));

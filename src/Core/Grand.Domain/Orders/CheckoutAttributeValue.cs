@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 
 namespace Grand.Domain.Orders;
@@ -10,6 +11,7 @@ public class CheckoutAttributeValue : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the checkout attribute mapping identifier
     /// </summary>
+    [AuditReference(typeof(CheckoutAttribute))]
     public string CheckoutAttributeId { get; set; }
 
     /// <summary>

@@ -1,3 +1,6 @@
+using Grand.Domain.Stores;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Tax;
 
 /// <summary>
@@ -18,5 +21,6 @@ public class TaxCategory : BaseEntity
     /// <summary>
     ///     Gets or sets the store identifier (empty = available to all stores)
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 }

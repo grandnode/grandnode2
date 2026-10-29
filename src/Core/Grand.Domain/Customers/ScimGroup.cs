@@ -1,3 +1,7 @@
+using Grand.Domain.Vendors;
+using Grand.Domain.Stores;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Customers;
 
 /// <summary>
@@ -15,11 +19,14 @@ public class ScimGroup : BaseEntity
     public List<string> Members { get; set; } = [];
 
     /// <summary>Customer group the members get; empty while the group is not mapped</summary>
+    [AuditReference(typeof(CustomerGroup))]
     public string CustomerGroupId { get; set; }
 
     /// <summary>Staff store of the members, with the StoreManager group</summary>
+    [AuditReference(typeof(Store))]
     public string StaffStoreId { get; set; }
 
     /// <summary>Vendor of the members, with the Vendors group</summary>
+    [AuditReference(typeof(Vendor))]
     public string VendorId { get; set; }
 }

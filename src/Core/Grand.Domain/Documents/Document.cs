@@ -1,4 +1,6 @@
-﻿using Grand.Domain.Common;
+﻿using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+using Grand.Domain.Common;
 using Grand.Domain.Permissions;
 using Grand.Domain.Stores;
 
@@ -32,6 +34,7 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the parent document identifier
     /// </summary>
+    [AuditReference(typeof(Document))]
     public string ParentDocumentId { get; set; }
 
     /// <summary>
@@ -67,6 +70,7 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
@@ -87,6 +91,7 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets an document type identifier (DocumentType)
     /// </summary>
+    [AuditReference(typeof(DocumentType))]
     public string DocumentTypeId { get; set; }
 
     /// <summary>
@@ -134,6 +139,7 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -141,5 +147,6 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 }

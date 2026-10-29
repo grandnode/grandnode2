@@ -6,7 +6,8 @@ namespace Grand.Data.Audit;
 public interface IAuditRecordReader
 {
     /// <summary>
-    ///     The record of <paramref name="entityType" /> with the id as "path → value", or null when there is none
+    ///     The record of <paramref name="entityType" /> whose <paramref name="key" /> (the id when null) is
+    ///     <paramref name="value" />, as "path → value", or null when there is none
     /// </summary>
-    Task<IDictionary<string, string>> Read(Type entityType, string id);
+    Task<IDictionary<string, string>> Read(Type entityType, string value, string key = null);
 }

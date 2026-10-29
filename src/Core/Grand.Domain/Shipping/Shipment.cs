@@ -1,3 +1,8 @@
+using Grand.Domain.Vendors;
+using Grand.Domain.Stores;
+using Grand.Domain.Orders;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Shipping;
 
 /// <summary>
@@ -10,16 +15,19 @@ public class Shipment : BaseEntity
     /// <summary>
     ///     Gets or sets the order identifier
     /// </summary>
+    [AuditReference(typeof(Order))]
     public string OrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor identifier
     /// </summary>
+    [AuditReference(typeof(Vendor))]
     public string VendorId { get; set; }
 
     /// <summary>

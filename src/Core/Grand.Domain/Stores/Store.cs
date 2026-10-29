@@ -1,3 +1,6 @@
+using Grand.Domain.Shipping;
+using Grand.Domain.Directory;
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 
 namespace Grand.Domain.Stores;
@@ -31,21 +34,25 @@ public class Store : BaseEntity, ITranslationEntity
     ///     Gets or sets the identifier of the default language for this store; "" is set when we use the default language
     ///     display order
     /// </summary>
+    [AuditReference(typeof(Language))]
     public string DefaultLanguageId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the default waregouse for this store
     /// </summary>
+    [AuditReference(typeof(Warehouse))]
     public string DefaultWarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the default country for this store
     /// </summary>
+    [AuditReference(typeof(Country))]
     public string DefaultCountryId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the default currency for this store
     /// </summary>
+    [AuditReference(typeof(Currency))]
     public string DefaultCurrencyId { get; set; }
 
     /// <summary>

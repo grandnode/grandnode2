@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 
 namespace Grand.Domain.Common;
@@ -10,6 +11,7 @@ public class AddressAttributeValue : BaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the address attribute identifier
     /// </summary>
+    [AuditReference(typeof(AddressAttribute))]
     public string AddressAttributeId { get; set; }
 
     /// <summary>

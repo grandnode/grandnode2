@@ -1,3 +1,4 @@
+using Grand.Domain.Affiliates;
 using Grand.Domain.Vendors;
 using Grand.Domain.Stores;
 using Grand.Domain.Audit;
@@ -75,6 +76,7 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the affiliate identifier
     /// </summary>
+    [AuditReference(typeof(Affiliate))]
     public string AffiliateId { get; set; }
 
     /// <summary>
@@ -98,6 +100,7 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the owner identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string OwnerId { get; set; }
 
     /// <summary>
@@ -241,6 +244,7 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the customer tags
     /// </summary>
+    [AuditReference(typeof(CustomerTag))]
     public virtual ICollection<string> CustomerTags {
         get => _customerTags ??= new List<string>();
         protected set => _customerTags = value;

@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Localization;
+﻿using Grand.Domain.Audit;
+using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 
 namespace Grand.Domain.Messages;
@@ -51,6 +52,7 @@ public class MessageTemplate : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the used email account identifier
     /// </summary>
+    [AuditReference(typeof(EmailAccount))]
     public string EmailAccountId { get; set; }
 
     /// <summary>
@@ -58,6 +60,7 @@ public class MessageTemplate : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
 

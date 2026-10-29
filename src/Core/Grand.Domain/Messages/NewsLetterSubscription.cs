@@ -1,4 +1,6 @@
-﻿using Grand.Domain.Audit;
+﻿using Grand.Domain.Stores;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 using Grand.Domain.History;
 
 namespace Grand.Domain.Messages;
@@ -18,6 +20,7 @@ public class NewsLetterSubscription : BaseEntity, IHistory
     /// <summary>
     ///     Gets or sets the Customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
@@ -34,11 +37,13 @@ public class NewsLetterSubscription : BaseEntity, IHistory
     /// <summary>
     ///     Gets or sets the store identifier in which a customer has subscribed to newsletter
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the categories
     /// </summary>
+    [AuditReference(typeof(NewsletterCategory))]
     public virtual ICollection<string> Categories {
         get => _categories ??= new List<string>();
         protected set => _categories = value;

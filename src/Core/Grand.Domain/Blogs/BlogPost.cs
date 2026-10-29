@@ -84,6 +84,7 @@ public class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// </summary>
     public virtual bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

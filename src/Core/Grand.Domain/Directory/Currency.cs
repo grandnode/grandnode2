@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 
@@ -63,6 +64,7 @@ public class Currency : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

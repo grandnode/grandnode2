@@ -1,3 +1,7 @@
+using Grand.Domain.Stores;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Orders;
 
 /// <summary>
@@ -8,16 +12,19 @@ public class OrderApproval : BaseEntity
     /// <summary>
     ///     Gets or sets the store identifier the order belongs to
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the company owner; every read is scoped by it
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CompanyOwnerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the buyer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
@@ -53,6 +60,7 @@ public class OrderApproval : BaseEntity
     /// <summary>
     ///     Gets or sets the identifier of the customer who decided
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string DecidedByCustomerId { get; set; }
 
     /// <summary>
@@ -63,5 +71,6 @@ public class OrderApproval : BaseEntity
     /// <summary>
     ///     Gets or sets the identifier of the order awaiting the decision; set at creation
     /// </summary>
+    [AuditReference(typeof(Order))]
     public string OrderId { get; set; }
 }

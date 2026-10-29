@@ -1,3 +1,6 @@
+using Grand.Domain.Localization;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Seo;
 
 /// <summary>
@@ -28,6 +31,7 @@ public class EntityUrl : BaseEntity
     /// <summary>
     ///     Gets or sets the language identifier
     /// </summary>
+    [AuditReference(typeof(Language))]
     public string LanguageId { get; set; }
 
     /// <summary>

@@ -19,8 +19,9 @@ public class AuditReferencesTests
     public void Init()
     {
         var reader = new Mock<IAuditRecordReader>();
-        reader.Setup(r => r.Read(It.IsAny<Type>(), It.IsAny<string>()))
-            .Returns<Type, string>((type, id) => Task.FromResult(_records.GetValueOrDefault((type, id))));
+        reader.Setup(r => r.Read(It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<string>()))
+            .Returns<Type, string, string>((type, value, key) =>
+                Task.FromResult(_records.GetValueOrDefault((type, key == null ? value : $"{key}={value}"))));
         _references = new AuditReferences(reader.Object);
     }
 
@@ -62,6 +63,21 @@ public class AuditReferencesTests
     }
 
     [TestMethod]
+    public async Task AddressState_FoundInItsCountry()
+    {
+        _records[(typeof(Grand.Domain.Directory.Country), "pl")] = new Dictionary<string, string> {
+            ["Name"] = "Poland", ["StateProvinces[id=st1].Name"] = "Mazowieckie"
+        };
+        var order = new Dictionary<string, string> { ["BillingAddress.CountryId"] = "pl" };
+
+        var country = await Describe(typeof(Order), "BillingAddress.CountryId", null, "pl", order);
+        var state = await Describe(typeof(Order), "BillingAddress.StateProvinceId", null, "st1", order);
+
+        Assert.AreEqual("Poland (pl)", country.NewValue);
+        Assert.AreEqual("Mazowieckie (st1)", state.NewValue);
+    }
+
+    [TestMethod]
     public async Task ListOfIds_EachNamed()
     {
         _records[(typeof(Store), "s1")] = new Dictionary<string, string> { ["Name"] = "Main" };
@@ -72,12 +88,68 @@ public class AuditReferencesTests
     }
 
     [TestMethod]
+    public async Task ReferenceByKey_MatchesThatProperty()
+    {
+        _records[(typeof(OrderStatus), "StatusId=10")] = new Dictionary<string, string> { ["Name"] = "Pending" };
+        _records[(typeof(OrderStatus), "StatusId=40")] = new Dictionary<string, string> { ["Name"] = "Cancelled" };
+
+        var change = await Describe(typeof(Order), "OrderStatusId", "10", "40");
+
+        Assert.AreEqual("Pending (10)", change.OldValue);
+        Assert.AreEqual("Cancelled (40)", change.NewValue);
+    }
+
+    [TestMethod]
     public async Task EnumProperty_ShowsName()
     {
         var change = await Describe(typeof(Order), "PaymentStatusId", "10", "30");
 
         Assert.AreEqual("Pending (10)", change.OldValue);
         Assert.AreEqual("Paid (30)", change.NewValue);
+    }
+
+    //a wrong mark shows only ids with no sign of the mistake, so every mark of the domain is checked here
+    [TestMethod]
+    public void EveryReferenceMark_PointsToANamedRecord()
+    {
+        var problems = new List<string>();
+        foreach (var type in typeof(Grand.Domain.BaseEntity).Assembly.GetTypes())
+        foreach (var property in type.GetProperties())
+        {
+            if (property.GetCustomAttributes(typeof(AuditReferenceAttribute), false).FirstOrDefault() is not AuditReferenceAttribute mark)
+                continue;
+
+            var name = $"{type.Name}.{property.Name}";
+            var target = mark.Target;
+            var isList = property.PropertyType != typeof(string)
+                         && typeof(System.Collections.IEnumerable).IsAssignableFrom(property.PropertyType);
+            if (target.IsEnum)
+                continue;
+            if (!typeof(Grand.Domain.BaseEntity).IsAssignableFrom(target))
+                problems.Add($"{name}: {target.Name} is not an entity");
+            if (property.PropertyType != typeof(string) && !isList && mark.Key == null)
+                problems.Add($"{name}: a {property.PropertyType.Name} value needs a Key");
+            if (mark.Key != null && target.GetProperty(mark.Key) == null)
+                problems.Add($"{name}: {target.Name} has no {mark.Key}");
+            if (mark.Owner != null && type.GetProperty(mark.Owner) == null)
+                problems.Add($"{name}: {type.Name} has no owner property {mark.Owner}");
+
+            var named = target;
+            if (mark.List != null)
+            {
+                var list = target.GetProperty(mark.List);
+                named = list?.PropertyType.GetGenericArguments().FirstOrDefault();
+                if (named == null)
+                    problems.Add($"{name}: {target.Name} has no list {mark.List}");
+                if (mark.Owner == null)
+                    problems.Add($"{name}: an element of a list needs an Owner");
+            }
+
+            if (named != null && named.GetProperty(AuditReferences.NameProperty(named)) == null)
+                problems.Add($"{name}: {named.Name} has no name property");
+        }
+
+        Assert.AreEqual(0, problems.Count, string.Join(Environment.NewLine, problems));
     }
 
     [TestMethod]

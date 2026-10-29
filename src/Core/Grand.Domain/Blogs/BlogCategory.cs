@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Localization;
+﻿using Grand.Domain.Audit;
+using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 
 namespace Grand.Domain.Blogs;
@@ -27,6 +28,7 @@ public class BlogCategory : BaseEntity, IStoreLinkEntity, ITranslationEntity
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

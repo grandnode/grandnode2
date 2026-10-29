@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 
 namespace Grand.Domain.Catalog;
@@ -15,6 +16,7 @@ public class ProductAttributeValue : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the associated product identifier (used only with AttributeValueType.AssociatedToProduct)
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string AssociatedProductId { get; set; }
 
     /// <summary>

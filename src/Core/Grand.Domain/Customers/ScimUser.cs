@@ -1,3 +1,7 @@
+using Grand.Domain.Vendors;
+using Grand.Domain.Stores;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Customers;
 
 /// <summary>
@@ -13,9 +17,11 @@ public class ScimUser : BaseEntity
     public List<string> GrantedGroupIds { get; set; } = [];
 
     /// <summary>Staff store SCIM set on the account; empty when SCIM set none</summary>
+    [AuditReference(typeof(Store))]
     public string GrantedStaffStoreId { get; set; }
 
     /// <summary>Vendor SCIM set on the account; empty when SCIM set none</summary>
+    [AuditReference(typeof(Vendor))]
     public string GrantedVendorId { get; set; }
 
     /// <summary>The account was deactivated by SCIM, so SCIM may activate it again (never an account disabled by hand)</summary>

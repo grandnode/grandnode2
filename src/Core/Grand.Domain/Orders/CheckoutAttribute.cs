@@ -1,3 +1,6 @@
+using Grand.Domain.Tax;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
@@ -41,6 +44,7 @@ public class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntit
     /// <summary>
     ///     Gets or sets the tax category identifier
     /// </summary>
+    [AuditReference(typeof(TaxCategory))]
     public string TaxCategoryId { get; set; }
 
     /// <summary>
@@ -98,6 +102,7 @@ public class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntit
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -105,6 +110,7 @@ public class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntit
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
 

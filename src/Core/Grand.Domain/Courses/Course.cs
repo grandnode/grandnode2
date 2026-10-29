@@ -1,4 +1,7 @@
-﻿using Grand.Domain.Localization;
+﻿using Grand.Domain.Catalog;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
 using Grand.Domain.Stores;
@@ -40,11 +43,13 @@ public class Course : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEnt
     /// <summary>
     ///     Gets or sets the product ident
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string ProductId { get; set; }
 
     /// <summary>
     ///     Gets or sets the level ident
     /// </summary>
+    [AuditReference(typeof(CourseLevel))]
     public string LevelId { get; set; }
 
     /// <summary>
@@ -67,6 +72,7 @@ public class Course : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEnt
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -79,6 +85,7 @@ public class Course : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEnt
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

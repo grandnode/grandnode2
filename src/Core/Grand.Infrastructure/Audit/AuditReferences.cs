@@ -122,7 +122,7 @@ public class AuditReferences(IAuditRecordReader reader)
         if (string.IsNullOrEmpty(recordId))
             return null;
 
-        var record = await reader.Read(reference.Target, recordId);
+        var record = await reader.Read(reference.Target, recordId, reference.List == null ? reference.Key : null);
         var path = reference.List == null
             ? NameProperty(reference.Target)
             : $"{reference.List}[id={id}].{NameProperty(ElementType(reference.Target.GetProperty(reference.List)!.PropertyType)!)}";

@@ -1,4 +1,7 @@
-﻿namespace Grand.Domain.Catalog;
+﻿using Grand.Domain.Orders;
+using Grand.Domain.Audit;
+
+namespace Grand.Domain.Catalog;
 
 /// <summary>
 ///     Represents a product reservation
@@ -8,6 +11,7 @@ public class ProductReservation : BaseEntity
     /// <summary>
     ///     Gets or sets the product identifier
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string ProductId { get; set; }
 
     /// <summary>
@@ -18,6 +22,7 @@ public class ProductReservation : BaseEntity
     /// <summary>
     ///     Gets or sets the order id
     /// </summary>
+    [AuditReference(typeof(Order))]
     public string OrderId { get; set; }
 
     /// <summary>

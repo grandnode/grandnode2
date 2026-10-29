@@ -1,3 +1,5 @@
+using Grand.Domain.Directory;
+using Grand.Domain.Audit;
 using Grand.Domain.Stores;
 
 namespace Grand.Domain.Localization;
@@ -36,6 +38,7 @@ public class Language : BaseEntity, IStoreLinkEntity
     ///     Gets or sets the identifier of the default currency for this language; 0 is set when we use the default currency
     ///     display order
     /// </summary>
+    [AuditReference(typeof(Currency))]
     public string DefaultCurrencyId { get; set; }
 
     /// <summary>
@@ -53,5 +56,6 @@ public class Language : BaseEntity, IStoreLinkEntity
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 }

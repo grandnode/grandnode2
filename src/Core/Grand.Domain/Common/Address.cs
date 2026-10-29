@@ -1,4 +1,7 @@
-﻿namespace Grand.Domain.Common;
+﻿using Grand.Domain.Directory;
+using Grand.Domain.Audit;
+
+namespace Grand.Domain.Common;
 
 public class Address : SubBaseEntity
 {
@@ -35,11 +38,13 @@ public class Address : SubBaseEntity
     /// <summary>
     ///     Gets or sets the country identifier
     /// </summary>
+    [AuditReference(typeof(Country))]
     public string CountryId { get; set; }
 
     /// <summary>
     ///     Gets or sets the state/province identifier
     /// </summary>
+    [AuditReference(typeof(Country), nameof(Country.StateProvinces), Owner = nameof(CountryId))]
     public string StateProvinceId { get; set; }
 
     /// <summary>

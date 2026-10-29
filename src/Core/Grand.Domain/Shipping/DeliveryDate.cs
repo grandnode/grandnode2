@@ -1,3 +1,5 @@
+using Grand.Domain.Stores;
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 
 namespace Grand.Domain.Shipping;
@@ -30,5 +32,6 @@ public class DeliveryDate : BaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the store identifier. Empty means available to all stores.
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 }

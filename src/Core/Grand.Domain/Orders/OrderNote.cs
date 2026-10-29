@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Orders;
 
 /// <summary>
@@ -8,6 +10,7 @@ public class OrderNote : BaseEntity
     /// <summary>
     ///     Gets or sets the order identifier
     /// </summary>
+    [AuditReference(typeof(Order))]
     public string OrderId { get; set; }
 
     /// <summary>

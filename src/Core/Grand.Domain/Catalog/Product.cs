@@ -1,3 +1,6 @@
+using Grand.Domain.Courses;
+using Grand.Domain.Directory;
+using Grand.Domain.Discounts;
 using Grand.Domain.Vendors;
 using Grand.Domain.Tax;
 using Grand.Domain.Shipping;
@@ -42,6 +45,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     ///     Gets or sets the parent product identifier. It's used to identify associated products (only with "grouped"
     ///     products)
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string ParentGroupedProductId { get; set; }
 
     /// <summary>
@@ -484,6 +488,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets a unit of product for PAngV (MeasureWeight entity)
     /// </summary>
+    [AuditReference(typeof(MeasureWeight))]
     public string BasepriceUnitId { get; set; }
 
     /// <summary>
@@ -494,16 +499,19 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets a reference unit for PAngV (MeasureWeight entity)
     /// </summary>
+    [AuditReference(typeof(MeasureWeight))]
     public string BasepriceBaseUnitId { get; set; }
 
     /// <summary>
     ///     Gets or sets a unit of product
     /// </summary>
+    [AuditReference(typeof(MeasureUnit))]
     public string UnitId { get; set; }
 
     /// <summary>
     ///     Gets or sets a course ident
     /// </summary>
+    [AuditReference(typeof(Course))]
     public string CourseId { get; set; }
 
     /// <summary>
@@ -708,6 +716,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the collection of applied discounts
     /// </summary>
+    [AuditReference(typeof(Discount))]
     public virtual ICollection<string> AppliedDiscounts {
         get => _appliedDiscounts ??= new List<string>();
         protected set => _appliedDiscounts = value;

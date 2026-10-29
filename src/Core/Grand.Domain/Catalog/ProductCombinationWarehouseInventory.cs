@@ -1,3 +1,6 @@
+using Grand.Domain.Shipping;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Catalog;
 
 /// <summary>
@@ -8,6 +11,7 @@ public class ProductCombinationWarehouseInventory : SubBaseEntity
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
+    [AuditReference(typeof(Warehouse))]
     public string WarehouseId { get; set; }
 
     /// <summary>

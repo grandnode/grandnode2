@@ -1,4 +1,7 @@
-﻿namespace Grand.Domain.Permissions;
+﻿using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+
+namespace Grand.Domain.Permissions;
 
 /// <summary>
 ///     Represents a permission
@@ -31,6 +34,7 @@ public class Permission : BaseEntity
     /// <summary>
     ///     Gets or sets customer groups
     /// </summary>
+    [AuditReference(typeof(CustomerGroup))]
     public virtual ICollection<string> CustomerGroups {
         get => _customerGroups ??= new List<string>();
         protected set => _customerGroups = value;

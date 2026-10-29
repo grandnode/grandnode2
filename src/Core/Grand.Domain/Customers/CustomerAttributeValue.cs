@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 
 namespace Grand.Domain.Customers;
@@ -10,6 +11,7 @@ public class CustomerAttributeValue : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the customer attribute identifier
     /// </summary>
+    [AuditReference(typeof(CustomerAttribute))]
     public string CustomerAttributeId { get; set; }
 
     /// <summary>

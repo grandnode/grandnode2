@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Audit;
+﻿using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 
 namespace Grand.Domain.Permissions;
 
@@ -16,6 +17,7 @@ public class PermissionAction : BaseEntity
     /// <summary>
     ///     Gets or sets the customer group ident
     /// </summary>
+    [AuditReference(typeof(CustomerGroup))]
     public string CustomerGroupId { get; set; }
 
     /// <summary>

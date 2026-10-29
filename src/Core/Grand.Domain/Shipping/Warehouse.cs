@@ -1,3 +1,5 @@
+using Grand.Domain.Stores;
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 
 namespace Grand.Domain.Shipping;
@@ -45,5 +47,6 @@ public class Warehouse : BaseEntity
     /// <summary>
     ///     Gets or sets the store identifier. Empty means available to all stores.
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 }

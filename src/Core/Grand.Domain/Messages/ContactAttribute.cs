@@ -1,3 +1,5 @@
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
@@ -90,6 +92,7 @@ public class ContactAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -97,6 +100,7 @@ public class ContactAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
 
