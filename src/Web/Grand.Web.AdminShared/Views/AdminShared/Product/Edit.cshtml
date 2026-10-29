@@ -18,6 +18,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.BackToList"]">
         <page-actions>
+            <audit-history entity-type="Product" entity-id="@Model.Id"/>
             @if (!string.IsNullOrEmpty(Model.SeName))
             {
                 <button type="button" onclick="window.open('@Url.RouteUrl("Product", new { Model.SeName })','_blank');" class="btn btn-outline-secondary">

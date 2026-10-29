@@ -461,6 +461,7 @@ public abstract class BaseProductController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Product")]
     public async Task<IActionResult> ExportExcelAll(ProductListModel model,
         [FromServices] IExportManager<Product> exportManager)
     {
@@ -486,6 +487,7 @@ public abstract class BaseProductController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Product")]
     public async Task<IActionResult> ExportExcelSelected(string selectedIds,
         [FromServices] IExportManager<Product> exportManager)
     {

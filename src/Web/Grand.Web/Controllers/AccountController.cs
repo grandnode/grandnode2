@@ -14,6 +14,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Commands.Models.Customers;
+using Grand.Web.Common.Audit;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authentication;
@@ -349,7 +350,8 @@ public class AccountController : BasePublicController
                 _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
         }
 
-        await _mediator.Publish(new CustomerLoginFailedEvent(customer));
+        await _mediator.Publish(new CustomerLoginFailedEvent(customer,
+            string.IsNullOrEmpty(token) ? "two-factor code missing" : "wrong two-factor code"));
 
         return View();
     }
@@ -379,13 +381,15 @@ public class AccountController : BasePublicController
     [IgnoreApi]
     public virtual async Task<IActionResult> Logout(
         [FromServices] StoreInformationSettings storeInformationSettings,
-        [FromServices] IProviderSignOut providerSignOut)
+        [FromServices] IProviderSignOut providerSignOut,
+        [FromServices] IAuditEventRecorder auditEventRecorder)
     {
         if (_contextAccessor.WorkContext.OriginalCustomerIfImpersonated != null)
         {
             //logout impersonated customer
             await _customerService.UpdateUserField<int?>(_contextAccessor.WorkContext.OriginalCustomerIfImpersonated,
                 SystemCustomerFieldNames.ImpersonatedCustomerId, null);
+            await auditEventRecorder.ImpersonationEnd(_contextAccessor.WorkContext.CurrentCustomer);
 
             //redirect back to customer details page (admin area)
             return RedirectToAction("Edit", "Customer",

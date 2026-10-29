@@ -13,6 +13,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Vendors.BackToList"]">
         <page-actions>
+            <audit-history entity-type="Vendor" entity-id="@Model.Id"/>
             @* activate / deactivate is a button of the header, not a menu entry: it is the vendor's state, checked often *@
             @if (Model.Active)
             {

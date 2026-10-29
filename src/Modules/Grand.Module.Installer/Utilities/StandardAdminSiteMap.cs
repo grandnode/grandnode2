@@ -1048,7 +1048,8 @@ public static class StandardAdminSiteMap
             ResourceName = "Admin.System",
             PermissionNames = new List<string> {
                 PermissionSystemName.MessageQueue, PermissionSystemName.MessageContactForm,
-                PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System
+                PermissionSystemName.Maintenance, PermissionSystemName.ScheduleTasks, PermissionSystemName.System,
+                PermissionSystemName.AuditLog
             },
             IconClass = "bi bi-info-circle",
             DisplayOrder = 10,
@@ -1096,6 +1097,15 @@ public static class StandardAdminSiteMap
                     ControllerName = "ScheduleTask",
                     ActionName = "List",
                     DisplayOrder = 5,
+                    IconClass = "bi bi-record-circle"
+                },
+                new() {
+                    SystemName = "Audit log",
+                    ResourceName = "Admin.System.AuditLog",
+                    PermissionNames = new List<string> { PermissionSystemName.AuditLog },
+                    ControllerName = "AuditLog",
+                    ActionName = "List",
+                    DisplayOrder = 6,
                     IconClass = "bi bi-record-circle"
                 },
                 new() {

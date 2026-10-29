@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Permissions;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Permissions;
 
 /// <summary>
 ///     Represents permission for action denied
@@ -8,6 +10,7 @@ public class PermissionAction : BaseEntity
     /// <summary>
     ///     Gets or sets the permission system name
     /// </summary>
+    [AuditName]
     public string SystemName { get; set; }
 
     /// <summary>

@@ -16,6 +16,7 @@ using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using Grand.Web.Common.Audit;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 
@@ -44,6 +45,7 @@ public class BaseCustomerManagementControllerTests
     private Mock<IGroupService> _groupServiceMock;
     private Mock<IRequestPermissionService> _permissionServiceMock;
     private Mock<IContextAccessor> _contextAccessorMock;
+    private Mock<IAuditEventRecorder> _auditEventRecorderMock = new();
 
     [TestInitialize]
     public void Setup()
@@ -88,13 +90,25 @@ public class BaseCustomerManagementControllerTests
         _customerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(target);
         _permissionServiceMock.Setup(p => p.Authorize(StandardPermission.AllowCustomerImpersonation)).ReturnsAsync(false);
 
-        var result = await _controller.Impersonate("c1");
+        var result = await _controller.Impersonate("c1", _auditEventRecorderMock.Object);
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("Edit", redirect.ActionName);
         _customerServiceMock.Verify(s => s.UpdateUserField(It.IsAny<Customer>(),
             SystemCustomerFieldNames.ImpersonatedCustomerId, It.IsAny<object>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Impersonate_Allowed_RecordsImpersonationStart()
+    {
+        var target = new Customer { Id = "c1" };
+        _customerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(target);
+        _permissionServiceMock.Setup(p => p.Authorize(StandardPermission.AllowCustomerImpersonation)).ReturnsAsync(true);
+
+        await _controller.Impersonate("c1", _auditEventRecorderMock.Object);
+
+        _auditEventRecorderMock.Verify(r => r.ImpersonationStart(target), Times.Once);
     }
 
     [TestMethod]
@@ -106,7 +120,7 @@ public class BaseCustomerManagementControllerTests
         _groupServiceMock.Setup(g => g.IsAdmin(It.Is<Customer>(c => c.Id == "admin-self"))).ReturnsAsync(false);
         _groupServiceMock.Setup(g => g.IsAdmin(target)).ReturnsAsync(true);
 
-        var result = await _controller.Impersonate("c1");
+        var result = await _controller.Impersonate("c1", _auditEventRecorderMock.Object);
 
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);

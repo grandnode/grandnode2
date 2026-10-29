@@ -1,10 +1,13 @@
-﻿namespace Grand.Domain.Discounts;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Discounts;
 
 public class DiscountCoupon : BaseEntity
 {
     /// <summary>
     ///     Gets or sets the coupon code
     /// </summary>
+    [AuditName]
     public string CouponCode { get; set; }
 
     /// <summary>

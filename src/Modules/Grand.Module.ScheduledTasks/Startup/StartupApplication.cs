@@ -31,6 +31,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddKeyedScoped<IScheduleTask, GenerateSitemapXmlTask>("Generate sitemap XML file");
         serviceCollection.AddKeyedScoped<IScheduleTask, DeleteGuestsScheduleTask>("Delete guests");
         serviceCollection.AddKeyedScoped<IScheduleTask, DeleteOidcSessionsScheduleTask>("Delete OpenID Connect sessions");
+        serviceCollection.AddKeyedScoped<IScheduleTask, AuditLogRetentionScheduleTask>("Audit log retention");
         serviceCollection.AddKeyedScoped<IScheduleTask, UpdateExchangeRateScheduleTask>("Update currency exchange rates");
         serviceCollection.AddKeyedScoped<IScheduleTask, EndAuctionsTask>("End of the auctions");
         serviceCollection.AddKeyedScoped<IScheduleTask, CancelOrderScheduledTask>("Cancel unpaid and pending orders");

@@ -1,0 +1,109 @@
+@model Grand.Web.Admin.Models.AuditLog.AuditEntryModel
+@{
+    ViewBag.Title = Loc["Admin.System.AuditLog.Detail"];
+    var entry = Model.Entry;
+}
+
+@* Every stored value goes through Razor's HTML encoding: a before/after value can hold HTML written by staff. *@
+<admin-page title="@Loc["Admin.System.AuditLog.Detail"]" icon="bi-journal-text"
+            back-url="@Url.Action("List", new { area = Constants.AreaAdmin })" back-text="@Loc["Admin.System.AuditLog"]">
+    <admin-card title="@($"{Model.Kind} · {entry.EntityType} {entry.EntityName}")">
+        <div class="grand-facts">
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.CreatedOnUtc"]</span>
+                <div class="grand-fact__value">@entry.CreatedOnUtc.ToString("yyyy-MM-dd HH:mm:ss")</div>
+            </div>
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.ActorEmail"]</span>
+                <div class="grand-fact__value">@entry.ActorEmail <span class="grand-cell-sub">@entry.ActorCustomerId</span></div>
+            </div>
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.Source"]</span>
+                <div class="grand-fact__value">@Model.Source</div>
+            </div>
+            @if (!string.IsNullOrEmpty(entry.ImpersonatedCustomerId))
+            {
+                <div>
+                    <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.ImpersonatedCustomerId"]</span>
+                    <div class="grand-fact__value">@entry.ImpersonatedCustomerId</div>
+                </div>
+            }
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.EntityId"]</span>
+                <div class="grand-fact__value">@entry.EntityId</div>
+            </div>
+            @if (Model.AppliesTo != null)
+            {
+                <div>
+                    <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.EntityStoreId"]</span>
+                    <div class="grand-fact__value">@Model.AppliesTo</div>
+                </div>
+            }
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.StoreId"]</span>
+                <div class="grand-fact__value">@entry.StoreId</div>
+            </div>
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.IpAddress"]</span>
+                <div class="grand-fact__value">@entry.IpAddress</div>
+            </div>
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.UserAgent"]</span>
+                <div class="grand-fact__value">@entry.UserAgent</div>
+            </div>
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.Action"]</span>
+                <div class="grand-fact__value">@entry.Action</div>
+            </div>
+            <div>
+                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.OperationId"]</span>
+                <div class="grand-fact__value">
+                    @if (!string.IsNullOrEmpty(entry.OperationId))
+                    {
+                        <a class="text-decoration-none" href="@Url.Action("List", new { operationId = entry.OperationId, area = Constants.AreaAdmin })">
+                            @Loc["Admin.System.AuditLog.AllOfOperation"]
+                        </a>
+                    }
+                </div>
+            </div>
+            @if (!string.IsNullOrEmpty(entry.Details))
+            {
+                <div>
+                    <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.Details"]</span>
+                    <div class="grand-fact__value">@entry.Details</div>
+                </div>
+            }
+        </div>
+    </admin-card>
+
+    <admin-card title="@Loc["Admin.System.AuditLog.Fields.Changes"]" flush>
+        @if (Model.Changes.Count == 0)
+        {
+            <div class="grand-empty">
+                <div class="grand-empty__title">@Loc["Admin.System.AuditLog.NoChanges"]</div>
+            </div>
+        }
+        else
+        {
+            <table class="table mb-0">
+                <thead>
+                <tr>
+                    <th>@Loc["Admin.System.AuditLog.Fields.Path"]</th>
+                    <th>@Loc["Admin.System.AuditLog.Fields.OldValue"]</th>
+                    <th>@Loc["Admin.System.AuditLog.Fields.NewValue"]</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var change in Model.Changes)
+                {
+                    <tr>
+                        <td class="text-nowrap">@change.Path</td>
+                        <td class="text-break">@change.OldValue</td>
+                        <td class="text-break">@change.NewValue</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        }
+    </admin-card>
+</admin-page>

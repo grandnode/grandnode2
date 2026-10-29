@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
 using Grand.Domain.Stores;
@@ -12,6 +13,7 @@ public class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the blog post title
     /// </summary>
+    [AuditName]
     public string Title { get; set; }
 
     /// <summary>

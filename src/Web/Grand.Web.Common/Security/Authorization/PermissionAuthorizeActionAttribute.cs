@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.Common.Audit;
 using Grand.Web.Common.DataSource;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
@@ -51,6 +52,8 @@ public class PermissionAuthorizeActionAttribute : Attribute, IAsyncAuthorization
         }
         else
         {
+            await context.HttpContext.RequestServices.GetRequiredService<IAuditEventRecorder>()
+                .AccessDenied(permissionAuthorize.Permission, PermissionAction);
             var isAjaxCall = context.HttpContext.Request.Headers["x-requested-with"] == "XMLHttpRequest";
             if (!isAjaxCall)
                 context.Result = new RedirectToActionResult("AccessDenied", "Home",

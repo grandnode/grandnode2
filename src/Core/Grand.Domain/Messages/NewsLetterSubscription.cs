@@ -1,4 +1,5 @@
-﻿using Grand.Domain.History;
+﻿using Grand.Domain.Audit;
+using Grand.Domain.History;
 
 namespace Grand.Domain.Messages;
 
@@ -22,6 +23,7 @@ public class NewsLetterSubscription : BaseEntity, IHistory
     /// <summary>
     ///     Gets or sets the subcriber email
     /// </summary>
+    [AuditName]
     public string Email { get; set; }
 
     /// <summary>

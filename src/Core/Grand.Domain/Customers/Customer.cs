@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 
@@ -36,6 +37,7 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the email
     /// </summary>
+    [AuditName]
     public string Email { get; set; }
 
     /// <summary>

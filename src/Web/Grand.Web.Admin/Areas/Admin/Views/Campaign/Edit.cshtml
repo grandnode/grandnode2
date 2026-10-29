@@ -14,6 +14,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["admin.marketing.Campaigns.BackToList"]">
         <page-actions>
+            <audit-history entity-type="Campaign" entity-id="@Model.Id"/>
             <button class="btn btn-outline-secondary" type="submit" name="send-mass-email" asp-action="SendMassEmail">
                 <i class="bi bi-send"></i> @Loc["admin.marketing.Campaigns.SendMassEmail"]
             </button>

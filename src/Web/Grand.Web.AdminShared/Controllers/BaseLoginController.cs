@@ -299,7 +299,8 @@ public abstract class BaseLoginController : BaseController
             ModelState.AddModelError("", _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
         }
 
-        await _mediator.Publish(new CustomerLoginFailedEvent(customer));
+        await _mediator.Publish(new CustomerLoginFailedEvent(customer,
+            string.IsNullOrEmpty(token) ? "two-factor code missing" : "wrong two-factor code"));
         return View();
     }
 }

@@ -252,6 +252,7 @@ public class LanguageController : BaseAdminController
     #region Export / Import
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [AuditExport("Language")]
     public async Task<IActionResult> ExportXml(string id)
     {
         var language = await _languageService.GetLanguageById(id);

@@ -249,6 +249,7 @@ public abstract class BaseBrandController(
     #region Export / Import
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [AuditExport("Brand")]
     public async Task<IActionResult> ExportXlsx([FromServices] IExportManager<Brand> exportManager)
     {
         try

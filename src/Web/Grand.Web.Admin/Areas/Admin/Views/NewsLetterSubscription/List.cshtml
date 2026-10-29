@@ -12,6 +12,7 @@
        so Search is the one primary action. The ids the script below looks up are unchanged. *@
     <admin-page title="@Loc["admin.marketing.NewsLetterSubscriptions"]" icon="bi-envelope">
         <page-actions>
+            <audit-history entity-type="NewsLetterSubscription"/>
             <admin-action-menu text="@Loc["Admin.Common.Export"]">
                 <admin-action submit="true" name="exportcsv"
                               url="@Url.Action("ExportCsv", new { area = Constants.AreaAdmin })"

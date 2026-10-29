@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
@@ -63,6 +64,7 @@ public class Page : BaseEntity, ITranslationEntity, ISlugEntity, IStoreLinkEntit
     /// <summary>
     ///     Gets or sets the title
     /// </summary>
+    [AuditName]
     public string Title { get; set; }
 
     /// <summary>

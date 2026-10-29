@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Payments;
@@ -25,6 +26,7 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the order identifier
     /// </summary>
+    [AuditName]
     public int OrderNumber { get; set; }
 
     /// <summary>

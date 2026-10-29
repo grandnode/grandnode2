@@ -16,6 +16,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Content.Blog.BlogPosts.BackToList"]">
         <page-actions>
+            <audit-history entity-type="BlogPost" entity-id="@Model.Id"/>
             @if (!string.IsNullOrEmpty(Model.SeName))
             {
                 <button type="button" onclick="window.open('@Url.RouteUrl("BlogPost", new { Model.SeName })','_blank');" class="btn btn-outline-secondary">

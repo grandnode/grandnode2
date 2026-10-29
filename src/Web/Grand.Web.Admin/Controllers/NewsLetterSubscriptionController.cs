@@ -6,6 +6,7 @@ using Grand.Infrastructure;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Models.Messages;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authorization;
@@ -170,6 +171,7 @@ public class NewsLetterSubscriptionController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("NewsLetterSubscription")]
     public async Task<IActionResult> ExportCsv(NewsLetterSubscriptionListModel model, string[] searchCategoryIds)
     {
         bool? isActive = null;

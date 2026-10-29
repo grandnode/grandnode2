@@ -451,6 +451,7 @@ public abstract class BaseShipmentController(
     #region PDF export and bulk actions
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [AuditExport("Shipment")]
     public async Task<IActionResult> PdfPackagingSlip(string shipmentId)
     {
         var (shipment, denied) = await LoadAuthorizedShipment(shipmentId);
@@ -476,6 +477,7 @@ public abstract class BaseShipmentController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Shipment")]
     public async Task<IActionResult> PdfPackagingSlipAll(ShipmentListModel model)
     {
         if (scope.DefaultStoreId is not null) model.StoreId = scope.DefaultStoreId;
@@ -504,6 +506,7 @@ public abstract class BaseShipmentController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Shipment")]
     public async Task<IActionResult> PdfPackagingSlipSelected(string selectedIds)
     {
         var shipments = new List<Shipment>();

@@ -14,6 +14,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Customers.Customers.BackToList"]">
         <page-actions>
+            <audit-history entity-type="Customer" entity-id="@Model.Id"/>
             <button class="btn btn-outline-secondary" type="submit" id="sendemail"><i class="bi bi-send" aria-hidden="true"></i> @Loc["Admin.Customers.Customers.SendEmail"]</button>
             <button class="btn btn-outline-secondary" type="submit" name="impersonate" asp-action="Impersonate"><i class="bi bi-cart" aria-hidden="true"></i> @Loc["Admin.Customers.Customers.Impersonate.Button"]</button>
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">

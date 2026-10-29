@@ -14,6 +14,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Content.Knowledgebase.KnowgledgebaseArticle.BackToList"]">
         <page-actions>
+            <audit-history entity-type="KnowledgebaseArticle" entity-id="@Model.Id"/>
             <button type="button" onclick="window.open('@Url.RouteUrl("KnowledgebaseArticle", new { Model.SeName })','_blank');" class="btn btn-outline-secondary">
                 <i class="bi bi-eye"></i> @Loc["Admin.Common.Preview"]
             </button>

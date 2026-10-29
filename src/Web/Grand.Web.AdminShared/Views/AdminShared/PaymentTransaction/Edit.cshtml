@@ -16,6 +16,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Orders.PaymentTransaction.BackToList"]">
         <page-actions>
+            <audit-history entity-type="PaymentTransaction" entity-id="@Model.Id"/>
             @if (Model.CanCapture)
             {
                 <input type="submit" name="capturepaymenttransaction" asp-action="CapturePaymentTransaction" value="@Loc["Admin.PaymentTransaction.Fields.Capture"]"

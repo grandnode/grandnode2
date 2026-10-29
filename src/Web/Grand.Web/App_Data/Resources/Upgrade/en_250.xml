@@ -474,4 +474,160 @@
 	<Resource Name="OrderApproval.Withdraw.Success" Area="Front">
 		<Value>The request has been withdrawn.</Value>
 	</Resource>
+	<Resource Name="Admin.System.AuditLog" Area="Admin">
+		<Value>Audit log</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.ChangeHistory" Area="Admin">
+		<Value>Change history</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.OpenInAuditLog" Area="Admin">
+		<Value>Open in audit log</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.ExportCsv" Area="Admin">
+		<Value>Export CSV</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Detail" Area="Admin">
+		<Value>Audit entry</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.AllOfOperation" Area="Admin">
+		<Value>All entries of this operation</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.ChangedHidden" Area="Admin">
+		<Value>changed (hidden)</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Truncated" Area="Admin">
+		<Value>truncated</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.NoChanges" Area="Admin">
+		<Value>No field changes</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.NoEntries" Area="Admin">
+		<Value>No changes recorded yet</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.AllStores" Area="Admin">
+		<Value>All stores</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.EntityStoreId" Area="Admin">
+		<Value>Applies to</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.CreatedOnUtc" Area="Admin">
+		<Value>When (UTC)</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.ActorEmail" Area="Admin">
+		<Value>Who</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.Source" Area="Admin">
+		<Value>Panel</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.Kind" Area="Admin">
+		<Value>Action</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.EntityType" Area="Admin">
+		<Value>Entity type</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.EntityId" Area="Admin">
+		<Value>Entity id</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.EntityName" Area="Admin">
+		<Value>Entity</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.Changes" Area="Admin">
+		<Value>Changed fields</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.IpAddress" Area="Admin">
+		<Value>IP address</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.UserAgent" Area="Admin">
+		<Value>User agent</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.Action" Area="Admin">
+		<Value>Request</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.OperationId" Area="Admin">
+		<Value>Operation</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.StoreId" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.Details" Area="Admin">
+		<Value>Details</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.ImpersonatedCustomerId" Area="Admin">
+		<Value>Impersonated customer</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.Path" Area="Admin">
+		<Value>Field</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.OldValue" Area="Admin">
+		<Value>Before</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.NewValue" Area="Admin">
+		<Value>After</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.FromUtc" Area="Admin">
+		<Value>From (UTC)</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.ToUtc" Area="Admin">
+		<Value>To (UTC)</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.Insert" Area="Common">
+		<Value>Insert</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.Update" Area="Common">
+		<Value>Update</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.Delete" Area="Common">
+		<Value>Delete</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.Bulk" Area="Common">
+		<Value>Bulk change</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.SignIn" Area="Common">
+		<Value>Sign-in</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.SignInFailed" Area="Common">
+		<Value>Sign-in failed</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.SignOut" Area="Common">
+		<Value>Sign-out</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.Export" Area="Common">
+		<Value>Export</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.ImpersonationStart" Area="Common">
+		<Value>Impersonation started</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.ImpersonationEnd" Area="Common">
+		<Value>Impersonation ended</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.AuditLogViewed" Area="Common">
+		<Value>Audit log viewed</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.AuditLogExported" Area="Common">
+		<Value>Audit log exported</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.AccessDenied" Area="Common">
+		<Value>Access denied</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditKind.Plugin" Area="Common">
+		<Value>Plugin change</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditSource.Admin" Area="Common">
+		<Value>Admin</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditSource.Store" Area="Common">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditSource.Vendor" Area="Common">
+		<Value>Vendor</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditSource.Api" Area="Common">
+		<Value>API</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditSource.Scim" Area="Common">
+		<Value>SCIM</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Audit.AuditSource.Storefront" Area="Common">
+		<Value>Storefront</Value>
+	</Resource>
 </Language>

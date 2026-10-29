@@ -15,6 +15,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Content.MessageTemplates.BackToList"]">
         <page-actions>
+            <audit-history entity-type="MessageTemplate" entity-id="@Model.Id"/>
             @if (Model.CanCopy)
             {
                 <button type="submit" name="message-template-copy" asp-action="CopyTemplate" class="btn btn-outline-secondary"

@@ -1,4 +1,6 @@
 using Grand.Business.Core.Utilities.Authentication;
+using Grand.Domain.Audit;
+using Grand.Infrastructure.Audit;
 using Grand.Infrastructure.Configuration;
 using Grand.Module.Scim.Infrastructure;
 using Microsoft.AspNetCore.Http;
@@ -15,6 +17,7 @@ namespace Grand.Module.Scim.Controllers;
 [ApiExplorerSettings(IgnoreApi = true)]
 [RequestSizeLimit(MaxBodyBytes)]
 [Route("scim/v2")]
+[AuditSource(AuditSource.Scim)]
 public abstract class ScimControllerBase : ControllerBase
 {
     //a SCIM user or group, or a patch of one; a large group membership patch stays far below

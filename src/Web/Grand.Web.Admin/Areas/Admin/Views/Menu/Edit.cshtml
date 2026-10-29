@@ -24,6 +24,7 @@
                 back-url="@backUrl"
                 back-text="@backText">
         <page-actions>
+            <audit-history entity-type="AdminSiteMap" entity-id="@Model.Id"/>
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
             </button>

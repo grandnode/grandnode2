@@ -18,6 +18,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Address.AddressAttributes.BackToList"]">
         <page-actions>
+            <audit-history entity-type="AddressAttribute" entity-id="@Model.Id"/>
             @if (!isReadOnly)
             {
                 <button class="btn btn-outline-secondary" type="submit" name="save-continue">

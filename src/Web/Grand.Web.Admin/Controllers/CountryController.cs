@@ -351,6 +351,7 @@ public class CountryController : BaseAdminController
     #region Export / import
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
+    [AuditExport("Country")]
     public async Task<IActionResult> ExportExcel()
     {
         var countries = await _countryService.GetAllCountries();

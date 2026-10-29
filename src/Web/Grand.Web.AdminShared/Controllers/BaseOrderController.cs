@@ -6,6 +6,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Security.Authorization;
@@ -93,6 +94,7 @@ public abstract class BaseOrderController(
         return View(model);
     }
 
+    [AuditExport("Order")]
     public async Task<IActionResult> PdfInvoice(string orderId)
     {
         var (order, denied) = await LoadAuthorizedOrder(orderId);
@@ -112,6 +114,7 @@ public abstract class BaseOrderController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Order")]
     public async Task<IActionResult> PdfInvoiceAll(OrderListModel model)
     {
         var orders = await orderViewModelService.PrepareOrders(model);
@@ -134,6 +137,7 @@ public abstract class BaseOrderController(
 
     [PermissionAuthorizeAction(PermissionActionName.Export)]
     [HttpPost]
+    [AuditExport("Order")]
     public async Task<IActionResult> PdfInvoiceSelected(string selectedIds)
     {
         var orders = new List<Order>();

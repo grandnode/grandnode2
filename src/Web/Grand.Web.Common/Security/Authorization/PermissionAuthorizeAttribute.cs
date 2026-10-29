@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Permissions;
+using Grand.Web.Common.Audit;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 using Microsoft.AspNetCore.Routing;
@@ -32,9 +33,14 @@ public class PermissionAuthorizeAttribute : Attribute, IAsyncAuthorizationFilter
 
         //authorize permission of access to the admin area
         if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel))
+        {
             context.Result = new RedirectToRouteResult("AdminLogin", new RouteValueDictionary());
-        else
-            context.Result = new RedirectToActionResult("AccessDenied", "Home",
-                new { pageUrl = context.HttpContext.Request.Path });
+            return;
+        }
+
+        await context.HttpContext.RequestServices.GetRequiredService<IAuditEventRecorder>()
+            .AccessDenied(Permission, null);
+        context.Result = new RedirectToActionResult("AccessDenied", "Home",
+            new { pageUrl = context.HttpContext.Request.Path });
     }
 }

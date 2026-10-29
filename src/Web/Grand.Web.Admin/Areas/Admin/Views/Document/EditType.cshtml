@@ -14,6 +14,7 @@
                 back-url="@Url.Action("Types")"
                 back-text="@Loc["Admin.Documents.Type.BackToList"]">
         <page-actions>
+            <audit-history entity-type="DocumentType" entity-id="@Model.Id"/>
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
             </button>
