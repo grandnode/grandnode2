@@ -56,7 +56,13 @@ public static class AuditSnapshot
                 break;
             case BsonArray array when array.Any(v => v.IsBsonDocument || v.IsBsonArray):
                 for (var i = 0; i < array.Count; i++)
-                    Flatten($"{path}[{ElementKey(array[i], i)}]", array[i], leaves);
+                {
+                    //the key of a user field is already in its path; repeating it as a field shows a change of nothing
+                    var element = array[i] is BsonDocument document && IsKeyed(document)
+                        ? new BsonDocument(document.Where(e => e.Name is not ("Key" or "StoreId")))
+                        : array[i];
+                    Flatten($"{path}[{ElementKey(array[i], i)}]", element, leaves);
+                }
                 break;
             default:
                 //a scalar, or a list of scalars kept as one value; when element ids repeat, the first wins
@@ -69,13 +75,25 @@ public static class AuditSnapshot
     {
         if (element is not BsonDocument document)
             return index.ToString();
-        if ((document.TryGetValue("_id", out var id) || document.TryGetValue("Id", out id)) && !id.IsBsonNull)
+        if (HasId(document, out var id))
             return $"id={id}";
-        if (!document.TryGetValue("Key", out var key) || !key.IsString || key.AsString == "")
+        if (!IsKeyed(document))
             return index.ToString();
+        var key = document["Key"].AsString;
         return document.TryGetValue("StoreId", out var storeId) && storeId.IsString && storeId.AsString != ""
-            ? $"{key.AsString}@{storeId.AsString}"
-            : key.AsString;
+            ? $"{key}@{storeId.AsString}"
+            : key;
+    }
+
+    private static bool HasId(BsonDocument document, out BsonValue id)
+    {
+        return (document.TryGetValue("_id", out id) || document.TryGetValue("Id", out id)) && !id.IsBsonNull;
+    }
+
+    //a key/value pair such as a user field: matched by its key (once per store) instead of its position
+    private static bool IsKeyed(BsonDocument document)
+    {
+        return !HasId(document, out _) && document.TryGetValue("Key", out var key) && key.IsString && key.AsString != "";
     }
 
     private static BsonDocument TryParse(string json)
@@ -94,10 +112,16 @@ public static class AuditSnapshot
     {
         if (value.IsString)
             return value.AsString;
-        if (value.IsBsonBinaryData)
-            return Binary;
+        //a Guid is stored as binary (CSharpLegacy, see MongoDBStartupBase) but is a value like any other
+        if (value is BsonBinaryData binary)
+            return binary.SubType switch {
+                BsonBinarySubType.UuidLegacy => GuidConverter.FromBytes(binary.Bytes, GuidRepresentation.CSharpLegacy).ToString(),
+                BsonBinarySubType.UuidStandard => GuidConverter.FromBytes(binary.Bytes, GuidRepresentation.Standard).ToString(),
+                _ => Binary
+            };
+        //to the second: a form that posts a date back drops its milliseconds, which is no change to a person
         if (value.IsValidDateTime)
-            return value.ToUniversalTime().ToString("o");
+            return value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
         if (value.IsBsonArray)
             return value.ToJson();
         return value.ToString();
