@@ -82,6 +82,8 @@ public class StartupApplication : IStartupApplication
             serviceCollection.AddScoped(typeof(IRepository<>), typeof(AuditingMongoRepository<>));
             serviceCollection.AddScoped<IAuditEntryWriter>(sp =>
                 new MongoAuditEntryWriter(sp.GetRequiredService<IMongoDatabase>));
+            serviceCollection.AddScoped<IAuditRecordReader>(sp =>
+                new MongoAuditRecordReader(sp.GetRequiredService<IMongoDatabase>));
         }
         else
         {
@@ -93,6 +95,8 @@ public class StartupApplication : IStartupApplication
             serviceCollection.AddScoped(typeof(IRepository<>), typeof(AuditingLiteDBRepository<>));
             serviceCollection.AddScoped<IAuditEntryWriter>(sp =>
                 new LiteDBAuditEntryWriter(sp.GetRequiredService<LiteDatabase>));
+            serviceCollection.AddScoped<IAuditRecordReader>(sp =>
+                new LiteDBAuditRecordReader(sp.GetRequiredService<LiteDatabase>));
         }
 
         serviceCollection.AddScoped<IAuditTracker, AuditTracker>();

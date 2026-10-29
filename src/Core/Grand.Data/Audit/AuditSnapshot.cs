@@ -22,7 +22,12 @@ public static class AuditSnapshot
 
     public static IDictionary<string, string> Take<T>(T entity) where T : BaseEntity
     {
-        return Flatten(entity.ToBsonDocument(), typeof(T) == typeof(Setting));
+        return Take(entity, typeof(T));
+    }
+
+    public static IDictionary<string, string> Take(object entity, Type entityType)
+    {
+        return Flatten(entity.ToBsonDocument(entityType), entityType == typeof(Setting));
     }
 
     public static IDictionary<string, string> Flatten(BsonDocument document, bool isSetting)

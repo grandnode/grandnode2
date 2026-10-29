@@ -1,3 +1,5 @@
+using Grand.Domain.Stores;
+using Grand.Domain.Customers;
 using Grand.Domain.Audit;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -37,11 +39,13 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>

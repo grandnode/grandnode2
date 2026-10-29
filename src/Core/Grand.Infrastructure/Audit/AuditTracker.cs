@@ -12,7 +12,11 @@ namespace Grand.Infrastructure.Audit;
 ///     Scoped per request: snapshots each entity once before its first write, reads the "after" state in batches
 ///     and writes the entries in one insert per batch. Does nothing until activated for a staff request.
 /// </summary>
-public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<AuditTracker> logger)
+public class AuditTracker(
+    IAuditEntryWriter writer,
+    IMediator mediator,
+    IAuditRecordReader recordReader,
+    ILogger<AuditTracker> logger)
     : IAuditTracker
 {
     public const int BatchSize = 200;
@@ -180,7 +184,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
         List<AuditEntry> entries;
         try
         {
-            entries = await BuildEntries(pending, loaders);
+            entries = await BuildEntries(pending, loaders, new AuditReferences(recordReader));
             entries.AddRange(bulk);
             if (entries.Count == 0)
                 return;
@@ -215,7 +219,8 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
 
     private static async Task<List<AuditEntry>> BuildEntries(
         List<KeyValuePair<(Type Type, string Id), Pending>> pending,
-        Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, IDictionary<string, string>>>>> loaders)
+        Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, IDictionary<string, string>>>>> loaders,
+        AuditReferences references)
     {
         var entries = new List<AuditEntry>();
         foreach (var group in pending.GroupBy(p => p.Key.Type))
@@ -232,6 +237,8 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
                 try
                 {
                     entry = Build(group.Key, item.Key.Id, item.Value, after);
+                    if (entry != null)
+                        await references.Describe(group.Key, entry.Changes, item.Value.Before, after);
                 }
                 catch (Exception)
                 {
@@ -291,8 +298,7 @@ public class AuditTracker(IAuditEntryWriter writer, IMediator mediator, ILogger<
 
     private static string NameOf(Type type, IDictionary<string, string> snapshot)
     {
-        var property = NameProperties.GetOrAdd(type, t =>
-            t.GetProperties().FirstOrDefault(p => p.IsDefined(typeof(AuditNameAttribute)))?.Name ?? "Name");
+        var property = NameProperties.GetOrAdd(type, AuditReferences.NameProperty);
         return snapshot != null && snapshot.TryGetValue(property, out var name) && name != "" ? name : null;
     }
 

@@ -33,7 +33,8 @@ public class AuditingLiteDBRepositoryTests
         writer.Setup(w => w.InsertManyAsync(It.IsAny<IReadOnlyCollection<AuditEntry>>()))
             .Callback<IReadOnlyCollection<AuditEntry>>(e => _written.AddRange(e))
             .Returns(Task.CompletedTask);
-        _tracker = new AuditTracker(writer.Object, new Mock<IMediator>().Object, NullLogger<AuditTracker>.Instance);
+        _tracker = new AuditTracker(writer.Object, new Mock<IMediator>().Object, new Mock<IAuditRecordReader>().Object,
+            NullLogger<AuditTracker>.Instance);
         var auditInfo = new Mock<IAuditInfoProvider>();
         auditInfo.Setup(a => a.GetCurrentDateTime()).Returns(DateTime.UtcNow);
         _repository = new AuditingLiteDBRepository<Gadget>(_database, auditInfo.Object, _tracker);

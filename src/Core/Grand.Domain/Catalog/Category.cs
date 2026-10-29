@@ -1,3 +1,5 @@
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
@@ -51,6 +53,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the parent category identifier
     /// </summary>
+    [AuditReference(typeof(Category))]
     public string ParentCategoryId { get; set; }
 
     /// <summary>
@@ -151,6 +154,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -163,6 +167,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

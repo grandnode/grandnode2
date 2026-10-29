@@ -1,3 +1,5 @@
+using Grand.Domain.Vendors;
+using Grand.Domain.Stores;
 using Grand.Domain.Audit;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
@@ -78,16 +80,19 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the vendor identifier with which this customer is associated (manager)
     /// </summary>
+    [AuditReference(typeof(Vendor))]
     public string VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the staff store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StaffStoreId { get; set; }
 
     /// <summary>
@@ -196,6 +201,7 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the customer groups
     /// </summary>
+    [AuditReference(typeof(CustomerGroup))]
     public virtual ICollection<string> Groups {
         get => _groups ??= new List<string>();
         protected set => _groups = value;

@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Catalog;
 
 /// <summary>
@@ -8,6 +10,7 @@ public class ProductCategory : SubBaseEntity
     /// <summary>
     ///     Gets or sets the category identifier
     /// </summary>
+    [AuditReference(typeof(Category))]
     public string CategoryId { get; set; }
 
     /// <summary>
