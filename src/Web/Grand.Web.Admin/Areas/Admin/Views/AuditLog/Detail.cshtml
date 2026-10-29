@@ -39,10 +39,13 @@
                     <div class="grand-fact__value">@Model.AppliesTo</div>
                 </div>
             }
-            <div>
-                <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.StoreId"]</span>
-                <div class="grand-fact__value">@entry.StoreId</div>
-            </div>
+            @if (!string.IsNullOrEmpty(entry.StoreId))
+            {
+                <div>
+                    <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.StoreId"]</span>
+                    <div class="grand-fact__value">@entry.StoreId</div>
+                </div>
+            }
             <div>
                 <span class="grand-fact__label">@Loc["Admin.System.AuditLog.Fields.IpAddress"]</span>
                 <div class="grand-fact__value">@entry.IpAddress</div>
