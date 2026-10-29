@@ -45,6 +45,13 @@
             <grid-column field="Kind" title="@Loc["Admin.System.AuditLog.Fields.Kind"]" width="150"/>
             <grid-column field="What" title="@Loc["Admin.System.AuditLog.Fields.EntityName"]"/>
             <grid-column field="ChangedFields" title="@Loc["Admin.System.AuditLog.Fields.Changes"]"/>
+            <grid-column field="Id" title="" width="100">
+                <cell-template>
+                    <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Detail", new { area = Constants.AreaAdmin })/{{ Id }}">
+                        <i class="bi bi-eye"></i> @Loc["Admin.Common.View"]
+                    </a>
+                </cell-template>
+            </grid-column>
         </admin-grid>
     </admin-card>
 </admin-page>
