@@ -1048,9 +1048,10 @@ public partial class InstallationService : IInstallationService
         {
             var configuration = _serviceProvider.GetRequiredService<IConfiguration>();
             var dataSettings = DataSettingsManager.Instance.LoadSettings(true);
-            var dbContext = _serviceProvider.GetRequiredService<IDatabaseFactoryContext>().GetDatabaseContext(configuration[SettingsConstants.ConnectionStrings]);
+            //LiteDB has no tables to create, and a second LiteDatabase on the same file fails on its lock
             if (dataSettings.DbProvider != DbProvider.LiteDB)
             {
+                var dbContext = _serviceProvider.GetRequiredService<IDatabaseFactoryContext>().GetDatabaseContext(configuration[SettingsConstants.ConnectionStrings]);
                 var typeSearcher = _serviceProvider.GetRequiredService<ITypeSearcher>();
                 var q = typeSearcher.GetAssemblies().FirstOrDefault(x => x.GetName().Name == "Grand.Domain");
 
