@@ -49,6 +49,9 @@ public partial class AuditChangeText(Func<string, string> resource)
     public string Text(AuditEntry entry)
     {
         var text = Text(entry.EntityType, entry.Changes);
+        //an entry without changes (a bulk write, an event) tells what happened in its details
+        if (text == "" && !string.IsNullOrEmpty(entry.Details))
+            text = Cut(entry.Details, TextLength);
         if (entry.OwnerType == null)
             return text;
 

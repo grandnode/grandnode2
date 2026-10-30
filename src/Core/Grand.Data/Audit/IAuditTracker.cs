@@ -30,6 +30,13 @@ public interface IAuditTracker
 
     void RecordBulk<T>(string operation, string filter) where T : BaseEntity;
 
+    /// <summary>
+    ///     Records the inserts of <typeparamref name="T" /> made until the returned scope ends as one bulk entry with
+    ///     their count (an import of thousands of records) instead of one entry each; updates and deletes stay single
+    ///     entries. With <paramref name="owner" />, the entry shows in that record's change history.
+    /// </summary>
+    IDisposable CountInserts<T>(string operation, string details, BaseEntity owner = null) where T : BaseEntity;
+
     Task FlushAsync();
 
     /// <summary>

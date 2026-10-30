@@ -168,6 +168,17 @@ public class AuditChangeTextTests
     }
 
     [TestMethod]
+    public void ImportInTheLanguagesHistory_ShowsItsDetails()
+    {
+        var import = new AuditEntry {
+            Kind = AuditKind.Bulk, EntityType = "TranslationResource", OwnerType = "Language", OwnerId = "l1",
+            Details = "Import: language: Polish; inserted: 9842"
+        };
+
+        Assert.AreEqual("Translation resource: Import: language: Polish; inserted: 9842", _text.Text(import));
+    }
+
+    [TestMethod]
     public void ValueNotFromAReference_KeepsParentheses()
     {
         var changes = new List<AuditChange> { Change("Name", "Lamp (old)", "Lamp (new)") };

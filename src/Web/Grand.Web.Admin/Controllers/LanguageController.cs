@@ -1,4 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Data.Audit;
+using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
@@ -274,7 +276,8 @@ public class LanguageController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Import)]
     [HttpPost]
-    public async Task<IActionResult> ImportXml(string id, IFormFile importxmlfile)
+    public async Task<IActionResult> ImportXml(string id, IFormFile importxmlfile,
+        [FromServices] IAuditTracker auditTracker)
     {
         var language = await _languageService.GetLanguageById(id);
         if (language == null)
@@ -287,7 +290,9 @@ public class LanguageController : BaseAdminController
             {
                 using var sr = new StreamReader(importxmlfile.OpenReadStream(), Encoding.UTF8);
                 var content = await sr.ReadToEndAsync();
-                await _translationService.ImportResourcesFromXml(language, content);
+                //the new resources of a language pack are one entry with their count; changed ones stay single entries
+                using (auditTracker.CountInserts<TranslationResource>("Import", $"language: {language.Name}", language))
+                    await _translationService.ImportResourcesFromXml(language, content);
             }
             else
             {

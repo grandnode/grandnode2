@@ -31,6 +31,7 @@ public class AuditTracker(
     ];
 
     private readonly List<AuditEntry> _bulk = [];
+    private readonly Dictionary<Type, int> _countedInserts = new();
 
     private readonly Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, IDictionary<string, string>>>>>
         _loaders = new();
@@ -63,6 +64,15 @@ public class AuditTracker(
             return;
         if (writtenPaths is { Count: > 0 } && writtenPaths.All(IgnoredPaths.Contains))
             return;
+        if (isInsert)
+            lock (_lock)
+            {
+                if (_countedInserts.TryGetValue(typeof(T), out var counted))
+                {
+                    _countedInserts[typeof(T)] = counted + 1;
+                    return;
+                }
+            }
 
         var key = (typeof(T), id);
         bool flush;
@@ -147,6 +157,48 @@ public class AuditTracker(
                 EntityType = typeof(T).Name,
                 Details = $"{operation}: {filter}"
             });
+        }
+    }
+
+    public IDisposable CountInserts<T>(string operation, string details, BaseEntity owner = null)
+        where T : BaseEntity
+    {
+        if (!IsActive)
+            return new Scope(null);
+
+        lock (_lock)
+        {
+            _countedInserts[typeof(T)] = 0;
+        }
+
+        return new Scope(() =>
+        {
+            int count;
+            lock (_lock)
+            {
+                _countedInserts.Remove(typeof(T), out count);
+            }
+
+            if (count == 0)
+                return;
+            lock (_lock)
+            {
+                _bulk.Add(new AuditEntry {
+                    Kind = AuditKind.Bulk,
+                    EntityType = typeof(T).Name,
+                    Details = $"{operation}: {details}; inserted: {count}",
+                    OwnerType = owner?.GetType().Name,
+                    OwnerId = owner?.Id
+                });
+            }
+        });
+    }
+
+    private sealed class Scope(Action end) : IDisposable
+    {
+        public void Dispose()
+        {
+            end?.Invoke();
         }
     }
 
