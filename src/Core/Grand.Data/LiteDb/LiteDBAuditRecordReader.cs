@@ -22,4 +22,15 @@ public class LiteDBAuditRecordReader(Func<LiteDatabase> database) : IAuditRecord
         var entity = document == null ? null : db.Mapper.ToObject(entityType, document);
         return Task.FromResult(entity == null ? null : AuditSnapshot.Take(entity, entityType));
     }
+
+    //an embedded database has no round trip to save, so each record is read on its own
+    public async Task<IDictionary<string, IDictionary<string, string>>> ReadMany(Type entityType,
+        IReadOnlyCollection<string> values, string key = null, string field = null)
+    {
+        var records = new Dictionary<string, IDictionary<string, string>>();
+        foreach (var value in values.Distinct())
+            if (await Read(entityType, value, key, field) is { } record)
+                records[value] = record;
+        return records;
+    }
 }

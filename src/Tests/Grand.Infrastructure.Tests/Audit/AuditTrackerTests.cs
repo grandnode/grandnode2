@@ -221,6 +221,21 @@ public class AuditTrackerTests
     }
 
     [TestMethod]
+    public async Task Insert_ThroughTheRepository_NotReadBack()
+    {
+        _tracker.Activate(Actor);
+        var thing = Put("1");
+
+        await new RepositoryAudit<TrackedThing>(_tracker, _access).Inserted(thing);
+        await _tracker.FlushAsync();
+
+        Assert.AreEqual(0, _loadCalls);
+        var entry = Written.Single();
+        Assert.AreEqual(AuditKind.Insert, entry.Kind);
+        Assert.IsTrue(entry.Changes.Any(c => c.Path == "Name" && c.NewValue == "Shoes"));
+    }
+
+    [TestMethod]
     public async Task Delete_KindDelete()
     {
         _tracker.Activate(Actor);
