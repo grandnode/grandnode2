@@ -30,6 +30,7 @@ public class PaymentTransaction : BaseEntity
     /// <summary>
     ///     Gets or sets order code
     /// </summary>
+    [AuditName]
     public string OrderCode { get; set; }
 
     /// <summary>

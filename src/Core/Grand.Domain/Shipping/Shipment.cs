@@ -63,6 +63,7 @@ public class Shipment : BaseEntity
     /// <summary>
     ///     Gets the shipment number
     /// </summary>
+    [AuditName]
     public virtual int ShipmentNumber { get; set; }
 
     /// <summary>

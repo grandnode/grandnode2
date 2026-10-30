@@ -5,6 +5,7 @@ namespace Grand.Domain.Tasks;
 
 public class ScheduleTask : BaseEntity
 {
+    [AuditName]
     public string ScheduleTaskName { get; set; }    
     public bool Enabled { get; set; }
     public bool StopOnError { get; set; }
