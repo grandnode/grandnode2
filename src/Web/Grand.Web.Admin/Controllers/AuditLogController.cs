@@ -156,6 +156,9 @@ public class AuditLogController(
         model.AvailableEntityTypes.Add(new SelectListItem(all, ""));
         foreach (var type in await auditService.GetEntityTypes())
             model.AvailableEntityTypes.Add(new SelectListItem(type, type));
+        //the types of one screen's history, opened in the log
+        if (!string.IsNullOrEmpty(model.EntityType) && model.AvailableEntityTypes.All(t => t.Value != model.EntityType))
+            model.AvailableEntityTypes.Add(new SelectListItem(model.EntityType.Replace(",", ", "), model.EntityType));
 
         model.AvailableSources.Add(new SelectListItem(all, ""));
         foreach (var source in Enum.GetValues<AuditSource>())

@@ -15,7 +15,11 @@ public class AuditEntrySearch
     public string SearchText { get; set; }
     public AuditSource? Source { get; set; }
     public AuditKind? Kind { get; set; }
+    /// <summary>
+    ///     One entity type, or several separated by commas (the records one screen edits, e.g. "Permission,PermissionAction")
+    /// </summary>
     public string EntityType { get; set; }
+
     public string EntityId { get; set; }
 
     /// <summary>

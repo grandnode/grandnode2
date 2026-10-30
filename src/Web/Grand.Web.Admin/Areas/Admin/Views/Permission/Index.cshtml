@@ -8,6 +8,7 @@
     @* Save commits the matrix, so it is the one primary action; Add new opens a popup *@
     <admin-page title="@Loc["Admin.Configuration.Permissions"]" icon="bi-person-badge">
         <page-actions>
+            <audit-history entity-type="Permission,PermissionAction"/>
             <a href="@Url.Action("Create", new { area = Constants.AreaAdmin })" class="btn btn-outline-secondary" id="btnAddNewPermission">
                 <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
             </a>
