@@ -1,3 +1,5 @@
+using Grand.Domain.Stores;
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 
 namespace Grand.Domain.Shipping;
@@ -30,11 +32,13 @@ public class PickupPoint : BaseEntity
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
+    [AuditReference(typeof(Warehouse))]
     public string WarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets a store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>

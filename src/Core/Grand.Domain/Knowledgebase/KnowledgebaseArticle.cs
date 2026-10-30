@@ -1,4 +1,6 @@
-﻿using Grand.Domain.Localization;
+﻿using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
 using Grand.Domain.Stores;
@@ -58,6 +60,7 @@ public class KnowledgebaseArticle : BaseEntity, ITreeNode, ITranslationEntity, I
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -70,6 +73,7 @@ public class KnowledgebaseArticle : BaseEntity, ITreeNode, ITranslationEntity, I
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>
@@ -85,5 +89,6 @@ public class KnowledgebaseArticle : BaseEntity, ITreeNode, ITranslationEntity, I
     /// <summary>
     ///     Gets or sets parent category Id
     /// </summary>
+    [AuditReference(typeof(KnowledgebaseCategory))]
     public string ParentCategoryId { get; set; }
 }

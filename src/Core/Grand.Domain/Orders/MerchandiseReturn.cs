@@ -1,3 +1,7 @@
+using Grand.Domain.Vendors;
+using Grand.Domain.Stores;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 
 namespace Grand.Domain.Orders;
@@ -17,16 +21,19 @@ public class MerchandiseReturn : BaseEntity
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the order item identifier
     /// </summary>
+    [AuditReference(typeof(Order))]
     public string OrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets the owner item identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string OwnerId { get; set; }
 
     /// <summary>
@@ -42,11 +49,13 @@ public class MerchandiseReturn : BaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor item identifier
     /// </summary>
+    [AuditReference(typeof(Vendor))]
     public string VendorId { get; set; }
 
     /// <summary>

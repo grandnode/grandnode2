@@ -13,6 +13,7 @@ public class DiscountCoupon : BaseEntity
     /// <summary>
     ///     Gets or sets the discount id
     /// </summary>
+    [AuditReference(typeof(Discount))]
     public string DiscountId { get; set; }
 
     /// <summary>

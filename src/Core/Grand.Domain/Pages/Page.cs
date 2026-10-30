@@ -1,3 +1,4 @@
+using Grand.Domain.Customers;
 using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
@@ -75,6 +76,7 @@ public class Page : BaseEntity, ITranslationEntity, ISlugEntity, IStoreLinkEntit
     /// <summary>
     ///     Gets or sets a value of used page layout identifier
     /// </summary>
+    [AuditReference(typeof(PageLayout))]
     public string PageLayoutId { get; set; }
 
     /// <summary>
@@ -112,6 +114,7 @@ public class Page : BaseEntity, ITranslationEntity, ISlugEntity, IStoreLinkEntit
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
 
@@ -125,6 +128,7 @@ public class Page : BaseEntity, ITranslationEntity, ISlugEntity, IStoreLinkEntit
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

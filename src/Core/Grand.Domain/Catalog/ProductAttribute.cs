@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 
@@ -31,6 +32,7 @@ public class ProductAttribute : BaseEntity, IStoreLinkEntity, ITranslationEntity
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

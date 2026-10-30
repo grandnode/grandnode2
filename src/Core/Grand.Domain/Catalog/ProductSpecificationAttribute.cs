@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Catalog;
 
 /// <summary>
@@ -13,11 +15,13 @@ public class ProductSpecificationAttribute : SubBaseEntity
     /// <summary>
     ///     Gets or sets the specification attribute Id
     /// </summary>
+    [AuditReference(typeof(SpecificationAttribute))]
     public string SpecificationAttributeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the specification attribute identifier
     /// </summary>
+    [AuditReference(typeof(SpecificationAttribute), nameof(SpecificationAttribute.SpecificationAttributeOptions), Owner = nameof(SpecificationAttributeId))]
     public string SpecificationAttributeOptionId { get; set; }
 
     /// <summary>

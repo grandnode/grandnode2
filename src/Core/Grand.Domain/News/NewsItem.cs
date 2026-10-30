@@ -1,3 +1,4 @@
+using Grand.Domain.Customers;
 using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
@@ -90,6 +91,7 @@ public class NewsItem : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -102,6 +104,7 @@ public class NewsItem : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

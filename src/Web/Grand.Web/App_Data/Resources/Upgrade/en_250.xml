@@ -516,6 +516,9 @@
 	<Resource Name="Admin.System.AuditLog.Fields.ActorEmail" Area="Admin">
 		<Value>Who</Value>
 	</Resource>
+	<Resource Name="Admin.System.AuditLog.Fields.SearchText" Area="Admin">
+		<Value>Staff e-mail or record name</Value>
+	</Resource>
 	<Resource Name="Admin.System.AuditLog.Fields.Source" Area="Admin">
 		<Value>Panel</Value>
 	</Resource>

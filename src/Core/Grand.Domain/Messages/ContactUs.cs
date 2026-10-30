@@ -1,4 +1,7 @@
-﻿using Grand.Domain.Audit;
+﻿using Grand.Domain.Vendors;
+using Grand.Domain.Stores;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 
 namespace Grand.Domain.Messages;
@@ -11,11 +14,13 @@ public class ContactUs : BaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
@@ -47,11 +52,13 @@ public class ContactUs : BaseEntity
     /// <summary>
     ///     Gets or sets the email account identifier
     /// </summary>
+    [AuditReference(typeof(EmailAccount))]
     public string EmailAccountId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor identifier
     /// </summary>
+    [AuditReference(typeof(Vendor))]
     public string VendorId { get; set; }
 
     /// <summary>

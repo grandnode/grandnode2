@@ -4,7 +4,7 @@
 }
 
 @* The list shape without Add new: no primary action, Export CSV as an outline button in the header,
-   the actor e-mail as the quick search with the other criteria behind the Filters toggle, and the
+   the staff e-mail or record name as the quick search with the other criteria behind the Filters toggle, and the
    grid in a flush card. The export posts the same filter form the grid reads. *@
 <admin-page title="@Loc["Admin.System.AuditLog"]" icon="bi-journal-text">
     <page-actions>
@@ -16,7 +16,7 @@
     <form id="auditlog-filter-form" asp-area="@Constants.AreaAdmin" asp-controller="AuditLog" asp-action="ExportCsv" method="post">
         <admin-filters id="auditlog-filters" submit-id="search-auditlog" expanded="@(!string.IsNullOrEmpty(Model.EntityId) || !string.IsNullOrEmpty(Model.OperationId))">
             <filters-search>
-                <admin-input asp-for="ActorEmail"/>
+                <admin-input asp-for="SearchText"/>
             </filters-search>
             <div class="grand-range">
                 <admin-field asp-for="FromUtc"/>
@@ -35,6 +35,7 @@
         <admin-grid id="auditlog-grid"
                     read-url="@Url.Action("List", "AuditLog", new { area = Constants.AreaAdmin })"
                     additional-data="auditLogFilters">
+            <grid-text name="view" value="@Loc["Admin.Common.View"]"/>
             <grid-column field="CreatedOn" title="@Loc["Admin.System.AuditLog.Fields.CreatedOnUtc"]" width="170">
                 <cell-template>
                     <a class="text-decoration-none" href="@Url.Action("Detail", new { area = Constants.AreaAdmin })/{{ Id }}">{{ CreatedOn }}</a>
@@ -45,6 +46,13 @@
             <grid-column field="Kind" title="@Loc["Admin.System.AuditLog.Fields.Kind"]" width="150"/>
             <grid-column field="What" title="@Loc["Admin.System.AuditLog.Fields.EntityName"]"/>
             <grid-column field="ChangedFields" title="@Loc["Admin.System.AuditLog.Fields.Changes"]"/>
+            <grid-column field="Id" title="" width="100">
+                <cell-template>
+                    <a class="btn btn-outline-secondary btn-sm" href="@Url.Action("Detail", new { area = Constants.AreaAdmin })/{{ Id }}">
+                        <i class="bi bi-eye"></i> {{ $texts.view }}
+                    </a>
+                </cell-template>
+            </grid-column>
         </admin-grid>
     </admin-card>
 </admin-page>
@@ -55,7 +63,7 @@
             GrandAdmin.grids.get('#auditlog-grid').dataSource.page(1);
             return false;
         });
-        $("#@Html.IdFor(model => model.ActorEmail)").keydown(function (event) {
+        $("#@Html.IdFor(model => model.SearchText)").keydown(function (event) {
             if (event.keyCode == 13) {
                 $("#search-auditlog").click();
                 return false;
@@ -67,7 +75,7 @@
         var data = {
             FromUtc: $('#@Html.IdFor(model => model.FromUtc)').val(),
             ToUtc: $('#@Html.IdFor(model => model.ToUtc)').val(),
-            ActorEmail: $('#@Html.IdFor(model => model.ActorEmail)').val(),
+            SearchText: $('#@Html.IdFor(model => model.SearchText)').val(),
             EntityType: $('#@Html.IdFor(model => model.EntityType)').val(),
             EntityId: $('#@Html.IdFor(model => model.EntityId)').val(),
             Kind: $('#@Html.IdFor(model => model.Kind)').val(),

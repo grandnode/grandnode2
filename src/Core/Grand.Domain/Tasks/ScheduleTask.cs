@@ -1,4 +1,7 @@
-﻿namespace Grand.Domain.Tasks;
+﻿using Grand.Domain.Stores;
+using Grand.Domain.Audit;
+
+namespace Grand.Domain.Tasks;
 
 public class ScheduleTask : BaseEntity
 {
@@ -12,5 +15,6 @@ public class ScheduleTask : BaseEntity
     public DateTime? LeasedUntilUtc { get; set; }
     public string LeasedByInstance { get; set; }
     public int TimeInterval { get; set; }
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 }

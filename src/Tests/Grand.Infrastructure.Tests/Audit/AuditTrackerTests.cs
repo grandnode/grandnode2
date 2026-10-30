@@ -27,7 +27,8 @@ public class AuditTrackerTests
     {
         _writer = new CapturingWriter();
         _mediator = new Mock<IMediator>();
-        _tracker = new AuditTracker(_writer, _mediator.Object, NullLogger<AuditTracker>.Instance);
+        _tracker = new AuditTracker(_writer, _mediator.Object, new Mock<IAuditRecordReader>().Object,
+            NullLogger<AuditTracker>.Instance);
         _access = ids =>
         {
             _loadCalls++;

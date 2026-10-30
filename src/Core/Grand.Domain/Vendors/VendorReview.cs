@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Audit;
+﻿using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 
 namespace Grand.Domain.Vendors;
 
@@ -12,11 +13,13 @@ public class VendorReview : BaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor identifier
     /// </summary>
+    [AuditReference(typeof(Vendor))]
     public string VendorId { get; set; }
 
     /// <summary>

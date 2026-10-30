@@ -1,3 +1,6 @@
+using Grand.Domain.Discounts;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Domain.Seo;
@@ -31,6 +34,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets a value of used category layout identifier
     /// </summary>
+    [AuditReference(typeof(CategoryLayout))]
     public string CategoryLayoutId { get; set; }
 
     /// <summary>
@@ -51,6 +55,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the parent category identifier
     /// </summary>
+    [AuditReference(typeof(Category))]
     public string ParentCategoryId { get; set; }
 
     /// <summary>
@@ -141,6 +146,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the collection of applied discounts
     /// </summary>
+    [AuditReference(typeof(Discount))]
     public virtual ICollection<string> AppliedDiscounts {
         get => _appliedDiscounts ??= new List<string>();
         protected set => _appliedDiscounts = value;
@@ -151,6 +157,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -163,6 +170,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

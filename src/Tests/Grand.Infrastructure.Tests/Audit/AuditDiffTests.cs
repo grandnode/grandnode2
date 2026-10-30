@@ -146,6 +146,20 @@ public class AuditDiffTests
     }
 
     [TestMethod]
+    public void Compare_KeyValueArray_SavedWithoutChanges_OnlyRealValues()
+    {
+        //a customer saved without edits: empty user fields dropped, a default one added
+        var before = new BsonDocument("UserFields", new BsonArray { UserField("FirstName", ""), UserField("LastName", "") });
+        var after = new BsonDocument("UserFields", new BsonArray { UserField("TwoFactorEnabled", "False") });
+
+        var change = Compare(before, after).Single();
+
+        Assert.AreEqual("UserFields[TwoFactorEnabled].Value", change.Path);
+        Assert.IsNull(change.OldValue);
+        Assert.AreEqual("False", change.NewValue);
+    }
+
+    [TestMethod]
     public void Compare_KeyValueArray_SensitiveKey_Masked()
     {
         var before = new BsonDocument("UserFields", new BsonArray { UserField("PasswordRecoveryToken", "old-secret") });
@@ -155,8 +169,8 @@ public class AuditDiffTests
 
         var changes = Compare(before, after);
 
-        //the changed token, and the Key and Value of the added secret
-        Assert.AreEqual(3, changes.Count);
+        //the changed token and the value of the added secret
+        Assert.AreEqual(2, changes.Count);
         foreach (var change in changes)
         {
             Assert.IsTrue(change.Masked, change.Path);
@@ -190,6 +204,33 @@ public class AuditDiffTests
 
         Assert.AreEqual(1024, changes[0].NewValue.Length);
         Assert.IsTrue(changes[0].Truncated);
+    }
+
+    [TestMethod]
+    public void Compare_DateDifferingInMilliseconds_Unchanged()
+    {
+        var stored = new DateTime(2026, 10, 26, 19, 34, 23, 497, DateTimeKind.Utc);
+
+        Assert.AreEqual(0, Compare(new BsonDocument("StartDateUtc", stored),
+            new BsonDocument("StartDateUtc", stored.AddMilliseconds(-497))).Count);
+        Assert.AreEqual("2026-10-26T19:34:24Z", Compare(new BsonDocument("StartDateUtc", stored),
+            new BsonDocument("StartDateUtc", stored.AddSeconds(1))).Single().NewValue);
+    }
+
+    [TestMethod]
+    public void Compare_Guid_ComparedAsValue()
+    {
+        var orderGuid = Guid.NewGuid();
+        BsonDocument Order(Guid guid, string name) => new() {
+            { "OrderGuid", new BsonBinaryData(guid, GuidRepresentation.CSharpLegacy) }, { "FirstName", name }
+        };
+
+        var unchanged = Compare(Order(orderGuid, "Anna"), Order(orderGuid, "Ann"));
+        var changed = Compare(Order(orderGuid, "Anna"), Order(Guid.Empty, "Anna"));
+
+        Assert.AreEqual("FirstName", unchanged.Single().Path);
+        Assert.AreEqual(orderGuid.ToString(), changed.Single().OldValue);
+        Assert.AreEqual(Guid.Empty.ToString(), changed.Single().NewValue);
     }
 
     [TestMethod]

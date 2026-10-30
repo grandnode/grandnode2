@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Stores;
+﻿using Grand.Domain.Audit;
+using Grand.Domain.Stores;
 
 namespace Grand.Domain.Discounts;
 
@@ -115,5 +116,6 @@ public class Discount : BaseEntity, IStoreLinkEntity
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 }

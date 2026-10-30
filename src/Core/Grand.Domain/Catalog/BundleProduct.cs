@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Catalog;
 
 /// <summary>
@@ -8,6 +10,7 @@ public class BundleProduct : SubBaseEntity
     /// <summary>
     ///     Gets or sets the product identifier
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string ProductId { get; set; }
 
     /// <summary>

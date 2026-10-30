@@ -1,3 +1,4 @@
+using Grand.Domain.Stores;
 using Grand.Domain.Audit;
 
 namespace Grand.Domain.Customers;
@@ -10,6 +11,7 @@ public class ExternalAuthentication : BaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
@@ -41,6 +43,7 @@ public class ExternalAuthentication : BaseEntity
     /// <summary>
     ///     Gets or sets the store of the linked customer when customers are registered per store; empty otherwise
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>

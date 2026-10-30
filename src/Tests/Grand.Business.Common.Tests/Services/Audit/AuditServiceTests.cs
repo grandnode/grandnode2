@@ -75,14 +75,27 @@ public class AuditServiceTests
     }
 
     [TestMethod]
-    public async Task GetEntries_ActorEmailContainsCaseInsensitive()
+    public async Task GetEntries_SearchText_StaffEmailCaseInsensitive()
     {
         var anna = await Add("Product", "p1", DateTime.UtcNow, "Anna@Shop.com");
         await Add("Product", "p1", DateTime.UtcNow, "marek@shop.com");
 
-        var result = await _service.GetEntries(new AuditEntrySearch { ActorEmail = "anna@" });
+        var result = await _service.GetEntries(new AuditEntrySearch { SearchText = "anna@" });
 
         Assert.AreEqual(anna.Id, result.Single().Id);
+    }
+
+    [TestMethod]
+    public async Task GetEntries_SearchText_RecordName()
+    {
+        var lamp = await Add("Product", "p1", DateTime.UtcNow);
+        lamp.EntityName = "Aurora Lamp";
+        await _repository.UpdateAsync(lamp);
+        await Add("Product", "p2", DateTime.UtcNow);
+
+        var result = await _service.GetEntries(new AuditEntrySearch { SearchText = "aurora" });
+
+        Assert.AreEqual(lamp.Id, result.Single().Id);
     }
 
     [TestMethod]

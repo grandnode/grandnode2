@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Audit;
+﻿using Grand.Domain.Stores;
+using Grand.Domain.Audit;
 
 namespace Grand.Domain.Messages;
 
@@ -53,5 +54,6 @@ public class EmailAccount : BaseEntity
     ///     Gets or sets the store identifier this email account belongs to.
     ///     An empty string means this is a global/shared email account.
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 }

@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Catalog;
 
 /// <summary>
@@ -8,6 +10,7 @@ public class ProductCollection : SubBaseEntity
     /// <summary>
     ///     Gets or sets the collection identifier
     /// </summary>
+    [AuditReference(typeof(Collection))]
     public string CollectionId { get; set; }
 
     /// <summary>

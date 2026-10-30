@@ -16,8 +16,8 @@ public class AuditLogListModel : BaseModel
     [UIHint("DateNullable")]
     public DateTime? ToUtc { get; set; }
 
-    [GrandResourceDisplayName("Admin.System.AuditLog.Fields.ActorEmail")]
-    public string ActorEmail { get; set; }
+    [GrandResourceDisplayName("Admin.System.AuditLog.Fields.SearchText")]
+    public string SearchText { get; set; }
 
     [GrandResourceDisplayName("Admin.System.AuditLog.Fields.Source")]
     public AuditSource? Source { get; set; }

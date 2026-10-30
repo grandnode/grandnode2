@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Courses;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Courses;
 
 public class CourseSubject : BaseEntity
 {
@@ -15,5 +17,6 @@ public class CourseSubject : BaseEntity
     /// <summary>
     ///     Gets or sets the course ident
     /// </summary>
+    [AuditReference(typeof(Course))]
     public string CourseId { get; set; }
 }

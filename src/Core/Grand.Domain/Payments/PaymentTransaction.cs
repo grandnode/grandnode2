@@ -1,4 +1,8 @@
-﻿namespace Grand.Domain.Payments;
+﻿using Grand.Domain.Stores;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+
+namespace Grand.Domain.Payments;
 
 public class PaymentTransaction : BaseEntity
 {
@@ -15,6 +19,7 @@ public class PaymentTransaction : BaseEntity
     /// <summary>
     ///     Gets or sets store ident
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
@@ -30,6 +35,7 @@ public class PaymentTransaction : BaseEntity
     /// <summary>
     ///     Gets or sets customer ident
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>

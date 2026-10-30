@@ -1,10 +1,14 @@
-﻿namespace Grand.Domain.Knowledgebase;
+﻿using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+
+namespace Grand.Domain.Knowledgebase;
 
 public class KnowledgebaseArticleComment : BaseEntity
 {
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
@@ -20,5 +24,6 @@ public class KnowledgebaseArticleComment : BaseEntity
     /// <summary>
     ///     Gets or sets the blog post identifier
     /// </summary>
+    [AuditReference(typeof(KnowledgebaseArticle))]
     public string ArticleId { get; set; }
 }

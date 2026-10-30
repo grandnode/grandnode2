@@ -1,3 +1,7 @@
+using Grand.Domain.Localization;
+using Grand.Domain.Affiliates;
+using Grand.Domain.Stores;
+using Grand.Domain.Customers;
 using Grand.Domain.Audit;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -37,16 +41,19 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the owner identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string OwnerId { get; set; }
 
     /// <summary>
@@ -62,6 +69,7 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets an order status identifier
     /// </summary>
+    [AuditReference(typeof(OrderStatus), Key = nameof(OrderStatus.StatusId))]
     public int OrderStatusId { get; set; }
 
     /// <summary>
@@ -228,11 +236,13 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the customer language identifier
     /// </summary>
+    [AuditReference(typeof(Language))]
     public string CustomerLanguageId { get; set; }
 
     /// <summary>
     ///     Gets or sets the affiliate identifier
     /// </summary>
+    [AuditReference(typeof(Affiliate))]
     public string AffiliateId { get; set; }
 
     /// <summary>

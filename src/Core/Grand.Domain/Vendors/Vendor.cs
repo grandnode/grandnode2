@@ -1,3 +1,6 @@
+using Grand.Domain.Stores;
+using Grand.Domain.Discounts;
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
 using Grand.Domain.Seo;
@@ -41,6 +44,7 @@ public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
@@ -145,6 +149,7 @@ public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     /// <summary>
     ///     Gets or sets the collection of applied discounts
     /// </summary>
+    [AuditReference(typeof(Discount))]
     public virtual ICollection<string> AppliedDiscounts {
         get => _appliedDiscounts ??= new List<string>();
         protected set => _appliedDiscounts = value;

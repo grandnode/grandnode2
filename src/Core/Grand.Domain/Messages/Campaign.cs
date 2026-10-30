@@ -1,4 +1,9 @@
-﻿namespace Grand.Domain.Messages;
+﻿using Grand.Domain.Stores;
+using Grand.Domain.Localization;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+
+namespace Grand.Domain.Messages;
 
 /// <summary>
 ///     Represents a campaign
@@ -27,11 +32,13 @@ public class Campaign : BaseEntity
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the lang identifier
     /// </summary>
+    [AuditReference(typeof(Language))]
     public string LanguageId { get; set; }
 
     public DateTime? CustomerCreatedDateFrom { get; set; }
@@ -48,11 +55,13 @@ public class Campaign : BaseEntity
     /// <summary>
     ///     Gets or sets the used email account identifier
     /// </summary>
+    [AuditReference(typeof(EmailAccount))]
     public string EmailAccountId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer tags
     /// </summary>
+    [AuditReference(typeof(CustomerTag))]
     public virtual ICollection<string> CustomerTags {
         get => _customerTags ??= new List<string>();
         protected set => _customerTags = value;
@@ -61,6 +70,7 @@ public class Campaign : BaseEntity
     /// <summary>
     ///     Gets or sets the customer groups
     /// </summary>
+    [AuditReference(typeof(CustomerGroup))]
     public virtual ICollection<string> CustomerGroups {
         get => _customerGroups ??= new List<string>();
         protected set => _customerGroups = value;

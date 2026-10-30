@@ -1,3 +1,5 @@
+using Grand.Domain.Catalog;
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 
 namespace Grand.Domain.Shipping;
@@ -15,6 +17,7 @@ public class ShipmentItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the product
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string ProductId { get; set; }
 
     /// <summary>
@@ -30,5 +33,6 @@ public class ShipmentItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
+    [AuditReference(typeof(Warehouse))]
     public string WarehouseId { get; set; }
 }

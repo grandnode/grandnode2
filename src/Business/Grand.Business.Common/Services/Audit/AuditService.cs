@@ -41,7 +41,7 @@ public class AuditService(
         var bounded = new AuditEntrySearch {
             FromUtc = search.FromUtc,
             ToUtc = search.ToUtc == null || search.ToUtc > now ? now : search.ToUtc,
-            ActorEmail = search.ActorEmail,
+            SearchText = search.SearchText,
             Source = search.Source,
             Kind = search.Kind,
             EntityType = search.EntityType,
@@ -108,10 +108,11 @@ public class AuditService(
             query = query.Where(x => x.CreatedOnUtc >= search.FromUtc.Value);
         if (search.ToUtc.HasValue)
             query = query.Where(x => x.CreatedOnUtc <= search.ToUtc.Value);
-        if (!string.IsNullOrEmpty(search.ActorEmail))
+        if (!string.IsNullOrEmpty(search.SearchText))
         {
-            var email = search.ActorEmail.ToLowerInvariant();
-            query = query.Where(x => x.ActorEmail != null && x.ActorEmail.ToLower().Contains(email));
+            var text = search.SearchText.ToLowerInvariant();
+            query = query.Where(x => (x.ActorEmail != null && x.ActorEmail.ToLower().Contains(text))
+                                     || (x.EntityName != null && x.EntityName.ToLower().Contains(text)));
         }
 
         if (search.Source.HasValue)

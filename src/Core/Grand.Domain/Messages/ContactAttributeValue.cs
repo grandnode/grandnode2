@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Localization;
 
 namespace Grand.Domain.Messages;
@@ -10,6 +11,7 @@ public class ContactAttributeValue : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the checkout attribute mapping identifier
     /// </summary>
+    [AuditReference(typeof(ContactAttribute))]
     public string ContactAttributeId { get; set; }
 
     /// <summary>

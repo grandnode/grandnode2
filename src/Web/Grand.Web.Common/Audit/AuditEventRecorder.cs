@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Audit;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Audit;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
@@ -85,6 +86,19 @@ public class AuditEventRecorder(
             entry.EntityType = "Plugin";
             entry.EntityName = pluginName;
             entry.Details = change;
+        });
+    }
+
+    public Task OwnedChange(string entityType, string entityId, string entityName, string entityStoreId, string path,
+        string oldValue, string newValue)
+    {
+        return Record(AuditKind.Update, CurrentStaff(), entry =>
+        {
+            entry.EntityType = entityType;
+            entry.EntityId = entityId;
+            entry.EntityName = entityName;
+            entry.EntityStoreId = entityStoreId;
+            entry.Changes = [AuditDiff.Change(path, oldValue, newValue)];
         });
     }
 

@@ -1,3 +1,7 @@
+using Grand.Domain.Stores;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Orders;
 
 /// <summary>
@@ -8,11 +12,13 @@ public class LoyaltyPointsHistory : BaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
+    [AuditReference(typeof(Customer))]
     public string CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier in which these loyalty points were awarded or redeemed
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>
@@ -35,5 +41,6 @@ public class LoyaltyPointsHistory : BaseEntity
     /// </summary>
     public string Message { get; set; }
 
+    [AuditReference(typeof(Order))]
     public string UsedWithOrderId { get; set; }
 }

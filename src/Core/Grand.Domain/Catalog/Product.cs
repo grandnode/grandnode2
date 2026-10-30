@@ -1,3 +1,11 @@
+using Grand.Domain.Courses;
+using Grand.Domain.Directory;
+using Grand.Domain.Discounts;
+using Grand.Domain.Vendors;
+using Grand.Domain.Tax;
+using Grand.Domain.Shipping;
+using Grand.Domain.Customers;
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
@@ -37,6 +45,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     ///     Gets or sets the parent product identifier. It's used to identify associated products (only with "grouped"
     ///     products)
     /// </summary>
+    [AuditReference(typeof(Product))]
     public string ParentGroupedProductId { get; set; }
 
     /// <summary>
@@ -69,16 +78,19 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets a value of used product layout identifier
     /// </summary>
+    [AuditReference(typeof(ProductLayout))]
     public string ProductLayoutId { get; set; }
 
     /// <summary>
     ///     Gets or sets a brand identifier
     /// </summary>
+    [AuditReference(typeof(Brand))]
     public string BrandId { get; set; }
 
     /// <summary>
     ///     Gets or sets a vendor identifier
     /// </summary>
+    [AuditReference(typeof(Vendor))]
     public string VendorId { get; set; }
 
     /// <summary>
@@ -297,6 +309,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets a delivery date identifier
     /// </summary>
+    [AuditReference(typeof(DeliveryDate))]
     public string DeliveryDateId { get; set; }
 
     /// <summary>
@@ -307,6 +320,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the tax category identifier
     /// </summary>
+    [AuditReference(typeof(TaxCategory))]
     public string TaxCategoryId { get; set; }
 
     /// <summary>
@@ -327,6 +341,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets a warehouse identifier
     /// </summary>
+    [AuditReference(typeof(Warehouse))]
     public string WarehouseId { get; set; }
 
     /// <summary>
@@ -473,6 +488,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets a unit of product for PAngV (MeasureWeight entity)
     /// </summary>
+    [AuditReference(typeof(MeasureWeight))]
     public string BasepriceUnitId { get; set; }
 
     /// <summary>
@@ -483,16 +499,19 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets a reference unit for PAngV (MeasureWeight entity)
     /// </summary>
+    [AuditReference(typeof(MeasureWeight))]
     public string BasepriceBaseUnitId { get; set; }
 
     /// <summary>
     ///     Gets or sets a unit of product
     /// </summary>
+    [AuditReference(typeof(MeasureUnit))]
     public string UnitId { get; set; }
 
     /// <summary>
     ///     Gets or sets a course ident
     /// </summary>
+    [AuditReference(typeof(Course))]
     public string CourseId { get; set; }
 
     /// <summary>
@@ -697,6 +716,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// <summary>
     ///     Gets or sets the collection of applied discounts
     /// </summary>
+    [AuditReference(typeof(Discount))]
     public virtual ICollection<string> AppliedDiscounts {
         get => _appliedDiscounts ??= new List<string>();
         protected set => _appliedDiscounts = value;
@@ -741,6 +761,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// </summary>
     public bool LimitedToGroups { get; set; }
 
+    [AuditReference(typeof(CustomerGroup))]
     public IList<string> CustomerGroups { get; set; } = new List<string>();
 
     /// <summary>
@@ -753,6 +774,7 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     /// </summary>
     public bool LimitedToStores { get; set; }
 
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 
     /// <summary>

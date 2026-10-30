@@ -1,4 +1,5 @@
-﻿using Grand.Domain.Localization;
+﻿using Grand.Domain.Audit;
+using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 
 namespace Grand.Domain.Orders;
@@ -31,5 +32,6 @@ public class MerchandiseReturnAction : BaseEntity, ITranslationEntity, IStoreLin
     /// <summary>
     ///     Gets or sets the stores
     /// </summary>
+    [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
 }

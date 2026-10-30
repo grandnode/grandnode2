@@ -1,3 +1,4 @@
+using Grand.Domain.Stores;
 using Grand.Domain.Audit;
 using Grand.Domain.Catalog;
 
@@ -69,6 +70,7 @@ public class GiftVoucher : BaseEntity
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
+    [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
 
     /// <summary>

@@ -88,11 +88,11 @@ public class AuditLogControllerTests
             }, 0, 20));
 
         var result = (JsonResult)await _controller.List(new DataSourceRequest { Page = 2, PageSize = 20 },
-            new AuditLogListModel { EntityType = "Product", EntityId = "p1", ActorEmail = "anna", Kind = AuditKind.Update });
+            new AuditLogListModel { EntityType = "Product", EntityId = "p1", SearchText = "anna", Kind = AuditKind.Update });
 
         Assert.AreEqual("Product", search.EntityType);
         Assert.AreEqual("p1", search.EntityId);
-        Assert.AreEqual("anna", search.ActorEmail);
+        Assert.AreEqual("anna", search.SearchText);
         Assert.AreEqual(AuditKind.Update, search.Kind);
         var data = ((DataSourceResult)result.Value!).Data.Cast<AuditEntryRowModel>().Single();
         Assert.AreEqual("Price", data.ChangedFields);
