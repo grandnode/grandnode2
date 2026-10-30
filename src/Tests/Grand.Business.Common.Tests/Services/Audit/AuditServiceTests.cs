@@ -58,6 +58,24 @@ public class AuditServiceTests
     }
 
     [TestMethod]
+    public async Task GetEntries_RecordHistory_HoldsTheRecordsThatBelongToIt()
+    {
+        var update = await Add("MerchandiseReturn", "r1", new DateTime(2026, 10, 1, 0, 0, 0, DateTimeKind.Utc));
+        var note = await Add("MerchandiseReturnNote", "n1", new DateTime(2026, 10, 2, 0, 0, 0, DateTimeKind.Utc));
+        note.OwnerType = "MerchandiseReturn";
+        note.OwnerId = "r1";
+        await _repository.UpdateAsync(note);
+        var otherNote = await Add("MerchandiseReturnNote", "n2", new DateTime(2026, 10, 3, 0, 0, 0, DateTimeKind.Utc));
+        otherNote.OwnerType = "MerchandiseReturn";
+        otherNote.OwnerId = "r2";
+        await _repository.UpdateAsync(otherNote);
+
+        var result = await _service.GetEntries(new AuditEntrySearch { EntityType = "MerchandiseReturn", EntityId = "r1" });
+
+        CollectionAssert.AreEqual(new[] { note.Id, update.Id }, result.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
     public async Task GetEntries_FiltersByEntityNames()
     {
         var catalog = await Add("Setting", "s1", DateTime.UtcNow);

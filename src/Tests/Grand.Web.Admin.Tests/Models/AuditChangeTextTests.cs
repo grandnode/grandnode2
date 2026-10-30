@@ -152,6 +152,22 @@ public class AuditChangeTextTests
     }
 
     [TestMethod]
+    public void NoteInItsOwnersHistory_SaysWhatItIs()
+    {
+        var added = new AuditEntry {
+            EntityType = "MerchandiseReturnNote", OwnerType = "MerchandiseReturn", OwnerId = "r1",
+            Changes = [Change("Note", null, "Called the customer")]
+        };
+        var deleted = new AuditEntry {
+            EntityType = "MerchandiseReturnNote", EntityName = "Called the customer", OwnerType = "MerchandiseReturn",
+            OwnerId = "r1"
+        };
+
+        Assert.AreEqual("Merchandise return note: Note: — → Called the customer", _text.Text(added));
+        Assert.AreEqual("Merchandise return note Called the customer", _text.Text(deleted));
+    }
+
+    [TestMethod]
     public void ValueNotFromAReference_KeepsParentheses()
     {
         var changes = new List<AuditChange> { Change("Name", "Lamp (old)", "Lamp (new)") };

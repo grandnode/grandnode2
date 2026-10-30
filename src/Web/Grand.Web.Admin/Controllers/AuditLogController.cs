@@ -219,7 +219,7 @@ public class AuditLogController(
             What = string.Join(" ", new[] { entry.EntityType, entry.EntityName }.Where(s => !string.IsNullOrEmpty(s)))
                    + (appliesTo == null ? "" : $" ({appliesTo})"),
             ChangedFields = text.Summary(entry.EntityType, entry.Changes),
-            ChangesText = withValues ? text.Text(entry.EntityType, entry.Changes) : null
+            ChangesText = withValues ? text.Text(entry) : null
         };
     }
 

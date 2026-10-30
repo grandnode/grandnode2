@@ -119,9 +119,13 @@ public class AuditService(
             query = query.Where(x => x.Source == search.Source.Value);
         if (search.Kind.HasValue)
             query = query.Where(x => x.Kind == search.Kind.Value);
-        if (!string.IsNullOrEmpty(search.EntityType))
+        //the history of one record also holds the records that belong to it (its notes)
+        if (!string.IsNullOrEmpty(search.EntityType) && !string.IsNullOrEmpty(search.EntityId))
+            query = query.Where(x => (x.EntityType == search.EntityType && x.EntityId == search.EntityId)
+                                     || (x.OwnerType == search.EntityType && x.OwnerId == search.EntityId));
+        else if (!string.IsNullOrEmpty(search.EntityType))
             query = query.Where(x => x.EntityType == search.EntityType);
-        if (!string.IsNullOrEmpty(search.EntityId))
+        else if (!string.IsNullOrEmpty(search.EntityId))
             query = query.Where(x => x.EntityId == search.EntityId);
         if (search.EntityNames is { Count: > 0 })
         {

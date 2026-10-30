@@ -237,6 +237,7 @@ public class AuditTracker(
                     {
                         await references.NameElements(group.Key, entry.Changes, item.Value.Before, after);
                         await references.Describe(group.Key, entry.Changes, item.Value.Before, after);
+                        await references.LinkOwner(group.Key, entry, after ?? item.Value.Before);
                     }
                 }
                 catch (Exception)

@@ -10,6 +10,8 @@ public class MerchandiseReturnNote : BaseEntity
     /// <summary>
     ///     Gets or sets the merchandise return identifier
     /// </summary>
+    [AuditReference(typeof(MerchandiseReturn))]
+    [AuditOwner]
     public string MerchandiseReturnId { get; set; }
 
     /// <summary>

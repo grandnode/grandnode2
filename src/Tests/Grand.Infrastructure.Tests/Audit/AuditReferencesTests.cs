@@ -117,6 +117,9 @@ public class AuditReferencesTests
         foreach (var type in typeof(Grand.Domain.BaseEntity).Assembly.GetTypes())
         foreach (var property in type.GetProperties())
         {
+            if (property.IsDefined(typeof(AuditOwnerAttribute), false)
+                && !property.IsDefined(typeof(AuditReferenceAttribute), false))
+                problems.Add($"{type.Name}.{property.Name}: an owner needs [AuditReference] naming its type");
             if (property.GetCustomAttributes(typeof(AuditReferenceAttribute), false).FirstOrDefault() is not AuditReferenceAttribute mark)
                 continue;
 
@@ -242,6 +245,32 @@ public class AuditReferencesTests
 
         Assert.IsNull(await ElementNames("TierPrices[id=t].Quantity", null, product));
         Assert.IsNull(await ElementNames("Name", null, product));
+    }
+
+    [TestMethod]
+    public async Task Note_LinkedToItsOwnerAndTheOwnersStore()
+    {
+        _records[(typeof(MerchandiseReturn), "r1")] = new Dictionary<string, string> { ["StoreId"] = "s2" };
+        var entry = new AuditEntry { EntityType = nameof(MerchandiseReturnNote) };
+
+        await _references.LinkOwner(typeof(MerchandiseReturnNote), entry,
+            new Dictionary<string, string> { ["MerchandiseReturnId"] = "r1", ["Note"] = "Called" });
+
+        Assert.AreEqual(nameof(MerchandiseReturn), entry.OwnerType);
+        Assert.AreEqual("r1", entry.OwnerId);
+        Assert.AreEqual("s2", entry.EntityStoreId);
+        _reader.Verify(r => r.Read(typeof(MerchandiseReturn), "r1", null, "StoreId"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task RecordWithoutOwner_NotLinked()
+    {
+        var entry = new AuditEntry { EntityType = nameof(Product) };
+
+        await _references.LinkOwner(typeof(Product), entry, new Dictionary<string, string> { ["Name"] = "Lamp" });
+
+        Assert.IsNull(entry.OwnerType);
+        Assert.IsNull(entry.OwnerId);
     }
 
     [TestMethod]

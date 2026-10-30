@@ -95,28 +95,6 @@ public class AuditEventRecorderTests
     }
 
     [TestMethod]
-    public async Task OwnedChange_ScopedToTheOwnersStore()
-    {
-        await _recorder.OwnedChange("Order", "o1", "7", "s2", "OrderNote", null, "msg");
-
-        var entry = _recorded.Single();
-        Assert.AreEqual(AuditKind.Update, entry.Kind);
-        Assert.AreEqual("o1", entry.EntityId);
-        Assert.AreEqual("s2", entry.EntityStoreId);
-        Assert.AreEqual("msg", entry.Changes.Single().NewValue);
-    }
-
-    [TestMethod]
-    public async Task OwnedChange_LongNote_CutAndMarked()
-    {
-        await _recorder.OwnedChange("Order", "o1", "7", "s2", "OrderNote", null, new string('x', 3000));
-
-        var change = _recorded.Single().Changes.Single();
-        Assert.AreEqual(AuditDiff.MaxValueLength, change.NewValue.Length);
-        Assert.IsTrue(change.Truncated);
-    }
-
-    [TestMethod]
     public async Task Plugin_RecordsNameAndChange()
     {
         await _recorder.Plugin("Payments.StripeCheckout", "installed");

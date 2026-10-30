@@ -11,6 +11,7 @@ public class CustomerNote : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
+    [AuditOwner]
     public string CustomerId { get; set; }
 
     /// <summary>

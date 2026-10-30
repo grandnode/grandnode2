@@ -15,8 +15,10 @@ public partial class AuditReferences(IAuditRecordReader reader)
 {
     private static readonly ConcurrentDictionary<Type, string> NameProperties = new();
     private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> Properties = new();
+    private static readonly ConcurrentDictionary<Type, PropertyInfo> Owners = new();
 
     private readonly Dictionary<(Type Target, string List, string Key, string Owner, string Id), string> _names = new();
+    private readonly Dictionary<(Type Target, string Id), string> _ownerStores = new();
 
     [GeneratedRegex(@"\[[^\]]*\]")]
     private static partial Regex ElementKeys();
@@ -120,6 +122,42 @@ public partial class AuditReferences(IAuditRecordReader reader)
 
         var owner = reference.Owner == null ? null : SiblingValue(snapshot, field, reference.Owner);
         return await NameOrNull(reference, owner, value);
+    }
+
+    /// <summary>
+    ///     Links the entry of a record that belongs to another (see <see cref="AuditOwnerAttribute" />) to that record,
+    ///     so it shows in the owner's change history, and to the owner's store when it has none of its own
+    /// </summary>
+    public async Task LinkOwner(Type entityType, AuditEntry entry, IDictionary<string, string> snapshot)
+    {
+        var owner = Owners.GetOrAdd(entityType, t => t.GetProperties().FirstOrDefault(p =>
+            p.IsDefined(typeof(AuditOwnerAttribute)) && p.IsDefined(typeof(AuditReferenceAttribute))));
+        if (owner == null || snapshot == null || !snapshot.TryGetValue(owner.Name, out var ownerId)
+            || string.IsNullOrEmpty(ownerId))
+            return;
+
+        var target = owner.GetCustomAttribute<AuditReferenceAttribute>()!.Target;
+        entry.OwnerType = target.Name;
+        entry.OwnerId = ownerId;
+        if (entry.EntityStoreId != null)
+            return;
+
+        //a store that cannot be read leaves the entry without one, never the entry out
+        try
+        {
+            if (!_ownerStores.TryGetValue((target, ownerId), out var storeId))
+            {
+                var record = await reader.Read(target, ownerId, null, "StoreId");
+                _ownerStores[(target, ownerId)] = storeId =
+                    record != null && record.TryGetValue("StoreId", out var stored) ? stored : null;
+            }
+
+            entry.EntityStoreId = storeId;
+        }
+        catch (Exception)
+        {
+            //no store
+        }
     }
 
     /// <summary>

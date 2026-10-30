@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Shipping;
 
 /// <summary>
@@ -8,11 +10,14 @@ public class ShipmentNote : BaseEntity
     /// <summary>
     ///     Gets or sets the shipment identifier
     /// </summary>
+    [AuditReference(typeof(Shipment))]
+    [AuditOwner]
     public string ShipmentId { get; set; }
 
     /// <summary>
     ///     Gets or sets the note
     /// </summary>
+    [AuditName]
     public string Note { get; set; }
 
     /// <summary>

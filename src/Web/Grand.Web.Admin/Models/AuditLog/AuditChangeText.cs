@@ -43,6 +43,22 @@ public partial class AuditChangeText(Func<string, string> resource)
     }
 
     /// <summary>
+    ///     The changes of an entry; an entry of a record that belongs to another (a note in its order's history) says
+    ///     what it is, e.g. "Order note: Note: — → Called the customer", or "Order note Called the customer" when deleted
+    /// </summary>
+    public string Text(AuditEntry entry)
+    {
+        var text = Text(entry.EntityType, entry.Changes);
+        if (entry.OwnerType == null)
+            return text;
+
+        var what = Word(entry.EntityType, null);
+        if (text == "")
+            return string.IsNullOrEmpty(entry.EntityName) ? what : $"{what} {Cut(entry.EntityName, ValueLength)}";
+        return Cut($"{what}: {text}", TextLength);
+    }
+
+    /// <summary>
     ///     What changed without the values, for the audit log list
     /// </summary>
     public string Summary(string entityType, IEnumerable<AuditChange> changes)
