@@ -1,0 +1,26 @@
+@model Payments.OnAccount.Models.ConfigurationModel
+@inject IEnumTranslationService EnumTranslationService
+@{
+    Layout = "~/Areas/Store/Views/Shared/_StoreLayout.cshtml";
+    ViewBag.Title = Loc["Admin.Configuration.Payment.Methods"];
+}
+<input id="active-menu-item" type="hidden" value="/Store/Payment/Index"/>
+
+@* the credit limit and payment term are set on each company account; here only how the method behaves *@
+<form asp-controller="PaymentOnAccount" asp-action="Configure" asp-area="Store" method="post">
+    <admin-page title="@Loc["Plugins.Payments.OnAccount.FriendlyName"]" icon="bi-receipt">
+        <page-actions>
+            <button type="submit" name="save" class="btn btn-primary">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        <admin-card>
+            <div class="grand-fields grand-fields--2col">
+                <admin-field asp-for="BlockWhenOverdue"/>
+                <admin-field asp-for="DisplayOrder" size="sm"/>
+                <admin-field asp-for="PurchaseOrderNumberMode" asp-items="EnumTranslationService.ToSelectList(Model.PurchaseOrderNumberMode)" size="md"/>
+            </div>
+        </admin-card>
+    </admin-page>
+</form>

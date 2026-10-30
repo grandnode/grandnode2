@@ -56,11 +56,24 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
     {
         var model = new CheckoutConfirmModel {
             //terms of service
-            TermsOfServiceOnOrderConfirmPage = _orderSettings.TermsOfServiceOnOrderConfirmPage
+            TermsOfServiceOnOrderConfirmPage = _orderSettings.TermsOfServiceOnOrderConfirmPage,
+            PurchaseOrderNumberMode = GetPurchaseOrderNumberMode(request),
+            PurchaseOrderNumberMaxLength = PurchaseOrderNumberRules.MaxLength
         };
         await PrepareOrderReviewData(model, request);
         await PrepareOrderApproval(model, request);
         return model;
+    }
+
+    /// <summary>
+    ///     The chosen payment method decides whether the buyer is asked for a purchase order number
+    /// </summary>
+    private PurchaseOrderNumberMode GetPurchaseOrderNumberMode(GetConfirmOrder request)
+    {
+        var paymentMethod = request.Customer.GetUserFieldFromEntity<string>(
+            SystemCustomerFieldNames.SelectedPaymentMethod, request.Store.Id);
+        return _paymentService.LoadPaymentMethodBySystemName(paymentMethod)?.PurchaseOrderNumberMode
+               ?? PurchaseOrderNumberMode.Disabled;
     }
 
     /// <summary>

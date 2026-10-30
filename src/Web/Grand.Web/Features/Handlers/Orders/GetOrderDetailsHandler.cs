@@ -95,6 +95,10 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
             Id = request.Order.Id,
             OrderNumber = request.Order.OrderNumber,
             OrderCode = request.Order.Code,
+            PurchaseOrderNumber = request.Order.PurchaseOrderNumber,
+            //a calendar date: shown as stored, a time zone shift could move it to the day before
+            PaymentDueDate = request.Order.PaymentDueDateUtc?.Date,
+            IsPaymentOverdue = request.Order.IsPaymentOverdue(DateTime.UtcNow),
             CreatedOn = _dateTimeService.ConvertToUserTime(request.Order.CreatedOnUtc, DateTimeKind.Utc),
             OrderStatus = (await _orderStatusService.GetByStatusId(request.Order.OrderStatusId))?.Name,
             IsReOrderAllowed = _orderSettings.IsReOrderAllowed,

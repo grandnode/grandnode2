@@ -37,6 +37,12 @@ public class ProcessPaymentResult
     public double PaidAmount { get; set; }
 
     /// <summary>
+    ///     Gets or sets the date the payment is due; set by a payment method that defers payment, the order is then
+    ///     bought on credit
+    /// </summary>
+    public DateTime? PaymentDueDateUtc { get; set; }
+
+    /// <summary>
     ///     Add error
     /// </summary>
     /// <param name="error">Error</param>

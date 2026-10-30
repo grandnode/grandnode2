@@ -17,6 +17,28 @@
 
 <div class="page account-page order-list-page ps-lg-3 pt-lg-0 pt-3">
     <h1 class="generalTitle h2">@Loc["Account.CustomerOrders"]</h1>
+    @if (Model.TradeCredit != null)
+    {
+        <div class="trade-credit card mb-3">
+            <div class="card-body">
+                <h2 class="h5 card-title">@Loc["Account.CustomerOrders.TradeCredit"]</h2>
+                @if (Model.TradeCredit.HasOverdue)
+                {
+                    <div class="alert alert-danger">@Loc["Account.CustomerOrders.TradeCredit.Overdue"]</div>
+                }
+                <dl class="row mb-0">
+                    <dt class="col-sm-4">@Loc["Account.CustomerOrders.TradeCredit.Limit"]</dt>
+                    <dd class="col-sm-8">@Model.TradeCredit.CreditLimit</dd>
+                    <dt class="col-sm-4">@Loc["Account.CustomerOrders.TradeCredit.Outstanding"]</dt>
+                    <dd class="col-sm-8">@Model.TradeCredit.Outstanding</dd>
+                    <dt class="col-sm-4">@Loc["Account.CustomerOrders.TradeCredit.Available"]</dt>
+                    <dd class="col-sm-8">@Model.TradeCredit.Available</dd>
+                    <dt class="col-sm-4">@Loc["Account.CustomerOrders.TradeCredit.PaymentTerm"]</dt>
+                    <dd class="col-sm-8">@Loc["Account.CustomerOrders.TradeCredit.PaymentTerm.Days"].ToString().Replace("{0}", Model.TradeCredit.PaymentTermDays.ToString())</dd>
+                </dl>
+            </div>
+        </div>
+    }
     @if (Model.Orders.Any())
     {
         <div class="account-order table-responsive">

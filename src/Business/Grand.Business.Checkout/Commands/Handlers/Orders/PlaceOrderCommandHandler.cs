@@ -169,6 +169,21 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             if (result.Errors.Any())
                 return result;
 
+            //the buyer's purchase order number is checked before any payment is taken; the chosen method decides
+            //whether it is asked for
+            var purchaseOrderNumberMode =
+                _paymentService.LoadPaymentMethodBySystemName(details.PaymentMethodSystemName)?.PurchaseOrderNumberMode
+                ?? PurchaseOrderNumberMode.Disabled;
+            details.PurchaseOrderNumber = PurchaseOrderNumberRules.Normalize(command.PurchaseOrderNumber,
+                purchaseOrderNumberMode);
+            var purchaseOrderNumberError = PurchaseOrderNumberRules.Validate(details.PurchaseOrderNumber,
+                purchaseOrderNumberMode);
+            if (purchaseOrderNumberError != null)
+            {
+                result.AddError(_translationService.GetResource(purchaseOrderNumberError, command.Language.Id));
+                return result;
+            }
+
             //an order over the customer's limit is placed awaiting an approval, with an allowed payment method only
             var approval = await _orderApprovalService.RequiresApproval(details.Cart, details.Context);
             details.ApprovalRequired = approval.Required;
@@ -922,6 +937,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             StoreId = paymentTransaction.StoreId,
             OrderGuid = paymentTransaction.OrderGuid,
             Code = paymentTransaction.OrderCode,
+            PurchaseOrderNumber = details.PurchaseOrderNumber,
             CustomerId = details.Customer.Id,
             OwnerId = string.IsNullOrEmpty(details.Customer.OwnerId) ? details.Customer.Id : details.Customer.OwnerId,
             SeId = details.Customer.SeId,
@@ -957,6 +973,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             PaymentStatusId = paymentStatus,
             PaidAmount = processPaymentResult.PaidAmount,
             PaidDateUtc = processPaymentResult.PaidAmount > 0 ? DateTime.UtcNow : null,
+            PaymentDueDateUtc = processPaymentResult.PaymentDueDateUtc,
             BillingAddress = details.BillingAddress,
             ShippingAddress = details.ShippingAddress,
             ShippingStatusId = details.ShippingStatus,

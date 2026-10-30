@@ -2,6 +2,7 @@ using Grand.Business.Checkout.Queries.Handlers.Orders;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Business.Checkout.Tests.Queries.Handlers.Orders;
@@ -38,5 +39,56 @@ public class GetOrderQueryHandlerTests
         Assert.AreEqual(3, result.TotalCount);
         Assert.AreEqual(2, result.Count);
         Assert.AreEqual("NEWEST", result[0].Code);
+    }
+
+    [TestMethod]
+    public async Task Handle_FiltersByPurchaseOrderNumber()
+    {
+        await _repository.Collection.InsertOneAsync(new Order { PurchaseOrderNumber = "PO-1", Code = "A" });
+        await _repository.Collection.InsertOneAsync(new Order { PurchaseOrderNumber = "PO-10", Code = "B" });
+        await _repository.Collection.InsertOneAsync(new Order { Code = "C" });
+
+        var result = await _handler.Handle(new GetOrderQuery { PurchaseOrderNumber = " PO-1 " },
+            CancellationToken.None);
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("A", result[0].Code);
+    }
+
+    [TestMethod]
+    public async Task Handle_OverdueOnly()
+    {
+        var now = DateTime.UtcNow;
+        await _repository.Collection.InsertOneAsync(new Order {
+            Code = "OVERDUE", PaymentDueDateUtc = now.AddDays(-1), PaymentStatusId = PaymentStatus.Pending
+        });
+        await _repository.Collection.InsertOneAsync(new Order {
+            Code = "PAID", PaymentDueDateUtc = now.AddDays(-1), PaymentStatusId = PaymentStatus.Paid
+        });
+        await _repository.Collection.InsertOneAsync(new Order {
+            Code = "CANCELLED", PaymentDueDateUtc = now.AddDays(-1), PaymentStatusId = PaymentStatus.Pending,
+            OrderStatusId = (int)OrderStatusSystem.Cancelled
+        });
+        await _repository.Collection.InsertOneAsync(new Order {
+            Code = "NOTDUE", PaymentDueDateUtc = now.AddDays(1), PaymentStatusId = PaymentStatus.Pending
+        });
+        await _repository.Collection.InsertOneAsync(new Order { Code = "NOCREDIT", PaymentStatusId = PaymentStatus.Pending });
+
+        var result = await _handler.Handle(new GetOrderQuery { OverdueOnly = true }, CancellationToken.None);
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("OVERDUE", result[0].Code);
+    }
+
+    [TestMethod]
+    public async Task Handle_OverdueOnly_DueTodayIsNotListed()
+    {
+        await _repository.Collection.InsertOneAsync(new Order {
+            Code = "DUETODAY", PaymentDueDateUtc = DateTime.UtcNow.Date, PaymentStatusId = PaymentStatus.Pending
+        });
+
+        var result = await _handler.Handle(new GetOrderQuery { OverdueOnly = true }, CancellationToken.None);
+
+        Assert.AreEqual(0, result.Count);
     }
 }

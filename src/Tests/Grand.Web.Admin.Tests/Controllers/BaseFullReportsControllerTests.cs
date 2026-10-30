@@ -214,13 +214,13 @@ public class BaseFullReportsControllerTests
     {
         _scopeMock.Setup(s => s.StoreId).Returns("store-1");
         _orderServiceMock.Setup(o => o.SearchOrders("store-1", "", "", "", "", "", "", "", "",
-                null, null, null, null, null, null, null, "", null, null, 0, 10, ""))
+                null, null, null, null, null, null, null, "", null, null, 0, 10, "", null, false))
             .ReturnsAsync(new PagedList<Order>(new List<Order>(), 0, 0));
 
         await _controller.ReportLatestOrder(new DataSourceRequest { Page = 1, PageSize = 10 }, null, null);
 
         _orderServiceMock.Verify(o => o.SearchOrders("store-1", "", "", "", "", "", "", "", "",
-            null, null, null, null, null, null, null, "", null, null, 0, 10, ""), Times.Once);
+            null, null, null, null, null, null, null, "", null, null, 0, 10, "", null, false), Times.Once);
     }
 
     [TestMethod]

@@ -207,6 +207,31 @@ else if (!string.IsNullOrEmpty(Model.OwnerCustomerId))
         }
     </div>
 </admin-card>
+@* trade credit belongs to the company owner; a sub-account buys on its owner's *@
+@if (string.IsNullOrEmpty(Model.Owner))
+{
+    <admin-card title="@Loc["Admin.Customers.Customers.Fields.TradeCredit"]" id="customer-trade-credit">
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="CreditLimit" size="md"/>
+            <admin-field asp-for="PaymentTermDays" size="sm"/>
+        </div>
+        @if (Model.OutstandingAmount != null)
+        {
+            <div class="grand-facts mt-3">
+                <div>
+                    <admin-label asp-for="OutstandingAmount" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">
+                        @Model.OutstandingAmount
+                        @if (Model.HasOverdue)
+                        {
+                            <span class="grand-chip grand-chip--red ms-1">@Loc["Admin.Customers.Customers.Fields.TradeCredit.Overdue"]</span>
+                        }
+                    </div>
+                </div>
+            </div>
+        }
+    </admin-card>
+}
 <admin-card>
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="IsTaxExempt"/>

@@ -7,6 +7,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.SharedKernel.Extensions;
+using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
 
@@ -45,6 +46,11 @@ public class LiquidOrder : Drop
     public string OrderNumber => _order.OrderNumber.ToString();
 
     public string OrderCode => _order.Code;
+
+    public string PurchaseOrderNumber => WebUtility.HtmlEncode(_order.PurchaseOrderNumber ?? "");
+
+    //the due date is a calendar date, so it is shown as stored, without a time zone shift
+    public string PaymentDueDate => _order.PaymentDueDateUtc?.ToString("D") ?? "";
 
     public string CustomerFullName => $"{_order.BillingAddress.FirstName} {_order.BillingAddress.LastName}";
 

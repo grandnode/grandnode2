@@ -135,6 +135,18 @@ public class CustomerModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.AdminComment")]
     public string AdminComment { get; set; }
 
+    //trade credit of a company owner; amounts in the primary store currency
+    [GrandResourceDisplayName("Admin.Customers.Customers.Fields.CreditLimit")]
+    public double? CreditLimit { get; set; }
+
+    [GrandResourceDisplayName("Admin.Customers.Customers.Fields.PaymentTermDays")]
+    public int? PaymentTermDays { get; set; }
+
+    [GrandResourceDisplayName("Admin.Customers.Customers.Fields.OutstandingAmount")]
+    public string OutstandingAmount { get; set; }
+
+    public bool HasOverdue { get; set; }
+
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.IsTaxExempt")]
     public bool IsTaxExempt { get; set; }
 

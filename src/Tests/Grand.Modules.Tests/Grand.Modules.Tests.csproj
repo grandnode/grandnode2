@@ -27,6 +27,7 @@
     <ProjectReference Include="..\..\Plugins\ExchangeRate.McExchange\ExchangeRate.McExchange.csproj" />
     <ProjectReference Include="..\..\Plugins\Payments.BrainTree\Payments.BrainTree.csproj" />
     <ProjectReference Include="..\..\Plugins\Payments.CashOnDelivery\Payments.CashOnDelivery.csproj" />
+    <ProjectReference Include="..\..\Plugins\Payments.OnAccount\Payments.OnAccount.csproj" />
     <ProjectReference Include="..\..\Plugins\Shipping.ByWeight\Shipping.ByWeight.csproj" />
     <ProjectReference Include="..\..\Plugins\Theme.Nordic\Theme.Nordic.csproj" />
     <ProjectReference Include="..\..\Plugins\Theme.Modern\Theme.Modern.csproj" />

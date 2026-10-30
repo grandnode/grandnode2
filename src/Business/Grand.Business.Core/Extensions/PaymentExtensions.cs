@@ -50,4 +50,24 @@ public static class PaymentExtensions
 
         return string.IsNullOrEmpty(name) ? order.PaymentMethodSystemName : name;
     }
+
+    /// <summary>
+    ///     Gets a value indicating whether the payment of an order bought on credit is overdue: the order is not
+    ///     cancelled, not paid yet and its due date has passed. The due date is a calendar day (UTC), so the
+    ///     payment becomes overdue the day after it.
+    /// </summary>
+    /// <param name="order">Order</param>
+    /// <param name="utcNow">Current date and time in UTC</param>
+    /// <returns>Result</returns>
+    public static bool IsPaymentOverdue(this Order order, DateTime utcNow)
+    {
+        ArgumentNullException.ThrowIfNull(order);
+
+        return order.PaymentDueDateUtc.HasValue &&
+               order.PaymentDueDateUtc.Value < utcNow.Date &&
+               !order.Deleted &&
+               order.OrderStatusId != (int)OrderStatusSystem.Cancelled &&
+               order.PaymentStatusId is PaymentStatus.Pending or PaymentStatus.Authorized
+                   or PaymentStatus.PartiallyPaid;
+    }
 }

@@ -508,6 +508,22 @@ public class CustomerServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateCustomerInAdminPanel_SavesTradeCredit()
+    {
+        //Arrange
+        var customer = new Customer { Email = "boss@firm.com", CreditLimit = 100, PaymentTermDays = 7 };
+        await _repository.InsertAsync(customer);
+        //Act
+        customer.CreditLimit = 2500;
+        customer.PaymentTermDays = 45;
+        await _customerService.UpdateCustomerInAdminPanel(customer);
+        //Assert
+        var updated = _repository.Table.FirstOrDefault(x => x.Id == customer.Id);
+        Assert.AreEqual(2500, updated.CreditLimit);
+        Assert.AreEqual(45, updated.PaymentTermDays);
+    }
+
+    [TestMethod]
     public async Task UpdateActiveTest()
     {
         //Assert

@@ -1,0 +1,55 @@
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.PaymentTransaction.Fields.PaymentTerms"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@model PaymentTransactionModel
+<form id="PaymentTermsPopup" asp-area="@area" asp-controller="PaymentTransaction" asp-action="PaymentTermsPopup" asp-route-id="@Model.Id" method="post">
+
+    <input asp-for="Id" type="hidden"/>
+
+    @* the values live on the order; the due date only exists for an order bought on credit *@
+    <admin-popup title="@Loc["Admin.PaymentTransaction.Fields.PaymentTerms"]" icon="bi-receipt">
+        <div class="grand-fields">
+            <admin-field asp-for="PurchaseOrderNumber" size="md"/>
+            @if (Model.BoughtOnCredit)
+            {
+                <admin-field asp-for="PaymentDueDate" size="md"/>
+            }
+        </div>
+        <div class="grand-popup__actions">
+            <input type="submit" name="savepaymentterms" value="@Loc["Admin.Common.Save"]" id="savepaymentterms" class="btn btn-primary"/>
+        </div>
+    </admin-popup>
+
+    @if (Model.RefreshPage)
+    {
+        <script>
+            try {
+                window.location.href = window.location.href;
+            }
+            catch (e) { }
+        </script>
+    }
+    <script>
+        $("#PaymentTermsPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    $.magnificPopup.open({
+                        items: {
+                            src: data,
+                            type: 'inline'
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</form>

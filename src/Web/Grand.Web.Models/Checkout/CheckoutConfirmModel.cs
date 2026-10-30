@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.Models;
+﻿using Grand.Domain.Orders;
+using Grand.Infrastructure.Models;
 using Grand.Web.Models.Common;
 
 namespace Grand.Web.Models.Checkout;
@@ -22,6 +23,16 @@ public class CheckoutConfirmModel : BaseModel
     ///     Label of the confirm button when the order needs an approval
     /// </summary>
     public string OrderApprovalButtonText { get; set; }
+
+    /// <summary>
+    ///     Whether the confirm step asks for the buyer's purchase order number
+    /// </summary>
+    public PurchaseOrderNumberMode PurchaseOrderNumberMode { get; set; }
+
+    /// <summary>
+    ///     Maximum length of the purchase order number
+    /// </summary>
+    public int PurchaseOrderNumberMaxLength { get; set; }
 
     public IList<string> Warnings { get; set; } = new List<string>();
     public OrderReviewDataModel OrderReviewData { get; set; } = new();

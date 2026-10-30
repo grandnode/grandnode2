@@ -710,7 +710,7 @@ public class CheckoutController : BasePublicController
     }
 
     [HttpPost]
-    public virtual async Task<IActionResult> ConfirmOrder()
+    public virtual async Task<IActionResult> ConfirmOrder(string purchaseOrderNumber)
     {
         try
         {
@@ -732,7 +732,8 @@ public class CheckoutController : BasePublicController
                 Context = _contextAccessor.CalculationContext(),
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
                 Host = _contextAccessor.StoreContext.CurrentStore.LinkHost(_contextAccessor.StoreContext.CurrentHost),
-                OriginalCustomerIfImpersonated = _contextAccessor.WorkContext.OriginalCustomerIfImpersonated
+                OriginalCustomerIfImpersonated = _contextAccessor.WorkContext.OriginalCustomerIfImpersonated,
+                PurchaseOrderNumber = purchaseOrderNumber
             });
             if (placeOrderResult.Success)
             {

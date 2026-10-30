@@ -97,6 +97,23 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
             RuleFor(x => x.Fax).NotEmpty()
                 .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Fax.Required"));
 
+        //trade credit: both numbers or neither, and only on a company owner - a sub-account buys on its owner's
+        RuleFor(x => x.CreditLimit).GreaterThanOrEqualTo(0).When(x => x.CreditLimit.HasValue)
+            .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.CreditLimit.Invalid"));
+        RuleFor(x => x.PaymentTermDays).InclusiveBetween(0, 365).When(x => x.PaymentTermDays.HasValue)
+            .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.PaymentTermDays.Invalid"));
+        RuleFor(x => x).Custom((x, context) =>
+        {
+            if (!x.CreditLimit.HasValue && !x.PaymentTermDays.HasValue)
+                return;
+            if (x.CreditLimit.HasValue != x.PaymentTermDays.HasValue)
+                context.AddFailure(nameof(x.CreditLimit),
+                    translationService.GetResource("Admin.Customers.Customers.Fields.TradeCredit.BothRequired"));
+            if (!string.IsNullOrWhiteSpace(x.Owner))
+                context.AddFailure(nameof(x.CreditLimit),
+                    translationService.GetResource("Admin.Customers.Customers.Fields.TradeCredit.SubAccount"));
+        });
+
         RuleFor(x => x).Custom((x, context) =>
         {
             if (!string.IsNullOrEmpty(x.Password) && !string.IsNullOrEmpty(customerSettings.PasswordRegularExpression))

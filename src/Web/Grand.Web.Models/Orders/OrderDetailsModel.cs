@@ -32,6 +32,9 @@ public class OrderDetailsModel : BaseEntityModel
     public string VatNumber { get; set; }
     public int OrderNumber { get; set; }
     public string OrderCode { get; set; }
+    public string PurchaseOrderNumber { get; set; }
+    public DateTime? PaymentDueDate { get; set; }
+    public bool IsPaymentOverdue { get; set; }
     public string PaymentMethod { get; set; }
     public string PaymentMethodStatus { get; set; }
     public bool CanRePostProcessPayment { get; set; }

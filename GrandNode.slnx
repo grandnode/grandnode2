@@ -42,6 +42,7 @@
     <Project Path="src/Plugins/ExchangeRate.McExchange/ExchangeRate.McExchange.csproj" />
     <Project Path="src/Plugins/Payments.BrainTree/Payments.BrainTree.csproj" />
     <Project Path="src/Plugins/Payments.CashOnDelivery/Payments.CashOnDelivery.csproj" />
+    <Project Path="src/Plugins/Payments.OnAccount/Payments.OnAccount.csproj" />
     <Project Path="src/Plugins/Payments.StripeCheckout/Payments.StripeCheckout.csproj" />
     <Project Path="src/Plugins/Shipping.ByWeight/Shipping.ByWeight.csproj" />
     <Project Path="src/Plugins/Shipping.FixedRateShipping/Shipping.FixedRateShipping.csproj" />

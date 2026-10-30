@@ -115,6 +115,18 @@ public class Customer : BaseEntity
     public double? OrderApprovalLimit { get; set; }
 
     /// <summary>
+    ///     Gets or sets the trade credit limit of a company owner, in the primary store currency;
+    ///     null means no trade credit
+    /// </summary>
+    public double? CreditLimit { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the payment term, in days, of a company owner's orders bought on credit;
+    ///     null means no trade credit
+    /// </summary>
+    public int? PaymentTermDays { get; set; }
+
+    /// <summary>
     ///     Gets or sets the sales employee identifier
     /// </summary>
     public string SeId { get; set; }

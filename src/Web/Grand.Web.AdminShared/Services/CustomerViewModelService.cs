@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
@@ -55,6 +56,7 @@ public class CustomerViewModelService : ICustomerViewModelService
     private readonly IAdminDataScope<Customer> _scope;
     private readonly IPriceFormatter _priceFormatter;
     private readonly ICurrencyService _currencyService;
+    private readonly ICompanyCreditService _companyCreditService;
 
     public CustomerViewModelService(
         ICustomerService customerService,
@@ -79,8 +81,10 @@ public class CustomerViewModelService : ICustomerViewModelService
         CustomerConfig customerConfig,
         IAdminDataScope<Customer> scope,
         IPriceFormatter priceFormatter,
-        ICurrencyService currencyService)
+        ICurrencyService currencyService,
+        ICompanyCreditService companyCreditService)
     {
+        _companyCreditService = companyCreditService;
         _priceFormatter = priceFormatter;
         _currencyService = currencyService;
         _customerConfig = customerConfig;
@@ -174,6 +178,7 @@ public class CustomerViewModelService : ICustomerViewModelService
             model.Id = customer.Id;
             model.ShowMessageContactForm = _commonSettings.StoreInDatabaseContactUsForm;
             await PrepareSubAccounts(model, customer);
+            await PrepareTradeCredit(model, customer);
             if (!excludeProperties)
             {
                 model.Email = customer.Email;
@@ -185,6 +190,8 @@ public class CustomerViewModelService : ICustomerViewModelService
                 model.AdminComment = customer.AdminComment;
                 model.IsTaxExempt = customer.IsTaxExempt;
                 model.FreeShipping = customer.FreeShipping;
+                model.CreditLimit = customer.CreditLimit;
+                model.PaymentTermDays = customer.PaymentTermDays;
                 model.TwoFactorEnabled =
                     customer.GetUserFieldFromEntity<bool>(SystemCustomerFieldNames.TwoFactorEnabled);
                 model.Active = customer.Active;
@@ -384,6 +391,18 @@ public class CustomerViewModelService : ICustomerViewModelService
         return owner?.Id ?? customer?.OwnerId ?? string.Empty;
     }
 
+    //what a company owner owes on orders bought on credit; a sub-account buys on its owner's credit
+    private async Task PrepareTradeCredit(CustomerModel model, Customer customer)
+    {
+        if (!string.IsNullOrEmpty(customer.OwnerId))
+            return;
+
+        var outstanding = await _companyCreditService.GetOutstandingAmount(customer.Id);
+        model.OutstandingAmount =
+            _priceFormatter.FormatPrice(outstanding, await _currencyService.GetPrimaryStoreCurrency());
+        model.HasOverdue = await _companyCreditService.HasOverdue(customer.Id, DateTime.UtcNow);
+    }
+
     private async Task PrepareSubAccounts(CustomerModel model, Customer customer)
     {
         model.OwnerCustomerId = string.Empty;
@@ -447,6 +466,8 @@ public class CustomerViewModelService : ICustomerViewModelService
             Active = model.Active,
             StoreId = model.StoreId,
             OwnerId = ownerId,
+            CreditLimit = string.IsNullOrEmpty(ownerId) ? model.CreditLimit : null,
+            PaymentTermDays = string.IsNullOrEmpty(ownerId) ? model.PaymentTermDays : null,
             Attributes = model.Attributes,
             LastActivityDateUtc = DateTime.UtcNow
         };
@@ -564,6 +585,9 @@ public class CustomerViewModelService : ICustomerViewModelService
         };
 
         customer.OwnerId = await ResolveOwnerId(customer, model);
+        //only a company owner has trade credit of its own
+        customer.CreditLimit = string.IsNullOrEmpty(customer.OwnerId) ? model.CreditLimit : null;
+        customer.PaymentTermDays = string.IsNullOrEmpty(customer.OwnerId) ? model.PaymentTermDays : null;
 
         //VAT number
         if (_taxSettings.EuVatEnabled)

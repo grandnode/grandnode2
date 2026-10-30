@@ -53,6 +53,7 @@ public class CustomerViewModelServiceTests
     private Mock<IAdminDataScope<Customer>> _scopeMock;
     private Mock<IPriceFormatter> _priceFormatterMock;
     private Mock<ICurrencyService> _currencyServiceMock;
+    private Mock<ICompanyCreditService> _companyCreditServiceMock;
     private CustomerViewModelService _customerViewModelService;
 
     [TestInitialize]
@@ -133,6 +134,8 @@ public class CustomerViewModelServiceTests
         _currencyServiceMock.Setup(c => c.GetPrimaryStoreCurrency())
             .ReturnsAsync(new Grand.Domain.Directory.Currency { CurrencyCode = "EUR" });
 
+        _companyCreditServiceMock = new Mock<ICompanyCreditService>();
+
         _customerViewModelService = new CustomerViewModelService(
             _customerServiceMock.Object,
             _groupServiceMock.Object,
@@ -156,7 +159,8 @@ public class CustomerViewModelServiceTests
             _customerConfig,
             _scopeMock.Object,
             _priceFormatterMock.Object,
-            _currencyServiceMock.Object);
+            _currencyServiceMock.Object,
+            _companyCreditServiceMock.Object);
     }
 
     [TestMethod]
@@ -696,5 +700,81 @@ public class CustomerViewModelServiceTests
                 It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(),
                 It.IsAny<string[]>(), It.IsAny<bool>()))
             .ReturnsAsync(result);
+    }
+
+    [TestMethod]
+    public async Task UpdateCustomerModel_MapsTradeCredit()
+    {
+        var customer = new Customer { StoreId = "store-1" };
+        var model = new CustomerModel {
+            Email = "boss@firm.com", StoreId = "store-1", CreditLimit = 1000, PaymentTermDays = 30
+        };
+
+        var result = await _customerViewModelService.UpdateCustomerModel(customer, model);
+
+        Assert.AreEqual(1000, result.CreditLimit);
+        Assert.AreEqual(30, result.PaymentTermDays);
+    }
+
+    [TestMethod]
+    public async Task UpdateCustomerModel_SubAccount_ClearsTradeCredit()
+    {
+        //the Store panel does not post the owner, so a crafted post of a sub-account reaches the service
+        var customer = new Customer { StoreId = "store-1", OwnerId = "owner-1", CreditLimit = 5 };
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-1"))
+            .ReturnsAsync(new Customer { Id = "owner-1", Email = "boss@firm.com" });
+        var model = new CustomerModel {
+            Email = "buyer@firm.com", StoreId = "store-1", Owner = "boss@firm.com", CreditLimit = 1000,
+            PaymentTermDays = 30
+        };
+
+        var result = await _customerViewModelService.UpdateCustomerModel(customer, model);
+
+        Assert.AreEqual("owner-1", result.OwnerId);
+        Assert.IsNull(result.CreditLimit);
+        Assert.IsNull(result.PaymentTermDays);
+    }
+
+    [TestMethod]
+    public async Task InsertCustomerModel_MapsTradeCredit()
+    {
+        var model = new CustomerModel { StoreId = "store-1", CreditLimit = 500, PaymentTermDays = 14 };
+
+        var result = await _customerViewModelService.InsertCustomerModel(model);
+
+        Assert.AreEqual(500, result.CreditLimit);
+        Assert.AreEqual(14, result.PaymentTermDays);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_FillsOutstandingForOwner()
+    {
+        _companyCreditServiceMock.Setup(c => c.GetOutstandingAmount("owner-1")).ReturnsAsync(250);
+        _companyCreditServiceMock.Setup(c => c.HasOverdue("owner-1", It.IsAny<DateTime>())).ReturnsAsync(true);
+        _priceFormatterMock.Setup(p => p.FormatPrice(250, It.Is<Grand.Domain.Directory.Currency>(c => c.CurrencyCode == "EUR")))
+            .Returns("EUR 250.00");
+        SetupGetAllCustomers(new PagedList<Customer>());
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model,
+            new Customer { Id = "owner-1", CreditLimit = 1000, PaymentTermDays = 30 }, false);
+
+        Assert.AreEqual(1000, model.CreditLimit);
+        Assert.AreEqual(30, model.PaymentTermDays);
+        Assert.AreEqual("EUR 250.00", model.OutstandingAmount);
+        Assert.IsTrue(model.HasOverdue);
+    }
+
+    [TestMethod]
+    public async Task PrepareCustomerModel_SubAccount_NoOutstanding()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-1")).ReturnsAsync(new Customer { Id = "owner-1" });
+
+        var model = new CustomerModel();
+        await _customerViewModelService.PrepareCustomerModel(model,
+            new Customer { Id = "sub-1", OwnerId = "owner-1" }, false);
+
+        Assert.IsNull(model.OutstandingAmount);
+        _companyCreditServiceMock.Verify(c => c.GetOutstandingAmount(It.IsAny<string>()), Times.Never);
     }
 }

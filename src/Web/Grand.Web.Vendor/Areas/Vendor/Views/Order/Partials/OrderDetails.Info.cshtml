@@ -25,6 +25,13 @@
                 <div class="grand-fact__value">@Model.Code</div>
             </div>
         }
+        @if (!string.IsNullOrEmpty(Model.PurchaseOrderNumber))
+        {
+            <div>
+                <admin-label asp-for="PurchaseOrderNumber" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.PurchaseOrderNumber</div>
+            </div>
+        }
         <div>
             <admin-label asp-for="CurrencyCode" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">

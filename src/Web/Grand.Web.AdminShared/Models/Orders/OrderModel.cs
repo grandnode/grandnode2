@@ -22,6 +22,14 @@ public class OrderModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Orders.Fields.Code")]
     public string Code { get; set; }
 
+    [GrandResourceDisplayName("Admin.Orders.Fields.PurchaseOrderNumber")]
+    public string PurchaseOrderNumber { get; set; }
+
+    [GrandResourceDisplayName("Admin.Orders.Fields.PaymentDueDate")]
+    public DateTime? PaymentDueDate { get; set; }
+
+    public bool IsPaymentOverdue { get; set; }
+
     [GrandResourceDisplayName("Admin.Orders.Fields.OrderGuid")]
     public Guid OrderGuid { get; set; }
 

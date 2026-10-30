@@ -96,6 +96,8 @@ public interface IOrderService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <param name="orderTagId">Order tag identifier</param>
+    /// <param name="purchaseOrderNumber">Buyer's purchase order number, matched exactly; null to load all orders</param>
+    /// <param name="overdueOnly">Load only orders bought on credit whose payment is overdue</param>
     /// <returns>Orders</returns>
     Task<IPagedList<Order>> SearchOrders(string storeId = "",
         string vendorId = "", string customerId = "",
@@ -105,7 +107,8 @@ public interface IOrderService
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         string billingEmail = null, string billingLastName = "", string orderGuid = null,
-        string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "");
+        string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "",
+        string purchaseOrderNumber = null, bool overdueOnly = false);
 
     /// <summary>
     ///     Inserts an order

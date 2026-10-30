@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Web.Common.Localization;
 using Grand.Web.Features.Models.Orders;
@@ -12,6 +13,7 @@ namespace Grand.Web.Features.Handlers.Orders;
 
 public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList, CustomerOrderListModel>
 {
+    private readonly ICompanyCreditService _companyCreditService;
     private readonly ICurrencyService _currencyService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IGroupService _groupService;
@@ -30,6 +32,7 @@ public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList,
         IOrderStatusService orderStatusService,
         IOrderService orderService,
         ICurrencyService currencyService,
+        ICompanyCreditService companyCreditService,
         OrderSettings orderSettings, 
         IEnumTranslationService enumTranslationService)
     {
@@ -41,6 +44,7 @@ public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList,
         _orderSettings = orderSettings;
         _enumTranslationService = enumTranslationService;
         _currencyService = currencyService;
+        _companyCreditService = companyCreditService;
         _mediator = mediator;
     }
 
@@ -48,7 +52,29 @@ public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList,
     {
         var model = new CustomerOrderListModel();
         await PrepareOrder(model, request);
+        await PrepareTradeCredit(model, request);
         return model;
+    }
+
+    private async Task PrepareTradeCredit(CustomerOrderListModel model, GetCustomerOrderList request)
+    {
+        var credit = await _companyCreditService.GetCompanyCredit(request.Customer);
+        if (!credit.Enabled)
+            return;
+
+        model.TradeCredit = new CustomerOrderListModel.TradeCreditModel {
+            CreditLimit = await FormatCreditAmount(credit.CreditLimit!.Value, request.Currency),
+            Outstanding = await FormatCreditAmount(credit.OutstandingAmount, request.Currency),
+            Available = await FormatCreditAmount(credit.Available, request.Currency),
+            PaymentTermDays = credit.PaymentTermDays!.Value,
+            HasOverdue = credit.HasOverdue
+        };
+    }
+
+    private async Task<string> FormatCreditAmount(double amountInPrimaryCurrency, Currency currency)
+    {
+        var amount = await _currencyService.ConvertFromPrimaryStoreCurrency(amountInPrimaryCurrency, currency);
+        return _priceFormatter.FormatPrice(amount, currency);
     }
 
     private async Task PrepareOrder(CustomerOrderListModel model, GetCustomerOrderList request)

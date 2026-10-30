@@ -19,6 +19,7 @@ namespace Grand.Web.Features.Handlers.Checkout;
 
 public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, CheckoutPaymentMethodModel>
 {
+    private readonly ICompanyCreditService _companyCreditService;
     private readonly ICurrencyService _currencyService;
     private readonly ILoyaltyPointsService _loyaltyPointsService;
 
@@ -40,6 +41,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         IPaymentService paymentService,
         ITaxService taxService,
         IOrderApprovalService orderApprovalService,
+        ICompanyCreditService companyCreditService,
         IRequestTranslationService translationService,
         LoyaltyPointsSettings loyaltyPointsSettings,
         PaymentSettings paymentSettings)
@@ -52,6 +54,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         _paymentService = paymentService;
         _taxService = taxService;
         _orderApprovalService = orderApprovalService;
+        _companyCreditService = companyCreditService;
         _translationService = translationService;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _paymentSettings = paymentSettings;
@@ -103,6 +106,8 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
                 model.NoPaymentMethodMessage = _translationService.GetResource("Checkout.OrderApproval.NoPaymentMethod");
         }
 
+        model.TradeCreditNotice = await GetTradeCreditNotice(request);
+
         foreach (var pm in availablepaymentMethods)
         {
             var pmModel = new CheckoutPaymentMethodModel.PaymentMethodModel {
@@ -145,5 +150,22 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         }
 
         return model;
+    }
+
+    private async Task<string> GetTradeCreditNotice(GetPaymentMethod request)
+    {
+        var credit = await _companyCreditService.GetCompanyCredit(request.Customer);
+        if (!credit.Enabled)
+            return null;
+
+        var available = await _currencyService.ConvertFromPrimaryStoreCurrency(credit.Available, request.Currency);
+        var limit = await _currencyService.ConvertFromPrimaryStoreCurrency(credit.CreditLimit!.Value, request.Currency);
+        var notice = _translationService.GetResource("Checkout.TradeCredit.Available")
+            .Replace("{0}", _priceFormatter.FormatPrice(available, request.Currency))
+            .Replace("{1}", _priceFormatter.FormatPrice(limit, request.Currency));
+
+        return credit.HasOverdue
+            ? $"{notice} {_translationService.GetResource("Checkout.TradeCredit.Overdue")}"
+            : notice;
     }
 }

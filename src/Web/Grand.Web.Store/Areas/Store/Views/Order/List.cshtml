@@ -74,6 +74,8 @@
             <admin-field asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
             <admin-field asp-for="PaymentMethodSystemName" asp-items="Model.AvailablePaymentMethods"/>
             <admin-field asp-for="OrderTag" asp-items="Model.AvailableOrderTags"/>
+            <admin-field asp-for="PurchaseOrderNumber"/>
+            <admin-field asp-for="OverdueOnly"/>
         </admin-filters>
 
         <admin-card flush>
@@ -260,6 +262,8 @@
                 OrderGuid: $('#@Html.IdFor(model => model.OrderGuid)').val(),
                 GoDirectlyToNumber: $('#@Html.IdFor(model => model.GoDirectlyToNumber)').val(),
                 OrderTag: $('#@Html.IdFor(model => model.OrderTag)').val(),
+                PurchaseOrderNumber: $('#@Html.IdFor(model => model.PurchaseOrderNumber)').val(),
+                OverdueOnly: $('#@Html.IdFor(model => model.OverdueOnly)').is(':checked'),
             };
             addAntiForgeryToken(data);
             return data;

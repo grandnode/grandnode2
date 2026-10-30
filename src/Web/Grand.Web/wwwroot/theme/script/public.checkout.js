@@ -37,6 +37,7 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
             DisplayLoyaltyPoints: null,
             PaymentMethods: null,
             NoPaymentMethodMessage: null,
+            TradeCreditNotice: null,
             LoyaltyPointsAmount: null,
             LoyaltyPointsBalance: null,
             LoyaltyPointsEnoughToPayForOrder: null,
@@ -52,6 +53,9 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
             OrderApprovalButtonText: null,
             TermsOfServiceOnOrderConfirmPage: null,
             ConfirmWarnings: null,
+            PurchaseOrderNumberMode: 0,
+            PurchaseOrderNumberMaxLength: null,
+            purchaseOrderNumber: '',
             // terms of service
             terms: false,
             acceptTerms: false,
@@ -240,6 +244,7 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
                             vmorder.DisplayLoyaltyPoints = model.DisplayLoyaltyPoints;
                             vmorder.PaymentMethods = model.PaymentMethods;
                             vmorder.NoPaymentMethodMessage = model.NoPaymentMethodMessage;
+                            vmorder.TradeCreditNotice = model.TradeCreditNotice;
                             vmorder.LoyaltyPointsAmount = model.LoyaltyPointsAmount;
                             vmorder.LoyaltyPointsBalance = model.LoyaltyPointsBalance;
                             vmorder.LoyaltyPointsEnoughToPayForOrder = model.LoyaltyPointsEnoughToPayForOrder;
@@ -287,6 +292,8 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
                             vmorder.OrderApprovalMessage = model.OrderApprovalMessage;
                             vmorder.OrderApprovalButtonText = model.OrderApprovalButtonText;
                             vmorder.ConfirmWarnings = model.Warnings;
+                            vmorder.PurchaseOrderNumberMode = model.PurchaseOrderNumberMode;
+                            vmorder.PurchaseOrderNumberMaxLength = model.PurchaseOrderNumberMaxLength;
                             vmorder.OrderReviewData = model.OrderReviewData;
                             vmorder.Confirm = true;
                             vmorder.updateTotals();
@@ -737,9 +744,12 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
                     var termOfServiceOk = true;
                     if (termOfServiceOk) {
                         vmorder.Checkout.setLoadWaiting('confirm-order');
+                        var data = new FormData();
+                        data.append('purchaseOrderNumber', vmorder.purchaseOrderNumber || '');
                         axios({
                             url: this.saveUrl,
                             method: 'post',
+                            data: data,
                             showLoader: false
                         }).then(function (response) {
                             vmorder.vConfirmOrder.nextStep(response);

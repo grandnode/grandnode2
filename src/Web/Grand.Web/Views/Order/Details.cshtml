@@ -70,6 +70,22 @@
                                 <span>@Model.CreatedOn.ToString("D")</span>
                             }
                         </li>
+                        @if (!string.IsNullOrEmpty(Model.PurchaseOrderNumber))
+                        {
+                            <li class="order-po-number d-flex">
+                                <span class="mx-1">@Loc["Order.PurchaseOrderNumber"]:</span><span>@Model.PurchaseOrderNumber</span>
+                            </li>
+                        }
+                        @if (Model.PaymentDueDate.HasValue)
+                        {
+                            <li class="order-payment-due d-flex align-items-center">
+                                <span class="mx-1">@Loc["Order.PaymentDueDate"]:</span><span>@Model.PaymentDueDate.Value.ToString("D")</span>
+                                @if (Model.IsPaymentOverdue)
+                                {
+                                    <span class="badge bg-danger ms-2">@Loc["Order.PaymentOverdue"]</span>
+                                }
+                            </li>
+                        }
                         <li class="order-status d-flex">
                             <span class="mx-1">@Loc["Order.OrderStatus"]:</span><span>@Model.OrderStatus</span>
                         </li>

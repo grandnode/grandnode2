@@ -282,4 +282,19 @@ public class CustomerControllerTests
 
         Assert.AreEqual(0, craftedModel.CustomerGroups.Count());
     }
+
+    [TestMethod]
+    public async Task Edit_KeepsTradeCreditFieldsSubmittedByStoreOwner()
+    {
+        //the store manager sets the company's credit; the post constraints keep where it belongs, not the credit
+        _customerServiceMock.Setup(c => c.GetCustomerById("owner-1"))
+            .ReturnsAsync(new Customer { Id = "owner-1", CreditLimit = 100, PaymentTermDays = 7 });
+        var controller = BuildStoreController();
+
+        var model = new CustomerModel { Id = "owner-1", CreditLimit = 2500, PaymentTermDays = 45 };
+        await controller.ApplyPostConstraintsPublic(model);
+
+        Assert.AreEqual(2500, model.CreditLimit);
+        Assert.AreEqual(45, model.PaymentTermDays);
+    }
 }
