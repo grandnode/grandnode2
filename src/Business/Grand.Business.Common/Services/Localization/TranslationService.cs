@@ -220,10 +220,13 @@ public class TranslationService : ITranslationService
 
             if (resource != null)
             {
-                resource.Name = resource.Name.ToLowerInvariant();
+                //a resource the file does not change is not written
+                var area = Enum.TryParse<TranslationResourceArea>(item.Area, out var areaEnum) ? areaEnum : resource.Area;
+                if (resource.Value == item.Value && resource.Area == area)
+                    continue;
+
                 resource.Value = item.Value;
-                if (Enum.TryParse<TranslationResourceArea>(item.Area, out var areaEnum))
-                    resource.Area = areaEnum;
+                resource.Area = area;
                 await _translationRepository.UpdateAsync(resource);
             }
             else

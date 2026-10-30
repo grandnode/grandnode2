@@ -119,10 +119,21 @@ public class AuditService(
             query = query.Where(x => x.Source == search.Source.Value);
         if (search.Kind.HasValue)
             query = query.Where(x => x.Kind == search.Kind.Value);
-        if (!string.IsNullOrEmpty(search.EntityType))
-            query = query.Where(x => x.EntityType == search.EntityType);
-        if (!string.IsNullOrEmpty(search.EntityId))
-            query = query.Where(x => x.EntityId == search.EntityId);
+        var types = search.EntityType?.Split(',', StringSplitOptions.TrimEntries | StringSplitOptions.RemoveEmptyEntries)
+            .ToList() ?? [];
+        //the history of one record also holds the records that belong to it (its notes)
+        if (types.Count == 1 && !string.IsNullOrEmpty(search.EntityId))
+            query = query.Where(x => (x.EntityType == types[0] && x.EntityId == search.EntityId)
+                                     || (x.OwnerType == types[0] && x.OwnerId == search.EntityId));
+        else
+        {
+            if (types.Count == 1)
+                query = query.Where(x => x.EntityType == types[0]);
+            else if (types.Count > 1)
+                query = query.Where(x => types.Contains(x.EntityType));
+            if (!string.IsNullOrEmpty(search.EntityId))
+                query = query.Where(x => x.EntityId == search.EntityId);
+        }
         if (search.EntityNames is { Count: > 0 })
         {
             var names = search.EntityNames.ToList();

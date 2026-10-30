@@ -11,6 +11,7 @@ namespace Grand.Domain.Orders;
 /// </summary>
 public class MerchandiseReturn : BaseEntity
 {
+    [AuditName]
     public int ReturnNumber { get; set; }
 
     /// <summary>

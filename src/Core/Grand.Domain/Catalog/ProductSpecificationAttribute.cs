@@ -16,6 +16,7 @@ public class ProductSpecificationAttribute : SubBaseEntity
     ///     Gets or sets the specification attribute Id
     /// </summary>
     [AuditReference(typeof(SpecificationAttribute))]
+    [AuditName]
     public string SpecificationAttributeId { get; set; }
 
     /// <summary>

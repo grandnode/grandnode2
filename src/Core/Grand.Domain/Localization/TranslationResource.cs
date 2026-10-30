@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+
 namespace Grand.Domain.Localization;
 
 /// <summary>
@@ -8,6 +10,8 @@ public class TranslationResource : BaseEntity
     /// <summary>
     ///     Gets or sets the language identifier
     /// </summary>
+    [AuditReference(typeof(Language))]
+    [AuditOwner]
     public string LanguageId { get; set; }
 
     /// <summary>

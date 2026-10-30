@@ -11,6 +11,13 @@ public class AuditChange
     public string Path { get; set; }
 
     /// <summary>
+    ///     Gets or sets the names of the list elements the path runs through, outermost first (an empty name where an
+    ///     element has none), e.g. "Color family" for ProductSpecificationAttributes[id=…].DisplayOrder; null when
+    ///     the path runs through no named element
+    /// </summary>
+    public IList<string> ElementNames { get; set; }
+
+    /// <summary>
     ///     Gets or sets the value before the change (null when masked or when the field was added)
     /// </summary>
     public string OldValue { get; set; }

@@ -13,16 +13,25 @@ public class AuditEntryRowModel
     public string Source { get; set; }
     public string Kind { get; set; }
     public string What { get; set; }
+    /// <summary>
+    ///     What changed, without the values, shortened
+    /// </summary>
     public string ChangedFields { get; set; }
 
     /// <summary>
-    ///     "Path: before → after" of every change, shortened, for the change history popup
+    ///     Every change with its values in words (see <see cref="AuditChangeText" />), shortened, for the change
+    ///     history popup
     /// </summary>
     public string ChangesText { get; set; }
 }
 
 public class AuditChangeModel
 {
+    /// <summary>
+    ///     The field in words, e.g. "Specification attributes › Color family › Display order"
+    /// </summary>
+    public string Label { get; set; }
+
     public string Path { get; set; }
     public string OldValue { get; set; }
     public string NewValue { get; set; }

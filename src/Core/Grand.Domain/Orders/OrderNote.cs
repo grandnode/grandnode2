@@ -11,11 +11,13 @@ public class OrderNote : BaseEntity
     ///     Gets or sets the order identifier
     /// </summary>
     [AuditReference(typeof(Order))]
+    [AuditOwner]
     public string OrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets the note
     /// </summary>
+    [AuditName]
     public string Note { get; set; }
 
     /// <summary>

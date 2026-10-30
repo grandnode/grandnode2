@@ -22,6 +22,7 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Orders.Shipments.BackToList"]">
         <page-actions>
+            <audit-history entity-type="Shipment" entity-id="@Model.Id"/>
             @if (Model.CanShip)
             {
                 <input type="submit" name="setasshipped" asp-action="SetAsShipped" id="setasshipped"

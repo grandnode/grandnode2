@@ -12,6 +12,7 @@ public class NewsComment : SubBaseEntity
     /// <summary>
     ///     Gets or sets the comment title
     /// </summary>
+    [AuditName]
     public string CommentTitle { get; set; }
 
     /// <summary>

@@ -7,7 +7,7 @@
 
 @* Opened from the "Change history" button of an edit or list screen. Values are grid text nodes,
    never HTML; the full entry and the CSV export are one click away in the audit log. *@
-<admin-popup title="@($"{Loc["Admin.System.AuditLog.ChangeHistory"]} · {Model.EntityType}")" icon="bi-clock-history">
+<admin-popup title="@($"{Loc["Admin.System.AuditLog.ChangeHistory"]} · {Model.EntityType?.Replace(",", ", ")}")" icon="bi-clock-history">
     <admin-card flush>
         <card-actions>
             <a class="btn btn-outline-secondary btn-sm" target="_blank"

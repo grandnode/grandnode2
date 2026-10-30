@@ -17,6 +17,9 @@ public static class AuditIndexes
             OrderBuilder<AuditEntry>.Create().Ascending(x => x.EntityType).Ascending(x => x.EntityId)
                 .Descending(x => x.CreatedOnUtc).Descending(x => x.Id), "EntityType_EntityId_CreatedOnUtc_Id");
         await databaseContext.CreateIndex(repository,
+            OrderBuilder<AuditEntry>.Create().Ascending(x => x.OwnerType).Ascending(x => x.OwnerId)
+                .Descending(x => x.CreatedOnUtc).Descending(x => x.Id), "OwnerType_OwnerId_CreatedOnUtc_Id");
+        await databaseContext.CreateIndex(repository,
             OrderBuilder<AuditEntry>.Create().Ascending(x => x.ActorCustomerId).Descending(x => x.CreatedOnUtc)
                 .Descending(x => x.Id), "ActorCustomerId_CreatedOnUtc_Id");
         await databaseContext.CreateIndex(repository,

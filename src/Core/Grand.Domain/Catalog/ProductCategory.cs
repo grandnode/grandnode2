@@ -11,6 +11,7 @@ public class ProductCategory : SubBaseEntity
     ///     Gets or sets the category identifier
     /// </summary>
     [AuditReference(typeof(Category))]
+    [AuditName]
     public string CategoryId { get; set; }
 
     /// <summary>

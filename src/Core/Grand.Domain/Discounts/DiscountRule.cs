@@ -1,4 +1,6 @@
-﻿namespace Grand.Domain.Discounts;
+﻿using Grand.Domain.Audit;
+
+namespace Grand.Domain.Discounts;
 
 /// <summary>
 ///     Represents a discount requirement
@@ -8,6 +10,7 @@ public class DiscountRule : SubBaseEntity
     /// <summary>
     ///     Gets or sets the discount requirement rule system name
     /// </summary>
+    [AuditName]
     public string DiscountRequirementRuleSystemName { get; set; }
 
     /// <summary>

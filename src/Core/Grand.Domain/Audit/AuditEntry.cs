@@ -63,6 +63,17 @@ public class AuditEntry : BaseEntity
     /// </summary>
     public string EntityStoreId { get; set; }
 
+    /// <summary>
+    ///     Gets or sets the type of the record the changed record belongs to (Order for an order note, see
+    ///     <see cref="AuditOwnerAttribute" />); null when it belongs to none
+    /// </summary>
+    public string OwnerType { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the id of the record the changed record belongs to
+    /// </summary>
+    public string OwnerId { get; set; }
+
     public IList<AuditChange> Changes { get; set; } = new List<AuditChange>();
 
     /// <summary>

@@ -24,16 +24,14 @@ public class AuditLogController(
     IRequestTranslationService translationService) : BaseAdminController
 {
     private const int DefaultDays = 7;
-    private const int ChangedFieldsLength = 200;
     private const int HistoryPageSize = 20;
     private const int TypeHistorySize = 100;
-    private const int HistoryValueLength = 100;
 
     private static readonly string[] CsvColumns = [
         "CreatedOnUtc", "Kind", "Source", "ActorEmail", "ActorCustomerId", "ImpersonatedCustomerId", "StoreId",
         "VendorId", "IpAddress", "UserAgent", "Action", "OperationId", "EntityType", "EntityId", "EntityName",
         "EntityStoreId",
-        "Path", "OldValue", "NewValue", "Masked", "Truncated", "Details"
+        "Path", "ElementNames", "OldValue", "NewValue", "Masked", "Truncated", "Details"
     ];
 
     public IActionResult Index()
@@ -81,7 +79,7 @@ public class AuditLogController(
             Source = SourceName(entry.Source),
             Kind = KindName(entry.Kind),
             AppliesTo = AppliesTo(entry, await StoreNames()),
-            Changes = entry.Changes.Select(ToChange).ToList()
+            Changes = entry.Changes.Select(c => ToChange(entry.EntityType, c)).ToList()
         });
     }
 
@@ -158,6 +156,9 @@ public class AuditLogController(
         model.AvailableEntityTypes.Add(new SelectListItem(all, ""));
         foreach (var type in await auditService.GetEntityTypes())
             model.AvailableEntityTypes.Add(new SelectListItem(type, type));
+        //the types of one screen's history, opened in the log
+        if (!string.IsNullOrEmpty(model.EntityType) && model.AvailableEntityTypes.All(t => t.Value != model.EntityType))
+            model.AvailableEntityTypes.Add(new SelectListItem(model.EntityType.Replace(",", ", "), model.EntityType));
 
         model.AvailableSources.Add(new SelectListItem(all, ""));
         foreach (var source in Enum.GetValues<AuditSource>())
@@ -207,10 +208,10 @@ public class AuditLogController(
         return stores.TryGetValue(entry.EntityStoreId, out var name) ? name : entry.EntityStoreId;
     }
 
-    //the list shows only the changed field names; the values are for the change history popup
+    //the list shows only what changed; the values are for the change history popup
     private AuditEntryRowModel ToRow(AuditEntry entry, IDictionary<string, string> stores, bool withValues)
     {
-        var fields = string.Join(", ", entry.Changes.Select(c => c.Path));
+        var text = new AuditChangeText(translationService.GetResource);
         var appliesTo = AppliesTo(entry, stores);
         return new AuditEntryRowModel {
             Id = entry.Id,
@@ -220,33 +221,25 @@ public class AuditLogController(
             Kind = KindName(entry.Kind),
             What = string.Join(" ", new[] { entry.EntityType, entry.EntityName }.Where(s => !string.IsNullOrEmpty(s)))
                    + (appliesTo == null ? "" : $" ({appliesTo})"),
-            ChangedFields = fields.Length > ChangedFieldsLength ? fields[..ChangedFieldsLength] + "…" : fields,
-            ChangesText = withValues
-                ? string.Join(" · ", entry.Changes.Select(ToChange).Select(c =>
-                    $"{c.Path}: {Shorten(c.OldValue)} → {Shorten(c.NewValue)}"))
-                : null
+            ChangedFields = text.Summary(entry.EntityType, entry.Changes),
+            ChangesText = withValues ? text.Text(entry) : null
         };
     }
 
-    private static string Shorten(string value)
+    private AuditChangeModel ToChange(string entityType, AuditChange change)
     {
-        if (value == null)
-            return "—";
-        return value.Length > HistoryValueLength ? value[..HistoryValueLength] + "…" : value;
-    }
-
-    private AuditChangeModel ToChange(AuditChange change)
-    {
+        var label = new AuditChangeText(translationService.GetResource).Label(entityType, change);
         if (change.Masked)
         {
             var hidden = translationService.GetResource("Admin.System.AuditLog.ChangedHidden");
-            return new AuditChangeModel { Path = change.Path, OldValue = hidden, NewValue = hidden };
+            return new AuditChangeModel { Label = label, Path = change.Path, OldValue = hidden, NewValue = hidden };
         }
 
         var suffix = change.Truncated
             ? $" … ({translationService.GetResource("Admin.System.AuditLog.Truncated")})"
             : "";
         return new AuditChangeModel {
+            Label = label,
             Path = change.Path,
             OldValue = change.OldValue == null ? null : change.OldValue + suffix,
             NewValue = change.NewValue == null ? null : change.NewValue + suffix
@@ -291,7 +284,8 @@ public class AuditLogController(
             entry.ActorCustomerId, entry.ImpersonatedCustomerId, entry.StoreId, entry.VendorId, entry.IpAddress,
             entry.UserAgent, entry.Action, entry.OperationId, entry.EntityType, entry.EntityId, entry.EntityName,
             entry.EntityStoreId,
-            change?.Path, change?.OldValue, change?.NewValue, change?.Masked.ToString(), change?.Truncated.ToString(),
+            change?.Path, change?.ElementNames == null ? null : string.Join(" › ", change.ElementNames),
+            change?.OldValue, change?.NewValue, change?.Masked.ToString(), change?.Truncated.ToString(),
             entry.Details
         ];
         return string.Join(",", values.Select(CsvCell));

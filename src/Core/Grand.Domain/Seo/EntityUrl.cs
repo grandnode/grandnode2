@@ -21,6 +21,7 @@ public class EntityUrl : BaseEntity
     /// <summary>
     ///     Gets or sets the slug
     /// </summary>
+    [AuditName]
     public string Slug { get; set; }
 
     /// <summary>

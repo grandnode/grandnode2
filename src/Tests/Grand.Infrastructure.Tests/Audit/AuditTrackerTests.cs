@@ -321,6 +321,46 @@ public class AuditTrackerTests
     }
 
     [TestMethod]
+    public async Task CountedInserts_OneBulkEntryWithTheCount_UpdatesStaySingle()
+    {
+        _tracker.Activate(Actor);
+        Put("old", price: 10);
+
+        using (_tracker.CountInserts<TrackedThing>("Import", "language: Polish", new TrackedThing { Id = "lang1" }))
+        {
+            foreach (var id in new[] { "n1", "n2", "n3" })
+            {
+                Put(id);
+                await _tracker.BeforeWriteAsync(id, true, _access);
+            }
+
+            await _tracker.BeforeWriteAsync("old", false, _access);
+            _store["old"].Price = 20;
+        }
+
+        Put("after");
+        await _tracker.BeforeWriteAsync("after", true, _access);
+        await _tracker.FlushAsync();
+
+        var bulk = Written.Single(e => e.Kind == AuditKind.Bulk);
+        Assert.AreEqual("Import: language: Polish; inserted: 3", bulk.Details);
+        Assert.AreEqual(nameof(TrackedThing), bulk.OwnerType);
+        Assert.AreEqual("lang1", bulk.OwnerId);
+        Assert.AreEqual("old", Written.Single(e => e.Kind == AuditKind.Update).EntityId);
+        Assert.AreEqual("after", Written.Single(e => e.Kind == AuditKind.Insert).EntityId);
+    }
+
+    [TestMethod]
+    public void CountedInserts_Inactive_NothingRecorded()
+    {
+        using (_tracker.CountInserts<TrackedThing>("Import", "x"))
+        {
+        }
+
+        Assert.AreEqual(0, Written.Count);
+    }
+
+    [TestMethod]
     public void ExcludedType_NotAudited()
     {
         Assert.IsFalse(_tracker.IsAudited(typeof(AuditEntry)));

@@ -495,6 +495,12 @@
 	<Resource Name="Admin.System.AuditLog.ChangedHidden" Area="Admin">
 		<Value>changed (hidden)</Value>
 	</Resource>
+	<Resource Name="Admin.System.AuditLog.Added" Area="Admin">
+		<Value>added</Value>
+	</Resource>
+	<Resource Name="Admin.System.AuditLog.Removed" Area="Admin">
+		<Value>removed</Value>
+	</Resource>
 	<Resource Name="Admin.System.AuditLog.Truncated" Area="Admin">
 		<Value>truncated</Value>
 	</Resource>

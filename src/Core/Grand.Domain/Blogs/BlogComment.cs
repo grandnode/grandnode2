@@ -24,6 +24,7 @@ public class BlogComment : BaseEntity
     /// <summary>
     ///     Gets or sets the comment text
     /// </summary>
+    [AuditName]
     public string CommentText { get; set; }
 
     /// <summary>
@@ -35,5 +36,6 @@ public class BlogComment : BaseEntity
     ///     Gets or sets the blog post identifier
     /// </summary>
     [AuditReference(typeof(BlogPost))]
+    [AuditOwner]
     public string BlogPostId { get; set; }
 }

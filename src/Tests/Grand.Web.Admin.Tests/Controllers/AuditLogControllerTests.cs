@@ -139,7 +139,7 @@ public class AuditLogControllerTests
         var lines = ResponseText().Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
         Assert.AreEqual(4, lines.Length);
         StringAssert.StartsWith(lines[0], "CreatedOnUtc,Kind,Source,ActorEmail");
-        StringAssert.Contains(lines[1], ",Price,1,2,");
+        StringAssert.Contains(lines[1], ",Price,,1,2,");
     }
 
     [TestMethod]
@@ -188,6 +188,42 @@ public class AuditLogControllerTests
         var columns = lines[0].Split(',');
         var cells = lines[1].Split(',');
         Assert.AreEqual("s2", cells[Array.IndexOf(columns, "EntityStoreId")]);
+    }
+
+    [TestMethod]
+    public async Task ExportCsv_HasElementNamesColumn()
+    {
+        _auditService.Setup(s => s.StreamEntries(It.IsAny<AuditEntrySearch>(), It.IsAny<CancellationToken>()))
+            .Returns(Stream(new AuditEntry {
+                EntityType = "Product",
+                Changes = [new AuditChange {
+                    Path = "ProductAttributeMappings[id=m].ProductAttributeValues[id=v].Name", NewValue = "Red",
+                    ElementNames = ["Color", "Red"]
+                }]
+            }));
+
+        await _controller.ExportCsv(new AuditLogListModel());
+
+        var lines = ResponseText().Split("\r\n", StringSplitOptions.RemoveEmptyEntries);
+        var columns = lines[0].Split(',');
+        var cells = lines[1].Split(',');
+        Assert.AreEqual("Color › Red", cells[Array.IndexOf(columns, "ElementNames")]);
+    }
+
+    [TestMethod]
+    public async Task Detail_FieldInWordsNextToThePath()
+    {
+        var change = new AuditChange {
+            Path = "ProductSpecificationAttributes[id=a].DisplayOrder", OldValue = "0", NewValue = "1",
+            ElementNames = ["Color family"]
+        };
+        _auditService.Setup(s => s.GetById("e1"))
+            .ReturnsAsync(new AuditEntry { EntityType = "Product", Changes = [change] });
+
+        var model = (AuditEntryModel)((ViewResult)await _controller.Detail("e1")).Model!;
+
+        Assert.AreEqual("Specification attributes › Color family › Display order", model.Changes[0].Label);
+        Assert.AreEqual(change.Path, model.Changes[0].Path);
     }
 
     [TestMethod]

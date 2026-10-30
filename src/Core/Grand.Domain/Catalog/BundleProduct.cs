@@ -11,6 +11,7 @@ public class BundleProduct : SubBaseEntity
     ///     Gets or sets the product identifier
     /// </summary>
     [AuditReference(typeof(Product))]
+    [AuditName]
     public string ProductId { get; set; }
 
     /// <summary>

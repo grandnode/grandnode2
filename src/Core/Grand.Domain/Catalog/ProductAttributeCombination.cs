@@ -1,3 +1,4 @@
+using Grand.Domain.Audit;
 using Grand.Domain.Common;
 
 namespace Grand.Domain.Catalog;
@@ -38,6 +39,7 @@ public class ProductAttributeCombination : SubBaseEntity, ICloneable
     /// <summary>
     ///     Gets or sets the SKU
     /// </summary>
+    [AuditName]
     public string Sku { get; set; }
 
     /// <summary>

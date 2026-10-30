@@ -11,6 +11,7 @@ public class ProductCollection : SubBaseEntity
     ///     Gets or sets the collection identifier
     /// </summary>
     [AuditReference(typeof(Collection))]
+    [AuditName]
     public string CollectionId { get; set; }
 
     /// <summary>

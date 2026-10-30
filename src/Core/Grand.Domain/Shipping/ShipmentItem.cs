@@ -18,6 +18,7 @@ public class ShipmentItem : SubBaseEntity
     ///     Gets or sets the product
     /// </summary>
     [AuditReference(typeof(Product))]
+    [AuditName]
     public string ProductId { get; set; }
 
     /// <summary>
