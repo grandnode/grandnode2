@@ -100,7 +100,7 @@
                 @foreach (var change in Model.Changes)
                 {
                     <tr>
-                        <td class="text-nowrap">@change.Path</td>
+                        <td>@change.Label <div class="grand-cell-sub text-break">@change.Path</div></td>
                         <td class="text-break">@change.OldValue</td>
                         <td class="text-break">@change.NewValue</td>
                     </tr>

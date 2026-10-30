@@ -234,7 +234,10 @@ public class AuditTracker(
                 {
                     entry = Build(group.Key, item.Key.Id, item.Value, after);
                     if (entry != null)
+                    {
+                        await references.NameElements(group.Key, entry.Changes, item.Value.Before, after);
                         await references.Describe(group.Key, entry.Changes, item.Value.Before, after);
+                    }
                 }
                 catch (Exception)
                 {

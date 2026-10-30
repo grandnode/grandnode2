@@ -17,6 +17,7 @@ public class GiftVoucherUsageHistory : SubBaseEntity
     ///     Gets or sets the order identifier
     /// </summary>
     [AuditReference(typeof(Order))]
+    [AuditName]
     public string UsedWithOrderId { get; set; }
 
     /// <summary>

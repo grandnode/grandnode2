@@ -190,6 +190,60 @@ public class AuditReferencesTests
         Assert.IsTrue(change.Truncated);
     }
 
+    private async Task<IList<string>> ElementNames(string path, IDictionary<string, string> before,
+        IDictionary<string, string> after)
+    {
+        var change = new AuditChange { Path = path };
+        await _references.NameElements(typeof(Product), [change], before, after);
+        return change.ElementNames;
+    }
+
+    [TestMethod]
+    public async Task Element_NamedByTheRecordItRefersTo()
+    {
+        _records[(typeof(SpecificationAttribute), "s1")] = new Dictionary<string, string> { ["Name"] = "Color family" };
+        var product = new Dictionary<string, string> { ["ProductSpecificationAttributes[id=p1].SpecificationAttributeId"] = "s1" };
+
+        var names = await ElementNames("ProductSpecificationAttributes[id=p1].DisplayOrder", product, product);
+
+        CollectionAssert.AreEqual(new[] { "Color family" }, names.ToArray());
+    }
+
+    [TestMethod]
+    public async Task NestedElements_EachNamed()
+    {
+        _records[(typeof(ProductAttribute), "pa1")] = new Dictionary<string, string> { ["Name"] = "Color" };
+        var product = new Dictionary<string, string> {
+            ["ProductAttributeMappings[id=m].ProductAttributeId"] = "pa1",
+            ["ProductAttributeMappings[id=m].ProductAttributeValues[id=v].Name"] = "Red"
+        };
+
+        var names = await ElementNames("ProductAttributeMappings[id=m].ProductAttributeValues[id=v].PriceAdjustment",
+            product, product);
+
+        CollectionAssert.AreEqual(new[] { "Color", "Red" }, names.ToArray());
+    }
+
+    [TestMethod]
+    public async Task RemovedElement_NamedFromBefore()
+    {
+        _records[(typeof(Category), "c1")] = new Dictionary<string, string> { ["Name"] = "Lamps" };
+        var before = new Dictionary<string, string> { ["ProductCategories[id=x].CategoryId"] = "c1" };
+
+        var names = await ElementNames("ProductCategories[id=x].DisplayOrder", before, new Dictionary<string, string>());
+
+        CollectionAssert.AreEqual(new[] { "Lamps" }, names.ToArray());
+    }
+
+    [TestMethod]
+    public async Task ElementWithoutName_NoNames()
+    {
+        var product = new Dictionary<string, string> { ["TierPrices[id=t].Quantity"] = "5" };
+
+        Assert.IsNull(await ElementNames("TierPrices[id=t].Quantity", null, product));
+        Assert.IsNull(await ElementNames("Name", null, product));
+    }
+
     [TestMethod]
     public async Task UnmarkedOrMissing_KeepsTheStoredValue()
     {

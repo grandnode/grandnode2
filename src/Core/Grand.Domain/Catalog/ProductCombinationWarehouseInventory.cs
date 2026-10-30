@@ -12,6 +12,7 @@ public class ProductCombinationWarehouseInventory : SubBaseEntity
     ///     Gets or sets the warehouse identifier
     /// </summary>
     [AuditReference(typeof(Warehouse))]
+    [AuditName]
     public string WarehouseId { get; set; }
 
     /// <summary>

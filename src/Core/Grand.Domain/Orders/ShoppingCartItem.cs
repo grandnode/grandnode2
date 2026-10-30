@@ -1,3 +1,5 @@
+using Grand.Domain.Audit;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 
 namespace Grand.Domain.Orders;
@@ -25,6 +27,8 @@ public class ShoppingCartItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the product identifier
     /// </summary>
+    [AuditReference(typeof(Product))]
+    [AuditName]
     public string ProductId { get; set; }
 
     /// <summary>
