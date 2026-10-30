@@ -14,6 +14,7 @@ public class KnowledgebaseArticleComment : BaseEntity
     /// <summary>
     ///     Gets or sets the comment text
     /// </summary>
+    [AuditName]
     public string CommentText { get; set; }
 
     /// <summary>
@@ -25,5 +26,6 @@ public class KnowledgebaseArticleComment : BaseEntity
     ///     Gets or sets the blog post identifier
     /// </summary>
     [AuditReference(typeof(KnowledgebaseArticle))]
+    [AuditOwner]
     public string ArticleId { get; set; }
 }

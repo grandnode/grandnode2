@@ -298,8 +298,11 @@ public class AuditTracker(
 
     private static string NameOf(Type type, IDictionary<string, string> snapshot)
     {
+        //a name can be a note or a comment: kept to the length of a stored value
         var property = AuditReferences.NameProperty(type);
-        return snapshot != null && snapshot.TryGetValue(property, out var name) && name != "" ? name : null;
+        if (snapshot == null || !snapshot.TryGetValue(property, out var name) || name == "")
+            return null;
+        return name.Length > AuditDiff.MaxValueLength ? name[..AuditDiff.MaxValueLength] : name;
     }
 
     //"" is a record of all stores, null one without a store
