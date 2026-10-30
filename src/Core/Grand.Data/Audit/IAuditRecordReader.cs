@@ -1,7 +1,7 @@
 namespace Grand.Data.Audit;
 
 /// <summary>
-///     Reads one stored record as an audit snapshot, to name the record a changed field refers to
+///     Reads stored records as audit snapshots, to name the records changed fields refer to
 /// </summary>
 public interface IAuditRecordReader
 {
@@ -11,4 +11,11 @@ public interface IAuditRecordReader
     ///     the snapshot may hold only that top-level field.
     /// </summary>
     Task<IDictionary<string, string>> Read(Type entityType, string value, string key = null, string field = null);
+
+    /// <summary>
+    ///     The records whose <paramref name="key" /> is one of <paramref name="values" />, in one read, by that value; a
+    ///     value without a record is left out. Otherwise as <see cref="Read" />.
+    /// </summary>
+    Task<IDictionary<string, IDictionary<string, string>>> ReadMany(Type entityType, IReadOnlyCollection<string> values,
+        string key = null, string field = null);
 }

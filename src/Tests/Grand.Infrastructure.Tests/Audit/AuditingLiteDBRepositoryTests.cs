@@ -188,6 +188,21 @@ public class AuditingLiteDBRepositoryTests
         Assert.AreEqual(0, _written.Count);
     }
 
+    [TestMethod]
+    public async Task RecordReader_ReadMany_ByIdWithoutMissing()
+    {
+        var lamp = await Seed();
+        var desk = new Gadget { Name = "Desk" };
+        await _repository.InsertAsync(desk);
+
+        var records = await new LiteDBAuditRecordReader(() => _database)
+            .ReadMany(typeof(Gadget), [lamp.Id, desk.Id, "missing"], null, "Name");
+
+        Assert.AreEqual(2, records.Count);
+        Assert.AreEqual("Lamp", records[lamp.Id]["Name"]);
+        Assert.AreEqual("Desk", records[desk.Id]["Name"]);
+    }
+
     public class Gadget : BaseEntity
     {
         public string Name { get; set; }

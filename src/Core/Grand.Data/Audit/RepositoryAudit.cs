@@ -11,9 +11,14 @@ public sealed class RepositoryAudit<T>(IAuditTracker tracker, Func<IReadOnlyColl
 {
     private bool Tracking => tracker.IsActive && tracker.IsAudited(typeof(T));
 
-    public Task Inserted(T entity)
+    public async Task Inserted(T entity)
     {
-        return Tracking ? tracker.BeforeWriteAsync(entity.Id, true, loadMany) : Task.CompletedTask;
+        if (!Tracking)
+            return;
+
+        await tracker.BeforeWriteAsync(entity.Id, true, loadMany);
+        //the inserted entity is what was stored, so the flush does not read it back
+        tracker.AfterFullUpdate(entity);
     }
 
     /// <summary>

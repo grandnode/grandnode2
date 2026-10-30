@@ -17,8 +17,11 @@ public partial class AuditReferences(IAuditRecordReader reader)
     private static readonly ConcurrentDictionary<(Type, string), PropertyInfo> Properties = new();
     private static readonly ConcurrentDictionary<Type, PropertyInfo> Owners = new();
 
-    private readonly Dictionary<(Type Target, string List, string Key, string Owner, string Id), string> _names = new();
-    private readonly Dictionary<(Type Target, string Id), string> _ownerStores = new();
+    //the records read for these entries, null when there is none
+    private readonly Dictionary<RecordKey, IDictionary<string, string>> _records = new();
+
+    //set while Prefetch walks the entries: the records they need are noted instead of read
+    private HashSet<RecordKey> _wanted;
 
     [GeneratedRegex(@"\[[^\]]*\]")]
     private static partial Regex ElementKeys();
@@ -30,6 +33,56 @@ public partial class AuditReferences(IAuditRecordReader reader)
     {
         return NameProperties.GetOrAdd(type, t =>
             t.GetProperties().FirstOrDefault(p => p.IsDefined(typeof(AuditNameAttribute)))?.Name ?? "Name");
+    }
+
+    /// <summary>
+    ///     Reads every record the entries refer to with one query per kind of record instead of one per id, so
+    ///     describing them afterwards reads nothing. A record that could not be read this way is read when needed.
+    /// </summary>
+    public async Task Prefetch(
+        IEnumerable<(Type Type, AuditEntry Entry, IDictionary<string, string> Before, IDictionary<string, string> After)> entries)
+    {
+        var wanted = _wanted = [];
+        try
+        {
+            foreach (var (type, entry, before, after) in entries)
+                try
+                {
+                    await DescribeEntry(type, entry, before, after);
+                }
+                catch (Exception)
+                {
+                    //fails again when described
+                }
+        }
+        finally
+        {
+            _wanted = null;
+        }
+
+        foreach (var group in wanted.Where(k => !_records.ContainsKey(k)).GroupBy(k => (k.Target, k.Key, k.Field)))
+            try
+            {
+                var read = await reader.ReadMany(group.Key.Target, group.Select(k => k.Value).ToList(), group.Key.Key,
+                    group.Key.Field);
+                foreach (var key in group)
+                    _records[key] = read.TryGetValue(key.Value, out var record) ? record : null;
+            }
+            catch (Exception)
+            {
+                //read one by one when described
+            }
+    }
+
+    /// <summary>
+    ///     Names the list elements, the references and the owner of one entry
+    /// </summary>
+    public async Task DescribeEntry(Type entityType, AuditEntry entry, IDictionary<string, string> before,
+        IDictionary<string, string> after)
+    {
+        await NameElements(entityType, entry.Changes, before, after);
+        await Describe(entityType, entry.Changes, before, after);
+        await LinkOwner(entityType, entry, after ?? before);
     }
 
     public async Task Describe(Type entityType, IEnumerable<AuditChange> changes, IDictionary<string, string> before,
@@ -45,9 +98,12 @@ public partial class AuditReferences(IAuditRecordReader reader)
             //a name that cannot be found leaves the ids, never the change out
             try
             {
-                var described = AuditDiff.Change(change.Path,
-                    await Describe(property, change.Path, change.OldValue, before),
-                    await Describe(property, change.Path, change.NewValue, after));
+                var oldValue = await Describe(property, change.Path, change.OldValue, before);
+                var newValue = await Describe(property, change.Path, change.NewValue, after);
+                if (_wanted != null)
+                    continue;
+
+                var described = AuditDiff.Change(change.Path, oldValue, newValue);
                 change.OldValue = described.OldValue;
                 change.NewValue = described.NewValue;
                 change.Truncated = described.Truncated;
@@ -93,7 +149,7 @@ public partial class AuditReferences(IAuditRecordReader reader)
                     type = elementType ?? property.PropertyType;
                 }
 
-                if (names.Any(n => n != ""))
+                if (_wanted == null && names.Any(n => n != ""))
                     change.ElementNames = names;
             }
             catch (Exception)
@@ -121,7 +177,7 @@ public partial class AuditReferences(IAuditRecordReader reader)
             return value;
 
         var owner = reference.Owner == null ? null : SiblingValue(snapshot, field, reference.Owner);
-        return await NameOrNull(reference, owner, value);
+        return await NameOf(reference, owner, value);
     }
 
     /// <summary>
@@ -137,22 +193,17 @@ public partial class AuditReferences(IAuditRecordReader reader)
             return;
 
         var target = owner.GetCustomAttribute<AuditReferenceAttribute>()!.Target;
-        entry.OwnerType = target.Name;
-        entry.OwnerId = ownerId;
+        if (_wanted == null)
+            (entry.OwnerType, entry.OwnerId) = (target.Name, ownerId);
         if (entry.EntityStoreId != null)
             return;
 
         //a store that cannot be read leaves the entry without one, never the entry out
         try
         {
-            if (!_ownerStores.TryGetValue((target, ownerId), out var storeId))
-            {
-                var record = await reader.Read(target, ownerId, null, "StoreId");
-                _ownerStores[(target, ownerId)] = storeId =
-                    record != null && record.TryGetValue("StoreId", out var stored) ? stored : null;
-            }
-
-            entry.EntityStoreId = storeId;
+            var record = await Record(target, ownerId, null, "StoreId");
+            if (_wanted == null)
+                entry.EntityStoreId = record != null && record.TryGetValue("StoreId", out var stored) ? stored : null;
         }
         catch (Exception)
         {
@@ -242,23 +293,11 @@ public partial class AuditReferences(IAuditRecordReader reader)
 
     private async Task<string> Label(AuditReferenceAttribute reference, string owner, string id)
     {
-        var name = await NameOrNull(reference, owner, id);
+        var name = await NameOf(reference, owner, id);
         return name == null ? id : $"{name} ({id})";
     }
 
-    private async Task<string> NameOrNull(AuditReferenceAttribute reference, string owner, string id)
-    {
-        var key = (reference.Target, reference.List, reference.Key, owner, id);
-        if (!_names.TryGetValue(key, out var name))
-        {
-            name = await NameOf(reference, owner, id);
-            _names[key] = name;
-        }
-
-        return string.IsNullOrEmpty(name) ? null : name;
-    }
-
-    //the name in the snapshot of the referenced record, or of the element of its list
+    //the name in the snapshot of the referenced record, or of the element of its list; null when there is none
     private async Task<string> NameOf(AuditReferenceAttribute reference, string owner, string id)
     {
         var recordId = reference.List == null ? id : owner;
@@ -267,11 +306,28 @@ public partial class AuditReferences(IAuditRecordReader reader)
 
         //only the field holding the name is read, not the whole record
         var record = reference.List == null
-            ? await reader.Read(reference.Target, recordId, reference.Key, NameProperty(reference.Target))
-            : await reader.Read(reference.Target, recordId, null, reference.List);
+            ? await Record(reference.Target, recordId, reference.Key, NameProperty(reference.Target))
+            : await Record(reference.Target, recordId, null, reference.List);
         var path = reference.List == null
             ? NameProperty(reference.Target)
             : $"{reference.List}[id={id}].{NameProperty(ElementType(reference.Target.GetProperty(reference.List)!.PropertyType)!)}";
         return record != null && record.TryGetValue(path, out var name) && name != "" ? name : null;
     }
+
+    //each record is read once for all the entries; while Prefetch collects, it is only noted
+    private async Task<IDictionary<string, string>> Record(Type target, string value, string key, string field)
+    {
+        var recordKey = new RecordKey(target, key, field, value);
+        if (_wanted != null)
+        {
+            _wanted.Add(recordKey);
+            return null;
+        }
+
+        if (!_records.TryGetValue(recordKey, out var record))
+            _records[recordKey] = record = await reader.Read(target, value, key, field);
+        return record;
+    }
+
+    private readonly record struct RecordKey(Type Target, string Key, string Field, string Value);
 }

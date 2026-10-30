@@ -282,4 +282,100 @@ public class AuditReferencesTests
         Assert.AreEqual("b", unmarked.NewValue);
         Assert.AreEqual("b9", missing.NewValue);
     }
+
+    private void ReadManyFromRecords()
+    {
+        _reader.Setup(r => r.ReadMany(It.IsAny<Type>(), It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<string>(),
+                It.IsAny<string>()))
+            .Returns<Type, IReadOnlyCollection<string>, string, string>((type, values, _, _) =>
+                Task.FromResult<IDictionary<string, IDictionary<string, string>>>(values
+                    .Where(v => _records.ContainsKey((type, v))).ToDictionary(v => v, v => _records[(type, v)])));
+    }
+
+    private async Task DescribeAll(
+        List<(Type Type, AuditEntry Entry, IDictionary<string, string> Before, IDictionary<string, string> After)> entries)
+    {
+        foreach (var (type, entry, before, after) in entries)
+            await _references.DescribeEntry(type, entry, before, after);
+    }
+
+    [TestMethod]
+    public async Task Prefetch_OneReadPerKindOfRecord_ThenDescribingReadsNothing()
+    {
+        _records[(typeof(Brand), "b1")] = new Dictionary<string, string> { ["Name"] = "Aurora" };
+        _records[(typeof(Brand), "b2")] = new Dictionary<string, string> { ["Name"] = "Nordic" };
+        _records[(typeof(Category), "c1")] = new Dictionary<string, string> { ["Name"] = "Lamps" };
+        ReadManyFromRecords();
+        var first = new AuditEntry { Changes = [new AuditChange { Path = "BrandId", OldValue = "b1", NewValue = "b2" }] };
+        var second = new AuditEntry {
+            Changes = [
+                new AuditChange { Path = "BrandId", NewValue = "b1" },
+                new AuditChange { Path = "ProductCategories[id=x].DisplayOrder", NewValue = "2" }
+            ]
+        };
+        var product = new Dictionary<string, string> { ["ProductCategories[id=x].CategoryId"] = "c1" };
+        var entries = new List<(Type, AuditEntry, IDictionary<string, string>, IDictionary<string, string>)> {
+            (typeof(Product), first, null, null),
+            (typeof(Product), second, null, product)
+        };
+
+        await _references.Prefetch(entries);
+
+        //collecting changes nothing
+        Assert.AreEqual("b1", first.Changes[0].OldValue);
+        Assert.IsNull(second.Changes[1].ElementNames);
+
+        await DescribeAll(entries);
+
+        Assert.AreEqual("Aurora (b1)", first.Changes[0].OldValue);
+        Assert.AreEqual("Nordic (b2)", first.Changes[0].NewValue);
+        Assert.AreEqual("Aurora (b1)", second.Changes[0].NewValue);
+        CollectionAssert.AreEqual(new[] { "Lamps" }, second.Changes[1].ElementNames.ToArray());
+        _reader.Verify(r => r.ReadMany(typeof(Brand), It.Is<IReadOnlyCollection<string>>(v => v.Count == 2), null,
+            "Name"), Times.Once);
+        _reader.Verify(r => r.ReadMany(typeof(Category), It.IsAny<IReadOnlyCollection<string>>(), null, "Name"),
+            Times.Once);
+        _reader.Verify(r => r.Read(It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Prefetch_OwnerStoresReadTogether_LinkedWhenDescribed()
+    {
+        _records[(typeof(MerchandiseReturn), "r1")] = new Dictionary<string, string> { ["StoreId"] = "s1" };
+        _records[(typeof(MerchandiseReturn), "r2")] = new Dictionary<string, string> { ["StoreId"] = "s2" };
+        ReadManyFromRecords();
+        var entries = new List<(Type, AuditEntry, IDictionary<string, string>, IDictionary<string, string>)>();
+        foreach (var id in new[] { "r1", "r2" })
+            entries.Add((typeof(MerchandiseReturnNote), new AuditEntry(), null,
+                new Dictionary<string, string> { ["MerchandiseReturnId"] = id }));
+
+        await _references.Prefetch(entries);
+        Assert.IsNull(entries[0].Item2.OwnerId);
+        await DescribeAll(entries);
+
+        Assert.AreEqual("r1", entries[0].Item2.OwnerId);
+        Assert.AreEqual("s1", entries[0].Item2.EntityStoreId);
+        Assert.AreEqual("s2", entries[1].Item2.EntityStoreId);
+        _reader.Verify(r => r.ReadMany(typeof(MerchandiseReturn), It.Is<IReadOnlyCollection<string>>(v => v.Count == 2),
+            null, "StoreId"), Times.Once);
+        _reader.Verify(r => r.Read(It.IsAny<Type>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Prefetch_ReadFails_NamesReadOneByOne()
+    {
+        _records[(typeof(Brand), "b1")] = new Dictionary<string, string> { ["Name"] = "Aurora" };
+        _reader.Setup(r => r.ReadMany(It.IsAny<Type>(), It.IsAny<IReadOnlyCollection<string>>(), It.IsAny<string>(),
+            It.IsAny<string>())).ThrowsAsync(new InvalidOperationException());
+        var entries = new List<(Type, AuditEntry, IDictionary<string, string>, IDictionary<string, string>)> {
+            (typeof(Product), new AuditEntry { Changes = [new AuditChange { Path = "BrandId", NewValue = "b1" }] }, null, null)
+        };
+
+        await _references.Prefetch(entries);
+        await DescribeAll(entries);
+
+        Assert.AreEqual("Aurora (b1)", entries[0].Item2.Changes[0].NewValue);
+    }
 }

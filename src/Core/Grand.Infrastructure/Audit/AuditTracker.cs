@@ -270,7 +270,9 @@ public class AuditTracker(
         Dictionary<Type, Func<IReadOnlyCollection<string>, Task<IDictionary<string, IDictionary<string, string>>>>> loaders,
         AuditReferences references)
     {
-        var entries = new List<AuditEntry>();
+        //an entry of null: its changes could not be computed
+        var built = new List<(Type Type, string Id, AuditEntry Entry, IDictionary<string, string> Before,
+            IDictionary<string, string> After)>();
         foreach (var group in pending.GroupBy(p => p.Key.Type))
         {
             var toRead = group.Where(p => p.Value.AfterHint == null).Select(p => p.Key.Id).ToList();
@@ -281,30 +283,42 @@ public class AuditTracker(
             foreach (var item in group)
             {
                 var after = item.Value.AfterHint ?? (read.TryGetValue(item.Key.Id, out var stored) ? stored : null);
-                AuditEntry entry;
                 try
                 {
-                    entry = Build(group.Key, item.Key.Id, item.Value, after);
+                    var entry = Build(group.Key, item.Key.Id, item.Value, after);
                     if (entry != null)
-                    {
-                        await references.NameElements(group.Key, entry.Changes, item.Value.Before, after);
-                        await references.Describe(group.Key, entry.Changes, item.Value.Before, after);
-                        await references.LinkOwner(group.Key, entry, after ?? item.Value.Before);
-                    }
+                        built.Add((group.Key, item.Key.Id, entry, item.Value.Before, after));
                 }
                 catch (Exception)
                 {
-                    entry = new AuditEntry {
-                        Kind = after == null ? AuditKind.Delete : AuditKind.Update,
-                        EntityType = group.Key.Name,
-                        EntityId = item.Key.Id,
-                        Details = "changes could not be computed"
-                    };
+                    built.Add((group.Key, item.Key.Id, null, item.Value.Before, after));
+                }
+            }
+        }
+
+        //the names of all entries in a few reads, instead of one read per referenced record
+        await references.Prefetch(built.Where(b => b.Entry != null).Select(b => (b.Type, b.Entry, b.Before, b.After)));
+
+        var entries = new List<AuditEntry>();
+        foreach (var item in built)
+        {
+            var entry = item.Entry;
+            if (entry != null)
+                try
+                {
+                    await references.DescribeEntry(item.Type, entry, item.Before, item.After);
+                }
+                catch (Exception)
+                {
+                    entry = null;
                 }
 
-                if (entry != null)
-                    entries.Add(entry);
-            }
+            entries.Add(entry ?? new AuditEntry {
+                Kind = item.After == null ? AuditKind.Delete : AuditKind.Update,
+                EntityType = item.Type.Name,
+                EntityId = item.Id,
+                Details = "changes could not be computed"
+            });
         }
 
         return entries;
