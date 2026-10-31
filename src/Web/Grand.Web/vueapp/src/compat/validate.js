@@ -66,6 +66,9 @@ const messages = {
 
 const isEmpty = v => v === '' || v === null || v === undefined
 
+//What getValue() reports for a field left as it was: an unticked checkbox is false, a group is [].
+const isUnanswered = v => isEmpty(v) || v === false || (Array.isArray(v) && v.length === 0)
+
 const validators = {
     required(value, params) {
         const allowFalse = params && typeof params === 'object' && 'allowFalse' in params
@@ -176,7 +179,7 @@ export const ValidationProvider = {
          * A field being typed in validates on `input`, so its layout is already settled.
          */
         this._onFocusOut = () => {
-            if (this.state === null && isEmpty(this.getValue())) return
+            if (this.state === null && isUnanswered(this.getValue())) return
             this.validate()
         }
 
