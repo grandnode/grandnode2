@@ -1,6 +1,8 @@
 using Grand.Business.Checkout.Queries.Handlers.Orders;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Data.Tests.LiteDb;
 using Grand.Data.Tests.MongoDb;
+using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -90,5 +92,32 @@ public class GetOrderQueryHandlerTests
         var result = await _handler.Handle(new GetOrderQuery { OverdueOnly = true }, CancellationToken.None);
 
         Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
+    public async Task Handle_ByBillingLastName_SkipsAddressesWithoutOne()
+    {
+        await _repository.Collection.InsertOneAsync(new Order { Code = "NONAME", BillingAddress = new Address() });
+        await _repository.Collection.InsertOneAsync(new Order { Code = "NAMED", BillingAddress = new Address { LastName = "Kowalski" } });
+
+        var result = await _handler.Handle(new GetOrderQuery { BillingLastName = "Kowal" }, CancellationToken.None);
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("NAMED", result[0].Code);
+    }
+
+    [TestMethod]
+    public async Task Handle_ByBillingLastName_OnLiteDb_SkipsAddressesWithoutOne()
+    {
+        //Table on LiteDB is LINQ over objects, so a null here throws instead of not matching
+        var repository = new LiteDBRepositoryMock<Order>();
+        await repository.InsertAsync(new Order { Code = "NONAME", BillingAddress = new Address() });
+        await repository.InsertAsync(new Order { Code = "NAMED", BillingAddress = new Address { LastName = "Kowalski" } });
+
+        var result = await new GetOrderQueryHandler(repository)
+            .Handle(new GetOrderQuery { BillingLastName = "Kowal" }, CancellationToken.None);
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual("NAMED", result[0].Code);
     }
 }
