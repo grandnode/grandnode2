@@ -200,7 +200,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             //an order that needs an approval is placed awaiting it, with an allowed payment method only
             details.ApprovalRequired = evaluation.Decision == OrderPlacementDecision.RequireApproval;
             details.ApprovalReasons = evaluation.Reasons.ToList();
-            if (details.ApprovalRequired && !_orderApprovalService.IsPaymentMethodAllowed(details.PaymentMethodSystemName))
+            //with nothing to pay the checkout skips the payment step and clears the method, so there is nothing to check
+            if (details.ApprovalRequired && details.OrderTotal != 0 &&
+                !_orderApprovalService.IsPaymentMethodAllowed(details.PaymentMethodSystemName))
             {
                 result.AddError(_translationService.GetResource("Checkout.OrderApproval.PaymentMethodNotAllowed",
                     command.Language.Id));

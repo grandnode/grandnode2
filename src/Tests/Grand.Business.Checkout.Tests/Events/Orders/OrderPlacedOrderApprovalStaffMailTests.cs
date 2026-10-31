@@ -126,6 +126,29 @@ public class OrderPlacedOrderApprovalStaffMailTests
     }
 
     [TestMethod]
+    public async Task Handle_OwnerIsTheBuyer_FallsToEmailAccount()
+    {
+        //nobody decides their own order, so telling only them would leave the order with nobody aware of it
+        _buyer.Active = true;
+        _store.OwnerCustomerId = _buyer.Id;
+
+        await Place();
+
+        Mailed(null, "Admin");
+    }
+
+    [TestMethod]
+    public async Task Handle_SalesEmployeeIsTheBuyer_FallsToOwnerAccount()
+    {
+        SalesEmployee(email: _buyer.Email);
+        Owner();
+
+        await Place();
+
+        Mailed("owner@x.example", "Admin");
+    }
+
+    [TestMethod]
     public async Task Handle_NoSalesEmployeeAndNoOwner_FallsToEmailAccount()
     {
         await Place();

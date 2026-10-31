@@ -95,12 +95,22 @@ public class ApplyOrderApprovalDecisionCommandHandler : IRequestHandler<ApplyOrd
 
         await Guard(approval.Id, "decision e-mail", async () =>
         {
-            if (buyer != null && !string.IsNullOrWhiteSpace(buyer.Email))
-                // the buyer reads it: in the language the order was placed in, not the approver's
-                await _messageProviderService.SendOrderApprovalDecidedMessage(approval, buyer,
-                    await _storeService.GetStoreById(approval.StoreId),
-                    string.IsNullOrEmpty(order.CustomerLanguageId) ? request.Language?.Id : order.CustomerLanguageId,
+            if (buyer == null)
+                return;
+
+            // the buyer reads it: in the language the order was placed in, not the approver's
+            var store = await _storeService.GetStoreById(approval.StoreId);
+            var languageId = string.IsNullOrEmpty(order.CustomerLanguageId)
+                ? request.Language?.Id
+                : order.CustomerLanguageId;
+
+            // a guest has no e-mail of their own: the address they gave is on the order
+            if (!string.IsNullOrWhiteSpace(buyer.Email))
+                await _messageProviderService.SendOrderApprovalDecidedMessage(approval, buyer, store, languageId,
                     request.Host);
+            else if (!string.IsNullOrWhiteSpace(order.BillingAddress?.Email))
+                await _messageProviderService.SendOrderApprovalDecidedMessage(approval, buyer, store, languageId,
+                    request.Host, order.BillingAddress.Email);
         });
 
         return true;

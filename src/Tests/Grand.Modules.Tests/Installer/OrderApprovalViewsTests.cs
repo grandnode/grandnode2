@@ -26,4 +26,20 @@ public class OrderApprovalViewsTests
         foreach (Match match in bound)
             StringAssert.Contains(match.Groups[2].Value, "v-pre", $"{view}: {match.Value}");
     }
+
+    /// <summary>
+    ///     Two overlapping posts of one decision would both pass the status check and move the order twice
+    /// </summary>
+    [TestMethod]
+    [DataRow("Web/Grand.Web.AdminShared/Views/AdminShared/Order/DecideApprovalPopup.cshtml", "DecideApproval")]
+    [DataRow("Web/Grand.Web/Views/Order/Details.cshtml", "WithdrawOrderApproval")]
+    public void DecisionForms_SubmitOnce(string view, string target)
+    {
+        var markup = File.ReadAllText(Path.Combine(RepositoryPaths.Root, "src", view));
+
+        var form = Regex.Match(markup, $@"<form[^>]*""{target}""[^>]*>");
+
+        Assert.IsTrue(form.Success, $"{view} has no form for {target}");
+        StringAssert.Contains(form.Value, "onsubmit=\"@submitOnce\"", view);
+    }
 }

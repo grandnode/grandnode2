@@ -127,6 +127,20 @@ public class PlaceOrderCommandHandlerApprovalTests
     }
 
     [TestMethod]
+    public async Task Handle_RequiresApprovalWithNothingToPay_PlacesWithoutAPaymentMethod()
+    {
+        //loyalty points or a gift voucher cover the order: the checkout skips the payment step and clears the method
+        _details.OrderTotal = 0;
+        _details.PaymentMethodSystemName = null;
+        Requires(true, null);
+
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        Assert.IsEmpty(result.Errors);
+        Assert.AreEqual((int)OrderStatusSystem.AwaitingApproval, _handler.LastHeader.OrderStatusId);
+    }
+
+    [TestMethod]
     public async Task Handle_ApprovalRequired_PublishesReasonsOnOrderPlacedEvent()
     {
         Evaluates(OrderPlacementDecision.RequireApproval, "Payments.Card", "over the limit", "restricted goods");

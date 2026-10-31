@@ -35,7 +35,8 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
 
         var liquidOrderApproval = new LiquidOrderApproval {
             BuyerName = request.Buyer.GetFullName(),
-            BuyerEmail = request.Buyer.Email,
+            // a guest has no e-mail of their own: the address they gave is on the order
+            BuyerEmail = string.IsNullOrEmpty(request.Buyer.Email) ? order?.BillingAddress?.Email : request.Buyer.Email,
             //resource text, used in the subject as well: encoding would turn "Approuvé" into "Approuv&#233;"
             Status = approval.Status.GetTranslationEnum(_translationService, request.Language.Id),
             Total = approval.Summary?.Total,

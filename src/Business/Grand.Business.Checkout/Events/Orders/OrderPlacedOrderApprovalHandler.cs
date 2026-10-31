@@ -148,7 +148,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
     {
         try
         {
-            var (email, name, panelArea) = await GetStoreRecipient(order, store);
+            var (email, name, panelArea) = await GetStoreRecipient(order, buyer, store);
             await _messageProviderService.SendOrderApprovalStaffMessage(approval, buyer, store, email, name, panelArea,
                 _languageSettings.DefaultAdminLanguageId);
         }
@@ -161,18 +161,21 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
 
     /// <summary>
     ///     The order's sales employee, else the store's owner account, else nobody named: the message then goes to
-    ///     the e-mail account of its template
+    ///     the e-mail account of its template. Never the buyer: nobody decides their own order, so telling only them
+    ///     would leave the order with nobody aware of it.
     /// </summary>
-    private async Task<(string Email, string Name, string PanelArea)> GetStoreRecipient(Order order, Store store)
+    private async Task<(string Email, string Name, string PanelArea)> GetStoreRecipient(Order order, Customer buyer,
+        Store store)
     {
         if (!string.IsNullOrEmpty(order.SeId))
         {
             var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
-            if (salesEmployee is { Active: true } && !string.IsNullOrWhiteSpace(salesEmployee.Email))
+            if (salesEmployee is { Active: true } && !string.IsNullOrWhiteSpace(salesEmployee.Email) &&
+                !string.Equals(salesEmployee.Email, buyer.Email, StringComparison.OrdinalIgnoreCase))
                 return (salesEmployee.Email, salesEmployee.Name, AdminPanelArea);
         }
 
-        if (!string.IsNullOrEmpty(store.OwnerCustomerId))
+        if (!string.IsNullOrEmpty(store.OwnerCustomerId) && store.OwnerCustomerId != buyer.Id)
         {
             var owner = await _customerService.GetCustomerById(store.OwnerCustomerId);
             if (owner is { Active: true, Deleted: false } && !string.IsNullOrWhiteSpace(owner.Email))

@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Handlers.Messages;
 using Grand.Business.Messages.Commands.Tokens;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
@@ -53,6 +54,20 @@ public class GetOrderApprovalTokensCommandHandlerTests
             Host = host,
             Language = new Language { Id = "lang1" }
         };
+    }
+
+    [TestMethod]
+    public async Task BuyerEmail_Guest_ComesFromTheBillingAddress()
+    {
+        _orderService.Setup(x => x.GetOrderById("order1")).ReturnsAsync(new Order {
+            Id = "order1", BillingAddress = new Address { Email = "guest@example.com" }
+        });
+        var command = Command(Approval());
+        command.Buyer = new Customer();
+
+        var tokens = await _handler.Handle(command, default);
+
+        Assert.AreEqual("guest@example.com", tokens.BuyerEmail);
     }
 
     [TestMethod]

@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
@@ -132,6 +133,18 @@ public class OrderApprovalDecisionCommandsTests
         _mediator.Verify(x => x.Send(It.IsAny<SetOrderStatusCommand>(), It.IsAny<CancellationToken>()), Times.Once);
         _messages.Verify(x => x.SendOrderApprovalDecidedMessage(_approval, _buyer, It.IsAny<Store>(),
             It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Apply_GuestBuyer_SendsDecisionToTheBillingEmail()
+    {
+        _buyer.Email = null;
+        _order.BillingAddress = new Address { Email = "guest@example.com" };
+
+        await _apply.Handle(Apply(false), default);
+
+        _messages.Verify(x => x.SendOrderApprovalDecidedMessage(_approval, _buyer, It.IsAny<Store>(),
+            It.IsAny<string>(), It.IsAny<DomainHost>(), "guest@example.com"), Times.Once);
     }
 
     [TestMethod]

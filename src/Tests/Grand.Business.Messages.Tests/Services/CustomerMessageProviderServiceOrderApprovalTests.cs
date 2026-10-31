@@ -82,6 +82,17 @@ public class CustomerMessageProviderServiceOrderApprovalTests
     }
 
     [TestMethod]
+    public async Task SendDecided_GivenAddress_GoesThereInsteadOfTheBuyersOwn()
+    {
+        TemplateExists(MessageTemplateNames.OrderApprovalDecided, "Decided", "Body");
+        var guest = new Customer { Id = "guest" };
+
+        await _service.SendOrderApprovalDecidedMessage(_approval, guest, _store, "en", null, "guest@example.com");
+
+        Assert.AreEqual("guest@example.com", _queued.To);
+    }
+
+    [TestMethod]
     public async Task SendOrderApprovalStaffMessage_GivenRecipient_AddressesIt()
     {
         TemplateExists(MessageTemplateNames.OrderApprovalStaffRequested, "Decide", "Body");

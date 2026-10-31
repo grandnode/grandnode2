@@ -9,6 +9,8 @@
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.OrderDetails"]);
+
+    const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
 }
 <div class="page order-details-page mb-3">
 <h1 class="generalTitle h2">@Loc["Order.OrderInformation"]</h1>
@@ -110,7 +112,7 @@
                         @if (Model.CanWithdrawOrderApproval)
                         {
                             <li class="order-approval-withdraw d-flex">
-                                <form asp-route="WithdrawOrderApproval" asp-route-orderId="@Model.Id" method="post">
+                                <form asp-route="WithdrawOrderApproval" asp-route-orderId="@Model.Id" method="post" onsubmit="@submitOnce">
                                     <button type="submit" class="btn btn-sm btn-outline-secondary">@Loc["Order.Approval.Withdraw"]</button>
                                 </form>
                             </li>

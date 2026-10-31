@@ -142,6 +142,21 @@ public interface ICustomerMessageProviderService
         string languageId, DomainHost host = null);
 
     /// <summary>
+    ///     Sends an 'Order approval decided' message to the given address, for a buyer who has none of their own
+    /// </summary>
+    /// <param name="approval">Order approval</param>
+    /// <param name="buyer">Customer who asked for the approval</param>
+    /// <param name="store">Store</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    /// <param name="toEmail">Recipient</param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendOrderApprovalDecidedMessage(OrderApproval approval, Customer buyer, Store store,
+        string languageId, DomainHost host, string toEmail);
+
+    /// <summary>
     ///     Sends an 'Order approval requested' message to the store, when the store decides the request
     /// </summary>
     /// <param name="approval">Order approval</param>

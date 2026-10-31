@@ -88,7 +88,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     ///     Send an order approval message; the recipient also provides the customer tokens
     /// </summary>
     protected virtual async Task<int> SendOrderApprovalMessage(OrderApproval approval, Customer buyer,
-        Customer recipient, Store store, string languageId, string templateName, DomainHost host)
+        Customer recipient, Store store, string languageId, string templateName, DomainHost host,
+        string toEmail = null)
     {
         ArgumentNullException.ThrowIfNull(approval);
         ArgumentNullException.ThrowIfNull(buyer);
@@ -113,7 +114,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
 
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             languageId, liquidObject,
-            recipient.Email, recipient.GetFullName(), reference: Reference.Customer, objectId: buyer.Id);
+            toEmail ?? recipient.Email, recipient.GetFullName(), reference: Reference.Customer, objectId: buyer.Id);
     }
 
     /// <summary>
@@ -149,6 +150,24 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     {
         return await SendOrderApprovalMessage(approval, buyer, buyer, store, languageId,
             MessageTemplateNames.OrderApprovalDecided, host);
+    }
+
+    /// <summary>
+    ///     Sends an 'Order approval decided' message to the given address, for a buyer who has none of their own
+    /// </summary>
+    /// <param name="approval">Order approval</param>
+    /// <param name="buyer">Customer who asked for the approval</param>
+    /// <param name="store">Store</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    /// <param name="toEmail">Recipient</param>
+    public virtual async Task<int> SendOrderApprovalDecidedMessage(OrderApproval approval, Customer buyer,
+        Store store, string languageId, DomainHost host, string toEmail)
+    {
+        return await SendOrderApprovalMessage(approval, buyer, buyer, store, languageId,
+            MessageTemplateNames.OrderApprovalDecided, host, toEmail);
     }
 
     /// <summary>
