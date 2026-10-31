@@ -25,6 +25,9 @@ There is no `Cart` entity. A cart is the set of `ShoppingCartItem` rows on a `Cu
 | **Order note** | `OrderNote` — operator or system annotation, optionally customer-visible |
 | **Order tag** | `OrderTag` — operator-defined label for filtering |
 | **Order tax** | `OrderTax` — the tax breakdown as computed at placement |
+| **Order placement rule** | `IOrderPlacementRuleProvider` — a provider that allows an order being placed, requires an approval for it, or blocks it |
+| **Order approval** | `OrderApproval` — the request to decide an order placed in the `AwaitingApproval` status |
+| **Store-decided approval** | an `OrderApproval` with `Decider` set to `Store`: decided in the Admin or Store panel, with no `CompanyOwnerId`. A company's request is decided on the storefront |
 
 `OrderItem` stores its own prices. Never recompute an order's totals from current product prices — the sold price is the record.
 

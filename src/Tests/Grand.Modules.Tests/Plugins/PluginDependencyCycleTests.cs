@@ -19,6 +19,7 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -98,6 +99,59 @@ public class PluginDependencyCycleTests
         using var scope = root.CreateScope();
 
         Assert.IsNotNull(scope.ServiceProvider.GetRequiredService<IOrderCalculationService>());
+    }
+
+    private class RuleUsingOrderCalculation(IOrderCalculationService orderCalculationService)
+        : IOrderPlacementRuleProvider
+    {
+        public IOrderCalculationService OrderCalculationService { get; } = orderCalculationService;
+        public string ConfigurationUrl => null;
+        public string SystemName => "Test.Rule";
+        public string FriendlyName => SystemName;
+        public int Priority => 0;
+        public IList<string> LimitedToStores => [];
+        public IList<string> LimitedToGroups => [];
+
+        public Task<OrderPlacementRuleResult> Evaluate(OrderPlacementContext context)
+        {
+            return Task.FromResult(OrderPlacementRuleResult.Allow());
+        }
+    }
+
+    [TestMethod]
+    public void OrderPlacementRules_DoNotDependBackOnPlacement()
+    {
+        var services = new ServiceCollection();
+        services.AddScoped<IOrderPlacementService, OrderPlacementService>();
+        services.AddScoped<IOrderPlacementRuleProvider, OrderApprovalLimitRuleProvider>();
+        services.AddScoped<IOrderPlacementRuleProvider, RuleUsingOrderCalculation>();
+        services.AddScoped<IOrderCalculationService, OrderCalculationService>();
+        services.AddScoped<IShoppingCartSubTotalService, ShoppingCartSubTotalService>();
+        services.AddScoped<IShoppingCartShippingService, ShoppingCartShippingService>();
+        services.AddScoped<IShoppingCartTaxService, ShoppingCartTaxService>();
+        services.AddScoped<ILoyaltyPointsCalculationService, LoyaltyPointsCalculationService>();
+        services.AddScoped<IPaymentService, PaymentService>();
+        services.AddScoped<IPaymentProvider, CashOnDeliveryPaymentProvider>();
+        AddMocks(services, typeof(IContextAccessor), typeof(IPricingService), typeof(ITaxService),
+            typeof(IShippingService), typeof(ICheckoutAttributeParser), typeof(IDiscountService),
+            typeof(IGiftVoucherService), typeof(ILoyaltyPointsService), typeof(IProductService),
+            typeof(ICurrencyService), typeof(IGroupService), typeof(IDiscountValidationService),
+            typeof(ISettingService), typeof(ITranslationService), typeof(IRequestTranslationService),
+            typeof(IPaymentTransactionService), typeof(ICustomerService), typeof(IHttpContextAccessor),
+            typeof(IPriceFormatter), typeof(ILogger<OrderPlacementService>));
+        services.AddSingleton(new TaxSettings());
+        services.AddSingleton(new LoyaltyPointsSettings());
+        services.AddSingleton(new ShippingSettings());
+        services.AddSingleton(new ShoppingCartSettings());
+        services.AddSingleton(new CatalogSettings());
+        services.AddSingleton(new PaymentSettings());
+        services.AddSingleton(new CashOnDeliveryPaymentSettings());
+        services.AddSingleton(new CustomerSettings());
+
+        using var root = Build(services);
+        using var scope = root.CreateScope();
+
+        Assert.IsNotNull(scope.ServiceProvider.GetRequiredService<IOrderPlacementService>());
     }
 
     [TestMethod]
