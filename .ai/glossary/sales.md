@@ -27,7 +27,7 @@ There is no `Cart` entity. A cart is the set of `ShoppingCartItem` rows on a `Cu
 | **Order tax** | `OrderTax` — the tax breakdown as computed at placement |
 | **Order placement rule** | `IOrderPlacementRuleProvider` — a provider that allows an order being placed, requires an approval for it, or blocks it |
 | **Order approval** | `OrderApproval` — the request to decide an order placed in the `AwaitingApproval` status |
-| **Store-decided approval** | an `OrderApproval` with `Decider` set to `Store`: decided in the Admin or Store panel, with no `CompanyOwnerId`. A company's request is decided on the storefront |
+| **Store-decided approval** | an `OrderApproval` with `Decider` set to `Store`: decided in the Admin or Store panel, with no `CompanyOwnerId`. It is the buyer without a company, a rule's `RequireStoreApproval`, or a company with nobody to ask. A company's request is decided on the storefront |
 
 `OrderItem` stores its own prices. Never recompute an order's totals from current product prices — the sold price is the record.
 

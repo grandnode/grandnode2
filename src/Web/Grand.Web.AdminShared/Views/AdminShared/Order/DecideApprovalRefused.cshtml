@@ -1,0 +1,9 @@
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.Approval.PopupTitle"];
+}
+@* What the approval popup shows when its request can no longer be decided: someone else decided it, or the buyer withdrew it *@
+<admin-popup title="@Loc["Admin.Orders.Approval.PopupTitle"]" icon="bi-check2-circle">
+    <p class="mb-0">@Loc["Admin.Orders.Approval.Refused"]</p>
+</admin-popup>

@@ -25,6 +25,12 @@ public class OrderCancelledOrderApprovalHandlerTests
         _order = new Order { Id = "order", OrderNumber = 7, OrderStatusId = (int)OrderStatusSystem.Cancelled };
     }
 
+    private void NothingWasClosed()
+    {
+        _approvalService.Verify(x => x.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(),
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
     [TestMethod]
     public async Task Handle_PendingApproval_ClosesItAsCancelled()
     {
@@ -33,10 +39,7 @@ public class OrderCancelledOrderApprovalHandlerTests
 
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
-        Assert.AreEqual(OrderApprovalStatus.Cancelled, approval.Status);
-        Assert.IsNotNull(approval.DecidedOnUtc);
-        Assert.IsNull(approval.DecidedByCustomerId);
-        _approvalService.Verify(x => x.Update(approval), Times.Once);
+        _approvalService.Verify(x => x.Close(approval, OrderApprovalStatus.Cancelled, null, null), Times.Once);
     }
 
     [TestMethod]
@@ -52,7 +55,7 @@ public class OrderCancelledOrderApprovalHandlerTests
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
         Assert.AreEqual(status, approval.Status);
-        _approvalService.Verify(x => x.Update(It.IsAny<OrderApproval>()), Times.Never);
+        NothingWasClosed();
     }
 
     [TestMethod]
@@ -62,7 +65,7 @@ public class OrderCancelledOrderApprovalHandlerTests
 
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
-        _approvalService.Verify(x => x.Update(It.IsAny<OrderApproval>()), Times.Never);
+        NothingWasClosed();
     }
 
     [TestMethod]
@@ -70,7 +73,8 @@ public class OrderCancelledOrderApprovalHandlerTests
     {
         _approvalService.Setup(x => x.GetByOrderId("order"))
             .ReturnsAsync(new OrderApproval { Id = "a1", OrderId = "order", Status = OrderApprovalStatus.Pending });
-        _approvalService.Setup(x => x.Update(It.IsAny<OrderApproval>())).ThrowsAsync(new Exception("db down"));
+        _approvalService.Setup(x => x.Close(It.IsAny<OrderApproval>(), OrderApprovalStatus.Cancelled, null, null))
+            .ThrowsAsync(new Exception("db down"));
 
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 

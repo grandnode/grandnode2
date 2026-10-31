@@ -72,7 +72,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
 
         try
         {
-            await CreateApprovalRequest(order, notification.ApprovalReasons);
+            await CreateApprovalRequest(order, notification.ApprovalReasons, notification.ApprovalStoreDecides);
         }
         catch (Exception ex)
         {
@@ -83,7 +83,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         }
     }
 
-    private async Task CreateApprovalRequest(Order order, IReadOnlyList<string> reasons)
+    private async Task CreateApprovalRequest(Order order, IReadOnlyList<string> reasons, bool storeDecides)
     {
         // one request per order, even if the event is raised twice
         if (await _orderApprovalService.GetByOrderId(order.Id) != null)
@@ -98,9 +98,14 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
             return;
         }
 
-        // a sub-account's company decides, while the storefront has the approvals screen; anyone else has no company
-        // to ask. Not the order's OwnerId: it holds the customer's own id when there is no owner
-        var companyDecides = !_customerSettings.HideSubAccountsTab && !string.IsNullOrEmpty(buyer.OwnerId);
+        // a sub-account's company decides, while the storefront has the approvals screen and someone there can be
+        // told; anyone else has no company to ask, and a rule may keep the decision with the store.
+        // Not the order's OwnerId: it holds the customer's own id when there is no owner
+        IList<Customer> approvers = !storeDecides && !_customerSettings.HideSubAccountsTab &&
+                                    !string.IsNullOrEmpty(buyer.OwnerId)
+            ? await GetApprovers(buyer, buyer.OwnerId, order.StoreId)
+            : [];
+        var companyDecides = approvers.Count > 0;
         var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
 
         var approval = new OrderApproval {
@@ -127,7 +132,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
             return;
         }
 
-        foreach (var approver in await GetApprovers(buyer, buyer.OwnerId, order.StoreId))
+        foreach (var approver in approvers)
             try
             {
                 await _messageProviderService.SendOrderApprovalRequestedMessage(approval, buyer, approver, store,
@@ -146,35 +151,45 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
     /// </summary>
     private async Task NotifyStore(OrderApproval approval, Order order, Customer buyer, Store store)
     {
-        try
-        {
-            var (email, name, panelArea) = await GetStoreRecipient(order, buyer, store);
-            await _messageProviderService.SendOrderApprovalStaffMessage(approval, buyer, store, email, name, panelArea,
-                _languageSettings.DefaultAdminLanguageId);
-        }
-        catch (Exception ex)
-        {
-            // a failed e-mail must not stop the order
-            _logger.LogError(ex, "Order approval e-mail to the store failed. Order {OrderId}", order.Id);
-        }
+        foreach (var (email, name, panelArea) in await GetStoreRecipients(order, buyer, store))
+            try
+            {
+                await _messageProviderService.SendOrderApprovalStaffMessage(approval, buyer, store, email, name,
+                    panelArea, _languageSettings.DefaultAdminLanguageId);
+            }
+            catch (Exception ex)
+            {
+                // a failed e-mail must not stop the others, nor the order
+                _logger.LogError(ex, "Order approval e-mail to the store failed. Order {OrderId}", order.Id);
+            }
     }
 
     /// <summary>
-    ///     The order's sales employee, else the store's owner account, else nobody named: the message then goes to
-    ///     the e-mail account of its template. Never the buyer: nobody decides their own order, so telling only them
-    ///     would leave the order with nobody aware of it.
+    ///     The store's owner account, else nobody named: the message then goes to the e-mail account of its template.
+    ///     The order's sales employee as well: that record does not prove its person can open the panel, so they are
+    ///     never the only one told. Never the buyer: nobody decides their own order.
     /// </summary>
-    private async Task<(string Email, string Name, string PanelArea)> GetStoreRecipient(Order order, Customer buyer,
-        Store store)
+    private async Task<List<(string Email, string Name, string PanelArea)>> GetStoreRecipients(Order order,
+        Customer buyer, Store store)
     {
+        var recipients = new List<(string Email, string Name, string PanelArea)> {
+            await GetOwnerRecipient(buyer, store)
+        };
+
         if (!string.IsNullOrEmpty(order.SeId))
         {
             var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
             if (salesEmployee is { Active: true } && !string.IsNullOrWhiteSpace(salesEmployee.Email) &&
-                !string.Equals(salesEmployee.Email, buyer.Email, StringComparison.OrdinalIgnoreCase))
-                return (salesEmployee.Email, salesEmployee.Name, AdminPanelArea);
+                !string.Equals(salesEmployee.Email, buyer.Email, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(salesEmployee.Email, recipients[0].Email, StringComparison.OrdinalIgnoreCase))
+                recipients.Add((salesEmployee.Email, salesEmployee.Name, AdminPanelArea));
         }
 
+        return recipients;
+    }
+
+    private async Task<(string Email, string Name, string PanelArea)> GetOwnerRecipient(Customer buyer, Store store)
+    {
         if (!string.IsNullOrEmpty(store.OwnerCustomerId) && store.OwnerCustomerId != buyer.Id)
         {
             var owner = await _customerService.GetCustomerById(store.OwnerCustomerId);

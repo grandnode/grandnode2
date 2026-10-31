@@ -49,6 +49,12 @@ public class PlaceOrderContainer
     ///     Why the order needs an approval
     /// </summary>
     public IList<string> ApprovalReasons { get; set; } = new List<string>();
+
+    /// <summary>
+    ///     A rule wants the store to decide the approval, also for a sub-account's order
+    /// </summary>
+    public bool ApprovalStoreDecides { get; set; }
+
     public Address BillingAddress { get; set; }
     public Address ShippingAddress { get; set; }
     public ShippingStatus ShippingStatus { get; set; }

@@ -142,15 +142,27 @@ public class BaseOrderManagementControllerTests
     }
 
     [TestMethod]
-    public async Task DecideApprovalPopup_CannotDecide_RedirectsToEdit()
+    public async Task DecideApprovalPopup_CannotDecide_AnswersWithThePopupNotARedirect()
     {
+        //the popup loads this over ajax: a redirect would put the whole Edit page inside it
         var order = OrderInScope();
         _orderViewModelServiceMock.Setup(s => s.PrepareOrderApprovalDecisionModel(order))
             .ReturnsAsync((OrderApprovalDecisionModel)null);
 
         var result = await _controller.DecideApprovalPopup("o1");
 
-        Assert.AreEqual("Edit", ((RedirectToActionResult)result).ActionName);
+        Assert.AreEqual("DecideApprovalRefused", ((ViewResult)result).ViewName);
+    }
+
+    [TestMethod]
+    public async Task DecideApprovalPopup_OutOfScope_AnswersWithThePopupNotARedirect()
+    {
+        OrderInScope(false);
+
+        var result = await _controller.DecideApprovalPopup("o1");
+
+        Assert.AreEqual("DecideApprovalRefused", ((ViewResult)result).ViewName);
+        _orderViewModelServiceMock.Verify(s => s.PrepareOrderApprovalDecisionModel(It.IsAny<Order>()), Times.Never);
     }
 
     [TestMethod]

@@ -33,7 +33,8 @@ public class OrderApprovalLimitRuleProvider : IOrderPlacementRuleProvider
     public IList<string> LimitedToStores => [];
     public IList<string> LimitedToGroups => [];
 
-    public async Task<OrderPlacementRuleResult> Evaluate(OrderPlacementContext context)
+    public async Task<OrderPlacementRuleResult> Evaluate(OrderPlacementContext context,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(context);
 

@@ -189,7 +189,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
             //the rules are asked before any payment is taken: this answer is the authoritative one
             var evaluation = await _orderPlacementService.Evaluate(details.Cart, details.Context, command.Language,
-                details.PaymentMethodSystemName);
+                details.PaymentMethodSystemName, cancellationToken);
             if (evaluation.Decision == OrderPlacementDecision.Block)
             {
                 foreach (var reason in evaluation.Reasons)
@@ -200,6 +200,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             //an order that needs an approval is placed awaiting it, with an allowed payment method only
             details.ApprovalRequired = evaluation.Decision == OrderPlacementDecision.RequireApproval;
             details.ApprovalReasons = evaluation.Reasons.ToList();
+            details.ApprovalStoreDecides = evaluation.StoreDecides;
             //with nothing to pay the checkout skips the payment step and clears the method, so there is nothing to check
             if (details.ApprovalRequired && details.OrderTotal != 0 &&
                 !_orderApprovalService.IsPaymentMethodAllowed(details.PaymentMethodSystemName))
@@ -249,7 +250,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
                 //raise event       
                 await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder) {
-                    ApprovalReasons = details.ApprovalReasons.ToList()
+                    ApprovalReasons = details.ApprovalReasons.ToList(),
+                    ApprovalStoreDecides = details.ApprovalStoreDecides
                 }, cancellationToken);
 
                 //an order awaiting approval is processed as paid once it is approved (store owner and vendors hear of it then)

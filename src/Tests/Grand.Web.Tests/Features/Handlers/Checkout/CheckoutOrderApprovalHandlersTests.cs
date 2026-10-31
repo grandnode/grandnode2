@@ -57,7 +57,7 @@ public class CheckoutOrderApprovalHandlersTests
 
     private void Evaluates(OrderPlacementDecision decision, params string[] reasons) =>
         _placement.Setup(a => a.Evaluate(_cart, It.Is<CalculationContext>(c => c.Customer == _customer), _language,
-                It.IsAny<string>()))
+                It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OrderPlacementEvaluation(decision, reasons));
 
     private void State(bool required) =>
@@ -104,7 +104,8 @@ public class CheckoutOrderApprovalHandlersTests
     public async Task GetPaymentMethod_Blocked_NoMethodsAndReasonsInMessage()
     {
         //no method is chosen yet at this step
-        _placement.Setup(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, null))
+        _placement.Setup(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, null,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.Block, ["Blocked customer.", "Banned product."]));
         _approval.Setup(a => a.IsPaymentMethodAllowed("Payments.CashOnDelivery")).Returns(true);
 
@@ -229,12 +230,38 @@ public class CheckoutOrderApprovalHandlersTests
     public async Task GetConfirmOrder_PassesTheSelectedPaymentMethodToTheRules()
     {
         SelectPaymentMethod("Payments.Card", PurchaseOrderNumberMode.Disabled);
-        _placement.Setup(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, "Payments.Card"))
+        _placement.Setup(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, "Payments.Card",
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.Block, ["Not with this method."]));
 
         var model = await ConfirmHandler().Handle(ConfirmRequest(), CancellationToken.None);
 
         Assert.AreEqual("Not with this method.", model.OrderPlacementBlockedMessage);
+    }
+
+    [TestMethod]
+    public async Task GetConfirmOrder_PassesItsTokenToTheRules()
+    {
+        using var source = new CancellationTokenSource();
+        SelectPaymentMethod("Payments.Card", PurchaseOrderNumberMode.Disabled);
+        State(false);
+
+        await ConfirmHandler().Handle(ConfirmRequest(), source.Token);
+
+        _placement.Verify(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, "Payments.Card",
+            source.Token), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetPaymentMethod_PassesItsTokenToTheRules()
+    {
+        using var source = new CancellationTokenSource();
+        State(false);
+
+        await PaymentHandler("Payments.Card").Handle(PaymentRequest(), source.Token);
+
+        _placement.Verify(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, null, source.Token),
+            Times.Once);
     }
 
     private void SelectPaymentMethod(string systemName, PurchaseOrderNumberMode mode)

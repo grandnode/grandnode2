@@ -66,7 +66,7 @@ public class OrderPlacementServiceTests
         rule.SetupGet(x => x.Priority).Returns(priority);
         rule.SetupGet(x => x.LimitedToStores).Returns(stores ?? []);
         rule.SetupGet(x => x.LimitedToGroups).Returns(groups ?? []);
-        rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>())).ReturnsAsync(result);
+        rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>())).ReturnsAsync(result);
         _rules.Add(rule.Object);
         return rule;
     }
@@ -118,8 +118,8 @@ public class OrderPlacementServiceTests
 
         var result = await Evaluate();
 
-        first.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>()), Times.Once);
-        second.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>()), Times.Once);
+        first.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()), Times.Once);
+        second.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()), Times.Once);
         CollectionAssert.AreEqual(new[] { "a", "b" }, result.Reasons.ToArray());
     }
 
@@ -139,8 +139,8 @@ public class OrderPlacementServiceTests
     {
         OrderPlacementContext seen = null;
         var rule = Rule(OrderPlacementRuleResult.Allow());
-        rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>()))
-            .Callback<OrderPlacementContext>(c => seen = c)
+        rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()))
+            .Callback<OrderPlacementContext, CancellationToken>((c, _) => seen = c)
             .ReturnsAsync(OrderPlacementRuleResult.Allow());
 
         await Evaluate();
@@ -160,7 +160,7 @@ public class OrderPlacementServiceTests
         var result = await Evaluate();
 
         Assert.AreEqual(OrderPlacementDecision.RequireApproval, result.Decision);
-        other.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>()), Times.Never);
+        other.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -172,7 +172,7 @@ public class OrderPlacementServiceTests
         var result = await Evaluate();
 
         Assert.AreEqual(OrderPlacementDecision.RequireApproval, result.Decision);
-        other.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>()), Times.Never);
+        other.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
@@ -180,7 +180,7 @@ public class OrderPlacementServiceTests
     {
         Rule(OrderPlacementRuleResult.RequireApproval("a"));
         var failing = Rule(OrderPlacementRuleResult.Allow());
-        failing.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>()))
+        failing.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()))
             .ThrowsAsync(new InvalidOperationException("connection string secret"));
 
         var result = await Evaluate();
@@ -235,8 +235,8 @@ public class OrderPlacementServiceTests
         foreach (var _ in new[] { 1, 2 })
         {
             var rule = Rule(OrderPlacementRuleResult.Allow());
-            rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>()))
-                .Returns(async (OrderPlacementContext c) =>
+            rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()))
+                .Returns(async (OrderPlacementContext c, CancellationToken _) =>
                 {
                     totals.Add(await c.GetTotal());
                     return OrderPlacementRuleResult.Allow();
@@ -248,6 +248,87 @@ public class OrderPlacementServiceTests
         CollectionAssert.AreEqual(new double?[] { 150, 150 }, totals);
         _calculationService.Verify(x => x.GetShoppingCartTotal(_cart, _calculation, It.IsAny<bool?>(),
             It.IsAny<bool>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Evaluate_SameReasonFromTwoRules_IsListedOnce()
+    {
+        var first = Rule(OrderPlacementRuleResult.Allow());
+        first.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("first"));
+        var second = Rule(OrderPlacementRuleResult.Allow());
+        second.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("second"));
+
+        var result = await Evaluate();
+
+        CollectionAssert.AreEqual(new[] { RuleFailedText }, result.Reasons.ToArray());
+    }
+
+    [TestMethod]
+    public async Task Evaluate_PassesTheTokenToTheRule()
+    {
+        using var source = new CancellationTokenSource();
+        var rule = Rule(OrderPlacementRuleResult.Allow());
+
+        await _service.Evaluate(_cart, _calculation, _language, "Payments.CashOnDelivery", source.Token);
+
+        rule.Verify(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), source.Token), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Evaluate_RequestAborted_ThrowsInsteadOfBlockingOrLogging()
+    {
+        using var source = new CancellationTokenSource();
+        var rule = Rule(OrderPlacementRuleResult.Allow());
+        rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), source.Token))
+            .Returns(() =>
+            {
+                source.Cancel();
+                return Task.FromCanceled<OrderPlacementRuleResult>(source.Token);
+            });
+
+        await Assert.ThrowsAsync<OperationCanceledException>(() =>
+            _service.Evaluate(_cart, _calculation, _language, "Payments.CashOnDelivery", source.Token));
+
+        _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Evaluate_RuleTimesOutWhileTheRequestLives_Blocks()
+    {
+        //a rule's own timeout looks like a cancellation, but nobody aborted the request: it must not open the gate
+        var rule = Rule(OrderPlacementRuleResult.Allow());
+        rule.Setup(x => x.Evaluate(It.IsAny<OrderPlacementContext>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new TaskCanceledException("credit service timeout"));
+
+        var result = await Evaluate();
+
+        Assert.AreEqual(OrderPlacementDecision.Block, result.Decision);
+        CollectionAssert.AreEqual(new[] { RuleFailedText }, result.Reasons.ToArray());
+    }
+
+    [TestMethod]
+    public async Task Evaluate_OneRuleWantsTheStoreToDecide_StoreDecides()
+    {
+        Rule(OrderPlacementRuleResult.RequireApproval("over the limit"));
+        Rule(OrderPlacementRuleResult.RequireStoreApproval("restricted goods"));
+
+        var result = await Evaluate();
+
+        Assert.AreEqual(OrderPlacementDecision.RequireApproval, result.Decision);
+        Assert.IsTrue(result.StoreDecides);
+    }
+
+    [TestMethod]
+    public async Task Evaluate_NoRuleWantsTheStoreToDecide_CompanyMayDecide()
+    {
+        Rule(OrderPlacementRuleResult.RequireApproval("over the limit"));
+
+        var result = await Evaluate();
+
+        Assert.IsFalse(result.StoreDecides);
     }
 
     [TestMethod]

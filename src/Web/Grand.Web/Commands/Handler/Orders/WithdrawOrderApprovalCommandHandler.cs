@@ -42,21 +42,23 @@ public class WithdrawOrderApprovalCommandHandler : IRequestHandler<WithdrawOrder
         if (order == null || order.OrderStatusId != (int)OrderStatusSystem.AwaitingApproval)
             return false;
 
-        // the order is cancelled first: when that fails the request stays pending and can be withdrawn again.
-        // The buyer withdrew it themselves, so no cancellation e-mail
+        // the request closes first: a decision taken at the same moment wins or loses as a whole
+        if (!await _orderApprovalService.Close(approval, OrderApprovalStatus.Withdrawn))
+            return false;
+
+        // the buyer withdrew it themselves, so no cancellation e-mail
         try
         {
             await _mediator.Send(new CancelOrderCommand { Order = order, NotifyCustomer = false }, cancellationToken);
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Order approval {Id}: the order could not be cancelled, the request stays pending",
+            _logger.LogError(e, "Order approval {Id}: the order could not be cancelled, the request goes back to pending",
                 approval.Id);
+            await _orderApprovalService.Reopen(approval);
             return false;
         }
 
-        approval.Status = OrderApprovalStatus.Withdrawn;
-        await _orderApprovalService.Update(approval);
         return true;
     }
 

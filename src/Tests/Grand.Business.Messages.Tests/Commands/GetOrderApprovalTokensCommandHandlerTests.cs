@@ -71,6 +71,20 @@ public class GetOrderApprovalTokensCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task BuyerName_Guest_ComesFromTheBillingAddress()
+    {
+        _orderService.Setup(x => x.GetOrderById("order1")).ReturnsAsync(new Order {
+            Id = "order1", BillingAddress = new Address { FirstName = "Anna", LastName = "Nowak" }
+        });
+        var command = Command(Approval());
+        command.Buyer = new Customer();
+
+        var tokens = await _handler.Handle(command, default);
+
+        Assert.AreEqual("Anna Nowak", tokens.BuyerName);
+    }
+
+    [TestMethod]
     public async Task ReasonsHtml_EncodesEachReason()
     {
         var approval = Approval();

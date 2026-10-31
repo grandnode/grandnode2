@@ -26,14 +26,10 @@ public class OrderCancelledOrderApprovalHandler : INotificationHandler<OrderCanc
         var order = notification.Order;
         try
         {
-            // a decision or a withdrawal cancels the order first and then saves its own status over this one
+            // a decision or a withdrawal closes the request before cancelling, so it is not pending here
             var approval = await _orderApprovalService.GetByOrderId(order.Id);
-            if (approval is not { Status: OrderApprovalStatus.Pending })
-                return;
-
-            approval.Status = OrderApprovalStatus.Cancelled;
-            approval.DecidedOnUtc = DateTime.UtcNow;
-            await _orderApprovalService.Update(approval);
+            if (approval is { Status: OrderApprovalStatus.Pending })
+                await _orderApprovalService.Close(approval, OrderApprovalStatus.Cancelled);
         }
         catch (Exception ex)
         {

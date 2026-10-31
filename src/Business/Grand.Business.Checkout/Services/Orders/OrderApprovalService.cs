@@ -89,11 +89,52 @@ public class OrderApprovalService : IOrderApprovalService
         await _mediator.EntityInserted(approval);
     }
 
-    public virtual async Task Update(OrderApproval approval)
+    public virtual async Task<bool> Close(OrderApproval approval, OrderApprovalStatus status,
+        string decidedByCustomerId = null, string decisionComment = null)
     {
         ArgumentNullException.ThrowIfNull(approval);
 
-        await _repository.UpdateAsync(approval);
+        var closeId = Guid.NewGuid().ToString("N");
+        var decidedOnUtc = DateTime.UtcNow;
+        await _repository.UpdateOneAsync(x => x.Id == approval.Id && x.Status == OrderApprovalStatus.Pending,
+            UpdateBuilder<OrderApproval>.Create()
+                .Set(x => x.Status, status)
+                .Set(x => x.DecidedOnUtc, decidedOnUtc)
+                .Set(x => x.DecidedByCustomerId, decidedByCustomerId)
+                .Set(x => x.DecisionComment, decisionComment)
+                .Set(x => x.CloseId, closeId));
+
+        // the update reports nothing, so the record tells which of two concurrent callers won
+        var current = await _repository.GetByIdAsync(approval.Id);
+        if (current?.CloseId != closeId)
+            return false;
+
+        approval.Status = status;
+        approval.DecidedOnUtc = decidedOnUtc;
+        approval.DecidedByCustomerId = decidedByCustomerId;
+        approval.DecisionComment = decisionComment;
+        approval.CloseId = closeId;
+        await _mediator.EntityUpdated(approval);
+        return true;
+    }
+
+    public virtual async Task Reopen(OrderApproval approval)
+    {
+        ArgumentNullException.ThrowIfNull(approval);
+
+        await _repository.UpdateOneAsync(x => x.Id == approval.Id && x.CloseId == approval.CloseId,
+            UpdateBuilder<OrderApproval>.Create()
+                .Set(x => x.Status, OrderApprovalStatus.Pending)
+                .Set(x => x.DecidedOnUtc, null)
+                .Set(x => x.DecidedByCustomerId, null)
+                .Set(x => x.DecisionComment, null)
+                .Set(x => x.CloseId, null));
+
+        approval.Status = OrderApprovalStatus.Pending;
+        approval.DecidedOnUtc = null;
+        approval.DecidedByCustomerId = null;
+        approval.DecisionComment = null;
+        approval.CloseId = null;
         await _mediator.EntityUpdated(approval);
     }
 

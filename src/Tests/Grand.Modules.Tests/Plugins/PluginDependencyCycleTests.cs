@@ -112,7 +112,8 @@ public class PluginDependencyCycleTests
         public IList<string> LimitedToStores => [];
         public IList<string> LimitedToGroups => [];
 
-        public Task<OrderPlacementRuleResult> Evaluate(OrderPlacementContext context)
+        public Task<OrderPlacementRuleResult> Evaluate(OrderPlacementContext context,
+            CancellationToken cancellationToken = default)
         {
             return Task.FromResult(OrderPlacementRuleResult.Allow());
         }

@@ -123,6 +123,36 @@ public class OrderPlacedOrderApprovalDeciderTests
     }
 
     [TestMethod]
+    public async Task Handle_RuleWantsTheStoreToDecide_StoreDecidesASubAccountsOrder()
+    {
+        var placed = Placed(new Customer { Id = "buyer", OwnerId = "owner", Email = "b@acme.example" });
+        placed.ApprovalStoreDecides = true;
+
+        await _handler.Handle(placed, CancellationToken.None);
+
+        Assert.AreEqual(OrderApprovalDecider.Store, _inserted.Decider);
+        Assert.IsNull(_inserted.CompanyOwnerId);
+        NoApproverIsAsked();
+    }
+
+    [TestMethod]
+    [DataRow(false, "owner@acme.example")]
+    [DataRow(true, " ")]
+    public async Task Handle_CompanyHasNobodyToAsk_StoreDecides(bool active, string email)
+    {
+        _customerService.Setup(x => x.GetCustomerById("owner"))
+            .ReturnsAsync(new Customer { Id = "owner", Email = email, Active = active });
+
+        await _handler.Handle(Placed(new Customer { Id = "buyer", OwnerId = "owner", Email = "b@acme.example" }),
+            CancellationToken.None);
+
+        Assert.AreEqual(OrderApprovalDecider.Store, _inserted.Decider);
+        Assert.IsNull(_inserted.CompanyOwnerId);
+        _messages.Verify(x => x.SendOrderApprovalStaffMessage(_inserted, It.IsAny<Customer>(), It.IsAny<Store>(),
+            null, null, "Admin", It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Handle_CopiesReasonsFromEvent()
     {
         var placed = Placed(new Customer { Id = "retail", Email = "r@x.example" });

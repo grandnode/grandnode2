@@ -90,14 +90,54 @@ public class OrderPlacedOrderApprovalStaffMailTests
     }
 
     [TestMethod]
-    public async Task Handle_StoreDecided_SalesEmployeeGetsTheMail()
+    public async Task Handle_StoreDecided_SalesEmployeeAndOwnerAccountGetTheMail()
     {
+        //a sales employee record does not prove its person can open the panel, so the store is always told
         SalesEmployee();
         Owner();
 
         await Place();
 
         Mailed("sales@x.example", "Admin");
+        Mailed("owner@x.example", "Admin");
+    }
+
+    [TestMethod]
+    public async Task Handle_SalesEmployeeWithoutOwnerAccount_EmailAccountIsToldToo()
+    {
+        SalesEmployee();
+
+        await Place();
+
+        Mailed("sales@x.example", "Admin");
+        Mailed(null, "Admin");
+    }
+
+    [TestMethod]
+    public async Task Handle_SalesEmployeeIsTheOwnerAccount_OneMail()
+    {
+        SalesEmployee(email: "OWNER@x.example");
+        Owner();
+
+        await Place();
+
+        _messages.Verify(x => x.SendOrderApprovalStaffMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
+            It.IsAny<Store>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_MailToSalesEmployeeFails_OwnerAccountIsStillTold()
+    {
+        SalesEmployee();
+        Owner();
+        _messages.Setup(x => x.SendOrderApprovalStaffMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
+                It.IsAny<Store>(), "sales@x.example", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException("smtp"));
+
+        await Place();
+
+        Mailed("owner@x.example", "Admin");
     }
 
     [TestMethod]
@@ -171,7 +211,16 @@ public class OrderPlacedOrderApprovalStaffMailTests
     {
         var buyer = new Customer { Id = "buyer", OwnerId = "owner", Email = "b@x.example" };
         _customerService.Setup(x => x.GetCustomerById("buyer")).ReturnsAsync(buyer);
-        _customerService.Setup(x => x.GetCustomerById("owner")).ReturnsAsync((Customer)null);
+        _customerService.Setup(x => x.GetCustomerById("owner"))
+            .ReturnsAsync(new Customer { Id = "owner", Email = "owner@acme.example", Active = true });
+        _customerService.Setup(x => x.GetAllCustomers(It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string[]>(),
+                It.IsAny<string[]>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(),
+                It.IsAny<ShoppingCartType?>(), It.IsAny<int>(), It.IsAny<int>(),
+                It.IsAny<System.Linq.Expressions.Expression<Func<Customer, object>>>(), It.IsAny<string[]>(),
+                It.IsAny<bool>()))
+            .ReturnsAsync(new Grand.Domain.PagedList<Customer>([], 0, int.MaxValue, 0));
         _order.CustomerId = "buyer";
         _order.OwnerId = "owner";
 

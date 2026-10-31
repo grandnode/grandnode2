@@ -43,6 +43,15 @@ public class OrderApprovalDecisionCommandsTests
         };
         _approvals = new Mock<IOrderApprovalService>();
         _approvals.Setup(x => x.GetByOrderId("o1")).ReturnsAsync(_approval);
+        _approvals.Setup(x => x.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+                It.IsAny<string>()))
+            .ReturnsAsync((OrderApproval a, OrderApprovalStatus status, string decidedBy, string comment) =>
+            {
+                a.Status = status;
+                a.DecidedByCustomerId = decidedBy;
+                a.DecisionComment = comment;
+                return true;
+            });
         _orders = new Mock<IOrderService>();
         _orders.Setup(x => x.GetOrderById("o1")).ReturnsAsync(_order);
         var customers = new Mock<ICustomerService>();
@@ -78,7 +87,13 @@ public class OrderApprovalDecisionCommandsTests
 
     private void NothingWasTouched()
     {
-        _approvals.Verify(x => x.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(x => x.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
+        OrderWasNotMoved();
+    }
+
+    private void OrderWasNotMoved()
+    {
         _mediator.Verify(x => x.Send(It.IsAny<SetOrderStatusCommand>(), It.IsAny<CancellationToken>()), Times.Never);
         _mediator.Verify(x => x.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
@@ -94,6 +109,45 @@ public class OrderApprovalDecisionCommandsTests
         Assert.AreEqual("note", _approval.DecisionComment);
         _mediator.Verify(x => x.Send(It.Is<SetOrderStatusCommand>(c => c.Os == OrderStatusSystem.Pending),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Apply_AnotherDecisionWonTheRace_MovesNothingAndSendsNothing()
+    {
+        _approvals.Setup(x => x.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>())).ReturnsAsync(false);
+
+        Assert.IsFalse(await _apply.Handle(Apply(), default));
+
+        OrderWasNotMoved();
+        _orders.Verify(x => x.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+        _messages.Verify(x => x.SendOrderApprovalDecidedMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
+            It.IsAny<Store>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Apply_SavingTheDecisionFails_OrderStaysAwaiting()
+    {
+        //a failed save must not leave a moved order whose request can never be decided again
+        _approvals.Setup(x => x.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>())).ThrowsAsync(new InvalidOperationException("db down"));
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => _apply.Handle(Apply(), default));
+
+        OrderWasNotMoved();
+    }
+
+    [TestMethod]
+    public async Task Apply_MovingTheOrderFails_ReopensTheRequest()
+    {
+        _mediator.Setup(x => x.Send(It.IsAny<SetOrderStatusCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+
+        Assert.IsFalse(await _apply.Handle(Apply(), default));
+
+        _approvals.Verify(x => x.Reopen(_approval), Times.Once);
+        _messages.Verify(x => x.SendOrderApprovalDecidedMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
+            It.IsAny<Store>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Never);
     }
 
     [TestMethod]

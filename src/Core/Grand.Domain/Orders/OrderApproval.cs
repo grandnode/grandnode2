@@ -79,6 +79,11 @@ public class OrderApproval : BaseEntity
     public string DecisionComment { get; set; }
 
     /// <summary>
+    ///     Gets or sets the identifier of the write that closed the request; tells concurrent callers which one won
+    /// </summary>
+    public string CloseId { get; set; }
+
+    /// <summary>
     ///     Gets or sets the identifier of the order awaiting the decision; set at creation
     /// </summary>
     [AuditReference(typeof(Order))]

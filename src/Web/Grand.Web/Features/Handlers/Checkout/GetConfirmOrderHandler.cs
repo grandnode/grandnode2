@@ -54,7 +54,7 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
             PurchaseOrderNumberMaxLength = PurchaseOrderNumberRules.MaxLength
         };
         await PrepareOrderReviewData(model, request);
-        await PrepareOrderPlacement(model, request);
+        await PrepareOrderPlacement(model, request, cancellationToken);
         return model;
     }
 
@@ -73,13 +73,14 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
     ///     A blocked order cannot be confirmed, and one that needs an approval is placed at once and waits for it;
     ///     the buyer is told so, and why
     /// </summary>
-    private async Task PrepareOrderPlacement(CheckoutConfirmModel model, GetConfirmOrder request)
+    private async Task PrepareOrderPlacement(CheckoutConfirmModel model, GetConfirmOrder request,
+        CancellationToken cancellationToken)
     {
         var paymentMethod = request.Customer.GetUserFieldFromEntity<string>(
             SystemCustomerFieldNames.SelectedPaymentMethod, request.Store.Id);
         var evaluation = await _orderPlacementService.Evaluate(request.Cart,
             new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType),
-            request.Language, paymentMethod);
+            request.Language, paymentMethod, cancellationToken);
 
         if (evaluation.Decision == OrderPlacementDecision.Block)
         {

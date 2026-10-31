@@ -172,7 +172,7 @@ public class MigrationOrderApproval : IMigration
                 "Your order approval request has been decided.",
                 "Order approval {{OrderApproval.Status}}",
                 @"
-<p>Hello {{Customer.FullName | Escape}},</p>
+<p>Hello {{OrderApproval.BuyerName | Escape}},</p>
 <p>Your request to approve order{% if OrderApproval.OrderNumber != '' %} <strong>#{{OrderApproval.OrderNumber}}</strong>{% endif %} at <strong>{{Store.Name}}</strong> has been decided. Status: <strong>{{OrderApproval.Status}}</strong>.</p>
 {% if OrderApproval.DecisionComment != null and OrderApproval.DecisionComment != '' %}
 <p>Comment from the approver:</p>

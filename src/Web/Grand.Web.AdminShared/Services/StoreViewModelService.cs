@@ -5,8 +5,10 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Queries.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
+using Grand.Mediator;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Stores;
@@ -21,6 +23,7 @@ public class StoreViewModelService : IStoreViewModelService
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
     private readonly ILanguageService _languageService;
+    private readonly IMediator _mediator;
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
     private readonly IWarehouseService _warehouseService;
@@ -28,8 +31,9 @@ public class StoreViewModelService : IStoreViewModelService
     public StoreViewModelService(ILanguageService languageService, IWarehouseService warehouseService,
         IStoreService storeService, ISettingService settingService,
         ICountryService countryService, ICurrencyService currencyService,
-        ICustomerService customerService, IGroupService groupService)
+        ICustomerService customerService, IGroupService groupService, IMediator mediator)
     {
+        _mediator = mediator;
         _customerService = customerService;
         _groupService = groupService;
         _languageService = languageService;
@@ -138,11 +142,16 @@ public class StoreViewModelService : IStoreViewModelService
         var administrators = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Administrators);
         var managers = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.StoreManager);
 
-        var customers = await _customerService.GetAllCustomers(customerGroupIds: [administrators.Id, managers.Id]);
-        return customers
-            .Where(x => x is { Active: true, Deleted: false } &&
-                        (x.Groups.Contains(administrators.Id) ||
-                         (!string.IsNullOrEmpty(storeId) && x.StaffStoreId == storeId)))
+        var candidates = (await _customerService.GetAllCustomers(customerGroupIds: [administrators.Id])).ToList();
+        if (!string.IsNullOrEmpty(storeId))
+            candidates.AddRange(await _mediator.Send(new GetCustomerQuery {
+                CustomerGroupIds = [managers.Id],
+                StaffStoreId = storeId
+            }));
+
+        return candidates
+            .Where(x => x is { Active: true, Deleted: false })
+            .DistinctBy(x => x.Id)
             .ToList();
     }
 

@@ -65,7 +65,8 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
             PaymentMethodSystemName = "Payments.Card",
             OrderTotal = 500
         };
-        placementService.Setup(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, It.IsAny<string>()))
+        placementService.Setup(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.Allow, []));
         _provider = new Mock<IPaymentProvider>();
         var paymentService = new Mock<IPaymentService>();

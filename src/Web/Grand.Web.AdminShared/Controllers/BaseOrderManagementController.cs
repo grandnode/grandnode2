@@ -73,12 +73,15 @@ public abstract class BaseOrderManagementController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> DecideApprovalPopup(string id)
     {
+        //this is loaded into a popup: a redirect would put a whole page inside it
+        const string refused = "DecideApprovalRefused";
+
         var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        if (denied != null) return View(refused);
 
         var model = await OrderViewModelService.PrepareOrderApprovalDecisionModel(order);
         if (model == null)
-            return RedirectToAction("Edit", "Order", new { id });
+            return View(refused);
 
         return View(model);
     }

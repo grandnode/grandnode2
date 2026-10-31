@@ -22,6 +22,11 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders;
 ///             A rule that throws blocks the order, so a fault cannot switch a purchasing control off.
 ///         </item>
 ///         <item>
+///             By default a sub-account's company decides the approval. Return
+///             <see cref="OrderPlacementRuleResult.RequireStoreApproval" /> for a control the buyer's company must not
+///             release; the store then decides, whichever rule asked.
+///         </item>
+///         <item>
 ///             Do not inject <see cref="IOrderPlacementService" />. Use <see cref="OrderPlacementContext.GetTotal" /> for
 ///             the total, not <see cref="IOrderCalculationService" />.
 ///         </item>
@@ -33,5 +38,7 @@ public interface IOrderPlacementRuleProvider : IProvider
     ///     Decides about the order being placed
     /// </summary>
     /// <param name="context">The order being placed</param>
-    Task<OrderPlacementRuleResult> Evaluate(OrderPlacementContext context);
+    /// <param name="cancellationToken">Cancelled when the buyer's request is aborted; pass it to any external call</param>
+    Task<OrderPlacementRuleResult> Evaluate(OrderPlacementContext context,
+        CancellationToken cancellationToken = default);
 }

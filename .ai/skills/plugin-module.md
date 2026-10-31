@@ -57,7 +57,7 @@ Do not use this skill as the primary review for payment correctness, tenant isol
 6. Prefer adding a new reference file only when a new extension type appears in the repository.
 
 ### Order Placement Rules
-A plugin takes part in order placement by implementing `IOrderPlacementRuleProvider` and registering it in its `StartupApplication` (`services.AddScoped<IOrderPlacementRuleProvider, MyRule>()`). `Evaluate` returns `OrderPlacementRuleResult.Allow()`, `.RequireApproval(reason)` or `.Block(reason)`. Any number of rules can be active: any block blocks the order, otherwise any required approval requires it, and an `Allow` never cancels another rule's decision.
+A plugin takes part in order placement by implementing `IOrderPlacementRuleProvider` and registering it in its `StartupApplication` (`services.AddScoped<IOrderPlacementRuleProvider, MyRule>()`). `Evaluate` returns `OrderPlacementRuleResult.Allow()`, `.RequireApproval(reason)`, `.RequireStoreApproval(reason)` or `.Block(reason)`. Any number of rules can be active: any block blocks the order, otherwise any required approval requires it, and an `Allow` never cancels another rule's decision. `RequireApproval` lets a sub-account's company decide; use `RequireStoreApproval` for a control the buyer's company must not release. Pass `Evaluate`'s `CancellationToken` to any external call.
 
 1. A rule runs several times per checkout, also on a page view, so it must be fast and have no side effects.
 2. `PaymentMethodSystemName` and `GetTotal()` can be null early in checkout, and the rule must decide sensibly then. The call made when the order is placed is the authoritative one.

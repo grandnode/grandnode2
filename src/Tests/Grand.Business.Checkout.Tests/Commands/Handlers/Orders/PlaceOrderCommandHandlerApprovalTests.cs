@@ -77,7 +77,8 @@ public class PlaceOrderCommandHandlerApprovalTests
 
     private void Evaluates(OrderPlacementDecision decision, string paymentMethod, params string[] reasons)
     {
-        _placementService.Setup(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, paymentMethod))
+        _placementService.Setup(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, paymentMethod,
+                It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OrderPlacementEvaluation(decision, reasons));
     }
 
@@ -98,6 +99,36 @@ public class PlaceOrderCommandHandlerApprovalTests
         Assert.IsNull(result.PlacedOrder);
         Assert.AreEqual(0, _handler.PaymentCalls);
         _mediator.Verify(x => x.Send(It.IsAny<OrderNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_PassesItsTokenToTheRules()
+    {
+        using var source = new CancellationTokenSource();
+        Evaluates(OrderPlacementDecision.Block, "Payments.Card", "blocked customer");
+
+        await _handler.Handle(_command, source.Token);
+
+        _placementService.Verify(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, "Payments.Card",
+            source.Token), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_RuleWantsTheStoreToDecide_SaysSoOnOrderPlacedEvent()
+    {
+        _placementService.Setup(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, "Payments.Card",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.RequireApproval, ["restricted goods"],
+                true));
+        _approvalService.Setup(x => x.IsPaymentMethodAllowed("Payments.Card")).Returns(true);
+        OrderPlacedEvent published = null;
+        _mediator.Setup(x => x.Publish(It.IsAny<OrderPlacedEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<OrderPlacedEvent, CancellationToken>((e, _) => published = e)
+            .Returns(Task.CompletedTask);
+
+        await _handler.Handle(_command, CancellationToken.None);
+
+        Assert.IsTrue(published.ApprovalStoreDecides);
     }
 
     [TestMethod]

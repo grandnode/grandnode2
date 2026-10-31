@@ -101,7 +101,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         //a blocked order has nothing to pay with; one that needs an approval may only use the payment methods the admin chose
         var evaluation = await _orderPlacementService.Evaluate(request.Cart,
             new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType),
-            request.Language, null);
+            request.Language, null, cancellationToken);
         if (evaluation.Decision == OrderPlacementDecision.Block)
         {
             availablepaymentMethods.Clear();

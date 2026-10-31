@@ -57,7 +57,12 @@ public class ApplyOrderApprovalDecisionCommandHandler : IRequestHandler<ApplyOrd
 
         var buyer = await _customerService.GetCustomerById(approval.CustomerId);
 
-        // the order moves first: when that fails the request stays Pending and can be decided again
+        // the request closes first: of two decisions at once only one goes on, and a failed save leaves the order waiting
+        if (!await _orderApprovalService.Close(approval,
+                request.Approve ? OrderApprovalStatus.Approved : OrderApprovalStatus.Rejected, request.DecidedBy.Id,
+                NormalizeComment(request.Comment)))
+            return false;
+
         try
         {
             if (request.Approve)
@@ -72,16 +77,11 @@ public class ApplyOrderApprovalDecisionCommandHandler : IRequestHandler<ApplyOrd
         }
         catch (Exception e)
         {
-            _logger.LogError(e, "Order approval {Id}: the order could not be moved, the request stays pending",
+            _logger.LogError(e, "Order approval {Id}: the order could not be moved, the request goes back to pending",
                 approval.Id);
+            await Guard(approval.Id, "reopening the request", () => _orderApprovalService.Reopen(approval));
             return false;
         }
-
-        approval.Status = request.Approve ? OrderApprovalStatus.Approved : OrderApprovalStatus.Rejected;
-        approval.DecidedOnUtc = DateTime.UtcNow;
-        approval.DecidedByCustomerId = request.DecidedBy.Id;
-        approval.DecisionComment = NormalizeComment(request.Comment);
-        await _orderApprovalService.Update(approval);
 
         // from here the order is an ordinary one: a later failure must not undo or abort the decision
         await Guard(order.Id, "order note", () => _orderService.InsertOrderNote(new OrderNote {
@@ -135,7 +135,7 @@ public class ApplyOrderApprovalDecisionCommandHandler : IRequestHandler<ApplyOrd
     }
 
     /// <summary>
-    ///     A failed follow-up step must neither undo nor abort a decision that is already saved
+    ///     A failed follow-up step must not abort a decision that is already saved
     /// </summary>
     private async Task Guard(string id, string step, Func<Task> run)
     {

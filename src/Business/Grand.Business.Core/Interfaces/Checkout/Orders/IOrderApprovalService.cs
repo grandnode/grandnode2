@@ -50,10 +50,21 @@ public interface IOrderApprovalService
     Task Insert(OrderApproval approval);
 
     /// <summary>
-    ///     Updates an approval
+    ///     Closes a pending request. Atomic: of concurrent callers only one succeeds, the others change nothing.
     /// </summary>
-    /// <param name="approval">Approval</param>
-    Task Update(OrderApproval approval);
+    /// <param name="approval">Approval; receives the closed state when the call succeeds</param>
+    /// <param name="status">The status to close it with</param>
+    /// <param name="decidedByCustomerId">Who decided; null when nobody did</param>
+    /// <param name="decisionComment">The approver's comment</param>
+    /// <returns>Whether this call closed the request</returns>
+    Task<bool> Close(OrderApproval approval, OrderApprovalStatus status, string decidedByCustomerId = null,
+        string decisionComment = null);
+
+    /// <summary>
+    ///     Makes a request closed by <see cref="Close" /> pending again, when what should follow the close has failed
+    /// </summary>
+    /// <param name="approval">The approval as <see cref="Close" /> left it</param>
+    Task Reopen(OrderApproval approval);
 
     /// <summary>
     ///     Gets a value indicating whether the payment method may be used for an order that needs an approval

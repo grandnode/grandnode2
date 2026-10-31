@@ -77,6 +77,18 @@ public class OrderApprovalCommandsTests
     public void Init()
     {
         _approvals = new Mock<IOrderApprovalService>();
+        _approvals.Setup(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+                It.IsAny<string>()))
+            .ReturnsAsync((OrderApproval a, OrderApprovalStatus status, string decidedBy, string comment) =>
+            {
+                a.Status = status;
+                a.DecidedOnUtc = DateTime.UtcNow;
+                a.DecidedByCustomerId = decidedBy;
+                a.DecisionComment = comment;
+                return true;
+            });
+        _approvals.Setup(a => a.Reopen(It.IsAny<OrderApproval>()))
+            .Callback<OrderApproval>(a => a.Status = OrderApprovalStatus.Pending).Returns(Task.CompletedTask);
         _messages = new Mock<ICustomerMessageProviderService>();
         _customers = new Mock<ICustomerService>();
         _mediator = new Mock<IMediator>();
@@ -129,7 +141,6 @@ public class OrderApprovalCommandsTests
         Assert.AreEqual("approver", approval.DecidedByCustomerId);
         Assert.AreEqual("ok", approval.DecisionComment);
         Assert.IsNotNull(approval.DecidedOnUtc);
-        _approvals.Verify(a => a.Update(approval), Times.Once);
         _messages.Verify(m => m.SendOrderApprovalDecidedMessage(approval, It.Is<Customer>(c => c.Id == "buyer"),
             It.Is<StoreEntity>(s => s.Id == StoreId), "en", It.IsAny<DomainHost>()), Times.Once);
     }
@@ -161,7 +172,6 @@ public class OrderApprovalCommandsTests
         Assert.AreEqual(OrderApprovalStatus.Rejected, approval.Status);
         Assert.AreEqual(OwnerId, approval.DecidedByCustomerId);
         Assert.IsNull(approval.DecisionComment);
-        _approvals.Verify(a => a.Update(approval), Times.Once);
     }
 
     [TestMethod]
@@ -174,7 +184,8 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
         _messages.Verify(m => m.SendOrderApprovalDecidedMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
             It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Never);
     }
@@ -191,7 +202,8 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
         _mediator.Verify(m => m.Send(It.IsAny<SetOrderStatusCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
@@ -205,7 +217,8 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         _approvals.Verify(a => a.GetById("a1", "stranger"), Times.Once);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -214,7 +227,8 @@ public class OrderApprovalCommandsTests
         var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, id: "nope"), default);
 
         Assert.IsFalse(result);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -231,7 +245,8 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         Assert.AreEqual(status, approval.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -244,7 +259,8 @@ public class OrderApprovalCommandsTests
         var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
 
         Assert.IsFalse(result);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -298,15 +314,15 @@ public class OrderApprovalCommandsTests
     public async Task Withdraw_ByOrderId_BuyerWithdrawsStoreDecidedRequest()
     {
         var approval = StoreDecided();
-        var cancelledBeforeSaving = false;
+        var closedBeforeCancelling = false;
         _mediator.Setup(m => m.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()))
-            .Callback(() => cancelledBeforeSaving = approval.Status == OrderApprovalStatus.Pending)
+            .Callback(() => closedBeforeCancelling = approval.Status == OrderApprovalStatus.Withdrawn)
             .ReturnsAsync(true);
 
         var result = await WithdrawByOrder(new Customer { Id = "buyer" });
 
         Assert.IsTrue(result);
-        Assert.IsTrue(cancelledBeforeSaving);
+        Assert.IsTrue(closedBeforeCancelling);
         Assert.AreEqual(OrderApprovalStatus.Withdrawn, approval.Status);
     }
 
@@ -352,7 +368,21 @@ public class OrderApprovalCommandsTests
 
         Assert.IsTrue(result);
         Assert.AreEqual(OrderApprovalStatus.Withdrawn, approval.Status);
-        _approvals.Verify(a => a.Update(approval), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_ADecisionWonTheRace_OrderIsNotCancelled()
+    {
+        var sent = Sent();
+        _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
+        _approvals.Setup(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>())).ReturnsAsync(false);
+
+        var result = await Withdrawer().Handle(
+            new WithdrawOrderApprovalCommand { Customer = Buyer(), Store = Shop(), ApprovalId = "a1" }, default);
+
+        Assert.IsFalse(result);
+        Assert.AreEqual(0, sent.Count);
     }
 
     [TestMethod]
@@ -367,7 +397,8 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -384,7 +415,8 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         Assert.AreEqual(status, approval.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -487,7 +519,8 @@ public class OrderApprovalCommandsTests
         Assert.IsFalse(result);
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
         Assert.AreEqual(0, sent.Count);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -499,7 +532,8 @@ public class OrderApprovalCommandsTests
         var result = await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
 
         Assert.IsFalse(result);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -553,7 +587,7 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Reopen(approval), Times.Once);
         _messages.Verify(m => m.SendOrderApprovalDecidedMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
             It.IsAny<StoreEntity>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Never);
     }
@@ -571,7 +605,7 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Reopen(approval), Times.Once);
     }
 
     [TestMethod]
@@ -587,7 +621,7 @@ public class OrderApprovalCommandsTests
 
         Assert.IsFalse(result);
         Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Never);
+        _approvals.Verify(a => a.Reopen(approval), Times.Once);
         Assert.AreEqual(0, sent.Count);
     }
 
@@ -732,8 +766,17 @@ public class OrderApprovalCommandsTests
         _stored = Approval();
         _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(() => Copy(_stored));
         _approvals.Setup(a => a.GetByOrderId("o1")).ReturnsAsync(() => Copy(_stored));
-        _approvals.Setup(a => a.Update(It.IsAny<OrderApproval>()))
-            .Callback<OrderApproval>(a => _stored = Copy(a)).Returns(Task.CompletedTask);
+        _approvals.Setup(a => a.Close(It.IsAny<OrderApproval>(), It.IsAny<OrderApprovalStatus>(), It.IsAny<string>(),
+                It.IsAny<string>()))
+            .ReturnsAsync((OrderApproval a, OrderApprovalStatus status, string decidedBy, string _) =>
+            {
+                if (_stored.Status != OrderApprovalStatus.Pending)
+                    return false;
+                a.Status = status;
+                a.DecidedByCustomerId = decidedBy;
+                _stored = Copy(a);
+                return true;
+            });
         var cancelled = new Grand.Business.Checkout.Events.Orders.OrderCancelledOrderApprovalHandler(_approvals.Object,
             new Mock<ILogger<Grand.Business.Checkout.Events.Orders.OrderCancelledOrderApprovalHandler>>().Object);
         _mediator.Setup(m => m.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()))
@@ -748,7 +791,7 @@ public class OrderApprovalCommandsTests
     }
 
     [TestMethod]
-    public async Task Decide_Reject_StoresRejectedOverTheCancelClose()
+    public async Task Decide_Reject_TheCancelLeavesTheRejectionAlone()
     {
         StoreBehindTheCancel();
 
@@ -757,11 +800,12 @@ public class OrderApprovalCommandsTests
         Assert.IsTrue(result);
         Assert.AreEqual(OrderApprovalStatus.Rejected, _stored.Status);
         Assert.AreEqual(OwnerId, _stored.DecidedByCustomerId);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Exactly(2));
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), OrderApprovalStatus.Cancelled, It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
-    public async Task Withdraw_StoresWithdrawnOverTheCancelClose()
+    public async Task Withdraw_TheCancelLeavesTheWithdrawalAlone()
     {
         StoreBehindTheCancel();
 
@@ -770,7 +814,8 @@ public class OrderApprovalCommandsTests
 
         Assert.IsTrue(result);
         Assert.AreEqual(OrderApprovalStatus.Withdrawn, _stored.Status);
-        _approvals.Verify(a => a.Update(It.IsAny<OrderApproval>()), Times.Exactly(2));
+        _approvals.Verify(a => a.Close(It.IsAny<OrderApproval>(), OrderApprovalStatus.Cancelled, It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     #endregion

@@ -20,6 +20,8 @@ using Grand.Mediator;
 using Grand.Web.Common.Localization;
 using Grand.Web.Controllers;
 using Grand.Web.Features.Models.Checkout;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -69,7 +71,9 @@ public class CheckoutControllerConfirmOrderTests
             new Mock<IProductService>().Object, new Mock<IShoppingCartValidator>().Object,
             new Mock<IOrderApprovalService>().Object, new Mock<IOrderPlacementService>().Object, new OrderSettings(),
             new OidcLoginConfig(),
-            new LoyaltyPointsSettings(), new PaymentSettings(), new ShippingSettings(), new AddressSettings());
+            new LoyaltyPointsSettings(), new PaymentSettings(), new ShippingSettings(), new AddressSettings()) {
+            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+        };
     }
 
     [TestMethod]

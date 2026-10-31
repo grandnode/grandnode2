@@ -226,16 +226,55 @@ public class OrderApprovalServiceTests
     }
 
     [TestMethod]
-    public async Task Update_StoresAndPublishesEvent()
+    public async Task Close_Pending_StoresTheDecisionAndPublishesEvent()
     {
         var approval = await AddApproval(OrderApprovalStatus.Pending);
-        approval.Status = OrderApprovalStatus.Approved;
 
-        await _service.Update(approval);
+        var closed = await _service.Close(approval, OrderApprovalStatus.Approved, "staff", "fine");
 
+        Assert.IsTrue(closed);
+        Assert.AreEqual(OrderApprovalStatus.Approved, approval.Status);
         var stored = await _repository.GetByIdAsync(approval.Id);
         Assert.AreEqual(OrderApprovalStatus.Approved, stored.Status);
+        Assert.AreEqual("staff", stored.DecidedByCustomerId);
+        Assert.AreEqual("fine", stored.DecisionComment);
+        Assert.IsNotNull(stored.DecidedOnUtc);
         _mediatorMock.Verify(x => x.Publish(It.IsAny<EntityUpdated<OrderApproval>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Close_ACopyLoadedBeforeAnotherClose_LosesAndChangesNothing()
+    {
+        //both requests loaded the request while it was pending: this is what two clicks at once look like
+        var approval = await AddApproval(OrderApprovalStatus.Pending);
+        var first = await _repository.GetByIdAsync(approval.Id);
+        var second = await _repository.GetByIdAsync(approval.Id);
+
+        Assert.IsTrue(await _service.Close(first, OrderApprovalStatus.Approved, "staff"));
+        Assert.IsFalse(await _service.Close(second, OrderApprovalStatus.Withdrawn));
+
+        Assert.AreEqual(OrderApprovalStatus.Pending, second.Status);
+        var stored = await _repository.GetByIdAsync(approval.Id);
+        Assert.AreEqual(OrderApprovalStatus.Approved, stored.Status);
+        Assert.AreEqual("staff", stored.DecidedByCustomerId);
+        _mediatorMock.Verify(x => x.Publish(It.IsAny<EntityUpdated<OrderApproval>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Reopen_MakesTheRequestPendingAgainAndDecidable()
+    {
+        var approval = await AddApproval(OrderApprovalStatus.Pending);
+        await _service.Close(approval, OrderApprovalStatus.Rejected, "staff", "no");
+
+        await _service.Reopen(approval);
+
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+        Assert.IsNull(approval.DecidedOnUtc);
+        var stored = await _repository.GetByIdAsync(approval.Id);
+        Assert.AreEqual(OrderApprovalStatus.Pending, stored.Status);
+        Assert.IsNull(stored.DecidedByCustomerId);
+        Assert.IsNull(stored.DecisionComment);
+        Assert.IsTrue(await _service.Close(approval, OrderApprovalStatus.Approved, "staff"));
     }
 
     [TestMethod]

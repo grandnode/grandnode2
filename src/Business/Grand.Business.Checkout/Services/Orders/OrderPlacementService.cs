@@ -32,7 +32,8 @@ public class OrderPlacementService : IOrderPlacementService
     }
 
     public virtual async Task<OrderPlacementEvaluation> Evaluate(IList<ShoppingCartItem> cart,
-        CalculationContext calculation, Language language, string paymentMethodSystemName)
+        CalculationContext calculation, Language language, string paymentMethodSystemName,
+        CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(cart);
         ArgumentNullException.ThrowIfNull(calculation);
@@ -46,28 +47,34 @@ public class OrderPlacementService : IOrderPlacementService
         foreach (var rule in _rules
                      .Where(x => x.IsAuthenticateStore(calculation.Store) && x.IsAuthenticateGroup(calculation.Customer))
                      .OrderBy(x => x.Priority))
-            results.Add(await Run(rule, context));
+            results.Add(await Run(rule, context, cancellationToken));
 
         var decision = results.Count > 0 ? results.Max(x => x.Decision) : OrderPlacementDecision.Allow;
         if (decision == OrderPlacementDecision.Allow)
             return new OrderPlacementEvaluation(decision, []);
 
-        return new OrderPlacementEvaluation(decision, results
-            .Where(x => x.Decision == decision)
-            .Select(x => Reason(x, language))
-            .ToList());
+        var deciding = results.Where(x => x.Decision == decision).ToList();
+        return new OrderPlacementEvaluation(decision,
+            deciding.Select(x => Reason(x, language)).Distinct().ToList(),
+            deciding.Any(x => x.StoreDecides));
     }
 
     /// <summary>
     ///     A rule that fails blocks the order: a fault must not switch a purchasing control off, and the buyer never
     ///     reads the exception
     /// </summary>
-    private async Task<OrderPlacementRuleResult> Run(IOrderPlacementRuleProvider rule, OrderPlacementContext context)
+    private async Task<OrderPlacementRuleResult> Run(IOrderPlacementRuleProvider rule, OrderPlacementContext context,
+        CancellationToken cancellationToken)
     {
         try
         {
-            return await rule.Evaluate(context)
+            return await rule.Evaluate(context, cancellationToken)
                    ?? throw new InvalidOperationException("The rule returned no result");
+        }
+        // an aborted request is nobody's fault; a rule's own timeout is a failure like any other
+        catch (OperationCanceledException) when (cancellationToken.IsCancellationRequested)
+        {
+            throw;
         }
         catch (Exception ex)
         {

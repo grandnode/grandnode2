@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Mediator;
@@ -34,8 +35,8 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
         var orderUrl = order == null ? requestUrl : $"{url}/orderdetails/{WebUtility.UrlEncode(approval.OrderId)}";
 
         var liquidOrderApproval = new LiquidOrderApproval {
-            BuyerName = request.Buyer.GetFullName(),
-            // a guest has no e-mail of their own: the address they gave is on the order
+            // a guest has no name or e-mail of their own: what they gave is on the order
+            BuyerName = BuyerName(request.Buyer, order?.BillingAddress),
             BuyerEmail = string.IsNullOrEmpty(request.Buyer.Email) ? order?.BillingAddress?.Email : request.Buyer.Email,
             //resource text, used in the subject as well: encoding would turn "Approuvé" into "Approuv&#233;"
             Status = approval.Status.GetTranslationEnum(_translationService, request.Language.Id),
@@ -52,6 +53,14 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
                 : $"{url}/{request.PanelArea}/Order/Edit/{WebUtility.UrlEncode(approval.OrderId)}"
         };
         return liquidOrderApproval;
+    }
+
+    private static string BuyerName(Customer buyer, Address billingAddress)
+    {
+        var name = buyer.GetFullName();
+        return string.IsNullOrWhiteSpace(name)
+            ? $"{billingAddress?.FirstName} {billingAddress?.LastName}".Trim()
+            : name;
     }
 
     private static string Encode(string value)
