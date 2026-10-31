@@ -5,6 +5,7 @@ using Grand.Data.Mongo;
 using Grand.Domain;
 using Grand.Infrastructure.Audit;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
 using LiteDB;
 using Microsoft.AspNetCore.Builder;
@@ -87,7 +88,12 @@ public class StartupApplication : IStartupApplication
         else
         {
             //the mappers are not safe to build concurrently - startup is still single-threaded here
-            LiteDBMapperWarmup.Warm(BsonMapper.Global, new TypeSearcher().ClassesOfType<BaseEntity>());
+            var typeSearcher = new TypeSearcher();
+            //an uninstalled plugin counts too: installing it uses its entities on the running site
+            var plugins = PluginManager.ReferencedPlugins?.Where(x => x.PluginType != null)
+                .Select(x => x.ReferencedAssembly) ?? [];
+            LiteDBMapperWarmup.Warm(
+                typeSearcher.ClassesOfType(typeof(BaseEntity), typeSearcher.GetAssemblies().Union(plugins)));
             //database context
             serviceCollection.AddScoped<IDatabaseContext, LiteDBContext>();
             //store files context - grid fs

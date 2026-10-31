@@ -16,6 +16,11 @@ public static class LiteDBMapperWarmup
     //Entity<T> is the public way to reach the internal BsonMapper.GetEntityMapper
     private static readonly MethodInfo BuildMapper = typeof(BsonMapper).GetMethod(nameof(BsonMapper.Entity))!;
 
+    public static void Warm(IEnumerable<Type> entityTypes)
+    {
+        Warm(BsonMapper.Global, entityTypes);
+    }
+
     public static void Warm(BsonMapper mapper, IEnumerable<Type> entityTypes)
     {
         var visited = new HashSet<Type>();
