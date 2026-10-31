@@ -63,12 +63,9 @@ public class StartupApplication : IStartupApplication
             }
             else
             {
-                if (dbConfig.Singleton)
-                    serviceCollection.AddSingleton(_ => new LiteDatabase(dataProviderSettings.ConnectionString)
-                        { UtcDate = true });
-                else
-                    serviceCollection.AddScoped(_ => new LiteDatabase(dataProviderSettings.ConnectionString)
-                        { UtcDate = true });
+                //one shared instance: LiteDB locks the file, so a second one in the process cannot open it
+                serviceCollection.AddSingleton(_ => new LiteDatabase(dataProviderSettings.ConnectionString)
+                    { UtcDate = true });
             }
         }
 
