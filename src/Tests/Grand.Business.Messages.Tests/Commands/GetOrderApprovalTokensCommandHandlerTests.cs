@@ -56,6 +56,25 @@ public class GetOrderApprovalTokensCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Url_StoreDecided_PointsToOrderDetails()
+    {
+        var approval = Approval();
+        approval.Decider = OrderApprovalDecider.Store;
+
+        var tokens = await _handler.Handle(Command(approval), default);
+
+        Assert.AreEqual("https://store.example/orderdetails/order1", tokens.Url);
+    }
+
+    [TestMethod]
+    public async Task Url_CompanyDecided_PointsToApprovalRequest()
+    {
+        var tokens = await _handler.Handle(Command(Approval()), default);
+
+        Assert.AreEqual("https://store.example/account/orderapproval?id=approval1", tokens.Url);
+    }
+
+    [TestMethod]
     public async Task Handle_WithoutAnOrderId_FallsBackToTheApprovalUrlAndLeavesTheNumberEmpty()
     {
         var approval = Approval();

@@ -7,7 +7,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
@@ -24,6 +23,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
 {
     private readonly ICurrencyService _currencyService;
     private readonly ICustomerService _customerService;
+    private readonly CustomerSettings _customerSettings;
     private readonly ILogger<OrderPlacedOrderApprovalHandler> _logger;
     private readonly ICustomerMessageProviderService _messageProviderService;
     private readonly IOrderApprovalService _orderApprovalService;
@@ -39,8 +39,10 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         IProductService productService,
         IPriceFormatter priceFormatter,
         ICurrencyService currencyService,
+        CustomerSettings customerSettings,
         ILogger<OrderPlacedOrderApprovalHandler> logger)
     {
+        _customerSettings = customerSettings;
         _orderApprovalService = orderApprovalService;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
@@ -59,7 +61,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
 
         try
         {
-            await CreateApprovalRequest(order);
+            await CreateApprovalRequest(order, notification.ApprovalReasons);
         }
         catch (Exception ex)
         {
@@ -70,7 +72,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         }
     }
 
-    private async Task CreateApprovalRequest(Order order)
+    private async Task CreateApprovalRequest(Order order, IReadOnlyList<string> reasons)
     {
         // one request per order, even if the event is raised twice
         if (await _orderApprovalService.GetByOrderId(order.Id) != null)
@@ -85,17 +87,21 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
             return;
         }
 
-        var companyOwnerId = string.IsNullOrEmpty(order.OwnerId) ? OrderApprovalRules.CompanyId(buyer) : order.OwnerId;
+        // a sub-account's company decides, while the storefront has the approvals screen; anyone else has no company
+        // to ask. Not the order's OwnerId: it holds the customer's own id when there is no owner
+        var companyDecides = !_customerSettings.HideSubAccountsTab && !string.IsNullOrEmpty(buyer.OwnerId);
         var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
 
         var approval = new OrderApproval {
             StoreId = order.StoreId,
-            CompanyOwnerId = companyOwnerId,
+            Decider = companyDecides ? OrderApprovalDecider.Company : OrderApprovalDecider.Store,
+            CompanyOwnerId = companyDecides ? buyer.OwnerId : null,
             CustomerId = order.CustomerId,
             Status = OrderApprovalStatus.Pending,
             OrderId = order.Id,
             Amount = order.OrderTotal,
             CurrencyCode = order.CustomerCurrencyCode,
+            Reasons = reasons.ToList(),
             Summary = PrepareSummary(order, currency)
         };
         foreach (var item in await PrepareItems(order, currency))
@@ -103,8 +109,11 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
 
         await _orderApprovalService.Insert(approval);
 
+        if (!companyDecides)
+            return;
+
         var store = await _storeService.GetStoreById(order.StoreId);
-        foreach (var approver in await GetApprovers(buyer, companyOwnerId, order.StoreId))
+        foreach (var approver in await GetApprovers(buyer, buyer.OwnerId, order.StoreId))
             try
             {
                 await _messageProviderService.SendOrderApprovalRequestedMessage(approval, buyer, approver, store,

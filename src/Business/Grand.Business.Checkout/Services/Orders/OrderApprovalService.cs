@@ -74,7 +74,8 @@ public class OrderApprovalService : IOrderApprovalService
             return new PagedList<OrderApproval>([], pageIndex, pageSize);
 
         var query = _repository.Table
-            .Where(x => x.CustomerId == customerId && x.StoreId == storeId)
+            // a request of the store has no page on the storefront list; not "== Company", a document without the field would not match
+            .Where(x => x.CustomerId == customerId && x.StoreId == storeId && x.Decider != OrderApprovalDecider.Store)
             .OrderByDescending(x => x.CreatedOnUtc);
 
         return await _repository.PagedAsync(query, pageIndex, pageSize);

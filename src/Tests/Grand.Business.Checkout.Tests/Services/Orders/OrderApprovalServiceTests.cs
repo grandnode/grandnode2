@@ -201,6 +201,20 @@ public class OrderApprovalServiceTests
     }
 
     [TestMethod]
+    public async Task GetForCustomer_LeavesOutStoreDecidedRequests()
+    {
+        var companyDecided = await AddApproval(OrderApprovalStatus.Pending);
+        await _repository.InsertAsync(new OrderApproval {
+            CustomerId = BuyerId, StoreId = StoreId, Decider = OrderApprovalDecider.Store,
+            Status = OrderApprovalStatus.Pending
+        });
+
+        var result = await _service.GetForCustomer(BuyerId, StoreId, 0, 10);
+
+        CollectionAssert.AreEqual(new[] { companyDecided.Id }, result.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
     public async Task Insert_StoresAndPublishesEvent()
     {
         var approval = new OrderApproval { CustomerId = BuyerId, StoreId = StoreId, CompanyOwnerId = OwnerId };

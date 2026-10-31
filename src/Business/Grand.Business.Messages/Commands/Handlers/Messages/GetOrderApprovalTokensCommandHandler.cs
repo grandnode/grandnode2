@@ -29,6 +29,10 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
         //the order can be gone (deleted by an admin); the link then simply leads to a missing order
         var order = string.IsNullOrEmpty(approval.OrderId) ? null : await _orderService.GetOrderById(approval.OrderId);
 
+        var requestUrl = $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}";
+        // without an order the link leads to the request itself
+        var orderUrl = order == null ? requestUrl : $"{url}/orderdetails/{WebUtility.UrlEncode(approval.OrderId)}";
+
         var liquidOrderApproval = new LiquidOrderApproval {
             BuyerName = request.Buyer.GetFullName(),
             BuyerEmail = request.Buyer.Email,
@@ -37,12 +41,10 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
             Total = approval.Summary?.Total,
             ItemsHtml = ItemsHtml(approval.Items, request.Language.Id),
             DecisionComment = Encode(approval.DecisionComment),
-            Url = $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}",
+            // the storefront's approvals screen only carries the company's requests
+            Url = approval.Decider == OrderApprovalDecider.Store ? orderUrl : requestUrl,
             OrderNumber = order?.OrderNumber.ToString() ?? string.Empty,
-            // without an order the link leads to the request itself
-            OrderUrl = order == null
-                ? $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}"
-                : $"{url}/orderdetails/{WebUtility.UrlEncode(approval.OrderId)}"
+            OrderUrl = orderUrl
         };
         return liquidOrderApproval;
     }
