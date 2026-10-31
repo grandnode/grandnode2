@@ -2,8 +2,10 @@
 using Grand.Data.Audit;
 using Grand.Data.LiteDb;
 using Grand.Data.Mongo;
+using Grand.Domain;
 using Grand.Infrastructure.Audit;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.TypeSearch;
 using LiteDB;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
@@ -63,12 +65,9 @@ public class StartupApplication : IStartupApplication
             }
             else
             {
-                if (dbConfig.Singleton)
-                    serviceCollection.AddSingleton(_ => new LiteDatabase(dataProviderSettings.ConnectionString)
-                        { UtcDate = true });
-                else
-                    serviceCollection.AddScoped(_ => new LiteDatabase(dataProviderSettings.ConnectionString)
-                        { UtcDate = true });
+                //one shared instance: LiteDB locks the file, so a second one in the process cannot open it
+                serviceCollection.AddSingleton(_ => new LiteDatabase(dataProviderSettings.ConnectionString)
+                    { UtcDate = true });
             }
         }
 
@@ -87,6 +86,8 @@ public class StartupApplication : IStartupApplication
         }
         else
         {
+            //the mappers are not safe to build concurrently - startup is still single-threaded here
+            LiteDBMapperWarmup.Warm(BsonMapper.Global, new TypeSearcher().ClassesOfType<BaseEntity>());
             //database context
             serviceCollection.AddScoped<IDatabaseContext, LiteDBContext>();
             //store files context - grid fs
