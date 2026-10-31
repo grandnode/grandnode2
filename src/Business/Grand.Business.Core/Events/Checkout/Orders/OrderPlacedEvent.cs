@@ -17,4 +17,9 @@ public class OrderPlacedEvent : INotification
     ///     Order
     /// </summary>
     public Order Order { get; private set; }
+
+    /// <summary>
+    ///     Why the order awaits an approval, when it does
+    /// </summary>
+    public IReadOnlyList<string> ApprovalReasons { get; set; } = [];
 }

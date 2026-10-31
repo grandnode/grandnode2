@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Queries.Checkout.Orders;
@@ -21,9 +20,7 @@ namespace Grand.Web.Features.Handlers.Checkout;
 public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutConfirmModel>
 {
     private readonly ICountryService _countryService;
-    private readonly ICurrencyService _currencyService;
-    private readonly IOrderApprovalService _orderApprovalService;
-    private readonly IPriceFormatter _priceFormatter;
+    private readonly IOrderPlacementService _orderPlacementService;
     private readonly IRequestTranslationService _translationService;
     private readonly IMediator _mediator;
     private readonly OrderSettings _orderSettings;
@@ -34,9 +31,7 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
         ICountryService countryService,
         IPaymentService paymentService,
         IMediator mediator,
-        IOrderApprovalService orderApprovalService,
-        ICurrencyService currencyService,
-        IPriceFormatter priceFormatter,
+        IOrderPlacementService orderPlacementService,
         IRequestTranslationService translationService,
         OrderSettings orderSettings,
         ShippingSettings shippingSettings)
@@ -44,9 +39,7 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
         _countryService = countryService;
         _paymentService = paymentService;
         _mediator = mediator;
-        _orderApprovalService = orderApprovalService;
-        _currencyService = currencyService;
-        _priceFormatter = priceFormatter;
+        _orderPlacementService = orderPlacementService;
         _translationService = translationService;
         _orderSettings = orderSettings;
         _shippingSettings = shippingSettings;
@@ -61,7 +54,7 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
             PurchaseOrderNumberMaxLength = PurchaseOrderNumberRules.MaxLength
         };
         await PrepareOrderReviewData(model, request);
-        await PrepareOrderApproval(model, request);
+        await PrepareOrderPlacement(model, request);
         return model;
     }
 
@@ -77,28 +70,29 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
     }
 
     /// <summary>
-    ///     An order over the buyer's limit is placed at once and waits for an approval; the buyer is told so
+    ///     A blocked order cannot be confirmed, and one that needs an approval is placed at once and waits for it;
+    ///     the buyer is told so, and why
     /// </summary>
-    private async Task PrepareOrderApproval(CheckoutConfirmModel model, GetConfirmOrder request)
+    private async Task PrepareOrderPlacement(CheckoutConfirmModel model, GetConfirmOrder request)
     {
-        var state = await _orderApprovalService.RequiresApproval(request.Cart,
-            new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType));
-        if (!state.Required)
-            return;
+        var paymentMethod = request.Customer.GetUserFieldFromEntity<string>(
+            SystemCustomerFieldNames.SelectedPaymentMethod, request.Store.Id);
+        var evaluation = await _orderPlacementService.Evaluate(request.Cart,
+            new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType),
+            request.Language, paymentMethod);
 
-        model.OrderApprovalRequired = true;
-        var limit = await _currencyService.ConvertFromPrimaryStoreCurrency(state.Limit ?? 0, request.Currency);
-        var message = _translationService.GetResource("Checkout.OrderApproval.WillBeSent");
-        try
+        if (evaluation.Decision == OrderPlacementDecision.Block)
         {
-            model.OrderApprovalMessage = string.Format(message, _priceFormatter.FormatPrice(limit, request.Currency));
+            model.OrderPlacementBlocked = true;
+            model.OrderPlacementBlockedMessage = string.Join(" ", evaluation.Reasons);
         }
-        catch (FormatException)
+        else if (evaluation.Decision == OrderPlacementDecision.RequireApproval)
         {
-            //the text is editable by an operator: a broken placeholder must not break the confirm page
-            model.OrderApprovalMessage = message;
+            model.OrderApprovalRequired = true;
+            model.OrderApprovalMessage = string.Join(" ",
+                evaluation.Reasons.Prepend(_translationService.GetResource("Checkout.OrderApproval.WillBeSentGeneric")));
+            model.OrderApprovalButtonText = _translationService.GetResource("Checkout.OrderApproval.SendButton");
         }
-        model.OrderApprovalButtonText = _translationService.GetResource("Checkout.OrderApproval.SendButton");
     }
 
     private async Task PrepareOrderReviewData(CheckoutConfirmModel model, GetConfirmOrder request)

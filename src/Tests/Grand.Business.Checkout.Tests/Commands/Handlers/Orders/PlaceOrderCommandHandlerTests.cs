@@ -57,7 +57,7 @@ public class PlaceOrderCommandHandlerTests
             new Mock<IAffiliateService>().Object, new Mock<IMediator>().Object,
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,
             new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object, new Mock<IOrderApprovalService>().Object,
-            new Mock<ITranslationService>().Object, new ShippingSettings(),
+            new Mock<IOrderPlacementService>().Object, new Mock<ITranslationService>().Object, new ShippingSettings(),
             new ShoppingCartSettings(), new PaymentSettings(), new OrderSettings(), new OidcLoginConfig(),
             new TaxSettings());
     }

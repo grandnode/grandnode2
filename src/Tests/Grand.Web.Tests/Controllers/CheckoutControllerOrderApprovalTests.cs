@@ -32,9 +32,12 @@ namespace Grand.Web.Tests.Controllers;
 public class CheckoutControllerOrderApprovalTests
 {
     private Mock<IOrderApprovalService> _approval;
+    private List<ShoppingCartItem> _cart;
     private CheckoutController _controller;
     private Mock<ICustomerService> _customerService;
+    private Language _language;
     private Mock<IPaymentService> _paymentService;
+    private Mock<IOrderPlacementService> _placement;
 
     [TestInitialize]
     public void Init()
@@ -43,7 +46,10 @@ public class CheckoutControllerOrderApprovalTests
         var store = new Grand.Domain.Stores.Store { Id = "s1" };
         var work = new Mock<IWorkContext>();
         work.Setup(w => w.CurrentCustomer).Returns(customer);
-        work.Setup(w => w.WorkingLanguage).Returns(new Language { Id = "en" });
+        var language = new Language { Id = "en" };
+        _cart = new List<ShoppingCartItem> { new() { ProductId = "p1", Quantity = 1 } };
+        _language = language;
+        work.Setup(w => w.WorkingLanguage).Returns(language);
         work.Setup(w => w.WorkingCurrency).Returns(new Currency { Id = "c1", CurrencyCode = "EUR" });
         work.Setup(w => w.TaxDisplayType).Returns(TaxDisplayType.IncludingTax);
         var storeContext = new Mock<IStoreContext>();
@@ -52,7 +58,7 @@ public class CheckoutControllerOrderApprovalTests
         context.Setup(c => c.WorkContext).Returns(work.Object);
         context.Setup(c => c.StoreContext).Returns(storeContext.Object);
 
-        var cart = new List<ShoppingCartItem> { new() { ProductId = "p1", Quantity = 1 } };
+        var cart = _cart;
         var cartService = new Mock<IShoppingCartService>();
         cartService.Setup(s => s.GetShoppingCart(customer, "s1", It.IsAny<ShoppingCartType[]>()))
             .ReturnsAsync(cart);
@@ -65,8 +71,9 @@ public class CheckoutControllerOrderApprovalTests
             .ReturnsAsync(true);
 
         _approval = new Mock<IOrderApprovalService>();
-        _approval.Setup(a => a.RequiresApproval(cart, It.IsAny<CalculationContext>()))
-            .ReturnsAsync(new OrderApprovalCheckoutState(true, 100, 500));
+        _placement = new Mock<IOrderPlacementService>();
+        _placement.Setup(p => p.Evaluate(cart, It.IsAny<CalculationContext>(), language, "Payments.Card"))
+            .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.RequireApproval, ["over the limit"]));
         _customerService = new Mock<ICustomerService>();
         _paymentService = new Mock<IPaymentService>();
 
@@ -75,7 +82,8 @@ public class CheckoutControllerOrderApprovalTests
             new Mock<IPickupPointService>().Object, _paymentService.Object,
             new Mock<IPaymentTransactionService>().Object, new Mock<ILogger<CheckoutController>>().Object,
             new Mock<IOrderService>().Object, mediator.Object, new Mock<IProductService>().Object,
-            new Mock<IShoppingCartValidator>().Object, _approval.Object, new OrderSettings(), new OidcLoginConfig(),
+            new Mock<IShoppingCartValidator>().Object, _approval.Object, _placement.Object, new OrderSettings(),
+            new OidcLoginConfig(),
             new LoyaltyPointsSettings(), new PaymentSettings(), new ShippingSettings(), new AddressSettings());
     }
 
@@ -92,5 +100,19 @@ public class CheckoutControllerOrderApprovalTests
         _paymentService.Verify(p => p.LoadPaymentMethodBySystemName(It.IsAny<string>()), Times.Never);
         _customerService.Verify(c => c.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SavePaymentMethod_Blocked_ReturnsReasons()
+    {
+        _placement.Setup(p => p.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, "Payments.Card"))
+            .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.Block, ["blocked customer", "banned product"]));
+
+        var result = await _controller.SavePaymentMethod(new CheckoutPaymentMethodModel { PaymentMethod = "Payments.Card" });
+
+        var json = JsonSerializer.Serialize(((JsonResult)result).Value);
+        StringAssert.Contains(json, "\"error\":1");
+        StringAssert.Contains(json, "blocked customer banned product");
+        _paymentService.Verify(p => p.LoadPaymentMethodBySystemName(It.IsAny<string>()), Times.Never);
     }
 }

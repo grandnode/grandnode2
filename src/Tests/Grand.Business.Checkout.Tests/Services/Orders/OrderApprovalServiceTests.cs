@@ -1,13 +1,9 @@
 using Grand.Business.Checkout.Services.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
-using Grand.Domain.Directory;
 using Grand.Domain.Orders;
-using Grand.Domain.Stores;
-using Grand.Domain.Tax;
 using Grand.Infrastructure.Events;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,55 +18,20 @@ public class OrderApprovalServiceTests
     private const string OwnerId = "owner1";
     private const string BuyerId = "buyer1";
 
-    private Mock<IOrderCalculationService> _calculationServiceMock;
-    private CustomerSettings _customerSettings;
     private Mock<IMediator> _mediatorMock;
     private IRepository<OrderApproval> _repository;
     private OrderApprovalSettings _approvalSettings;
     private OrderApprovalService _service;
-    private double? _total;
 
     [TestInitialize]
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<OrderApproval>();
         _mediatorMock = new Mock<IMediator>();
-        _customerSettings = new CustomerSettings();
-        _total = 150;
-        _calculationServiceMock = new Mock<IOrderCalculationService>();
-        _calculationServiceMock
-            .Setup(x => x.GetShoppingCartTotal(It.IsAny<IList<ShoppingCartItem>>(), It.IsAny<CalculationContext>(),
-                It.IsAny<bool?>(), It.IsAny<bool>()))
-            .ReturnsAsync(() => new ShoppingCartTotal(_total, 0, [], [], 0, 0));
 
         _approvalSettings = new OrderApprovalSettings { PaymentMethodSystemNames = ["Payments.CashOnDelivery"] };
 
-        _service = new OrderApprovalService(_repository, _calculationServiceMock.Object, _customerSettings,
-            _approvalSettings, _mediatorMock.Object);
-    }
-
-    private static Customer Buyer(double? limit = 100, SubAccountRole role = SubAccountRole.Buyer,
-        string ownerId = OwnerId)
-    {
-        return new Customer {
-            Id = BuyerId, OwnerId = ownerId, SubAccountRole = role, OrderApprovalLimit = limit
-        };
-    }
-
-    private static CalculationContext Context(Customer customer, string storeId = StoreId)
-    {
-        return new CalculationContext(customer, new Store { Id = storeId }, new Currency(),
-            TaxDisplayType.IncludingTax);
-    }
-
-    private static List<ShoppingCartItem> Cart(int quantity = 1)
-    {
-        return [
-            new ShoppingCartItem {
-                ProductId = "p1", Quantity = quantity, StoreId = StoreId,
-                ShoppingCartTypeId = ShoppingCartType.ShoppingCart
-            }
-        ];
+        _service = new OrderApprovalService(_repository, _approvalSettings, _mediatorMock.Object);
     }
 
     private async Task<OrderApproval> AddApproval(OrderApprovalStatus status, string orderId = "order1",
@@ -92,91 +53,6 @@ public class OrderApprovalServiceTests
         await _repository.UpdateAsync(approval);
         return approval;
     }
-
-    #region Requires approval
-
-    [TestMethod]
-    public async Task RequiresApproval_NoOwner_NotRequired()
-    {
-        var customer = Buyer(100, ownerId: null);
-
-        var state = await _service.RequiresApproval(Cart(), Context(customer));
-
-        Assert.IsFalse(state.Required);
-        _calculationServiceMock.Verify(x => x.GetShoppingCartTotal(It.IsAny<IList<ShoppingCartItem>>(),
-            It.IsAny<CalculationContext>(), It.IsAny<bool?>(), It.IsAny<bool>()), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task RequiresApproval_NoLimit_NotRequired()
-    {
-        var state = await _service.RequiresApproval(Cart(), Context(Buyer(null)));
-
-        Assert.IsFalse(state.Required);
-    }
-
-    [TestMethod]
-    public async Task RequiresApproval_Approver_NotRequired()
-    {
-        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100, SubAccountRole.Approver)));
-
-        Assert.IsFalse(state.Required);
-    }
-
-    [TestMethod]
-    public async Task RequiresApproval_FeatureOff_NotRequired()
-    {
-        _customerSettings.HideSubAccountsTab = true;
-
-        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
-
-        Assert.IsFalse(state.Required);
-    }
-
-    [TestMethod]
-    public async Task RequiresApproval_TotalUnknown_NotRequired()
-    {
-        _total = null;
-
-        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
-
-        Assert.IsFalse(state.Required);
-        Assert.IsNull(state.Total);
-        Assert.AreEqual(100, state.Limit);
-    }
-
-    [TestMethod]
-    public async Task RequiresApproval_TotalAtLimit_NotRequired()
-    {
-        _total = 100;
-
-        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
-
-        Assert.IsFalse(state.Required);
-        Assert.AreEqual(100, state.Total);
-    }
-
-    [TestMethod]
-    public async Task RequiresApproval_OverLimit_Required()
-    {
-        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
-
-        Assert.IsTrue(state.Required);
-        Assert.AreEqual(100, state.Limit);
-        Assert.AreEqual(150, state.Total);
-    }
-
-    [TestMethod]
-    public async Task RequiresApproval_ExistingApprovalsDoNotMatter()
-    {
-        await AddApproval(OrderApprovalStatus.Approved);
-
-        var state = await _service.RequiresApproval(Cart(), Context(Buyer(100)));
-
-        Assert.IsTrue(state.Required);
-    }
-
-    #endregion
 
     #region Payment methods
 

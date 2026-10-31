@@ -54,6 +54,7 @@ public class CheckoutController : BasePublicController
         IProductService productService,
         IShoppingCartValidator shoppingCartValidator,
         IOrderApprovalService orderApprovalService,
+        IOrderPlacementService orderPlacementService,
         OrderSettings orderSettings,
         OidcLoginConfig oidcLoginConfig,
         LoyaltyPointsSettings loyaltyPointsSettings,
@@ -76,6 +77,7 @@ public class CheckoutController : BasePublicController
         _productService = productService;
         _shoppingCartValidator = shoppingCartValidator;
         _orderApprovalService = orderApprovalService;
+        _orderPlacementService = orderPlacementService;
         _orderSettings = orderSettings;
         _oidcLoginConfig = oidcLoginConfig;
         _loyaltyPointsSettings = loyaltyPointsSettings;
@@ -589,9 +591,13 @@ public class CheckoutController : BasePublicController
                 });
             }
 
-            //an order over the buyer's limit waits for an approval and may only use the payment methods the admin chose
-            var approval = await _orderApprovalService.RequiresApproval(cart, _contextAccessor.CalculationContext());
-            if (approval.Required && !_orderApprovalService.IsPaymentMethodAllowed(model.PaymentMethod))
+            //a blocked order goes no further; one that needs an approval may only use the payment methods the admin chose
+            var evaluation = await _orderPlacementService.Evaluate(cart, _contextAccessor.CalculationContext(),
+                _contextAccessor.WorkContext.WorkingLanguage, model.PaymentMethod);
+            if (evaluation.Decision == OrderPlacementDecision.Block)
+                throw new Exception(string.Join(" ", evaluation.Reasons));
+            if (evaluation.Decision == OrderPlacementDecision.RequireApproval &&
+                !_orderApprovalService.IsPaymentMethodAllowed(model.PaymentMethod))
                 throw new Exception(_translationService.GetResource("Checkout.OrderApproval.PaymentMethodNotAllowed"));
 
             var paymentMethodInst = _paymentService.LoadPaymentMethodBySystemName(model.PaymentMethod);
@@ -846,6 +852,7 @@ public class CheckoutController : BasePublicController
     private readonly IProductService _productService;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly IOrderApprovalService _orderApprovalService;
+    private readonly IOrderPlacementService _orderPlacementService;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;

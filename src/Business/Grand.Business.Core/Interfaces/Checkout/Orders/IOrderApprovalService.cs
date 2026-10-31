@@ -1,4 +1,3 @@
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain;
 using Grand.Domain.Orders;
 
@@ -55,15 +54,6 @@ public interface IOrderApprovalService
     /// </summary>
     /// <param name="approval">Approval</param>
     Task Update(OrderApproval approval);
-
-    /// <summary>
-    ///     Works out whether the order being placed from the cart has to wait for an approval.
-    ///     It does when the customer is a sub-account buyer with an order limit, the sub-account feature is on,
-    ///     the order total is known and exceeds the limit.
-    /// </summary>
-    /// <param name="cart">Shopping cart of the customer</param>
-    /// <param name="context">Customer, store and currency the cart is calculated for</param>
-    Task<OrderApprovalCheckoutState> RequiresApproval(IList<ShoppingCartItem> cart, CalculationContext context);
 
     /// <summary>
     ///     Gets a value indicating whether the payment method may be used for an order that needs an approval

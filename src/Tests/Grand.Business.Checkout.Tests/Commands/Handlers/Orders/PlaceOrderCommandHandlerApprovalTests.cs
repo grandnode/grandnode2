@@ -1,6 +1,7 @@
 using Grand.Business.Checkout.Commands.Handlers.Orders;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Commands.Messages.Common;
+using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -39,11 +40,13 @@ public class PlaceOrderCommandHandlerApprovalTests
     private PlaceOrderContainer _details;
     private TestHandler _handler;
     private Mock<IMediator> _mediator;
+    private Mock<IOrderPlacementService> _placementService;
 
     [TestInitialize]
     public void Init()
     {
         _approvalService = new Mock<IOrderApprovalService>();
+        _placementService = new Mock<IOrderPlacementService>();
         _mediator = new Mock<IMediator>();
         var translation = new Mock<ITranslationService>();
         translation.Setup(x => x.GetResource("Checkout.OrderApproval.PaymentMethodNotAllowed", "pl", It.IsAny<string>(),
@@ -69,13 +72,73 @@ public class PlaceOrderCommandHandlerApprovalTests
             OrderTotal = 500
         };
 
-        _handler = new TestHandler(_details, _approvalService, _mediator, translation);
+        _handler = new TestHandler(_details, _approvalService, _placementService, _mediator, translation);
     }
 
-    private void Requires(bool required)
+    private void Evaluates(OrderPlacementDecision decision, string paymentMethod, params string[] reasons)
     {
-        _approvalService.Setup(x => x.RequiresApproval(_details.Cart, _command.Context))
-            .ReturnsAsync(new OrderApprovalCheckoutState(required, 100, 500));
+        _placementService.Setup(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, paymentMethod))
+            .ReturnsAsync(new OrderPlacementEvaluation(decision, reasons));
+    }
+
+    private void Requires(bool required, string paymentMethod = "Payments.Card")
+    {
+        Evaluates(required ? OrderPlacementDecision.RequireApproval : OrderPlacementDecision.Allow, paymentMethod,
+            required ? ["over the limit"] : []);
+    }
+
+    [TestMethod]
+    public async Task Handle_Blocked_AddsEveryReasonAndSkipsPayment()
+    {
+        Evaluates(OrderPlacementDecision.Block, "Payments.Card", "blocked customer", "banned product");
+
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        CollectionAssert.AreEqual(new[] { "blocked customer", "banned product" }, result.Errors.ToArray());
+        Assert.IsNull(result.PlacedOrder);
+        Assert.AreEqual(0, _handler.PaymentCalls);
+        _mediator.Verify(x => x.Send(It.IsAny<OrderNotificationCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_AllowedEarlierButBlockedAtPlacement_SkipsPayment()
+    {
+        //what the buyer was shown earlier, before a payment method was known
+        Evaluates(OrderPlacementDecision.Allow, null);
+        Evaluates(OrderPlacementDecision.Block, "Payments.Card", "not with this method");
+
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        CollectionAssert.AreEqual(new[] { "not with this method" }, result.Errors.ToArray());
+        Assert.AreEqual(0, _handler.PaymentCalls);
+    }
+
+    [TestMethod]
+    public async Task Handle_RequiresApprovalWithDisallowedMethodAtPlacement_ReturnsErrorWithoutPayment()
+    {
+        Evaluates(OrderPlacementDecision.Allow, null);
+        Evaluates(OrderPlacementDecision.RequireApproval, "Payments.Card", "this method needs approval");
+        _approvalService.Setup(x => x.IsPaymentMethodAllowed("Payments.Card")).Returns(false);
+
+        var result = await _handler.Handle(_command, CancellationToken.None);
+
+        CollectionAssert.Contains(result.Errors.ToList(), NotAllowedText);
+        Assert.AreEqual(0, _handler.PaymentCalls);
+    }
+
+    [TestMethod]
+    public async Task Handle_ApprovalRequired_PublishesReasonsOnOrderPlacedEvent()
+    {
+        Evaluates(OrderPlacementDecision.RequireApproval, "Payments.Card", "over the limit", "restricted goods");
+        _approvalService.Setup(x => x.IsPaymentMethodAllowed("Payments.Card")).Returns(true);
+        OrderPlacedEvent published = null;
+        _mediator.Setup(x => x.Publish(It.IsAny<OrderPlacedEvent>(), It.IsAny<CancellationToken>()))
+            .Callback<OrderPlacedEvent, CancellationToken>((e, _) => published = e)
+            .Returns(Task.CompletedTask);
+
+        await _handler.Handle(_command, CancellationToken.None);
+
+        CollectionAssert.AreEqual(new[] { "over the limit", "restricted goods" }, published.ApprovalReasons.ToArray());
     }
 
     [TestMethod]
@@ -95,7 +158,7 @@ public class PlaceOrderCommandHandlerApprovalTests
     [TestMethod]
     public async Task Handle_ApprovalRequiredAndMethodAllowed_PlacesAwaitingOrderWithoutStoreOwnerAndVendorMails()
     {
-        Requires(true);
+        Requires(true, "Payments.CashOnDelivery");
         _approvalService.Setup(x => x.IsPaymentMethodAllowed("Payments.CashOnDelivery")).Returns(true);
         _details.PaymentMethodSystemName = "Payments.CashOnDelivery";
         OrderNotificationCommand sent = null;
@@ -154,7 +217,8 @@ public class PlaceOrderCommandHandlerApprovalTests
     {
         private readonly PlaceOrderContainer _details;
 
-        public TestHandler(PlaceOrderContainer details, Mock<IOrderApprovalService> approval, Mock<IMediator> mediator,
+        public TestHandler(PlaceOrderContainer details, Mock<IOrderApprovalService> approval,
+            Mock<IOrderPlacementService> placement, Mock<IMediator> mediator,
             Mock<ITranslationService> translation) : base(new Mock<IOrderService>().Object,
             new Mock<ILanguageService>().Object, new Mock<IProductService>().Object,
             new Mock<IInventoryManageService>().Object, new Mock<IPaymentService>().Object,
@@ -169,7 +233,7 @@ public class PlaceOrderCommandHandlerApprovalTests
             new Mock<ICurrencyService>().Object, new Mock<IAffiliateService>().Object, mediator.Object,
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,
             new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object, approval.Object,
-            translation.Object, new ShippingSettings(), new ShoppingCartSettings(), new PaymentSettings(),
+            placement.Object, translation.Object, new ShippingSettings(), new ShoppingCartSettings(), new PaymentSettings(),
             new OrderSettings(), new OidcLoginConfig(), new TaxSettings())
         {
             _details = details;

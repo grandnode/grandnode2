@@ -11,6 +11,9 @@
                 {{vmorder.MinOrderTotalWarning}}
             </div>
         </div>
+        <div v-if="vmorder.OrderPlacementBlocked" class="alert alert-danger my-3 order-placement-blocked">
+            {{vmorder.OrderPlacementBlockedMessage}}
+        </div>
         <div v-if="vmorder.OrderApprovalRequired" class="alert alert-info my-3 order-approval-notice">
             {{vmorder.OrderApprovalMessage}}
         </div>
@@ -41,14 +44,14 @@
                 <div class="alert alert-info my-2" :show="vmorder.acceptTerms">@Loc["Checkout.TermsOfService.PleaseAccept"]</div>
             </div>
             <button class="btn btn-secondary me-2" id="new-back-confirm_order" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</button>
-            <button class="btn btn-info" @@click="vmorder.termsCheck()">
+            <button v-if="!vmorder.OrderPlacementBlocked" class="btn btn-info" @@click="vmorder.termsCheck()">
                 <template v-if="vmorder.OrderApprovalRequired">{{vmorder.OrderApprovalButtonText}}</template>
                 <template v-else>@Loc["Common.Confirm"]</template>
             </button>
         </template>
         <template v-else>
             <button class="btn btn-secondary me-2" id="new-back-confirm_order" @@click="vmorder.backStep(vmorder.previousStep)">@Loc["Common.Back"]</button>
-            <button type="button" class="btn btn-info confirm-order-next-step-button" @@click="vmorder.vConfirmOrder.save()">
+            <button v-if="!vmorder.OrderPlacementBlocked" type="button" class="btn btn-info confirm-order-next-step-button" @@click="vmorder.vConfirmOrder.save()">
                 <template v-if="vmorder.OrderApprovalRequired">{{vmorder.OrderApprovalButtonText}}</template>
                 <template v-else>@Loc["Common.Confirm"]</template>
             </button>

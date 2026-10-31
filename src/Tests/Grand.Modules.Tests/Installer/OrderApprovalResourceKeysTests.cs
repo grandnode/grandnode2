@@ -16,7 +16,7 @@ public class OrderApprovalResourceKeysTests
 {
     //the keys of this feature: by prefix, as the files keep them (lower case)
     private static readonly Regex FeatureKey = new(
-        @"^(checkout\.orderapproval\.|orderapproval\.|account\.orderapprovals$" +
+        @"^(checkout\.orderapproval\.|checkout\.orderplacement\.|orderapproval\.|account\.orderapprovals$" +
         @"|account\.subaccounts\.fields\.(orderapprovallimit|role)(\.|$)" +
         @"|admin\.customers\.customers\.subaccounts\.(orderapprovallimit|role)$" +
         @"|admin\.configuration\.payment\.settings\.orderapprovalpaymentmethods$" +
@@ -81,7 +81,8 @@ public class OrderApprovalResourceKeysTests
         //guards the guard: a broken scan would make the two tests below pass without checking anything
         var referenced = Referenced();
 
-        Assert.IsTrue(referenced.Contains("Checkout.OrderApproval.WillBeSent"));
+        Assert.IsTrue(referenced.Contains("Checkout.OrderApproval.WillBeSentGeneric"));
+        Assert.IsTrue(referenced.Contains("Checkout.OrderPlacement.RuleFailed"));
         Assert.IsTrue(referenced.Contains("OrderApproval.Order"));
         Assert.IsTrue(referenced.Contains("Admin.Configuration.Payment.Settings.OrderApprovalPaymentMethods"));
         Assert.IsTrue(referenced.Contains("Enums.Grand.Domain.Orders.OrderApprovalStatus.Withdrawn"));

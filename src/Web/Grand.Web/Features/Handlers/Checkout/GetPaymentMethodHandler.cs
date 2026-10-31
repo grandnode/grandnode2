@@ -31,6 +31,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
     private readonly IPriceFormatter _priceFormatter;
     private readonly ITaxService _taxService;
     private readonly IOrderApprovalService _orderApprovalService;
+    private readonly IOrderPlacementService _orderPlacementService;
     private readonly IRequestTranslationService _translationService;
 
     public GetPaymentMethodHandler(ILoyaltyPointsService loyaltyPointsService,
@@ -41,6 +42,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         IPaymentService paymentService,
         ITaxService taxService,
         IOrderApprovalService orderApprovalService,
+        IOrderPlacementService orderPlacementService,
         ICompanyCreditService companyCreditService,
         IRequestTranslationService translationService,
         LoyaltyPointsSettings loyaltyPointsSettings,
@@ -54,6 +56,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         _paymentService = paymentService;
         _taxService = taxService;
         _orderApprovalService = orderApprovalService;
+        _orderPlacementService = orderPlacementService;
         _companyCreditService = companyCreditService;
         _translationService = translationService;
         _loyaltyPointsSettings = loyaltyPointsSettings;
@@ -95,10 +98,16 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             if (!await pm.HidePaymentMethod(request.Cart))
                 availablepaymentMethods.Add(pm);
 
-        //an order over the buyer's limit waits for an approval and may only use the payment methods the admin chose
-        var approval = await _orderApprovalService.RequiresApproval(request.Cart,
-            new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType));
-        if (approval.Required)
+        //a blocked order has nothing to pay with; one that needs an approval may only use the payment methods the admin chose
+        var evaluation = await _orderPlacementService.Evaluate(request.Cart,
+            new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType),
+            request.Language, null);
+        if (evaluation.Decision == OrderPlacementDecision.Block)
+        {
+            availablepaymentMethods.Clear();
+            model.NoPaymentMethodMessage = string.Join(" ", evaluation.Reasons);
+        }
+        else if (evaluation.Decision == OrderPlacementDecision.RequireApproval)
         {
             availablepaymentMethods = availablepaymentMethods
                 .Where(pm => _orderApprovalService.IsPaymentMethodAllowed(pm.SystemName)).ToList();

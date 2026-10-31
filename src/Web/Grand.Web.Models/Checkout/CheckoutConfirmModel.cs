@@ -10,14 +10,24 @@ public class CheckoutConfirmModel : BaseModel
     public string MinOrderTotalWarning { get; set; }
 
     /// <summary>
-    ///     The order exceeds the buyer's order limit: it is placed at once and waits for an approver's decision
+    ///     An order placement rule requires an approval: the order is placed at once and waits for a decision
     /// </summary>
     public bool OrderApprovalRequired { get; set; }
 
     /// <summary>
-    ///     Tells the buyer the order goes to the company for approval, with the limit formatted
+    ///     Tells the buyer the order goes for approval, and why
     /// </summary>
     public string OrderApprovalMessage { get; set; }
+
+    /// <summary>
+    ///     An order placement rule blocks the order: it cannot be confirmed
+    /// </summary>
+    public bool OrderPlacementBlocked { get; set; }
+
+    /// <summary>
+    ///     Tells the buyer why the order cannot be placed
+    /// </summary>
+    public string OrderPlacementBlockedMessage { get; set; }
 
     /// <summary>
     ///     Label of the confirm button when the order needs an approval

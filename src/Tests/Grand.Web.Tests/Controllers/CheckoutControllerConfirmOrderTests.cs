@@ -67,7 +67,8 @@ public class CheckoutControllerConfirmOrderTests
             new Mock<IPaymentService>().Object, new Mock<IPaymentTransactionService>().Object,
             new Mock<ILogger<CheckoutController>>().Object, new Mock<IOrderService>().Object, _mediator.Object,
             new Mock<IProductService>().Object, new Mock<IShoppingCartValidator>().Object,
-            new Mock<IOrderApprovalService>().Object, new OrderSettings(), new OidcLoginConfig(),
+            new Mock<IOrderApprovalService>().Object, new Mock<IOrderPlacementService>().Object, new OrderSettings(),
+            new OidcLoginConfig(),
             new LoyaltyPointsSettings(), new PaymentSettings(), new ShippingSettings(), new AddressSettings());
     }
 

@@ -348,9 +348,6 @@
 	<Resource Name="Checkout.OrderApproval.SendButton" Area="Front">
 		<Value>Send for approval</Value>
 	</Resource>
-	<Resource Name="Checkout.OrderApproval.WillBeSent" Area="Front">
-		<Value>This order is above your limit of {0}. It is placed now, but not processed until an approver has approved it.</Value>
-	</Resource>
 	<Resource Name="Enums.Grand.Domain.Customers.SubAccountRole.Approver" Area="Common">
 		<Value>Approver</Value>
 	</Resource>
@@ -764,5 +761,20 @@
 	</Resource>
 	<Resource Name="Admin.Customers.Customers.Fields.TradeCredit.Overdue" Area="Admin">
 		<Value>Payment overdue</Value>
+	</Resource>
+	<Resource Name="checkout.orderplacement.rulefailed" Area="Front">
+		<Value>This order cannot be placed right now. Please contact the store.</Value>
+	</Resource>
+	<Resource Name="checkout.orderplacement.approvalrequired" Area="Front">
+		<Value>This order needs approval.</Value>
+	</Resource>
+	<Resource Name="checkout.orderplacement.blocked" Area="Front">
+		<Value>This order cannot be placed.</Value>
+	</Resource>
+	<Resource Name="checkout.orderapproval.willbesentgeneric" Area="Front">
+		<Value>This order will be sent for approval after you confirm it.</Value>
+	</Resource>
+	<Resource Name="checkout.orderapproval.limitexceeded" Area="Front">
+		<Value>The order total exceeds your order limit of {0}.</Value>
 	</Resource>
 </Language>
