@@ -786,4 +786,46 @@
 	<Resource Name="admin.configuration.stores.fields.ownercustomerid.invalid" Area="Admin">
 		<Value>Choose an active administrator or a manager of this store.</Value>
 	</Resource>
+	<Resource Name="admin.orders.approval.decide" Area="Admin">
+		<Value>Approve or reject</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.popuptitle" Area="Admin">
+		<Value>Order approval</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.reasons" Area="Admin">
+		<Value>Why it needs approval</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.note" Area="Admin">
+		<Value>Note</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.note.hint" Area="Admin">
+		<Value>Optional. The buyer sees it in the decision e-mail and on the order page.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.approve" Area="Admin">
+		<Value>Approve</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.reject" Area="Admin">
+		<Value>Reject</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.approved" Area="Admin">
+		<Value>The order has been approved.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.rejected" Area="Admin">
+		<Value>The order has been rejected.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.refused" Area="Admin">
+		<Value>This approval can no longer be decided here.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.status" Area="Admin">
+		<Value>Approval</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.decider" Area="Admin">
+		<Value>Decided by</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.orderapprovaldecider.company" Area="Admin">
+		<Value>The buyer&apos;s company</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.orderapprovaldecider.store" Area="Admin">
+		<Value>The store</Value>
+	</Resource>
 </Language>

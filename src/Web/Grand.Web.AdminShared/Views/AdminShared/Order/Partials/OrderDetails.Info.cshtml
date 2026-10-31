@@ -141,6 +141,36 @@
     </div>
 </admin-card>
 
+@if (!string.IsNullOrEmpty(Model.ApprovalStatus))
+{
+    <admin-card>
+        <div class="grand-facts">
+            <div>
+                <div class="grand-fact__label">@Loc["Admin.Orders.Approval.Status"]</div>
+                <div class="grand-fact__value">@Model.ApprovalStatus</div>
+            </div>
+            <div>
+                <div class="grand-fact__label">@Loc["Admin.Orders.Approval.Decider"]</div>
+                <div class="grand-fact__value">@Model.ApprovalDecider</div>
+            </div>
+            @if (Model.ApprovalReasons.Any())
+            {
+                <div>
+                    <div class="grand-fact__label">@Loc["Admin.Orders.Approval.Reasons"]</div>
+                    <div class="grand-fact__value">
+                        <ul class="mb-0">
+                            @foreach (var reason in Model.ApprovalReasons)
+                            {
+                                <li>@reason</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            }
+        </div>
+    </admin-card>
+}
+
 <admin-card>
     <div class="grand-facts">
         @if (!string.IsNullOrEmpty(Model.Code))
