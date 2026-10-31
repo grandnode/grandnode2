@@ -44,7 +44,11 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
             // the storefront's approvals screen only carries the company's requests
             Url = approval.Decider == OrderApprovalDecider.Store ? orderUrl : requestUrl,
             OrderNumber = order?.OrderNumber.ToString() ?? string.Empty,
-            OrderUrl = orderUrl
+            OrderUrl = orderUrl,
+            ReasonsHtml = ReasonsHtml(approval.Reasons),
+            PanelUrl = string.IsNullOrEmpty(request.PanelArea)
+                ? string.Empty
+                : $"{url}/{request.PanelArea}/Order/Edit/{WebUtility.UrlEncode(approval.OrderId)}"
         };
         return liquidOrderApproval;
     }
@@ -52,6 +56,16 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
     private static string Encode(string value)
     {
         return WebUtility.HtmlEncode(value ?? string.Empty);
+    }
+
+    /// <summary>
+    ///     A reason comes from a plugin, so it is encoded like every other value of the message
+    /// </summary>
+    private static string ReasonsHtml(ICollection<string> reasons)
+    {
+        return reasons == null || reasons.Count == 0
+            ? string.Empty
+            : $"<ul>{string.Concat(reasons.Select(x => $"<li>{Encode(x)}</li>"))}</ul>";
     }
 
     private string Label(string key, string defaultValue, string languageId)

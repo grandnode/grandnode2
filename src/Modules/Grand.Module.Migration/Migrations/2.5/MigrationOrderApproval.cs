@@ -121,7 +121,7 @@ public class MigrationOrderApproval : IMigration
     ///     The store's default e-mail account when it still exists, otherwise the first one. Empty when there is none:
     ///     the sender then falls back to the default account of the settings at send time
     /// </summary>
-    private static async Task<string> GetEmailAccountId(IServiceProvider serviceProvider)
+    internal static async Task<string> GetEmailAccountId(IServiceProvider serviceProvider)
     {
         var emailAccountRepository = serviceProvider.GetRequiredService<IRepository<EmailAccount>>();
         var settingRepository = serviceProvider.GetRequiredService<IRepository<Setting>>();
@@ -188,7 +188,7 @@ public class MigrationOrderApproval : IMigration
         };
     }
 
-    private static string Layout(string preheader, string heading, string content)
+    internal static string Layout(string preheader, string heading, string content)
     {
         return $@"<!DOCTYPE html>
 <html lang='en'>
@@ -242,7 +242,7 @@ public class MigrationOrderApproval : IMigration
 </html>";
     }
 
-    private static string Button(string url, string text)
+    internal static string Button(string url, string text)
     {
         return $@"
 <table role='presentation' cellpadding='0' cellspacing='0' style='margin: 16px 0;'>

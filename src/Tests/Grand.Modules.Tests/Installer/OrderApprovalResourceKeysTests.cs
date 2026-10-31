@@ -32,7 +32,7 @@ public class OrderApprovalResourceKeysTests
 
     //message template names look like resource keys but are not
     private static readonly HashSet<string> TemplateNames =
-        new(StringComparer.OrdinalIgnoreCase) { "OrderApproval.Requested", "OrderApproval.Decided" };
+        new(StringComparer.OrdinalIgnoreCase) { "OrderApproval.Requested", "OrderApproval.Decided", "OrderApproval.StaffRequested" };
 
     private static readonly string[] SkippedFolders = ["Tests", "bin", "obj", "node_modules", "App_Data", "wwwroot"];
 

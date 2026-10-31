@@ -82,6 +82,42 @@ public class CustomerMessageProviderServiceOrderApprovalTests
     }
 
     [TestMethod]
+    public async Task SendOrderApprovalStaffMessage_GivenRecipient_AddressesIt()
+    {
+        TemplateExists(MessageTemplateNames.OrderApprovalStaffRequested, "Decide", "Body");
+
+        var result = await _service.SendOrderApprovalStaffMessage(_approval, _buyer, _store, "sales@example.com",
+            "Sales", "Admin", "en");
+
+        Assert.AreEqual(1, result);
+        Assert.AreEqual("sales@example.com", _queued.To);
+        Assert.AreEqual("Sales", _queued.ToName);
+    }
+
+    [TestMethod]
+    public async Task SendOrderApprovalStaffMessage_EmptyRecipient_UsesEmailAccount()
+    {
+        TemplateExists(MessageTemplateNames.OrderApprovalStaffRequested, "Decide", "Body");
+
+        await _service.SendOrderApprovalStaffMessage(_approval, _buyer, _store, null, null, "Admin", "en");
+
+        Assert.AreEqual("shop@example.com", _queued.To);
+        Assert.AreEqual("Shop", _queued.ToName);
+    }
+
+    [TestMethod]
+    public async Task SendOrderApprovalStaffMessage_PassesThePanelAreaToTheTokens()
+    {
+        TemplateExists(MessageTemplateNames.OrderApprovalStaffRequested, "Decide", "Body");
+
+        await _service.SendOrderApprovalStaffMessage(_approval, _buyer, _store, "sales@example.com", "Sales", "Store",
+            "en");
+
+        _mediatorMock.Verify(x => x.Send(It.Is<GetOrderApprovalTokensCommand>(c => c.PanelArea == "Store"), default),
+            Times.Once);
+    }
+
+    [TestMethod]
     public async Task SendRequested_TemplateMissing_ReturnsZero()
     {
         //Act

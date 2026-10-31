@@ -152,6 +152,45 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     }
 
     /// <summary>
+    ///     Sends an 'Order approval requested' message to the store, when the store decides the request
+    /// </summary>
+    /// <param name="approval">Order approval</param>
+    /// <param name="buyer">Customer who placed the order</param>
+    /// <param name="store">Store</param>
+    /// <param name="toEmail">Recipient; empty sends it to the e-mail account of the message template</param>
+    /// <param name="toName">Recipient name</param>
+    /// <param name="panelArea">The back office panel the recipient works in</param>
+    /// <param name="languageId">Message language identifier</param>
+    public virtual async Task<int> SendOrderApprovalStaffMessage(OrderApproval approval, Customer buyer, Store store,
+        string toEmail, string toName, string panelArea, string languageId)
+    {
+        ArgumentNullException.ThrowIfNull(approval);
+        ArgumentNullException.ThrowIfNull(buyer);
+
+        var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
+
+        var messageTemplate = await _messageLookupService.GetMessageTemplate(
+            MessageTemplateNames.OrderApprovalStaffRequested, store.Id);
+        if (messageTemplate == null)
+            return 0;
+
+        var emailAccount = await _messageLookupService.GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
+
+        var builder = new LiquidObjectBuilder(_mediator);
+        builder.AddStoreTokens(store, language, emailAccount)
+            .AddOrderApprovalTokens(approval, buyer, store, store.LinkHost(null), language, panelArea);
+
+        var liquidObject = await builder.BuildAsync();
+        await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
+
+        var hasRecipient = !string.IsNullOrWhiteSpace(toEmail);
+        return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
+            languageId, liquidObject,
+            hasRecipient ? toEmail : emailAccount.Email, hasRecipient ? toName : emailAccount.DisplayName,
+            reference: Reference.Order, objectId: approval.OrderId);
+    }
+
+    /// <summary>
     ///     Sends 'New customer' notification message to a store owner
     /// </summary>
     /// <param name="customer">Customer instance</param>

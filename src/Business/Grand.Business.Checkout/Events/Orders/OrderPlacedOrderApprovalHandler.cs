@@ -9,7 +9,9 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
@@ -21,9 +23,14 @@ namespace Grand.Business.Checkout.Events.Orders;
 /// </summary>
 public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedEvent>
 {
+    private const string AdminPanelArea = "Admin";
+    private const string StorePanelArea = "Store";
+
     private readonly ICurrencyService _currencyService;
     private readonly ICustomerService _customerService;
     private readonly CustomerSettings _customerSettings;
+    private readonly LanguageSettings _languageSettings;
+    private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly ILogger<OrderPlacedOrderApprovalHandler> _logger;
     private readonly ICustomerMessageProviderService _messageProviderService;
     private readonly IOrderApprovalService _orderApprovalService;
@@ -39,10 +46,14 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         IProductService productService,
         IPriceFormatter priceFormatter,
         ICurrencyService currencyService,
+        ISalesEmployeeService salesEmployeeService,
         CustomerSettings customerSettings,
+        LanguageSettings languageSettings,
         ILogger<OrderPlacedOrderApprovalHandler> logger)
     {
+        _salesEmployeeService = salesEmployeeService;
         _customerSettings = customerSettings;
+        _languageSettings = languageSettings;
         _orderApprovalService = orderApprovalService;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
@@ -109,10 +120,13 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
 
         await _orderApprovalService.Insert(approval);
 
-        if (!companyDecides)
-            return;
-
         var store = await _storeService.GetStoreById(order.StoreId);
+        if (!companyDecides)
+        {
+            await NotifyStore(approval, order, buyer, store);
+            return;
+        }
+
         foreach (var approver in await GetApprovers(buyer, buyer.OwnerId, order.StoreId))
             try
             {
@@ -125,6 +139,48 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
                 _logger.LogError(ex, "Order approval request e-mail failed. Order {OrderId}, approver {ApproverId}",
                     order.Id, approver.Id);
             }
+    }
+
+    /// <summary>
+    ///     The e-mail only tells someone in the store: anyone with access to the order may decide it
+    /// </summary>
+    private async Task NotifyStore(OrderApproval approval, Order order, Customer buyer, Store store)
+    {
+        try
+        {
+            var (email, name, panelArea) = await GetStoreRecipient(order, store);
+            await _messageProviderService.SendOrderApprovalStaffMessage(approval, buyer, store, email, name, panelArea,
+                _languageSettings.DefaultAdminLanguageId);
+        }
+        catch (Exception ex)
+        {
+            // a failed e-mail must not stop the order
+            _logger.LogError(ex, "Order approval e-mail to the store failed. Order {OrderId}", order.Id);
+        }
+    }
+
+    /// <summary>
+    ///     The order's sales employee, else the store's owner account, else nobody named: the message then goes to
+    ///     the e-mail account of its template
+    /// </summary>
+    private async Task<(string Email, string Name, string PanelArea)> GetStoreRecipient(Order order, Store store)
+    {
+        if (!string.IsNullOrEmpty(order.SeId))
+        {
+            var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
+            if (salesEmployee is { Active: true } && !string.IsNullOrWhiteSpace(salesEmployee.Email))
+                return (salesEmployee.Email, salesEmployee.Name, AdminPanelArea);
+        }
+
+        if (!string.IsNullOrEmpty(store.OwnerCustomerId))
+        {
+            var owner = await _customerService.GetCustomerById(store.OwnerCustomerId);
+            if (owner is { Active: true, Deleted: false } && !string.IsNullOrWhiteSpace(owner.Email))
+                return (owner.Email, owner.GetFullName(),
+                    string.IsNullOrEmpty(owner.StaffStoreId) ? AdminPanelArea : StorePanelArea);
+        }
+
+        return (null, null, AdminPanelArea);
     }
 
     private async Task<List<OrderApprovalItem>> PrepareItems(Order order, Currency currency)

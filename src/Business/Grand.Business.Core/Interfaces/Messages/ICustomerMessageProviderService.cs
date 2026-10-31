@@ -140,4 +140,18 @@ public interface ICustomerMessageProviderService
     /// <returns>Queued email identifier</returns>
     Task<int> SendOrderApprovalDecidedMessage(OrderApproval approval, Customer buyer, Store store,
         string languageId, DomainHost host = null);
+
+    /// <summary>
+    ///     Sends an 'Order approval requested' message to the store, when the store decides the request
+    /// </summary>
+    /// <param name="approval">Order approval</param>
+    /// <param name="buyer">Customer who placed the order</param>
+    /// <param name="store">Store</param>
+    /// <param name="toEmail">Recipient; empty sends it to the e-mail account of the message template</param>
+    /// <param name="toName">Recipient name</param>
+    /// <param name="panelArea">The back office panel the recipient works in</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendOrderApprovalStaffMessage(OrderApproval approval, Customer buyer, Store store, string toEmail,
+        string toName, string panelArea, string languageId);
 }

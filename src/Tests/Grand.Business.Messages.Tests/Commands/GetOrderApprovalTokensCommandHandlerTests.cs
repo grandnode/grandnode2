@@ -56,6 +56,44 @@ public class GetOrderApprovalTokensCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task ReasonsHtml_EncodesEachReason()
+    {
+        var approval = Approval();
+        approval.Reasons = ["<script>{{x}}</script>", "A & B"];
+
+        var tokens = await _handler.Handle(Command(approval), default);
+
+        Assert.AreEqual("<ul><li>&lt;script&gt;{{x}}&lt;/script&gt;</li><li>A &amp; B</li></ul>", tokens.ReasonsHtml);
+    }
+
+    [TestMethod]
+    public async Task ReasonsHtml_NoReasons_IsEmpty()
+    {
+        var tokens = await _handler.Handle(Command(Approval()), default);
+
+        Assert.AreEqual(string.Empty, tokens.ReasonsHtml);
+    }
+
+    [TestMethod]
+    public async Task PanelUrl_UsesTheGivenArea()
+    {
+        var command = Command(Approval());
+        command.PanelArea = "Store";
+
+        var tokens = await _handler.Handle(command, default);
+
+        Assert.AreEqual("https://store.example/Store/Order/Edit/order1", tokens.PanelUrl);
+    }
+
+    [TestMethod]
+    public async Task PanelUrl_EmptyWithoutArea()
+    {
+        var tokens = await _handler.Handle(Command(Approval()), default);
+
+        Assert.AreEqual(string.Empty, tokens.PanelUrl);
+    }
+
+    [TestMethod]
     public async Task Url_StoreDecided_PointsToOrderDetails()
     {
         var approval = Approval();

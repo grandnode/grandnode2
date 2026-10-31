@@ -10,6 +10,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Microsoft.Extensions.Logging;
@@ -54,8 +55,8 @@ public class OrderPlacedOrderApprovalDeciderTests
         _customerSettings = new CustomerSettings { HideSubAccountsTab = false };
         _handler = new OrderPlacedOrderApprovalHandler(approvalService.Object, _customerService.Object,
             _messages.Object, storeService.Object, new Mock<IProductService>().Object,
-            new Mock<IPriceFormatter>().Object, currencyService.Object, _customerSettings,
-            new Mock<ILogger<OrderPlacedOrderApprovalHandler>>().Object);
+            new Mock<IPriceFormatter>().Object, currencyService.Object, new Mock<ISalesEmployeeService>().Object,
+            _customerSettings, new LanguageSettings(), new Mock<ILogger<OrderPlacedOrderApprovalHandler>>().Object);
     }
 
     //the order's OwnerId holds the customer's own id when there is no owner, as PlaceOrderCommandHandler sets it
