@@ -604,19 +604,11 @@ public class SettingController(
         model.ActiveStore = storeScope;
         //datettime settings
         var dateTimeSettings = await settingService.LoadSetting<DateTimeSettings>(storeScope);
+        model.DateTimeSettings.AvailableTimeZones = dateTimeService.GetStoreTimeZoneOptions(
+            dateTimeSettings.DefaultStoreTimeZoneId,
+            translationService.GetResource("Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server"));
         model.DateTimeSettings.DefaultStoreTimeZoneId =
-            dateTimeService.GetEffectiveTimeZoneId(dateTimeSettings.DefaultStoreTimeZoneId);
-        var iswindows = OperatingSystem.IsWindows();
-        foreach (var timeZone in dateTimeService.GetSystemTimeZones())
-        {
-            var name = iswindows ? timeZone.DisplayName : $"{timeZone.StandardName} ({timeZone.Id})";
-            model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem {
-                Text = name,
-                Value = timeZone.Id,
-                Selected = timeZone.Id.Equals(model.DateTimeSettings.DefaultStoreTimeZoneId,
-                    StringComparison.OrdinalIgnoreCase)
-            });
-        }
+            model.DateTimeSettings.AvailableTimeZones.First(x => x.Selected).Value;
 
         //store information
         var storeInformationSettings = await settingService.LoadSetting<StoreInformationSettings>(storeScope);

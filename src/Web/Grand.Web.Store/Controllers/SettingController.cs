@@ -79,19 +79,11 @@ public class SettingController(
         };
 
         var dateTimeSettings = await settingService.LoadSetting<DateTimeSettings>(storeScope);
+        model.DateTimeSettings.AvailableTimeZones = dateTimeService.GetStoreTimeZoneOptions(
+            dateTimeSettings.DefaultStoreTimeZoneId,
+            translationService.GetResource("Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server"));
         model.DateTimeSettings.DefaultStoreTimeZoneId =
-            dateTimeService.GetEffectiveTimeZoneId(dateTimeSettings.DefaultStoreTimeZoneId);
-        var isWindows = Grand.Infrastructure.OperatingSystem.IsWindows();
-        foreach (var timeZone in dateTimeService.GetSystemTimeZones())
-        {
-            var name = isWindows ? timeZone.DisplayName : $"{timeZone.StandardName} ({timeZone.Id})";
-            model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem {
-                Text = name,
-                Value = timeZone.Id,
-                Selected = timeZone.Id.Equals(model.DateTimeSettings.DefaultStoreTimeZoneId,
-                    StringComparison.OrdinalIgnoreCase)
-            });
-        }
+            model.DateTimeSettings.AvailableTimeZones.First(x => x.Selected).Value;
 
         var storeInformationSettings = await settingService.LoadSetting<StoreInformationSettings>(storeScope);
         model.StoreInformationSettings = storeInformationSettings.ToModel();
