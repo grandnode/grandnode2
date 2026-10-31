@@ -81,7 +81,8 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IPagedList<Or
 
         if (!string.IsNullOrEmpty(request.BillingLastName))
             query = query.Where(o =>
-                o.BillingAddress != null && o.BillingAddress.LastName.Contains(request.BillingLastName));
+                o.BillingAddress != null && !string.IsNullOrEmpty(o.BillingAddress.LastName) &&
+                o.BillingAddress.LastName.Contains(request.BillingLastName));
 
         if (!string.IsNullOrEmpty(request.OrderGuid))
             if (Guid.TryParse(request.OrderGuid, out var orderGuid))

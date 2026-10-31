@@ -765,4 +765,7 @@
 	<Resource Name="Admin.Customers.Customers.Fields.TradeCredit.Overdue" Area="Admin">
 		<Value>Payment overdue</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server" Area="Admin">
+		<Value>Server time zone</Value>
+	</Resource>
 </Language>
