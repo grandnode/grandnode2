@@ -579,8 +579,8 @@ public class CustomerViewModelService : ICustomerViewModelService
         customer.Email = model.Email;
 
         customer.Username = _customerSettings.UsernamesEnabled switch {
-            true when _customerSettings.AllowUsersToChangeUsernames => model.Username.Trim(),
-            false => model.Email.Trim(),
+            true when _customerSettings.AllowUsersToChangeUsernames => model.Username?.Trim(),
+            false => model.Email?.Trim(),
             _ => customer.Username
         };
 

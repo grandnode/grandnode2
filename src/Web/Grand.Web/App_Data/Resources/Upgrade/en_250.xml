@@ -843,4 +843,7 @@
 	<Resource Name="order.approval.withdrawrefused" Area="Front">
 		<Value>This request can no longer be withdrawn.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server" Area="Admin">
+		<Value>Server time zone</Value>
+	</Resource>
 </Language>
