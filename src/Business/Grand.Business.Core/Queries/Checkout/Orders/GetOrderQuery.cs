@@ -31,4 +31,6 @@ public class GetOrderQuery : IRequest<IPagedList<Order>>
     public int PageIndex { get; set; } = 0;
     public int PageSize { get; set; } = int.MaxValue;
     public string OrderTagId { get; set; } = "";
+    public string PurchaseOrderNumber { get; set; } = null;
+    public bool OverdueOnly { get; set; }
 }

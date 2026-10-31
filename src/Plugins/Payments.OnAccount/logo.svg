@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="53" height="35" viewBox="0 0 53 35" role="img" aria-label="Pay by invoice">
+  <rect x="0.5" y="0.5" width="52" height="34" rx="4" fill="#ffffff" stroke="#9aa5b1"/>
+  <path d="M19 6h11l5 5v18H19z" fill="#eef2f6" stroke="#52606d" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M30 6v5h5" fill="none" stroke="#52606d" stroke-width="1.2" stroke-linejoin="round"/>
+  <path d="M22 15h10M22 19h10M22 23h6" stroke="#52606d" stroke-width="1.2" stroke-linecap="round"/>
+</svg>

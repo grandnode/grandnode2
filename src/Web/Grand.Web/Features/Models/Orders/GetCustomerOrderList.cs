@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Customers;
+using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Web.Models.Orders;
@@ -11,5 +12,6 @@ public class GetCustomerOrderList : IRequest<CustomerOrderListModel>
     public Customer Customer { get; set; }
     public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
+    public Currency Currency { get; set; }
     public OrderPagingModel Command { get; set; } = new();
 }

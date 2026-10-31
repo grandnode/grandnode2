@@ -276,7 +276,9 @@ public class OrderViewModelService : IOrderViewModelService
             orderCode: model.GoDirectlyToNumber,
             pageIndex: pageIndex - 1,
             pageSize: pageSize,
-            orderTagId: model.OrderTag);
+            orderTagId: model.OrderTag,
+            purchaseOrderNumber: model.PurchaseOrderNumber,
+            overdueOnly: model.OverdueOnly);
 
 
         var primaryStoreCurrency = await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
@@ -320,6 +322,10 @@ public class OrderViewModelService : IOrderViewModelService
         model.Id = order.Id;
         model.OrderNumber = order.OrderNumber;
         model.Code = order.Code;
+        model.PurchaseOrderNumber = order.PurchaseOrderNumber;
+        //a calendar date: shown as stored, a time zone shift could move it to the day before
+        model.PaymentDueDate = order.PaymentDueDateUtc?.Date;
+        model.IsPaymentOverdue = order.IsPaymentOverdue(DateTime.UtcNow);
         model.OrderStatusId = order.OrderStatusId;
         model.OrderGuid = order.OrderGuid;
 
@@ -862,7 +868,9 @@ public class OrderViewModelService : IOrderViewModelService
             billingEmail: model.BillingEmail,
             billingLastName: model.BillingLastName,
             billingCountryId: model.BillingCountryId,
-            orderGuid: model.OrderGuid);
+            orderGuid: model.OrderGuid,
+            purchaseOrderNumber: model.PurchaseOrderNumber,
+            overdueOnly: model.OverdueOnly);
 
         return orders;
     }

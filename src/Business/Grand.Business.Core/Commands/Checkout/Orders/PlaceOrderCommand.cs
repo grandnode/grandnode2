@@ -27,4 +27,9 @@ public class PlaceOrderCommand : IRequest<PlaceOrderResult>
     ///     Staff member who places the order while impersonating the customer, if any
     /// </summary>
     public Customer OriginalCustomerIfImpersonated { get; set; }
+
+    /// <summary>
+    ///     Buyer's own purchase order number, if any
+    /// </summary>
+    public string PurchaseOrderNumber { get; set; }
 }

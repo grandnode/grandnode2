@@ -123,6 +123,11 @@ public interface IPaymentProvider : IProvider
     PaymentMethodType PaymentMethodType { get; }
 
     /// <summary>
+    ///     Gets whether the checkout asks for the buyer's purchase order number when this method is chosen
+    /// </summary>
+    PurchaseOrderNumberMode PurchaseOrderNumberMode => PurchaseOrderNumberMode.Disabled;
+
+    /// <summary>
     ///     Gets a value indicating whether we should display a payment information page for this plugin
     /// </summary>
     Task<bool> SkipPaymentInfo();

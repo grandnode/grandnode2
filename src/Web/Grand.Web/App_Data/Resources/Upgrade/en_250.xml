@@ -639,4 +639,130 @@
 	<Resource Name="Enums.Grand.Domain.Audit.AuditSource.Storefront" Area="Common">
 		<Value>Storefront</Value>
 	</Resource>
+	<Resource Name="Account.CustomerOrders.TradeCredit" Area="Front">
+		<Value>Trade credit</Value>
+	</Resource>
+	<Resource Name="Account.CustomerOrders.TradeCredit.Limit" Area="Front">
+		<Value>Credit limit</Value>
+	</Resource>
+	<Resource Name="Account.CustomerOrders.TradeCredit.Outstanding" Area="Front">
+		<Value>Outstanding</Value>
+	</Resource>
+	<Resource Name="Account.CustomerOrders.TradeCredit.Available" Area="Front">
+		<Value>Available</Value>
+	</Resource>
+	<Resource Name="Account.CustomerOrders.TradeCredit.PaymentTerm" Area="Front">
+		<Value>Payment term</Value>
+	</Resource>
+	<Resource Name="Account.CustomerOrders.TradeCredit.PaymentTerm.Days" Area="Front">
+		<Value>{0} days</Value>
+	</Resource>
+	<Resource Name="Account.CustomerOrders.TradeCredit.Overdue" Area="Front">
+		<Value>You have an overdue payment. Buying on credit may be unavailable until it is paid.</Value>
+	</Resource>
+	<Resource Name="Checkout.TradeCredit.Available" Area="Front">
+		<Value>Trade credit available: {0} of {1}. An order above this amount cannot be paid by invoice.</Value>
+	</Resource>
+	<Resource Name="Checkout.TradeCredit.Overdue" Area="Front">
+		<Value>You have an overdue payment, so paying by invoice may be unavailable until it is paid.</Value>
+	</Resource>
+	<Resource Name="Checkout.PurchaseOrderNumber" Area="Front">
+		<Value>Your PO number</Value>
+	</Resource>
+	<Resource Name="Checkout.PurchaseOrderNumber.Required" Area="Front">
+		<Value>Enter your purchase order number.</Value>
+	</Resource>
+	<Resource Name="Checkout.PurchaseOrderNumber.TooLong" Area="Front">
+		<Value>The purchase order number can be at most 50 characters long.</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.PurchaseOrderNumberMode.Disabled" Area="Common">
+		<Value>Not asked</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.PurchaseOrderNumberMode.Optional" Area="Common">
+		<Value>Optional</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.PurchaseOrderNumberMode.Required" Area="Common">
+		<Value>Required</Value>
+	</Resource>
+	<Resource Name="Order.PurchaseOrderNumber" Area="Front">
+		<Value>PO number</Value>
+	</Resource>
+	<Resource Name="Order.PaymentDueDate" Area="Front">
+		<Value>Payment due</Value>
+	</Resource>
+	<Resource Name="Order.PaymentOverdue" Area="Front">
+		<Value>Overdue</Value>
+	</Resource>
+	<Resource Name="PDFInvoice.PurchaseOrderNumber" Area="Front">
+		<Value>PO number: {0}</Value>
+	</Resource>
+	<Resource Name="PDFInvoice.PaymentDueDate" Area="Front">
+		<Value>Payment due: {0}</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.PaymentTerms" Area="Admin">
+		<Value>Edit PO number and due date</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.PaymentDueDate.Required" Area="Admin">
+		<Value>Enter the date the payment is due.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.PurchaseOrderNumber" Area="Admin">
+		<Value>PO number</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.PurchaseOrderNumber.Hint" Area="Admin">
+		<Value>The buyer's own purchase order number, entered at checkout.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.PaymentDueDate" Area="Admin">
+		<Value>Payment due</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.PaymentDueDate.Hint" Area="Admin">
+		<Value>The date the payment is due. Set only for orders bought on trade credit.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.PaymentOverdue" Area="Admin">
+		<Value>Overdue</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.List.PurchaseOrderNumber" Area="Admin">
+		<Value>PO number</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.List.PurchaseOrderNumber.Hint" Area="Admin">
+		<Value>Search by the buyer's purchase order number (exact match).</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.List.OverdueOnly" Area="Admin">
+		<Value>Overdue payments only</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.List.OverdueOnly.Hint" Area="Admin">
+		<Value>Show only orders bought on trade credit whose payment is past its due date.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.TradeCredit" Area="Admin">
+		<Value>Trade credit</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.CreditLimit" Area="Admin">
+		<Value>Credit limit</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.CreditLimit.Hint" Area="Admin">
+		<Value>In the primary store currency. Leave empty for no trade credit.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.CreditLimit.Invalid" Area="Admin">
+		<Value>The credit limit cannot be negative.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.PaymentTermDays" Area="Admin">
+		<Value>Payment term (days)</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.PaymentTermDays.Hint" Area="Admin">
+		<Value>Days from placing an order bought on credit until its payment is due. Leave empty for no trade credit.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.PaymentTermDays.Invalid" Area="Admin">
+		<Value>The payment term must be between 0 and 365 days.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.OutstandingAmount" Area="Admin">
+		<Value>Outstanding on credit</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.TradeCredit.BothRequired" Area="Admin">
+		<Value>Set both the credit limit and the payment term, or leave both empty.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.TradeCredit.SubAccount" Area="Admin">
+		<Value>A sub-account buys on its owner's trade credit. Set the credit limit and payment term on the owner.</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.Fields.TradeCredit.Overdue" Area="Admin">
+		<Value>Payment overdue</Value>
+	</Resource>
 </Language>

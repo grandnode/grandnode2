@@ -1,8 +1,11 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Permissions;
 using Grand.Mediator;
@@ -192,6 +195,11 @@ public abstract class BasePaymentTransactionController(
             RefundedAmount = paymentTransaction.RefundedAmount,
             OrderId = order?.Id,
             OrderNumber = order?.OrderNumber,
+            PurchaseOrderNumber = order?.PurchaseOrderNumber,
+            PaymentDueDate = order?.PaymentDueDateUtc?.Date,
+            IsPaymentOverdue = order?.IsPaymentOverdue(DateTime.UtcNow) ?? false,
+            BoughtOnCredit = order?.PaymentDueDateUtc != null,
+            CanEditPaymentTerms = HasPaymentTerms(order),
             CreatedOn = dateTimeService.ConvertToUserTime(paymentTransaction.CreatedOnUtc, DateTimeKind.Utc),
             TransactionStatus = paymentTransaction.TransactionStatus,
             Status = enumTranslationService.GetTranslationEnum(paymentTransaction.TransactionStatus),
@@ -447,6 +455,72 @@ public abstract class BasePaymentTransactionController(
             Error(exc, false);
             return View(model);
         }
+    }
+
+    #endregion
+
+    #region Purchase order number and payment due date
+
+    /// <summary>An order paid at once has neither, and this screen does not add them to it.</summary>
+    private static bool HasPaymentTerms(Order order) =>
+        order != null && (order.PaymentDueDateUtc.HasValue || !string.IsNullOrEmpty(order.PurchaseOrderNumber));
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> PaymentTermsPopup(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        var order = await orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
+        if (!HasPaymentTerms(order))
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+
+        return View(new PaymentTransactionModel {
+            Id = paymentTransaction.Id,
+            PurchaseOrderNumber = order.PurchaseOrderNumber,
+            PaymentDueDate = order.PaymentDueDateUtc?.Date,
+            BoughtOnCredit = order.PaymentDueDateUtc.HasValue
+        });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> PaymentTermsPopup(string id, PaymentTransactionModel model)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        var order = await orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
+        if (!HasPaymentTerms(order))
+            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+
+        model.BoughtOnCredit = order.PaymentDueDateUtc.HasValue;
+
+        var purchaseOrderNumber = PurchaseOrderNumberRules.Normalize(model.PurchaseOrderNumber, PurchaseOrderNumberMode.Optional);
+        var purchaseOrderNumberError = PurchaseOrderNumberRules.Validate(purchaseOrderNumber, PurchaseOrderNumberMode.Optional);
+        if (purchaseOrderNumberError != null)
+            ModelState.AddModelError(nameof(model.PurchaseOrderNumber), translationService.GetResource(purchaseOrderNumberError));
+
+        //clearing the date would silently take the order off the company's credit; text that is not a date
+        //gets the same message, because the one from model binding names the raw resource key
+        if (model.BoughtOnCredit && !model.PaymentDueDate.HasValue)
+        {
+            ModelState.Remove(nameof(model.PaymentDueDate));
+            ModelState.AddModelError(nameof(model.PaymentDueDate), translationService.GetResource("Admin.Orders.Fields.PaymentDueDate.Required"));
+        }
+
+        if (!ModelState.IsValid)
+            return View(model);
+
+        order.PurchaseOrderNumber = purchaseOrderNumber;
+        //the due date is a calendar day; a date posted for an order paid at once must not put it on credit
+        if (model.BoughtOnCredit)
+            order.PaymentDueDateUtc = DateTime.SpecifyKind(model.PaymentDueDate!.Value.Date, DateTimeKind.Utc);
+
+        await orderService.UpdateOrder(order);
+
+        model.RefreshPage = true;
+        return View(model);
     }
 
     #endregion

@@ -38,6 +38,26 @@
             <admin-label asp-for="OrderId" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">@Html.ActionLink(Model.OrderNumber.ToString(), "Edit", "Order", new { id = Model.OrderId }, new { })</div>
         </div>
+        @if (!string.IsNullOrEmpty(Model.PurchaseOrderNumber))
+        {
+            <div>
+                <admin-label asp-for="PurchaseOrderNumber" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.PurchaseOrderNumber</div>
+            </div>
+        }
+        @if (Model.PaymentDueDate.HasValue)
+        {
+            <div>
+                <admin-label asp-for="PaymentDueDate" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">
+                    @Model.PaymentDueDate.Value.ToString("D")
+                    @if (Model.IsPaymentOverdue)
+                    {
+                        <span class="grand-chip grand-chip--red ms-1">@Loc["Admin.Orders.Fields.PaymentOverdue"]</span>
+                    }
+                </div>
+            </div>
+        }
         <div>
             <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">@Html.DisplayFor(model => model.CreatedOn)</div>

@@ -174,7 +174,7 @@ public class PdfService : IPdfService
             await _mediator.Publish(paymentLines);
             billing = await AddressCell(order.BillingAddress, "PDFInvoice", "PDFInvoice.BillingInformation", lang,
                 Format("PDFInvoice.PaymentMethod", lang, paymentMethod.GetPaymentMethodName(order)),
-                paymentLines.Lines.Select(PdfHtmlText.ToPlainText));
+                paymentLines.Lines.Select(PdfHtmlText.ToPlainText).Concat(PaymentTermsLines(order, lang)));
         }
 
         var shipping = order.ShippingAddress == null
@@ -396,6 +396,15 @@ public class PdfService : IPdfService
             _logger.LogWarning(ex, "PDF logo {PictureId} could not be loaded", _pdfSettings.LogoPictureId);
             return null;
         }
+    }
+
+    //the PO number is the buyer's own text, printed as typed; the due date is a calendar date
+    private IEnumerable<string> PaymentTermsLines(Order order, string lang)
+    {
+        if (!string.IsNullOrEmpty(order.PurchaseOrderNumber))
+            yield return Format("PDFInvoice.PurchaseOrderNumber", lang, order.PurchaseOrderNumber);
+        if (order.PaymentDueDateUtc.HasValue)
+            yield return Format("PDFInvoice.PaymentDueDate", lang, order.PaymentDueDateUtc.Value.ToString("yyyy-MM-dd"));
     }
 
     private string Format(string resourceKey, string lang, object value)

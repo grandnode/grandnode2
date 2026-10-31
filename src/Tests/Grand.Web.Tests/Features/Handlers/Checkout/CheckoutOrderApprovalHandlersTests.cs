@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
@@ -25,6 +26,7 @@ public class CheckoutOrderApprovalHandlersTests
 {
     private Mock<IOrderApprovalService> _approval;
     private IList<ShoppingCartItem> _cart;
+    private Mock<ICompanyCreditService> _credit;
     private Currency _currency;
     private Customer _customer;
     private Mock<IPaymentService> _paymentService;
@@ -40,9 +42,13 @@ public class CheckoutOrderApprovalHandlersTests
         _cart = new List<ShoppingCartItem> { new() { ProductId = "p1", Quantity = 1 } };
         _approval = new Mock<IOrderApprovalService>();
         _paymentService = new Mock<IPaymentService>();
+        _credit = new Mock<ICompanyCreditService>();
+        _credit.Setup(c => c.GetCompanyCredit(_customer)).ReturnsAsync(CompanyCredit.None("owner"));
         _translation = new Mock<IRequestTranslationService>();
         _translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string key) => key);
         _translation.Setup(t => t.GetResource("Checkout.OrderApproval.WillBeSent")).Returns("Over {0} goes for approval");
+        _translation.Setup(t => t.GetResource("Checkout.TradeCredit.Available")).Returns("Available {0} of {1}.");
+        _translation.Setup(t => t.GetResource("Checkout.TradeCredit.Overdue")).Returns("Overdue.");
     }
 
     private void State(bool required, double? limit = 100) =>
@@ -67,10 +73,16 @@ public class CheckoutOrderApprovalHandlersTests
         var tax = new Mock<ITaxService>();
         tax.Setup(t => t.GetPaymentMethodAdditionalFee(It.IsAny<double>(), It.IsAny<bool>(), It.IsAny<Customer>(),
             It.IsAny<Grand.Domain.Stores.Store>())).ReturnsAsync((0d, 0d));
+        var priceFormatter = new Mock<IPriceFormatter>();
+        priceFormatter.Setup(p => p.FormatPrice(It.IsAny<double>(), _currency)).Returns<double, Currency>((p, _) => $"{p:0} EUR");
+        var currencyService = new Mock<ICurrencyService>();
+        currencyService.Setup(c => c.ConvertFromPrimaryStoreCurrency(It.IsAny<double>(), _currency))
+            .ReturnsAsync((double v, Currency _) => v * 2);
         return new GetPaymentMethodHandler(new Mock<ILoyaltyPointsService>().Object,
             new Mock<IOrderCalculationService>().Object, new Mock<ILoyaltyPointsCalculationService>().Object,
-            new Mock<ICurrencyService>().Object, new Mock<IPriceFormatter>().Object, _paymentService.Object,
-            tax.Object, _approval.Object, _translation.Object, new LoyaltyPointsSettings(), new PaymentSettings());
+            currencyService.Object, priceFormatter.Object, _paymentService.Object,
+            tax.Object, _approval.Object, _credit.Object, _translation.Object, new LoyaltyPointsSettings(),
+            new PaymentSettings());
     }
 
     private GetPaymentMethod PaymentRequest() => new() {
@@ -117,6 +129,40 @@ public class CheckoutOrderApprovalHandlersTests
         _approval.Verify(a => a.IsPaymentMethodAllowed(It.IsAny<string>()), Times.Never);
     }
 
+    [TestMethod]
+    public async Task PaymentMethods_NoTradeCredit_ShowsNoNotice()
+    {
+        State(false);
+
+        var model = await PaymentHandler("Payments.Card").Handle(PaymentRequest(), CancellationToken.None);
+
+        Assert.IsNull(model.TradeCreditNotice);
+    }
+
+    [TestMethod]
+    public async Task PaymentMethods_TradeCredit_ShowsAvailableAndLimitInTheWorkingCurrency()
+    {
+        State(false);
+        _credit.Setup(c => c.GetCompanyCredit(_customer))
+            .ReturnsAsync(new CompanyCredit("owner", 1000, 14, 400, false));
+
+        var model = await PaymentHandler("Payments.Card").Handle(PaymentRequest(), CancellationToken.None);
+
+        Assert.AreEqual("Available 1200 EUR of 2000 EUR.", model.TradeCreditNotice);
+    }
+
+    [TestMethod]
+    public async Task PaymentMethods_TradeCreditOverdue_AddsTheOverdueSentence()
+    {
+        State(false);
+        _credit.Setup(c => c.GetCompanyCredit(_customer))
+            .ReturnsAsync(new CompanyCredit("owner", 1000, 14, 400, true));
+
+        var model = await PaymentHandler("Payments.Card").Handle(PaymentRequest(), CancellationToken.None);
+
+        Assert.AreEqual("Available 1200 EUR of 2000 EUR. Overdue.", model.TradeCreditNotice);
+    }
+
     private GetConfirmOrderHandler ConfirmHandler()
     {
         var priceFormatter = new Mock<IPriceFormatter>();
@@ -156,6 +202,48 @@ public class CheckoutOrderApprovalHandlersTests
 
         Assert.IsTrue(model.OrderApprovalRequired);
         Assert.AreEqual("Over {0 goes", model.OrderApprovalMessage);
+    }
+
+    private void SelectPaymentMethod(string systemName, PurchaseOrderNumberMode mode)
+    {
+        _customer.UserFields.Add(new UserField {
+            Key = SystemCustomerFieldNames.SelectedPaymentMethod, Value = systemName, StoreId = _store.Id
+        });
+        var provider = Provider(systemName);
+        provider.Setup(p => p.PurchaseOrderNumberMode).Returns(mode);
+        _paymentService.Setup(p => p.LoadPaymentMethodBySystemName(systemName)).Returns(provider.Object);
+    }
+
+    [TestMethod]
+    public async Task Confirm_SelectedMethodAsksForThePurchaseOrderNumber_CarriesItsMode()
+    {
+        State(false);
+        SelectPaymentMethod("Payments.OnAccount", PurchaseOrderNumberMode.Required);
+
+        var model = await ConfirmHandler().Handle(ConfirmRequest(), CancellationToken.None);
+
+        Assert.AreEqual(PurchaseOrderNumberMode.Required, model.PurchaseOrderNumberMode);
+    }
+
+    [TestMethod]
+    public async Task Confirm_SelectedMethodDoesNotAsk_NoPurchaseOrderNumber()
+    {
+        State(false);
+        SelectPaymentMethod("Payments.StripeCheckout", PurchaseOrderNumberMode.Disabled);
+
+        var model = await ConfirmHandler().Handle(ConfirmRequest(), CancellationToken.None);
+
+        Assert.AreEqual(PurchaseOrderNumberMode.Disabled, model.PurchaseOrderNumberMode);
+    }
+
+    [TestMethod]
+    public async Task Confirm_NoMethodSelected_NoPurchaseOrderNumber()
+    {
+        State(false);
+
+        var model = await ConfirmHandler().Handle(ConfirmRequest(), CancellationToken.None);
+
+        Assert.AreEqual(PurchaseOrderNumberMode.Disabled, model.PurchaseOrderNumberMode);
     }
 
     [TestMethod]

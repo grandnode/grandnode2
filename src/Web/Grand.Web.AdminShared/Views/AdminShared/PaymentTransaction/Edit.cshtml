@@ -36,6 +36,14 @@
                     @Loc["Admin.PaymentTransaction.Fields.PartialPaidOffline"]
                 </a>
             }
+            @if (Model.CanEditPaymentTerms)
+            {
+                <a id="paymenttermspopup" name="paymenttermspopup"
+                   href="@(Url.Action("PaymentTermsPopup", "PaymentTransaction", new { id = Model.Id, area = area }))"
+                   class="btn btn-outline-secondary">
+                    @Loc["Admin.PaymentTransaction.Fields.PaymentTerms"]
+                </a>
+            }
             @if (Model.CanRefund)
             {
                 <input type="submit" name="refundpaymenttransaction" asp-action="RefundPaymentTransaction" value="@Loc["Admin.PaymentTransaction.Fields.Refund"]" id="refundpaymenttransaction"
@@ -85,6 +93,19 @@
     <script>
         $(document).ready(function () {
             $('#partiallypaidpaymenttransactionoffline').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+            $('#paymenttermspopup').magnificPopup({
                 type: 'ajax',
                 settings: { cache: false, async: false },
                 midClick: true,

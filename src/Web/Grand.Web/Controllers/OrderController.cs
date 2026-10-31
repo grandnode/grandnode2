@@ -75,6 +75,7 @@ public class OrderController : BasePublicController
         var model = await _mediator.Send(new GetCustomerOrderList {
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Currency = _contextAccessor.WorkContext.WorkingCurrency,
             Store = _contextAccessor.StoreContext.CurrentStore,
             Command = command
         });

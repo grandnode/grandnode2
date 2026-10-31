@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -182,6 +183,20 @@ public class OrderServiceTests
     }
 
     [TestMethod]
+    public async Task CancelExpiredOrders_OrderBoughtOnCredit_IsNotCancelled()
+    {
+        //its payment is deferred on purpose: it is not an abandoned payment
+        var order = NewExpiredOrder("1");
+        order.PaymentDueDateUtc = DateTime.UtcNow.AddDays(30);
+        _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order> { order }.AsQueryable());
+
+        await _service.CancelExpiredOrders(DateTime.UtcNow.AddDays(-7));
+
+        _mediatorMock.Verify(c => c.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
     public async Task CancelExpiredOrders_OrderApprovedAfterTheCutoff_IsSkipped()
     {
         _orderRepositoryMock.Setup(c => c.Table).Returns(new List<Order> { NewExpiredOrder("1") }.AsQueryable());
@@ -235,5 +250,14 @@ public class OrderServiceTests
             OrderStatusId = (int)OrderStatusSystem.Pending,
             ShippingStatusId = ShippingStatus.Pending
         };
+    }
+
+    [TestMethod]
+    public async Task SearchOrders_PassesPurchaseOrderNumberAndOverdueOnly()
+    {
+        await _service.SearchOrders(purchaseOrderNumber: "PO-1", overdueOnly: true);
+
+        _mediatorMock.Verify(c => c.Send(It.Is<GetOrderQuery>(q => q.PurchaseOrderNumber == "PO-1" && q.OverdueOnly),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }

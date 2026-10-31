@@ -564,6 +564,8 @@ public class CustomerService : ICustomerService
             .Set(x => x.OwnerId, customer.OwnerId)
             .Set(x => x.StaffStoreId, customer.StaffStoreId)
             .Set(x => x.StoreId, customer.StoreId)
+            .Set(x => x.CreditLimit, customer.CreditLimit)
+            .Set(x => x.PaymentTermDays, customer.PaymentTermDays)
             .Set(x => x.Attributes, customer.Attributes);
 
         await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);

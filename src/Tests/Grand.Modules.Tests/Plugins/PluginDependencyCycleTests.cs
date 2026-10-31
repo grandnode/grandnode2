@@ -37,6 +37,7 @@ using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Payments.BrainTree;
 using Payments.CashOnDelivery;
+using Payments.OnAccount;
 using Shipping.ByWeight;
 using Shipping.ByWeight.Services;
 using Grand.Web.Common.Localization;
@@ -76,12 +77,13 @@ public class PluginDependencyCycleTests
         services.AddScoped<IPaymentService, PaymentService>();
         services.AddScoped<IPaymentProvider, CashOnDeliveryPaymentProvider>();
         services.AddScoped<IPaymentProvider, BrainTreePaymentProvider>();
+        services.AddScoped<IPaymentProvider, OnAccountPaymentProvider>();
         AddMocks(services, typeof(IContextAccessor), typeof(IPricingService), typeof(ITaxService),
             typeof(IShippingService), typeof(ICheckoutAttributeParser), typeof(IDiscountService),
             typeof(IGiftVoucherService), typeof(ILoyaltyPointsService), typeof(IProductService),
             typeof(ICurrencyService), typeof(IGroupService), typeof(IDiscountValidationService),
             typeof(ISettingService), typeof(ITranslationService), typeof(IRequestTranslationService), typeof(IPaymentTransactionService),
-            typeof(ICustomerService), typeof(IHttpContextAccessor));
+            typeof(ICustomerService), typeof(IHttpContextAccessor), typeof(ICompanyCreditService));
         services.AddSingleton(new TaxSettings());
         services.AddSingleton(new LoyaltyPointsSettings());
         services.AddSingleton(new ShippingSettings());
@@ -90,6 +92,7 @@ public class PluginDependencyCycleTests
         services.AddSingleton(new PaymentSettings());
         services.AddSingleton(new CashOnDeliveryPaymentSettings());
         services.AddSingleton(new BrainTreePaymentSettings());
+        services.AddSingleton(new OnAccountPaymentSettings());
 
         using var root = Build(services);
         using var scope = root.CreateScope();

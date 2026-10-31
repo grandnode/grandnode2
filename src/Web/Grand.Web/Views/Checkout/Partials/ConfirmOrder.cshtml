@@ -14,6 +14,14 @@
         <div v-if="vmorder.OrderApprovalRequired" class="alert alert-info my-3 order-approval-notice">
             {{vmorder.OrderApprovalMessage}}
         </div>
+        @*the buyer's own PO number; v-model binds it as text, never as markup*@
+        <div v-if="vmorder.PurchaseOrderNumberMode > 0" class="purchase-order-number my-3">
+            <label for="PurchaseOrderNumber" class="form-label">
+                @Loc["Checkout.PurchaseOrderNumber"]
+                <span v-if="vmorder.PurchaseOrderNumberMode == 20" class="required">*</span>
+            </label>
+            <input id="PurchaseOrderNumber" name="PurchaseOrderNumber" type="text" class="form-control" :maxlength="vmorder.PurchaseOrderNumberMaxLength" v-model="vmorder.purchaseOrderNumber">
+        </div>
         <div v-if="vmorder.ConfirmWarnings !== 'undefined' && vmorder.ConfirmWarnings.length > 0" class="alert alert-danger my-3">
             <template v-for="warning in vmorder.ConfirmWarnings">
                 <span>{{warning}}</span>

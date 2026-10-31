@@ -251,6 +251,169 @@ public class BasePaymentTransactionControllerTests
         _mediatorMock.Verify(m => m.Send(It.IsAny<PartiallyRefundOfflineCommand>(), default), Times.Never);
     }
 
+    private Order SetupOrder(string purchaseOrderNumber, DateTime? dueDate)
+    {
+        var orderGuid = Guid.NewGuid();
+        var order = new Order {
+            OrderGuid = orderGuid, PurchaseOrderNumber = purchaseOrderNumber, PaymentDueDateUtc = dueDate,
+            PaymentStatusId = PaymentStatus.Pending, OrderStatusId = (int)OrderStatusSystem.Pending
+        };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1"))
+            .ReturnsAsync(new PaymentTransaction { Id = "pt-1", OrderGuid = orderGuid });
+        _orderServiceMock.Setup(s => s.GetOrderByGuid(orderGuid)).ReturnsAsync(order);
+        return order;
+    }
+
+    [TestMethod]
+    public async Task Edit_OrderOnCredit_ShowsThePurchaseOrderNumberAndDueDate()
+    {
+        SetupOrder("PO-1", DateTime.UtcNow.Date.AddDays(-1));
+
+        var result = await _controller.Edit("pt-1") as ViewResult;
+
+        var model = (PaymentTransactionModel)result!.Model!;
+        Assert.AreEqual("PO-1", model.PurchaseOrderNumber);
+        Assert.AreEqual(DateTime.UtcNow.Date.AddDays(-1), model.PaymentDueDate);
+        Assert.IsTrue(model.IsPaymentOverdue);
+        Assert.IsTrue(model.BoughtOnCredit);
+        Assert.IsTrue(model.CanEditPaymentTerms);
+    }
+
+    [TestMethod]
+    public async Task Edit_OrderWithoutTerms_CannotEditThem()
+    {
+        SetupOrder(null, null);
+
+        var result = await _controller.Edit("pt-1") as ViewResult;
+
+        var model = (PaymentTransactionModel)result!.Model!;
+        Assert.IsNull(model.PaymentDueDate);
+        Assert.IsFalse(model.CanEditPaymentTerms);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Get_LoadsTheOrdersValues()
+    {
+        SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+
+        var result = await _controller.PaymentTermsPopup("pt-1") as ViewResult;
+
+        var model = (PaymentTransactionModel)result!.Model!;
+        Assert.AreEqual("PO-1", model.PurchaseOrderNumber);
+        Assert.AreEqual(new DateTime(2026, 11, 13), model.PaymentDueDate);
+        Assert.IsTrue(model.BoughtOnCredit);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_SavesBothOnTheOrder()
+    {
+        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+
+        var model = new PaymentTransactionModel { PurchaseOrderNumber = "  PO-2 ", PaymentDueDate = new DateTime(2026, 12, 1, 15, 30, 0) };
+        var result = await _controller.PaymentTermsPopup("pt-1", model) as ViewResult;
+
+        Assert.IsTrue(((PaymentTransactionModel)result!.Model!).RefreshPage);
+        Assert.AreEqual("PO-2", order.PurchaseOrderNumber);
+        Assert.AreEqual(new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc), order.PaymentDueDateUtc);
+        Assert.AreEqual(DateTimeKind.Utc, order.PaymentDueDateUtc!.Value.Kind);
+        _orderServiceMock.Verify(s => s.UpdateOrder(order), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_EmptyNumber_ClearsIt()
+    {
+        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+
+        var model = new PaymentTransactionModel { PurchaseOrderNumber = " ", PaymentDueDate = new DateTime(2026, 11, 13) };
+        await _controller.PaymentTermsPopup("pt-1", model);
+
+        Assert.IsNull(order.PurchaseOrderNumber);
+        _orderServiceMock.Verify(s => s.UpdateOrder(order), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_TooLongNumber_NotSaved()
+    {
+        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+
+        var model = new PaymentTransactionModel { PurchaseOrderNumber = new string('x', 51), PaymentDueDate = new DateTime(2026, 12, 1) };
+        var result = await _controller.PaymentTermsPopup("pt-1", model) as ViewResult;
+
+        Assert.IsFalse(_controller.ModelState.IsValid);
+        Assert.IsFalse(((PaymentTransactionModel)result!.Model!).RefreshPage);
+        Assert.AreEqual("PO-1", order.PurchaseOrderNumber);
+        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_OrderOnCreditWithoutDueDate_NotSaved()
+    {
+        //clearing the date would silently take the order off the company's credit
+        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+
+        var result = await _controller.PaymentTermsPopup("pt-1", new PaymentTransactionModel { PurchaseOrderNumber = "PO-1" }) as ViewResult;
+
+        Assert.IsFalse(_controller.ModelState.IsValid);
+        Assert.IsTrue(((PaymentTransactionModel)result!.Model!).BoughtOnCredit);
+        Assert.IsNotNull(order.PaymentDueDateUtc);
+        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_UnreadableDueDate_ShowsTheSameMessageAsAnEmptyOne()
+    {
+        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+        //what model binding leaves for text that is not a date: its message names the raw resource key
+        _controller.ModelState.AddModelError(nameof(PaymentTransactionModel.PaymentDueDate), "The value 'x' is not valid for Admin.Orders.Fields.PaymentDueDate.");
+
+        await _controller.PaymentTermsPopup("pt-1", new PaymentTransactionModel { PurchaseOrderNumber = "PO-1" });
+
+        var errors = _controller.ModelState[nameof(PaymentTransactionModel.PaymentDueDate)]!.Errors;
+        Assert.HasCount(1, errors);
+        Assert.AreEqual("resource", errors[0].ErrorMessage);
+        Assert.IsNotNull(order.PaymentDueDateUtc);
+        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_OrderNotOnCredit_DueDateIgnored()
+    {
+        //a posted date must not put an order on the company's credit
+        var order = SetupOrder("PO-1", null);
+
+        var model = new PaymentTransactionModel { PurchaseOrderNumber = "PO-2", PaymentDueDate = new DateTime(2026, 12, 1) };
+        await _controller.PaymentTermsPopup("pt-1", model);
+
+        Assert.AreEqual("PO-2", order.PurchaseOrderNumber);
+        Assert.IsNull(order.PaymentDueDateUtc);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_OrderWithoutTerms_NotSaved()
+    {
+        var order = SetupOrder(null, null);
+
+        var model = new PaymentTransactionModel { PurchaseOrderNumber = "PO-2", PaymentDueDate = new DateTime(2026, 12, 1) };
+        var result = await _controller.PaymentTermsPopup("pt-1", model) as RedirectToActionResult;
+
+        Assert.AreEqual("Edit", result!.ActionName);
+        Assert.IsNull(order.PurchaseOrderNumber);
+        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_DeniedByScope_RedirectsToList()
+    {
+        SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+        _scopeMock.Setup(s => s.HasAccess(It.IsAny<PaymentTransaction>())).ReturnsAsync(false);
+
+        var model = new PaymentTransactionModel { PurchaseOrderNumber = "PO-2", PaymentDueDate = new DateTime(2026, 12, 1) };
+        var result = await _controller.PaymentTermsPopup("pt-1", model) as RedirectToActionResult;
+
+        Assert.AreEqual("List", result!.ActionName);
+        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+    }
+
     [TestMethod]
     public async Task PartiallyPaidPopup_Post_Success_SetsModelRefreshPage()
     {

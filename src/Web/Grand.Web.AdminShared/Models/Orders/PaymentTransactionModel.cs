@@ -1,6 +1,7 @@
 ﻿using Grand.Domain.Payments;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Orders;
 
@@ -26,6 +27,25 @@ public class PaymentTransactionModel : BaseEntityModel
 
     public int? OrderNumber { get; set; }
     public string OrderCode { get; set; }
+
+    [GrandResourceDisplayName("Admin.Orders.Fields.PurchaseOrderNumber")]
+    public string PurchaseOrderNumber { get; set; }
+
+    [GrandResourceDisplayName("Admin.Orders.Fields.PaymentDueDate")]
+    [UIHint("DateNullable")]
+    public DateTime? PaymentDueDate { get; set; }
+
+    public bool IsPaymentOverdue { get; set; }
+
+    /// <summary>
+    ///     The order is bought on credit, so its due date can be changed
+    /// </summary>
+    public bool BoughtOnCredit { get; set; }
+
+    /// <summary>
+    ///     The order carries a purchase order number or a due date, which staff can correct
+    /// </summary>
+    public bool CanEditPaymentTerms { get; set; }
 
     public string CustomerId { get; set; }
 

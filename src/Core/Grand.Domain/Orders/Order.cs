@@ -39,6 +39,11 @@ public class Order : BaseEntity
     public string Code { get; set; }
 
     /// <summary>
+    ///     Gets or sets the buyer's own purchase order number
+    /// </summary>
+    public string PurchaseOrderNumber { get; set; }
+
+    /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
@@ -208,6 +213,11 @@ public class Order : BaseEntity
     ///     Gets or sets the paid date and time
     /// </summary>
     public DateTime? PaidDateUtc { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the date the payment is due; set only when the order is bought on credit
+    /// </summary>
+    public DateTime? PaymentDueDateUtc { get; set; }
 
     /// <summary>
     ///     Gets or sets the refunded amount

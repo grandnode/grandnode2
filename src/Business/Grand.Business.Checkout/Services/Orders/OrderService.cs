@@ -182,7 +182,8 @@ public class OrderService : IOrderService
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         string billingEmail = null, string billingLastName = "", string orderGuid = null,
-        string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "")
+        string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "",
+        string purchaseOrderNumber = null, bool overdueOnly = false)
     {
         var queryModel = new GetOrderQuery {
             AffiliateId = affiliateId,
@@ -206,7 +207,9 @@ public class OrderService : IOrderService
             WarehouseId = warehouseId,
             OrderTagId = orderTagId,
             OwnerId = ownerId,
-            SalesEmployeeId = salesEmployeeId
+            SalesEmployeeId = salesEmployeeId,
+            PurchaseOrderNumber = purchaseOrderNumber,
+            OverdueOnly = overdueOnly
         };
         return await _mediator.Send(queryModel);
     }
@@ -266,7 +269,9 @@ public class OrderService : IOrderService
     public async Task CancelExpiredOrders(DateTime expirationDateUtc, CancellationToken cancellationToken = default)
     {
         var orders = _orderRepository.Table
+            //an order bought on credit is unpaid on purpose until its due date, not an abandoned payment
             .Where(o => o.CreatedOnUtc < expirationDateUtc && o.PaymentStatusId == PaymentStatus.Pending &&
+                        o.PaymentDueDateUtc == null &&
                         o.OrderStatusId == (int)OrderStatusSystem.Pending &&
                         (o.ShippingStatusId == ShippingStatus.Pending
                          || o.ShippingStatusId == ShippingStatus.ShippingNotRequired))

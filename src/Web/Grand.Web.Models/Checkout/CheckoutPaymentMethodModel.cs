@@ -18,6 +18,12 @@ public class CheckoutPaymentMethodModel : BaseModel
     /// </summary>
     public string NoPaymentMethodMessage { get; set; }
 
+    /// <summary>
+    ///     Set when the customer's company buys on trade credit: what is still available, so that a hidden
+    ///     pay by invoice method explains itself
+    /// </summary>
+    public string TradeCreditNotice { get; set; }
+
     #region Nested classes
 
     public class PaymentMethodModel : BaseModel

@@ -65,6 +65,12 @@ public class OrderListModel : BaseModel
     [GrandResourceDisplayName("Admin.Orders.List.OrderTagId")]
     public string OrderTag { get; set; }
 
+    [GrandResourceDisplayName("Admin.Orders.List.PurchaseOrderNumber")]
+    public string PurchaseOrderNumber { get; set; }
+
+    [GrandResourceDisplayName("Admin.Orders.List.OverdueOnly")]
+    public bool OverdueOnly { get; set; }
+
     public IList<SelectListItem> AvailableOrderStatuses { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailablePaymentStatuses { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailableShippingStatuses { get; set; } = new List<SelectListItem>();

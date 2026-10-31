@@ -117,6 +117,30 @@ public class PdfServiceTests
     }
 
     [TestMethod]
+    public async Task PrintOrdersToPdf_PrintsPurchaseOrderNumberAsTypedAndDueDate()
+    {
+        //Arrange
+        var order = CreateOrder();
+        order.PurchaseOrderNumber = "PO <b>7</b>";
+        order.PaymentDueDateUtc = new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc);
+        //Act
+        var text = await PrintOrders([order]);
+        //Assert
+        StringAssert.Contains(text, "PDFInvoice.PurchaseOrderNumber PO <b>7</b>");
+        StringAssert.Contains(text, "PDFInvoice.PaymentDueDate 2026-11-13");
+    }
+
+    [TestMethod]
+    public async Task PrintOrdersToPdf_NoPurchaseOrderNumberOrDueDate_PrintsNeither()
+    {
+        //Act
+        var text = await PrintOrders([CreateOrder()]);
+        //Assert
+        Assert.DoesNotContain("PDFInvoice.PurchaseOrderNumber", text);
+        Assert.DoesNotContain("PDFInvoice.PaymentDueDate", text);
+    }
+
+    [TestMethod]
     public async Task PrintOrdersToPdf_EmbedsTheLogoOnceForAllOrders()
     {
         //Arrange
