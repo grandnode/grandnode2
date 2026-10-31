@@ -20,6 +20,7 @@ using Grand.Domain.Seo;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Extensions.Mapping.Settings;
 using Grand.Web.AdminShared.Models.Settings;
@@ -78,7 +79,8 @@ public class SettingController(
         };
 
         var dateTimeSettings = await settingService.LoadSetting<DateTimeSettings>(storeScope);
-        model.DateTimeSettings.DefaultStoreTimeZoneId = dateTimeSettings.DefaultStoreTimeZoneId;
+        model.DateTimeSettings.DefaultStoreTimeZoneId =
+            dateTimeService.GetEffectiveTimeZoneId(dateTimeSettings.DefaultStoreTimeZoneId);
         var isWindows = Grand.Infrastructure.OperatingSystem.IsWindows();
         foreach (var timeZone in dateTimeService.GetSystemTimeZones())
         {
@@ -86,7 +88,7 @@ public class SettingController(
             model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem {
                 Text = name,
                 Value = timeZone.Id,
-                Selected = timeZone.Id.Equals(dateTimeSettings.DefaultStoreTimeZoneId,
+                Selected = timeZone.Id.Equals(model.DateTimeSettings.DefaultStoreTimeZoneId,
                     StringComparison.OrdinalIgnoreCase)
             });
         }
