@@ -1,5 +1,7 @@
+using Grand.Business.Checkout.Commands.Handlers.Orders;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Commands.Messages.Common;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -42,7 +44,7 @@ public class OrderApprovalCommandsTests
     private Mock<ICustomerService> _customers;
     private Mock<IOrderService> _orders;
     private Mock<IMediator> _mediator;
-    private Mock<ILogger<DecideOrderApprovalCommandHandler>> _logger;
+    private Mock<ILogger<ApplyOrderApprovalDecisionCommandHandler>> _logger;
     private Order _order;
 
     private static IRequestTranslationService Translation()
@@ -78,7 +80,7 @@ public class OrderApprovalCommandsTests
         _messages = new Mock<ICustomerMessageProviderService>();
         _customers = new Mock<ICustomerService>();
         _mediator = new Mock<IMediator>();
-        _logger = new Mock<ILogger<DecideOrderApprovalCommandHandler>>();
+        _logger = new Mock<ILogger<ApplyOrderApprovalDecisionCommandHandler>>();
         _order = new Order {
             Id = "o1", CustomerId = "buyer", OwnerId = OwnerId, StoreId = StoreId,
             OrderStatusId = (int)OrderStatusSystem.AwaitingApproval
@@ -94,8 +96,17 @@ public class OrderApprovalCommandsTests
     private DecideOrderApprovalCommandHandler Decider()
     {
         _customers.Setup(c => c.GetCustomerById("buyer")).ReturnsAsync(Buyer());
-        return new DecideOrderApprovalCommandHandler(_approvals.Object, _customers.Object, _messages.Object,
-            _orders.Object, _mediator.Object, _logger.Object);
+        var stores = new Mock<IStoreService>();
+        stores.Setup(s => s.GetStoreById(StoreId)).ReturnsAsync(Shop());
+
+        // the decision itself lives in the shared command; these tests keep exercising it through the storefront
+        var apply = new ApplyOrderApprovalDecisionCommandHandler(_approvals.Object, _customers.Object, _messages.Object,
+            _orders.Object, stores.Object, _mediator.Object, _logger.Object);
+        _mediator.Setup(m => m.Send(It.IsAny<ApplyOrderApprovalDecisionCommand>(), It.IsAny<CancellationToken>()))
+            .Returns((IRequest<bool> command, CancellationToken token) =>
+                apply.Handle((ApplyOrderApprovalDecisionCommand)command, token));
+
+        return new DecideOrderApprovalCommandHandler(_approvals.Object, _mediator.Object);
     }
 
     private static DecideOrderApprovalCommand DecideCommand(Customer approver, bool approve = true,
@@ -374,18 +385,19 @@ public class OrderApprovalCommandsTests
         await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }), default);
 
         _orders.Verify(o => o.InsertOrderNote(It.Is<OrderNote>(n =>
-            n.OrderId == _order.Id && n.Note == "Order approved" && !n.DisplayToCustomer)), Times.Once);
+            n.OrderId == _order.Id && n.Note == $"Order approved by {OwnerId}" && !n.DisplayToCustomer)), Times.Once);
     }
 
     [TestMethod]
-    public async Task Reject_AddsNoOrderApprovedNote()
+    public async Task Reject_AddsOneOrderRejectedNote_HiddenFromTheCustomer()
     {
         Sent();
         _approvals.Setup(a => a.GetById("a1", OwnerId)).ReturnsAsync(Approval());
 
         await Decider().Handle(DecideCommand(new Customer { Id = OwnerId }, false), default);
 
-        _orders.Verify(o => o.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+        _orders.Verify(o => o.InsertOrderNote(It.Is<OrderNote>(n =>
+            n.OrderId == _order.Id && n.Note == $"Order rejected by {OwnerId}" && !n.DisplayToCustomer)), Times.Once);
     }
 
     [TestMethod]
