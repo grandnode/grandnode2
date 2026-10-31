@@ -21,6 +21,7 @@ public class CustomerValidatorTests
     private const string CurrentStoreId = "store-current";
     private const string RequiredMessage = "Admin.Customers.Customers.Fields.Store.Required";
     private const string MustBeCurrentStoreMessage = "Admin.Customers.Customers.Fields.Store.MustBeCurrentStore";
+    private const string EmailRequiredMessage = "Admin.Customers.Customers.Fields.Email.Required";
 
     private Mock<ICustomerService> _customerServiceMock;
     private Mock<IGroupService> _groupServiceMock;
@@ -65,12 +66,38 @@ public class CustomerValidatorTests
     [TestMethod]
     [DataRow(null)]
     [DataRow("")]
-    public async Task Email_Empty_GuestWithoutEmail_ReportsRequired(string email)
+    public async Task Email_Empty_GuestWithoutEmail_IsAccepted(string email)
     {
         _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
             .ReturnsAsync(new Customer { Id = "customer-1", Email = null });
 
         var result = await _validator.ValidateAsync(new CustomerModel { Id = "customer-1", Email = email, StoreId = CurrentStoreId });
+
+        Assert.IsFalse(result.Errors.Any(e => e.PropertyName == nameof(CustomerModel.Email)));
+    }
+
+    [TestMethod]
+    public async Task Email_Empty_GuestBecomingRegistered_ReportsRequired()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = null });
+        _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered))
+            .ReturnsAsync(new CustomerGroup { Id = "group-registered" });
+
+        var result = await _validator.ValidateAsync(new CustomerModel {
+            Id = "customer-1", StoreId = CurrentStoreId, CustomerGroups = ["group-registered"]
+        });
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == EmailRequiredMessage));
+    }
+
+    [TestMethod]
+    public async Task Email_Invalid_GuestWithoutEmail_IsStillChecked()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = null });
+
+        var result = await _validator.ValidateAsync(new CustomerModel { Id = "customer-1", Email = "not-an-email", StoreId = CurrentStoreId });
 
         Assert.IsTrue(result.Errors.Any(e => e.PropertyName == nameof(CustomerModel.Email)));
     }
@@ -85,7 +112,15 @@ public class CustomerValidatorTests
 
         var result = await _validator.ValidateAsync(new CustomerModel { Id = "customer-1", Email = email, StoreId = CurrentStoreId });
 
-        Assert.IsTrue(result.Errors.Any(e => e.PropertyName == nameof(CustomerModel.Email)));
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == EmailRequiredMessage));
+    }
+
+    [TestMethod]
+    public async Task Email_Empty_NewCustomer_ReportsRequired()
+    {
+        var result = await _validator.ValidateAsync(new CustomerModel { StoreId = CurrentStoreId });
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == EmailRequiredMessage));
     }
 
     [TestMethod]
