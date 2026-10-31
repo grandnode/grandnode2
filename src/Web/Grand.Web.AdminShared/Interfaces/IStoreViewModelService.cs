@@ -9,6 +9,8 @@ public interface IStoreViewModelService
     Task PrepareWarehouseModel(StoreModel model);
     Task PrepareCountryModel(StoreModel model);
     Task PrepareCurrencyModel(StoreModel model);
+    Task PrepareOwnerAccountsModel(StoreModel model);
+    Task<bool> IsOwnerCandidate(string storeId, string customerId);
     StoreModel PrepareStoreModel();
     Task<Store> InsertStoreModel(StoreModel model);
     Task<Store> UpdateStoreModel(Store store, StoreModel model);

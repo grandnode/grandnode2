@@ -1,8 +1,11 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Shipping;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
@@ -15,6 +18,8 @@ public class StoreViewModelService : IStoreViewModelService
 {
     private readonly ICountryService _countryService;
     private readonly ICurrencyService _currencyService;
+    private readonly ICustomerService _customerService;
+    private readonly IGroupService _groupService;
     private readonly ILanguageService _languageService;
     private readonly ISettingService _settingService;
     private readonly IStoreService _storeService;
@@ -22,8 +27,11 @@ public class StoreViewModelService : IStoreViewModelService
 
     public StoreViewModelService(ILanguageService languageService, IWarehouseService warehouseService,
         IStoreService storeService, ISettingService settingService,
-        ICountryService countryService, ICurrencyService currencyService)
+        ICountryService countryService, ICurrencyService currencyService,
+        ICustomerService customerService, IGroupService groupService)
     {
+        _customerService = customerService;
+        _groupService = groupService;
         _languageService = languageService;
         _warehouseService = warehouseService;
         _storeService = storeService;
@@ -99,6 +107,43 @@ public class StoreViewModelService : IStoreViewModelService
                 Text = currency.Name,
                 Value = currency.Id
             });
+    }
+
+    public virtual async Task PrepareOwnerAccountsModel(StoreModel model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        model.AvailableOwnerAccounts.Add(new SelectListItem {
+            Text = "---",
+            Value = ""
+        });
+
+        foreach (var customer in await GetOwnerCandidates(model.Id))
+            model.AvailableOwnerAccounts.Add(new SelectListItem {
+                Text = $"{customer.GetFullName()} ({customer.Email})".Trim(),
+                Value = customer.Id
+            });
+    }
+
+    public virtual async Task<bool> IsOwnerCandidate(string storeId, string customerId)
+    {
+        return (await GetOwnerCandidates(storeId)).Any(x => x.Id == customerId);
+    }
+
+    /// <summary>
+    ///     Accounts that can reach this store's orders in a panel: active administrators and the store's managers
+    /// </summary>
+    private async Task<List<Customer>> GetOwnerCandidates(string storeId)
+    {
+        var administrators = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Administrators);
+        var managers = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.StoreManager);
+
+        var customers = await _customerService.GetAllCustomers(customerGroupIds: [administrators.Id, managers.Id]);
+        return customers
+            .Where(x => x is { Active: true, Deleted: false } &&
+                        (x.Groups.Contains(administrators.Id) ||
+                         (!string.IsNullOrEmpty(storeId) && x.StaffStoreId == storeId)))
+            .ToList();
     }
 
     public virtual StoreModel PrepareStoreModel()

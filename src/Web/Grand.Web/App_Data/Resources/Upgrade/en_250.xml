@@ -777,4 +777,13 @@
 	<Resource Name="checkout.orderapproval.limitexceeded" Area="Front">
 		<Value>The order total exceeds your order limit of {0}.</Value>
 	</Resource>
+	<Resource Name="admin.configuration.stores.fields.ownercustomerid" Area="Admin">
+		<Value>Owner account</Value>
+	</Resource>
+	<Resource Name="admin.configuration.stores.fields.ownercustomerid.hint" Area="Admin">
+		<Value>The account told by e-mail when an order of this store waits for the store&apos;s decision, unless the order has a sales manager. Anyone with access to the order can decide it.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.stores.fields.ownercustomerid.invalid" Area="Admin">
+		<Value>Choose an active administrator or a manager of this store.</Value>
+	</Resource>
 </Language>
