@@ -311,7 +311,8 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                         customer?.Id == contextAccessor.WorkContext.CurrentCustomer.Id)
                         context.AddFailure("You can't edit own data from admin panel");
 
-                    if (customer != null && customer.Email != x.Email.ToLower())
+                    //an empty email is reported by the required rule above: guests have none
+                    if (customer != null && !string.IsNullOrWhiteSpace(x.Email) && customer.Email != x.Email.ToLower())
                     {
                         if (!CommonHelper.IsValidEmail(x.Email))
                             context.AddFailure(
