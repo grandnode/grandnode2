@@ -32,6 +32,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
     private readonly IDateTimeService _dateTimeService;
     private readonly IGiftVoucherService _giftVoucherService;
     private readonly IMediator _mediator;
+    private readonly IOrderApprovalService _orderApprovalService;
     private readonly IOrderService _orderService;
     private readonly OrderSettings _orderSettings;
     private readonly IOrderStatusService _orderStatusService;
@@ -66,8 +67,10 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
         OrderSettings orderSettings,
         PdfSettings pdfSettings,
         TaxSettings taxSettings, 
-        IEnumTranslationService enumTranslationService)
+        IEnumTranslationService enumTranslationService,
+        IOrderApprovalService orderApprovalService)
     {
+        _orderApprovalService = orderApprovalService;
         _dateTimeService = dateTimeService;
         _productService = productService;
         _translationService = translationService;
@@ -146,6 +149,9 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
 
         //order notes
         await PrepareOrderNotes(request, model);
+
+        //a request the store decides: the storefront's approvals screen only carries the company's
+        await PrepareOrderApproval(request, model);
 
         //allow cancel order
         if (_orderSettings.UserCanCancelUnpaidOrder)
@@ -339,6 +345,20 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
         }
 
         return Task.CompletedTask;
+    }
+
+    private async Task PrepareOrderApproval(GetOrderDetails request, OrderDetailsModel model)
+    {
+        var approval = await _orderApprovalService.GetByOrderId(request.Order.Id);
+        if (approval is not { Decider: OrderApprovalDecider.Store })
+            return;
+
+        model.OrderApprovalComment = approval.DecisionComment;
+        if (approval.Status != OrderApprovalStatus.Pending)
+            return;
+
+        model.OrderApprovalReasons = approval.Reasons;
+        model.CanWithdrawOrderApproval = approval.CustomerId == request.Customer?.Id;
     }
 
     private async Task PrepareOrderNotes(GetOrderDetails request, OrderDetailsModel model)

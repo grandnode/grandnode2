@@ -22,6 +22,7 @@ public class OrderApprovalResourceKeysTests
         @"|admin\.configuration\.payment\.settings\.orderapprovalpaymentmethods$" +
         @"|admin\.configuration\.stores\.fields\.ownercustomerid(\.invalid)?$" +
         @"|admin\.orders\.approval\." +
+        @"|order\.approval\." +
         @"|admin\.orders\.fields\.orderstatus\.change\.(to)?awaitingapproval$" +
         @"|admin\.orders\.shipments\.orderawaitsapproval$" +
         @"|enums\.grand\.domain\.orders\.orderapprovalstatus\." +

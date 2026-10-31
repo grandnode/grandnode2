@@ -89,6 +89,32 @@
                         <li class="order-status d-flex">
                             <span class="mx-1">@Loc["Order.OrderStatus"]:</span><span>@Model.OrderStatus</span>
                         </li>
+                        @if (Model.OrderApprovalReasons.Any())
+                        {
+                            <li class="order-approval-reasons d-flex">
+                                <span class="mx-1">@Loc["Order.Approval.Reasons"]:</span>
+                                <ul class="mb-0">
+                                    @foreach (var reason in Model.OrderApprovalReasons)
+                                    {
+                                        <li v-pre>@reason</li>
+                                    }
+                                </ul>
+                            </li>
+                        }
+                        @if (!string.IsNullOrEmpty(Model.OrderApprovalComment))
+                        {
+                            <li class="order-approval-comment d-flex">
+                                <span class="mx-1">@Loc["Order.Approval.DecisionComment"]:</span><span v-pre>@Model.OrderApprovalComment</span>
+                            </li>
+                        }
+                        @if (Model.CanWithdrawOrderApproval)
+                        {
+                            <li class="order-approval-withdraw d-flex">
+                                <form asp-route="WithdrawOrderApproval" asp-route-orderId="@Model.Id" method="post">
+                                    <button type="submit" class="btn btn-sm btn-outline-secondary">@Loc["Order.Approval.Withdraw"]</button>
+                                </form>
+                            </li>
+                        }
                         <li class="order-total d-flex">
                             <span class="mx-1">@Loc["Order.OrderTotal"]:</span>
                             <span class="h5 mb-0">

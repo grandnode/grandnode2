@@ -29,8 +29,9 @@ public class WithdrawOrderApprovalCommandHandler : IRequestHandler<WithdrawOrder
         ArgumentNullException.ThrowIfNull(request.Customer);
         ArgumentNullException.ThrowIfNull(request.Store);
 
-        var approval = await _orderApprovalService.GetById(request.ApprovalId,
-            OrderApprovalRules.CompanyId(request.Customer));
+        var approval = string.IsNullOrEmpty(request.OrderId)
+            ? await _orderApprovalService.GetById(request.ApprovalId, OrderApprovalRules.CompanyId(request.Customer))
+            : await GetStoreDecidedRequest(request.OrderId);
 
         // a request can be withdrawn only by its own buyer, while it is still open
         if (approval == null || approval.CustomerId != request.Customer.Id || approval.StoreId != request.Store.Id ||
@@ -57,5 +58,14 @@ public class WithdrawOrderApprovalCommandHandler : IRequestHandler<WithdrawOrder
         approval.Status = OrderApprovalStatus.Withdrawn;
         await _orderApprovalService.Update(approval);
         return true;
+    }
+
+    /// <summary>
+    ///     A company's request is withdrawn through the company's approvals screen, which also checks the company
+    /// </summary>
+    private async Task<OrderApproval> GetStoreDecidedRequest(string orderId)
+    {
+        var approval = await _orderApprovalService.GetByOrderId(orderId);
+        return approval is { Decider: OrderApprovalDecider.Store } ? approval : null;
     }
 }

@@ -828,4 +828,19 @@
 	<Resource Name="enums.grand.domain.orders.orderapprovaldecider.store" Area="Admin">
 		<Value>The store</Value>
 	</Resource>
+	<Resource Name="order.approval.reasons" Area="Front">
+		<Value>Why it needs approval</Value>
+	</Resource>
+	<Resource Name="order.approval.decisioncomment" Area="Front">
+		<Value>Note from the store</Value>
+	</Resource>
+	<Resource Name="order.approval.withdraw" Area="Front">
+		<Value>Withdraw the request and cancel the order</Value>
+	</Resource>
+	<Resource Name="order.approval.withdrawn" Area="Front">
+		<Value>The request has been withdrawn and the order cancelled.</Value>
+	</Resource>
+	<Resource Name="order.approval.withdrawrefused" Area="Front">
+		<Value>This request can no longer be withdrawn.</Value>
+	</Resource>
 </Language>

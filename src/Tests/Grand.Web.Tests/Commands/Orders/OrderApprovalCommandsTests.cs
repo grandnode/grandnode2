@@ -279,6 +279,68 @@ public class OrderApprovalCommandsTests
     private WithdrawOrderApprovalCommandHandler Withdrawer() => new(_approvals.Object, _orders.Object, _mediator.Object,
         new Mock<ILogger<WithdrawOrderApprovalCommandHandler>>().Object);
 
+    private OrderApproval StoreDecided(OrderApprovalStatus status = OrderApprovalStatus.Pending)
+    {
+        var approval = Approval(status);
+        approval.Decider = OrderApprovalDecider.Store;
+        approval.CompanyOwnerId = null;
+        _approvals.Setup(a => a.GetByOrderId("o1")).ReturnsAsync(approval);
+        return approval;
+    }
+
+    private Task<bool> WithdrawByOrder(Customer customer)
+    {
+        return Withdrawer().Handle(
+            new WithdrawOrderApprovalCommand { Customer = customer, Store = Shop(), OrderId = "o1" }, default);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_ByOrderId_BuyerWithdrawsStoreDecidedRequest()
+    {
+        var approval = StoreDecided();
+        var cancelledBeforeSaving = false;
+        _mediator.Setup(m => m.Send(It.IsAny<CancelOrderCommand>(), It.IsAny<CancellationToken>()))
+            .Callback(() => cancelledBeforeSaving = approval.Status == OrderApprovalStatus.Pending)
+            .ReturnsAsync(true);
+
+        var result = await WithdrawByOrder(new Customer { Id = "buyer" });
+
+        Assert.IsTrue(result);
+        Assert.IsTrue(cancelledBeforeSaving);
+        Assert.AreEqual(OrderApprovalStatus.Withdrawn, approval.Status);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_ByOrderId_NotTheBuyer_False()
+    {
+        var approval = StoreDecided();
+
+        Assert.IsFalse(await WithdrawByOrder(new Customer { Id = "someone" }));
+
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_ByOrderId_CompanyDecided_False()
+    {
+        var approval = Approval();
+        _approvals.Setup(a => a.GetByOrderId("o1")).ReturnsAsync(approval);
+
+        Assert.IsFalse(await WithdrawByOrder(new Customer { Id = "buyer", OwnerId = OwnerId }));
+
+        Assert.AreEqual(OrderApprovalStatus.Pending, approval.Status);
+    }
+
+    [TestMethod]
+    public async Task Withdraw_ByOrderId_NotPending_False()
+    {
+        var approval = StoreDecided(OrderApprovalStatus.Approved);
+
+        Assert.IsFalse(await WithdrawByOrder(new Customer { Id = "buyer" }));
+
+        Assert.AreEqual(OrderApprovalStatus.Approved, approval.Status);
+    }
+
     [TestMethod]
     public async Task Withdraw_Own_Withdrawn()
     {
