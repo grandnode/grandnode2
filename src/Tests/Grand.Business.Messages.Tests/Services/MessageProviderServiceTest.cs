@@ -18,6 +18,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -96,7 +97,7 @@ public class MessageProviderServiceTest
             _mediatorMock.Object, _commonSetting.Object);
         _downloadServiceMock = new Mock<IDownloadService>();
         _orderMessageService = new OrderMessageProviderService(messageLookupService, _messageService,
-            _downloadServiceMock.Object, _mediatorMock.Object);
+            _downloadServiceMock.Object, _mediatorMock.Object, new Mock<ILogger<OrderMessageProviderService>>().Object);
         _newsletterMessageService = new NewsletterMessageProviderService(messageLookupService, _messageService,
             _mediatorMock.Object);
         _merchandiseReturnMessageService = new MerchandiseReturnMessageProviderService(messageLookupService,
@@ -191,6 +192,30 @@ public class MessageProviderServiceTest
         Assert.AreEqual(0, result);
         _queuedEmailServiceMock.Verify(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()), Times.Never);
         _downloadServiceMock.Verify(x => x.DeleteDownloadById("invoice"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SendOrderPaidCustomerMessage_EmailCannotBeQueued_DeletesTheInvoiceAndRethrows()
+    {
+        _queuedEmailServiceMock.Setup(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()))
+            .ThrowsAsync(new InvalidOperationException());
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            _orderMessageService.SendOrderPaidCustomerMessage(OrderWithBillingEmail("a@b.c"), new Customer(), "123",
+                "invoice"));
+
+        _downloadServiceMock.Verify(x => x.DeleteDownloadById("invoice"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SendOrderPaidCustomerMessage_NoEmailAndInvoiceCannotBeDeleted_DoesNotThrow()
+    {
+        _downloadServiceMock.Setup(x => x.DeleteDownloadById("invoice")).ThrowsAsync(new InvalidOperationException());
+
+        var result = await _orderMessageService.SendOrderPaidCustomerMessage(OrderWithBillingEmail(null),
+            new Customer(), "123", "invoice");
+
+        Assert.AreEqual(0, result);
     }
 
     [TestMethod]

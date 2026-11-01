@@ -11,6 +11,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Messages.Services;
 
@@ -22,12 +23,14 @@ public class OrderMessageProviderService : IOrderMessageProviderService
         IMessageLookupService messageLookupService,
         IMessageProviderService messageProviderService,
         IDownloadService downloadService,
-        IMediator mediator)
+        IMediator mediator,
+        ILogger<OrderMessageProviderService> logger)
     {
         _messageLookupService = messageLookupService;
         _messageProviderService = messageProviderService;
         _downloadService = downloadService;
         _mediator = mediator;
+        _logger = logger;
     }
 
     #endregion
@@ -38,6 +41,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     private readonly IMessageProviderService _messageProviderService;
     private readonly IDownloadService _downloadService;
     private readonly IMediator _mediator;
+    private readonly ILogger<OrderMessageProviderService> _logger;
 
     #endregion
 
@@ -225,14 +229,32 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     private async Task<int> SendOrderInvoiceMessage(string message, Order order, Customer customer, string languageId,
         string invoiceDownloadId, DomainHost host = null)
     {
-        var queuedEmails = await SendOrderCustomerMessage(message, order, customer, languageId, invoiceDownloadId,
-            host: host);
+        var queuedEmails = 0;
+        try
+        {
+            queuedEmails = await SendOrderCustomerMessage(message, order, customer, languageId, invoiceDownloadId,
+                host: host);
+            return queuedEmails;
+        }
+        finally
+        {
+            //inactive template, no recipient or an error - no email owns the invoice, so nothing would ever delete it
+            if (queuedEmails == 0)
+                await DeleteUnusedInvoice(invoiceDownloadId);
+        }
+    }
 
-        //inactive template or no recipient - no email owns the invoice, so nothing would ever delete it
-        if (queuedEmails == 0)
+    private async Task DeleteUnusedInvoice(string invoiceDownloadId)
+    {
+        try
+        {
             await _downloadService.DeleteDownloadById(invoiceDownloadId);
-
-        return queuedEmails;
+        }
+        catch (Exception ex)
+        {
+            //a broken file must not stop the rest of the order processing
+            _logger.LogError(ex, "Error deleting the invoice download {InvoiceDownloadId}", invoiceDownloadId);
+        }
     }
 
     /// <summary>
