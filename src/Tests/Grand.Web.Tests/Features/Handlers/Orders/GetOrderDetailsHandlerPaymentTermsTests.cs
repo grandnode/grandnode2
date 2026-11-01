@@ -48,7 +48,7 @@ public class GetOrderDetailsHandlerPaymentTermsTests
             orderService.Object, new Mock<IPictureService>().Object,
             new Mock<IOrderStatusService>().Object, new Mock<ICurrencyService>().Object,
             new Mock<IMediator>().Object, new CatalogSettings(), new OrderSettings(), new PdfSettings(),
-            new TaxSettings(), new Mock<IEnumTranslationService>().Object);
+            new TaxSettings(), new Mock<IEnumTranslationService>().Object, new Mock<IOrderApprovalService>().Object);
     }
 
     private Task<OrderDetailsModel> Details(Order order)

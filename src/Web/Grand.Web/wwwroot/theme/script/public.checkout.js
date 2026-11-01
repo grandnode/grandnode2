@@ -51,6 +51,8 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
             OrderApprovalRequired: false,
             OrderApprovalMessage: null,
             OrderApprovalButtonText: null,
+            OrderPlacementBlocked: false,
+            OrderPlacementBlockedMessage: null,
             TermsOfServiceOnOrderConfirmPage: null,
             ConfirmWarnings: null,
             PurchaseOrderNumberMode: 0,
@@ -291,6 +293,8 @@ var vmorder = Vue.registerViewModel('vmorder', new Vue({
                             vmorder.OrderApprovalRequired = model.OrderApprovalRequired;
                             vmorder.OrderApprovalMessage = model.OrderApprovalMessage;
                             vmorder.OrderApprovalButtonText = model.OrderApprovalButtonText;
+                            vmorder.OrderPlacementBlocked = model.OrderPlacementBlocked;
+                            vmorder.OrderPlacementBlockedMessage = model.OrderPlacementBlockedMessage;
                             vmorder.ConfirmWarnings = model.Warnings;
                             vmorder.PurchaseOrderNumberMode = model.PurchaseOrderNumberMode;
                             vmorder.PurchaseOrderNumberMaxLength = model.PurchaseOrderNumberMaxLength;

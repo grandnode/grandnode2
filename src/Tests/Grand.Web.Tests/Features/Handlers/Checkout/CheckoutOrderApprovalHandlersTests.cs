@@ -9,6 +9,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Tax;
@@ -29,7 +30,9 @@ public class CheckoutOrderApprovalHandlersTests
     private Mock<ICompanyCreditService> _credit;
     private Currency _currency;
     private Customer _customer;
+    private readonly Language _language = new() { Id = "pl" };
     private Mock<IPaymentService> _paymentService;
+    private Mock<IOrderPlacementService> _placement;
     private Grand.Domain.Stores.Store _store;
     private Mock<IRequestTranslationService> _translation;
 
@@ -46,14 +49,20 @@ public class CheckoutOrderApprovalHandlersTests
         _credit.Setup(c => c.GetCompanyCredit(_customer)).ReturnsAsync(CompanyCredit.None("owner"));
         _translation = new Mock<IRequestTranslationService>();
         _translation.Setup(t => t.GetResource(It.IsAny<string>())).Returns((string key) => key);
-        _translation.Setup(t => t.GetResource("Checkout.OrderApproval.WillBeSent")).Returns("Over {0} goes for approval");
+        _translation.Setup(t => t.GetResource("Checkout.OrderApproval.WillBeSentGeneric")).Returns("Goes for approval.");
         _translation.Setup(t => t.GetResource("Checkout.TradeCredit.Available")).Returns("Available {0} of {1}.");
         _translation.Setup(t => t.GetResource("Checkout.TradeCredit.Overdue")).Returns("Overdue.");
+        _placement = new Mock<IOrderPlacementService>();
     }
 
-    private void State(bool required, double? limit = 100) =>
-        _approval.Setup(a => a.RequiresApproval(_cart, It.Is<CalculationContext>(c => c.Customer == _customer)))
-            .ReturnsAsync(new OrderApprovalCheckoutState(required, limit, 500));
+    private void Evaluates(OrderPlacementDecision decision, params string[] reasons) =>
+        _placement.Setup(a => a.Evaluate(_cart, It.Is<CalculationContext>(c => c.Customer == _customer), _language,
+                It.IsAny<string>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OrderPlacementEvaluation(decision, reasons));
+
+    private void State(bool required) =>
+        Evaluates(required ? OrderPlacementDecision.RequireApproval : OrderPlacementDecision.Allow,
+            required ? ["Over the limit."] : []);
 
     private static Mock<IPaymentProvider> Provider(string systemName)
     {
@@ -81,14 +90,31 @@ public class CheckoutOrderApprovalHandlersTests
         return new GetPaymentMethodHandler(new Mock<ILoyaltyPointsService>().Object,
             new Mock<IOrderCalculationService>().Object, new Mock<ILoyaltyPointsCalculationService>().Object,
             currencyService.Object, priceFormatter.Object, _paymentService.Object,
-            tax.Object, _approval.Object, _credit.Object, _translation.Object, new LoyaltyPointsSettings(),
+            tax.Object, _approval.Object, _placement.Object, _credit.Object, _translation.Object,
+            new LoyaltyPointsSettings(),
             new PaymentSettings());
     }
 
     private GetPaymentMethod PaymentRequest() => new() {
         Customer = _customer, Store = _store, Currency = _currency, TaxDisplayType = TaxDisplayType.IncludingTax,
-        Cart = _cart
+        Cart = _cart, Language = _language
     };
+
+    [TestMethod]
+    public async Task GetPaymentMethod_Blocked_NoMethodsAndReasonsInMessage()
+    {
+        //no method is chosen yet at this step
+        _placement.Setup(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, null,
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.Block, ["Blocked customer.", "Banned product."]));
+        _approval.Setup(a => a.IsPaymentMethodAllowed("Payments.CashOnDelivery")).Returns(true);
+
+        var model = await PaymentHandler("Payments.Card", "Payments.CashOnDelivery")
+            .Handle(PaymentRequest(), CancellationToken.None);
+
+        Assert.IsEmpty(model.PaymentMethods);
+        Assert.AreEqual("Blocked customer. Banned product.", model.NoPaymentMethodMessage);
+    }
 
     [TestMethod]
     public async Task PaymentMethods_ApprovalRequired_KeepsOnlyAllowedMethods()
@@ -165,43 +191,77 @@ public class CheckoutOrderApprovalHandlersTests
 
     private GetConfirmOrderHandler ConfirmHandler()
     {
-        var priceFormatter = new Mock<IPriceFormatter>();
-        priceFormatter.Setup(p => p.FormatPrice(It.IsAny<double>(), _currency)).Returns<double, Currency>((p, _) => $"{p:0} EUR");
-        var currencyService = new Mock<ICurrencyService>();
-        currencyService.Setup(c => c.ConvertFromPrimaryStoreCurrency(It.IsAny<double>(), _currency))
-            .ReturnsAsync((double v, Currency _) => v * 2);
         return new GetConfirmOrderHandler(new Mock<ICountryService>().Object, _paymentService.Object,
-            new Mock<IMediator>().Object, _approval.Object, currencyService.Object, priceFormatter.Object,
-            _translation.Object, new OrderSettings(), new ShippingSettings());
+            new Mock<IMediator>().Object, _placement.Object, _translation.Object, new OrderSettings(),
+            new ShippingSettings());
     }
 
     private GetConfirmOrder ConfirmRequest() => new() {
         Customer = _customer, Store = _store, Currency = _currency, TaxDisplayType = TaxDisplayType.IncludingTax,
-        Cart = _cart
+        Cart = _cart, Language = _language
     };
 
     [TestMethod]
-    public async Task Confirm_ApprovalRequired_CarriesTheMessageWithTheFormattedLimitAndTheButtonText()
+    public async Task GetConfirmOrder_ApprovalRequired_MessageHoldsGenericLineAndReasons()
     {
-        State(true, 100);
+        Evaluates(OrderPlacementDecision.RequireApproval, "Over the limit.", "Restricted goods.");
 
         var model = await ConfirmHandler().Handle(ConfirmRequest(), CancellationToken.None);
 
         Assert.IsTrue(model.OrderApprovalRequired);
-        Assert.AreEqual("Over 200 EUR goes for approval", model.OrderApprovalMessage);
+        Assert.AreEqual("Goes for approval. Over the limit. Restricted goods.", model.OrderApprovalMessage);
         Assert.AreEqual("Checkout.OrderApproval.SendButton", model.OrderApprovalButtonText);
+        Assert.IsFalse(model.OrderPlacementBlocked);
     }
 
     [TestMethod]
-    public async Task Confirm_BrokenPlaceholderInTheEditedText_StillRendersTheText()
+    public async Task GetConfirmOrder_Blocked_SetsBlockedFlagAndMessage()
     {
-        _translation.Setup(t => t.GetResource("Checkout.OrderApproval.WillBeSent")).Returns("Over {0 goes");
-        State(true, 100);
+        Evaluates(OrderPlacementDecision.Block, "Blocked customer.", "Banned product.");
 
         var model = await ConfirmHandler().Handle(ConfirmRequest(), CancellationToken.None);
 
-        Assert.IsTrue(model.OrderApprovalRequired);
-        Assert.AreEqual("Over {0 goes", model.OrderApprovalMessage);
+        Assert.IsTrue(model.OrderPlacementBlocked);
+        Assert.AreEqual("Blocked customer. Banned product.", model.OrderPlacementBlockedMessage);
+        Assert.IsFalse(model.OrderApprovalRequired);
+    }
+
+    [TestMethod]
+    public async Task GetConfirmOrder_PassesTheSelectedPaymentMethodToTheRules()
+    {
+        SelectPaymentMethod("Payments.Card", PurchaseOrderNumberMode.Disabled);
+        _placement.Setup(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, "Payments.Card",
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.Block, ["Not with this method."]));
+
+        var model = await ConfirmHandler().Handle(ConfirmRequest(), CancellationToken.None);
+
+        Assert.AreEqual("Not with this method.", model.OrderPlacementBlockedMessage);
+    }
+
+    [TestMethod]
+    public async Task GetConfirmOrder_PassesItsTokenToTheRules()
+    {
+        using var source = new CancellationTokenSource();
+        SelectPaymentMethod("Payments.Card", PurchaseOrderNumberMode.Disabled);
+        State(false);
+
+        await ConfirmHandler().Handle(ConfirmRequest(), source.Token);
+
+        _placement.Verify(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, "Payments.Card",
+            source.Token), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GetPaymentMethod_PassesItsTokenToTheRules()
+    {
+        using var source = new CancellationTokenSource();
+        State(false);
+
+        await PaymentHandler("Payments.Card").Handle(PaymentRequest(), source.Token);
+
+        _placement.Verify(a => a.Evaluate(_cart, It.IsAny<CalculationContext>(), _language, null, source.Token),
+            Times.Once);
     }
 
     private void SelectPaymentMethod(string systemName, PurchaseOrderNumberMode mode)

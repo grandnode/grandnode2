@@ -68,6 +68,18 @@ public class GetOrderApprovalHandlersTests
     //details
 
     [TestMethod]
+    public async Task GetOrderApproval_CopiesReasons()
+    {
+        var approval = Approval();
+        approval.Reasons = ["over the limit"];
+        Found(approval);
+
+        var model = await Details(new Customer { Id = "owner" });
+
+        CollectionAssert.AreEqual(new[] { "over the limit" }, model.Reasons.ToArray());
+    }
+
+    [TestMethod]
     public async Task Details_AskedWithTheViewersCompany()
     {
         var model = await Details(new Customer { Id = "someone", OwnerId = "other-owner" });

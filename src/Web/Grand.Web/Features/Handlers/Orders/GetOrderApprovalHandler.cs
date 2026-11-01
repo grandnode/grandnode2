@@ -52,6 +52,7 @@ public class GetOrderApprovalHandler : IRequestHandler<GetOrderApproval, OrderAp
             StatusId = (int)approval.Status,
             Status = _enumTranslationService.GetTranslationEnum(approval.Status),
             DecisionComment = approval.DecisionComment,
+            Reasons = approval.Reasons,
             // a buyer made an approver after placing the order still does not decide it
             CanDecide = isApprover && !isBuyer && approval.Status == OrderApprovalStatus.Pending,
             CanWithdraw = isBuyer && approval.Status == OrderApprovalStatus.Pending

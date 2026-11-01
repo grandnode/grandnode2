@@ -11,6 +11,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Microsoft.Extensions.Logging;
@@ -60,7 +61,8 @@ public class OrderPlacedOrderApprovalHandlerTests
         _logger = new Mock<ILogger<OrderPlacedOrderApprovalHandler>>();
         _handler = new OrderPlacedOrderApprovalHandler(_approvalService.Object, _customerService.Object,
             _messages.Object, storeService.Object, productService.Object, priceFormatter.Object,
-            currencyService.Object, _logger.Object);
+            currencyService.Object, new Mock<ISalesEmployeeService>().Object, new Mock<IGroupService>().Object,
+            new CustomerSettings { HideSubAccountsTab = false }, new LanguageSettings(), _logger.Object);
 
         _owner = new Customer { Id = "owner", Email = "owner@acme.example", Active = true };
         _buyer = new Customer {

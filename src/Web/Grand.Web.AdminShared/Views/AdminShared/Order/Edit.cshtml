@@ -23,6 +23,30 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Admin.Orders.BackToList"]">
         <page-actions>
+            @if (Model.CanDecideApproval)
+            {
+                @* the popup is appended outside order-form, so its own form does not nest *@
+                <a id="order-decide-approval" href="@Url.Action("DecideApprovalPopup", new { id = Model.Id, area = area })" class="btn btn-primary">
+                    <i class="bi bi-check2-circle"></i> @Loc["Admin.Orders.Approval.Decide"]
+                </a>
+                <script>
+                    $(document).ready(function () {
+                        $('#order-decide-approval').magnificPopup({
+                            type: 'ajax',
+                            settings: { cache: false, async: false },
+                            midClick: true,
+                            callbacks: {
+                                parseAjax: function (mfpResponse) {
+                                    mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                                },
+                                ajaxContentAdded: function () {
+                                    $('.mfp-wrap').removeAttr('tabindex');
+                                }
+                            }
+                        });
+                    });
+                </script>
+            }
             <audit-history entity-type="Order" entity-id="@Model.Id"/>
             <a href="@Url.Action("PdfInvoice", new { orderId = Model.Id, area = area })" class="btn btn-outline-secondary">
                 <i class="bi bi-file-earmark-pdf"></i> @Loc["Admin.Orders.PdfInvoice"]

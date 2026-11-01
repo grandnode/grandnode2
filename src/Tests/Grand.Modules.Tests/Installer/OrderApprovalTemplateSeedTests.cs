@@ -16,6 +16,7 @@ public class OrderApprovalTemplateSeedTests
     [TestMethod]
     [DataRow("OrderApproval.Requested")]
     [DataRow("OrderApproval.Decided")]
+    [DataRow("OrderApproval.StaffRequested")]
     public void OrderApprovalTemplates_AreActiveAndUseOnlyBackedTokens(string name)
     {
         var template = Template(name);
@@ -50,6 +51,26 @@ public class OrderApprovalTemplateSeedTests
         Assert.IsFalse(body.Contains("A <b>"));
         StringAssert.Contains(body, "<table>ITEMS</table>");
         StringAssert.Contains(body, "href='https://store.example/account/orderapproval?id=1'");
+    }
+
+    [TestMethod]
+    public void StaffRequested_LinksToThePanelAndShowsEncodedReasons()
+    {
+        var liquidObject = new LiquidObject {
+            OrderApproval = new LiquidOrderApproval {
+                BuyerName = "A <b>& B",
+                OrderNumber = "1042",
+                ReasonsHtml = "<ul><li>REASON</li></ul>",
+                PanelUrl = "https://store.example/Admin/Order/Edit/1"
+            }
+        };
+
+        var body = LiquidExtensions.Render(liquidObject, Template("OrderApproval.StaffRequested").Body);
+
+        StringAssert.Contains(body, "A &lt;b&gt;&amp; B");
+        StringAssert.Contains(body, "<ul><li>REASON</li></ul>");
+        StringAssert.Contains(body, "href='https://store.example/Admin/Order/Edit/1'");
+        StringAssert.Contains(body, "1042");
     }
 
     [TestMethod]

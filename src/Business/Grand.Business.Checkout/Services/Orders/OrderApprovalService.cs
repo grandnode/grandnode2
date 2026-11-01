@@ -1,8 +1,6 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
 using Grand.Domain;
-using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
@@ -17,14 +15,10 @@ public class OrderApprovalService : IOrderApprovalService
     #region Ctor
 
     public OrderApprovalService(IRepository<OrderApproval> repository,
-        IOrderCalculationService orderCalculationService,
-        CustomerSettings customerSettings,
         OrderApprovalSettings approvalSettings,
         IMediator mediator)
     {
         _repository = repository;
-        _orderCalculationService = orderCalculationService;
-        _customerSettings = customerSettings;
         _approvalSettings = approvalSettings;
         _mediator = mediator;
     }
@@ -34,8 +28,6 @@ public class OrderApprovalService : IOrderApprovalService
     #region Fields
 
     private readonly IRepository<OrderApproval> _repository;
-    private readonly IOrderCalculationService _orderCalculationService;
-    private readonly CustomerSettings _customerSettings;
     private readonly OrderApprovalSettings _approvalSettings;
     private readonly IMediator _mediator;
 
@@ -82,7 +74,8 @@ public class OrderApprovalService : IOrderApprovalService
             return new PagedList<OrderApproval>([], pageIndex, pageSize);
 
         var query = _repository.Table
-            .Where(x => x.CustomerId == customerId && x.StoreId == storeId)
+            // a request of the store has no page on the storefront list; not "== Company", a document without the field would not match
+            .Where(x => x.CustomerId == customerId && x.StoreId == storeId && x.Decider != OrderApprovalDecider.Store)
             .OrderByDescending(x => x.CreatedOnUtc);
 
         return await _repository.PagedAsync(query, pageIndex, pageSize);
@@ -96,32 +89,53 @@ public class OrderApprovalService : IOrderApprovalService
         await _mediator.EntityInserted(approval);
     }
 
-    public virtual async Task Update(OrderApproval approval)
+    public virtual async Task<bool> Close(OrderApproval approval, OrderApprovalStatus status,
+        string decidedByCustomerId = null, string decisionComment = null)
     {
         ArgumentNullException.ThrowIfNull(approval);
 
-        await _repository.UpdateAsync(approval);
+        var closeId = Guid.NewGuid().ToString("N");
+        var decidedOnUtc = DateTime.UtcNow;
+        await _repository.UpdateOneAsync(x => x.Id == approval.Id && x.Status == OrderApprovalStatus.Pending,
+            UpdateBuilder<OrderApproval>.Create()
+                .Set(x => x.Status, status)
+                .Set(x => x.DecidedOnUtc, decidedOnUtc)
+                .Set(x => x.DecidedByCustomerId, decidedByCustomerId)
+                .Set(x => x.DecisionComment, decisionComment)
+                .Set(x => x.CloseId, closeId));
+
+        // the update reports nothing, so the record tells which of two concurrent callers won
+        var current = await _repository.GetByIdAsync(approval.Id);
+        if (current?.CloseId != closeId)
+            return false;
+
+        approval.Status = status;
+        approval.DecidedOnUtc = decidedOnUtc;
+        approval.DecidedByCustomerId = decidedByCustomerId;
+        approval.DecisionComment = decisionComment;
+        approval.CloseId = closeId;
         await _mediator.EntityUpdated(approval);
+        return true;
     }
 
-    public virtual async Task<OrderApprovalCheckoutState> RequiresApproval(IList<ShoppingCartItem> cart,
-        CalculationContext context)
+    public virtual async Task Reopen(OrderApproval approval)
     {
-        ArgumentNullException.ThrowIfNull(cart);
-        ArgumentNullException.ThrowIfNull(context);
+        ArgumentNullException.ThrowIfNull(approval);
 
-        var customer = context.Customer;
-        var limit = customer.OrderApprovalLimit;
+        await _repository.UpdateOneAsync(x => x.Id == approval.Id && x.CloseId == approval.CloseId,
+            UpdateBuilder<OrderApproval>.Create()
+                .Set(x => x.Status, OrderApprovalStatus.Pending)
+                .Set(x => x.DecidedOnUtc, null)
+                .Set(x => x.DecidedByCustomerId, null)
+                .Set(x => x.DecisionComment, null)
+                .Set(x => x.CloseId, null));
 
-        // not a limited buyer: nothing about approvals applies (also when the sub-account feature is off)
-        if (_customerSettings.HideSubAccountsTab || string.IsNullOrEmpty(customer.OwnerId) ||
-            OrderApprovalRules.CanApprove(customer) || !limit.HasValue)
-            return new OrderApprovalCheckoutState(false, limit, null);
-
-        var total = (await _orderCalculationService.GetShoppingCartTotal(cart, context))?.Total;
-
-        // the total is only known once shipping is chosen; until then the rule is not evaluated
-        return new OrderApprovalCheckoutState(total.HasValue && total.Value > limit.Value, limit, total);
+        approval.Status = OrderApprovalStatus.Pending;
+        approval.DecidedOnUtc = null;
+        approval.DecidedByCustomerId = null;
+        approval.DecisionComment = null;
+        approval.CloseId = null;
+        await _mediator.EntityUpdated(approval);
     }
 
     public virtual bool IsPaymentMethodAllowed(string paymentMethodSystemName)

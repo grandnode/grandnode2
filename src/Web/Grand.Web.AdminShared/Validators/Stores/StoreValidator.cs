@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Infrastructure.Validators;
+using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Stores;
 using Grand.Web.Common.Localization;
 
@@ -9,9 +10,14 @@ public class StoreValidator : BaseGrandValidator<StoreModel>
 {
     public StoreValidator(
         IEnumerable<IValidatorConsumer<StoreModel>> validators,
-        IRequestTranslationService translationService)
+        IRequestTranslationService translationService,
+        IStoreViewModelService storeViewModelService)
         : base(validators)
     {
+        //a posted id is checked against the same list the dropdown offers
+        RuleFor(x => x.OwnerCustomerId)
+            .MustAsync(async (x, id, _) => string.IsNullOrEmpty(id) || await storeViewModelService.IsOwnerCandidate(x.Id, id))
+            .WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.OwnerCustomerId.Invalid"));
         RuleFor(x => x.Name).NotEmpty()
             .WithMessage(translationService.GetResource("Admin.Configuration.Stores.Fields.Name.Required"));
         RuleFor(x => x.Shortcut).NotEmpty()

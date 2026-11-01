@@ -12,6 +12,7 @@ public interface IOrderViewModelService
         int pageSize);
 
     Task PrepareOrderDetailsModel(OrderModel model, Order order);
+    Task<OrderApprovalDecisionModel> PrepareOrderApprovalDecisionModel(Order order);
     Task<IList<Order>> PrepareOrders(OrderListModel model);
     Task SaveOrderTags(Order order, string tags);
 }

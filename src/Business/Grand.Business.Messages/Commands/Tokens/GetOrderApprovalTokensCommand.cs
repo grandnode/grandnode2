@@ -14,4 +14,9 @@ public class GetOrderApprovalTokensCommand : IRequest<LiquidOrderApproval>
     public Store Store { get; set; }
     public DomainHost Host { get; set; }
     public Language Language { get; set; }
+
+    /// <summary>
+    ///     The back office panel the recipient works in; empty for a message to the buyer
+    /// </summary>
+    public string PanelArea { get; set; }
 }

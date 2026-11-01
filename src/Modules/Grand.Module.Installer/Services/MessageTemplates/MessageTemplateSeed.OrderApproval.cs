@@ -30,7 +30,7 @@ public static partial class MessageTemplateSeed
                     "Your order approval request has been decided.",
                     "Order approval {{OrderApproval.Status}}",
                     @"
-                <p>Hello {{Customer.FullName | Escape}},</p>
+                <p>Hello {{OrderApproval.BuyerName | Escape}},</p>
                 <p>Your request to approve order{% if OrderApproval.OrderNumber != '' %} <strong>#{{OrderApproval.OrderNumber}}</strong>{% endif %} at <strong>{{Store.Name}}</strong> has been decided. Status: <strong>{{OrderApproval.Status}}</strong>.</p>
                 {% if OrderApproval.DecisionComment != null and OrderApproval.DecisionComment != '' %}
                 <p>Comment from the approver:</p>
@@ -41,6 +41,25 @@ public static partial class MessageTemplateSeed
                     + "{{OrderApproval.ItemsHtml}}" + @"
                 <p style='text-align: right;'><strong>Order total: {{OrderApproval.Total}}</strong></p>
                 <p>You can follow the request at <a href='{{OrderApproval.Url}}'>{{OrderApproval.Url}}</a>.</p>"),
+                IsActive = true,
+                EmailAccountId = ea
+            },
+            new() {
+                Name = "OrderApproval.StaffRequested",
+                Subject = "{{Store.Name}}: order #{{OrderApproval.OrderNumber}} needs your decision",
+                Body = Layout(
+                    "Order #{{OrderApproval.OrderNumber}} is waiting for a decision.",
+                    "Order approval needed",
+                    @"
+                <p><strong>{{OrderApproval.BuyerName | Escape}}</strong> ({{OrderApproval.BuyerEmail | Escape}}) placed order <strong>#{{OrderApproval.OrderNumber}}</strong> at <strong>{{Store.Name}}</strong>. The order is on hold until someone in the store decides.</p>
+                {% if OrderApproval.ReasonsHtml != '' %}
+                <p>Why it needs a decision:</p>
+                {{OrderApproval.ReasonsHtml}}
+                {% endif %}"
+                    + Button("{{OrderApproval.PanelUrl}}", "Review the order") + @"
+                <p>The order contains:</p>"
+                    + "{{OrderApproval.ItemsHtml}}" + @"
+                <p style='text-align: right;'><strong>Order total: {{OrderApproval.Total}}</strong></p>"),
                 IsActive = true,
                 EmailAccountId = ea
             }

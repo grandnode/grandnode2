@@ -17,4 +17,14 @@ public class OrderPlacedEvent : INotification
     ///     Order
     /// </summary>
     public Order Order { get; private set; }
+
+    /// <summary>
+    ///     Why the order awaits an approval, when it does
+    /// </summary>
+    public IReadOnlyList<string> ApprovalReasons { get; set; } = [];
+
+    /// <summary>
+    ///     A rule wants the store to decide the approval, also for a sub-account's order
+    /// </summary>
+    public bool ApprovalStoreDecides { get; set; }
 }

@@ -12,6 +12,26 @@ namespace Grand.Web.AdminShared.Models.Orders;
 
 public class OrderModel : BaseEntityModel
 {
+    /// <summary>
+    ///     Status of the order's approval request; null when the order has none or the panel does not show it
+    /// </summary>
+    public string ApprovalStatus { get; set; }
+
+    /// <summary>
+    ///     Who decides the approval request
+    /// </summary>
+    public string ApprovalDecider { get; set; }
+
+    /// <summary>
+    ///     Why the order needs an approval
+    /// </summary>
+    public IList<string> ApprovalReasons { get; set; } = new List<string>();
+
+    /// <summary>
+    ///     The current customer can approve or reject the order in this panel
+    /// </summary>
+    public bool CanDecideApproval { get; set; }
+
     //identifiers
     [GrandResourceDisplayName("Admin.Orders.Fields.ID")]
     public override string Id { get; set; }

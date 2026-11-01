@@ -91,9 +91,35 @@ public class OrderController : BasePublicController
             return Challenge();
 
         var model = await _mediator.Send(new GetOrderDetails
-            { Order = order, Language = _contextAccessor.WorkContext.WorkingLanguage });
+            {
+                Order = order,
+                Customer = _contextAccessor.WorkContext.CurrentCustomer,
+                Language = _contextAccessor.WorkContext.WorkingLanguage
+            });
 
         return View(model);
+    }
+
+    //My account / Order details page / Withdraw a request the store has not decided yet
+    [HttpPost]
+    public virtual async Task<IActionResult> WithdrawApproval(string orderId)
+    {
+        var order = await _orderService.GetOrderById(orderId);
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+            return Challenge();
+
+        var withdrawn = await _mediator.Send(new WithdrawOrderApprovalCommand {
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Store = _contextAccessor.StoreContext.CurrentStore,
+            OrderId = orderId
+        });
+
+        if (withdrawn)
+            Success(_translationService.GetResource("Order.Approval.Withdrawn"));
+        else
+            Error(_translationService.GetResource("Order.Approval.WithdrawRefused"));
+
+        return RedirectToRoute("OrderDetails", new { orderId });
     }
 
     //My account / Order details page / Cancel Unpaid Order

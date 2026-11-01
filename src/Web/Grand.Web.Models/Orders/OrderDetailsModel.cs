@@ -10,6 +10,21 @@ public class OrderDetailsModel : BaseEntityModel
 
     public bool UserCanCancelUnpaidOrder { get; set; }
 
+    /// <summary>
+    ///     Why the order waits for the store's decision; empty once it is decided, and for a company's request
+    /// </summary>
+    public IList<string> OrderApprovalReasons { get; set; } = new List<string>();
+
+    /// <summary>
+    ///     The store's note on its decision
+    /// </summary>
+    public string OrderApprovalComment { get; set; }
+
+    /// <summary>
+    ///     The buyer can withdraw a request the store has not decided yet
+    /// </summary>
+    public bool CanWithdrawOrderApproval { get; set; }
+
     public DateTime CreatedOn { get; set; }
 
     public string OrderStatus { get; set; }

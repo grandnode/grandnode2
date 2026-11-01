@@ -348,9 +348,6 @@
 	<Resource Name="Checkout.OrderApproval.SendButton" Area="Front">
 		<Value>Send for approval</Value>
 	</Resource>
-	<Resource Name="Checkout.OrderApproval.WillBeSent" Area="Front">
-		<Value>This order is above your limit of {0}. It is placed now, but not processed until an approver has approved it.</Value>
-	</Resource>
 	<Resource Name="Enums.Grand.Domain.Customers.SubAccountRole.Approver" Area="Common">
 		<Value>Approver</Value>
 	</Resource>
@@ -764,6 +761,87 @@
 	</Resource>
 	<Resource Name="Admin.Customers.Customers.Fields.TradeCredit.Overdue" Area="Admin">
 		<Value>Payment overdue</Value>
+	</Resource>
+	<Resource Name="checkout.orderplacement.rulefailed" Area="Front">
+		<Value>This order cannot be placed right now. Please contact the store.</Value>
+	</Resource>
+	<Resource Name="checkout.orderplacement.approvalrequired" Area="Front">
+		<Value>This order needs approval.</Value>
+	</Resource>
+	<Resource Name="checkout.orderplacement.blocked" Area="Front">
+		<Value>This order cannot be placed.</Value>
+	</Resource>
+	<Resource Name="checkout.orderapproval.willbesentgeneric" Area="Front">
+		<Value>This order will be sent for approval after you confirm it.</Value>
+	</Resource>
+	<Resource Name="checkout.orderapproval.limitexceeded" Area="Front">
+		<Value>The order total exceeds your order limit of {0}.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.stores.fields.ownercustomerid" Area="Admin">
+		<Value>Owner account</Value>
+	</Resource>
+	<Resource Name="admin.configuration.stores.fields.ownercustomerid.hint" Area="Admin">
+		<Value>The account told by e-mail when an order of this store waits for the store&apos;s decision; the order&apos;s sales manager, if any, is told as well. Anyone with access to the order can decide it.</Value>
+	</Resource>
+	<Resource Name="admin.configuration.stores.fields.ownercustomerid.invalid" Area="Admin">
+		<Value>Choose an active administrator or a manager of this store.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.decide" Area="Admin">
+		<Value>Approve or reject</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.popuptitle" Area="Admin">
+		<Value>Order approval</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.reasons" Area="Admin">
+		<Value>Why it needs approval</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.note" Area="Admin">
+		<Value>Note</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.note.hint" Area="Admin">
+		<Value>Optional. The buyer sees it in the decision e-mail and on the order page.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.approve" Area="Admin">
+		<Value>Approve</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.reject" Area="Admin">
+		<Value>Reject</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.approved" Area="Admin">
+		<Value>The order has been approved.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.rejected" Area="Admin">
+		<Value>The order has been rejected.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.refused" Area="Admin">
+		<Value>This approval can no longer be decided here.</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.status" Area="Admin">
+		<Value>Approval</Value>
+	</Resource>
+	<Resource Name="admin.orders.approval.decider" Area="Admin">
+		<Value>Decided by</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.orderapprovaldecider.company" Area="Admin">
+		<Value>The buyer&apos;s company</Value>
+	</Resource>
+	<Resource Name="enums.grand.domain.orders.orderapprovaldecider.store" Area="Admin">
+		<Value>The store</Value>
+	</Resource>
+	<Resource Name="order.approval.reasons" Area="Front">
+		<Value>Why it needs approval</Value>
+	</Resource>
+	<Resource Name="order.approval.decisioncomment" Area="Front">
+		<Value>Note from the store</Value>
+	</Resource>
+	<Resource Name="order.approval.withdraw" Area="Front">
+		<Value>Withdraw the request and cancel the order</Value>
+	</Resource>
+	<Resource Name="order.approval.withdrawn" Area="Front">
+		<Value>The request has been withdrawn and the order cancelled.</Value>
+	</Resource>
+	<Resource Name="order.approval.withdrawrefused" Area="Front">
+		<Value>This request can no longer be withdrawn.</Value>
 	</Resource>
 	<Resource Name="Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server" Area="Admin">
 		<Value>Server time zone</Value>

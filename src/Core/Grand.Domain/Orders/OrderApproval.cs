@@ -16,10 +16,20 @@ public class OrderApproval : BaseEntity
     public string StoreId { get; set; }
 
     /// <summary>
-    ///     Gets or sets the identifier of the company owner; every read is scoped by it
+    ///     Gets or sets who decides the request
+    /// </summary>
+    public OrderApprovalDecider Decider { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the identifier of the company owner; every company read is scoped by it. Null when the store decides.
     /// </summary>
     [AuditReference(typeof(Customer))]
     public string CompanyOwnerId { get; set; }
+
+    /// <summary>
+    ///     Gets or sets why the order needs an approval, in the buyer's language
+    /// </summary>
+    public IList<string> Reasons { get; set; } = new List<string>();
 
     /// <summary>
     ///     Gets or sets the buyer identifier
@@ -67,6 +77,11 @@ public class OrderApproval : BaseEntity
     ///     Gets or sets the approver's comment
     /// </summary>
     public string DecisionComment { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the identifier of the write that closed the request; tells concurrent callers which one won
+    /// </summary>
+    public string CloseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the order awaiting the decision; set at creation

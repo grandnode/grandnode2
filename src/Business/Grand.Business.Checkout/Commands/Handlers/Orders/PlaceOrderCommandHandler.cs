@@ -48,6 +48,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly ILogger<PlaceOrderCommandHandler> _logger;
     private readonly IMediator _mediator;
     private readonly IOrderApprovalService _orderApprovalService;
+    private readonly IOrderPlacementService _orderPlacementService;
     private readonly ITranslationService _translationService;
     private readonly ICatalogMessageProviderService _catalogMessageProviderService;
     private readonly IOrderService _orderService;
@@ -103,6 +104,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         ICountryService countryService,
         IShoppingCartValidator shoppingCartValidator,
         IOrderApprovalService orderApprovalService,
+        IOrderPlacementService orderPlacementService,
         ITranslationService translationService,
         ShippingSettings shippingSettings,
         ShoppingCartSettings shoppingCartSettings,
@@ -141,6 +143,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _countryService = countryService;
         _shoppingCartValidator = shoppingCartValidator;
         _orderApprovalService = orderApprovalService;
+        _orderPlacementService = orderPlacementService;
         _translationService = translationService;
         _shippingSettings = shippingSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -184,10 +187,23 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 return result;
             }
 
-            //an order over the customer's limit is placed awaiting an approval, with an allowed payment method only
-            var approval = await _orderApprovalService.RequiresApproval(details.Cart, details.Context);
-            details.ApprovalRequired = approval.Required;
-            if (details.ApprovalRequired && !_orderApprovalService.IsPaymentMethodAllowed(details.PaymentMethodSystemName))
+            //the rules are asked before any payment is taken: this answer is the authoritative one
+            var evaluation = await _orderPlacementService.Evaluate(details.Cart, details.Context, command.Language,
+                details.PaymentMethodSystemName, cancellationToken);
+            if (evaluation.Decision == OrderPlacementDecision.Block)
+            {
+                foreach (var reason in evaluation.Reasons)
+                    result.AddError(reason);
+                return result;
+            }
+
+            //an order that needs an approval is placed awaiting it, with an allowed payment method only
+            details.ApprovalRequired = evaluation.Decision == OrderPlacementDecision.RequireApproval;
+            details.ApprovalReasons = evaluation.Reasons.ToList();
+            details.ApprovalStoreDecides = evaluation.StoreDecides;
+            //with nothing to pay the checkout skips the payment step and clears the method, so there is nothing to check
+            if (details.ApprovalRequired && details.OrderTotal != 0 &&
+                !_orderApprovalService.IsPaymentMethodAllowed(details.PaymentMethodSystemName))
             {
                 result.AddError(_translationService.GetResource("Checkout.OrderApproval.PaymentMethodNotAllowed",
                     command.Language.Id));
@@ -233,7 +249,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 await _mediator.Send(new CheckOrderStatusCommand { Order = result.PlacedOrder }, cancellationToken);
 
                 //raise event       
-                await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder), cancellationToken);
+                await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder) {
+                    ApprovalReasons = details.ApprovalReasons.ToList(),
+                    ApprovalStoreDecides = details.ApprovalStoreDecides
+                }, cancellationToken);
 
                 //an order awaiting approval is processed as paid once it is approved (store owner and vendors hear of it then)
                 if (!details.ApprovalRequired && result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)

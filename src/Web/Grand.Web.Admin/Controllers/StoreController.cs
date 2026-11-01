@@ -68,6 +68,8 @@ public class StoreController : BaseAdminController
         await _storeViewModelService.PrepareCountryModel(model);
         //currencies
         await _storeViewModelService.PrepareCurrencyModel(model);
+        //owner account
+        await _storeViewModelService.PrepareOwnerAccountsModel(model);
 
         return View(model);
     }
@@ -95,6 +97,8 @@ public class StoreController : BaseAdminController
         await _storeViewModelService.PrepareCountryModel(model);
         //currencies
         await _storeViewModelService.PrepareCurrencyModel(model);
+        //owner account
+        await _storeViewModelService.PrepareOwnerAccountsModel(model);
 
         //If we got this far, something failed, redisplay form
         return View(model);
@@ -117,6 +121,8 @@ public class StoreController : BaseAdminController
         await _storeViewModelService.PrepareCountryModel(model);
         //currencies
         await _storeViewModelService.PrepareCurrencyModel(model);
+        //owner account
+        await _storeViewModelService.PrepareOwnerAccountsModel(model);
 
         //locales
         await AddLocales(_languageService, model.Locales, (locale, languageId) =>
@@ -156,6 +162,8 @@ public class StoreController : BaseAdminController
         await _storeViewModelService.PrepareCountryModel(model);
         //currencies
         await _storeViewModelService.PrepareCurrencyModel(model);
+        //owner account
+        await _storeViewModelService.PrepareOwnerAccountsModel(model);
 
         return View(model);
     }

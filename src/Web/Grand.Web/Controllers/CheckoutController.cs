@@ -54,6 +54,7 @@ public class CheckoutController : BasePublicController
         IProductService productService,
         IShoppingCartValidator shoppingCartValidator,
         IOrderApprovalService orderApprovalService,
+        IOrderPlacementService orderPlacementService,
         OrderSettings orderSettings,
         OidcLoginConfig oidcLoginConfig,
         LoyaltyPointsSettings loyaltyPointsSettings,
@@ -76,6 +77,7 @@ public class CheckoutController : BasePublicController
         _productService = productService;
         _shoppingCartValidator = shoppingCartValidator;
         _orderApprovalService = orderApprovalService;
+        _orderPlacementService = orderPlacementService;
         _orderSettings = orderSettings;
         _oidcLoginConfig = oidcLoginConfig;
         _loyaltyPointsSettings = loyaltyPointsSettings;
@@ -579,7 +581,7 @@ public class CheckoutController : BasePublicController
                 var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                     Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
                     Store = _contextAccessor.StoreContext.CurrentStore
-                });
+                }, HttpContext.RequestAborted);
                 return Json(new {
                     update_section = new UpdateSectionJsonModel {
                         name = "confirm-order",
@@ -589,10 +591,9 @@ public class CheckoutController : BasePublicController
                 });
             }
 
-            //an order over the buyer's limit waits for an approval and may only use the payment methods the admin chose
-            var approval = await _orderApprovalService.RequiresApproval(cart, _contextAccessor.CalculationContext());
-            if (approval.Required && !_orderApprovalService.IsPaymentMethodAllowed(model.PaymentMethod))
-                throw new Exception(_translationService.GetResource("Checkout.OrderApproval.PaymentMethodNotAllowed"));
+            var refusal = await GetPaymentMethodRefusal(cart, model.PaymentMethod);
+            if (refusal != null)
+                throw new Exception(refusal);
 
             var paymentMethodInst = _paymentService.LoadPaymentMethodBySystemName(model.PaymentMethod);
             if (paymentMethodInst == null ||
@@ -651,7 +652,7 @@ public class CheckoutController : BasePublicController
                 var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                     Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
                     Store = _contextAccessor.StoreContext.CurrentStore
-                });
+                }, HttpContext.RequestAborted);
                 return Json(new {
                     update_section = new UpdateSectionJsonModel {
                         name = "confirm-order",
@@ -728,6 +729,7 @@ public class CheckoutController : BasePublicController
                     error = 1, message = _translationService.GetResource("Checkout.MinOrderPlacementInterval")
                 });
 
+            //not the request's token: an order being paid for must finish even if the buyer's connection drops
             var placeOrderResult = await _mediator.Send(new PlaceOrderCommand {
                 Context = _contextAccessor.CalculationContext(),
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
@@ -765,7 +767,7 @@ public class CheckoutController : BasePublicController
             var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                 Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
                 Store = _contextAccessor.StoreContext.CurrentStore
-            });
+            }, HttpContext.RequestAborted);
             foreach (var error in placeOrderResult.Errors)
                 confirmOrderModel.Warnings.Add(error);
 
@@ -846,6 +848,7 @@ public class CheckoutController : BasePublicController
     private readonly IProductService _productService;
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly IOrderApprovalService _orderApprovalService;
+    private readonly IOrderPlacementService _orderPlacementService;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
@@ -958,10 +961,12 @@ public class CheckoutController : BasePublicController
                 Language = _contextAccessor.WorkContext.WorkingLanguage,
                 Store = _contextAccessor.StoreContext.CurrentStore,
                 TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType
-            });
+            }, HttpContext.RequestAborted);
 
+            //the step is only skipped for a method the order can go on with: choosing it shows the buyer why it cannot
             if (!_paymentSettings.SkipPaymentIfOnlyOne ||
-                paymentMethodModel.PaymentMethods.Count != 1 || paymentMethodModel.DisplayLoyaltyPoints)
+                paymentMethodModel.PaymentMethods.Count != 1 || paymentMethodModel.DisplayLoyaltyPoints ||
+                await GetPaymentMethodRefusal(cart, paymentMethodModel.PaymentMethods[0].PaymentMethodSystemName) != null)
                 return Json(new {
                     update_section = new UpdateSectionJsonModel {
                         name = "payment-method",
@@ -996,7 +1001,7 @@ public class CheckoutController : BasePublicController
         var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
             Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
             Store = _contextAccessor.StoreContext.CurrentStore
-        });
+        }, HttpContext.RequestAborted);
         return Json(new {
             update_section = new UpdateSectionJsonModel {
                 name = "confirm-order",
@@ -1004,6 +1009,24 @@ public class CheckoutController : BasePublicController
             },
             goto_section = "confirm_order"
         });
+    }
+
+    /// <summary>
+    ///     Why the order cannot go on with this payment method; null when it can. A blocked order goes no further, and
+    ///     one that needs an approval may only use the payment methods the admin chose.
+    /// </summary>
+    [NonAction]
+    private async Task<string> GetPaymentMethodRefusal(IList<ShoppingCartItem> cart, string paymentMethod)
+    {
+        var evaluation = await _orderPlacementService.Evaluate(cart, _contextAccessor.CalculationContext(),
+            _contextAccessor.WorkContext.WorkingLanguage, paymentMethod, HttpContext.RequestAborted);
+        if (evaluation.Decision == OrderPlacementDecision.Block)
+            return string.Join(" ", evaluation.Reasons);
+        if (evaluation.Decision == OrderPlacementDecision.RequireApproval &&
+            !_orderApprovalService.IsPaymentMethodAllowed(paymentMethod))
+            return _translationService.GetResource("Checkout.OrderApproval.PaymentMethodNotAllowed");
+
+        return null;
     }
 
     [NonAction]
@@ -1017,7 +1040,7 @@ public class CheckoutController : BasePublicController
             var confirmOrderModel = await _mediator.Send(new GetConfirmOrder {
                 Cart = cart, Customer = _contextAccessor.WorkContext.CurrentCustomer, Language = _contextAccessor.WorkContext.WorkingLanguage, Currency = _contextAccessor.WorkContext.WorkingCurrency, TaxDisplayType = _contextAccessor.WorkContext.TaxDisplayType,
                 Store = _contextAccessor.StoreContext.CurrentStore
-            });
+            }, HttpContext.RequestAborted);
             return Json(new {
                 update_section = new UpdateSectionJsonModel {
                     name = "confirm-order",

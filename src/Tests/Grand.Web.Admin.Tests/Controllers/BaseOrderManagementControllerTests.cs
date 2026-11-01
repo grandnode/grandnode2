@@ -55,6 +55,127 @@ public class BaseOrderManagementControllerTests
     private Mock<IAdminDataScope<Order>> _scopeMock;
     private Mock<IOrderStatusService> _orderStatusServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
+    private Mock<IOrderViewModelService> _orderViewModelServiceMock;
+    private Grand.Domain.Customers.Customer _staff;
+
+    private Order OrderInScope(bool inScope = true)
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(o => o.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.HasAccess(order)).ReturnsAsync(inScope);
+        return order;
+    }
+
+    private void CommandAnswers(bool answer)
+    {
+        _mediatorMock.Setup(m => m.Send(It.IsAny<DecideStoreOrderApprovalCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(answer);
+    }
+
+    private void NoCommandWasSent()
+    {
+        _mediatorMock.Verify(m => m.Send(It.IsAny<DecideStoreOrderApprovalCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DecideApproval_OutOfScope_RedirectsToListWithoutCommand()
+    {
+        OrderInScope(false);
+
+        var result = await _controller.DecideApproval("o1", true, null);
+
+        Assert.AreEqual("List", ((RedirectToActionResult)result).ActionName);
+        NoCommandWasSent();
+    }
+
+    [TestMethod]
+    public async Task DecideApproval_MissingApprove_RefusedWithoutCommand()
+    {
+        OrderInScope();
+
+        var result = await _controller.DecideApproval("o1", null, null);
+
+        Assert.AreEqual("Edit", ((RedirectToActionResult)result).ActionName);
+        NoCommandWasSent();
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Approval.Refused"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DecideApproval_Approve_SendsCommandAndRedirectsToEdit()
+    {
+        var order = OrderInScope();
+        CommandAnswers(true);
+
+        var result = await _controller.DecideApproval("o1", true, "a note");
+
+        Assert.AreEqual("Edit", ((RedirectToActionResult)result).ActionName);
+        _mediatorMock.Verify(m => m.Send(It.Is<DecideStoreOrderApprovalCommand>(c =>
+                c.Order == order && c.DecidedBy == _staff && c.Approve && c.Comment == "a note"),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Approval.Approved"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DecideApproval_Reject_ReportsTheRejection()
+    {
+        OrderInScope();
+        CommandAnswers(true);
+
+        await _controller.DecideApproval("o1", false, null);
+
+        _mediatorMock.Verify(m => m.Send(It.Is<DecideStoreOrderApprovalCommand>(c => !c.Approve),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Approval.Rejected"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DecideApproval_CommandRefuses_ShowsRefusedError()
+    {
+        OrderInScope();
+        CommandAnswers(false);
+
+        await _controller.DecideApproval("o1", true, null);
+
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Approval.Refused"), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Approval.Approved"), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DecideApprovalPopup_CannotDecide_AnswersWithThePopupNotARedirect()
+    {
+        //the popup loads this over ajax: a redirect would put the whole Edit page inside it
+        var order = OrderInScope();
+        _orderViewModelServiceMock.Setup(s => s.PrepareOrderApprovalDecisionModel(order))
+            .ReturnsAsync((OrderApprovalDecisionModel)null);
+
+        var result = await _controller.DecideApprovalPopup("o1");
+
+        Assert.AreEqual("DecideApprovalRefused", ((ViewResult)result).ViewName);
+    }
+
+    [TestMethod]
+    public async Task DecideApprovalPopup_OutOfScope_AnswersWithThePopupNotARedirect()
+    {
+        OrderInScope(false);
+
+        var result = await _controller.DecideApprovalPopup("o1");
+
+        Assert.AreEqual("DecideApprovalRefused", ((ViewResult)result).ViewName);
+        _orderViewModelServiceMock.Verify(s => s.PrepareOrderApprovalDecisionModel(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DecideApprovalPopup_CanDecide_ShowsTheModel()
+    {
+        var order = OrderInScope();
+        var model = new OrderApprovalDecisionModel { OrderId = "o1" };
+        _orderViewModelServiceMock.Setup(s => s.PrepareOrderApprovalDecisionModel(order)).ReturnsAsync(model);
+
+        var result = await _controller.DecideApprovalPopup("o1");
+
+        Assert.AreSame(model, ((ViewResult)result).Model);
+    }
 
     [TestInitialize]
     public void Setup()
@@ -72,10 +193,17 @@ public class BaseOrderManagementControllerTests
         _orderStatusServiceMock.Setup(s => s.GetByStatusId(It.IsAny<int>()))
             .ReturnsAsync((int statusId) => new OrderStatus { StatusId = statusId, Name = "status" });
 
+        _orderViewModelServiceMock = new Mock<IOrderViewModelService>();
+        _staff = new Grand.Domain.Customers.Customer { Id = "staff" };
+        var workContext = new Mock<IWorkContext>();
+        workContext.Setup(w => w.CurrentCustomer).Returns(_staff);
+        var contextAccessor = new Mock<IContextAccessor>();
+        contextAccessor.Setup(c => c.WorkContext).Returns(workContext.Object);
+
         _controller = new TestOrderManagementController(
-            new Mock<IOrderViewModelService>().Object, _orderServiceMock.Object,
+            _orderViewModelServiceMock.Object, _orderServiceMock.Object,
             _orderStatusServiceMock.Object, _translationServiceMock.Object,
-            new Mock<IContextAccessor>().Object, new Mock<IPdfService>().Object,
+            contextAccessor.Object, new Mock<IPdfService>().Object,
             _mediatorMock.Object, _scopeMock.Object, _orderNoteViewModelServiceMock.Object,
             _orderAddressViewModelServiceMock.Object, _orderProductViewModelServiceMock.Object);
 

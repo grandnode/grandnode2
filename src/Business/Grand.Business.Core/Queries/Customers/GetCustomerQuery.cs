@@ -13,6 +13,10 @@ public class GetCustomerQuery : IRequest<IPagedList<Customer>>
     public DateTime? CreatedToUtc { get; set; } = null;
     public string AffiliateId { get; set; } = "";
     public string VendorId { get; set; } = "";
+
+    /// <summary>The store the staff account manages</summary>
+    public string StaffStoreId { get; set; } = "";
+
     public string StoreId { get; set; } = "";
     public string OwnerId { get; set; } = "";
     public string SalesEmployeeId { get; set; } = "";

@@ -71,6 +71,48 @@ public abstract class BaseOrderManagementController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> DecideApprovalPopup(string id)
+    {
+        //this is loaded into a popup: a redirect would put a whole page inside it
+        const string refused = "DecideApprovalRefused";
+
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return View(refused);
+
+        var model = await OrderViewModelService.PrepareOrderApprovalDecisionModel(order);
+        if (model == null)
+            return View(refused);
+
+        return View(model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> DecideApproval(string id, bool? approve, string comment)
+    {
+        var (order, denied) = await LoadAuthorizedOrder(id);
+        if (denied != null) return denied;
+
+        //the decision must be explicit: a missing value is never read as a rejection or an approval
+        var decided = approve.HasValue && await mediator.Send(new DecideStoreOrderApprovalCommand {
+            Order = order,
+            DecidedBy = ContextAccessor.WorkContext.CurrentCustomer,
+            Approve = approve.Value,
+            Comment = comment,
+            Language = ContextAccessor.WorkContext.WorkingLanguage
+        });
+
+        if (decided)
+            Success(TranslationService.GetResource(approve.Value
+                ? "Admin.Orders.Approval.Approved"
+                : "Admin.Orders.Approval.Rejected"));
+        else
+            Error(TranslationService.GetResource("Admin.Orders.Approval.Refused"));
+
+        return RedirectToAction("Edit", "Order", new { id });
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> SaveOrderTags(OrderModel orderModel)
     {

@@ -29,6 +29,8 @@ public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IPagedL
             query = query.Where(c => request.AffiliateId == c.AffiliateId);
         if (!string.IsNullOrEmpty(request.VendorId))
             query = query.Where(c => request.VendorId == c.VendorId);
+        if (!string.IsNullOrEmpty(request.StaffStoreId))
+            query = query.Where(c => c.StaffStoreId == request.StaffStoreId);
         if (!string.IsNullOrEmpty(request.StoreId))
             query = query.Where(c => c.StoreId == request.StoreId);
         if (!string.IsNullOrEmpty(request.OwnerId))

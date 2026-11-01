@@ -67,6 +67,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IMediator _mediator;
     private readonly IEnumTranslationService _enumTranslationService;
     private readonly IAdminDataScope<Order> _scope;
+    private readonly IOrderApprovalService _orderApprovalService;
 
     #endregion
 
@@ -101,8 +102,10 @@ public class OrderViewModelService : IOrderViewModelService
         IOrderStatusService orderStatusService,
         IMediator mediator,
         IEnumTranslationService enumTranslationService,
-        IAdminDataScope<Order> scope)
+        IAdminDataScope<Order> scope,
+        IOrderApprovalService orderApprovalService)
     {
+        _orderApprovalService = orderApprovalService;
         _orderService = orderService;
         _dateTimeService = dateTimeService;
         _priceFormatter = priceFormatter;
@@ -314,6 +317,50 @@ public class OrderViewModelService : IOrderViewModelService
     }
 
 
+    /// <summary>
+    ///     The order's approval request, for the panels that own the whole order: a vendor sees neither it nor its reasons
+    /// </summary>
+    public virtual async Task PrepareOrderApprovalDetails(OrderModel model, Order order)
+    {
+        if (_scope.DefaultVendorId is not null)
+            return;
+
+        var approval = await _orderApprovalService.GetByOrderId(order.Id);
+        if (approval == null)
+            return;
+
+        model.ApprovalStatus = _enumTranslationService.GetTranslationEnum(approval.Status);
+        model.ApprovalDecider = _enumTranslationService.GetTranslationEnum(approval.Decider);
+        model.ApprovalReasons = approval.Reasons;
+        model.CanDecideApproval = CanDecideApproval(approval, order);
+    }
+
+    public virtual async Task<OrderApprovalDecisionModel> PrepareOrderApprovalDecisionModel(Order order)
+    {
+        if (_scope.DefaultVendorId is not null)
+            return null;
+
+        var approval = await _orderApprovalService.GetByOrderId(order.Id);
+        if (approval == null || !CanDecideApproval(approval, order))
+            return null;
+
+        return new OrderApprovalDecisionModel {
+            OrderId = order.Id,
+            OrderNumber = order.OrderNumber,
+            Reasons = approval.Reasons
+        };
+    }
+
+    /// <summary>
+    ///     An open request the store decides; a company's stays with the company, and nobody decides their own order
+    /// </summary>
+    private bool CanDecideApproval(OrderApproval approval, Order order)
+    {
+        return approval is { Status: OrderApprovalStatus.Pending, Decider: OrderApprovalDecider.Store } &&
+               order.OrderStatusId == (int)OrderStatusSystem.AwaitingApproval &&
+               approval.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id;
+    }
+
     public virtual async Task PrepareOrderDetailsModel(OrderModel model, Order order)
     {
         ArgumentNullException.ThrowIfNull(order);
@@ -340,6 +387,7 @@ public class OrderViewModelService : IOrderViewModelService
         //offered to the panels that own the order, not to a vendor who sees only his own items
         if (_scope.DefaultVendorId is null)
             model.CanCancelOrder = await _mediator.Send(new CanCancelOrderQuery { Order = order });
+        await PrepareOrderApprovalDetails(model, order);
 
         var store = await _storeService.GetStoreById(order.StoreId);
         model.StoreName = store != null ? store.Shortcut : "Unknown";

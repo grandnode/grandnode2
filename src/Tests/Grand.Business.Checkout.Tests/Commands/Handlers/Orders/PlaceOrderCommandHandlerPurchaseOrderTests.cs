@@ -41,7 +41,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
     [TestInitialize]
     public void Init()
     {
-        var approvalService = new Mock<IOrderApprovalService>();
+        var placementService = new Mock<IOrderPlacementService>();
         var translation = new Mock<ITranslationService>();
         translation.Setup(x => x.GetResource("Checkout.PurchaseOrderNumber.Required", "pl", It.IsAny<string>(),
             It.IsAny<bool>())).Returns(RequiredText);
@@ -65,13 +65,14 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
             PaymentMethodSystemName = "Payments.Card",
             OrderTotal = 500
         };
-        approvalService.Setup(x => x.RequiresApproval(_details.Cart, _command.Context))
-            .ReturnsAsync(new OrderApprovalCheckoutState(false, null, 500));
+        placementService.Setup(x => x.Evaluate(_details.Cart, _command.Context, _command.Language, It.IsAny<string>(),
+                It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.Allow, []));
         _provider = new Mock<IPaymentProvider>();
         var paymentService = new Mock<IPaymentService>();
         paymentService.Setup(x => x.LoadPaymentMethodBySystemName("Payments.Card")).Returns(_provider.Object);
 
-        _handler = new TestHandler(_details, approvalService, new Mock<IMediator>(), translation, paymentService);
+        _handler = new TestHandler(_details, placementService, new Mock<IMediator>(), translation, paymentService);
     }
 
     [TestMethod]
@@ -147,7 +148,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
     {
         private readonly PlaceOrderContainer _details;
 
-        public TestHandler(PlaceOrderContainer details, Mock<IOrderApprovalService> approval, Mock<IMediator> mediator,
+        public TestHandler(PlaceOrderContainer details, Mock<IOrderPlacementService> placement, Mock<IMediator> mediator,
             Mock<ITranslationService> translation, Mock<IPaymentService> paymentService) : base(new Mock<IOrderService>().Object,
             new Mock<ILanguageService>().Object, new Mock<IProductService>().Object,
             new Mock<IInventoryManageService>().Object, paymentService.Object,
@@ -161,7 +162,8 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
             new Mock<IVendorService>().Object, new Mock<ISalesEmployeeService>().Object,
             new Mock<ICurrencyService>().Object, new Mock<IAffiliateService>().Object, mediator.Object,
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,
-            new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object, approval.Object,
+            new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object,
+            new Mock<IOrderApprovalService>().Object, placement.Object,
             translation.Object, new ShippingSettings(), new ShoppingCartSettings(), new PaymentSettings(),
             new OrderSettings(), new OidcLoginConfig(), new TaxSettings())
         {

@@ -26,6 +26,11 @@ public class OrderApprovalModel : BaseEntityModel
     public string DecisionComment { get; set; }
 
     /// <summary>
+    ///     Why the order needs an approval
+    /// </summary>
+    public IList<string> Reasons { get; set; } = new List<string>();
+
+    /// <summary>
     ///     The viewer is an approver of the company and the request is still pending
     /// </summary>
     public bool CanDecide { get; set; }

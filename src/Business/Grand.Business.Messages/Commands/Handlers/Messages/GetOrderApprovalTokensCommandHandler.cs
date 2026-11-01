@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Mediator;
@@ -29,27 +30,52 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
         //the order can be gone (deleted by an admin); the link then simply leads to a missing order
         var order = string.IsNullOrEmpty(approval.OrderId) ? null : await _orderService.GetOrderById(approval.OrderId);
 
+        var requestUrl = $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}";
+        // without an order the link leads to the request itself
+        var orderUrl = order == null ? requestUrl : $"{url}/orderdetails/{WebUtility.UrlEncode(approval.OrderId)}";
+
         var liquidOrderApproval = new LiquidOrderApproval {
-            BuyerName = request.Buyer.GetFullName(),
-            BuyerEmail = request.Buyer.Email,
+            // a guest has no name or e-mail of their own: what they gave is on the order
+            BuyerName = BuyerName(request.Buyer, order?.BillingAddress),
+            BuyerEmail = string.IsNullOrEmpty(request.Buyer.Email) ? order?.BillingAddress?.Email : request.Buyer.Email,
             //resource text, used in the subject as well: encoding would turn "Approuvé" into "Approuv&#233;"
             Status = approval.Status.GetTranslationEnum(_translationService, request.Language.Id),
             Total = approval.Summary?.Total,
             ItemsHtml = ItemsHtml(approval.Items, request.Language.Id),
             DecisionComment = Encode(approval.DecisionComment),
-            Url = $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}",
+            // the storefront's approvals screen only carries the company's requests
+            Url = approval.Decider == OrderApprovalDecider.Store ? orderUrl : requestUrl,
             OrderNumber = order?.OrderNumber.ToString() ?? string.Empty,
-            // without an order the link leads to the request itself
-            OrderUrl = order == null
-                ? $"{url}/account/orderapproval?id={WebUtility.UrlEncode(approval.Id)}"
-                : $"{url}/orderdetails/{WebUtility.UrlEncode(approval.OrderId)}"
+            OrderUrl = orderUrl,
+            ReasonsHtml = ReasonsHtml(approval.Reasons),
+            PanelUrl = string.IsNullOrEmpty(request.PanelArea)
+                ? string.Empty
+                : $"{url}/{request.PanelArea}/Order/Edit/{WebUtility.UrlEncode(approval.OrderId)}"
         };
         return liquidOrderApproval;
+    }
+
+    private static string BuyerName(Customer buyer, Address billingAddress)
+    {
+        var name = buyer.GetFullName();
+        return string.IsNullOrWhiteSpace(name)
+            ? $"{billingAddress?.FirstName} {billingAddress?.LastName}".Trim()
+            : name;
     }
 
     private static string Encode(string value)
     {
         return WebUtility.HtmlEncode(value ?? string.Empty);
+    }
+
+    /// <summary>
+    ///     A reason comes from a plugin, so it is encoded like every other value of the message
+    /// </summary>
+    private static string ReasonsHtml(ICollection<string> reasons)
+    {
+        return reasons == null || reasons.Count == 0
+            ? string.Empty
+            : $"<ul>{string.Concat(reasons.Select(x => $"<li>{Encode(x)}</li>"))}</ul>";
     }
 
     private string Label(string key, string defaultValue, string languageId)

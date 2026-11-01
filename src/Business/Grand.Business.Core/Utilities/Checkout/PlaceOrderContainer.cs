@@ -41,9 +41,20 @@ public class PlaceOrderContainer
     public string PurchaseOrderNumber { get; set; }
 
     /// <summary>
-    ///     The order total exceeds the customer's order limit, so the order is placed awaiting an approval
+    ///     An order placement rule requires an approval, so the order is placed awaiting one
     /// </summary>
     public bool ApprovalRequired { get; set; }
+
+    /// <summary>
+    ///     Why the order needs an approval
+    /// </summary>
+    public IList<string> ApprovalReasons { get; set; } = new List<string>();
+
+    /// <summary>
+    ///     A rule wants the store to decide the approval, also for a sub-account's order
+    /// </summary>
+    public bool ApprovalStoreDecides { get; set; }
+
     public Address BillingAddress { get; set; }
     public Address ShippingAddress { get; set; }
     public ShippingStatus ShippingStatus { get; set; }

@@ -48,5 +48,15 @@ public class LiquidOrderApproval : Drop
     /// </summary>
     public string OrderUrl { get; set; }
 
+    /// <summary>
+    ///     Why the order needs an approval, as an HTML list; every value is HTML-encoded. Empty when there is no reason.
+    /// </summary>
+    public string ReasonsHtml { get; set; }
+
+    /// <summary>
+    ///     Absolute link to the order in the back office panel the recipient works in; empty for a message to the buyer
+    /// </summary>
+    public string PanelUrl { get; set; }
+
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

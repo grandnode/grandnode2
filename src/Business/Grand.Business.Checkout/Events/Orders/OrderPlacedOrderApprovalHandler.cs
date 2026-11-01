@@ -7,10 +7,11 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
@@ -22,8 +23,15 @@ namespace Grand.Business.Checkout.Events.Orders;
 /// </summary>
 public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedEvent>
 {
+    private const string AdminPanelArea = "Admin";
+    private const string StorePanelArea = "Store";
+
     private readonly ICurrencyService _currencyService;
     private readonly ICustomerService _customerService;
+    private readonly CustomerSettings _customerSettings;
+    private readonly IGroupService _groupService;
+    private readonly LanguageSettings _languageSettings;
+    private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly ILogger<OrderPlacedOrderApprovalHandler> _logger;
     private readonly ICustomerMessageProviderService _messageProviderService;
     private readonly IOrderApprovalService _orderApprovalService;
@@ -39,8 +47,16 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         IProductService productService,
         IPriceFormatter priceFormatter,
         ICurrencyService currencyService,
+        ISalesEmployeeService salesEmployeeService,
+        IGroupService groupService,
+        CustomerSettings customerSettings,
+        LanguageSettings languageSettings,
         ILogger<OrderPlacedOrderApprovalHandler> logger)
     {
+        _salesEmployeeService = salesEmployeeService;
+        _groupService = groupService;
+        _customerSettings = customerSettings;
+        _languageSettings = languageSettings;
         _orderApprovalService = orderApprovalService;
         _customerService = customerService;
         _messageProviderService = messageProviderService;
@@ -59,7 +75,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
 
         try
         {
-            await CreateApprovalRequest(order);
+            await CreateApprovalRequest(order, notification.ApprovalReasons, notification.ApprovalStoreDecides);
         }
         catch (Exception ex)
         {
@@ -70,7 +86,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         }
     }
 
-    private async Task CreateApprovalRequest(Order order)
+    private async Task CreateApprovalRequest(Order order, IReadOnlyList<string> reasons, bool storeDecides)
     {
         // one request per order, even if the event is raised twice
         if (await _orderApprovalService.GetByOrderId(order.Id) != null)
@@ -85,17 +101,26 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
             return;
         }
 
-        var companyOwnerId = string.IsNullOrEmpty(order.OwnerId) ? OrderApprovalRules.CompanyId(buyer) : order.OwnerId;
+        // a sub-account's company decides, while the storefront has the approvals screen and someone there can be
+        // told; anyone else has no company to ask, and a rule may keep the decision with the store.
+        // Not the order's OwnerId: it holds the customer's own id when there is no owner
+        IList<Customer> approvers = !storeDecides && !_customerSettings.HideSubAccountsTab &&
+                                    !string.IsNullOrEmpty(buyer.OwnerId)
+            ? await GetApprovers(buyer, buyer.OwnerId, order.StoreId)
+            : [];
+        var companyDecides = approvers.Count > 0;
         var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
 
         var approval = new OrderApproval {
             StoreId = order.StoreId,
-            CompanyOwnerId = companyOwnerId,
+            Decider = companyDecides ? OrderApprovalDecider.Company : OrderApprovalDecider.Store,
+            CompanyOwnerId = companyDecides ? buyer.OwnerId : null,
             CustomerId = order.CustomerId,
             Status = OrderApprovalStatus.Pending,
             OrderId = order.Id,
             Amount = order.OrderTotal,
             CurrencyCode = order.CustomerCurrencyCode,
+            Reasons = reasons.ToList(),
             Summary = PrepareSummary(order, currency)
         };
         foreach (var item in await PrepareItems(order, currency))
@@ -104,7 +129,13 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         await _orderApprovalService.Insert(approval);
 
         var store = await _storeService.GetStoreById(order.StoreId);
-        foreach (var approver in await GetApprovers(buyer, companyOwnerId, order.StoreId))
+        if (!companyDecides)
+        {
+            await NotifyStore(approval, order, buyer, store);
+            return;
+        }
+
+        foreach (var approver in approvers)
             try
             {
                 await _messageProviderService.SendOrderApprovalRequestedMessage(approval, buyer, approver, store,
@@ -116,6 +147,65 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
                 _logger.LogError(ex, "Order approval request e-mail failed. Order {OrderId}, approver {ApproverId}",
                     order.Id, approver.Id);
             }
+    }
+
+    /// <summary>
+    ///     The e-mail only tells someone in the store: anyone with access to the order may decide it
+    /// </summary>
+    private async Task NotifyStore(OrderApproval approval, Order order, Customer buyer, Store store)
+    {
+        foreach (var (email, name, panelArea) in await GetStoreRecipients(order, buyer, store))
+            try
+            {
+                await _messageProviderService.SendOrderApprovalStaffMessage(approval, buyer, store, email, name,
+                    panelArea, _languageSettings.DefaultAdminLanguageId);
+            }
+            catch (Exception ex)
+            {
+                // a failed e-mail must not stop the others, nor the order
+                _logger.LogError(ex, "Order approval e-mail to the store failed. Order {OrderId}", order.Id);
+            }
+    }
+
+    /// <summary>
+    ///     The store's owner account, else nobody named: the message then goes to the e-mail account of its template.
+    ///     The order's sales employee as well: that record does not prove its person can open the panel, so they are
+    ///     never the only one told. Never the buyer: nobody decides their own order.
+    /// </summary>
+    private async Task<List<(string Email, string Name, string PanelArea)>> GetStoreRecipients(Order order,
+        Customer buyer, Store store)
+    {
+        var recipients = new List<(string Email, string Name, string PanelArea)> {
+            await GetOwnerRecipient(buyer, store)
+        };
+
+        if (!string.IsNullOrEmpty(order.SeId))
+        {
+            var salesEmployee = await _salesEmployeeService.GetSalesEmployeeById(order.SeId);
+            if (salesEmployee is { Active: true } && !string.IsNullOrWhiteSpace(salesEmployee.Email) &&
+                !string.Equals(salesEmployee.Email, buyer.Email, StringComparison.OrdinalIgnoreCase) &&
+                !string.Equals(salesEmployee.Email, recipients[0].Email, StringComparison.OrdinalIgnoreCase))
+                recipients.Add((salesEmployee.Email, salesEmployee.Name, AdminPanelArea));
+        }
+
+        return recipients;
+    }
+
+    private async Task<(string Email, string Name, string PanelArea)> GetOwnerRecipient(Customer buyer, Store store)
+    {
+        if (!string.IsNullOrEmpty(store.OwnerCustomerId) && store.OwnerCustomerId != buyer.Id)
+        {
+            var owner = await _customerService.GetCustomerById(store.OwnerCustomerId);
+            if (owner is { Active: true, Deleted: false } && !string.IsNullOrWhiteSpace(owner.Email))
+            {
+                // the mail carries the buyer's data, and the account may have left this store since it was chosen
+                var managesThisStore = owner.StaffStoreId == store.Id && await _groupService.IsStoreManager(owner);
+                if (managesThisStore || await _groupService.IsAdmin(owner))
+                    return (owner.Email, owner.GetFullName(), managesThisStore ? StorePanelArea : AdminPanelArea);
+            }
+        }
+
+        return (null, null, AdminPanelArea);
     }
 
     private async Task<List<OrderApprovalItem>> PrepareItems(Order order, Currency currency)

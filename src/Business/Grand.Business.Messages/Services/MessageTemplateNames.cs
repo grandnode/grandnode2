@@ -11,6 +11,7 @@ public static class MessageTemplateNames
 
     public const string OrderApprovalRequested = "OrderApproval.Requested";
     public const string OrderApprovalDecided = "OrderApproval.Decided";
+    public const string OrderApprovalStaffRequested = "OrderApproval.StaffRequested";
 
     public const string SendOrderPlacedStoreOwnerMessage = "OrderPlaced.StoreOwnerNotification";
     public const string SendOrderPaidStoreOwnerMessage = "OrderPaid.StoreOwnerNotification";

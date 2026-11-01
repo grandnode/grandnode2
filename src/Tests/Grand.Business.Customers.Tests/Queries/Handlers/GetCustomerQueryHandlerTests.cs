@@ -48,6 +48,21 @@ public class GetCustomerQueryHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_StaffStoreId_ReturnsOnlyThatStoresStaff()
+    {
+        var repository = new MongoDBRepositoryTest<Customer>();
+        var manager = new Customer { Email = "manager@x.com", StaffStoreId = "s1" };
+        repository.Insert(manager);
+        repository.Insert(new Customer { Email = "other@x.com", StaffStoreId = "s2" });
+        repository.Insert(new Customer { Email = "customer@x.com" });
+
+        var result = await new GetCustomerQueryHandler(repository).Handle(new GetCustomerQuery { StaffStoreId = "s1" },
+            CancellationToken.None);
+
+        Assert.AreEqual(manager.Id, result.Single().Id);
+    }
+
+    [TestMethod]
     public async Task Handle_ExcludedGroupsAndStaffAccounts_LeftOutInTheQuery()
     {
         var repository = new MongoDBRepositoryTest<Customer>();

@@ -53,6 +53,18 @@
                     <dt class="col-sm-3">@Loc["OrderApproval.DecidedOn"]</dt>
                     <dd class="col-sm-9">@Model.DecidedOn.Value.ToString("g")</dd>
                 }
+                @if (Model.Reasons.Any())
+                {
+                    <dt class="col-sm-3">@Loc["Order.Approval.Reasons"]</dt>
+                    <dd class="col-sm-9 order-approval-reasons">
+                        <ul class="mb-0">
+                            @foreach (var reason in Model.Reasons)
+                            {
+                                <li v-pre>@reason</li>
+                            }
+                        </ul>
+                    </dd>
+                }
                 @if (!string.IsNullOrEmpty(Model.DecidedBy))
                 {
                     <dt class="col-sm-3">@Loc["OrderApproval.DecidedBy"]</dt>

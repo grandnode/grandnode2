@@ -1,3 +1,4 @@
+using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
 using Grand.Domain.Directory;
 using Grand.Domain.Audit;
@@ -24,6 +25,12 @@ public class Store : BaseEntity, ITranslationEntity
     ///     Gets or sets the store URL, including the scheme
     /// </summary>
     public string Url { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the account told about the store's order approvals; it does not limit who may decide them
+    /// </summary>
+    [AuditReference(typeof(Customer))]
+    public string OwnerCustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the list of domains

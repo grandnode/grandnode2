@@ -662,6 +662,10 @@ public class EndpointProvider : IEndpointProvider
             pattern + "orderdetails/cancel/{orderId}",
             new { controller = "Order", action = "CancelOrder" });
 
+        endpointRouteBuilder.MapControllerRoute("WithdrawOrderApproval",
+            pattern + "orderdetails/withdrawapproval/{orderId}",
+            new { controller = "Order", action = "WithdrawApproval" });
+
         endpointRouteBuilder.MapControllerRoute("AddOrderNote",
             pattern + "orderdetails/ordernote/{orderId}",
             new { controller = "Order", action = "AddOrderNote" });

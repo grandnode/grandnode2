@@ -1,4 +1,3 @@
-using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain;
 using Grand.Domain.Orders;
 
@@ -51,19 +50,21 @@ public interface IOrderApprovalService
     Task Insert(OrderApproval approval);
 
     /// <summary>
-    ///     Updates an approval
+    ///     Closes a pending request. Atomic: of concurrent callers only one succeeds, the others change nothing.
     /// </summary>
-    /// <param name="approval">Approval</param>
-    Task Update(OrderApproval approval);
+    /// <param name="approval">Approval; receives the closed state when the call succeeds</param>
+    /// <param name="status">The status to close it with</param>
+    /// <param name="decidedByCustomerId">Who decided; null when nobody did</param>
+    /// <param name="decisionComment">The approver's comment</param>
+    /// <returns>Whether this call closed the request</returns>
+    Task<bool> Close(OrderApproval approval, OrderApprovalStatus status, string decidedByCustomerId = null,
+        string decisionComment = null);
 
     /// <summary>
-    ///     Works out whether the order being placed from the cart has to wait for an approval.
-    ///     It does when the customer is a sub-account buyer with an order limit, the sub-account feature is on,
-    ///     the order total is known and exceeds the limit.
+    ///     Makes a request closed by <see cref="Close" /> pending again, when what should follow the close has failed
     /// </summary>
-    /// <param name="cart">Shopping cart of the customer</param>
-    /// <param name="context">Customer, store and currency the cart is calculated for</param>
-    Task<OrderApprovalCheckoutState> RequiresApproval(IList<ShoppingCartItem> cart, CalculationContext context);
+    /// <param name="approval">The approval as <see cref="Close" /> left it</param>
+    Task Reopen(OrderApproval approval);
 
     /// <summary>
     ///     Gets a value indicating whether the payment method may be used for an order that needs an approval

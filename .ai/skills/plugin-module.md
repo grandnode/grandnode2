@@ -56,6 +56,17 @@ Do not use this skill as the primary review for payment correctness, tenant isol
 5. Prefer small provider methods that delegate complex behavior to plugin services.
 6. Prefer adding a new reference file only when a new extension type appears in the repository.
 
+### Order Placement Rules
+A plugin takes part in order placement by implementing `IOrderPlacementRuleProvider` and registering it in its `StartupApplication` (`services.AddScoped<IOrderPlacementRuleProvider, MyRule>()`). `Evaluate` returns `OrderPlacementRuleResult.Allow()`, `.RequireApproval(reason)`, `.RequireStoreApproval(reason)` or `.Block(reason)`. Any number of rules can be active: any block blocks the order, otherwise any required approval requires it, and an `Allow` never cancels another rule's decision. `RequireApproval` lets a sub-account's company decide; use `RequireStoreApproval` for a control the buyer's company must not release. Pass `Evaluate`'s `CancellationToken` to any external call.
+
+1. A rule runs several times per checkout, also on a page view, so it must be fast and have no side effects.
+2. `PaymentMethodSystemName` and `GetTotal()` can be null early in checkout, and the rule must decide sensibly then. The call made when the order is placed is the authoritative one.
+3. The reason is plain text shown to the buyer and to whoever decides, so nothing confidential. Write it in `context.Language`.
+4. A rule that throws blocks the order and is logged, so a faulty rule can stop sales in its stores. Use `LimitedToStores` and `LimitedToGroups` to narrow where it runs.
+5. Do not inject `IOrderPlacementService`. Use `context.GetTotal()` for the total: it is calculated once, however many rules ask.
+
+A flagged sub-account order goes to its company while the sub-accounts feature is on. Any other flagged order is decided by the store, on the order screen of the Admin and Store panels.
+
 ## Constraints
 - Never create a plugin or module outside `src/Plugins` or `src/Modules`.
 - Never use a system name that conflicts with an existing plugin or provider.

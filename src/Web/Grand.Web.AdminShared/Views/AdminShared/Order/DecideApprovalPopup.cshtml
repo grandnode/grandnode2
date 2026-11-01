@@ -1,0 +1,40 @@
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.Approval.PopupTitle"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //disabled only after the submit has started: a disabled button would drop its value, which is the decision
+    const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
+}
+@model OrderApprovalDecisionModel
+@* A plain post, unlike the ajax popups: serializing the form would drop the clicked button, which is the decision,
+   and the redirect has to reload the order. *@
+<form id="DecideApprovalPopup" asp-area="@area" asp-controller="Order" asp-action="DecideApproval" asp-route-id="@Model.OrderId" method="post" onsubmit="@submitOnce">
+    <admin-popup title="@Loc["Admin.Orders.Approval.PopupTitle"]" icon="bi-check2-circle">
+        @if (Model.Reasons.Any())
+        {
+            <div class="grand-facts">
+                <div>
+                    <div class="grand-fact__label">@Loc["Admin.Orders.Approval.Reasons"]</div>
+                    <div class="grand-fact__value">
+                        <ul class="mb-0">
+                            @foreach (var reason in Model.Reasons)
+                            {
+                                <li>@reason</li>
+                            }
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        }
+        <div class="grand-fields">
+            <label for="comment" class="form-label">@Loc["Admin.Orders.Approval.Note"]</label>
+            <textarea id="comment" name="comment" class="form-control" rows="4" maxlength="1000"></textarea>
+            <small class="form-text text-muted">@Loc["Admin.Orders.Approval.Note.Hint"]</small>
+        </div>
+        <div class="grand-popup__actions">
+            <button type="submit" name="approve" value="false" class="btn btn-outline-danger">@Loc["Admin.Orders.Approval.Reject"]</button>
+            <button type="submit" name="approve" value="true" class="btn btn-primary">@Loc["Admin.Orders.Approval.Approve"]</button>
+        </div>
+    </admin-popup>
+</form>

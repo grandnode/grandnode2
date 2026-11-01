@@ -63,6 +63,11 @@ public class StoreModel : BaseEntityModel, ILocalizedModel<StoreLocalizedModel>
 
     public IList<SelectListItem> AvailableCurrencies { get; set; } = new List<SelectListItem>();
 
+    [GrandResourceDisplayName("Admin.Configuration.Stores.Fields.OwnerCustomerId")]
+    public string OwnerCustomerId { get; set; }
+
+    public IList<SelectListItem> AvailableOwnerAccounts { get; set; } = new List<SelectListItem>();
+
     public IList<DomainHostModel> Domains { get; set; } = new List<DomainHostModel>();
 
     public BankAccountModel BankAccount { get; set; }
