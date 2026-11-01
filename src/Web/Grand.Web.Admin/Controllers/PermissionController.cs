@@ -161,6 +161,7 @@ public class PermissionController : BaseAdminController
         }
         else
         {
+            ViewBag.ClosePage = true;
             return await PermissionsAction(systemName, customeGroupId);
         }
 
