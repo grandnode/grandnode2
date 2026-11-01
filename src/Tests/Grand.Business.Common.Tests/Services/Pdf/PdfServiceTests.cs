@@ -20,7 +20,6 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Mediator;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -31,12 +30,14 @@ namespace Grand.Business.Common.Tests.Services.Pdf;
 [TestClass]
 public class PdfServiceTests
 {
+    private Mock<IRepository<Download>> _downloadRepositoryMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IOrderService> _orderServiceMock;
     private PdfSettings _pdfSettings;
     private Mock<IPictureService> _pictureServiceMock;
     private Mock<IProductService> _productServiceMock;
     private PdfService _service;
+    private Mock<IStoreFilesContext> _storeFilesContextMock;
 
     [TestInitialize]
     public void Init()
@@ -64,8 +65,11 @@ public class PdfServiceTests
         _productServiceMock.Setup(p => p.GetProductByIdIncludeArch(It.IsAny<string>()))
             .ReturnsAsync((string id) => new Product { Id = id, Name = "Product " + id, Sku = "SKU-" + id });
 
-        _service = new PdfService(new Mock<IRepository<Download>>().Object, translationServiceMock.Object,
-            new Mock<IStoreFilesContext>().Object, new Mock<IWebHostEnvironment>().Object,
+        _downloadRepositoryMock = new Mock<IRepository<Download>>();
+        _storeFilesContextMock = new Mock<IStoreFilesContext>();
+
+        _service = new PdfService(_downloadRepositoryMock.Object, translationServiceMock.Object,
+            _storeFilesContextMock.Object,
             _productServiceMock.Object, new Mock<ICountryService>().Object,
             storeServiceMock.Object, _pictureServiceMock.Object, new Mock<IPaymentService>().Object,
             giftVoucherServiceMock.Object, _orderServiceMock.Object, _pdfSettings, _mediatorMock.Object,
@@ -303,6 +307,31 @@ public class PdfServiceTests
         await _service.PrintPackagingSlipsToPdf(stream, [new Shipment { OrderId = "deleted" }]);
         //Assert
         using var pdf = PdfDocument.Open(stream.ToArray());
+        Assert.AreEqual(1, pdf.NumberOfPages);
+    }
+
+    [TestMethod]
+    public async Task SaveOrderToBinary_StoresThePdfAsADownloadTheStorefrontCannotServe()
+    {
+        //Arrange
+        byte[] uploaded = null;
+        _storeFilesContextMock.Setup(s => s.BucketUploadFromBytes(It.IsAny<string>(), It.IsAny<byte[]>()))
+            .Callback<string, byte[]>((_, bytes) => uploaded = bytes)
+            .ReturnsAsync("object");
+        Download inserted = null;
+        _downloadRepositoryMock.Setup(r => r.InsertAsync(It.IsAny<Download>()))
+            .Callback<Download>(d => inserted = d);
+        //Act
+        var downloadId = await _service.SaveOrderToBinary(CreateOrder(), "");
+        //Assert
+        Assert.IsNotNull(inserted);
+        Assert.AreEqual(inserted.Id, downloadId);
+        Assert.AreEqual("object", inserted.DownloadObjectId);
+        Assert.AreEqual(".pdf", inserted.Extension);
+        Assert.AreEqual("application/pdf", inserted.ContentType);
+        //the download action rejects an empty guid, and only an owner or an admin gets past it anyway
+        Assert.AreEqual(Guid.Empty, inserted.DownloadGuid);
+        using var pdf = PdfDocument.Open(uploaded);
         Assert.AreEqual(1, pdf.NumberOfPages);
     }
 

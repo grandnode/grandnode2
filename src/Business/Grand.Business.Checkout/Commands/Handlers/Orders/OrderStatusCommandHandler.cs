@@ -5,12 +5,14 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Orders;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 
 public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, bool>
 {
     private readonly ICustomerService _customerService;
+    private readonly ILogger<OrderStatusCommandHandler> _logger;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
     private readonly IMediator _mediator;
     private readonly IOrderMessageProviderService _orderMessageProviderService;
@@ -27,7 +29,8 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         IVendorService vendorService,
         IMediator mediator,
         OrderSettings orderSettings,
-        LoyaltyPointsSettings loyaltyPointsSettings)
+        LoyaltyPointsSettings loyaltyPointsSettings,
+        ILogger<OrderStatusCommandHandler> logger)
     {
         _orderService = orderService;
         _customerService = customerService;
@@ -37,6 +40,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         _mediator = mediator;
         _orderSettings = orderSettings;
         _loyaltyPointsSettings = loyaltyPointsSettings;
+        _logger = logger;
     }
 
     public async Task<bool> Handle(SetOrderStatusCommand request, CancellationToken cancellationToken)
@@ -66,23 +70,21 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         {
             //notification
 
-            var orderCompletedAttachmentFilePath = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail
-                ? await _pdfService.PrintOrderToPdf(request.Order, "")
-                : null;
-            var orderCompletedAttachmentFileName =
-                _orderSettings.AttachPdfInvoiceToOrderCompletedEmail ? "order.pdf" : null;
+            string invoiceDownloadId = null;
 
-            var orderCompletedAttachments = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail &&
-                                            _orderSettings.AttachPdfInvoiceToBinary
-                ? [
-                    await _pdfService.SaveOrderToBinary(request.Order, "")
-                ]
-                : new List<string>();
+            try
+            {
+                if (_orderSettings.AttachPdfInvoiceToOrderCompletedEmail)
+                    invoiceDownloadId = await _pdfService.SaveOrderToBinary(request.Order, "");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error - order completed attachment file {OrderOrderNumber}", request.Order.OrderNumber);
+            }
 
             await _orderMessageProviderService
                 .SendOrderCompletedCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId,
-                    orderCompletedAttachmentFilePath,
-                    orderCompletedAttachmentFileName, orderCompletedAttachments);
+                    invoiceDownloadId);
         }
 
         if (prevOrderStatus != (int)OrderStatusSystem.Cancelled &&

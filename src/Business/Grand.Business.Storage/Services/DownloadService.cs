@@ -131,5 +131,19 @@ public class DownloadService : IDownloadService
         await _mediator.EntityDeleted(download);
     }
 
+    /// <summary>
+    ///     Deletes a download by identifier, without loading its file. Does nothing when it no longer exists
+    /// </summary>
+    /// <param name="downloadId">Download identifier</param>
+    public virtual async Task DeleteDownloadById(string downloadId)
+    {
+        if (string.IsNullOrEmpty(downloadId))
+            return;
+
+        var download = await _downloadRepository.GetByIdAsync(downloadId);
+        if (download != null)
+            await DeleteDownload(download);
+    }
+
     #endregion
 }

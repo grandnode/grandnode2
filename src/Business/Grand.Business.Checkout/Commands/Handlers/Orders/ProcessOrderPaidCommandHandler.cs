@@ -7,6 +7,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 
@@ -14,6 +15,7 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
 {
     private readonly ICustomerService _customerService;
     private readonly LanguageSettings _languageSettings;
+    private readonly ILogger<ProcessOrderPaidCommandHandler> _logger;
     private readonly IMediator _mediator;
     private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly OrderSettings _orderSettings;
@@ -25,7 +27,8 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
         IMediator mediator,
         IPdfService pdfService,
         OrderSettings orderSettings,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        ILogger<ProcessOrderPaidCommandHandler> logger)
     {
         _orderMessageProviderService = orderMessageProviderService;
         _customerService = customerService;
@@ -33,6 +36,7 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
         _pdfService = pdfService;
         _orderSettings = orderSettings;
         _languageSettings = languageSettings;
+        _logger = logger;
     }
 
     public async Task<bool> Handle(ProcessOrderPaidCommand request, CancellationToken cancellationToken)
@@ -61,24 +65,20 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
         {
             var customer = await _customerService.GetCustomerById(order.CustomerId);
 
-            var orderPaidAttachmentFilePath =
-                _orderSettings.AttachPdfInvoiceToOrderPaidEmail && !_orderSettings.AttachPdfInvoiceToBinary
-                    ? await _pdfService.PrintOrderToPdf(order, "")
-                    : null;
-            var orderPaidAttachmentFileName =
-                _orderSettings.AttachPdfInvoiceToOrderPaidEmail && !_orderSettings.AttachPdfInvoiceToBinary
-                    ? "order.pdf"
-                    : null;
+            string invoiceDownloadId = null;
 
-            var orderPaidAttachments =
-                _orderSettings.AttachPdfInvoiceToOrderPaidEmail && _orderSettings.AttachPdfInvoiceToBinary
-                    ? [
-                        await _pdfService.SaveOrderToBinary(order, "")
-                    ]
-                    : new List<string>();
+            try
+            {
+                if (_orderSettings.AttachPdfInvoiceToOrderPaidEmail)
+                    invoiceDownloadId = await _pdfService.SaveOrderToBinary(order, "");
+            }
+            catch (Exception ex)
+            {
+                _logger.LogError(ex, "Error - order paid attachment file {OrderOrderNumber}", order.OrderNumber);
+            }
 
             await _orderMessageProviderService.SendOrderPaidCustomerMessage(order, customer, order.CustomerLanguageId,
-                orderPaidAttachmentFilePath, orderPaidAttachmentFileName, orderPaidAttachments);
+                invoiceDownloadId);
 
             await _orderMessageProviderService.SendOrderPaidStoreOwnerMessage(order, customer,
                 _languageSettings.DefaultAdminLanguageId);

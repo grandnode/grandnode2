@@ -24,6 +24,7 @@ public interface IMessageProviderService
     /// <param name="subject">Subject. If specified, then it overrides subject of a message template</param>
     /// <param name="reference">Reference object</param>
     /// <param name="objectId">Reference object ident</param>
+    /// <param name="invoiceDownloadId">Download of the invoice; the queued email owns it and deletes it with itself</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendNotification(MessageTemplate messageTemplate,
         EmailAccount emailAccount, string languageId, LiquidObject liquidObject,
@@ -32,5 +33,5 @@ public interface IMessageProviderService
         IEnumerable<string> attachedDownloads = null,
         string replyToEmailAddress = null, string replyToName = null,
         string fromEmail = null, string fromName = null, string subject = null,
-        Reference reference = Reference.None, string objectId = "");
+        Reference reference = Reference.None, string objectId = "", string invoiceDownloadId = null);
 }

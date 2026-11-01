@@ -1,15 +1,20 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Common;
+using Grand.Domain.Media;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Messages.Services;
 
 public class QueuedEmailService : IQueuedEmailService
 {
+    private readonly IDownloadService _downloadService;
+    private readonly ILogger<QueuedEmailService> _logger;
     private readonly IMediator _mediator;
     private readonly IRepository<QueuedEmail> _queuedEmailRepository;
 
@@ -17,12 +22,18 @@ public class QueuedEmailService : IQueuedEmailService
     ///     Ctor
     /// </summary>
     /// <param name="queuedEmailRepository">Queued email repository</param>
+    /// <param name="downloadService">Download service</param>
     /// <param name="mediator">Mediator</param>
+    /// <param name="logger">Logger</param>
     public QueuedEmailService(IRepository<QueuedEmail> queuedEmailRepository,
-        IMediator mediator)
+        IDownloadService downloadService,
+        IMediator mediator,
+        ILogger<QueuedEmailService> logger)
     {
         _queuedEmailRepository = queuedEmailRepository;
+        _downloadService = downloadService;
         _mediator = mediator;
+        _logger = logger;
     }
 
     /// <summary>
@@ -33,7 +44,16 @@ public class QueuedEmailService : IQueuedEmailService
     {
         ArgumentNullException.ThrowIfNull(queuedEmail);
 
-        await _queuedEmailRepository.InsertAsync(queuedEmail);
+        try
+        {
+            await _queuedEmailRepository.InsertAsync(queuedEmail);
+        }
+        catch
+        {
+            //the email was not stored, so nothing would ever delete its invoice
+            await DeleteInvoices([queuedEmail.InvoiceDownloadId]);
+            throw;
+        }
 
         //event notification
         await _mediator.EntityInserted(queuedEmail);
@@ -54,12 +74,14 @@ public class QueuedEmailService : IQueuedEmailService
     }
 
     /// <summary>
-    ///     Deleted a queued email
+    ///     Deleted a queued email and its invoice
     /// </summary>
     /// <param name="queuedEmail">Queued email</param>
     public virtual async Task DeleteQueuedEmail(QueuedEmail queuedEmail)
     {
         ArgumentNullException.ThrowIfNull(queuedEmail);
+
+        await DeleteInvoices([queuedEmail.InvoiceDownloadId]);
 
         await _queuedEmailRepository.DeleteAsync(queuedEmail);
 
@@ -68,16 +90,54 @@ public class QueuedEmailService : IQueuedEmailService
     }
 
     /// <summary>
-    ///     Deleted a customer emails
+    ///     Copies the invoice of a queued email, so that an email created from it owns a download of its own
+    /// </summary>
+    /// <param name="invoiceDownloadId">Download identifier of the invoice</param>
+    /// <returns>Download identifier of the copy; null when there is no invoice to copy</returns>
+    public virtual async Task<string> CopyInvoiceDownload(string invoiceDownloadId)
+    {
+        var invoice = await _downloadService.GetDownloadById(invoiceDownloadId);
+        if (invoice == null)
+            return null;
+
+        var copy = new Download {
+            Filename = invoice.Filename,
+            Extension = invoice.Extension,
+            ContentType = invoice.ContentType,
+            DownloadBinary = invoice.DownloadBinary
+        };
+        await _downloadService.InsertDownload(copy);
+
+        return copy.Id;
+    }
+
+    /// <summary>
+    ///     Deleted a customer emails and their invoices
     /// </summary>
     /// <param name="email">email</param>
     public virtual async Task DeleteCustomerEmail(string email)
     {
         ArgumentNullException.ThrowIfNull(email);
 
-        var deleteCustomerEmail = _queuedEmailRepository.Table.Where(x => x.To == email);
+        await DeleteInvoiceEmails(_queuedEmailRepository.Table.Where(x => x.To == email));
 
-        await _queuedEmailRepository.DeleteAsync(deleteCustomerEmail);
+        await _queuedEmailRepository.DeleteManyAsync(x => x.To == email && x.InvoiceDownloadId == null);
+    }
+
+    /// <summary>
+    ///     Deleted the invoice emails of orders and their invoices
+    /// </summary>
+    /// <param name="orderIds">Order identifiers</param>
+    public virtual async Task DeleteOrderInvoiceEmails(IEnumerable<string> orderIds)
+    {
+        ArgumentNullException.ThrowIfNull(orderIds);
+
+        var ids = orderIds.ToList();
+        if (ids.Count == 0)
+            return;
+
+        await DeleteInvoiceEmails(_queuedEmailRepository.Table.Where(x =>
+            x.Reference == Reference.Order && ids.Contains(x.ObjectId)));
     }
 
     /// <summary>
@@ -177,10 +237,41 @@ public class QueuedEmailService : IQueuedEmailService
     }
 
     /// <summary>
-    ///     Delete all queued emails
+    ///     Delete all queued emails and their invoices
     /// </summary>
     public virtual async Task DeleteAllEmails()
     {
-        await _queuedEmailRepository.ClearAsync();
+        await DeleteInvoiceEmails(_queuedEmailRepository.Table);
+
+        await _queuedEmailRepository.DeleteManyAsync(x => x.InvoiceDownloadId == null);
+    }
+
+    /// <summary>
+    ///     Deletes the emails with an invoice, invoices first: once an email is gone, nothing leads to its invoice.
+    ///     Only the emails read here are deleted, so one queued in the meantime keeps its invoice
+    /// </summary>
+    private async Task DeleteInvoiceEmails(IQueryable<QueuedEmail> emails)
+    {
+        var invoiceEmails = await _queuedEmailRepository.ToListAsync(emails
+            .Where(x => x.InvoiceDownloadId != null)
+            .Select(x => new QueuedEmail { Id = x.Id, InvoiceDownloadId = x.InvoiceDownloadId }));
+
+        await DeleteInvoices(invoiceEmails.Select(x => x.InvoiceDownloadId));
+
+        await _queuedEmailRepository.DeleteAsync(invoiceEmails);
+    }
+
+    private async Task DeleteInvoices(IEnumerable<string> invoiceDownloadIds)
+    {
+        foreach (var invoiceDownloadId in invoiceDownloadIds)
+            try
+            {
+                await _downloadService.DeleteDownloadById(invoiceDownloadId);
+            }
+            catch (Exception ex)
+            {
+                //a broken file must not stop the rest nor the deletion of an email or an account
+                _logger.LogError(ex, "Error deleting the invoice download {InvoiceDownloadId}", invoiceDownloadId);
+            }
     }
 }

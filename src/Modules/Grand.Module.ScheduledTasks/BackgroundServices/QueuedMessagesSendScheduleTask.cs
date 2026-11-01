@@ -43,6 +43,9 @@ public class QueuedMessagesSendScheduleTask : IScheduleTask
             var cc = string.IsNullOrWhiteSpace(queuedEmail.CC)
                 ? null
                 : queuedEmail.CC.Split([';'], StringSplitOptions.RemoveEmptyEntries);
+            var attachedDownloads = string.IsNullOrEmpty(queuedEmail.InvoiceDownloadId)
+                ? queuedEmail.AttachedDownloads
+                : queuedEmail.AttachedDownloads.Append(queuedEmail.InvoiceDownloadId);
 
             try
             {
@@ -60,7 +63,7 @@ public class QueuedMessagesSendScheduleTask : IScheduleTask
                     cc,
                     queuedEmail.AttachmentFilePath,
                     queuedEmail.AttachmentFileName,
-                    queuedEmail.AttachedDownloads,
+                    attachedDownloads,
                     cancellationToken);
 
                 queuedEmail.SentOnUtc = DateTime.UtcNow;

@@ -21,14 +21,18 @@ public class OrderNotificationCommandHandlerTests
     private OrderNotificationCommandHandler _handler;
     private Mock<IOrderMessageProviderService> _orderMessageProviderServiceMock;
     private Mock<IOrderService> _orderServiceMock;
+    private OrderSettings _orderSettings;
+    private Mock<IPdfService> _pdfServiceMock;
 
     [TestInitialize]
     public void Init()
     {
         _orderServiceMock = new Mock<IOrderService>();
         _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
+        _orderSettings = new OrderSettings();
+        _pdfServiceMock = new Mock<IPdfService>();
         _handler = new OrderNotificationCommandHandler(_orderServiceMock.Object, _orderMessageProviderServiceMock.Object,
-            new OrderSettings(), new LanguageSettings(), new Mock<IPdfService>().Object,
+            _orderSettings, new LanguageSettings(), _pdfServiceMock.Object,
             new Mock<ILogger<OrderNotificationCommandHandler>>().Object, new Mock<IMediator>().Object);
     }
 
@@ -101,7 +105,7 @@ public class OrderNotificationCommandHandlerTests
         _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedVendorMessage(It.IsAny<Order>(),
             It.IsAny<Customer>(), It.IsAny<Vendor>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Never);
         _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(order, customer, "en",
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(), It.IsAny<DomainHost>()), Times.Once);
+            It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
     }
 
     [TestMethod]
@@ -115,8 +119,7 @@ public class OrderNotificationCommandHandlerTests
         }, CancellationToken.None);
 
         _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(It.IsAny<Order>(),
-            It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
-            It.IsAny<IEnumerable<string>>(), It.IsAny<DomainHost>()), Times.Never);
+            It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Never);
         _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedStoreOwnerMessage(order, customer,
             It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
     }
@@ -133,6 +136,49 @@ public class OrderNotificationCommandHandlerTests
 
         //Assert
         _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(order, customer, "en",
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>()), Times.Once);
+            It.IsAny<string>(), It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_InvoiceEnabled_AttachesTheSavedInvoice()
+    {
+        _orderSettings.AttachPdfInvoiceToOrderPlacedEmail = true;
+        var customer = new Customer();
+        var order = new Order { Id = "order", CustomerLanguageId = "en" };
+        _pdfServiceMock.Setup(x => x.SaveOrderToBinary(order, "en", It.IsAny<string>())).ReturnsAsync("invoice");
+
+        await _handler.Handle(new OrderNotificationCommand { Order = order, Customer = customer }, CancellationToken.None);
+
+        _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(order, customer, "en", "invoice",
+            It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_InvoiceDisabled_SavesNoInvoice()
+    {
+        var customer = new Customer();
+        var order = new Order { Id = "order", CustomerLanguageId = "en" };
+
+        await _handler.Handle(new OrderNotificationCommand { Order = order, Customer = customer }, CancellationToken.None);
+
+        _pdfServiceMock.Verify(x => x.SaveOrderToBinary(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+        _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(order, customer, "en", null,
+            It.IsAny<DomainHost>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_InvoiceCannotBeGenerated_StillSendsTheCustomerMessage()
+    {
+        _orderSettings.AttachPdfInvoiceToOrderPlacedEmail = true;
+        var customer = new Customer();
+        var order = new Order { Id = "order", CustomerLanguageId = "en" };
+        _pdfServiceMock.Setup(x => x.SaveOrderToBinary(order, "en", It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException());
+
+        await _handler.Handle(new OrderNotificationCommand { Order = order, Customer = customer }, CancellationToken.None);
+
+        _orderMessageProviderServiceMock.Verify(x => x.SendOrderPlacedCustomerMessage(order, customer, "en", null,
+            It.IsAny<DomainHost>()), Times.Once);
     }
 }

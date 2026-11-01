@@ -33,7 +33,7 @@ public class MessageProviderService : IMessageProviderService
         IEnumerable<string> attachedDownloads = null,
         string replyToEmailAddress = null, string replyToName = null,
         string fromEmail = null, string fromName = null, string subject = null,
-        Reference reference = Reference.None, string objectId = "")
+        Reference reference = Reference.None, string objectId = "", string invoiceDownloadId = null)
     {
         if (string.IsNullOrEmpty(toEmailAddress))
             return 0;
@@ -74,6 +74,7 @@ public class MessageProviderService : IMessageProviderService
         email.AttachmentFilePath = attachmentFilePath;
         email.AttachmentFileName = attachmentFileName;
         email.AttachedDownloads = attachments;
+        email.InvoiceDownloadId = invoiceDownloadId;
         email.EmailAccountId = emailAccount.Id;
         email.DontSendBeforeDateUtc = !messageTemplate.DelayBeforeSend.HasValue
             ? null

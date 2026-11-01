@@ -190,7 +190,10 @@ public class QueuedEmailController : BaseAdminController
             AttachmentFilePath = queuedEmail.AttachmentFilePath,
             AttachmentFileName = queuedEmail.AttachmentFileName,
             AttachedDownloads = queuedEmail.AttachedDownloads,
+            InvoiceDownloadId = await _queuedEmailService.CopyInvoiceDownload(queuedEmail.InvoiceDownloadId),
             EmailAccountId = queuedEmail.EmailAccountId,
+            Reference = queuedEmail.Reference,
+            ObjectId = queuedEmail.ObjectId,
             DontSendBeforeDateUtc = queuedEmailModel.SendImmediately || !queuedEmailModel.DontSendBeforeDate.HasValue
                 ? null
                 : _dateTimeService.ConvertToUtcTime(queuedEmailModel.DontSendBeforeDate.Value)

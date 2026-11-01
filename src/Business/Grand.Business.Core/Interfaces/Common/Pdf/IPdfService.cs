@@ -9,18 +9,6 @@ namespace Grand.Business.Core.Interfaces.Common.Pdf;
 public interface IPdfService
 {
     /// <summary>
-    ///     Print an order to PDF
-    /// </summary>
-    /// <param name="order">Order</param>
-    /// <param name="languageId">Language identifier; 0 to use a language used when placing an order</param>
-    /// <param name="vendorId">
-    ///     Vendor identifier to limit products; 0 to to print all products. If specified, then totals won't
-    ///     be printed
-    /// </param>
-    /// <returns>A path of generated file</returns>
-    Task<string> PrintOrderToPdf(Order order, string languageId, string vendorId = "");
-
-    /// <summary>
     ///     Save an order PDF
     /// </summary>
     /// <param name="order">Order</param>

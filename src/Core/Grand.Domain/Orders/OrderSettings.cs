@@ -61,11 +61,6 @@ public class OrderSettings : ISettings
     public bool AttachPdfInvoiceToOrderCompletedEmail { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating we should attach PDF invoice to binary field
-    /// </summary>
-    public bool AttachPdfInvoiceToBinary { get; set; }
-
-    /// <summary>
     ///     Gets or sets a value indicating whether "Merchandise returns" are allowed
     /// </summary>
     public bool MerchandiseReturnsEnabled { get; set; }

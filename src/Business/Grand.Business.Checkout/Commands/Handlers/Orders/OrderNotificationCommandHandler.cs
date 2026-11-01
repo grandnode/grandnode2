@@ -65,25 +65,13 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
 
             if (request.NotifyCustomer)
             {
-                string orderPlacedAttachmentFilePath = string.Empty, orderPlacedAttachmentFileName = string.Empty;
-                var orderPlacedAttachments = new List<string>();
+                string invoiceDownloadId = null;
 
                 try
                 {
-                    orderPlacedAttachmentFilePath =
-                        _orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !_orderSettings.AttachPdfInvoiceToBinary
-                            ? await _pdfService.PrintOrderToPdf(request.Order, request.Order.CustomerLanguageId)
-                            : null;
-                    orderPlacedAttachmentFileName =
-                        _orderSettings.AttachPdfInvoiceToOrderPlacedEmail && !_orderSettings.AttachPdfInvoiceToBinary
-                            ? "order.pdf"
-                            : null;
-                    orderPlacedAttachments = _orderSettings.AttachPdfInvoiceToOrderPlacedEmail &&
-                                             _orderSettings.AttachPdfInvoiceToBinary
-                        ? [
-                            await _pdfService.SaveOrderToBinary(request.Order, request.Order.CustomerLanguageId)
-                        ]
-                        : [];
+                    if (_orderSettings.AttachPdfInvoiceToOrderPlacedEmail)
+                        invoiceDownloadId =
+                            await _pdfService.SaveOrderToBinary(request.Order, request.Order.CustomerLanguageId);
                 }
                 catch (Exception ex)
                 {
@@ -91,8 +79,7 @@ public class OrderNotificationCommandHandler : IRequestHandler<OrderNotification
                 }
 
                 await _orderMessageProviderService.SendOrderPlacedCustomerMessage(request.Order, request.Customer,
-                    request.Order.CustomerLanguageId, orderPlacedAttachmentFilePath, orderPlacedAttachmentFileName,
-                    orderPlacedAttachments, request.Host);
+                    request.Order.CustomerLanguageId, invoiceDownloadId, request.Host);
             }
 
             if (request.NotifyStoreOwnerAndVendors && request.Order.OrderItems.Any(x => !string.IsNullOrEmpty(x.VendorId)))
