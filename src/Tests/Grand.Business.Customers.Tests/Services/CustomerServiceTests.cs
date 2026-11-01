@@ -9,6 +9,7 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -521,6 +522,43 @@ public class CustomerServiceTests
         var updated = _repository.Table.FirstOrDefault(x => x.Id == customer.Id);
         Assert.AreEqual(2500, updated.CreditLimit);
         Assert.AreEqual(45, updated.PaymentTermDays);
+    }
+
+    [TestMethod]
+    public async Task UpdateCustomerPassword_WritesOnlyThePasswordFields()
+    {
+        //Arrange
+        await _repository.InsertAsync(new Customer {
+            Id = "c1", Email = "current@x.com", Username = "current", StoreId = "store-1", Active = false,
+            Password = "old", PasswordSalt = "salt", PasswordFormatId = PasswordFormat.Clear
+        });
+        //taken before the account changed, as a caller holds it during a request
+        var changedAt = new DateTime(2026, 11, 1, 12, 0, 0, DateTimeKind.Utc);
+        var snapshot = new Customer {
+            Id = "c1", Email = "stale@x.com", Username = "stale", StoreId = "store-2", Active = true,
+            Password = "new", PasswordSalt = "", PasswordFormatId = PasswordFormat.Hashed,
+            PasswordChangeDateUtc = changedAt
+        };
+        //Act
+        await _customerService.UpdateCustomerPassword(snapshot);
+        //Assert
+        var stored = _repository.Table.First(x => x.Id == "c1");
+        Assert.AreEqual("new", stored.Password);
+        Assert.AreEqual("", stored.PasswordSalt);
+        Assert.AreEqual(PasswordFormat.Hashed, stored.PasswordFormatId);
+        Assert.AreEqual(changedAt, stored.PasswordChangeDateUtc);
+        Assert.AreEqual("current@x.com", stored.Email);
+        Assert.AreEqual("current", stored.Username);
+        Assert.AreEqual("store-1", stored.StoreId);
+        Assert.IsFalse(stored.Active);
+    }
+
+    [TestMethod]
+    public async Task UpdateCustomerPassword_SystemAccount_Throws()
+    {
+        var customer = new Customer { Id = "c1", IsSystemAccount = true, SystemName = "system" };
+
+        await Assert.ThrowsExactlyAsync<GrandException>(() => _customerService.UpdateCustomerPassword(customer));
     }
 
     [TestMethod]

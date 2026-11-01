@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Models.Customer;
@@ -47,11 +46,10 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
             }
         }
 
-        //update password (scope the lookup to the sub-account's store - safe with or without per-store identity)
+        //update password - of this account, the one the ownership check above is about
         if (!string.IsNullOrEmpty(request.EditModel.Password))
-            await _customerManagerService.ChangePassword(
-                new ChangePasswordRequest(customer.Email, _customerSettings.DefaultPasswordFormat,
-                    request.EditModel.Password), customer.StoreId);
+            await _customerManagerService.ChangePassword(customer, _customerSettings.DefaultPasswordFormat,
+                request.EditModel.Password);
 
         //update active
         customer.Active = request.EditModel.Active;

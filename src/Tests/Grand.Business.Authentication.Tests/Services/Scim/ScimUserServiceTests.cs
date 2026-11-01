@@ -484,7 +484,7 @@ public class ScimUserServiceTests
         await _f.UserService().Create(ScimFixture.Data());
 
         Assert.AreEqual("hash:staff", (await _f.Reload(staff.Id)).Password);
-        _f.CustomerManager.Verify(x => x.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
+        _f.CustomerManager.Verify(x => x.ChangePassword(It.IsAny<Customer>(), It.IsAny<PasswordFormat>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]

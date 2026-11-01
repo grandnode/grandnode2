@@ -112,11 +112,11 @@ public class ScimFixture
                 r.Customer.Groups.Add(Registered.Id);
                 await Customers.UpdateAsync(r.Customer);
             });
-        CustomerManager.Setup(x => x.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()))
-            .Returns(async (ChangePasswordRequest r, string _) =>
+        CustomerManager.Setup(x => x.ChangePassword(It.IsAny<Customer>(), It.IsAny<PasswordFormat>(), It.IsAny<string>()))
+            .Returns(async (Customer c, PasswordFormat _, string newPassword) =>
             {
-                var stored = await Customers.GetOneAsync(x => x.Email == r.Email);
-                stored.Password = "hash:" + r.NewPassword;
+                var stored = await Customers.GetOneAsync(x => x.Id == c.Id);
+                stored.Password = "hash:" + newPassword;
                 stored.UserFields = stored.UserFields.Where(x => x.Key != SystemCustomerFieldNames.PasswordToken).ToList();
                 stored.UserFields.Add(new UserField {
                     Key = SystemCustomerFieldNames.PasswordToken, Value = Guid.NewGuid().ToString(), StoreId = ""

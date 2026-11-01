@@ -169,6 +169,31 @@ public class CustomerManagerServiceTests
     }
 
     [TestMethod]
+    public async Task ChangePassword_ForCustomer_ChangesThatCustomerWithoutLookup()
+    {
+        //Arrange
+        var customer = new Customer { Id = "c1", Email = "a@x.com", PasswordFormatId = PasswordFormat.Clear, Password = "123456" };
+        //Act
+        await _customerManagerService.ChangePassword(customer, PasswordFormat.Clear, "zxcvbn");
+        //Assert
+        Assert.AreEqual("zxcvbn", customer.Password);
+        _customerServiceMock.Verify(c => c.UpdateCustomerPassword(customer), Times.Once);
+        //the whole-customer update would write back everything else the caller's copy holds
+        _customerServiceMock.Verify(c => c.UpdateCustomer(It.IsAny<Customer>()), Times.Never);
+        _customerServiceMock.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangePassword_UnknownEmail_Throws()
+    {
+        //Arrange
+        var changepassword = new ChangePasswordRequest("nobody@x.com", PasswordFormat.Clear, "zxcvbn");
+        //Act + Assert
+        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
+            _customerManagerService.ChangePassword(changepassword, "store-1"));
+    }
+
+    [TestMethod]
     public async Task ChangePasswordTest_Success()
     {
         //Arrange

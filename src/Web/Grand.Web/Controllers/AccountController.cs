@@ -1119,10 +1119,8 @@ public class AccountController : BasePublicController
 
         if (!ModelState.IsValid) return View(model);
 
-        var changePasswordRequest = new ChangePasswordRequest(_contextAccessor.WorkContext.CurrentCustomer.Email,
-            _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
-
-        await _customerManagerService.ChangePassword(changePasswordRequest);
+        await _customerManagerService.ChangePassword(_contextAccessor.WorkContext.CurrentCustomer,
+            _customerSettings.DefaultPasswordFormat, model.NewPassword);
         var customer = await _customerService.GetCustomerById(_contextAccessor.WorkContext.CurrentCustomer.Id);
 
         //sign in

@@ -88,6 +88,16 @@ public class AccountControllerProviderOnlyTests
     }
 
     [TestMethod]
+    public async Task ChangePassword_ChangesThePasswordOfTheSignedInAccount()
+    {
+        await _controller.ChangePassword(new ChangePasswordModel { OldPassword = "old", NewPassword = "new" },
+            new OidcLoginConfig());
+
+        _customerManager.Verify(m => m.ChangePassword(_currentCustomer, It.IsAny<PasswordFormat>(), "new"), Times.Once);
+        _customerManager.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Login_ProviderOnly_RedirectsToProvider()
     {
         _provider.Setup(p => p.GetSignInPath("/cart")).ReturnsAsync("/oidc/login?returnUrl=%2Fcart");
@@ -295,7 +305,8 @@ public class AccountControllerProviderOnlyTests
         var post = await _controller.ChangePassword(
             new ChangePasswordModel { OldPassword = "a", NewPassword = "b", ConfirmNewPassword = "b" }, _providerOnly);
         Assert.AreEqual("CustomerInfo", ((RedirectToRouteResult)post).RouteName);
-        _customerManager.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>()), Times.Never);
+        _customerManager.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
+        _customerManager.Verify(m => m.ChangePassword(It.IsAny<Customer>(), It.IsAny<PasswordFormat>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -306,7 +317,7 @@ public class AccountControllerProviderOnlyTests
             new ChangePasswordModel { OldPassword = "a", NewPassword = "b", ConfirmNewPassword = "b" },
             new OidcLoginConfig());
         Assert.IsInstanceOfType<ViewResult>(post);
-        _customerManager.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>()), Times.Once);
+        _customerManager.Verify(m => m.ChangePassword(_currentCustomer, It.IsAny<PasswordFormat>(), "b"), Times.Once);
     }
 
     [TestMethod]
