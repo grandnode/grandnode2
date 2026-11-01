@@ -109,7 +109,9 @@ public class CustomerManagerServiceTests
         await _customerManagerService.ChangePassword(customer, PasswordFormat.Clear, "zxcvbn");
         //Assert
         Assert.AreEqual("zxcvbn", customer.Password);
-        _customerServiceMock.Verify(c => c.UpdateCustomer(customer), Times.Once);
+        _customerServiceMock.Verify(c => c.UpdateCustomerPassword(customer), Times.Once);
+        //the whole-customer update would write back everything else the caller's copy holds
+        _customerServiceMock.Verify(c => c.UpdateCustomer(It.IsAny<Customer>()), Times.Never);
         _customerServiceMock.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
