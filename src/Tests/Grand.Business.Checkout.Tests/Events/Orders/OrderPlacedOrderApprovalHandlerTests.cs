@@ -61,7 +61,7 @@ public class OrderPlacedOrderApprovalHandlerTests
         _logger = new Mock<ILogger<OrderPlacedOrderApprovalHandler>>();
         _handler = new OrderPlacedOrderApprovalHandler(_approvalService.Object, _customerService.Object,
             _messages.Object, storeService.Object, productService.Object, priceFormatter.Object,
-            currencyService.Object, new Mock<ISalesEmployeeService>().Object,
+            currencyService.Object, new Mock<ISalesEmployeeService>().Object, new Mock<IGroupService>().Object,
             new CustomerSettings { HideSubAccountsTab = false }, new LanguageSettings(), _logger.Object);
 
         _owner = new Customer { Id = "owner", Email = "owner@acme.example", Active = true };

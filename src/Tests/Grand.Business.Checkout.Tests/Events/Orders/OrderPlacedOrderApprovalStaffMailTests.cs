@@ -25,6 +25,7 @@ public class OrderPlacedOrderApprovalStaffMailTests
     private readonly Store _store = new() { Id = "store" };
 
     private Mock<ICustomerService> _customerService;
+    private Mock<IGroupService> _groups;
     private OrderPlacedOrderApprovalHandler _handler;
     private OrderApproval _inserted;
     private Mock<ILogger<OrderPlacedOrderApprovalHandler>> _logger;
@@ -42,6 +43,7 @@ public class OrderPlacedOrderApprovalStaffMailTests
         _customerService.Setup(x => x.GetCustomerById("retail")).ReturnsAsync(_buyer);
         _messages = new Mock<ICustomerMessageProviderService>();
         _salesEmployees = new Mock<ISalesEmployeeService>();
+        _groups = new Mock<IGroupService>();
         _logger = new Mock<ILogger<OrderPlacedOrderApprovalHandler>>();
 
         var storeService = new Mock<IStoreService>();
@@ -51,7 +53,7 @@ public class OrderPlacedOrderApprovalStaffMailTests
 
         _handler = new OrderPlacedOrderApprovalHandler(approvalService.Object, _customerService.Object,
             _messages.Object, storeService.Object, new Mock<IProductService>().Object,
-            new Mock<IPriceFormatter>().Object, currencyService.Object, _salesEmployees.Object,
+            new Mock<IPriceFormatter>().Object, currencyService.Object, _salesEmployees.Object, _groups.Object,
             new CustomerSettings { HideSubAccountsTab = false },
             new LanguageSettings { DefaultAdminLanguageId = "admin-lang" }, _logger.Object);
 
@@ -69,13 +71,17 @@ public class OrderPlacedOrderApprovalStaffMailTests
         });
     }
 
-    private void Owner(bool active = true, bool deleted = false, string staffStoreId = null)
+    private void Owner(bool active = true, bool deleted = false, string staffStoreId = null, bool admin = true,
+        bool manager = false)
     {
-        _store.OwnerCustomerId = "store-owner";
-        _customerService.Setup(x => x.GetCustomerById("store-owner")).ReturnsAsync(new Customer {
+        var owner = new Customer {
             Id = "store-owner", Email = "owner@x.example", Active = active, Deleted = deleted,
             StaffStoreId = staffStoreId
-        });
+        };
+        _store.OwnerCustomerId = owner.Id;
+        _customerService.Setup(x => x.GetCustomerById(owner.Id)).ReturnsAsync(owner);
+        _groups.Setup(x => x.IsAdmin(owner)).ReturnsAsync(admin);
+        _groups.Setup(x => x.IsStoreManager(owner)).ReturnsAsync(manager);
     }
 
     private void Mailed(string toEmail, string panelArea)
@@ -199,11 +205,40 @@ public class OrderPlacedOrderApprovalStaffMailTests
     [TestMethod]
     public async Task Handle_OwnerWithStaffStore_LinksToStorePanel()
     {
-        Owner(staffStoreId: "store");
+        Owner(staffStoreId: "store", admin: false, manager: true);
 
         await Place();
 
         Mailed("owner@x.example", "Store");
+    }
+
+    [TestMethod]
+    [DataRow(false, false, null, DisplayName = "no longer staff")]
+    [DataRow(false, true, "another-store", DisplayName = "moved to another store")]
+    [DataRow(false, false, "store", DisplayName = "manager group taken away")]
+    public async Task Handle_OwnerNoLongerWorksForThisStore_GetsNoCustomerData(bool admin, bool manager,
+        string staffStoreId)
+    {
+        //the account was valid when it was chosen; the mail carries the buyer's name, e-mail and order
+        Owner(staffStoreId: staffStoreId, admin: admin, manager: manager);
+
+        await Place();
+
+        _messages.Verify(x => x.SendOrderApprovalStaffMessage(It.IsAny<OrderApproval>(), It.IsAny<Customer>(),
+            It.IsAny<Store>(), "owner@x.example", It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+        Mailed(null, "Admin");
+    }
+
+    [TestMethod]
+    public async Task Handle_AdministratorTiedToAnotherStore_LinksToAdminPanel()
+    {
+        //the Store panel would refuse this store's order
+        Owner(staffStoreId: "another-store");
+
+        await Place();
+
+        Mailed("owner@x.example", "Admin");
     }
 
     [TestMethod]

@@ -56,7 +56,8 @@ public class OrderPlacedOrderApprovalDeciderTests
         _handler = new OrderPlacedOrderApprovalHandler(approvalService.Object, _customerService.Object,
             _messages.Object, storeService.Object, new Mock<IProductService>().Object,
             new Mock<IPriceFormatter>().Object, currencyService.Object, new Mock<ISalesEmployeeService>().Object,
-            _customerSettings, new LanguageSettings(), new Mock<ILogger<OrderPlacedOrderApprovalHandler>>().Object);
+            new Mock<IGroupService>().Object, _customerSettings, new LanguageSettings(),
+            new Mock<ILogger<OrderPlacedOrderApprovalHandler>>().Object);
     }
 
     //the order's OwnerId holds the customer's own id when there is no owner, as PlaceOrderCommandHandler sets it

@@ -29,6 +29,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
     private readonly ICurrencyService _currencyService;
     private readonly ICustomerService _customerService;
     private readonly CustomerSettings _customerSettings;
+    private readonly IGroupService _groupService;
     private readonly LanguageSettings _languageSettings;
     private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly ILogger<OrderPlacedOrderApprovalHandler> _logger;
@@ -47,11 +48,13 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         IPriceFormatter priceFormatter,
         ICurrencyService currencyService,
         ISalesEmployeeService salesEmployeeService,
+        IGroupService groupService,
         CustomerSettings customerSettings,
         LanguageSettings languageSettings,
         ILogger<OrderPlacedOrderApprovalHandler> logger)
     {
         _salesEmployeeService = salesEmployeeService;
+        _groupService = groupService;
         _customerSettings = customerSettings;
         _languageSettings = languageSettings;
         _orderApprovalService = orderApprovalService;
@@ -194,8 +197,12 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         {
             var owner = await _customerService.GetCustomerById(store.OwnerCustomerId);
             if (owner is { Active: true, Deleted: false } && !string.IsNullOrWhiteSpace(owner.Email))
-                return (owner.Email, owner.GetFullName(),
-                    string.IsNullOrEmpty(owner.StaffStoreId) ? AdminPanelArea : StorePanelArea);
+            {
+                // the mail carries the buyer's data, and the account may have left this store since it was chosen
+                var managesThisStore = owner.StaffStoreId == store.Id && await _groupService.IsStoreManager(owner);
+                if (managesThisStore || await _groupService.IsAdmin(owner))
+                    return (owner.Email, owner.GetFullName(), managesThisStore ? StorePanelArea : AdminPanelArea);
+            }
         }
 
         return (null, null, AdminPanelArea);
