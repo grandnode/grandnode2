@@ -9,6 +9,7 @@ using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Messages.Tests.Services;
 
@@ -25,8 +26,9 @@ public class QueuedEmailServiceTests
     public void Init()
     {
         _repository = new Mock<IRepository<QueuedEmail>>();
-        _repository.Setup(c => c.ToListAsync(It.IsAny<IQueryable<string>>(), It.IsAny<CancellationToken>()))
-            .Returns((IQueryable<string> query, CancellationToken _) => Task.FromResult<IList<string>>(query.ToList()));
+        _repository.Setup(c => c.ToListAsync(It.IsAny<IQueryable<QueuedEmail>>(), It.IsAny<CancellationToken>()))
+            .Returns((IQueryable<QueuedEmail> query, CancellationToken _) =>
+                Task.FromResult<IList<QueuedEmail>>(query.ToList()));
         _downloadServiceMock = new Mock<IDownloadService>();
         _mediatorMock = new Mock<IMediator>();
         _loggerMock = new Mock<ILogger<QueuedEmailService>>();
@@ -47,6 +49,29 @@ public class QueuedEmailServiceTests
         await _service.InsertQueuedEmail(new QueuedEmail());
         _repository.Verify(c => c.InsertAsync(It.IsAny<QueuedEmail>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<QueuedEmail>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task InsertQueuedEmail_NotStored_DeletesTheInvoiceAndRethrows()
+    {
+        _repository.Setup(c => c.InsertAsync(It.IsAny<QueuedEmail>())).ThrowsAsync(new InvalidOperationException());
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            _service.InsertQueuedEmail(new QueuedEmail { InvoiceDownloadId = "invoice" }));
+
+        _downloadServiceMock.Verify(c => c.DeleteDownloadById("invoice"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task InsertQueuedEmail_StoredButEventFails_KeepsTheInvoice()
+    {
+        _mediatorMock.Setup(c => c.Publish(It.IsAny<EntityInserted<QueuedEmail>>(), default))
+            .ThrowsAsync(new InvalidOperationException());
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            _service.InsertQueuedEmail(new QueuedEmail { InvoiceDownloadId = "invoice" }));
+
+        _downloadServiceMock.Verify(c => c.DeleteDownloadById(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -83,14 +108,45 @@ public class QueuedEmailServiceTests
     public async Task DeleteCustomerEmail_ValidArgument_InvokeExpectedMethods()
     {
         await _service.DeleteCustomerEmail("email@email.com");
-        _repository.Verify(c => c.DeleteAsync(It.IsAny<IEnumerable<QueuedEmail>>()), Times.Once);
+        _repository.Verify(c => c.DeleteManyAsync(It.IsAny<Expression<Func<QueuedEmail, bool>>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteCustomerEmail_AnEmailWithAnInvoiceIsLeftToTheInvoiceDeletion()
+    {
+        Expression<Func<QueuedEmail, bool>> filter = null;
+        _repository.Setup(c => c.DeleteManyAsync(It.IsAny<Expression<Func<QueuedEmail, bool>>>()))
+            .Callback<Expression<Func<QueuedEmail, bool>>>(f => filter = f);
+
+        await _service.DeleteCustomerEmail("a@b.c");
+
+        var matches = filter.Compile();
+        Assert.IsTrue(matches(new QueuedEmail { To = "a@b.c" }));
+        Assert.IsFalse(matches(new QueuedEmail { To = "other@b.c" }));
+        //queued after the invoices were read, so its invoice was not deleted
+        Assert.IsFalse(matches(new QueuedEmail { To = "a@b.c", InvoiceDownloadId = "queued-meanwhile" }));
     }
 
     [TestMethod]
     public async Task DeleteAllEmails_ValidArgument_InvokeExpectedMethods()
     {
         await _service.DeleteAllEmails();
-        _repository.Verify(c => c.ClearAsync(), Times.Once);
+        _repository.Verify(c => c.DeleteManyAsync(It.IsAny<Expression<Func<QueuedEmail, bool>>>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteAllEmails_AnEmailWithAnInvoiceIsLeftToTheInvoiceDeletion()
+    {
+        Expression<Func<QueuedEmail, bool>> filter = null;
+        _repository.Setup(c => c.DeleteManyAsync(It.IsAny<Expression<Func<QueuedEmail, bool>>>()))
+            .Callback<Expression<Func<QueuedEmail, bool>>>(f => filter = f);
+
+        await _service.DeleteAllEmails();
+
+        var matches = filter.Compile();
+        Assert.IsTrue(matches(new QueuedEmail()));
+        //queued after the invoices were read, so its invoice was not deleted
+        Assert.IsFalse(matches(new QueuedEmail { InvoiceDownloadId = "queued-meanwhile" }));
     }
 
     [TestMethod]
@@ -161,7 +217,6 @@ public class QueuedEmailServiceTests
 
         await _service.DeleteAllEmails();
 
-        _repository.Verify(c => c.ClearAsync(), Times.Once);
         _downloadServiceMock.Verify(c => c.DeleteDownloadById("first"), Times.Once);
         _downloadServiceMock.Verify(c => c.DeleteDownloadById("second"), Times.Once);
         _downloadServiceMock.Verify(c => c.DeleteDownloadById(It.IsAny<string>()), Times.Exactly(2));
@@ -173,7 +228,8 @@ public class QueuedEmailServiceTests
         SetupEmails(new QueuedEmail { InvoiceDownloadId = "invoice" });
         var calls = new List<string>();
         _downloadServiceMock.Setup(c => c.DeleteDownloadById("invoice")).Callback(() => calls.Add("invoice"));
-        _repository.Setup(c => c.ClearAsync()).Callback(() => calls.Add("emails"));
+        _repository.Setup(c => c.DeleteAsync(It.IsAny<IEnumerable<QueuedEmail>>()))
+            .Callback(() => calls.Add("emails"));
 
         await _service.DeleteAllEmails();
 
@@ -198,7 +254,7 @@ public class QueuedEmailServiceTests
 
         _downloadServiceMock.Verify(c => c.DeleteDownloadById("mine"), Times.Once);
         _downloadServiceMock.Verify(c => c.DeleteDownloadById(It.IsAny<string>()), Times.Once);
-        CollectionAssert.AreEqual(new[] { invoiceEmail }, deleted.ToArray());
+        CollectionAssert.AreEqual(new[] { invoiceEmail.Id }, deleted.Select(x => x.Id).ToArray());
     }
 
     [TestMethod]
