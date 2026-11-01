@@ -38,7 +38,9 @@ public class CustomerValidatorsStoreScopingTests
     private static IContextAccessor Context(string currentCustomerEmail = "owner@x.com")
     {
         var work = new Mock<IWorkContext>();
-        work.Setup(w => w.CurrentCustomer).Returns(new Customer { Id = "owner", Email = currentCustomerEmail });
+        work.Setup(w => w.CurrentCustomer).Returns(new Customer {
+            Id = "owner", Email = currentCustomerEmail, StoreId = StoreId
+        });
         var store = new Mock<IStoreContext>();
         store.Setup(s => s.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = StoreId });
         var ctx = new Mock<IContextAccessor>();
@@ -172,23 +174,104 @@ public class CustomerValidatorsStoreScopingTests
     }
 
     [TestMethod]
-    public async Task SubAccountEditValidator_ScopesEmailLookupToCurrentStore_WhenEmailChanged()
+    public async Task SubAccountEditValidator_ScopesEmailLookupToTheAccountStore_WhenEmailChanged()
+    {
+        var (validator, customerService) = SubAccountEdit(new Customer {
+            Id = "c1", Email = "old@x.com", StoreId = "store-2", OwnerId = "owner"
+        });
+
+        await validator.ValidateAsync(SubAccountEditModel("new@x.com"));
+
+        //the account's store, as the current store (store-1) is not where this address has to stay unique
+        customerService.Verify(c => c.GetCustomerByEmail("new@x.com", "store-2"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SubAccountEditValidator_ChecksTheAddressAsItWillBeStored()
+    {
+        var (validator, customerService) = SubAccountEdit(new Customer {
+            Id = "c1", Email = "old@x.com", StoreId = StoreId, OwnerId = "owner"
+        });
+        customerService.Setup(c => c.GetCustomerByEmail("taken@x.com", StoreId))
+            .ReturnsAsync(new Customer { Id = "other" });
+
+        var result = await validator.ValidateAsync(SubAccountEditModel("  Taken@X.com "));
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.EmailUsernameErrors.EmailAlreadyExists"));
+    }
+
+    [TestMethod]
+    public async Task SubAccountEditValidator_RepairingCaseChecksTheAddress_WhenChangesAreNotAllowed()
+    {
+        var (validator, customerService) = SubAccountEdit(new Customer {
+            Id = "c1", Email = "Taken@X.com", StoreId = StoreId, OwnerId = "owner"
+        }, new CustomerSettings { AllowUsersToChangeEmail = false });
+        customerService.Setup(c => c.GetCustomerByEmail("taken@x.com", StoreId))
+            .ReturnsAsync(new Customer { Id = "other" });
+
+        var result = await validator.ValidateAsync(SubAccountEditModel("Taken@X.com"));
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.EmailUsernameErrors.EmailAlreadyExists"));
+    }
+
+    [TestMethod]
+    public async Task CustomerInfoValidator_ChecksTheAddressAsItWillBeStored()
     {
         var customerService = new Mock<ICustomerService>();
-        customerService.Setup(c => c.GetCustomerById("c1"))
-            .ReturnsAsync(new Customer { Id = "c1", Email = "old@x.com", OwnerId = "owner" });
+        customerService.Setup(c => c.GetCustomerByEmail("taken@x.com", StoreId))
+            .ReturnsAsync(new Customer { Id = "other" });
+
+        var result = await CustomerInfo(customerService, new CustomerSettings { AllowUsersToChangeEmail = true })
+            .ValidateAsync(new CustomerInfoModel { Email = "  Taken@X.com " });
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.EmailUsernameErrors.EmailAlreadyExists"));
+    }
+
+    [TestMethod]
+    public async Task CustomerInfoValidator_ChecksTheUsernameAsItWillBeStored()
+    {
+        var customerService = new Mock<ICustomerService>();
+        customerService.Setup(c => c.GetCustomerByUsername("taken", StoreId))
+            .ReturnsAsync(new Customer { Id = "other" });
+
+        var result = await CustomerInfo(customerService, new CustomerSettings {
+            UsernamesEnabled = true, AllowUsersToChangeUsernames = true
+        }).ValidateAsync(new CustomerInfoModel { Email = "old@x.com", Username = "  Taken " });
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.EmailUsernameErrors.UsernameAlreadyExists"));
+    }
+
+    private static (SubAccountEditValidator validator, Mock<ICustomerService> customerService) SubAccountEdit(
+        Customer account, CustomerSettings settings = null)
+    {
+        var customerService = new Mock<ICustomerService>();
+        customerService.Setup(c => c.GetCustomerById(account.Id)).ReturnsAsync(account);
         var groupService = new Mock<IGroupService>();
         groupService.Setup(g => g.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(true);
 
-        var validator = new SubAccountEditValidator(
+        return (new SubAccountEditValidator(
             new List<IValidatorConsumer<SubAccountEditModel>>(),
             customerService.Object, groupService.Object, Translation().Object,
-            Context(), new CustomerSettings { AllowUsersToChangeEmail = true }, PerStoreOn().Config);
+            Context(), settings ?? new CustomerSettings { AllowUsersToChangeEmail = true }, PerStoreOn().Config),
+            customerService);
+    }
 
-        await validator.ValidateAsync(new SubAccountEditModel {
-            Id = "c1", Email = "new@x.com", FirstName = "A", LastName = "B"
-        });
+    private static SubAccountEditModel SubAccountEditModel(string email) => new() {
+        Id = "c1", Email = email, FirstName = "A", LastName = "B"
+    };
 
-        customerService.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), StoreId), Times.AtLeastOnce);
+    private static CustomerInfoValidator CustomerInfo(Mock<ICustomerService> customerService, CustomerSettings settings)
+    {
+        var mediator = new Mock<IMediator>();
+        mediator.Setup(m => m.Send(It.IsAny<GetParseCustomAttributes>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<CustomAttribute>());
+        var attrParser = new Mock<ICustomerAttributeParser>();
+        attrParser.Setup(p => p.GetAttributeWarnings(It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<string>());
+
+        return new CustomerInfoValidator(
+            new List<IValidatorConsumer<CustomerInfoModel>>(),
+            Context("old@x.com"), customerService.Object, mediator.Object, attrParser.Object,
+            Translation().Object, new Mock<ICountryService>().Object, settings, PerStoreOn().Config);
     }
 }

@@ -1122,7 +1122,9 @@ public class AccountController : BasePublicController
         var changePasswordRequest = new ChangePasswordRequest(_contextAccessor.WorkContext.CurrentCustomer.Email,
             _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
 
-        await _customerManagerService.ChangePassword(changePasswordRequest);
+        //scope the lookup to the customer's store - the same e-mail may exist in another store with per-store identity
+        await _customerManagerService.ChangePassword(changePasswordRequest,
+            _contextAccessor.WorkContext.CurrentCustomer.StoreId);
         var customer = await _customerService.GetCustomerById(_contextAccessor.WorkContext.CurrentCustomer.Id);
 
         //sign in

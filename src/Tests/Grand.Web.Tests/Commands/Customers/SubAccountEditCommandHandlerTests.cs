@@ -42,7 +42,22 @@ public class SubAccountEditCommandHandlerTests
             Id = "c1", Email = "sub@x.com", Username = "sub@x.com", StoreId = "store-9", OwnerId = ownerId
         };
         _customerServiceMock.Setup(c => c.GetCustomerById("c1")).ReturnsAsync(customer);
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), "store-9")).ReturnsAsync(customer);
         return customer;
+    }
+
+    [TestMethod]
+    public async Task Handle_EmailLeadsToAnotherAccount_DoesNotChangePassword()
+    {
+        SubAccount();
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("sub@x.com", "store-9"))
+            .ReturnsAsync(new Customer { Id = "other", Email = "sub@x.com", StoreId = "store-9" });
+
+        var result = await _handler.Handle(Command(password: "newpass"), default);
+
+        Assert.IsFalse(result);
+        _customerManagerServiceMock.Verify(m => m.ChangePassword(
+            It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
     }
 
     private static SubAccountEditCommand Command(string email = "sub@x.com", string password = null,

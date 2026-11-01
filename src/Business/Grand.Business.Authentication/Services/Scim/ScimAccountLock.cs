@@ -62,7 +62,8 @@ public class ScimAccountLock(
 
         //also writes a new password token
         var password = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-        await customerManagerService.ChangePassword(new ChangePasswordRequest(customer.Email, PasswordFormat.Hashed, password));
+        await customerManagerService.ChangePassword(new ChangePasswordRequest(customer.Email, PasswordFormat.Hashed, password),
+            customer.StoreId);
         logger.LogInformation("SCIM reset the credentials of customer {CustomerId}", customer.Id);
     }
 

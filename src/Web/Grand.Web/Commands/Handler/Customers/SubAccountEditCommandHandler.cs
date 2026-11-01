@@ -49,9 +49,16 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
 
         //update password (scope the lookup to the sub-account's store - safe with or without per-store identity)
         if (!string.IsNullOrEmpty(request.EditModel.Password))
+        {
+            //the password change finds its account by email, which has to lead back to this account
+            var emailHolder = await _customerService.GetCustomerByEmail(customer.Email, customer.StoreId);
+            if (emailHolder?.Id != customer.Id)
+                return false;
+
             await _customerManagerService.ChangePassword(
                 new ChangePasswordRequest(customer.Email, _customerSettings.DefaultPasswordFormat,
                     request.EditModel.Password), customer.StoreId);
+        }
 
         //update active
         customer.Active = request.EditModel.Active;

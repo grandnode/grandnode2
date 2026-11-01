@@ -22,10 +22,6 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
         CustomerConfig customerConfig)
         : base(validators)
     {
-        var storeId = customerConfig.RegisterCustomersPerStore
-            ? contextAccessor.StoreContext.CurrentStore.Id
-            : "";
-
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
 
@@ -72,16 +68,20 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
             if (string.IsNullOrWhiteSpace(x.Email))
                 return;
 
-            if (customer.Email != x.Email.Trim().ToLowerInvariant() && customerSettings.AllowUsersToChangeEmail)
+            //the same address the command stores, checked where the account lives
+            var email = x.Email.Trim().ToLowerInvariant();
+            var sameAddress = string.Equals(customer.Email, email, StringComparison.OrdinalIgnoreCase);
+            if (customer.Email != email && (sameAddress || customerSettings.AllowUsersToChangeEmail))
             {
-                if (!CommonHelper.IsValidEmail(x.Email))
+                if (!CommonHelper.IsValidEmail(email))
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
 
-                if (x.Email.Length > 100)
+                if (email.Length > 100)
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                var customer2 = await customerService.GetCustomerByEmail(x.Email, storeId);
+                var storeId = customerConfig.RegisterCustomersPerStore ? customer.StoreId : "";
+                var customer2 = await customerService.GetCustomerByEmail(email, storeId);
                 if (customer2 != null && customer.Id != customer2.Id)
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
