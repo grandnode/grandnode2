@@ -4,7 +4,7 @@
     //CreateOrUpdate shows the quick-edit tabs and splits Additional into a tab per card
     ViewData["QuickTabs"] = true;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
-    bool readOnly = ViewBag.IsReadOnly == true;
+    bool readOnly = Model.IsReadOnly;
 }
 @* The product screen inside the bulk-edit popup (an iframe): the same form, posted to the same
    Edit action, without the panel's menu and top bar (the empty sections below) and with only the

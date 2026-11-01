@@ -4,7 +4,7 @@
     ViewBag.Title = Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.EditProductDetails"];
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     //a product the store may see but not change: no Save or Delete (copying it is allowed)
-    bool readOnly = ViewBag.IsReadOnly == true;
+    bool readOnly = Model.IsReadOnly;
 }
 @* The reference detail screen: the header carries the product's name, one primary action
    (Save) and everything else as an outline button, with Copy and Delete in the overflow menu

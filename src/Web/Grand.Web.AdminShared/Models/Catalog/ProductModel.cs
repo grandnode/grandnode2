@@ -5,6 +5,7 @@ using Grand.Web.AdminShared.Models.Discounts;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
 using Grand.Infrastructure.Validators;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -14,6 +15,14 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
 {
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ID")]
     public override string Id { get; set; }
+
+    /// <summary>
+    /// True when the caller may see the product but not change it (Store: a product shared with
+    /// other stores) - set by <c>BaseProductController.Edit(GET)</c>. It only takes the write buttons
+    /// away; every write action checks HasAccess itself. Never bound: the server decides it.
+    /// </summary>
+    [BindNever]
+    public bool IsReadOnly { get; set; }
 
     //picture thumbnail
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.PictureThumbnailUrl")]
