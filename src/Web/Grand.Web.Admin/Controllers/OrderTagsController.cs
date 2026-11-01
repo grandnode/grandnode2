@@ -113,7 +113,6 @@ public class OrderTagsController : BaseAdminController
         {
             orderTag.Name = model.Name;
             await _orderTagService.UpdateOrderTag(orderTag);
-            ViewBag.RefreshPage = true;
             return View(model);
         }
 

@@ -17,6 +17,7 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.Extensions.Logging;
@@ -140,7 +141,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
 
         //shown, but read-only: HasAccess no longer gates the page, it only takes the buttons away
         Assert.IsInstanceOfType<ViewResult>(result);
-        Assert.AreEqual(true, ((ViewResult)result).ViewData["IsReadOnly"]);
+        Assert.IsTrue(((ProductModel)((ViewResult)result).Model).IsReadOnly);
     }
 
     [TestMethod]
@@ -154,7 +155,15 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var result = await _controller.Edit("p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        Assert.AreEqual(false, ((ViewResult)result).ViewData["IsReadOnly"]);
+        Assert.IsFalse(((ProductModel)((ViewResult)result).Model).IsReadOnly);
+    }
+
+    [TestMethod]
+    public void IsReadOnly_IsNeverBoundFromTheRequest()
+    {
+        // The server decides it in Edit(GET); a posted value must not reach the re-rendered form.
+        Assert.IsTrue(Attribute.IsDefined(typeof(ProductModel).GetProperty(nameof(ProductModel.IsReadOnly))!,
+            typeof(BindNeverAttribute)));
     }
 
     // --- Edit (POST) -------------------------------------------------------------------------------
@@ -508,11 +517,10 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         _productAddPopupViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel())
             .ReturnsAsync(new ProductModel.AddRequiredProductModel());
 
-        var result = await _controller.RequiredProductAddPopup("input1") as ViewResult;
+        var result = await _controller.RequiredProductAddPopup() as ViewResult;
 
         Assert.IsNotNull(result);
         _productAddPopupViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel(), Times.Once);
-        Assert.AreEqual("input1", _controller.ViewBag.productIdsInput);
     }
 
     // --- RequiredProductAddPopupList -------------------------------------------------------------------

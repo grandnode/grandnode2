@@ -11,6 +11,7 @@ public class ProductProfile : Profile, IAutoMapperProfile
     public ProductProfile()
     {
         CreateMap<Product, ProductModel>()
+            .ForMember(dest => dest.IsReadOnly, mo => mo.Ignore())
             .ForMember(dest => dest.Locales, mo => mo.Ignore())
             .ForMember(dest => dest.ProductTypeName, mo => mo.Ignore())
             .ForMember(dest => dest.AssociatedToProductId, mo => mo.Ignore())

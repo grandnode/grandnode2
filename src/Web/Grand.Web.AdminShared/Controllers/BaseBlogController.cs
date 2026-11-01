@@ -82,7 +82,6 @@ public abstract class BaseBlogController(
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         var model = new BlogPostModel {
             AllowComments = true,
             CreateDate = DateTime.UtcNow
@@ -104,7 +103,6 @@ public abstract class BaseBlogController(
             return continueEditing ? RedirectToAction("Edit", new { id = blogPost.Id }) : RedirectToAction("List");
         }
 
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         return View(model);
     }
 
@@ -119,7 +117,6 @@ public abstract class BaseBlogController(
         EditWarningCheck(blogPost);
         if (!await postScope.CanView(blogPost)) return RedirectToAction("List");
 
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         var model = blogPost.ToModel(dateTimeService);
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
@@ -156,7 +153,6 @@ public abstract class BaseBlogController(
             return RedirectToAction("List");
         }
 
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
             locale.Title = blogPost.GetTranslation(x => x.Title, languageId, false);
@@ -246,7 +242,6 @@ public abstract class BaseBlogController(
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> CategoryCreate()
     {
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         var model = new BlogCategoryModel();
         await AddLocales(languageService, model.Locales);
         return View(model);
@@ -272,7 +267,6 @@ public abstract class BaseBlogController(
                 : RedirectToAction(CategoryListAction);
         }
 
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         await AddLocales(languageService, model.Locales);
         return View(model);
     }
@@ -284,7 +278,6 @@ public abstract class BaseBlogController(
         if (blogCategory == null) return RedirectToAction(CategoryListAction);
         if (!await categoryScope.HasAccess(blogCategory)) return RedirectToAction(CategoryListAction);
 
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         var model = blogCategory.ToModel();
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
@@ -319,7 +312,6 @@ public abstract class BaseBlogController(
             return RedirectToAction(CategoryListAction);
         }
 
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
             locale.Name = blogCategory.GetTranslation(x => x.Name, languageId, false);

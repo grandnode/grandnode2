@@ -1,7 +1,7 @@
 ﻿@model ProductModel
 @{
     //a product the store may see but not change (see BaseProductController.Edit)
-    bool readOnly = ViewBag.IsReadOnly == true;
+    bool readOnly = Model.IsReadOnly;
 }
 @inject AdminAreaSettings adminAreaSettings
 <vc:store-widget widget-zone="store_product_details_prices_top" additional-data="Model"/>
@@ -13,7 +13,7 @@
    pnlPreOrderDateTime, pnlMinEnteredPrice, pnlMaxEnteredPrice, pnlBaseprice*, pnlTaxCategory,
    pnlIsTelecommunicationsOrBroadcastingOrElectronicServices - sits on the same field as before.
    The store owner's copy of the Admin tab: the store's own widget zones, and tier prices a
-   store may only look at when the product is read-only (ViewBag.IsReadOnly). *@
+   store may only look at when the product is read-only (Model.IsReadOnly). *@
 <admin-card id="group-prices">
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="Price" suffix="@Model.PrimaryStoreCurrencyCode"/>
