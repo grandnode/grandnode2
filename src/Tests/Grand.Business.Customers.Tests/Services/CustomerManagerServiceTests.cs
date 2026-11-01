@@ -116,6 +116,49 @@ public class CustomerManagerServiceTests
     }
 
     [TestMethod]
+    public async Task ChangePassword_ImplementationBuiltForAnEarlierRelease_UsesItsExistingMethod()
+    {
+        ICustomerManagerService manager = new EarlierReleaseManager();
+
+        await manager.ChangePassword(new Customer { Email = "a@x.com", StoreId = "store-1" }, PasswordFormat.Hashed, "new");
+
+        var implementation = (EarlierReleaseManager)manager;
+        Assert.AreEqual("a@x.com", implementation.Request.Email);
+        Assert.AreEqual(PasswordFormat.Hashed, implementation.Request.PasswordFormat);
+        Assert.AreEqual("new", implementation.Request.NewPassword);
+        Assert.AreEqual("store-1", implementation.StoreId);
+    }
+
+    [TestMethod]
+    public void NewInterfaceMembers_HaveDefaultBodies_SoExistingImplementationsKeepLoading()
+    {
+        Assert.IsFalse(typeof(ICustomerService).GetMethod(nameof(ICustomerService.UpdateCustomerPassword))!.IsAbstract);
+        Assert.IsFalse(typeof(ICustomerManagerService).GetMethod(nameof(ICustomerManagerService.ChangePassword),
+            [typeof(Customer), typeof(PasswordFormat), typeof(string)])!.IsAbstract);
+    }
+
+    private sealed class EarlierReleaseManager : ICustomerManagerService
+    {
+        public ChangePasswordRequest Request { get; private set; }
+        public string StoreId { get; private set; }
+
+        public Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, string storeId = "") =>
+            throw new NotImplementedException();
+
+        public Task RegisterCustomer(RegistrationRequest request) => throw new NotImplementedException();
+
+        public bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword,
+            string passwordSalt) => throw new NotImplementedException();
+
+        public Task ChangePassword(ChangePasswordRequest request, string storeId = "")
+        {
+            Request = request;
+            StoreId = storeId;
+            return Task.CompletedTask;
+        }
+    }
+
+    [TestMethod]
     public async Task ChangePassword_UnknownEmail_Throws()
     {
         //Arrange
