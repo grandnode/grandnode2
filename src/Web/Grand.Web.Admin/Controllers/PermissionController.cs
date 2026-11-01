@@ -172,6 +172,7 @@ public class PermissionController : BaseAdminController
         }
         else
         {
+            ViewBag.ClosePage = true;
             return await PermissionsAction(systemName, customeGroupId);
         }
 
@@ -199,6 +200,7 @@ public class PermissionController : BaseAdminController
                 SystemName = model.SystemName
             });
 
+        ViewBag.ClosePage = true;
         return await PermissionsAction(model.SystemName, model.CustomerGroupId);
     }
 
