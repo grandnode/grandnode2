@@ -20,7 +20,9 @@ public class CustomerValidatorTests
     private const string CurrentStoreId = "store-current";
     private const string RequiredMessage = "Admin.Customers.Customers.Fields.Store.Required";
     private const string MustBeCurrentStoreMessage = "Admin.Customers.Customers.Fields.Store.MustBeCurrentStore";
+    private const string EmailRequiredMessage = "Admin.Customers.Customers.Fields.Email.Required";
 
+    private Mock<ICustomerService> _customerServiceMock;
     private Mock<IGroupService> _groupServiceMock;
     private CustomerValidator _validator;
 
@@ -30,6 +32,7 @@ public class CustomerValidatorTests
         var translationServiceMock = new Mock<ITranslationService>();
         translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns<string>(k => k);
 
+        _customerServiceMock = new Mock<ICustomerService>();
         _groupServiceMock = new Mock<IGroupService>();
         _groupServiceMock
             .Setup(g => g.GetAllCustomerGroups(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>(),
@@ -49,7 +52,7 @@ public class CustomerValidatorTests
             translationServiceMock.Object,
             new Mock<ICountryService>().Object,
             contextAccessorMock.Object,
-            new Mock<ICustomerService>().Object,
+            _customerServiceMock.Object,
             _groupServiceMock.Object,
             new CustomerSettings(),
             new CustomerConfig());
@@ -57,6 +60,79 @@ public class CustomerValidatorTests
 
     private static CustomerModel BuildModel(string storeId) =>
         new() { Id = "customer-1", Email = "customer@example.com", StoreId = storeId };
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    public async Task Email_Empty_GuestWithoutEmail_IsAccepted(string email)
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = null });
+
+        var result = await _validator.ValidateAsync(new CustomerModel { Id = "customer-1", Email = email, StoreId = CurrentStoreId });
+
+        Assert.IsFalse(result.Errors.Any(e => e.PropertyName == nameof(CustomerModel.Email)));
+    }
+
+    [TestMethod]
+    public async Task Email_Empty_GuestBecomingRegistered_ReportsRequired()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = null });
+        _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered))
+            .ReturnsAsync(new CustomerGroup { Id = "group-registered" });
+
+        var result = await _validator.ValidateAsync(new CustomerModel {
+            Id = "customer-1", StoreId = CurrentStoreId, CustomerGroups = ["group-registered"]
+        });
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == EmailRequiredMessage));
+    }
+
+    [TestMethod]
+    public async Task Email_Invalid_GuestWithoutEmail_IsStillChecked()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = null });
+
+        var result = await _validator.ValidateAsync(new CustomerModel { Id = "customer-1", Email = "not-an-email", StoreId = CurrentStoreId });
+
+        Assert.IsTrue(result.Errors.Any(e => e.PropertyName == nameof(CustomerModel.Email)));
+    }
+
+    [TestMethod]
+    [DataRow(null)]
+    [DataRow("")]
+    public async Task Email_Cleared_RegisteredCustomer_ReportsRequired(string email)
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = "customer@example.com" });
+
+        var result = await _validator.ValidateAsync(new CustomerModel { Id = "customer-1", Email = email, StoreId = CurrentStoreId });
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == EmailRequiredMessage));
+    }
+
+    [TestMethod]
+    public async Task Email_Changed_IsStillCheckedForDuplicates()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = "customer@example.com" });
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("taken@example.com", It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Id = "customer-2", Email = "taken@example.com" });
+
+        var result = await _validator.ValidateAsync(new CustomerModel { Id = "customer-1", Email = "taken@example.com", StoreId = CurrentStoreId });
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Account.EmailUsernameErrors.EmailAlreadyExists"));
+    }
+
+    [TestMethod]
+    public async Task Email_Empty_NewCustomer_ReportsRequired()
+    {
+        var result = await _validator.ValidateAsync(new CustomerModel { StoreId = CurrentStoreId });
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == EmailRequiredMessage));
+    }
 
     [TestMethod]
     public async Task StoreId_Empty_FailsRequired()
