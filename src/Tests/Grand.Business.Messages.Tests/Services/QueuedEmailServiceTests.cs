@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Messages.Services;
 using Grand.Data;
+using Grand.Domain.Common;
 using Grand.Domain.Media;
 using Grand.Domain.Messages;
 using Grand.Infrastructure.Events;
@@ -164,6 +165,48 @@ public class QueuedEmailServiceTests
         _downloadServiceMock.Verify(c => c.DeleteDownloadById("first"), Times.Once);
         _downloadServiceMock.Verify(c => c.DeleteDownloadById("second"), Times.Once);
         _downloadServiceMock.Verify(c => c.DeleteDownloadById(It.IsAny<string>()), Times.Exactly(2));
+    }
+
+    [TestMethod]
+    public async Task DeleteAllEmails_DeletesTheInvoicesBeforeTheEmails()
+    {
+        SetupEmails(new QueuedEmail { InvoiceDownloadId = "invoice" });
+        var calls = new List<string>();
+        _downloadServiceMock.Setup(c => c.DeleteDownloadById("invoice")).Callback(() => calls.Add("invoice"));
+        _repository.Setup(c => c.ClearAsync()).Callback(() => calls.Add("emails"));
+
+        await _service.DeleteAllEmails();
+
+        CollectionAssert.AreEqual(new[] { "invoice", "emails" }, calls);
+    }
+
+    [TestMethod]
+    public async Task DeleteOrderInvoiceEmails_DeletesOnlyTheInvoiceEmailsOfThoseOrders()
+    {
+        var invoiceEmail = new QueuedEmail {
+            To = "billing@b.c", Reference = Reference.Order, ObjectId = "order", InvoiceDownloadId = "mine"
+        };
+        SetupEmails(
+            invoiceEmail,
+            new QueuedEmail { Reference = Reference.Order, ObjectId = "order" },
+            new QueuedEmail { Reference = Reference.Order, ObjectId = "other", InvoiceDownloadId = "other" });
+        IEnumerable<QueuedEmail> deleted = null;
+        _repository.Setup(c => c.DeleteAsync(It.IsAny<IEnumerable<QueuedEmail>>()))
+            .Callback<IEnumerable<QueuedEmail>>(emails => deleted = emails.ToList());
+
+        await _service.DeleteOrderInvoiceEmails(["order"]);
+
+        _downloadServiceMock.Verify(c => c.DeleteDownloadById("mine"), Times.Once);
+        _downloadServiceMock.Verify(c => c.DeleteDownloadById(It.IsAny<string>()), Times.Once);
+        CollectionAssert.AreEqual(new[] { invoiceEmail }, deleted.ToArray());
+    }
+
+    [TestMethod]
+    public async Task DeleteOrderInvoiceEmails_NoOrders_DeletesNothing()
+    {
+        await _service.DeleteOrderInvoiceEmails([]);
+
+        _repository.Verify(c => c.DeleteAsync(It.IsAny<IEnumerable<QueuedEmail>>()), Times.Never);
     }
 
     [TestMethod]

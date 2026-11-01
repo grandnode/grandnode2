@@ -37,6 +37,12 @@ public interface IQueuedEmailService
     Task DeleteCustomerEmail(string email);
 
     /// <summary>
+    ///     Deleted the invoice emails of orders and their invoices
+    /// </summary>
+    /// <param name="orderIds">Order identifiers</param>
+    Task DeleteOrderInvoiceEmails(IEnumerable<string> orderIds);
+
+    /// <summary>
     ///     Gets a queued email by identifier
     /// </summary>
     /// <param name="queuedEmailId">Queued email identifier</param>

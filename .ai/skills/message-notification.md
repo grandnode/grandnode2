@@ -111,7 +111,7 @@ Task<int> SendNotification(
     string invoiceDownloadId = null);
 ```
 
-`attachedDownloads` may be shared (a message template's attachment), so deleting an email leaves them alone. `invoiceDownloadId` is owned by that one email: `QueuedEmailService` deletes it with the email, and a requeued email gets its own copy.
+`attachedDownloads` may be shared (a message template's attachment), so deleting an email leaves them alone. `invoiceDownloadId` is owned by that one email: `QueuedEmailService` deletes it with the email, and a requeued email gets its own copy. Deleting a customer deletes the invoice emails of that customer's orders, whatever address they went to.
 
 ### LiquidObjectBuilder (`src/Business/Grand.Business.Messages/DotLiquidDrops/LiquidObjectBuilder.cs`)
 ```csharp
