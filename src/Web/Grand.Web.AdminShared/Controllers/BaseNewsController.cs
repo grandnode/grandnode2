@@ -72,7 +72,6 @@ public abstract class BaseNewsController(
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public async Task<IActionResult> Create()
     {
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         var model = new NewsItemModel {
             Published = true,
             AllowComments = true
@@ -97,8 +96,6 @@ public abstract class BaseNewsController(
             return continueEditing ? RedirectToAction("Edit", new { id = newsItem.Id }) : RedirectToAction("List");
         }
 
-        // Ruled fix: Admin's original assigned the unawaited Task here instead of the resolved list.
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         return View(model);
     }
 
@@ -111,7 +108,6 @@ public abstract class BaseNewsController(
         EditWarningCheck(newsItem);
         if (!await scope.CanView(newsItem)) return RedirectToAction("List");
 
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         var model = newsItem.ToModel(dateTimeService);
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
         {
@@ -148,7 +144,6 @@ public abstract class BaseNewsController(
             return RedirectToAction("List");
         }
 
-        ViewBag.AllLanguages = await languageService.GetAllLanguages(true);
         return View(model);
     }
 

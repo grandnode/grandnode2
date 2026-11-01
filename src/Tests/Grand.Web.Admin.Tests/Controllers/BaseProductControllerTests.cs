@@ -508,11 +508,10 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         _productAddPopupViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel())
             .ReturnsAsync(new ProductModel.AddRequiredProductModel());
 
-        var result = await _controller.RequiredProductAddPopup("input1") as ViewResult;
+        var result = await _controller.RequiredProductAddPopup() as ViewResult;
 
         Assert.IsNotNull(result);
         _productAddPopupViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel(), Times.Once);
-        Assert.AreEqual("input1", _controller.ViewBag.productIdsInput);
     }
 
     // --- RequiredProductAddPopupList -------------------------------------------------------------------

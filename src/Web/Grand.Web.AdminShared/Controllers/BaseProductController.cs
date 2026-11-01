@@ -324,16 +324,12 @@ public abstract class BaseProductController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> RequiredProductAddPopup(string productIdsInput)
+    public async Task<IActionResult> RequiredProductAddPopup()
     {
         // PrepareAddRequiredProductModel() now reads scope internally (Task 9) - the injected
         // IAdminDataScope<Product> already encodes the per-host default exactly: null for Admin
         // (global) and Vendor (not store-scoped), StaffStoreId for Store.
         var model = await productAddPopupViewModelService.PrepareAddRequiredProductModel();
-        // Unused by any of the three views (all three read productIdsInput straight off the query string
-        // via Context.Request.Query, not ViewBag), but Admin and Vendor both set it and Store silently
-        // drops its own parameter - kept here for parity; it is inert either way.
-        ViewBag.productIdsInput = productIdsInput;
         return View(model);
     }
 
