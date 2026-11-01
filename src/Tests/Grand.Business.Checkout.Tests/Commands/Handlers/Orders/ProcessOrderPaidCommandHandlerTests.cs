@@ -20,6 +20,8 @@ public class ProcessOrderPaidCommandHandlerTests
     private ProcessOrderPaidCommandHandler _handler;
     private Mock<IMediator> _mediatorMock;
     private Mock<IOrderMessageProviderService> _messageProviderMock;
+    private OrderSettings _orderSettings;
+    private Mock<IPdfService> _pdfServiceMock;
 
     [TestInitialize]
     public void Init()
@@ -28,8 +30,10 @@ public class ProcessOrderPaidCommandHandlerTests
         _customerServiceMock.Setup(x => x.GetCustomerById(It.IsAny<string>())).ReturnsAsync(new Customer());
         _mediatorMock = new Mock<IMediator>();
         _messageProviderMock = new Mock<IOrderMessageProviderService>();
+        _pdfServiceMock = new Mock<IPdfService>();
+        _orderSettings = new OrderSettings();
         _handler = new ProcessOrderPaidCommandHandler(_messageProviderMock.Object, _customerServiceMock.Object,
-            _mediatorMock.Object, new Mock<IPdfService>().Object, new OrderSettings(), new LanguageSettings());
+            _mediatorMock.Object, _pdfServiceMock.Object, _orderSettings, new LanguageSettings());
     }
 
     [TestMethod]
@@ -53,8 +57,24 @@ public class ProcessOrderPaidCommandHandlerTests
 
         _mediatorMock.Verify(x => x.Publish(It.IsAny<OrderPaidEvent>(), It.IsAny<CancellationToken>()), Times.Once);
         _messageProviderMock.Verify(x => x.SendOrderPaidCustomerMessage(order, It.IsAny<Customer>(),
-            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>()), Times.Once);
+            It.IsAny<string>(), null), Times.Once);
         _messageProviderMock.Verify(x => x.SendOrderPaidStoreOwnerMessage(order, It.IsAny<Customer>(),
             It.IsAny<string>()), Times.Once);
+        _pdfServiceMock.Verify(x => x.SaveOrderToBinary(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_InvoiceEnabled_AttachesTheSavedInvoice()
+    {
+        _orderSettings.AttachPdfInvoiceToOrderPaidEmail = true;
+        var order = new Order { OrderTotal = 10, OrderStatusId = (int)OrderStatusSystem.Pending };
+        _pdfServiceMock.Setup(x => x.SaveOrderToBinary(order, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync("invoice");
+
+        await _handler.Handle(new ProcessOrderPaidCommand { Order = order }, CancellationToken.None);
+
+        _messageProviderMock.Verify(x => x.SendOrderPaidCustomerMessage(order, It.IsAny<Customer>(),
+            It.IsAny<string>(), "invoice"), Times.Once);
     }
 }

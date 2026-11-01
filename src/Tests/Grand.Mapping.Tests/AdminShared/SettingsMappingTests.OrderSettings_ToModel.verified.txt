@@ -18,7 +18,6 @@
   CompleteOrderWhenDelivered: false,
   UserCanCancelUnpaidOrder: false,
   AllowCustomerToAddOrderNote: false,
-  AttachPdfInvoiceToBinary: false,
   MerchandiseReturns_PickupDateRequired: false,
   UnpublishAuctionProduct: false
 }

@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Messages;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Business.Messages.Services;
@@ -26,6 +27,7 @@ namespace Grand.Business.Messages.Tests.Services;
 public class MessageProviderServiceTest
 {
     private Mock<CommonSettings> _commonSetting;
+    private Mock<IDownloadService> _downloadServiceMock;
     private Mock<IEmailAccountService> _emailAccountServiceMock;
     private Mock<EmailAccountSettings> _emailAccountSettingsMock;
     private Mock<IGroupService> _groupService;
@@ -92,8 +94,9 @@ public class MessageProviderServiceTest
             _mediatorMock.Object, _commonSetting.Object);
         _vendorMessageService = new VendorMessageProviderService(messageLookupService, _messageService,
             _mediatorMock.Object, _commonSetting.Object);
+        _downloadServiceMock = new Mock<IDownloadService>();
         _orderMessageService = new OrderMessageProviderService(messageLookupService, _messageService,
-            _mediatorMock.Object);
+            _downloadServiceMock.Object, _mediatorMock.Object);
         _newsletterMessageService = new NewsletterMessageProviderService(messageLookupService, _messageService,
             _mediatorMock.Object);
         _merchandiseReturnMessageService = new MerchandiseReturnMessageProviderService(messageLookupService,
@@ -148,6 +151,49 @@ public class MessageProviderServiceTest
     }
 
     [TestMethod]
+    public async Task SendOrderPaidCustomerMessage_TheEmailOwnsTheInvoiceAndKeepsTheTemplateAttachment()
+    {
+        _messageTemplateServiceMock.Setup(x => x.GetMessageTemplateByName(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new MessageTemplate { IsActive = true, AttachedDownloadId = "template-attachment" });
+        QueuedEmail queuedEmail = null;
+        _queuedEmailServiceMock.Setup(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()))
+            .Callback<QueuedEmail>(email => queuedEmail = email);
+
+        var result = await _orderMessageService.SendOrderPaidCustomerMessage(OrderWithBillingEmail("a@b.c"),
+            new Customer(), "123", "invoice");
+
+        Assert.AreEqual(1, result);
+        Assert.AreEqual("invoice", queuedEmail.InvoiceDownloadId);
+        CollectionAssert.AreEqual(new[] { "template-attachment" }, queuedEmail.AttachedDownloads.ToArray());
+        Assert.IsNull(queuedEmail.AttachmentFilePath);
+        _downloadServiceMock.Verify(x => x.DeleteDownloadById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SendOrderPlacedCustomerMessage_InactiveTemplate_DeletesTheInvoice()
+    {
+        _messageTemplateServiceMock.Setup(x => x.GetMessageTemplateByName(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new MessageTemplate { IsActive = false });
+
+        var result = await _orderMessageService.SendOrderPlacedCustomerMessage(OrderWithBillingEmail("a@b.c"),
+            new Customer(), "123", "invoice");
+
+        Assert.AreEqual(0, result);
+        _downloadServiceMock.Verify(x => x.DeleteDownloadById("invoice"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task SendOrderCompletedCustomerMessage_NoRecipient_DeletesTheInvoice()
+    {
+        var result = await _orderMessageService.SendOrderCompletedCustomerMessage(OrderWithBillingEmail(null),
+            new Customer(), "123", "invoice");
+
+        Assert.AreEqual(0, result);
+        _queuedEmailServiceMock.Verify(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>()), Times.Never);
+        _downloadServiceMock.Verify(x => x.DeleteDownloadById("invoice"), Times.Once);
+    }
+
+    [TestMethod]
     public async Task SendNewsLetterSubscriptionActivationMessage_QueuesEmail()
     {
         var result = await _newsletterMessageService.SendNewsLetterSubscriptionActivationMessage(
@@ -198,6 +244,11 @@ public class MessageProviderServiceTest
         var url = await PasswordRecoveryUrl(new Store { Url = "https://store.example/" });
 
         StringAssert.StartsWith(url, "https://store.example/");
+    }
+
+    private static Order OrderWithBillingEmail(string email)
+    {
+        return new Order { BillingAddress = new Address { Email = email } };
     }
 
     private async Task<string> PasswordRecoveryUrl(Store store)

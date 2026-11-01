@@ -50,15 +50,12 @@ public interface IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
-    /// <param name="attachmentFilePath">Attachment file path</param>
-    /// <param name="attachmentFileName">
-    ///     Attachment file name. If specified, then this file name will be sent to a recipient.
-    ///     Otherwise, "AttachmentFilePath" name will be used.
+    /// <param name="invoiceDownloadId">
+    ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
-    /// <param name="attachments">Attachments ident</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendOrderPaidCustomerMessage(Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null);
+        string invoiceDownloadId = null);
 
     /// <summary>
     ///     Sends an order paid notification to a vendor
@@ -75,19 +72,15 @@ public interface IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer</param>
     /// <param name="languageId">Message language identifier</param>
-    /// <param name="attachmentFilePath">Attachment file path</param>
-    /// <param name="attachmentFileName">
-    ///     Attachment file name. If specified, then this file name will be sent to a recipient.
-    ///     Otherwise, "AttachmentFilePath" name will be used.
+    /// <param name="invoiceDownloadId">
+    ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
-    /// <param name="attachments">Attachments ident</param>
     /// <returns>Queued email identifier</returns>
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null,
-        DomainHost host = null);
+        string invoiceDownloadId = null, DomainHost host = null);
 
     /// <summary>
     ///     Sends a shipment sent notification to a customer
@@ -111,15 +104,12 @@ public interface IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
-    /// <param name="attachmentFilePath">Attachment file path</param>
-    /// <param name="attachmentFileName">
-    ///     Attachment file name. If specified, then this file name will be sent to a recipient.
-    ///     Otherwise, "AttachmentFilePath" name will be used.
+    /// <param name="invoiceDownloadId">
+    ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
-    /// <param name="attachments">Attachments ident</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendOrderCompletedCustomerMessage(Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null);
+        string invoiceDownloadId = null);
 
     /// <summary>
     ///     Sends an order cancelled notification to a customer

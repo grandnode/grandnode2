@@ -102,6 +102,17 @@ public class SystemMappingTests : VerifyBase
         return Verify(_mapper.Map<QueuedEmail>(model));
     }
 
+    [TestMethod]
+    public void QueuedEmailModel_ToExistingEntity_KeepsTheInvoice()
+    {
+        var entity = new QueuedEmail { InvoiceDownloadId = "invoice" };
+
+        _mapper.Map(new QueuedEmailModel { Subject = "Changed" }, entity);
+
+        Assert.AreEqual("Changed", entity.Subject);
+        Assert.AreEqual("invoice", entity.InvoiceDownloadId);
+    }
+
     // ── MessageTemplate ───────────────────────────────────────────────────────
 
     [TestMethod]

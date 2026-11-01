@@ -87,9 +87,6 @@ public class SalesSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.Order.AllowCustomerToAddOrderNote")]
         public bool AllowCustomerToAddOrderNote { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.Order.AttachPdfInvoiceToBinary")]
-        public bool AttachPdfInvoiceToBinary { get; set; }
-
         [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturns_PickupDateRequired")]
         public bool MerchandiseReturns_PickupDateRequired { get; set; }
 

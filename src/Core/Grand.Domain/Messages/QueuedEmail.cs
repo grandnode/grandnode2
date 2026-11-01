@@ -79,6 +79,12 @@ public class QueuedEmail : BaseEntity
     public IList<string> AttachedDownloads { get; set; } = new List<string>();
 
     /// <summary>
+    ///     Gets or sets the download identifier of the order invoice generated for this email.
+    ///     Unlike AttachedDownloads, the email owns this download and it is deleted together with the email
+    /// </summary>
+    public string InvoiceDownloadId { get; set; }
+
+    /// <summary>
     ///     Gets or sets the date and time in UTC before which this email should not be sent
     /// </summary>
     public DateTime? DontSendBeforeDateUtc { get; set; }

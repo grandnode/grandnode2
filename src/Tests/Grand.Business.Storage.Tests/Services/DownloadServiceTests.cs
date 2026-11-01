@@ -76,4 +76,35 @@ public class DownloadServiceTests
     {
         Assert.ThrowsExactlyAsync<ArgumentNullException>(async () => await _service.DeleteDownload(null));
     }
+
+    [TestMethod]
+    public async Task DeleteDownloadById_DeletesTheRecordAndItsFileWithoutLoadingTheFile()
+    {
+        var download = new Download { DownloadObjectId = "object" };
+        _repositoryMock.Setup(c => c.GetByIdAsync("id")).ReturnsAsync(download);
+
+        await _service.DeleteDownloadById("id");
+
+        _repositoryMock.Verify(c => c.DeleteAsync(download), Times.Once);
+        _storeFilesContext.Verify(c => c.BucketDelete("object"), Times.Once);
+        _storeFilesContext.Verify(c => c.BucketDownload(It.IsAny<string>()), Times.Never);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Download>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteDownloadById_MissingDownload_DoesNothing()
+    {
+        await _service.DeleteDownloadById("missing");
+
+        _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<Download>()), Times.Never);
+        _storeFilesContext.Verify(c => c.BucketDelete(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DeleteDownloadById_NoIdentifier_DoesNothing()
+    {
+        await _service.DeleteDownloadById(null);
+
+        _repositoryMock.Verify(c => c.GetByIdAsync(It.IsAny<string>()), Times.Never);
+    }
 }

@@ -38,4 +38,10 @@ public interface IDownloadService
     /// </summary>
     /// <param name="download">Download</param>
     Task DeleteDownload(Download download);
+
+    /// <summary>
+    ///     Deletes a download by identifier, without loading its file. Does nothing when it no longer exists
+    /// </summary>
+    /// <param name="downloadId">Download identifier</param>
+    Task DeleteDownloadById(string downloadId);
 }

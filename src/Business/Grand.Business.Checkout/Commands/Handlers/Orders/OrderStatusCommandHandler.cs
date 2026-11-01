@@ -66,23 +66,13 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         {
             //notification
 
-            var orderCompletedAttachmentFilePath = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail
-                ? await _pdfService.PrintOrderToPdf(request.Order, "")
+            var invoiceDownloadId = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail
+                ? await _pdfService.SaveOrderToBinary(request.Order, "")
                 : null;
-            var orderCompletedAttachmentFileName =
-                _orderSettings.AttachPdfInvoiceToOrderCompletedEmail ? "order.pdf" : null;
-
-            var orderCompletedAttachments = _orderSettings.AttachPdfInvoiceToOrderCompletedEmail &&
-                                            _orderSettings.AttachPdfInvoiceToBinary
-                ? [
-                    await _pdfService.SaveOrderToBinary(request.Order, "")
-                ]
-                : new List<string>();
 
             await _orderMessageProviderService
                 .SendOrderCompletedCustomerMessage(request.Order, customer, request.Order.CustomerLanguageId,
-                    orderCompletedAttachmentFilePath,
-                    orderCompletedAttachmentFileName, orderCompletedAttachments);
+                    invoiceDownloadId);
         }
 
         if (prevOrderStatus != (int)OrderStatusSystem.Cancelled &&

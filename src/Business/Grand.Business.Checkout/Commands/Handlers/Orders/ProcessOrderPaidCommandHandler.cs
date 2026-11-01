@@ -61,24 +61,12 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
         {
             var customer = await _customerService.GetCustomerById(order.CustomerId);
 
-            var orderPaidAttachmentFilePath =
-                _orderSettings.AttachPdfInvoiceToOrderPaidEmail && !_orderSettings.AttachPdfInvoiceToBinary
-                    ? await _pdfService.PrintOrderToPdf(order, "")
-                    : null;
-            var orderPaidAttachmentFileName =
-                _orderSettings.AttachPdfInvoiceToOrderPaidEmail && !_orderSettings.AttachPdfInvoiceToBinary
-                    ? "order.pdf"
-                    : null;
-
-            var orderPaidAttachments =
-                _orderSettings.AttachPdfInvoiceToOrderPaidEmail && _orderSettings.AttachPdfInvoiceToBinary
-                    ? [
-                        await _pdfService.SaveOrderToBinary(order, "")
-                    ]
-                    : new List<string>();
+            var invoiceDownloadId = _orderSettings.AttachPdfInvoiceToOrderPaidEmail
+                ? await _pdfService.SaveOrderToBinary(order, "")
+                : null;
 
             await _orderMessageProviderService.SendOrderPaidCustomerMessage(order, customer, order.CustomerLanguageId,
-                orderPaidAttachmentFilePath, orderPaidAttachmentFileName, orderPaidAttachments);
+                invoiceDownloadId);
 
             await _orderMessageProviderService.SendOrderPaidStoreOwnerMessage(order, customer,
                 _languageSettings.DefaultAdminLanguageId);

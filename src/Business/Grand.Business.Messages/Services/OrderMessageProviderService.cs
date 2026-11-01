@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Messages;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Common;
@@ -20,10 +21,12 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     public OrderMessageProviderService(
         IMessageLookupService messageLookupService,
         IMessageProviderService messageProviderService,
+        IDownloadService downloadService,
         IMediator mediator)
     {
         _messageLookupService = messageLookupService;
         _messageProviderService = messageProviderService;
+        _downloadService = downloadService;
         _mediator = mediator;
     }
 
@@ -33,6 +36,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
 
     private readonly IMessageLookupService _messageLookupService;
     private readonly IMessageProviderService _messageProviderService;
+    private readonly IDownloadService _downloadService;
     private readonly IMediator _mediator;
 
     #endregion
@@ -143,21 +147,17 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer"></param>
     /// <param name="languageId">Message language identifier</param>
-    /// <param name="attachmentFilePath">Attachment file path</param>
-    /// <param name="attachmentFileName">
-    ///     Attachment file name. If specified, then this file name will be sent to a recipient.
-    ///     Otherwise, "AttachmentFilePath" name will be used.
+    /// <param name="invoiceDownloadId">
+    ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
-    /// <param name="attachments">Attachments</param>
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null,
-            DomainHost host = null)
+        string invoiceDownloadId = null, DomainHost host = null)
     {
-        return await SendOrderCustomerMessage(MessageTemplateNames.SendOrderPlacedCustomerMessage, order, customer,
-            languageId, attachmentFilePath, attachmentFileName, attachments, host: host);
+        return await SendOrderInvoiceMessage(MessageTemplateNames.SendOrderPlacedCustomerMessage, order, customer,
+            languageId, invoiceDownloadId, host);
     }
 
     /// <summary>
@@ -166,17 +166,14 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
-    /// <param name="attachmentFilePath">Attachment file path</param>
-    /// <param name="attachmentFileName">
-    ///     Attachment file name. If specified, then this file name will be sent to a recipient.
-    ///     Otherwise, "AttachmentFilePath" name will be used.
+    /// <param name="invoiceDownloadId">
+    ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
-    /// <param name="attachments">Attachments ident</param>
     public virtual async Task<int> SendOrderPaidCustomerMessage(Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null)
+        string invoiceDownloadId = null)
     {
-        return await SendOrderCustomerMessage(MessageTemplateNames.SendOrderPaidCustomerMessage, order, customer,
-            languageId, attachmentFilePath, attachmentFileName, attachments);
+        return await SendOrderInvoiceMessage(MessageTemplateNames.SendOrderPaidCustomerMessage, order, customer,
+            languageId, invoiceDownloadId);
     }
 
     /// <summary>
@@ -185,17 +182,14 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
-    /// <param name="attachmentFilePath">Attachment file path</param>
-    /// <param name="attachmentFileName">
-    ///     Attachment file name. If specified, then this file name will be sent to a recipient.
-    ///     Otherwise, "AttachmentFilePath" name will be used.
+    /// <param name="invoiceDownloadId">
+    ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
-    /// <param name="attachments">Attachments ident</param>
     public virtual async Task<int> SendOrderCompletedCustomerMessage(Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null)
+        string invoiceDownloadId = null)
     {
-        return await SendOrderCustomerMessage(MessageTemplateNames.SendOrderCompletedCustomerMessage, order, customer,
-            languageId, attachmentFilePath, attachmentFileName, attachments);
+        return await SendOrderInvoiceMessage(MessageTemplateNames.SendOrderCompletedCustomerMessage, order, customer,
+            languageId, invoiceDownloadId);
     }
 
     /// <summary>
@@ -226,25 +220,35 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     }
 
     /// <summary>
+    ///     Sends an order notification with an invoice to a customer
+    /// </summary>
+    private async Task<int> SendOrderInvoiceMessage(string message, Order order, Customer customer, string languageId,
+        string invoiceDownloadId, DomainHost host = null)
+    {
+        var queuedEmails = await SendOrderCustomerMessage(message, order, customer, languageId, invoiceDownloadId,
+            host: host);
+
+        //inactive template or no recipient - no email owns the invoice, so nothing would ever delete it
+        if (queuedEmails == 0)
+            await _downloadService.DeleteDownloadById(invoiceDownloadId);
+
+        return queuedEmails;
+    }
+
+    /// <summary>
     ///     Sends an order notification to a customer
     /// </summary>
     /// <param name="message">Message template</param>
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
-    /// <param name="attachmentFilePath">Attachment file path</param>
-    /// <param name="attachmentFileName">
-    ///     Attachment file name. If specified, then this file name will be sent to a recipient.
-    ///     Otherwise, "AttachmentFilePath" name will be used.
-    /// </param>
-    /// <param name="attachments">Attachments ident</param>
+    /// <param name="invoiceDownloadId">Download of the invoice to attach</param>
     /// <param name="refundedAmount"></param>
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     private async Task<int> SendOrderCustomerMessage(string message, Order order, Customer customer, string languageId,
-        string attachmentFilePath = null, string attachmentFileName = null, IEnumerable<string> attachments = null,
-        double refundedAmount = 0, DomainHost host = null)
+        string invoiceDownloadId = null, double refundedAmount = 0, DomainHost host = null)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -273,10 +277,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             languageId, liquidObject,
             toEmail, toName,
-            attachmentFilePath,
-            attachmentFileName,
-            attachments,
-            reference: Reference.Order, objectId: order.Id);
+            reference: Reference.Order, objectId: order.Id, invoiceDownloadId: invoiceDownloadId);
     }
 
     /// <summary>

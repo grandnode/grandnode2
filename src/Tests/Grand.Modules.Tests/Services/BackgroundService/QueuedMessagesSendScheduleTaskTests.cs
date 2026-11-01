@@ -127,6 +127,45 @@ public class QueuedMessagesSendScheduleTaskTests
         _queuedEmailServiceMock.Verify(c => c.UpdateQueuedEmail(It.IsAny<QueuedEmail>()), Times.Never);
     }
 
+    [TestMethod]
+    public async Task Execute_EmailWithInvoice_SendsItWithTheOtherAttachments()
+    {
+        var attachments = await SentAttachments(new QueuedEmail {
+            EmailAccountId = "id", InvoiceDownloadId = "invoice", AttachedDownloads = ["template-attachment"]
+        });
+
+        CollectionAssert.AreEqual(new[] { "template-attachment", "invoice" }, attachments);
+    }
+
+    [TestMethod]
+    public async Task Execute_EmailWithoutInvoice_SendsOnlyTheOtherAttachments()
+    {
+        var attachments = await SentAttachments(new QueuedEmail {
+            EmailAccountId = "id", AttachedDownloads = ["template-attachment"]
+        });
+
+        CollectionAssert.AreEqual(new[] { "template-attachment" }, attachments);
+    }
+
+    private async Task<string[]> SentAttachments(QueuedEmail queuedEmail)
+    {
+        SetupQueue(queuedEmail);
+        string[] attachments = null;
+        _emailSenderMock.Setup(c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<IEnumerable<string>>(),
+                It.IsAny<IEnumerable<string>>(), It.IsAny<string>(), It.IsAny<string>(),
+                It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Callback((EmailAccount _, string _, string _, string _, string _, string _, string _, string _, string _,
+                IEnumerable<string> _, IEnumerable<string> _, string _, string _, IEnumerable<string> downloads,
+                CancellationToken _) => attachments = downloads.ToArray())
+            .Returns(Task.CompletedTask);
+
+        await _task.Execute(CancellationToken.None);
+
+        return attachments;
+    }
+
     private void SetupQueue(params QueuedEmail[] queuedEmails)
     {
         _queuedEmailServiceMock.Setup(c => c.SearchEmails(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),

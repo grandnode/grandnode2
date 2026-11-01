@@ -8,7 +8,6 @@
   AttachPdfInvoiceToOrderPlacedEmail: false,
   AttachPdfInvoiceToOrderPaidEmail: false,
   AttachPdfInvoiceToOrderCompletedEmail: false,
-  AttachPdfInvoiceToBinary: false,
   MerchandiseReturnsEnabled: false,
   MerchandiseReturns_AllowToSpecifyPickupAddress: false,
   MerchandiseReturns_AllowToSpecifyPickupDate: false,

@@ -18,13 +18,20 @@ public interface IQueuedEmailService
     Task UpdateQueuedEmail(QueuedEmail queuedEmail);
 
     /// <summary>
-    ///     Deleted a queued email
+    ///     Deleted a queued email and its invoice
     /// </summary>
     /// <param name="queuedEmail">Queued email</param>
     Task DeleteQueuedEmail(QueuedEmail queuedEmail);
 
     /// <summary>
-    ///     Deleted a customer emails
+    ///     Copies the invoice of a queued email, so that an email created from it owns a download of its own
+    /// </summary>
+    /// <param name="invoiceDownloadId">Download identifier of the invoice</param>
+    /// <returns>Download identifier of the copy; null when there is no invoice to copy</returns>
+    Task<string> CopyInvoiceDownload(string invoiceDownloadId);
+
+    /// <summary>
+    ///     Deleted a customer emails and their invoices
     /// </summary>
     /// <param name="email">email</param>
     Task DeleteCustomerEmail(string email);
@@ -67,7 +74,7 @@ public interface IQueuedEmailService
         int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
-    ///     Delete all queued emails
+    ///     Delete all queued emails and their invoices
     /// </summary>
     Task DeleteAllEmails();
 }

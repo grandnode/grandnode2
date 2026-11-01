@@ -17,9 +17,7 @@ using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Mediator;
 using Grand.SharedKernel.Extensions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Logging;
-using Path = System.IO.Path;
 
 namespace Grand.Business.Common.Services.Pdf;
 
@@ -44,13 +42,11 @@ public class PdfService : IPdfService
     private readonly IStoreFilesContext _storeFilesContext;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
-    private readonly IWebHostEnvironment _webHostEnvironment;
 
     public PdfService(
         IRepository<Download> downloadRepository,
         ITranslationService translationService,
         IStoreFilesContext storeFilesContext,
-        IWebHostEnvironment webHostEnvironment,
         IProductService productService,
         ICountryService countryService,
         IStoreService storeService,
@@ -65,7 +61,6 @@ public class PdfService : IPdfService
         _downloadRepository = downloadRepository;
         _translationService = translationService;
         _storeFilesContext = storeFilesContext;
-        _webHostEnvironment = webHostEnvironment;
         _productService = productService;
         _countryService = countryService;
         _storeService = storeService;
@@ -95,23 +90,6 @@ public class PdfService : IPdfService
         //nothing is written until the whole document is laid out, so a cancelled request leaves the stream empty
         cancellationToken.ThrowIfCancellationRequested();
         await stream.WriteAsync(pdf.Build(), cancellationToken);
-    }
-
-    public async Task<string> PrintOrderToPdf(Order order, string languageId, string vendorId = "")
-    {
-        ArgumentNullException.ThrowIfNull(order);
-
-        var fileName = $"order_{order.OrderGuid}_{CommonHelper.GenerateRandomDigitCode(4)}.pdf";
-
-        var dir = Path.Combine(_webHostEnvironment.WebRootPath, "assets/files/exportimport");
-        ArgumentNullException.ThrowIfNull(dir);
-
-        if (!System.IO.Directory.Exists(dir)) System.IO.Directory.CreateDirectory(dir);
-
-        var filePath = Path.Combine(dir, fileName);
-        await using var fileStream = new FileStream(filePath, FileMode.Create);
-        await PrintOrdersToPdf(fileStream, [order], languageId, vendorId);
-        return filePath;
     }
 
     public async Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string languageId = "",
