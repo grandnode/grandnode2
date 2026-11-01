@@ -1,6 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
-using Grand.Business.Core.Utilities.Customers;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Microsoft.Extensions.Logging;
@@ -62,8 +61,7 @@ public class ScimAccountLock(
 
         //also writes a new password token
         var password = Convert.ToBase64String(RandomNumberGenerator.GetBytes(32));
-        await customerManagerService.ChangePassword(new ChangePasswordRequest(customer.Email, PasswordFormat.Hashed, password),
-            customer.StoreId);
+        await customerManagerService.ChangePassword(customer, PasswordFormat.Hashed, password);
         logger.LogInformation("SCIM reset the credentials of customer {CustomerId}", customer.Id);
     }
 

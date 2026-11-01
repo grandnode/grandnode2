@@ -88,16 +88,13 @@ public class AccountControllerProviderOnlyTests
     }
 
     [TestMethod]
-    public async Task ChangePassword_IsScopedToTheStoreOfTheCustomer()
+    public async Task ChangePassword_ChangesThePasswordOfTheSignedInAccount()
     {
-        _currentCustomer.Email = "john@example.com";
-        _currentCustomer.StoreId = "store-9";
-
         await _controller.ChangePassword(new ChangePasswordModel { OldPassword = "old", NewPassword = "new" },
             new OidcLoginConfig());
 
-        _customerManager.Verify(m => m.ChangePassword(
-            It.Is<ChangePasswordRequest>(r => r.Email == "john@example.com"), "store-9"), Times.Once);
+        _customerManager.Verify(m => m.ChangePassword(_currentCustomer, It.IsAny<PasswordFormat>(), "new"), Times.Once);
+        _customerManager.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -308,7 +305,8 @@ public class AccountControllerProviderOnlyTests
         var post = await _controller.ChangePassword(
             new ChangePasswordModel { OldPassword = "a", NewPassword = "b", ConfirmNewPassword = "b" }, _providerOnly);
         Assert.AreEqual("CustomerInfo", ((RedirectToRouteResult)post).RouteName);
-        _customerManager.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>()), Times.Never);
+        _customerManager.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
+        _customerManager.Verify(m => m.ChangePassword(It.IsAny<Customer>(), It.IsAny<PasswordFormat>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -319,7 +317,7 @@ public class AccountControllerProviderOnlyTests
             new ChangePasswordModel { OldPassword = "a", NewPassword = "b", ConfirmNewPassword = "b" },
             new OidcLoginConfig());
         Assert.IsInstanceOfType<ViewResult>(post);
-        _customerManager.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Once);
+        _customerManager.Verify(m => m.ChangePassword(_currentCustomer, It.IsAny<PasswordFormat>(), "b"), Times.Once);
     }
 
     [TestMethod]

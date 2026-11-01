@@ -42,22 +42,16 @@ public class SubAccountEditCommandHandlerTests
             Id = "c1", Email = "sub@x.com", Username = "sub@x.com", StoreId = "store-9", OwnerId = ownerId
         };
         _customerServiceMock.Setup(c => c.GetCustomerById("c1")).ReturnsAsync(customer);
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), "store-9")).ReturnsAsync(customer);
         return customer;
     }
 
-    [TestMethod]
-    public async Task Handle_EmailLeadsToAnotherAccount_DoesNotChangePassword()
+    private void VerifyPasswordChangedOn(Customer customer)
     {
-        SubAccount();
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail("sub@x.com", "store-9"))
-            .ReturnsAsync(new Customer { Id = "other", Email = "sub@x.com", StoreId = "store-9" });
-
-        var result = await _handler.Handle(Command(password: "newpass"), default);
-
-        Assert.IsFalse(result);
-        _customerManagerServiceMock.Verify(m => m.ChangePassword(
-            It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
+        _customerManagerServiceMock.Verify(m => m.ChangePassword(customer, It.IsAny<PasswordFormat>(), "newpass"),
+            Times.Once);
+        //never through a lookup by e-mail, which may lead to another account
+        _customerManagerServiceMock.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     private static SubAccountEditCommand Command(string email = "sub@x.com", string password = null,
@@ -77,6 +71,8 @@ public class SubAccountEditCommandHandlerTests
         _customerServiceMock.Verify(c => c.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _customerManagerServiceMock.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(),
+            It.IsAny<string>()), Times.Never);
+        _customerManagerServiceMock.Verify(m => m.ChangePassword(It.IsAny<Customer>(), It.IsAny<PasswordFormat>(),
             It.IsAny<string>()), Times.Never);
         _customerServiceMock.Verify(c => c.UpdateCustomerField(It.IsAny<Customer>(),
             It.IsAny<Expression<Func<Customer, SubAccountRole>>>(), It.IsAny<SubAccountRole>()), Times.Never);
@@ -144,16 +140,17 @@ public class SubAccountEditCommandHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_WithPassword_ChangesPasswordScopedToCustomerStore()
+    public async Task Handle_WithPassword_ChangesPasswordOfTheEditedAccount()
     {
-        SubAccount();
+        var customer = SubAccount();
+        //another account holding the same address must not matter
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("sub@x.com", "store-9"))
+            .ReturnsAsync(new Customer { Id = "other", Email = "sub@x.com", StoreId = "store-9" });
 
         var result = await _handler.Handle(Command(password: "newpass"), default);
 
         Assert.IsTrue(result);
-        //the sub-account's store must scope the password change (safe with or without per-store identity)
-        _customerManagerServiceMock.Verify(m => m.ChangePassword(
-            It.Is<ChangePasswordRequest>(r => r.Email == "sub@x.com"), "store-9"), Times.Once);
+        VerifyPasswordChangedOn(customer);
     }
 
     [TestMethod]
@@ -166,6 +163,8 @@ public class SubAccountEditCommandHandlerTests
         Assert.IsTrue(result);
         _customerManagerServiceMock.Verify(m => m.ChangePassword(
             It.IsAny<ChangePasswordRequest>(), It.IsAny<string>()), Times.Never);
+        _customerManagerServiceMock.Verify(m => m.ChangePassword(
+            It.IsAny<Customer>(), It.IsAny<PasswordFormat>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -225,14 +224,14 @@ public class SubAccountEditCommandHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_NewEmailAndPassword_ChangesPasswordOfTheNewEmail()
+    public async Task Handle_NewEmailAndPassword_ChangesPasswordOfTheEditedAccount()
     {
-        SubAccount();
+        var customer = SubAccount();
 
         await _handler.Handle(Command(email: "New@X.com", password: "newpass"), default);
 
-        _customerManagerServiceMock.Verify(m => m.ChangePassword(
-            It.Is<ChangePasswordRequest>(r => r.Email == "new@x.com"), "store-9"), Times.Once);
+        Assert.AreEqual("new@x.com", customer.Email);
+        VerifyPasswordChangedOn(customer);
     }
 
     [TestMethod]
@@ -268,8 +267,7 @@ public class SubAccountEditCommandHandlerTests
         await _handler.Handle(Command(email: "Sub@X.com", password: "newpass"), default);
 
         Assert.AreEqual("sub@x.com", customer.Email);
-        _customerManagerServiceMock.Verify(m => m.ChangePassword(
-            It.Is<ChangePasswordRequest>(r => r.Email == "sub@x.com"), "store-9"), Times.Once);
+        VerifyPasswordChangedOn(customer);
     }
 
     [TestMethod]
