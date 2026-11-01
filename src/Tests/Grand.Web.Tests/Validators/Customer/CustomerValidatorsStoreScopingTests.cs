@@ -260,7 +260,26 @@ public class CustomerValidatorsStoreScopingTests
         Id = "c1", Email = email, FirstName = "A", LastName = "B"
     };
 
-    private static CustomerInfoValidator CustomerInfo(Mock<ICustomerService> customerService, CustomerSettings settings)
+    [TestMethod]
+    public async Task CustomerInfoValidator_LookupReturningTheAccountItself_IsNotAConflict()
+    {
+        //a lookup that ignores case finds the account whose address differs only in case
+        var customerService = new Mock<ICustomerService>();
+        customerService.Setup(c => c.GetCustomerByEmail("old@x.com", StoreId))
+            .ReturnsAsync(new Customer { Id = "owner" });
+        customerService.Setup(c => c.GetCustomerByUsername("taken", StoreId))
+            .ReturnsAsync(new Customer { Id = "owner" });
+
+        var result = await CustomerInfo(customerService, new CustomerSettings {
+            AllowUsersToChangeEmail = false, UsernamesEnabled = true, AllowUsersToChangeUsernames = true
+        }, "Old@X.com").ValidateAsync(new CustomerInfoModel { Email = "Old@X.com", Username = "Taken" });
+
+        Assert.IsFalse(result.Errors.Any(e => e.ErrorMessage == "Account.EmailUsernameErrors.EmailAlreadyExists"));
+        Assert.IsFalse(result.Errors.Any(e => e.ErrorMessage == "Account.EmailUsernameErrors.UsernameAlreadyExists"));
+    }
+
+    private static CustomerInfoValidator CustomerInfo(Mock<ICustomerService> customerService, CustomerSettings settings,
+        string currentEmail = "old@x.com")
     {
         var mediator = new Mock<IMediator>();
         mediator.Setup(m => m.Send(It.IsAny<GetParseCustomAttributes>(), It.IsAny<CancellationToken>()))
@@ -271,7 +290,7 @@ public class CustomerValidatorsStoreScopingTests
 
         return new CustomerInfoValidator(
             new List<IValidatorConsumer<CustomerInfoModel>>(),
-            Context("old@x.com"), customerService.Object, mediator.Object, attrParser.Object,
+            Context(currentEmail), customerService.Object, mediator.Object, attrParser.Object,
             Translation().Object, new Mock<ICountryService>().Object, settings, PerStoreOn().Config);
     }
 }

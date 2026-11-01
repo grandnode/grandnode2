@@ -139,7 +139,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
                 var customer2 = await customerService.GetCustomerByEmail(email, storeId);
-                if (customer2 != null)
+                if (customer2 != null && customer2.Id != currentCustomer.Id)
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
             }
@@ -152,7 +152,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.UsernameTooLong"));
 
                 var customer2 = await customerService.GetCustomerByUsername(username, storeId);
-                if (customer2 != null)
+                if (customer2 != null && customer2.Id != currentCustomer.Id)
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.UsernameAlreadyExists"));
             }
