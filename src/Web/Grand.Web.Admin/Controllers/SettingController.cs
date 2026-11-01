@@ -23,8 +23,10 @@ using Grand.Domain.Security;
 using Grand.Domain.Seo;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
+using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
 using Grand.SharedKernel.Extensions;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Extensions.Mapping.Settings;
 using Grand.Web.AdminShared.Models.Settings;
@@ -37,7 +39,6 @@ using Grand.Web.Common.Themes;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
-using OperatingSystem = Grand.Infrastructure.OperatingSystem;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -596,25 +597,21 @@ public class SettingController(
         return RedirectToAction("Customer");
     }
 
-    public async Task<IActionResult> GeneralCommon([FromServices] IEnumerable<IThemeView> themes, [FromServices] IDateTimeService dateTimeService)
+    public async Task<IActionResult> GeneralCommon([FromServices] IEnumerable<IThemeView> themes, [FromServices] IDateTimeService dateTimeService,
+        [FromServices] IContextAccessor contextAccessor)
     {
         var model = new GeneralCommonSettingsModel();
         var storeScope = await GetActiveStore();
         model.ActiveStore = storeScope;
         //datettime settings
         var dateTimeSettings = await settingService.LoadSetting<DateTimeSettings>(storeScope);
-        model.DateTimeSettings.DefaultStoreTimeZoneId = dateTimeSettings.DefaultStoreTimeZoneId;
-        var iswindows = OperatingSystem.IsWindows();
-        foreach (var timeZone in dateTimeService.GetSystemTimeZones())
-        {
-            var name = iswindows ? timeZone.DisplayName : $"{timeZone.StandardName} ({timeZone.Id})";
-            model.DateTimeSettings.AvailableTimeZones.Add(new SelectListItem {
-                Text = name,
-                Value = timeZone.Id,
-                Selected = timeZone.Id.Equals(dateTimeSettings.DefaultStoreTimeZoneId,
-                    StringComparison.OrdinalIgnoreCase)
-            });
-        }
+        //the default text is for a database already on 2.4, where the resources of 2.4 are not imported again
+        model.DateTimeSettings.AvailableTimeZones = dateTimeService.GetStoreTimeZoneOptions(
+            dateTimeSettings.DefaultStoreTimeZoneId,
+            translationService.GetResource("Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server",
+                contextAccessor.WorkContext.WorkingLanguage.Id, "Server time zone"));
+        model.DateTimeSettings.DefaultStoreTimeZoneId =
+            model.DateTimeSettings.AvailableTimeZones.First(x => x.Selected).Value;
 
         //store information
         var storeInformationSettings = await settingService.LoadSetting<StoreInformationSettings>(storeScope);

@@ -31,9 +31,11 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
         CustomerCreateValidator();
         CustomerEditValidator();
 
-        //customer email
-        RuleFor(x => x.Email).NotEmpty().EmailAddress()
-            .WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Email.Required"));
+        //customer email - a guest has none, and staying a guest must not take inventing one
+        RuleFor(x => x.Email)
+            .NotEmpty().WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Email.Required"))
+            .EmailAddress().WithMessage(translationService.GetResource("Admin.Customers.Customers.Fields.Email.Required"))
+            .WhenAsync(async (x, _) => !string.IsNullOrEmpty(x.Email) || !await StaysGuestWithoutEmail(x));
 
         //store - required only when the editor is not an administrator (admins may manage store-independent
         //back-office/system accounts that have no store)
@@ -106,6 +108,17 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
             if (string.IsNullOrWhiteSpace(x.Username) && customerSettings.UsernamesEnabled)
                 context.AddFailure("The username cannot be empty");
         });
+
+        async Task<bool> StaysGuestWithoutEmail(CustomerModel model)
+        {
+            if (string.IsNullOrEmpty(model.Id)) return false;
+
+            var customer = await customerService.GetCustomerById(model.Id);
+            if (customer == null || !string.IsNullOrEmpty(customer.Email)) return false;
+
+            var registered = await groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
+            return registered == null || model.CustomerGroups == null || !model.CustomerGroups.Contains(registered.Id);
+        }
 
         async Task<string> ValidateCustomerGroups(IList<CustomerGroup> customerGroups, CustomerModel customerModel)
         {
@@ -250,7 +263,8 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                         customer?.Id == contextAccessor.WorkContext.CurrentCustomer.Id)
                         context.AddFailure("You can't edit own data from admin panel");
 
-                    if (customer != null && customer.Email != x.Email.ToLower())
+                    //an empty email is for the required rule above to judge: guests have none
+                    if (customer != null && !string.IsNullOrWhiteSpace(x.Email) && customer.Email != x.Email.ToLower())
                     {
                         if (!CommonHelper.IsValidEmail(x.Email))
                             context.AddFailure(

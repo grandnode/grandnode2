@@ -555,4 +555,7 @@
 	<Resource Name="admin.orders.cannotcancel" Area="Admin">
 		<Value>This order can no longer be cancelled - only a pending order can.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server" Area="Admin">
+		<Value>Server time zone</Value>
+	</Resource>
 </Language>
