@@ -19,7 +19,7 @@ public class SubAccountDeleteCommandHandler : IRequestHandler<SubAccountDeleteCo
         ArgumentNullException.ThrowIfNull(request.CurrentCustomer);
 
         var customer = await _customerService.GetCustomerById(request.CustomerId);
-        if (customer == null || customer.OwnerId != request.CurrentCustomer.Id)
+        if (customer == null || customer.Deleted || customer.OwnerId != request.CurrentCustomer.Id)
             return (false, "You are not owner of this account");
 
         //delete customer

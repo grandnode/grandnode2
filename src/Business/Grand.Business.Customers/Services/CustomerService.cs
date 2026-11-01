@@ -551,6 +551,26 @@ public class CustomerService : ICustomerService
     }
 
 
+    public virtual async Task UpdateCustomerPassword(Customer customer)
+    {
+        ArgumentNullException.ThrowIfNull(customer);
+
+        if (customer.IsSystemAccount)
+            throw new GrandException(
+                $"System customer account ({(string.IsNullOrEmpty(customer.SystemName) ? customer.Email : customer.SystemName)}) could not be updated");
+
+        var update = UpdateBuilder<Customer>.Create()
+            .Set(x => x.Password, customer.Password)
+            .Set(x => x.PasswordSalt, customer.PasswordSalt)
+            .Set(x => x.PasswordFormatId, customer.PasswordFormatId)
+            .Set(x => x.PasswordChangeDateUtc, customer.PasswordChangeDateUtc);
+
+        await _customerRepository.UpdateOneAsync(x => x.Id == customer.Id, update);
+
+        //event notification
+        await _mediator.EntityUpdated(customer);
+    }
+
     public virtual async Task UpdateActive(Customer customer)
     {
         ArgumentNullException.ThrowIfNull(customer);
