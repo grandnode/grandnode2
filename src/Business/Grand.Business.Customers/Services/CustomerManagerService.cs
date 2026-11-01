@@ -231,7 +231,8 @@ public class CustomerManagerService : ICustomerManagerService
 
         customer.PasswordChangeDateUtc = DateTime.UtcNow;
         customer.PasswordFormatId = passwordFormat;
-        await _customerService.UpdateCustomer(customer);
+        //only the password fields: the caller's copy may be older than the account
+        await _customerService.UpdateCustomerPassword(customer);
         //insert password history
         await _customerHistoryPasswordService.InsertCustomerPassword(customer);
 
