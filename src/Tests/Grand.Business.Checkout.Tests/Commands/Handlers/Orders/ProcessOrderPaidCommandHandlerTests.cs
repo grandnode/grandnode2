@@ -8,6 +8,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -33,7 +34,8 @@ public class ProcessOrderPaidCommandHandlerTests
         _pdfServiceMock = new Mock<IPdfService>();
         _orderSettings = new OrderSettings();
         _handler = new ProcessOrderPaidCommandHandler(_messageProviderMock.Object, _customerServiceMock.Object,
-            _mediatorMock.Object, _pdfServiceMock.Object, _orderSettings, new LanguageSettings());
+            _mediatorMock.Object, _pdfServiceMock.Object, _orderSettings, new LanguageSettings(),
+            new Mock<ILogger<ProcessOrderPaidCommandHandler>>().Object);
     }
 
     [TestMethod]
@@ -76,5 +78,21 @@ public class ProcessOrderPaidCommandHandlerTests
 
         _messageProviderMock.Verify(x => x.SendOrderPaidCustomerMessage(order, It.IsAny<Customer>(),
             It.IsAny<string>(), "invoice"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_InvoiceCannotBeGenerated_StillSendsThePaidMessages()
+    {
+        _orderSettings.AttachPdfInvoiceToOrderPaidEmail = true;
+        var order = new Order { OrderTotal = 10, OrderStatusId = (int)OrderStatusSystem.Pending };
+        _pdfServiceMock.Setup(x => x.SaveOrderToBinary(order, It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException());
+
+        await _handler.Handle(new ProcessOrderPaidCommand { Order = order }, CancellationToken.None);
+
+        _messageProviderMock.Verify(x => x.SendOrderPaidCustomerMessage(order, It.IsAny<Customer>(),
+            It.IsAny<string>(), null), Times.Once);
+        _messageProviderMock.Verify(x => x.SendOrderPaidStoreOwnerMessage(order, It.IsAny<Customer>(),
+            It.IsAny<string>()), Times.Once);
     }
 }

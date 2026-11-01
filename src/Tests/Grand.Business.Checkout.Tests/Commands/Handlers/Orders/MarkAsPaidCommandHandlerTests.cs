@@ -11,6 +11,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -65,7 +66,8 @@ public class MarkAsPaidCommandHandlerTests
         var checkStatus = new CheckOrderStatusCommandHandler(paidMediator.Object, _orderServiceMock.Object,
             new OrderSettings());
         var paid = new ProcessOrderPaidCommandHandler(messageProvider.Object, customerService.Object,
-            paidMediator.Object, new Mock<IPdfService>().Object, new OrderSettings(), new LanguageSettings());
+            paidMediator.Object, new Mock<IPdfService>().Object, new OrderSettings(), new LanguageSettings(),
+            new Mock<ILogger<ProcessOrderPaidCommandHandler>>().Object);
         _mediatorMock.Setup(x => x.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default))
             .ReturnsAsync(true);
         _mediatorMock.Setup(x => x.Send(It.IsAny<CheckOrderStatusCommand>(), default))

@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -39,7 +40,7 @@ public class OrderStatusCommandHandlerTests
 
         _handler = new OrderStatusCommandHandler(_orderServiceMock.Object, _customerServiceMock.Object,
             _pdfServiceMock.Object, _orderMessageProviderServiceMock.Object, _vendorServiceMock.Object, _mediatorMock.Object,
-            _orderSettings, _loyaltyPointsSettings);
+            _orderSettings, _loyaltyPointsSettings, new Mock<ILogger<OrderStatusCommandHandler>>().Object);
     }
 
     [TestMethod]
@@ -68,6 +69,25 @@ public class OrderStatusCommandHandlerTests
 
         _orderMessageProviderServiceMock.Verify(c => c.SendOrderCompletedCustomerMessage(order, It.IsAny<Customer>(),
             "en", "invoice"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_OrderCompleted_InvoiceCannotBeGenerated_StillSendsTheMessageAndAwardsLoyaltyPoints()
+    {
+        _orderSettings.AttachPdfInvoiceToOrderCompletedEmail = true;
+        _loyaltyPointsSettings.PointsForPurchases_Awarded = (int)OrderStatusSystem.Complete;
+        var order = new Order { OrderStatusId = (int)OrderStatusSystem.Pending, CustomerLanguageId = "en" };
+        _pdfServiceMock.Setup(c => c.SaveOrderToBinary(order, It.IsAny<string>(), It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException());
+
+        await _handler.Handle(
+            new SetOrderStatusCommand { Order = order, Os = OrderStatusSystem.Complete, NotifyCustomer = true },
+            CancellationToken.None);
+
+        _orderMessageProviderServiceMock.Verify(c => c.SendOrderCompletedCustomerMessage(order, It.IsAny<Customer>(),
+            "en", null), Times.Once);
+        _mediatorMock.Verify(c => c.Send(It.IsAny<AwardLoyaltyPointsCommand>(), It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [TestMethod]
