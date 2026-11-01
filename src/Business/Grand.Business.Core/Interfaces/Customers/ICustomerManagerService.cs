@@ -39,4 +39,12 @@ public interface ICustomerManagerService
     /// <param name="request">Request</param>
     /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
     Task ChangePassword(ChangePasswordRequest request, string storeId = "");
+
+    /// <summary>
+    ///     Change password of this customer, without resolving the account by e-mail
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="passwordFormat">Password format</param>
+    /// <param name="newPassword">New password</param>
+    Task ChangePassword(Customer customer, PasswordFormat passwordFormat, string newPassword);
 }

@@ -173,32 +173,44 @@ public class CustomerManagerService : ICustomerManagerService
         ArgumentNullException.ThrowIfNull(request);
 
         var customer = await _customerService.GetCustomerByEmail(request.Email, storeId);
+
+        await ChangePassword(customer, request.PasswordFormat, request.NewPassword);
+    }
+
+    /// <summary>
+    ///     Change password of this customer, without resolving the account by e-mail
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="passwordFormat">Password format</param>
+    /// <param name="newPassword">New password</param>
+    public virtual async Task ChangePassword(Customer customer, PasswordFormat passwordFormat, string newPassword)
+    {
         ArgumentNullException.ThrowIfNull(customer);
 
-        switch (request.PasswordFormat)
+        switch (passwordFormat)
         {
             case PasswordFormat.Clear:
             {
-                customer.Password = request.NewPassword;
+                customer.Password = newPassword;
             }
                 break;
             case PasswordFormat.Encrypted:
             {
                 customer.PasswordSalt = CommonHelper.GenerateRandomDigitCode(24);
-                customer.Password = _encryptionService.EncryptText(request.NewPassword, customer.PasswordSalt);
+                customer.Password = _encryptionService.EncryptText(newPassword, customer.PasswordSalt);
             }
                 break;
             case PasswordFormat.Hashed:
             {
                 //modern self-describing PBKDF2 hash - salt and parameters are embedded in the value itself
                 customer.PasswordSalt = string.Empty;
-                customer.Password = _encryptionService.HashPassword(request.NewPassword);
+                customer.Password = _encryptionService.HashPassword(newPassword);
             }
                 break;
         }
 
         customer.PasswordChangeDateUtc = DateTime.UtcNow;
-        customer.PasswordFormatId = request.PasswordFormat;
+        customer.PasswordFormatId = passwordFormat;
         await _customerService.UpdateCustomer(customer);
         //insert password history
         await _customerHistoryPasswordService.InsertCustomerPassword(customer);

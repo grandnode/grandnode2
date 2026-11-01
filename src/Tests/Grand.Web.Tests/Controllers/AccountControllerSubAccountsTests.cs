@@ -116,11 +116,13 @@ public class AccountControllerSubAccountsTests
     }
 
     [TestMethod]
-    public async Task ChangePassword_IsScopedToTheStoreOfTheCustomer()
+    public async Task ChangePassword_ChangesThePasswordOfTheSignedInAccount()
     {
         await _controller.ChangePassword(new ChangePasswordModel { OldPassword = "old", NewPassword = "new" });
 
-        _customerManagerServiceMock.Verify(m => m.ChangePassword(
-            It.Is<ChangePasswordRequest>(r => r.Email == "owner@x.com"), "store-9"), Times.Once);
+        _customerManagerServiceMock.Verify(m => m.ChangePassword(_customer, It.IsAny<PasswordFormat>(), "new"),
+            Times.Once);
+        _customerManagerServiceMock.Verify(m => m.ChangePassword(It.IsAny<ChangePasswordRequest>(),
+            It.IsAny<string>()), Times.Never);
     }
 }
