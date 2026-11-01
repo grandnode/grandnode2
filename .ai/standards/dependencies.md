@@ -44,7 +44,7 @@ Every project imports `..\..\Build\Grand.Common.props`, which sets:
 - `ImplicitUsings` = `true`
 - global using of `System.Text`
 - release build with no debug symbols
-- product version, currently `2.4.0`, set in the `SetVersion` target
+- product version, currently `2.4.1`, set in the `SetVersion` target
 
 Do not override `TargetFramework` or `LangVersion` in an individual project.
 
