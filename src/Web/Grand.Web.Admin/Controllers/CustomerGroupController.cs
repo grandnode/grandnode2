@@ -85,7 +85,7 @@ public class CustomerGroupController : BaseAdminController
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Create(CustomerGroupModel model, bool continueEditing)
