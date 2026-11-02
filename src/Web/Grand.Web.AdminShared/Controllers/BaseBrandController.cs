@@ -104,7 +104,7 @@ public abstract class BaseBrandController(
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Create(BrandModel model, bool continueEditing)
