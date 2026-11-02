@@ -172,9 +172,10 @@ public class PermissionController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> PermissionsAction(PermissionActionSaveModel model)
     {
+        //a 404 without a body would be re-executed as a POST on the storefront
         var permissionRecord = await _permissionService.GetPermissionBySystemName(model.SystemName);
-        if (permissionRecord == null) return NotFound();
-        if (await _groupService.GetCustomerGroupById(model.CustomerGroupId) == null) return NotFound();
+        if (permissionRecord == null) return NotFound("Permission not found");
+        if (await _groupService.GetCustomerGroupById(model.CustomerGroupId) == null) return NotFound("Customer group not found");
 
         //remove denied actions
         var deniedActions = await _permissionService.GetPermissionActions(model.SystemName, model.CustomerGroupId);
