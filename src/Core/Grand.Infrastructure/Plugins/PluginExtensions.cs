@@ -40,12 +40,21 @@ public static class PluginExtensions
     }
 
     /// <summary>
-    ///     Whether the assembly may contribute types: true unless it belongs to a plugin that is not installed
+    ///     Whether the assembly may contribute types: true unless it belongs only to plugins that are not
+    ///     active (not installed, or failed to load). Any assembly of a plugin counts, not only the one
+    ///     carrying <see cref="PluginInfoAttribute" />; a dependency several plugins ship counts while one
+    ///     of them is active.
     /// </summary>
     public static bool OnlyInstalledPlugins(Assembly assembly)
     {
-        var plugin = PluginManager.FindPlugin(assembly);
-        return plugin == null || plugin.Installed;
+        ArgumentNullException.ThrowIfNull(assembly);
+
+        var name = assembly.GetName().Name;
+        var owners = PluginManager.ReferencedPlugins?
+            .Where(x => x.AssemblyNames.Contains(name, StringComparer.OrdinalIgnoreCase))
+            .ToList();
+
+        return owners is not { Count: > 0 } || owners.Any(x => x.IsActive);
     }
 
     public static IList<string> ParseInstalledPluginsFile(string filePath)

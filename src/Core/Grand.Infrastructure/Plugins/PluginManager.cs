@@ -1,14 +1,15 @@
 ﻿using Grand.Infrastructure.Configuration;
+using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
-using System.Text.RegularExpressions;
 
 namespace Grand.Infrastructure.Plugins;
 
@@ -31,6 +32,7 @@ public static class PluginManager
     private static DirectoryInfo _pluginFolder;
     private static ExtensionsConfig _config;
     private static ILogger _logger;
+    private static Func<AssemblyLoadContext, AssemblyName, Assembly> _resolveDependency;
 
     #endregion
 
@@ -60,127 +62,114 @@ public static class PluginManager
 
             _pluginFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins));
             _copyFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins, "bin"));
-                
-            var referencedPlugins = new List<PluginInfo>();
-            try
-            {
-                var installedPluginSystemNames =
-                    !string.IsNullOrEmpty(_config.InstalledPlugins)
-                        ? _config.InstalledPlugins.Split(",").Select(x => x.Trim())
-                        : PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
 
-                _logger.LogInformation("Creating shadow copy folder and querying for dlls");
-                Directory.CreateDirectory(_pluginFolder.FullName);
-                Directory.CreateDirectory(_copyFolder.FullName);
-                var binFiles = _copyFolder.GetFiles("*", SearchOption.AllDirectories);
-                if (_config.PluginShadowCopy)
-                    //clear out shadow plugins
-                    foreach (var f in binFiles)
-                    {
-                        _logger.LogInformation("Deleting {FName}", f.Name);
-                        try
-                        {
-                            var fileName = Path.GetFileName(f.FullName);
-                            if (fileName.Equals("index.htm", StringComparison.OrdinalIgnoreCase))
-                                continue;
+            var installedPluginSystemNames =
+                (!string.IsNullOrEmpty(_config.InstalledPlugins)
+                    ? _config.InstalledPlugins.Split(",").Select(x => x.Trim())
+                    : PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile))
+                .ToList();
 
-                            File.Delete(f.FullName);
-                        }
-                        catch (Exception exc)
-                        {
-                            _logger.LogError(exc, "PluginManager");
-                        }
-                    }
-
-                //load description files
-                foreach (var plugin in GetPluginInfo())
+            _logger.LogInformation("Creating shadow copy folder and querying for dlls");
+            Directory.CreateDirectory(_pluginFolder.FullName);
+            Directory.CreateDirectory(_copyFolder.FullName);
+            var binFiles = _copyFolder.GetFiles("*", SearchOption.AllDirectories);
+            if (_config.PluginShadowCopy)
+                //clear out shadow plugins
+                foreach (var f in binFiles)
                 {
-                    if (plugin.SupportedVersion != GrandVersion.SupportedPluginVersion)
-                    {
-                        _logger.LogInformation("Incompatible plugin {PluginSystemName}", plugin.SystemName);
-                        //set as not installed
-                        referencedPlugins.Add(plugin);
-                        continue;
-                    }
-
-                    //some validation
-                    if (string.IsNullOrWhiteSpace(plugin.SystemName))
-                        throw new Exception($"The plugin '{plugin.SystemName}' has no system name.");
-                    if (referencedPlugins.Contains(plugin))
-                        throw new Exception($"The plugin with '{plugin.SystemName}' system name is already defined");
-
-                    //set 'Installed' property
-                    plugin.Installed = installedPluginSystemNames
-                        .FirstOrDefault(x => x.Equals(plugin.SystemName, StringComparison.OrdinalIgnoreCase)) != null;
-
+                    _logger.LogInformation("Deleting {FName}", f.Name);
                     try
                     {
-                        if (!_config.PluginShadowCopy)
-                        {
-                            //remove deps.json files 
-                            var depsFiles =
-                                plugin.OriginalAssemblyFile.Directory!.GetFiles("*.deps.json",
-                                    SearchOption.TopDirectoryOnly);
-                            foreach (var f in depsFiles)
-                                try
-                                {
-                                    File.Delete(f.FullName);
-                                }
-                                catch (Exception exc)
-                                {
-                                    _logger.LogError(exc, "PluginManager");
-                                }
-                        }
+                        var fileName = Path.GetFileName(f.FullName);
+                        if (fileName.Equals("index.htm", StringComparison.OrdinalIgnoreCase))
+                            continue;
 
-                        //controllers and views only for an installed plugin - an uninstalled one must not be routable
-                        if (plugin.Installed)
-                            AddApplicationPart(mvcCoreBuilder, plugin.ReferencedAssembly, plugin.SystemName,
-                                plugin.PluginFileName);
-
-                        //register interface for IPlugin - also when not installed, Install resolves it from DI
-                        RegisterPluginInterface(mvcCoreBuilder, plugin.ReferencedAssembly);
-
-                        //init plugin type
-                        foreach (var t in plugin.ReferencedAssembly.GetTypes())
-                            if (typeof(IPlugin).IsAssignableFrom(t))
-                                if (!t.GetTypeInfo().IsInterface)
-                                    if (t.GetTypeInfo().IsClass && !t.GetTypeInfo().IsAbstract)
-                                    {
-                                        plugin.PluginType = t;
-                                        break;
-                                    }
-
-                        referencedPlugins.Add(plugin);
+                        File.Delete(f.FullName);
                     }
-                    catch (ReflectionTypeLoadException ex)
+                    catch (Exception exc)
                     {
-                        var msg = $"Plugin '{plugin.FriendlyName}'. ";
-                        msg = ex.LoaderExceptions.Aggregate(msg,
-                            (current, e) => current + e!.Message + Environment.NewLine);
-
-                        var fail = new Exception(msg, ex);
-                        throw fail;
-                    }
-                    catch (Exception ex)
-                    {
-                        var msg = $"Plugin '{plugin.FriendlyName}'. {ex.Message}";
-
-                        var fail = new Exception(msg, ex);
-                        throw fail;
+                        _logger.LogError(exc, "PluginManager");
                     }
                 }
-            }
-            catch (Exception ex)
-            {
-                var msg = string.Empty;
-                for (var e = ex; e != null; e = e.InnerException)
-                    msg += e.Message + Environment.NewLine;
 
-                var fail = new Exception(msg, ex);
-                throw fail;
+            //plan from metadata first: nothing is loaded for a folder that cannot be loaded
+            var scan = PluginFolderScanner.Scan(_pluginFolder, _config.PluginSkipLoadingPattern, HostAssemblyNames());
+            foreach (var warning in scan.Warnings)
+                _logger.LogWarning("{PluginWarning}", warning);
+
+            var referencedPlugins = new List<PluginInfo>();
+            foreach (var problem in scan.Problems)
+            {
+                _logger.LogError("Plugin folder {PluginFolder} could not be loaded: {LoadError}",
+                    problem.Folder, problem.Message);
+                referencedPlugins.Add(new PluginInfo {
+                    SystemName = problem.Folder,
+                    FriendlyName = problem.Folder,
+                    LoadError = problem.Message
+                });
+            }
+
+            //a dependency can be asked for twice (resolved for one plugin, then loaded by the one shipping it);
+            //it is copied once
+            var shadowCopies = new ConcurrentDictionary<string, FileInfo>(StringComparer.OrdinalIgnoreCase);
+            Func<FileInfo, FileInfo> prepareFile = _config.PluginShadowCopy
+                ? file => shadowCopies.GetOrAdd(file.FullName,
+                    _ => ShadowCopyFile(file, Directory.CreateDirectory(_copyFolder.FullName)))
+                : file => file;
+
+            var compatible = scan.Plugins
+                .Where(x => x.Manifest.SupportedVersion == GrandVersion.SupportedPluginVersion)
+                .ToList();
+            ResolveDependenciesFrom(compatible, prepareFile);
+
+            foreach (var candidate in scan.Plugins)
+            {
+                if (candidate.Manifest.SupportedVersion != GrandVersion.SupportedPluginVersion)
+                {
+                    _logger.LogInformation("Incompatible plugin {PluginSystemName}", candidate.Manifest.SystemName);
+                    //listed as not installed, and not loaded
+                    referencedPlugins.Add(PluginLoader.Describe(candidate, false));
+                    continue;
+                }
+
+                if (!_config.PluginShadowCopy)
+                    DeleteDepsFiles(candidate.Folder);
+
+                var installed = installedPluginSystemNames.Contains(candidate.Manifest.SystemName,
+                    StringComparer.OrdinalIgnoreCase);
+                var plugin = PluginLoader.Load(candidate, installed, AssemblyLoadContext.Default, prepareFile);
+                referencedPlugins.Add(plugin);
+
+                //controllers and views only for an installed plugin - an uninstalled one must not be routable
+                if (plugin.LoadError == null && plugin.Installed)
+                {
+                    var error = AddApplicationPart(mvcCoreBuilder, plugin);
+                    if (error != null)
+                    {
+                        plugin.LoadError = error;
+                        plugin.PluginType = null;
+                        plugin.ReferencedAssembly = null;
+                    }
+                }
+
+                if (plugin.LoadError != null)
+                {
+                    _logger.LogError("Plugin folder {PluginFolder} could not be loaded: {LoadError}",
+                        candidate.Folder.Name, plugin.LoadError);
+                    continue;
+                }
+
+                //register the plugin class - also when not installed, Install resolves it from DI
+                if (plugin.PluginType != null)
+                    mvcCoreBuilder.Services.AddScoped(plugin.PluginType);
             }
 
             ReferencedPlugins = referencedPlugins;
+
+            var failed = referencedPlugins.FirstOrDefault(x => x.Installed && x.LoadError != null);
+            if (failed != null && _config.FailOnPluginLoadError)
+                throw new GrandException(
+                    $"The installed plugin '{failed.SystemName}' could not be loaded: {failed.LoadError}");
         }
     }
 
@@ -226,55 +215,58 @@ public static class PluginManager
 
     #region Utilities
 
-    private static IList<PluginInfo> GetPluginInfo()
+    /// <summary>
+    ///     Simple names of the assemblies the application itself provides; a plugin's copy of one is never loaded
+    /// </summary>
+    private static HashSet<string> HostAssemblyNames()
     {
-        ArgumentNullException.ThrowIfNull(_pluginFolder);
-
-        var result = new List<PluginInfo>();
-        foreach (var pluginFile in _pluginFolder.GetFiles("*.dll", SearchOption.AllDirectories))
-        {
-            if (!IsPackagePluginFolder(pluginFile.Directory))
-                continue;
-
-            if (!string.IsNullOrEmpty(_config.PluginSkipLoadingPattern)
-                && Matches(pluginFile.Name, _config.PluginSkipLoadingPattern))
-                continue;
-
-            //prepare plugin info
-            var plugins = PreparePluginInfo(pluginFile);
-            if (plugins == null)
-                continue;
-
-            result.Add(plugins);
-        }
-
-        return result;
+        var trusted = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string ?? string.Empty;
+        return trusted.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+            .Select(Path.GetFileNameWithoutExtension)
+            .ToHashSet(StringComparer.OrdinalIgnoreCase);
     }
 
-    private static PluginInfo PreparePluginInfo(FileInfo pluginFile)
+    /// <summary>
+    ///     When two plugins ship the same dependency only one copy is loaded (see <see cref="PluginFolderScanner" />).
+    ///     The plugin whose copy was dropped finds the kept one here, also before the plugin shipping it is loaded.
+    /// </summary>
+    private static void ResolveDependenciesFrom(IEnumerable<PluginCandidate> plugins,
+        Func<FileInfo, FileInfo> prepareFile)
     {
-        var plug = _config.PluginShadowCopy
-            ? ShadowCopyFile(pluginFile, Directory.CreateDirectory(_copyFolder.FullName))
-            : pluginFile;
+        var paths = plugins
+            .SelectMany(x => x.AssemblyPaths)
+            .GroupBy(Path.GetFileNameWithoutExtension, StringComparer.OrdinalIgnoreCase)
+            .ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
 
-        var assembly = AssemblyLoadContext.Default.LoadFromAssemblyPath(plug.FullName);
+        if (_resolveDependency != null)
+            AssemblyLoadContext.Default.Resolving -= _resolveDependency;
 
-        var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
-        if (pluginInfo == null) return null;
+        _resolveDependency = (context, name) =>
+            name.Name != null && paths.TryGetValue(name.Name, out var path)
+                ? context.LoadFromAssemblyPath(prepareFile(new FileInfo(path)).FullName)
+                : null;
+        AssemblyLoadContext.Default.Resolving += _resolveDependency;
+    }
 
-        var plugin = new PluginInfo {
-            FriendlyName = pluginInfo.FriendlyName,
-            Group = pluginInfo.Group,
-            SystemName = pluginInfo.SystemName,
-            Version = pluginInfo.Version,
-            SupportedVersion = PluginVersionResolver.ResolveSupportedVersion(assembly, pluginInfo.SupportedVersion),
-            Author = pluginInfo.Author,
-            PluginFileName = plug.Name,
-            OriginalAssemblyFile = pluginFile,
-            ReferencedAssembly = assembly
-        };
-
-        return plugin;
+    private static void DeleteDepsFiles(DirectoryInfo folder)
+    {
+        //remove deps.json files
+        try
+        {
+            foreach (var f in folder.GetFiles("*.deps.json", SearchOption.TopDirectoryOnly))
+                try
+                {
+                    File.Delete(f.FullName);
+                }
+                catch (Exception exc)
+                {
+                    _logger.LogError(exc, "PluginManager");
+                }
+        }
+        catch (Exception exc)
+        {
+            _logger.LogError(exc, "PluginManager");
+        }
     }
 
     /// <summary>
@@ -341,60 +333,31 @@ public static class PluginManager
         return shadowCopiedPlug;
     }
 
-    private static bool Matches(string fullName, string pattern)
-    {
-        return Regex.IsMatch(fullName, pattern, RegexOptions.IgnoreCase | RegexOptions.Compiled, TimeSpan.FromSeconds(1));
-    }
-
-    private static void AddApplicationPart(IMvcCoreBuilder mvcCoreBuilder,
-        Assembly assembly, string systemName, string filename)
+    /// <summary>
+    ///     Adds the plugin's controllers and views; returns the error when its parts cannot be read
+    /// </summary>
+    private static string AddApplicationPart(IMvcCoreBuilder mvcCoreBuilder, PluginInfo plugin)
     {
         try
         {
             //we can now register the plugin definition
-            _logger.LogInformation("Adding to ApplicationParts: '{0}'", systemName);
-            mvcCoreBuilder.AddApplicationPart(assembly);
+            _logger.LogInformation("Adding to ApplicationParts: '{0}'", plugin.SystemName);
 
-            var relatedAssemblies = RelatedAssemblyAttribute.GetRelatedAssemblies(assembly, false);
-            foreach (var relatedAssembly in relatedAssemblies)
-            {
-                var applicationPartFactory = ApplicationPartFactory.GetApplicationPartFactory(relatedAssembly);
-                foreach (var part in applicationPartFactory.GetApplicationParts(relatedAssembly))
-                    mvcCoreBuilder.PartManager.ApplicationParts.Add(part);
-            }
+            //related parts are read first, so a failure adds nothing
+            var relatedParts = RelatedAssemblyAttribute.GetRelatedAssemblies(plugin.ReferencedAssembly, false)
+                .SelectMany(x => ApplicationPartFactory.GetApplicationPartFactory(x).GetApplicationParts(x))
+                .ToList();
+
+            mvcCoreBuilder.AddApplicationPart(plugin.ReferencedAssembly);
+            foreach (var part in relatedParts)
+                mvcCoreBuilder.PartManager.ApplicationParts.Add(part);
+
+            return null;
         }
         catch (Exception ex)
         {
-            _logger.LogError(ex, "PluginManager");
-            throw new InvalidOperationException(
-                $"The plugin directory for the {systemName} file exists in a folder outside of the allowed grandnode folder hierarchy - exception because of {filename} - exception: {ex.Message}");
+            return ex.Message;
         }
-    }
-
-    private static void RegisterPluginInterface(IMvcCoreBuilder mvcCoreBuilder, Assembly assembly)
-    {
-        try
-        {
-            foreach (var t in assembly.GetTypes())
-                if (typeof(IPlugin).IsAssignableFrom(t))
-                    mvcCoreBuilder.Services.AddScoped(t);
-        }
-        catch (Exception ex)
-        {
-            _logger.LogError(ex, "RegisterPluginInterface");
-        }
-    }
-
-    /// <summary>
-    ///     Determines if the folder is a bin plugin folder for a package
-    /// </summary>
-    /// <param name="folder"></param>
-    /// <returns></returns>
-    private static bool IsPackagePluginFolder(DirectoryInfo folder)
-    {
-        if (folder == null) return false;
-        if (folder.Name.Equals("bin", StringComparison.InvariantCultureIgnoreCase)) return false;
-        return folder.Parent != null && folder.Parent.Name.Equals("Plugins", StringComparison.OrdinalIgnoreCase);
     }
 
     #endregion

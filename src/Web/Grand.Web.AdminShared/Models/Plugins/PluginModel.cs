@@ -29,6 +29,9 @@ public class PluginModel : BaseModel
     [GrandResourceDisplayName("Admin.Plugins.Fields.Installed")]
     public bool Installed { get; set; }
 
+    [GrandResourceDisplayName("Admin.Plugins.LoadError")]
+    public string LoadError { get; set; }
+
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.Logo")]
     public string LogoUrl { get; set; }

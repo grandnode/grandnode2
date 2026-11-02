@@ -41,8 +41,8 @@ public class PluginController(
         //logo
         pluginModel.LogoUrl = PluginInfo.GetLogoUrl(Request.PathBase);
 
-        //configuration URLs
-        if (PluginInfo.Installed)
+        //configuration URLs - a plugin that failed to load has no instance, its LoadError is shown instead
+        if (PluginInfo.IsActive)
         {
             var pluginInstance = PluginInfo.Instance(serviceProvider);
             pluginModel.ConfigurationUrl = pluginInstance.ConfigurationUrl();

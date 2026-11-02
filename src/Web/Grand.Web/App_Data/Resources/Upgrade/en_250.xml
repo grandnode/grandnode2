@@ -846,4 +846,7 @@
 	<Resource Name="Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server" Area="Admin">
 		<Value>Server time zone</Value>
 	</Resource>
+	<Resource Name="Admin.Plugins.LoadError" Area="Admin">
+		<Value>Load error</Value>
+	</Resource>
 </Language>

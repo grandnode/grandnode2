@@ -15,6 +15,9 @@ public sealed class PluginInfo
         ReferencedAssembly = referencedAssembly;
         OriginalAssemblyFile = originalAssemblyFile;
         PluginType = pluginType;
+        if (referencedAssembly != null)
+            AssemblyNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
+                { referencedAssembly.GetName().Name! };
     }
 
     public PluginInfo()
@@ -80,6 +83,23 @@ public sealed class PluginInfo
     ///     Gets or sets the value indicating whether plugin is installed
     /// </summary>
     public bool Installed { get; set; }
+
+    /// <summary>
+    ///     Why the plugin could not be loaded; null when it loaded
+    /// </summary>
+    public string LoadError { get; internal set; }
+
+    /// <summary>
+    ///     Simple names of the plugin's assemblies, compared case-insensitively. Taken from the plugin
+    ///     folder, so they are known whether or not the plugin was loaded.
+    /// </summary>
+    public IReadOnlyCollection<string> AssemblyNames { get; internal set; } =
+        new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
+    /// <summary>
+    ///     Installed and loaded: only an active plugin contributes types to the application
+    /// </summary>
+    public bool IsActive => Installed && LoadError == null;
 
     public T Instance<T>(IServiceProvider serviceProvider) where T : class, IPlugin
     {

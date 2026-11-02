@@ -1,4 +1,5 @@
 ﻿using Grand.Infrastructure.Plugins;
+using Grand.Infrastructure.Tests.Plugins.Fixtures;
 using Grand.SharedKernel.Extensions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using TestContext = NUnit.Framework.TestContext;
@@ -90,6 +91,77 @@ public class PluginExtensionsTests
         {
             PluginManager.ReferencedPlugins = [SamplePluginInfo(true)];
             Assert.IsTrue(PluginExtensions.OnlyInstalledPlugins(typeof(SampleBasePlugin).Assembly));
+        }
+        finally
+        {
+            PluginManager.ReferencedPlugins = referencedPlugins;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void OnlyInstalledPlugins_SatelliteOfUninstalledPlugin_ReturnsFalse()
+    {
+        using var fixture = new PluginFolderFixture();
+        fixture.AddPlugin("Sat", "Ext.Sat", "Ext.Sat", "public class SatPlugin : BasePlugin { }");
+        TestPluginBuilder.Compile(fixture.Folder("Sat"), "Ext.Sat.Core", "public class Core { }");
+        var plugin = fixture.Load("Sat", false);
+
+        var referencedPlugins = PluginManager.ReferencedPlugins;
+        try
+        {
+            PluginManager.ReferencedPlugins = [plugin];
+            Assert.IsFalse(PluginExtensions.OnlyInstalledPlugins(fixture.Loaded("Ext.Sat.Core")));
+        }
+        finally
+        {
+            PluginManager.ReferencedPlugins = referencedPlugins;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void OnlyInstalledPlugins_InstalledPluginWithLoadError_ReturnsFalse()
+    {
+        using var fixture = new PluginFolderFixture();
+        var missing = fixture.CompileElsewhere("Ext.MissingDep", "namespace Missing { public class Base { } }");
+        fixture.AddPlugin("Broken", "Ext.Broken", "Ext.Broken", """
+            public class Derived : Missing.Base { }
+            public class BrokenPlugin : BasePlugin { }
+            """, missing);
+        TestPluginBuilder.Compile(fixture.Folder("Broken"), "Ext.Broken.Core", "public class Core { }");
+        var plugin = fixture.Load("Broken", true);
+        Assert.IsNotNull(plugin.LoadError);
+
+        var referencedPlugins = PluginManager.ReferencedPlugins;
+        try
+        {
+            PluginManager.ReferencedPlugins = [plugin];
+            Assert.IsFalse(PluginExtensions.OnlyInstalledPlugins(fixture.Loaded("Ext.Broken.Core")));
+        }
+        finally
+        {
+            PluginManager.ReferencedPlugins = referencedPlugins;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void OnlyInstalledPlugins_DependencySharedWithInstalledPlugin_ReturnsTrue()
+    {
+        using var fixture = new PluginFolderFixture();
+        fixture.AddPlugin("A", "Ext.A", "Ext.A", "public class APlugin : BasePlugin { }");
+        fixture.AddPlugin("B", "Ext.B", "Ext.B", "public class BPlugin : BasePlugin { }");
+        TestPluginBuilder.Compile(fixture.Folder("A"), "Ext.Shared", "public class Shared { }");
+        TestPluginBuilder.Compile(fixture.Folder("B"), "Ext.Shared", "public class Shared { }");
+        var uninstalled = fixture.Load("A", false);
+        var installed = fixture.Load("B", true);
+
+        var referencedPlugins = PluginManager.ReferencedPlugins;
+        try
+        {
+            PluginManager.ReferencedPlugins = [uninstalled, installed];
+            Assert.IsTrue(PluginExtensions.OnlyInstalledPlugins(fixture.Loaded("Ext.Shared")));
         }
         finally
         {

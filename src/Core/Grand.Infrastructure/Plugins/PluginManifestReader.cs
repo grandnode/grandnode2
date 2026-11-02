@@ -14,63 +14,71 @@ public static class PluginManifestReader
     private const string AttributeName = nameof(PluginInfoAttribute);
 
     /// <summary>
-    ///     True when the file is a managed assembly (it carries CLI metadata).
+    ///     True when the file is a managed assembly (it carries CLI metadata). A file that is not a
+    ///     PE image is not managed; a file that cannot be read throws.
     /// </summary>
+    /// <exception cref="IOException">The file cannot be opened or read</exception>
+    /// <exception cref="UnauthorizedAccessException">The file cannot be opened</exception>
     public static bool IsManagedAssembly(string path)
     {
-        try
-        {
-            using var stream = File.OpenRead(path);
-            using var peReader = new PEReader(stream);
-            return peReader.HasMetadata;
-        }
-        catch (Exception ex) when (ex is BadImageFormatException or IOException or InvalidOperationException
-                                       or UnauthorizedAccessException)
-        {
-            return false;
-        }
+        using var stream = File.OpenRead(path);
+        using var peReader = new PEReader(stream);
+        return HasMetadata(peReader);
     }
 
     /// <summary>
     ///     Returns the manifest of a plugin assembly, or null for a non-managed file or an assembly
     ///     without <see cref="PluginInfoAttribute" />.
     /// </summary>
+    /// <exception cref="IOException">The file cannot be opened or read</exception>
+    /// <exception cref="UnauthorizedAccessException">The file cannot be opened</exception>
+    /// <exception cref="BadImageFormatException">The attribute cannot be decoded</exception>
     public static PluginManifest Read(string assemblyPath)
+    {
+        using var stream = File.OpenRead(assemblyPath);
+        using var peReader = new PEReader(stream);
+        if (!HasMetadata(peReader))
+            return null;
+
+        var reader = peReader.GetMetadataReader();
+        var provider = new StringTypeProvider();
+        foreach (var handle in reader.GetAssemblyDefinition().GetCustomAttributes())
+        {
+            var attribute = reader.GetCustomAttribute(handle);
+            if (!IsPluginInfoAttribute(reader, attribute.Constructor))
+                continue;
+
+            var named = new Dictionary<string, string>(StringComparer.Ordinal);
+            foreach (var argument in attribute.DecodeValue(provider).NamedArguments)
+                if (!named.TryAdd(argument.Name!, argument.Value as string))
+                    throw new BadImageFormatException(
+                        $"The PluginInfo attribute of '{Path.GetFileName(assemblyPath)}' sets {argument.Name} more than once.");
+
+            return new PluginManifest(
+                named.GetValueOrDefault(nameof(PluginInfoAttribute.SystemName)),
+                named.GetValueOrDefault(nameof(PluginInfoAttribute.FriendlyName)),
+                named.GetValueOrDefault(nameof(PluginInfoAttribute.Group)),
+                named.GetValueOrDefault(nameof(PluginInfoAttribute.Author)),
+                named.GetValueOrDefault(nameof(PluginInfoAttribute.Version)),
+                PluginVersionResolver.ResolveSupportedVersion(GetCoreReference(reader),
+                    named.GetValueOrDefault(nameof(PluginInfoAttribute.SupportedVersion))));
+        }
+
+        return null;
+    }
+
+    /// <summary>
+    ///     A file whose headers are not a PE image (a native dll stub, random bytes) has no metadata.
+    /// </summary>
+    private static bool HasMetadata(PEReader peReader)
     {
         try
         {
-            using var stream = File.OpenRead(assemblyPath);
-            using var peReader = new PEReader(stream);
-            if (!peReader.HasMetadata)
-                return null;
-
-            var reader = peReader.GetMetadataReader();
-            var provider = new StringTypeProvider();
-            foreach (var handle in reader.GetAssemblyDefinition().GetCustomAttributes())
-            {
-                var attribute = reader.GetCustomAttribute(handle);
-                if (!IsPluginInfoAttribute(reader, attribute.Constructor))
-                    continue;
-
-                var named = attribute.DecodeValue(provider).NamedArguments
-                    .ToDictionary(x => x.Name, x => x.Value as string, StringComparer.Ordinal);
-
-                return new PluginManifest(
-                    named.GetValueOrDefault(nameof(PluginInfoAttribute.SystemName)),
-                    named.GetValueOrDefault(nameof(PluginInfoAttribute.FriendlyName)),
-                    named.GetValueOrDefault(nameof(PluginInfoAttribute.Group)),
-                    named.GetValueOrDefault(nameof(PluginInfoAttribute.Author)),
-                    named.GetValueOrDefault(nameof(PluginInfoAttribute.Version)),
-                    PluginVersionResolver.ResolveSupportedVersion(GetCoreReference(reader),
-                        named.GetValueOrDefault(nameof(PluginInfoAttribute.SupportedVersion))));
-            }
-
-            return null;
+            return peReader.HasMetadata;
         }
-        catch (Exception ex) when (ex is BadImageFormatException or IOException or InvalidOperationException
-                                       or UnauthorizedAccessException)
+        catch (BadImageFormatException)
         {
-            return null;
+            return false;
         }
     }
 

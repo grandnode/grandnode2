@@ -35,8 +35,12 @@ public static class PluginFolderScanner
 {
     private static readonly string[] IgnoredFolders = ["bin", "TempUploads"];
 
-    private sealed record ScannedFile(string Path, string Name, Version AssemblyVersion, Version FileVersion);
+    private sealed record ScannedFile(string Path, string Name, Version AssemblyVersion, Version FileVersion,
+        PluginManifest Manifest);
 
+    /// <summary>
+    ///     Never throws because of one folder or file: what cannot be read becomes a problem of its folder.
+    /// </summary>
     public static PluginScanResult Scan(DirectoryInfo pluginsFolder, string skipPattern, ISet<string> hostAssemblyNames)
     {
         var problems = new List<PluginLoadProblem>();
@@ -47,18 +51,27 @@ public static class PluginFolderScanner
         if (!pluginsFolder.Exists)
             return new PluginScanResult([], problems, warnings);
 
-        var folders = pluginsFolder.GetDirectories()
-            .Where(x => !IgnoredFolders.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
-            .OrderBy(x => x.Name, StringComparer.Ordinal);
+        DirectoryInfo[] folders;
+        try
+        {
+            folders = pluginsFolder.GetDirectories()
+                .Where(x => !IgnoredFolders.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
+                .OrderBy(x => x.Name, StringComparer.Ordinal)
+                .ToArray();
+        }
+        catch (Exception ex) when (IsReadFailure(ex))
+        {
+            problems.Add(new PluginLoadProblem(pluginsFolder.Name, $"The folder could not be read: {ex.Message}"));
+            return new PluginScanResult([], problems, warnings);
+        }
 
         foreach (var folder in folders)
         {
-            var files = ScanFolder(folder, skipPattern, hostAssemblyNames, warnings);
+            var files = ScanFolder(folder, skipPattern, hostAssemblyNames, warnings, problems);
+            if (files == null)
+                continue;
 
-            var manifests = files
-                .Select(x => (File: x, Manifest: PluginManifestReader.Read(x.Path)))
-                .Where(x => x.Manifest != null)
-                .ToList();
+            var manifests = files.Where(x => x.Manifest != null).ToList();
 
             if (manifests.Count == 0)
                 continue;
@@ -66,12 +79,19 @@ public static class PluginFolderScanner
             if (manifests.Count > 1)
             {
                 problems.Add(new PluginLoadProblem(folder.Name,
-                    $"The folder contains {manifests.Count} plugin assemblies ({string.Join(", ", manifests.Select(x => x.File.Name))}); only one is allowed."));
+                    $"The folder contains {manifests.Count} plugin assemblies ({string.Join(", ", manifests.Select(x => x.Name))}); only one is allowed."));
                 continue;
             }
 
-            var (main, manifest) = manifests[0];
-            if (!systemNames.Add(manifest.SystemName ?? string.Empty))
+            var main = manifests[0];
+            var manifest = main.Manifest;
+            if (string.IsNullOrWhiteSpace(manifest.SystemName))
+            {
+                problems.Add(new PluginLoadProblem(folder.Name, "has no SystemName"));
+                continue;
+            }
+
+            if (!systemNames.Add(manifest.SystemName))
             {
                 problems.Add(new PluginLoadProblem(folder.Name,
                     $"The plugin system name '{manifest.SystemName}' is already used by another plugin folder."));
@@ -87,42 +107,76 @@ public static class PluginFolderScanner
         return new PluginScanResult(DropLowerVersions(plugins, warnings), problems, warnings);
     }
 
+    /// <summary>
+    ///     Returns the folder's assemblies, or null when the folder or one of its files cannot be read; the
+    ///     folder is then a problem, since the unread file may be the plugin itself or one it needs.
+    /// </summary>
     private static List<ScannedFile> ScanFolder(DirectoryInfo folder, string skipPattern,
-        ISet<string> hostAssemblyNames, List<string> warnings)
+        ISet<string> hostAssemblyNames, List<string> warnings, List<PluginLoadProblem> problems)
     {
+        FileInfo[] dlls;
+        try
+        {
+            dlls = folder.GetFiles("*.dll", SearchOption.TopDirectoryOnly);
+        }
+        catch (Exception ex) when (IsReadFailure(ex))
+        {
+            problems.Add(new PluginLoadProblem(folder.Name, $"The folder could not be read: {ex.Message}"));
+            return null;
+        }
+
         var result = new List<ScannedFile>();
-        foreach (var file in folder.GetFiles("*.dll", SearchOption.TopDirectoryOnly)
-                     .OrderBy(x => x.Name, StringComparer.Ordinal))
+        foreach (var file in dlls.OrderBy(x => x.Name, StringComparer.Ordinal))
         {
             if (!string.IsNullOrEmpty(skipPattern) && Matches(file.Name, skipPattern))
                 continue;
 
-            if (!PluginManifestReader.IsManagedAssembly(file.FullName))
-                continue;
-
-            AssemblyName assemblyName;
             try
             {
-                assemblyName = AssemblyName.GetAssemblyName(file.FullName);
+                var scanned = ScanFile(folder, file, hostAssemblyNames, warnings);
+                if (scanned != null)
+                    result.Add(scanned);
             }
-            catch (Exception ex) when (ex is BadImageFormatException or FileLoadException)
+            catch (Exception ex) when (IsReadFailure(ex))
             {
-                continue;
+                problems.Add(new PluginLoadProblem(folder.Name, $"'{file.Name}' could not be read: {ex.Message}"));
+                return null;
             }
-
-            if (hostAssemblyNames.Contains(assemblyName.Name!))
-            {
-                warnings.Add(
-                    $"Plugin folder '{folder.Name}' ships '{file.Name}', which the application already provides; the copy is ignored.");
-                continue;
-            }
-
-            result.Add(new ScannedFile(file.FullName, assemblyName.Name!, assemblyName.Version ?? new Version(),
-                ParseFileVersion(file.FullName)));
         }
 
         return result;
     }
+
+    private static ScannedFile ScanFile(DirectoryInfo folder, FileInfo file, ISet<string> hostAssemblyNames,
+        List<string> warnings)
+    {
+        if (!PluginManifestReader.IsManagedAssembly(file.FullName))
+            return null;
+
+        AssemblyName assemblyName;
+        try
+        {
+            assemblyName = AssemblyName.GetAssemblyName(file.FullName);
+        }
+        catch (BadImageFormatException)
+        {
+            //metadata without an assembly manifest, such as a module: nothing to load
+            return null;
+        }
+
+        if (hostAssemblyNames.Contains(assemblyName.Name!))
+        {
+            warnings.Add(
+                $"Plugin folder '{folder.Name}' ships '{file.Name}', which the application already provides; the copy is ignored.");
+            return null;
+        }
+
+        return new ScannedFile(file.FullName, assemblyName.Name!, assemblyName.Version ?? new Version(),
+            ParseFileVersion(file.FullName), PluginManifestReader.Read(file.FullName));
+    }
+
+    private static bool IsReadFailure(Exception ex) =>
+        ex is IOException or UnauthorizedAccessException or BadImageFormatException;
 
     /// <summary>
     ///     When two plugins ship the same dependency only the higher version is loaded, so one load

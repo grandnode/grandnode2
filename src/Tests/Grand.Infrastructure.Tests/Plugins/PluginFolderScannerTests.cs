@@ -116,6 +116,41 @@ public class PluginFolderScannerTests
     }
 
     [TestMethod]
+    [OSCondition(OperatingSystems.Windows)]
+    public void Scan_UnreadableMainAssembly_IsProblemNamingTheFolder()
+    {
+        var path = AddPlugin("A", "Scan.A", "Scan.A");
+        AddPlugin("B", "Scan.B", "Scan.B");
+
+        PluginScanResult result;
+        using (new FileStream(path, FileMode.Open, FileAccess.Read, FileShare.None))
+        {
+            result = Scan();
+        }
+
+        Assert.AreEqual("B", result.Plugins.Single().Folder.Name);
+        var problem = result.Problems.Single();
+        Assert.AreEqual("A", problem.Folder);
+        Assert.Contains("Scan.A.dll", problem.Message);
+    }
+
+    [TestMethod]
+    public void Scan_EmptyOrMissingSystemName_IsProblem()
+    {
+        AddPlugin("A", "Scan.A", "");
+        TestPluginBuilder.Compile(Folder("B"), "Scan.B", """
+            using Grand.Infrastructure.Plugins;
+            [assembly: PluginInfo(FriendlyName = "No system name")]
+            """, null, CoreAssemblyPath);
+
+        var result = Scan();
+
+        Assert.IsEmpty(result.Plugins);
+        Assert.HasCount(2, result.Problems);
+        Assert.IsTrue(result.Problems.All(x => x.Message == "has no SystemName"));
+    }
+
+    [TestMethod]
     public void Scan_BinAndTempUploadsFolders_AreIgnored()
     {
         AddPlugin("bin", "Scan.Bin", "Scan.Bin");

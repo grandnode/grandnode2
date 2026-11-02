@@ -29,4 +29,10 @@ public class ExtensionsConfig
     ///     List of installed plugins (comma separated)
     /// </summary>
     public string InstalledPlugins { get; set; }
+
+    /// <summary>
+    ///     Stop the application when an installed plugin fails to load. Off: the plugin is logged,
+    ///     listed with its error and left inactive, and the application starts without it.
+    /// </summary>
+    public bool FailOnPluginLoadError { get; set; }
 }
