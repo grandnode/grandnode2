@@ -71,7 +71,7 @@ public class DocumentController : BaseAdminController
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> CreateDocument(DocumentModel model, bool continueEditing)
@@ -170,7 +170,7 @@ public class DocumentController : BaseAdminController
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> CreateType(DocumentTypeModel model, bool continueEditing)
