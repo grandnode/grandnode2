@@ -36,6 +36,9 @@
                 data: form.serialize(),
                 success: function (data) {
                     mfp.close();
+                },
+                error: function (xhr, ajaxOptions, thrownError) {
+                    alert(xhr.status === 404 ? xhr.responseText : thrownError);
                 }
             });
         });

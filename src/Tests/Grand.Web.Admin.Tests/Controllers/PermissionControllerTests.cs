@@ -100,13 +100,39 @@ public class PermissionControllerTests
     }
 
     [TestMethod]
+    public async Task PermissionsActionPost_RemovesTheDenialsOfTheActionsSelected()
+    {
+        GroupExists();
+        PermissionExists();
+        var denied = new PermissionAction { Action = "Edit" };
+        _permissionServiceMock.Setup(p => p.GetPermissionActions(SystemName, GroupId))
+            .ReturnsAsync(new List<PermissionAction> { denied });
+
+        await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, new List<string> { "List", "Edit" }));
+
+        _permissionServiceMock.Verify(p => p.DeletePermissionAction(denied), Times.Once);
+        _permissionServiceMock.Verify(p => p.InsertPermissionAction(It.IsAny<PermissionAction>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PermissionsActionPost_NothingSelected_DeniesEveryAction()
+    {
+        GroupExists();
+        PermissionExists();
+
+        await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, null));
+
+        _permissionServiceMock.Verify(p => p.InsertPermissionAction(It.IsAny<PermissionAction>()), Times.Exactly(2));
+    }
+
+    [TestMethod]
     public async Task PermissionsActionPost_UnknownGroup_IsNotFoundAndWritesNothing()
     {
         PermissionExists();
 
         var result = await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, null));
 
-        Assert.IsInstanceOfType<NotFoundResult>(result);
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
         VerifyNothingWritten();
     }
 
@@ -119,7 +145,7 @@ public class PermissionControllerTests
 
         var result = await _controller.PermissionsAction(new PermissionActionSaveModel(SystemName, GroupId, null));
 
-        Assert.IsInstanceOfType<NotFoundResult>(result);
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
         VerifyNothingWritten();
     }
 }
