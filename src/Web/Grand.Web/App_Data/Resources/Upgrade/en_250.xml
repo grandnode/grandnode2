@@ -846,4 +846,7 @@
 	<Resource Name="Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server" Area="Admin">
 		<Value>Server time zone</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.OrderTags.Updated" Area="Admin">
+		<Value>The order's tag has been updated successfully.</Value>
+	</Resource>
 </Language>

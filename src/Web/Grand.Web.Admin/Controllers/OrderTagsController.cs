@@ -3,6 +3,7 @@ using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Extensions;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -14,13 +15,15 @@ public class OrderTagsController : BaseAdminController
     private readonly IOrderService _orderService;
     private readonly IOrderTagService _orderTagService;
     private readonly IRequestPermissionService _permissionService;
+    private readonly IRequestTranslationService _translationService;
 
     public OrderTagsController(IOrderTagService orderTagService, IOrderService orderService,
-        IRequestPermissionService permissionService)
+        IRequestPermissionService permissionService, IRequestTranslationService translationService)
     {
         _orderTagService = orderTagService;
         _orderService = orderService;
         _permissionService = permissionService;
+        _translationService = translationService;
     }
 
     public IActionResult Index()
@@ -113,7 +116,9 @@ public class OrderTagsController : BaseAdminController
         {
             orderTag.Name = model.Name;
             await _orderTagService.UpdateOrderTag(orderTag);
-            return View(model);
+            Success(_translationService.GetResource("Admin.Orders.OrderTags.Updated"));
+
+            return RedirectToAction("Edit", new { id = model.Id });
         }
 
         //If we got this far, something failed, redisplay form
