@@ -10,6 +10,8 @@ using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
@@ -55,11 +57,11 @@ public class LoginControllerTwoFactorTests
             TwoFactorAuthenticationEnabled = true,
             TwoFactorAuthenticationType = TwoFactorAuthenticationType.AppVerification
         };
-        var translations = new Mock<ITranslationService>();
+        var translations = new Mock<IRequestTranslationService>();
         translations.Setup(x => x.GetResource(It.IsAny<string>())).Returns<string>(key => key);
         _controller = new LoginController(settings, new CaptchaSettings(), translations.Object,
-            _manager.Object, customers.Object, _authentication.Object, new Mock<IMessageProviderService>().Object,
-            new Mock<IContextAccessor>().Object, new Mock<IMediator>().Object);
+            _manager.Object, customers.Object, _authentication.Object, new Mock<ICustomerMessageProviderService>().Object,
+            new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock }.Object, new Mock<IMediator>().Object);
         _session = new TestSession();
         _controller.ControllerContext = new ControllerContext {
             HttpContext = new DefaultHttpContext { Session = _session },
