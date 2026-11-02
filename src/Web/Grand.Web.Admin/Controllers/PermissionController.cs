@@ -155,27 +155,13 @@ public class PermissionController : BaseAdminController
         };
 
         var customerGroup = await _groupService.GetCustomerGroupById(customeGroupId);
-        if (customerGroup != null)
-        {
-            model.CustomerGroupName = customerGroup.Name;
-        }
-        else
-        {
-            ViewBag.ClosePage = true;
-            return await PermissionsAction(systemName, customeGroupId);
-        }
+        if (customerGroup == null) return NotFound();
+        model.CustomerGroupName = customerGroup.Name;
 
         var permissionRecord = await _permissionService.GetPermissionBySystemName(systemName);
-        if (permissionRecord != null)
-        {
-            model.AvailableActions = permissionRecord.Actions.ToList();
-            model.PermissionName = _translationService.GetResource(permissionRecord.GetTranslationPermissionName(), _contextAccessor.WorkContext.WorkingLanguage.Id);
-        }
-        else
-        {
-            ViewBag.ClosePage = true;
-            return await PermissionsAction(systemName, customeGroupId);
-        }
+        if (permissionRecord == null) return NotFound();
+        model.AvailableActions = permissionRecord.Actions.ToList();
+        model.PermissionName = _translationService.GetResource(permissionRecord.GetTranslationPermissionName(), _contextAccessor.WorkContext.WorkingLanguage.Id);
 
         model.DeniedActions = (await _permissionService.GetPermissionActions(systemName, customeGroupId))
             .Select(x => x.Action).ToList();
@@ -186,12 +172,16 @@ public class PermissionController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> PermissionsAction(PermissionActionSaveModel model)
     {
+        //a 404 without a body would be re-executed as a POST on the storefront
+        var permissionRecord = await _permissionService.GetPermissionBySystemName(model.SystemName);
+        if (permissionRecord == null) return NotFound("Permission not found");
+        if (await _groupService.GetCustomerGroupById(model.CustomerGroupId) == null) return NotFound("Customer group not found");
+
         //remove denied actions
         var deniedActions = await _permissionService.GetPermissionActions(model.SystemName, model.CustomerGroupId);
         foreach (var action in deniedActions) await _permissionService.DeletePermissionAction(action);
 
         //insert denied actions
-        var permissionRecord = await _permissionService.GetPermissionBySystemName(model.SystemName);
         var insertActions = permissionRecord.Actions.Except(model.SelectedActions ?? new List<string>());
 
         foreach (var item in insertActions)
@@ -201,7 +191,6 @@ public class PermissionController : BaseAdminController
                 SystemName = model.SystemName
             });
 
-        ViewBag.ClosePage = true;
         return await PermissionsAction(model.SystemName, model.CustomerGroupId);
     }
 
