@@ -305,19 +305,20 @@ public abstract class BaseProductController(
 
             var products = await productService.GetProductsByIds(ids.ToArray(),
                 access: CatalogAccess.IncludingHidden());
-            for (var i = 0; i <= products.Count - 1; i++)
+            var names = new List<string>();
+            foreach (var product in products)
             {
                 // Filters the friendly-name list, not a hard deny of the whole action: matches Store's
                 // CanAccessProduct loop and Vendor's HasAccessToProduct loop, both of which skip
                 // inaccessible products silently rather than erroring the whole request. Both are the
                 // strict rule (AccessToEntityByStore / VendorId equality), so HasAccess (not CanView) is
                 // correct here - this is filtering a display list, not opening/copying a single entity.
-                if (!await scope.HasAccess(products[i])) continue;
+                if (!await scope.HasAccess(product)) continue;
 
-                result += products[i].Name;
-                if (i != products.Count - 1)
-                    result += ", ";
+                names.Add(product.Name);
             }
+
+            result = string.Join(", ", names);
         }
 
         return Json(new { Text = result });

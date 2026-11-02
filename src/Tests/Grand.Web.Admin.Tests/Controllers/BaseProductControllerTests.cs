@@ -482,11 +482,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        // Faithful port of Store/Vendor's original index-based comma logic: it decides whether to
-        // append ", " from the loop index (i != products.Count - 1), not from whether a name was
-        // actually appended, so skipping the last product still leaves a trailing ", ". Pre-existing
-        // quirk in both original hosts, not introduced by this migration - characterized, not fixed.
-        Assert.AreEqual("Allowed, ", GetTextProperty(json.Value));
+        Assert.AreEqual("Allowed", GetTextProperty(json.Value));
     }
 
     [TestMethod]
