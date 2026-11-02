@@ -17,12 +17,17 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Globalization;
 using System.Linq.Expressions;
 
 namespace Grand.Web.Admin.Tests.Controllers;
@@ -159,11 +164,32 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
     }
 
     [TestMethod]
-    public void IsReadOnly_IsNeverBoundFromTheRequest()
+    public async Task IsReadOnly_IsNeverBoundFromTheRequest()
     {
         // The server decides it in Edit(GET); a posted value must not reach the re-rendered form.
-        Assert.IsTrue(Attribute.IsDefined(typeof(ProductModel).GetProperty(nameof(ProductModel.IsReadOnly))!,
-            typeof(BindNeverAttribute)));
+        var services = new ServiceCollection().AddLogging();
+        services.AddMvcCore();
+        await using var provider = services.BuildServiceProvider();
+        var metadata = provider.GetRequiredService<IModelMetadataProvider>().GetMetadataForType(typeof(ProductModel));
+        var binder = provider.GetRequiredService<IModelBinderFactory>().CreateBinder(
+            new ModelBinderFactoryContext { Metadata = metadata, BindingInfo = new BindingInfo() });
+        var form = new FormCollection(new Dictionary<string, StringValues> {
+            ["Name"] = "posted",
+            ["IsReadOnly"] = "true"
+        });
+
+        var result = await provider.GetRequiredService<ParameterBinder>().BindModelAsync(
+            new ActionContext(new DefaultHttpContext { RequestServices = provider }, new RouteData(), new ActionDescriptor()),
+            binder,
+            new FormValueProvider(BindingSource.Form, form, CultureInfo.InvariantCulture),
+            new ParameterDescriptor { Name = "model", ParameterType = typeof(ProductModel) },
+            metadata,
+            value: null,
+            container: null);
+
+        var model = (ProductModel)result.Model;
+        Assert.AreEqual("posted", model.Name);
+        Assert.IsFalse(model.IsReadOnly);
     }
 
     // --- Edit (POST) -------------------------------------------------------------------------------
