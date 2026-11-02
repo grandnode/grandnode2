@@ -1,19 +1,19 @@
 using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.AdminShared.Models.Common;
+using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
-using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
 namespace Grand.Web.Admin.Tests.Controllers;
@@ -55,11 +55,21 @@ public class LoginControllerTwoFactorTests
             TwoFactorAuthenticationEnabled = true,
             TwoFactorAuthenticationType = TwoFactorAuthenticationType.AppVerification
         };
-        var translations = new Mock<ITranslationService>();
+        var translations = new Mock<IRequestTranslationService>();
+
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.CurrentCustomer).Returns(_customer);
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
+
+        var storeContextMock = new Mock<IStoreContext>();
+        storeContextMock.Setup(s => s.CurrentStore).Returns(new Store { Id = "s1" });
+        contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
+
         translations.Setup(x => x.GetResource(It.IsAny<string>())).Returns<string>(key => key);
         _controller = new LoginController(settings, new CaptchaSettings(), translations.Object,
-            _manager.Object, customers.Object, _authentication.Object, new Mock<IMessageProviderService>().Object,
-            new Mock<IContextAccessor>().Object, new Mock<IMediator>().Object);
+            _manager.Object, customers.Object, _authentication.Object, new Mock<ICustomerMessageProviderService>().Object,
+           contextAccessorMock.Object, new Mock<IMediator>().Object);
         _session = new TestSession();
         _controller.ControllerContext = new ControllerContext {
             HttpContext = new DefaultHttpContext { Session = _session },
