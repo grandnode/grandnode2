@@ -38,6 +38,7 @@ public class BaseProductAttributeControllerTests
     private Mock<IProductService> _productService = null!;
     private Mock<IProductAttributeService> _attributeService = null!;
     private Mock<IAdminDataScope<ProductAttribute>> _scope = null!;
+    private Mock<ILanguageService> _languageService = null!;
     private TestProductAttributeController _sut = null!;
 
     [TestInitialize]
@@ -46,8 +47,9 @@ public class BaseProductAttributeControllerTests
         _productService = new Mock<IProductService>();
         _attributeService = new Mock<IProductAttributeService>();
         _scope = new Mock<IAdminDataScope<ProductAttribute>>();
+        _languageService = new Mock<ILanguageService>();
         _sut = new TestProductAttributeController(_productService.Object, _attributeService.Object,
-            Mock.Of<ILanguageService>(), Mock.Of<IRequestTranslationService>(), new SeoSettings(), _scope.Object);
+            _languageService.Object, Mock.Of<IRequestTranslationService>(), new SeoSettings(), _scope.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -60,6 +62,26 @@ public class BaseProductAttributeControllerTests
         httpContext.RequestServices = requestServicesMock.Object;
         _sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
         _sut.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
+    }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_KeepsThePostedLocales()
+    {
+        var entity = new ProductAttribute { Id = "1" };
+        _attributeService.Setup(x => x.GetProductAttributeById("1")).ReturnsAsync(entity);
+        _scope.Setup(x => x.HasAccess(entity)).ReturnsAsync(true);
+        _languageService.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
+            .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "lang-1" } });
+        _sut.ModelState.AddModelError("Name", "required");
+        var model = new Grand.Web.AdminShared.Models.Catalog.ProductAttributeModel {
+            Id = "1",
+            Locales = [new Grand.Web.AdminShared.Models.Catalog.ProductAttributeLocalizedModel { LanguageId = "lang-1", Name = "typed" }]
+        };
+
+        var result = await _sut.Edit(model, false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("typed", model.Locales.Single().Name);
     }
 
     [TestMethod]

@@ -37,6 +37,7 @@ public class BaseAddressAttributeControllerTests
     private Mock<IAddressAttributeViewModelService> _vmService = null!;
     private Mock<IAddressAttributeService> _service = null!;
     private Mock<IAdminDataScope<AddressAttribute>> _scope = null!;
+    private Mock<ILanguageService> _languageService = null!;
     private TestAddressAttributeController _sut = null!;
 
     [TestInitialize]
@@ -45,9 +46,10 @@ public class BaseAddressAttributeControllerTests
         _vmService = new Mock<IAddressAttributeViewModelService>();
         _service = new Mock<IAddressAttributeService>();
         _scope = new Mock<IAdminDataScope<AddressAttribute>>();
+        _languageService = new Mock<ILanguageService>();
         _sut = new TestAddressAttributeController(
             _service.Object, _vmService.Object,
-            Mock.Of<ILanguageService>(), Mock.Of<IRequestTranslationService>(), _scope.Object);
+            _languageService.Object, Mock.Of<IRequestTranslationService>(), _scope.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -60,6 +62,26 @@ public class BaseAddressAttributeControllerTests
         httpContext.RequestServices = requestServicesMock.Object;
         _sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
         _sut.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
+    }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_KeepsThePostedLocales()
+    {
+        var entity = new AddressAttribute { Id = "1" };
+        _service.Setup(x => x.GetAddressAttributeById("1")).ReturnsAsync(entity);
+        _scope.Setup(x => x.HasAccess(entity)).ReturnsAsync(true);
+        _languageService.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
+            .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "lang-1" } });
+        _sut.ModelState.AddModelError("Name", "required");
+        var model = new AddressAttributeModel {
+            Id = "1",
+            Locales = [new AddressAttributeLocalizedModel { LanguageId = "lang-1", Name = "typed" }]
+        };
+
+        var result = await _sut.Edit(model, false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("typed", model.Locales.Single().Name);
     }
 
     [TestMethod]

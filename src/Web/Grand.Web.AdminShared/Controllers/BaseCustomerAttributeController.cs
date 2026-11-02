@@ -110,10 +110,6 @@ public abstract class BaseCustomerAttributeController(
         }
 
         model.IsGlobalAttribute = false;
-        await AddLocales(languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Name = customerAttribute.GetTranslation(x => x.Name, languageId, false);
-        });
         return View(model);
     }
 

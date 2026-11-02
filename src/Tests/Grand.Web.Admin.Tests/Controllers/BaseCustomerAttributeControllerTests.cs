@@ -34,6 +34,7 @@ public class BaseCustomerAttributeControllerTests
     private Mock<ICustomerAttributeService> _service = null!;
     private Mock<ICustomerAttributeViewModelService> _vmService = null!;
     private Mock<IAdminDataScope<CustomerAttribute>> _scope = null!;
+    private Mock<ILanguageService> _languageService = null!;
     private TestCustomerAttributeController _sut = null!;
 
     [TestInitialize]
@@ -42,8 +43,9 @@ public class BaseCustomerAttributeControllerTests
         _service = new Mock<ICustomerAttributeService>();
         _vmService = new Mock<ICustomerAttributeViewModelService>();
         _scope = new Mock<IAdminDataScope<CustomerAttribute>>();
+        _languageService = new Mock<ILanguageService>();
         _sut = new TestCustomerAttributeController(_service.Object, _vmService.Object,
-            Mock.Of<ILanguageService>(), Mock.Of<IRequestTranslationService>(), _scope.Object);
+            _languageService.Object, Mock.Of<IRequestTranslationService>(), _scope.Object);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactoryMock = new Mock<ILoggerFactory>();
@@ -56,6 +58,26 @@ public class BaseCustomerAttributeControllerTests
         httpContext.RequestServices = requestServicesMock.Object;
         _sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
         _sut.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
+    }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_KeepsThePostedLocales()
+    {
+        var entity = new CustomerAttribute { Id = "1" };
+        _service.Setup(x => x.GetCustomerAttributeById("1")).ReturnsAsync(entity);
+        _scope.Setup(x => x.HasAccess(entity)).ReturnsAsync(true);
+        _languageService.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
+            .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "lang-1" } });
+        _sut.ModelState.AddModelError("Name", "required");
+        var model = new CustomerAttributeModel {
+            Id = "1",
+            Locales = [new CustomerAttributeLocalizedModel { LanguageId = "lang-1", Name = "typed" }]
+        };
+
+        var result = await _sut.Edit(model, false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("typed", model.Locales.Single().Name);
     }
 
     [TestMethod]

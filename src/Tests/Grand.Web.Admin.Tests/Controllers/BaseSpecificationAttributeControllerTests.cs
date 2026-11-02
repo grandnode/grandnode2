@@ -38,6 +38,7 @@ public class BaseSpecificationAttributeControllerTests
     private Mock<ISpecificationAttributeService> _service = null!;
     private Mock<IProductService> _productService = null!;
     private Mock<IAdminDataScope<SpecificationAttribute>> _scope = null!;
+    private Mock<ILanguageService> _languageService = null!;
     private TestSpecificationAttributeController _sut = null!;
 
     [TestInitialize]
@@ -46,7 +47,8 @@ public class BaseSpecificationAttributeControllerTests
         _service = new Mock<ISpecificationAttributeService>();
         _productService = new Mock<IProductService>();
         _scope = new Mock<IAdminDataScope<SpecificationAttribute>>();
-        _sut = new TestSpecificationAttributeController(_service.Object, Mock.Of<ILanguageService>(),
+        _languageService = new Mock<ILanguageService>();
+        _sut = new TestSpecificationAttributeController(_service.Object, _languageService.Object,
             Mock.Of<IRequestTranslationService>(), _productService.Object, new SeoSettings(), _scope.Object);
 
         var httpContext = new DefaultHttpContext();
@@ -60,6 +62,26 @@ public class BaseSpecificationAttributeControllerTests
         httpContext.RequestServices = requestServicesMock.Object;
         _sut.ControllerContext = new ControllerContext { HttpContext = httpContext };
         _sut.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
+    }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_KeepsThePostedLocales()
+    {
+        var entity = new SpecificationAttribute { Id = "1" };
+        _service.Setup(x => x.GetSpecificationAttributeById("1")).ReturnsAsync(entity);
+        _scope.Setup(x => x.HasAccess(entity)).ReturnsAsync(true);
+        _languageService.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
+            .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "lang-1" } });
+        _sut.ModelState.AddModelError("Name", "required");
+        var model = new Grand.Web.AdminShared.Models.Catalog.SpecificationAttributeModel {
+            Id = "1",
+            Locales = [new Grand.Web.AdminShared.Models.Catalog.SpecificationAttributeLocalizedModel { LanguageId = "lang-1", Name = "typed" }]
+        };
+
+        var result = await _sut.Edit(model, false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("typed", model.Locales.Single().Name);
     }
 
     [TestMethod]

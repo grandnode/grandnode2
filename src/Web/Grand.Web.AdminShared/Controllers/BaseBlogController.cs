@@ -153,16 +153,6 @@ public abstract class BaseBlogController(
             return RedirectToAction("List");
         }
 
-        await AddLocales(languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Title = blogPost.GetTranslation(x => x.Title, languageId, false);
-            locale.Body = blogPost.GetTranslation(x => x.Body, languageId, false);
-            locale.BodyOverview = blogPost.GetTranslation(x => x.BodyOverview, languageId, false);
-            locale.MetaKeywords = blogPost.GetTranslation(x => x.MetaKeywords, languageId, false);
-            locale.MetaDescription = blogPost.GetTranslation(x => x.MetaDescription, languageId, false);
-            locale.MetaTitle = blogPost.GetTranslation(x => x.MetaTitle, languageId, false);
-            locale.SeName = blogPost.GetSeName(languageId, false);
-        });
         return View(model);
     }
 
@@ -267,7 +257,6 @@ public abstract class BaseBlogController(
                 : RedirectToAction(CategoryListAction);
         }
 
-        await AddLocales(languageService, model.Locales);
         return View(model);
     }
 
@@ -312,10 +301,6 @@ public abstract class BaseBlogController(
             return RedirectToAction(CategoryListAction);
         }
 
-        await AddLocales(languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Name = blogCategory.GetTranslation(x => x.Name, languageId, false);
-        });
         return View(model);
     }
 

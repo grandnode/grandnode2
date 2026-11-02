@@ -155,10 +155,6 @@ public abstract class BaseSpecificationAttributeController(
             return RedirectToAction("List");
         }
 
-        await AddLocales(languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Name = specificationAttribute.GetTranslation(x => x.Name, languageId, false);
-        });
         return View(model);
     }
 
