@@ -21,6 +21,8 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
     /// <summary>Directory move; replaced by tests to simulate failures.</summary>
     internal Action<string, string> MoveDirectory { get; init; } = Directory.Move;
 
+    internal const string PathOutsideMessage = "The archive contains a path outside of the plugin folder.";
+
     private const string PluginsFolderName = "Plugins";
     private const string BinFolderName = "bin";
     private const string ExtractedFolderName = "x";
@@ -68,6 +70,25 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
         }
     }
 
+    /// <summary>
+    ///     Deletes the uploaded archive file only. Per-install temporary folders belong to <see cref="Install" />,
+    ///     which keeps the previous plugin version in one of them when a rollback fails.
+    ///     A failure is logged, not thrown.
+    /// </summary>
+    public static void DeleteArchive(string archivePath, ILogger logger)
+    {
+        if (string.IsNullOrEmpty(archivePath))
+            return;
+        try
+        {
+            File.Delete(archivePath);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            logger.LogWarning(ex, "The uploaded plugin archive {ArchivePath} could not be deleted", archivePath);
+        }
+    }
+
     private void CheckArchiveSize(string archivePath)
     {
         try
@@ -109,7 +130,7 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
                 var name = entry.FullName.Replace('\\', '/');
                 var full = Path.GetFullPath(Path.Combine(destination, name));
                 if (!full.StartsWith(root, StringComparison.Ordinal))
-                    throw new GrandException("The archive contains a path outside of the plugin folder.");
+                    throw new GrandException(PathOutsideMessage);
 
                 if (name.EndsWith('/'))
                 {

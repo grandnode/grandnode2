@@ -265,14 +265,41 @@ public class PluginArchiveInstallerTests
     }
 
     [TestMethod]
-    public void Install_ZipSlipEntry_IsRejected()
+    [DataRow("../x.dll")]
+    [DataRow("../../x.dll")]
+    [DataRow("..\\..\\x.dll")]
+    public void Install_ZipSlipEntry_IsRejected(string entryName)
     {
-        var folder = BuildPluginFolder("Tax.Slip", "Tax.Slip");
-        var zip = ZipEntries(("../x.dll", File.ReadAllBytes(Path.Combine(folder, "Tax.Slip.dll"))));
+        var existing = Path.Combine(_plugins, "Tax.Existing");
+        Directory.CreateDirectory(existing);
+        File.WriteAllText(Path.Combine(existing, "keep.txt"), "keep");
+        var before = Hash(_plugins);
+        var zip = ZipEntries((entryName, [1, 2, 3]));
 
-        Assert.ThrowsExactly<GrandException>(() => CreateInstaller().Install(zip));
+        var ex = Assert.ThrowsExactly<GrandException>(() => CreateInstaller().Install(zip));
 
+        Assert.AreEqual(PluginArchiveInstaller.PathOutsideMessage, ex.Message);
+        Assert.AreEqual(before, Hash(_plugins));
         Assert.IsFalse(File.Exists(Path.Combine(_root, "x.dll")));
+        Assert.IsFalse(File.Exists(Path.Combine(_plugins, "x.dll")));
+        var temp = Path.Combine(_plugins, "TempUploads");
+        Assert.IsTrue(!Directory.Exists(temp) || !Directory.EnumerateFileSystemEntries(temp).Any());
+    }
+
+    [TestMethod]
+    public void DeleteArchive_RemovesOnlyTheArchive()
+    {
+        var temp = Path.Combine(_plugins, "TempUploads");
+        var other = Path.Combine(temp, Guid.NewGuid().ToString(), "previous");
+        Directory.CreateDirectory(other);
+        File.WriteAllText(Path.Combine(other, "old.txt"), "old");
+        var archive = Path.Combine(temp, Guid.NewGuid() + ".zip");
+        File.WriteAllText(archive, "zip");
+
+        PluginArchiveInstaller.DeleteArchive(archive, NullLogger.Instance);
+
+        Assert.IsFalse(File.Exists(archive));
+        Assert.AreEqual(1, Directory.GetFiles(temp, "old.txt", SearchOption.AllDirectories).Length);
     }
 
     [TestMethod]
