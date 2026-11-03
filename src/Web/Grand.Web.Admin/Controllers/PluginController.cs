@@ -170,7 +170,7 @@ public class PluginController(
             await plugin.Install();
             await auditEventRecorder.Plugin(systemName, "installed");
 
-            Success(translationService.GetResource("Admin.Plugins.Installed"));
+            Success(translationService.GetResource("Admin.Plugins.Installed.AfterRestart"));
 
             logger.LogInformation("The plugin has been installed by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
@@ -200,12 +200,25 @@ public class PluginController(
             if (!IsInstalled(pluginInfo))
                 return RedirectToAction("List");
 
-            //uninstall plugin
-            var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
-            await plugin.Uninstall();
-            await auditEventRecorder.Plugin(systemName, "uninstalled");
+            //a plugin that failed to load has no instance to clean up after itself: it is only marked
+            //uninstalled, so it can be removed
+            if (pluginInfo.LoadError != null || pluginInfo.PluginType == null)
+            {
+                await Grand.Infrastructure.Plugins.PluginExtensions.MarkPluginAsUninstalled(pluginInfo.SystemName);
+                //it never ran: the list shows it uninstalled, and removable, right away
+                pluginInfo.Installed = false;
+                await auditEventRecorder.Plugin(systemName, "uninstalled");
 
-            Success(translationService.GetResource("Admin.Plugins.Uninstalled"));
+                Warning(translationService.GetResource("Admin.Plugins.Uninstalled.NotCleanedUp"));
+            }
+            else
+            {
+                var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
+                await plugin.Uninstall();
+                await auditEventRecorder.Plugin(systemName, "uninstalled");
+
+                Success(translationService.GetResource("Admin.Plugins.Uninstalled.AfterRestart"));
+            }
 
             logger.LogInformation("The plugin has been uninstalled by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
@@ -244,7 +257,7 @@ public class PluginController(
             DeleteDirectory(pluginInfo.OriginalAssemblyFile.DirectoryName);
             await auditEventRecorder.Plugin(systemName, "removed");
 
-            Success(translationService.GetResource("Admin.Plugins.Removed"));
+            Success(translationService.GetResource("Admin.Plugins.Removed.AfterRestart"));
 
             logger.LogInformation("The plugin has been removed by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
@@ -312,7 +325,7 @@ public class PluginController(
             var result = installer.Install(zipFilePath);
             await auditEventRecorder.Plugin(result.Manifest.SystemName, "uploaded");
 
-            var message = translationService.GetResource("Admin.Plugins.Uploaded");
+            var message = translationService.GetResource("Admin.Plugins.Uploaded.AfterRestart");
             Success(message);
         }
         catch (Exception exc)

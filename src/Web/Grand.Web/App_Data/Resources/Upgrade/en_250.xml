@@ -879,16 +879,19 @@
 	<Resource Name="Admin.Plugins.RestartRequired.Updated" Area="Admin">
 		<Value>Updated</Value>
 	</Resource>
-	<Resource Name="Admin.Plugins.Installed" Area="Admin">
+	<Resource Name="Admin.Plugins.Installed.AfterRestart" Area="Admin">
 		<Value>The plugin has been installed. The change takes effect after the application restarts.</Value>
 	</Resource>
-	<Resource Name="Admin.Plugins.Removed" Area="Admin">
+	<Resource Name="Admin.Plugins.Removed.AfterRestart" Area="Admin">
 		<Value>The plugin has been removed. The change takes effect after the application restarts.</Value>
 	</Resource>
-	<Resource Name="Admin.Plugins.Uninstalled" Area="Admin">
+	<Resource Name="Admin.Plugins.Uninstalled.AfterRestart" Area="Admin">
 		<Value>The plugin has been uninstalled. The change takes effect after the application restarts.</Value>
 	</Resource>
-	<Resource Name="Admin.Plugins.Uploaded" Area="Admin">
+	<Resource Name="Admin.Plugins.Uninstalled.NotCleanedUp" Area="Admin">
+		<Value>The plugin has been marked as uninstalled. Its settings and texts were not removed because the plugin could not be loaded.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.Uploaded.AfterRestart" Area="Admin">
 		<Value>The plugin has been uploaded. The change takes effect after the application restarts.</Value>
 	</Resource>
 </Language>

@@ -8,7 +8,9 @@ using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -65,7 +67,15 @@ public class PluginControllerTests
             _extConfig,
             _auditEventRecorder.Object);
 
-        var httpContext = new DefaultHttpContext();
+        //RedirectToAction builds its URL helper, and an error notification logs, through the request services
+        var urlHelperFactory = new Mock<IUrlHelperFactory>();
+        urlHelperFactory.Setup(x => x.GetUrlHelper(It.IsAny<ActionContext>())).Returns(new Mock<IUrlHelper>().Object);
+        var httpContext = new DefaultHttpContext {
+            RequestServices = new ServiceCollection()
+                .AddLogging()
+                .AddSingleton(urlHelperFactory.Object)
+                .BuildServiceProvider()
+        };
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         _controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
     }
@@ -155,6 +165,102 @@ public class PluginControllerTests
 
             _plugin.Verify(x => x.Install(), Times.Never);
         }, Plugin(false));
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task Install_ShowsTheAfterRestartText()
+    {
+        await WithPlugins(async () =>
+        {
+            await _controller.Install(SystemName);
+
+            CollectionAssert.Contains(Notifications("Success"), "Admin.Plugins.Installed.AfterRestart");
+        }, Plugin(false));
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task Uninstall_PluginWithLoadError_MarksUninstalledWithoutInstance()
+    {
+        var plugin = BrokenPlugin(null);
+
+        await WithInstalledFile(async installedFile =>
+        {
+            await WithPlugins(async () =>
+            {
+                await _controller.Uninstall(SystemName);
+
+                CollectionAssert.DoesNotContain(PluginExtensions.ParseInstalledPluginsFile(installedFile).ToList(),
+                    SystemName);
+                _serviceProvider.Verify(x => x.GetService(It.IsAny<Type>()), Times.Never);
+                _plugin.Verify(x => x.Uninstall(), Times.Never);
+                _auditEventRecorder.Verify(x => x.Plugin(SystemName, "uninstalled"), Times.Once);
+                CollectionAssert.Contains(Notifications("Warning"), "Admin.Plugins.Uninstalled.NotCleanedUp");
+                _applicationLifetime.Verify(x => x.StopApplication(), Times.Never);
+            }, plugin);
+        });
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task Remove_AfterUninstallOfBrokenPlugin_DeletesFolder()
+    {
+        var folder = Path.Combine(_contentRoot, "Plugins", "Tests.Plugin");
+        Directory.CreateDirectory(folder);
+        var mainAssembly = Path.Combine(folder, "Tests.Plugin.dll");
+        await File.WriteAllTextAsync(mainAssembly, "");
+        var plugin = BrokenPlugin(new FileInfo(mainAssembly));
+
+        await WithInstalledFile(async _ =>
+        {
+            await WithPlugins(async () =>
+            {
+                await _controller.Uninstall(SystemName);
+                await _controller.Remove(SystemName);
+
+                Assert.IsFalse(Directory.Exists(folder));
+                _applicationLifetime.Verify(x => x.StopApplication(), Times.Never);
+            }, plugin);
+        });
+    }
+
+    private List<string> Notifications(string type)
+    {
+        return _controller.TempData[$"grand.notifications.{type}"] as List<string> ?? [];
+    }
+
+    /// <summary>
+    ///     An installed plugin as loading leaves one that failed: without a plugin type, so no instance can be
+    ///     created (LoadError itself can only be set by the loader)
+    /// </summary>
+    private static PluginInfo BrokenPlugin(FileInfo mainAssembly)
+    {
+        return new PluginInfo(mainAssembly, null, null) {
+            SystemName = SystemName,
+            SupportedVersion = GrandVersion.SupportedPluginVersion,
+            Installed = true
+        };
+    }
+
+    /// <summary>
+    ///     Runs with the plugin listed in the installed-plugins file, which is removed afterwards
+    /// </summary>
+    private async Task WithInstalledFile(Func<string, Task> test)
+    {
+        //initialized once per process; a later call keeps the first path
+        PluginPaths.Initialize(Path.Combine(_contentRoot, "App_Data", "InstalledPlugins.cfg"));
+        var installedFile = PluginPaths.Instance.InstalledPluginsFile;
+        Directory.CreateDirectory(Path.GetDirectoryName(installedFile)!);
+        await File.WriteAllTextAsync(installedFile, $"[\"{SystemName}\"]");
+        try
+        {
+            await test(installedFile);
+        }
+        finally
+        {
+            File.Delete(installedFile);
+        }
     }
 
     private static PluginInfo Plugin(bool installed)
