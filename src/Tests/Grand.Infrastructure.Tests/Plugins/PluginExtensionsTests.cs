@@ -51,6 +51,47 @@ public class PluginExtensionsTests
 
     [TestMethod]
     [DoNotParallelize]
+    public async Task MarkPluginAsUninstalled_DifferentCase_Removes()
+    {
+        await PluginExtensions.MarkPluginAsInstalled("Plugin1");
+        await PluginExtensions.MarkPluginAsUninstalled("plugin1");
+        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
+        Assert.IsEmpty(plugins);
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task MarkPluginAsInstalled_Concurrent_KeepsBoth()
+    {
+        var names = Enumerable.Range(0, 20).Select(i => $"plugin{i}").ToList();
+        await Task.WhenAll(names.Select(n => Task.Run(() => PluginExtensions.MarkPluginAsInstalled(n))));
+        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
+        Assert.HasCount(20, plugins);
+        CollectionAssert.AreEquivalent(names, plugins.ToList());
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void ParseInstalledPluginsFile_InvalidJson_ThrowsWithPath()
+    {
+        var path = PluginPaths.Instance.InstalledPluginsFile;
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, "{ not json");
+        try
+        {
+            var ex = Assert.Throws<Grand.SharedKernel.GrandException>(() =>
+                PluginExtensions.ParseInstalledPluginsFile(path));
+            StringAssert.Contains(ex.Message, path);
+            StringAssert.Contains(ex.Message, "is not a valid installed-plugins file");
+        }
+        finally
+        {
+            File.Delete(path);
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
     public void OnlyInstalledPlugins_Assembly_NotAPlugin_ReturnsTrue()
     {
         var referencedPlugins = PluginManager.ReferencedPlugins;

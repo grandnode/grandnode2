@@ -103,15 +103,18 @@ public sealed class PluginInfo
 
     public T Instance<T>(IServiceProvider serviceProvider) where T : class, IPlugin
     {
+        if (PluginType == null)
+            throw new GrandException($"Plugin {SystemName} has no IPlugin class");
+
         object instance;
         try
         {
             instance = serviceProvider.GetRequiredService(PluginType);
         }
-        catch
+        catch (Exception e)
         {
             throw new GrandException(
-                $"Plugin has not been registered getRequiredService - dependency - {PluginType.FullName}");
+                $"Plugin {SystemName} ({PluginType.FullName}) could not be created: {e.Message}", e);
         }
 
         var typedInstance = instance as T;

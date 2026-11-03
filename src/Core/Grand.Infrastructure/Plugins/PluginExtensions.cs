@@ -1,3 +1,4 @@
+﻿using Grand.SharedKernel;
 using System.Reflection;
 using System.Text.Json;
 
@@ -57,71 +58,90 @@ public static class PluginExtensions
         return owners is not { Count: > 0 } || owners.Any(x => x.IsActive);
     }
 
+    private static readonly SemaphoreSlim InstalledPluginsFileLock = new(1, 1);
+
+    /// <summary>
+    ///     Reads the list of installed plugin system names. A file that is not valid throws instead of
+    ///     yielding an empty list, because an empty list would silently deactivate every plugin.
+    /// </summary>
     public static IList<string> ParseInstalledPluginsFile(string filePath)
     {
         if (!File.Exists(filePath))
             return new List<string>();
 
         var text = File.ReadAllText(filePath);
-        return string.IsNullOrEmpty(text) ? new List<string>() : JsonSerializer.Deserialize<List<string>>(text);
+        if (string.IsNullOrWhiteSpace(text))
+            return new List<string>();
+
+        try
+        {
+            return JsonSerializer.Deserialize<List<string>>(text) ?? new List<string>();
+        }
+        catch (JsonException e)
+        {
+            throw new GrandException($"{filePath} is not a valid installed-plugins file: {e.Message}", e);
+        }
     }
+
     private static async Task SaveInstalledPluginsFile(IList<string> pluginSystemNames, string filePath)
     {
-        //serialize
         var result = JsonSerializer.Serialize(pluginSystemNames, new JsonSerializerOptions { WriteIndented = true });
-        //save
-        await File.WriteAllTextAsync(filePath, result);
-        await Task.CompletedTask;
+
+        var directory = Path.GetDirectoryName(filePath);
+        if (!string.IsNullOrEmpty(directory))
+            Directory.CreateDirectory(directory);
+
+        //write beside the target and move over it, so a crash never leaves a half-written list
+        var tempPath = filePath + ".tmp";
+        await File.WriteAllTextAsync(tempPath, result);
+        File.Move(tempPath, filePath, true);
+    }
+
+    private static async Task UpdateInstalledPluginsFile(Action<IList<string>> update)
+    {
+        var filePath = PluginPaths.Instance.InstalledPluginsFile;
+
+        await InstalledPluginsFileLock.WaitAsync();
+        try
+        {
+            var installedPluginSystemNames = ParseInstalledPluginsFile(filePath);
+            update(installedPluginSystemNames);
+            await SaveInstalledPluginsFile(installedPluginSystemNames, filePath);
+        }
+        finally
+        {
+            InstalledPluginsFileLock.Release();
+        }
     }
 
     /// <summary>
     ///     Mark plugin as installed
     /// </summary>
     /// <param name="systemName">Plugin system name</param>
-    public static async Task MarkPluginAsInstalled(string systemName)
+    public static Task MarkPluginAsInstalled(string systemName)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(systemName);
 
-        var filePath = PluginPaths.Instance.InstalledPluginsFile;
-        if (!File.Exists(filePath))
-            await using (File.Create(filePath))
-            {
-                //we use 'using' to close the file after it's created
-            }
-
-        var installedPluginSystemNames = ParseInstalledPluginsFile(filePath);
-
-        var alreadyMarkedAsInstalled =
-            installedPluginSystemNames.FirstOrDefault(x => x.Equals(systemName, StringComparison.OrdinalIgnoreCase)) !=
-            null;
-        if (!alreadyMarkedAsInstalled)
-            installedPluginSystemNames.Add(systemName);
-
-        await SaveInstalledPluginsFile(installedPluginSystemNames, filePath);
+        return UpdateInstalledPluginsFile(names =>
+        {
+            if (!names.Any(x => x.Equals(systemName, StringComparison.OrdinalIgnoreCase)))
+                names.Add(systemName);
+        });
     }
 
     /// <summary>
     ///     Mark plugin as uninstalled
     /// </summary>
     /// <param name="systemName">Plugin system name</param>
-    public static async Task MarkPluginAsUninstalled(string systemName)
+    public static Task MarkPluginAsUninstalled(string systemName)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(systemName);
 
-        var filePath = PluginPaths.Instance.InstalledPluginsFile;
-        if (!File.Exists(filePath))
-            await using (File.Create(filePath))
-            {
-                //we use 'using' to close the file after it's created
-            }
-
-        var installedPluginSystemNames = ParseInstalledPluginsFile(filePath);
-        var alreadyMarkedAsInstalled =
-            installedPluginSystemNames.FirstOrDefault(x => x.Equals(systemName, StringComparison.OrdinalIgnoreCase)) !=
-            null;
-        if (alreadyMarkedAsInstalled)
-            installedPluginSystemNames.Remove(systemName);
-
-        await SaveInstalledPluginsFile(installedPluginSystemNames, filePath);
+        return UpdateInstalledPluginsFile(names =>
+        {
+            for (var i = names.Count - 1; i >= 0; i--)
+                if (names[i].Equals(systemName, StringComparison.OrdinalIgnoreCase))
+                    names.RemoveAt(i);
+        });
     }
 }
