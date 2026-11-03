@@ -22,4 +22,7 @@
     <ProjectReference Include="..\Grand.Mapping\Grand.Mapping.csproj" />
     <ProjectReference Include="..\Grand.Mediator\Grand.Mediator.csproj" />
   </ItemGroup>
+  <ItemGroup>
+    <InternalsVisibleTo Include="Grand.Infrastructure.Tests" />
+  </ItemGroup>
 </Project>

@@ -245,4 +245,57 @@ public class PluginArchiveInstallerTests
 
         Assert.ThrowsExactly<GrandException>(() => CreateInstaller().Install(zip));
     }
+
+    [TestMethod]
+    public void Install_RealSizeExceedsLimitDespiteForgedHeader_IsRejected()
+    {
+        var content = System.Security.Cryptography.RandomNumberGenerator.GetBytes(20_000);
+        var zip = ZipEntries(("Tax.Big/big.bin", content));
+        //understate the uncompressed size in the central directory header
+        var bytes = File.ReadAllBytes(zip);
+        var signature = new byte[] { 0x50, 0x4B, 0x01, 0x02 };
+        var at = bytes.AsSpan().LastIndexOf(signature);
+        BitConverter.GetBytes(1).CopyTo(bytes, at + 24);
+        File.WriteAllBytes(zip, bytes);
+        var installer = new PluginArchiveInstaller(_plugins, NullLogger.Instance) { UncompressedBytesLimit = 1000 };
+
+        Assert.ThrowsExactly<GrandException>(() => installer.Install(zip));
+
+        Assert.IsFalse(Directory.Exists(Path.Combine(_plugins, "Tax.Big")));
+    }
+
+    [TestMethod]
+    public void Install_ZipSlipEntry_IsRejected()
+    {
+        var folder = BuildPluginFolder("Tax.Slip", "Tax.Slip");
+        var zip = ZipEntries(("../x.dll", File.ReadAllBytes(Path.Combine(folder, "Tax.Slip.dll"))));
+
+        Assert.ThrowsExactly<GrandException>(() => CreateInstaller().Install(zip));
+
+        Assert.IsFalse(File.Exists(Path.Combine(_root, "x.dll")));
+    }
+
+    [TestMethod]
+    public void Install_RollbackFails_KeepsPreviousVersion()
+    {
+        var target = Path.Combine(_plugins, "Tax.FixedRate");
+        Directory.CreateDirectory(target);
+        File.WriteAllText(Path.Combine(target, "old.txt"), "old");
+        var zip = ZipFolder(BuildPluginFolder("Tax.FixedRate", "Tax.FixedRate"));
+        var calls = 0;
+        var installer = new PluginArchiveInstaller(_plugins, NullLogger.Instance) {
+            MoveDirectory = (from, to) => {
+                //the move aside succeeds; moving the new folder in and the rollback both fail
+                if (calls++ == 0) Directory.Move(from, to);
+                else throw new IOException("simulated");
+            }
+        };
+
+        var ex = Assert.Throws<GrandException>(() => installer.Install(zip));
+
+        StringAssert.Contains(ex.Message, "preserved");
+        var kept = Directory.GetFiles(_plugins, "old.txt", SearchOption.AllDirectories);
+        Assert.AreEqual(1, kept.Length);
+        Assert.AreEqual("old", File.ReadAllText(kept[0]));
+    }
 }

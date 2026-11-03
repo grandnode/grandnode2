@@ -15,6 +15,12 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
     public const int MaxEntries = 5000;
     public const long MaxUncompressedBytes = 200L * 1024 * 1024;
 
+    /// <summary>Limit applied to the real bytes written while extracting; lowered by tests only.</summary>
+    internal long UncompressedBytesLimit { get; init; } = MaxUncompressedBytes;
+
+    /// <summary>Directory move; replaced by tests to simulate failures.</summary>
+    internal Action<string, string> MoveDirectory { get; init; } = Directory.Move;
+
     private const string PluginsFolderName = "Plugins";
     private const string BinFolderName = "bin";
     private const string ExtractedFolderName = "x";
@@ -28,13 +34,13 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
     public PluginArchiveResult Install(string archivePath)
     {
         var tempRoot = Path.Combine(pluginsPath, CommonPath.TmpUploadPath, Guid.NewGuid().ToString());
+        var keepPrevious = false;
         try
         {
             CheckArchiveSize(archivePath);
 
             var extracted = Path.Combine(tempRoot, ExtractedFolderName);
             Extract(archivePath, extracted);
-            NormalizeBackslashes(extracted);
 
             var (folderName, sourceFolder) = FindPluginFolder(extracted);
             var manifest = ReadSingleManifest(sourceFolder);
@@ -50,13 +56,19 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
             Replace(sourceFolder, Path.Combine(pluginsPath, folderName), Path.Combine(tempRoot, PreviousFolderName));
             return new PluginArchiveResult(folderName, manifest);
         }
+        catch (RollbackFailedException)
+        {
+            keepPrevious = true;
+            throw;
+        }
         finally
         {
-            DeleteTempRoot(tempRoot);
+            //after a failed rollback the previous version is only in the temp folder: leave it there
+            DeleteTempRoot(keepPrevious ? Path.Combine(tempRoot, ExtractedFolderName) : tempRoot);
         }
     }
 
-    private static void CheckArchiveSize(string archivePath)
+    private void CheckArchiveSize(string archivePath)
     {
         try
         {
@@ -68,9 +80,9 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
             foreach (var entry in archive.Entries)
             {
                 total += entry.Length;
-                if (total > MaxUncompressedBytes)
+                if (total > UncompressedBytesLimit)
                     throw new GrandException(
-                        $"The archive is too large when unpacked (the limit is {MaxUncompressedBytes / 1024 / 1024} MB).");
+                        $"The archive is too large when unpacked (the limit is {UncompressedBytesLimit / 1024 / 1024} MB).");
             }
         }
         catch (InvalidDataException)
@@ -79,40 +91,50 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
         }
     }
 
-    private static void Extract(string archivePath, string destination)
+    /// <summary>
+    ///     Extracts entry by entry so the real number of bytes written is bounded, whatever the headers claim,
+    ///     and so every destination is checked against the extraction root. Backslashes in entry names are
+    ///     path separators on every platform.
+    /// </summary>
+    private void Extract(string archivePath, string destination)
     {
         Directory.CreateDirectory(destination);
+        var root = Path.GetFullPath(destination) + Path.DirectorySeparatorChar;
+        long written = 0;
         try
         {
-            //refuses entries that would land outside the destination
-            ZipFile.ExtractToDirectory(archivePath, destination);
+            using var archive = ZipFile.OpenRead(archivePath);
+            foreach (var entry in archive.Entries)
+            {
+                var name = entry.FullName.Replace('\\', '/');
+                var full = Path.GetFullPath(Path.Combine(destination, name));
+                if (!full.StartsWith(root, StringComparison.Ordinal))
+                    throw new GrandException("The archive contains a path outside of the plugin folder.");
+
+                if (name.EndsWith('/'))
+                {
+                    Directory.CreateDirectory(full);
+                    continue;
+                }
+
+                Directory.CreateDirectory(Path.GetDirectoryName(full)!);
+                using var input = entry.Open();
+                using var output = new FileStream(full, FileMode.Create, FileAccess.Write, FileShare.None);
+                var buffer = new byte[81920];
+                int read;
+                while ((read = input.Read(buffer, 0, buffer.Length)) > 0)
+                {
+                    written += read;
+                    if (written > UncompressedBytesLimit)
+                        throw new GrandException(
+                            $"The archive is too large when unpacked (the limit is {UncompressedBytesLimit / 1024 / 1024} MB).");
+                    output.Write(buffer, 0, read);
+                }
+            }
         }
         catch (Exception ex) when (ex is IOException or InvalidDataException or UnauthorizedAccessException)
         {
             throw new GrandException("The archive could not be unpacked. Check that it is a valid plugin archive.");
-        }
-    }
-
-    /// <summary>
-    ///     Where '\' is not the directory separator, an entry written with backslashes is extracted as one
-    ///     file with backslashes in its name; move it to the path it stands for.
-    /// </summary>
-    private static void NormalizeBackslashes(string root)
-    {
-        if (Path.DirectorySeparatorChar == '\\')
-            return;
-
-        var rootFull = Path.GetFullPath(root) + Path.DirectorySeparatorChar;
-        foreach (var file in Directory.GetFiles(root, "*", SearchOption.AllDirectories)
-                     .Where(x => Path.GetFileName(x).Contains('\\')).ToList())
-        {
-            var relative = Path.GetRelativePath(root, file).Replace('\\', Path.DirectorySeparatorChar);
-            var destination = Path.GetFullPath(Path.Combine(root, relative));
-            if (!destination.StartsWith(rootFull, StringComparison.Ordinal))
-                throw new GrandException("The archive contains a path outside of the plugin folder.");
-
-            Directory.CreateDirectory(Path.GetDirectoryName(destination)!);
-            File.Move(file, destination, true);
         }
     }
 
@@ -241,14 +263,14 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
     ///     Moves the existing folder aside, moves the new one in, and moves the old one back if that fails.
     ///     A locked file makes the first move fail, before anything has changed.
     /// </summary>
-    private static void Replace(string source, string target, string previous)
+    private void Replace(string source, string target, string previous)
     {
         var hadPrevious = Directory.Exists(target);
         if (hadPrevious)
         {
             try
             {
-                Directory.Move(target, previous);
+                MoveDirectory(target, previous);
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
@@ -259,20 +281,33 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
 
         try
         {
-            Directory.Move(source, target);
+            MoveDirectory(source, target);
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             if (hadPrevious)
             {
-                if (Directory.Exists(target))
-                    Directory.Delete(target, true);
-                Directory.Move(previous, target);
+                try
+                {
+                    if (Directory.Exists(target))
+                        Directory.Delete(target, true);
+                    MoveDirectory(previous, target);
+                }
+                catch (Exception rollback)
+                {
+                    logger.LogError(rollback,
+                        "The plugin could not be installed and the previous version could not be restored; it is kept in {PreviousPath}",
+                        previous);
+                    throw new RollbackFailedException(
+                        $"The plugin could not be installed and the previous version could not be restored. The previous version is preserved at '{previous}'.");
+                }
             }
 
             throw new GrandException("The plugin could not be installed.");
         }
     }
+
+    private sealed class RollbackFailedException(string message) : GrandException(message);
 
     private void DeleteTempRoot(string tempRoot)
     {
