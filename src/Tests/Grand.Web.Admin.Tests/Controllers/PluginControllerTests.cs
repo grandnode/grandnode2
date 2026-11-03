@@ -225,6 +225,91 @@ public class PluginControllerTests
         });
     }
 
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task Install_AfterRemoveBeforeRestart_Refuses()
+    {
+        await WithLoadedFolder(false, folder => Directory.Delete(folder, true), async installedFile =>
+        {
+            await _controller.Install(SystemName);
+
+            _plugin.Verify(x => x.Install(), Times.Never);
+            Assert.IsEmpty(PluginExtensions.ParseInstalledPluginsFile(installedFile));
+            CollectionAssert.Contains(Notifications("Error"), "Admin.Plugins.RestartFirst");
+        });
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task Install_AfterUpdateBeforeRestart_Refuses()
+    {
+        await WithLoadedFolder(false, ReplaceMainAssembly, async installedFile =>
+        {
+            await _controller.Install(SystemName);
+
+            _plugin.Verify(x => x.Install(), Times.Never);
+            Assert.IsEmpty(PluginExtensions.ParseInstalledPluginsFile(installedFile));
+            CollectionAssert.Contains(Notifications("Error"), "Admin.Plugins.RestartFirst");
+        });
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task Uninstall_AfterUpdateBeforeRestart_Refuses()
+    {
+        await WithLoadedFolder(true, ReplaceMainAssembly, async installedFile =>
+        {
+            await _controller.Uninstall(SystemName);
+
+            _plugin.Verify(x => x.Uninstall(), Times.Never);
+            CollectionAssert.Contains(PluginExtensions.ParseInstalledPluginsFile(installedFile).ToList(), SystemName);
+            CollectionAssert.Contains(Notifications("Error"), "Admin.Plugins.RestartFirst");
+        });
+    }
+
+    /// <summary>
+    ///     Runs with the plugin loaded from its folder as PluginManager.Load records it, after
+    ///     <paramref name="changeOnDisk" /> changed that folder
+    /// </summary>
+    private async Task WithLoadedFolder(bool installed, Action<string> changeOnDisk, Func<string, Task> test)
+    {
+        var pluginsFolder = new DirectoryInfo(Path.Combine(_contentRoot, "Plugins"));
+        var folder = Directory.CreateDirectory(Path.Combine(pluginsFolder.FullName, "Tests.Plugin"));
+        var mainAssembly = Path.Combine(folder.FullName, "Tests.Plugin.dll");
+        await File.WriteAllTextAsync(mainAssembly, "version 1");
+        var manifest = new PluginManifest(SystemName, SystemName, "Misc", "Tests", "1.0",
+            GrandVersion.SupportedPluginVersion);
+        var scan = new PluginScanResult(
+            [new PluginCandidate(folder, mainAssembly, manifest, [mainAssembly], [SystemName])], [], []);
+        var plugin = new PluginInfo(new FileInfo(mainAssembly), null, typeof(IPlugin)) {
+            SystemName = SystemName,
+            SupportedVersion = GrandVersion.SupportedPluginVersion,
+            Installed = installed
+        };
+
+        await WithInstalledFile(async installedFile =>
+        {
+            var loadSnapshot = PluginManager.LoadSnapshot;
+            try
+            {
+                PluginManager.LoadSnapshot = PluginLoadSnapshot.Capture(pluginsFolder, scan,
+                    PluginExtensions.ParseInstalledPluginsFile(installedFile), installedFile, null);
+                changeOnDisk(folder.FullName);
+
+                await WithPlugins(() => test(installedFile), plugin);
+            }
+            finally
+            {
+                PluginManager.LoadSnapshot = loadSnapshot;
+            }
+        }, installed ? [SystemName] : []);
+    }
+
+    private static void ReplaceMainAssembly(string folder)
+    {
+        File.WriteAllText(Path.Combine(folder, "Tests.Plugin.dll"), "version 2, a different build");
+    }
+
     private List<string> Notifications(string type)
     {
         return _controller.TempData[$"grand.notifications.{type}"] as List<string> ?? [];
@@ -244,15 +329,17 @@ public class PluginControllerTests
     }
 
     /// <summary>
-    ///     Runs with the plugin listed in the installed-plugins file, which is removed afterwards
+    ///     Runs with the installed-plugins file listing <paramref name="installed" /> (by default the plugin),
+    ///     and removes it afterwards
     /// </summary>
-    private async Task WithInstalledFile(Func<string, Task> test)
+    private async Task WithInstalledFile(Func<string, Task> test, string[] installed = null)
     {
         //initialized once per process; a later call keeps the first path
         PluginPaths.Initialize(Path.Combine(_contentRoot, "App_Data", "InstalledPlugins.cfg"));
         var installedFile = PluginPaths.Instance.InstalledPluginsFile;
         Directory.CreateDirectory(Path.GetDirectoryName(installedFile)!);
-        await File.WriteAllTextAsync(installedFile, $"[\"{SystemName}\"]");
+        await File.WriteAllTextAsync(installedFile,
+            System.Text.Json.JsonSerializer.Serialize(installed ?? [SystemName]));
         try
         {
             await test(installedFile);

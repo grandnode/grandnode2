@@ -894,4 +894,7 @@
 	<Resource Name="Admin.Plugins.Uploaded.AfterRestart" Area="Admin">
 		<Value>The plugin has been uploaded. The change takes effect after the application restarts.</Value>
 	</Resource>
+	<Resource Name="Admin.Plugins.RestartFirst" Area="Admin">
+		<Value>The plugin files have changed since the application started. Restart the application before installing or uninstalling this plugin.</Value>
+	</Resource>
 </Language>

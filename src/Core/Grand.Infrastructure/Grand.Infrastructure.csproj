@@ -24,5 +24,6 @@
   </ItemGroup>
   <ItemGroup>
     <InternalsVisibleTo Include="Grand.Infrastructure.Tests" />
+    <InternalsVisibleTo Include="Grand.Web.Admin.Tests" />
   </ItemGroup>
 </Project>

@@ -70,20 +70,44 @@ public class PluginController(
     }
 
     /// <summary>
+    ///     The plugin's changes waiting for the restart, matched by system name and by folder
+    /// </summary>
+    private static List<PluginPendingChange> PendingChangesOf(PluginInfo pluginInfo)
+    {
+        var folder = pluginInfo.OriginalAssemblyFile?.Directory?.Name;
+        return PluginManager.GetPendingChanges()
+            .Where(x => string.Equals(x.SystemName, pluginInfo.SystemName, StringComparison.OrdinalIgnoreCase)
+                        || (folder != null && string.Equals(x.FolderName, folder, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+    }
+
+    /// <summary>
     ///     Whether the plugin is installed now: an install or uninstall since the last restart already counts,
     ///     although the plugin list still shows the state the application was started with
     /// </summary>
-    private static bool IsInstalled(PluginInfo pluginInfo)
+    private static bool IsInstalled(PluginInfo pluginInfo, IEnumerable<PluginPendingChange> pending)
     {
-        var pending = PluginManager.GetPendingChanges()
-            .LastOrDefault(x => string.Equals(x.SystemName, pluginInfo.SystemName, StringComparison.OrdinalIgnoreCase)
-                                && x.Kind is PluginPendingChangeKind.Installed or PluginPendingChangeKind.Uninstalled);
+        var change = pending.LastOrDefault(x =>
+            x.Kind is PluginPendingChangeKind.Installed or PluginPendingChangeKind.Uninstalled);
 
-        return pending?.Kind switch {
+        return change?.Kind switch {
             PluginPendingChangeKind.Installed => true,
             PluginPendingChangeKind.Uninstalled => false,
             _ => pluginInfo.Installed
         };
+    }
+
+    /// <summary>
+    ///     The running code is not what is on disk any more (the folder was removed or replaced): installing or
+    ///     uninstalling it would run the old plugin's code for the new one, or for one that is gone
+    /// </summary>
+    private bool RestartRequiredFirst(IEnumerable<PluginPendingChange> pending)
+    {
+        if (!pending.Any(x => x.Kind is PluginPendingChangeKind.Removed or PluginPendingChangeKind.Updated))
+            return false;
+
+        Error(translationService.GetResource("Admin.Plugins.RestartFirst"));
+        return true;
     }
 
     /// <summary>
@@ -161,8 +185,12 @@ public class PluginController(
                 return RedirectToAction("List");
             }
 
+            var pending = PendingChangesOf(pluginInfo);
+            if (RestartRequiredFirst(pending))
+                return RedirectToAction("List");
+
             //check whether plugin is not installed
-            if (IsInstalled(pluginInfo))
+            if (IsInstalled(pluginInfo, pending))
                 return RedirectToAction("List");
 
             //install plugin
@@ -196,8 +224,12 @@ public class PluginController(
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
+            var pending = PendingChangesOf(pluginInfo);
+            if (RestartRequiredFirst(pending))
+                return RedirectToAction("List");
+
             //check whether plugin is installed
-            if (!IsInstalled(pluginInfo))
+            if (!IsInstalled(pluginInfo, pending))
                 return RedirectToAction("List");
 
             //a plugin that failed to load has no instance to clean up after itself: it is only marked
@@ -248,7 +280,7 @@ public class PluginController(
                 return RedirectToAction("List");
 
             //an installed plugin keeps its settings and data; it is uninstalled first
-            if (IsInstalled(pluginInfo))
+            if (IsInstalled(pluginInfo, PendingChangesOf(pluginInfo)))
             {
                 Error(translationService.GetResource("Admin.Plugins.Remove.UninstallFirst"));
                 return RedirectToAction("List");
