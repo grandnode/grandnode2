@@ -69,6 +69,35 @@ public class PluginController(
 
     }
 
+    /// <summary>
+    ///     Whether the plugin is installed now: an install or uninstall since the last restart already counts,
+    ///     although the plugin list still shows the state the application was started with
+    /// </summary>
+    private static bool IsInstalled(PluginInfo pluginInfo)
+    {
+        var pending = PluginManager.GetPendingChanges()
+            .LastOrDefault(x => string.Equals(x.SystemName, pluginInfo.SystemName, StringComparison.OrdinalIgnoreCase)
+                                && x.Kind is PluginPendingChangeKind.Installed or PluginPendingChangeKind.Uninstalled);
+
+        return pending?.Kind switch {
+            PluginPendingChangeKind.Installed => true,
+            PluginPendingChangeKind.Uninstalled => false,
+            _ => pluginInfo.Installed
+        };
+    }
+
+    /// <summary>
+    ///     The installed plugins are set in configuration (Extensions:InstalledPlugins), not by the admin panel
+    /// </summary>
+    private bool InstalledPluginsManagedByConfiguration()
+    {
+        if (string.IsNullOrEmpty(extConfig.InstalledPlugins))
+            return false;
+
+        Error(translationService.GetResource("Admin.Plugins.ManagedByConfiguration"));
+        return true;
+    }
+
     #endregion
 
     #region Methods
@@ -116,6 +145,9 @@ public class PluginController(
     [HttpPost]
     public async Task<IActionResult> Install(string systemName)
     {
+        if (InstalledPluginsManagedByConfiguration())
+            return RedirectToAction("List");
+
         try
         {
             var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
@@ -130,7 +162,7 @@ public class PluginController(
             }
 
             //check whether plugin is not installed
-            if (pluginInfo.Installed)
+            if (IsInstalled(pluginInfo))
                 return RedirectToAction("List");
 
             //install plugin
@@ -142,9 +174,6 @@ public class PluginController(
 
             logger.LogInformation("The plugin has been installed by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
-
-            //stop application
-            applicationLifetime.StopApplication();
         }
         catch (Exception exc)
         {
@@ -157,6 +186,9 @@ public class PluginController(
     [HttpPost]
     public async Task<IActionResult> Uninstall(string systemName)
     {
+        if (InstalledPluginsManagedByConfiguration())
+            return RedirectToAction("List");
+
         try
         {
             var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
@@ -165,7 +197,7 @@ public class PluginController(
                 return RedirectToAction("List");
 
             //check whether plugin is installed
-            if (!pluginInfo.Installed)
+            if (!IsInstalled(pluginInfo))
                 return RedirectToAction("List");
 
             //uninstall plugin
@@ -177,9 +209,6 @@ public class PluginController(
 
             logger.LogInformation("The plugin has been uninstalled by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
-
-            //stop application
-            applicationLifetime.StopApplication();
         }
         catch (Exception exc)
         {
@@ -205,17 +234,20 @@ public class PluginController(
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
+            //an installed plugin keeps its settings and data; it is uninstalled first
+            if (IsInstalled(pluginInfo))
+            {
+                Error(translationService.GetResource("Admin.Plugins.Remove.UninstallFirst"));
+                return RedirectToAction("List");
+            }
+
             DeleteDirectory(pluginInfo.OriginalAssemblyFile.DirectoryName);
             await auditEventRecorder.Plugin(systemName, "removed");
 
-            //uninstall plugin
             Success(translationService.GetResource("Admin.Plugins.Removed"));
 
             logger.LogInformation("The plugin has been removed by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
-
-            //stop application
-            applicationLifetime.StopApplication();
         }
         catch (Exception exc)
         {
@@ -225,10 +257,16 @@ public class PluginController(
         return RedirectToAction("List");
     }
 
-    public IActionResult ReloadList()
+    /// <summary>
+    ///     Restarts the application, which applies the plugin changes made since the last start. Under the
+    ///     Plugins permission, so applying them does not take the System permission a general restart needs.
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> ReloadList()
     {
         logger.LogInformation("Reload list of plugins by the user {CurrentCustomerEmail}",
             contextAccessor.WorkContext.CurrentCustomer.Email);
+        await auditEventRecorder.Plugin("*", "restarted");
 
         //stop application
         applicationLifetime.StopApplication();
@@ -290,9 +328,6 @@ public class PluginController(
 
         logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
             contextAccessor.WorkContext.CurrentCustomer.Email);
-
-        //stop application
-        applicationLifetime.StopApplication();
 
         return RedirectToAction("List");
     }

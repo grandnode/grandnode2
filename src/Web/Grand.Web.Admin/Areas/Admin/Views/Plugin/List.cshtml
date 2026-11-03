@@ -8,14 +8,16 @@
     var remove = Url.Action("Remove", "Plugin", new { area = Constants.AreaAdmin });
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="List" method="post" id="plugins-form">
-    @* the reload link stays inside the form: its handler below is delegated from #plugins-form. Upload
-       is the one primary action; the load-mode filter only toggles a class on the table, so its
+    @* the reload button restarts the application with a script POST (the [data-plugin-restart] handler in
+       _AdminLayout, shared with the restart notice), so it is a plain button and no form nests in this one.
+       Upload is the one primary action; the load-mode filter only toggles a class on the table, so its
        button is a plain button, not a submit *@
     <admin-page title="@Loc["Admin.Plugins.Local"]" icon="bi-plug">
         <page-actions>
-            <a href="@Url.Action("ReloadList", new { area = Constants.AreaAdmin })" class="btn btn-outline-secondary" id="reload-plugin-list">
+            <button type="button" class="btn btn-outline-secondary" id="reload-plugin-list" data-plugin-restart
+                    data-url="@Url.Action("ReloadList", "Plugin", new { area = Constants.AreaAdmin })">
                 <i class="bi bi-arrow-clockwise"></i> @Loc["Admin.Plugins.ReloadList"]
-            </a>
+            </button>
             <button type="button" id="importfile" class="btn btn-primary">
                 <i class="bi bi-upload"></i> @Loc["Admin.Plugins.Upload"]
             </button>
@@ -77,15 +79,6 @@
                 showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Uninstall.Progress"]))');
                 $("html, body").animate({ scrollTop: 0 }, 400);
                 return true;
-            });
-            $("#plugins-form").on("click", "#reload-plugin-list", function (e) {
-                event.preventDefault();
-                showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Reload.List"]))')
-                $("html, body").animate({ scrollTop: 0 }, 400);
-                $.get($(this).attr("href"), function (data) { });
-                setTimeout(function () {
-                    location.reload();
-                }, 10000);
             });
         });
 

@@ -42,6 +42,19 @@ public static class PluginManager
     /// </summary>
     public static IEnumerable<PluginInfo> ReferencedPlugins { get; set; }
 
+    /// <summary>
+    ///     What <see cref="Load" /> saw on disk; null until plugins are loaded
+    /// </summary>
+    internal static PluginLoadSnapshot LoadSnapshot { get; set; }
+
+    /// <summary>
+    ///     Plugin changes made on disk since this process loaded its plugins; they take effect after a restart.
+    ///     Reads the installed-plugins file and the plugin folders' metadata, never loads an assembly.
+    /// </summary>
+    public static IReadOnlyList<PluginPendingChange> GetPendingChanges()
+    {
+        return LoadSnapshot?.Compare() ?? [];
+    }
 
     /// <summary>
     ///     Load plugins
@@ -95,6 +108,11 @@ public static class PluginManager
             var scan = PluginFolderScanner.Scan(_pluginFolder, _config.PluginSkipLoadingPattern, HostAssemblyNames());
             foreach (var warning in scan.Warnings)
                 _logger.LogWarning("{PluginWarning}", warning);
+
+            //before anything is loaded or shadow copied: the plugin folders as found
+            LoadSnapshot = PluginLoadSnapshot.Capture(_pluginFolder, scan, installedPluginSystemNames,
+                string.IsNullOrEmpty(_config.InstalledPlugins) ? PluginPaths.Instance.InstalledPluginsFile : null,
+                _config.PluginSkipLoadingPattern);
 
             var referencedPlugins = new List<PluginInfo>();
 

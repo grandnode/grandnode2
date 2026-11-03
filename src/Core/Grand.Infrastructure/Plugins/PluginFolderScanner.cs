@@ -67,7 +67,7 @@ public static class PluginFolderScanner
         try
         {
             folders = pluginsFolder.GetDirectories()
-                .Where(x => !IgnoredFolders.Contains(x.Name, StringComparer.OrdinalIgnoreCase))
+                .Where(x => !IsIgnoredFolder(x.Name))
                 .OrderBy(x => x.Name, StringComparer.Ordinal)
                 .ToArray();
         }
@@ -142,7 +142,7 @@ public static class PluginFolderScanner
         var result = new List<ScannedFile>();
         foreach (var file in dlls.OrderBy(x => x.Name, StringComparer.Ordinal))
         {
-            if (!string.IsNullOrEmpty(skipPattern) && Matches(file.Name, skipPattern))
+            if (IsSkipped(file.Name, skipPattern))
                 continue;
 
             try
@@ -189,8 +189,17 @@ public static class PluginFolderScanner
             ParseFileVersion(file.FullName), PluginManifestReader.Read(file.FullName));
     }
 
-    private static bool IsReadFailure(Exception ex) =>
+    /// <summary>
+    ///     The shadow copy and upload folders inside Plugins, which are never plugin folders
+    /// </summary>
+    internal static bool IsIgnoredFolder(string name) =>
+        IgnoredFolders.Contains(name, StringComparer.OrdinalIgnoreCase);
+
+    internal static bool IsReadFailure(Exception ex) =>
         ex is IOException or UnauthorizedAccessException or BadImageFormatException;
+
+    internal static bool IsSkipped(string fileName, string skipPattern) =>
+        !string.IsNullOrEmpty(skipPattern) && Matches(fileName, skipPattern);
 
     /// <summary>
     ///     When two plugins ship the same dependency only the higher version is loaded, so one load
