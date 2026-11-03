@@ -12,8 +12,6 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IO.Compression;
-using System.Reflection;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -69,18 +67,6 @@ public class PluginController(
         if (Directory.Exists(path))
             Directory.Delete(path, true);
 
-    }
-
-    protected static byte[] ToByteArray(Stream stream)
-    {
-        using (stream)
-        {
-            using (var memStream = new MemoryStream())
-            {
-                stream.CopyTo(memStream);
-                return memStream.ToArray();
-            }
-        }
     }
 
     #endregion
@@ -284,8 +270,9 @@ public class PluginController(
                 zippedFile.CopyTo(fileStream);
             }
 
-            Upload(zipFilePath);
-            await auditEventRecorder.Plugin(zippedFile.FileName, "uploaded");
+            var installer = new PluginArchiveInstaller(PluginsPath, logger);
+            var result = installer.Install(zipFilePath);
+            await auditEventRecorder.Plugin(result.Manifest.SystemName, "uploaded");
 
             var message = translationService.GetResource("Admin.Plugins.Uploaded");
             Success(message);
@@ -321,104 +308,6 @@ public class PluginController(
             //the previous plugin version moved here can hold an assembly this process has loaded;
             //it is not loaded from here on the next start and the next upload removes it
             logger.LogWarning(ex, "The temporary upload folder {TempDirectory} could not be deleted", tempDirectory);
-        }
-    }
-
-    private void Upload(string archivePath)
-    {
-        var pluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
-        var uploadedItemDirectoryName = "";
-        PluginInfo _pluginInfo = null;
-        using (var archive = ZipFile.Open(archivePath, ZipArchiveMode.Update))
-        {
-            var rootDirectories = archive.Entries.Where(entry =>
-                entry.FullName.Count(ch => ch == '/') == 1 && entry.FullName.EndsWith("/")).ToList();
-            if (rootDirectories.Count != 1)
-                throw new Exception(
-                    "The archive should contain only one root plugin. For example, Payments.StripeCheckout.");
-
-            //get directory name (remove the ending /)
-            uploadedItemDirectoryName = rootDirectories.First().FullName.TrimEnd('/');
-
-            var supportedVersion = false;
-            var _fpath = "";
-            foreach (var entry in archive.Entries.Where(x => x.FullName.Contains(".dll")))
-            {
-                using var unzippedEntryStream = entry.Open();
-                try
-                {
-                    var assembly = Assembly.Load(ToByteArray(unzippedEntryStream));
-                    var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
-                    if (pluginInfo != null && pluginInfo.SupportedVersion == GrandVersion.SupportedPluginVersion)
-                    {
-                        supportedVersion = true;
-                        _fpath = entry.FullName[..entry.FullName.LastIndexOf("/", StringComparison.Ordinal)];
-                        archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
-                            .ForEach(y => { archive.GetEntry(y.FullName)!.Delete(); });
-
-                        _pluginInfo = new PluginInfo();
-                        break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, ex.Message);
-                }
-            }
-
-            if (!supportedVersion)
-                throw new Exception(
-                    $"This plugin doesn't support the current version - {GrandVersion.SupportedPluginVersion}");
-
-            var pluginname = _fpath[(_fpath.LastIndexOf('/') + 1)..];
-            var _path = "";
-
-            var entries = archive.Entries.ToArray();
-            foreach (var y in entries)
-            {
-                _path = y.Name.Length > 0
-                    ? y.FullName.Replace(y.Name, "").Replace(_fpath, pluginname).TrimEnd('/')
-                    : y.FullName.Replace(_fpath, pluginname);
-
-                var entry = archive.CreateEntry($"{_path}/{y.Name}");
-                using (var a = y.Open())
-                using (var b = entry.Open())
-                {
-                    a.CopyTo(b);
-                }
-
-                archive.GetEntry(y.FullName).Delete();
-            }
-        }
-
-        if (_pluginInfo == null)
-            throw new Exception("No info file is found.");
-
-        if (string.IsNullOrEmpty(uploadedItemDirectoryName))
-            throw new Exception("Cannot get the plugin directory name");
-
-        var pathToUpload = Path.Combine(pluginsPath, uploadedItemDirectoryName);
-
-        if (!Directory.Exists(pathToUpload))
-        {
-            ZipFile.ExtractToDirectory(archivePath, pluginsPath);
-            return;
-        }
-
-        //move the previous version into the temp upload folder instead of deleting it in place:
-        //a locked assembly fails the move before anything is changed, and a failed extraction puts it back
-        var previousVersionPath = Path.Combine(Path.GetDirectoryName(archivePath)!, Guid.NewGuid().ToString());
-        Directory.Move(pathToUpload, previousVersionPath);
-        try
-        {
-            ZipFile.ExtractToDirectory(archivePath, pluginsPath);
-        }
-        catch
-        {
-            if (Directory.Exists(pathToUpload))
-                DeleteDirectory(pathToUpload);
-            Directory.Move(previousVersionPath, pathToUpload);
-            throw;
         }
     }
 
