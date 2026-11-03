@@ -7,7 +7,7 @@
     currencies = currencies.Where(x => x.Id != defaultCurrency.Id).ToList();
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     //a product the store may see but not change (see BaseProductController.Edit)
-    bool readOnly = ViewBag.IsReadOnly == true;
+    bool readOnly = Model.IsReadOnly;
     var currencyOptions = currencies.Select(x => new SelectListItem(x.CurrencyCode, x.CurrencyCode));
 }
 @if (!string.IsNullOrEmpty(Model.Id) && currencies.Count > 0)

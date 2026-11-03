@@ -1,5 +1,6 @@
 ﻿{
   Id: prod-002,
+  IsReadOnly: false,
   AuctionEnded: false,
   VisibleIndividually: false,
   Name: Calendar Product,

@@ -46,6 +46,7 @@ public class BaseBlogControllerTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IAdminDataScope<BlogPost>> _postScopeMock;
     private Mock<IAdminDataScope<BlogCategory>> _categoryScopeMock;
+    private Mock<ILanguageService> _languageServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -67,14 +68,14 @@ public class BaseBlogControllerTests
         _categoryScopeMock = new Mock<IAdminDataScope<BlogCategory>>();
         _categoryScopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
 
-        var languageServiceMock = new Mock<ILanguageService>();
-        languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
+        _languageServiceMock = new Mock<ILanguageService>();
+        _languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
             .ReturnsAsync(new List<Grand.Domain.Localization.Language>());
 
         _controller = new TestBlogController(
             _blogServiceMock.Object,
             _blogViewModelServiceMock.Object,
-            languageServiceMock.Object,
+            _languageServiceMock.Object,
             _translationServiceMock.Object,
             new Mock<IStoreService>().Object,
             new Mock<IDateTimeService>().Object,
@@ -151,6 +152,63 @@ public class BaseBlogControllerTests
         Assert.AreEqual("Edit", redirect.ActionName);
         _blogViewModelServiceMock.Verify(v => v.UpdateBlogPostModel(It.IsAny<BlogPostModel>(), It.IsAny<BlogPost>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_KeepsThePostedLocales()
+    {
+        var post = new BlogPost { Id = "p1" };
+        _blogServiceMock.Setup(b => b.GetBlogPostById("p1")).ReturnsAsync(post);
+        _postScopeMock.Setup(s => s.HasAccess(post)).ReturnsAsync(true);
+        SetOneLanguage();
+        _controller.ModelState.AddModelError("Title", "required");
+        var model = new BlogPostModel {
+            Id = "p1",
+            Locales = [new BlogLocalizedModel { LanguageId = "lang-1", Title = "typed" }]
+        };
+
+        var result = await _controller.Edit(model, false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("typed", model.Locales.Single().Title);
+    }
+
+    [TestMethod]
+    public async Task CategoryCreatePost_InvalidModel_KeepsThePostedLocales()
+    {
+        SetOneLanguage();
+        _controller.ModelState.AddModelError("Name", "required");
+        var model = new BlogCategoryModel {
+            Locales = [new BlogCategoryLocalizedModel { LanguageId = "lang-1", Name = "typed" }]
+        };
+
+        var result = await _controller.CategoryCreate(model, false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("typed", model.Locales.Single().Name);
+    }
+
+    [TestMethod]
+    public async Task CategoryEditPost_InvalidModel_KeepsThePostedLocales()
+    {
+        var category = new BlogCategory { Id = "c1" };
+        _blogServiceMock.Setup(b => b.GetBlogCategoryById("c1")).ReturnsAsync(category);
+        _categoryScopeMock.Setup(s => s.HasAccess(category)).ReturnsAsync(true);
+        SetOneLanguage();
+        _controller.ModelState.AddModelError("Name", "required");
+        var model = new BlogCategoryModel {
+            Id = "c1",
+            Locales = [new BlogCategoryLocalizedModel { LanguageId = "lang-1", Name = "typed" }]
+        };
+
+        var result = await _controller.CategoryEdit(model, false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("typed", model.Locales.Single().Name);
+    }
+
+    private void SetOneLanguage() =>
+        _languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
+            .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "lang-1" } });
 
     [TestMethod]
     public async Task Delete_ScopeDeniesAccess_RedirectsToEditWithoutDeleting()

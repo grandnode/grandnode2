@@ -262,8 +262,7 @@ public class CourseController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> AssociateProductToCoursePopup(string btnId, string productIdInput,
-        string productNameInput, CourseModel.AssociateProductToCourseModel model,
+    public async Task<IActionResult> AssociateProductToCoursePopup(CourseModel.AssociateProductToCourseModel model,
         [FromServices] IProductService productService)
     {
         var associatedProduct = await productService.GetProductById(model.AssociatedToProductId);
@@ -271,9 +270,6 @@ public class CourseController : BaseAdminController
             return Content("Cannot load a product");
 
         ViewBag.RefreshPage = true;
-        ViewBag.productIdInput = productIdInput;
-        ViewBag.productNameInput = productNameInput;
-        ViewBag.btnId = btnId;
         ViewBag.productId = associatedProduct.Id;
         ViewBag.productName = associatedProduct.Name;
         return View(model);

@@ -127,11 +127,11 @@ public abstract class BaseProductController(
         // from EditWarningCheck above); only mutating one is restricted to the exclusive single-store
         // owner. See IAdminDataScope<TEntity>.CanView's doc comment and StoreAdminDataScope.CanView.
         if (!await scope.CanView(product)) return RedirectToAction("List");
-        //seen but not owned (Store: a product shared with other stores): the tabs render without the
-        //buttons that write; every write action still checks HasAccess itself
-        ViewBag.IsReadOnly = !await scope.HasAccess(product);
 
         var model = product.ToModel(dateTimeService);
+        //seen but not owned (Store: a product shared with other stores): the tabs render without the
+        //buttons that write; every write action still checks HasAccess itself
+        model.IsReadOnly = !await scope.HasAccess(product);
         if (scope.DefaultStoreId is not null) model.StoreId = scope.DefaultStoreId;
         await productViewModelService.PrepareProductModel(model, product, false, false);
         await AddLocales(languageService, model.Locales, (locale, languageId) =>
@@ -305,35 +305,32 @@ public abstract class BaseProductController(
 
             var products = await productService.GetProductsByIds(ids.ToArray(),
                 access: CatalogAccess.IncludingHidden());
-            for (var i = 0; i <= products.Count - 1; i++)
+            var names = new List<string>();
+            foreach (var product in products)
             {
                 // Filters the friendly-name list, not a hard deny of the whole action: matches Store's
                 // CanAccessProduct loop and Vendor's HasAccessToProduct loop, both of which skip
                 // inaccessible products silently rather than erroring the whole request. Both are the
                 // strict rule (AccessToEntityByStore / VendorId equality), so HasAccess (not CanView) is
                 // correct here - this is filtering a display list, not opening/copying a single entity.
-                if (!await scope.HasAccess(products[i])) continue;
+                if (!await scope.HasAccess(product)) continue;
 
-                result += products[i].Name;
-                if (i != products.Count - 1)
-                    result += ", ";
+                names.Add(product.Name);
             }
+
+            result = string.Join(", ", names);
         }
 
         return Json(new { Text = result });
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
-    public async Task<IActionResult> RequiredProductAddPopup(string productIdsInput)
+    public async Task<IActionResult> RequiredProductAddPopup()
     {
         // PrepareAddRequiredProductModel() now reads scope internally (Task 9) - the injected
         // IAdminDataScope<Product> already encodes the per-host default exactly: null for Admin
         // (global) and Vendor (not store-scoped), StaffStoreId for Store.
         var model = await productAddPopupViewModelService.PrepareAddRequiredProductModel();
-        // Unused by any of the three views (all three read productIdsInput straight off the query string
-        // via Context.Request.Query, not ViewBag), but Admin and Vendor both set it and Store silently
-        // drops its own parameter - kept here for parity; it is inert either way.
-        ViewBag.productIdsInput = productIdsInput;
         return View(model);
     }
 

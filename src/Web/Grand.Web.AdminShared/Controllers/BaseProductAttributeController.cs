@@ -114,11 +114,6 @@ public abstract class BaseProductAttributeController(
             return RedirectToAction("List");
         }
 
-        await AddLocales(languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Name = productAttribute.GetTranslation(x => x.Name, languageId, false);
-            locale.Description = productAttribute.GetTranslation(x => x.Description, languageId, false);
-        });
         return View(model);
     }
 
