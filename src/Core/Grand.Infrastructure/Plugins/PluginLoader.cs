@@ -1,3 +1,4 @@
+using Grand.SharedKernel;
 using System.Reflection;
 using System.Runtime.Loader;
 
@@ -89,6 +90,56 @@ public static class PluginLoader
             AssemblyNames = new HashSet<string>(candidate.AssemblyNames, StringComparer.OrdinalIgnoreCase),
             Installed = installed
         };
+    }
+
+    /// <summary>
+    ///     The list entries for a folder the scan could not plan: one per system name it declares, installed
+    ///     when that name is installed, or one named after the folder when its plugin cannot be identified.
+    /// </summary>
+    public static IEnumerable<PluginInfo> DescribeProblem(PluginLoadProblem problem,
+        IEnumerable<string> installedSystemNames)
+    {
+        ArgumentNullException.ThrowIfNull(problem);
+        ArgumentNullException.ThrowIfNull(installedSystemNames);
+
+        if (problem.SystemNames.Count == 0)
+            return [
+                new PluginInfo {
+                    SystemName = problem.Folder,
+                    FriendlyName = problem.Folder,
+                    LoadError = problem.Message
+                }
+            ];
+
+        var installed = installedSystemNames.ToHashSet(StringComparer.OrdinalIgnoreCase);
+        return problem.SystemNames.Select(name => new PluginInfo {
+            SystemName = name,
+            FriendlyName = name,
+            LoadError = problem.Message,
+            Installed = installed.Contains(name)
+        }).ToList();
+    }
+
+    /// <summary>
+    ///     With <paramref name="failOnPluginLoadError" />, throws when an installed plugin failed to load, or
+    ///     when a folder failed before its plugin could be identified - it may be an installed one.
+    /// </summary>
+    /// <exception cref="GrandException">The plugin or folder that failed, and why</exception>
+    public static void ThrowOnLoadError(IEnumerable<PluginInfo> plugins, IEnumerable<PluginLoadProblem> problems,
+        bool failOnPluginLoadError)
+    {
+        if (!failOnPluginLoadError)
+            return;
+
+        var failed = plugins.FirstOrDefault(x => x.Installed && x.LoadError != null);
+        if (failed != null)
+            throw new GrandException(
+                $"The installed plugin '{failed.SystemName}' could not be loaded: {failed.LoadError}");
+
+        var unidentified = problems.FirstOrDefault(x => x.SystemNames.Count == 0);
+        if (unidentified != null)
+            throw new GrandException(
+                $"The plugin folder '{unidentified.Folder}' could not be loaded: {unidentified.Message}");
     }
 
     /// <summary>

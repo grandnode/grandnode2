@@ -1,5 +1,4 @@
 ﻿using Grand.Infrastructure.Configuration;
-using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -98,16 +97,6 @@ public static class PluginManager
                 _logger.LogWarning("{PluginWarning}", warning);
 
             var referencedPlugins = new List<PluginInfo>();
-            foreach (var problem in scan.Problems)
-            {
-                _logger.LogError("Plugin folder {PluginFolder} could not be loaded: {LoadError}",
-                    problem.Folder, problem.Message);
-                referencedPlugins.Add(new PluginInfo {
-                    SystemName = problem.Folder,
-                    FriendlyName = problem.Folder,
-                    LoadError = problem.Message
-                });
-            }
 
             //a dependency can be asked for twice (resolved for one plugin, then loaded by the one shipping it);
             //it is copied once
@@ -164,12 +153,17 @@ public static class PluginManager
                     mvcCoreBuilder.Services.AddScoped(plugin.PluginType);
             }
 
+            //after the loaded plugins: a lookup by a system name a second folder duplicates finds the working one
+            foreach (var problem in scan.Problems)
+            {
+                _logger.LogError("Plugin folder {PluginFolder} could not be loaded: {LoadError}",
+                    problem.Folder, problem.Message);
+                referencedPlugins.AddRange(PluginLoader.DescribeProblem(problem, installedPluginSystemNames));
+            }
+
             ReferencedPlugins = referencedPlugins;
 
-            var failed = referencedPlugins.FirstOrDefault(x => x.Installed && x.LoadError != null);
-            if (failed != null && _config.FailOnPluginLoadError)
-                throw new GrandException(
-                    $"The installed plugin '{failed.SystemName}' could not be loaded: {failed.LoadError}");
+            PluginLoader.ThrowOnLoadError(referencedPlugins, scan.Problems, _config.FailOnPluginLoadError);
         }
     }
 

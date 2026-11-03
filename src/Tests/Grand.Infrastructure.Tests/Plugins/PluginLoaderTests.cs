@@ -1,5 +1,6 @@
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Tests.Plugins.Fixtures;
+using Grand.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -72,6 +73,68 @@ public class PluginLoaderTests
 
         Assert.AreEqual("has no IPlugin class", plugin.LoadError);
         Assert.IsNull(plugin.PluginType);
+    }
+
+    [TestMethod]
+    public void Load_DependencyKeptByIncompatiblePlugin_StillResolves()
+    {
+        const string sharedSource = "namespace Shared { public class Base { } }";
+        var shared = TestPluginBuilder.Compile(_fixture.Folder("A"), "Loader.Shared", sharedSource,
+            new Version(1, 0, 0, 0));
+        _fixture.AddPlugin("A", "Loader.A", "Loader.A", """
+            public class Derived : Shared.Base { }
+            public class APlugin : BasePlugin { }
+            """, shared);
+        //a plugin built for another version ships the higher copy; it is never loaded, so it must not take the dependency
+        TestPluginBuilder.Compile(_fixture.Folder("B"), "Loader.Shared", sharedSource, new Version(2, 0, 0, 0));
+        TestPluginBuilder.Compile(_fixture.Folder("B"), "Loader.B", """
+            using Grand.Infrastructure.Plugins;
+            [assembly: PluginInfo(SystemName = "Loader.B", SupportedVersion = "1.0")]
+            """, null, PluginFolderFixture.CoreAssemblyPath);
+
+        var plugin = _fixture.Load("A", true);
+
+        Assert.IsNull(plugin.LoadError);
+        Assert.AreEqual("APlugin", plugin.PluginType.Name);
+    }
+
+    [TestMethod]
+    public void Problem_KnownSystemNameOfInstalledPlugin_IsInstalledAndFailsStrictMode()
+    {
+        _fixture.AddPlugin("Multi", "Loader.One", "Loader.One");
+        _fixture.AddPlugin("Multi", "Loader.Two", "Loader.Two");
+        var problems = _fixture.Scan().Problems;
+
+        var problem = problems.Single();
+        CollectionAssert.AreEquivalent(new[] { "Loader.One", "Loader.Two" }, problem.SystemNames.ToList());
+        var entries = PluginLoader.DescribeProblem(problem, ["loader.one"]).ToList();
+
+        var one = entries.Single(x => x.SystemName == "Loader.One");
+        Assert.IsTrue(one.Installed);
+        Assert.AreEqual(problem.Message, one.LoadError);
+        Assert.IsFalse(entries.Single(x => x.SystemName == "Loader.Two").Installed);
+
+        var ex = Assert.ThrowsExactly<GrandException>(() => PluginLoader.ThrowOnLoadError(entries, problems, true));
+        Assert.Contains("Loader.One", ex.Message);
+        PluginLoader.ThrowOnLoadError(entries, problems, false);
+    }
+
+    [TestMethod]
+    public void Problem_UnknownSystemName_FailsStrictModeOnly()
+    {
+        _fixture.AddPlugin("Nameless", "Loader.Nameless", "");
+        var problems = _fixture.Scan().Problems;
+
+        var problem = problems.Single();
+        Assert.IsEmpty(problem.SystemNames);
+        var entries = PluginLoader.DescribeProblem(problem, []).ToList();
+        Assert.AreEqual("Nameless", entries.Single().SystemName);
+        Assert.IsFalse(entries.Single().Installed);
+
+        var ex = Assert.ThrowsExactly<GrandException>(() => PluginLoader.ThrowOnLoadError(entries, problems, true));
+        Assert.Contains("Nameless", ex.Message);
+        Assert.Contains("has no SystemName", ex.Message);
+        PluginLoader.ThrowOnLoadError(entries, problems, false);
     }
 
     [TestMethod]

@@ -20,7 +20,19 @@ public sealed record PluginCandidate(
     IReadOnlyList<string> AssemblyPaths,
     IReadOnlyCollection<string> AssemblyNames);
 
-public sealed record PluginLoadProblem(string Folder, string Message);
+/// <summary>
+///     A plugin folder that cannot be loaded.
+/// </summary>
+/// <param name="SystemNames">
+///     The system names the folder declares, when they could be read; empty when the folder's plugin
+///     cannot be identified (an unreadable or undecodable file, a manifest without a system name)
+/// </param>
+public sealed record PluginLoadProblem(string Folder, string Message, IReadOnlyList<string> SystemNames)
+{
+    public PluginLoadProblem(string folder, string message) : this(folder, message, [])
+    {
+    }
+}
 
 public sealed record PluginScanResult(
     IReadOnlyList<PluginCandidate> Plugins,
@@ -79,7 +91,8 @@ public static class PluginFolderScanner
             if (manifests.Count > 1)
             {
                 problems.Add(new PluginLoadProblem(folder.Name,
-                    $"The folder contains {manifests.Count} plugin assemblies ({string.Join(", ", manifests.Select(x => x.Name))}); only one is allowed."));
+                    $"The folder contains {manifests.Count} plugin assemblies ({string.Join(", ", manifests.Select(x => x.Name))}); only one is allowed.",
+                    manifests.Select(x => x.Manifest.SystemName).Where(x => !string.IsNullOrWhiteSpace(x)).ToList()));
                 continue;
             }
 
@@ -94,7 +107,8 @@ public static class PluginFolderScanner
             if (!systemNames.Add(manifest.SystemName))
             {
                 problems.Add(new PluginLoadProblem(folder.Name,
-                    $"The plugin system name '{manifest.SystemName}' is already used by another plugin folder."));
+                    $"The plugin system name '{manifest.SystemName}' is already used by another plugin folder.",
+                    [manifest.SystemName]));
                 continue;
             }
 
@@ -180,7 +194,8 @@ public static class PluginFolderScanner
 
     /// <summary>
     ///     When two plugins ship the same dependency only the higher version is loaded, so one load
-    ///     context never sees two copies of it. A plugin's own main assembly is never dropped.
+    ///     context never sees two copies of it. A plugin's own main assembly is never dropped. A plugin
+    ///     built for another version is never loaded, so its copies take no part.
     /// </summary>
     private static List<PluginCandidate> DropLowerVersions(
         List<(PluginCandidate Candidate, List<ScannedFile> Files)> plugins, List<string> warnings)
@@ -188,6 +203,7 @@ public static class PluginFolderScanner
         var dropped = new Dictionary<PluginCandidate, HashSet<string>>();
 
         var groups = plugins
+            .Where(p => p.Candidate.Manifest.SupportedVersion == GrandVersion.SupportedPluginVersion)
             .SelectMany(p => p.Files.Select(f => (p.Candidate, File: f)))
             .Where(x => !string.Equals(x.File.Path, x.Candidate.MainAssemblyPath, StringComparison.OrdinalIgnoreCase))
             .GroupBy(x => x.File.Name, StringComparer.OrdinalIgnoreCase)

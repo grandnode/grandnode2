@@ -51,6 +51,7 @@ public class PluginFolderScannerTests
         Assert.AreEqual("A", result.Plugins[0].Folder.Name);
         Assert.HasCount(1, result.Problems);
         Assert.AreEqual("B", result.Problems[0].Folder);
+        Assert.AreEqual("scan.same", result.Problems[0].SystemNames.Single());
     }
 
     [TestMethod]
@@ -72,6 +73,23 @@ public class PluginFolderScannerTests
             .Count(x => Path.GetFileName(x) == "Shared.Lib.dll"));
         Assert.Contains("Shared.Lib", a.AssemblyNames);
         Assert.IsTrue(result.Warnings.Any(x => x.Contains("Shared.Lib") && x.Contains("'A'") && x.Contains("'B'")));
+    }
+
+    [TestMethod]
+    public void Scan_IncompatiblePluginShipsHigherVersion_CompatibleKeepsItsCopy()
+    {
+        AddPlugin("A", "Scan.A", "Scan.A");
+        var own = TestPluginBuilder.Compile(Folder("A"), "Shared.Lib", "public class Lib { }", new Version(1, 0, 0, 0));
+        TestPluginBuilder.Compile(Folder("B"), "Scan.B", """
+            using Grand.Infrastructure.Plugins;
+            [assembly: PluginInfo(SystemName = "Scan.B", SupportedVersion = "1.0")]
+            """, null, CoreAssemblyPath);
+        TestPluginBuilder.Compile(Folder("B"), "Shared.Lib", "public class Lib { }", new Version(2, 0, 0, 0));
+
+        var result = Scan();
+
+        CollectionAssert.Contains(result.Plugins.Single(x => x.Folder.Name == "A").AssemblyPaths.ToList(), own);
+        Assert.IsEmpty(result.Warnings);
     }
 
     [TestMethod]
