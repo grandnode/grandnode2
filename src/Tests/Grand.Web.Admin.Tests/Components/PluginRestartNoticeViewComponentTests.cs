@@ -33,4 +33,19 @@ public class PluginRestartNoticeViewComponentTests
         Assert.IsInstanceOfType(result, typeof(ContentViewComponentResult));
         permissionService.Verify(x => x.Authorize(StandardPermission.ManagePlugins), Times.Once);
     }
+
+    [TestMethod]
+    public void View_UsesTheAdminNoteMarkup()
+    {
+        //the admin UI guide keeps genuine messages in note note-*, like the other warning components
+        var dir = new DirectoryInfo(AppContext.BaseDirectory);
+        while (dir != null && !Directory.Exists(Path.Combine(dir.FullName, "src", "Web")))
+            dir = dir.Parent;
+        Assert.IsNotNull(dir, "repository root not found");
+        var source = File.ReadAllText(Path.Combine(dir.FullName, "src", "Web", "Grand.Web.Admin", "Areas", "Admin",
+            "Views", "Shared", "Components", "PluginRestartNotice", "Default.cshtml"));
+
+        Assert.Contains("class=\"note note-warning\"", source);
+        Assert.DoesNotContain("alert", source);
+    }
 }

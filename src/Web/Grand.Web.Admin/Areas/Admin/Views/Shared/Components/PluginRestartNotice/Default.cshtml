@@ -1,7 +1,7 @@
 @using Grand.Infrastructure.Plugins
 @model IReadOnlyList<PluginPendingChange>
 @* the restart button is handled in _AdminLayout ([data-plugin-restart]), like the header's restart link *@
-<div class="alert alert-warning" role="status" id="plugin-restart-notice">
+<div class="note note-warning" role="status" id="plugin-restart-notice">
     <div class="d-flex flex-wrap align-items-center gap-2">
         <strong class="me-auto">
             <i class="bi bi-exclamation-triangle" aria-hidden="true"></i> @Loc["Admin.Plugins.RestartRequired"]
