@@ -235,6 +235,9 @@ public class PluginController(
         return RedirectToAction("List");
     }
 
+    //POST only: a GET here let any link follower - a crawler, a browser prefetch, a stray click on a
+    //copied URL - stop the application
+    [HttpPost]
     public IActionResult ReloadList()
     {
         logger.LogInformation("Reload list of plugins by the user {CurrentCustomerEmail}",
