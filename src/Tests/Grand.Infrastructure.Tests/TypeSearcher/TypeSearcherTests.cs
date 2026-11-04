@@ -111,6 +111,36 @@ public class TypeSearcherTests
 
     [TestMethod]
     [DoNotParallelize]
+    public void GetAssemblies_SameAssemblyInTwoContexts_IncludesBoth()
+    {
+        const string name = "Grand.Infrastructure.Tests.SharedLibrary";
+        var dir = Path.Combine(Path.GetTempPath(), "grand-typesearcher-" + Guid.NewGuid().ToString("N"));
+        try
+        {
+            //as two plugins each shipping the same library load it, each into its own context
+            var path = TestPluginBuilder.Compile(dir, name, """
+                [assembly: System.Reflection.AssemblyProduct("grandnode")]
+                public class SharedLibraryMarker { }
+                """);
+            var copies = new[] { "shared-one", "shared-two" }.Select(contextName =>
+            {
+                using var stream = new MemoryStream(File.ReadAllBytes(path));
+                return new AssemblyLoadContext(contextName, true).LoadFromStream(stream);
+            }).ToList();
+
+            var assemblies = _typeSearcher.GetAssemblies();
+
+            Assert.Contains(copies[0], assemblies);
+            Assert.Contains(copies[1], assemblies);
+        }
+        finally
+        {
+            Directory.Delete(dir, true);
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
     public void GetAssemblies_AfterReferencedPluginsReplaced_Recomputes()
     {
         var referencedPlugins = PluginManager.ReferencedPlugins;
