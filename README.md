@@ -43,6 +43,7 @@
 * [Key features](#key-features)
 * [Technology stack](#technology-stack)
 * [Quick start](#quick-start)
+* [One-Click Deploy](#one-click-deploy)
 * [Online demo](#online-demo)
 * [Documentation](#documentation)
 * [Community and support](#community-and-support)
@@ -139,6 +140,10 @@ otherwise the admin panel loads without its CSS and JavaScript.
 More ways to install - several instances behind a load balancer, hosting on Linux with systemd - are in
 [docs/installation.md](docs/installation.md). Building the frontend bundles and working on the code are in
 [docs/development.md](docs/development.md).
+
+## One-Click Deploy
+
+[![Deploy on RepoCloud](https://d16t0pc4846x52.cloudfront.net/deploylobe.svg)](https://repocloud.io/details/GrandNode/)
 
 ## Online demo
 
