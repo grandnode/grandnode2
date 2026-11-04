@@ -134,6 +134,24 @@ public class PluginFolderScannerTests
     }
 
     [TestMethod]
+    public void Scan_SkipPatternTimesOut_IsProblemOfThatFolderOnly()
+    {
+        var slow = new string('a', 40);
+        AddPlugin("A", "Scan.A", "Scan.A");
+        TestPluginBuilder.Compile(Folder("A"), slow, "public class Lib { }");
+        AddPlugin("B", "Scan.B", "Scan.B");
+
+        //catastrophic backtracking on the long name; the other file names fail on the first character
+        var result = Scan("^(a+)+$");
+
+        Assert.AreEqual("B", result.Plugins.Single().Folder.Name);
+        var problem = result.Problems.Single();
+        Assert.AreEqual("A", problem.Folder);
+        Assert.Contains(slow + ".dll", problem.Message);
+        Assert.Contains("PluginSkipLoadingPattern", problem.Message);
+    }
+
+    [TestMethod]
     [OSCondition(OperatingSystems.Windows)]
     public void Scan_UnreadableMainAssembly_IsProblemNamingTheFolder()
     {

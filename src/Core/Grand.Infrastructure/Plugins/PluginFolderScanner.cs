@@ -139,14 +139,21 @@ public static class PluginFolderScanner
         var result = new List<ScannedFile>();
         foreach (var file in dlls.OrderBy(x => x.Name, StringComparer.Ordinal))
         {
-            if (IsSkipped(file.Name, skipPattern))
-                continue;
-
             try
             {
+                if (IsSkipped(file.Name, skipPattern))
+                    continue;
+
                 var scanned = ScanFile(folder, file, hostAssemblyNames, warnings);
                 if (scanned != null)
                     result.Add(scanned);
+            }
+            catch (RegexMatchTimeoutException)
+            {
+                //whether the file is skipped is unknown, so the folder is not loaded, as for a file it cannot read
+                problems.Add(new PluginLoadProblem(folder.Name,
+                    $"'{file.Name}' could not be matched against Extensions:PluginSkipLoadingPattern in time; check the pattern."));
+                return null;
             }
             catch (Exception ex) when (IsReadFailure(ex))
             {
