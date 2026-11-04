@@ -17,6 +17,7 @@ public sealed class PluginInfo
     {
         ReferencedAssembly = referencedAssembly;
         OriginalAssemblyFile = originalAssemblyFile;
+        FolderName = originalAssemblyFile?.Directory?.Name;
         PluginType = pluginType;
         if (referencedAssembly != null)
             AssemblyNames = new HashSet<string>(StringComparer.OrdinalIgnoreCase)
@@ -66,6 +67,12 @@ public sealed class PluginInfo
     ///     The original assembly file that a shadow copy was made from it
     /// </summary>
     public FileInfo OriginalAssemblyFile { get; internal set; }
+
+    /// <summary>
+    ///     The plugin's folder in Plugins; together with <see cref="SystemName" /> it tells apart two folders
+    ///     declaring the same system name, and it is known also for a folder whose plugin could not be identified
+    /// </summary>
+    public string FolderName { get; internal set; }
 
     /// <summary>
     ///     Gets or sets the plugin group

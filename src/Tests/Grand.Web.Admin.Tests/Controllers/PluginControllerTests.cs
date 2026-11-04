@@ -146,7 +146,7 @@ public class PluginControllerTests
 
         await WithPlugins(async () =>
         {
-            await _controller.Remove(SystemName);
+            await _controller.Remove(SystemName, "Tests.Plugin");
 
             Assert.IsTrue(Directory.Exists(folder));
             _applicationLifetime.Verify(x => x.StopApplication(), Times.Never);
@@ -217,12 +217,53 @@ public class PluginControllerTests
             await WithPlugins(async () =>
             {
                 await _controller.Uninstall(SystemName);
-                await _controller.Remove(SystemName);
+                await _controller.Remove(SystemName, "Tests.Plugin");
 
                 Assert.IsFalse(Directory.Exists(folder));
                 _applicationLifetime.Verify(x => x.StopApplication(), Times.Never);
             }, plugin);
         });
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task Remove_SecondFolderOfASystemName_DeletesOnlyThatFolder()
+    {
+        var working = Path.Combine(_contentRoot, "Plugins", "Tests.Plugin");
+        Directory.CreateDirectory(working);
+        var mainAssembly = Path.Combine(working, "Tests.Plugin.dll");
+        await File.WriteAllTextAsync(mainAssembly, "");
+        var copy = Directory.CreateDirectory(Path.Combine(_contentRoot, "Plugins", "Tests.Plugin.Copy")).FullName;
+        var plugin = new PluginInfo(new FileInfo(mainAssembly), null, typeof(IPlugin)) {
+            SystemName = SystemName,
+            SupportedVersion = GrandVersion.SupportedPluginVersion
+        };
+        var duplicate = PluginLoader.DescribeProblem(
+            new PluginLoadProblem("Tests.Plugin.Copy", "already used", [SystemName]), []).Single();
+
+        await WithPlugins(async () =>
+        {
+            await _controller.Remove(SystemName, "Tests.Plugin.Copy");
+
+            Assert.IsFalse(Directory.Exists(copy));
+            Assert.IsTrue(Directory.Exists(working));
+        }, plugin, duplicate);
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public async Task Remove_FolderWhosePluginWasNotIdentified_DeletesIt()
+    {
+        var folder = Directory.CreateDirectory(Path.Combine(_contentRoot, "Plugins", "Broken")).FullName;
+        var entry = PluginLoader.DescribeProblem(new PluginLoadProblem("Broken", "has no SystemName"), []).Single();
+
+        await WithPlugins(async () =>
+        {
+            await _controller.Remove("Broken", "Broken");
+
+            Assert.IsFalse(Directory.Exists(folder));
+            CollectionAssert.Contains(Notifications("Success"), "Admin.Plugins.Removed.AfterRestart");
+        }, entry);
     }
 
     [TestMethod]

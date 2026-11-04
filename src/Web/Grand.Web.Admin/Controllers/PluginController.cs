@@ -267,7 +267,7 @@ public class PluginController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Remove(string systemName)
+    public async Task<IActionResult> Remove(string systemName, string folderName)
     {
         if (extConfig.DisableUploadExtensions)
         {
@@ -277,7 +277,9 @@ public class PluginController(
 
         try
         {
-            var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
+            //by folder too: two folders may declare one system name, and only the chosen one is removed
+            var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName
+                && x.FolderName != null && string.Equals(x.FolderName, folderName, StringComparison.OrdinalIgnoreCase));
             if (pluginInfo == null)
                 //No plugin found with the specified id
                 return RedirectToAction("List");
@@ -289,7 +291,7 @@ public class PluginController(
                 return RedirectToAction("List");
             }
 
-            DeleteDirectory(pluginInfo.OriginalAssemblyFile.DirectoryName);
+            DeleteDirectory(Path.Combine(PluginsPath, pluginInfo.FolderName));
             await auditEventRecorder.Plugin(systemName, "removed");
 
             Success(translationService.GetResource("Admin.Plugins.Removed.AfterRestart"));

@@ -102,6 +102,7 @@ public static class PluginLoader
             Author = manifest.Author,
             PluginFileName = Path.GetFileName(candidate.MainAssemblyPath),
             OriginalAssemblyFile = new FileInfo(candidate.MainAssemblyPath),
+            FolderName = candidate.Folder.Name,
             AssemblyNames = new HashSet<string>(candidate.AssemblyNames, StringComparer.OrdinalIgnoreCase),
             Installed = installed
         };
@@ -122,6 +123,7 @@ public static class PluginLoader
                 new PluginInfo {
                     SystemName = problem.Folder,
                     FriendlyName = problem.Folder,
+                    FolderName = problem.Folder,
                     LoadError = problem.Message
                 }
             ];
@@ -130,6 +132,7 @@ public static class PluginLoader
         return problem.SystemNames.Select(name => new PluginInfo {
             SystemName = name,
             FriendlyName = name,
+            FolderName = problem.Folder,
             LoadError = problem.Message,
             Installed = installed.Contains(name)
         }).ToList();

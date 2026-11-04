@@ -148,6 +148,9 @@ public class PluginLoaderTests
         Assert.IsEmpty(problem.SystemNames);
         var entries = PluginLoader.DescribeProblem(problem, []).ToList();
         Assert.AreEqual("Nameless", entries.Single().SystemName);
+        //the folder to remove, although no plugin file was identified
+        Assert.AreEqual("Nameless", entries.Single().FolderName);
+        Assert.IsNull(entries.Single().OriginalAssemblyFile);
         Assert.IsFalse(entries.Single().Installed);
 
         var ex = Assert.ThrowsExactly<GrandException>(() => PluginLoader.ThrowOnLoadError(entries, problems, true));
