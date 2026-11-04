@@ -1,5 +1,7 @@
 ﻿using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
+using System.Collections.Concurrent;
+using System.Collections.ObjectModel;
 using System.Diagnostics;
 using System.Reflection;
 
@@ -12,6 +14,36 @@ namespace Grand.Infrastructure.TypeSearch;
 public class TypeSearcher : ITypeSearcher
 {
     #region Utilities
+
+    //Shared by every instance, because TypeSearcher is created in many places during startup.
+    //Loaded assemblies are never unloaded, so their types are read once.
+    private static readonly ConcurrentDictionary<Assembly, Type[]> TypesByAssembly = new();
+
+    private sealed record AssemblySnapshot(
+        int AppDomainAssemblyCount,
+        IEnumerable<PluginInfo> ReferencedPlugins,
+        IEnumerable<ResultCompiler> ReferencedScripts,
+        IList<Assembly> Assemblies);
+
+    //Replaced as a whole, never mutated. A race only costs one redundant recomputation.
+    private static volatile AssemblySnapshot _snapshot;
+
+    private static IList<Assembly> CachedAssemblies()
+    {
+        var count = AppDomain.CurrentDomain.GetAssemblies().Length;
+        var plugins = PluginManager.ReferencedPlugins;
+        var scripts = RoslynCompiler.ReferencedScripts;
+
+        var snapshot = _snapshot;
+        if (snapshot != null && snapshot.AppDomainAssemblyCount == count &&
+            ReferenceEquals(snapshot.ReferencedPlugins, plugins) &&
+            ReferenceEquals(snapshot.ReferencedScripts, scripts))
+            return snapshot.Assemblies;
+
+        var assemblies = new ReadOnlyCollection<Assembly>(AssembliesInAppDomain());
+        _snapshot = new AssemblySnapshot(count, plugins, scripts, assemblies);
+        return assemblies;
+    }
 
     private static IList<Assembly> AssembliesInAppDomain()
     {
@@ -65,7 +97,7 @@ public class TypeSearcher : ITypeSearcher
         {
             foreach (var assembly in assemblies)
             {
-                var types = assembly.GetTypes()
+                var types = TypesByAssembly.GetOrAdd(assembly, static a => a.GetTypes())
                     .Where(type =>
                         (assignTypeFrom.IsAssignableFrom(type) ||
                          (assignTypeFrom.IsGenericTypeDefinition && DoesTypeImplementOpenGeneric(type, assignTypeFrom))) &&
@@ -115,7 +147,7 @@ public class TypeSearcher : ITypeSearcher
     /// <returns>A list of assemblies that should be loaded by the Grand factory.</returns>
     public virtual IList<Assembly> GetAssemblies()
     {
-        return AssembliesInAppDomain();
+        return CachedAssemblies();
     }
 
     #endregion
