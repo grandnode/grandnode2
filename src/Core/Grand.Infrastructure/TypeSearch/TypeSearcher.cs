@@ -1,4 +1,5 @@
-﻿using Grand.Infrastructure.Plugins;
+﻿using Grand.Infrastructure.Modules;
+using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Roslyn;
 using System.Collections.Concurrent;
 using System.Collections.ObjectModel;
@@ -59,6 +60,8 @@ public class TypeSearcher : ITypeSearcher
             if (addedAssemblyNames.Contains(assembly.FullName)) continue;
             //an uninstalled plugin contributes no types to any scan
             if (!PluginExtensions.OnlyInstalledPlugins(assembly)) continue;
+            //nor does a module that failed to load; its types may not even resolve
+            if (ModuleLoader.IsFailedModule(assembly)) continue;
             assemblies.Add(assembly);
             addedAssemblyNames.Add(assembly.FullName);
         }

@@ -32,8 +32,9 @@ public class ExtensionsConfig
     public string InstalledPlugins { get; set; }
 
     /// <summary>
-    ///     Stop the application when an installed plugin fails to load. Off: the plugin is logged,
-    ///     listed with its error and left inactive, and the application starts without it.
+    ///     Stop the application when an installed plugin, or a module enabled under FeatureManagement, fails to
+    ///     load. Off: the plugin is logged, listed with its error and left inactive, the module is logged as
+    ///     critical, and the application starts without it.
     /// </summary>
     public bool FailOnPluginLoadError { get; set; }
 }

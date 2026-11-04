@@ -32,6 +32,8 @@ public static class PluginManager
     private static DirectoryInfo _copyFolder;
     private static DirectoryInfo _pluginFolder;
     private static ExtensionsConfig _config;
+    //not disposed after Load: LoadForInstall logs to it while the application runs
+    private static ILoggerFactory _loggerFactory;
     private static ILogger _logger;
 
     //what LoadForInstall needs to load a plugin as Load would have
@@ -90,8 +92,9 @@ public static class PluginManager
         {
             ArgumentNullException.ThrowIfNull(mvcCoreBuilder);
 
-            _logger = mvcCoreBuilder.Services.BuildServiceProvider().GetService<ILoggerFactory>()
-                .CreateLogger("PluginManager");
+            _loggerFactory?.Dispose();
+            _loggerFactory = StartupLogging.CreateLoggerFactory(configuration);
+            _logger = _loggerFactory.CreateLogger("PluginManager");
 
             _pluginFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins));
             _copyFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins, "bin"));
