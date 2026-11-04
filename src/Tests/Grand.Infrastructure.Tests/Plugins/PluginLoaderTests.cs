@@ -99,6 +99,25 @@ public class PluginLoaderTests
     }
 
     [TestMethod]
+    public void Load_ThirdPartyLibraryWithTypeOnAbsentAssembly_StillLoads()
+    {
+        //a library's optional integration: a type built on an assembly the library does not ship
+        var optional = _fixture.CompileElsewhere("Loader.Optional", "namespace Optional { public class Base { } }");
+        var library = TestPluginBuilder.Compile(_fixture.Folder("P"), "Loader.ThirdParty", """
+            namespace ThirdParty { public class Used { } public class Integration : Optional.Base { } }
+            """, null, optional);
+        _fixture.AddPlugin("P", "Loader.UsesLibrary", "Loader.UsesLibrary", """
+            public class UsesLibraryPlugin : BasePlugin { public ThirdParty.Used Used { get; } = new(); }
+            """, library);
+
+        var plugin = _fixture.Load("P", true);
+
+        Assert.IsNull(plugin.LoadError);
+        Assert.IsTrue(plugin.IsActive);
+        Assert.AreEqual("UsesLibraryPlugin", plugin.PluginType.Name);
+    }
+
+    [TestMethod]
     public void Problem_KnownSystemNameOfInstalledPlugin_IsInstalledAndFailsStrictMode()
     {
         _fixture.AddPlugin("Multi", "Loader.One", "Loader.One");

@@ -50,9 +50,12 @@ public static class PluginLoader
                          !string.Equals(x, candidate.MainAssemblyPath, StringComparison.OrdinalIgnoreCase)))
                 assemblies.Add(context.LoadFromAssemblyName(AssemblyName.GetAssemblyName(Prepared(path))));
 
-            //every assembly is loaded before any type is resolved, so the order of the files does not matter
+            //only the plugin's own code is checked: a third-party library may hold types built on optional
+            //assemblies it never ships, and it would fail here although it works at runtime.
+            //Every assembly is loaded before any type is resolved, so the order of the files does not matter
+            var pluginCode = assemblies.Where(x => x == main || IsPluginCode(x)).ToList();
             Type pluginType = null;
-            foreach (var assembly in assemblies)
+            foreach (var assembly in pluginCode)
             {
                 var types = assembly.GetTypes();
                 if (assembly == main)
@@ -64,7 +67,7 @@ public static class PluginLoader
 
             //a reference used only inside a method body is not needed by GetTypes; resolved here, one the context
             //cannot provide (such as another plugin's assembly) fails the load instead of a later request
-            foreach (var assembly in assemblies.Where(IsPluginCode))
+            foreach (var assembly in pluginCode)
             foreach (var reference in assembly.GetReferencedAssemblies())
                 context.LoadFromAssemblyName(reference);
 
