@@ -1,4 +1,7 @@
-﻿using Grand.Infrastructure.Configuration;
+﻿using Grand.Data.LiteDb;
+using Grand.Domain;
+using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.TypeSearch;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -32,6 +35,12 @@ public static class PluginManager
     private static ExtensionsConfig _config;
     private static ILogger _logger;
     private static Func<AssemblyLoadContext, AssemblyName, Assembly> _resolveDependency;
+    private static AssemblyLoadContext _resolveDependencyContext;
+
+    //what LoadForInstall needs to load a plugin as Load would have
+    private static AssemblyLoadContext _loadContext;
+    private static Func<FileInfo, FileInfo> _prepareFile;
+    private static bool _useLiteDb;
 
     #endregion
 
@@ -62,8 +71,17 @@ public static class PluginManager
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void Load(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostEnvironment)
     {
+        Load(mvcCoreBuilder, configuration, hostEnvironment, AssemblyLoadContext.Default);
+    }
+
+    /// <param name="loadContext">The context plugin assemblies are loaded into; tests pass a collectible one</param>
+    internal static void Load(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration,
+        IWebHostEnvironment hostEnvironment, AssemblyLoadContext loadContext)
+    {
         _config = new ExtensionsConfig();
         configuration.GetSection("Extensions").Bind(_config);
+        var dbConfig = new DatabaseConfig();
+        configuration.GetSection("Database").Bind(dbConfig);
 
         lock (_synLock)
         {
@@ -127,7 +145,10 @@ public static class PluginManager
             var compatible = scan.Plugins
                 .Where(x => x.Manifest.SupportedVersion == GrandVersion.SupportedPluginVersion)
                 .ToList();
-            ResolveDependenciesFrom(compatible, prepareFile);
+            ResolveDependenciesFrom(compatible, loadContext, prepareFile);
+            _loadContext = loadContext;
+            _prepareFile = prepareFile;
+            _useLiteDb = dbConfig.UseLiteDb;
 
             foreach (var candidate in scan.Plugins)
             {
@@ -144,11 +165,20 @@ public static class PluginManager
 
                 var installed = installedPluginSystemNames.Contains(candidate.Manifest.SystemName,
                     StringComparer.OrdinalIgnoreCase);
-                var plugin = PluginLoader.Load(candidate, installed, AssemblyLoadContext.Default, prepareFile);
+                if (!installed)
+                {
+                    //listed from its manifest; nothing of it is loaded until it is installed (LoadForInstall)
+                    var listed = PluginLoader.Describe(candidate, false);
+                    listed.Candidate = candidate;
+                    referencedPlugins.Add(listed);
+                    continue;
+                }
+
+                var plugin = PluginLoader.Load(candidate, true, loadContext, prepareFile);
                 referencedPlugins.Add(plugin);
 
                 //controllers and views only for an installed plugin - an uninstalled one must not be routable
-                if (plugin.LoadError == null && plugin.Installed)
+                if (plugin.LoadError == null)
                 {
                     var error = AddApplicationPart(mvcCoreBuilder, plugin);
                     if (error != null)
@@ -166,9 +196,8 @@ public static class PluginManager
                     continue;
                 }
 
-                //register the plugin class - also when not installed, Install resolves it from DI
-                if (plugin.PluginType != null)
-                    mvcCoreBuilder.Services.AddScoped(plugin.PluginType);
+                //register the plugin class; one loaded later to be installed is created without DI
+                mvcCoreBuilder.Services.AddScoped(plugin.PluginType);
             }
 
             //after the loaded plugins: a lookup by a system name a second folder duplicates finds the working one
@@ -182,6 +211,48 @@ public static class PluginManager
             ReferencedPlugins = referencedPlugins;
 
             PluginLoader.ThrowOnLoadError(referencedPlugins, scan.Problems, _config.FailOnPluginLoadError);
+        }
+    }
+
+    /// <summary>
+    ///     Loads a plugin that was listed without being loaded (an uninstalled one), so it can be installed by the
+    ///     running process: into the context <see cref="Load" /> uses, with its LiteDB mappers built. Its startup
+    ///     classes, handlers and controllers are registered by the restart that follows the install, and until then
+    ///     it stays not installed, so it contributes no types to any scan.
+    ///     Does nothing for a plugin already loaded, failed or with nothing to load; safe from concurrent requests.
+    ///     Never throws because of the plugin: its fault becomes <see cref="PluginInfo.LoadError" />.
+    /// </summary>
+    public static PluginInfo LoadForInstall(PluginInfo plugin)
+    {
+        ArgumentNullException.ThrowIfNull(plugin);
+
+        lock (_synLock)
+        {
+            var candidate = plugin.Candidate;
+            if (plugin.ReferencedAssembly != null || plugin.LoadError != null || candidate == null ||
+                _loadContext == null)
+                return plugin;
+
+            _logger?.LogInformation("Loading plugin {PluginSystemName} to install it", plugin.SystemName);
+            var loaded = PluginLoader.Load(candidate, plugin.Installed, _loadContext, _prepareFile);
+            if (loaded.LoadError == null && _useLiteDb)
+                loaded.LoadError = WarmLiteDbMappers(loaded);
+
+            plugin.PluginFileName = loaded.PluginFileName;
+            plugin.AssemblyNames = loaded.AssemblyNames;
+            plugin.LoadError = loaded.LoadError;
+            plugin.Candidate = null;
+            if (loaded.LoadError != null)
+            {
+                _logger?.LogError("Plugin {PluginSystemName} could not be loaded: {LoadError}", plugin.SystemName,
+                    loaded.LoadError);
+                return plugin;
+            }
+
+            plugin.PluginType = loaded.PluginType;
+            //last: a request that sees the assembly skips the lock and reads the type
+            plugin.ReferencedAssembly = loaded.ReferencedAssembly;
+            return plugin;
         }
     }
 
@@ -242,7 +313,7 @@ public static class PluginManager
     ///     When two plugins ship the same dependency only one copy is loaded (see <see cref="PluginFolderScanner" />).
     ///     The plugin whose copy was dropped finds the kept one here, also before the plugin shipping it is loaded.
     /// </summary>
-    private static void ResolveDependenciesFrom(IEnumerable<PluginCandidate> plugins,
+    private static void ResolveDependenciesFrom(IEnumerable<PluginCandidate> plugins, AssemblyLoadContext loadContext,
         Func<FileInfo, FileInfo> prepareFile)
     {
         var paths = plugins
@@ -251,13 +322,34 @@ public static class PluginManager
             .ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
 
         if (_resolveDependency != null)
-            AssemblyLoadContext.Default.Resolving -= _resolveDependency;
+            _resolveDependencyContext.Resolving -= _resolveDependency;
 
         _resolveDependency = (context, name) =>
             name.Name != null && paths.TryGetValue(name.Name, out var path)
                 ? context.LoadFromAssemblyPath(prepareFile(new FileInfo(path)).FullName)
                 : null;
-        AssemblyLoadContext.Default.Resolving += _resolveDependency;
+        _resolveDependencyContext = loadContext;
+        loadContext.Resolving += _resolveDependency;
+    }
+
+    /// <summary>
+    ///     LiteDB mappers are not safe to build while requests read them (see <see cref="LiteDBMapperWarmup" />);
+    ///     the plugin's entities are built before it is installed and used. Returns the error, if any.
+    /// </summary>
+    private static string WarmLiteDbMappers(PluginInfo plugin)
+    {
+        try
+        {
+            var assemblies = _loadContext.Assemblies
+                .Where(x => plugin.AssemblyNames.Contains(x.GetName().Name, StringComparer.OrdinalIgnoreCase))
+                .ToList();
+            LiteDBMapperWarmup.Warm(new TypeSearcher().ClassesOfType(typeof(BaseEntity), assemblies));
+            return null;
+        }
+        catch (Exception ex)
+        {
+            return ex.Message;
+        }
     }
 
     private static void DeleteDepsFiles(DirectoryInfo folder)

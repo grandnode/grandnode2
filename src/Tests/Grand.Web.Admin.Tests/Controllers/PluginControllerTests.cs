@@ -316,15 +316,16 @@ public class PluginControllerTests
     }
 
     /// <summary>
-    ///     An installed plugin as loading leaves one that failed: without a plugin type, so no instance can be
-    ///     created (LoadError itself can only be set by the loader)
+    ///     An installed plugin as loading leaves one that failed: with its load error and without a plugin type,
+    ///     so no instance can be created
     /// </summary>
     private static PluginInfo BrokenPlugin(FileInfo mainAssembly)
     {
         return new PluginInfo(mainAssembly, null, null) {
             SystemName = SystemName,
             SupportedVersion = GrandVersion.SupportedPluginVersion,
-            Installed = true
+            Installed = true,
+            LoadError = "Could not load file or assembly 'Tests.Plugin.Dependency'."
         };
     }
 

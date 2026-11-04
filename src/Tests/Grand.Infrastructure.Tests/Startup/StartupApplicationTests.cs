@@ -17,9 +17,9 @@ public class StartupApplicationTests
 {
     [TestMethod]
     [DoNotParallelize]
-    public void ConfigureServices_OnLiteDb_BuildsTheMappersOfAnUninstalledPlugin()
+    public void ConfigureServices_OnLiteDb_BuildsTheMappersOfAnInstalledPlugin()
     {
-        //installing a plugin uses its entities on the running site, among requests reading the same mappers
+        //an uninstalled plugin is not loaded at startup; LoadForInstall builds its mappers (PluginManagerTests)
         DataSettingsManager.Initialize(Path.Combine(Path.GetTempPath(), $"{Guid.NewGuid()}.cfg"));
         var referencedPlugins = PluginManager.ReferencedPlugins;
         try
@@ -27,7 +27,7 @@ public class StartupApplicationTests
             PluginManager.ReferencedPlugins = [
                 new PluginInfo(null, typeof(SampleBasePlugin).Assembly, typeof(SampleBasePlugin)) {
                     SystemName = "SamplePlugin",
-                    Installed = false
+                    Installed = true
                 }
             ];
             var configuration = new ConfigurationBuilder()

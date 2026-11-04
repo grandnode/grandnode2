@@ -39,7 +39,8 @@ public class PluginController(
         //logo
         pluginModel.LogoUrl = PluginInfo.GetLogoUrl(Request.PathBase);
 
-        //configuration URLs - a plugin that failed to load has no instance, its LoadError is shown instead
+        //configuration URLs only for an active plugin, which was loaded at startup: listing never loads one,
+        //and a plugin that failed to load has no instance - its LoadError is shown instead
         if (PluginInfo.IsActive)
         {
             var pluginInstance = PluginInfo.Instance(serviceProvider);
@@ -232,9 +233,11 @@ public class PluginController(
             if (!IsInstalled(pluginInfo, pending))
                 return RedirectToAction("List");
 
-            //a plugin that failed to load has no instance to clean up after itself: it is only marked
-            //uninstalled, so it can be removed
-            if (pluginInfo.LoadError != null || pluginInfo.PluginType == null)
+            //a plugin that cannot be loaded has no instance to clean up after itself: it is only marked
+            //uninstalled, so it can be removed. An installed plugin was loaded at startup, one installed since
+            //then by its install; loading here only covers one that is still listed without being loaded
+            PluginManager.LoadForInstall(pluginInfo);
+            if (pluginInfo.LoadError != null)
             {
                 await Grand.Infrastructure.Plugins.PluginExtensions.MarkPluginAsUninstalled(pluginInfo.SystemName);
                 //it never ran: the list shows it uninstalled, and removable, right away
