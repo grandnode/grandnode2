@@ -3,9 +3,9 @@
 @inject IContextAccessor contextAccessor
 @{
     var userFields = Model.UserFields.ToList();
-    //set only by the product Edit for a product shared with other stores: its fields are shown,
+    //only the product Edit can be read-only, for a product shared with other stores: its fields are shown,
     //not changed (the form has no Save)
-    bool readOnly = ViewBag.IsReadOnly == true;
+    bool readOnly = Model is ProductModel { IsReadOnly: true };
     var stores = new List<SelectListItem>();
     stores.Add(new SelectListItem
             {

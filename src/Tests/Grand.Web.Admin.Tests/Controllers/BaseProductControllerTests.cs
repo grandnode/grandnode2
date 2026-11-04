@@ -17,11 +17,17 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.Abstractions;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.AspNetCore.Routing;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
+using Microsoft.Extensions.Primitives;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Globalization;
 using System.Linq.Expressions;
 
 namespace Grand.Web.Admin.Tests.Controllers;
@@ -140,7 +146,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
 
         //shown, but read-only: HasAccess no longer gates the page, it only takes the buttons away
         Assert.IsInstanceOfType<ViewResult>(result);
-        Assert.AreEqual(true, ((ViewResult)result).ViewData["IsReadOnly"]);
+        Assert.IsTrue(((ProductModel)((ViewResult)result).Model).IsReadOnly);
     }
 
     [TestMethod]
@@ -154,7 +160,36 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         var result = await _controller.Edit("p1");
 
         Assert.IsInstanceOfType<ViewResult>(result);
-        Assert.AreEqual(false, ((ViewResult)result).ViewData["IsReadOnly"]);
+        Assert.IsFalse(((ProductModel)((ViewResult)result).Model).IsReadOnly);
+    }
+
+    [TestMethod]
+    public async Task IsReadOnly_IsNeverBoundFromTheRequest()
+    {
+        // The server decides it in Edit(GET); a posted value must not reach the re-rendered form.
+        var services = new ServiceCollection().AddLogging();
+        services.AddMvcCore();
+        await using var provider = services.BuildServiceProvider();
+        var metadata = provider.GetRequiredService<IModelMetadataProvider>().GetMetadataForType(typeof(ProductModel));
+        var binder = provider.GetRequiredService<IModelBinderFactory>().CreateBinder(
+            new ModelBinderFactoryContext { Metadata = metadata, BindingInfo = new BindingInfo() });
+        var form = new FormCollection(new Dictionary<string, StringValues> {
+            ["Name"] = "posted",
+            ["IsReadOnly"] = "true"
+        });
+
+        var result = await provider.GetRequiredService<ParameterBinder>().BindModelAsync(
+            new ActionContext(new DefaultHttpContext { RequestServices = provider }, new RouteData(), new ActionDescriptor()),
+            binder,
+            new FormValueProvider(BindingSource.Form, form, CultureInfo.InvariantCulture),
+            new ParameterDescriptor { Name = "model", ParameterType = typeof(ProductModel) },
+            metadata,
+            value: null,
+            container: null);
+
+        var model = (ProductModel)result.Model;
+        Assert.AreEqual("posted", model.Name);
+        Assert.IsFalse(model.IsReadOnly);
     }
 
     // --- Edit (POST) -------------------------------------------------------------------------------
@@ -473,11 +508,7 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
 
         var json = result as JsonResult;
         Assert.IsNotNull(json);
-        // Faithful port of Store/Vendor's original index-based comma logic: it decides whether to
-        // append ", " from the loop index (i != products.Count - 1), not from whether a name was
-        // actually appended, so skipping the last product still leaves a trailing ", ". Pre-existing
-        // quirk in both original hosts, not introduced by this migration - characterized, not fixed.
-        Assert.AreEqual("Allowed, ", GetTextProperty(json.Value));
+        Assert.AreEqual("Allowed", GetTextProperty(json.Value));
     }
 
     [TestMethod]
@@ -508,11 +539,10 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         _productAddPopupViewModelServiceMock.Setup(s => s.PrepareAddRequiredProductModel())
             .ReturnsAsync(new ProductModel.AddRequiredProductModel());
 
-        var result = await _controller.RequiredProductAddPopup("input1") as ViewResult;
+        var result = await _controller.RequiredProductAddPopup() as ViewResult;
 
         Assert.IsNotNull(result);
         _productAddPopupViewModelServiceMock.Verify(s => s.PrepareAddRequiredProductModel(), Times.Once);
-        Assert.AreEqual("input1", _controller.ViewBag.productIdsInput);
     }
 
     // --- RequiredProductAddPopupList -------------------------------------------------------------------

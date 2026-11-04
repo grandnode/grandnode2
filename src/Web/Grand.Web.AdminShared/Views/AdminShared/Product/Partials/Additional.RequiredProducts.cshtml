@@ -2,7 +2,7 @@
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     //a product the store may see but not change (see BaseProductController.Edit)
-    bool readOnly = ViewBag.IsReadOnly == true;
+    bool readOnly = Model.IsReadOnly;
 }
 @* shown or hidden as a whole by the product type script in CreateOrUpdate.Info
    (group-required-other-products); the picker's popup and refresh script travel with it *@

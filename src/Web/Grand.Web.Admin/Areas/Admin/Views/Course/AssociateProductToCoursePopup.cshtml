@@ -51,9 +51,9 @@
     {
         <script>
             try {
-                    document.getElementById('@(Context.Request.Query["productIdInput"])').value = '@(ViewBag.productId)';
-                    document.getElementById('@(Context.Request.Query["productNameInput"])').innerHTML = '@(ViewBag.productName)';
-                    document.getElementById('@(Context.Request.Query["btnId"])').click();
+                    document.getElementById(@Json.Serialize(Context.Request.Query["productIdInput"].ToString())).value = @Json.Serialize((string)ViewBag.productId);
+                    document.getElementById(@Json.Serialize(Context.Request.Query["productNameInput"].ToString())).textContent = @Json.Serialize((string)ViewBag.productName);
+                    document.getElementById(@Json.Serialize(Context.Request.Query["btnId"].ToString())).click();
             }
             catch (e){}
             $.magnificPopup.instance.close();

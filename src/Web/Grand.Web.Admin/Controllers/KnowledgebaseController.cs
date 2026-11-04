@@ -79,7 +79,7 @@ public class KnowledgebaseController : BaseAdminController
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> CreateCategory(KnowledgebaseCategoryModel model, bool continueEditing)
@@ -182,7 +182,7 @@ public class KnowledgebaseController : BaseAdminController
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> CreateArticle(KnowledgebaseArticleModel model, bool continueEditing)

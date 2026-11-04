@@ -116,10 +116,6 @@ public abstract class BaseAddressAttributeController(
         }
 
         model.IsGlobalAttribute = false;
-        await AddLocales(languageService, model.Locales, (locale, languageId) =>
-        {
-            locale.Name = addressAttribute.GetTranslation(x => x.Name, languageId, false);
-        });
         return View(model);
     }
 

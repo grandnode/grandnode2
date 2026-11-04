@@ -897,4 +897,7 @@
 	<Resource Name="Admin.Plugins.RestartFirst" Area="Admin">
 		<Value>The plugin files have changed since the application started. Restart the application before installing or uninstalling this plugin.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.OrderTags.Updated" Area="Admin">
+		<Value>The order's tag has been updated successfully.</Value>
+	</Resource>
 </Language>

@@ -21,6 +21,9 @@ namespace Grand.Web.AdminShared.Controllers;
 
 public abstract class BaseLoginController : BaseController
 {
+    //the account waiting for its second factor on a panel; never the storefront's key, whose page signs in on the storefront
+    private const string TwoFactorSessionKey = "AdminRequiresTwoFactor";
+
     private readonly IGrandAuthenticationService _authenticationService;
     private readonly CaptchaSettings _captchaSettings;
     private readonly ICustomerManagerService _customerManagerService;
@@ -117,8 +120,9 @@ public abstract class BaseLoginController : BaseController
                 case CustomerLoginResults.RequiresTwoFactor:
                     {
                         var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
-                        HttpContext.Session.SetString("RequiresTwoFactor", userName!);
-                        return RedirectToRoute("TwoFactorAuthorization");
+                        //the panel's own second step: the storefront's page would sign in on the storefront
+                        HttpContext.Session.SetString(TwoFactorSessionKey, userName!);
+                        return RedirectToAction(nameof(TwoFactorAuthorization), "Login", new { area = GetCurrentArea() });
                     }
             }
         }
@@ -235,7 +239,7 @@ public abstract class BaseLoginController : BaseController
         if (!_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute($"{GetCurrentArea()}Login");
 
-        var username = HttpContext.Session.GetString("AdminRequiresTwoFactor");
+        var username = HttpContext.Session.GetString(TwoFactorSessionKey);
         if (string.IsNullOrEmpty(username))
             return RedirectToRoute($"{GetCurrentArea()}Login");
 
@@ -268,9 +272,9 @@ public abstract class BaseLoginController : BaseController
         if (!_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute($"{GetCurrentArea()}Login");
 
-        var username = HttpContext.Session.GetString("AdminRequiresTwoFactor");
+        var username = HttpContext.Session.GetString(TwoFactorSessionKey);
         if (string.IsNullOrEmpty(username))
-            return RedirectToRoute("HomePage");
+            return RedirectToRoute($"{GetCurrentArea()}Login");
 
         var customer = _customerSettings.UsernamesEnabled
             ? await _customerService.GetCustomerByUsername(username)
@@ -290,7 +294,7 @@ public abstract class BaseLoginController : BaseController
                     _customerSettings.TwoFactorAuthenticationType))
             {
                 //remove session
-                HttpContext.Session.Remove("AdminRequiresTwoFactor");
+                HttpContext.Session.Remove(TwoFactorSessionKey);
 
                 //sign in
                 return await SignInAction(customer, false);

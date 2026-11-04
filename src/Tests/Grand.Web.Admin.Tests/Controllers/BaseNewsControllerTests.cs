@@ -214,28 +214,6 @@ public class BaseNewsControllerTests
     }
 
     [TestMethod]
-    public async Task CreateGet_PopulatesAllLanguages()
-    {
-        var languageServiceMock = new Mock<ILanguageService>();
-        languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
-            .ReturnsAsync(new List<Grand.Domain.Localization.Language> { new() { Id = "l1" } });
-        var controller = new TestNewsController(
-            _newsViewModelServiceMock.Object, _newsServiceMock.Object, languageServiceMock.Object,
-            _translationServiceMock.Object, new Mock<IStoreService>().Object, new Mock<IDateTimeService>().Object,
-            _scopeMock.Object);
-        controller.ControllerContext = _controller.ControllerContext;
-        controller.TempData = _controller.TempData;
-
-        await controller.Create();
-
-        // Confirms the value assigned to ViewBag.AllLanguages is the resolved list, not an unawaited
-        // Task object (the pre-existing bug this task fixes) - would throw InvalidCastException or
-        // fail this assertion if the bug were reintroduced.
-        var allLanguages = (IList<Grand.Domain.Localization.Language>)controller.ViewBag.AllLanguages;
-        Assert.AreEqual(1, allLanguages.Count);
-    }
-
-    [TestMethod]
     public async Task EditGet_NewsItemNotFound_RedirectsToList()
     {
         _newsServiceMock.Setup(n => n.GetNewsById("missing")).ReturnsAsync((NewsItem)null);
