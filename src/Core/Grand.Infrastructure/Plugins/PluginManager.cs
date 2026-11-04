@@ -235,6 +235,10 @@ public static class PluginManager
 
             _logger?.LogInformation("Loading plugin {PluginSystemName} to install it", plugin.SystemName);
             var loaded = PluginLoader.Load(candidate, plugin.Installed, _loadContext, _prepareFile);
+            //warming here races with concurrent LiteDB reads: every entity mapper lives in one shared
+            //BsonMapper.Global dictionary, read without a lock, so a request reading any type while these few
+            //inserts run can fail. Accepted: the window is a few inserts during an admin-initiated install, and
+            //the alternative is a restart before Install. On MongoDB none of this applies.
             if (loaded.LoadError == null && _useLiteDb)
                 loaded.LoadError = WarmLiteDbMappers(loaded);
 
@@ -333,8 +337,9 @@ public static class PluginManager
     }
 
     /// <summary>
-    ///     LiteDB mappers are not safe to build while requests read them (see <see cref="LiteDBMapperWarmup" />);
-    ///     the plugin's entities are built before it is installed and used. Returns the error, if any.
+    ///     Builds the mappers of the plugin's entities before its install uses them. LiteDB mappers are not safe to
+    ///     build while requests read them (see <see cref="LiteDBMapperWarmup" />), and requests are running here:
+    ///     see the accepted race at the call site. Returns the error, if any.
     /// </summary>
     private static string WarmLiteDbMappers(PluginInfo plugin)
     {
