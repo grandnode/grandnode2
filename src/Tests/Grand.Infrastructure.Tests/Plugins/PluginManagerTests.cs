@@ -6,6 +6,7 @@ using LiteDB;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Collections;
@@ -248,7 +249,19 @@ public class PluginManagerTests
         Assert.IsFalse(Directory.Exists(ShadowFolder("Direct")));
     }
 
-    private void Load(string installed = "Manager.NotInstalled", bool useLiteDb = false, bool shadowCopy = false)
+    [TestMethod]
+    public void Load_LogsToTheLoggingProvidersOfTheServices()
+    {
+        var logs = new CapturingLoggerProvider();
+
+        Load(logs: logs);
+
+        Assert.IsTrue(logs.Entries.Any(x =>
+            x.Category == "PluginManager" && x.Message.Contains("Creating shadow copy folder")));
+    }
+
+    private void Load(string installed = "Manager.NotInstalled", bool useLiteDb = false, bool shadowCopy = false,
+        CapturingLoggerProvider logs = null)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string> {
@@ -259,7 +272,11 @@ public class PluginManagerTests
             .Build();
         var hostEnvironment = new Mock<IWebHostEnvironment>();
         hostEnvironment.Setup(x => x.ContentRootPath).Returns(Path.GetDirectoryName(_fixture.PluginsFolder)!);
-        var mvcCoreBuilder = new ServiceCollection().AddLogging().AddMvcCore();
+        var mvcCoreBuilder = new ServiceCollection().AddLogging(x =>
+        {
+            if (logs != null)
+                x.AddProvider(logs);
+        }).AddMvcCore();
 
         PluginManager.Load(mvcCoreBuilder, configuration, hostEnvironment.Object, _fixture.CreateContext);
     }

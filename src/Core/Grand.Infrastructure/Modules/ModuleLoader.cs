@@ -49,20 +49,20 @@ public static class ModuleLoader
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void LoadModules(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostingEnvironment)
     {
-        using var loggerFactory = StartupLogging.CreateLoggerFactory(configuration);
         LoadModules(mvcCoreBuilder, configuration, hostingEnvironment,
             (name, mainAssemblyPath, hostAssemblyNames) =>
                 new IsolatedLoadContext(name, mainAssemblyPath, hostAssemblyNames),
-            loggerFactory);
+            () => GetLoggerFactory(mvcCoreBuilder.Services));
     }
 
     /// <param name="createContext">
     ///     Creates a module's own context from its name, main assembly path and the host assembly names; tests
     ///     create collectible ones
     /// </param>
+    /// <param name="getLoggerFactory">The logger factory, asked for only when there are modules to load</param>
     internal static void LoadModules(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration,
         IWebHostEnvironment hostingEnvironment, Func<string, string, ISet<string>, AssemblyLoadContext> createContext,
-        ILoggerFactory loggerFactory)
+        Func<ILoggerFactory> getLoggerFactory)
     {
         var modules = GetFeatureList(configuration);
         if (modules.Count == 0)
@@ -72,7 +72,7 @@ public static class ModuleLoader
 
         var config = new ExtensionsConfig();
         configuration.GetSection("Extensions").Bind(config);
-        var logger = loggerFactory.CreateLogger(LOGGER_NAME);
+        var logger = getLoggerFactory().CreateLogger(LOGGER_NAME);
         var hostAssemblyNames = PluginManager.HostAssemblyNames();
         foreach (var module in modules)
         {
@@ -167,6 +167,13 @@ public static class ModuleLoader
 
         return null;
     }
+
+    /// <summary>
+    ///     The application's logging, with every provider configured so far (console, event log, OpenTelemetry)
+    /// </summary>
+    private static ILoggerFactory GetLoggerFactory(IServiceCollection services)
+        => services.BuildServiceProvider().GetService<ILoggerFactory>()
+           ?? throw new InvalidOperationException("Logger factory not found in services.");
 
     private static string GetModulePath(IWebHostEnvironment hostingEnvironment, string moduleName)
            => Path.Combine(hostingEnvironment.ContentRootPath, MODULES_DIRECTORY, moduleName);

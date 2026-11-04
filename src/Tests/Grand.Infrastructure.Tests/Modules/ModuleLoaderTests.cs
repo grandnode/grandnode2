@@ -132,6 +132,23 @@ public class ModuleLoaderTests
         Assert.IsFalse(ModuleParts(mvcCoreBuilder).Any());
     }
 
+    [TestMethod]
+    public void LoadModules_LogsToTheLoggingProvidersOfTheServices()
+    {
+        //an enabled module without files: nothing is loaded, it is only logged
+        var configuration = new ConfigurationBuilder()
+            .AddInMemoryCollection(new Dictionary<string, string> { ["FeatureManagement:Grand.Module.Absent"] = "true" })
+            .Build();
+        var hostEnvironment = new Mock<IWebHostEnvironment>();
+        hostEnvironment.Setup(x => x.ContentRootPath).Returns(ContentRoot);
+        var mvcCoreBuilder = new ServiceCollection().AddLogging(x => x.AddProvider(_logs)).AddMvcCore();
+
+        ModuleLoader.LoadModules(mvcCoreBuilder, configuration, hostEnvironment.Object);
+
+        Assert.IsTrue(_logs.Entries.Any(x =>
+            x.Category == "ModuleManager" && x.Level == LogLevel.Warning && x.Message.Contains("Grand.Module.Absent")));
+    }
+
     private string ModuleFolder(string moduleName)
     {
         var folder = Path.Combine(ContentRoot, "Modules", moduleName);
@@ -173,7 +190,7 @@ public class ModuleLoaderTests
 
         using var loggerFactory = LoggerFactory.Create(x => x.AddProvider(_logs));
         ModuleLoader.LoadModules(mvcCoreBuilder, configuration, hostEnvironment.Object, _fixture.CreateContext,
-            loggerFactory);
+            () => loggerFactory);
         return mvcCoreBuilder;
     }
 
@@ -189,43 +206,5 @@ public class ModuleLoaderTests
             .Select(x => x.Assembly)
             .Where(x => contexts.Contains(AssemblyLoadContext.GetLoadContext(x)))
             .ToList();
-    }
-
-    private sealed class CapturingLoggerProvider : ILoggerProvider
-    {
-        private readonly List<(LogLevel Level, string Message)> _entries = [];
-
-        public IReadOnlyList<(LogLevel Level, string Message)> Entries
-        {
-            get
-            {
-                lock (_entries)
-                {
-                    return _entries.ToList();
-                }
-            }
-        }
-
-        public ILogger CreateLogger(string categoryName) => new Logger(this);
-
-        public void Dispose()
-        {
-        }
-
-        private sealed class Logger(CapturingLoggerProvider provider) : ILogger
-        {
-            public IDisposable BeginScope<TState>(TState state) where TState : notnull => null;
-
-            public bool IsEnabled(LogLevel logLevel) => true;
-
-            public void Log<TState>(LogLevel logLevel, EventId eventId, TState state, Exception exception,
-                Func<TState, Exception, string> formatter)
-            {
-                lock (provider._entries)
-                {
-                    provider._entries.Add((logLevel, formatter(state, exception)));
-                }
-            }
-        }
     }
 }
