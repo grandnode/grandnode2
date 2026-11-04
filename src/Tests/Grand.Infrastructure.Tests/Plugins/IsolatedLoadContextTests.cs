@@ -161,6 +161,28 @@ public class IsolatedLoadContextTests
     }
 
     [TestMethod]
+    public void Load_AssemblyOfAnotherPluginUsedOnlyInAMethodBody_IsLoadError()
+    {
+        //GetTypes never needs it; without the check the first request running the method would fail
+        var api = _fixture.AddPlugin("Api", "Isolated.Api", "Isolated.Api", """
+            public class ApiPlugin : BasePlugin { }
+            namespace ApiTypes { public class Api { } }
+            """);
+        _fixture.AddPlugin("User", "Isolated.User", "Isolated.User", """
+            public class UserPlugin : BasePlugin { }
+            public static class Uses { public static object M() => new ApiTypes.Api(); }
+            """, api);
+
+        Load("Isolated.Api,Isolated.User");
+
+        Assert.IsTrue(Plugin("Isolated.Api").IsActive);
+        var user = Plugin("Isolated.User");
+        Assert.IsFalse(user.IsActive);
+        Assert.IsNotNull(user.LoadError);
+        Assert.Contains("Isolated.Api", user.LoadError);
+    }
+
+    [TestMethod]
     public void FindPlugin_AssemblyInPluginsContext_FindsThePlugin()
     {
         _fixture.AddPlugin("Find", "Isolated.Find", "Isolated.Find", "public class FindPlugin : BasePlugin { }");

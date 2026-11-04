@@ -62,6 +62,12 @@ public static class PluginLoader
             if (pluginType == null)
                 return Failed(plugin, NoPluginClassError);
 
+            //a reference used only inside a method body is not needed by GetTypes; resolved here, one the context
+            //cannot provide (such as another plugin's assembly) fails the load instead of a later request
+            foreach (var assembly in assemblies.Where(IsPluginCode))
+            foreach (var reference in assembly.GetReferencedAssemblies())
+                context.LoadFromAssemblyName(reference);
+
             plugin.ReferencedAssembly = main;
             plugin.PluginType = pluginType;
             return plugin;
@@ -146,6 +152,16 @@ public static class PluginLoader
         if (unidentified != null)
             throw new GrandException(
                 $"The plugin folder '{unidentified.Folder}' could not be loaded: {unidentified.Message}");
+    }
+
+    /// <summary>
+    ///     The plugin's own code, built against GrandNode; a third-party library may reference optional
+    ///     assemblies it never loads, so its references are left to the runtime
+    /// </summary>
+    private static bool IsPluginCode(Assembly assembly)
+    {
+        var core = typeof(IPlugin).Assembly.GetName().Name;
+        return assembly.GetReferencedAssemblies().Any(x => string.Equals(x.Name, core, StringComparison.OrdinalIgnoreCase));
     }
 
     private static bool IsPluginClass(Type type)
