@@ -43,15 +43,21 @@ public static class PluginExtensions
     /// <summary>
     ///     Whether the assembly may contribute types: true unless it belongs only to plugins that are not
     ///     active (not installed, or failed to load). Any assembly of a plugin counts, not only the one
-    ///     carrying <see cref="PluginInfoAttribute" />; a dependency several plugins ship counts while one
-    ///     of them is active.
+    ///     carrying <see cref="PluginInfoAttribute" />. An assembly in a plugin's own load context belongs to that
+    ///     plugin alone; one outside every plugin's context, matched by name, counts while any plugin shipping
+    ///     that name is active.
     /// </summary>
     public static bool OnlyInstalledPlugins(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly);
 
+        var plugins = PluginManager.ReferencedPlugins?.ToList();
+        var owner = PluginManager.OwnerOf(assembly, plugins);
+        if (owner != null)
+            return owner.IsActive;
+
         var name = assembly.GetName().Name;
-        var owners = PluginManager.ReferencedPlugins?
+        var owners = plugins?
             .Where(x => x.AssemblyNames.Contains(name, StringComparer.OrdinalIgnoreCase))
             .ToList();
 

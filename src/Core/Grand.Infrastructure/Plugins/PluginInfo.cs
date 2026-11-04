@@ -1,6 +1,7 @@
 ﻿using Grand.SharedKernel;
 using Microsoft.Extensions.DependencyInjection;
 using System.Reflection;
+using System.Runtime.Loader;
 
 namespace Grand.Infrastructure.Plugins;
 
@@ -54,6 +55,12 @@ public sealed class PluginInfo
     ///     on demand (the plugin loaded at startup, is built for another version, or was not found by a scan)
     /// </summary>
     internal PluginCandidate Candidate { get; set; }
+
+    /// <summary>
+    ///     The plugin's own load context, once loading it began; it holds the plugin's assemblies, also those of
+    ///     a plugin that failed to load. Null for a plugin that was not loaded.
+    /// </summary>
+    internal AssemblyLoadContext LoadContext { get; set; }
 
     /// <summary>
     ///     The original assembly file that a shadow copy was made from it

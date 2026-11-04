@@ -11,7 +11,8 @@ public class ExtensionsConfig
     public bool DisableUploadExtensions { get; set; }
 
     /// <summary>
-    ///     Gets or sets a value indicating whether copy dll plugin files to /Plugins/bin on application startup
+    ///     Gets or sets a value indicating whether each installed plugin's folder is copied to /Plugins/bin/{folder}
+    ///     on application startup and loaded from there
     /// </summary>
     public bool PluginShadowCopy { get; set; }
 

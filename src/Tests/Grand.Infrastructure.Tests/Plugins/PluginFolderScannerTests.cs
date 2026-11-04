@@ -55,7 +55,7 @@ public class PluginFolderScannerTests
     }
 
     [TestMethod]
-    public void Scan_SameDependencyTwoVersions_KeepsHigherVersionOnce()
+    public void Scan_SameDependencyTwoVersions_EachFolderKeepsItsOwn()
     {
         AddPlugin("A", "Scan.A", "Scan.A");
         AddPlugin("B", "Scan.B", "Scan.B");
@@ -64,15 +64,15 @@ public class PluginFolderScannerTests
 
         var result = Scan();
 
+        //each plugin loads into its own context, so neither copy has to give way
         Assert.HasCount(2, result.Plugins);
         var a = result.Plugins.Single(x => x.Folder.Name == "A");
         var b = result.Plugins.Single(x => x.Folder.Name == "B");
-        CollectionAssert.DoesNotContain(a.AssemblyPaths.ToList(), low);
+        CollectionAssert.Contains(a.AssemblyPaths.ToList(), low);
         CollectionAssert.Contains(b.AssemblyPaths.ToList(), high);
-        Assert.AreEqual(1, result.Plugins.SelectMany(x => x.AssemblyPaths)
-            .Count(x => Path.GetFileName(x) == "Shared.Lib.dll"));
         Assert.Contains("Shared.Lib", a.AssemblyNames);
-        Assert.IsTrue(result.Warnings.Any(x => x.Contains("Shared.Lib") && x.Contains("'A'") && x.Contains("'B'")));
+        Assert.Contains("Shared.Lib", b.AssemblyNames);
+        Assert.IsEmpty(result.Warnings);
     }
 
     [TestMethod]

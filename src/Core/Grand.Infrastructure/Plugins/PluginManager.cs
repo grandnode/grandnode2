@@ -8,7 +8,6 @@ using Microsoft.AspNetCore.Mvc.ApplicationParts;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
-using System.Collections.Concurrent;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Loader;
@@ -34,12 +33,11 @@ public static class PluginManager
     private static DirectoryInfo _pluginFolder;
     private static ExtensionsConfig _config;
     private static ILogger _logger;
-    private static Func<AssemblyLoadContext, AssemblyName, Assembly> _resolveDependency;
-    private static AssemblyLoadContext _resolveDependencyContext;
 
     //what LoadForInstall needs to load a plugin as Load would have
-    private static AssemblyLoadContext _loadContext;
-    private static Func<FileInfo, FileInfo> _prepareFile;
+    private static Func<string, string, ISet<string>, AssemblyLoadContext> _createContext;
+    private static ISet<string> _hostAssemblyNames;
+    private static Func<PluginCandidate, DirectoryInfo> _prepareFolder;
     private static bool _useLiteDb;
 
     #endregion
@@ -71,12 +69,17 @@ public static class PluginManager
     [MethodImpl(MethodImplOptions.NoInlining)]
     public static void Load(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration, IWebHostEnvironment hostEnvironment)
     {
-        Load(mvcCoreBuilder, configuration, hostEnvironment, AssemblyLoadContext.Default);
+        Load(mvcCoreBuilder, configuration, hostEnvironment,
+            (name, mainAssemblyPath, hostAssemblyNames) =>
+                new IsolatedLoadContext(name, mainAssemblyPath, hostAssemblyNames));
     }
 
-    /// <param name="loadContext">The context plugin assemblies are loaded into; tests pass a collectible one</param>
+    /// <param name="createContext">
+    ///     Creates a plugin's own context from its name, main assembly path and the host assembly names; tests
+    ///     create collectible ones
+    /// </param>
     internal static void Load(IMvcCoreBuilder mvcCoreBuilder, IConfiguration configuration,
-        IWebHostEnvironment hostEnvironment, AssemblyLoadContext loadContext)
+        IWebHostEnvironment hostEnvironment, Func<string, string, ISet<string>, AssemblyLoadContext> createContext)
     {
         _config = new ExtensionsConfig();
         configuration.GetSection("Extensions").Bind(_config);
@@ -102,10 +105,10 @@ public static class PluginManager
             _logger.LogInformation("Creating shadow copy folder and querying for dlls");
             Directory.CreateDirectory(_pluginFolder.FullName);
             Directory.CreateDirectory(_copyFolder.FullName);
-            var binFiles = _copyFolder.GetFiles("*", SearchOption.AllDirectories);
             if (_config.PluginShadowCopy)
-                //clear out shadow plugins
-                foreach (var f in binFiles)
+                //clear out the files of the flat layout older versions shadow copied to; each plugin's own
+                //folder below is kept, and its unchanged files are not copied again
+                foreach (var f in _copyFolder.GetFiles("*", SearchOption.TopDirectoryOnly))
                 {
                     _logger.LogInformation("Deleting {FName}", f.Name);
                     try
@@ -123,7 +126,8 @@ public static class PluginManager
                 }
 
             //plan from metadata first: nothing is loaded for a folder that cannot be loaded
-            var scan = PluginFolderScanner.Scan(_pluginFolder, _config.PluginSkipLoadingPattern, HostAssemblyNames());
+            var hostAssemblyNames = HostAssemblyNames();
+            var scan = PluginFolderScanner.Scan(_pluginFolder, _config.PluginSkipLoadingPattern, hostAssemblyNames);
             foreach (var warning in scan.Warnings)
                 _logger.LogWarning("{PluginWarning}", warning);
 
@@ -134,20 +138,9 @@ public static class PluginManager
 
             var referencedPlugins = new List<PluginInfo>();
 
-            //a dependency can be asked for twice (resolved for one plugin, then loaded by the one shipping it);
-            //it is copied once
-            var shadowCopies = new ConcurrentDictionary<string, FileInfo>(StringComparer.OrdinalIgnoreCase);
-            Func<FileInfo, FileInfo> prepareFile = _config.PluginShadowCopy
-                ? file => shadowCopies.GetOrAdd(file.FullName,
-                    _ => ShadowCopyFile(file, Directory.CreateDirectory(_copyFolder.FullName)))
-                : file => file;
-
-            var compatible = scan.Plugins
-                .Where(x => x.Manifest.SupportedVersion == GrandVersion.SupportedPluginVersion)
-                .ToList();
-            ResolveDependenciesFrom(compatible, loadContext, prepareFile);
-            _loadContext = loadContext;
-            _prepareFile = prepareFile;
+            _createContext = createContext;
+            _hostAssemblyNames = hostAssemblyNames;
+            _prepareFolder = _config.PluginShadowCopy ? ShadowCopyFolder : candidate => candidate.Folder;
             _useLiteDb = dbConfig.UseLiteDb;
 
             foreach (var candidate in scan.Plugins)
@@ -160,9 +153,6 @@ public static class PluginManager
                     continue;
                 }
 
-                if (!_config.PluginShadowCopy)
-                    DeleteDepsFiles(candidate.Folder);
-
                 var installed = installedPluginSystemNames.Contains(candidate.Manifest.SystemName,
                     StringComparer.OrdinalIgnoreCase);
                 if (!installed)
@@ -174,7 +164,7 @@ public static class PluginManager
                     continue;
                 }
 
-                var plugin = PluginLoader.Load(candidate, true, loadContext, prepareFile);
+                var plugin = PluginLoader.Load(candidate, true, ContextFactory(candidate), _prepareFolder);
                 referencedPlugins.Add(plugin);
 
                 //controllers and views only for an installed plugin - an uninstalled one must not be routable
@@ -216,9 +206,9 @@ public static class PluginManager
 
     /// <summary>
     ///     Loads a plugin that was listed without being loaded (an uninstalled one), so it can be installed by the
-    ///     running process: into the context <see cref="Load" /> uses, with its LiteDB mappers built. Its startup
-    ///     classes, handlers and controllers are registered by the restart that follows the install, and until then
-    ///     it stays not installed, so it contributes no types to any scan.
+    ///     running process: into a context of its own, as <see cref="Load" /> would, with its LiteDB mappers built.
+    ///     Its startup classes, handlers and controllers are registered by the restart that follows the install, and
+    ///     until then it stays not installed, so it contributes no types to any scan.
     ///     Does nothing for a plugin already loaded, failed or with nothing to load; safe from concurrent requests.
     ///     Never throws because of the plugin: its fault becomes <see cref="PluginInfo.LoadError" />.
     /// </summary>
@@ -230,11 +220,11 @@ public static class PluginManager
         {
             var candidate = plugin.Candidate;
             if (plugin.ReferencedAssembly != null || plugin.LoadError != null || candidate == null ||
-                _loadContext == null)
+                _createContext == null)
                 return plugin;
 
             _logger?.LogInformation("Loading plugin {PluginSystemName} to install it", plugin.SystemName);
-            var loaded = PluginLoader.Load(candidate, plugin.Installed, _loadContext, _prepareFile);
+            var loaded = PluginLoader.Load(candidate, plugin.Installed, ContextFactory(candidate), _prepareFolder);
             //warming here races with concurrent LiteDB reads: every entity mapper lives in one shared
             //BsonMapper.Global dictionary, read without a lock, so a request reading any type while these few
             //inserts run can fail. Accepted: the window is a few inserts during an admin-initiated install, and
@@ -244,6 +234,7 @@ public static class PluginManager
 
             plugin.PluginFileName = loaded.PluginFileName;
             plugin.AssemblyNames = loaded.AssemblyNames;
+            plugin.LoadContext = loaded.LoadContext;
             plugin.LoadError = loaded.LoadError;
             plugin.Candidate = null;
             if (loaded.LoadError != null)
@@ -273,7 +264,8 @@ public static class PluginManager
     }
 
     /// <summary>
-    ///     Find the plugin an assembly belongs to
+    ///     Find the plugin an assembly belongs to: the plugin whose load context holds it, or, for an assembly
+    ///     outside every plugin's context, the plugin with that main assembly or shipping an assembly of that name
     /// </summary>
     /// <param name="assembly">Assembly</param>
     /// <returns>Plugin descriptor if exists; otherwise null</returns>
@@ -281,10 +273,30 @@ public static class PluginManager
     {
         ArgumentNullException.ThrowIfNull(assembly);
 
-        return ReferencedPlugins?.FirstOrDefault(plugin => plugin.ReferencedAssembly != null
-                                                           && plugin.ReferencedAssembly.FullName!.Equals(
-                                                               assembly.FullName,
-                                                               StringComparison.OrdinalIgnoreCase));
+        var plugins = ReferencedPlugins?.ToList();
+        if (plugins == null)
+            return null;
+
+        var name = assembly.GetName().Name;
+        return OwnerOf(assembly, plugins)
+               ?? plugins.FirstOrDefault(plugin => plugin.ReferencedAssembly != null
+                                                   && plugin.ReferencedAssembly.FullName!.Equals(assembly.FullName,
+                                                       StringComparison.OrdinalIgnoreCase))
+               ?? plugins.FirstOrDefault(plugin =>
+                   plugin.AssemblyNames.Contains(name, StringComparer.OrdinalIgnoreCase));
+    }
+
+    /// <summary>
+    ///     The plugin whose own load context holds the assembly; null for an assembly of the default context or
+    ///     of a context no plugin owns
+    /// </summary>
+    internal static PluginInfo OwnerOf(Assembly assembly, IEnumerable<PluginInfo> plugins)
+    {
+        var context = AssemblyLoadContext.GetLoadContext(assembly);
+        if (context == null || context == AssemblyLoadContext.Default || plugins == null)
+            return null;
+
+        return plugins.FirstOrDefault(plugin => ReferenceEquals(plugin.LoadContext, context));
     }
 
 
@@ -303,37 +315,29 @@ public static class PluginManager
     #region Utilities
 
     /// <summary>
-    ///     Simple names of the assemblies the application itself provides; a plugin's copy of one is never loaded
+    ///     Simple names of the assemblies the application itself provides (its trusted platform assemblies and
+    ///     whatever the default context has loaded); a plugin's copy of one is never loaded
     /// </summary>
-    private static HashSet<string> HostAssemblyNames()
+    internal static HashSet<string> HostAssemblyNames()
     {
         var trusted = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string ?? string.Empty;
-        return trusted.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
+        var names = trusted.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
             .Select(Path.GetFileNameWithoutExtension)
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
+        names.UnionWith(AssemblyLoadContext.Default.Assemblies
+            .Select(x => x.GetName().Name)
+            .Where(x => !string.IsNullOrEmpty(x)));
+        return names;
     }
 
     /// <summary>
-    ///     When two plugins ship the same dependency only one copy is loaded (see <see cref="PluginFolderScanner" />).
-    ///     The plugin whose copy was dropped finds the kept one here, also before the plugin shipping it is loaded.
+    ///     Creates the candidate's own context once its folder is prepared and its main assembly path is known
     /// </summary>
-    private static void ResolveDependenciesFrom(IEnumerable<PluginCandidate> plugins, AssemblyLoadContext loadContext,
-        Func<FileInfo, FileInfo> prepareFile)
+    private static Func<string, AssemblyLoadContext> ContextFactory(PluginCandidate candidate)
     {
-        var paths = plugins
-            .SelectMany(x => x.AssemblyPaths)
-            .GroupBy(Path.GetFileNameWithoutExtension, StringComparer.OrdinalIgnoreCase)
-            .ToDictionary(x => x.Key, x => x.First(), StringComparer.OrdinalIgnoreCase);
-
-        if (_resolveDependency != null)
-            _resolveDependencyContext.Resolving -= _resolveDependency;
-
-        _resolveDependency = (context, name) =>
-            name.Name != null && paths.TryGetValue(name.Name, out var path)
-                ? context.LoadFromAssemblyPath(prepareFile(new FileInfo(path)).FullName)
-                : null;
-        _resolveDependencyContext = loadContext;
-        loadContext.Resolving += _resolveDependency;
+        var createContext = _createContext;
+        var hostAssemblyNames = _hostAssemblyNames;
+        return mainAssemblyPath => createContext(candidate.Manifest.SystemName, mainAssemblyPath, hostAssemblyNames);
     }
 
     /// <summary>
@@ -345,7 +349,7 @@ public static class PluginManager
     {
         try
         {
-            var assemblies = _loadContext.Assemblies
+            var assemblies = plugin.LoadContext.Assemblies
                 .Where(x => plugin.AssemblyNames.Contains(x.GetName().Name, StringComparer.OrdinalIgnoreCase))
                 .ToList();
             LiteDBMapperWarmup.Warm(new TypeSearcher().ClassesOfType(typeof(BaseEntity), assemblies));
@@ -357,89 +361,60 @@ public static class PluginManager
         }
     }
 
-    private static void DeleteDepsFiles(DirectoryInfo folder)
+    /// <summary>
+    ///     Copies the plugin's folder, as a whole, to its own folder under Plugins/bin, so the plugin is loaded from
+    ///     the copy and its own folder can be replaced while the application runs. A file is copied only when its
+    ///     size or last write time differs from the copy's. Only this plugin's copy is touched.
+    /// </summary>
+    /// <returns>The folder to load the plugin from</returns>
+    private static DirectoryInfo ShadowCopyFolder(PluginCandidate candidate)
     {
-        //remove deps.json files
-        try
+        var source = candidate.Folder;
+        var target = new DirectoryInfo(Path.Combine(_copyFolder.FullName, source.Name));
+
+        var copies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var file in source.GetFiles("*", SearchOption.AllDirectories))
         {
-            foreach (var f in folder.GetFiles("*.deps.json", SearchOption.TopDirectoryOnly))
-                try
-                {
-                    File.Delete(f.FullName);
-                }
-                catch (Exception exc)
-                {
-                    _logger.LogError(exc, "PluginManager");
-                }
+            var copy = new FileInfo(Path.Combine(target.FullName, Path.GetRelativePath(source.FullName, file.FullName)));
+            copies.Add(copy.FullName);
+            if (copy.Exists && copy.Length == file.Length && copy.LastWriteTimeUtc == file.LastWriteTimeUtc)
+                continue;
+
+            Directory.CreateDirectory(copy.DirectoryName!);
+            CopyFile(file, copy);
         }
-        catch (Exception exc)
-        {
-            _logger.LogError(exc, "PluginManager");
-        }
+
+        //what the plugin no longer ships, so its context cannot resolve it
+        foreach (var stale in target.GetFiles("*", SearchOption.AllDirectories).Where(x => !copies.Contains(x.FullName)))
+            try
+            {
+                stale.Delete();
+            }
+            catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+            {
+                _logger.LogWarning(ex, "Stale shadow copy {FullName} could not be deleted", stale.FullName);
+            }
+
+        return target;
     }
 
-    /// <summary>
-    ///     Used to initialize plugins when running in Medium Trust
-    /// </summary>
-    /// <param name="plug"></param>
-    /// <param name="shadowCopyPlugFolder"></param>
-    /// <returns></returns>
-    private static FileInfo ShadowCopyFile(FileInfo plug, DirectoryInfo shadowCopyPlugFolder)
+    private static void CopyFile(FileInfo source, FileInfo copy)
     {
-        var shouldCopy = true;
-        var shadowCopiedPlug = new FileInfo(Path.Combine(shadowCopyPlugFolder.FullName, plug.Name));
-
-        //check if a shadow copied file already exists and if it does, check if it's updated, if not don't copy
-        if (shadowCopiedPlug.Exists)
-        {
-            //it's better to use LastWriteTimeUTC, but not all file systems have this property
-            //maybe it is better to compare file hash?
-            var areFilesIdentical = shadowCopiedPlug.CreationTimeUtc.Ticks >= plug.CreationTimeUtc.Ticks;
-            if (areFilesIdentical)
-            {
-                _logger.LogInformation("Not copying; files appear identical: {Name}", shadowCopiedPlug.Name);
-                return shadowCopiedPlug;
-            }
-
-            //delete an existing file
-            _logger.LogInformation("New plugin found; Deleting the old file: {Name}", shadowCopiedPlug.Name);
-            try
-            {
-                File.Delete(shadowCopiedPlug.FullName);
-            }
-            catch (Exception ex)
-            {
-                shouldCopy = false;
-                _logger.LogError(ex, "PluginManager");
-            }
-        }
-
-        if (!shouldCopy) return shadowCopiedPlug;
         try
         {
-            File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
+            File.Copy(source.FullName, copy.FullName, true);
         }
-        catch (IOException)
+        catch (IOException) when (copy.Exists)
         {
-            _logger.LogInformation("{FullName} is locked, attempting to rename", shadowCopiedPlug.FullName);
-            //this occurs when the files are locked,
-            //for some reason devenv locks plugin files some times and for another crazy reason you are allowed to rename them
-            //which releases the lock, so that it what we are doing here, once it's renamed, we can re-shadow copy
-            try
-            {
-                var oldFile = shadowCopiedPlug.FullName + Guid.NewGuid().ToString("N") + ".old";
-                File.Move(shadowCopiedPlug.FullName, oldFile);
-            }
-            catch (IOException exc)
-            {
-                throw new IOException(shadowCopiedPlug.FullName + " rename failed, cannot initialize plugin", exc);
-            }
-
-            //ok, we've made it this far, now retry the shadow copy
-            File.Copy(plug.FullName, shadowCopiedPlug.FullName, true);
+            //a copy in use (another process still running from it, or a debugger) cannot be overwritten, but it
+            //can be renamed, which frees its name; the renamed file is removed as stale by a later start
+            _logger.LogInformation("{FullName} is locked, attempting to rename", copy.FullName);
+            File.Move(copy.FullName, copy.FullName + "." + Guid.NewGuid().ToString("N") + ".old");
+            File.Copy(source.FullName, copy.FullName, true);
         }
 
-        return shadowCopiedPlug;
+        //compared on the next start; not every file system keeps it on copy
+        File.SetLastWriteTimeUtc(copy.FullName, source.LastWriteTimeUtc);
     }
 
     /// <summary>

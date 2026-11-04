@@ -13,36 +13,42 @@ public static class PluginLoader
     public const string NoPluginClassError = "has no IPlugin class";
 
     /// <summary>
-    ///     Loads the candidate's assemblies into <paramref name="context" /> and finds its plugin class.
+    ///     Loads the candidate's assemblies into a load context of its own and finds its plugin class.
     /// </summary>
-    /// <param name="prepareFile">The shadow-copy step; the file to load in place of the given one</param>
+    /// <param name="createContext">
+    ///     Creates the plugin's context for the main assembly at the given path (in the prepared folder)
+    /// </param>
+    /// <param name="prepareFolder">The shadow-copy step; the folder to load the plugin from in place of its own</param>
     /// <returns>
     ///     The plugin. When <see cref="PluginInfo.LoadError" /> is set, <see cref="PluginInfo.PluginType" /> and
     ///     <see cref="PluginInfo.ReferencedAssembly" /> are null.
     /// </returns>
-    public static PluginInfo Load(PluginCandidate candidate, bool installed, AssemblyLoadContext context,
-        Func<FileInfo, FileInfo> prepareFile)
+    public static PluginInfo Load(PluginCandidate candidate, bool installed,
+        Func<string, AssemblyLoadContext> createContext, Func<PluginCandidate, DirectoryInfo> prepareFolder)
     {
         ArgumentNullException.ThrowIfNull(candidate);
-        ArgumentNullException.ThrowIfNull(context);
-        ArgumentNullException.ThrowIfNull(prepareFile);
+        ArgumentNullException.ThrowIfNull(createContext);
+        ArgumentNullException.ThrowIfNull(prepareFolder);
 
         var plugin = Describe(candidate, installed);
         try
         {
-            Assembly main = null;
-            var assemblies = new List<Assembly>();
-            foreach (var path in candidate.AssemblyPaths)
-            {
-                var file = prepareFile(new FileInfo(path));
-                var assembly = LoadFromPath(context, file.FullName);
-                assemblies.Add(assembly);
-                if (!string.Equals(path, candidate.MainAssemblyPath, StringComparison.OrdinalIgnoreCase))
-                    continue;
+            var folder = prepareFolder(candidate);
+            string Prepared(string path) =>
+                Path.Combine(folder.FullName, Path.GetRelativePath(candidate.Folder.FullName, path));
 
-                main = assembly;
-                plugin.PluginFileName = file.Name;
-            }
+            var mainPath = Prepared(candidate.MainAssemblyPath);
+            var context = createContext(mainPath);
+            plugin.LoadContext = context;
+
+            var main = context.LoadFromAssemblyPath(mainPath);
+            plugin.PluginFileName = Path.GetFileName(mainPath);
+
+            //the others by name, so the context resolves each as it would for a reference (deps.json first)
+            var assemblies = new List<Assembly> { main };
+            foreach (var path in candidate.AssemblyPaths.Where(x =>
+                         !string.Equals(x, candidate.MainAssemblyPath, StringComparison.OrdinalIgnoreCase)))
+                assemblies.Add(context.LoadFromAssemblyName(AssemblyName.GetAssemblyName(Prepared(path))));
 
             //every assembly is loaded before any type is resolved, so the order of the files does not matter
             Type pluginType = null;
@@ -66,8 +72,8 @@ public static class PluginLoader
         }
         catch (Exception ex)
         {
-            //FileLoadException, FileNotFoundException, BadImageFormatException and whatever else a plugin's
-            //files can cause; the plugin is reported, the application goes on
+            //FileLoadException, FileNotFoundException, BadImageFormatException, an unresolvable deps.json and
+            //whatever else a plugin's files can cause; the plugin is reported, the application goes on
             return Failed(plugin, ex.Message);
         }
     }
@@ -140,17 +146,6 @@ public static class PluginLoader
         if (unidentified != null)
             throw new GrandException(
                 $"The plugin folder '{unidentified.Folder}' could not be loaded: {unidentified.Message}");
-    }
-
-    /// <summary>
-    ///     A file already loaded into the context (it resolved as another plugin's dependency) is reused;
-    ///     loading it again would fail with "Assembly with same name is already loaded".
-    /// </summary>
-    private static Assembly LoadFromPath(AssemblyLoadContext context, string path)
-    {
-        var loaded = context.Assemblies.FirstOrDefault(x =>
-            string.Equals(x.Location, path, StringComparison.OrdinalIgnoreCase));
-        return loaded ?? context.LoadFromAssemblyPath(path);
     }
 
     private static bool IsPluginClass(Type type)

@@ -188,7 +188,7 @@ public class PluginExtensionsTests
 
     [TestMethod]
     [DoNotParallelize]
-    public void OnlyInstalledPlugins_DependencySharedWithInstalledPlugin_ReturnsTrue()
+    public void OnlyInstalledPlugins_DependencyShippedByInstalledAndUninstalledPlugin_OnlyTheInstalledCopyCounts()
     {
         using var fixture = new PluginFolderFixture();
         fixture.AddPlugin("A", "Ext.A", "Ext.A", "public class APlugin : BasePlugin { }");
@@ -202,7 +202,33 @@ public class PluginExtensionsTests
         try
         {
             PluginManager.ReferencedPlugins = [uninstalled, installed];
-            Assert.IsTrue(PluginExtensions.OnlyInstalledPlugins(fixture.Loaded("Ext.Shared")));
+            //each plugin loaded its own copy into its own context
+            Assert.IsTrue(PluginExtensions.OnlyInstalledPlugins(PluginFolderFixture.Loaded(installed, "Ext.Shared")));
+            Assert.IsFalse(PluginExtensions.OnlyInstalledPlugins(PluginFolderFixture.Loaded(uninstalled, "Ext.Shared")));
+        }
+        finally
+        {
+            PluginManager.ReferencedPlugins = referencedPlugins;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void OnlyInstalledPlugins_AssemblyOutsidePluginContextsSharedWithInstalledPlugin_ReturnsTrue()
+    {
+        //an assembly no plugin context holds is matched by name, as before plugins had contexts of their own
+        var name = typeof(SampleBasePlugin).Assembly.GetName().Name;
+        var uninstalled = new PluginInfo { SystemName = "Uninstalled", AssemblyNames = new HashSet<string> { name } };
+        var installed = new PluginInfo
+            { SystemName = "Installed", Installed = true, AssemblyNames = new HashSet<string> { name } };
+
+        var referencedPlugins = PluginManager.ReferencedPlugins;
+        try
+        {
+            PluginManager.ReferencedPlugins = [uninstalled];
+            Assert.IsFalse(PluginExtensions.OnlyInstalledPlugins(typeof(SampleBasePlugin).Assembly));
+            PluginManager.ReferencedPlugins = [uninstalled, installed];
+            Assert.IsTrue(PluginExtensions.OnlyInstalledPlugins(typeof(SampleBasePlugin).Assembly));
         }
         finally
         {
