@@ -138,7 +138,10 @@ public sealed class PluginInfo
         if (PluginType == null)
             throw new GrandException(LoadError != null
                 ? $"Plugin {SystemName} could not be loaded: {LoadError}"
-                : $"Plugin {SystemName} has no IPlugin class");
+                : SupportedVersion != GrandVersion.SupportedPluginVersion
+                    //listed from its manifest and never loaded
+                    ? $"Plugin {SystemName} was built for GrandNode version {SupportedVersion ?? "(unknown)"} and is not compatible with the current version {GrandVersion.SupportedPluginVersion}"
+                    : $"Plugin {SystemName} has no IPlugin class");
 
         object instance;
         try

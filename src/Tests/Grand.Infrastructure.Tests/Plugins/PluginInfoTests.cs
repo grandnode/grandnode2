@@ -34,10 +34,24 @@ public class PluginInfoTests
     public void Instance_NoPluginType_ThrowsGrandException()
     {
         using var provider = new ServiceCollection().BuildServiceProvider();
-        var info = new PluginInfo { SystemName = "Empty" };
+        var info = new PluginInfo { SystemName = "Empty", SupportedVersion = GrandVersion.SupportedPluginVersion };
 
         var ex = Assert.Throws<GrandException>(() => info.Instance(provider));
 
         Assert.AreEqual("Plugin Empty has no IPlugin class", ex.Message);
+    }
+
+    [TestMethod]
+    public void Instance_IncompatiblePlugin_SaysWhichVersionItWasBuiltFor()
+    {
+        using var provider = new ServiceCollection().BuildServiceProvider();
+        //an incompatible plugin is listed from its manifest and never loaded
+        var info = new PluginInfo { SystemName = "Old", SupportedVersion = "1.0" };
+
+        var ex = Assert.Throws<GrandException>(() => info.Instance(provider));
+
+        Assert.AreEqual(
+            $"Plugin Old was built for GrandNode version 1.0 and is not compatible with the current version {GrandVersion.SupportedPluginVersion}",
+            ex.Message);
     }
 }
