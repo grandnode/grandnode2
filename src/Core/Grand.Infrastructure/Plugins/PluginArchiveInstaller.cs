@@ -51,12 +51,16 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
                 throw new GrandException(
                     $"This plugin doesn't support the current version - {GrandVersion.SupportedPluginVersion}");
 
-            if (IsSystemNameUsedByAnotherFolder(manifest.SystemName, folderName))
+            //an existing folder is replaced under its own name, also when the archive spells it in another case
+            var targetName = ExistingFolderName(folderName) ?? folderName;
+            CheckTargetHoldsSamePlugin(targetName, manifest.SystemName);
+
+            if (IsSystemNameUsedByAnotherFolder(manifest.SystemName, targetName))
                 throw new GrandException(
                     $"A plugin with the system name '{manifest.SystemName}' is already installed in another folder.");
 
-            Replace(sourceFolder, Path.Combine(pluginsPath, folderName), Path.Combine(tempRoot, PreviousFolderName));
-            return new PluginArchiveResult(folderName, manifest);
+            Replace(sourceFolder, Path.Combine(pluginsPath, targetName), Path.Combine(tempRoot, PreviousFolderName));
+            return new PluginArchiveResult(targetName, manifest);
         }
         catch (RollbackFailedException)
         {
@@ -249,6 +253,40 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
         };
     }
 
+    /// <summary>
+    ///     The exact name of the plugin folder that <paramref name="folderName" /> names, compared case-insensitively
+    ///     on every platform; the folder with exactly that name wins when several match. Null when there is none.
+    /// </summary>
+    private string ExistingFolderName(string folderName)
+    {
+        if (!Directory.Exists(pluginsPath))
+            return null;
+
+        var matches = Directory.GetDirectories(pluginsPath).Select(Path.GetFileName)
+            .Where(x => !IsReservedFolder(x) && string.Equals(x, folderName, StringComparison.OrdinalIgnoreCase))
+            .Order(StringComparer.Ordinal)
+            .ToList();
+
+        return matches.FirstOrDefault(x => string.Equals(x, folderName, StringComparison.Ordinal))
+               ?? matches.FirstOrDefault();
+    }
+
+    /// <summary>
+    ///     An existing folder may only be replaced by the plugin it holds; a folder without a readable plugin
+    ///     (an earlier broken upload) may be replaced by any.
+    /// </summary>
+    private void CheckTargetHoldsSamePlugin(string targetName, string systemName)
+    {
+        var target = Path.Combine(pluginsPath, targetName);
+        if (!Directory.Exists(target))
+            return;
+
+        var existing = ReadSystemNames(target);
+        if (existing.Count > 0 && !existing.Contains(systemName, StringComparer.OrdinalIgnoreCase))
+            throw new GrandException(
+                $"The folder '{targetName}' holds the plugin '{string.Join(", ", existing)}' and cannot be replaced by the plugin '{systemName}'. Rename the plugin folder in the archive.");
+    }
+
     private bool IsSystemNameUsedByAnotherFolder(string systemName, string folderName)
     {
         if (!Directory.Exists(pluginsPath))
@@ -260,24 +298,34 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
             if (IsReservedFolder(name) || string.Equals(name, folderName, StringComparison.OrdinalIgnoreCase))
                 continue;
 
-            foreach (var dll in Directory.GetFiles(directory, "*.dll", SearchOption.TopDirectoryOnly))
-            {
-                try
-                {
-                    var existing = PluginManifestReader.Read(dll);
-                    if (existing != null && string.Equals(existing.SystemName, systemName,
-                            StringComparison.OrdinalIgnoreCase))
-                        return true;
-                }
-                catch (Exception ex) when (ex is IOException or BadImageFormatException
-                                               or UnauthorizedAccessException)
-                {
-                    //an unreadable file in another plugin folder is not the uploaded plugin's concern
-                }
-            }
+            if (ReadSystemNames(directory).Contains(systemName, StringComparer.OrdinalIgnoreCase))
+                return true;
         }
 
         return false;
+    }
+
+    /// <summary>
+    ///     The system names declared by the manifests at the top of an installed plugin folder
+    /// </summary>
+    private static List<string> ReadSystemNames(string folder)
+    {
+        var names = new List<string>();
+        foreach (var dll in Directory.GetFiles(folder, "*.dll", SearchOption.TopDirectoryOnly))
+        {
+            try
+            {
+                var manifest = PluginManifestReader.Read(dll);
+                if (!string.IsNullOrWhiteSpace(manifest?.SystemName))
+                    names.Add(manifest.SystemName);
+            }
+            catch (Exception ex) when (ex is IOException or BadImageFormatException or UnauthorizedAccessException)
+            {
+                //an unreadable file in an installed folder is not the uploaded plugin's concern
+            }
+        }
+
+        return names;
     }
 
     /// <summary>
@@ -340,7 +388,7 @@ public sealed class PluginArchiveInstaller(string pluginsPath, ILogger logger)
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
             //the previous plugin version moved here can hold an assembly this process has loaded;
-            //it is not loaded from here on the next start and the next upload removes it
+            //it is not loaded from here on the next start, and it stays here until an operator removes it
             logger.LogWarning(ex, "The temporary upload folder {TempDirectory} could not be deleted", tempRoot);
         }
     }

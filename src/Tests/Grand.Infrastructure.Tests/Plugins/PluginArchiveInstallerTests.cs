@@ -187,6 +187,48 @@ public class PluginArchiveInstallerTests
     }
 
     [TestMethod]
+    public void Install_IntoFolderOfAnotherPlugin_IsRejectedAndLeavesItUntouched()
+    {
+        var existing = BuildPluginFolder("Payments.StripeCheckout", "Payments.StripeCheckout");
+        var target = Path.Combine(_plugins, "Payments.StripeCheckout");
+        Directory.CreateDirectory(target);
+        File.Copy(Path.Combine(existing, "Payments.StripeCheckout.dll"),
+            Path.Combine(target, "Payments.StripeCheckout.dll"));
+        File.WriteAllText(Path.Combine(target, "keep.txt"), "keep");
+        var before = Hash(target);
+
+        var other = BuildPluginFolder("Payments.StripeCheckout", "Other");
+        var ex = Assert.ThrowsExactly<GrandException>(() => CreateInstaller().Install(ZipFolder(other)));
+
+        Assert.Contains("Payments.StripeCheckout", ex.Message);
+        Assert.Contains("Other", ex.Message);
+        Assert.AreEqual(before, Hash(target));
+        Assert.IsFalse(Directory.Exists(Path.Combine(_plugins, "Other")));
+    }
+
+    [TestMethod]
+    public void Install_CaseVariantRoot_ReplacesTheExistingFolderInPlace()
+    {
+        var existing = BuildPluginFolder("Payments.StripeCheckout", "Payments.StripeCheckout");
+        var target = Path.Combine(_plugins, "Payments.StripeCheckout");
+        Directory.CreateDirectory(target);
+        File.Copy(Path.Combine(existing, "Payments.StripeCheckout.dll"),
+            Path.Combine(target, "Payments.StripeCheckout.dll"));
+        File.WriteAllText(Path.Combine(target, "old.txt"), "old");
+
+        var upload = BuildPluginFolder("payments.stripecheckout", "Payments.StripeCheckout");
+        var result = CreateInstaller().Install(ZipFolder(upload));
+
+        //the existing folder's exact name, whatever the file system's case sensitivity
+        Assert.AreEqual("Payments.StripeCheckout", result.FolderName);
+        var folders = Directory.GetDirectories(_plugins).Select(Path.GetFileName)
+            .Where(x => x != "TempUploads").ToList();
+        CollectionAssert.AreEqual(new[] { "Payments.StripeCheckout" }, folders);
+        Assert.IsFalse(File.Exists(Path.Combine(target, "old.txt")));
+        Assert.IsTrue(File.Exists(Path.Combine(target, "Payments.StripeCheckout.dll")));
+    }
+
+    [TestMethod]
     public void Install_TooManyEntries_IsRejected()
     {
         var entries = Enumerable.Range(0, PluginArchiveInstaller.MaxEntries + 1)
