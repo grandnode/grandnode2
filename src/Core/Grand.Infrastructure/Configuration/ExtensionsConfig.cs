@@ -34,7 +34,8 @@ public class ExtensionsConfig
     /// <summary>
     ///     Stop the application when an installed plugin, or a module enabled under FeatureManagement, fails to
     ///     load. Off: the plugin is logged, listed with its error and left inactive, the module is logged as
-    ///     critical, and the application starts without it.
+    ///     critical, and the application starts without it. A module whose folder is not deployed with this
+    ///     application is not a load failure: it is logged as a warning either way.
     /// </summary>
     public bool FailOnPluginLoadError { get; set; }
 }
