@@ -190,12 +190,15 @@ public static class PluginManager
                 mvcCoreBuilder.Services.AddScoped(plugin.PluginType);
             }
 
-            //after the loaded plugins: a lookup by a system name a second folder duplicates finds the working one
+            //after the loaded plugins: a lookup by a system name a second folder duplicates finds the working one.
+            //The installed plugin of such a name is that folder's, so the second folder is not listed installed
+            var listedSystemNames = referencedPlugins.Select(x => x.SystemName).ToHashSet(StringComparer.OrdinalIgnoreCase);
+            var installedNotListed = installedPluginSystemNames.Where(x => !listedSystemNames.Contains(x)).ToList();
             foreach (var problem in scan.Problems)
             {
                 _logger.LogError("Plugin folder {PluginFolder} could not be loaded: {LoadError}",
                     problem.Folder, problem.Message);
-                referencedPlugins.AddRange(PluginLoader.DescribeProblem(problem, installedPluginSystemNames));
+                referencedPlugins.AddRange(PluginLoader.DescribeProblem(problem, installedNotListed));
             }
 
             ReferencedPlugins = referencedPlugins;

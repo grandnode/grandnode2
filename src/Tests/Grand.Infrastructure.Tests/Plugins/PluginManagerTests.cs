@@ -250,6 +250,23 @@ public class PluginManagerTests
     }
 
     [TestMethod]
+    public void Load_SecondFolderOfAnInstalledSystemName_IsNotInstalledAndDoesNotStopTheApplication()
+    {
+        _fixture.AddPlugin("A", "Manager.TwiceA", "Manager.Twice", "public class TwiceA : BasePlugin { }");
+        _fixture.AddPlugin("B", "Manager.TwiceB", "Manager.Twice", "public class TwiceB : BasePlugin { }");
+
+        Load("Manager.Twice", failOnPluginLoadError: true);
+
+        var entries = PluginManager.ReferencedPlugins.Where(x => x.SystemName == "Manager.Twice").ToList();
+        Assert.HasCount(2, entries);
+        Assert.IsTrue(entries[0].IsActive);
+        Assert.AreEqual("A", entries[0].FolderName);
+        Assert.IsFalse(entries[1].Installed);
+        Assert.IsNotNull(entries[1].LoadError);
+        Assert.AreEqual("B", entries[1].FolderName);
+    }
+
+    [TestMethod]
     public void Load_LogsToTheLoggingProvidersOfTheServices()
     {
         var logs = new CapturingLoggerProvider();
@@ -261,12 +278,13 @@ public class PluginManagerTests
     }
 
     private void Load(string installed = "Manager.NotInstalled", bool useLiteDb = false, bool shadowCopy = false,
-        CapturingLoggerProvider logs = null)
+        CapturingLoggerProvider logs = null, bool failOnPluginLoadError = false)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string> {
                 ["Extensions:InstalledPlugins"] = installed,
                 ["Extensions:PluginShadowCopy"] = shadowCopy.ToString(),
+                ["Extensions:FailOnPluginLoadError"] = failOnPluginLoadError.ToString(),
                 ["Database:UseLiteDb"] = useLiteDb.ToString()
             })
             .Build();
