@@ -189,11 +189,15 @@ public class PluginManagerTests
         WriteDepsJson(_fixture.Folder("Shadow"), "Manager.Shadow");
         Directory.CreateDirectory(Path.Combine(_fixture.Folder("Shadow"), "runtimes", "any"));
         File.WriteAllText(Path.Combine(_fixture.Folder("Shadow"), "runtimes", "any", "native.txt"), "native");
-        //left by an earlier start: a file the plugin no longer ships, another plugin's copy, the old flat layout
+        //left by an earlier start: a file the plugin no longer ships, another plugin's copy, the copy of a removed
+        //plugin folder, the old flat layout
         Directory.CreateDirectory(ShadowFolder("Shadow"));
         File.WriteAllText(Path.Combine(ShadowFolder("Shadow"), "Removed.dll"), "old");
+        Directory.CreateDirectory(_fixture.Folder("Other"));
         Directory.CreateDirectory(ShadowFolder("Other"));
         File.WriteAllText(Path.Combine(ShadowFolder("Other"), "Other.dll"), "other");
+        Directory.CreateDirectory(Path.Combine(ShadowFolder("Gone"), "runtimes"));
+        File.WriteAllText(Path.Combine(ShadowFolder("Gone"), "runtimes", "Gone.dll"), "gone");
         File.WriteAllText(Path.Combine(_fixture.PluginsFolder, "bin", "Flat.dll"), "flat");
 
         Load("Manager.Shadow", shadowCopy: true);
@@ -206,6 +210,7 @@ public class PluginManagerTests
         Assert.IsTrue(File.Exists(Path.Combine(ShadowFolder("Shadow"), "runtimes", "any", "native.txt")));
         Assert.IsFalse(File.Exists(Path.Combine(ShadowFolder("Shadow"), "Removed.dll")));
         Assert.IsTrue(File.Exists(Path.Combine(ShadowFolder("Other"), "Other.dll")));
+        Assert.IsFalse(Directory.Exists(ShadowFolder("Gone")));
         Assert.IsFalse(File.Exists(Path.Combine(_fixture.PluginsFolder, "bin", "Flat.dll")));
         //the plugin's own folder keeps its deps.json
         Assert.IsTrue(File.Exists(Path.Combine(_fixture.Folder("Shadow"), "Manager.Shadow.deps.json")));

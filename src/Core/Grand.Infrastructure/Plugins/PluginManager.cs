@@ -106,8 +106,26 @@ public static class PluginManager
             Directory.CreateDirectory(_pluginFolder.FullName);
             Directory.CreateDirectory(_copyFolder.FullName);
             if (_config.PluginShadowCopy)
-                //clear out the files of the flat layout older versions shadow copied to; each plugin's own
-                //folder below is kept, and its unchanged files are not copied again
+            {
+                //the copies of plugin folders that are gone (removed or renamed); every other plugin's copy is
+                //kept, so its unchanged files are not copied again
+                foreach (var copy in _copyFolder.GetDirectories())
+                {
+                    if (Directory.Exists(Path.Combine(_pluginFolder.FullName, copy.Name)))
+                        continue;
+
+                    _logger.LogInformation("Deleting the shadow copy of the removed plugin folder {FolderName}", copy.Name);
+                    try
+                    {
+                        copy.Delete(true);
+                    }
+                    catch (Exception exc) when (exc is IOException or UnauthorizedAccessException)
+                    {
+                        _logger.LogWarning(exc, "Shadow copy {FullName} could not be deleted", copy.FullName);
+                    }
+                }
+
+                //clear out the files of the flat layout older versions shadow copied to
                 foreach (var f in _copyFolder.GetFiles("*", SearchOption.TopDirectoryOnly))
                 {
                     _logger.LogInformation("Deleting {FName}", f.Name);
@@ -124,6 +142,7 @@ public static class PluginManager
                         _logger.LogError(exc, "PluginManager");
                     }
                 }
+            }
 
             //plan from metadata first: nothing is loaded for a folder that cannot be loaded
             var hostAssemblyNames = HostAssemblyNames();
