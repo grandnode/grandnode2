@@ -4,16 +4,17 @@ namespace Grand.Infrastructure.Plugins;
 
 /// <summary>
 ///     The plugin state this process loaded, kept to tell which changes on disk wait for a restart. Comparing
-///     runs on every admin page view, so it reads file attributes, the installed-plugins file once, and the
-///     manifests of folders that did not exist at load time - never an assembly into the process.
+///     runs on every admin page view, so it reads the attributes of each folder's top-level dlls, the
+///     installed-plugins file once, and the manifests of folders that had no plugin at load time and changed
+///     since - never an assembly into the process.
 /// </summary>
 internal sealed class PluginLoadSnapshot
 {
     /// <summary>
-    ///     A plugin folder as it was loaded. A folder that could not be loaded has no main assembly; its
-    ///     plugin assemblies as a whole are compared instead.
+    ///     A plugin folder as it was loaded; its assemblies as a whole are compared, so a replaced dependency
+    ///     counts as an update as much as a replaced main assembly
     /// </summary>
-    private sealed record LoadedFolder(string SystemName, string MainAssemblyPath, FileStamp Stamp);
+    private sealed record LoadedFolder(string SystemName, FileStamp Stamp);
 
     private sealed record FileStamp(long Length, DateTime LastWriteTimeUtc, int Count);
 
@@ -21,17 +22,17 @@ internal sealed class PluginLoadSnapshot
     private readonly string _installedPluginsFile;
     private readonly string _skipPattern;
     private readonly HashSet<string> _installed;
-    private readonly HashSet<string> _knownFolders;
+    private readonly Dictionary<string, FileStamp> _otherFolders;
     private readonly Dictionary<string, LoadedFolder> _plugins;
 
     private PluginLoadSnapshot(string pluginsFolder, string installedPluginsFile, string skipPattern,
-        HashSet<string> installed, HashSet<string> knownFolders, Dictionary<string, LoadedFolder> plugins)
+        HashSet<string> installed, Dictionary<string, FileStamp> otherFolders, Dictionary<string, LoadedFolder> plugins)
     {
         _pluginsFolder = pluginsFolder;
         _installedPluginsFile = installedPluginsFile;
         _skipPattern = skipPattern;
         _installed = installed;
-        _knownFolders = knownFolders;
+        _otherFolders = otherFolders;
         _plugins = plugins;
     }
 
@@ -48,17 +49,21 @@ internal sealed class PluginLoadSnapshot
         var plugins = new Dictionary<string, LoadedFolder>(StringComparer.OrdinalIgnoreCase);
         foreach (var candidate in scan.Plugins)
             plugins[candidate.Folder.Name] = new LoadedFolder(candidate.Manifest.SystemName,
-                candidate.MainAssemblyPath, StampOf(candidate.MainAssemblyPath));
+                StampOfAssemblies(candidate.Folder.FullName));
 
         var knownFolders = (Folders(pluginsFolder.FullName) ?? []).ToHashSet(StringComparer.OrdinalIgnoreCase);
         //a problem names its folder, or the Plugins folder itself when that could not be listed
         foreach (var problem in scan.Problems.Where(x =>
                      knownFolders.Contains(x.Folder) && !plugins.ContainsKey(x.Folder)))
-            plugins[problem.Folder] = new LoadedFolder(problem.SystemNames.FirstOrDefault() ?? problem.Folder, null,
+            plugins[problem.Folder] = new LoadedFolder(problem.SystemNames.FirstOrDefault() ?? problem.Folder,
                 StampOfAssemblies(Path.Combine(pluginsFolder.FullName, problem.Folder)));
 
+        //a folder without a plugin (empty, or only a plugin's leftovers) is read again once its assemblies change
+        var otherFolders = knownFolders.Where(x => !plugins.ContainsKey(x)).ToDictionary(x => x,
+            x => StampOfAssemblies(Path.Combine(pluginsFolder.FullName, x)), StringComparer.OrdinalIgnoreCase);
+
         return new PluginLoadSnapshot(pluginsFolder.FullName, installedPluginsFile, skipPattern,
-            installedSystemNames.ToHashSet(StringComparer.OrdinalIgnoreCase), knownFolders, plugins);
+            installedSystemNames.ToHashSet(StringComparer.OrdinalIgnoreCase), otherFolders, plugins);
     }
 
     /// <summary>
@@ -106,25 +111,22 @@ internal sealed class PluginLoadSnapshot
         {
             if (!folders.Contains(folder))
                 changes.Add(new PluginPendingChange(loaded.SystemName, folder, PluginPendingChangeKind.Removed));
-            else if (loaded.Stamp != CurrentStamp(folder, loaded))
+            else if (loaded.Stamp != StampOfAssemblies(Path.Combine(_pluginsFolder, folder)))
                 changes.Add(new PluginPendingChange(loaded.SystemName, folder, PluginPendingChangeKind.Updated));
         }
 
-        foreach (var folder in folders.Where(x => !_knownFolders.Contains(x)).Order(StringComparer.Ordinal))
+        foreach (var folder in folders.Where(x => !_plugins.ContainsKey(x)).Order(StringComparer.Ordinal))
         {
+            if (_otherFolders.TryGetValue(folder, out var stamp) &&
+                stamp == StampOfAssemblies(Path.Combine(_pluginsFolder, folder)))
+                continue;
+
             var manifest = ReadManifest(Path.Combine(_pluginsFolder, folder));
             if (manifest != null)
                 changes.Add(new PluginPendingChange(
                     string.IsNullOrWhiteSpace(manifest.SystemName) ? folder : manifest.SystemName, folder,
                     PluginPendingChangeKind.Added));
         }
-    }
-
-    private FileStamp CurrentStamp(string folder, LoadedFolder loaded)
-    {
-        return loaded.MainAssemblyPath != null
-            ? StampOf(loaded.MainAssemblyPath)
-            : StampOfAssemblies(Path.Combine(_pluginsFolder, folder));
     }
 
     private string FolderOf(string systemName)
@@ -157,19 +159,6 @@ internal sealed class PluginLoadSnapshot
         }
 
         return null;
-    }
-
-    private static FileStamp StampOf(string path)
-    {
-        try
-        {
-            var file = new FileInfo(path);
-            return file.Exists ? new FileStamp(file.Length, file.LastWriteTimeUtc, 1) : null;
-        }
-        catch (Exception ex) when (PluginFolderScanner.IsReadFailure(ex))
-        {
-            return null;
-        }
     }
 
     private static FileStamp StampOfAssemblies(string folder)

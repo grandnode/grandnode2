@@ -130,6 +130,34 @@ public class PluginPendingChangesTests
             changes.Single());
     }
 
+    [TestMethod]
+    [DoNotParallelize]
+    public void GetPendingChanges_OnlyDependencyReplaced_ReportsUpdated()
+    {
+        _fixture.AddPlugin("A", "Pending.A", "Pending.A");
+        TestPluginBuilder.Compile(_fixture.Folder("A"), "Pending.A.Dependency", "public class Dependency { }");
+        WriteInstalled("Pending.A");
+
+        var changes = PendingAfter(() => TestPluginBuilder.Compile(_fixture.Folder("A"), "Pending.A.Dependency",
+            "public class Dependency { } public class AddedInTheNewVersion { }"));
+
+        Assert.AreEqual(new PluginPendingChange("Pending.A", "A", PluginPendingChangeKind.Updated),
+            changes.Single());
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
+    public void GetPendingChanges_PluginCopiedIntoAFolderThatHadNone_ReportsAdded()
+    {
+        _fixture.AddPlugin("A", "Pending.A", "Pending.A");
+        Directory.CreateDirectory(_fixture.Folder("B"));
+        WriteInstalled();
+
+        var changes = PendingAfter(() => _fixture.AddPlugin("B", "Pending.B", "Pending.B"));
+
+        Assert.AreEqual(new PluginPendingChange("Pending.B", "B", PluginPendingChangeKind.Added), changes.Single());
+    }
+
     /// <summary>
     ///     Records the state as <see cref="PluginManager.Load" /> does, applies the change and compares
     /// </summary>
