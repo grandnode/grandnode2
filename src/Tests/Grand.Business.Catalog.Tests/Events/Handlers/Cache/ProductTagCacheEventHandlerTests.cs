@@ -25,7 +25,7 @@ public class ProductTagCacheEventHandlerTests
     }
 
     [TestMethod]
-    public async Task ProductTag_UpdatedProductTag_ClearsItsCache()
+    public async Task ProductTag_UpdatedProductTag_ClearsItsCacheAndTheProductsCarryingItsName()
     {
         var cache = new Mock<ICacheBase>();
 
@@ -33,6 +33,7 @@ public class ProductTagCacheEventHandlerTests
         await new ProductTagCacheEventHandler(cache.Object).Handle(notification, CancellationToken.None);
 
         cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY, true), Times.Once);
+        cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
         cache.VerifyNoOtherCalls();
     }
 
