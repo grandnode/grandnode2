@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
@@ -58,6 +59,25 @@ public class InventoryManageServiceTests
         product = _repository.Table.FirstOrDefault(x => x.Id == product.Id);
         //Assert
         Assert.AreEqual(15, product.ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task AdjustReserved_LowStockUnpublishes_ClearsProductLists()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            StockQuantity = 5,
+            MinStockQuantity = 2,
+            LowStockActivityId = LowStockActivity.Unpublish,
+            Published = true
+        };
+        await _repository.InsertAsync(product);
+
+        await _inventoryManageService.AdjustReserved(product, -4);
+
+        Assert.IsFalse(_repository.Table.First(x => x.Id == product.Id).Published);
+        _mediatorMock.Verify(m => m.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == product.Id && e.ListsChanged),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]

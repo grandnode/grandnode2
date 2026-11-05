@@ -317,7 +317,7 @@ public class InventoryManageService : IInventoryManageService
                                 .Set(x => x.Published, product.Published)
                                 .Set(x => x.LowStock, product.LowStock));
 
-                        await _mediator.Publish(new ProductChangedEvent(product.Id));
+                        await _mediator.Publish(new ProductChangedEvent(product.Id, listsChanged: true));
 
                         //event
                         await _mediator.Publish(new ProductUnPublishEvent(product));
@@ -357,7 +357,7 @@ public class InventoryManageService : IInventoryManageService
                                     .Set(x => x.Published, product.Published)
                                     .Set(x => x.LowStock, product.LowStock));
 
-                            await _mediator.Publish(new ProductChangedEvent(product.Id));
+                            await _mediator.Publish(new ProductChangedEvent(product.Id, listsChanged: true));
 
                             //event
                             await _mediator.Publish(new ProductPublishEvent(product));
