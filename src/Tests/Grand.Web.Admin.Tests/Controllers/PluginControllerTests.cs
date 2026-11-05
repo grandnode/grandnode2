@@ -1,3 +1,5 @@
+using Grand.Data;
+using Grand.Data.LiteDb;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -5,6 +7,7 @@ using Grand.Infrastructure.Plugins;
 using Grand.Web.Admin.Controllers;
 using Grand.Web.Common.Audit;
 using Grand.Web.Common.Localization;
+using LiteDB;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -155,6 +158,42 @@ public class PluginControllerTests
 
     [TestMethod]
     [DoNotParallelize]
+    public async Task Remove_DatabaseCannotBeRead_DoesNotDeleteFolder()
+    {
+        //installed since the start, so only the database knows it is installed now
+        var folder = Path.Combine(_contentRoot, "Plugins", "Tests.Plugin");
+        Directory.CreateDirectory(folder);
+        var mainAssembly = Path.Combine(folder, "Tests.Plugin.dll");
+        await File.WriteAllTextAsync(mainAssembly, "");
+        var plugin = new PluginInfo(new FileInfo(mainAssembly), null, typeof(IPlugin)) {
+            SystemName = SystemName,
+            SupportedVersion = GrandVersion.SupportedPluginVersion,
+            Installed = false
+        };
+        var store = new Mock<IPluginStateStore>();
+        store.Setup(x => x.HasDatabase).Returns(true);
+        store.Setup(x => x.InstalledSystemNamesAsync()).ThrowsAsync(new TimeoutException("no server"));
+
+        var stateStore = PluginManager.StateStore;
+        try
+        {
+            PluginManager.StateStore = store.Object;
+            await WithPlugins(async () =>
+            {
+                await _controller.Remove(SystemName, "Tests.Plugin");
+
+                Assert.IsTrue(Directory.Exists(folder));
+                _auditEventRecorder.Verify(x => x.Plugin(SystemName, "removed"), Times.Never);
+            }, plugin);
+        }
+        finally
+        {
+            PluginManager.StateStore = stateStore;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
     public async Task Install_WhenInstalledPluginsConfigured_DoesNotInstall()
     {
         _extConfig.InstalledPlugins = "Other.Plugin";
@@ -185,14 +224,13 @@ public class PluginControllerTests
     {
         var plugin = BrokenPlugin(null);
 
-        await WithInstalledFile(async installedFile =>
+        await WithInstalledStore(async store =>
         {
             await WithPlugins(async () =>
             {
                 await _controller.Uninstall(SystemName);
 
-                CollectionAssert.DoesNotContain(PluginExtensions.ParseInstalledPluginsFile(installedFile).ToList(),
-                    SystemName);
+                CollectionAssert.DoesNotContain(store.InstalledSystemNames().ToList(), SystemName);
                 _serviceProvider.Verify(x => x.GetService(It.IsAny<Type>()), Times.Never);
                 _plugin.Verify(x => x.Uninstall(), Times.Never);
                 _auditEventRecorder.Verify(x => x.Plugin(SystemName, "uninstalled"), Times.Once);
@@ -212,7 +250,7 @@ public class PluginControllerTests
         await File.WriteAllTextAsync(mainAssembly, "");
         var plugin = BrokenPlugin(new FileInfo(mainAssembly));
 
-        await WithInstalledFile(async _ =>
+        await WithInstalledStore(async _ =>
         {
             await WithPlugins(async () =>
             {
@@ -270,12 +308,12 @@ public class PluginControllerTests
     [DoNotParallelize]
     public async Task Install_AfterRemoveBeforeRestart_Refuses()
     {
-        await WithLoadedFolder(false, folder => Directory.Delete(folder, true), async installedFile =>
+        await WithLoadedFolder(false, folder => Directory.Delete(folder, true), async store =>
         {
             await _controller.Install(SystemName);
 
             _plugin.Verify(x => x.Install(), Times.Never);
-            Assert.IsEmpty(PluginExtensions.ParseInstalledPluginsFile(installedFile));
+            Assert.IsEmpty(store.InstalledSystemNames());
             CollectionAssert.Contains(Notifications("Error"), "Admin.Plugins.RestartFirst");
         });
     }
@@ -284,12 +322,12 @@ public class PluginControllerTests
     [DoNotParallelize]
     public async Task Install_AfterUpdateBeforeRestart_Refuses()
     {
-        await WithLoadedFolder(false, ReplaceMainAssembly, async installedFile =>
+        await WithLoadedFolder(false, ReplaceMainAssembly, async store =>
         {
             await _controller.Install(SystemName);
 
             _plugin.Verify(x => x.Install(), Times.Never);
-            Assert.IsEmpty(PluginExtensions.ParseInstalledPluginsFile(installedFile));
+            Assert.IsEmpty(store.InstalledSystemNames());
             CollectionAssert.Contains(Notifications("Error"), "Admin.Plugins.RestartFirst");
         });
     }
@@ -298,12 +336,12 @@ public class PluginControllerTests
     [DoNotParallelize]
     public async Task Uninstall_AfterUpdateBeforeRestart_Refuses()
     {
-        await WithLoadedFolder(true, ReplaceMainAssembly, async installedFile =>
+        await WithLoadedFolder(true, ReplaceMainAssembly, async store =>
         {
             await _controller.Uninstall(SystemName);
 
             _plugin.Verify(x => x.Uninstall(), Times.Never);
-            CollectionAssert.Contains(PluginExtensions.ParseInstalledPluginsFile(installedFile).ToList(), SystemName);
+            CollectionAssert.Contains(store.InstalledSystemNames().ToList(), SystemName);
             CollectionAssert.Contains(Notifications("Error"), "Admin.Plugins.RestartFirst");
         });
     }
@@ -312,7 +350,8 @@ public class PluginControllerTests
     ///     Runs with the plugin loaded from its folder as PluginManager.Load records it, after
     ///     <paramref name="changeOnDisk" /> changed that folder
     /// </summary>
-    private async Task WithLoadedFolder(bool installed, Action<string> changeOnDisk, Func<string, Task> test)
+    private async Task WithLoadedFolder(bool installed, Action<string> changeOnDisk,
+        Func<IPluginStateStore, Task> test)
     {
         var pluginsFolder = new DirectoryInfo(Path.Combine(_contentRoot, "Plugins"));
         var folder = Directory.CreateDirectory(Path.Combine(pluginsFolder.FullName, "Tests.Plugin"));
@@ -328,16 +367,16 @@ public class PluginControllerTests
             Installed = installed
         };
 
-        await WithInstalledFile(async installedFile =>
+        await WithInstalledStore(async store =>
         {
             var loadSnapshot = PluginManager.LoadSnapshot;
             try
             {
                 PluginManager.LoadSnapshot = PluginLoadSnapshot.Capture(pluginsFolder, scan,
-                    PluginExtensions.ParseInstalledPluginsFile(installedFile), installedFile, null);
+                    store.InstalledSystemNames(), store, null);
                 changeOnDisk(folder.FullName);
 
-                await WithPlugins(() => test(installedFile), plugin);
+                await WithPlugins(() => test(store), plugin);
             }
             finally
             {
@@ -371,24 +410,25 @@ public class PluginControllerTests
     }
 
     /// <summary>
-    ///     Runs with the installed-plugins file listing <paramref name="installed" /> (by default the plugin),
-    ///     and removes it afterwards
+    ///     Runs with the plugin state store on a database in memory, listing <paramref name="installed" /> (by
+    ///     default the plugin) as installed
     /// </summary>
-    private async Task WithInstalledFile(Func<string, Task> test, string[] installed = null)
+    private static async Task WithInstalledStore(Func<IPluginStateStore, Task> test, string[] installed = null)
     {
-        //initialized once per process; a later call keeps the first path
-        PluginPaths.Initialize(Path.Combine(_contentRoot, "App_Data", "InstalledPlugins.cfg"));
-        var installedFile = PluginPaths.Instance.InstalledPluginsFile;
-        Directory.CreateDirectory(Path.GetDirectoryName(installedFile)!);
-        await File.WriteAllTextAsync(installedFile,
-            System.Text.Json.JsonSerializer.Serialize(installed ?? [SystemName]));
+        using var database = new LiteDatabase(new MemoryStream());
+        var store = new LiteDBPluginStateStore(() => "Filename=:memory:");
+        store.UseShared(() => database);
+        store.ImportInstalled(() => installed ?? [SystemName]);
+
+        var stateStore = PluginManager.StateStore;
         try
         {
-            await test(installedFile);
+            PluginManager.StateStore = store;
+            await test(store);
         }
         finally
         {
-            File.Delete(installedFile);
+            PluginManager.StateStore = stateStore;
         }
     }
 

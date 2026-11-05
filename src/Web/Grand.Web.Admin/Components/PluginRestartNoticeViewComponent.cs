@@ -24,7 +24,7 @@ public class PluginRestartNoticeViewComponent : BaseAdminViewComponent
         if (!await _permissionService.Authorize(StandardPermission.ManagePlugins))
             return Content("");
 
-        var changes = PluginManager.GetPendingChanges();
+        var changes = await PluginManager.GetPendingChanges();
         if (changes.Count == 0)
             return Content("");
 

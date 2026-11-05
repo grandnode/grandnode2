@@ -1,4 +1,6 @@
 ﻿using Grand.Data;
+using Grand.Data.LiteDb;
+using Grand.Data.Mongo;
 using Grand.Mapping;
 using Grand.Mediator;
 using Grand.Infrastructure.Configuration;
@@ -13,6 +15,7 @@ using Grand.Infrastructure.TypeSearch;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
+using LiteDB;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
@@ -21,6 +24,7 @@ using Microsoft.AspNetCore.Mvc.ModelBinding.Binders;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
+using MongoDB.Driver;
 
 namespace Grand.Infrastructure;
 
@@ -49,6 +53,22 @@ public static class StartupBase
                 ConnectionString = connectionString,
                 DbProvider = (DbProvider)providerInt,
             });
+    }
+
+    /// <summary>
+    ///     The store of the installed plugins, on the database the repositories use. The connection string is read
+    ///     on every call: the installation of the application sets it while the application runs.
+    /// </summary>
+    private static IPluginStateStore CreatePluginStateStore(IConfiguration configuration)
+    {
+        var dbConfig = new DatabaseConfig();
+        configuration.GetSection("Database").Bind(dbConfig);
+
+        static string ConnectionString() => DataSettingsManager.Instance.LoadSettings().ConnectionString;
+
+        return dbConfig.UseLiteDb
+            ? new LiteDBPluginStateStore(ConnectionString)
+            : new MongoPluginStateStore(ConnectionString);
     }
 
     /// <summary>
@@ -176,6 +196,8 @@ public static class StartupBase
 
         InitDatabase(services, configuration);
 
+        PluginManager.StateStore = CreatePluginStateStore(configuration);
+
         //resolved by SanitizeHtmlAttribute/NoHtmlAttribute via ValidationContext.GetService - no filter needed,
         //ASP.NET Core's built-in model validation already invokes DataAnnotations attributes on every bind
         services.AddSingleton<IHtmlSanitizationService, HtmlSanitizationService>();
@@ -293,6 +315,19 @@ public static class StartupBase
     public static void ConfigureRequestPipeline(WebApplication application,
         IWebHostEnvironment webHostEnvironment)
     {
+        //from now on the plugin states go through the application's own database instance - LiteDB locks its file,
+        //a MongoDB client owns a connection pool - resolved when first used, so nothing is opened here. Neither is
+        //registered before the application is installed
+        var isService = application.Services.GetService<IServiceProviderIsService>();
+        if (PluginManager.StateStore is LiteDBPluginStateStore liteDbStateStore &&
+            isService?.IsService(typeof(LiteDatabase)) == true)
+            liteDbStateStore.UseShared(application.Services.GetRequiredService<LiteDatabase>);
+        if (PluginManager.StateStore is MongoPluginStateStore mongoStateStore &&
+            isService?.IsService(typeof(IMongoClient)) == true)
+            mongoStateStore.UseShared(application.Services.GetRequiredService<IMongoClient>);
+
+        PluginManager.SaveLoadResults();
+
         //find startup configurations provided by other assemblies
         var typeSearcher = new TypeSearcher();
         var startupConfigurations = typeSearcher.ClassesOfType<IStartupApplication>();

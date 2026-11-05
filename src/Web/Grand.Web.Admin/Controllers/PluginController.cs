@@ -73,10 +73,10 @@ public class PluginController(
     /// <summary>
     ///     The plugin's changes waiting for the restart, matched by system name and by folder
     /// </summary>
-    private static List<PluginPendingChange> PendingChangesOf(PluginInfo pluginInfo)
+    private static async Task<List<PluginPendingChange>> PendingChangesOf(PluginInfo pluginInfo)
     {
         var folder = pluginInfo.OriginalAssemblyFile?.Directory?.Name;
-        return PluginManager.GetPendingChanges()
+        return (await PluginManager.GetPendingChanges())
             .Where(x => string.Equals(x.SystemName, pluginInfo.SystemName, StringComparison.OrdinalIgnoreCase)
                         || (folder != null && string.Equals(x.FolderName, folder, StringComparison.OrdinalIgnoreCase)))
             .ToList();
@@ -84,18 +84,18 @@ public class PluginController(
 
     /// <summary>
     ///     Whether the plugin is installed now: an install or uninstall since the last restart already counts,
-    ///     although the plugin list still shows the state the application was started with
+    ///     although the plugin list still shows the state the application was started with. Read from the
+    ///     database itself, not from the pending changes, which leave out what cannot be read: a database that
+    ///     cannot be read fails the action instead of passing an installed plugin for an uninstalled one.
     /// </summary>
-    private static bool IsInstalled(PluginInfo pluginInfo, IEnumerable<PluginPendingChange> pending)
+    private async Task<bool> IsInstalled(PluginInfo pluginInfo)
     {
-        var change = pending.LastOrDefault(x =>
-            x.Kind is PluginPendingChangeKind.Installed or PluginPendingChangeKind.Uninstalled);
+        //a configured list cannot change while the application runs
+        if (!string.IsNullOrEmpty(extConfig.InstalledPlugins) || PluginManager.StateStore is not { HasDatabase: true })
+            return pluginInfo.Installed;
 
-        return change?.Kind switch {
-            PluginPendingChangeKind.Installed => true,
-            PluginPendingChangeKind.Uninstalled => false,
-            _ => pluginInfo.Installed
-        };
+        return (await PluginManager.StateStore.InstalledSystemNamesAsync())
+            .Contains(pluginInfo.SystemName, StringComparer.OrdinalIgnoreCase);
     }
 
     /// <summary>
@@ -186,12 +186,11 @@ public class PluginController(
                 return RedirectToAction("List");
             }
 
-            var pending = PendingChangesOf(pluginInfo);
-            if (RestartRequiredFirst(pending))
+            if (RestartRequiredFirst(await PendingChangesOf(pluginInfo)))
                 return RedirectToAction("List");
 
             //check whether plugin is not installed
-            if (IsInstalled(pluginInfo, pending))
+            if (await IsInstalled(pluginInfo))
                 return RedirectToAction("List");
 
             //install plugin
@@ -225,12 +224,11 @@ public class PluginController(
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
-            var pending = PendingChangesOf(pluginInfo);
-            if (RestartRequiredFirst(pending))
+            if (RestartRequiredFirst(await PendingChangesOf(pluginInfo)))
                 return RedirectToAction("List");
 
             //check whether plugin is installed
-            if (!IsInstalled(pluginInfo, pending))
+            if (!await IsInstalled(pluginInfo))
                 return RedirectToAction("List");
 
             //a plugin that cannot be loaded has no instance to clean up after itself: it is only marked
@@ -285,7 +283,7 @@ public class PluginController(
                 return RedirectToAction("List");
 
             //an installed plugin keeps its settings and data; it is uninstalled first
-            if (IsInstalled(pluginInfo, PendingChangesOf(pluginInfo)))
+            if (await IsInstalled(pluginInfo))
             {
                 Error(translationService.GetResource("Admin.Plugins.Remove.UninstallFirst"));
                 return RedirectToAction("List");
