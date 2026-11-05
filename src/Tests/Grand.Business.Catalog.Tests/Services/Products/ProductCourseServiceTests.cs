@@ -1,9 +1,12 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Courses;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Grand.Business.Catalog.Tests.Services.Products;
 
@@ -12,6 +15,7 @@ public class ProductCourseServiceTests
 {
     private IRepository<Course> _courseRepository;
     private ProductCourseService _courseService;
+    private Mock<IMediator> _mediatorMock;
     private IRepository<Product> _repository;
 
     [TestInitialize]
@@ -19,7 +23,8 @@ public class ProductCourseServiceTests
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _courseRepository = new MongoDBRepositoryTest<Course>();
-        _courseService = new ProductCourseService(_repository, _courseRepository);
+        _mediatorMock = new Mock<IMediator>();
+        _courseService = new ProductCourseService(_repository, _courseRepository, _mediatorMock.Object);
     }
 
 
@@ -63,5 +68,7 @@ public class ProductCourseServiceTests
         //Arrange
         Assert.IsNotNull(_repository.Table.FirstOrDefault(x => x.Id == "1"));
         Assert.AreEqual("2", _repository.Table.FirstOrDefault(x => x.Id == "1").CourseId);
+        _mediatorMock.Verify(m => m.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == "1"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }
