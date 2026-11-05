@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Microsoft.AspNetCore.StaticFiles;
 
-namespace Grand.Business.Messages.Services;
+namespace Grand.Web.Common.Infrastructure;
 
 public class MimeMappingService : IMimeMappingService
 {

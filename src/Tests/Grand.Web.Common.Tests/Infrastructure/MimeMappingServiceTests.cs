@@ -1,8 +1,8 @@
-﻿using Grand.Business.Messages.Services;
+﻿using Grand.Web.Common.Infrastructure;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
-namespace Grand.Business.Messages.Tests.Services;
+namespace Grand.Web.Common.Tests.Infrastructure;
 
 [TestClass]
 public class MimeMappingServiceTests

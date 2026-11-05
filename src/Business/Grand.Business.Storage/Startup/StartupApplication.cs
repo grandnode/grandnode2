@@ -2,8 +2,6 @@
 using Grand.Business.Storage.Services;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
-using Grand.SharedKernel.Extensions;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -36,16 +34,6 @@ public class StartupApplication : IStartupApplication
         else
             //standard file system
             services.AddScoped<IPictureService, PictureService>();
-
-        services.AddScoped<IMediaFileStore>(serviceProvider =>
-        {
-            var webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
-            var appConfig = serviceProvider.GetRequiredService<AppConfig>();
-            var fileStore = MediaFileStoreFactory.Create(webHostEnvironment.WebRootPath,
-                appConfig.GetMediaRootPath(webHostEnvironment.ContentRootPath),
-                configuration[CommonPath.DirectoryParam]);
-            return new DefaultMediaFileStore(fileStore);
-        });
     }
 
     public int Priority => 100;
