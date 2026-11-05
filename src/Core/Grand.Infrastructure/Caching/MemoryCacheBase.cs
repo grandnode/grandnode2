@@ -42,32 +42,6 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         return _cache.TryGetValue(key, out value);
     }
 
-    public virtual T Get<T>(string key, Func<T> acquire)
-    {
-        return Get(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
-    }
-
-    public virtual T Get<T>(string key, Func<T> acquire, int cacheTime)
-    {
-        if (_cache.TryGetValue(key, out T cacheEntry)) return cacheEntry;
-        var semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
-        semaphore.Wait();
-        try
-        {
-            if (!_cache.TryGetValue(key, out cacheEntry))
-            {
-                cacheEntry = acquire();
-                SetEntry(key, cacheEntry, cacheTime);
-            }
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-
-        return cacheEntry;
-    }
-
     public virtual Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
     {
         return GetAsync(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);

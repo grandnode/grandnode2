@@ -27,10 +27,9 @@ public static partial class CacheKey
     ///     Key for caching
     /// </summary>
     /// <remarks>
-    ///     {0} : key - settings name
-    ///     {1} : store ident
+    ///     {0} : store ident
     /// </remarks>
-    public static string SETTINGS_BY_KEY => "Grand.setting.{0}.{1}";
+    public static string SETTINGS_BY_STORE => "Grand.setting.store.{0}";
 
     /// <summary>
     ///     Key pattern to clear cache

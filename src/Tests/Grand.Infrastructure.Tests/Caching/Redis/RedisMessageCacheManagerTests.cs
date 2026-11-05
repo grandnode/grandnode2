@@ -30,7 +30,7 @@ public class RedisMessageCacheManagerTests
     [TestMethod]
     public async Task RemoveAsync_RemovesKeyAndPublishesMessage()
     {
-        _service.Get("key", () => "value");
+        await _service.GetAsync("key", () => Task.FromResult("value"));
 
         await _service.RemoveAsync("key");
 
@@ -42,7 +42,7 @@ public class RedisMessageCacheManagerTests
     [TestMethod]
     public async Task RemoveAsync_PublisherDisabled_DoesNotPublish()
     {
-        _service.Get("key", () => "value");
+        await _service.GetAsync("key", () => Task.FromResult("value"));
 
         await _service.RemoveAsync("key", false);
 
@@ -53,9 +53,9 @@ public class RedisMessageCacheManagerTests
     [TestMethod]
     public async Task RemoveByPrefix_RemovesMatchingKeysAndPublishesMessage()
     {
-        _service.Get("prefix-1", () => "value");
-        _service.Get("prefix-2", () => "value");
-        _service.Get("other", () => "value");
+        await _service.GetAsync("prefix-1", () => Task.FromResult("value"));
+        await _service.GetAsync("prefix-2", () => Task.FromResult("value"));
+        await _service.GetAsync("other", () => Task.FromResult("value"));
 
         await _service.RemoveByPrefix("prefix");
 
@@ -69,7 +69,7 @@ public class RedisMessageCacheManagerTests
     [TestMethod]
     public async Task RemoveByPrefix_PublisherDisabled_DoesNotPublish()
     {
-        _service.Get("prefix-1", () => "value");
+        await _service.GetAsync("prefix-1", () => Task.FromResult("value"));
 
         await _service.RemoveByPrefix("prefix", false);
 
@@ -80,7 +80,7 @@ public class RedisMessageCacheManagerTests
     [TestMethod]
     public async Task Clear_PublishesClearCacheMessage()
     {
-        _service.Get("key", () => "value");
+        await _service.GetAsync("key", () => Task.FromResult("value"));
 
         await _service.Clear();
 
@@ -92,7 +92,7 @@ public class RedisMessageCacheManagerTests
     [TestMethod]
     public async Task Clear_PublisherDisabled_DoesNotPublish()
     {
-        _service.Get("key", () => "value");
+        await _service.GetAsync("key", () => Task.FromResult("value"));
 
         await _service.Clear(false);
 
