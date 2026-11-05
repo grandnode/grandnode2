@@ -52,7 +52,7 @@ public class GetHomePageNewsItemsHandler : IRequestHandler<GetHomePageNewsItems,
     {
         var access = _contextAccessor.CatalogAccess();
         //with the ACL off every customer sees the same news, so the groups stay out of the key
-        var groupIds = _accessControlConfig.IgnoreAcl ? "" : access.Customer.GetCustomerGroupsCacheKey();
+        var groupIds = _accessControlConfig.GetCustomerGroupsCacheKey(access.Customer);
         var cacheKey = string.Format(CacheKeyConst.HOMEPAGE_NEWSMODEL_KEY, WorkingLanguageId, access.StoreId, groupIds);
         var model = await _cacheBase.GetAsync(cacheKey, async () =>
         {

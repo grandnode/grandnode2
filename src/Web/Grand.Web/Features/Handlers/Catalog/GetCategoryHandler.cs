@@ -9,6 +9,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -32,6 +33,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
     private readonly IPictureService _pictureService;
     private readonly ISpecificationAttributeService _specificationAttributeService;
     private readonly IRequestTranslationService _translationService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetCategoryHandler(
         IMediator mediator,
@@ -42,7 +44,8 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
         ISpecificationAttributeService specificationAttributeService,
         IHttpContextAccessor httpContextAccessor,
         CatalogSettings catalogSettings,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        AccessControlConfig accessControlConfig)
     {
         _mediator = mediator;
         _cacheBase = cacheBase;
@@ -53,6 +56,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
         _httpContextAccessor = httpContextAccessor;
         _catalogSettings = catalogSettings;
         _mediaSettings = mediaSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<CategoryModel> Handle(GetCategory request, CancellationToken cancellationToken)
@@ -84,7 +88,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
 
             var breadcrumbCacheKey = string.Format(CacheKeyConst.CATEGORY_BREADCRUMB_KEY,
                 request.Category.Id,
-                customer.GetCustomerGroupsCacheKey(),
+                _accessControlConfig.GetCustomerGroupsCacheKey(customer),
                 storeId,
                 languageId);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
@@ -148,7 +152,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
             //We cache a value indicating whether we have featured products
             IPagedList<Product> featuredProducts = null;
             var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, request.Category.Id,
-                customer.GetCustomerGroupsCacheKey(), storeId);
+                _accessControlConfig.GetCustomerGroupsCacheKey(customer), storeId);
 
             var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
             {

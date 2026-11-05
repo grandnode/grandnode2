@@ -50,7 +50,7 @@ Rules:
 1. Prefix every key with `Grand.` and the entity family, lowercase, dot-separated.
 2. The `*_PATTERN_KEY` is the shared prefix of every key in the family, and is what `RemoveByPrefix` takes.
 3. Format parameters are documented in an XML `<remarks>` block, in order. Follow that convention — it is what makes the placeholders readable at the call site.
-4. **Every variable that changes the result must be in the key.** Store id, language id, customer group set, currency, vendor id, page index. A missing store id in a key is a cross-store data leak, not a performance bug. Format the customer group set with `customer.GetCustomerGroupsCacheKey()`, or `access.CustomerGroupsCacheKey` when the read takes a `CatalogAccess` (empty for reads that include hidden records); never join the group ids by hand.
+4. **Every variable that changes the result must be in the key.** Store id, language id, customer group set, currency, vendor id, page index. A missing store id in a key is a cross-store data leak, not a performance bug. Format the customer group set of data the ACL filters with `_accessControlConfig.GetCustomerGroupsCacheKey(customer)`, or `access.GetCustomerGroupsCacheKey(_accessControlConfig)` when the read takes a `CatalogAccess`: both are empty when `IgnoreAcl` is on (and the second for reads that include hidden records), since the groups filter nothing then. Data limited to groups by something other than the ACL keeps the groups: the widget list (`IsAuthenticateGroup` on providers) uses `customer.GetCustomerGroupsCacheKey()`, and customer group recommendations are keyed by the groups themselves. Never join the group ids by hand.
 5. Never build a key inline as a string literal at the call site. Add a constant.
 
 ## Usage
@@ -124,7 +124,7 @@ When adding a cached family, ask what *else* embeds this data in a cached projec
 - A cache key without the language id for localized data.
 - `RemoveByPrefix` with a hand-written string instead of the `*_PATTERN_KEY` constant.
 - `RemoveByPrefix` in a service after a write instead of in the family's cache event handler.
-- `string.Join(",", customer.GetCustomerGroupIds())` in a key instead of `GetCustomerGroupsCacheKey()`.
+- `string.Join(",", customer.GetCustomerGroupIds())` in a key instead of `GetCustomerGroupsCacheKey`.
 - `Clear()` to fix a stale entry — it evicts everything for every store.
 - Caching an entity graph that contains customer-specific data under a key that omits the customer.
 - `publisher: false` outside an invalidation-message handler.

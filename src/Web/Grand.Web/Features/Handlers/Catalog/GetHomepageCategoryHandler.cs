@@ -5,6 +5,7 @@ using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -22,25 +23,28 @@ public class GetHomepageCategoryHandler : IRequestHandler<GetHomepageCategory, I
     private readonly MediaSettings _mediaSettings;
     private readonly IPictureService _pictureService;
     private readonly IRequestTranslationService _translationService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetHomepageCategoryHandler(
         ICategoryService categoryService,
         ICacheBase cacheBase,
         IPictureService pictureService,
         IRequestTranslationService translationService,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        AccessControlConfig accessControlConfig)
     {
         _categoryService = categoryService;
         _cacheBase = cacheBase;
         _pictureService = pictureService;
         _translationService = translationService;
         _mediaSettings = mediaSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<IList<CategoryModel>> Handle(GetHomepageCategory request, CancellationToken cancellationToken)
     {
         var categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_HOMEPAGE_KEY,
-            request.Customer.GetCustomerGroupsCacheKey(),
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer),
             request.Store.Id,
             request.Language.Id);
 

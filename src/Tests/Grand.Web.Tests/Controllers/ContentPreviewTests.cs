@@ -13,6 +13,7 @@ using Grand.Domain.Pages;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Common.Page;
 using Grand.Web.Common.Security.Authorization;
@@ -109,7 +110,8 @@ public class ContentPreviewTests
             knowledgebaseServiceMock.Object, _contextAccessorMock.Object, new Mock<ICacheBase>().Object,
             _aclServiceMock.Object, new Mock<IRequestTranslationService>().Object,
             new Mock<ICmsMessageProviderService>().Object, new Mock<IDateTimeService>().Object,
-            _permissionServiceMock.Object, new CustomerSettings(), new CaptchaSettings(), new LanguageSettings()) {
+            _permissionServiceMock.Object, new CustomerSettings(), new CaptchaSettings(), new LanguageSettings(),
+            new AccessControlConfig()) {
             ControllerContext = GetContext(new ServiceCollection()
                 .AddSingleton(new Mock<IPageHeadBuilder>().Object)
                 .BuildServiceProvider()),

@@ -12,6 +12,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
@@ -31,6 +32,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
     private readonly MenuItemSettings _menuItemSettings;
     private readonly IPageService _pageService;
     private readonly IPictureService _pictureService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetMenuHandler(
         ICategoryService categoryService,
@@ -42,7 +44,8 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
         CatalogSettings catalogSettings,
         BlogSettings blogSettings,
         MenuItemSettings menuItemSettings,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        AccessControlConfig accessControlConfig)
     {
         _categoryService = categoryService;
         _brandService = brandService;
@@ -54,11 +57,12 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
         _blogSettings = blogSettings;
         _menuItemSettings = menuItemSettings;
         _mediaSettings = mediaSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<MenuModel> Handle(GetMenu request, CancellationToken cancellationToken)
     {
-        var customerGroups = request.Customer.GetCustomerGroupsCacheKey();
+        var customerGroups = _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer);
         var cacheKey = string.Format(CacheKeyConst.CATEGORIES_BY_MENU,
             request.Language.Id,
             request.Store.Id, customerGroups);

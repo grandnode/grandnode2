@@ -12,6 +12,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.News;
 using Grand.Domain.Pages;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Features.Handlers.Common;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Common;
@@ -48,7 +49,7 @@ public class GetSitemapHandlerTests
         _handler = new GetSitemapHandler(cacheMock.Object, new Mock<ICategoryService>().Object,
             new Mock<IBrandService>().Object, new Mock<IProductService>().Object, _pageServiceMock.Object,
             blogServiceMock.Object, knowledgebaseMock.Object, new CommonSettings(), new BlogSettings(),
-            new NewsSettings(), new KnowledgebaseSettings());
+            new NewsSettings(), new KnowledgebaseSettings(), new AccessControlConfig());
     }
 
     private static Page CreatePage(string id, bool published, bool includeInSitemap)

@@ -1,5 +1,6 @@
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Configuration;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
 namespace Grand.Business.Catalog.Tests.Utilities;
@@ -42,19 +43,30 @@ public class CatalogAccessTests
     }
 
     [TestMethod]
-    public void CustomerGroupsCacheKey_JoinsTheCustomerGroups()
+    public void GetCustomerGroupsCacheKey_JoinsTheCustomerGroups()
     {
         var customer = new Customer();
         customer.Groups.Add("registered");
         customer.Groups.Add("guests");
 
-        Assert.AreEqual("guests,registered", CatalogAccess.For(customer, "s1").CustomerGroupsCacheKey);
+        Assert.AreEqual("guests,registered",
+            CatalogAccess.For(customer, "s1").GetCustomerGroupsCacheKey(new AccessControlConfig()));
     }
 
     [TestMethod]
-    public void CustomerGroupsCacheKey_IncludingHidden_IsEmpty()
+    public void GetCustomerGroupsCacheKey_AclIgnored_IsEmpty()
     {
-        Assert.AreEqual("", CatalogAccess.IncludingHidden("s1").CustomerGroupsCacheKey);
+        var customer = new Customer();
+        customer.Groups.Add("registered");
+
+        Assert.AreEqual("",
+            CatalogAccess.For(customer, "s1").GetCustomerGroupsCacheKey(new AccessControlConfig { IgnoreAcl = true }));
+    }
+
+    [TestMethod]
+    public void GetCustomerGroupsCacheKey_IncludingHidden_IsEmpty()
+    {
+        Assert.AreEqual("", CatalogAccess.IncludingHidden("s1").GetCustomerGroupsCacheKey(new AccessControlConfig()));
     }
 
     [TestMethod]
