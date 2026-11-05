@@ -1,7 +1,9 @@
-﻿using Grand.Data.LiteDb;
+﻿using Grand.Data;
+using Grand.Data.LiteDb;
 using Grand.Domain;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.TypeSearch;
+using Grand.SharedKernel;
 using Grand.SharedKernel.Extensions;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc.ApplicationParts;
@@ -22,6 +24,11 @@ public static class PluginManager
     #region Const
 
     public const string CopyPath = "Plugins/bin";
+
+    /// <summary>
+    ///     The application whose installed-plugins file of an older version is taken over into the database
+    /// </summary>
+    internal const string StorefrontApplicationName = "Grand.Web";
 
     private static readonly Lock _synLock = new();
     
@@ -50,17 +57,22 @@ public static class PluginManager
     public static IEnumerable<PluginInfo> ReferencedPlugins { get; set; }
 
     /// <summary>
+    ///     Where the plugins are recorded as installed; set before <see cref="Load" />
+    /// </summary>
+    public static IPluginStateStore StateStore { get; internal set; }
+
+    /// <summary>
     ///     What <see cref="Load" /> saw on disk; null until plugins are loaded
     /// </summary>
     internal static PluginLoadSnapshot LoadSnapshot { get; set; }
 
     /// <summary>
-    ///     Plugin changes made on disk since this process loaded its plugins; they take effect after a restart.
-    ///     Reads the installed-plugins file and the plugin folders' metadata, never loads an assembly.
+    ///     Plugin changes made since this process loaded its plugins; they take effect after a restart.
+    ///     Reads the installed plugins from the database and the plugin folders' metadata, never loads an assembly.
     /// </summary>
-    public static IReadOnlyList<PluginPendingChange> GetPendingChanges()
+    public static async Task<IReadOnlyList<PluginPendingChange>> GetPendingChanges()
     {
-        return LoadSnapshot?.Compare() ?? [];
+        return LoadSnapshot == null ? [] : await LoadSnapshot.Compare();
     }
 
     /// <summary>
@@ -96,11 +108,15 @@ public static class PluginManager
             _pluginFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins));
             _copyFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins, "bin"));
 
-            var installedPluginSystemNames =
-                (!string.IsNullOrEmpty(_config.InstalledPlugins)
-                    ? _config.InstalledPlugins.Split(",").Select(x => x.Trim())
-                    : PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile))
-                .ToList();
+            //the configured list wins; neither the database nor the file of an older version is read then. Only the
+            //storefront takes its file over: the admin, store and vendor applications kept files of their own
+            var installedByConfiguration = !string.IsNullOrEmpty(_config.InstalledPlugins);
+            var installedPluginSystemNames = installedByConfiguration
+                ? _config.InstalledPlugins.Split(",").Select(x => x.Trim()).ToList()
+                : ReadInstalledPlugins(StateStore,
+                    hostEnvironment.ApplicationName == StorefrontApplicationName
+                        ? PluginPaths.Instance.InstalledPluginsFile
+                        : null, _logger);
 
             _logger.LogInformation("Creating shadow copy folder and querying for dlls");
             Directory.CreateDirectory(_pluginFolder.FullName);
@@ -152,8 +168,7 @@ public static class PluginManager
 
             //before anything is loaded or shadow copied: the plugin folders as found
             LoadSnapshot = PluginLoadSnapshot.Capture(_pluginFolder, scan, installedPluginSystemNames,
-                string.IsNullOrEmpty(_config.InstalledPlugins) ? PluginPaths.Instance.InstalledPluginsFile : null,
-                _config.PluginSkipLoadingPattern);
+                installedByConfiguration ? null : StateStore, _config.PluginSkipLoadingPattern, _logger);
 
             var referencedPlugins = new List<PluginInfo>();
 
@@ -323,18 +338,119 @@ public static class PluginManager
 
 
     /// <summary>
-    ///     Clear plugins
+    ///     Marks every plugin not installed: the installation of the application starts from none
     /// </summary>
-    public static void ClearPlugins()
+    public static async Task ClearPlugins()
     {
+        await StateStore.Clear();
+
         var filePath = PluginPaths.Instance.InstalledPluginsFile;
         if (File.Exists(filePath))
             File.Delete(filePath);
     }
 
+    /// <summary>
+    ///     Records in the database what <see cref="Load" /> found in each plugin folder: what it is and, for one that
+    ///     was rejected, why. Whether a plugin is installed is left as it is. Nothing is recorded before the
+    ///     application is installed, nor while configuration lists the installed plugins (the database does not
+    ///     decide then), and a failure is logged only: the plugins are loaded already.
+    /// </summary>
+    public static void SaveLoadResults()
+    {
+        var plugins = ReferencedPlugins?.ToList();
+        if (plugins == null || StateStore is not { HasDatabase: true } ||
+            !string.IsNullOrEmpty(_config?.InstalledPlugins))
+            return;
+
+        var loadedOnUtc = DateTime.UtcNow;
+        try
+        {
+            StateStore.SaveLoadResults(plugins.Where(x => !string.IsNullOrEmpty(x.SystemName))
+                .Select(x => new PluginState(x.SystemName, x.FriendlyName, x.Version,
+                    x.FolderName ?? x.OriginalAssemblyFile?.Directory?.Name, RejectionOf(x), loadedOnUtc)));
+        }
+        catch (Exception ex)
+        {
+            _logger?.LogError(ex, "The plugin load results could not be saved");
+        }
+    }
+
     #endregion
 
     #region Utilities
+
+    /// <summary>
+    ///     The installed plugins as the database lists them. The installed-plugins file of an older version is
+    ///     taken over when the database lists no plugin yet, and ignored - not even read - when it does; either way
+    ///     it is deleted once the database has the list. Before the application is installed, no plugin is installed
+    ///     and the file is left alone.
+    /// </summary>
+    /// <param name="installedPluginsFile">The file of an older version to take over; null to take none over</param>
+    /// <exception cref="GrandException">
+    ///     The database could not be read, or the file to take over is not valid: an empty list would deactivate
+    ///     every plugin
+    /// </exception>
+    internal static List<string> ReadInstalledPlugins(IPluginStateStore store, string installedPluginsFile,
+        ILogger logger)
+    {
+        ArgumentNullException.ThrowIfNull(store);
+
+        if (!store.HasDatabase)
+            return [];
+
+        try
+        {
+            if (installedPluginsFile != null && File.Exists(installedPluginsFile))
+            {
+                IList<string> fromFile = null;
+                if (store.ImportInstalled(() => fromFile = PluginExtensions.ParseInstalledPluginsFile(installedPluginsFile)))
+                    logger?.LogInformation("Installed plugins taken over from {InstalledPluginsFile}: {SystemNames}",
+                        installedPluginsFile, string.Join(", ", fromFile));
+                else
+                    logger?.LogWarning(
+                        "{InstalledPluginsFile} ignored: the database lists the installed plugins already",
+                        installedPluginsFile);
+
+                DeleteTakenOverFile(installedPluginsFile, logger);
+            }
+
+            return store.InstalledSystemNames().ToList();
+        }
+        catch (Exception ex) when (ex is not GrandException)
+        {
+            throw new GrandException($"The installed plugins could not be read from the database: {ex.Message}", ex);
+        }
+    }
+
+    /// <summary>
+    ///     The database has the list now; a file that cannot be deleted (a read-only App_Data) is ignored on every
+    ///     start that follows, so it must not stop this one
+    /// </summary>
+    private static void DeleteTakenOverFile(string installedPluginsFile, ILogger logger)
+    {
+        try
+        {
+            File.Delete(installedPluginsFile);
+        }
+        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
+        {
+            logger?.LogWarning(ex, "{InstalledPluginsFile} could not be deleted; it is ignored from now on",
+                installedPluginsFile);
+        }
+    }
+
+    /// <summary>
+    ///     Why the plugin is not running: its load error, or a version it was not built for
+    /// </summary>
+    private static string RejectionOf(PluginInfo plugin)
+    {
+        if (plugin.LoadError != null)
+            return plugin.LoadError;
+
+        return plugin.SupportedVersion != GrandVersion.SupportedPluginVersion
+            ? $"Built for GrandNode {plugin.SupportedVersion}, this version supports {GrandVersion.SupportedPluginVersion}"
+            : null;
+    }
 
     /// <summary>
     ///     Simple names of the assemblies the application itself provides (its trusted platform assemblies and

@@ -7,23 +7,44 @@ using TestContext = NUnit.Framework.TestContext;
 namespace Grand.Infrastructure.Tests.Plugins;
 
 [TestClass]
+[DoNotParallelize]
 public class PluginExtensionsTests
 {
+    private PluginStateStoreFixture _stateStore;
+
     public PluginExtensionsTests()
     {
-        
         var pluginPaths = Path.Combine(TestContext.CurrentContext.TestDirectory, CommonPath.AppData, CommonPath.InstalledPluginsFile);
         PluginPaths.Initialize(pluginPaths);
-        PluginManager.ClearPlugins();
+    }
+
+    [TestInitialize]
+    public void Init()
+    {
+        _stateStore = new PluginStateStoreFixture();
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        _stateStore.Dispose();
     }
 
     [TestMethod]
-    public async Task ParseInstalledPluginsFileTest()
+    public void ParseInstalledPluginsFileTest()
     {
-        var sampleBasePlugin = new SampleBasePlugin();
-        await sampleBasePlugin.Install();
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.IsNotNull(plugins);
+        var path = PluginPaths.Instance.InstalledPluginsFile;
+        Directory.CreateDirectory(Path.GetDirectoryName(path)!);
+        File.WriteAllText(path, "[\"plugin1\", \"plugin2\"]");
+        try
+        {
+            CollectionAssert.AreEqual(new[] { "plugin1", "plugin2" },
+                PluginExtensions.ParseInstalledPluginsFile(path).ToList());
+        }
+        finally
+        {
+            File.Delete(path);
+        }
     }
 
     [TestMethod]
@@ -32,7 +53,7 @@ public class PluginExtensionsTests
         //Act
         await PluginExtensions.MarkPluginAsInstalled("plugin1");
         //Assert
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
+        var plugins = _stateStore.Installed();
         Assert.HasCount(1, plugins);
     }
 
@@ -45,29 +66,25 @@ public class PluginExtensionsTests
         //Act
         await PluginExtensions.MarkPluginAsUninstalled("plugin1");
         //Assert
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.HasCount(1, plugins);
+        CollectionAssert.AreEqual(new[] { "plugin2" }, _stateStore.Installed());
     }
 
     [TestMethod]
-    [DoNotParallelize]
     public async Task MarkPluginAsUninstalled_DifferentCase_Removes()
     {
         await PluginExtensions.MarkPluginAsInstalled("Plugin1");
         await PluginExtensions.MarkPluginAsUninstalled("plugin1");
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.IsEmpty(plugins);
+        Assert.IsEmpty(_stateStore.Installed());
     }
 
     [TestMethod]
-    [DoNotParallelize]
     public async Task MarkPluginAsInstalled_Concurrent_KeepsBoth()
     {
         var names = Enumerable.Range(0, 20).Select(i => $"plugin{i}").ToList();
         await Task.WhenAll(names.Select(n => Task.Run(() => PluginExtensions.MarkPluginAsInstalled(n))));
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
+        var plugins = _stateStore.Installed();
         Assert.HasCount(20, plugins);
-        CollectionAssert.AreEquivalent(names, plugins.ToList());
+        CollectionAssert.AreEquivalent(names, plugins);
     }
 
     [TestMethod]

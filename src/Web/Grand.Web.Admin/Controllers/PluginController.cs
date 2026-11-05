@@ -73,10 +73,10 @@ public class PluginController(
     /// <summary>
     ///     The plugin's changes waiting for the restart, matched by system name and by folder
     /// </summary>
-    private static List<PluginPendingChange> PendingChangesOf(PluginInfo pluginInfo)
+    private static async Task<List<PluginPendingChange>> PendingChangesOf(PluginInfo pluginInfo)
     {
         var folder = pluginInfo.OriginalAssemblyFile?.Directory?.Name;
-        return PluginManager.GetPendingChanges()
+        return (await PluginManager.GetPendingChanges())
             .Where(x => string.Equals(x.SystemName, pluginInfo.SystemName, StringComparison.OrdinalIgnoreCase)
                         || (folder != null && string.Equals(x.FolderName, folder, StringComparison.OrdinalIgnoreCase)))
             .ToList();
@@ -186,7 +186,7 @@ public class PluginController(
                 return RedirectToAction("List");
             }
 
-            var pending = PendingChangesOf(pluginInfo);
+            var pending = await PendingChangesOf(pluginInfo);
             if (RestartRequiredFirst(pending))
                 return RedirectToAction("List");
 
@@ -225,7 +225,7 @@ public class PluginController(
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
-            var pending = PendingChangesOf(pluginInfo);
+            var pending = await PendingChangesOf(pluginInfo);
             if (RestartRequiredFirst(pending))
                 return RedirectToAction("List");
 
@@ -285,7 +285,7 @@ public class PluginController(
                 return RedirectToAction("List");
 
             //an installed plugin keeps its settings and data; it is uninstalled first
-            if (IsInstalled(pluginInfo, PendingChangesOf(pluginInfo)))
+            if (IsInstalled(pluginInfo, await PendingChangesOf(pluginInfo)))
             {
                 Error(translationService.GetResource("Admin.Plugins.Remove.UninstallFirst"));
                 return RedirectToAction("List");

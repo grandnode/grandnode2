@@ -1,12 +1,13 @@
-using Grand.SharedKernel;
+using Grand.Data;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Infrastructure.Plugins;
 
 /// <summary>
-///     The plugin state this process loaded, kept to tell which changes on disk wait for a restart. Comparing
-///     runs on every admin page view, so it reads the attributes of each folder's top-level dlls, the
-///     installed-plugins file once, and the manifests of folders that had no plugin at load time and changed
-///     since - never an assembly into the process.
+///     The plugin state this process loaded, kept to tell which changes wait for a restart. Comparing runs on
+///     every admin page view, so it reads the attributes of each folder's top-level dlls, the installed plugins
+///     from the database once, and the manifests of folders that had no plugin at load time and changed since -
+///     never an assembly into the process.
 /// </summary>
 internal sealed class PluginLoadSnapshot
 {
@@ -19,32 +20,37 @@ internal sealed class PluginLoadSnapshot
     private sealed record FileStamp(long Length, DateTime LastWriteTimeUtc, int Count);
 
     private readonly string _pluginsFolder;
-    private readonly string _installedPluginsFile;
+    private readonly IPluginStateStore _stateStore;
     private readonly string _skipPattern;
     private readonly HashSet<string> _installed;
     private readonly Dictionary<string, FileStamp> _otherFolders;
     private readonly Dictionary<string, LoadedFolder> _plugins;
+    private readonly ILogger _logger;
 
-    private PluginLoadSnapshot(string pluginsFolder, string installedPluginsFile, string skipPattern,
-        HashSet<string> installed, Dictionary<string, FileStamp> otherFolders, Dictionary<string, LoadedFolder> plugins)
+    private PluginLoadSnapshot(string pluginsFolder, IPluginStateStore stateStore, string skipPattern,
+        HashSet<string> installed, Dictionary<string, FileStamp> otherFolders, Dictionary<string, LoadedFolder> plugins,
+        ILogger logger)
     {
         _pluginsFolder = pluginsFolder;
-        _installedPluginsFile = installedPluginsFile;
+        _stateStore = stateStore;
         _skipPattern = skipPattern;
         _installed = installed;
         _otherFolders = otherFolders;
         _plugins = plugins;
+        _logger = logger;
     }
 
     /// <summary>
     ///     Records what a load saw
     /// </summary>
-    /// <param name="installedPluginsFile">
-    ///     The file the installed list was read from; null when it came from configuration, which a running
+    /// <param name="stateStore">
+    ///     The store the installed list was read from; null when it came from configuration, which a running
     ///     process cannot change
     /// </param>
+    /// <param name="logger">Told when the database cannot be read while comparing</param>
     internal static PluginLoadSnapshot Capture(DirectoryInfo pluginsFolder, PluginScanResult scan,
-        IEnumerable<string> installedSystemNames, string installedPluginsFile, string skipPattern)
+        IEnumerable<string> installedSystemNames, IPluginStateStore stateStore, string skipPattern,
+        ILogger logger = null)
     {
         var plugins = new Dictionary<string, LoadedFolder>(StringComparer.OrdinalIgnoreCase);
         foreach (var candidate in scan.Plugins)
@@ -62,35 +68,36 @@ internal sealed class PluginLoadSnapshot
         var otherFolders = knownFolders.Where(x => !plugins.ContainsKey(x)).ToDictionary(x => x,
             x => StampOfAssemblies(Path.Combine(pluginsFolder.FullName, x)), StringComparer.OrdinalIgnoreCase);
 
-        return new PluginLoadSnapshot(pluginsFolder.FullName, installedPluginsFile, skipPattern,
-            installedSystemNames.ToHashSet(StringComparer.OrdinalIgnoreCase), otherFolders, plugins);
+        return new PluginLoadSnapshot(pluginsFolder.FullName, stateStore, skipPattern,
+            installedSystemNames.ToHashSet(StringComparer.OrdinalIgnoreCase), otherFolders, plugins, logger);
     }
 
     /// <summary>
-    ///     What differs now from the load. Never throws because of one unreadable file or folder: what
-    ///     cannot be read is not reported.
+    ///     What differs now from the load. Never throws because of one unreadable file or folder, or a database
+    ///     that cannot be read: what cannot be read is not reported.
     /// </summary>
-    internal IReadOnlyList<PluginPendingChange> Compare()
+    internal async Task<IReadOnlyList<PluginPendingChange>> Compare()
     {
         var changes = new List<PluginPendingChange>();
-        CompareInstalled(changes);
+        await CompareInstalled(changes);
         CompareFolders(changes);
         return changes;
     }
 
-    private void CompareInstalled(List<PluginPendingChange> changes)
+    private async Task CompareInstalled(List<PluginPendingChange> changes)
     {
-        if (_installedPluginsFile == null)
+        if (_stateStore is not { HasDatabase: true })
             return;
 
         HashSet<string> installed;
         try
         {
-            installed = PluginExtensions.ParseInstalledPluginsFile(_installedPluginsFile)
-                .ToHashSet(StringComparer.OrdinalIgnoreCase);
+            installed = (await _stateStore.InstalledSystemNamesAsync()).ToHashSet(StringComparer.OrdinalIgnoreCase);
         }
-        catch (Exception ex) when (ex is GrandException || PluginFolderScanner.IsReadFailure(ex))
+        catch (Exception ex)
         {
+            //an admin page must still render; the notice comes back with the database
+            _logger?.LogWarning(ex, "The installed plugins could not be read to compare them with the loaded ones");
             return;
         }
 

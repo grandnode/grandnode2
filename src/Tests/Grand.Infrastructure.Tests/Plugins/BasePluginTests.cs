@@ -1,25 +1,26 @@
-﻿using Grand.Infrastructure.Plugins;
-using Grand.SharedKernel.Extensions;
+﻿using Grand.Infrastructure.Tests.Plugins.Fixtures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using TestContext = NUnit.Framework.TestContext;
 
 namespace Grand.Infrastructure.Tests.Plugins;
 
 [TestClass]
+[DoNotParallelize]
 public class BasePluginTests
 {
+    private PluginStateStoreFixture _stateStore;
     private SampleBasePlugin sampleBasePlugin;
 
     [TestInitialize]
     public void Init()
     {
-        var pluginPaths = Path.Combine(TestContext.CurrentContext.TestDirectory, CommonPath.AppData, CommonPath.InstalledPluginsFile);
-        PluginPaths.Initialize(pluginPaths);
-
-        if (File.Exists(PluginPaths.Instance.InstalledPluginsFile))
-            File.Delete(PluginPaths.Instance.InstalledPluginsFile);
-
+        _stateStore = new PluginStateStoreFixture();
         sampleBasePlugin = new SampleBasePlugin();
+    }
+
+    [TestCleanup]
+    public void Cleanup()
+    {
+        _stateStore.Dispose();
     }
 
     [TestMethod]
@@ -32,8 +33,7 @@ public class BasePluginTests
     public async Task InstallTest()
     {
         await sampleBasePlugin.Install();
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.IsNotNull(plugins);
+        var plugins = _stateStore.Installed();
         Assert.AreEqual("SamplePlugin", plugins.FirstOrDefault());
     }
 
@@ -42,15 +42,14 @@ public class BasePluginTests
     {
         await sampleBasePlugin.Install();
         await sampleBasePlugin.Uninstall();
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.IsEmpty(plugins);
+        Assert.IsEmpty(_stateStore.Installed());
+        Assert.IsFalse(_stateStore.Document("SamplePlugin")["Installed"].AsBoolean);
     }
 
     [TestMethod]
     public async Task UninstallTest()
     {
         await sampleBasePlugin.Uninstall();
-        var plugins = PluginExtensions.ParseInstalledPluginsFile(PluginPaths.Instance.InstalledPluginsFile);
-        Assert.IsEmpty(plugins);
+        Assert.IsEmpty(_stateStore.Installed());
     }
 }

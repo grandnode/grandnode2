@@ -1,7 +1,6 @@
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.Tests.Plugins.Fixtures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
-using System.Text.Json;
 
 namespace Grand.Infrastructure.Tests.Plugins;
 
@@ -9,43 +8,43 @@ namespace Grand.Infrastructure.Tests.Plugins;
 public class PluginPendingChangesTests
 {
     private PluginFolderFixture _fixture;
-    private string _installedFile;
+    private PluginStateStoreFixture _stateStore;
 
     [TestInitialize]
     public void Init()
     {
         _fixture = new PluginFolderFixture();
-        _installedFile = Path.Combine(Path.GetDirectoryName(_fixture.PluginsFolder)!, "App_Data",
-            "InstalledPlugins.cfg");
+        _stateStore = new PluginStateStoreFixture();
     }
 
     [TestCleanup]
     public void Cleanup()
     {
+        _stateStore.Dispose();
         _fixture.Dispose();
     }
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_NothingChanged_IsEmpty()
+    public async Task GetPendingChanges_NothingChanged_IsEmpty()
     {
         _fixture.AddPlugin("A", "Pending.A", "Pending.A");
         _fixture.AddPlugin("B", "Pending.B", "Pending.B");
-        WriteInstalled("Pending.A");
+        await WriteInstalled("Pending.A");
 
-        var changes = PendingAfter(() => { });
+        var changes = await PendingAfter(() => { });
 
         Assert.IsEmpty(changes);
     }
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_MarkedInstalledAfterLoad_ReportsInstalled()
+    public async Task GetPendingChanges_MarkedInstalledAfterLoad_ReportsInstalled()
     {
         _fixture.AddPlugin("A", "Pending.A", "Pending.A");
-        WriteInstalled();
+        await WriteInstalled();
 
-        var changes = PendingAfter(() => WriteInstalled("Pending.A"));
+        var changes = await PendingAfter(() => WriteInstalled("Pending.A"));
 
         Assert.AreEqual(new PluginPendingChange("Pending.A", "A", PluginPendingChangeKind.Installed),
             changes.Single());
@@ -53,12 +52,12 @@ public class PluginPendingChangesTests
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_MarkedUninstalledAfterLoad_ReportsUninstalled()
+    public async Task GetPendingChanges_MarkedUninstalledAfterLoad_ReportsUninstalled()
     {
         _fixture.AddPlugin("A", "Pending.A", "Pending.A");
-        WriteInstalled("Pending.A");
+        await WriteInstalled("Pending.A");
 
-        var changes = PendingAfter(() => WriteInstalled());
+        var changes = await PendingAfter(() => WriteInstalled());
 
         Assert.AreEqual(new PluginPendingChange("Pending.A", "A", PluginPendingChangeKind.Uninstalled),
             changes.Single());
@@ -66,12 +65,12 @@ public class PluginPendingChangesTests
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_NewPluginFolder_ReportsAdded()
+    public async Task GetPendingChanges_NewPluginFolder_ReportsAdded()
     {
         _fixture.AddPlugin("A", "Pending.A", "Pending.A");
-        WriteInstalled();
+        await WriteInstalled();
 
-        var changes = PendingAfter(() =>
+        var changes = await PendingAfter(() =>
         {
             _fixture.AddPlugin("B", "Pending.B", "Pending.B");
             //a folder without a plugin assembly is not a plugin
@@ -83,12 +82,12 @@ public class PluginPendingChangesTests
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_NewFolderWithoutPluginAssembly_IsNotReported()
+    public async Task GetPendingChanges_NewFolderWithoutPluginAssembly_IsNotReported()
     {
         _fixture.AddPlugin("A", "Pending.A", "Pending.A");
-        WriteInstalled();
+        await WriteInstalled();
 
-        var changes = PendingAfter(() =>
+        var changes = await PendingAfter(() =>
         {
             Directory.CreateDirectory(_fixture.Folder("Native"));
             File.WriteAllBytes(Path.Combine(_fixture.Folder("Native"), "native.dll"), [0x4D, 0x5A, 1, 2, 3]);
@@ -100,13 +99,13 @@ public class PluginPendingChangesTests
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_LoadedFolderDeleted_ReportsRemoved()
+    public async Task GetPendingChanges_LoadedFolderDeleted_ReportsRemoved()
     {
         _fixture.AddPlugin("A", "Pending.A", "Pending.A");
         _fixture.AddPlugin("B", "Pending.B", "Pending.B");
-        WriteInstalled();
+        await WriteInstalled();
 
-        var changes = PendingAfter(() => Directory.Delete(_fixture.Folder("B"), true));
+        var changes = await PendingAfter(() => Directory.Delete(_fixture.Folder("B"), true));
 
         Assert.AreEqual(new PluginPendingChange("Pending.B", "B", PluginPendingChangeKind.Removed),
             changes.Single());
@@ -114,13 +113,13 @@ public class PluginPendingChangesTests
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_MainDllReplaced_ReportsUpdated()
+    public async Task GetPendingChanges_MainDllReplaced_ReportsUpdated()
     {
         var main = _fixture.AddPlugin("A", "Pending.A", "Pending.A");
-        WriteInstalled("Pending.A");
+        await WriteInstalled("Pending.A");
         var loadedLength = new FileInfo(main).Length;
 
-        var changes = PendingAfter(() =>
+        var changes = await PendingAfter(() =>
         {
             _fixture.AddPlugin("A", "Pending.A", "Pending.A", "public class AddedInTheNewVersion { }");
             Assert.AreNotEqual(loadedLength, new FileInfo(main).Length);
@@ -132,13 +131,13 @@ public class PluginPendingChangesTests
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_OnlyDependencyReplaced_ReportsUpdated()
+    public async Task GetPendingChanges_OnlyDependencyReplaced_ReportsUpdated()
     {
         _fixture.AddPlugin("A", "Pending.A", "Pending.A");
         TestPluginBuilder.Compile(_fixture.Folder("A"), "Pending.A.Dependency", "public class Dependency { }");
-        WriteInstalled("Pending.A");
+        await WriteInstalled("Pending.A");
 
-        var changes = PendingAfter(() => TestPluginBuilder.Compile(_fixture.Folder("A"), "Pending.A.Dependency",
+        var changes = await PendingAfter(() => TestPluginBuilder.Compile(_fixture.Folder("A"), "Pending.A.Dependency",
             "public class Dependency { } public class AddedInTheNewVersion { }"));
 
         Assert.AreEqual(new PluginPendingChange("Pending.A", "A", PluginPendingChangeKind.Updated),
@@ -147,13 +146,13 @@ public class PluginPendingChangesTests
 
     [TestMethod]
     [DoNotParallelize]
-    public void GetPendingChanges_PluginCopiedIntoAFolderThatHadNone_ReportsAdded()
+    public async Task GetPendingChanges_PluginCopiedIntoAFolderThatHadNone_ReportsAdded()
     {
         _fixture.AddPlugin("A", "Pending.A", "Pending.A");
         Directory.CreateDirectory(_fixture.Folder("B"));
-        WriteInstalled();
+        await WriteInstalled();
 
-        var changes = PendingAfter(() => _fixture.AddPlugin("B", "Pending.B", "Pending.B"));
+        var changes = await PendingAfter(() => _fixture.AddPlugin("B", "Pending.B", "Pending.B"));
 
         Assert.AreEqual(new PluginPendingChange("Pending.B", "B", PluginPendingChangeKind.Added), changes.Single());
     }
@@ -161,17 +160,26 @@ public class PluginPendingChangesTests
     /// <summary>
     ///     Records the state as <see cref="PluginManager.Load" /> does, applies the change and compares
     /// </summary>
-    private IReadOnlyList<PluginPendingChange> PendingAfter(Action change)
+    private Task<IReadOnlyList<PluginPendingChange>> PendingAfter(Action change)
+    {
+        return PendingAfter(() =>
+        {
+            change();
+            return Task.CompletedTask;
+        });
+    }
+
+    private async Task<IReadOnlyList<PluginPendingChange>> PendingAfter(Func<Task> change)
     {
         var loadSnapshot = PluginManager.LoadSnapshot;
         try
         {
             PluginManager.LoadSnapshot = PluginLoadSnapshot.Capture(new DirectoryInfo(_fixture.PluginsFolder),
-                _fixture.Scan(), PluginExtensions.ParseInstalledPluginsFile(_installedFile), _installedFile, null);
+                _fixture.Scan(), _stateStore.Installed(), _stateStore.Store, null);
 
-            change();
+            await change();
 
-            return PluginManager.GetPendingChanges();
+            return await PluginManager.GetPendingChanges();
         }
         finally
         {
@@ -179,9 +187,13 @@ public class PluginPendingChangesTests
         }
     }
 
-    private void WriteInstalled(params string[] systemNames)
+    /// <summary>
+    ///     Leaves exactly these plugins installed
+    /// </summary>
+    private async Task WriteInstalled(params string[] systemNames)
     {
-        Directory.CreateDirectory(Path.GetDirectoryName(_installedFile)!);
-        File.WriteAllText(_installedFile, JsonSerializer.Serialize(systemNames));
+        await _stateStore.Store.Clear();
+        foreach (var systemName in systemNames)
+            await _stateStore.Store.SetInstalled(systemName, true);
     }
 }

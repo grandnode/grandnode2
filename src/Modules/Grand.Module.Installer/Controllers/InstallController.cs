@@ -247,7 +247,7 @@ public class InstallController : Controller
             //reset cache
             DataSettingsManager.Instance.ResetCache();
 
-            PluginManager.ClearPlugins();
+            await PluginManager.ClearPlugins();
 
             var pluginsInfo = PluginManager.ReferencedPlugins.ToList();
 

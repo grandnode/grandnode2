@@ -282,8 +282,91 @@ public class PluginManagerTests
             x.Category == "PluginManager" && x.Message.Contains("Creating shadow copy folder")));
     }
 
+    [TestMethod]
+    public async Task Load_InstalledPluginsConfigured_NeitherReadsNorWritesTheDatabase()
+    {
+        _fixture.AddPlugin("Installed", "Manager.Installed", "Manager.Installed",
+            "public class InstalledPlugin : BasePlugin { }");
+        using var stateStore = new PluginStateStoreFixture();
+        await stateStore.Store.SetInstalled("Manager.Other", true);
+
+        Load("Manager.Installed");
+        PluginManager.SaveLoadResults();
+
+        Assert.IsTrue(Plugin("Manager.Installed").IsActive);
+        Assert.IsNull(stateStore.Document("Manager.Installed"));
+        CollectionAssert.AreEqual(new[] { "Manager.Other" }, stateStore.Installed());
+    }
+
+    [TestMethod]
+    public void Load_FromTheDatabase_LoadsItsInstalledPluginsAndRecordsEveryFolder()
+    {
+        _fixture.AddPlugin("Installed", "Manager.Installed", "Manager.Installed",
+            "public class InstalledPlugin : BasePlugin { }");
+        _fixture.AddPlugin("Uninstalled", "Manager.Uninstalled", "Manager.Uninstalled");
+        using var stateStore = new PluginStateStoreFixture();
+        stateStore.Store.ImportInstalled(() => ["Manager.Installed"]);
+
+        Load(installed: "");
+        PluginManager.SaveLoadResults();
+
+        Assert.IsTrue(Plugin("Manager.Installed").IsActive);
+        Assert.IsFalse(Plugin("Manager.Uninstalled").Installed);
+        Assert.AreEqual("Installed", stateStore.Document("Manager.Installed")["FolderName"].AsString);
+        Assert.IsFalse(stateStore.Document("Manager.Uninstalled")["Installed"].AsBoolean);
+    }
+
+    [TestMethod]
+    public void Load_OtherThanTheStorefront_LeavesTheFileOfAnOlderVersionAlone()
+    {
+        _fixture.AddPlugin("Installed", "Manager.Installed", "Manager.Installed",
+            "public class InstalledPlugin : BasePlugin { }");
+        using var stateStore = new PluginStateStoreFixture();
+        var file = WriteInstalledPluginsFile("Manager.Installed");
+        try
+        {
+            Load(installed: "", applicationName: "Grand.Web.Admin");
+
+            Assert.IsFalse(Plugin("Manager.Installed").Installed);
+            Assert.IsEmpty(stateStore.Installed());
+            Assert.IsTrue(File.Exists(file));
+        }
+        finally
+        {
+            File.Delete(file);
+        }
+    }
+
+    [TestMethod]
+    public void Load_Storefront_TakesTheFileOfAnOlderVersionOver()
+    {
+        _fixture.AddPlugin("Installed", "Manager.Installed", "Manager.Installed",
+            "public class InstalledPlugin : BasePlugin { }");
+        using var stateStore = new PluginStateStoreFixture();
+        var file = WriteInstalledPluginsFile("Manager.Installed");
+
+        Load(installed: "", applicationName: PluginManager.StorefrontApplicationName);
+
+        Assert.IsTrue(Plugin("Manager.Installed").IsActive);
+        CollectionAssert.AreEqual(new[] { "Manager.Installed" }, stateStore.Installed());
+        Assert.IsFalse(File.Exists(file));
+    }
+
+    /// <summary>
+    ///     Writes the installed-plugins file where <see cref="PluginPaths" /> points; initialized once per process
+    /// </summary>
+    private static string WriteInstalledPluginsFile(params string[] systemNames)
+    {
+        PluginPaths.Initialize(Path.Combine(Path.GetTempPath(), "grand-plugin-manager-tests",
+            Guid.NewGuid().ToString("N"), "InstalledPlugins.cfg"));
+        var file = PluginPaths.Instance.InstalledPluginsFile;
+        Directory.CreateDirectory(Path.GetDirectoryName(file)!);
+        File.WriteAllText(file, System.Text.Json.JsonSerializer.Serialize(systemNames));
+        return file;
+    }
+
     private void Load(string installed = "Manager.NotInstalled", bool useLiteDb = false, bool shadowCopy = false,
-        CapturingLoggerProvider logs = null, bool failOnPluginLoadError = false)
+        CapturingLoggerProvider logs = null, bool failOnPluginLoadError = false, string applicationName = null)
     {
         var configuration = new ConfigurationBuilder()
             .AddInMemoryCollection(new Dictionary<string, string> {
@@ -295,6 +378,7 @@ public class PluginManagerTests
             .Build();
         var hostEnvironment = new Mock<IWebHostEnvironment>();
         hostEnvironment.Setup(x => x.ContentRootPath).Returns(Path.GetDirectoryName(_fixture.PluginsFolder)!);
+        hostEnvironment.Setup(x => x.ApplicationName).Returns(applicationName);
         var mvcCoreBuilder = new ServiceCollection().AddLogging(x =>
         {
             if (logs != null)
