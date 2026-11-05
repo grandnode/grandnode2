@@ -52,12 +52,15 @@ public sealed class LiteDBPluginStateStore : IPluginStateStore
             if (collection.Count() > 0)
                 return false;
 
-            foreach (var systemName in systemNames().DistinctBy(PluginStateDocument.IdOf))
-                collection.Upsert(new BsonDocument {
-                    [PluginStateDocument.Id] = PluginStateDocument.IdOf(systemName),
-                    [PluginStateDocument.SystemName] = systemName,
+            //one transaction: a failure halfway must not leave part of the list behind, which the next start would
+            //take for all of it
+            collection.Upsert(systemNames().DistinctBy(PluginStateDocument.IdOf)
+                .Select(x => new BsonDocument {
+                    [PluginStateDocument.Id] = PluginStateDocument.IdOf(x),
+                    [PluginStateDocument.SystemName] = x,
                     [PluginStateDocument.Installed] = true
-                });
+                })
+                .ToList());
 
             return true;
         });

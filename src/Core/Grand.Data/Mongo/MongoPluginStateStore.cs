@@ -66,8 +66,13 @@ public sealed class MongoPluginStateStore : IPluginStateStore
         if (collection.Find(FilterDefinition<BsonDocument>.Empty).Limit(1).Any())
             return false;
 
-        foreach (var systemName in systemNames().DistinctBy(PluginStateDocument.IdOf))
-            collection.UpdateOne(ById(systemName), InstalledUpdate(systemName, true), Upsert);
+        //one command, not one per plugin: a connection lost halfway must not leave part of the list behind, which
+        //the next start would take for all of it
+        var writes = systemNames().DistinctBy(PluginStateDocument.IdOf)
+            .Select(x => new UpdateOneModel<BsonDocument>(ById(x), InstalledUpdate(x, true)) { IsUpsert = true })
+            .ToList();
+        if (writes.Count > 0)
+            collection.BulkWrite(writes);
 
         return true;
     }
