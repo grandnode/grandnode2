@@ -26,6 +26,9 @@ RUN dotnet publish /app/Web/Grand.Web/Grand.Web.csproj -c Release -o ./build/rel
 # Runtime stage
 FROM mcr.microsoft.com/dotnet/aspnet:10.0 AS runtime
 
+# Security fixes of the OS packages, without waiting for a rebuilt base image
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 EXPOSE 8080
 WORKDIR /app
 COPY --from=build-env /app/build/release .
