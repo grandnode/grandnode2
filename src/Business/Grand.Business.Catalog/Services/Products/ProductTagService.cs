@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Infrastructure.Caching;
@@ -117,9 +118,6 @@ public class ProductTagService : IProductTagService
 
         await _productTagRepository.InsertAsync(productTag);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(productTag);
     }
@@ -144,9 +142,6 @@ public class ProductTagService : IProductTagService
             await _productRepository.UpdateField(product.Id, x => x.ProductTags, tags);
         }
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(productTag);
     }
@@ -164,10 +159,6 @@ public class ProductTagService : IProductTagService
 
         //delete tag
         await _productTagRepository.DeleteAsync(productTag);
-
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(productTag);
@@ -188,10 +179,7 @@ public class ProductTagService : IProductTagService
         //update product tag
         await _productTagRepository.UpdateField(productTag.Id, x => x.Count, productTag.Count + 1);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityInserted(productTag);
@@ -211,10 +199,7 @@ public class ProductTagService : IProductTagService
         //update product tag
         await _productTagRepository.UpdateField(productTag.Id, x => x.Count, productTag.Count - 1);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityDeleted(productTag);

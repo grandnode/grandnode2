@@ -368,8 +368,7 @@ public class ProductService : IProductService
         //update field
         await _productRepository.UpdateField(product.Id, expression, value);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(product.Id, listsChanged: true));
 
         //event notification
         await _mediator.EntityUpdated(product);
@@ -416,8 +415,7 @@ public class ProductService : IProductService
 
         await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
 
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(product.Id, listsChanged: true));
 
         //event
         await _mediator.Publish(new ProductUnPublishEvent(product));
