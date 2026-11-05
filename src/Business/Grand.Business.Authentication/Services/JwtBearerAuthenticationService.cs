@@ -1,7 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Infrastructure.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
 
 #pragma warning disable CS0618 //API users stay supported until removed
 
@@ -27,10 +27,10 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
     /// <summary>
     ///     Valid
     /// </summary>
-    /// <param name="context">Context</param>
-    public virtual async Task<bool> Valid(TokenValidatedContext context)
+    /// <param name="principal">Principal of the validated token</param>
+    public virtual async Task<bool> Valid(ClaimsPrincipal principal)
     {
-        if (context.Principal == null) return await Task.FromResult(false);
+        if (principal == null) return await Task.FromResult(false);
 
         //provider-only: API users are refused, tokens issued before the switch included
         if (_oidcLoginConfig.ProviderOnly)
@@ -39,8 +39,8 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
             return false;
         }
 
-        _email = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
-        var token = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Token")?.Value;
+        _email = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Email")?.Value;
+        var token = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Token")?.Value;
         if (string.IsNullOrEmpty(token))
         {
             _errorMessage = "Wrong token, change password on the customer and create token again";

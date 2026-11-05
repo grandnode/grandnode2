@@ -58,7 +58,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
             new("RefreshId", "567")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Not found customer", await _jwtBearerCustomerAuthenticationService.ErrorMessage());
     }
@@ -77,7 +77,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
             new("Email", "admin@yourstore.com")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Invalid token or cancel by refresh token",
             await _jwtBearerCustomerAuthenticationService.ErrorMessage());
@@ -101,7 +101,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new Customer { Active = false }));
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Customer not exists/or not active in the customer table",
             await _jwtBearerCustomerAuthenticationService.ErrorMessage());
@@ -127,7 +127,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
 
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("You do not have permission to use API operation (Customer group)",
             await _jwtBearerCustomerAuthenticationService.ErrorMessage());
@@ -155,7 +155,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
 
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
 
         Assert.IsTrue(result);
         //resolved by the stable id, not by e-mail
@@ -185,7 +185,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
 
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
         Assert.IsTrue(result);
     }
 
@@ -218,7 +218,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         _externalSignInPolicyMock.Setup(c => c.PasswordSignIn(customer, SignInSurface.FrontendApi))
             .ReturnsAsync(new PasswordSignInDecision(false, null));
 
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
 
         Assert.IsFalse(result);
         Assert.AreEqual("Sign in through the identity provider: tokens obtained with the password are not accepted",
@@ -233,7 +233,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         _externalSignInPolicyMock.Setup(c => c.PasswordSignIn(customer, SignInSurface.FrontendApi))
             .ReturnsAsync(new PasswordSignInDecision(false, null));
 
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
 
         Assert.IsTrue(result);
         _externalSignInPolicyMock.Verify(c => c.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()),
@@ -261,7 +261,7 @@ public class JwtBearerCustomerAuthenticationServiceTests
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
 
-        var result = await _jwtBearerCustomerAuthenticationService.Valid(context);
+        var result = await _jwtBearerCustomerAuthenticationService.Valid(context.Principal);
 
         Assert.IsTrue(result);
     }

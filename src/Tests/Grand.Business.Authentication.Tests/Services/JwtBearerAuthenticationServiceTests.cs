@@ -42,7 +42,7 @@ public class JwtBearerAuthenticationServiceTests
             new("Token", "123")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        var result = await _jwtBearerAuthenticationService.Valid(context);
+        var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Email not exists in the context", await _jwtBearerAuthenticationService.ErrorMessage());
     }
@@ -57,7 +57,7 @@ public class JwtBearerAuthenticationServiceTests
             new("Email", "johny@gmail.com")
         };
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
-        var result = await _jwtBearerAuthenticationService.Valid(context);
+        var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Wrong token, change password on the customer and create token again",
             await _jwtBearerAuthenticationService.ErrorMessage());
@@ -76,7 +76,7 @@ public class JwtBearerAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult<Customer>(null));
-        var result = await _jwtBearerAuthenticationService.Valid(context);
+        var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Email not exists/or not active in the customer table",
             await _jwtBearerAuthenticationService.ErrorMessage());
@@ -95,7 +95,7 @@ public class JwtBearerAuthenticationServiceTests
         context.Principal = new ClaimsPrincipal(new ClaimsIdentity(claims, ""));
         _customerService.Setup(c => c.GetCustomerByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new Customer { Active = false }));
-        var result = await _jwtBearerAuthenticationService.Valid(context);
+        var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Email not exists/or not active in the customer table",
             await _jwtBearerAuthenticationService.ErrorMessage());
@@ -116,7 +116,7 @@ public class JwtBearerAuthenticationServiceTests
             .Returns(() => Task.FromResult(new Customer { Active = true }));
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new UserApi { IsActive = false, Token = "123" }));
-        var result = await _jwtBearerAuthenticationService.Valid(context);
+        var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("User api not exists/or not active in the user api table",
             await _jwtBearerAuthenticationService.ErrorMessage());
@@ -137,7 +137,7 @@ public class JwtBearerAuthenticationServiceTests
             .Returns(() => Task.FromResult(new Customer { Active = true }));
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "321" }));
-        var result = await _jwtBearerAuthenticationService.Valid(context);
+        var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsFalse(result);
         Assert.AreEqual("Wrong token, generate again", await _jwtBearerAuthenticationService.ErrorMessage());
     }
@@ -157,7 +157,7 @@ public class JwtBearerAuthenticationServiceTests
             .Returns(() => Task.FromResult(new Customer { Active = true }));
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "123" }));
-        var result = await _jwtBearerAuthenticationService.Valid(context);
+        var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
         Assert.IsTrue(result);
     }
 
@@ -177,7 +177,7 @@ public class JwtBearerAuthenticationServiceTests
         _userApiServiceMock.Setup(c => c.GetUserByEmail(It.IsAny<string>()))
             .Returns(() => Task.FromResult(new UserApi { IsActive = true, Token = "123" }));
 
-        var result = await _jwtBearerAuthenticationService.Valid(context);
+        var result = await _jwtBearerAuthenticationService.Valid(context.Principal);
 
         Assert.IsFalse(result);
         Assert.AreEqual("Sign-in with API users is disabled: use access tokens from the identity provider",

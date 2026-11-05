@@ -1,4 +1,4 @@
-﻿using Microsoft.AspNetCore.Authentication.JwtBearer;
+﻿using System.Security.Claims;
 
 namespace Grand.Business.Core.Interfaces.Authentication;
 
@@ -8,8 +8,8 @@ public interface IJwtBearerAuthenticationService
     /// <summary>
     ///     Valid email
     /// </summary>
-    /// <param name="context">Token</param>
-    Task<bool> Valid(TokenValidatedContext context);
+    /// <param name="principal">Principal of the validated token</param>
+    Task<bool> Valid(ClaimsPrincipal principal);
 
     /// <summary>
     ///     Get error message

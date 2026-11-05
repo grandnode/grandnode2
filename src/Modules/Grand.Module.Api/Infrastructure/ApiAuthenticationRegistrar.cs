@@ -62,7 +62,7 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                     {
                         var jwtAuthentication = context.HttpContext.RequestServices
                             .GetRequiredService<IJwtBearerAuthenticationService>();
-                        if (!await jwtAuthentication.Valid(context))
+                        if (!await jwtAuthentication.Valid(context.Principal))
                             throw new Exception(await jwtAuthentication.ErrorMessage());
                     }
                     else
@@ -120,7 +120,7 @@ public class ApiAuthenticationRegistrar : IAuthenticationBuilder
                     {
                         var jwtAuthentication = context.HttpContext.RequestServices
                             .GetRequiredService<IJwtBearerCustomerAuthenticationService>();
-                        var isValid = await jwtAuthentication.Valid(context);
+                        var isValid = await jwtAuthentication.Valid(context.Principal);
                         if (!isValid)
                             throw new Exception(await jwtAuthentication.ErrorMessage());
                     }
