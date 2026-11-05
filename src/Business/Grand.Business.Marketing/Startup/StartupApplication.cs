@@ -13,8 +13,6 @@ using Grand.Business.Marketing.Services.Documents;
 using Grand.Business.Marketing.Services.Newsletters;
 using Grand.Business.Marketing.Services.PushNotifications;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,10 +26,6 @@ public class StartupApplication : IStartupApplication
         RegisterDocumentsService(services);
         RegisterCommon(services);
         RegisterCustomer(services);
-    }
-
-    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
-    {
     }
 
     public int Priority => 100;

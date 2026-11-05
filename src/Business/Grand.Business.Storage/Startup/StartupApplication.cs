@@ -3,7 +3,6 @@ using Grand.Business.Storage.Services;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Extensions;
-using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -47,10 +46,6 @@ public class StartupApplication : IStartupApplication
                 configuration[CommonPath.DirectoryParam]);
             return new DefaultMediaFileStore(fileStore);
         });
-    }
-
-    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
-    {
     }
 
     public int Priority => 100;

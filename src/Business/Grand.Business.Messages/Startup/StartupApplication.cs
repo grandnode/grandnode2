@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Messages.Services;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -33,10 +31,6 @@ public class StartupApplication : IStartupApplication
             var provider = new FileExtensionContentTypeProvider();
             return new MimeMappingService(provider);
         });
-    }
-
-    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
-    {
     }
 
     public int Priority => 100;
