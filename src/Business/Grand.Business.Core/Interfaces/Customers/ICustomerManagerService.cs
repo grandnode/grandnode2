@@ -39,4 +39,14 @@ public interface ICustomerManagerService
     /// <param name="request">Request</param>
     /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
     Task ChangePassword(ChangePasswordRequest request, string storeId = "");
+
+    /// <summary>
+    ///     Change password of this customer, without resolving the account by e-mail
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <param name="passwordFormat">Password format</param>
+    /// <param name="newPassword">New password</param>
+    /// <remarks>The default body keeps implementations built for an earlier 2.4 release loading without a rebuild</remarks>
+    Task ChangePassword(Customer customer, PasswordFormat passwordFormat, string newPassword) =>
+        ChangePassword(new ChangePasswordRequest(customer.Email, passwordFormat, newPassword), customer.StoreId);
 }

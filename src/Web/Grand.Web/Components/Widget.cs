@@ -51,10 +51,13 @@ public class WidgetViewComponent : BaseViewComponent
         if (!cachedModel.Any())
             return Content("");
 
-        if (additionalData == null) return View(cachedModel);
+        //the cached list is shared between requests, so request data goes on copies
+        var model = cachedModel.Select(item => new WidgetModel {
+            ViewComponentName = item.ViewComponentName,
+            WidgetZone = item.WidgetZone,
+            AdditionalData = additionalData
+        }).ToList();
 
-        foreach (var item in cachedModel) item.AdditionalData = additionalData;
-
-        return View(cachedModel);
+        return View(model);
     }
 }

@@ -19,6 +19,8 @@
     </ItemGroup>
 
     <ItemGroup>
+        <ProjectReference Include="..\..\Core\Grand.Data\Grand.Data.csproj" />
+        <ProjectReference Include="..\..\Core\Grand.Infrastructure\Grand.Infrastructure.csproj" />
         <ProjectReference Include="..\..\Core\Grand.SharedKernel\Grand.SharedKernel.csproj" />
         <ProjectReference Include="..\..\Modules\Grand.Module.Api\Grand.Module.Api.csproj" />
     </ItemGroup>

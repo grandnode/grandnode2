@@ -38,26 +38,36 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
 
     public async Task<bool> Handle(UpdateCustomerInfoCommand request, CancellationToken cancellationToken)
     {
-        //username 
+        //username - stored lowercased like every other write, or the lowercased lookups miss it
         if (_customerSettings.UsernamesEnabled && _customerSettings.AllowUsersToChangeUsernames)
-            if (!request.Customer.Username.Equals(request.Model.Username.Trim(), StringComparison.OrdinalIgnoreCase))
+        {
+            var username = request.Model.Username.Trim().ToLowerInvariant();
+            if (request.Customer.Username != username)
             {
                 //change username
-                request.Customer.Username = request.Model.Username.Trim();
-                await _customerService.UpdateCustomerField(request.Customer, x => x.Username,
-                    request.Model.Username.Trim());
+                request.Customer.Username = username;
+                await _customerService.UpdateCustomerField(request.Customer, x => x.Username, username);
                 //re-authenticate
                 if (request.OriginalCustomerIfImpersonated == null)
                     await _authenticationService.SignIn(request.Customer, true);
             }
+        }
 
-        //email
-        if (!request.Customer.Email.Equals(request.Model.Email.Trim(), StringComparison.OrdinalIgnoreCase) &&
-            _customerSettings.AllowUsersToChangeEmail)
+        //email - stored lowercased for the same reason. An address differing only in case is the same address,
+        //so it is repaired even where changing it is not allowed
+        var email = request.Model.Email.Trim().ToLowerInvariant();
+        var sameAddress = string.Equals(request.Customer.Email, email, StringComparison.OrdinalIgnoreCase);
+        if (request.Customer.Email != email && (sameAddress || _customerSettings.AllowUsersToChangeEmail))
         {
             //change email
-            request.Customer.Email = request.Model.Email.Trim();
-            await _customerService.UpdateCustomerField(request.Customer, x => x.Email, request.Model.Email.Trim());
+            request.Customer.Email = email;
+            await _customerService.UpdateCustomerField(request.Customer, x => x.Email, email);
+            //without usernames the username is the email (as registration sets it)
+            if (!_customerSettings.UsernamesEnabled)
+            {
+                request.Customer.Username = email;
+                await _customerService.UpdateCustomerField(request.Customer, x => x.Username, email);
+            }
             //re-authenticate (if usernames are disabled)
             //do not authenticate users in impersonation mode
             if (request.OriginalCustomerIfImpersonated == null)

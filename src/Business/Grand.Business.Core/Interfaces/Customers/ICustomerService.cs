@@ -191,6 +191,13 @@ public interface ICustomerService
     Task UpdateActive(Customer customer);
 
     /// <summary>
+    ///     Updates the password fields of the customer, and nothing else
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <remarks>The default body keeps implementations built for an earlier 2.4 release loading without a rebuild</remarks>
+    Task UpdateCustomerPassword(Customer customer) => UpdateCustomer(customer);
+
+    /// <summary>
     ///     Update the customer
     /// </summary>
     /// <param name="customer"></param>
