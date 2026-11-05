@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Events;
 using Grand.Mediator;
 using Tax.CountryStateZip.Domain;
+using Tax.CountryStateZip.Services;
 
 namespace Tax.CountryStateZip.Infrastructure.Cache;
 
@@ -30,17 +31,20 @@ public class ModelCacheEventConsumer :
 
     public async Task Handle(EntityDeleted<TaxRate> eventMessage, CancellationToken cancellationToken)
     {
+        await _cacheBase.RemoveByPrefix(TaxRateService.TAXRATE_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(ALL_TAX_RATES_PATTERN_KEY);
     }
 
     //tax rates
     public async Task Handle(EntityInserted<TaxRate> eventMessage, CancellationToken cancellationToken)
     {
+        await _cacheBase.RemoveByPrefix(TaxRateService.TAXRATE_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(ALL_TAX_RATES_PATTERN_KEY);
     }
 
     public async Task Handle(EntityUpdated<TaxRate> eventMessage, CancellationToken cancellationToken)
     {
+        await _cacheBase.RemoveByPrefix(TaxRateService.TAXRATE_PATTERN_KEY);
         await _cacheBase.RemoveByPrefix(ALL_TAX_RATES_PATTERN_KEY);
     }
 }

@@ -2,6 +2,8 @@
 using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Extensions;
+using Grand.Mediator;
 using Widgets.Slider.Domain;
 
 namespace Widgets.Slider.Services;
@@ -10,12 +12,13 @@ public class SliderService : ISliderService
 {
     public SliderService(IRepository<PictureSlider> repositoryPictureSlider,
         IContextAccessor contextAccessor, IAclService aclService,
-        ICacheBase cacheManager)
+        ICacheBase cacheManager, IMediator mediator)
     {
         _repositoryPictureSlider = repositoryPictureSlider;
         _contextAccessor = contextAccessor;
         _aclService = aclService;
         _cacheBase = cacheManager;
+        _mediator = mediator;
     }
 
     /// <summary>
@@ -26,10 +29,10 @@ public class SliderService : ISliderService
     {
         ArgumentNullException.ThrowIfNull(slider);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
-
         await _repositoryPictureSlider.DeleteAsync(slider);
+
+        //event notification
+        await _mediator.EntityDeleted(slider);
     }
 
     /// <summary>
@@ -84,10 +87,10 @@ public class SliderService : ISliderService
     {
         ArgumentNullException.ThrowIfNull(slide);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
-
         await _repositoryPictureSlider.InsertAsync(slide);
+
+        //event notification
+        await _mediator.EntityInserted(slide);
     }
 
     /// <summary>
@@ -98,10 +101,10 @@ public class SliderService : ISliderService
     {
         ArgumentNullException.ThrowIfNull(slide);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
-
         await _repositoryPictureSlider.UpdateAsync(slide);
+
+        //event notification
+        await _mediator.EntityUpdated(slide);
     }
 
     /// <summary>
@@ -112,10 +115,10 @@ public class SliderService : ISliderService
     {
         ArgumentNullException.ThrowIfNull(slide);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(SLIDERS_PATTERN_KEY);
-
         await _repositoryPictureSlider.DeleteAsync(slide);
+
+        //event notification
+        await _mediator.EntityDeleted(slide);
     }
 
     #region Fields
@@ -124,6 +127,7 @@ public class SliderService : ISliderService
     private readonly IAclService _aclService;
     private readonly IContextAccessor _contextAccessor;
     private readonly ICacheBase _cacheBase;
+    private readonly IMediator _mediator;
 
     /// <summary>
     ///     Key for sliders
@@ -135,7 +139,7 @@ public class SliderService : ISliderService
     /// </remarks>
     private const string SLIDERS_MODEL_KEY = "Grand.slider-{0}-{1}-{2}";
 
-    private const string SLIDERS_PATTERN_KEY = "Grand.slider";
+    internal const string SLIDERS_PATTERN_KEY = "Grand.slider";
 
     #endregion
 }

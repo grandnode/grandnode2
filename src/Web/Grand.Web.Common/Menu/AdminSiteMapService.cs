@@ -42,9 +42,6 @@ public class AdminSiteMapService : IAdminSiteMapService
 
         await _adminSiteMapRepository.InsertAsync(entity);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ADMIN_SITEMAP_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(entity);
     }
@@ -55,9 +52,6 @@ public class AdminSiteMapService : IAdminSiteMapService
 
         await _adminSiteMapRepository.UpdateAsync(entity);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ADMIN_SITEMAP_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(entity);
     }
@@ -67,9 +61,6 @@ public class AdminSiteMapService : IAdminSiteMapService
         ArgumentNullException.ThrowIfNull(entity);
 
         await _adminSiteMapRepository.DeleteAsync(entity);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ADMIN_SITEMAP_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(entity);

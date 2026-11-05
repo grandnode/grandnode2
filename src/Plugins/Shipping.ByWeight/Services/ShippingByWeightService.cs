@@ -1,6 +1,8 @@
 ﻿using Grand.Data;
 using Grand.Domain;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Extensions;
+using Grand.Mediator;
 using Shipping.ByWeight.Domain;
 
 namespace Shipping.ByWeight.Services;
@@ -10,10 +12,12 @@ public class ShippingByWeightService : IShippingByWeightService
     #region Ctor
 
     public ShippingByWeightService(ICacheBase cacheBase,
-        IRepository<ShippingByWeightRecord> sbwRepository)
+        IRepository<ShippingByWeightRecord> sbwRepository,
+        IMediator mediator)
     {
         _cacheBase = cacheBase;
         _sbwRepository = sbwRepository;
+        _mediator = mediator;
     }
 
     #endregion
@@ -21,7 +25,7 @@ public class ShippingByWeightService : IShippingByWeightService
     #region Constants
 
     private const string SHIPPINGBYWEIGHT_ALL_KEY = "Grand.shippingbyweight.all-{0}-{1}-{2}";
-    private const string SHIPPINGBYWEIGHT_PATTERN_KEY = "Grand.shippingbyweight.";
+    internal const string SHIPPINGBYWEIGHT_PATTERN_KEY = "Grand.shippingbyweight.";
 
     #endregion
 
@@ -29,6 +33,7 @@ public class ShippingByWeightService : IShippingByWeightService
 
     private readonly IRepository<ShippingByWeightRecord> _sbwRepository;
     private readonly ICacheBase _cacheBase;
+    private readonly IMediator _mediator;
 
     #endregion
 
@@ -40,7 +45,7 @@ public class ShippingByWeightService : IShippingByWeightService
 
         await _sbwRepository.DeleteAsync(shippingByWeightRecord);
 
-        await _cacheBase.RemoveByPrefix(SHIPPINGBYWEIGHT_PATTERN_KEY);
+        await _mediator.EntityDeleted(shippingByWeightRecord);
     }
 
     public virtual async Task<IPagedList<ShippingByWeightRecord>> GetAll(string storeId = "", int pageIndex = 0,
@@ -108,7 +113,7 @@ public class ShippingByWeightService : IShippingByWeightService
 
         await _sbwRepository.InsertAsync(shippingByWeightRecord);
 
-        await _cacheBase.RemoveByPrefix(SHIPPINGBYWEIGHT_PATTERN_KEY);
+        await _mediator.EntityInserted(shippingByWeightRecord);
     }
 
     public virtual async Task UpdateShippingByWeightRecord(ShippingByWeightRecord shippingByWeightRecord)
@@ -117,7 +122,7 @@ public class ShippingByWeightService : IShippingByWeightService
 
         await _sbwRepository.UpdateAsync(shippingByWeightRecord);
 
-        await _cacheBase.RemoveByPrefix(SHIPPINGBYWEIGHT_PATTERN_KEY);
+        await _mediator.EntityUpdated(shippingByWeightRecord);
     }
 
     #endregion
