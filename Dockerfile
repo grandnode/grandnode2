@@ -33,6 +33,9 @@ LABEL org.opencontainers.image.title="GrandNode" \
       org.opencontainers.image.vendor="GrandNode" \
       org.opencontainers.image.licenses="GPL-3.0-only"
 
+# Security fixes of the OS packages, without waiting for a rebuilt base image
+RUN apt-get update && apt-get upgrade -y && rm -rf /var/lib/apt/lists/*
+
 EXPOSE 8080
 WORKDIR /app
 COPY --from=build-env /app/build/release .
