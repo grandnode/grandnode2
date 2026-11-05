@@ -246,14 +246,9 @@ public class SettingService : ISettingService
     ///     Reads the settings of a store, and the global ones, into the cache, so that settings resolved from the container need no query
     /// </summary>
     /// <param name="storeId">Store identifier</param>
-    public virtual async Task LoadStoreSettings(string storeId)
+    public virtual Task LoadStoreSettings(string storeId)
     {
-        await GetStoreSettings(storeId);
-
-        //a scope without a store context reads the global ones - e.g. a background task, which resolves
-        //the task and the work context setter before it sets the store context
-        if (!string.IsNullOrEmpty(storeId))
-            await GetStoreSettings("");
+        return GetStoreSettings(storeId);
     }
 
     /// <summary>

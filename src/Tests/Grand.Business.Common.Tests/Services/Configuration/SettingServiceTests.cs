@@ -95,12 +95,12 @@ public class SettingServiceTests
 
         await service.LoadStoreSettings("store1");
         var settings = (TestSettings)service.LoadSetting(typeof(TestSettings), "store1");
-        var global = (TestSettings)service.LoadSetting(typeof(TestSettings), "");
+        var other = (OtherSettings)service.LoadSetting(typeof(OtherSettings), "store1");
 
         Assert.AreEqual("store", settings.Value);
-        Assert.AreEqual("global", global.Value);
-        //one query for the store, one for the global settings, none on resolving
-        _repositoryMock.Verify(x => x.Table, Times.Exactly(2));
+        Assert.IsNull(other.Value);
+        //one query for the store and the global settings, none on resolving
+        _repositoryMock.Verify(x => x.Table, Times.Once);
     }
 
     [TestMethod]
