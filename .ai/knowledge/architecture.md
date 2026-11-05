@@ -24,6 +24,7 @@ Grand.SharedKernel             — Interfaces and utilities shared across all la
 Rules:
 - Domain has no dependencies on infrastructure or business layers.
 - Business layer depends on Domain and Data abstractions (`IRepository<T>`), not on concrete Mongo types.
+- Business layer does not use ASP.NET Core (only Data Protection): HTTP, routing, authentication schemes and the web root belong to `Grand.Web.Common`. `BusinessLayerBoundaryTests` fails otherwise.
 - Controllers delegate to the mediator — never contain business logic.
 - Infrastructure registrations go in `IStartupApplication`, not `Program.cs`.
 - Dependencies point inward. Core, business, and web projects never reference a plugin.
