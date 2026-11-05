@@ -1,15 +1,15 @@
 ﻿using Azure.Identity;
 using FluentValidation;
-using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Configuration;
-using Grand.Business.Core.Utilities.Authentication;
 using Grand.Data;
 using Grand.Domain.Configuration;
+using Grand.Infrastructure.Security;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Plugins;
 using Grand.Infrastructure.TypeSearch;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.Oidc;
 using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;

@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Common.Security.Oidc;
 using Microsoft.AspNetCore.Authentication;
