@@ -112,9 +112,6 @@ public class BrandService : IBrandService
 
         await _brandRepository.InsertAsync(brand);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.BRANDS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(brand);
     }
@@ -129,9 +126,6 @@ public class BrandService : IBrandService
 
         await _brandRepository.UpdateAsync(brand);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.BRANDS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(brand);
     }
@@ -143,8 +137,6 @@ public class BrandService : IBrandService
     public virtual async Task DeleteBrand(Brand brand)
     {
         ArgumentNullException.ThrowIfNull(brand);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.BRANDS_PATTERN_KEY);
 
         await _brandRepository.DeleteAsync(brand);
 

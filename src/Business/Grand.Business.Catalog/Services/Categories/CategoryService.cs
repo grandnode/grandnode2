@@ -345,10 +345,6 @@ public class CategoryService : ICategoryService
 
         await _categoryRepository.InsertAsync(category);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(category);
     }
@@ -378,10 +374,6 @@ public class CategoryService : ICategoryService
 
         await _categoryRepository.UpdateAsync(category);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(category);
     }
@@ -405,9 +397,6 @@ public class CategoryService : ICategoryService
         }
 
         await _categoryRepository.DeleteAsync(category);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORIES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(category);

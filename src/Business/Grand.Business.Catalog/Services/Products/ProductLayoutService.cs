@@ -78,9 +78,6 @@ public class ProductLayoutService : IProductLayoutService
 
         await _productLayoutRepository.InsertAsync(productLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCT_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(productLayout);
     }
@@ -95,9 +92,6 @@ public class ProductLayoutService : IProductLayoutService
 
         await _productLayoutRepository.UpdateAsync(productLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCT_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(productLayout);
     }
@@ -111,9 +105,6 @@ public class ProductLayoutService : IProductLayoutService
         ArgumentNullException.ThrowIfNull(productLayout);
 
         await _productLayoutRepository.DeleteAsync(productLayout);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCT_LAYOUT_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(productLayout);

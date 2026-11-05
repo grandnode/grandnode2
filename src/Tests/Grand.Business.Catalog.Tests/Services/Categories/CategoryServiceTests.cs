@@ -55,12 +55,11 @@ public class CategoryServiceTests
     }
 
     [TestMethod]
-    public async Task InsertCategory_ValidArgument_InvokeRepositoryAndCache()
+    public async Task InsertCategory_ValidArgument_InvokeRepositoryAndPublish()
     {
         await _categoryService.InsertCategory(new Category());
         _categoryRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<Category>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Category>>(), default), Times.Once);
-        _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
     }
 
 
@@ -72,12 +71,11 @@ public class CategoryServiceTests
     }
 
     [TestMethod]
-    public async Task UpdateCategory_ValidArgument_InvokeRepositoryAndCache()
+    public async Task UpdateCategory_ValidArgument_InvokeRepositoryAndPublish()
     {
         await _categoryService.UpdateCategory(new Category());
         _categoryRepositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Category>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Category>>(), default), Times.Once);
-        _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(2));
     }
 
     [TestMethod]

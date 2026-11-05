@@ -108,8 +108,6 @@ public class MeasureService : IMeasureService
 
         await _measureDimensionRepository.InsertAsync(measure);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREDIMENSIONS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(measure);
     }
@@ -124,8 +122,6 @@ public class MeasureService : IMeasureService
 
         await _measureDimensionRepository.UpdateAsync(measure);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREDIMENSIONS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(measure);
     }
@@ -139,8 +135,6 @@ public class MeasureService : IMeasureService
         ArgumentNullException.ThrowIfNull(measureDimension);
 
         await _measureDimensionRepository.DeleteAsync(measureDimension);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREDIMENSIONS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(measureDimension);
@@ -264,8 +258,6 @@ public class MeasureService : IMeasureService
 
         await _measureWeightRepository.InsertAsync(measure);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREWEIGHTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(measure);
     }
@@ -280,8 +272,6 @@ public class MeasureService : IMeasureService
 
         await _measureWeightRepository.UpdateAsync(measure);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREWEIGHTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(measure);
     }
@@ -295,8 +285,6 @@ public class MeasureService : IMeasureService
         ArgumentNullException.ThrowIfNull(measureWeight);
 
         await _measureWeightRepository.DeleteAsync(measureWeight);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREWEIGHTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(measureWeight);
@@ -405,8 +393,6 @@ public class MeasureService : IMeasureService
 
         await _measureUnitRepository.InsertAsync(measure);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREUNITS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(measure);
     }
@@ -420,8 +406,6 @@ public class MeasureService : IMeasureService
         ArgumentNullException.ThrowIfNull(measure);
 
         await _measureUnitRepository.UpdateAsync(measure);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREUNITS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(measure);
@@ -437,10 +421,6 @@ public class MeasureService : IMeasureService
 
         //delete
         await _measureUnitRepository.DeleteAsync(measureUnit);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MEASUREUNITS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(measureUnit);

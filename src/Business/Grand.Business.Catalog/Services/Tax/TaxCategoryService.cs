@@ -80,8 +80,6 @@ public class TaxCategoryService : ITaxCategoryService
 
         await _taxCategoryRepository.InsertAsync(taxCategory);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(taxCategory);
     }
@@ -95,8 +93,6 @@ public class TaxCategoryService : ITaxCategoryService
         ArgumentNullException.ThrowIfNull(taxCategory);
 
         await _taxCategoryRepository.UpdateAsync(taxCategory);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(taxCategory);
@@ -113,10 +109,8 @@ public class TaxCategoryService : ITaxCategoryService
         await _taxCategoryRepository.DeleteAsync(taxCategory);
 
         //clear tax categories cache
-        await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
 
         //clear product cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(taxCategory);

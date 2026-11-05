@@ -78,9 +78,6 @@ public class BrandLayoutService : IBrandLayoutService
 
         await _brandLayoutRepository.InsertAsync(brandLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.BRAND_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(brandLayout);
     }
@@ -95,9 +92,6 @@ public class BrandLayoutService : IBrandLayoutService
 
         await _brandLayoutRepository.UpdateAsync(brandLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.BRAND_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(brandLayout);
     }
@@ -111,9 +105,6 @@ public class BrandLayoutService : IBrandLayoutService
         ArgumentNullException.ThrowIfNull(brandLayout);
 
         await _brandLayoutRepository.DeleteAsync(brandLayout);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.BRAND_LAYOUT_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(brandLayout);
