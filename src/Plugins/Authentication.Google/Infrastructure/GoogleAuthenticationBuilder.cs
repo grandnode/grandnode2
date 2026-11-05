@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Authentication;
+﻿using Grand.Infrastructure.Security;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
 using Microsoft.AspNetCore.Authentication.OAuth;

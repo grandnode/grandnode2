@@ -1,4 +1,7 @@
+using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Interfaces.System.Admin;
+using Grand.Business.Storage.Services;
 using Grand.Data;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
@@ -7,8 +10,10 @@ using Grand.Infrastructure.Caching.Redis;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
+using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Audit;
 using Grand.Web.Common.Helpers;
+using Grand.Web.Common.Infrastructure;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Menu;
 using Grand.Web.Common.Middleware;
@@ -24,6 +29,7 @@ using Grand.Web.Common.Validators;
 using Grand.Web.Common.View;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -49,6 +55,8 @@ public class StartupApplication : IStartupApplication
         RegisterContextService(services);
 
         RegisterFramework(services);
+
+        RegisterMediaFileStore(services, configuration);
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
@@ -136,6 +144,11 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ICookieOptionsFactory, CookieOptionsFactory>();
         serviceCollection.AddScoped<IApiAuthenticationService, ApiAuthenticationService>();
         serviceCollection.AddScoped<IEnumTranslationService, EnumTranslationService>();
+        serviceCollection.AddScoped<IMimeMappingService, MimeMappingService>(_ =>
+        {
+            var provider = new FileExtensionContentTypeProvider();
+            return new MimeMappingService(provider);
+        });
         if (DataSettingsManager.DatabaseIsInstalled())
         {
             serviceCollection.AddScoped<LocService>();
@@ -157,5 +170,19 @@ public class StartupApplication : IStartupApplication
         //request reCAPTCHA service
         serviceCollection.AddHttpClient<IGoogleReCaptchaValidator, GoogleReCaptchaValidator>(client =>
             client.Timeout = TimeSpan.FromSeconds(10));
+    }
+
+    private static void RegisterMediaFileStore(IServiceCollection serviceCollection, IConfiguration configuration)
+    {
+        //the media folders sit under the web root, which only the web host knows
+        serviceCollection.AddScoped<IMediaFileStore>(serviceProvider =>
+        {
+            var webHostEnvironment = serviceProvider.GetRequiredService<IWebHostEnvironment>();
+            var appConfig = serviceProvider.GetRequiredService<AppConfig>();
+            var fileStore = MediaFileStoreFactory.Create(webHostEnvironment.WebRootPath,
+                appConfig.GetMediaRootPath(webHostEnvironment.ContentRootPath),
+                configuration[CommonPath.DirectoryParam]);
+            return new DefaultMediaFileStore(fileStore);
+        });
     }
 }

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Utilities.Authentication;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.IdentityModel.JsonWebTokens;

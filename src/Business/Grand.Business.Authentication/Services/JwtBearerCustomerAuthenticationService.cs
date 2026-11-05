@@ -6,7 +6,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Configuration;
-using Microsoft.AspNetCore.Authentication.JwtBearer;
+using System.Security.Claims;
 
 namespace Grand.Business.Authentication.Services;
 
@@ -32,13 +32,13 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
         _oidcLoginConfig = oidcLoginConfig;
     }
 
-    public async Task<bool> Valid(TokenValidatedContext context)
+    public async Task<bool> Valid(ClaimsPrincipal principal)
     {
-        if (context.Principal == null) return false;
-        var customerId = context.Principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
-        var email = context.Principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
-        var passwordToken = context.Principal.Claims.FirstOrDefault(x => x.Type == "Token")?.Value;
-        var refreshId = context.Principal.Claims.FirstOrDefault(x => x.Type == "RefreshId")?.Value;
+        if (principal == null) return false;
+        var customerId = principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
+        var email = principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
+        var passwordToken = principal.Claims.FirstOrDefault(x => x.Type == "Token")?.Value;
+        var refreshId = principal.Claims.FirstOrDefault(x => x.Type == "RefreshId")?.Value;
         Customer customer = null;
         if (!string.IsNullOrEmpty(customerId))
         {
@@ -48,7 +48,7 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
         else if (email is null)
         {
             //guest
-            var id = context.Principal.Claims.ToList().FirstOrDefault(x => x.Type == "Guid")?.Value;
+            var id = principal.Claims.ToList().FirstOrDefault(x => x.Type == "Guid")?.Value;
             if (id != null) customer = await _customerService.GetCustomerByGuid(Guid.Parse(id));
         }
         else

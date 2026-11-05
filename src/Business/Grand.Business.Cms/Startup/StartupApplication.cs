@@ -1,8 +1,6 @@
 ﻿using Grand.Business.Cms.Services;
 using Grand.Business.Core.Interfaces.Cms;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,10 +18,6 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IPageService, PageService>();
         services.AddScoped<ICookiePreference, CookiePreference>();
         services.AddScoped<IRobotsTxtService, RobotsTxtService>();
-    }
-
-    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
-    {
     }
 
     public int Priority => 100;

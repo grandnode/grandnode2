@@ -13,8 +13,6 @@ using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.System.Reports;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -28,10 +26,6 @@ public class StartupApplication : IStartupApplication
         RegisterPaymentsService(services);
         RegisterShippingService(services);
         RegisterExportImport(services);
-    }
-
-    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
-    {
     }
 
     public int Priority => 100;

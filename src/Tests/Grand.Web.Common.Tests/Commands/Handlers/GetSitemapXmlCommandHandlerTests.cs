@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Business.Core.Utilities.Catalog;
-using Grand.Business.Messages.Commands.Handlers.Common;
 using Grand.Domain;
 using Grand.Domain.Blogs;
 using Grand.Domain.Catalog;
@@ -15,17 +14,17 @@ using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
 using Grand.Domain.News;
-using Grand.Domain.Pages;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
+using Grand.Web.Common.Commands.Handlers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Routing;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using System.Xml.Linq;
 
-namespace Grand.Business.Messages.Tests.Commands;
+namespace Grand.Web.Common.Tests.Commands.Handlers;
 
 [TestClass]
 public class GetSitemapXmlCommandHandlerTests
@@ -66,7 +65,7 @@ public class GetSitemapXmlCommandHandlerTests
             .ReturnsAsync(new PagedList<Category>());
         _brandServiceMock.Setup(x => x.GetAllBrands("", CatalogAccess.IncludingHidden(StoreId), 0, int.MaxValue))
             .ReturnsAsync(new PagedList<Brand>());
-        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Page>());
+        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Grand.Domain.Pages.Page>());
         _knowledgebaseServiceMock.Setup(x => x.GetPublicKnowledgebaseArticles(StoreId,
                 It.Is<IList<string>>(g => g.SequenceEqual(new[] { GuestsGroupId }))))
             .ReturnsAsync(new List<KnowledgebaseArticle>());
@@ -103,7 +102,7 @@ public class GetSitemapXmlCommandHandlerTests
     public async Task Handle_WhenPagesIncludedInSitemap_WritesNonEmptyPageLocations()
     {
         //Arrange
-        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Page> {
+        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Grand.Domain.Pages.Page> {
             new() { Id = "1", SystemName = "AboutUs", SeName = "about-us", Published = true, IncludeInSitemap = true },
             new() { Id = "2", SystemName = "Shipping", SeName = "shipping", Published = true, IncludeInSitemap = true }
         });
@@ -163,7 +162,7 @@ public class GetSitemapXmlCommandHandlerTests
     public async Task Handle_ListsOnlyWhatAGuestCanSee()
     {
         //Arrange
-        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Page> {
+        _pageServiceMock.Setup(x => x.GetAllPages(CatalogAccess.IncludingHidden(StoreId))).ReturnsAsync(new List<Grand.Domain.Pages.Page> {
             new() { Id = "1", SystemName = "Open", SeName = "open-page", Published = true, IncludeInSitemap = true },
             new() {
                 Id = "2", SystemName = "ForGuests", SeName = "guest-page", Published = true, IncludeInSitemap = true,

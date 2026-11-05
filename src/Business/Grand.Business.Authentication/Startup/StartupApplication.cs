@@ -2,12 +2,8 @@
 using Grand.Business.Authentication.Services.Scim;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
-using Microsoft.Extensions.Logging;
 
 #pragma warning disable CS0618 //API users stay supported until removed
 
@@ -31,16 +27,6 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<ScimAccountLock>();
         services.AddScoped<IScimUserService, ScimUserService>();
         services.AddScoped<IScimGroupService, ScimGroupService>();
-    }
-
-    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
-    {
-        var problem = OidcSignInModeCheck.Problem(application.Services.GetService<OidcLoginConfig>(),
-            application.Services.GetService<OidcResourceServerConfig>());
-        if (problem != null)
-            application.Services.GetRequiredService<ILogger<OidcSsoSignInPolicy>>().LogError(
-                "ProviderOnly sign-in mode without a working OpenID Connect login ({Problem}): only break-glass accounts can sign in",
-                problem);
     }
 
     public int Priority => 100;

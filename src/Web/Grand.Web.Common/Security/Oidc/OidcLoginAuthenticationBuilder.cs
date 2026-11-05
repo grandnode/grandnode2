@@ -1,6 +1,6 @@
-using Grand.Business.Core.Interfaces.Authentication;
-using Grand.Business.Core.Utilities.Authentication;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Security;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.OpenIdConnect;

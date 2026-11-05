@@ -23,7 +23,7 @@ using Microsoft.AspNetCore.Routing;
 using System.Text.RegularExpressions;
 using System.Xml;
 
-namespace Grand.Business.Messages.Commands.Handlers.Common;
+namespace Grand.Web.Common.Commands.Handlers;
 
 public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand, string>
 {

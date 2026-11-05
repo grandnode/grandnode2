@@ -1,7 +1,7 @@
 ﻿using Microsoft.AspNetCore.Authentication;
 using Microsoft.Extensions.Configuration;
 
-namespace Grand.Business.Core.Interfaces.Authentication;
+namespace Grand.Infrastructure.Security;
 
 /// <summary>
 ///     Interface to add authentication

@@ -6,8 +6,6 @@ using Grand.Business.Customers.Services.ExportImport;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Microsoft.AspNetCore.Builder;
-using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -20,10 +18,6 @@ public class StartupApplication : IStartupApplication
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         RegisterCustomerService(services);
-    }
-
-    public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
-    {
     }
 
     public int Priority => 100;
