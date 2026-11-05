@@ -67,7 +67,7 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
     {
         var cacheKey = string.Format(CacheKeyConst.SITEMAP_PAGE_MODEL_KEY,
             request.Language.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()),
+            request.Customer.GetCustomerGroupsCacheKey(),
             request.Store.Id);
         var cachedModel = await _cacheBase.GetAsync(cacheKey, async () =>
         {

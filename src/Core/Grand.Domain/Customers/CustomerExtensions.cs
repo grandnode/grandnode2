@@ -240,5 +240,15 @@ public static class CustomerExtensions
         return customer.Groups.Order(StringComparer.Ordinal).ToArray();
     }
 
+    /// <summary>
+    ///     Get the customer group part of a cache key
+    /// </summary>
+    /// <param name="customer">Customer</param>
+    /// <returns>Sorted customer group identifiers joined with commas</returns>
+    public static string GetCustomerGroupsCacheKey(this Customer customer)
+    {
+        return string.Join(",", customer.GetCustomerGroupIds());
+    }
+
     #endregion
 }

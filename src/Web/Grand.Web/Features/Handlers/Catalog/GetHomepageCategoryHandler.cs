@@ -40,7 +40,7 @@ public class GetHomepageCategoryHandler : IRequestHandler<GetHomepageCategory, I
     public async Task<IList<CategoryModel>> Handle(GetHomepageCategory request, CancellationToken cancellationToken)
     {
         var categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_HOMEPAGE_KEY,
-            string.Join(",", request.Customer.GetCustomerGroupIds()),
+            request.Customer.GetCustomerGroupsCacheKey(),
             request.Store.Id,
             request.Language.Id);
 

@@ -84,7 +84,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
 
             var breadcrumbCacheKey = string.Format(CacheKeyConst.CATEGORY_BREADCRUMB_KEY,
                 request.Category.Id,
-                string.Join(",", customer.GetCustomerGroupIds()),
+                customer.GetCustomerGroupsCacheKey(),
                 storeId,
                 languageId);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
@@ -148,7 +148,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
             //We cache a value indicating whether we have featured products
             IPagedList<Product> featuredProducts = null;
             var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, request.Category.Id,
-                string.Join(",", customer.GetCustomerGroupIds()), storeId);
+                customer.GetCustomerGroupsCacheKey(), storeId);
 
             var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
             {

@@ -136,7 +136,7 @@ public class CategoryService : ICategoryService
     {
         //hidden records are not filtered by customer groups, so the key does not depend on them
         var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, access.ShowHidden,
-            access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()), access.StoreId);
+            access.CustomerGroupsCacheKey, access.StoreId);
         return await _cacheBase.GetAsync(key, () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);

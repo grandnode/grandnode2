@@ -51,7 +51,7 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
         CancellationToken cancellationToken)
     {
         var categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_FEATURED_PRODUCTS_HOMEPAGE_KEY,
-            string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id,
+            request.Customer.GetCustomerGroupsCacheKey(), request.Store.Id,
             request.Language.Id);
 
         var model = await _cacheBase.GetAsync(categoriesCacheKey, async () =>
@@ -100,7 +100,7 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
             //We cache a value indicating whether we have featured products
             IPagedList<Product> featuredProducts = null;
             var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, item.Id,
-                string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id);
+                request.Customer.GetCustomerGroupsCacheKey(), request.Store.Id);
 
             var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
             {

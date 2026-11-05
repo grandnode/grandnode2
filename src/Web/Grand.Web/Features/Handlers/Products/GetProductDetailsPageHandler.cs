@@ -290,7 +290,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         var collectionsCacheKey = string.Format(CacheKeyConst.PRODUCT_COLLECTIONS_MODEL_KEY,
             product.Id,
             _contextAccessor.WorkContext.WorkingLanguage.Id,
-            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupsCacheKey(),
             _contextAccessor.StoreContext.CurrentStore.Id);
         model.ProductCollections = await _cacheBase.GetAsync(collectionsCacheKey, async () =>
         {
@@ -536,7 +536,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         var breadcrumbCacheKey = string.Format(CacheKeyConst.PRODUCT_BREADCRUMB_MODEL_KEY,
             product.Id,
             _contextAccessor.WorkContext.WorkingLanguage.Id,
-            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupsCacheKey(),
             _contextAccessor.StoreContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
         {

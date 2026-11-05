@@ -129,7 +129,7 @@ public class KnowledgebaseController : BasePublicController
         model.CurrentCategorySeName = category.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id);
 
         var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY, category.Id,
-            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()), _contextAccessor.StoreContext.CurrentStore.Id,
+            _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupsCacheKey(), _contextAccessor.StoreContext.CurrentStore.Id,
             _contextAccessor.WorkContext.WorkingLanguage.Id);
         model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
             (await GetCategoryBreadCrumb(category))
@@ -271,7 +271,7 @@ public class KnowledgebaseController : BasePublicController
         {
             var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY,
                 article.ParentCategoryId,
-                string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+                _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupsCacheKey(),
                 _contextAccessor.StoreContext.CurrentStore.Id,
                 _contextAccessor.WorkContext.WorkingLanguage.Id);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>

@@ -28,7 +28,7 @@ public class GetChildCategoryIdsHandler : IRequestHandler<GetChildCategoryIds, I
     {
         var cacheKey = string.Format(CacheKeyConst.CATEGORY_CHILD_IDENTIFIERS_MODEL_KEY,
             request.ParentCategoryId,
-            string.Join(",", request.Customer.GetCustomerGroupIds()),
+            request.Customer.GetCustomerGroupsCacheKey(),
             request.Store.Id);
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {

@@ -94,7 +94,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
 
         var cacheKey = string.Format(CacheKeyConst.SEARCH_CATEGORIES_MODEL_KEY,
             request.Language.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()),
+            request.Customer.GetCustomerGroupsCacheKey(),
             request.Store.Id);
         var categories = await _cacheBase.GetAsync(cacheKey, async () =>
         {

@@ -30,7 +30,7 @@ public class GetCollectionNavigationHandler : IRequestHandler<GetCollectionNavig
         CancellationToken cancellationToken)
     {
         var cacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MODEL_KEY,
-            request.CurrentCollectionId, request.Language.Id, string.Join(",", request.Customer.GetCustomerGroupIds()),
+            request.CurrentCollectionId, request.Language.Id, request.Customer.GetCustomerGroupsCacheKey(),
             request.Store.Id);
         var cacheModel = await _cacheBase.GetAsync(cacheKey, async () =>
         {

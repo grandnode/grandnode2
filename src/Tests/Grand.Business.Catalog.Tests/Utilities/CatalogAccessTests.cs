@@ -42,6 +42,22 @@ public class CatalogAccessTests
     }
 
     [TestMethod]
+    public void CustomerGroupsCacheKey_JoinsTheCustomerGroups()
+    {
+        var customer = new Customer();
+        customer.Groups.Add("registered");
+        customer.Groups.Add("guests");
+
+        Assert.AreEqual("guests,registered", CatalogAccess.For(customer, "s1").CustomerGroupsCacheKey);
+    }
+
+    [TestMethod]
+    public void CustomerGroupsCacheKey_IncludingHidden_IsEmpty()
+    {
+        Assert.AreEqual("", CatalogAccess.IncludingHidden("s1").CustomerGroupsCacheKey);
+    }
+
+    [TestMethod]
     public void Equals_ComparesCustomerAndStore()
     {
         var customer = new Customer();

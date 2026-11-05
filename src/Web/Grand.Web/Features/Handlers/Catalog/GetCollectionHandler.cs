@@ -63,7 +63,7 @@ public class GetCollectionHandler : IRequestHandler<GetCollection, CollectionMod
             //We cache a value indicating whether we have featured products
             var cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
                 request.Collection.Id,
-                string.Join(",", request.Customer.GetCustomerGroupIds()),
+                request.Customer.GetCustomerGroupsCacheKey(),
                 request.Store.Id);
             var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
             {

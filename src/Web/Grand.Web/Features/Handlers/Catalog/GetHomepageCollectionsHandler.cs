@@ -40,7 +40,7 @@ public class GetHomepageCollectionsHandler : IRequestHandler<GetHomepageCollecti
         CancellationToken cancellationToken)
     {
         var collectionsCacheKey = string.Format(CacheKeyConst.COLLECTION_HOMEPAGE_KEY, request.Store.Id,
-            request.Language.Id, string.Join(",", request.Customer.GetCustomerGroupIds()));
+            request.Language.Id, request.Customer.GetCustomerGroupsCacheKey());
 
         var model = await _cacheBase.GetAsync(collectionsCacheKey, async () =>
         {

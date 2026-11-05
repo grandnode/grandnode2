@@ -39,7 +39,7 @@ public class GetHomepageBrandsHandler : IRequestHandler<GetHomepageBrands, IList
     public async Task<IList<BrandModel>> Handle(GetHomepageBrands request, CancellationToken cancellationToken)
     {
         var brandsCacheKey = string.Format(CacheKeyConst.BRAND_HOMEPAGE_KEY, request.Store.Id, request.Language.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()));
+            request.Customer.GetCustomerGroupsCacheKey());
 
         var model = await _cacheBase.GetAsync(brandsCacheKey, async () =>
         {

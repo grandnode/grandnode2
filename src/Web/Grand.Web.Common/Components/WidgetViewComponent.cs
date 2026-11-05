@@ -24,7 +24,7 @@ public class WidgetViewComponent : BaseViewComponent
     public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
     {
         var cacheKey = string.Format(CacheKey.WIDGET_MODEL_KEY, _contextAccessor.StoreContext.CurrentStore.Id,
-            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupsCacheKey(),
             widgetZone);
 
         var cachedModel = await _cacheBase.GetAsync(cacheKey, async () =>

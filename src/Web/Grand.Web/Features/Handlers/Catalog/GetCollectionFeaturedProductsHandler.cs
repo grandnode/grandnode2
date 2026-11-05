@@ -52,7 +52,7 @@ public class
         CancellationToken cancellationToken)
     {
         var collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_FEATURED_PRODUCT_HOMEPAGE_KEY,
-            string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id,
+            request.Customer.GetCustomerGroupsCacheKey(), request.Store.Id,
             request.Language.Id);
 
         var model = await _cacheBase.GetAsync(collectionCacheKey, async () =>
@@ -104,7 +104,7 @@ public class
 
             var cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
                 item.Id,
-                string.Join(",", request.Customer.GetCustomerGroupIds()),
+                request.Customer.GetCustomerGroupsCacheKey(),
                 request.Store.Id);
 
             var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>

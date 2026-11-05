@@ -58,7 +58,7 @@ public class GetMenuHandler : IRequestHandler<GetMenu, MenuModel>
 
     public async Task<MenuModel> Handle(GetMenu request, CancellationToken cancellationToken)
     {
-        var customerGroups = string.Join(",", request.Customer.GetCustomerGroupIds());
+        var customerGroups = request.Customer.GetCustomerGroupsCacheKey();
         var cacheKey = string.Format(CacheKeyConst.CATEGORIES_BY_MENU,
             request.Language.Id,
             request.Store.Id, customerGroups);

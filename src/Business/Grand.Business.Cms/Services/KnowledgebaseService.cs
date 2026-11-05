@@ -76,7 +76,7 @@ public class KnowledgebaseService : IKnowledgebaseService
         //groups only matter with the ACL on; "*" keeps reads including hidden records apart from a customer with no groups
         var groupIds = _accessControlConfig.IgnoreAcl ? ""
             : access.ShowHidden ? "*"
-            : string.Join(",", access.Customer.GetCustomerGroupIds());
+            : access.Customer.GetCustomerGroupsCacheKey();
         var standardParams = new[] { groupIds, access.StoreId };
 
         var allParams = additionalParams != null

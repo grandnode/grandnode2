@@ -43,7 +43,7 @@ public class ProductCollectionService : IProductCollectionService
 
         //hidden records are not filtered by customer groups, so the key does not depend on them
         var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, access.ShowHidden, collectionId,
-            pageIndex, pageSize, access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()),
+            pageIndex, pageSize, access.CustomerGroupsCacheKey,
             access.StoreId);
         return await _cacheBase.GetAsync(key, async () =>
         {

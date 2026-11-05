@@ -38,7 +38,7 @@ public class GetSearchBoxHandler : IRequestHandler<GetSearchBox, SearchBoxModel>
     {
         var cacheKey = string.Format(CacheKeyConst.CATEGORY_ALL_SEARCHBOX,
             request.Language.Id, request.Store.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()));
+            request.Customer.GetCustomerGroupsCacheKey());
 
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {

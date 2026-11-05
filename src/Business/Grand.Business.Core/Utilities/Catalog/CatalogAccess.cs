@@ -32,6 +32,12 @@ public sealed record CatalogAccess
     public bool ShowHidden => Customer == null;
 
     /// <summary>
+    ///     Gets the customer group part of a cache key; empty when hidden records are included, since the groups
+    ///     do not filter them then
+    /// </summary>
+    public string CustomerGroupsCacheKey => ShowHidden ? "" : Customer.GetCustomerGroupsCacheKey();
+
+    /// <summary>
     ///     The published records the customer's groups may see in the store
     /// </summary>
     public static CatalogAccess For(Customer customer, string storeId)
