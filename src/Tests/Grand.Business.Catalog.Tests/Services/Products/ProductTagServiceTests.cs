@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -142,6 +143,25 @@ public class ProductTagServiceTests
 
         //Assert
         Assert.IsNull(result);
+    }
+
+    [TestMethod]
+    public async Task DeleteProductTag_RemovesTagFromProducts_AnnouncesEveryChangedProduct()
+    {
+        var productTag = new ProductTag { Name = "test" };
+        await _productTagService.InsertProductTag(productTag);
+        var tagged = new Product { ProductTags = { "test", "other" } };
+        var untagged = new Product { ProductTags = { "other" } };
+        await _productRepository.InsertAsync(tagged);
+        await _productRepository.InsertAsync(untagged);
+
+        await _productTagService.DeleteProductTag(productTag);
+
+        CollectionAssert.AreEqual(new[] { "other" }, _productRepository.Table.First(x => x.Id == tagged.Id).ProductTags.ToList());
+        _mediatorMock.Verify(m => m.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == tagged.Id && !e.ListsChanged),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(m => m.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == untagged.Id),
+            It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]

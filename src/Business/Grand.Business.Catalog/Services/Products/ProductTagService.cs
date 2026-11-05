@@ -155,7 +155,11 @@ public class ProductTagService : IProductTagService
         ArgumentNullException.ThrowIfNull(productTag);
 
         //update product
+        var productIds = _productRepository.Table.Where(x => x.ProductTags.Contains(productTag.Name))
+            .Select(x => x.Id).ToList();
         await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductTags, y => y == productTag.Name);
+        foreach (var productId in productIds)
+            await _mediator.Publish(new ProductChangedEvent(productId));
 
         //delete tag
         await _productTagRepository.DeleteAsync(productTag);

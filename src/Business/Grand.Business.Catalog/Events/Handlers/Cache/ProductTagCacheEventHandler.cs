@@ -6,6 +6,11 @@ using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Events.Handlers.Cache;
 
+/// <summary>
+///     Clears the cached product tags. AttachProductTag and DetachProductTag publish EntityInserted and
+///     EntityDeleted for a tag that stays, so those two clear only the tags and the listings; the products a deleted
+///     tag is removed from are cleared through ProductChangedEvent.
+/// </summary>
 public class ProductTagCacheEventHandler :
     INotificationHandler<EntityInserted<ProductTag>>,
     INotificationHandler<EntityUpdated<ProductTag>>,
@@ -34,6 +39,6 @@ public class ProductTagCacheEventHandler :
     public async Task Handle(EntityDeleted<ProductTag> notification, CancellationToken cancellationToken)
     {
         await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
     }
 }

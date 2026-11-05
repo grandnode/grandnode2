@@ -38,15 +38,16 @@ public class ProductTagCacheEventHandlerTests
     }
 
     [TestMethod]
-    public async Task ProductTag_DeletedProductTag_ClearsItsCache()
+    public async Task ProductTag_DeletedProductTag_ClearsItsCacheAndListingsButNotEveryProduct()
     {
         var cache = new Mock<ICacheBase>();
 
+        //DetachProductTag publishes this event too, for every tag removed from a product
         var notification = new EntityDeleted<ProductTag>(new ProductTag());
         await new ProductTagCacheEventHandler(cache.Object).Handle(notification, CancellationToken.None);
 
         cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTTAG_PATTERN_KEY, true), Times.Once);
-        cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
+        cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY, true), Times.Once);
         cache.VerifyNoOtherCalls();
     }
 }
