@@ -36,13 +36,20 @@ await _cacheBase.RemoveByPrefix(CacheKey.PICKUPPOINTS_PATTERN_KEY);
 
 ### Invalidate after every write
 
-Call `RemoveByPrefix` or `RemoveAsync` in Insert/Update/Delete service methods so the cache stays consistent.
+Every Insert/Update/Delete publishes its entity event, and the family's cache event handler calls `RemoveByPrefix` or `RemoveAsync`, so the cache stays consistent.
 
 ```csharp
 await _pickupPointsRepository.UpdateAsync(pickupPoint);
-await _cacheBase.RemoveByPrefix(CacheKey.PICKUPPOINTS_PATTERN_KEY);
 await _mediator.EntityUpdated(pickupPoint);
+
+// PickupPointCacheEventHandler
+public async Task Handle(EntityUpdated<PickupPoint> notification, CancellationToken cancellationToken)
+{
+    await _cacheBase.RemoveByPrefix(CacheKey.PICKUPPOINTS_PATTERN_KEY);
+}
 ```
+
+Every `RemoveByPrefix` scans the cached keys, so a hot write path (stock on every order, auction bids) must not clear more than it changes: that is why stock writes publish `ProductChangedEvent` without `listsChanged`.
 
 ### Cache key format
 

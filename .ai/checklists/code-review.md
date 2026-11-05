@@ -67,7 +67,7 @@ Use with `.ai/prompts/review-change.md`, which handles skill selection.
 
 ## Data lifecycle
 
-- [ ] Every write invalidates its cache prefix.
+- [ ] Every write publishes its entity event, and the family's cache event handler clears its prefix.
 - [ ] Every write publishes its entity event.
 - [ ] Cross-family caches that embed the entity are invalidated too.
 - [ ] Migration `Identity` GUID is new.

@@ -49,7 +49,7 @@ Run on every change before reporting it complete.
 
 ## Data safety
 
-- [ ] Every write invalidates the affected cache prefixes.
+- [ ] Every write publishes its entity event; the cache event handlers clear the affected prefixes.
 - [ ] Every write publishes its entity event.
 - [ ] New settings default to the pre-change behavior.
 - [ ] New user-facing strings exist as localization resources.

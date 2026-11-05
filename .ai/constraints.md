@@ -62,9 +62,9 @@ It ties the business layer to the driver and makes the service untestable.
 Loading every store's records and filtering in C# is both a performance defect and a leak waiting for the filter to be dropped.
 → Filter in the query. See `.ai/knowledge/scoping.md`.
 
-### Never write an entity without invalidating its cache and publishing its event
-A cached read that survives its write serves stale — sometimes deleted — data.
-→ `RemoveByPrefix(CacheKey.*_PATTERN_KEY)` then `_mediator.EntityInserted/Updated/Deleted`. See `.ai/examples/cached-store-scoped-service.md`.
+### Never write an entity without publishing its event
+A cached read that survives its write serves stale — sometimes deleted — data, and the cache is cleared only by the family's cache event handler reacting to the event.
+→ `_mediator.EntityInserted/Updated/Deleted` after the write; the `<Family>CacheEventHandler` clears `CacheKey.*_PATTERN_KEY`. A product write also publishes `ProductChangedEvent`. See `.ai/knowledge/caching.md` and `.ai/examples/cached-store-scoped-service.md`.
 
 ### Never omit a result-changing variable from a cache key
 Store id, language id, customer group, currency, vendor id, page index. A missing store id is a cross-store data leak.
