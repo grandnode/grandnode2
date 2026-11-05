@@ -158,6 +158,42 @@ public class PluginControllerTests
 
     [TestMethod]
     [DoNotParallelize]
+    public async Task Remove_DatabaseCannotBeRead_DoesNotDeleteFolder()
+    {
+        //installed since the start, so only the database knows it is installed now
+        var folder = Path.Combine(_contentRoot, "Plugins", "Tests.Plugin");
+        Directory.CreateDirectory(folder);
+        var mainAssembly = Path.Combine(folder, "Tests.Plugin.dll");
+        await File.WriteAllTextAsync(mainAssembly, "");
+        var plugin = new PluginInfo(new FileInfo(mainAssembly), null, typeof(IPlugin)) {
+            SystemName = SystemName,
+            SupportedVersion = GrandVersion.SupportedPluginVersion,
+            Installed = false
+        };
+        var store = new Mock<IPluginStateStore>();
+        store.Setup(x => x.HasDatabase).Returns(true);
+        store.Setup(x => x.InstalledSystemNamesAsync()).ThrowsAsync(new TimeoutException("no server"));
+
+        var stateStore = PluginManager.StateStore;
+        try
+        {
+            PluginManager.StateStore = store.Object;
+            await WithPlugins(async () =>
+            {
+                await _controller.Remove(SystemName, "Tests.Plugin");
+
+                Assert.IsTrue(Directory.Exists(folder));
+                _auditEventRecorder.Verify(x => x.Plugin(SystemName, "removed"), Times.Never);
+            }, plugin);
+        }
+        finally
+        {
+            PluginManager.StateStore = stateStore;
+        }
+    }
+
+    [TestMethod]
+    [DoNotParallelize]
     public async Task Install_WhenInstalledPluginsConfigured_DoesNotInstall()
     {
         _extConfig.InstalledPlugins = "Other.Plugin";
