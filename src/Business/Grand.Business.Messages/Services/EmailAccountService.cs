@@ -61,9 +61,6 @@ public class EmailAccountService : IEmailAccountService
 
         await _emailAccountRepository.InsertAsync(emailAccount);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.EMAILACCOUNT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(emailAccount);
     }
@@ -96,9 +93,6 @@ public class EmailAccountService : IEmailAccountService
 
         await _emailAccountRepository.UpdateAsync(emailAccount);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.EMAILACCOUNT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(emailAccount);
     }
@@ -114,9 +108,6 @@ public class EmailAccountService : IEmailAccountService
             throw new GrandException("You cannot delete this email account. At least one account is required.");
 
         await _emailAccountRepository.DeleteAsync(emailAccount);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.EMAILACCOUNT_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(emailAccount);

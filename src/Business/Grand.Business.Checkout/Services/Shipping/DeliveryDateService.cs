@@ -77,9 +77,6 @@ public class DeliveryDateService : IDeliveryDateService
 
         await _deliveryDateRepository.InsertAsync(deliveryDate);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.DELIVERYDATE_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(deliveryDate);
     }
@@ -93,9 +90,6 @@ public class DeliveryDateService : IDeliveryDateService
         ArgumentNullException.ThrowIfNull(deliveryDate);
 
         await _deliveryDateRepository.UpdateAsync(deliveryDate);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.DELIVERYDATE_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(deliveryDate);
@@ -111,11 +105,7 @@ public class DeliveryDateService : IDeliveryDateService
 
         await _deliveryDateRepository.DeleteAsync(deliveryDate);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.DELIVERYDATE_PATTERN_KEY);
-
         //clear product cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(deliveryDate);

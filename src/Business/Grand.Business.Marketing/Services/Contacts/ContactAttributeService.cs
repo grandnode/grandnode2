@@ -57,9 +57,6 @@ public class ContactAttributeService : IContactAttributeService
 
         await _contactAttributeRepository.DeleteAsync(contactAttribute);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CONTACTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CONTACTATTRIBUTEVALUES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityDeleted(contactAttribute);
     }
@@ -119,9 +116,6 @@ public class ContactAttributeService : IContactAttributeService
 
         await _contactAttributeRepository.InsertAsync(contactAttribute);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CONTACTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CONTACTATTRIBUTEVALUES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(contactAttribute);
     }
@@ -135,9 +129,6 @@ public class ContactAttributeService : IContactAttributeService
         ArgumentNullException.ThrowIfNull(contactAttribute);
 
         await _contactAttributeRepository.UpdateAsync(contactAttribute);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.CONTACTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CONTACTATTRIBUTEVALUES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(contactAttribute);

@@ -79,9 +79,6 @@ public class PageLayoutService : IPageLayoutService
 
         await _pageLayoutRepository.InsertAsync(pageLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PAGE_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(pageLayout);
     }
@@ -96,9 +93,6 @@ public class PageLayoutService : IPageLayoutService
 
         await _pageLayoutRepository.UpdateAsync(pageLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PAGE_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(pageLayout);
     }
@@ -112,9 +106,6 @@ public class PageLayoutService : IPageLayoutService
         ArgumentNullException.ThrowIfNull(pageLayout);
 
         await _pageLayoutRepository.DeleteAsync(pageLayout);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PAGE_LAYOUT_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(pageLayout);

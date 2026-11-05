@@ -34,7 +34,6 @@ public class CustomerAttributeServiceTests
         await _atrService.InsertCustomerAttribute(new CustomerAttribute());
         _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CustomerAttribute>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
     }
 
     [TestMethod]
@@ -43,7 +42,6 @@ public class CustomerAttributeServiceTests
         await _atrService.UpdateCustomerAttribute(new CustomerAttribute());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<CustomerAttribute>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
     }
 
     [TestMethod]
@@ -52,7 +50,6 @@ public class CustomerAttributeServiceTests
         await _atrService.DeleteCustomerAttribute(new CustomerAttribute());
         _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CustomerAttribute>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
     }
 
     [TestMethod]
@@ -63,7 +60,6 @@ public class CustomerAttributeServiceTests
         await _atrService.InsertCustomerAttributeValue(new CustomerAttributeValue());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CustomerAttributeValue>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
     }
 
     [TestMethod]
@@ -74,7 +70,6 @@ public class CustomerAttributeServiceTests
         await _atrService.UpdateCustomerAttributeValue(new CustomerAttributeValue());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<CustomerAttributeValue>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
     }
 
     [TestMethod]
@@ -85,7 +80,6 @@ public class CustomerAttributeServiceTests
         await _atrService.DeleteCustomerAttributeValue(new CustomerAttributeValue());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<CustomerAttribute>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CustomerAttributeValue>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
     }
 
     [TestMethod]

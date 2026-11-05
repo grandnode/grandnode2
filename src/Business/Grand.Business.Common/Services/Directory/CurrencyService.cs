@@ -139,8 +139,6 @@ public class CurrencyService : ICurrencyService
 
         await _currencyRepository.InsertAsync(currency);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CURRENCIES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(currency);
     }
@@ -155,8 +153,6 @@ public class CurrencyService : ICurrencyService
 
         await _currencyRepository.UpdateAsync(currency);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CURRENCIES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(currency);
     }
@@ -170,8 +166,6 @@ public class CurrencyService : ICurrencyService
         ArgumentNullException.ThrowIfNull(currency);
 
         await _currencyRepository.DeleteAsync(currency);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.CURRENCIES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(currency);

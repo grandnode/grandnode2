@@ -33,7 +33,6 @@ public class EmailAccountServiceTests
         await _service.InsertEmailAccount(new EmailAccount());
         _repository.Verify(c => c.InsertAsync(It.IsAny<EmailAccount>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<EmailAccount>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
     }
 
     [TestMethod]
@@ -42,7 +41,6 @@ public class EmailAccountServiceTests
         await _service.UpdateEmailAccount(new EmailAccount());
         _repository.Verify(c => c.UpdateAsync(It.IsAny<EmailAccount>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<EmailAccount>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
     }
 
     [TestMethod]
@@ -52,7 +50,6 @@ public class EmailAccountServiceTests
         await _service.DeleteEmailAccount(new EmailAccount());
         _repository.Verify(c => c.DeleteAsync(It.IsAny<EmailAccount>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<EmailAccount>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
     }
 
     [TestMethod]

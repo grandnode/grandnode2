@@ -234,11 +234,6 @@ public class CustomerTagService : ICustomerTagService
 
         await _customerTagProductRepository.InsertAsync(customerTagProduct);
 
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY,
-            customerTagProduct.CustomerTagId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
-
         //event notification
         await _mediator.EntityInserted(customerTagProduct);
     }
@@ -252,11 +247,6 @@ public class CustomerTagService : ICustomerTagService
         ArgumentNullException.ThrowIfNull(customerTagProduct);
 
         await _customerTagProductRepository.UpdateAsync(customerTagProduct);
-
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY,
-            customerTagProduct.CustomerTagId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
 
         //event notification
         await _mediator.EntityUpdated(customerTagProduct);
@@ -272,10 +262,6 @@ public class CustomerTagService : ICustomerTagService
 
         await _customerTagProductRepository.DeleteAsync(customerTagProduct);
 
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERTAGPRODUCTS_ROLE_KEY,
-            customerTagProduct.CustomerTagId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_TAG_PATTERN);
         //event notification
         await _mediator.EntityDeleted(customerTagProduct);
     }

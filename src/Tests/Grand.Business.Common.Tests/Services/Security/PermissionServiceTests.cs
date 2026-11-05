@@ -4,6 +4,8 @@ using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Events;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -14,6 +16,7 @@ public class PermissionServiceTests
 {
     private Mock<ICacheBase> _cacheMock;
     private Mock<IGroupService> _groupServiceMock;
+    private Mock<IMediator> _mediatorMock;
     private Mock<IRepository<PermissionAction>> _permissionActionRepositoryMock;
     private Mock<IRepository<Permission>> _permissionRepositoryMock;
     private PermissionService _service;
@@ -25,8 +28,9 @@ public class PermissionServiceTests
         _permissionActionRepositoryMock = new Mock<IRepository<PermissionAction>>();
         _groupServiceMock = new Mock<IGroupService>();
         _cacheMock = new Mock<ICacheBase>();
+        _mediatorMock = new Mock<IMediator>();
         _service = new PermissionService(_permissionRepositoryMock.Object, _permissionActionRepositoryMock.Object,
-            _groupServiceMock.Object, _cacheMock.Object);
+            _groupServiceMock.Object, _cacheMock.Object, _mediatorMock.Object);
     }
 
     [TestMethod]
@@ -97,7 +101,7 @@ public class PermissionServiceTests
     {
         await _service.InsertPermission(new Permission());
         _permissionRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<Permission>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Permission>>(), default), Times.Once);
     }
 
     [TestMethod]
@@ -105,7 +109,7 @@ public class PermissionServiceTests
     {
         await _service.DeletePermission(new Permission());
         _permissionRepositoryMock.Verify(c => c.DeleteAsync(It.IsAny<Permission>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Permission>>(), default), Times.Once);
     }
 
     [TestMethod]
@@ -113,7 +117,7 @@ public class PermissionServiceTests
     {
         await _service.UpdatePermission(new Permission());
         _permissionRepositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Permission>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Permission>>(), default), Times.Once);
     }
 
 
@@ -122,7 +126,7 @@ public class PermissionServiceTests
     {
         await _service.InsertPermissionAction(new PermissionAction());
         _permissionActionRepositoryMock.Verify(c => c.InsertAsync(It.IsAny<PermissionAction>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<PermissionAction>>(), default), Times.Once);
     }
 
     [TestMethod]
@@ -130,6 +134,6 @@ public class PermissionServiceTests
     {
         await _service.DeletePermissionAction(new PermissionAction());
         _permissionActionRepositoryMock.Verify(c => c.DeleteAsync(It.IsAny<PermissionAction>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<PermissionAction>>(), default), Times.Once);
     }
 }

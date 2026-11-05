@@ -104,9 +104,6 @@ public class CustomerAttributeService : ICustomerAttributeService
 
         await _customerAttributeRepository.InsertAsync(customerAttribute);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(customerAttribute);
     }
@@ -121,9 +118,6 @@ public class CustomerAttributeService : ICustomerAttributeService
 
         await _customerAttributeRepository.UpdateAsync(customerAttribute);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(customerAttribute);
     }
@@ -137,9 +131,6 @@ public class CustomerAttributeService : ICustomerAttributeService
         ArgumentNullException.ThrowIfNull(customerAttribute);
 
         await _customerAttributeRepository.DeleteAsync(customerAttribute);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(customerAttribute);
@@ -158,9 +149,6 @@ public class CustomerAttributeService : ICustomerAttributeService
         ca.CustomerAttributeValues.Add(customerAttributeValue);
 
         await _customerAttributeRepository.UpdateAsync(ca);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityInserted(customerAttributeValue);
@@ -181,9 +169,6 @@ public class CustomerAttributeService : ICustomerAttributeService
 
         await _customerAttributeRepository.UpdateAsync(ca);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(customerAttributeValue);
     }
@@ -200,9 +185,6 @@ public class CustomerAttributeService : ICustomerAttributeService
         ca.CustomerAttributeValues.Remove(
             ca.CustomerAttributeValues.FirstOrDefault(c => c.Id == customerAttributeValue.Id));
         await _customerAttributeRepository.UpdateAsync(ca);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERATTRIBUTEVALUES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(customerAttributeValue);

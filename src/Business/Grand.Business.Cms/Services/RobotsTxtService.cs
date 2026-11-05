@@ -57,8 +57,6 @@ public class RobotsTxtService : IRobotsTxtService
 
         await _robotsRepository.InsertAsync(robotsTxt);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.ROBOTS_ALL_KEY);
-
         //event notification
         await _mediator.EntityInserted(robotsTxt);
     }
@@ -73,8 +71,6 @@ public class RobotsTxtService : IRobotsTxtService
 
         await _robotsRepository.UpdateAsync(robotsTxt);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.ROBOTS_ALL_KEY);
-
         //event notification
         await _mediator.EntityUpdated(robotsTxt);
     }
@@ -88,8 +84,6 @@ public class RobotsTxtService : IRobotsTxtService
         ArgumentNullException.ThrowIfNull(robotsTxt);
 
         await _robotsRepository.DeleteAsync(robotsTxt);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.ROBOTS_ALL_KEY);
 
         //event notification
         await _mediator.EntityDeleted(robotsTxt);

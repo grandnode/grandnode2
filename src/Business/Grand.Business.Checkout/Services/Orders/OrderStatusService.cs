@@ -55,9 +55,6 @@ public class OrderStatusService : IOrderStatusService
         //insert order status
         await _orderStatusRepository.InsertAsync(orderStatus);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
-
         //event notification
         await _mediator.EntityInserted(orderStatus);
     }
@@ -68,9 +65,6 @@ public class OrderStatusService : IOrderStatusService
 
         //update order status
         await _orderStatusRepository.UpdateAsync(orderStatus);
-
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
 
         //event notification
         await _mediator.EntityUpdated(orderStatus);
@@ -84,9 +78,6 @@ public class OrderStatusService : IOrderStatusService
             throw new Exception("You can't delete system status");
 
         await _orderStatusRepository.DeleteAsync(orderStatus);
-
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ORDER_STATUS_ALL);
 
         //event notification
         await _mediator.EntityDeleted(orderStatus);

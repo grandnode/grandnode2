@@ -105,9 +105,6 @@ public class CheckoutAttributeService : ICheckoutAttributeService
 
         await _checkoutAttributeRepository.InsertAsync(checkoutAttribute);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CHECKOUTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CHECKOUTATTRIBUTEVALUES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(checkoutAttribute);
     }
@@ -122,9 +119,6 @@ public class CheckoutAttributeService : ICheckoutAttributeService
 
         await _checkoutAttributeRepository.UpdateAsync(checkoutAttribute);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CHECKOUTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CHECKOUTATTRIBUTEVALUES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(checkoutAttribute);
     }
@@ -138,9 +132,6 @@ public class CheckoutAttributeService : ICheckoutAttributeService
         ArgumentNullException.ThrowIfNull(checkoutAttribute);
 
         await _checkoutAttributeRepository.DeleteAsync(checkoutAttribute);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.CHECKOUTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.CHECKOUTATTRIBUTEVALUES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(checkoutAttribute);

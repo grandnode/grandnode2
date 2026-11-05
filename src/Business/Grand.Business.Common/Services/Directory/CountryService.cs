@@ -185,8 +185,6 @@ public class CountryService : ICountryService
 
         await _countryRepository.InsertAsync(country);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.COUNTRIES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(country);
     }
@@ -201,8 +199,6 @@ public class CountryService : ICountryService
 
         await _countryRepository.UpdateAsync(country);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.COUNTRIES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(country);
     }
@@ -216,8 +212,6 @@ public class CountryService : ICountryService
         ArgumentNullException.ThrowIfNull(country);
 
         await _countryRepository.DeleteAsync(country);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.COUNTRIES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(country);
