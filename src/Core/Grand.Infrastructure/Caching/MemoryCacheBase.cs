@@ -42,32 +42,6 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         return _cache.TryGetValue(key, out value);
     }
 
-    public virtual T Get<T>(string key, Func<T> acquire)
-    {
-        return Get(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
-    }
-
-    public virtual T Get<T>(string key, Func<T> acquire, int cacheTime)
-    {
-        if (_cache.TryGetValue(key, out T cacheEntry)) return cacheEntry;
-        var semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
-        semaphore.Wait();
-        try
-        {
-            if (!_cache.TryGetValue(key, out cacheEntry))
-            {
-                cacheEntry = acquire();
-                SetEntry(key, cacheEntry, cacheTime);
-            }
-        }
-        finally
-        {
-            semaphore.Release();
-        }
-
-        return cacheEntry;
-    }
-
     public virtual Task<T> GetAsync<T>(string key, Func<Task<T>> acquire)
     {
         return GetAsync(key, acquire, _cacheConfig.DefaultCacheTimeMinutes);
@@ -82,8 +56,9 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         {
             if (!_cache.TryGetValue(key, out cacheEntry))
             {
+                var resetToken = _resetCacheToken.Token;
                 cacheEntry = await acquire();
-                SetEntry(key, cacheEntry, cacheTime);
+                SetEntry(key, cacheEntry, cacheTime, resetToken);
             }
         }
         finally
@@ -105,8 +80,9 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         await semaphore.WaitAsync();
         try
         {
+            var resetToken = _resetCacheToken.Token;
             var cacheEntry = await acquire();
-            SetEntry(key, cacheEntry, cacheTime);
+            SetEntry(key, cacheEntry, cacheTime, resetToken);
             return cacheEntry;
         }
         finally
@@ -179,9 +155,13 @@ public class MemoryCacheBase : ICacheBase, IDisposable
 
     #region Utilities
 
-    private void SetEntry<T>(string key, T value, int cacheTime)
+    /// <param name="resetToken">
+    ///     The reset token taken before the value was read: a Clear while it was read has cancelled it,
+    ///     and an entry with a cancelled token is not stored - so a value read before the Clear does not outlive it
+    /// </param>
+    private void SetEntry<T>(string key, T value, int cacheTime, CancellationToken resetToken)
     {
-        _cache.Set(key, value, GetMemoryCacheEntryOptions(cacheTime));
+        _cache.Set(key, value, GetMemoryCacheEntryOptions(cacheTime, resetToken));
 
         //the eviction callback of an older entry under this key may have dropped the key meanwhile;
         //an entry refused at the size limit is not stored, so it is not tracked either
@@ -189,11 +169,11 @@ public class MemoryCacheBase : ICacheBase, IDisposable
             CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
     }
 
-    private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime)
+    private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime, CancellationToken resetToken)
     {
         //each entry counts as one key against the size limit
         var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime), Size = 1 }
-            .AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
+            .AddExpirationToken(new CancellationChangeToken(resetToken))
             .RegisterPostEvictionCallback(PostEvictionCallback);
 
         return options;

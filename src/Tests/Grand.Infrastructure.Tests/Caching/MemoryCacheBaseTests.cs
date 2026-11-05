@@ -31,20 +31,6 @@ public class MemoryCacheBaseTests
         _service = new MemoryCacheBase(_memoryCache, _mediatorMock.Object, _config);
     }
     [TestMethod]
-    public void GetTest()
-    {
-        var result = _service.Get("key", () => { return "test"; });
-        Assert.AreEqual("test", result);
-    }
-
-    [TestMethod]
-    public void GetTest_CacheTimeMinutes()
-    {
-        var result = _service.Get("key", () => { return "test"; }, 1);
-        Assert.AreEqual("test", result);
-    }
-
-    [TestMethod]
     public async Task GetAsyncTest()
     {
         var result = await _service.GetAsync("key", () => { return Task.FromResult("test"); });
@@ -279,6 +265,48 @@ public class MemoryCacheBaseTests
 
         for (var i = 0; i < 50; i++)
             Assert.IsNull(_memoryCache.Get($"race{i}"), $"race{i} was not removed");
+    }
+
+    [TestMethod]
+    public async Task GetAsync_ClearWhileAcquiring_DoesNotStoreTheValueReadBeforeIt()
+    {
+        var acquiring = new TaskCompletionSource();
+        var release = new TaskCompletionSource();
+        var get = _service.GetAsync("key", async () =>
+        {
+            acquiring.SetResult();
+            await release.Task;
+            return "stale";
+        });
+
+        await acquiring.Task;
+        await _service.Clear();
+        release.SetResult();
+
+        //the caller still gets its value, but the next one reads it again
+        Assert.AreEqual("stale", await get);
+        Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
+        Assert.AreEqual("fresh", await _service.GetAsync("key", () => Task.FromResult("fresh")));
+    }
+
+    [TestMethod]
+    public async Task SetAsync_ClearWhileAcquiring_DoesNotStoreTheValueReadBeforeIt()
+    {
+        var acquiring = new TaskCompletionSource();
+        var release = new TaskCompletionSource();
+        var set = _service.SetAsync("key", async () =>
+        {
+            acquiring.SetResult();
+            await release.Task;
+            return "stale";
+        });
+
+        await acquiring.Task;
+        await _service.Clear();
+        release.SetResult();
+
+        Assert.AreEqual("stale", await set);
+        Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
     }
 
     [TestMethod]

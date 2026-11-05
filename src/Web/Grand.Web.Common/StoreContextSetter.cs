@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Web.Common.Extensions;
@@ -9,17 +10,25 @@ namespace Grand.Web.Common;
 public class StoreContextSetter : IStoreContextSetter
 {
     private readonly IStoreService _storeService;
+    private readonly ISettingService _settingService;
     private readonly IHttpContextAccessor _httpContextAccessor;
 
-    public StoreContextSetter(IStoreService storeService, IHttpContextAccessor httpContextAccessor)
+    public StoreContextSetter(IStoreService storeService, ISettingService settingService, IHttpContextAccessor httpContextAccessor)
     {
         _storeService = storeService;
+        _settingService = settingService;
         _httpContextAccessor = httpContextAccessor;
     }
 
     public async Task<IStoreContext> InitializeStoreContext(string storeId = null)
     {
         var store = await CurrentStore(storeId);
+
+        //the settings injected for this store are resolved by the container, which cannot wait for a query,
+        //so they are read here; the work context setter is the first to resolve them
+        if (store != null)
+            await _settingService.LoadStoreSettings(store.Id);
+
         var storeContext = new CurrentStoreContext {
             CurrentStore = store,
             CurrentHost = CurrentHost(store)

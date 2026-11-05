@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Customers;
@@ -54,6 +55,7 @@ public class OidcStoreContextPipelineTests
             {
                 s.AddSingleton(_resolver.Object);
                 s.AddSingleton(OidcTestHost.StoreService(HostStore, CookieStore));
+                s.AddSingleton(Mock.Of<ISettingService>());
                 s.AddScoped<IStoreContextSetter, StoreContextSetter>();
                 s.AddSingleton(_workContextSetter.Object);
                 s.AddSingleton<IContextAccessor, ContextAccessor>();

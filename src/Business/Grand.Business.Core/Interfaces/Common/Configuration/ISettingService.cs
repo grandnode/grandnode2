@@ -66,6 +66,12 @@ public interface ISettingService
     Task<T> LoadSetting<T>(string storeId = "") where T : ISettings, new();
 
     /// <summary>
+    ///     Reads the settings of a store, and the global ones, into the cache, so that settings resolved from the container need no query
+    /// </summary>
+    /// <param name="storeId">Store identifier</param>
+    Task LoadStoreSettings(string storeId);
+
+    /// <summary>
     ///     Load settings
     /// </summary>
     /// <param name="type"></param>
