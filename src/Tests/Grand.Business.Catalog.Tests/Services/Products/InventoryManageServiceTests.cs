@@ -7,9 +7,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Tests.Caching;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -19,7 +16,6 @@ namespace Grand.Business.Catalog.Tests.Services.Products;
 [TestClass]
 public class InventoryManageServiceTests
 {
-    private MemoryCacheBase _cacheBase;
     private InventoryManageService _inventoryManageService;
     private Mock<IMediator> _mediatorMock;
     private IRepository<Product> _repository;
@@ -42,11 +38,9 @@ public class InventoryManageServiceTests
         _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _settings = new CatalogSettings();
-        _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
-            new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _stockQuantityService = new StockQuantityService();
         _inventoryManageService = new InventoryManageService(_repository, _repositoryInventoryJournal,
-            _stockQuantityService, _cacheBase, _mediatorMock.Object, _settings);
+            _stockQuantityService, _mediatorMock.Object, _settings);
     }
 
 

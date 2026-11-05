@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Categories;
+﻿using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
@@ -100,10 +101,7 @@ public class ProductCategoryService : IProductCategoryService
 
         await _productRepository.AddToCollectionField(productId, x => x.ProductCategories, productCategory);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityInserted(productCategory);
@@ -121,10 +119,7 @@ public class ProductCategoryService : IProductCategoryService
         await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductCategories, z => z.Id == productCategory.Id,
             productCategory);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityUpdated(productCategory);
@@ -141,10 +136,7 @@ public class ProductCategoryService : IProductCategoryService
 
         await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductCategories, z => z.Id == productCategory.Id);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityDeleted(productCategory);

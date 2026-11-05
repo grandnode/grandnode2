@@ -32,7 +32,6 @@ public class CustomerGroupProductServiceTests
     {
         await _custometGroupService.DeleteCustomerGroupProduct(new CustomerGroupProduct());
         _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<CustomerGroupProduct>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CustomerGroupProduct>>(), default), Times.Once);
     }
 
@@ -42,7 +41,6 @@ public class CustomerGroupProductServiceTests
     {
         await _custometGroupService.InsertCustomerGroupProduct(new CustomerGroupProduct());
         _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<CustomerGroupProduct>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CustomerGroupProduct>>(), default), Times.Once);
     }
 

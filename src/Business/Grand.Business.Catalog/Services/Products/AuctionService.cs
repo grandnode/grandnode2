@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Catalog;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain;
@@ -6,8 +7,6 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 
@@ -19,18 +18,15 @@ namespace Grand.Business.Catalog.Services.Products;
 public class AuctionService : IAuctionService
 {
     private readonly IRepository<Bid> _bidRepository;
-    private readonly ICacheBase _cacheBase;
     private readonly IMediator _mediator;
     private readonly IRepository<Product> _productRepository;
 
     public AuctionService(IRepository<Bid> bidRepository,
         IRepository<Product> productRepository,
-        ICacheBase cacheBase,
         IMediator mediator)
     {
         _bidRepository = bidRepository;
         _productRepository = productRepository;
-        _cacheBase = cacheBase;
         _mediator = mediator;
     }
 
@@ -100,7 +96,7 @@ public class AuctionService : IAuctionService
         product.HighestBidder = highestBidder;
         await _productRepository.UpdateAsync(product);
 
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
         await _mediator.EntityUpdated(product);
     }
@@ -120,7 +116,7 @@ public class AuctionService : IAuctionService
 
         await _productRepository.UpdateAsync(product);
 
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
         await _mediator.EntityUpdated(product);
     }

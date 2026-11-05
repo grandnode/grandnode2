@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Categories;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
@@ -142,7 +143,7 @@ public class CategoryServiceTests
     }
 
     [TestMethod]
-    public async Task DeleteProductCategory_InvokreRepositoryAndClearCache()
+    public async Task DeleteProductCategory_InvokeRepositoryAndPublish()
     {
         //var collectonMock = new Mock<IMongoCollection<Product>>();
         //_productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
@@ -150,9 +151,7 @@ public class CategoryServiceTests
         //TODO
         //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<ProductCategory>>(), default), Times.Once);
-        //clear product cache, ProductCategory and the storefront listing totals
-        _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(3));
-        _casheManagerMock.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY, true), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == "1"), default), Times.Once);
     }
 
     [TestMethod]
@@ -163,7 +162,7 @@ public class CategoryServiceTests
     }
 
     [TestMethod]
-    public async Task InsertProductCategory_InvokreRepositoryAndClearCache()
+    public async Task InsertProductCategory_InvokeRepositoryAndPublish()
     {
         //var collectonMock = new Mock<IMongoCollection<Product>>();
         //_productRepositoryMock.Setup(p => p.Collection).Returns(collectonMock.Object);
@@ -171,8 +170,7 @@ public class CategoryServiceTests
         //TODO
         //collectonMock.Verify(c => c.UpdateOneAsync(It.IsAny<FilterDefinition<Product>>(), It.IsAny<UpdateDefinition<Product>>(), null, default(CancellationToken)), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<ProductCategory>>(), default), Times.Once);
-        _casheManagerMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(3));
-        _casheManagerMock.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY, true), Times.Once);
+        _mediatorMock.Verify(c => c.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == "id"), default), Times.Once);
     }
 
     [TestMethod]

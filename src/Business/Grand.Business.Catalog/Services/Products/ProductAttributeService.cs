@@ -1,3 +1,4 @@
+using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain;
@@ -101,12 +102,6 @@ public class ProductAttributeService : IProductAttributeService
 
         await _productAttributeRepository.InsertAsync(productAttribute);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTEMAPPINGS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTEVALUES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTECOMBINATIONS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(productAttribute);
     }
@@ -120,12 +115,6 @@ public class ProductAttributeService : IProductAttributeService
         ArgumentNullException.ThrowIfNull(productAttribute);
 
         await _productAttributeRepository.UpdateAsync(productAttribute);
-
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTEMAPPINGS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTEVALUES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTECOMBINATIONS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(productAttribute);
@@ -144,13 +133,6 @@ public class ProductAttributeService : IProductAttributeService
 
         //delete from productAttribute collection
         await _productAttributeRepository.DeleteAsync(productAttribute);
-
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTEMAPPINGS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTEVALUES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTATTRIBUTECOMBINATIONS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(productAttribute);
@@ -172,8 +154,7 @@ public class ProductAttributeService : IProductAttributeService
 
         await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMapping.Id);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityDeleted(productAttributeMapping);
@@ -191,8 +172,7 @@ public class ProductAttributeService : IProductAttributeService
 
         await _productRepository.AddToCollectionField(productId, x => x.ProductAttributeMappings, productAttributeMapping);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityInserted(productAttributeMapping);
@@ -211,8 +191,7 @@ public class ProductAttributeService : IProductAttributeService
 
         await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMapping.Id, productAttributeMapping);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityUpdated(productAttributeMapping);
@@ -245,8 +224,7 @@ public class ProductAttributeService : IProductAttributeService
             }
         }
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityDeleted(productAttributeValue);
@@ -273,8 +251,7 @@ public class ProductAttributeService : IProductAttributeService
         pam.ProductAttributeValues.Add(productAttributeValue);
         await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMappingId, pam);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityInserted(productAttributeValue);
@@ -313,8 +290,7 @@ public class ProductAttributeService : IProductAttributeService
             await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMappingId, pavs);
         }
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityUpdated(productAttributeValue);
@@ -335,8 +311,7 @@ public class ProductAttributeService : IProductAttributeService
         ArgumentNullException.ThrowIfNull(combination);
 
         await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id);
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityDeleted(combination);
@@ -354,8 +329,7 @@ public class ProductAttributeService : IProductAttributeService
 
         await _productRepository.AddToCollectionField(productId, x => x.ProductAttributeCombinations, combination);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityInserted(combination);
@@ -373,8 +347,7 @@ public class ProductAttributeService : IProductAttributeService
 
         await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityUpdated(combination);

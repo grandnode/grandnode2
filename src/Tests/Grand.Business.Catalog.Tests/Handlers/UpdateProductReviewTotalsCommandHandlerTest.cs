@@ -1,11 +1,12 @@
 ﻿using Grand.Business.Catalog.Commands;
 using Grand.Business.Core.Commands.Catalog;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain;
 using Grand.Domain.Catalog;
-using Grand.Infrastructure.Caching;
+using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using MongoDB.Driver;
 using Moq;
@@ -15,7 +16,7 @@ namespace Grand.Business.Catalog.Tests.Handlers;
 [TestClass]
 public class UpdateProductReviewTotalsCommandHandlerTest
 {
-    private Mock<ICacheBase> _cacheBaseMock;
+    private Mock<IMediator> _mediatorMock;
     private Mock<IMongoCollection<Product>> _mongoCollectionMock;
     private IRepository<Product> _productRepository;
     private Mock<IProductReviewService> _productReviewServiceMock;
@@ -38,7 +39,7 @@ public class UpdateProductReviewTotalsCommandHandlerTest
             default));
 
         _productRepository = new MongoDBRepositoryTest<Product>();
-        _cacheBaseMock = new Mock<ICacheBase>();
+        _mediatorMock = new Mock<IMediator>();
 
         _productReviewServiceMock = new Mock<IProductReviewService>();
         IPagedList<ProductReview> pagedListReviews = new PagedList<ProductReview>(reviews, 0, 234567);
@@ -53,7 +54,7 @@ public class UpdateProductReviewTotalsCommandHandlerTest
         _updateProductReviewTotalsCommandHandler = new UpdateProductReviewTotalsCommandHandler(
             _productRepository,
             _productReviewServiceMock.Object,
-            _cacheBaseMock.Object);
+            _mediatorMock.Object);
     }
 
     [TestMethod]
@@ -66,12 +67,14 @@ public class UpdateProductReviewTotalsCommandHandlerTest
     }
 
     [TestMethod]
-    public async Task UpdateProductReviews_ValidArgument_InvokeRepositoryAndCache()
+    public async Task UpdateProductReviews_ValidArgument_InvokeRepositoryAndPublish()
     {
         var request = new UpdateProductReviewTotalsCommand { Product = new Product() };
         await _updateProductReviewTotalsCommandHandler.Handle(request, default);
 
         _productReviewServiceMock.Verify(x => x.GetAllProductReviews(null, null, null, null, null,
             null, It.IsAny<string>(), 0, It.IsAny<int>()), Times.Once);
+        _mediatorMock.Verify(x => x.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == request.Product.Id && !e.ListsChanged),
+            default), Times.Once);
     }
 }

@@ -36,11 +36,6 @@ public class CustomerGroupProductService : ICustomerGroupProductService
 
         await _customerGroupProductRepository.DeleteAsync(customerGroupProduct);
 
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERGROUPSPRODUCTS_ROLE_KEY,
-            customerGroupProduct.CustomerGroupId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_GROUP_PATTERN);
-
         //event notification
         await _mediator.EntityDeleted(customerGroupProduct);
     }
@@ -56,11 +51,6 @@ public class CustomerGroupProductService : ICustomerGroupProductService
 
         await _customerGroupProductRepository.InsertAsync(customerGroupProduct);
 
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERGROUPSPRODUCTS_ROLE_KEY,
-            customerGroupProduct.CustomerGroupId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_GROUP_PATTERN);
-
         //event notification
         await _mediator.EntityInserted(customerGroupProduct);
     }
@@ -74,11 +64,6 @@ public class CustomerGroupProductService : ICustomerGroupProductService
         ArgumentNullException.ThrowIfNull(customerGroupProduct);
 
         await _customerGroupProductRepository.UpdateAsync(customerGroupProduct);
-
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMERGROUPSPRODUCTS_ROLE_KEY,
-            customerGroupProduct.CustomerGroupId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_CUSTOMER_GROUP_PATTERN);
 
         //event notification
         await _mediator.EntityUpdated(customerGroupProduct);

@@ -5,8 +5,6 @@ using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Shipping;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 
@@ -20,14 +18,12 @@ public class InventoryManageService : IInventoryManageService
         IRepository<Product> productRepository,
         IRepository<InventoryJournal> inventoryJournalRepository,
         IStockQuantityService stockQuantityService,
-        ICacheBase cacheBase,
         IMediator mediator,
         CatalogSettings catalogSettings)
     {
         _productRepository = productRepository;
         _inventoryJournalRepository = inventoryJournalRepository;
         _stockQuantityService = stockQuantityService;
-        _cacheBase = cacheBase;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
     }
@@ -39,7 +35,6 @@ public class InventoryManageService : IInventoryManageService
     private readonly IRepository<Product> _productRepository;
     private readonly IRepository<InventoryJournal> _inventoryJournalRepository;
     private readonly IStockQuantityService _stockQuantityService;
-    private readonly ICacheBase _cacheBase;
     private readonly IMediator _mediator;
     private readonly CatalogSettings _catalogSettings;
 
@@ -307,8 +302,7 @@ public class InventoryManageService : IInventoryManageService
                                 .Set(x => x.DisableBuyButton, product.DisableBuyButton)
                                 .Set(x => x.LowStock, product.LowStock));
 
-                        //cache
-                        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+                        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
                         //event notification
                         await _mediator.EntityUpdated(product);
@@ -323,8 +317,7 @@ public class InventoryManageService : IInventoryManageService
                                 .Set(x => x.Published, product.Published)
                                 .Set(x => x.LowStock, product.LowStock));
 
-                        //cache
-                        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+                        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
                         //event
                         await _mediator.Publish(new ProductUnPublishEvent(product));
@@ -349,8 +342,7 @@ public class InventoryManageService : IInventoryManageService
                                     .Set(x => x.DisableBuyButton, product.DisableBuyButton)
                                     .Set(x => x.LowStock, product.LowStock));
 
-                            //cache
-                            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+                            await _mediator.Publish(new ProductChangedEvent(product.Id));
 
                             //event notification
                             await _mediator.EntityUpdated(product);
@@ -365,8 +357,7 @@ public class InventoryManageService : IInventoryManageService
                                     .Set(x => x.Published, product.Published)
                                     .Set(x => x.LowStock, product.LowStock));
 
-                            //cache
-                            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+                            await _mediator.Publish(new ProductChangedEvent(product.Id));
 
                             //event
                             await _mediator.Publish(new ProductPublishEvent(product));
@@ -462,8 +453,7 @@ public class InventoryManageService : IInventoryManageService
             await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
         }
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
         //event notification
         await _mediator.EntityUpdated(product);
@@ -520,8 +510,7 @@ public class InventoryManageService : IInventoryManageService
                 UpdateBuilder<Product>.Create().Set(x => x.ReservedQuantity, product.ReservedQuantity));
         }
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
         //event notification
         await _mediator.EntityUpdated(product);
@@ -563,8 +552,7 @@ public class InventoryManageService : IInventoryManageService
             await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
         }
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
         //event notification
         await _mediator.EntityUpdated(product);
@@ -612,8 +600,7 @@ public class InventoryManageService : IInventoryManageService
             await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
         }
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
         //event notification
         await _mediator.EntityUpdated(product);
@@ -647,8 +634,7 @@ public class InventoryManageService : IInventoryManageService
         if (shipmentItem.Attributes != null && shipmentItem.Attributes.Any())
             await ManageAttributesInventory(product, shipment, shipmentItem);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
         //event notification
         await _mediator.EntityUpdated(product);
@@ -680,8 +666,7 @@ public class InventoryManageService : IInventoryManageService
 
             await ReverseBookedInventory(product, inventoryJournal);
 
-            //cache
-            await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+            await _mediator.Publish(new ProductChangedEvent(product.Id));
 
             //event notification
             await _mediator.EntityUpdated(product);
@@ -707,8 +692,7 @@ public class InventoryManageService : IInventoryManageService
                     product.StockQuantity - product.ReservedQuantity <= 0));
 
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, product.Id));
+        await _mediator.Publish(new ProductChangedEvent(product.Id));
 
         //event notification
         if (mediator)
