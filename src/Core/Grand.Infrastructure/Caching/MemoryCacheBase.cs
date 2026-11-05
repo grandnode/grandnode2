@@ -56,8 +56,9 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         {
             if (!_cache.TryGetValue(key, out cacheEntry))
             {
+                var resetToken = _resetCacheToken.Token;
                 cacheEntry = await acquire();
-                SetEntry(key, cacheEntry, cacheTime);
+                SetEntry(key, cacheEntry, cacheTime, resetToken);
             }
         }
         finally
@@ -79,8 +80,9 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         await semaphore.WaitAsync();
         try
         {
+            var resetToken = _resetCacheToken.Token;
             var cacheEntry = await acquire();
-            SetEntry(key, cacheEntry, cacheTime);
+            SetEntry(key, cacheEntry, cacheTime, resetToken);
             return cacheEntry;
         }
         finally
@@ -153,9 +155,13 @@ public class MemoryCacheBase : ICacheBase, IDisposable
 
     #region Utilities
 
-    private void SetEntry<T>(string key, T value, int cacheTime)
+    /// <param name="resetToken">
+    ///     The reset token taken before the value was read: a Clear while it was read has cancelled it,
+    ///     and an entry with a cancelled token is not stored - so a value read before the Clear does not outlive it
+    /// </param>
+    private void SetEntry<T>(string key, T value, int cacheTime, CancellationToken resetToken)
     {
-        _cache.Set(key, value, GetMemoryCacheEntryOptions(cacheTime));
+        _cache.Set(key, value, GetMemoryCacheEntryOptions(cacheTime, resetToken));
 
         //the eviction callback of an older entry under this key may have dropped the key meanwhile;
         //an entry refused at the size limit is not stored, so it is not tracked either
@@ -163,11 +169,11 @@ public class MemoryCacheBase : ICacheBase, IDisposable
             CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
     }
 
-    private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime)
+    private MemoryCacheEntryOptions GetMemoryCacheEntryOptions(int cacheTime, CancellationToken resetToken)
     {
         //each entry counts as one key against the size limit
         var options = new MemoryCacheEntryOptions { AbsoluteExpirationRelativeToNow = TimeSpan.FromMinutes(cacheTime), Size = 1 }
-            .AddExpirationToken(new CancellationChangeToken(_resetCacheToken.Token))
+            .AddExpirationToken(new CancellationChangeToken(resetToken))
             .RegisterPostEvictionCallback(PostEvictionCallback);
 
         return options;

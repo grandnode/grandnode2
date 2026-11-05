@@ -268,6 +268,48 @@ public class MemoryCacheBaseTests
     }
 
     [TestMethod]
+    public async Task GetAsync_ClearWhileAcquiring_DoesNotStoreTheValueReadBeforeIt()
+    {
+        var acquiring = new TaskCompletionSource();
+        var release = new TaskCompletionSource();
+        var get = _service.GetAsync("key", async () =>
+        {
+            acquiring.SetResult();
+            await release.Task;
+            return "stale";
+        });
+
+        await acquiring.Task;
+        await _service.Clear();
+        release.SetResult();
+
+        //the caller still gets its value, but the next one reads it again
+        Assert.AreEqual("stale", await get);
+        Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
+        Assert.AreEqual("fresh", await _service.GetAsync("key", () => Task.FromResult("fresh")));
+    }
+
+    [TestMethod]
+    public async Task SetAsync_ClearWhileAcquiring_DoesNotStoreTheValueReadBeforeIt()
+    {
+        var acquiring = new TaskCompletionSource();
+        var release = new TaskCompletionSource();
+        var set = _service.SetAsync("key", async () =>
+        {
+            acquiring.SetResult();
+            await release.Task;
+            return "stale";
+        });
+
+        await acquiring.Task;
+        await _service.Clear();
+        release.SetResult();
+
+        Assert.AreEqual("stale", await set);
+        Assert.IsFalse(_memoryCache.TryGetValue("key", out _));
+    }
+
+    [TestMethod]
     public void CreateMemoryCache_IsNotTheSharedCache()
     {
         var memoryCache = MemoryCacheBase.CreateMemoryCache(new CacheConfig { MaxEntries = 2 });
