@@ -22,7 +22,7 @@ public interface ICacheBase
 
 `GetAsync` is read-through: the `acquire` delegate runs only on a miss. Never call the repository and then `SetAsync` separately.
 
-There is no synchronous read-through: a caller that cannot await uses `TryGet` and, on a miss, reads without caching. The one such caller is the container resolving injected `ISettings`; `ISettingService.LoadStoreSettings` fills their cache entry ahead, when the store context is set.
+There is no synchronous read-through: a caller that cannot await uses `TryGet` and, on a miss, reads without caching. The one such caller is the container resolving injected `ISettings`; `ISettingService.LoadStoreSettings` fills their cache entry ahead, when the store context is set, and the background task loop does it for the global settings before it resolves a task. On a miss the settings are read once for the scope, not cached.
 
 `publisher: true` (the default) broadcasts the invalidation to other instances through the Redis message bus. Pass `false` **only** when handling an invalidation message that already arrived from another instance — otherwise you create an invalidation loop.
 
