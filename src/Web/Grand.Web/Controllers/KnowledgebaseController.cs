@@ -11,6 +11,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
@@ -39,6 +40,7 @@ public class KnowledgebaseController : BasePublicController
     private readonly IRequestPermissionService _permissionService;
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public KnowledgebaseController(
         KnowledgebaseSettings knowledgebaseSettings,
@@ -52,7 +54,8 @@ public class KnowledgebaseController : BasePublicController
         IRequestPermissionService permissionService,
         CustomerSettings customerSettings,
         CaptchaSettings captchaSettings,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        AccessControlConfig accessControlConfig)
     {
         _knowledgebaseSettings = knowledgebaseSettings;
         _knowledgebaseService = knowledgebaseService;
@@ -66,6 +69,7 @@ public class KnowledgebaseController : BasePublicController
         _dateTimeService = dateTimeService;
         _customerSettings = customerSettings;
         _permissionService = permissionService;
+        _accessControlConfig = accessControlConfig;
     }
 
     [HttpGet]
@@ -129,7 +133,8 @@ public class KnowledgebaseController : BasePublicController
         model.CurrentCategorySeName = category.GetTranslation(y => y.SeName, _contextAccessor.WorkContext.WorkingLanguage.Id);
 
         var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY, category.Id,
-            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()), _contextAccessor.StoreContext.CurrentStore.Id,
+            _accessControlConfig.GetCustomerGroupsCacheKey(_contextAccessor.WorkContext.CurrentCustomer),
+            _contextAccessor.StoreContext.CurrentStore.Id,
             _contextAccessor.WorkContext.WorkingLanguage.Id);
         model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
             (await GetCategoryBreadCrumb(category))
@@ -271,7 +276,7 @@ public class KnowledgebaseController : BasePublicController
         {
             var breadcrumbCacheKey = string.Format(CacheKeyConst.KNOWLEDGEBASE_CATEGORY_BREADCRUMB_KEY,
                 article.ParentCategoryId,
-                string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+                _accessControlConfig.GetCustomerGroupsCacheKey(_contextAccessor.WorkContext.CurrentCustomer),
                 _contextAccessor.StoreContext.CurrentStore.Id,
                 _contextAccessor.WorkContext.WorkingLanguage.Id);
             model.CategoryBreadcrumb = await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>

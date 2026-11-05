@@ -49,9 +49,6 @@ public class ShippingMethodService : IShippingMethodService
 
         await _shippingMethodRepository.DeleteAsync(shippingMethod);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SHIPPINGMETHOD_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityDeleted(shippingMethod);
     }
@@ -105,9 +102,6 @@ public class ShippingMethodService : IShippingMethodService
 
         await _shippingMethodRepository.InsertAsync(shippingMethod);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SHIPPINGMETHOD_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(shippingMethod);
     }
@@ -121,9 +115,6 @@ public class ShippingMethodService : IShippingMethodService
         ArgumentNullException.ThrowIfNull(shippingMethod);
 
         await _shippingMethodRepository.UpdateAsync(shippingMethod);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SHIPPINGMETHOD_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(shippingMethod);

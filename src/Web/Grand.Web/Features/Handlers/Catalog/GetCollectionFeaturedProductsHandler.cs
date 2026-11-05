@@ -8,6 +8,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -29,6 +30,7 @@ public class
     private readonly IMediator _mediator;
     private readonly IPictureService _pictureService;
     private readonly IRequestTranslationService _translationService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetCollectionFeaturedProductsHandler(
         IMediator mediator,
@@ -37,7 +39,8 @@ public class
         IPictureService pictureService,
         IRequestTranslationService translationService,
         MediaSettings mediaSettings,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        AccessControlConfig accessControlConfig)
     {
         _mediator = mediator;
         _collectionService = collectionService;
@@ -46,13 +49,14 @@ public class
         _translationService = translationService;
         _mediaSettings = mediaSettings;
         _catalogSettings = catalogSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<IList<CollectionModel>> Handle(GetCollectionFeaturedProducts request,
         CancellationToken cancellationToken)
     {
         var collectionCacheKey = string.Format(CacheKeyConst.COLLECTION_FEATURED_PRODUCT_HOMEPAGE_KEY,
-            string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id,
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer), request.Store.Id,
             request.Language.Id);
 
         var model = await _cacheBase.GetAsync(collectionCacheKey, async () =>
@@ -104,7 +108,7 @@ public class
 
             var cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
                 item.Id,
-                string.Join(",", request.Customer.GetCustomerGroupIds()),
+                _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer),
                 request.Store.Id);
 
             var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>

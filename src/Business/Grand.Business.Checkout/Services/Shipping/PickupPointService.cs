@@ -88,9 +88,6 @@ public class PickupPointService : IPickupPointService
 
         await _pickupPointsRepository.InsertAsync(pickupPoint);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PICKUPPOINTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(pickupPoint);
     }
@@ -105,9 +102,6 @@ public class PickupPointService : IPickupPointService
 
         await _pickupPointsRepository.UpdateAsync(pickupPoint);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PICKUPPOINTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(pickupPoint);
     }
@@ -121,9 +115,6 @@ public class PickupPointService : IPickupPointService
         ArgumentNullException.ThrowIfNull(pickupPoint);
 
         await _pickupPointsRepository.DeleteAsync(pickupPoint);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PICKUPPOINTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(pickupPoint);

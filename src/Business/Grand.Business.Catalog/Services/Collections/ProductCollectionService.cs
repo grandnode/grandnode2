@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Collections;
+﻿using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
@@ -43,7 +44,7 @@ public class ProductCollectionService : IProductCollectionService
 
         //hidden records are not filtered by customer groups, so the key does not depend on them
         var key = string.Format(CacheKey.PRODUCTCOLLECTIONS_ALLBYCOLLECTIONID_KEY, access.ShowHidden, collectionId,
-            pageIndex, pageSize, access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()),
+            pageIndex, pageSize, access.GetCustomerGroupsCacheKey(_accessControlConfig),
             access.StoreId);
         return await _cacheBase.GetAsync(key, async () =>
         {
@@ -95,10 +96,7 @@ public class ProductCollectionService : IProductCollectionService
 
         await _productRepository.AddToCollectionField(productId, x => x.ProductCollections, productCollection);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityInserted(productCollection);
@@ -116,10 +114,7 @@ public class ProductCollectionService : IProductCollectionService
         await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductCollections, z => z.Id == productCollection.Id,
             productCollection);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityUpdated(productCollection);
@@ -136,10 +131,7 @@ public class ProductCollectionService : IProductCollectionService
 
         await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductCollections, z => z.Id == productCollection.Id);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTCOLLECTIONS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityDeleted(productCollection);

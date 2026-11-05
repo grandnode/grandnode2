@@ -54,8 +54,6 @@ public class MessageTemplateService : IMessageTemplateService
 
         await _messageTemplateRepository.InsertAsync(messageTemplate);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.MESSAGETEMPLATES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(messageTemplate);
     }
@@ -70,8 +68,6 @@ public class MessageTemplateService : IMessageTemplateService
 
         await _messageTemplateRepository.UpdateAsync(messageTemplate);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.MESSAGETEMPLATES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(messageTemplate);
     }
@@ -85,8 +81,6 @@ public class MessageTemplateService : IMessageTemplateService
         ArgumentNullException.ThrowIfNull(messageTemplate);
 
         await _messageTemplateRepository.DeleteAsync(messageTemplate);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.MESSAGETEMPLATES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(messageTemplate);

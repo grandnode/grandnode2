@@ -32,7 +32,6 @@ public class PickupPointServiceTests
     {
         await _service.InsertPickupPoint(new PickupPoint());
         _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<PickupPoint>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.AtLeast(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<PickupPoint>>(), default), Times.Once);
     }
 
@@ -47,7 +46,6 @@ public class PickupPointServiceTests
     {
         await _service.UpdatePickupPoint(new PickupPoint());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<PickupPoint>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.AtLeast(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<PickupPoint>>(), default), Times.Once);
     }
 
@@ -62,7 +60,6 @@ public class PickupPointServiceTests
     {
         await _service.DeletePickupPoint(new PickupPoint());
         _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<PickupPoint>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.AtLeast(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<PickupPoint>>(), default), Times.Once);
     }
 

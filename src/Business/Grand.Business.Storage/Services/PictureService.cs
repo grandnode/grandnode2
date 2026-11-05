@@ -619,7 +619,6 @@ public class PictureService : IPictureService
         await _mediator.EntityUpdated(picture);
 
         //clare cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
 
         return picture;
     }
@@ -639,7 +638,6 @@ public class PictureService : IPictureService
         await _mediator.EntityUpdated(picture);
 
         //clare cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
 
         return picture;
     }
@@ -661,7 +659,6 @@ public class PictureService : IPictureService
         await _mediator.EntityUpdated(picture);
 
         //clare cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
     }
 
     /// <summary>
@@ -707,7 +704,6 @@ public class PictureService : IPictureService
         await _mediator.EntityUpdated(picture);
 
         //clare cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PICTURE_BY_ID, picture.Id));
         return picture;
     }
 

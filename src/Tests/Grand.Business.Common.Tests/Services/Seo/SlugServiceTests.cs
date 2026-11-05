@@ -29,7 +29,7 @@ public class SlugServiceTests
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _slugService = new SlugService(_cacheBase, _repository);
+        _slugService = new SlugService(_cacheBase, _repository, _mediatorMock.Object);
     }
 
     [TestMethod]

@@ -44,7 +44,8 @@ public class GetHomepageCollectionsHandlerTests
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
         _handler = new GetHomepageCollectionsHandler(cacheBase, _collectionServiceMock.Object,
-            new Mock<IPictureService>().Object, translationServiceMock.Object, new MediaSettings());
+            new Mock<IPictureService>().Object, translationServiceMock.Object, new MediaSettings(),
+            new AccessControlConfig());
     }
 
     private Task<IList<Web.Models.Catalog.CollectionModel>> Handle(params string[] groups)

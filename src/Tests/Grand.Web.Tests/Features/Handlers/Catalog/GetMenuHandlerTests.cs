@@ -27,6 +27,7 @@ namespace Grand.Web.Tests.Features.Handlers.Catalog;
 [TestClass]
 public class GetMenuHandlerTests
 {
+    private AccessControlConfig _accessControlConfig;
     private GetMenuHandler _handler;
     private Mock<IBrandService> _brandServiceMock;
     private Mock<ICollectionService> _collectionServiceMock;
@@ -65,9 +66,10 @@ public class GetMenuHandlerTests
         var cacheBase = new MemoryCacheBase(new MemoryCache(new MemoryCacheOptions()), new Mock<IMediator>().Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
+        _accessControlConfig = new AccessControlConfig();
         _handler = new GetMenuHandler(categoryServiceMock.Object, _brandServiceMock.Object, pageServiceMock.Object,
             cacheBase, _collectionServiceMock.Object, new Mock<IPictureService>().Object, new CatalogSettings(),
-            new BlogSettings(), new MenuItemSettings(), new MediaSettings());
+            new BlogSettings(), new MenuItemSettings(), new MediaSettings(), _accessControlConfig);
     }
 
     private Task<MenuModel> Handle(params string[] groups)
@@ -104,6 +106,20 @@ public class GetMenuHandlerTests
 
         CollectionAssert.AreEquivalent(new[] { "public", "vip-only" }, vip.Brands.Select(x => x.Id).ToArray());
         CollectionAssert.AreEquivalent(new[] { "public", "vip-only" }, vip.Collections.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Handle_AclIgnored_CustomersOfOtherGroupsShareTheCachedEntry()
+    {
+        _accessControlConfig.IgnoreAcl = true;
+
+        await Handle("guests");
+        await Handle("registered", "vip");
+
+        _brandServiceMock.Verify(s => s.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+            It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+        _collectionServiceMock.Verify(s => s.GetAllCollections(It.IsAny<string>(), It.IsAny<CatalogAccess>(),
+            It.IsAny<int>(), It.IsAny<int>()), Times.Once);
     }
 
     [TestMethod]

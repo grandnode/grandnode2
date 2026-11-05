@@ -33,5 +33,8 @@ public class BrandDeletedEventHandler : INotificationHandler<EntityDeleted<Brand
 
         await _productRepository.UpdateManyAsync(x => x.BrandId == notification.Entity.Id,
             UpdateBuilder<Product>.Create().Set(x => x.BrandId, ""));
+
+        //clear cache
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
     }
 }

@@ -47,7 +47,6 @@ public class CategoryLayoutServiceTest
     {
         await _categoryLayoutService.DeleteCategoryLayout(new CategoryLayout());
         _repostioryMock.Verify(c => c.DeleteAsync(It.IsAny<CategoryLayout>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<CategoryLayout>>(), default), Times.Once);
     }
 
@@ -57,7 +56,6 @@ public class CategoryLayoutServiceTest
     {
         await _categoryLayoutService.InsertCategoryLayout(new CategoryLayout());
         _repostioryMock.Verify(c => c.InsertAsync(It.IsAny<CategoryLayout>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<CategoryLayout>>(), default), Times.Once);
     }
 
@@ -66,7 +64,6 @@ public class CategoryLayoutServiceTest
     {
         await _categoryLayoutService.UpdateCategoryLayout(new CategoryLayout());
         _repostioryMock.Verify(c => c.UpdateAsync(It.IsAny<CategoryLayout>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true), Times.Exactly(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<CategoryLayout>>(), default), Times.Once);
     }
 }

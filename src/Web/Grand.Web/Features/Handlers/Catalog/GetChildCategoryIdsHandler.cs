@@ -2,6 +2,7 @@
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Mediator;
@@ -12,11 +13,14 @@ public class GetChildCategoryIdsHandler : IRequestHandler<GetChildCategoryIds, I
 {
     private readonly ICacheBase _cacheBase;
     private readonly ICategoryService _categoryService;
+    private readonly AccessControlConfig _accessControlConfig;
 
-    public GetChildCategoryIdsHandler(ICacheBase cacheBase, ICategoryService categoryService)
+    public GetChildCategoryIdsHandler(ICacheBase cacheBase, ICategoryService categoryService,
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _categoryService = categoryService;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<IList<string>> Handle(GetChildCategoryIds request, CancellationToken cancellationToken)
@@ -28,7 +32,7 @@ public class GetChildCategoryIdsHandler : IRequestHandler<GetChildCategoryIds, I
     {
         var cacheKey = string.Format(CacheKeyConst.CATEGORY_CHILD_IDENTIFIERS_MODEL_KEY,
             request.ParentCategoryId,
-            string.Join(",", request.Customer.GetCustomerGroupIds()),
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer),
             request.Store.Id);
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {

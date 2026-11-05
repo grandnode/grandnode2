@@ -64,7 +64,6 @@ public class CollectionServiceTests
     {
         await _collectionService.DeleteCollection(new Collection());
         _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<Collection>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Collection>>(), default), Times.Once);
     }
 
@@ -74,7 +73,6 @@ public class CollectionServiceTests
     {
         await _collectionService.InsertCollection(new Collection());
         _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<Collection>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Collection>>(), default), Times.Once);
     }
 
@@ -83,7 +81,6 @@ public class CollectionServiceTests
     {
         await _collectionService.UpdateCollection(new Collection());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Collection>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), true));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Collection>>(), default), Times.Once);
     }
 

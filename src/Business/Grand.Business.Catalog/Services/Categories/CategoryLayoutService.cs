@@ -78,9 +78,6 @@ public class CategoryLayoutService : ICategoryLayoutService
 
         await _categoryLayoutRepository.InsertAsync(categoryLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORY_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(categoryLayout);
     }
@@ -95,9 +92,6 @@ public class CategoryLayoutService : ICategoryLayoutService
 
         await _categoryLayoutRepository.UpdateAsync(categoryLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORY_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(categoryLayout);
     }
@@ -111,9 +105,6 @@ public class CategoryLayoutService : ICategoryLayoutService
         ArgumentNullException.ThrowIfNull(categoryLayout);
 
         await _categoryLayoutRepository.DeleteAsync(categoryLayout);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORY_LAYOUT_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(categoryLayout);

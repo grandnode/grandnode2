@@ -3,6 +3,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
@@ -19,26 +20,29 @@ public class GetSearchBoxHandler : IRequestHandler<GetSearchBox, SearchBoxModel>
     private readonly ICategoryService _categoryService;
     private readonly StoreInformationSettings _storeInformationSettings;
     private readonly IRequestTranslationService _translationService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetSearchBoxHandler(
         ICacheBase cacheBase,
         ICategoryService categoryService,
         IRequestTranslationService translationService,
         CatalogSettings catalogSettings,
-        StoreInformationSettings storeInformationSettings)
+        StoreInformationSettings storeInformationSettings,
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _categoryService = categoryService;
         _translationService = translationService;
         _catalogSettings = catalogSettings;
         _storeInformationSettings = storeInformationSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<SearchBoxModel> Handle(GetSearchBox request, CancellationToken cancellationToken)
     {
         var cacheKey = string.Format(CacheKeyConst.CATEGORY_ALL_SEARCHBOX,
             request.Language.Id, request.Store.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()));
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer));
 
         return await _cacheBase.GetAsync(cacheKey, async () =>
         {

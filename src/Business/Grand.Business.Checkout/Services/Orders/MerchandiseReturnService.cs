@@ -206,9 +206,6 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
         //event notification
         await _mediator.EntityInserted(merchandiseReturnAction);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -223,9 +220,6 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
         //event notification
         await _mediator.EntityUpdated(merchandiseReturnAction);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -240,9 +234,6 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
         //event notification
         await _mediator.EntityDeleted(merchandiseReturnAction);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_ACTIONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -257,9 +248,6 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
         //event notification
         await _mediator.EntityDeleted(merchandiseReturnReason);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -304,9 +292,6 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
         //event notification
         await _mediator.EntityInserted(merchandiseReturnReason);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_PATTERN_KEY);
     }
 
     /// <summary>
@@ -321,9 +306,6 @@ public class MerchandiseReturnService : IMerchandiseReturnService
 
         //event notification
         await _mediator.EntityUpdated(merchandiseReturnReason);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.MERCHANDISE_RETURN_REASONS_PATTERN_KEY);
     }
 
     #region Merchandise return notes

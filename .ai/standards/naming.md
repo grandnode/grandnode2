@@ -59,6 +59,7 @@ Plugin group prefixes are fixed: `Payments`, `Shipping`, `Tax`, `Widgets`, `Auth
 | Permission system name | `PermissionSystemName.{Area}` | resolved through `StandardPermission` |
 | Cache key | `{ENTITY}_BY_{CRITERIA}_KEY` constant | `PRODUCTS_BY_CATEGORY_KEY` |
 | Cache prefix | `{ENTITY}_PATTERN_KEY` constant | used with `RemoveByPrefix` |
+| Cache invalidation handler | `{Family}CacheEventHandler` | `TaxCategoryCacheEventHandler`, in `Events/Cache` (`Events/Handlers/Cache` in Catalog) |
 | Widget zone | lowercase snake, matching the view | `product_page_bottom` |
 | Schedule task name | stable string, equal to the DI key | must match `ScheduleTask.ScheduleTaskName` |
 

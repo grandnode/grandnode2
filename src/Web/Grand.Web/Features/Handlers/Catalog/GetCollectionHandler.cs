@@ -4,6 +4,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -22,19 +23,22 @@ public class GetCollectionHandler : IRequestHandler<GetCollection, CollectionMod
     private readonly IHttpContextAccessor _httpContextAccessor;
     private readonly IMediator _mediator;
     private readonly ISpecificationAttributeService _specificationAttributeService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetCollectionHandler(
         IMediator mediator,
         ICacheBase cacheBase,
         ISpecificationAttributeService specificationAttributeService,
         IHttpContextAccessor httpContextAccessor,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        AccessControlConfig accessControlConfig)
     {
         _mediator = mediator;
         _cacheBase = cacheBase;
         _specificationAttributeService = specificationAttributeService;
         _httpContextAccessor = httpContextAccessor;
         _catalogSettings = catalogSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<CollectionModel> Handle(GetCollection request, CancellationToken cancellationToken)
@@ -63,7 +67,7 @@ public class GetCollectionHandler : IRequestHandler<GetCollection, CollectionMod
             //We cache a value indicating whether we have featured products
             var cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,
                 request.Collection.Id,
-                string.Join(",", request.Customer.GetCustomerGroupIds()),
+                _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer),
                 request.Store.Id);
             var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
             {

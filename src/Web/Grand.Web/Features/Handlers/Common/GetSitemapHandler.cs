@@ -10,6 +10,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.News;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
@@ -36,6 +37,7 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
     private readonly NewsSettings _newsSettings;
     private readonly IPageService _pageService;
     private readonly IProductService _productService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetSitemapHandler(ICacheBase cacheBase,
         ICategoryService categoryService,
@@ -47,7 +49,8 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
         CommonSettings commonSettings,
         BlogSettings blogSettings,
         NewsSettings newsSettings,
-        KnowledgebaseSettings knowledgebaseSettings)
+        KnowledgebaseSettings knowledgebaseSettings,
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _categoryService = categoryService;
@@ -61,13 +64,14 @@ public class GetSitemapHandler : IRequestHandler<GetSitemap, SitemapModel>
         _blogSettings = blogSettings;
         _newsSettings = newsSettings;
         _knowledgebaseSettings = knowledgebaseSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<SitemapModel> Handle(GetSitemap request, CancellationToken cancellationToken)
     {
         var cacheKey = string.Format(CacheKeyConst.SITEMAP_PAGE_MODEL_KEY,
             request.Language.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()),
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer),
             request.Store.Id);
         var cachedModel = await _cacheBase.GetAsync(cacheKey, async () =>
         {

@@ -5,6 +5,8 @@ using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Extensions;
+using Grand.Mediator;
 
 namespace Grand.Business.Common.Services.Security;
 
@@ -22,16 +24,19 @@ public class PermissionService : IPermissionService
     /// <param name="permissionActionRepository">Permission action repository</param>
     /// <param name="groupService">Group service</param>
     /// <param name="cacheBase">Cache manager</param>
+    /// <param name="mediator">Mediator</param>
     public PermissionService(
         IRepository<Permission> permissionRepository,
         IRepository<PermissionAction> permissionActionRepository,
         IGroupService groupService,
-        ICacheBase cacheBase)
+        ICacheBase cacheBase,
+        IMediator mediator)
     {
         _permissionRepository = permissionRepository;
         _permissionActionRepository = permissionActionRepository;
         _groupService = groupService;
         _cacheBase = cacheBase;
+        _mediator = mediator;
     }
 
     #endregion
@@ -67,6 +72,7 @@ public class PermissionService : IPermissionService
     private readonly IRepository<PermissionAction> _permissionActionRepository;
     private readonly IGroupService _groupService;
     private readonly ICacheBase _cacheBase;
+    private readonly IMediator _mediator;
 
     #endregion
 
@@ -82,7 +88,7 @@ public class PermissionService : IPermissionService
 
         await _permissionRepository.DeleteAsync(permission);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.PERMISSIONS_PATTERN_KEY);
+        await _mediator.EntityDeleted(permission);
     }
 
     /// <summary>
@@ -134,7 +140,7 @@ public class PermissionService : IPermissionService
 
         await _permissionRepository.InsertAsync(permission);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.PERMISSIONS_PATTERN_KEY);
+        await _mediator.EntityInserted(permission);
     }
 
     /// <summary>
@@ -147,7 +153,7 @@ public class PermissionService : IPermissionService
 
         await _permissionRepository.UpdateAsync(permission);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.PERMISSIONS_PATTERN_KEY);
+        await _mediator.EntityUpdated(permission);
     }
 
     /// <summary>
@@ -213,8 +219,8 @@ public class PermissionService : IPermissionService
 
         //insert
         await _permissionActionRepository.InsertAsync(permissionAction);
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PERMISSIONS_PATTERN_KEY);
+        //event notification
+        await _mediator.EntityInserted(permissionAction);
     }
 
     /// <summary>
@@ -227,8 +233,8 @@ public class PermissionService : IPermissionService
 
         //delete
         await _permissionActionRepository.DeleteAsync(permissionAction);
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PERMISSIONS_PATTERN_KEY);
+        //event notification
+        await _mediator.EntityDeleted(permissionAction);
     }
 
     /// <summary>

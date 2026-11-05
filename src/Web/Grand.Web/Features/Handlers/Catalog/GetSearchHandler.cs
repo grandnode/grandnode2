@@ -12,6 +12,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Products;
@@ -38,6 +39,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
     private readonly IRequestTranslationService _translationService;
     private readonly IVendorService _vendorService;
     private readonly VendorSettings _vendorSettings;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetSearchHandler(
         ICategoryService categoryService,
@@ -51,7 +53,8 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
         ISpecificationAttributeService specificationAttributeService,
         IHttpContextAccessor httpContextAccessor,
         CatalogSettings catalogSettings,
-        VendorSettings vendorSettings)
+        VendorSettings vendorSettings,
+        AccessControlConfig accessControlConfig)
     {
         _categoryService = categoryService;
         _cacheBase = cacheBase;
@@ -65,6 +68,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
         _httpContextAccessor = httpContextAccessor;
         _catalogSettings = catalogSettings;
         _vendorSettings = vendorSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<SearchModel> Handle(GetSearch request, CancellationToken cancellationToken)
@@ -94,7 +98,7 @@ public class GetSearchHandler : IRequestHandler<GetSearch, SearchModel>
 
         var cacheKey = string.Format(CacheKeyConst.SEARCH_CATEGORIES_MODEL_KEY,
             request.Language.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()),
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer),
             request.Store.Id);
         var categories = await _cacheBase.GetAsync(cacheKey, async () =>
         {

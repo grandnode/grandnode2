@@ -3,14 +3,18 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Shipping;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Moq;
 
 namespace Grand.Business.Catalog.Tests.Events.Handlers;
 
 [TestClass]
 public class WarehouseDeletedEventHandlerTests
 {
+    private Mock<ICacheBase> _cacheMock;
     private WarehouseDeletedEventHandler _handler;
     private IRepository<Product> _repository;
 
@@ -18,7 +22,8 @@ public class WarehouseDeletedEventHandlerTests
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<Product>();
-        _handler = new WarehouseDeletedEventHandler(_repository);
+        _cacheMock = new Mock<ICacheBase>();
+        _handler = new WarehouseDeletedEventHandler(_repository, _cacheMock.Object);
     }
 
     [TestMethod]
@@ -44,6 +49,7 @@ public class WarehouseDeletedEventHandlerTests
         //Assert
         Assert.AreEqual(0, _repository.Table.Where(x => x.WarehouseId == warehouse.Id).Count());
         Assert.AreEqual(1, _repository.Table.Where(x => x.WarehouseId == "1").Count());
+        _cacheMock.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
     }
 
     [TestMethod]

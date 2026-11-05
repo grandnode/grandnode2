@@ -128,8 +128,6 @@ public class DiscountService : IDiscountService
 
         await _discountRepository.InsertAsync(discount);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(discount);
     }
@@ -144,8 +142,6 @@ public class DiscountService : IDiscountService
 
         await _discountRepository.UpdateAsync(discount);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(discount);
     }
@@ -159,8 +155,6 @@ public class DiscountService : IDiscountService
         ArgumentNullException.ThrowIfNull(discount);
 
         await _discountRepository.DeleteAsync(discount);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(discount);
@@ -235,8 +229,8 @@ public class DiscountService : IDiscountService
     {
         await _discountCouponRepository.DeleteAsync(coupon);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
+        //event notification
+        await _mediator.EntityDeleted(coupon);
     }
 
     /// <summary>
@@ -247,8 +241,8 @@ public class DiscountService : IDiscountService
     {
         await _discountCouponRepository.InsertAsync(coupon);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
+        //event notification
+        await _mediator.EntityInserted(coupon);
     }
 
     /// <summary>
@@ -317,8 +311,6 @@ public class DiscountService : IDiscountService
 
         //Support for coupon code
         await DiscountCouponSetAsUsed(discountUsageHistory.CouponCode, true);
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
         //event notification
         await _mediator.EntityInserted(discountUsageHistory);
     }
@@ -334,8 +326,6 @@ public class DiscountService : IDiscountService
 
         await _discountUsageHistoryRepository.UpdateAsync(discountUsageHistory);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(discountUsageHistory);
     }
@@ -349,8 +339,6 @@ public class DiscountService : IDiscountService
         ArgumentNullException.ThrowIfNull(discountUsageHistory);
 
         await _discountUsageHistoryRepository.DeleteAsync(discountUsageHistory);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.DISCOUNTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(discountUsageHistory);

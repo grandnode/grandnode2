@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
@@ -7,9 +8,6 @@ using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Configuration;
-using Grand.Infrastructure.Tests.Caching;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -19,7 +17,6 @@ namespace Grand.Business.Catalog.Tests.Services.Products;
 [TestClass]
 public class InventoryManageServiceTests
 {
-    private MemoryCacheBase _cacheBase;
     private InventoryManageService _inventoryManageService;
     private Mock<IMediator> _mediatorMock;
     private IRepository<Product> _repository;
@@ -42,11 +39,9 @@ public class InventoryManageServiceTests
         _workContextMock.Setup(c => c.CurrentCustomer).Returns(() => new Customer());
         _mediatorMock = new Mock<IMediator>();
         _settings = new CatalogSettings();
-        _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
-            new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _stockQuantityService = new StockQuantityService();
         _inventoryManageService = new InventoryManageService(_repository, _repositoryInventoryJournal,
-            _stockQuantityService, _cacheBase, _mediatorMock.Object, _settings);
+            _stockQuantityService, _mediatorMock.Object, _settings);
     }
 
 
@@ -64,6 +59,25 @@ public class InventoryManageServiceTests
         product = _repository.Table.FirstOrDefault(x => x.Id == product.Id);
         //Assert
         Assert.AreEqual(15, product.ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task AdjustReserved_LowStockUnpublishes_ClearsProductLists()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            StockQuantity = 5,
+            MinStockQuantity = 2,
+            LowStockActivityId = LowStockActivity.Unpublish,
+            Published = true
+        };
+        await _repository.InsertAsync(product);
+
+        await _inventoryManageService.AdjustReserved(product, -4);
+
+        Assert.IsFalse(_repository.Table.First(x => x.Id == product.Id).Published);
+        _mediatorMock.Verify(m => m.Publish(It.Is<ProductChangedEvent>(e => e.ProductId == product.Id && e.ListsChanged),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]

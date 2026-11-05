@@ -1,6 +1,8 @@
 ﻿using Grand.Data;
 using Grand.Domain;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Extensions;
+using Grand.Mediator;
 using Shipping.ShippingPoint.Domain;
 
 namespace Shipping.ShippingPoint.Services;
@@ -9,7 +11,7 @@ public class ShippingPointService : IShippingPointService
 {
     #region Constants
 
-    private const string PICKUP_POINT_PATTERN_KEY = "Grand.ShippingPoint.";
+    internal const string PICKUP_POINT_PATTERN_KEY = "Grand.ShippingPoint.";
 
     #endregion
 
@@ -20,11 +22,14 @@ public class ShippingPointService : IShippingPointService
     /// </summary>
     /// <param name="cacheBase">Cache base</param>
     /// <param name="ShippingPointRepository">Store pickup point repository</param>
+    /// <param name="mediator">Mediator</param>
     public ShippingPointService(ICacheBase cacheBase,
-        IRepository<ShippingPoints> ShippingPointRepository)
+        IRepository<ShippingPoints> ShippingPointRepository,
+        IMediator mediator)
     {
         _cacheBase = cacheBase;
         _shippingPointRepository = ShippingPointRepository;
+        _mediator = mediator;
     }
 
     #endregion
@@ -32,6 +37,7 @@ public class ShippingPointService : IShippingPointService
     #region Fields
 
     private readonly ICacheBase _cacheBase;
+    private readonly IMediator _mediator;
     private readonly IRepository<ShippingPoints> _shippingPointRepository;
 
     #endregion
@@ -88,7 +94,7 @@ public class ShippingPointService : IShippingPointService
         ArgumentNullException.ThrowIfNull(pickupPoint);
 
         await _shippingPointRepository.InsertAsync(pickupPoint);
-        await _cacheBase.RemoveByPrefix(PICKUP_POINT_PATTERN_KEY);
+        await _mediator.EntityInserted(pickupPoint);
     }
 
     /// <summary>
@@ -100,7 +106,7 @@ public class ShippingPointService : IShippingPointService
         ArgumentNullException.ThrowIfNull(pickupPoint);
 
         await _shippingPointRepository.UpdateAsync(pickupPoint);
-        await _cacheBase.RemoveByPrefix(PICKUP_POINT_PATTERN_KEY);
+        await _mediator.EntityUpdated(pickupPoint);
     }
 
     /// <summary>
@@ -112,7 +118,7 @@ public class ShippingPointService : IShippingPointService
         ArgumentNullException.ThrowIfNull(pickupPoint);
 
         await _shippingPointRepository.DeleteAsync(pickupPoint);
-        await _cacheBase.RemoveByPrefix(PICKUP_POINT_PATTERN_KEY);
+        await _mediator.EntityDeleted(pickupPoint);
     }
 
     #endregion

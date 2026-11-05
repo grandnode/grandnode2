@@ -89,8 +89,6 @@ public class GroupService : IGroupService
 
         await _customerGroupRepository.InsertAsync(customerGroup);
 
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERGROUPS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(customerGroup);
     }
@@ -104,8 +102,6 @@ public class GroupService : IGroupService
         ArgumentNullException.ThrowIfNull(customerGroup);
 
         await _customerGroupRepository.UpdateAsync(customerGroup);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERGROUPS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(customerGroup);
@@ -123,9 +119,6 @@ public class GroupService : IGroupService
             throw new GrandException("System group could not be deleted");
 
         await _customerGroupRepository.DeleteAsync(customerGroup);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CUSTOMERGROUPS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(customerGroup);

@@ -98,9 +98,6 @@ public class OrderTagService : IOrderTagService
 
         await _orderTagRepository.InsertAsync(orderTag);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ORDERTAG_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(orderTag);
     }
@@ -114,9 +111,6 @@ public class OrderTagService : IOrderTagService
         ArgumentNullException.ThrowIfNull(orderTag);
 
         await _orderTagRepository.UpdateAsync(orderTag);
-
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ORDERTAG_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(orderTag);
@@ -136,10 +130,6 @@ public class OrderTagService : IOrderTagService
         //delete tag
         await _orderTagRepository.DeleteAsync(orderTag);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.ORDERTAG_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.ORDERS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityDeleted(orderTag);
     }
@@ -158,10 +148,6 @@ public class OrderTagService : IOrderTagService
         //update product tag
         await _orderTagRepository.UpdateField(orderTagId, x => x.Count, orderTag.Count + 1);
 
-        //cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.ORDERS_BY_ID_KEY, orderId));
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.ORDERTAG_COUNT_KEY, orderTagId));
-
         //event notification
         await _mediator.EntityUpdated(orderTag);
     }
@@ -179,9 +165,8 @@ public class OrderTagService : IOrderTagService
         //update product tag
         await _orderTagRepository.UpdateField(orderTagId, x => x.Count, orderTag.Count - 1);
 
-        //cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.ORDERS_BY_ID_KEY, orderId));
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.ORDERTAG_COUNT_KEY, orderTagId));
+        //event notification
+        await _mediator.EntityUpdated(orderTag);
     }
 
     /// <summary>

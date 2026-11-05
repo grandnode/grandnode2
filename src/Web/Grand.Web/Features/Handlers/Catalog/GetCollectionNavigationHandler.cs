@@ -4,6 +4,7 @@ using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Models.Catalog;
@@ -16,21 +17,25 @@ public class GetCollectionNavigationHandler : IRequestHandler<GetCollectionNavig
     private readonly ICacheBase _cacheBase;
     private readonly CatalogSettings _catalogSettings;
     private readonly ICollectionService _collectionService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetCollectionNavigationHandler(ICacheBase cacheBase,
         ICollectionService collectionService,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _collectionService = collectionService;
         _catalogSettings = catalogSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<CollectionNavigationModel> Handle(GetCollectionNavigation request,
         CancellationToken cancellationToken)
     {
         var cacheKey = string.Format(CacheKeyConst.COLLECTION_NAVIGATION_MODEL_KEY,
-            request.CurrentCollectionId, request.Language.Id, string.Join(",", request.Customer.GetCustomerGroupIds()),
+            request.CurrentCollectionId, request.Language.Id,
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer),
             request.Store.Id);
         var cacheModel = await _cacheBase.GetAsync(cacheKey, async () =>
         {

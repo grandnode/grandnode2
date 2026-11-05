@@ -105,9 +105,6 @@ public class VendorService : IVendorService
 
         //event notification
         await _mediator.EntityUpdated(vendor);
-
-        // clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.VENDOR_BY_ID_KEY, vendor.Id));
     }
 
     /// <summary>
@@ -120,9 +117,6 @@ public class VendorService : IVendorService
 
         vendor.Deleted = true;
         await UpdateVendor(vendor);
-
-        // clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.VENDOR_BY_ID_KEY, vendor.Id));
     }
 
 
@@ -262,9 +256,6 @@ public class VendorService : IVendorService
 
         //event notification
         await _mediator.EntityUpdated(vendor);
-
-        // clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.VENDOR_BY_ID_KEY, vendor.Id));
     }
 
     public virtual async Task UpdateVendorReview(VendorReview vendorReview)

@@ -33,7 +33,6 @@ public class WarehouseServiceTests
     {
         await _service.InsertWarehouse(new Warehouse());
         _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<Warehouse>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.AtLeast(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<Warehouse>>(), default), Times.Once);
     }
 
@@ -48,7 +47,6 @@ public class WarehouseServiceTests
     {
         await _service.UpdateWarehouse(new Warehouse());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Warehouse>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.AtLeast(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Warehouse>>(), default), Times.Once);
     }
 
@@ -63,7 +61,6 @@ public class WarehouseServiceTests
     {
         await _service.DeleteWarehouse(new Warehouse());
         _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<Warehouse>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.AtLeast(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<Warehouse>>(), default), Times.Once);
     }
 

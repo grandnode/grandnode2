@@ -4,6 +4,7 @@ using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -21,25 +22,28 @@ public class GetHomepageBrandsHandler : IRequestHandler<GetHomepageBrands, IList
     private readonly MediaSettings _mediaSettings;
     private readonly IPictureService _pictureService;
     private readonly IRequestTranslationService _translationService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetHomepageBrandsHandler(
         ICacheBase cacheBase,
         IBrandService brandService,
         IPictureService pictureService,
         IRequestTranslationService translationService,
-        MediaSettings mediaSettings)
+        MediaSettings mediaSettings,
+        AccessControlConfig accessControlConfig)
     {
         _cacheBase = cacheBase;
         _brandService = brandService;
         _pictureService = pictureService;
         _translationService = translationService;
         _mediaSettings = mediaSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<IList<BrandModel>> Handle(GetHomepageBrands request, CancellationToken cancellationToken)
     {
         var brandsCacheKey = string.Format(CacheKeyConst.BRAND_HOMEPAGE_KEY, request.Store.Id, request.Language.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()));
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer));
 
         var model = await _cacheBase.GetAsync(brandsCacheKey, async () =>
         {

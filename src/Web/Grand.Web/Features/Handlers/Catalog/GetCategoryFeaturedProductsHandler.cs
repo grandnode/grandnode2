@@ -8,6 +8,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Events.Cache;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -28,6 +29,7 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
     private readonly IMediator _mediator;
     private readonly IPictureService _pictureService;
     private readonly IRequestTranslationService _translationService;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetCategoryFeaturedProductsHandler(
         ICategoryService categoryService,
@@ -36,7 +38,8 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
         IRequestTranslationService translationService,
         IMediator mediator,
         MediaSettings mediaSettings,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        AccessControlConfig accessControlConfig)
     {
         _categoryService = categoryService;
         _cacheBase = cacheBase;
@@ -45,13 +48,14 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
         _mediator = mediator;
         _mediaSettings = mediaSettings;
         _catalogSettings = catalogSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<IList<CategoryModel>> Handle(GetCategoryFeaturedProducts request,
         CancellationToken cancellationToken)
     {
         var categoriesCacheKey = string.Format(CacheKeyConst.CATEGORY_FEATURED_PRODUCTS_HOMEPAGE_KEY,
-            string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id,
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer), request.Store.Id,
             request.Language.Id);
 
         var model = await _cacheBase.GetAsync(categoriesCacheKey, async () =>
@@ -100,7 +104,7 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
             //We cache a value indicating whether we have featured products
             IPagedList<Product> featuredProducts = null;
             var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, item.Id,
-                string.Join(",", request.Customer.GetCustomerGroupIds()), request.Store.Id);
+                _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer), request.Store.Id);
 
             var hasFeaturedProductsCache = await _cacheBase.GetAsync<bool?>(cacheKey, async () =>
             {

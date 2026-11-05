@@ -134,8 +134,6 @@ public class PageService : IPageService
 
         await _pageRepository.InsertAsync(page);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PAGES_PATTERN_KEY);
         //event notification
         await _mediator.EntityInserted(page);
     }
@@ -149,9 +147,6 @@ public class PageService : IPageService
         ArgumentNullException.ThrowIfNull(page);
 
         await _pageRepository.UpdateAsync(page);
-
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PAGES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(page);
@@ -167,8 +162,6 @@ public class PageService : IPageService
 
         await _pageRepository.DeleteAsync(page);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PAGES_PATTERN_KEY);
         //event notification
         await _mediator.EntityDeleted(page);
     }

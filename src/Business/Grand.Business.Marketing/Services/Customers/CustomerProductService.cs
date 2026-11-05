@@ -76,10 +76,6 @@ public class CustomerProductService : ICustomerProductService
 
         await _customerProductPriceRepository.InsertAsync(customerProductPrice);
 
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID,
-            customerProductPrice.CustomerId, customerProductPrice.ProductId));
-
         //event notification
         await _mediator.EntityInserted(customerProductPrice);
     }
@@ -94,10 +90,6 @@ public class CustomerProductService : ICustomerProductService
 
         await _customerProductPriceRepository.UpdateAsync(customerProductPrice);
 
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID,
-            customerProductPrice.CustomerId, customerProductPrice.ProductId));
-
         //event notification
         await _mediator.EntityUpdated(customerProductPrice);
     }
@@ -111,10 +103,6 @@ public class CustomerProductService : ICustomerProductService
         ArgumentNullException.ThrowIfNull(customerProductPrice);
 
         await _customerProductPriceRepository.DeleteAsync(customerProductPrice);
-
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.CUSTOMER_PRODUCT_PRICE_KEY_ID,
-            customerProductPrice.CustomerId, customerProductPrice.ProductId));
 
         //event notification
         await _mediator.EntityDeleted(customerProductPrice);
@@ -168,10 +156,6 @@ public class CustomerProductService : ICustomerProductService
 
         await _customerProductRepository.InsertAsync(customerProduct);
 
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_PERSONAL_KEY,
-            customerProduct.CustomerId));
-
         //event notification
         await _mediator.EntityInserted(customerProduct);
     }
@@ -186,10 +170,6 @@ public class CustomerProductService : ICustomerProductService
 
         await _customerProductRepository.UpdateAsync(customerProduct);
 
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_PERSONAL_KEY,
-            customerProduct.CustomerId));
-
         //event notification
         await _mediator.EntityUpdated(customerProduct);
     }
@@ -203,10 +183,6 @@ public class CustomerProductService : ICustomerProductService
         ArgumentNullException.ThrowIfNull(customerProduct);
 
         await _customerProductRepository.DeleteAsync(customerProduct);
-
-        //clear cache
-        await _cacheBase.RemoveAsync(string.Format(CacheKey.PRODUCTS_CUSTOMER_PERSONAL_KEY,
-            customerProduct.CustomerId));
 
         //event notification
         await _mediator.EntityDeleted(customerProduct);

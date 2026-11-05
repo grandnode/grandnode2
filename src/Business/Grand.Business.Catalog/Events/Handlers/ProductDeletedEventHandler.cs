@@ -2,6 +2,8 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Seo;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
 using Grand.Mediator;
 using System.Text.Json;
@@ -10,6 +12,7 @@ namespace Grand.Business.Catalog.Events.Handlers;
 
 public class ProductDeletedEventHandler : INotificationHandler<EntityDeleted<Product>>
 {
+    private readonly ICacheBase _cacheBase;
     private readonly IRepository<CustomerGroupProduct> _customerGroupProductRepository;
     private readonly IRepository<Customer> _customerRepository;
     private readonly IRepository<EntityUrl> _entityUrlRepository;
@@ -25,7 +28,8 @@ public class ProductDeletedEventHandler : INotificationHandler<EntityDeleted<Pro
         IRepository<EntityUrl> entityUrlRepository,
         IRepository<ProductTag> productTagRepository,
         IRepository<ProductReview> productReviewRepository,
-        IRepository<ProductDeleted> productDeletedRepository)
+        IRepository<ProductDeleted> productDeletedRepository,
+        ICacheBase cacheBase)
     {
         _productRepository = productRepository;
         _customerGroupProductRepository = customerGroupProductRepository;
@@ -34,6 +38,7 @@ public class ProductDeletedEventHandler : INotificationHandler<EntityDeleted<Pro
         _productTagRepository = productTagRepository;
         _productReviewRepository = productReviewRepository;
         _productDeletedRepository = productDeletedRepository;
+        _cacheBase = cacheBase;
     }
 
     public async Task Handle(EntityDeleted<Product> notification, CancellationToken cancellationToken)
@@ -51,6 +56,9 @@ public class ProductDeletedEventHandler : INotificationHandler<EntityDeleted<Pro
 
         //delete recommended product
         await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.RecommendedProduct, y => y == notification.Entity.Id);
+
+        //clear cache - here, after the write, so no request caches a product that still points at the deleted one
+        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
 
         //delete review
         await _productReviewRepository.DeleteManyAsync(x => x.ProductId == notification.Entity.Id);

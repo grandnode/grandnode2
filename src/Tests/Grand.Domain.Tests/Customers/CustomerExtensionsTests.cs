@@ -30,4 +30,20 @@ public class CustomerExtensionsTests
 
         CollectionAssert.AreEqual(new[] { "registered", "guests" }, customer.Groups.ToArray());
     }
+
+    [TestMethod]
+    public void GetCustomerGroupsCacheKey_JoinsTheSortedGroups()
+    {
+        var customer = new Customer();
+        customer.Groups.Add("registered");
+        customer.Groups.Add("guests");
+
+        Assert.AreEqual("guests,registered", customer.GetCustomerGroupsCacheKey());
+    }
+
+    [TestMethod]
+    public void GetCustomerGroupsCacheKey_WithoutGroups_IsEmpty()
+    {
+        Assert.AreEqual("", new Customer().GetCustomerGroupsCacheKey());
+    }
 }

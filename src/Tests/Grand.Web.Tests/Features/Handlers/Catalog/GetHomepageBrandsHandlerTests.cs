@@ -44,7 +44,8 @@ public class GetHomepageBrandsHandlerTests
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
 
         _handler = new GetHomepageBrandsHandler(cacheBase, _brandServiceMock.Object,
-            new Mock<IPictureService>().Object, translationServiceMock.Object, new MediaSettings());
+            new Mock<IPictureService>().Object, translationServiceMock.Object, new MediaSettings(),
+            new AccessControlConfig());
     }
 
     private Task<IList<Web.Models.Catalog.BrandModel>> Handle(params string[] groups)

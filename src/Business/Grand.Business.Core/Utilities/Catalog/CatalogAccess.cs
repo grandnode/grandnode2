@@ -1,4 +1,5 @@
 using Grand.Domain.Customers;
+using Grand.Infrastructure.Configuration;
 
 namespace Grand.Business.Core.Utilities.Catalog;
 
@@ -30,6 +31,15 @@ public sealed record CatalogAccess
     ///     Gets a value indicating whether unpublished and group-limited records are included
     /// </summary>
     public bool ShowHidden => Customer == null;
+
+    /// <summary>
+    ///     Gets the customer group part of a cache key; empty when hidden records are included or the ACL is
+    ///     ignored, since the groups filter nothing then
+    /// </summary>
+    public string GetCustomerGroupsCacheKey(AccessControlConfig config)
+    {
+        return ShowHidden ? "" : config.GetCustomerGroupsCacheKey(Customer);
+    }
 
     /// <summary>
     ///     The published records the customer's groups may see in the store

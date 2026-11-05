@@ -65,7 +65,7 @@ public virtual Task<TaxCategory> GetTaxCategoryById(string taxCategoryId)
 
 Note it returns `Task<T>` directly without `async`/`await` — a pure pass-through, per `.ai/standards/csharp-style.md`.
 
-## Write: guard, write, invalidate, publish — in that order
+## Write: guard, write, publish — in that order
 
 ```csharp
 public virtual async Task InsertTaxCategory(TaxCategory taxCategory)
@@ -73,8 +73,6 @@ public virtual async Task InsertTaxCategory(TaxCategory taxCategory)
     ArgumentNullException.ThrowIfNull(taxCategory);
 
     await _taxCategoryRepository.InsertAsync(taxCategory);
-
-    await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
 
     //event notification
     await _mediator.EntityInserted(taxCategory);
@@ -85,29 +83,26 @@ The order is the contract:
 
 1. `ArgumentNullException.ThrowIfNull` — the built-in helper, not a hand-written null check.
 2. Repository write.
-3. `RemoveByPrefix` with the `*_PATTERN_KEY` constant, which clears every key in the family regardless of which store ids happen to be cached.
-4. `EntityInserted` — published **after** the write succeeded, through the `IMediator` extension rather than by constructing the notification.
+3. `EntityInserted` — published **after** the write succeeded, through the `IMediator` extension rather than by constructing the notification.
 
-`UpdateTaxCategory` and `DeleteTaxCategory` are identical in structure with `EntityUpdated` / `EntityDeleted`. All three invalidate. A service that caches on read but forgets to invalidate on delete serves deleted records until the entry expires.
+`UpdateTaxCategory` and `DeleteTaxCategory` are identical in structure with `EntityUpdated` / `EntityDeleted`. The service never clears its own cache: `TaxCategoryCacheEventHandler` (`Grand.Business.Catalog/Events/Handlers/Cache`) handles all three events and removes `CacheKey.TAXCATEGORIES_PATTERN_KEY`, which clears every key in the family regardless of which store ids happen to be cached. A write that skips its event serves stale records until the entry expires.
 
 ## Cross-family invalidation
 
-Delete does one extra thing:
+Products embed a tax category, so cached product projections are stale the moment a tax category disappears. `TaxCategoryDeletedEventHandler` (`Grand.Business.Catalog/Events/Handlers`) removes the id from the products, and clears the product cache right after that write:
 
 ```csharp
-await _taxCategoryRepository.DeleteAsync(taxCategory);
+public async Task Handle(EntityDeleted<TaxCategory> notification, CancellationToken cancellationToken)
+{
+    await _productRepository.UpdateManyAsync(x => x.TaxCategoryId == notification.Entity.Id,
+        UpdateBuilder<Product>.Create().Set(x => x.TaxCategoryId, ""));
 
-//clear tax categories cache
-await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
-
-//clear product cache
-await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
-
-//event notification
-await _mediator.EntityDeleted(taxCategory);
+    //clear cache - here, after the write, so no request caches a product with the deleted tax category again
+    await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
+}
 ```
 
-Products embed a tax category, so cached product projections are stale the moment a tax category disappears. **When you add a cached family, ask what else embeds this data in a cached projection, and clear those prefixes too.** This is the step most often missed in review.
+The clear sits there and not in `TaxCategoryCacheEventHandler`: both handle the same event, in registration order, and a clear that ran before the rewrite would let a request cache the old products again. **When you add a cached family, ask what else embeds this data in a cached projection, and clear those prefixes too, after the write that changes them.** This is the step most often missed in review.
 
 ## `virtual` methods
 
@@ -128,8 +123,8 @@ Every public method is `virtual`. That is deliberate — plugins replace core se
 - [ ] Constructor takes `IRepository<T>`, `ICacheBase`, `IMediator` — nothing infrastructural.
 - [ ] Every cached read uses a `CacheKey` constant with every result-changing parameter formatted in.
 - [ ] Store scope is applied inside the query.
-- [ ] Every write invalidates with `RemoveByPrefix` and the `*_PATTERN_KEY` constant.
 - [ ] Every write publishes the matching entity event, after the write.
-- [ ] Cross-family caches that embed this entity are invalidated too.
+- [ ] A `<Family>CacheEventHandler` clears the `*_PATTERN_KEY` constant on insert, update and delete.
+- [ ] Cross-family caches that embed this entity are cleared in that handler too.
 - [ ] Guard clauses use `ArgumentNullException.ThrowIfNull`.
 - [ ] Methods are `virtual`.

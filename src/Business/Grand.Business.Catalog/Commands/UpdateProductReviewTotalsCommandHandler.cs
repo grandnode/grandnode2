@@ -1,9 +1,8 @@
 ﻿using Grand.Business.Core.Commands.Catalog;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain.Catalog;
-using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Caching.Constants;
 using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Commands;
@@ -11,10 +10,10 @@ namespace Grand.Business.Catalog.Commands;
 public class UpdateProductReviewTotalsCommandHandler : IRequestHandler<UpdateProductReviewTotalsCommand, bool>
 {
     public UpdateProductReviewTotalsCommandHandler(IRepository<Product> productRepository,
-        IProductReviewService productReviewService, ICacheBase cacheBase)
+        IProductReviewService productReviewService, IMediator mediator)
     {
         _productRepository = productRepository;
-        _cacheBase = cacheBase;
+        _mediator = mediator;
         _productReviewService = productReviewService;
     }
 
@@ -59,8 +58,7 @@ public class UpdateProductReviewTotalsCommandHandler : IRequestHandler<UpdatePro
 
         await _productRepository.UpdateOneAsync(x => x.Id == request.Product.Id, update);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, request.Product.Id));
+        await _mediator.Publish(new ProductChangedEvent(request.Product.Id));
 
         return true;
     }
@@ -69,7 +67,7 @@ public class UpdateProductReviewTotalsCommandHandler : IRequestHandler<UpdatePro
 
     private readonly IRepository<Product> _productRepository;
     private readonly IProductReviewService _productReviewService;
-    private readonly ICacheBase _cacheBase;
+    private readonly IMediator _mediator;
 
     #endregion
 }

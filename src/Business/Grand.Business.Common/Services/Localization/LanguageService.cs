@@ -110,9 +110,6 @@ public class LanguageService : ILanguageService
 
         await _languageRepository.InsertAsync(language);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.LANGUAGES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(language);
     }
@@ -128,9 +125,6 @@ public class LanguageService : ILanguageService
         //update language
         await _languageRepository.UpdateAsync(language);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.LANGUAGES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(language);
     }
@@ -144,9 +138,6 @@ public class LanguageService : ILanguageService
         ArgumentNullException.ThrowIfNull(language);
 
         await _languageRepository.DeleteAsync(language);
-
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.LANGUAGES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(language);

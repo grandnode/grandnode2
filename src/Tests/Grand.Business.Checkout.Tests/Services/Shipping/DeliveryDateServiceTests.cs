@@ -46,7 +46,6 @@ public class DeliveryDateServiceTests
     {
         await _service.UpdateDeliveryDate(new DeliveryDate());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<DeliveryDate>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.AtLeast(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<DeliveryDate>>(), default), Times.Once);
     }
 
@@ -61,7 +60,6 @@ public class DeliveryDateServiceTests
     {
         await _service.DeleteDeliveryDate(new DeliveryDate());
         _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<DeliveryDate>()), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.AtLeast(1));
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<DeliveryDate>>(), default), Times.Once);
     }
 

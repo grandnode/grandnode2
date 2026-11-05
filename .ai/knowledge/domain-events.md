@@ -36,13 +36,14 @@ Do not construct the notification and call `Publish` by hand — use the extensi
 
 ### Where to publish
 
-In the business service, after the repository write and after cache invalidation:
+In the business service, after the repository write:
 
 ```csharp
 await _taxCategoryRepository.InsertAsync(taxCategory);
-await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
 await _mediator.EntityInserted(taxCategory);
 ```
+
+The family's `<Family>CacheEventHandler` clears its cache on this event (`.ai/knowledge/caching.md`), so a write without its event leaves the cache stale.
 
 Never publish an entity event from a controller, a handler, or a repository.
 

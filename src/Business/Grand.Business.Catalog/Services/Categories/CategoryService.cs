@@ -136,7 +136,7 @@ public class CategoryService : ICategoryService
     {
         //hidden records are not filtered by customer groups, so the key does not depend on them
         var key = string.Format(CacheKey.CATEGORIES_BY_PARENT_CATEGORY_ID_KEY, parentCategoryId, access.ShowHidden,
-            access.ShowHidden ? "" : string.Join(",", access.Customer.GetCustomerGroupIds()), access.StoreId);
+            access.GetCustomerGroupsCacheKey(_accessControlConfig), access.StoreId);
         return await _cacheBase.GetAsync(key, () =>
         {
             var query = _categoryRepository.Table.Where(c => c.ParentCategoryId == parentCategoryId);
@@ -345,10 +345,6 @@ public class CategoryService : ICategoryService
 
         await _categoryRepository.InsertAsync(category);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(category);
     }
@@ -378,10 +374,6 @@ public class CategoryService : ICategoryService
 
         await _categoryRepository.UpdateAsync(category);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(category);
     }
@@ -405,9 +397,6 @@ public class CategoryService : ICategoryService
         }
 
         await _categoryRepository.DeleteAsync(category);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.CATEGORIES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(category);

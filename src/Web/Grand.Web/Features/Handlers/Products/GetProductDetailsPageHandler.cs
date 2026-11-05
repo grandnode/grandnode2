@@ -21,6 +21,7 @@ using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Events.Cache;
 using Grand.Web.Common.Extensions;
@@ -71,6 +72,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     private readonly VendorSettings _vendorSettings;
     private readonly IWarehouseService _warehouseService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly AccessControlConfig _accessControlConfig;
 
     public GetProductDetailsPageHandler(
         IRequestPermissionService permissionService,
@@ -103,7 +105,8 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         SeoSettings seoSettings,
         VendorSettings vendorSettings,
         CaptchaSettings captchaSettings,
-        ShoppingCartSettings shoppingCartSettings)
+        ShoppingCartSettings shoppingCartSettings,
+        AccessControlConfig accessControlConfig)
     {
         _permissionService = permissionService;
         _contextAccessor = contextAccessor;
@@ -136,6 +139,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         _vendorSettings = vendorSettings;
         _captchaSettings = captchaSettings;
         _shoppingCartSettings = shoppingCartSettings;
+        _accessControlConfig = accessControlConfig;
     }
 
     public async Task<ProductDetailsModel> Handle(GetProductDetailsPage request,
@@ -290,7 +294,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         var collectionsCacheKey = string.Format(CacheKeyConst.PRODUCT_COLLECTIONS_MODEL_KEY,
             product.Id,
             _contextAccessor.WorkContext.WorkingLanguage.Id,
-            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _accessControlConfig.GetCustomerGroupsCacheKey(_contextAccessor.WorkContext.CurrentCustomer),
             _contextAccessor.StoreContext.CurrentStore.Id);
         model.ProductCollections = await _cacheBase.GetAsync(collectionsCacheKey, async () =>
         {
@@ -536,7 +540,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         var breadcrumbCacheKey = string.Format(CacheKeyConst.PRODUCT_BREADCRUMB_MODEL_KEY,
             product.Id,
             _contextAccessor.WorkContext.WorkingLanguage.Id,
-            string.Join(",", _contextAccessor.WorkContext.CurrentCustomer.GetCustomerGroupIds()),
+            _accessControlConfig.GetCustomerGroupsCacheKey(_contextAccessor.WorkContext.CurrentCustomer),
             _contextAccessor.StoreContext.CurrentStore.Id);
         return await _cacheBase.GetAsync(breadcrumbCacheKey, async () =>
         {

@@ -76,7 +76,7 @@ public class KnowledgebaseService : IKnowledgebaseService
         //groups only matter with the ACL on; "*" keeps reads including hidden records apart from a customer with no groups
         var groupIds = _accessControlConfig.IgnoreAcl ? ""
             : access.ShowHidden ? "*"
-            : string.Join(",", access.Customer.GetCustomerGroupIds());
+            : access.Customer.GetCustomerGroupsCacheKey();
         var standardParams = new[] { groupIds, access.StoreId };
 
         var allParams = additionalParams != null
@@ -100,9 +100,6 @@ public class KnowledgebaseService : IKnowledgebaseService
             await UpdateKnowledgebaseCategory(child);
         }
 
-        await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);
-
         await _mediator.EntityDeleted(kc);
     }
 
@@ -113,8 +110,6 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task UpdateKnowledgebaseCategory(KnowledgebaseCategory kc)
     {
         await _knowledgebaseCategoryRepository.UpdateAsync(kc);
-        await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);
         await _mediator.EntityUpdated(kc);
     }
 
@@ -157,9 +152,6 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task InsertKnowledgebaseCategory(KnowledgebaseCategory kc)
     {
         await _knowledgebaseCategoryRepository.InsertAsync(kc);
-
-        await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);
 
         await _mediator.EntityInserted(kc);
     }
@@ -204,8 +196,6 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task InsertKnowledgebaseArticle(KnowledgebaseArticle ka)
     {
         await _knowledgebaseArticleRepository.InsertAsync(ka);
-        await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);
         await _mediator.EntityInserted(ka);
     }
 
@@ -216,8 +206,6 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task UpdateKnowledgebaseArticle(KnowledgebaseArticle ka)
     {
         await _knowledgebaseArticleRepository.UpdateAsync(ka);
-        await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);
         await _mediator.EntityUpdated(ka);
     }
 
@@ -228,8 +216,6 @@ public class KnowledgebaseService : IKnowledgebaseService
     public virtual async Task DeleteKnowledgebaseArticle(KnowledgebaseArticle ka)
     {
         await _knowledgebaseArticleRepository.DeleteAsync(ka);
-        await _cacheBase.RemoveByPrefix(CacheKey.ARTICLES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.KNOWLEDGEBASE_CATEGORIES_PATTERN_KEY);
         await _mediator.EntityDeleted(ka);
     }
 

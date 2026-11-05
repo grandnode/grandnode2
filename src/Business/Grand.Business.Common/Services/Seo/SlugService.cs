@@ -4,6 +4,8 @@ using Grand.Domain;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Extensions;
+using Grand.Mediator;
 
 namespace Grand.Business.Common.Services.Seo;
 
@@ -18,10 +20,12 @@ public class SlugService : ISlugService
     ///     Ctor
     /// </summary>
     public SlugService(ICacheBase cacheBase,
-        IRepository<EntityUrl> urlEntityRepository)
+        IRepository<EntityUrl> urlEntityRepository,
+        IMediator mediator)
     {
         _cacheBase = cacheBase;
         _urlEntityRepository = urlEntityRepository;
+        _mediator = mediator;
     }
 
     #endregion
@@ -30,6 +34,7 @@ public class SlugService : ISlugService
 
     private readonly IRepository<EntityUrl> _urlEntityRepository;
     private readonly ICacheBase _cacheBase;
+    private readonly IMediator _mediator;
 
     #endregion
 
@@ -55,8 +60,8 @@ public class SlugService : ISlugService
 
         await _urlEntityRepository.InsertAsync(urlEntity);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.URLEntity_PATTERN_KEY);
+        //event notification
+        await _mediator.EntityInserted(urlEntity);
     }
 
     /// <summary>
@@ -69,8 +74,8 @@ public class SlugService : ISlugService
 
         await _urlEntityRepository.UpdateAsync(urlEntity);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.URLEntity_PATTERN_KEY);
+        //event notification
+        await _mediator.EntityUpdated(urlEntity);
     }
 
     /// <summary>
@@ -83,8 +88,8 @@ public class SlugService : ISlugService
 
         await _urlEntityRepository.DeleteAsync(urlEntity);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(CacheKey.URLEntity_PATTERN_KEY);
+        //event notification
+        await _mediator.EntityDeleted(urlEntity);
     }
 
 

@@ -77,9 +77,6 @@ public class WarehouseService : IWarehouseService
 
         await _warehouseRepository.InsertAsync(warehouse);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.WAREHOUSES_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(warehouse);
     }
@@ -93,9 +90,6 @@ public class WarehouseService : IWarehouseService
         ArgumentNullException.ThrowIfNull(warehouse);
 
         await _warehouseRepository.UpdateAsync(warehouse);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.WAREHOUSES_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(warehouse);
@@ -111,10 +105,7 @@ public class WarehouseService : IWarehouseService
 
         await _warehouseRepository.DeleteAsync(warehouse);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.WAREHOUSES_PATTERN_KEY);
         //clear product cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(warehouse);

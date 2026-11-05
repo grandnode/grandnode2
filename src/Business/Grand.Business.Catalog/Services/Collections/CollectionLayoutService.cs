@@ -78,9 +78,6 @@ public class CollectionLayoutService : ICollectionLayoutService
 
         await _collectionLayoutRepository.InsertAsync(collectionLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.COLLECTION_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(collectionLayout);
     }
@@ -95,9 +92,6 @@ public class CollectionLayoutService : ICollectionLayoutService
 
         await _collectionLayoutRepository.UpdateAsync(collectionLayout);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.COLLECTION_LAYOUT_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(collectionLayout);
     }
@@ -111,9 +105,6 @@ public class CollectionLayoutService : ICollectionLayoutService
         ArgumentNullException.ThrowIfNull(collectionLayout);
 
         await _collectionLayoutRepository.DeleteAsync(collectionLayout);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.COLLECTION_LAYOUT_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(collectionLayout);

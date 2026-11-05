@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -112,9 +113,6 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         await _specificationAttributeRepository.InsertAsync(specificationAttribute);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SPECIFICATION_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(specificationAttribute);
     }
@@ -128,9 +126,6 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         ArgumentNullException.ThrowIfNull(specificationAttribute);
 
         await _specificationAttributeRepository.UpdateAsync(specificationAttribute);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SPECIFICATION_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(specificationAttribute);
@@ -148,10 +143,6 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeId == specificationAttribute.Id);
 
         await _specificationAttributeRepository.DeleteAsync(specificationAttribute);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.SPECIFICATION_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(specificationAttribute);
@@ -203,10 +194,6 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         specificationAttribute.SpecificationAttributeOptions.Remove(sao);
         await UpdateSpecificationAttribute(specificationAttribute);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SPECIFICATION_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityDeleted(specificationAttributeOption);
     }
@@ -228,9 +215,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         await _productRepository.AddToCollectionField(productId, x => x.ProductSpecificationAttributes,
             productSpecificationAttribute);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityInserted(productSpecificationAttribute);
@@ -248,9 +233,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductSpecificationAttributes, z => z.Id == productSpecificationAttribute.Id, productSpecificationAttribute);
 
-        //cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityUpdated(productSpecificationAttribute);
@@ -268,9 +251,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
 
         await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductSpecificationAttributes, x => x.Id == productSpecificationAttribute.Id);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, productId));
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_LISTING_PATTERN_KEY);
+        await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
         await _mediator.EntityDeleted(productSpecificationAttribute);

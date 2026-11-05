@@ -57,7 +57,7 @@ public class GetCategorySimpleHandler : IRequestHandler<GetCategorySimple, IList
         var cacheKey = string.Format(CacheKeyConst.CATEGORY_ALL_MODEL_KEY,
             request.Language.Id,
             request.Store.Id,
-            string.Join(",", request.Customer.GetCustomerGroupIds()),
+            _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer),
             request.CurrentCategoryId);
 
         return await _cacheBase.GetAsync(cacheKey, async () =>

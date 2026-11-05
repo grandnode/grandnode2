@@ -107,7 +107,6 @@ public class MessageTemplateServiceTests
         await _service.InsertMessageTemplate(new MessageTemplate());
         _repositoryMock.Verify(c => c.InsertAsync(It.IsAny<MessageTemplate>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityInserted<MessageTemplate>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
     }
 
     [TestMethod]
@@ -116,7 +115,6 @@ public class MessageTemplateServiceTests
         await _service.UpdateMessageTemplate(new MessageTemplate());
         _repositoryMock.Verify(c => c.UpdateAsync(It.IsAny<MessageTemplate>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<MessageTemplate>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
     }
 
     [TestMethod]
@@ -125,6 +123,5 @@ public class MessageTemplateServiceTests
         await _service.DeleteMessageTemplate(new MessageTemplate());
         _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<MessageTemplate>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<MessageTemplate>>(), default), Times.Once);
-        _cacheMock.Verify(c => c.RemoveByPrefix(It.IsAny<string>(), It.IsAny<bool>()), Times.Once);
     }
 }

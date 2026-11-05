@@ -34,7 +34,7 @@ public class TaxRateService : ITaxRateService
     #region Constants
 
     private const string TAXRATE_ALL_KEY = "Grand.taxrate.all-{0}-{1}-{2}";
-    private const string TAXRATE_PATTERN_KEY = "Grand.taxrate.";
+    internal const string TAXRATE_PATTERN_KEY = "Grand.taxrate.";
 
     #endregion
 
@@ -57,8 +57,6 @@ public class TaxRateService : ITaxRateService
         ArgumentNullException.ThrowIfNull(taxRate);
 
         await _taxRateRepository.DeleteAsync(taxRate);
-
-        await _cacheBase.RemoveByPrefix(TAXRATE_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(taxRate);
@@ -107,8 +105,6 @@ public class TaxRateService : ITaxRateService
 
         await _taxRateRepository.InsertAsync(taxRate);
 
-        await _cacheBase.RemoveByPrefix(TAXRATE_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(taxRate);
     }
@@ -122,8 +118,6 @@ public class TaxRateService : ITaxRateService
         ArgumentNullException.ThrowIfNull(taxRate);
 
         await _taxRateRepository.UpdateAsync(taxRate);
-
-        await _cacheBase.RemoveByPrefix(TAXRATE_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityUpdated(taxRate);

@@ -56,9 +56,6 @@ public class SalesEmployeeService : ISalesEmployeeService
 
         await _salesEmployeeRepository.InsertAsync(salesEmployee);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SALESEMPLOYEE_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityInserted(salesEmployee);
     }
@@ -73,9 +70,6 @@ public class SalesEmployeeService : ISalesEmployeeService
 
         await _salesEmployeeRepository.UpdateAsync(salesEmployee);
 
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SALESEMPLOYEE_PATTERN_KEY);
-
         //event notification
         await _mediator.EntityUpdated(salesEmployee);
     }
@@ -89,9 +83,6 @@ public class SalesEmployeeService : ISalesEmployeeService
         ArgumentNullException.ThrowIfNull(salesEmployee);
 
         await _salesEmployeeRepository.DeleteAsync(salesEmployee);
-
-        //clear cache
-        await _cacheBase.RemoveByPrefix(CacheKey.SALESEMPLOYEE_PATTERN_KEY);
 
         //event notification
         await _mediator.EntityDeleted(salesEmployee);
