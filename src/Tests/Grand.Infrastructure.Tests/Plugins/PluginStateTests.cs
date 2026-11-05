@@ -14,10 +14,14 @@ public class PluginStateTests
 {
     private PluginStateStoreFixture _stateStore;
     private string _installedFile;
+    private bool _recordsPluginState;
 
     [TestInitialize]
     public void Init()
     {
+        _recordsPluginState = PluginManager.RecordsPluginState;
+        //as the storefront
+        PluginManager.RecordsPluginState = true;
         _stateStore = new PluginStateStoreFixture();
         _installedFile = Path.Combine(Path.GetTempPath(), "grand-plugin-state-tests", Guid.NewGuid().ToString("N"),
             "InstalledPlugins.cfg");
@@ -27,12 +31,13 @@ public class PluginStateTests
     [TestCleanup]
     public void Cleanup()
     {
+        PluginManager.RecordsPluginState = _recordsPluginState;
         _stateStore.Dispose();
         Directory.Delete(Path.GetDirectoryName(_installedFile)!, true);
     }
 
     [TestMethod]
-    public void ReadInstalledPlugins_FileAndEmptyDatabase_TakesTheFileOverAndDeletesIt()
+    public void ReadInstalledPlugins_FileAndEmptyDatabase_TakesTheFileOverAndRenamesIt()
     {
         WriteFile("Plugin.A", "Plugin.B");
 
@@ -41,10 +46,41 @@ public class PluginStateTests
         CollectionAssert.AreEquivalent(new[] { "Plugin.A", "Plugin.B" }, installed);
         CollectionAssert.AreEquivalent(new[] { "Plugin.A", "Plugin.B" }, _stateStore.Installed());
         Assert.IsFalse(File.Exists(_installedFile));
+        Assert.IsTrue(File.Exists(_installedFile + PluginManager.TakenOverFileSuffix));
     }
 
     [TestMethod]
-    public async Task ReadInstalledPlugins_FileAndDatabaseListingPlugins_IgnoresTheFileAndDeletesIt()
+    public void ReadInstalledPlugins_FileWithBlankEntries_TakesTheOthersOver()
+    {
+        File.WriteAllText(_installedFile, """["Plugin.A", "", null, " "]""");
+
+        var installed = PluginManager.ReadInstalledPlugins(_stateStore.Store, _installedFile, null);
+
+        CollectionAssert.AreEqual(new[] { "Plugin.A" }, installed);
+    }
+
+    [TestMethod]
+    public void ReadInstalledPlugins_FileTakenOverByAnotherInstanceMeanwhile_ReadsTheDatabase()
+    {
+        WriteFile("Plugin.A");
+        var store = new Mock<IPluginStateStore>();
+        store.Setup(x => x.HasDatabase).Returns(true);
+        //the other instance renames the file between the check that it exists and the read
+        store.Setup(x => x.ImportInstalled(It.IsAny<Func<IEnumerable<string>>>()))
+            .Returns((Func<IEnumerable<string>> systemNames) =>
+            {
+                File.Move(_installedFile, _installedFile + PluginManager.TakenOverFileSuffix);
+                return systemNames().Any();
+            });
+        store.Setup(x => x.InstalledSystemNames()).Returns(["Plugin.A"]);
+
+        var installed = PluginManager.ReadInstalledPlugins(store.Object, _installedFile, null);
+
+        CollectionAssert.AreEqual(new[] { "Plugin.A" }, installed);
+    }
+
+    [TestMethod]
+    public async Task ReadInstalledPlugins_FileAndDatabaseListingPlugins_IgnoresTheFileAndRenamesIt()
     {
         //an uninstalled plugin counts: the database has the list
         await _stateStore.Store.SetInstalled("Plugin.A", false);
@@ -55,6 +91,7 @@ public class PluginStateTests
 
         CollectionAssert.AreEqual(new[] { "Plugin.C" }, installed);
         Assert.IsFalse(File.Exists(_installedFile));
+        Assert.IsTrue(File.Exists(_installedFile + PluginManager.TakenOverFileSuffix));
     }
 
     [TestMethod]
@@ -96,7 +133,7 @@ public class PluginStateTests
     }
 
     [TestMethod]
-    public async Task ReadInstalledPlugins_InvalidFileAndDatabaseListingPlugins_IgnoresTheFileAndDeletesIt()
+    public async Task ReadInstalledPlugins_InvalidFileAndDatabaseListingPlugins_IgnoresTheFileAndRenamesIt()
     {
         await _stateStore.Store.SetInstalled("Plugin.C", true);
         File.WriteAllText(_installedFile, "{ not json");
@@ -108,20 +145,20 @@ public class PluginStateTests
     }
 
     [TestMethod]
-    public void ReadInstalledPlugins_FileThatCannotBeDeleted_StillStarts()
+    public void ReadInstalledPlugins_FileThatCannotBeRenamed_StillStarts()
     {
         WriteFile("Plugin.A");
         var logs = new CapturingLoggerProvider();
 
         List<string> installed;
-        //an open handle without delete sharing keeps Windows from deleting the file
+        //an open handle without delete sharing keeps Windows from renaming the file
         using (new FileStream(_installedFile, FileMode.Open, FileAccess.Read, FileShare.Read))
             installed = PluginManager.ReadInstalledPlugins(_stateStore.Store, _installedFile,
                 logs.CreateLogger("PluginManager"));
 
         CollectionAssert.AreEqual(new[] { "Plugin.A" }, installed);
         if (OperatingSystem.IsWindows())
-            Assert.IsTrue(logs.Entries.Any(x => x.Message.Contains("could not be deleted")));
+            Assert.IsTrue(logs.Entries.Any(x => x.Message.Contains("could not be renamed")));
     }
 
     [TestMethod]
@@ -208,6 +245,27 @@ public class PluginStateTests
         Assert.IsTrue(broken["Installed"].AsBoolean);
         Assert.AreEqual("Could not load Broken.dll", broken["LoadError"].AsString);
         CollectionAssert.AreEqual(new[] { "Plugin.Broken" }, _stateStore.Installed());
+    }
+
+    [TestMethod]
+    public void SaveLoadResults_OtherThanTheStorefront_RecordsNothing()
+    {
+        PluginManager.RecordsPluginState = false;
+        var referencedPlugins = PluginManager.ReferencedPlugins;
+        try
+        {
+            PluginManager.ReferencedPlugins = [
+                new PluginInfo { SystemName = "Plugin.Working", SupportedVersion = GrandVersion.SupportedPluginVersion }
+            ];
+
+            PluginManager.SaveLoadResults();
+        }
+        finally
+        {
+            PluginManager.ReferencedPlugins = referencedPlugins;
+        }
+
+        Assert.IsNull(_stateStore.Document("Plugin.Working"));
     }
 
     [TestMethod]

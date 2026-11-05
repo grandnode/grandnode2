@@ -307,7 +307,7 @@ public class PluginManagerTests
         using var stateStore = new PluginStateStoreFixture();
         stateStore.Store.ImportInstalled(() => ["Manager.Installed"]);
 
-        Load(installed: "");
+        Load(installed: "", applicationName: PluginManager.StorefrontApplicationName);
         PluginManager.SaveLoadResults();
 
         Assert.IsTrue(Plugin("Manager.Installed").IsActive);
@@ -317,7 +317,7 @@ public class PluginManagerTests
     }
 
     [TestMethod]
-    public void Load_OtherThanTheStorefront_LeavesTheFileOfAnOlderVersionAlone()
+    public void Load_OtherThanTheStorefront_LeavesTheFileOfAnOlderVersionAndTheDatabaseAlone()
     {
         _fixture.AddPlugin("Installed", "Manager.Installed", "Manager.Installed",
             "public class InstalledPlugin : BasePlugin { }");
@@ -326,9 +326,10 @@ public class PluginManagerTests
         try
         {
             Load(installed: "", applicationName: "Grand.Web.Admin");
+            PluginManager.SaveLoadResults();
 
             Assert.IsFalse(Plugin("Manager.Installed").Installed);
-            Assert.IsEmpty(stateStore.Installed());
+            Assert.IsNull(stateStore.Document("Manager.Installed"));
             Assert.IsTrue(File.Exists(file));
         }
         finally
@@ -350,6 +351,8 @@ public class PluginManagerTests
         Assert.IsTrue(Plugin("Manager.Installed").IsActive);
         CollectionAssert.AreEqual(new[] { "Manager.Installed" }, stateStore.Installed());
         Assert.IsFalse(File.Exists(file));
+        Assert.IsTrue(File.Exists(file + PluginManager.TakenOverFileSuffix));
+        File.Delete(file + PluginManager.TakenOverFileSuffix);
     }
 
     /// <summary>

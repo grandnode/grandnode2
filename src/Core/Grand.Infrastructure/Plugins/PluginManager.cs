@@ -26,9 +26,15 @@ public static class PluginManager
     public const string CopyPath = "Plugins/bin";
 
     /// <summary>
-    ///     The application whose installed-plugins file of an older version is taken over into the database
+    ///     The application that records the plugins in the database, and takes the installed-plugins file of an
+    ///     older version over into it
     /// </summary>
     internal const string StorefrontApplicationName = "Grand.Web";
+
+    /// <summary>
+    ///     What the installed-plugins file of an older version is renamed to once the database has the list
+    /// </summary>
+    internal const string TakenOverFileSuffix = ".bak";
 
     private static readonly Lock _synLock = new();
     
@@ -65,6 +71,12 @@ public static class PluginManager
     ///     What <see cref="Load" /> saw on disk; null until plugins are loaded
     /// </summary>
     internal static PluginLoadSnapshot LoadSnapshot { get; set; }
+
+    /// <summary>
+    ///     Whether this application records the plugins in the database: only the storefront does. The admin, store
+    ///     and vendor applications, when started on their own, read the installed list and leave it alone.
+    /// </summary>
+    internal static bool RecordsPluginState { get; set; }
 
     /// <summary>
     ///     Plugin changes made since this process loaded its plugins; they take effect after a restart.
@@ -110,13 +122,12 @@ public static class PluginManager
 
             //the configured list wins; neither the database nor the file of an older version is read then. Only the
             //storefront takes its file over: the admin, store and vendor applications kept files of their own
+            RecordsPluginState = hostEnvironment.ApplicationName == StorefrontApplicationName;
             var installedByConfiguration = !string.IsNullOrEmpty(_config.InstalledPlugins);
             var installedPluginSystemNames = installedByConfiguration
                 ? _config.InstalledPlugins.Split(",").Select(x => x.Trim()).ToList()
                 : ReadInstalledPlugins(StateStore,
-                    hostEnvironment.ApplicationName == StorefrontApplicationName
-                        ? PluginPaths.Instance.InstalledPluginsFile
-                        : null, _logger);
+                    RecordsPluginState ? PluginPaths.Instance.InstalledPluginsFile : null, _logger);
 
             _logger.LogInformation("Creating shadow copy folder and querying for dlls");
             Directory.CreateDirectory(_pluginFolder.FullName);
@@ -353,12 +364,13 @@ public static class PluginManager
     ///     Records in the database what <see cref="Load" /> found in each plugin folder: what it is and, for one that
     ///     was rejected, why. Whether a plugin is installed is left as it is. Nothing is recorded before the
     ///     application is installed, nor while configuration lists the installed plugins (the database does not
-    ///     decide then), and a failure is logged only: the plugins are loaded already.
+    ///     decide then), nor by an application other than the storefront, and a failure is logged only: the plugins
+    ///     are loaded already.
     /// </summary>
     public static void SaveLoadResults()
     {
         var plugins = ReferencedPlugins?.ToList();
-        if (plugins == null || StateStore is not { HasDatabase: true } ||
+        if (plugins == null || !RecordsPluginState || StateStore is not { HasDatabase: true } ||
             !string.IsNullOrEmpty(_config?.InstalledPlugins))
             return;
 
@@ -382,8 +394,8 @@ public static class PluginManager
     /// <summary>
     ///     The installed plugins as the database lists them. The installed-plugins file of an older version is
     ///     taken over when the database lists no plugin yet, and ignored - not even read - when it does; either way
-    ///     it is deleted once the database has the list. Before the application is installed, no plugin is installed
-    ///     and the file is left alone.
+    ///     it is renamed (<see cref="TakenOverFileSuffix" />) once the database has the list, so the list it held
+    ///     is never lost. Before the application is installed, no plugin is installed and the file is left alone.
     /// </summary>
     /// <param name="installedPluginsFile">The file of an older version to take over; null to take none over</param>
     /// <exception cref="GrandException">
@@ -401,18 +413,7 @@ public static class PluginManager
         try
         {
             if (installedPluginsFile != null && File.Exists(installedPluginsFile))
-            {
-                IList<string> fromFile = null;
-                if (store.ImportInstalled(() => fromFile = PluginExtensions.ParseInstalledPluginsFile(installedPluginsFile)))
-                    logger?.LogInformation("Installed plugins taken over from {InstalledPluginsFile}: {SystemNames}",
-                        installedPluginsFile, string.Join(", ", fromFile));
-                else
-                    logger?.LogWarning(
-                        "{InstalledPluginsFile} ignored: the database lists the installed plugins already",
-                        installedPluginsFile);
-
-                DeleteTakenOverFile(installedPluginsFile, logger);
-            }
+                TakeFileOver(store, installedPluginsFile, logger);
 
             return store.InstalledSystemNames().ToList();
         }
@@ -422,19 +423,47 @@ public static class PluginManager
         }
     }
 
-    /// <summary>
-    ///     The database has the list now; a file that cannot be deleted (a read-only App_Data) is ignored on every
-    ///     start that follows, so it must not stop this one
-    /// </summary>
-    private static void DeleteTakenOverFile(string installedPluginsFile, ILogger logger)
+    private static void TakeFileOver(IPluginStateStore store, string installedPluginsFile, ILogger logger)
     {
         try
         {
-            File.Delete(installedPluginsFile);
+            IList<string> fromFile = null;
+            //a blank entry named no plugin in the file either
+            if (store.ImportInstalled(() => fromFile = PluginExtensions.ParseInstalledPluginsFile(installedPluginsFile)
+                    .Where(x => !string.IsNullOrWhiteSpace(x)).ToList()))
+                logger?.LogInformation("Installed plugins taken over from {InstalledPluginsFile}: {SystemNames}",
+                    installedPluginsFile, string.Join(", ", fromFile));
+            else
+                logger?.LogWarning(
+                    "{InstalledPluginsFile} ignored: the database lists the installed plugins already",
+                    installedPluginsFile);
+        }
+        catch (FileNotFoundException)
+        {
+            //another instance of the storefront, sharing App_Data, took the file over meanwhile
+            return;
+        }
+
+        RenameTakenOverFile(installedPluginsFile, logger);
+    }
+
+    /// <summary>
+    ///     The database has the list now; the file is kept under another name, never read again. A file that cannot
+    ///     be renamed (a read-only App_Data) is ignored on every start that follows, so it must not stop this one.
+    /// </summary>
+    private static void RenameTakenOverFile(string installedPluginsFile, ILogger logger)
+    {
+        try
+        {
+            File.Move(installedPluginsFile, installedPluginsFile + TakenOverFileSuffix, true);
+        }
+        catch (FileNotFoundException)
+        {
+            //another instance of the storefront renamed it meanwhile
         }
         catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
         {
-            logger?.LogWarning(ex, "{InstalledPluginsFile} could not be deleted; it is ignored from now on",
+            logger?.LogWarning(ex, "{InstalledPluginsFile} could not be renamed; it is ignored from now on",
                 installedPluginsFile);
         }
     }
