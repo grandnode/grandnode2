@@ -104,14 +104,31 @@ public class SettingServiceTests
     }
 
     [TestMethod]
-    public void LoadSettingByType_WithoutLoadedStoreSettings_ReadsTheRowsOfTheTypeUncached()
+    public async Task LoadSettingByType_WithoutLoadedStoreSettings_ReadsTheStoreSettingsOnceForTheScope()
     {
-        var service = ServiceWithCache(Row("", "global"), Row("store1", "store"));
+        var service = ServiceWithCache(Row("", "global"), Row("store1", "store"), Row("", "other", "othersettings"));
 
         Assert.AreEqual("store", ((TestSettings)service.LoadSetting(typeof(TestSettings), "store1")).Value);
-        Assert.AreEqual("store", ((TestSettings)service.LoadSetting(typeof(TestSettings), "store1")).Value);
-
+        Assert.AreEqual("other", ((OtherSettings)service.LoadSetting(typeof(OtherSettings), "store1")).Value);
+        Assert.AreEqual("global", ((TestSettings)service.LoadSetting(typeof(TestSettings), "")).Value);
         _repositoryMock.Verify(x => x.Table, Times.Exactly(2));
+
+        //what was read without the cache is not put into it
+        await service.LoadSetting<TestSettings>("store1");
+        _repositoryMock.Verify(x => x.Table, Times.Exactly(3));
+    }
+
+    [TestMethod]
+    public async Task LoadSettingByType_AfterAWriteInTheScope_ReadsTheStoreSettingsAgain()
+    {
+        var row = Row("", "before");
+        var service = ServiceWithCache(row);
+        Assert.AreEqual("before", ((TestSettings)service.LoadSetting(typeof(TestSettings), "")).Value);
+
+        row.Metadata = """{"Value":"after"}""";
+        await service.UpdateSetting(row);
+
+        Assert.AreEqual("after", ((TestSettings)service.LoadSetting(typeof(TestSettings), "")).Value);
     }
 
     [TestMethod]
@@ -155,6 +172,11 @@ public class SettingServiceTests
     }
 
     public class TestSettings : ISettings
+    {
+        public string Value { get; set; }
+    }
+
+    public class OtherSettings : ISettings
     {
         public string Value { get; set; }
     }

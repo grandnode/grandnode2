@@ -1,4 +1,5 @@
 ﻿using System.Runtime.CompilerServices;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Domain.Tasks;
 using Grand.Infrastructure;
@@ -148,7 +149,11 @@ public class BackgroundServiceTask : BackgroundService
     private async Task RunTask(IServiceProvider serviceProvider, IScheduleTaskService scheduleTaskService,
         ScheduleTask task, bool due, ILogger logger, CancellationToken stoppingToken)
     {
-        var scheduleTask = serviceProvider.GetRequiredKeyedService<IScheduleTask>(task.ScheduleTaskName);
+        //the task, and the settings injected into it, are resolved before the store context is set,
+        //so with the global settings - read here, as the container cannot wait for a query
+        await serviceProvider.GetRequiredService<ISettingService>().LoadStoreSettings("");
+
+        var scheduleTask =serviceProvider.GetRequiredKeyedService<IScheduleTask>(task.ScheduleTaskName);
         if (scheduleTask != null)
         {
             if (!due)

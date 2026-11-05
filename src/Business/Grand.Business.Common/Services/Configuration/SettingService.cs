@@ -54,10 +54,12 @@ public class SettingService : ISettingService
     {
         storeId ??= "";
         return _cacheBase.GetAsync(StoreSettingsKey(storeId), async () =>
-        {
-            var query = _settingRepository.Table.Where(x => x.StoreId == storeId || x.StoreId == "" || x.StoreId == null);
-            return new StoreSettings(await _settingRepository.ToListAsync(query), storeId);
-        });
+            new StoreSettings(await _settingRepository.ToListAsync(StoreSettingsQuery(storeId)), storeId));
+    }
+
+    private IQueryable<Setting> StoreSettingsQuery(string storeId)
+    {
+        return _settingRepository.Table.Where(x => x.StoreId == storeId || x.StoreId == "" || x.StoreId == null);
     }
 
     private static ISettings CreateSettings(StoreSettings storeSettings, Type type)
@@ -72,14 +74,15 @@ public class SettingService : ISettingService
     private sealed class StoreSettings
     {
         private readonly ILookup<string, Setting> _rows;
-        private readonly string _storeId;
         private readonly ConcurrentDictionary<(string name, Type type), object> _values = new();
 
         public StoreSettings(IEnumerable<Setting> rows, string storeId)
         {
             _rows = rows.ToLookup(x => x.Name);
-            _storeId = storeId ?? "";
+            StoreId = storeId ?? "";
         }
+
+        public string StoreId { get; }
 
         /// <summary>
         ///     Gets the value of a setting - the row of the store wins over the global one - or null when there is neither
@@ -89,7 +92,7 @@ public class SettingService : ISettingService
             return _values.GetOrAdd((name, type), _ =>
             {
                 var rows = _rows[name];
-                var setting = rows.FirstOrDefault(x => x.StoreId == _storeId) ??
+                var setting = rows.FirstOrDefault(x => x.StoreId == StoreId) ??
                               rows.FirstOrDefault(x => string.IsNullOrEmpty(x.StoreId));
                 return setting != null ? JsonSerializer.Deserialize(setting.Metadata, type) : null;
             });
@@ -102,6 +105,9 @@ public class SettingService : ISettingService
 
     private readonly IRepository<Setting> _settingRepository;
     private readonly ICacheBase _cacheBase;
+
+    //the settings read without the cache, kept for the rest of this scope
+    private StoreSettings _uncachedStoreSettings;
 
     #endregion
 
@@ -119,6 +125,7 @@ public class SettingService : ISettingService
         await _settingRepository.InsertAsync(setting);
 
         //cache
+        _uncachedStoreSettings = null;
         await _cacheBase.Clear();
     }
 
@@ -134,6 +141,7 @@ public class SettingService : ISettingService
         await _settingRepository.UpdateAsync(setting);
 
         //cache
+        _uncachedStoreSettings = null;
         await _cacheBase.Clear();
     }
 
@@ -148,6 +156,7 @@ public class SettingService : ISettingService
         await _settingRepository.DeleteAsync(setting);
 
         //cache
+        _uncachedStoreSettings = null;
         await _cacheBase.Clear();
     }
 
@@ -256,12 +265,15 @@ public class SettingService : ISettingService
     {
         //called by the container, which cannot wait for a query: LoadStoreSettings reads the store settings ahead
         //when the store context is set. Without them - a scope with no store context, or the cache cleared
-        //meanwhile - only the rows of this type are read, and not cached
-        var storeSettings = _cacheBase.TryGet(StoreSettingsKey(storeId), out StoreSettings cached)
-            ? cached
-            : new StoreSettings(GetSettingsByName(type.Name), storeId);
+        //meanwhile - they are read here once and kept for the other settings this scope resolves
+        storeId ??= "";
+        if (_cacheBase.TryGet(StoreSettingsKey(storeId), out StoreSettings storeSettings))
+            return CreateSettings(storeSettings, type);
 
-        return CreateSettings(storeSettings, type);
+        if (_uncachedStoreSettings?.StoreId != storeId)
+            _uncachedStoreSettings = new StoreSettings(StoreSettingsQuery(storeId).ToList(), storeId);
+
+        return CreateSettings(_uncachedStoreSettings, type);
     }
 
     /// <summary>
@@ -309,6 +321,7 @@ public class SettingService : ISettingService
     /// </summary>
     public virtual async Task ClearCache()
     {
+        _uncachedStoreSettings = null;
         await _cacheBase.RemoveByPrefix(CacheKey.SETTINGS_PATTERN_KEY);
     }
 

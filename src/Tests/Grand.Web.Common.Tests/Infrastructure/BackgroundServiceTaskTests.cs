@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Domain.Tasks;
 using Grand.Infrastructure;
@@ -17,6 +18,7 @@ public class BackgroundServiceTaskTests
 
     private Mock<IScheduleTaskService> _scheduleTaskServiceMock;
     private Mock<IScheduleTask> _scheduleTaskMock;
+    private Mock<ISettingService> _settingServiceMock;
     private ScheduleTask _task;
     private IServiceProvider _serviceProvider;
 
@@ -38,6 +40,8 @@ public class BackgroundServiceTaskTests
         _scheduleTaskMock = new Mock<IScheduleTask>();
         _scheduleTaskMock.Setup(t => t.Execute(It.IsAny<CancellationToken>())).Returns(Task.CompletedTask);
 
+        _settingServiceMock = new Mock<ISettingService>();
+
         var storeContextSetter = new Mock<IStoreContextSetter>();
         storeContextSetter.Setup(s => s.InitializeStoreContext(It.IsAny<string>()))
             .ReturnsAsync(Mock.Of<IStoreContext>());
@@ -49,6 +53,7 @@ public class BackgroundServiceTaskTests
         services.AddLogging();
         services.AddSingleton(_scheduleTaskServiceMock.Object);
         services.AddKeyedSingleton(TaskName, _scheduleTaskMock.Object);
+        services.AddSingleton(_settingServiceMock.Object);
         services.AddSingleton(Mock.Of<IContextAccessor>());
         services.AddSingleton(storeContextSetter.Object);
         services.AddSingleton(workContextSetter.Object);
@@ -155,6 +160,7 @@ public class BackgroundServiceTaskTests
         services.AddLogging();
         services.AddSingleton(_scheduleTaskServiceMock.Object);
         services.AddKeyedSingleton(TaskName, _scheduleTaskMock.Object);
+        services.AddSingleton(_settingServiceMock.Object);
         services.AddSingleton<IContextAccessor>(contextAccessor);
         services.AddSingleton(storeContextSetter.Object);
         services.AddSingleton(workContextSetter.Object);
@@ -213,6 +219,8 @@ public class BackgroundServiceTaskTests
             It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>()), Times.Never);
         _scheduleTaskMock.Verify(t => t.Execute(It.IsAny<CancellationToken>()), Times.Never);
         _scheduleTaskServiceMock.Verify(s => s.UpdateTask(It.IsAny<ScheduleTask>()), Times.Never);
+        //the task is still resolved, so its global settings are read ahead - the container cannot wait for a query
+        _settingServiceMock.Verify(s => s.LoadStoreSettings(""), Times.AtLeastOnce);
     }
 
     [TestMethod]
@@ -242,6 +250,7 @@ public class BackgroundServiceTaskTests
         var services = new ServiceCollection();
         services.AddSingleton(_scheduleTaskServiceMock.Object);
         services.AddKeyedSingleton(TaskName, _scheduleTaskMock.Object);
+        services.AddSingleton(_settingServiceMock.Object);
         services.AddSingleton(Mock.Of<IContextAccessor>());
         services.AddSingleton(Mock.Of<IStoreContextSetter>());
         services.AddSingleton(Mock.Of<IWorkContextSetter>());
