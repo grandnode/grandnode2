@@ -14,6 +14,8 @@ public class PluginModel : BaseModel
     [GrandResourceDisplayName("Admin.Plugins.Fields.SystemName")]
     public string SystemName { get; set; }
 
+    public string FolderName { get; set; }
+
     [GrandResourceDisplayName("Admin.Plugins.Fields.Version")]
     public string Version { get; set; }
 
@@ -28,6 +30,9 @@ public class PluginModel : BaseModel
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.Installed")]
     public bool Installed { get; set; }
+
+    [GrandResourceDisplayName("Admin.Plugins.LoadError")]
+    public string LoadError { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.Logo")]

@@ -247,6 +247,10 @@
         }
 
         <div class="right_col" role="main">
+            @if (!IsSectionDefined("popupwindow"))
+            {
+                @await Component.InvokeAsync("PluginRestartNotice")
+            }
             <partial name="Partials/Notifications"/>
             @RenderBody()
         </div>
@@ -281,6 +285,23 @@
                     if (!confirmed) return;
                     showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Header.RestartApplication.Progress"]))');
                     //POST with the antiforgery token: the action no longer answers a plain GET
+                    $.post(url, addAntiForgeryToken({}));
+                    setTimeout(function () {
+                        location.reload();
+                    }, 10000);
+                });
+            });
+            //the plugin restart: the notice above every page and the plugin list's reload button
+            $(document).on("click", "[data-plugin-restart]", function (e) {
+                e.preventDefault();
+                var url = $(this).data("url");
+                GrandAdmin.modal.confirm('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Common.AreYouSure"]))', {
+                    title: '@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.RestartNow"]))',
+                    confirmText: '@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Common.Yes"]))',
+                    cancelText: '@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Common.No"]))'
+                }).then(function (confirmed) {
+                    if (!confirmed) return;
+                    showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Header.RestartApplication.Progress"]))');
                     $.post(url, addAntiForgeryToken({}));
                     setTimeout(function () {
                         location.reload();

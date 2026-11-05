@@ -22,14 +22,24 @@ public static class PluginVersionResolver
     /// </returns>
     public static string ResolveSupportedVersion(Assembly pluginAssembly, string declaredVersion)
     {
-        if (!string.IsNullOrWhiteSpace(declaredVersion))
-            return declaredVersion.Trim();
-
         var coreReference = pluginAssembly?.GetReferencedAssemblies()
             .FirstOrDefault(x => string.Equals(x.Name, CoreAssemblyName, StringComparison.OrdinalIgnoreCase));
 
-        return coreReference?.Version == null
+        return ResolveSupportedVersion(coreReference?.Version, declaredVersion);
+    }
+
+    /// <summary>
+    ///     Same rule as the <see cref="Assembly" /> overload, for callers that read the reference from metadata.
+    /// </summary>
+    /// <param name="coreReference">The version of the plugin's Grand.Infrastructure reference, if it has one</param>
+    /// <param name="declaredVersion">The version declared on <see cref="PluginInfoAttribute" />, if any</param>
+    public static string ResolveSupportedVersion(Version coreReference, string declaredVersion)
+    {
+        if (!string.IsNullOrWhiteSpace(declaredVersion))
+            return declaredVersion.Trim();
+
+        return coreReference == null
             ? null
-            : $"{coreReference.Version.Major}.{coreReference.Version.Minor}";
+            : $"{coreReference.Major}.{coreReference.Minor}";
     }
 }

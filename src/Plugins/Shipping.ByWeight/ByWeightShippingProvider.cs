@@ -168,7 +168,8 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
             var checkoutAttributes =
                 customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
                     request.StoreId);
-            if (checkoutAttributes.Any())
+            //null until the customer chooses checkout attributes, and again once an order clears them
+            if (checkoutAttributes is { Count: > 0 })
             {
                 var attributeValues = await _checkoutAttributeParser.ParseCheckoutAttributeValues(checkoutAttributes);
                 foreach (var attributeValue in attributeValues)

@@ -61,7 +61,7 @@ public class PluginVersionResolverTests
     [TestMethod]
     public void ResolveSupportedVersion_NoAssembly_ReturnsNull()
     {
-        var result = PluginVersionResolver.ResolveSupportedVersion(null, null);
+        var result = PluginVersionResolver.ResolveSupportedVersion((Assembly)null, null);
 
         Assert.IsNull(result);
     }

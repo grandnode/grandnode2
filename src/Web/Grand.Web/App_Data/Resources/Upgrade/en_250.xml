@@ -846,6 +846,57 @@
 	<Resource Name="Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server" Area="Admin">
 		<Value>Server time zone</Value>
 	</Resource>
+	<Resource Name="Admin.Plugins.LoadError" Area="Admin">
+		<Value>Load error</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.ManagedByConfiguration" Area="Admin">
+		<Value>Installed plugins are set in the application configuration (Extensions:InstalledPlugins), so they cannot be installed or uninstalled here.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.Remove.UninstallFirst" Area="Admin">
+		<Value>Uninstall the plugin before removing it.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartNow" Area="Admin">
+		<Value>Restart now</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartRequired" Area="Admin">
+		<Value>Plugin changes take effect after the application restarts.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartRequired.Added" Area="Admin">
+		<Value>Added</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartRequired.Installed" Area="Admin">
+		<Value>Installed</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartRequired.Removed" Area="Admin">
+		<Value>Removed</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartRequired.UninstallWarning" Area="Admin">
+		<Value>An uninstalled plugin keeps running until the restart, although its settings and texts are already removed.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartRequired.Uninstalled" Area="Admin">
+		<Value>Uninstalled</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartRequired.Updated" Area="Admin">
+		<Value>Updated</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.Installed.AfterRestart" Area="Admin">
+		<Value>The plugin has been installed. The change takes effect after the application restarts.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.Removed.AfterRestart" Area="Admin">
+		<Value>The plugin has been removed. The change takes effect after the application restarts.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.Uninstalled.AfterRestart" Area="Admin">
+		<Value>The plugin has been uninstalled. The change takes effect after the application restarts.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.Uninstalled.NotCleanedUp" Area="Admin">
+		<Value>The plugin has been marked as uninstalled. Its settings and texts were not removed because the plugin could not be loaded.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.Uploaded.AfterRestart" Area="Admin">
+		<Value>The plugin has been uploaded. The change takes effect after the application restarts.</Value>
+	</Resource>
+	<Resource Name="Admin.Plugins.RestartFirst" Area="Admin">
+		<Value>The plugin files have changed since the application started. Restart the application before installing or uninstalling this plugin.</Value>
+	</Resource>
 	<Resource Name="Admin.Orders.OrderTags.Updated" Area="Admin">
 		<Value>The order's tag has been updated successfully.</Value>
 	</Resource>

@@ -18,8 +18,8 @@
     <!--
         The host assemblies every plugin compiles against.
 
-        Private=false keeps them out of the plugin's output folder: the plugin is loaded
-        into the host's AssemblyLoadContext, which already has them, and a second copy of
+        Private=false keeps them out of the plugin's output folder: the plugin's own load
+        context takes them from the host's, which already has them, and a second copy of
         a host assembly beside a plugin is a hazard - if that copy is ever the one loaded,
         its types are not the host's types and DI resolution fails in ways that are hard
         to trace.

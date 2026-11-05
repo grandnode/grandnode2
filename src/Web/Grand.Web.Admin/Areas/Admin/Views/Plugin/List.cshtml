@@ -8,14 +8,16 @@
     var remove = Url.Action("Remove", "Plugin", new { area = Constants.AreaAdmin });
 }
 <form asp-area="@Constants.AreaAdmin" asp-controller="Plugin" asp-action="List" method="post" id="plugins-form">
-    @* the reload link stays inside the form: its handler below is delegated from #plugins-form. Upload
-       is the one primary action; the load-mode filter only toggles a class on the table, so its
+    @* the reload button restarts the application with a script POST (the [data-plugin-restart] handler in
+       _AdminLayout, shared with the restart notice), so it is a plain button and no form nests in this one.
+       Upload is the one primary action; the load-mode filter only toggles a class on the table, so its
        button is a plain button, not a submit *@
     <admin-page title="@Loc["Admin.Plugins.Local"]" icon="bi-plug">
         <page-actions>
-            <a href="@Url.Action("ReloadList", new { area = Constants.AreaAdmin })" class="btn btn-outline-secondary" id="reload-plugin-list">
+            <button type="button" class="btn btn-outline-secondary" id="reload-plugin-list" data-plugin-restart
+                    data-url="@Url.Action("ReloadList", "Plugin", new { area = Constants.AreaAdmin })">
                 <i class="bi bi-arrow-clockwise"></i> @Loc["Admin.Plugins.ReloadList"]
-            </a>
+            </button>
             <button type="button" id="importfile" class="btn btn-primary">
                 <i class="bi bi-upload"></i> @Loc["Admin.Plugins.Upload"]
             </button>
@@ -78,15 +80,6 @@
                 $("html, body").animate({ scrollTop: 0 }, 400);
                 return true;
             });
-            $("#plugins-form").on("click", "#reload-plugin-list", function (e) {
-                event.preventDefault();
-                showThrobber('@Html.Raw(JavaScriptEncoder.Default.Encode(Loc["Admin.Plugins.Fields.Reload.List"]))')
-                $("html, body").animate({ scrollTop: 0 }, 400);
-                $.get($(this).attr("href"), function (data) { });
-                setTimeout(function () {
-                    location.reload();
-                }, 10000);
-            });
         });
 
         function additionalData() {
@@ -115,7 +108,8 @@
 
                 var groupedData = data.Data.reduce(function (result, current) {
 
-                    if (typeof current['Group'] === 'undefined')
+                    //a folder that failed before its manifest was read has no group
+                    if (current['Group'] == null)
                         current['Group'] = "All";
 
                     result[current['Group']] = result[current['Group']] || [];
@@ -136,8 +130,10 @@
                             if (item.Group == key) {
                                 $("#" + keyId + "").append("<li id='" + item.SystemName + "' class='item-installed-" + item.Installed + "'>" +
                                     "<div class='logo'><img src='" + item.LogoUrl + "'></img></div>" +
-                                    "<div class='content'><div class='title'>" + item.FriendlyName + "<span class='install-" + item.Installed + "'>@Loc["Admin.Plugins.Fields.Installed"]</span></div><ul class='info'><li class='version'><span>@Loc["Admin.Plugins.Fields.Version"]:</span>" + item.Version + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.Author"]:</span>" + item.Author + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.SystemName"]:</span>" + item.SystemName + "</li></div></div>" +
-                                    "<div class='buttons'><a class='btn btn-outline-secondary btn-sm button-" + item.ConfigurationUrl + "' href='" + item.ConfigurationUrl + "'>@Loc["Admin.Plugins.Fields.Configure"]</a><input type='submit' formaction='@(installurl)?SystemName=" + item.SystemName + "' name='install-plugin-link-" + item.SystemName + "' class='btn btn-outline-secondary btn-sm install-plugin-link button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Install"]' /><input type='submit' formaction='@(uninstallurl)?SystemName=" + item.SystemName + "' name='uninstall-plugin-link-" + item.SystemName + "' class='btn btn-outline-danger btn-sm uninstall-plugin-link button-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Uninstall"]' /><input type='submit' formaction='@(remove)?SystemName=" + item.SystemName + "' name='remove-plugin-link-" + item.SystemName + "' class='btn btn-outline-danger btn-sm button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Remove"]' /></div>"
+                                    "<div class='content'><div class='title'>" + item.FriendlyName + "<span class='install-" + item.Installed + "'>@Loc["Admin.Plugins.Fields.Installed"]</span></div><ul class='info'><li class='version'><span>@Loc["Admin.Plugins.Fields.Version"]:</span>" + item.Version + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.Author"]:</span>" + item.Author + "</li><li class='version'><span>@Loc["Admin.Plugins.Fields.SystemName"]:</span>" + item.SystemName + "</li>" +
+                                    (item.LoadError ? "<li class='version text-danger'><span>@Loc["Admin.Plugins.LoadError"]:</span>" + GrandAdmin.htmlEncode(item.LoadError) + "</li>" : "") +
+                                    "</div></div>" +
+                                    "<div class='buttons'><a class='btn btn-outline-secondary btn-sm button-" + item.ConfigurationUrl + "' href='" + item.ConfigurationUrl + "'>@Loc["Admin.Plugins.Fields.Configure"]</a><input type='submit' formaction='@(installurl)?SystemName=" + item.SystemName + "' name='install-plugin-link-" + item.SystemName + "' class='btn btn-outline-secondary btn-sm install-plugin-link button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Install"]' /><input type='submit' formaction='@(uninstallurl)?SystemName=" + item.SystemName + "' name='uninstall-plugin-link-" + item.SystemName + "' class='btn btn-outline-danger btn-sm uninstall-plugin-link button-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Uninstall"]' /><input type='submit' formaction='@(remove)?SystemName=" + item.SystemName + "&folderName=" + encodeURIComponent(item.FolderName || "") + "' name='remove-plugin-link-" + item.SystemName + "' class='btn btn-outline-danger btn-sm button-installed-" + item.Installed + "' value='@Loc["Admin.Plugins.Fields.Remove"]' /></div>"
                                 +"</li>");
                             }
                         });

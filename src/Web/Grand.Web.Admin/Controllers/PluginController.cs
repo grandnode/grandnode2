@@ -12,8 +12,6 @@ using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using System.IO.Compression;
-using System.Reflection;
 
 namespace Grand.Web.Admin.Controllers;
 
@@ -41,8 +39,9 @@ public class PluginController(
         //logo
         pluginModel.LogoUrl = PluginInfo.GetLogoUrl(Request.PathBase);
 
-        //configuration URLs
-        if (PluginInfo.Installed)
+        //configuration URLs only for an active plugin, which was loaded at startup: listing never loads one,
+        //and a plugin that failed to load has no instance - its LoadError is shown instead
+        if (PluginInfo.IsActive)
         {
             var pluginInstance = PluginInfo.Instance(serviceProvider);
             pluginModel.ConfigurationUrl = pluginInstance.ConfigurationUrl();
@@ -71,16 +70,57 @@ public class PluginController(
 
     }
 
-    protected static byte[] ToByteArray(Stream stream)
+    /// <summary>
+    ///     The plugin's changes waiting for the restart, matched by system name and by folder
+    /// </summary>
+    private static List<PluginPendingChange> PendingChangesOf(PluginInfo pluginInfo)
     {
-        using (stream)
-        {
-            using (var memStream = new MemoryStream())
-            {
-                stream.CopyTo(memStream);
-                return memStream.ToArray();
-            }
-        }
+        var folder = pluginInfo.OriginalAssemblyFile?.Directory?.Name;
+        return PluginManager.GetPendingChanges()
+            .Where(x => string.Equals(x.SystemName, pluginInfo.SystemName, StringComparison.OrdinalIgnoreCase)
+                        || (folder != null && string.Equals(x.FolderName, folder, StringComparison.OrdinalIgnoreCase)))
+            .ToList();
+    }
+
+    /// <summary>
+    ///     Whether the plugin is installed now: an install or uninstall since the last restart already counts,
+    ///     although the plugin list still shows the state the application was started with
+    /// </summary>
+    private static bool IsInstalled(PluginInfo pluginInfo, IEnumerable<PluginPendingChange> pending)
+    {
+        var change = pending.LastOrDefault(x =>
+            x.Kind is PluginPendingChangeKind.Installed or PluginPendingChangeKind.Uninstalled);
+
+        return change?.Kind switch {
+            PluginPendingChangeKind.Installed => true,
+            PluginPendingChangeKind.Uninstalled => false,
+            _ => pluginInfo.Installed
+        };
+    }
+
+    /// <summary>
+    ///     The running code is not what is on disk any more (the folder was removed or replaced): installing or
+    ///     uninstalling it would run the old plugin's code for the new one, or for one that is gone
+    /// </summary>
+    private bool RestartRequiredFirst(IEnumerable<PluginPendingChange> pending)
+    {
+        if (!pending.Any(x => x.Kind is PluginPendingChangeKind.Removed or PluginPendingChangeKind.Updated))
+            return false;
+
+        Error(translationService.GetResource("Admin.Plugins.RestartFirst"));
+        return true;
+    }
+
+    /// <summary>
+    ///     The installed plugins are set in configuration (Extensions:InstalledPlugins), not by the admin panel
+    /// </summary>
+    private bool InstalledPluginsManagedByConfiguration()
+    {
+        if (string.IsNullOrEmpty(extConfig.InstalledPlugins))
+            return false;
+
+        Error(translationService.GetResource("Admin.Plugins.ManagedByConfiguration"));
+        return true;
     }
 
     #endregion
@@ -130,6 +170,9 @@ public class PluginController(
     [HttpPost]
     public async Task<IActionResult> Install(string systemName)
     {
+        if (InstalledPluginsManagedByConfiguration())
+            return RedirectToAction("List");
+
         try
         {
             var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
@@ -143,8 +186,12 @@ public class PluginController(
                 return RedirectToAction("List");
             }
 
+            var pending = PendingChangesOf(pluginInfo);
+            if (RestartRequiredFirst(pending))
+                return RedirectToAction("List");
+
             //check whether plugin is not installed
-            if (pluginInfo.Installed)
+            if (IsInstalled(pluginInfo, pending))
                 return RedirectToAction("List");
 
             //install plugin
@@ -152,13 +199,10 @@ public class PluginController(
             await plugin.Install();
             await auditEventRecorder.Plugin(systemName, "installed");
 
-            Success(translationService.GetResource("Admin.Plugins.Installed"));
+            Success(translationService.GetResource("Admin.Plugins.Installed.AfterRestart"));
 
             logger.LogInformation("The plugin has been installed by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
-
-            //stop application
-            applicationLifetime.StopApplication();
         }
         catch (Exception exc)
         {
@@ -171,6 +215,9 @@ public class PluginController(
     [HttpPost]
     public async Task<IActionResult> Uninstall(string systemName)
     {
+        if (InstalledPluginsManagedByConfiguration())
+            return RedirectToAction("List");
+
         try
         {
             var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
@@ -178,22 +225,38 @@ public class PluginController(
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
-            //check whether plugin is installed
-            if (!pluginInfo.Installed)
+            var pending = PendingChangesOf(pluginInfo);
+            if (RestartRequiredFirst(pending))
                 return RedirectToAction("List");
 
-            //uninstall plugin
-            var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
-            await plugin.Uninstall();
-            await auditEventRecorder.Plugin(systemName, "uninstalled");
+            //check whether plugin is installed
+            if (!IsInstalled(pluginInfo, pending))
+                return RedirectToAction("List");
 
-            Success(translationService.GetResource("Admin.Plugins.Uninstalled"));
+            //a plugin that cannot be loaded has no instance to clean up after itself: it is only marked
+            //uninstalled, so it can be removed. An installed plugin was loaded at startup, one installed since
+            //then by its install; loading here only covers one that is still listed without being loaded
+            PluginManager.LoadForInstall(pluginInfo);
+            if (pluginInfo.LoadError != null)
+            {
+                await Grand.Infrastructure.Plugins.PluginExtensions.MarkPluginAsUninstalled(pluginInfo.SystemName);
+                //it never ran: the list shows it uninstalled, and removable, right away
+                pluginInfo.Installed = false;
+                await auditEventRecorder.Plugin(systemName, "uninstalled");
+
+                Warning(translationService.GetResource("Admin.Plugins.Uninstalled.NotCleanedUp"));
+            }
+            else
+            {
+                var plugin = pluginInfo.Instance<IPlugin>(serviceProvider);
+                await plugin.Uninstall();
+                await auditEventRecorder.Plugin(systemName, "uninstalled");
+
+                Success(translationService.GetResource("Admin.Plugins.Uninstalled.AfterRestart"));
+            }
 
             logger.LogInformation("The plugin has been uninstalled by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
-
-            //stop application
-            applicationLifetime.StopApplication();
         }
         catch (Exception exc)
         {
@@ -204,7 +267,7 @@ public class PluginController(
     }
 
     [HttpPost]
-    public async Task<IActionResult> Remove(string systemName)
+    public async Task<IActionResult> Remove(string systemName, string folderName)
     {
         if (extConfig.DisableUploadExtensions)
         {
@@ -214,22 +277,27 @@ public class PluginController(
 
         try
         {
-            var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName);
+            //by folder too: two folders may declare one system name, and only the chosen one is removed
+            var pluginInfo = PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == systemName
+                && x.FolderName != null && string.Equals(x.FolderName, folderName, StringComparison.OrdinalIgnoreCase));
             if (pluginInfo == null)
                 //No plugin found with the specified id
                 return RedirectToAction("List");
 
-            DeleteDirectory(pluginInfo.OriginalAssemblyFile.DirectoryName);
+            //an installed plugin keeps its settings and data; it is uninstalled first
+            if (IsInstalled(pluginInfo, PendingChangesOf(pluginInfo)))
+            {
+                Error(translationService.GetResource("Admin.Plugins.Remove.UninstallFirst"));
+                return RedirectToAction("List");
+            }
+
+            DeleteDirectory(Path.Combine(PluginsPath, pluginInfo.FolderName));
             await auditEventRecorder.Plugin(systemName, "removed");
 
-            //uninstall plugin
-            Success(translationService.GetResource("Admin.Plugins.Removed"));
+            Success(translationService.GetResource("Admin.Plugins.Removed.AfterRestart"));
 
             logger.LogInformation("The plugin has been removed by the user {CurrentCustomerEmail}",
                 contextAccessor.WorkContext.CurrentCustomer.Email);
-
-            //stop application
-            applicationLifetime.StopApplication();
         }
         catch (Exception exc)
         {
@@ -239,10 +307,16 @@ public class PluginController(
         return RedirectToAction("List");
     }
 
-    public IActionResult ReloadList()
+    /// <summary>
+    ///     Restarts the application, which applies the plugin changes made since the last start. Under the
+    ///     Plugins permission, so applying them does not take the System permission a general restart needs.
+    /// </summary>
+    [HttpPost]
+    public async Task<IActionResult> ReloadList()
     {
         logger.LogInformation("Reload list of plugins by the user {CurrentCustomerEmail}",
             contextAccessor.WorkContext.CurrentCustomer.Email);
+        await auditEventRecorder.Plugin("*", "restarted");
 
         //stop application
         applicationLifetime.StopApplication();
@@ -284,10 +358,11 @@ public class PluginController(
                 zippedFile.CopyTo(fileStream);
             }
 
-            Upload(zipFilePath);
-            await auditEventRecorder.Plugin(zippedFile.FileName, "uploaded");
+            var installer = new PluginArchiveInstaller(PluginsPath, logger);
+            var result = installer.Install(zipFilePath);
+            await auditEventRecorder.Plugin(result.Manifest.SystemName, "uploaded");
 
-            var message = translationService.GetResource("Admin.Plugins.Uploaded");
+            var message = translationService.GetResource("Admin.Plugins.Uploaded.AfterRestart");
             Success(message);
         }
         catch (Exception exc)
@@ -297,129 +372,14 @@ public class PluginController(
         }
         finally
         {
-            // Delete temporary file
-            DeleteTempDirectory(tempDirectory);
+            //only the uploaded file is ours; the installer owns (and may keep) its per-install folders
+            PluginArchiveInstaller.DeleteArchive(zipFilePath, logger);
         }
 
         logger.LogInformation("The plugin has been uploaded by the user {CurrentCustomerEmail}",
             contextAccessor.WorkContext.CurrentCustomer.Email);
 
-        //stop application
-        applicationLifetime.StopApplication();
-
         return RedirectToAction("List");
-    }
-
-    private void DeleteTempDirectory(string tempDirectory)
-    {
-        try
-        {
-            DeleteDirectory(tempDirectory);
-        }
-        catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
-        {
-            //the previous plugin version moved here can hold an assembly this process has loaded;
-            //it is not loaded from here on the next start and the next upload removes it
-            logger.LogWarning(ex, "The temporary upload folder {TempDirectory} could not be deleted", tempDirectory);
-        }
-    }
-
-    private void Upload(string archivePath)
-    {
-        var pluginsPath = Path.Combine(webHostEnvironment.ContentRootPath, CommonPath.Plugins);
-        var uploadedItemDirectoryName = "";
-        PluginInfo _pluginInfo = null;
-        using (var archive = ZipFile.Open(archivePath, ZipArchiveMode.Update))
-        {
-            var rootDirectories = archive.Entries.Where(entry =>
-                entry.FullName.Count(ch => ch == '/') == 1 && entry.FullName.EndsWith("/")).ToList();
-            if (rootDirectories.Count != 1)
-                throw new Exception(
-                    "The archive should contain only one root plugin. For example, Payments.StripeCheckout.");
-
-            //get directory name (remove the ending /)
-            uploadedItemDirectoryName = rootDirectories.First().FullName.TrimEnd('/');
-
-            var supportedVersion = false;
-            var _fpath = "";
-            foreach (var entry in archive.Entries.Where(x => x.FullName.Contains(".dll")))
-            {
-                using var unzippedEntryStream = entry.Open();
-                try
-                {
-                    var assembly = Assembly.Load(ToByteArray(unzippedEntryStream));
-                    var pluginInfo = assembly.GetCustomAttribute<PluginInfoAttribute>();
-                    if (pluginInfo != null && pluginInfo.SupportedVersion == GrandVersion.SupportedPluginVersion)
-                    {
-                        supportedVersion = true;
-                        _fpath = entry.FullName[..entry.FullName.LastIndexOf("/", StringComparison.Ordinal)];
-                        archive.Entries.Where(x => !x.FullName.Contains(_fpath)).ToList()
-                            .ForEach(y => { archive.GetEntry(y.FullName)!.Delete(); });
-
-                        _pluginInfo = new PluginInfo();
-                        break;
-                    }
-                }
-                catch (Exception ex)
-                {
-                    logger.LogError(ex, ex.Message);
-                }
-            }
-
-            if (!supportedVersion)
-                throw new Exception(
-                    $"This plugin doesn't support the current version - {GrandVersion.SupportedPluginVersion}");
-
-            var pluginname = _fpath[(_fpath.LastIndexOf('/') + 1)..];
-            var _path = "";
-
-            var entries = archive.Entries.ToArray();
-            foreach (var y in entries)
-            {
-                _path = y.Name.Length > 0
-                    ? y.FullName.Replace(y.Name, "").Replace(_fpath, pluginname).TrimEnd('/')
-                    : y.FullName.Replace(_fpath, pluginname);
-
-                var entry = archive.CreateEntry($"{_path}/{y.Name}");
-                using (var a = y.Open())
-                using (var b = entry.Open())
-                {
-                    a.CopyTo(b);
-                }
-
-                archive.GetEntry(y.FullName).Delete();
-            }
-        }
-
-        if (_pluginInfo == null)
-            throw new Exception("No info file is found.");
-
-        if (string.IsNullOrEmpty(uploadedItemDirectoryName))
-            throw new Exception("Cannot get the plugin directory name");
-
-        var pathToUpload = Path.Combine(pluginsPath, uploadedItemDirectoryName);
-
-        if (!Directory.Exists(pathToUpload))
-        {
-            ZipFile.ExtractToDirectory(archivePath, pluginsPath);
-            return;
-        }
-
-        //move the previous version into the temp upload folder instead of deleting it in place:
-        //a locked assembly fails the move before anything is changed, and a failed extraction puts it back
-        var previousVersionPath = Path.Combine(Path.GetDirectoryName(archivePath)!, Guid.NewGuid().ToString());
-        Directory.Move(pathToUpload, previousVersionPath);
-        try
-        {
-            ZipFile.ExtractToDirectory(archivePath, pluginsPath);
-        }
-        catch
-        {
-            if (Directory.Exists(pathToUpload))
-                DeleteDirectory(pathToUpload);
-            Directory.Move(previousVersionPath, pathToUpload);
-            throw;
-        }
     }
 
     #endregion
