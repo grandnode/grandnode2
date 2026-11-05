@@ -192,7 +192,6 @@ public class CheckoutCacheEventHandlersTests
         await new DeliveryDateCacheEventHandler(cache.Object).Handle(notification, CancellationToken.None);
 
         cache.Verify(c => c.RemoveByPrefix(CacheKey.DELIVERYDATE_PATTERN_KEY, true), Times.Once);
-        cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
         cache.VerifyNoOtherCalls();
     }
 
@@ -301,7 +300,6 @@ public class CheckoutCacheEventHandlersTests
         await new WarehouseCacheEventHandler(cache.Object).Handle(notification, CancellationToken.None);
 
         cache.Verify(c => c.RemoveByPrefix(CacheKey.WAREHOUSES_PATTERN_KEY, true), Times.Once);
-        cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
         cache.VerifyNoOtherCalls();
     }
 }

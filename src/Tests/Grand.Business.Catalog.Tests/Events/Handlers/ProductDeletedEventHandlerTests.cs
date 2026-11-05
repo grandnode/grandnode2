@@ -5,6 +5,8 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
 using Grand.Domain.Seo;
+using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -22,6 +24,7 @@ public class ProductDeletedEventHandlerTests
     private IRepository<ProductReview> _productReviewRepository;
     private IRepository<ProductTag> _productTagRepository;
     private Mock<IProductTagService> _productTagService;
+    private Mock<ICacheBase> _cacheMock;
     private IRepository<Product> _repository;
 
     [TestInitialize]
@@ -35,9 +38,10 @@ public class ProductDeletedEventHandlerTests
         _productReviewRepository = new MongoDBRepositoryTest<ProductReview>();
         _productDeletedRepository = new MongoDBRepositoryTest<ProductDeleted>();
         _productTagService = new Mock<IProductTagService>();
+        _cacheMock = new Mock<ICacheBase>();
         _handler = new ProductDeletedEventHandler(_repository, _customerGroupProductRepository,
             _customerRepository, _entityUrlRepository, _productTagRepository, _productReviewRepository,
-            _productDeletedRepository);
+            _productDeletedRepository, _cacheMock.Object);
     }
 
 
@@ -61,5 +65,6 @@ public class ProductDeletedEventHandlerTests
         Assert.IsEmpty(result.RecommendedProduct);
         Assert.IsEmpty(result.CrossSellProduct);
         Assert.IsEmpty(result.SimilarProducts);
+        _cacheMock.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
     }
 }

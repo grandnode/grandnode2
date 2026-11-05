@@ -31,6 +31,5 @@ public class WarehouseCacheEventHandler :
     public async Task Handle(EntityDeleted<Warehouse> notification, CancellationToken cancellationToken)
     {
         await _cacheBase.RemoveByPrefix(CacheKey.WAREHOUSES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
     }
 }

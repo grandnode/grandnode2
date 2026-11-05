@@ -31,6 +31,5 @@ public class DeliveryDateCacheEventHandler :
     public async Task Handle(EntityDeleted<DeliveryDate> notification, CancellationToken cancellationToken)
     {
         await _cacheBase.RemoveByPrefix(CacheKey.DELIVERYDATE_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
     }
 }
