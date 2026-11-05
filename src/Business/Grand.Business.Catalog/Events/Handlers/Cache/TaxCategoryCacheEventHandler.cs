@@ -31,6 +31,5 @@ public class TaxCategoryCacheEventHandler :
     public async Task Handle(EntityDeleted<TaxCategory> notification, CancellationToken cancellationToken)
     {
         await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
     }
 }

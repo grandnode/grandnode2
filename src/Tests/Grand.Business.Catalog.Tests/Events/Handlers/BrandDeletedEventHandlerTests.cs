@@ -4,10 +4,8 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Seo;
 using Grand.Infrastructure.Caching;
-using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Events;
-using Grand.Infrastructure.Tests.Caching;
-using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -16,6 +14,7 @@ namespace Grand.Business.Catalog.Tests.Events.Handlers;
 [TestClass]
 public class BrandDeletedEventHandlerTests
 {
+    private Mock<ICacheBase> _cacheMock;
     private IRepository<EntityUrl> _entityUrlRepository;
     private BrandDeletedEventHandler _handler;
     private IRepository<Product> _repository;
@@ -25,9 +24,8 @@ public class BrandDeletedEventHandlerTests
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _entityUrlRepository = new MongoDBRepositoryTest<EntityUrl>();
-        var cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), new Mock<IMediator>().Object,
-            new CacheConfig { DefaultCacheTimeMinutes = 1 });
-        _handler = new BrandDeletedEventHandler(_entityUrlRepository, _repository, cacheBase);
+        _cacheMock = new Mock<ICacheBase>();
+        _handler = new BrandDeletedEventHandler(_entityUrlRepository, _repository, _cacheMock.Object);
     }
 
     [TestMethod]
@@ -53,6 +51,7 @@ public class BrandDeletedEventHandlerTests
         //Assert
         Assert.AreEqual(0, _repository.Table.Where(x => x.BrandId == brand.Id).Count());
         Assert.AreEqual(1, _repository.Table.Where(x => x.BrandId == "1").Count());
+        _cacheMock.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
     }
 
     [TestMethod]

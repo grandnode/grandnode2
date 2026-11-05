@@ -67,6 +67,5 @@ public class MeasureCacheEventHandler :
     public async Task Handle(EntityDeleted<MeasureUnit> notification, CancellationToken cancellationToken)
     {
         await _cacheBase.RemoveByPrefix(CacheKey.MEASUREUNITS_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
     }
 }

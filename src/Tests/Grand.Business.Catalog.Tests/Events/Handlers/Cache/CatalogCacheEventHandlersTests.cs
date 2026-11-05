@@ -375,7 +375,6 @@ public class CatalogCacheEventHandlersTests
         await new MeasureCacheEventHandler(cache.Object).Handle(notification, CancellationToken.None);
 
         cache.Verify(c => c.RemoveByPrefix(CacheKey.MEASUREUNITS_PATTERN_KEY, true), Times.Once);
-        cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
         cache.VerifyNoOtherCalls();
     }
 
@@ -412,7 +411,6 @@ public class CatalogCacheEventHandlersTests
         await new TaxCategoryCacheEventHandler(cache.Object).Handle(notification, CancellationToken.None);
 
         cache.Verify(c => c.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY, true), Times.Once);
-        cache.Verify(c => c.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY, true), Times.Once);
         cache.VerifyNoOtherCalls();
     }
 

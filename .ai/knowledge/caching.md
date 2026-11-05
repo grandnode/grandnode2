@@ -90,7 +90,6 @@ public class TaxCategoryCacheEventHandler :
     public async Task Handle(EntityDeleted<TaxCategory> notification, CancellationToken cancellationToken)
     {
         await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
-        await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
     }
 }
 ```
@@ -105,16 +104,18 @@ What still clears the cache directly, on purpose: the `ICacheBase` implementatio
 
 ## Cross-family invalidation
 
-A write sometimes invalidates families it does not own. A deleted tax category clears both its own prefix and `CacheKey.PRODUCTS_PATTERN_KEY`, because products carry a tax category.
+A write sometimes invalidates families it does not own. A deleted brand, category, collection, tax category or measure unit is also removed from the products that carry it, so `CacheKey.PRODUCTS_PATTERN_KEY` is cleared too.
 
-When adding a cached family, ask what *else* embeds this data in a cached projection, and clear those prefixes in its cache event handler too. When adding a new relationship, revisit the handlers of both sides.
+Clear the other family where its records are rewritten, after the write. When a `<Entity>DeletedEventHandler` rewrites the products, it clears the product prefix itself, as `CategoryDeletedEventHandler` does: the family's cache event handler handles the same event, may run before the rewrite, and a request in between would cache the old products again. When the service rewrites them, it publishes `ProductChangedEvent` for each product it changed, as `ProductTagService.DeleteProductTag` does.
+
+When adding a cached family, ask what *else* embeds this data in a cached projection, and clear those prefixes too: in its cache event handler when nothing rewrites the embedded copies, after the rewrite when something does. When adding a new relationship, revisit the handlers of both sides.
 
 ## Where caching belongs
 
 | Layer | Caches? |
 |---|---|
 | Controller | No |
-| Mediator handler | Reads: no — a handler may compose cached services, but does not own a cache key. Invalidation: only the family's `<Family>CacheEventHandler` |
+| Mediator handler | Reads: no — a handler may compose cached services, but does not own a cache key. Invalidation: the family's `<Family>CacheEventHandler`, and a handler that rewrites another family's records clears that family after its write |
 | Business service | **Yes**, reads — the read-through `GetAsync` lives here; writes publish events instead of clearing |
 | Repository | No |
 

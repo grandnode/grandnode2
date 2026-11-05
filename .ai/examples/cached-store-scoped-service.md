@@ -89,17 +89,20 @@ The order is the contract:
 
 ## Cross-family invalidation
 
-The delete handler does one extra thing:
+Products embed a tax category, so cached product projections are stale the moment a tax category disappears. `TaxCategoryDeletedEventHandler` (`Grand.Business.Catalog/Events/Handlers`) removes the id from the products, and clears the product cache right after that write:
 
 ```csharp
 public async Task Handle(EntityDeleted<TaxCategory> notification, CancellationToken cancellationToken)
 {
-    await _cacheBase.RemoveByPrefix(CacheKey.TAXCATEGORIES_PATTERN_KEY);
+    await _productRepository.UpdateManyAsync(x => x.TaxCategoryId == notification.Entity.Id,
+        UpdateBuilder<Product>.Create().Set(x => x.TaxCategoryId, ""));
+
+    //clear cache - here, after the write, so no request caches a product with the deleted tax category again
     await _cacheBase.RemoveByPrefix(CacheKey.PRODUCTS_PATTERN_KEY);
 }
 ```
 
-Products embed a tax category, so cached product projections are stale the moment a tax category disappears. **When you add a cached family, ask what else embeds this data in a cached projection, and clear those prefixes in its cache event handler too.** This is the step most often missed in review.
+The clear sits there and not in `TaxCategoryCacheEventHandler`: both handle the same event, in registration order, and a clear that ran before the rewrite would let a request cache the old products again. **When you add a cached family, ask what else embeds this data in a cached projection, and clear those prefixes too, after the write that changes them.** This is the step most often missed in review.
 
 ## `virtual` methods
 
