@@ -1014,4 +1014,133 @@
 	<Resource Name="Admin.Inventory.Documents.Errors.ReturnQuantityExceeded" Area="Admin">
 		<Value>The return receipts of this merchandise return take in more than was returned.</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Documents.BackToList" Area="Admin">
+		<Value>back to inventory documents</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.CreateDraft" Area="Admin">
+		<Value>Create draft</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Post" Area="Admin">
+		<Value>Post</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.PostConfirm" Area="Admin">
+		<Value>Posting books the stock of every line and the document can no longer be changed. Post it?</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.PostedSuccessfully" Area="Admin">
+		<Value>The document has been posted.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Updated" Area="Admin">
+		<Value>The document has been saved.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Deleted" Area="Admin">
+		<Value>The draft has been deleted.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.AccessDenied" Area="Admin">
+		<Value>You do not have access to this document or warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.NoLines" Area="Admin">
+		<Value>No lines yet: add a product by its SKU below.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.ReceiveToStock" Area="Admin">
+		<Value>Receive to stock</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.SkuNotFound" Area="Admin">
+		<Value>No product has this SKU.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Number" Area="Admin">
+		<Value>Number</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.DocumentType" Area="Admin">
+		<Value>Type</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Status" Area="Admin">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Warehouse" Area="Admin">
+		<Value>Warehouse</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.TargetWarehouse" Area="Admin">
+		<Value>Target warehouse</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.SupplierName" Area="Admin">
+		<Value>Supplier</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.ExternalReference" Area="Admin">
+		<Value>Supplier's document number</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Comment" Area="Admin">
+		<Value>Comment</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.CreatedOn" Area="Admin">
+		<Value>Created on</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.PostedOn" Area="Admin">
+		<Value>Posted on</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Categories" Area="Admin">
+		<Value>Categories</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Categories.Hint" Area="Admin">
+		<Value>Count only the products of these categories; none chosen counts every product kept in the warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Brands" Area="Admin">
+		<Value>Brands</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Brands.Hint" Area="Admin">
+		<Value>Count only the products of these brands.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.AddSku" Area="Admin">
+		<Value>Add a product by SKU</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.AddSku.Hint" Area="Admin">
+		<Value>Saving adds the product with this SKU; a product kept by attribute combinations adds a line for each combination.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Lines" Area="Admin">
+		<Value>Lines</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Product" Area="Admin">
+		<Value>Product</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Quantity" Area="Admin">
+		<Value>Quantity</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.ExpectedQuantity" Area="Admin">
+		<Value>Expected</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.CountedQuantity" Area="Admin">
+		<Value>Counted</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.UnitCost" Area="Admin">
+		<Value>Unit cost</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Condition" Area="Admin">
+		<Value>Condition</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.Receipt" Area="Admin">
+		<Value>Receipt</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.Transfer" Area="Admin">
+		<Value>Transfer</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.Adjustment" Area="Admin">
+		<Value>Adjustment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.StockCount" Area="Admin">
+		<Value>Stock count</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.ReturnReceipt" Area="Admin">
+		<Value>Return receipt</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentStatus.Draft" Area="Admin">
+		<Value>Draft</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentStatus.Posted" Area="Admin">
+		<Value>Posted</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.ReturnLineCondition.Restock" Area="Admin">
+		<Value>Back on stock</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.ReturnLineCondition.Scrap" Area="Admin">
+		<Value>Scrap</Value>
+	</Resource>
 </Language>

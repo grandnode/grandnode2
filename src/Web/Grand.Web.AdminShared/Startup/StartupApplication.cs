@@ -69,6 +69,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<IStoreViewModelService, StoreViewModelService>();
         services.AddScoped<IBrandViewModelService, BrandViewModelService>();
         services.AddScoped<IProductViewModelService, ProductViewModelService>();
+        services.AddScoped<IInventoryDocumentViewModelService, InventoryDocumentViewModelService>();
         services.AddScoped<IProductSpecificationViewModelService, ProductSpecificationViewModelService>();
         services.AddScoped<IProductPictureViewModelService, ProductPictureViewModelService>();
         services.AddScoped<IProductCategoryViewModelService, ProductCategoryViewModelService>();

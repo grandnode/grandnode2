@@ -16,6 +16,11 @@
                 back-text="@Loc["Admin.Orders.MerchandiseReturns.BackToList"]">
         <page-actions>
             <audit-history entity-type="MerchandiseReturn" entity-id="@Model.Id"/>
+            @* what the customer sent back goes on stock through a return receipt *@
+            <button class="btn btn-outline-secondary" type="submit"
+                    formaction="@Url.Action("CreateReturnReceipt", "InventoryDocument", new { area, merchandiseReturnId = Model.Id })">
+                <i class="bi bi-box-arrow-in-down"></i> @Loc["Admin.Inventory.Documents.ReceiveToStock"]
+            </button>
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
             </button>

@@ -1,0 +1,119 @@
+@model Grand.Web.AdminShared.Models.Inventory.InventoryDocumentModel
+@using Grand.Domain.Catalog
+@{
+    ViewBag.Title = Model.Number;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var type = (InventoryDocumentType)Model.DocumentTypeId;
+}
+<form asp-area="@area" asp-controller="InventoryDocument" asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id"/>
+    <input type="hidden" asp-for="DocumentTypeId"/>
+    <admin-page sticky title="@Model.Number" icon="bi-box-seam" meta="@($"{Model.DocumentType} · {Model.Status}")"
+                back-url="@Url.Action("List")" back-text="@Loc["Admin.Inventory.Documents.BackToList"]">
+        <page-actions>
+            @if (!Model.Posted)
+            {
+                <button class="btn btn-outline-secondary" type="submit" name="save-continue">
+                    <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
+                </button>
+                @* posting books the stock and freezes the document: it asks first *@
+                <button class="btn btn-primary" type="submit" formaction="@Url.Action("Post", new { area, id = Model.Id })"
+                        data-grand-confirm="@Loc["Admin.Inventory.Documents.PostConfirm"]">
+                    <i class="bi bi-box-arrow-in-down"></i> @Loc["Admin.Inventory.Documents.Post"]
+                </button>
+                <admin-action-menu>
+                    <admin-action id="inventorydocument-delete" destructive="true" icon="bi-trash"
+                                  text="@Loc["Admin.Common.Delete"]"/>
+                </admin-action-menu>
+            }
+        </page-actions>
+
+        @* a posted document never changes: its fields are shown read-only *@
+        <fieldset disabled="@Model.Posted">
+            <partial name="Partials/CreateOrUpdate.Header" model="Model"/>
+
+            <admin-card title="@Loc["Admin.Inventory.Documents.Fields.Lines"]" flush>
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>@Loc["Admin.Inventory.Documents.Fields.Product"]</th>
+                            @if (type == InventoryDocumentType.StockCount)
+                            {
+                                <th class="text-end">@Loc["Admin.Inventory.Documents.Fields.ExpectedQuantity"]</th>
+                                <th>@Loc["Admin.Inventory.Documents.Fields.CountedQuantity"]</th>
+                            }
+                            else
+                            {
+                                <th>@Loc["Admin.Inventory.Documents.Fields.Quantity"]</th>
+                            }
+                            @if (type == InventoryDocumentType.Receipt)
+                            {
+                                <th>@Loc["Admin.Inventory.Documents.Fields.UnitCost"]</th>
+                            }
+                            @if (type == InventoryDocumentType.ReturnReceipt)
+                            {
+                                <th>@Loc["Admin.Inventory.Documents.Fields.Condition"]</th>
+                            }
+                            <th>@Loc["Admin.Inventory.Documents.Fields.Comment"]</th>
+                            <th class="text-center">@Loc["Admin.Common.Delete"]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @for (var i = 0; i < Model.Lines.Count; i++)
+                        {
+                            var line = Model.Lines[i];
+                            <tr>
+                                <td>
+                                    @line.ProductName
+                                    <div class="grand-cell-sub">@line.Sku @line.AttributesText</div>
+                                    <input type="hidden" asp-for="Lines[i].Id"/>
+                                </td>
+                                @if (type == InventoryDocumentType.StockCount)
+                                {
+                                    <td class="text-end">@line.ExpectedQuantity</td>
+                                    <td><input asp-for="Lines[i].CountedQuantity" class="form-control" type="number" min="0"/></td>
+                                }
+                                else
+                                {
+                                    <td><input asp-for="Lines[i].Quantity" class="form-control" type="number"/></td>
+                                }
+                                @if (type == InventoryDocumentType.Receipt)
+                                {
+                                    <td><input asp-for="Lines[i].UnitCost" class="form-control" type="number" step="0.0001" min="0"/></td>
+                                }
+                                @if (type == InventoryDocumentType.ReturnReceipt)
+                                {
+                                    <td>
+                                        <select asp-for="Lines[i].ConditionId" class="form-select">
+                                            <option value="@((int)ReturnLineCondition.Restock)">@Loc["Enums.Grand.Domain.Catalog.ReturnLineCondition.Restock"]</option>
+                                            <option value="@((int)ReturnLineCondition.Scrap)">@Loc["Enums.Grand.Domain.Catalog.ReturnLineCondition.Scrap"]</option>
+                                        </select>
+                                    </td>
+                                }
+                                <td><input asp-for="Lines[i].Comment" class="form-control"/></td>
+                                <td class="text-center"><input asp-for="Lines[i].Remove" class="form-check-input" type="checkbox"/></td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+                @if (Model.Lines.Count == 0)
+                {
+                    <div class="grand-empty">
+                        <i class="bi bi-box-seam grand-empty__icon"></i>
+                        <div class="grand-empty__title">@Loc["Admin.Inventory.Documents.NoLines"]</div>
+                    </div>
+                }
+            </admin-card>
+
+            @if (!Model.Posted)
+            {
+                <admin-card>
+                    <admin-field asp-for="AddSku" size="lg"/>
+                </admin-card>
+            }
+        </fieldset>
+    </admin-page>
+</form>
+<admin-delete-confirmation button-id="inventorydocument-delete"/>

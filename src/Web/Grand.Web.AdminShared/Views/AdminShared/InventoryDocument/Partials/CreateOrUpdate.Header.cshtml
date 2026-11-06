@@ -1,0 +1,18 @@
+@model Grand.Web.AdminShared.Models.Inventory.InventoryDocumentModel
+@using Grand.Domain.Catalog
+
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <admin-field asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
+        @if (Model.DocumentTypeId == (int)InventoryDocumentType.Transfer)
+        {
+            <admin-field asp-for="TargetWarehouseId" asp-items="Model.AvailableWarehouses"/>
+        }
+        @if (Model.DocumentTypeId == (int)InventoryDocumentType.Receipt)
+        {
+            <admin-field asp-for="SupplierName"/>
+            <admin-field asp-for="ExternalReference"/>
+        }
+        <admin-field asp-for="Comment"/>
+    </div>
+</admin-card>
