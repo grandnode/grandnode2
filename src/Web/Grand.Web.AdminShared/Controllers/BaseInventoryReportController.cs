@@ -29,7 +29,8 @@ public abstract class BaseInventoryReportController(
     IProductService productService,
     IDateTimeService dateTimeService,
     IRequestTranslationService translationService,
-    IAdminDataScope<Warehouse> warehouseScope) : BaseController
+    IAdminDataScope<Warehouse> warehouseScope,
+    IAdminDataScope<Product> productScope) : BaseController
 {
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpGet]
@@ -57,14 +58,17 @@ public abstract class BaseInventoryReportController(
         var rows = new List<StockAtDateRowModel>();
         foreach (var row in stock)
         {
+            //a warehouse of this store may hold a product of another one
             var product = await productService.GetProductById(row.ProductId);
+            if (product == null || !await productScope.CanView(product))
+                continue;
+
             rows.Add(new StockAtDateRowModel {
                 ProductId = row.ProductId,
                 ProductName = row.ProductName,
                 Sku = row.Sku,
-                Combination = product == null
-                    ? ""
-                    : string.Join(", ", product.ParseProductAttributeValues(row.Attributes).Select(x => x.Name)),
+                Combination = string.Join(", ",
+                    product.ParseProductAttributeValues(row.Attributes).Select(x => x.Name)),
                 Stock = row.Available ? row.Stock.ToString() : "-"
             });
         }

@@ -50,7 +50,32 @@ public abstract class BaseInventoryDocumentController(
         var storeId = await warehouseScope.GetDefaultStoreIdAsync();
         return document != null && (storeId == null || document.StoreId == storeId) &&
                await CanUse(document.WarehouseId) && await CanUse(document.TargetWarehouseId) &&
-               await inventoryDocumentViewModelService.LinesAccessible(document);
+               (await inventoryDocumentViewModelService.InaccessibleLines(document)).Count == 0;
+    }
+
+    /// <summary>
+    ///     A draft built from a warehouse or a merchandise return may name products of other stores: their lines are
+    ///     dropped, and a draft left with none is deleted
+    /// </summary>
+    /// <returns>False when the draft was deleted</returns>
+    private async Task<bool> KeepAccessibleLines(InventoryDocument document, bool changed)
+    {
+        foreach (var line in await inventoryDocumentViewModelService.InaccessibleLines(document))
+        {
+            document.Lines.Remove(line);
+            changed = true;
+        }
+
+        if (document.Lines.Count == 0)
+        {
+            await inventoryDocumentService.DeleteDraft(document.Id);
+            Error(translationService.GetResource(InventoryDocumentErrors.NoLines));
+            return false;
+        }
+
+        if (changed)
+            await inventoryDocumentService.UpdateDraft(document);
+        return true;
     }
 
     private IActionResult Denied()
@@ -90,7 +115,9 @@ public abstract class BaseInventoryDocumentController(
         {
             var count = await inventoryDocumentService.CreateStockCount(model.WarehouseId, model.CategoryIds,
                 model.BrandIds, CustomerId);
-            return RedirectToAction("Edit", new { id = count.Id });
+            return await KeepAccessibleLines(count, false)
+                ? RedirectToAction("Edit", new { id = count.Id })
+                : RedirectToAction("List");
         }
 
         var document = new InventoryDocument { DocumentTypeId = type, CreatedBy = CustomerId };
@@ -125,13 +152,13 @@ public abstract class BaseInventoryDocumentController(
             return RedirectToAction("List");
         }
 
-        if (string.IsNullOrEmpty(document.WarehouseId) || !await CanUse(document.WarehouseId))
-        {
+        var otherWarehouse = string.IsNullOrEmpty(document.WarehouseId) || !await CanUse(document.WarehouseId);
+        if (otherWarehouse)
             document.WarehouseId = usable[0].Id;
-            await inventoryDocumentService.UpdateDraft(document);
-        }
 
-        return RedirectToAction("Edit", new { id = document.Id });
+        return await KeepAccessibleLines(document, otherWarehouse)
+            ? RedirectToAction("Edit", new { id = document.Id })
+            : RedirectToAction("List");
     }
 
     protected virtual async Task<IActionResult> EditGetCore(string id)

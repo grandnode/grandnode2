@@ -26,6 +26,7 @@ public class InventoryReportController(
     IProductService productService,
     IDateTimeService dateTimeService,
     IRequestTranslationService translationService,
-    IAdminDataScope<Warehouse> warehouseScope)
+    IAdminDataScope<Warehouse> warehouseScope,
+    IAdminDataScope<Product> productScope)
     : BaseInventoryReportController(inventoryJournalService, inventoryDocumentViewModelService, warehouseService,
-        productService, dateTimeService, translationService, warehouseScope);
+        productService, dateTimeService, translationService, warehouseScope, productScope);

@@ -42,6 +42,11 @@ public abstract class BaseProductStockHistoryController(
             return ErrorForKendoGridJson(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
+        //a product shared with other stores opens read-only; its history carries their movements and staff, so it
+        //is listed only for a product this store owns, as its bids and reservations are
+        if (!await scope.HasAccess(product))
+            return Json(new DataSourceResult { Data = Array.Empty<object>(), Total = 0 });
+
         var storeId = await scope.GetDefaultStoreIdAsync();
         var entries = await inventoryJournalService.GetProductHistory(productId, warehouseId,
             from.HasValue ? dateTimeService.ConvertToUtcTime(from.Value, dateTimeService.CurrentTimeZone) : null,

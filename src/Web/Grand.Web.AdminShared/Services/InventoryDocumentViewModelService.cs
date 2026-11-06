@@ -43,9 +43,9 @@ public interface IInventoryDocumentViewModelService
     IList<string> Translate(IEnumerable<string> keys);
 
     /// <summary>
-    ///     Whether every product on the document passes the panel's product access check
+    ///     The lines whose product fails the panel's product access check
     /// </summary>
-    Task<bool> LinesAccessible(InventoryDocument document);
+    Task<IList<InventoryDocumentLine>> InaccessibleLines(InventoryDocument document);
 }
 
 public class InventoryDocumentViewModelService(
@@ -95,7 +95,6 @@ public class InventoryDocumentViewModelService(
             Number = x.Number,
             DocumentType = enumTranslationService.GetTranslationEnum(x.DocumentTypeId),
             Status = enumTranslationService.GetTranslationEnum(x.StatusId),
-            Posted = x.StatusId == InventoryDocumentStatus.Posted,
             Warehouse = warehouses.GetValueOrDefault(x.WarehouseId ?? "") ?? "",
             Lines = x.Lines.Count,
             CreatedOn = dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc)
@@ -128,11 +127,6 @@ public class InventoryDocumentViewModelService(
             model.SupplierName = document.SupplierName;
             model.ExternalReference = document.ExternalReference;
             model.Comment = document.Comment;
-            model.MerchandiseReturnId = document.MerchandiseReturnId;
-            model.CreatedOn = dateTimeService.ConvertToUserTime(document.CreatedOnUtc, DateTimeKind.Utc);
-            model.PostedOn = document.PostedOnUtc.HasValue
-                ? dateTimeService.ConvertToUserTime(document.PostedOnUtc.Value, DateTimeKind.Utc)
-                : null;
             model.Lines.Clear();
             foreach (var line in document.Lines)
             {
@@ -221,18 +215,19 @@ public class InventoryDocumentViewModelService(
         return errors;
     }
 
-    public async Task<bool> LinesAccessible(InventoryDocument document)
+    public async Task<IList<InventoryDocumentLine>> InaccessibleLines(InventoryDocument document)
     {
         ArgumentNullException.ThrowIfNull(document);
 
-        foreach (var productId in document.Lines.Select(x => x.ProductId).Distinct())
+        var inaccessible = new List<InventoryDocumentLine>();
+        foreach (var lines in document.Lines.GroupBy(x => x.ProductId))
         {
-            var product = await productService.GetProductById(productId);
-            if (product != null && !await productScope.HasAccess(product))
-                return false;
+            var product = await productService.GetProductById(lines.Key);
+            if (product == null || !await productScope.HasAccess(product))
+                inaccessible.AddRange(lines);
         }
 
-        return true;
+        return inaccessible;
     }
 
     public IList<string> Translate(IEnumerable<string> keys)

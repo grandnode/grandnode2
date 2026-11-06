@@ -68,18 +68,62 @@ public class StockHistoryControllerTests
         new Mock<IEnumTranslationService>().Object, new Mock<IDateTimeService>().Object,
         new Mock<IRequestTranslationService>().Object, _productScope.Object));
 
+    private InventoryReportController Report() => WithContext(new InventoryReportController(_journalService.Object,
+        new Mock<IInventoryDocumentViewModelService>().Object, _warehouseService.Object, _productService.Object,
+        new Mock<IDateTimeService>().Object, new Mock<IRequestTranslationService>().Object, _warehouseScope,
+        _productScope.Object));
+
     [TestMethod]
     public async Task Store_StockHistory_PassesStaffAndSharedStoreIds()
     {
         var product = new Product();
         _productService.Setup(x => x.GetProductById(product.Id, false)).ReturnsAsync(product);
         _productScope.Setup(x => x.CanView(product)).ReturnsAsync(true);
+        _productScope.Setup(x => x.HasAccess(product)).ReturnsAsync(true);
 
         await History().ListStockHistory(new DataSourceRequest { Page = 1, PageSize = 10 }, product.Id, "", null,
             null);
 
         _journalService.Verify(x => x.GetProductHistory(product.Id, "", null, null,
             It.Is<IList<string>>(s => s.Count == 2 && s.Contains(StoreId) && s.Contains("")), 0, 10), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Store_StockHistory_SharedProduct_ListsNothing()
+    {
+        //a product shared with other stores opens read-only: its history carries their movements
+        var product = new Product();
+        _productService.Setup(x => x.GetProductById(product.Id, false)).ReturnsAsync(product);
+        _productScope.Setup(x => x.CanView(product)).ReturnsAsync(true);
+        _productScope.Setup(x => x.HasAccess(product)).ReturnsAsync(false);
+
+        await History().ListStockHistory(new DataSourceRequest { Page = 1, PageSize = 10 }, product.Id, "", null,
+            null);
+
+        _journalService.Verify(x => x.GetProductHistory(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<IList<string>>(), It.IsAny<int>(),
+            It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Store_StockAtDate_ProductOfOtherStore_LeftOut()
+    {
+        var own = new Product();
+        var foreign = new Product();
+        foreach (var product in new[] { own, foreign })
+            _productService.Setup(x => x.GetProductById(product.Id, false)).ReturnsAsync(product);
+        _productScope.Setup(x => x.CanView(own)).ReturnsAsync(true);
+        _productScope.Setup(x => x.CanView(foreign)).ReturnsAsync(false);
+        _warehouseService.Setup(x => x.GetWarehouseById("w-own"))
+            .ReturnsAsync(new Warehouse { Id = "w-own", StoreId = StoreId });
+        _journalService.Setup(x => x.GetStockAtDate("w-own", It.IsAny<DateTime>())).ReturnsAsync([
+            new StockAtDateRow(own.Id, "own", "", "", [], 1, true),
+            new StockAtDateRow(foreign.Id, "foreign", "", "", [], 2, true)
+        ]);
+
+        var result = (JsonResult)await Report().StockAtDateData(new DataSourceRequest(), "w-own", null);
+
+        Assert.AreEqual(1, ((DataSourceResult)result.Value!).Total);
     }
 
     [TestMethod]
@@ -100,11 +144,7 @@ public class StockHistoryControllerTests
     [TestMethod]
     public async Task Store_StockAtDate_OtherStoreWarehouse_AccessDenied()
     {
-        var controller = WithContext(new InventoryReportController(_journalService.Object,
-            new Mock<IInventoryDocumentViewModelService>().Object, _warehouseService.Object, _productService.Object,
-            new Mock<IDateTimeService>().Object, new Mock<IRequestTranslationService>().Object, _warehouseScope));
-
-        await controller.StockAtDateData(new DataSourceRequest(), "w-other", null);
+        await Report().StockAtDateData(new DataSourceRequest(), "w-other", null);
 
         _journalService.Verify(x => x.GetStockAtDate(It.IsAny<string>(), It.IsAny<DateTime>()), Times.Never);
     }

@@ -38,15 +38,6 @@ public class StockMovementService(
         return product == null ? [StockErrors.ProductNotFound] : await stockLedger.Apply(product, changes);
     }
 
-    public async Task OpenBalance(string productId, string customerId)
-    {
-        await using var _ = await resourceLock.Acquire([ProductStockLock.Key(productId)]);
-
-        var product = await productRepository.GetByIdAsync(productId);
-        if (product != null)
-            await stockLedger.OpenBalance(product, customerId);
-    }
-
     public async Task RecomputeSums(string productId)
     {
         await using var _ = await resourceLock.Acquire([ProductStockLock.Key(productId)]);

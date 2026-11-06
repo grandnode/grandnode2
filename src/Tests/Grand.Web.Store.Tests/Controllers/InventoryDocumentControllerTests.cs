@@ -36,6 +36,7 @@ public class InventoryDocumentControllerTests
     private InventoryDocumentController _controller;
     private Mock<IInventoryDocumentService> _documentService;
     private Mock<IAdminDataScope<MerchandiseReturn>> _merchandiseReturnScope;
+    private readonly Mock<IMerchandiseReturnService> _merchandiseReturnService = new();
     private Mock<IAdminDataScope<Product>> _productScope;
     private Mock<IProductService> _productService;
     private InventoryDocumentViewModelService _viewModelService;
@@ -75,7 +76,7 @@ public class InventoryDocumentControllerTests
             translationService.Object, new Mock<IEnumTranslationService>().Object, new Mock<IDateTimeService>().Object,
             warehouseScope, _productScope.Object);
         _controller = new InventoryDocumentController(_documentService.Object, _viewModelService,
-            warehouseService.Object, new Mock<IMerchandiseReturnService>().Object, translationService.Object,
+            warehouseService.Object, _merchandiseReturnService.Object, translationService.Object,
             contextAccessor.Object, warehouseScope, _merchandiseReturnScope.Object);
 
         var httpContext = new DefaultHttpContext();
@@ -189,6 +190,48 @@ public class InventoryDocumentControllerTests
 
         AssertRedirectedTo(await _controller.Post(document.Id), "List");
         _documentService.Verify(x => x.Post(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Store_CreateStockCount_LeavesOutProductsOfOtherStores()
+    {
+        var own = new Product();
+        var foreign = new Product();
+        foreach (var product in new[] { own, foreign })
+            _productService.Setup(x => x.GetProductById(product.Id, false)).ReturnsAsync(product);
+        _productScope.Setup(x => x.HasAccess(own)).ReturnsAsync(true);
+        _productScope.Setup(x => x.HasAccess(foreign)).ReturnsAsync(false);
+        var count = new InventoryDocument {
+            DocumentTypeId = InventoryDocumentType.StockCount, StoreId = StoreId, WarehouseId = "w-own",
+            Lines = { new InventoryDocumentLine { ProductId = own.Id }, new InventoryDocumentLine { ProductId = foreign.Id } }
+        };
+        _documentService.Setup(x => x.CreateStockCount("w-own", It.IsAny<IList<string>>(),
+            It.IsAny<IList<string>>(), "staff")).ReturnsAsync(count);
+
+        await _controller.Create(new InventoryDocumentModel
+            { DocumentTypeId = (int)InventoryDocumentType.StockCount, WarehouseId = "w-own" });
+
+        _documentService.Verify(x => x.UpdateDraft(It.Is<InventoryDocument>(d =>
+            d.Lines.Single().ProductId == own.Id)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Store_CreateReturnReceipt_OnlyProductsOfOtherStores_DraftDeleted()
+    {
+        var foreign = new Product();
+        _productService.Setup(x => x.GetProductById(foreign.Id, false)).ReturnsAsync(foreign);
+        _productScope.Setup(x => x.HasAccess(foreign)).ReturnsAsync(false);
+        _merchandiseReturnScope.Setup(x => x.HasAccess(It.IsAny<MerchandiseReturn>())).ReturnsAsync(true);
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById("return"))
+            .ReturnsAsync(new MerchandiseReturn());
+        var receipt = new InventoryDocument {
+            DocumentTypeId = InventoryDocumentType.ReturnReceipt, StoreId = StoreId, WarehouseId = "w-own",
+            Lines = { new InventoryDocumentLine { ProductId = foreign.Id, Quantity = 1 } }
+        };
+        _documentService.Setup(x => x.CreateReturnReceipt("return", "staff")).ReturnsAsync((receipt, []));
+
+        AssertRedirectedTo(await _controller.CreateReturnReceipt("return"), "List");
+        _documentService.Verify(x => x.DeleteDraft(receipt.Id), Times.Once);
     }
 
     [TestMethod]

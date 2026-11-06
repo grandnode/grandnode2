@@ -31,7 +31,6 @@ public class InventoryDocumentRowModel : BaseEntityModel
     public string Number { get; set; }
     public string DocumentType { get; set; }
     public string Status { get; set; }
-    public bool Posted { get; set; }
     public string Warehouse { get; set; }
     public int Lines { get; set; }
     public DateTime CreatedOn { get; set; }
@@ -66,14 +65,6 @@ public class InventoryDocumentModel : BaseEntityModel
 
     [GrandResourceDisplayName("Admin.Inventory.Documents.Fields.Comment")]
     public string Comment { get; set; }
-
-    public string MerchandiseReturnId { get; set; }
-
-    [GrandResourceDisplayName("Admin.Inventory.Documents.Fields.CreatedOn")]
-    public DateTime? CreatedOn { get; set; }
-
-    [GrandResourceDisplayName("Admin.Inventory.Documents.Fields.PostedOn")]
-    public DateTime? PostedOn { get; set; }
 
     /// <summary>
     ///     A stock count: only products of these categories
