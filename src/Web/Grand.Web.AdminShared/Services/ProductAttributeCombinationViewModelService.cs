@@ -115,16 +115,17 @@ public class ProductAttributeCombinationViewModelService(
             product.UseMultipleWarehouses &&
             product.Published)
         {
-            foreach (var prevstock in prevcombination.WarehouseInventory)
-                if (prevstock.StockQuantity - prevstock.ReservedQuantity <= 0)
-                {
-                    var actualStock =
-                        combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == prevstock.WarehouseId);
-                    if (actualStock != null)
-                        if (actualStock.StockQuantity - actualStock.ReservedQuantity > 0)
-                            await outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
-                                combination.Attributes, prevstock.WarehouseId);
-                }
+            foreach (var actualStock in combination.WarehouseInventory)
+            {
+                if (actualStock.StockQuantity - actualStock.ReservedQuantity <= 0)
+                    continue;
+
+                var prevstock =
+                    prevcombination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == actualStock.WarehouseId);
+                if (prevstock == null || prevstock.StockQuantity - prevstock.ReservedQuantity <= 0)
+                    await outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
+                        combination.Attributes, actualStock.WarehouseId);
+            }
 
             if (combination.WarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) > 0)
                 if (prevcombination.WarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) <= 0)

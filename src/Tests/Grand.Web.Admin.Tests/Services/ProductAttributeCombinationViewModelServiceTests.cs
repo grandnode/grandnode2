@@ -306,4 +306,41 @@ public class ProductAttributeCombinationViewModelServiceTests
         _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
             product, It.IsAny<IList<CustomAttribute>>(), "w2"), Times.Never);
     }
+
+    [TestMethod]
+    public async Task Update_MultipleWarehouses_NotifiesNewlyAssignedWarehouse()
+    {
+        var product = ProductWithOneCombination();
+        product.UseMultipleWarehouses = true;
+        product.Published = true;
+        product.AllowOutOfStockSubscriptions = true;
+        product.BackorderModeId = BackorderMode.NoBackorders;
+        var combination = product.ProductAttributeCombinations.Single();
+        combination.StockQuantity = 4;
+        combination.ReservedQuantity = 0;
+        combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
+            WarehouseId = "w1", StockQuantity = 4, ReservedQuantity = 0
+        });
+        _warehouseServiceMock.Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse> { new() { Id = "w1" }, new() { Id = "w2" } });
+
+        await _service.InsertOrUpdateProductAttributeCombinationPopup(product, new ProductAttributeCombinationModel {
+            Id = "c1",
+            WarehouseInventoryModels = [
+                new ProductAttributeCombinationModel.WarehouseInventoryModel {
+                    WarehouseId = "w1", WarehouseUsed = true, StockQuantity = 4, ReservedQuantity = 0
+                },
+                new ProductAttributeCombinationModel.WarehouseInventoryModel {
+                    WarehouseId = "w2", WarehouseUsed = true, StockQuantity = 3, ReservedQuantity = 0
+                }
+            ]
+        });
+
+        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
+            product, It.IsAny<IList<CustomAttribute>>(), "w2"), Times.Once);
+        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
+            product, It.IsAny<IList<CustomAttribute>>(), ""), Times.Never);
+        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
+            product, It.IsAny<IList<CustomAttribute>>(), "w1"), Times.Never);
+    }
 }
