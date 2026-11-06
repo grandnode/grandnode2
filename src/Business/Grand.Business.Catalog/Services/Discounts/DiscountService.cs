@@ -29,7 +29,8 @@ public class DiscountService : IDiscountService
         IRepository<Discount> discountRepository,
         IRepository<DiscountCoupon> discountCouponRepository,
         IRepository<DiscountUsageHistory> discountUsageHistoryRepository,
-        IMediator mediator, AccessControlConfig accessControlConfig)
+        IMediator mediator, AccessControlConfig accessControlConfig,
+        IResourceLock resourceLock)
     {
         _cacheBase = cacheBase;
         _discountRepository = discountRepository;
@@ -37,6 +38,7 @@ public class DiscountService : IDiscountService
         _discountUsageHistoryRepository = discountUsageHistoryRepository;
         _mediator = mediator;
         _accessControlConfig = accessControlConfig;
+        _resourceLock = resourceLock;
     }
 
     #endregion
@@ -49,6 +51,7 @@ public class DiscountService : IDiscountService
     private readonly ICacheBase _cacheBase;
     private readonly IMediator _mediator;
     private readonly AccessControlConfig _accessControlConfig;
+    private readonly IResourceLock _resourceLock;
 
     #endregion
 
@@ -344,6 +347,46 @@ public class DiscountService : IDiscountService
         await _mediator.EntityDeleted(discountUsageHistory);
     }
 
+    public virtual async Task<bool> TryInsertDiscountUsageHistory(Discount discount,
+        DiscountUsageHistory discountUsageHistory)
+    {
+        ArgumentNullException.ThrowIfNull(discount);
+        ArgumentNullException.ThrowIfNull(discountUsageHistory);
+
+        var singleUseCoupon = !discount.Reused && !string.IsNullOrEmpty(discountUsageHistory.CouponCode);
+        if (discount.DiscountLimitationId == DiscountLimitationType.Nolimits && !singleUseCoupon)
+        {
+            await InsertDiscountUsageHistory(discountUsageHistory);
+            return true;
+        }
+
+        //the limit and the coupon are checked against what is stored, while no other use is recorded
+        await using var _ = await _resourceLock.Acquire([LockKey(discount.Id)]);
+
+        if (!await IsWithinLimit(discount, discountUsageHistory.CustomerId))
+            return false;
+
+        if (singleUseCoupon)
+        {
+            var coupon = await GetDiscountCodeByCode(discountUsageHistory.CouponCode);
+            if (coupon == null || coupon.DiscountId != discount.Id || coupon.Used)
+                return false;
+        }
+
+        await InsertDiscountUsageHistory(discountUsageHistory);
+        return true;
+    }
+
+    public virtual async Task ReleaseDiscountUsageHistory(DiscountUsageHistory discountUsageHistory)
+    {
+        ArgumentNullException.ThrowIfNull(discountUsageHistory);
+
+        await using var _ = await _resourceLock.Acquire([LockKey(discountUsageHistory.DiscountId)]);
+
+        await DeleteDiscountUsageHistory(discountUsageHistory);
+        await DiscountCouponSetAsUsed(discountUsageHistory.CouponCode, false);
+    }
+
     /// <summary>
     ///     Get discount amount
     /// </summary>
@@ -450,6 +493,35 @@ public class DiscountService : IDiscountService
         double amount)
     {
         return await GetPreferredDiscount(discounts, customer, currency, null, amount);
+    }
+
+    #endregion
+
+    #region Utilities
+
+    /// <summary>
+    ///     Whether the discount may be used once more, counting canceled uses as the validation does
+    /// </summary>
+    private async Task<bool> IsWithinLimit(Discount discount, string customerId)
+    {
+        var query = _discountUsageHistoryRepository.Table.Where(x => x.DiscountId == discount.Id);
+        switch (discount.DiscountLimitationId)
+        {
+            case DiscountLimitationType.NTimes:
+                break;
+            case DiscountLimitationType.NTimesPerUser:
+                query = query.Where(x => x.CustomerId == customerId);
+                break;
+            default:
+                return true;
+        }
+
+        return await _discountUsageHistoryRepository.CountAsync(query) < discount.LimitationTimes;
+    }
+
+    private static string LockKey(string discountId)
+    {
+        return $"{nameof(Discount)}:{discountId}";
     }
 
     #endregion
