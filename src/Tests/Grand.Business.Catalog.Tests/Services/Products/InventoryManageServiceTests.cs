@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
@@ -47,7 +48,150 @@ public class InventoryManageServiceTests
         _inventoryManageService = new InventoryManageService(_repository, _repositoryInventoryJournal,
             _stockQuantityService, _mediatorMock.Object, _settings, new MongoResourceLockTest(),
             new StockSideEffects(_repository, new Mock<IOutOfStockSubscriptionService>().Object,
-                _mediatorMock.Object, _settings));
+                _mediatorMock.Object, _settings),
+            StockTestFixture.Ledger(_repository, _repositoryInventoryJournal, mediator: _mediatorMock.Object));
+    }
+
+    private List<InventoryJournal> Journal(Product product) =>
+        _repositoryInventoryJournal.Table.Where(x => x.ProductId == product.Id).OrderBy(x => x.StockRevision)
+            .ToList();
+
+    [TestMethod]
+    public async Task BookReservedInventory_WritesShipmentEntryAndLowersStockAndReserved()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10, ReservedQuantity = 4 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment { ShipmentNumber = 12, TrackingNumber = "T1" };
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        Assert.AreEqual(7, Stored(product).StockQuantity);
+        Assert.AreEqual(1, Stored(product).ReservedQuantity);
+        var entry = Journal(product).Single();
+        Assert.AreEqual(InventoryMovementType.Shipment, entry.MovementTypeId);
+        Assert.AreEqual(3, entry.OutQty);
+        Assert.AreEqual(nameof(Shipment), entry.ObjectType);
+        Assert.AreEqual(shipment.Id, entry.ObjectId);
+        Assert.AreEqual(shipmentItem.Id, entry.PositionId);
+        Assert.AreEqual("12", entry.Reference);
+    }
+
+    [TestMethod]
+    public async Task BookReservedInventory_SingleWarehouseProductItemNamesOtherWarehouse_BooksProductBucket()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 5, ReservedQuantity = 2,
+            WarehouseId = "w1"
+        };
+        await _repository.InsertAsync(product);
+
+        await _inventoryManageService.BookReservedInventory(product, new Shipment(),
+            new ShipmentItem { Quantity = 2, WarehouseId = "w2" });
+
+        Assert.AreEqual(3, Stored(product).StockQuantity);
+        Assert.AreEqual(0, Stored(product).ReservedQuantity);
+        Assert.AreEqual("w1", Journal(product).Single().WarehouseId);
+    }
+
+    [TestMethod]
+    public async Task BookReservedInventory_Twice_BooksOnce()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10, ReservedQuantity = 3 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        Assert.AreEqual(7, Stored(product).StockQuantity);
+        Assert.AreEqual(1, Journal(product).Count);
+    }
+
+    [TestMethod]
+    public async Task ReverseBookedInventory_WritesReversalAndKeepsShipmentEntry()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10, ReservedQuantity = 3 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        await _inventoryManageService.ReverseBookedInventory(shipment, shipmentItem);
+
+        Assert.AreEqual(10, Stored(product).StockQuantity);
+        Assert.AreEqual(3, Stored(product).ReservedQuantity);
+        CollectionAssert.AreEqual(
+            new[] { InventoryMovementType.Shipment, InventoryMovementType.ShipmentReversal },
+            Journal(product).Select(x => x.MovementTypeId).ToArray());
+        Assert.AreEqual(3, Journal(product).Last().InQty);
+    }
+
+    [TestMethod]
+    public async Task ReverseBookedInventory_MultiWarehouse_RecomputesProductSum()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            StockQuantity = 5, ReservedQuantity = 2,
+            ProductWarehouseInventory = {
+                new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 5, ReservedQuantity = 2 }
+            }
+        };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 2, WarehouseId = "w1" };
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        await _inventoryManageService.ReverseBookedInventory(shipment, shipmentItem);
+
+        var stored = Stored(product);
+        Assert.AreEqual(5, stored.ProductWarehouseInventory.Single().StockQuantity);
+        Assert.AreEqual(5, stored.StockQuantity);
+        Assert.AreEqual(2, stored.ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task ReverseBookedInventory_LegacyEntryBeforeUpgrade_WritesReversal()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+        //booked before the journal recorded every change; the migration marked it legacy
+        await _repositoryInventoryJournal.InsertAsync(new InventoryJournal {
+            ProductId = product.Id, ObjectType = nameof(Shipment), ObjectId = shipment.Id,
+            PositionId = shipmentItem.Id, OutQty = 3, MovementTypeId = InventoryMovementType.Legacy,
+            CreateDateUtc = DateTime.UtcNow.AddDays(-1)
+        });
+
+        await _inventoryManageService.ReverseBookedInventory(shipment, shipmentItem);
+
+        Assert.AreEqual(10, Stored(product).StockQuantity);
+        Assert.AreEqual(2, Journal(product).Count);
+        Assert.IsTrue(Journal(product).Any(x => x.MovementTypeId == InventoryMovementType.Legacy));
+        Assert.AreEqual(3, Journal(product).Single(x => x.MovementTypeId == InventoryMovementType.ShipmentReversal)
+            .InQty);
+    }
+
+    [TestMethod]
+    public async Task Reverse_ThenBookAgain_BooksAgain()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10, ReservedQuantity = 3 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+        await _inventoryManageService.ReverseBookedInventory(shipment, shipmentItem);
+
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        Assert.AreEqual(7, Stored(product).StockQuantity);
+        Assert.AreEqual(3, Journal(product).Count);
     }
 
     private Product Stored(Product product)
