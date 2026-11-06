@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Commands.Catalog;
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -273,7 +274,7 @@ public class InventoryManageService : IInventoryManageService
 
     private static string LockKey(string productId)
     {
-        return $"{nameof(Product)}:{productId}";
+        return ProductStockLock.Key(productId);
     }
 
     /// <summary>

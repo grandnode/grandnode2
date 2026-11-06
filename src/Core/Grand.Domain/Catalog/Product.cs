@@ -355,6 +355,11 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     public int ReservedQuantity { get; set; }
 
     /// <summary>
+    ///     Gets or sets the revision of the stock: the number of the last inventory journal entry applied to it
+    /// </summary>
+    public int StockRevision { get; set; }
+
+    /// <summary>
     ///     Gets or sets a value indicating whether to display stock availability
     /// </summary>
     public bool StockAvailability { get; set; }
