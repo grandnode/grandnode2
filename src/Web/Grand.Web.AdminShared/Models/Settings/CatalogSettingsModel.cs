@@ -256,4 +256,30 @@ public class CatalogSettingsModel : BaseModel
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.PublishBackProductWhenCancellingOrders")]
     public bool PublishBackProductWhenCancellingOrders { get; set; }
+
+    /// <summary>
+    ///     The system-wide inventory settings; Main Admin only
+    /// </summary>
+    public InventorySettingsModel Inventory { get; set; } = new();
+
+    public class InventorySettingsModel
+    {
+        [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.StockChangesOnlyThroughDocuments")]
+        public bool StockChangesOnlyThroughDocuments { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.ReceiptNumberPrefix")]
+        public string ReceiptNumberPrefix { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.TransferNumberPrefix")]
+        public string TransferNumberPrefix { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.AdjustmentNumberPrefix")]
+        public string AdjustmentNumberPrefix { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.StockCountNumberPrefix")]
+        public string StockCountNumberPrefix { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.ReturnReceiptNumberPrefix")]
+        public string ReturnReceiptNumberPrefix { get; set; }
+    }
 }

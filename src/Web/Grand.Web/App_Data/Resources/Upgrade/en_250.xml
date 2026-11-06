@@ -903,4 +903,58 @@
 	<Resource Name="ShoppingCart.ChangedDuringCheckout" Area="Front">
 		<Value>Some items in your cart are no longer available in the requested amount. Please review your cart and try again.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory" Area="Admin">
+		<Value>Inventory</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.StockChangesOnlyThroughDocuments" Area="Admin">
+		<Value>Stock changes only through inventory documents</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.StockChangesOnlyThroughDocuments.Hint" Area="Admin">
+		<Value>When on, the stock quantities on product, combination and warehouse forms are read-only in every panel, and product import ignores stock columns. Stock then changes through inventory documents, orders and the API. This setting applies to all stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ReceiptNumberPrefix" Area="Admin">
+		<Value>Receipt number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ReceiptNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of receipt numbers, e.g. PZ gives PZ/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.TransferNumberPrefix" Area="Admin">
+		<Value>Transfer number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.TransferNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of transfer numbers, e.g. MM gives MM/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.AdjustmentNumberPrefix" Area="Admin">
+		<Value>Adjustment number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.AdjustmentNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of adjustment numbers, e.g. KOR gives KOR/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.StockCountNumberPrefix" Area="Admin">
+		<Value>Stock count number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.StockCountNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of stock count numbers, e.g. INW gives INW/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ReturnReceiptNumberPrefix" Area="Admin">
+		<Value>Return receipt number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ReturnReceiptNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of return receipt numbers, e.g. ZW gives ZW/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.ProductNotFound" Area="Admin">
+		<Value>The product was not found.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.StockNotTracked" Area="Admin">
+		<Value>The product does not track stock by product or by attribute combinations.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.WarehouseRequired" Area="Admin">
+		<Value>The product keeps stock in multiple warehouses: choose a warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.CombinationNotFound" Area="Admin">
+		<Value>The product has no attribute combination with these attributes.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.NotEnoughAvailable" Area="Admin">
+		<Value>The warehouse does not have this quantity available.</Value>
+	</Resource>
 </Language>

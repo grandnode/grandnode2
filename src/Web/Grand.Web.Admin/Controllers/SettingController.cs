@@ -142,6 +142,17 @@ public class SettingController(
         var catalogSettings = await settingService.LoadSetting<CatalogSettings>(storeScope);
         var model = catalogSettings.ToModel();
         model.ActiveStore = storeScope;
+
+        //system-wide, whatever store scope the page shows
+        var inventorySettings = await settingService.LoadSetting<InventorySettings>();
+        model.Inventory = new CatalogSettingsModel.InventorySettingsModel {
+            StockChangesOnlyThroughDocuments = inventorySettings.StockChangesOnlyThroughDocuments,
+            ReceiptNumberPrefix = inventorySettings.ReceiptNumberPrefix,
+            TransferNumberPrefix = inventorySettings.TransferNumberPrefix,
+            AdjustmentNumberPrefix = inventorySettings.AdjustmentNumberPrefix,
+            StockCountNumberPrefix = inventorySettings.StockCountNumberPrefix,
+            ReturnReceiptNumberPrefix = inventorySettings.ReturnReceiptNumberPrefix
+        };
         return View(model);
     }
 
@@ -154,6 +165,16 @@ public class SettingController(
         catalogSettings = model.ToEntity(catalogSettings);
 
         await settingService.SaveSetting(catalogSettings, storeScope);
+
+        //system-wide, whatever store scope the page shows: a store-scoped row would never be read
+        var inventorySettings = await settingService.LoadSetting<InventorySettings>();
+        inventorySettings.StockChangesOnlyThroughDocuments = model.Inventory.StockChangesOnlyThroughDocuments;
+        inventorySettings.ReceiptNumberPrefix = model.Inventory.ReceiptNumberPrefix;
+        inventorySettings.TransferNumberPrefix = model.Inventory.TransferNumberPrefix;
+        inventorySettings.AdjustmentNumberPrefix = model.Inventory.AdjustmentNumberPrefix;
+        inventorySettings.StockCountNumberPrefix = model.Inventory.StockCountNumberPrefix;
+        inventorySettings.ReturnReceiptNumberPrefix = model.Inventory.ReturnReceiptNumberPrefix;
+        await settingService.SaveSetting(inventorySettings, "");
 
         //now clear cache
         await ClearCache();
