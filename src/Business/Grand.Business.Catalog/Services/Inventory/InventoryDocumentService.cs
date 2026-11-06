@@ -53,7 +53,7 @@ public class InventoryDocumentService(
         {
             var products = await productRepository.PagedAsync(query, pageIndex, StockCountPageSize);
             foreach (var product in products)
-            foreach (var (attributes, stock) in StockIn(product, warehouseId))
+            foreach (var (_, attributes, stock) in StockBuckets.In(product, warehouseId))
                 document.Lines.Add(new InventoryDocumentLine
                     { ProductId = product.Id, Attributes = attributes, ExpectedQuantity = stock });
 
@@ -62,28 +62,6 @@ public class InventoryDocumentService(
         }
 
         return await CreateDraft(document);
-    }
-
-    /// <summary>
-    ///     The buckets of the product explicitly in the warehouse, with their stored stock
-    /// </summary>
-    private static IEnumerable<(IList<CustomAttribute> Attributes, int Stock)> StockIn(Product product,
-        string warehouseId)
-    {
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
-        {
-            if (!product.UseMultipleWarehouses)
-                yield return ([], product.StockQuantity);
-            else if (product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId) is { } row)
-                yield return ([], row.StockQuantity);
-            yield break;
-        }
-
-        foreach (var combination in product.ProductAttributeCombinations)
-            if (!product.UseMultipleWarehouses)
-                yield return (combination.Attributes, combination.StockQuantity);
-            else if (combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId) is { } row)
-                yield return (combination.Attributes, row.StockQuantity);
     }
 
     public async Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(

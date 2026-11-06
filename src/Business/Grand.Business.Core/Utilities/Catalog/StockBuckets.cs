@@ -75,6 +75,37 @@ public static class StockBuckets
     }
 
     /// <summary>
+    ///     The buckets of the product kept explicitly in the warehouse, with their stored stock: a warehouse row, or
+    ///     the product or combination of a product kept in that one warehouse
+    /// </summary>
+    public static IEnumerable<(string CombinationId, IList<CustomAttribute> Attributes, int Stock)> In(
+        Product product, string warehouseId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        if (!product.UseMultipleWarehouses && product.WarehouseId != warehouseId)
+            yield break;
+
+        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
+        {
+            if (!product.UseMultipleWarehouses)
+                yield return ("", [], product.StockQuantity);
+            else if (product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId) is { } row)
+                yield return ("", [], row.StockQuantity);
+            yield break;
+        }
+
+        if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes)
+            yield break;
+
+        foreach (var combination in product.ProductAttributeCombinations)
+            if (!product.UseMultipleWarehouses)
+                yield return (combination.Id, combination.Attributes, combination.StockQuantity);
+            else if (combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId) is { } row)
+                yield return (combination.Id, combination.Attributes, row.StockQuantity);
+    }
+
+    /// <summary>
     ///     The warehouses the product's buckets name
     /// </summary>
     public static IEnumerable<string> Warehouses(Product product)
