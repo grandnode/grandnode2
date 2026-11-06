@@ -1,10 +1,13 @@
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
+using Grand.Domain.Orders;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 using System.Globalization;
@@ -19,8 +22,155 @@ public class InventoryDocumentService(
     IResourceLock resourceLock,
     ISettingService settingService,
     IMediator mediator,
-    StockLedger stockLedger) : IInventoryDocumentService
+    StockLedger stockLedger,
+    IMerchandiseReturnService merchandiseReturnService,
+    IOrderService orderService) : IInventoryDocumentService
 {
+    private const int StockCountPageSize = 500;
+
+    public async Task<InventoryDocument> CreateStockCount(string warehouseId, IList<string> categoryIds,
+        IList<string> brandIds, string customerId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(warehouseId);
+
+        //the products that can hold stock in the warehouse; which of their buckets are there is read from each
+        var query = productRepository.Table.Where(x =>
+            (x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
+             x.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
+            (x.UseMultipleWarehouses || x.WarehouseId == warehouseId));
+        if (categoryIds is { Count: > 0 })
+            query = query.Where(x => x.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
+        if (brandIds is { Count: > 0 })
+            query = query.Where(x => brandIds.Contains(x.BrandId));
+        query = query.OrderBy(x => x.Id);
+
+        var document = new InventoryDocument {
+            DocumentTypeId = InventoryDocumentType.StockCount,
+            WarehouseId = warehouseId,
+            CreatedBy = customerId
+        };
+        for (var pageIndex = 0;; pageIndex++)
+        {
+            var products = await productRepository.PagedAsync(query, pageIndex, StockCountPageSize);
+            foreach (var product in products)
+            foreach (var (attributes, stock) in StockIn(product, warehouseId))
+                document.Lines.Add(new InventoryDocumentLine
+                    { ProductId = product.Id, Attributes = attributes, ExpectedQuantity = stock });
+
+            if (!products.HasNextPage)
+                break;
+        }
+
+        return await CreateDraft(document);
+    }
+
+    /// <summary>
+    ///     The buckets of the product explicitly in the warehouse, with their stored stock
+    /// </summary>
+    private static IEnumerable<(IList<CustomAttribute> Attributes, int Stock)> StockIn(Product product,
+        string warehouseId)
+    {
+        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
+        {
+            if (!product.UseMultipleWarehouses)
+                yield return ([], product.StockQuantity);
+            else if (product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId) is { } row)
+                yield return ([], row.StockQuantity);
+            yield break;
+        }
+
+        foreach (var combination in product.ProductAttributeCombinations)
+            if (!product.UseMultipleWarehouses)
+                yield return (combination.Attributes, combination.StockQuantity);
+            else if (combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId) is { } row)
+                yield return (combination.Attributes, row.StockQuantity);
+    }
+
+    public async Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(
+        string merchandiseReturnId, string customerId)
+    {
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        if (merchandiseReturn == null)
+            return (null, [InventoryDocumentErrors.NotFound]);
+        if (merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Rejected
+            or MerchandiseReturnStatus.Cancelled)
+            return (null, [InventoryDocumentErrors.ReturnNotReceivable]);
+
+        var returned = await Returned(merchandiseReturn);
+        var received = await Received(merchandiseReturn.Id, null);
+        var document = new InventoryDocument {
+            DocumentTypeId = InventoryDocumentType.ReturnReceipt,
+            MerchandiseReturnId = merchandiseReturn.Id,
+            CreatedBy = customerId
+        };
+        foreach (var item in returned)
+        {
+            var quantity = item.Quantity - received.GetValueOrDefault((item.ReturnItemId, item.ProductId));
+            if (quantity > 0)
+                document.Lines.Add(new InventoryDocumentLine {
+                    ProductId = item.ProductId, Attributes = item.Attributes, Quantity = quantity,
+                    MerchandiseReturnItemId = item.ReturnItemId
+                });
+        }
+
+        if (document.Lines.Count == 0)
+            return (null, [InventoryDocumentErrors.NoLines]);
+
+        //the warehouse the items were sold from, when it is one
+        var warehouses = returned.Select(x => x.WarehouseId ?? "").Distinct().ToList();
+        document.WarehouseId = warehouses.Count == 1 ? warehouses[0] : "";
+
+        return (await CreateDraft(document), []);
+    }
+
+    /// <summary>
+    ///     What a merchandise return gives back, by product: a returned bundle gives back its products
+    /// </summary>
+    private async Task<IList<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
+            string WarehouseId)>>
+        Returned(MerchandiseReturn merchandiseReturn)
+    {
+        var returned = new List<(string, string, IList<CustomAttribute>, int, string)>();
+        var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        if (order == null)
+            return returned;
+
+        foreach (var item in merchandiseReturn.MerchandiseReturnItems)
+        {
+            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+            if (orderItem == null)
+                continue;
+
+            var product = await productRepository.GetByIdAsync(orderItem.ProductId);
+            if (product?.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
+                returned.AddRange(product.BundleProducts.Select(child =>
+                    (item.Id, child.ProductId, (IList<CustomAttribute>)[], item.Quantity * child.Quantity,
+                        orderItem.WarehouseId)));
+            else
+                returned.Add((item.Id, orderItem.ProductId, orderItem.Attributes ?? [], item.Quantity,
+                    orderItem.WarehouseId));
+        }
+
+        return returned;
+    }
+
+    /// <summary>
+    ///     The quantities the return receipts of a merchandise return take in, posted or draft, by return item and
+    ///     product
+    /// </summary>
+    /// <param name="merchandiseReturnId">The merchandise return</param>
+    /// <param name="exceptDocumentId">A document left out</param>
+    private async Task<Dictionary<(string, string), int>> Received(string merchandiseReturnId,
+        string exceptDocumentId)
+    {
+        var receipts = await inventoryDocumentRepository.ToListAsync(inventoryDocumentRepository.Table.Where(x =>
+            x.DocumentTypeId == InventoryDocumentType.ReturnReceipt && x.MerchandiseReturnId == merchandiseReturnId &&
+            x.Id != exceptDocumentId));
+        return receipts.SelectMany(x => x.Lines)
+            .GroupBy(x => (x.MerchandiseReturnItemId, x.ProductId))
+            .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
+    }
+
     public async Task<IList<string>> Post(string id, string customerId)
     {
         var document = await inventoryDocumentRepository.GetByIdAsync(id);
@@ -245,6 +395,11 @@ public class InventoryDocumentService(
         if (document.DocumentTypeId == InventoryDocumentType.Adjustment && string.IsNullOrWhiteSpace(document.Comment))
             Add(InventoryDocumentErrors.CommentRequired);
 
+        if (document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
+            !string.IsNullOrEmpty(document.MerchandiseReturnId) &&
+            await ReturnQuantityExceeded(document))
+            Add(InventoryDocumentErrors.ReturnQuantityExceeded);
+
         foreach (var line in document.Lines)
         {
             var product = string.IsNullOrEmpty(line.ProductId)
@@ -296,6 +451,27 @@ public class InventoryDocumentService(
         }
 
         return errors;
+    }
+
+    /// <summary>
+    ///     Whether the return receipts of the merchandise return, this one with its lines as they are now, take in more
+    ///     of an item than was returned
+    /// </summary>
+    private async Task<bool> ReturnQuantityExceeded(InventoryDocument document)
+    {
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(document.MerchandiseReturnId);
+        if (merchandiseReturn == null)
+            return false;
+
+        var returned = (await Returned(merchandiseReturn))
+            .GroupBy(x => (x.ReturnItemId, x.ProductId))
+            .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
+        var received = await Received(merchandiseReturn.Id, document.Id);
+        foreach (var line in document.Lines.Where(x => !string.IsNullOrEmpty(x.MerchandiseReturnItemId)))
+            received[(line.MerchandiseReturnItemId, line.ProductId)] =
+                received.GetValueOrDefault((line.MerchandiseReturnItemId, line.ProductId)) + line.Quantity;
+
+        return received.Any(x => x.Value > returned.GetValueOrDefault(x.Key));
     }
 
     private async Task<string> StoreOf(string warehouseId)

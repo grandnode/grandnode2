@@ -55,4 +55,21 @@ public interface IInventoryDocumentService
     /// </summary>
     /// <returns>The keys of the errors; the document stays a draft when there is one</returns>
     Task<IList<string>> Post(string id, string customerId);
+
+    /// <summary>
+    ///     A stock count draft of every bucket kept in the warehouse, with the stock stored now as expected quantity
+    /// </summary>
+    /// <param name="warehouseId">The warehouse counted</param>
+    /// <param name="categoryIds">Only products of these categories; empty for all</param>
+    /// <param name="brandIds">Only products of these brands; empty for all</param>
+    /// <param name="customerId">Who creates it</param>
+    Task<InventoryDocument> CreateStockCount(string warehouseId, IList<string> categoryIds, IList<string> brandIds,
+        string customerId);
+
+    /// <summary>
+    ///     A return receipt draft of what a merchandise return gives back and has not been received yet
+    /// </summary>
+    /// <returns>The draft, or null and the keys of the errors</returns>
+    Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(string merchandiseReturnId,
+        string customerId);
 }

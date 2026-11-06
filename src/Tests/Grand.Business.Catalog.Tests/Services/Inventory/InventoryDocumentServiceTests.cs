@@ -1,6 +1,8 @@
 using Grand.Business.Catalog.Services.Inventory;
 using Grand.Data;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Domain.Orders;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
@@ -37,9 +39,149 @@ public class InventoryDocumentServiceTests
 
     private ISettingService _settingService;
 
+    private Mock<IMerchandiseReturnService> _merchandiseReturnService = new();
+    private Mock<IOrderService> _orderService = new();
+
     private InventoryDocumentService Service(IResourceLock resourceLock) =>
         new(_documents, _products, _journal, StockTestFixture.Warehouses(), resourceLock, _settingService,
-            new Mock<IMediator>().Object, StockTestFixture.Ledger(_products, _journal));
+            new Mock<IMediator>().Object, StockTestFixture.Ledger(_products, _journal),
+            _merchandiseReturnService.Object, _orderService.Object);
+
+    /// <summary>
+    ///     A return of two units of the product, ordered from w1
+    /// </summary>
+    private MerchandiseReturn Return(Product product, MerchandiseReturnStatus status = MerchandiseReturnStatus.Accepted)
+    {
+        var orderItem = new OrderItem { ProductId = product.Id, WarehouseId = "w1", Quantity = 2 };
+        var order = new Order { OrderItems = { orderItem } };
+        var merchandiseReturn = new MerchandiseReturn {
+            OrderId = order.Id, StoreId = "store1", MerchandiseReturnStatus = status,
+            MerchandiseReturnItems = { new MerchandiseReturnItem { OrderItemId = orderItem.Id, Quantity = 2 } }
+        };
+        _orderService.Setup(x => x.GetOrderById(order.Id)).ReturnsAsync(order);
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById(merchandiseReturn.Id))
+            .ReturnsAsync(merchandiseReturn);
+        return merchandiseReturn;
+    }
+
+    [TestMethod]
+    public async Task CreateStockCount_FillsExpectedFromStoredStock()
+    {
+        var single = await Product(p => p.WarehouseId = "w1");
+        var multi = await MultiWarehouseProduct(4, 9);
+
+        var document = await _service.CreateStockCount("w1", [], [], "staff");
+
+        Assert.AreEqual(InventoryDocumentType.StockCount, document.DocumentTypeId);
+        Assert.AreEqual(10, document.Lines.Single(x => x.ProductId == single.Id).ExpectedQuantity);
+        Assert.AreEqual(4, document.Lines.Single(x => x.ProductId == multi.Id).ExpectedQuantity);
+        Assert.IsTrue(document.Lines.All(x => x.CountedQuantity == null));
+    }
+
+    [TestMethod]
+    public async Task CreateStockCount_SkipsProductsNotInWarehouse()
+    {
+        await Product(p => p.WarehouseId = "w2");
+        await Product();
+        var combinations = StockTestFixture.WithCombinations(false, 3, 4);
+        combinations.WarehouseId = "w1";
+        await _products.InsertAsync(combinations);
+
+        var document = await _service.CreateStockCount("w1", [], [], "staff");
+
+        Assert.AreEqual(2, document.Lines.Count);
+        Assert.IsTrue(document.Lines.All(x => x.ProductId == combinations.Id));
+        CollectionAssert.AreEquivalent(new int?[] { 3, 4 }, document.Lines.Select(x => x.ExpectedQuantity).ToArray());
+    }
+
+    [TestMethod]
+    public async Task CreateStockCount_CategoryFilter()
+    {
+        var inCategory = await Product(p => {
+            p.WarehouseId = "w1";
+            p.ProductCategories.Add(new ProductCategory { CategoryId = "c1" });
+        });
+        await Product(p => p.WarehouseId = "w1");
+
+        var document = await _service.CreateStockCount("w1", ["c1"], [], "staff");
+
+        Assert.AreEqual(inCategory.Id, document.Lines.Single().ProductId);
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_RejectedReturn_Refused()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product, MerchandiseReturnStatus.Rejected);
+
+        var (document, errors) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+
+        Assert.IsNull(document);
+        CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.ReturnNotReceivable }, errors.ToArray());
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_PrefillsLinesAndWarehouse()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var (document, errors) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual("w1", document.WarehouseId);
+        Assert.AreEqual(merchandiseReturn.Id, document.MerchandiseReturnId);
+        var line = document.Lines.Single();
+        Assert.AreEqual(product.Id, line.ProductId);
+        Assert.AreEqual(2, line.Quantity);
+        Assert.AreEqual(merchandiseReturn.MerchandiseReturnItems[0].Id, line.MerchandiseReturnItemId);
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_Bundle_ExpandsChildren()
+    {
+        var child = await Product();
+        var bundle = await Product(p => {
+            p.ManageInventoryMethodId = ManageInventoryMethod.ManageStockByBundleProducts;
+            p.BundleProducts.Add(new BundleProduct { ProductId = child.Id, Quantity = 3 });
+        });
+        var merchandiseReturn = Return(bundle);
+
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+
+        var line = document.Lines.Single();
+        Assert.AreEqual(child.Id, line.ProductId);
+        Assert.AreEqual(6, line.Quantity);
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_SecondReceipt_OnlyRemainingQuantity()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (first, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        first.Lines.Single().Quantity = 1;
+        await _service.UpdateDraft(first);
+
+        var (second, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+
+        Assert.AreEqual(1, second.Lines.Single().Quantity);
+    }
+
+    [TestMethod]
+    public async Task Validate_ReturnReceiptOverReturnedQuantity_Error()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (first, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        var (second, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        Assert.IsNull(second);
+
+        first.Lines.Single().Quantity = 3;
+
+        CollectionAssert.Contains((await _service.Validate(first)).ToList(),
+            InventoryDocumentErrors.ReturnQuantityExceeded);
+    }
 
     private Product Stored(Product product) => _products.Table.First(x => x.Id == product.Id);
 
