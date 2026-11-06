@@ -117,3 +117,44 @@ public class InventoryDocumentLineModel : BaseEntityModel
     /// </summary>
     public bool Remove { get; set; }
 }
+
+/// <summary>
+///     A journal entry on the stock history tab of a product
+/// </summary>
+public class StockHistoryRowModel
+{
+    public DateTime Date { get; set; }
+    public string MovementType { get; set; }
+    public string Warehouse { get; set; }
+    public string Combination { get; set; }
+    public int In { get; set; }
+    public int Out { get; set; }
+    public string Reference { get; set; }
+    public string DocumentId { get; set; }
+    public string ShipmentId { get; set; }
+    public string Who { get; set; }
+    public string Comment { get; set; }
+}
+
+public class StockAtDateModel : BaseModel
+{
+    [GrandResourceDisplayName("Admin.Inventory.Documents.Fields.Warehouse")]
+    public string WarehouseId { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.StockAtDate.Fields.AtDate")]
+    public DateTime AtDate { get; set; }
+
+    public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
+}
+
+/// <summary>
+///     A bucket of the stock at date report; the stock is "-" for a date before its history starts
+/// </summary>
+public class StockAtDateRowModel
+{
+    public string ProductId { get; set; }
+    public string ProductName { get; set; }
+    public string Sku { get; set; }
+    public string Combination { get; set; }
+    public string Stock { get; set; }
+}

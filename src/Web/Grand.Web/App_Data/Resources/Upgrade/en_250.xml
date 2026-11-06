@@ -1143,4 +1143,82 @@
 	<Resource Name="Enums.Grand.Domain.Catalog.ReturnLineCondition.Scrap" Area="Admin">
 		<Value>Scrap</Value>
 	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory" Area="Admin">
+		<Value>Stock history</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.From" Area="Admin">
+		<Value>From</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.To" Area="Admin">
+		<Value>To</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Date" Area="Admin">
+		<Value>Date</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.MovementType" Area="Admin">
+		<Value>Movement</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Combination" Area="Admin">
+		<Value>Combination</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.In" Area="Admin">
+		<Value>In</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Out" Area="Admin">
+		<Value>Out</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Reference" Area="Admin">
+		<Value>Reference</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Who" Area="Admin">
+		<Value>Who</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.StockAtDate.Fields.AtDate" Area="Admin">
+		<Value>Date</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.StockAtDate.Fields.Stock" Area="Admin">
+		<Value>Stock</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.OpeningBalance" Area="Admin">
+		<Value>Opening balance</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Legacy" Area="Admin">
+		<Value>Before the journal</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Shipment" Area="Admin">
+		<Value>Shipment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ShipmentReversal" Area="Admin">
+		<Value>Shipment reversed</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Receipt" Area="Admin">
+		<Value>Receipt</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.TransferOut" Area="Admin">
+		<Value>Transfer out</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.TransferIn" Area="Admin">
+		<Value>Transfer in</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Adjustment" Area="Admin">
+		<Value>Adjustment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.StockCount" Area="Admin">
+		<Value>Stock count</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ReturnReceipt" Area="Admin">
+		<Value>Return receipt</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ManualEdit" Area="Admin">
+		<Value>Edited in the panel</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Api" Area="Admin">
+		<Value>API</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Import" Area="Admin">
+		<Value>Import</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ProductCopy" Area="Admin">
+		<Value>Product copy</Value>
+	</Resource>
 </Language>

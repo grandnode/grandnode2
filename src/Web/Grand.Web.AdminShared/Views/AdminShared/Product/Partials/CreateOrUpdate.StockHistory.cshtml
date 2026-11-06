@@ -1,0 +1,67 @@
+@model ProductModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@* every change of the product's stock, newest first; a reference opens the document or shipment *@
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        <div class="grand-field">
+            <label class="grand-field__label" for="stockhistory-warehouse">@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</label>
+            <select id="stockhistory-warehouse" class="form-select" asp-items="Model.AvailableWarehouses"></select>
+        </div>
+        <div class="grand-range">
+            <div class="grand-field">
+                <label class="grand-field__label" for="stockhistory-from">@Loc["Admin.Catalog.Products.StockHistory.From"]</label>
+                <input id="stockhistory-from" class="form-control" type="date"/>
+            </div>
+            <div class="grand-field">
+                <label class="grand-field__label" for="stockhistory-to">@Loc["Admin.Catalog.Products.StockHistory.To"]</label>
+                <input id="stockhistory-to" class="form-control" type="date"/>
+            </div>
+        </div>
+    </div>
+    <card-actions>
+        <button type="button" id="stockhistory-search" class="btn btn-outline-secondary btn-sm">
+            <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
+        </button>
+    </card-actions>
+</admin-card>
+<admin-card flush>
+    <admin-grid id="stockhistory-grid"
+                read-url="@Url.Action("ListStockHistory", "ProductStockHistory", new { productId = Model.Id, area })"
+                additional-data="stockHistoryData"
+                auto-bind="false">
+        <grid-column field="Date" title="@Loc["Admin.Catalog.Products.StockHistory.Date"]" width="160" format="{0:G}"/>
+        <grid-column field="MovementType" title="@Loc["Admin.Catalog.Products.StockHistory.MovementType"]"/>
+        <grid-column field="Warehouse" title="@Loc["Admin.Inventory.Documents.Fields.Warehouse"]"/>
+        <grid-column field="Combination" title="@Loc["Admin.Catalog.Products.StockHistory.Combination"]"/>
+        <grid-column field="In" title="@Loc["Admin.Catalog.Products.StockHistory.In"]" width="80"/>
+        <grid-column field="Out" title="@Loc["Admin.Catalog.Products.StockHistory.Out"]" width="80"/>
+        <grid-column field="Reference" title="@Loc["Admin.Catalog.Products.StockHistory.Reference"]">
+            <cell-template>
+                <a data-if="DocumentId" class="text-decoration-none" href="@Url.Action("Edit", "InventoryDocument", new { area })/{{ DocumentId }}">{{ Reference }}</a>
+                <a data-if="ShipmentId" class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area })/{{ ShipmentId }}">{{ Reference }}</a>
+            </cell-template>
+        </grid-column>
+        <grid-column field="Who" title="@Loc["Admin.Catalog.Products.StockHistory.Who"]"/>
+        <grid-column field="Comment" title="@Loc["Admin.Inventory.Documents.Fields.Comment"]"/>
+    </admin-grid>
+</admin-card>
+
+<script>
+    function stockHistoryData() {
+        var data = {
+            warehouseId: $('#stockhistory-warehouse').val(),
+            from: $('#stockhistory-from').val(),
+            to: $('#stockhistory-to').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#stockhistory-search').click(function () {
+            GrandAdmin.grids.get('#stockhistory-grid').dataSource.page(1);
+            return false;
+        });
+    });
+</script>
