@@ -1,6 +1,7 @@
 ﻿{
   Id: pac-001,
   StockQuantity: 10,
+  StockChangesOnlyThroughDocuments: false,
   AllowOutOfStockOrders: false,
   Sku: SKU-RED-M,
   Gtin: 1234567890,

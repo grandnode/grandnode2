@@ -70,5 +70,8 @@
   DefaultPageSizeOptions: 6, 3, 9,
   MaxCatalogPageSize: 10,
   ShowProductsFromSubcategoriesInSearchBox: false,
-  PublishBackProductWhenCancellingOrders: false
+  PublishBackProductWhenCancellingOrders: false,
+  Inventory: {
+    StockChangesOnlyThroughDocuments: false
+  }
 }
