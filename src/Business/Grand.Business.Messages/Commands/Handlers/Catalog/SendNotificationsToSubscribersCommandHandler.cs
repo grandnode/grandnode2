@@ -35,6 +35,12 @@ public class
 
         var subscriptions =
             await GetAllSubscriptionsByProductId(request.Product.Id, request.Attributes, request.Warehouse);
+
+        // An aggregate availability transition must notify global subscribers only.
+        // Warehouse-specific subscribers are notified separately when their own warehouse becomes available.
+        if (request.Product.UseMultipleWarehouses && string.IsNullOrEmpty(request.Warehouse))
+            subscriptions = subscriptions.Where(x => string.IsNullOrEmpty(x.WarehouseId)).ToList();
+
         foreach (var subscription in subscriptions)
         {
             var customer = await _customerService.GetCustomerById(subscription.CustomerId);
