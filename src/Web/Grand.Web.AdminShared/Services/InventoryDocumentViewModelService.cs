@@ -206,13 +206,33 @@ public class InventoryDocumentViewModelService(
                 errors.Add(translationService.GetResource("Admin.Catalog.Products.Permissions"));
             else if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
                 foreach (var combination in product.ProductAttributeCombinations)
-                    document.Lines.Add(new InventoryDocumentLine
-                        { ProductId = product.Id, Attributes = combination.Attributes });
+                    document.Lines.Add(new InventoryDocumentLine {
+                        ProductId = product.Id, Attributes = combination.Attributes,
+                        ExpectedQuantity = Expected(document, product, combination)
+                    });
             else
-                document.Lines.Add(new InventoryDocumentLine { ProductId = product.Id });
+                document.Lines.Add(new InventoryDocumentLine
+                    { ProductId = product.Id, ExpectedQuantity = Expected(document, product, null) });
         }
 
         return errors;
+    }
+
+    /// <summary>
+    ///     A stock count expects the stock the bucket holds now in the document's warehouse; other documents expect
+    ///     nothing
+    /// </summary>
+    private static int? Expected(InventoryDocument document, Product product, ProductAttributeCombination combination)
+    {
+        if (document.DocumentTypeId != InventoryDocumentType.StockCount)
+            return null;
+
+        if (!product.UseMultipleWarehouses)
+            return combination?.StockQuantity ?? product.StockQuantity;
+
+        return combination != null
+            ? combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == document.WarehouseId)?.StockQuantity ?? 0
+            : product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == document.WarehouseId)?.StockQuantity ?? 0;
     }
 
     public async Task<IList<InventoryDocumentLine>> InaccessibleLines(InventoryDocument document)

@@ -171,6 +171,22 @@ public class InventoryDocumentControllerTests
     }
 
     [TestMethod]
+    public async Task AddLineToStockCount_TakesTheStoredStockAsExpected()
+    {
+        var document = Stored(StoreId, "w-own");
+        document.DocumentTypeId = InventoryDocumentType.StockCount;
+        var product = new Product
+            { Sku = "SKU", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 };
+        _productService.Setup(x => x.GetProductBySku("SKU")).ReturnsAsync(product);
+        _productScope.Setup(x => x.HasAccess(product)).ReturnsAsync(true);
+
+        await _controller.Edit(new InventoryDocumentModel { Id = document.Id, WarehouseId = "w-own", AddSku = "SKU" },
+            true);
+
+        Assert.AreEqual(7, document.Lines.Single().ExpectedQuantity);
+    }
+
+    [TestMethod]
     public async Task Store_Post_OtherStoreDocument_AccessDenied()
     {
         var document = Stored("store2", "w-other");
