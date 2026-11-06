@@ -14,6 +14,12 @@ namespace Grand.Business.Core.Utilities.Checkout;
 public class PlaceOrderContainer
 {
     /// <summary>
+    ///     The identifier the order is inserted with, known before the payment so what the order spends can be claimed
+    ///     for it
+    /// </summary>
+    public string OrderId { get; set; }
+
+    /// <summary>
     ///     Customer, store, working currency and tax display the order totals are calculated for
     /// </summary>
     public CalculationContext Context { get; set; }
