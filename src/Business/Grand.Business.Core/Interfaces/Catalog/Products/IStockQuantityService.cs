@@ -14,6 +14,12 @@ public interface IStockQuantityService
     int GetTotalStockQuantityForCombination(Product product, ProductAttributeCombination combination,
         bool useReservedQuantity = true, string warehouseId = "");
 
+    /// <summary>
+    ///     Whether the stock covers the quantity, by the rule the shopping cart and the order placement share; a
+    ///     bundle is checked by its products
+    /// </summary>
+    StockCheck CheckStock(Product product, int quantity, IList<CustomAttribute>? attributes, string warehouseId);
+
     (string resource, object? arg0) FormatStockMessage(Product product, string warehouseId,
         IList<CustomAttribute> attributes);
 

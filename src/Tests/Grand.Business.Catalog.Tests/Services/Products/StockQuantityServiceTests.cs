@@ -272,4 +272,54 @@ public class StockQuantityServiceTests
         Assert.IsNull(unknown.Availability);
         Assert.AreEqual("Products.Availability.AttributeCombinationsNotExists", unknown.Resource);
     }
+
+    [TestMethod]
+    public void CheckStock_NoBackordersAndShort_NotCovered()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2 };
+
+        var check = _stockQuantityService.CheckStock(product, 3, null, "");
+
+        Assert.IsFalse(check.Covered);
+        Assert.AreEqual(2, check.StockQuantity);
+        Assert.IsFalse(check.CombinationMissing);
+    }
+
+    [TestMethod]
+    public void CheckStock_BackordersAllowed_Covered()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, BackorderModeId = BackorderMode.AllowQtyBelowZero
+        };
+
+        Assert.IsTrue(_stockQuantityService.CheckStock(product, 3, null, "").Covered);
+    }
+
+    [TestMethod]
+    public void CheckStock_NoCombination_CombinationMissing()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes };
+
+        var check = _stockQuantityService.CheckStock(product, 1, new List<CustomAttribute>(), "");
+
+        Assert.IsFalse(check.Covered);
+        Assert.IsTrue(check.CombinationMissing);
+    }
+
+    [TestMethod]
+    public void CheckStock_CombinationAllowsOutOfStockOrders_Covered()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { AllowOutOfStockOrders = true });
+
+        Assert.IsTrue(_stockQuantityService.CheckStock(product, 5, new List<CustomAttribute>(), "").Covered);
+    }
+
+    [TestMethod]
+    public void CheckStock_StockNotManaged_Covered()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.DontManageStock };
+
+        Assert.IsTrue(_stockQuantityService.CheckStock(product, 5, null, "").Covered);
+    }
 }

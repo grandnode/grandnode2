@@ -291,37 +291,21 @@ public class InventoryManageService : IInventoryManageService
     private async Task<bool> IsAvailable(Product product, int quantity, IList<CustomAttribute> attributes,
         string warehouseId)
     {
-        switch (product.ManageInventoryMethodId)
-        {
-            case ManageInventoryMethod.ManageStock:
-                return product.BackorderModeId != BackorderMode.NoBackorders ||
-                       _stockQuantityService.GetTotalStockQuantity(product,
-                           warehouseId: StockWarehouse(product, warehouseId)) >= quantity;
-            case ManageInventoryMethod.ManageStockByAttributes:
-            {
-                var combination = product.FindProductAttributeCombination(attributes);
-                return combination != null && (combination.AllowOutOfStockOrders ||
-                                               _stockQuantityService.GetTotalStockQuantityForCombination(product,
-                                                   combination,
-                                                   warehouseId: StockWarehouse(product, warehouseId)) >= quantity);
-            }
-            case ManageInventoryMethod.ManageStockByBundleProducts:
-                foreach (var item in product.BundleProducts)
-                {
-                    var p1 = await _productRepository.GetByIdAsync(item.ProductId);
-                    if (p1 is not {
-                            BackorderModeId: BackorderMode.NoBackorders,
-                            ManageInventoryMethodId: ManageInventoryMethod.ManageStock
-                            or ManageInventoryMethod.ManageStockByAttributes
-                        }) continue;
-                    if (!await IsAvailable(p1, quantity * item.Quantity, attributes, warehouseId))
-                        return false;
-                }
+        if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByBundleProducts)
+            return _stockQuantityService.CheckStock(product, quantity, attributes, StockWarehouse(product, warehouseId))
+                .Covered;
 
-                return true;
-            default:
-                return true;
+        foreach (var item in product.BundleProducts)
+        {
+            //the cart checks a bundle's product only when it does not allow backorders
+            var p1 = await _productRepository.GetByIdAsync(item.ProductId);
+            if (p1 is not { BackorderModeId: BackorderMode.NoBackorders }) continue;
+            if (!_stockQuantityService.CheckStock(p1, quantity * item.Quantity, attributes,
+                    StockWarehouse(p1, warehouseId)).Covered)
+                return false;
         }
+
+        return true;
     }
 
     #endregion
