@@ -70,6 +70,19 @@ public class ProductServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateProduct_ProductNotTrackingStock_WritesThePassedStock()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.DontManageStock, StockQuantity = 5 };
+        await _productRepository.InsertAsync(product);
+
+        product.StockQuantity = 8;
+        await _productService.UpdateProduct(product);
+
+        Assert.AreEqual(8, _productRepository.Table.First(x => x.Id == product.Id).StockQuantity);
+        Assert.IsFalse(_journalRepository.Table.Any(x => x.ProductId == product.Id));
+    }
+
+    [TestMethod]
     public async Task UpdateProduct_InventoryMethodChanged_WritesOpeningBalance()
     {
         var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.DontManageStock, StockQuantity = 7 };

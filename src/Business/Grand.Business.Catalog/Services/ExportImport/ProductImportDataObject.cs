@@ -3,12 +3,15 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.ExportImport;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Tax;
@@ -40,6 +43,8 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     private readonly SecurityConfig _securityConfig;
     private readonly TaxSettings _taxSettings;
     private readonly ImportHtmlGuard _htmlGuard;
+    private readonly IStockMovementService _stockMovementService;
+    private readonly ISettingService _settingService;
     private readonly ILogger<ProductImportDataObject> _logger;
     private readonly Func<string, CancellationToken, Task<DownloadedImage>> _downloadImage;
 
@@ -62,6 +67,8 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         SecurityConfig securityConfig,
         TaxSettings taxSettings,
         ImportHtmlGuard htmlGuard,
+        IStockMovementService stockMovementService,
+        ISettingService settingService,
         ILogger<ProductImportDataObject> logger,
         Func<string, CancellationToken, Task<DownloadedImage>> downloadImage = null)
     {
@@ -82,6 +89,8 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         _securityConfig = securityConfig;
         _taxSettings = taxSettings;
         _htmlGuard = htmlGuard;
+        _stockMovementService = stockMovementService;
+        _settingService = settingService;
         _logger = logger;
         //only http(s) URLs to public or explicitly allowed hosts are downloaded - a local path would let the
         //import read any file on the server
@@ -158,6 +167,15 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             await _productService.GetProductBySku(dto.Sku) is { } skuOwner && skuOwner.Id != existing.Id)
             errors.Add($"Sku '{dto.Sku}' is already used by product '{skuOwner.Name}'.");
 
+        //with stock changed only through documents an import never sets it
+        if ((dto.StockQuantity.HasValue || dto.ReservedQuantity.HasValue) &&
+            (await _settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments)
+        {
+            dto.StockQuantity = null;
+            dto.ReservedQuantity = null;
+            warnings.Add("Stock columns are ignored: stock changes only through inventory documents.");
+        }
+
         var references = await ResolveReferences(dto, warnings);
         //the Sku is what a later call matches on; without one the row cannot be found again
         if (mode == ImportMode.Row && existing == null && string.IsNullOrEmpty(dto.Sku))
@@ -172,6 +190,9 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
 
         //a product found by Sku keeps its own id (Panel: the old code mapped the foreign Id over the found product)
         if (existing != null) dto.Id = existing.Id;
+        //the stock the product holds before the row is mapped onto it: the row changes it by the difference
+        var storedStock = existing?.StockQuantity;
+        var storedReserved = existing?.ReservedQuantity;
         var product = existing;
         var isNew = product == null;
         if (product == null)
@@ -193,10 +214,22 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         //downloaded before anything is written, so a cancelled download leaves the row untouched
         var images = await DownloadProductPictures(dto, budget, warnings, cancellationToken);
 
-        if (isNew) await _productService.InsertProduct(product);
-        else await _productService.UpdateProduct(product);
+        var source = new StockSource("Import", Reference: key);
+        if (isNew)
+        {
+            //the stock the product starts with goes into the journal before the product exists
+            await _stockMovementService.JournalNewProduct(product, InventoryMovementType.Import, source);
+            await _productService.InsertProduct(product);
+        }
+        else
+        {
+            await _productService.UpdateProduct(product);
+        }
 
         await UpdateProductData(dto, product, isNew, references, images);
+
+        if (!isNew)
+            await ImportStock(dto, product, storedStock, storedReserved, source, warnings);
         return new ImportRowResult(row, isNew ? ImportRowStatus.Created : ImportRowStatus.Updated, product.Id, key,
             errors, warnings);
     }
@@ -220,6 +253,34 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
         if (!dto.RecurringCycleLength.HasValue) product.RecurringCycleLength = 100;
         if (!dto.RecurringTotalCycles.HasValue) product.RecurringTotalCycles = 10;
         if (dto.TaxCategoryId == null) product.TaxCategoryId = _taxSettings.DefaultTaxCategoryId;
+    }
+
+    /// <summary>
+    ///     A stock column of an existing product: set to through the stock journal, for a product kept in one place
+    /// </summary>
+    private async Task ImportStock(ProductDto dto, Product product, int? storedStock, int? storedReserved,
+        StockSource source, List<string> warnings)
+    {
+        var stockChanged = dto.StockQuantity.HasValue && dto.StockQuantity != storedStock;
+        var reservedChanged = dto.ReservedQuantity.HasValue && dto.ReservedQuantity != storedReserved;
+        if (!stockChanged && !reservedChanged)
+            return;
+
+        //a product that tracks no stock keeps the column as a plain value, written with the product
+        if (product.ManageInventoryMethodId is not (ManageInventoryMethod.ManageStock
+            or ManageInventoryMethod.ManageStockByAttributes))
+            return;
+
+        if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStock || product.UseMultipleWarehouses)
+        {
+            warnings.Add("Stock columns are ignored: the product keeps stock by attributes or per warehouse.");
+            return;
+        }
+
+        await _stockMovementService.Apply(product.Id, [
+            new StockChange([], "", stockChanged ? dto.StockQuantity!.Value : 0, stockChanged,
+                InventoryMovementType.Import, source) { ReservedQuantity = reservedChanged ? dto.ReservedQuantity : null }
+        ]);
     }
 
     private static string Key(ProductDto dto)

@@ -338,6 +338,12 @@ public class ProductService : IProductService
             .Set(x => x.UserFields, product.UserFields)
             .Set(x => x.Ticks, DateTime.UtcNow.Ticks);
 
+        //a product that tracks no stock keeps its counters as plain values, written with the product
+        if (product.ManageInventoryMethodId is not (ManageInventoryMethod.ManageStock
+            or ManageInventoryMethod.ManageStockByAttributes))
+            update.Set(x => x.StockQuantity, product.StockQuantity)
+                .Set(x => x.ReservedQuantity, product.ReservedQuantity);
+
         await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
 
         //another inventory method or warehouse mode puts the stock in other buckets: their history starts again
