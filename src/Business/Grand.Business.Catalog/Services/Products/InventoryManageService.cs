@@ -357,11 +357,29 @@ public class InventoryManageService : IInventoryManageService
         return true;
     }
 
+    public virtual async Task CancelReservation(Product product, int quantity, IList<CustomAttribute> attributes,
+        string warehouseId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        if (quantity == 0)
+            return;
+
+        await using var _ = await _resourceLock.Acquire(ProductKeys(product, attributes));
+
+        var storedProduct = await _productRepository.GetByIdAsync(product.Id);
+        if (storedProduct == null)
+            return;
+
+        await AdjustReservedCore(storedProduct, quantity, attributes, warehouseId, true);
+    }
+
     /// <summary>
     ///     Adjusts the reserved inventory of a product read under the lock; never takes the lock itself
     /// </summary>
+    /// <param name="restoreLowStock">The reservation is given back for an order that was never placed</param>
     private async Task AdjustReservedCore(Product product, int quantityToChange, IList<CustomAttribute> attributes,
-        string warehouseId)
+        string warehouseId, bool restoreLowStock = false)
     {
         if (quantityToChange == 0)
             return;
@@ -424,8 +442,11 @@ public class InventoryManageService : IInventoryManageService
                         break;
                 }
 
-            //qty is increased. product is out of stock (minimum stock quantity is reached again)?
-            if (_catalogSettings.PublishBackProductWhenCancellingOrders)
+            //qty is increased. product is out of stock (minimum stock quantity is reached again)? a reservation given
+            //back for an order that was never placed undoes its own low-stock action, once above the minimum again
+            if (_catalogSettings.PublishBackProductWhenCancellingOrders || (restoreLowStock &&
+                    product.MinStockQuantity <
+                    _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId)))
                 if (quantityToChange > 0 && product.MinStockQuantity >= prevStockQuantity)
                     switch (product.LowStockActivityId)
                     {
@@ -498,7 +519,8 @@ public class InventoryManageService : IInventoryManageService
                 if (p1 is {
                         ManageInventoryMethodId: ManageInventoryMethod.ManageStock
                         or ManageInventoryMethod.ManageStockByAttributes
-                    }) await AdjustReservedCore(p1, quantityToChange * item.Quantity, attributes, warehouseId);
+                    }) await AdjustReservedCore(p1, quantityToChange * item.Quantity, attributes, warehouseId,
+                    restoreLowStock);
             }
 
         //bundled products
@@ -510,7 +532,7 @@ public class InventoryManageService : IInventoryManageService
             var associatedProduct = await _productRepository.GetByIdAsync(attributeValue.AssociatedProductId);
             if (associatedProduct != null)
                 await AdjustReservedCore(associatedProduct, quantityToChange * attributeValue.Quantity, null,
-                    warehouseId);
+                    warehouseId, restoreLowStock);
         }
 
         //event notification

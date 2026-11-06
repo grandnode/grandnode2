@@ -53,6 +53,12 @@ public class CheckoutClaimService : ICheckoutClaimService
                               && await ClaimGiftVouchers(details, claim)
                               && await ClaimLoyaltyPoints(details, claim);
         }
+        catch (TimeoutException ex)
+        {
+            //another checkout held a resource for the whole wait: a refusal, so the buyer is asked to try again
+            _logger.LogWarning(ex, "A resource of order {OrderId} stayed in use by another checkout", claim.OrderId);
+            claim.Succeeded = false;
+        }
         catch
         {
             await Release(claim);
@@ -86,7 +92,7 @@ public class CheckoutClaimService : ICheckoutClaimService
         claim.DiscountUsages.Clear();
 
         foreach (var stock in claim.Stock.Reverse())
-            await GiveBack(claim, "stock", () => _inventoryManageService.AdjustReserved(stock.Product,
+            await GiveBack(claim, "stock", () => _inventoryManageService.CancelReservation(stock.Product,
                 stock.Quantity, stock.Attributes, stock.WarehouseId));
         claim.Stock.Clear();
     }

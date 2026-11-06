@@ -166,6 +166,48 @@ public class InventoryManageServiceTests
     }
 
     [TestMethod]
+    public async Task CancelReservation_ReservationUnpublishedProduct_PublishesItAgain()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockQuantity = 5,
+            MinStockQuantity = 2,
+            LowStockActivityId = LowStockActivity.Unpublish,
+            Published = true
+        };
+        await _repository.InsertAsync(product);
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 3, null, ""));
+        Assert.IsFalse(Stored(product).Published);
+
+        await _inventoryManageService.CancelReservation(product, 3, null, "");
+
+        var stored = Stored(product);
+        Assert.IsTrue(stored.Published);
+        Assert.AreEqual(0, stored.ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task CancelReservation_StillAtMinimum_StaysUnpublished()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockQuantity = 5,
+            ReservedQuantity = 3,
+            MinStockQuantity = 2,
+            LowStockActivityId = LowStockActivity.Unpublish,
+            Published = false
+        };
+        await _repository.InsertAsync(product);
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, null, ""));
+
+        await _inventoryManageService.CancelReservation(product, 1, null, "");
+
+        Assert.IsFalse(Stored(product).Published);
+    }
+
+    [TestMethod]
     public async Task AdjustReserved_ParallelReleases_AllApplied()
     {
         var product = new Product {

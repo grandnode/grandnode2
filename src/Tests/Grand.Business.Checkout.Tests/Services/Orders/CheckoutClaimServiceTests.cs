@@ -89,7 +89,7 @@ public class CheckoutClaimServiceTests
         _giftVoucherServiceMock.Verify(x => x.TryRedeem("g1", 30, "o1"), Times.Once);
         _loyaltyPointsServiceMock.Verify(x => x.TryRedeemLoyaltyPoints("c1", 100, "s1",
             "Loyalty points redeemed for order CODE1", "o1", 10), Times.Once);
-        _inventoryManageServiceMock.Verify(x => x.AdjustReserved(It.IsAny<Product>(), It.IsAny<int>(),
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(It.IsAny<Product>(), It.IsAny<int>(),
             It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -101,7 +101,7 @@ public class CheckoutClaimServiceTests
         var claim = await _service.Claim(_details, "CODE1");
 
         Assert.IsFalse(claim.Succeeded);
-        _inventoryManageServiceMock.Verify(x => x.AdjustReserved(_product, 2, _attributes, "w1"), Times.Once);
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(_product, 2, _attributes, "w1"), Times.Once);
         _discountServiceMock.Verify(x => x.ReleaseDiscountUsageHistory(
             It.Is<DiscountUsageHistory>(h => h.DiscountId == "d1" && h.OrderId == "o1")), Times.Once);
         _giftVoucherServiceMock.Verify(x => x.CancelRedemption(It.IsAny<string>(), It.IsAny<string>()),
@@ -126,7 +126,7 @@ public class CheckoutClaimServiceTests
             Times.Never);
         _loyaltyPointsServiceMock.Verify(x => x.TryRedeemLoyaltyPoints(It.IsAny<string>(), It.IsAny<int>(),
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<double>()), Times.Never);
-        _inventoryManageServiceMock.Verify(x => x.AdjustReserved(It.IsAny<Product>(), It.IsAny<int>(),
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(It.IsAny<Product>(), It.IsAny<int>(),
             It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -142,8 +142,8 @@ public class CheckoutClaimServiceTests
         var claim = await _service.Claim(_details, "CODE1");
 
         Assert.IsFalse(claim.Succeeded);
-        _inventoryManageServiceMock.Verify(x => x.AdjustReserved(_product, 2, _attributes, "w1"), Times.Once);
-        _inventoryManageServiceMock.Verify(x => x.AdjustReserved(other, It.IsAny<int>(),
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(_product, 2, _attributes, "w1"), Times.Once);
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(other, It.IsAny<int>(),
             It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()), Times.Never);
     }
 
@@ -173,13 +173,27 @@ public class CheckoutClaimServiceTests
     }
 
     [TestMethod]
+    public async Task Claim_ResourceBusyForTheWholeWait_RefusesAndReleases()
+    {
+        _giftVoucherServiceMock.Setup(x => x.TryRedeem("g1", 30, "o1"))
+            .ThrowsAsync(new TimeoutException("The resource 'GiftVoucher:g1' is in use by another operation"));
+
+        var claim = await _service.Claim(_details, "CODE1");
+
+        Assert.IsFalse(claim.Succeeded);
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(_product, 2, _attributes, "w1"), Times.Once);
+        _discountServiceMock.Verify(x => x.ReleaseDiscountUsageHistory(It.IsAny<DiscountUsageHistory>()),
+            Times.Once);
+    }
+
+    [TestMethod]
     public async Task Release_ReturnsEveryClaimedResource()
     {
         var claim = await _service.Claim(_details, "CODE1");
 
         await _service.Release(claim);
 
-        _inventoryManageServiceMock.Verify(x => x.AdjustReserved(_product, 2, _attributes, "w1"), Times.Once);
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(_product, 2, _attributes, "w1"), Times.Once);
         _discountServiceMock.Verify(x => x.ReleaseDiscountUsageHistory(
             It.Is<DiscountUsageHistory>(h => h.DiscountId == "d1" && h.OrderId == "o1")), Times.Once);
         _giftVoucherServiceMock.Verify(x => x.CancelRedemption("g1", "o1"), Times.Once);
@@ -195,7 +209,7 @@ public class CheckoutClaimServiceTests
 
         await _service.Release(claim);
 
-        _inventoryManageServiceMock.Verify(x => x.AdjustReserved(_product, 2, _attributes, "w1"), Times.Once);
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(_product, 2, _attributes, "w1"), Times.Once);
         _discountServiceMock.Verify(x => x.ReleaseDiscountUsageHistory(It.IsAny<DiscountUsageHistory>()),
             Times.Once);
         _loyaltyPointsServiceMock.Verify(x => x.AddLoyaltyPointsHistory("c1", 100, "s1", It.IsAny<string>(),
