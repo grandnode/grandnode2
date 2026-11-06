@@ -1,4 +1,5 @@
 using Grand.Business.Catalog.Services.Inventory;
+using Grand.Data;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Catalog;
@@ -30,8 +31,245 @@ public class InventoryDocumentServiceTests
         var settingService = new Mock<ISettingService>();
         settingService.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
             .ReturnsAsync(() => _inventorySettings);
-        _service = new InventoryDocumentService(_documents, _products, _journal, StockTestFixture.Warehouses(),
-            new MongoResourceLockTest(), settingService.Object, new Mock<IMediator>().Object);
+        _settingService = settingService.Object;
+        _service = Service(new MongoResourceLockTest());
+    }
+
+    private ISettingService _settingService;
+
+    private InventoryDocumentService Service(IResourceLock resourceLock) =>
+        new(_documents, _products, _journal, StockTestFixture.Warehouses(), resourceLock, _settingService,
+            new Mock<IMediator>().Object, StockTestFixture.Ledger(_products, _journal));
+
+    private Product Stored(Product product) => _products.Table.First(x => x.Id == product.Id);
+
+    private async Task<InventoryDocument> Draft(InventoryDocument document)
+    {
+        await _documents.InsertAsync(document);
+        return document;
+    }
+
+    private async Task<Product> MultiWarehouseProduct(int w1, int w2 = 0)
+    {
+        return await Product(p => {
+            p.UseMultipleWarehouses = true;
+            p.StockQuantity = w1 + w2;
+            p.ProductWarehouseInventory.Add(new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = w1 });
+            p.ProductWarehouseInventory.Add(new ProductWarehouseInventory { WarehouseId = "w2", StockQuantity = w2 });
+        });
+    }
+
+    private void AssertJournalMatchesStock(Product product)
+    {
+        var stored = Stored(product);
+        if (stored.UseMultipleWarehouses)
+            foreach (var row in stored.ProductWarehouseInventory)
+                Assert.AreEqual(row.StockQuantity,
+                    StockTestFixture.JournalSum(_journal, product.Id, "", row.WarehouseId), row.WarehouseId);
+        else
+            Assert.AreEqual(stored.StockQuantity, StockTestFixture.JournalSum(_journal, product.Id, "", ""));
+    }
+
+    private async Task Opened(Product product)
+    {
+        //the history of a product that existed before the journal starts with its opening balance
+        await StockTestFixture.Ledger(_products, _journal).OpenBalance(Stored(product), "");
+    }
+
+    [TestMethod]
+    public async Task Post_Receipt_AddsStockAndFreezes()
+    {
+        var product = await Product();
+        await Opened(product);
+        var document = await Draft(Document(InventoryDocumentType.Receipt, Line(product, 5, 2)));
+
+        var errors = await _service.Post(document.Id, "staff");
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(15, Stored(product).StockQuantity);
+        var posted = _documents.Table.Single();
+        Assert.AreEqual(InventoryDocumentStatus.Posted, posted.StatusId);
+        Assert.AreEqual("staff", posted.PostedBy);
+        Assert.IsNotNull(posted.PostedOnUtc);
+        var entry = _journal.Table.Single(x => x.MovementTypeId == InventoryMovementType.Receipt);
+        Assert.AreEqual(document.Id, entry.ObjectId);
+        Assert.AreEqual(document.Lines.Single().Id, entry.PositionId);
+        Assert.AreEqual("staff", entry.CustomerId);
+        AssertJournalMatchesStock(product);
+    }
+
+    [TestMethod]
+    public async Task Post_Transfer_WritesOutAndInAndMovesStock()
+    {
+        var product = await MultiWarehouseProduct(6);
+        await Opened(product);
+        var document = Document(InventoryDocumentType.Transfer, Line(product, 4));
+        document.TargetWarehouseId = "w2";
+        await Draft(document);
+
+        var errors = await _service.Post(document.Id, "staff");
+
+        Assert.AreEqual(0, errors.Count);
+        var rows = Stored(product).ProductWarehouseInventory;
+        Assert.AreEqual(2, rows.Single(x => x.WarehouseId == "w1").StockQuantity);
+        Assert.AreEqual(4, rows.Single(x => x.WarehouseId == "w2").StockQuantity);
+        Assert.AreEqual(6, Stored(product).StockQuantity);
+        AssertJournalMatchesStock(product);
+    }
+
+    [TestMethod]
+    public async Task Post_TransferShortOfAvailable_ErrorAndStaysDraft()
+    {
+        var product = await MultiWarehouseProduct(3);
+        var document = Document(InventoryDocumentType.Transfer, Line(product, 4));
+        document.TargetWarehouseId = "w2";
+        await Draft(document);
+
+        var errors = await _service.Post(document.Id, "staff");
+
+        CollectionAssert.AreEqual(new[] { StockErrors.NotEnoughAvailable }, errors.ToArray());
+        Assert.AreEqual(InventoryDocumentStatus.Draft, _documents.Table.Single().StatusId);
+        Assert.AreEqual(3, Stored(product).StockQuantity);
+        Assert.IsFalse(_journal.Table.Any(x => x.ObjectId == document.Id));
+    }
+
+    [TestMethod]
+    public async Task Post_StockCount_SaleBetweenCreateAndPost_BooksDifferenceOnCurrentStock()
+    {
+        var product = await Product();
+        await Opened(product);
+        var document = await Draft(Document(InventoryDocumentType.StockCount,
+            new InventoryDocumentLine { ProductId = product.Id, ExpectedQuantity = 10, CountedQuantity = 8 }));
+        //three units shipped while the count was going on
+        await StockTestFixture.Ledger(_products, _journal).Apply(Stored(product), [
+            new StockChange([], "", -3, false, InventoryMovementType.Shipment, new StockSource("Shipment"))
+        ]);
+
+        await _service.Post(document.Id, "staff");
+
+        Assert.AreEqual(5, Stored(product).StockQuantity);
+        Assert.AreEqual(2, _journal.Table.Single(x => x.MovementTypeId == InventoryMovementType.StockCount).OutQty);
+        AssertJournalMatchesStock(product);
+    }
+
+    [TestMethod]
+    public async Task Post_StockCount_EmptyCountedLine_Skipped()
+    {
+        var product = await Product();
+        var document = await Draft(Document(InventoryDocumentType.StockCount,
+            new InventoryDocumentLine { ProductId = product.Id, ExpectedQuantity = 10 }));
+
+        var errors = await _service.Post(document.Id, "staff");
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(10, Stored(product).StockQuantity);
+        Assert.IsFalse(_journal.Table.Any());
+        Assert.AreEqual(InventoryDocumentStatus.Posted, _documents.Table.Single().StatusId);
+    }
+
+    [TestMethod]
+    public async Task Post_ReturnReceipt_ScrapChangesNoStock()
+    {
+        var product = await Product();
+        var document = await Draft(Document(InventoryDocumentType.ReturnReceipt,
+            new InventoryDocumentLine { ProductId = product.Id, Quantity = 2, Condition = ReturnLineCondition.Restock },
+            new InventoryDocumentLine { ProductId = product.Id, Quantity = 1, Condition = ReturnLineCondition.Scrap }));
+
+        await _service.Post(document.Id, "staff");
+
+        Assert.AreEqual(12, Stored(product).StockQuantity);
+        Assert.AreEqual(2, _journal.Table.Single().InQty);
+    }
+
+    [TestMethod]
+    public async Task Post_ResumedAfterPartialBooking_BooksEachLineOnce()
+    {
+        var first = await Product();
+        var second = await Product();
+        await Opened(first);
+        await Opened(second);
+        var document = await Draft(Document(InventoryDocumentType.Adjustment, Line(first, 2), Line(second, 3)));
+        //a posting that stopped after booking the first line
+        await StockTestFixture.Ledger(_products, _journal).Apply(Stored(first), [
+            new StockChange([], "w1", 2, false, InventoryMovementType.Adjustment,
+                new StockSource(nameof(InventoryDocument), document.Id, document.Lines[0].Id))
+        ]);
+
+        var errors = await _service.Post(document.Id, "staff");
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(12, Stored(first).StockQuantity);
+        Assert.AreEqual(13, Stored(second).StockQuantity);
+        AssertJournalMatchesStock(first);
+        AssertJournalMatchesStock(second);
+    }
+
+    [TestMethod]
+    public async Task Post_ManyProducts_AcquiresOneProductKeyPerCall()
+    {
+        var products = new List<Product>();
+        for (var i = 0; i < 3; i++)
+            products.Add(await Product());
+        var document = await Draft(Document(InventoryDocumentType.Adjustment,
+            products.Select(p => Line(p, 1)).ToArray()));
+        var acquired = new List<string[]>();
+        var resourceLock = new Mock<IResourceLock>();
+        resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Callback((IEnumerable<string> keys, CancellationToken _) => acquired.Add(keys.ToArray()))
+            .ReturnsAsync(new Mock<IAsyncDisposable>().Object);
+
+        await Service(resourceLock.Object).Post(document.Id, "staff");
+
+        Assert.AreEqual(3, acquired.Count);
+        Assert.IsTrue(acquired.All(x => x.Length == 1));
+        CollectionAssert.AreEquivalent(products.Select(p => ProductStockLock.Key(p.Id)).ToArray(),
+            acquired.Select(x => x[0]).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Post_Twice_SecondRejected()
+    {
+        var product = await Product();
+        var document = await Draft(Document(InventoryDocumentType.Receipt, Line(product, 5, 2)));
+        await _service.Post(document.Id, "staff");
+
+        var errors = await _service.Post(document.Id, "staff");
+
+        CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.Posted }, errors.ToArray());
+        Assert.AreEqual(15, Stored(product).StockQuantity);
+    }
+
+    [TestMethod]
+    public async Task Post_MixedSequence_JournalSumEqualsStoredStock()
+    {
+        var product = await MultiWarehouseProduct(10, 1);
+        await Opened(product);
+        var ledger = StockTestFixture.Ledger(_products, _journal);
+        var receipt = await Draft(Document(InventoryDocumentType.Receipt, Line(product, 5, 3)));
+        await _service.Post(receipt.Id, "staff");
+        await ledger.Apply(Stored(product), [
+            new StockChange([], "w1", -4, false, InventoryMovementType.Shipment, new StockSource("Shipment"))
+        ]);
+        await ledger.Apply(Stored(product), [
+            new StockChange([], "w1", 4, false, InventoryMovementType.ShipmentReversal, new StockSource("Shipment"))
+        ]);
+        var adjustment = await Draft(Document(InventoryDocumentType.Adjustment, Line(product, -2)));
+        await _service.Post(adjustment.Id, "staff");
+        var count = await Draft(Document(InventoryDocumentType.StockCount,
+            new InventoryDocumentLine { ProductId = product.Id, ExpectedQuantity = 13, CountedQuantity = 12 }));
+        await _service.Post(count.Id, "staff");
+        var transfer = Document(InventoryDocumentType.Transfer, Line(product, 6));
+        transfer.TargetWarehouseId = "w2";
+        await Draft(transfer);
+        await _service.Post(transfer.Id, "staff");
+        await ledger.Apply(Stored(product), [
+            new StockChange([], "w2", 20, true, InventoryMovementType.ManualEdit, new StockSource("Product"))
+        ]);
+
+        var rows = Stored(product).ProductWarehouseInventory;
+        Assert.AreEqual(6, rows.Single(x => x.WarehouseId == "w1").StockQuantity);
+        Assert.AreEqual(20, rows.Single(x => x.WarehouseId == "w2").StockQuantity);
+        AssertJournalMatchesStock(product);
     }
 
     private async Task<Product> Product(Action<Product> setup = null)

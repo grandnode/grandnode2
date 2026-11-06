@@ -18,8 +18,100 @@ public class InventoryDocumentService(
     IWarehouseService warehouseService,
     IResourceLock resourceLock,
     ISettingService settingService,
-    IMediator mediator) : IInventoryDocumentService
+    IMediator mediator,
+    StockLedger stockLedger) : IInventoryDocumentService
 {
+    public async Task<IList<string>> Post(string id, string customerId)
+    {
+        var document = await inventoryDocumentRepository.GetByIdAsync(id);
+        if (document == null)
+            return [InventoryDocumentErrors.NotFound];
+        if (document.StatusId == InventoryDocumentStatus.Posted)
+            return [InventoryDocumentErrors.Posted];
+
+        //every line is checked before the first write
+        var errors = await Validate(document);
+        if (errors.Count > 0)
+            return errors;
+
+        //one product's lock at a time: a large stock count never holds every key at once, which would outlive
+        //the lease; a product that fails stops the posting, and posting again continues after the products booked
+        foreach (var productLines in document.Lines.GroupBy(x => x.ProductId))
+        {
+            await using var _ = await resourceLock.Acquire([ProductStockLock.Key(productLines.Key)]);
+
+            var product = await productRepository.GetByIdAsync(productLines.Key);
+            var booked = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
+                .Where(x => x.ObjectType == nameof(InventoryDocument) && x.ObjectId == document.Id &&
+                            x.ProductId == productLines.Key)
+                .Select(x => new { x.PositionId, x.MovementTypeId }));
+
+            var changes = productLines.SelectMany(line => Changes(document, line, customerId))
+                .Where(change => !booked.Any(x =>
+                    x.PositionId == change.Source.PositionId && x.MovementTypeId == change.MovementType))
+                .ToList();
+            if (changes.Count == 0)
+                continue;
+
+            errors = await stockLedger.Apply(product, changes);
+            if (errors.Count > 0)
+                return errors;
+        }
+
+        document.StatusId = InventoryDocumentStatus.Posted;
+        document.PostedOnUtc = DateTime.UtcNow;
+        document.PostedBy = customerId;
+        await inventoryDocumentRepository.UpdateOneAsync(
+            x => x.Id == document.Id && x.StatusId == InventoryDocumentStatus.Draft,
+            UpdateBuilder<InventoryDocument>.Create()
+                .Set(x => x.StatusId, document.StatusId)
+                .Set(x => x.PostedOnUtc, document.PostedOnUtc)
+                .Set(x => x.PostedBy, document.PostedBy));
+
+        await mediator.EntityUpdated(document);
+        return [];
+    }
+
+    /// <summary>
+    ///     The stock changes a line books
+    /// </summary>
+    private static IEnumerable<StockChange> Changes(InventoryDocument document, InventoryDocumentLine line,
+        string customerId)
+    {
+        var source = new StockSource(nameof(InventoryDocument), document.Id, line.Id, document.Number, customerId,
+            line.Comment ?? document.Comment ?? "");
+        StockChange Change(string warehouseId, int quantity, InventoryMovementType movementType) =>
+            new(line.Attributes, warehouseId, quantity, false, movementType, source);
+
+        switch (document.DocumentTypeId)
+        {
+            case InventoryDocumentType.Receipt:
+                yield return Change(document.WarehouseId, line.Quantity, InventoryMovementType.Receipt) with {
+                    UnitCost = line.UnitCost
+                };
+                break;
+            case InventoryDocumentType.Transfer:
+                yield return Change(document.WarehouseId, -line.Quantity, InventoryMovementType.TransferOut);
+                yield return Change(document.TargetWarehouseId, line.Quantity, InventoryMovementType.TransferIn);
+                break;
+            case InventoryDocumentType.Adjustment:
+                yield return Change(document.WarehouseId, line.Quantity, InventoryMovementType.Adjustment);
+                break;
+            case InventoryDocumentType.StockCount:
+                //the difference to what was expected, applied to the stock as it is now: a sale during the count
+                //stays booked
+                if (line.CountedQuantity.HasValue && line.CountedQuantity != line.ExpectedQuantity)
+                    yield return Change(document.WarehouseId,
+                        line.CountedQuantity.Value - (line.ExpectedQuantity ?? 0), InventoryMovementType.StockCount);
+                break;
+            case InventoryDocumentType.ReturnReceipt:
+                //a scrapped item is recorded on the document only
+                if (line.Condition == ReturnLineCondition.Restock)
+                    yield return Change(document.WarehouseId, line.Quantity, InventoryMovementType.ReturnReceipt);
+                break;
+        }
+    }
+
     public Task<InventoryDocument> GetById(string id)
     {
         return inventoryDocumentRepository.GetByIdAsync(id);

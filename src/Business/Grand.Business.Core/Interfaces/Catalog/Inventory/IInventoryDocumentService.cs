@@ -48,4 +48,11 @@ public interface IInventoryDocumentService
     /// </summary>
     /// <returns>The keys of the errors</returns>
     Task<IList<string>> Validate(InventoryDocument document);
+
+    /// <summary>
+    ///     Books the stock of every line and freezes the document. A posting that stopped part way is continued by
+    ///     posting again: a line already booked is not booked twice
+    /// </summary>
+    /// <returns>The keys of the errors; the document stays a draft when there is one</returns>
+    Task<IList<string>> Post(string id, string customerId);
 }
