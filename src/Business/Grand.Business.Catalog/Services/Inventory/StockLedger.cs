@@ -44,6 +44,9 @@ public sealed class StockLedger(
         var entries = new List<InventoryJournal>();
         var movementTypes = new Dictionary<(string, string), InventoryMovementType>();
         var reservedChanged = false;
+        var costChanged = false;
+        //the product's physical stock before each change, for the average cost of a receipt
+        var onHand = product.StockQuantity;
         foreach (var change in changes)
         {
             var bucket = Locate(product, null, change.Attributes, change.WarehouseId, out var error);
@@ -63,6 +66,13 @@ public sealed class StockLedger(
 
             if (delta != 0)
             {
+                if (change is { MovementType: InventoryMovementType.Receipt, UnitCost: { } unitCost } && delta > 0)
+                {
+                    product.ProductCost = AverageCost(onHand, product.ProductCost, delta, unitCost);
+                    costChanged = true;
+                }
+
+                onHand += delta;
                 Move(bucket, delta, change.MovementType);
                 entries.Add(Entry(product, bucket, delta, change.MovementType, change.Source));
             }
@@ -80,7 +90,7 @@ public sealed class StockLedger(
             return errors;
 
         await Insert(product, entries);
-        await Write(product);
+        await Write(product, costChanged);
 
         if (changes.Count > 0)
             await stockSideEffects.Run(product, Changed(product, before, Available(product), movementTypes,
@@ -118,6 +128,17 @@ public sealed class StockLedger(
 
         await Repair(product);
         await Write(product);
+    }
+
+    /// <summary>
+    ///     The weighted average cost after a receipt: what is on hand at the current cost and what is received at its
+    ///     price; stock below zero holds no value. Kept at product level, also for a product stocked by attributes
+    /// </summary>
+    private static double AverageCost(int onHand, double cost, int quantity, decimal unitCost)
+    {
+        var held = Math.Max(0, onHand);
+        return (double)Math.Round((held * (decimal)cost + quantity * unitCost) / (held + quantity), 4,
+            MidpointRounding.AwayFromZero);
     }
 
     private static bool Tracked(Product product)
@@ -320,7 +341,7 @@ public sealed class StockLedger(
     /// <summary>
     ///     Writes every stock field of the product in one update, so they never land out of step
     /// </summary>
-    private async Task Write(Product product)
+    private async Task Write(Product product, bool costChanged = false)
     {
         Sum(product);
         if (product.ReservedQuantity < 0)
@@ -330,14 +351,17 @@ public sealed class StockLedger(
                             product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) ||
                            product.StockQuantity - product.ReservedQuantity <= 0;
 
-        await productRepository.UpdateOneAsync(x => x.Id == product.Id,
-            UpdateBuilder<Product>.Create()
-                .Set(x => x.StockQuantity, product.StockQuantity)
-                .Set(x => x.ReservedQuantity, product.ReservedQuantity)
-                .Set(x => x.LowStock, product.LowStock)
-                .Set(x => x.ProductWarehouseInventory, product.ProductWarehouseInventory)
-                .Set(x => x.ProductAttributeCombinations, product.ProductAttributeCombinations)
-                .Set(x => x.StockRevision, product.StockRevision));
+        var update = UpdateBuilder<Product>.Create()
+            .Set(x => x.StockQuantity, product.StockQuantity)
+            .Set(x => x.ReservedQuantity, product.ReservedQuantity)
+            .Set(x => x.LowStock, product.LowStock)
+            .Set(x => x.ProductWarehouseInventory, product.ProductWarehouseInventory)
+            .Set(x => x.ProductAttributeCombinations, product.ProductAttributeCombinations)
+            .Set(x => x.StockRevision, product.StockRevision);
+        if (costChanged)
+            update.Set(x => x.ProductCost, product.ProductCost);
+
+        await productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
 
         await mediator.Publish(new ProductChangedEvent(product.Id));
         await mediator.Publish(new UpdateStockEvent(product));

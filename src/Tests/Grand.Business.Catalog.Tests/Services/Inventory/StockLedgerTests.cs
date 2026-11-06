@@ -262,6 +262,66 @@ public class StockLedgerTests
         Assert.AreEqual(3, StockTestFixture.JournalSum(_journal, product.Id, "", "w2"));
     }
 
+    private static StockChange Receipt(int quantity, decimal unitCost, IList<CustomAttribute> attributes = null) =>
+        new(attributes ?? [], "", quantity, false, InventoryMovementType.Receipt, new StockSource("InventoryDocument"))
+            { UnitCost = unitCost };
+
+    private async Task<decimal> CostAfter(Product product, params StockChange[] changes)
+    {
+        await _products.InsertAsync(product);
+        await Apply(product, changes);
+        return (decimal)Stored(product).ProductCost;
+    }
+
+    private static Product Costed(int stock, double cost) =>
+        new() { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = stock, ProductCost = cost };
+
+    [TestMethod]
+    public async Task Receipt_ZeroOnHand_CostIsUnitCost()
+    {
+        Assert.AreEqual(4m, await CostAfter(Costed(0, 10), Receipt(5, 4)));
+    }
+
+    [TestMethod]
+    public async Task Receipt_PositiveOnHand_WeightedAverage()
+    {
+        Assert.AreEqual(4m, await CostAfter(Costed(10, 3), Receipt(5, 6)));
+    }
+
+    [TestMethod]
+    public async Task Receipt_NegativeOnHand_TreatedAsZero()
+    {
+        Assert.AreEqual(5m, await CostAfter(Costed(-2, 3), Receipt(4, 5)));
+    }
+
+    [TestMethod]
+    public async Task Receipt_Rounds4Decimals()
+    {
+        Assert.AreEqual(0.6667m, await CostAfter(Costed(3, 1), Receipt(3, 0.33333m)));
+    }
+
+    [TestMethod]
+    public async Task Receipt_TwoLinesSameProduct_Sequential()
+    {
+        //10 @ 2, then +10 @ 4 -> 3, then +20 @ 6 -> 4.5
+        Assert.AreEqual(4.5m, await CostAfter(Costed(10, 2), Receipt(10, 4), Receipt(20, 6)));
+    }
+
+    [TestMethod]
+    public async Task Receipt_Combination_UpdatesProductCost()
+    {
+        var product = StockTestFixture.WithCombinations(false, 3, 1);
+        product.ProductCost = 2;
+
+        Assert.AreEqual(3m, await CostAfter(product, Receipt(4, 4, StockTestFixture.Attributes("v1"))));
+    }
+
+    [TestMethod]
+    public async Task ManualEdit_LeavesCostAlone()
+    {
+        Assert.AreEqual(3m, await CostAfter(Costed(10, 3), By(5)));
+    }
+
     [TestMethod]
     public async Task Apply_EntryStoreIdIsWarehouseStore()
     {
