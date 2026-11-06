@@ -1,6 +1,8 @@
 ﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Common.Services.Seo;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain.Catalog;
@@ -29,7 +31,32 @@ public class CopyProductServiceTests
         _slugServiceMock = new Mock<ISlugService>();
         _settings = new SeoSettings();
         _seNameService = new SeNameService(_slugServiceMock.Object, _langServiceMock.Object, new SeoSettings());
-        _copyProductService = new CopyProductService(_productServiceMock.Object, _slugServiceMock.Object, _seNameService);
+        _stockMovementServiceMock = new Mock<IStockMovementService>();
+        _copyProductService = new CopyProductService(_productServiceMock.Object, _slugServiceMock.Object, _seNameService,
+            _stockMovementServiceMock.Object);
+    }
+
+    private Mock<IStockMovementService> _stockMovementServiceMock;
+
+    [TestMethod]
+    public async Task CopyProduct_WritesProductCopyEntriesForCopy()
+    {
+        _langServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
+            .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
+        var product = new Product
+            { Name = "name", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 6 };
+        var journaledBeforeInsert = false;
+        _stockMovementServiceMock.Setup(x => x.JournalNewProduct(It.IsAny<Product>(),
+                It.IsAny<InventoryMovementType>(), It.IsAny<StockSource>()))
+            .Callback(() => journaledBeforeInsert = true);
+        _productServiceMock.Setup(x => x.InsertProduct(It.IsAny<Product>()))
+            .Callback(() => Assert.IsTrue(journaledBeforeInsert));
+
+        var copy = await _copyProductService.CopyProduct(product, "copy-product");
+
+        _stockMovementServiceMock.Verify(x => x.JournalNewProduct(copy, InventoryMovementType.ProductCopy,
+            It.Is<StockSource>(s => s.ObjectId == product.Id && s.ObjectType == nameof(Product))), Times.Once);
+        Assert.AreEqual(6, copy.StockQuantity);
     }
 
 

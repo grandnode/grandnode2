@@ -278,16 +278,30 @@ public class StockLedgerTests
 /// </summary>
 public static class StockTestFixture
 {
-    public static StockLedger Ledger(IRepository<Product> products, IRepository<InventoryJournal> journal,
-        IOutOfStockSubscriptionService outOfStockSubscriptionService = null, IMediator mediator = null)
+    /// <summary>
+    ///     Warehouse w1 of store1 and the shared warehouse w2
+    /// </summary>
+    public static IWarehouseService Warehouses()
     {
         var warehouseService = new Mock<IWarehouseService>();
         warehouseService.Setup(x => x.GetWarehouseById("w1"))
             .ReturnsAsync(new Warehouse { Id = "w1", StoreId = "store1" });
         warehouseService.Setup(x => x.GetWarehouseById("w2"))
             .ReturnsAsync(new Warehouse { Id = "w2", StoreId = "" });
+        return warehouseService.Object;
+    }
+
+    public static StockMovementService MovementService(IRepository<Product> products,
+        IRepository<InventoryJournal> journal, IResourceLock resourceLock)
+    {
+        return new StockMovementService(resourceLock, products, Ledger(products, journal), journal, Warehouses());
+    }
+
+    public static StockLedger Ledger(IRepository<Product> products, IRepository<InventoryJournal> journal,
+        IOutOfStockSubscriptionService outOfStockSubscriptionService = null, IMediator mediator = null)
+    {
         mediator ??= new Mock<IMediator>().Object;
-        return new StockLedger(products, journal, warehouseService.Object,
+        return new StockLedger(products, journal, Warehouses(),
             new StockSideEffects(products,
                 outOfStockSubscriptionService ?? new Mock<IOutOfStockSubscriptionService>().Object, mediator,
                 new CatalogSettings()), mediator);

@@ -1,4 +1,5 @@
 using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain.Catalog;
 
 namespace Grand.Business.Core.Interfaces.Catalog.Inventory;
 
@@ -24,4 +25,12 @@ public interface IStockMovementService
     ///     Works the product and combination sums out again from their buckets, after a bucket was removed
     /// </summary>
     Task RecomputeSums(string productId);
+
+    /// <summary>
+    ///     Journals the stock a new product starts with; called before the product is inserted
+    /// </summary>
+    /// <param name="product">A product not inserted yet; it gets the revision of its last entry</param>
+    /// <param name="movementType">What created the product</param>
+    /// <param name="source">The source the entries name</param>
+    Task JournalNewProduct(Product product, InventoryMovementType movementType, StockSource source);
 }
