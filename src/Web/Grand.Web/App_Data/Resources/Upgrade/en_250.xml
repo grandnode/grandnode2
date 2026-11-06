@@ -900,4 +900,7 @@
 	<Resource Name="Admin.Orders.OrderTags.Updated" Area="Admin">
 		<Value>The order's tag has been updated successfully.</Value>
 	</Resource>
+	<Resource Name="ShoppingCart.ChangedDuringCheckout" Area="Front">
+		<Value>Some items in your cart are no longer available in the requested amount. Please review your cart and try again.</Value>
+	</Resource>
 </Language>

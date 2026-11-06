@@ -157,13 +157,13 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
             new Mock<IShoppingCartShippingService>().Object, new Mock<IShoppingCartTaxService>().Object,
             new Mock<IPricingService>().Object, new Mock<IProductAttributeFormatter>().Object,
             new Mock<IGiftVoucherService>().Object, new Mock<ICheckoutAttributeFormatter>().Object,
-            new Mock<ITaxService>().Object, new Mock<ICustomerService>().Object, new Mock<IDiscountService>().Object,
+            new Mock<ITaxService>().Object, new Mock<ICustomerService>().Object,
             new Mock<IGroupService>().Object, new Mock<ICatalogMessageProviderService>().Object,
             new Mock<IVendorService>().Object, new Mock<ISalesEmployeeService>().Object,
             new Mock<ICurrencyService>().Object, new Mock<IAffiliateService>().Object, mediator.Object,
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,
             new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object,
-            new Mock<IOrderApprovalService>().Object, placement.Object,
+            new Mock<IOrderApprovalService>().Object, placement.Object, Claims(),
             translation.Object, new ShippingSettings(), new ShoppingCartSettings(), new PaymentSettings(),
             new OrderSettings(), new OidcLoginConfig(), new TaxSettings())
         {
@@ -179,15 +179,26 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
             return Task.FromResult(_details);
         }
 
-        protected override Task<(ProcessPaymentResult paymentResult, PaymentTransaction paymentTransaction)>
-            PrepareProcessPayment(PlaceOrderContainer details)
+        private static ICheckoutClaimService Claims()
+        {
+            var claims = new Mock<ICheckoutClaimService>();
+            claims.Setup(x => x.Claim(It.IsAny<PlaceOrderContainer>(), It.IsAny<string>()))
+                .ReturnsAsync(new CheckoutClaim { Succeeded = true });
+            return claims.Object;
+        }
+
+        protected override Task<PaymentTransaction> PreparePaymentTransaction(PlaceOrderContainer details)
+        {
+            return Task.FromResult(new PaymentTransaction {
+                Id = "tx", StoreId = "store", PaymentMethodSystemName = details.PaymentMethodSystemName
+            });
+        }
+
+        protected override Task<ProcessPaymentResult> ProcessPayment(PlaceOrderContainer details,
+            PaymentTransaction paymentTransaction)
         {
             PaymentCalls++;
-            return Task.FromResult((
-                new ProcessPaymentResult { PaymentDueDateUtc = PaymentDueDateUtc },
-                new PaymentTransaction {
-                    Id = "tx", StoreId = "store", PaymentMethodSystemName = details.PaymentMethodSystemName
-                }));
+            return Task.FromResult(new ProcessPaymentResult { PaymentDueDateUtc = PaymentDueDateUtc });
         }
 
         protected override Order PrepareOrderHeader(PaymentTransaction paymentTransaction,
@@ -197,9 +208,15 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
             return LastHeader;
         }
 
-        protected override Task<Order> SaveOrderDetails(PlaceOrderContainer details, Order order)
+        protected override Task<Order> SaveOrderDetails(PlaceOrderContainer details, Order order,
+            IList<PreparedOrderItem> orderItems)
         {
             return Task.FromResult(order);
+        }
+
+        protected override Task CompleteOrderDetails(PlaceOrderContainer details, Order order)
+        {
+            return Task.CompletedTask;
         }
     }
 }

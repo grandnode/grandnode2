@@ -1,5 +1,4 @@
 ﻿using Grand.Business.Core.Events.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain.Catalog;
@@ -11,17 +10,14 @@ namespace Grand.Business.Checkout.Events.Orders;
 public class OrderPlacedEventHandler : INotificationHandler<OrderPlacedEvent>
 {
     private readonly ICustomerService _customerService;
-    private readonly ILoyaltyPointsService _loyaltyPointsService;
     private readonly IRepository<ProductAlsoPurchased> _productAlsoPurchasedRepository;
 
     public OrderPlacedEventHandler(
         IRepository<ProductAlsoPurchased> productAlsoPurchasedRepository,
-        ICustomerService customerService,
-        ILoyaltyPointsService loyaltyPointsService)
+        ICustomerService customerService)
     {
         _productAlsoPurchasedRepository = productAlsoPurchasedRepository;
         _customerService = customerService;
-        _loyaltyPointsService = loyaltyPointsService;
     }
 
     public Task Handle(OrderPlacedEvent notification, CancellationToken cancellationToken)
@@ -30,8 +26,6 @@ public class OrderPlacedEventHandler : INotificationHandler<OrderPlacedEvent>
         _ = InsertProductAlsoPurchased(notification.Order);
         //update customer
         _ = UpdateCustomer(notification.Order);
-        //Insert Loyalty Points History
-        _ = InsertLoyaltyPointsHistory(notification.Order);
         return Task.CompletedTask;
     }
 
@@ -67,18 +61,6 @@ public class OrderPlacedEventHandler : INotificationHandler<OrderPlacedEvent>
 
         //Update field has contribution after added a new order
         _customerService.UpdateCustomerField(order.CustomerId, x => x.HasContributions, true);
-
-        return Task.CompletedTask;
-    }
-
-    private Task InsertLoyaltyPointsHistory(Order order)
-    {
-        //loyalty points history
-        if (order.RedeemedLoyaltyPointsAmount > 0)
-            _loyaltyPointsService.AddLoyaltyPointsHistory(order.CustomerId,
-                -order.RedeemedLoyaltyPoints, order.StoreId,
-                $"Loyalty points redeemed for order {order.OrderNumber}",
-                order.Id, order.RedeemedLoyaltyPointsAmount);
 
         return Task.CompletedTask;
     }
