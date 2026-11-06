@@ -1,5 +1,6 @@
 using Grand.Mapping;
 using Grand.Business.Catalog.Services.ExportImport;
+using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Common.Services.Seo;
@@ -102,7 +103,8 @@ public class ProductImportDataObjectTests
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _productService = new ProductService(_cacheBase, _repository, _mediatorMock.Object,
-            new AclService(new AccessControlConfig()));
+            new AclService(new AccessControlConfig()), new MongoResourceLockTest(),
+            StockTestFixture.Ledger(_repository, new MongoDBRepositoryTest<InventoryJournal>()));
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _productImportDataObject = new ProductImportDataObject
         (_productService, _pictureServiceMock.Object, _productLayoutServiceMock.Object, _deliveryDateServiceMock.Object,

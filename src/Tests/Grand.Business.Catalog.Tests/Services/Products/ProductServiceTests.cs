@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Catalog;
@@ -41,8 +42,97 @@ public class ProductServiceTests
         _aclServiceMock = new AclService(new AccessControlConfig());
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
+        _journalRepository = new MongoDBRepositoryTest<InventoryJournal>();
         _productService = new ProductService(_cacheBase, _productRepository,
-            _mediatorMock.Object, _aclServiceMock);
+            _mediatorMock.Object, _aclServiceMock, new MongoResourceLockTest(),
+            StockTestFixture.Ledger(_productRepository, _journalRepository));
+    }
+
+    private IRepository<InventoryJournal> _journalRepository;
+
+    [TestMethod]
+    public async Task UpdateProduct_StaleStockOnPassedProduct_StoredStockKept()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 5, ReservedQuantity = 2 };
+        await _productRepository.InsertAsync(product);
+        //an order changed the stock after the passed product was read
+        await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
+            UpdateBuilder<Product>.Create().Set(x => x.StockQuantity, 4).Set(x => x.ReservedQuantity, 1));
+
+        product.Name = "renamed";
+        await _productService.UpdateProduct(product);
+
+        var stored = _productRepository.Table.First(x => x.Id == product.Id);
+        Assert.AreEqual("renamed", stored.Name);
+        Assert.AreEqual(4, stored.StockQuantity);
+        Assert.AreEqual(1, stored.ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_InventoryMethodChanged_WritesOpeningBalance()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.DontManageStock, StockQuantity = 7 };
+        await _productRepository.InsertAsync(product);
+
+        product.ManageInventoryMethodId = ManageInventoryMethod.ManageStock;
+        await _productService.UpdateProduct(product);
+
+        var entry = _journalRepository.Table.Single(x => x.ProductId == product.Id);
+        Assert.AreEqual(InventoryMovementType.OpeningBalance, entry.MovementTypeId);
+        Assert.AreEqual(7, entry.InQty);
+        Assert.AreEqual(1, _productRepository.Table.First(x => x.Id == product.Id).StockRevision);
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_InventoryMethodUnchanged_WritesNoEntry()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 };
+        await _productRepository.InsertAsync(product);
+
+        product.Name = "renamed";
+        await _productService.UpdateProduct(product);
+
+        Assert.IsFalse(_journalRepository.Table.Any(x => x.ProductId == product.Id));
+    }
+
+    [TestMethod]
+    public async Task UpdateProductWarehouseInventory_StaleStock_StoredStockKept()
+    {
+        var row = new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 6 };
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            ProductWarehouseInventory = { row }
+        };
+        await _productRepository.InsertAsync(product);
+
+        await _productService.UpdateProductWarehouseInventory(
+            new ProductWarehouseInventory { Id = row.Id, WarehouseId = "w1", StockQuantity = 1 }, product.Id);
+
+        Assert.AreEqual(6, _productRepository.Table.First(x => x.Id == product.Id).ProductWarehouseInventory
+            .First().StockQuantity);
+    }
+
+    [TestMethod]
+    public async Task DeleteProductWarehouseInventory_RowWithStock_WritesAdjustmentOutFirst()
+    {
+        var row = new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 6 };
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            StockQuantity = 9,
+            ProductWarehouseInventory = { row, new ProductWarehouseInventory { WarehouseId = "w2", StockQuantity = 3 } }
+        };
+        await _productRepository.InsertAsync(product);
+
+        await _productService.DeleteProductWarehouseInventory(row, product.Id);
+
+        var stored = _productRepository.Table.First(x => x.Id == product.Id);
+        Assert.IsFalse(stored.ProductWarehouseInventory.Any(x => x.WarehouseId == "w1"));
+        Assert.AreEqual(3, stored.StockQuantity);
+        var entry = _journalRepository.Table.Single(x => x.ProductId == product.Id);
+        Assert.AreEqual(InventoryMovementType.Adjustment, entry.MovementTypeId);
+        Assert.AreEqual(6, entry.OutQty);
+        Assert.AreEqual("w1", entry.WarehouseId);
     }
 
     [TestMethod]
@@ -96,7 +186,8 @@ public class ProductServiceTests
         repositoryMock.Setup(x => x.ToListAsync(It.IsAny<IQueryable<Product>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync((IQueryable<Product> query, CancellationToken _) => query.ToList());
         var productService = new ProductService(_cacheBase, repositoryMock.Object, _mediatorMock.Object,
-            _aclServiceMock);
+            _aclServiceMock, new MongoResourceLockTest(),
+            StockTestFixture.Ledger(repositoryMock.Object, _journalRepository));
         var access = CatalogAccess.For(new Customer(), "");
 
         //Act
@@ -129,7 +220,8 @@ public class ProductServiceTests
                 return result;
             });
         var productService = new ProductService(_cacheBase, repositoryMock.Object, _mediatorMock.Object,
-            _aclServiceMock);
+            _aclServiceMock, new MongoResourceLockTest(),
+            StockTestFixture.Ledger(repositoryMock.Object, _journalRepository));
         var access = CatalogAccess.For(new Customer(), "");
         await productService.GetProductsByIds(["p1", "p3"], access);
         queried.Clear();

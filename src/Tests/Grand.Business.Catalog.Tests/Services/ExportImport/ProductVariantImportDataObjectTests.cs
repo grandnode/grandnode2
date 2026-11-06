@@ -1,5 +1,6 @@
 using Grand.Business.Catalog.Services.ExportImport;
 using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.ExportImport;
@@ -40,7 +41,9 @@ public class ProductVariantImportDataObjectTests
         var cache = new MemoryCacheBase(MemoryCacheTest.Get(), mediator.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _attributeService =
-            new Mock<ProductAttributeService>(cache, attributeRepository, _productRepository, mediator.Object) {
+            new Mock<ProductAttributeService>(cache, attributeRepository, _productRepository, mediator.Object,
+                new MongoResourceLockTest(),
+                StockTestFixture.Ledger(_productRepository, new MongoDBRepositoryTest<InventoryJournal>())) {
                 CallBase = true
             };
 

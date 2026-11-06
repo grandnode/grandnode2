@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Events.Catalog;
+﻿using Grand.Business.Catalog.Services.Inventory;
+using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Catalog;
@@ -29,13 +30,17 @@ public class ProductService : IProductService
     public ProductService(ICacheBase cacheBase,
         IRepository<Product> productRepository,
         IMediator mediator,
-        IAclService aclService
+        IAclService aclService,
+        IResourceLock resourceLock,
+        StockLedger stockLedger
     )
     {
         _cacheBase = cacheBase;
         _productRepository = productRepository;
         _mediator = mediator;
         _aclService = aclService;
+        _resourceLock = resourceLock;
+        _stockLedger = stockLedger;
     }
 
     #endregion
@@ -48,6 +53,8 @@ public class ProductService : IProductService
     private readonly ICacheBase _cacheBase;
     private readonly IAclService _aclService;
     private readonly IMediator _mediator;
+    private readonly IResourceLock _resourceLock;
+    private readonly StockLedger _stockLedger;
 
     #endregion
 
@@ -280,10 +287,11 @@ public class ProductService : IProductService
             .Set(x => x.MetaTitle, product.MetaTitle)
             .Set(x => x.MinEnteredPrice, product.MinEnteredPrice)
             .Set(x => x.MinStockQuantity, product.MinStockQuantity)
+            //stock changes only through the stock ledger: the stored stock decides, never the passed product's
             .Set(x => x.LowStock,
                 (product.MinStockQuantity > 0 &&
-                 product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) ||
-                product.StockQuantity - product.ReservedQuantity <= 0)
+                 product.MinStockQuantity >= oldProduct.StockQuantity - oldProduct.ReservedQuantity) ||
+                oldProduct.StockQuantity - oldProduct.ReservedQuantity <= 0)
             .Set(x => x.Name, product.Name)
             .Set(x => x.NotApprovedRatingSum, product.NotApprovedRatingSum)
             .Set(x => x.NotApprovedTotalReviews, product.NotApprovedTotalReviews)
@@ -314,8 +322,6 @@ public class ProductService : IProductService
             .Set(x => x.BestSeller, product.BestSeller)
             .Set(x => x.Sku, product.Sku)
             .Set(x => x.StartPrice, product.StartPrice)
-            .Set(x => x.StockQuantity, product.StockQuantity)
-            .Set(x => x.ReservedQuantity, product.ReservedQuantity)
             .Set(x => x.Stores, product.Stores)
             .Set(x => x.LimitedToGroups, product.LimitedToGroups)
             .Set(x => x.TaxCategoryId, product.TaxCategoryId)
@@ -333,6 +339,16 @@ public class ProductService : IProductService
             .Set(x => x.Ticks, DateTime.UtcNow.Ticks);
 
         await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
+
+        //another inventory method or warehouse mode puts the stock in other buckets: their history starts again
+        if (oldProduct.ManageInventoryMethodId != product.ManageInventoryMethodId ||
+            oldProduct.UseMultipleWarehouses != product.UseMultipleWarehouses)
+            await using (await _resourceLock.Acquire([ProductStockLock.Key(product.Id)]))
+            {
+                var storedProduct = await _productRepository.GetByIdAsync(product.Id);
+                if (storedProduct != null)
+                    await _stockLedger.OpenBalance(storedProduct, "");
+            }
 
         if (!oldProduct.AdditionalShippingCharge.Equals(product.AdditionalShippingCharge) ||
             oldProduct.IsFreeShipping != product.IsFreeShipping ||
@@ -1132,7 +1148,11 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(pwi);
 
-        await _productRepository.AddToCollectionField(productId, x => x.ProductWarehouseInventory, pwi);
+        //a new row starts empty: its stock changes only through the stock ledger
+        pwi.StockQuantity = 0;
+        pwi.ReservedQuantity = 0;
+        await using (await _resourceLock.Acquire([ProductStockLock.Key(productId)]))
+            await _productRepository.AddToCollectionField(productId, x => x.ProductWarehouseInventory, pwi);
 
         await _mediator.Publish(new ProductChangedEvent(productId));
 
@@ -1150,7 +1170,19 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(pwi);
 
-        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
+        await using (await _resourceLock.Acquire([ProductStockLock.Key(productId)]))
+        {
+            //the stored quantities stay: they change only through the stock ledger
+            var storedRow = (await _productRepository.GetByIdAsync(productId))?.ProductWarehouseInventory
+                .FirstOrDefault(x => x.Id == pwi.Id);
+            if (storedRow != null)
+            {
+                pwi.StockQuantity = storedRow.StockQuantity;
+                pwi.ReservedQuantity = storedRow.ReservedQuantity;
+            }
+
+            await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
+        }
 
         await _mediator.Publish(new ProductChangedEvent(productId));
         //event notification
@@ -1166,7 +1198,31 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(pwi);
 
-        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductWarehouseInventory, x => x.Id == pwi.Id);
+        await using (await _resourceLock.Acquire([ProductStockLock.Key(productId)]))
+        {
+            var product = await _productRepository.GetByIdAsync(productId);
+            var row = product?.ProductWarehouseInventory.FirstOrDefault(x => x.Id == pwi.Id);
+            if (row == null)
+                return;
+
+            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock && product.UseMultipleWarehouses)
+            {
+                //the stock the row holds leaves the journal first, so the history keeps adding up
+                if (row.StockQuantity != 0)
+                    await _stockLedger.Apply(product, [
+                        new StockChange([], row.WarehouseId, -row.StockQuantity, false,
+                            InventoryMovementType.Adjustment,
+                            new StockSource(nameof(Product), productId, Comment: "Warehouse row removed"))
+                    ]);
+
+                product.ProductWarehouseInventory.Remove(row);
+                await _stockLedger.RecomputeSums(product);
+            }
+            else
+            {
+                await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductWarehouseInventory, x => x.Id == pwi.Id);
+            }
+        }
 
         await _mediator.Publish(new ProductChangedEvent(productId));
     }
