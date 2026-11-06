@@ -83,6 +83,8 @@ public class StartupApplication : IStartupApplication
                 new MongoAuditEntryWriter(sp.GetRequiredService<IMongoDatabase>));
             serviceCollection.AddScoped<IAuditRecordReader>(sp =>
                 new MongoAuditRecordReader(sp.GetRequiredService<IMongoDatabase>));
+            serviceCollection.AddScoped<IResourceLock>(sp =>
+                new MongoResourceLock(sp.GetRequiredService<IMongoDatabase>));
         }
         else
         {
@@ -99,6 +101,8 @@ public class StartupApplication : IStartupApplication
                 new LiteDBAuditEntryWriter(sp.GetRequiredService<LiteDatabase>));
             serviceCollection.AddScoped<IAuditRecordReader>(sp =>
                 new LiteDBAuditRecordReader(sp.GetRequiredService<LiteDatabase>));
+            serviceCollection.AddScoped<IResourceLock>(sp =>
+                new LiteDBResourceLock(sp.GetRequiredService<LiteDatabase>));
         }
 
         serviceCollection.AddScoped<IAuditTracker, AuditTracker>();

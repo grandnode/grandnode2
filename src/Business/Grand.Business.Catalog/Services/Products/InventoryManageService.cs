@@ -19,13 +19,15 @@ public class InventoryManageService : IInventoryManageService
         IRepository<InventoryJournal> inventoryJournalRepository,
         IStockQuantityService stockQuantityService,
         IMediator mediator,
-        CatalogSettings catalogSettings)
+        CatalogSettings catalogSettings,
+        IResourceLock resourceLock)
     {
         _productRepository = productRepository;
         _inventoryJournalRepository = inventoryJournalRepository;
         _stockQuantityService = stockQuantityService;
         _mediator = mediator;
         _catalogSettings = catalogSettings;
+        _resourceLock = resourceLock;
     }
 
     #endregion
@@ -37,6 +39,7 @@ public class InventoryManageService : IInventoryManageService
     private readonly IStockQuantityService _stockQuantityService;
     private readonly IMediator _mediator;
     private readonly CatalogSettings _catalogSettings;
+    private readonly IResourceLock _resourceLock;
 
     #endregion
 
@@ -123,7 +126,7 @@ public class InventoryManageService : IInventoryManageService
                 WarehouseId = shipmentItem.WarehouseId
             };
             if (!await CheckExistsInventoryJournal(p1, shipmentItem1))
-                await BookReservedInventory(p1, shipment, shipmentItem1);
+                await BookReservedInventoryCore(p1, shipment, shipmentItem1);
         }
     }
 
@@ -147,7 +150,7 @@ public class InventoryManageService : IInventoryManageService
                 Quantity = shipmentItem.Quantity * attributeValue.Quantity,
                 WarehouseId = shipmentItem.WarehouseId
             };
-            await BookReservedInventory(associatedProduct, shipment, item);
+            await BookReservedInventoryCore(associatedProduct, shipment, item);
         }
     }
 
@@ -251,6 +254,60 @@ public class InventoryManageService : IInventoryManageService
         await _inventoryJournalRepository.InsertAsync(ij);
     }
 
+    /// <summary>
+    ///     The keys of every product a stock write for this product touches: its bundle products and the products
+    ///     associated with the chosen attribute values
+    /// </summary>
+    private static IEnumerable<string> ProductKeys(Product product, IList<CustomAttribute> attributes)
+    {
+        yield return LockKey(product.Id);
+
+        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
+            foreach (var item in product.BundleProducts)
+                yield return LockKey(item.ProductId);
+
+        foreach (var attributeValue in product.ParseProductAttributeValues(attributes))
+            if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)
+                yield return LockKey(attributeValue.AssociatedProductId);
+    }
+
+    private static string LockKey(string productId)
+    {
+        return $"{nameof(Product)}:{productId}";
+    }
+
+    /// <summary>
+    ///     The warehouse to count the stock of: a product kept in one warehouse has all its stock there, also when the
+    ///     order item names the store's default warehouse
+    /// </summary>
+    private static string StockWarehouse(Product product, string warehouseId)
+    {
+        return product.UseMultipleWarehouses ? warehouseId : "";
+    }
+
+    /// <summary>
+    ///     Whether the stored stock covers the quantity, by the rule the shopping cart applies
+    /// </summary>
+    private async Task<bool> IsAvailable(Product product, int quantity, IList<CustomAttribute> attributes,
+        string warehouseId)
+    {
+        if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByBundleProducts)
+            return _stockQuantityService.CheckStock(product, quantity, attributes, StockWarehouse(product, warehouseId))
+                .Covered;
+
+        foreach (var item in product.BundleProducts)
+        {
+            //the cart checks a bundle's product only when it does not allow backorders
+            var p1 = await _productRepository.GetByIdAsync(item.ProductId);
+            if (p1 is not { BackorderModeId: BackorderMode.NoBackorders }) continue;
+            if (!_stockQuantityService.CheckStock(p1, quantity * item.Quantity, attributes,
+                    StockWarehouse(p1, warehouseId)).Covered)
+                return false;
+        }
+
+        return true;
+    }
+
     #endregion
 
     #region Inventory management methods
@@ -267,6 +324,58 @@ public class InventoryManageService : IInventoryManageService
     {
         ArgumentNullException.ThrowIfNull(product);
 
+        if (quantityToChange == 0)
+            return;
+
+        await using var _ = await _resourceLock.Acquire(ProductKeys(product, attributes));
+
+        //the passed product may come from a cache: only its id counts
+        var storedProduct = await _productRepository.GetByIdAsync(product.Id);
+        if (storedProduct == null)
+            return;
+
+        await AdjustReservedCore(storedProduct, quantityToChange, attributes, warehouseId);
+    }
+
+    public virtual async Task<bool> TryReserve(Product product, int quantity, IList<CustomAttribute> attributes,
+        string warehouseId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        await using var _ = await _resourceLock.Acquire(ProductKeys(product, attributes));
+
+        var storedProduct = await _productRepository.GetByIdAsync(product.Id);
+        if (storedProduct == null || !await IsAvailable(storedProduct, quantity, attributes, warehouseId))
+            return false;
+
+        await AdjustReservedCore(storedProduct, -quantity, attributes, warehouseId);
+        return true;
+    }
+
+    public virtual async Task CancelReservation(Product product, int quantity, IList<CustomAttribute> attributes,
+        string warehouseId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        if (quantity == 0)
+            return;
+
+        await using var _ = await _resourceLock.Acquire(ProductKeys(product, attributes));
+
+        var storedProduct = await _productRepository.GetByIdAsync(product.Id);
+        if (storedProduct == null)
+            return;
+
+        await AdjustReservedCore(storedProduct, quantity, attributes, warehouseId, true);
+    }
+
+    /// <summary>
+    ///     Adjusts the reserved inventory of a product read under the lock; never takes the lock itself
+    /// </summary>
+    /// <param name="restoreLowStock">The reservation is given back for an order that was never placed</param>
+    private async Task AdjustReservedCore(Product product, int quantityToChange, IList<CustomAttribute> attributes,
+        string warehouseId, bool restoreLowStock = false)
+    {
         if (quantityToChange == 0)
             return;
 
@@ -328,8 +437,12 @@ public class InventoryManageService : IInventoryManageService
                         break;
                 }
 
-            //qty is increased. product is out of stock (minimum stock quantity is reached again)?
-            if (_catalogSettings.PublishBackProductWhenCancellingOrders)
+            //qty is increased. product is out of stock (minimum stock quantity is reached again)? a reservation given
+            //back for an order that was never placed undoes its own low-stock action, once above the minimum again
+            if (_catalogSettings.PublishBackProductWhenCancellingOrders || (restoreLowStock &&
+                    product.MinStockQuantity <
+                    _stockQuantityService.GetTotalStockQuantity(product,
+                        warehouseId: StockWarehouse(product, warehouseId))))
                 if (quantityToChange > 0 && product.MinStockQuantity >= prevStockQuantity)
                     switch (product.LowStockActivityId)
                     {
@@ -402,7 +515,8 @@ public class InventoryManageService : IInventoryManageService
                 if (p1 is {
                         ManageInventoryMethodId: ManageInventoryMethod.ManageStock
                         or ManageInventoryMethod.ManageStockByAttributes
-                    }) await AdjustReserved(p1, quantityToChange * item.Quantity, attributes, warehouseId);
+                    }) await AdjustReservedCore(p1, quantityToChange * item.Quantity, attributes, warehouseId,
+                    restoreLowStock);
             }
 
         //bundled products
@@ -413,7 +527,8 @@ public class InventoryManageService : IInventoryManageService
             //associated product (bundle)
             var associatedProduct = await _productRepository.GetByIdAsync(attributeValue.AssociatedProductId);
             if (associatedProduct != null)
-                await AdjustReserved(associatedProduct, quantityToChange * attributeValue.Quantity, null, warehouseId);
+                await AdjustReservedCore(associatedProduct, quantityToChange * attributeValue.Quantity, null,
+                    warehouseId, restoreLowStock);
         }
 
         //event notification
@@ -618,6 +733,21 @@ public class InventoryManageService : IInventoryManageService
         ArgumentNullException.ThrowIfNull(shipment);
         ArgumentNullException.ThrowIfNull(shipmentItem);
 
+        await using var _ = await _resourceLock.Acquire(ProductKeys(product, shipmentItem.Attributes));
+
+        //the passed product may come from a cache: only its id counts
+        var storedProduct = await _productRepository.GetByIdAsync(product.Id);
+        if (storedProduct == null)
+            return;
+
+        await BookReservedInventoryCore(storedProduct, shipment, shipmentItem);
+    }
+
+    /// <summary>
+    ///     Books the reserved quantity of a product read under the lock; never takes the lock itself
+    /// </summary>
+    private async Task BookReservedInventoryCore(Product product, Shipment shipment, ShipmentItem shipmentItem)
+    {
         //standard manage stock 
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
             await ManageStockInventory(product, shipmentItem);
@@ -660,6 +790,8 @@ public class InventoryManageService : IInventoryManageService
 
         foreach (var inventoryJournal in inventoryJournals)
         {
+            await using var _ = await _resourceLock.Acquire([LockKey(inventoryJournal.ProductId)]);
+
             var product = await _productRepository.GetByIdAsync(inventoryJournal.ProductId);
             if (product == null)
                 continue;

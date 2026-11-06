@@ -35,6 +35,26 @@ public interface IInventoryManageService
     Task BookReservedInventory(Product product, Shipment shipment, ShipmentItem shipmentItem);
 
     /// <summary>
+    ///     Reserves the quantity, when the stored stock covers it by the rule the shopping cart applies
+    /// </summary>
+    /// <param name="product">Product; only its id is used, the stored product decides</param>
+    /// <param name="quantity">Quantity to reserve</param>
+    /// <param name="attributes">Attributes</param>
+    /// <param name="warehouseId">Warehouse ident</param>
+    /// <returns>False when the stock is short; nothing is reserved then</returns>
+    Task<bool> TryReserve(Product product, int quantity, IList<CustomAttribute> attributes, string warehouseId);
+
+    /// <summary>
+    ///     Gives back a quantity reserved for an order that was never placed; the low-stock action the reservation
+    ///     triggered is undone once the stock is above the minimum again
+    /// </summary>
+    /// <param name="product">Product; only its id is used, the stored product decides</param>
+    /// <param name="quantity">Quantity to give back</param>
+    /// <param name="attributes">Attributes</param>
+    /// <param name="warehouseId">Warehouse ident</param>
+    Task CancelReservation(Product product, int quantity, IList<CustomAttribute> attributes, string warehouseId);
+
+    /// <summary>
     ///     Reverse booked inventory
     /// </summary>
     /// <param name="shipment">Shipment</param>

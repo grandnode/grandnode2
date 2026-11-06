@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Checkout.Extensions;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -16,10 +16,10 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Domain.Discounts;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
@@ -40,7 +40,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly ICountryService _countryService;
     private readonly ICurrencyService _currencyService;
     private readonly ICustomerService _customerService;
-    private readonly IDiscountService _discountService;
     private readonly IGiftVoucherService _giftVoucherService;
     private readonly IGroupService _groupService;
     private readonly IInventoryManageService _inventoryManageService;
@@ -49,6 +48,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly IMediator _mediator;
     private readonly IOrderApprovalService _orderApprovalService;
     private readonly IOrderPlacementService _orderPlacementService;
+    private readonly ICheckoutClaimService _checkoutClaimService;
     private readonly ITranslationService _translationService;
     private readonly ICatalogMessageProviderService _catalogMessageProviderService;
     private readonly IOrderService _orderService;
@@ -91,7 +91,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         ICheckoutAttributeFormatter checkoutAttributeFormatter,
         ITaxService taxService,
         ICustomerService customerService,
-        IDiscountService discountService,
         IGroupService groupService,
         ICatalogMessageProviderService catalogMessageProviderService,
         IVendorService vendorService,
@@ -105,6 +104,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         IShoppingCartValidator shoppingCartValidator,
         IOrderApprovalService orderApprovalService,
         IOrderPlacementService orderPlacementService,
+        ICheckoutClaimService checkoutClaimService,
         ITranslationService translationService,
         ShippingSettings shippingSettings,
         ShoppingCartSettings shoppingCartSettings,
@@ -131,7 +131,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _taxService = taxService;
         _customerService = customerService;
         _groupService = groupService;
-        _discountService = discountService;
         _catalogMessageProviderService = catalogMessageProviderService;
         _vendorService = vendorService;
         _salesEmployeeService = salesEmployeeService;
@@ -144,6 +143,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _shoppingCartValidator = shoppingCartValidator;
         _orderApprovalService = orderApprovalService;
         _orderPlacementService = orderPlacementService;
+        _checkoutClaimService = checkoutClaimService;
         _translationService = translationService;
         _shippingSettings = shippingSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -210,62 +210,90 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 return result;
             }
 
+            details.OrderId = UniqueIdentifier.New;
+            //priced before anything is claimed: a limited discount or a single-use coupon claimed by this order would
+            //no longer apply to its own items
+            var orderItems = await PrepareOrderItems(details);
+
             #region Payment workflow
 
-            var processPayment = await PrepareProcessPayment(details);
+            var paymentTransaction = await PreparePaymentTransaction(details);
+
+            //what the order spends is taken before the payment, so no payment is taken for what is already gone
+            var claim = await _checkoutClaimService.Claim(details, paymentTransaction.OrderCode);
+            if (!claim.Succeeded)
+            {
+                var changed = _translationService.GetResource("ShoppingCart.ChangedDuringCheckout",
+                    command.Language.Id);
+                await _paymentTransactionService.SetError(paymentTransaction.Id, [changed]);
+                result.AddError(changed);
+                return result;
+            }
 
             #endregion
 
-            if (processPayment.paymentResult.Success)
+            var orderInserted = false;
+            try
             {
-                #region Save order details
+                var paymentResult = await ProcessPayment(details, paymentTransaction);
+                if (paymentResult.Success)
+                {
+                    #region Save order details
 
-                var orderHeader = PrepareOrderHeader(processPayment.paymentTransaction, processPayment.paymentResult,
-                    details);
+                    var orderHeader = PrepareOrderHeader(paymentTransaction, paymentResult, details);
 
-                result.PlacedOrder = await SaveOrderDetails(details, orderHeader);
-                result.PaymentTransaction = processPayment.paymentTransaction;
+                    result.PlacedOrder = await SaveOrderDetails(details, orderHeader, orderItems);
+                    //from here on what was claimed belongs to the order
+                    orderInserted = true;
+                    await CompleteOrderDetails(details, result.PlacedOrder);
+                    result.PaymentTransaction = paymentTransaction;
 
-                #endregion
+                    #endregion
 
-                #region Payment transaction
+                    #region Payment transaction
 
-                await UpdatePaymentTransaction(processPayment.paymentTransaction, result.PlacedOrder,
-                    processPayment.paymentResult);
+                    await UpdatePaymentTransaction(paymentTransaction, result.PlacedOrder, paymentResult);
 
-                #endregion
+                    #endregion
 
-                #region Events & notes
+                    #region Events & notes
 
-                await _mediator.Send(new OrderNotificationCommand {
-                    Order = result.PlacedOrder,
-                    Customer = details.Customer,
-                    OriginalCustomerIfImpersonated = command.OriginalCustomerIfImpersonated,
-                    Host = command.Host,
-                    NotifyStoreOwnerAndVendors = !details.ApprovalRequired
-                }, cancellationToken);
+                    await _mediator.Send(new OrderNotificationCommand {
+                        Order = result.PlacedOrder,
+                        Customer = details.Customer,
+                        OriginalCustomerIfImpersonated = command.OriginalCustomerIfImpersonated,
+                        Host = command.Host,
+                        NotifyStoreOwnerAndVendors = !details.ApprovalRequired
+                    }, cancellationToken);
 
-                //check order status
-                await _mediator.Send(new CheckOrderStatusCommand { Order = result.PlacedOrder }, cancellationToken);
+                    //check order status
+                    await _mediator.Send(new CheckOrderStatusCommand { Order = result.PlacedOrder }, cancellationToken);
 
-                //raise event       
-                await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder) {
-                    ApprovalReasons = details.ApprovalReasons.ToList(),
-                    ApprovalStoreDecides = details.ApprovalStoreDecides
-                }, cancellationToken);
+                    //raise event       
+                    await _mediator.Publish(new OrderPlacedEvent(result.PlacedOrder) {
+                        ApprovalReasons = details.ApprovalReasons.ToList(),
+                        ApprovalStoreDecides = details.ApprovalStoreDecides
+                    }, cancellationToken);
 
-                //an order awaiting approval is processed as paid once it is approved (store owner and vendors hear of it then)
-                if (!details.ApprovalRequired && result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)
-                    await _mediator.Send(new ProcessOrderPaidCommand { Order = result.PlacedOrder }, cancellationToken);
+                    //an order awaiting approval is processed as paid once it is approved (store owner and vendors hear of it then)
+                    if (!details.ApprovalRequired && result.PlacedOrder.PaymentStatusId == PaymentStatus.Paid)
+                        await _mediator.Send(new ProcessOrderPaidCommand { Order = result.PlacedOrder }, cancellationToken);
 
-                #endregion
+                    #endregion
+                }
+                else
+                {
+                    await _paymentTransactionService.SetError(paymentTransaction.Id, paymentResult.Errors.ToList());
+                    foreach (var paymentError in paymentResult.Errors)
+                        result.AddError(paymentError);
+                }
             }
-            else
+            finally
             {
-                await _paymentTransactionService.SetError(processPayment.paymentTransaction.Id,
-                    processPayment.paymentResult.Errors.ToList());
-                foreach (var paymentError in processPayment.paymentResult.Errors)
-                    result.AddError(paymentError);
+                //without an inserted order nothing holds what was claimed; an order can be written and still end
+                //in an exception, thrown by a handler of its inserted event
+                if (!orderInserted && await _orderService.GetOrderById(details.OrderId) == null)
+                    await _checkoutClaimService.Release(claim);
             }
         }
         catch (Exception exc)
@@ -293,12 +321,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         return result;
     }
 
-    protected virtual async Task<(ProcessPaymentResult paymentResult, PaymentTransaction paymentTransaction)>
-        PrepareProcessPayment(PlaceOrderContainer details)
+    protected virtual async Task<ProcessPaymentResult> ProcessPayment(PlaceOrderContainer details,
+        PaymentTransaction paymentTransaction)
     {
-        //payment transaction
-        var paymentTransaction = await PreparePaymentTransaction(details);
-
         //process payment
         ProcessPaymentResult processPaymentResult;
         //skip payment workflow if order total equals zero
@@ -327,10 +352,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         if (processPaymentResult == null)
             throw new GrandException("processPaymentResult is not available");
 
-        return (processPaymentResult, paymentTransaction);
+        return processPaymentResult;
     }
 
-    private async Task<PaymentTransaction> PreparePaymentTransaction(PlaceOrderContainer details)
+    protected virtual async Task<PaymentTransaction> PreparePaymentTransaction(PlaceOrderContainer details)
     {
         var update = false;
         var paymentTransaction = new PaymentTransaction();
@@ -685,6 +710,23 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         return details;
     }
 
+    /// <summary>
+    ///     A cart line priced as an order item
+    /// </summary>
+    protected record PreparedOrderItem(ShoppingCartItem ShoppingCartItem, Product Product, OrderItem OrderItem);
+
+    protected virtual async Task<IList<PreparedOrderItem>> PrepareOrderItems(PlaceOrderContainer details)
+    {
+        var orderItems = new List<PreparedOrderItem>();
+        foreach (var sc in details.Cart)
+        {
+            var product = await _productService.GetProductById(sc.ProductId);
+            orderItems.Add(new PreparedOrderItem(sc, product, await PrepareOrderItem(sc, product, details)));
+        }
+
+        return orderItems;
+    }
+
     protected virtual async Task<OrderItem> PrepareOrderItem(ShoppingCartItem sc, Product product,
         PlaceOrderContainer details)
     {
@@ -718,12 +760,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             await _productAttributeFormatter.FormatAttributes(product, sc.Attributes, details.Context,
                 details.WorkingLanguage, details.Host);
         var itemWeight = await GetShoppingCartItemWeight(sc);
-        var warehouseId = !string.IsNullOrEmpty(sc.WarehouseId)
-            ? sc.WarehouseId
-            : details.Store.DefaultWarehouseId;
-        if (!product.UseMultipleWarehouses && string.IsNullOrEmpty(warehouseId))
-            if (!string.IsNullOrEmpty(product.WarehouseId))
-                warehouseId = product.WarehouseId;
+        var warehouseId = OrderItemWarehouse.Resolve(sc, product, details.Store.DefaultWarehouseId);
 
         var commissionRate = await PrepareCommissionRate(product, details);
         var commission = commissionRate.HasValue ? Math.Round(commissionRate.Value * scSubTotal / 100, 2) : 0;
@@ -903,36 +940,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         }
     }
 
-    protected virtual async Task InsertDiscountUsageHistory(Order order, PlaceOrderContainer details)
-    {
-        foreach (var discount in details.AppliedDiscounts)
-        {
-            var duh = new DiscountUsageHistory {
-                DiscountId = discount.DiscountId,
-                CouponCode = discount.CouponCode,
-                OrderId = order.Id,
-                CustomerId = order.CustomerId
-            };
-            await _discountService.InsertDiscountUsageHistory(duh);
-        }
-    }
-
-    protected virtual async Task AppliedGiftVouchers(Order order, PlaceOrderContainer details)
-    {
-        foreach (var agc in details.AppliedGiftVouchers)
-        {
-            var amountUsed = agc.AmountCanBeUsed;
-            var giftVoucherUsageHistory = new GiftVoucherUsageHistory {
-                GiftVoucherId = agc.GiftVoucher.Id,
-                UsedWithOrderId = order.Id,
-                UsedValue = amountUsed,
-                CreatedOnUtc = DateTime.UtcNow
-            };
-            agc.GiftVoucher.GiftVoucherUsageHistory.Add(giftVoucherUsageHistory);
-            await _giftVoucherService.UpdateGiftVoucher(agc.GiftVoucher);
-        }
-    }
-
     /// <summary>
     ///     Prepare order header
     /// </summary>
@@ -953,6 +960,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
 
         var order = new Order {
+            Id = details.OrderId,
             StoreId = paymentTransaction.StoreId,
             OrderGuid = paymentTransaction.OrderGuid,
             Code = paymentTransaction.OrderCode,
@@ -1031,16 +1039,14 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     /// </summary>
     /// <param name="details">Place order container</param>
     /// <param name="order">Order</param>
+    /// <param name="orderItems">Order items, priced before the claim</param>
     /// <returns>Order</returns>
-    protected virtual async Task<Order> SaveOrderDetails(PlaceOrderContainer details, Order order)
+    protected virtual async Task<Order> SaveOrderDetails(PlaceOrderContainer details, Order order,
+        IList<PreparedOrderItem> orderItems)
     {
         //move shopping cart items to order items
-        foreach (var sc in details.Cart)
+        foreach (var (sc, product, orderItem) in orderItems)
         {
-            var product = await _productService.GetProductById(sc.ProductId);
-
-            var orderItem = await PrepareOrderItem(sc, product, details);
-
             order.OrderItems.Add(orderItem);
 
             //gift vouchers
@@ -1048,9 +1054,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
             //update auction ended
             await UpdateAuctionEnded(sc, product, order);
-
-            //inventory
-            await _inventoryManageService.AdjustReserved(product, -sc.Quantity, sc.Attributes, orderItem.WarehouseId);
 
             //update sold - statistics only: the payment is already processed, so a failed write must not stop the order
             try
@@ -1066,6 +1069,16 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //insert order
         await _orderService.InsertOrder(order);
 
+        return order;
+    }
+
+    /// <summary>
+    ///     What follows the inserted order
+    /// </summary>
+    /// <param name="details">Place order container</param>
+    /// <param name="order">Order</param>
+    protected virtual async Task CompleteOrderDetails(PlaceOrderContainer details, Order order)
+    {
         //update reservation
         await UpdateProductReservation(order, details);
 
@@ -1075,16 +1088,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //clear shopping cart
         await _customerService.ClearShoppingCartItem(order.CustomerId, details.Cart);
 
-        //discount usage history
-        await InsertDiscountUsageHistory(order, details);
-
-        //gift voucher usage history
-        if (details.AppliedGiftVouchers != null)
-            await AppliedGiftVouchers(order, details);
-
         //reset checkout data
         await _customerService.ResetCheckoutData(details.Customer, order.StoreId, true, true);
-
-        return order;
     }
 }
