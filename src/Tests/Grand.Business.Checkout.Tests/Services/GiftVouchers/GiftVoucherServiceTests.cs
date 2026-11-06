@@ -105,6 +105,22 @@ public class GiftVoucherServiceTests
     }
 
     [TestMethod]
+    public async Task CancelRedemption_PublishesTheUpdate()
+    {
+        var repository = new MongoDBRepositoryTest<GiftVoucher>();
+        var mediator = new Mock<IMediator>();
+        var service = new GiftVoucherService(repository, mediator.Object, new MongoResourceLockTest());
+        var giftVoucher = await InsertVoucher(repository, 100);
+        await service.TryRedeem(giftVoucher.Id, 10, "o1");
+        mediator.Invocations.Clear();
+
+        await service.CancelRedemption(giftVoucher.Id, "o1");
+
+        mediator.Verify(x => x.Publish(It.Is<EntityUpdated<GiftVoucher>>(e =>
+            e.Entity.Id == giftVoucher.Id && e.Entity.GiftVoucherUsageHistory.Count == 0), default), Times.Once);
+    }
+
+    [TestMethod]
     public async Task CancelRedemption_RemovesOnlyThatOrdersEntry()
     {
         var (repository, service) = StoredVouchers();

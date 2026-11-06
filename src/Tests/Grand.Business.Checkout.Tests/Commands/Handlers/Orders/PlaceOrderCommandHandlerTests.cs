@@ -134,6 +134,8 @@ public class PlaceOrderCommandHandlerTests
 
     private const string ChangedText = "Some items are no longer available";
 
+    private Mock<IPaymentTransactionService> _paymentTransactions;
+
     private (ClaimTestHandler handler, Mock<ICheckoutClaimService> claims, Mock<IOrderService> orders,
         Mock<IInventoryManageService> inventory, Mock<IGiftVoucherService> giftVouchers,
         Mock<ICustomerService> customers, PlaceOrderContainer details, List<string> calls) ClaimSetup()
@@ -180,9 +182,11 @@ public class PlaceOrderCommandHandlerTests
         translation.Setup(x => x.GetResource("ShoppingCart.ChangedDuringCheckout", "pl", It.IsAny<string>(),
             It.IsAny<bool>())).Returns(ChangedText);
 
+        _paymentTransactions = new Mock<IPaymentTransactionService>();
+
         var handler = new ClaimTestHandler(details, calls, orders.Object, products.Object, inventory.Object,
             giftVouchers.Object, customers.Object, reservations.Object, placement.Object, claims.Object,
-            translation.Object);
+            translation.Object, _paymentTransactions.Object);
         return (handler, claims, orders, inventory, giftVouchers, customers, details, calls);
     }
 
@@ -206,6 +210,35 @@ public class PlaceOrderCommandHandlerTests
         CollectionAssert.Contains(result.Errors.ToList(), ChangedText);
         Assert.AreEqual(0, handler.PaymentCalls);
         orders.Verify(x => x.InsertOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_ClaimRefused_RecordsWhyOnThePaymentTransaction()
+    {
+        var (handler, claims, _, _, _, _, details, _) = ClaimSetup();
+        claims.Setup(x => x.Claim(It.IsAny<PlaceOrderContainer>(), It.IsAny<string>()))
+            .ReturnsAsync(new CheckoutClaim { Succeeded = false });
+
+        await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        _paymentTransactions.Verify(x => x.SetError("tx", It.Is<List<string>>(e => e.Contains(ChangedText))),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_OrderInsertedButItsNotificationThrows_KeepsClaim()
+    {
+        var (handler, claims, orders, _, _, _, details, _) = ClaimSetup();
+        Order inserted = null;
+        //the order is written, then a handler of its inserted event throws out of InsertOrder
+        orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o)
+            .ThrowsAsync(new Exception("handler failed"));
+        orders.Setup(x => x.GetOrderById(It.IsAny<string>()))
+            .ReturnsAsync((string id) => inserted?.Id == id ? inserted : null);
+
+        await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        claims.Verify(x => x.Release(It.IsAny<CheckoutClaim>()), Times.Never);
     }
 
     [TestMethod]
@@ -293,9 +326,10 @@ public class PlaceOrderCommandHandlerTests
             IProductService productService, IInventoryManageService inventoryManageService,
             IGiftVoucherService giftVoucherService, ICustomerService customerService,
             IProductReservationService productReservationService, IOrderPlacementService orderPlacementService,
-            ICheckoutClaimService checkoutClaimService, ITranslationService translationService) : base(orderService,
+            ICheckoutClaimService checkoutClaimService, ITranslationService translationService,
+            IPaymentTransactionService paymentTransactionService) : base(orderService,
             new Mock<ILanguageService>().Object, productService, inventoryManageService,
-            new Mock<IPaymentService>().Object, new Mock<IPaymentTransactionService>().Object,
+            new Mock<IPaymentService>().Object, paymentTransactionService,
             new Mock<ILogger<PlaceOrderCommandHandler>>().Object, new Mock<IOrderCalculationService>().Object,
             new Mock<IShoppingCartSubTotalService>().Object, new Mock<IShoppingCartShippingService>().Object,
             new Mock<IShoppingCartTaxService>().Object, new Mock<IPricingService>().Object,

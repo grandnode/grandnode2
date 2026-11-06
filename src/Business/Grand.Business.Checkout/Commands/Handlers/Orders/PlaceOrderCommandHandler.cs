@@ -223,8 +223,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             var claim = await _checkoutClaimService.Claim(details, paymentTransaction.OrderCode);
             if (!claim.Succeeded)
             {
-                result.AddError(_translationService.GetResource("ShoppingCart.ChangedDuringCheckout",
-                    command.Language.Id));
+                var changed = _translationService.GetResource("ShoppingCart.ChangedDuringCheckout",
+                    command.Language.Id);
+                await _paymentTransactionService.SetError(paymentTransaction.Id, [changed]);
+                result.AddError(changed);
                 return result;
             }
 
@@ -241,7 +243,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                     var orderHeader = PrepareOrderHeader(paymentTransaction, paymentResult, details);
 
                     result.PlacedOrder = await SaveOrderDetails(details, orderHeader, orderItems);
-                    //from here on the claim belongs to the order: cancelling or deleting it gives everything back
+                    //from here on what was claimed belongs to the order
                     orderInserted = true;
                     await CompleteOrderDetails(details, result.PlacedOrder);
                     result.PaymentTransaction = paymentTransaction;
@@ -288,8 +290,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             }
             finally
             {
-                //without an inserted order nothing holds what was claimed
-                if (!orderInserted)
+                //without an inserted order nothing holds what was claimed; an order can be written and still end
+                //in an exception, thrown by a handler of its inserted event
+                if (!orderInserted && await _orderService.GetOrderById(details.OrderId) == null)
                     await _checkoutClaimService.Release(claim);
             }
         }

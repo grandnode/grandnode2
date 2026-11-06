@@ -129,6 +129,34 @@ public class InventoryManageServiceTests
     }
 
     [TestMethod]
+    public async Task TryReserve_SingleWarehouseProductElsewhereThanTheGivenWarehouse_UsesItsStock()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            WarehouseId = "w1",
+            StockQuantity = 5
+        };
+        await _repository.InsertAsync(product);
+
+        //the order item falls back to the store's default warehouse w2
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, null, "w2"));
+        Assert.AreEqual(1, Stored(product).ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_SingleWarehouseCombinationElsewhereThanTheGivenWarehouse_UsesItsStock()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes, WarehouseId = "w1"
+        };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { StockQuantity = 5 });
+        await _repository.InsertAsync(product);
+
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, new List<CustomAttribute>(), "w2"));
+    }
+
+    [TestMethod]
     public async Task TryReserve_BundleChildOutOfStock_ReturnsFalse()
     {
         var child = new Product {

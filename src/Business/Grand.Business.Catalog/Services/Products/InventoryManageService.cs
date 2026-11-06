@@ -277,6 +277,15 @@ public class InventoryManageService : IInventoryManageService
     }
 
     /// <summary>
+    ///     The warehouse to count the stock of: a product kept in one warehouse has all its stock there, also when the
+    ///     order item names the store's default warehouse
+    /// </summary>
+    private static string StockWarehouse(Product product, string warehouseId)
+    {
+        return product.UseMultipleWarehouses ? warehouseId : "";
+    }
+
+    /// <summary>
     ///     Whether the stored stock covers the quantity, by the rule the shopping cart applies
     /// </summary>
     private async Task<bool> IsAvailable(Product product, int quantity, IList<CustomAttribute> attributes,
@@ -286,13 +295,15 @@ public class InventoryManageService : IInventoryManageService
         {
             case ManageInventoryMethod.ManageStock:
                 return product.BackorderModeId != BackorderMode.NoBackorders ||
-                       _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId) >= quantity;
+                       _stockQuantityService.GetTotalStockQuantity(product,
+                           warehouseId: StockWarehouse(product, warehouseId)) >= quantity;
             case ManageInventoryMethod.ManageStockByAttributes:
             {
                 var combination = product.FindProductAttributeCombination(attributes);
                 return combination != null && (combination.AllowOutOfStockOrders ||
                                                _stockQuantityService.GetTotalStockQuantityForCombination(product,
-                                                   combination, warehouseId: warehouseId) >= quantity);
+                                                   combination,
+                                                   warehouseId: StockWarehouse(product, warehouseId)) >= quantity);
             }
             case ManageInventoryMethod.ManageStockByBundleProducts:
                 foreach (var item in product.BundleProducts)
@@ -446,7 +457,8 @@ public class InventoryManageService : IInventoryManageService
             //back for an order that was never placed undoes its own low-stock action, once above the minimum again
             if (_catalogSettings.PublishBackProductWhenCancellingOrders || (restoreLowStock &&
                     product.MinStockQuantity <
-                    _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId)))
+                    _stockQuantityService.GetTotalStockQuantity(product,
+                        warehouseId: StockWarehouse(product, warehouseId))))
                 if (quantityToChange > 0 && product.MinStockQuantity >= prevStockQuantity)
                     switch (product.LowStockActivityId)
                     {

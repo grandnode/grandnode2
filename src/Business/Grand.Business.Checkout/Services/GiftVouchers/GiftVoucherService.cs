@@ -175,6 +175,11 @@ public class GiftVoucherService : IGiftVoucherService
 
         await _giftVoucherRepository.RemoveCollectionFieldItem(giftVoucherId, x => x.GiftVoucherUsageHistory,
             x => x.UsedWithOrderId == orderId);
+
+        //event notification
+        var giftVoucher = await _giftVoucherRepository.GetByIdAsync(giftVoucherId);
+        if (giftVoucher != null)
+            await _mediator.EntityUpdated(giftVoucher);
     }
 
     /// <summary>
