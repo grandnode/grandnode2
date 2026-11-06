@@ -49,7 +49,8 @@ public abstract class BaseInventoryDocumentController(
     {
         var storeId = await warehouseScope.GetDefaultStoreIdAsync();
         return document != null && (storeId == null || document.StoreId == storeId) &&
-               await CanUse(document.WarehouseId) && await CanUse(document.TargetWarehouseId);
+               await CanUse(document.WarehouseId) && await CanUse(document.TargetWarehouseId) &&
+               await inventoryDocumentViewModelService.LinesAccessible(document);
     }
 
     private IActionResult Denied()

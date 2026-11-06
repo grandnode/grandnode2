@@ -179,6 +179,19 @@ public class InventoryDocumentControllerTests
     }
 
     [TestMethod]
+    public async Task Store_Post_DocumentWithOtherStoreProduct_AccessDenied()
+    {
+        var document = Stored(StoreId, "w-own");
+        var product = new Product();
+        document.Lines.Add(new InventoryDocumentLine { ProductId = product.Id, Quantity = 1 });
+        _productService.Setup(x => x.GetProductById(product.Id, false)).ReturnsAsync(product);
+        _productScope.Setup(x => x.HasAccess(product)).ReturnsAsync(false);
+
+        AssertRedirectedTo(await _controller.Post(document.Id), "List");
+        _documentService.Verify(x => x.Post(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Store_List_FiltersByStaffStore()
     {
         await _viewModelService.PrepareRows(new InventoryDocumentListModel(), 0, 10);

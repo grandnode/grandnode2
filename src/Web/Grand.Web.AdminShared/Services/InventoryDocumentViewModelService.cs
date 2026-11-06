@@ -41,6 +41,11 @@ public interface IInventoryDocumentViewModelService
     ///     The translated messages of the keys a service returned
     /// </summary>
     IList<string> Translate(IEnumerable<string> keys);
+
+    /// <summary>
+    ///     Whether every product on the document passes the panel's product access check
+    /// </summary>
+    Task<bool> LinesAccessible(InventoryDocument document);
 }
 
 public class InventoryDocumentViewModelService(
@@ -214,6 +219,20 @@ public class InventoryDocumentViewModelService(
         }
 
         return errors;
+    }
+
+    public async Task<bool> LinesAccessible(InventoryDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        foreach (var productId in document.Lines.Select(x => x.ProductId).Distinct())
+        {
+            var product = await productService.GetProductById(productId);
+            if (product != null && !await productScope.HasAccess(product))
+                return false;
+        }
+
+        return true;
     }
 
     public IList<string> Translate(IEnumerable<string> keys)
