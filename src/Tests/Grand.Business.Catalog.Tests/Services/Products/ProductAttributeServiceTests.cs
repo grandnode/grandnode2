@@ -64,6 +64,33 @@ public class ProductAttributeServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateProductAttributeCombination_EmptyRowLeftOut_IsRemovedAndNewRowStartsEmpty()
+    {
+        var combination = new ProductAttributeCombination {
+            WarehouseInventory = {
+                new ProductCombinationWarehouseInventory { WarehouseId = "w1" },
+                new ProductCombinationWarehouseInventory { WarehouseId = "w2", StockQuantity = 3 }
+            }
+        };
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes, UseMultipleWarehouses = true,
+            ProductAttributeCombinations = { combination }
+        };
+        await _repository.InsertAsync(product);
+
+        var edited = new ProductAttributeCombination {
+            Id = combination.Id,
+            WarehouseInventory = { new ProductCombinationWarehouseInventory { WarehouseId = "w3", StockQuantity = 9 } }
+        };
+        await _productAttributeService.UpdateProductAttributeCombination(edited, product.Id);
+
+        var rows = _repository.Table.First(x => x.Id == product.Id).ProductAttributeCombinations.Single()
+            .WarehouseInventory.OrderBy(x => x.WarehouseId).ToList();
+        CollectionAssert.AreEqual(new[] { "w2", "w3" }, rows.Select(x => x.WarehouseId).ToArray());
+        CollectionAssert.AreEqual(new[] { 3, 0 }, rows.Select(x => x.StockQuantity).ToArray());
+    }
+
+    [TestMethod]
     public async Task InsertProductAttributeCombination_WithStock_InsertedWithoutStock()
     {
         var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes };

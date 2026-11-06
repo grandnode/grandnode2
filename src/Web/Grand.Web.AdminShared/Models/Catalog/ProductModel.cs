@@ -225,6 +225,14 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ReservedQuantity")]
     public int ReservedQuantity { get; set; }
 
+    //the stock the form showed: only a value changed since is applied
+    public int OriginalStockQuantity { get; set; }
+
+    public int OriginalReservedQuantity { get; set; }
+
+    //the stock fields are read-only: stock changes only through inventory documents
+    public bool StockChangesOnlyThroughDocuments { get; set; }
+
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.StockQuantity")]
     public string StockQuantityStr { get; set; }
 
@@ -743,6 +751,10 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
 
         [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity")]
         public int ReservedQuantity { get; set; }
+
+        public int OriginalStockQuantity { get; set; }
+
+        public int OriginalReservedQuantity { get; set; }
     }
 
     public class ReservationModel : BaseEntityModel

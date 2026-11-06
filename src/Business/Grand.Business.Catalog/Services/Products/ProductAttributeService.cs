@@ -387,9 +387,17 @@ public class ProductAttributeService : IProductAttributeService
             {
                 combination.StockQuantity = stored.StockQuantity;
                 combination.ReservedQuantity = stored.ReservedQuantity;
+
+                //the passed rows say which warehouses are used: a new one starts empty, and a stored one that is
+                //left out goes only when it holds nothing
+                var usedWarehouses = combination.WarehouseInventory.Select(x => x.WarehouseId).ToList();
                 combination.WarehouseInventory.Clear();
-                foreach (var row in stored.WarehouseInventory)
+                foreach (var row in stored.WarehouseInventory.Where(x =>
+                             usedWarehouses.Contains(x.WarehouseId) || x.StockQuantity != 0 || x.ReservedQuantity != 0))
                     combination.WarehouseInventory.Add(row);
+                foreach (var warehouseId in usedWarehouses.Except(stored.WarehouseInventory.Select(x => x.WarehouseId)))
+                    combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory
+                        { WarehouseId = warehouseId });
             }
 
             await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);

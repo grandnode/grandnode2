@@ -10,8 +10,11 @@ public interface IProductViewModelService
     Task PrepareProductReviewModel(ProductReviewModel model, ProductReview productReview, bool excludeProperties,
         bool formatReviewText);
 
-    Task OutOfStockNotifications(Product product, int prevStockQuantity,
-        List<ProductWarehouseInventory> prevMultiWarehouseStock);
+    /// <summary>
+    ///     The error to show when the form changes stock while stock changes only through inventory documents; null
+    ///     when the change is allowed
+    /// </summary>
+    Task<string> StockChangeRefused(ProductModel model);
 
     Task SaveProductWarehouseInventory(Product product, IList<ProductModel.ProductWarehouseInventoryModel> model);
     Task<ProductListModel> PrepareProductListModel();

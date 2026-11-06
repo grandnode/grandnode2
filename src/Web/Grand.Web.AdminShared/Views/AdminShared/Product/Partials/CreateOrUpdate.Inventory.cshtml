@@ -12,9 +12,17 @@
         <admin-field asp-for="ManageInventoryMethodId" asp-items="EnumTranslationService.ToSelectList((ManageInventoryMethod)Model.ManageInventoryMethodId)"/>
         <admin-field asp-for="WarehouseId" id="pnlWarehouse" asp-items="Model.AvailableWarehouses"/>
         @* the quantity and the unit it is counted in are one answer *@
+        @* the stock the form showed: a value is saved only when it changed. A read-only field is
+           disabled, which posts nothing, so its value goes along hidden *@
+        <input type="hidden" asp-for="OriginalStockQuantity"/>
+        <input type="hidden" asp-for="OriginalReservedQuantity"/>
+        @if (Model.StockChangesOnlyThroughDocuments)
+        {
+            <input type="hidden" name="@Html.NameFor(m => m.StockQuantity)" value="@Model.StockQuantity"/>
+        }
         <admin-field asp-for="StockQuantity" id="pnlStockQuantity">
             <div class="input-group grand-unit-group">
-                <admin-input asp-for="StockQuantity"/>
+                <admin-input asp-for="StockQuantity" asp-disabled="@(Model.StockChangesOnlyThroughDocuments ? "true" : "false")"/>
                 <admin-select asp-for="UnitId" asp-items="Model.AvailableUnits"/>
             </div>
         </admin-field>
@@ -49,12 +57,19 @@
                                         <td>
                                             @item.WarehouseName (@item.WarehouseCode)
                                             <input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseId" type="hidden"/>
+                                            <input asp-for="@Model.ProductWarehouseInventoryModels[i].OriginalStockQuantity" type="hidden"/>
+                                            <input asp-for="@Model.ProductWarehouseInventoryModels[i].OriginalReservedQuantity" type="hidden"/>
+                                            @if (Model.StockChangesOnlyThroughDocuments)
+                                            {
+                                                <input type="hidden" name="@Html.NameFor(m => m.ProductWarehouseInventoryModels[i].WarehouseUsed)" value="@item.WarehouseUsed.ToString().ToLowerInvariant()"/>
+                                                <input type="hidden" name="@Html.NameFor(m => m.ProductWarehouseInventoryModels[i].StockQuantity)" value="@item.StockQuantity"/>
+                                            }
                                         </td>
                                         <td class="text-center">
-                                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseUsed" class="form-check-input"/>
+                                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].WarehouseUsed" class="form-check-input" asp-disabled="@(Model.StockChangesOnlyThroughDocuments ? "true" : "false")"/>
                                         </td>
                                         <td>
-                                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].StockQuantity"/>
+                                            <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].StockQuantity" asp-disabled="@(Model.StockChangesOnlyThroughDocuments ? "true" : "false")"/>
                                         </td>
                                         <td>
                                             <admin-input asp-for="@Model.ProductWarehouseInventoryModels[i].ReservedQuantity"/>

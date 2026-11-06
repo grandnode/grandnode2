@@ -94,6 +94,9 @@ public abstract class BaseProductController(
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Create(ProductModel model, bool continueEditing)
     {
+        if (await productViewModelService.StockChangeRefused(model) is { } stockRefused)
+            ModelState.AddModelError("", stockRefused);
+
         if (ModelState.IsValid)
         {
             if (scope.DefaultStoreId is not null)
@@ -162,6 +165,10 @@ public abstract class BaseProductController(
             Error(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Fields.ChangedWarning"));
             return RedirectToAction("Edit", new { id = product.Id, popup });
         }
+
+        //the server is the guard, not the read-only fields
+        if (await productViewModelService.StockChangeRefused(model) is { } stockRefused)
+            ModelState.AddModelError("", stockRefused);
 
         if (ModelState.IsValid)
         {

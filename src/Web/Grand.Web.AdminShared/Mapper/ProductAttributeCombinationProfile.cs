@@ -12,7 +12,10 @@ public class ProductAttributeCombinationProfile : Profile, IAutoMapperProfile
         CreateMap<ProductAttributeCombination, ProductAttributeCombinationModel>()
             .ForMember(dest => dest.UseMultipleWarehouses, mo => mo.Ignore())
             .ForMember(dest => dest.PrimaryStoreCurrencyCode, mo => mo.Ignore())
-            .ForMember(dest => dest.WarehouseInventoryModels, mo => mo.Ignore());
+            .ForMember(dest => dest.WarehouseInventoryModels, mo => mo.Ignore())
+            .ForMember(dest => dest.OriginalStockQuantity, mo => mo.Ignore())
+            .ForMember(dest => dest.OriginalReservedQuantity, mo => mo.Ignore())
+            .ForMember(dest => dest.StockChangesOnlyThroughDocuments, mo => mo.Ignore());
         CreateMap<ProductAttributeCombinationModel, ProductAttributeCombination>()
             .ForMember(dest => dest.WarehouseInventory, mo => mo.Ignore())
             .ForMember(dest => dest.Id, mo => mo.Ignore());

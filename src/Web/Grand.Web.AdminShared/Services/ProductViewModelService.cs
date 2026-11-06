@@ -3,9 +3,11 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -13,6 +15,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
 using Grand.Domain.Seo;
@@ -31,7 +34,6 @@ namespace Grand.Web.AdminShared.Services;
 
 public class ProductViewModelService(
     IProductService productService,
-    IInventoryManageService inventoryManageService,
     IPictureService pictureService,
     IProductAttributeService productAttributeService,
     IProductTagService productTagService,
@@ -50,7 +52,6 @@ public class ProductViewModelService(
     IDiscountService discountService,
     ICustomerService customerService,
     IStoreService storeService,
-    IOutOfStockSubscriptionService outOfStockSubscriptionService,
     IDownloadService downloadService,
     IStockQuantityService stockQuantityService,
     CurrencySettings currencySettings,
@@ -59,41 +60,31 @@ public class ProductViewModelService(
     SeoSettings seoSettings,
     ISeNameService seNameService,
     IEnumTranslationService enumTranslationService,
-    IAdminDataScope<Product> scope)
+    IAdminDataScope<Product> scope,
+    IStockMovementService stockMovementService,
+    ISettingService settingService)
     : IProductViewModelService
 {
-    public virtual async Task OutOfStockNotifications(Product product, int prevStockQuantity,
-        List<ProductWarehouseInventory> prevMultiWarehouseStock
-    )
+    private StockSource ManualEditSource(Product product)
     {
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
-            product.BackorderModeId == BackorderMode.NoBackorders &&
-            product.AllowOutOfStockSubscriptions &&
-            stockQuantityService.GetTotalStockQuantity(product, total: true) > 0 &&
-            prevStockQuantity <= 0 && !product.UseMultipleWarehouses &&
-            product.Published)
-            await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
-            product.BackorderModeId == BackorderMode.NoBackorders &&
-            product.AllowOutOfStockSubscriptions &&
-            product.UseMultipleWarehouses &&
-            product.Published)
-        {
-            foreach (var prevstock in prevMultiWarehouseStock)
-                if (prevstock.StockQuantity - prevstock.ReservedQuantity <= 0)
-                {
-                    var actualStock =
-                        product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == prevstock.WarehouseId);
-                    if (actualStock != null)
-                        if (actualStock.StockQuantity - actualStock.ReservedQuantity > 0)
-                            await outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
-                                prevstock.WarehouseId);
-                }
+        return new StockSource(nameof(Product), product.Id, Reference: product.Sku ?? "",
+            CustomerId: contextAccessor.WorkContext.CurrentCustomer.Id);
+    }
 
-            if (product.ProductWarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) > 0)
-                if (prevMultiWarehouseStock.Sum(x => x.StockQuantity - x.ReservedQuantity) <= 0)
-                    await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
-        }
+    public virtual async Task<string> StockChangeRefused(ProductModel model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        if (!(await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments)
+            return null;
+
+        //an unticked warehouse gives up the stock it held
+        var changed = model.StockQuantity != model.OriginalStockQuantity ||
+                      model.ProductWarehouseInventoryModels.Any(x =>
+                          (x.WarehouseUsed ? x.StockQuantity : 0) != x.OriginalStockQuantity);
+        return changed
+            ? translationService.GetResource("Admin.Catalog.Products.StockChangesOnlyThroughDocuments")
+            : null;
     }
 
     public virtual async Task PrepareProductModel(ProductModel model, Product product,
@@ -104,6 +95,15 @@ public class ProductViewModelService(
         model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
         model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
         model.BaseDimensionIn = (await measureService.GetMeasureDimensionById(measureSettings.BaseDimensionId))?.Name;
+        model.StockChangesOnlyThroughDocuments =
+            (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments;
+
+        //the stock the form shows: only a value changed since is applied when it is saved
+        if (product != null && !excludeProperties)
+        {
+            model.OriginalStockQuantity = product.StockQuantity;
+            model.OriginalReservedQuantity = product.ReservedQuantity;
+        }
 
         if (product != null)
         {
@@ -193,6 +193,8 @@ public class ProductViewModelService(
                     pwiModel.WarehouseUsed = true;
                     pwiModel.StockQuantity = pwi.StockQuantity;
                     pwiModel.ReservedQuantity = pwi.ReservedQuantity;
+                    pwiModel.OriginalStockQuantity = pwi.StockQuantity;
+                    pwiModel.OriginalReservedQuantity = pwi.ReservedQuantity;
                 }
             }
 
@@ -291,44 +293,34 @@ public class ProductViewModelService(
 
         var warehouses = await warehouseService.GetAllWarehouses(product.Stores.Count == 1 ? product.Stores.First() : null);
 
+        var changes = new List<StockChange>();
         foreach (var warehouse in warehouses)
         {
             var whim = model.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
             var existingPwI = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
-            if (existingPwI != null)
+            if (existingPwI != null && whim is not { WarehouseUsed: true })
             {
-                if (whim is { WarehouseUsed: true })
-                {
-                    //update existing record
-                    existingPwI.StockQuantity = whim.StockQuantity;
-                    existingPwI.ReservedQuantity = whim.ReservedQuantity;
-                    await productService.UpdateProductWarehouseInventory(existingPwI, product.Id);
-                }
-                else
-                {
-                    //delete. no need to store record for qty 0
-                    await productService.DeleteProductWarehouseInventory(existingPwI, product.Id);
-                }
+                //the stock the row holds is booked out of the journal first
+                await productService.DeleteProductWarehouseInventory(existingPwI, product.Id);
+                continue;
             }
-            else
-            {
-                if (whim is { WarehouseUsed: true })
-                {
-                    //no need to insert a record for qty 0
-                    existingPwI = new ProductWarehouseInventory {
-                        WarehouseId = warehouse.Id,
-                        StockQuantity = whim.StockQuantity,
-                        ReservedQuantity = whim.ReservedQuantity
-                    };
-                    product.ProductWarehouseInventory.Add(existingPwI);
-                    await productService.InsertProductWarehouseInventory(existingPwI, product.Id);
-                }
-            }
+
+            if (whim is not { WarehouseUsed: true })
+                continue;
+
+            //a row marks the warehouse as used, also while it holds nothing
+            if (existingPwI == null)
+                await productService.InsertProductWarehouseInventory(
+                    new ProductWarehouseInventory { WarehouseId = warehouse.Id }, product.Id);
+
+            var change = StockFormChange.Of([], warehouse.Id, whim.StockQuantity, whim.OriginalStockQuantity,
+                whim.ReservedQuantity, whim.OriginalReservedQuantity, ManualEditSource(product));
+            if (change != null)
+                changes.Add(change);
         }
 
-        product.StockQuantity = product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
-        product.ReservedQuantity = product.ProductWarehouseInventory.Sum(x => x.ReservedQuantity);
-        await inventoryManageService.UpdateStockProduct(product, false);
+        if (changes.Count > 0)
+            await stockMovementService.Apply(product.Id, changes);
     }
 
     public virtual async Task PrepareProductReviewModel(ProductReviewModel model,
@@ -599,6 +591,9 @@ public class ProductViewModelService(
         product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
         product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
 
+        //the stock the product starts with goes into the journal before the product exists
+        await stockMovementService.JournalNewProduct(product, InventoryMovementType.ManualEdit,
+            ManualEditSource(product));
         await productService.InsertProduct(product);
 
         //search engine name
@@ -617,10 +612,6 @@ public class ProductViewModelService(
 
     public virtual async Task<Product> UpdateProductModel(Product product, ProductModel model)
     {
-        var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
-        var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory { WarehouseId = i.WarehouseId, StockQuantity = i.StockQuantity, ReservedQuantity = i.ReservedQuantity })
-            .ToList();
-
         var prevDownloadId = product.DownloadId;
         var prevSampleDownloadId = product.SampleDownloadId;
 
@@ -662,6 +653,12 @@ public class ProductViewModelService(
 
         await productService.UpdateProduct(product);
 
+        //stock, kept in one place: a product kept per warehouse has its stock in the rows below
+        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock && !product.UseMultipleWarehouses &&
+            StockFormChange.Of([], "", model.StockQuantity, model.OriginalStockQuantity, model.ReservedQuantity,
+                model.OriginalReservedQuantity, ManualEditSource(product)) is { } stockChange)
+            await stockMovementService.Apply(product.Id, [stockChange]);
+
         //search engine name
         await seNameService.SaveSeName(product);
         //tags
@@ -670,9 +667,6 @@ public class ProductViewModelService(
         await SaveProductWarehouseInventory(product, model.ProductWarehouseInventoryModels);
         //picture seo names
         await UpdatePictureSeoNames(product);
-
-        //out of stock notifications
-        await OutOfStockNotifications(product, prevStockQuantity, prevMultiWarehouseStock);
 
         //delete an old "download" file (if deleted or updated)
         if (!string.IsNullOrEmpty(prevDownloadId) && prevDownloadId != product.DownloadId)
@@ -810,31 +804,32 @@ public class ProductViewModelService(
 
     public virtual async Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products)
     {
+        var stockChangesOnlyThroughDocuments =
+            (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments;
         foreach (var pModel in products)
         {
             //update
             var product = await productService.GetProductById(pModel.Id, true);
             if (product != null)
             {
-                var prevStockQuantity = stockQuantityService.GetTotalStockQuantity(product, total: true);
+                //the grid shows no earlier value: the stored one is what it changes
+                var stockChanged = pModel.StockQuantity != product.StockQuantity;
 
                 product.Sku = pModel.Sku;
                 product.Price = pModel.Price;
                 product.OldPrice = pModel.OldPrice;
-                product.StockQuantity = pModel.StockQuantity;
                 product.Published = pModel.Published;
                 product.Name = pModel.Name;
                 product.ManageInventoryMethodId = (ManageInventoryMethod)pModel.ManageInventoryMethodId;
                 await productService.UpdateProduct(product);
 
-                //out of stock notifications
-                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
-                    product.BackorderModeId == BackorderMode.NoBackorders &&
-                    product.AllowOutOfStockSubscriptions &&
-                    stockQuantityService.GetTotalStockQuantity(product, total: true) > 0 &&
-                    prevStockQuantity <= 0 && !product.UseMultipleWarehouses &&
-                    product.Published)
-                    await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
+                if (stockChanged && !stockChangesOnlyThroughDocuments &&
+                    product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
+                    !product.UseMultipleWarehouses)
+                    await stockMovementService.Apply(product.Id, [
+                        new StockChange([], "", pModel.StockQuantity, true, InventoryMovementType.ManualEdit,
+                            ManualEditSource(product))
+                    ]);
             }
         }
     }
@@ -856,7 +851,11 @@ public class ProductViewModelService(
             model.Sku = pModel.Sku;
             model.Price = pModel.Price;
             model.OldPrice = pModel.OldPrice;
-            model.StockQuantity = pModel.StockQuantity;
+            //with stock changed only through documents a new product starts empty
+            model.StockQuantity = (await settingService.LoadSetting<InventorySettings>())
+                .StockChangesOnlyThroughDocuments
+                ? 0
+                : pModel.StockQuantity;
             model.ManageInventoryMethodId = pModel.ManageInventoryMethodId;
             model.Published = pModel.Published;
             if (scope.DefaultStoreId is not null)

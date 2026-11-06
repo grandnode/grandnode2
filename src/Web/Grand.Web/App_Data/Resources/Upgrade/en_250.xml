@@ -957,4 +957,7 @@
 	<Resource Name="Admin.Inventory.Errors.NotEnoughAvailable" Area="Admin">
 		<Value>The warehouse does not have this quantity available.</Value>
 	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockChangesOnlyThroughDocuments" Area="Admin">
+		<Value>Stock changes only through inventory documents: the stock quantities were not saved. Post a receipt, an adjustment or a stock count instead.</Value>
+	</Resource>
 </Language>
