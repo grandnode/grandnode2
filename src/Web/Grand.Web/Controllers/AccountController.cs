@@ -924,10 +924,8 @@ public class AccountController : BasePublicController
     {
         if (!ModelState.IsValid) return View(model);
 
-        var changePasswordRequest = new ChangePasswordRequest(_contextAccessor.WorkContext.CurrentCustomer.Email,
-            _customerSettings.DefaultPasswordFormat, model.NewPassword, model.OldPassword);
-
-        await _customerManagerService.ChangePassword(changePasswordRequest);
+        await _customerManagerService.ChangePassword(_contextAccessor.WorkContext.CurrentCustomer,
+            _customerSettings.DefaultPasswordFormat, model.NewPassword);
         var customer = await _customerService.GetCustomerById(_contextAccessor.WorkContext.CurrentCustomer.Id);
 
         //sign in
@@ -1111,15 +1109,23 @@ public class AccountController : BasePublicController
 
     #region My account / Sub accounts
 
-    [HttpGet]
-    [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
-    public virtual async Task<IActionResult> SubAccounts()
+    private async Task<IActionResult> SubAccountsDenied()
     {
         if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
             return Challenge();
 
         if (_customerSettings.HideSubAccountsTab)
             return RedirectToRoute("CustomerInfo");
+
+        return null;
+    }
+
+    [HttpGet]
+    [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    public virtual async Task<IActionResult> SubAccounts()
+    {
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         var model = await _mediator.Send(new GetSubAccounts { Customer = _contextAccessor.WorkContext.CurrentCustomer });
 
@@ -1130,8 +1136,8 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountAdd()
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         var model = new SubAccountCreateModel {
             Active = true
@@ -1143,8 +1149,8 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountAdd(SubAccountCreateModel model)
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         if (!ModelState.IsValid) return View(model);
 
@@ -1161,11 +1167,13 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountEdit(string id)
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         var model = await _mediator.Send(new GetSubAccount
             { CustomerId = id, CurrentCustomer = _contextAccessor.WorkContext.CurrentCustomer });
+        if (model == null)
+            return RedirectToRoute("CustomerSubAccounts");
 
         return View(model);
     }
@@ -1174,8 +1182,8 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountEdit(SubAccountEditModel model)
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         if (!ModelState.IsValid) return View(model);
 
@@ -1192,8 +1200,8 @@ public class AccountController : BasePublicController
     [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
     public virtual async Task<IActionResult> SubAccountDelete(string id)
     {
-        if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
-            return Challenge();
+        var denied = await SubAccountsDenied();
+        if (denied != null) return denied;
 
         var result = await _mediator.Send(new SubAccountDeleteCommand {
             CurrentCustomer = _contextAccessor.WorkContext.CurrentCustomer,

@@ -141,6 +141,10 @@ jobs:
           format: spdx-json
           output-file: sbom.spdx.json
           upload-artifact: true
+          # On a tag push the action also attaches the SBOM to the GitHub
+          # release, which needs contents: write. The SBOM ships as a signed
+          # attestation instead, so the job keeps contents: read.
+          upload-release-assets: false
 
       - name: Cosign attest SBOM
         env:
@@ -202,3 +206,25 @@ jobs:
             --cert-identity "${IDENTITY}" \
             --deny-self-hosted-runners \
             --predicate-type "https://slsa.dev/provenance/v1"
+
+      # Docker Hub gets the same verified digest, not a rebuild: the
+      # signature and attestations above stay valid for it.
+      - name: Login to Docker Hub
+        uses: docker/login-action@dbcb813823bdd20940b903addbd779551569679f # v4.6.0
+        with:
+          username: ${{ secrets.DOCKERHUB_USERNAME }}
+          password: ${{ secrets.DOCKERHUB_PASS }}
+
+      - name: Copy image to Docker Hub
+        env:
+          IMAGE: ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}
+          DIGEST: ${{ steps.build.outputs.digest }}
+          DOCKERHUB_IMAGE: grandnode/grandnode2
+        # 2.4.0 -> :2.4.0 and :2.4.x; a prerelease (2.4.0-beta) only gets its
+        # own tag. :latest stays with the push to main (docker-image.yml).
+        run: |
+          tags=(-t "${DOCKERHUB_IMAGE}:${VERSION}")
+          if [[ "${VERSION}" != *-* ]]; then
+            tags+=(-t "${DOCKERHUB_IMAGE}:${VERSION%.*}.x")
+          fi
+          docker buildx imagetools create "${tags[@]}" "${IMAGE}@${DIGEST}"

@@ -211,7 +211,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
                 ? (await _orderTotalCalculationService.GetShoppingCartShippingTotal(request.Cart, true))
                 .shoppingCartShippingTotal
                 : 0;
-            var earnLoyaltyPoints = shoppingCartTotalBase.Value - shippingBaseInclTax ?? 0;
+            var earnLoyaltyPoints = shoppingCartTotalBase.Value - (shippingBaseInclTax ?? 0);
             if (earnLoyaltyPoints > 0)
                 model.WillEarnLoyaltyPoints = await _mediator.Send(new CalculateLoyaltyPointsCommand {
                     Customer = request.Customer,

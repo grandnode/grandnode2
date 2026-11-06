@@ -22,10 +22,6 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
         CustomerConfig customerConfig)
         : base(validators)
     {
-        var storeId = customerConfig.RegisterCustomersPerStore
-            ? contextAccessor.StoreContext.CurrentStore.Id
-            : "";
-
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
 
@@ -43,36 +39,38 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
         {
             var customer = await customerService.GetCustomerById(x.Id);
 
-            switch (customer)
+            //ownership first: a missing id, a deleted account and someone else's account get the same answer
+            if (customer == null || customer.Deleted ||
+                customer.OwnerId != contextAccessor.WorkContext.CurrentCustomer.Id)
             {
-                case null:
-                    context.AddFailure(
-                        translationService.GetResource("Account.NoExists"));
-                    break;
-                case { Deleted: true }:
-                    context.AddFailure(
-                        translationService.GetResource("Account.DeleteAccount"));
-                    break;
-                case not null when !await groupService.IsRegistered(customer):
-                    context.AddFailure(
-                        translationService.GetResource(
-                            "Account is not registered"));
-                    break;
+                context.AddFailure("You are not owner of this account");
+                return;
             }
 
-            if (customer != null && customer.OwnerId != contextAccessor.WorkContext.CurrentCustomer.Id)
-                context.AddFailure("You are not owner of this account");
-
-            if (customer != null && customer.Email != x.Email.ToLower() && customerSettings.AllowUsersToChangeEmail)
+            if (!await groupService.IsRegistered(customer))
             {
-                if (!CommonHelper.IsValidEmail(x.Email))
+                context.AddFailure(translationService.GetResource("Account is not registered"));
+                return;
+            }
+
+            //an empty email is already reported by the NotEmpty rule
+            if (string.IsNullOrWhiteSpace(x.Email))
+                return;
+
+            //the same address the command stores, checked where the account lives
+            var email = x.Email.Trim().ToLowerInvariant();
+            var sameAddress = string.Equals(customer.Email, email, StringComparison.OrdinalIgnoreCase);
+            if (customer.Email != email && (sameAddress || customerSettings.AllowUsersToChangeEmail))
+            {
+                if (!CommonHelper.IsValidEmail(email))
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.NewEmailIsNotValid"));
 
-                if (x.Email.Length > 100)
+                if (email.Length > 100)
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                var customer2 = await customerService.GetCustomerByEmail(x.Email, storeId);
+                var storeId = customerConfig.RegisterCustomersPerStore ? customer.StoreId : "";
+                var customer2 = await customerService.GetCustomerByEmail(email, storeId);
                 if (customer2 != null && customer.Id != customer2.Id)
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));

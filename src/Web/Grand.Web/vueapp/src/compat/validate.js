@@ -66,6 +66,9 @@ const messages = {
 
 const isEmpty = v => v === '' || v === null || v === undefined
 
+//What getValue() reports for a field left as it was: an unticked checkbox is false, a group is [].
+const isUnanswered = v => isEmpty(v) || v === false || (Array.isArray(v) && v.length === 0)
+
 const validators = {
     required(value, params) {
         const allowFalse = params && typeof params === 'object' && 'allowFalse' in params
@@ -169,6 +172,18 @@ export const ValidationProvider = {
         this._onEvent = () => this.validate()
 
         /*
+         * Leaving a field nobody has touched is not an attempt to fill it in, so it
+         * reports nothing; submitting still does. The message used to appear on
+         * mousedown, when an autofocused field lost focus, and move the layout - the
+         * button under the pointer slid away before mouseup and the click was lost.
+         * A field being typed in validates on `input`, so its layout is already settled.
+         */
+        this._onFocusOut = () => {
+            if (this.state === null && isUnanswered(this.getValue())) return
+            this.validate()
+        }
+
+        /*
          * Controls that commit on `change` must not be validated on `input`.
          * A real click on a checkbox dispatches click, input and change as
          * separate tasks, so validating on `input` flushes a re-render in
@@ -188,13 +203,13 @@ export const ValidationProvider = {
 
         if (!commitsOnChange) this.$el.addEventListener('input', this._onEvent)
         this.$el.addEventListener('change', this._onEvent)
-        this.$el.addEventListener('focusout', this._onEvent)
+        this.$el.addEventListener('focusout', this._onFocusOut)
     },
     unmounted() {
         if (this.$el && this._onEvent) {
             this.$el.removeEventListener('input', this._onEvent)
             this.$el.removeEventListener('change', this._onEvent)
-            this.$el.removeEventListener('focusout', this._onEvent)
+            this.$el.removeEventListener('focusout', this._onFocusOut)
         }
     },
     methods: {

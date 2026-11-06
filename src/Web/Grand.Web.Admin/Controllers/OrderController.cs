@@ -65,7 +65,7 @@ public class OrderController(
         if (selectedIds != null)
         {
             var ids = selectedIds.Split([','], StringSplitOptions.RemoveEmptyEntries).ToArray();
-            orders.AddRange(await OrderService.GetOrdersByIds(ids));
+            orders.AddRange(await GetAccessibleOrders(ids));
         }
 
         var bytes = await exportManager.Export(orders);
@@ -81,7 +81,7 @@ public class OrderController(
         if (selectedIds != null)
         {
             var orders = new List<Order>();
-            orders.AddRange(await OrderService.GetOrdersByIds(selectedIds.ToArray()));
+            orders.AddRange(await GetAccessibleOrders(selectedIds.ToArray()));
             foreach (var order in orders)
             {
                 var shipments = await shipmentService.GetShipmentsByOrder(order.Id);
@@ -93,5 +93,16 @@ public class OrderController(
         }
 
         return Json(new { Result = true });
+    }
+
+    //the ids come from the request and GetOrdersByIds does not filter them, so an order outside the
+    //staff member's scope (a Sales Manager's other sales employees) is skipped, as in PdfInvoiceSelected
+    private async Task<List<Order>> GetAccessibleOrders(string[] ids)
+    {
+        var orders = new List<Order>();
+        foreach (var order in await OrderService.GetOrdersByIds(ids))
+            if (await Scope.HasAccess(order))
+                orders.Add(order);
+        return orders;
     }
 }

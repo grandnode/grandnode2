@@ -173,6 +173,17 @@ public class CustomerViewModelServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateCustomerModel_GuestWithoutEmail_StaysWithoutOne()
+    {
+        var customer = await _customerViewModelService.UpdateCustomerModel(
+            new Customer { Id = "c1" }, new CustomerModel { Id = "c1", AdminComment = "called in" });
+
+        Assert.AreEqual("called in", customer.AdminComment);
+        Assert.IsTrue(string.IsNullOrEmpty(customer.Email));
+        Assert.IsTrue(string.IsNullOrEmpty(customer.Username));
+    }
+
+    [TestMethod]
     public async Task PrepareCustomerModel_StoreManager_PresetsCurrentStoreId()
     {
         _groupServiceMock.Setup(g => g.IsStoreManager(It.IsAny<Customer>())).ReturnsAsync(true);

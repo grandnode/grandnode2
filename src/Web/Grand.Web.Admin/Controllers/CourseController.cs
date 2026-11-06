@@ -144,7 +144,7 @@ public class CourseController : BaseAdminController
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Create(CourseModel model, bool continueEditing)
@@ -366,7 +366,7 @@ public class CourseController : BaseAdminController
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> CreateLesson(CourseLessonModel model, bool continueEditing)

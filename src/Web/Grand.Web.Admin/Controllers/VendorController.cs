@@ -115,7 +115,7 @@ public class VendorController : BaseAdminController
         return View(model);
     }
 
-    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [PermissionAuthorizeAction(PermissionActionName.Create)]
     [HttpPost]
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Create(VendorModel model, bool continueEditing)

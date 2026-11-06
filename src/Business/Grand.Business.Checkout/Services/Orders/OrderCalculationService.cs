@@ -889,22 +889,28 @@ public class OrderCalculationService : IOrderCalculationService
                         _contextAccessor.StoreContext.CurrentStore.Id);
                 if (CheckMinimumLoyaltyPointsToUseRequirement(loyaltyPointsBalance))
                 {
-                    var loyaltyPointsBalanceAmount = await ConvertLoyaltyPointsToAmount(loyaltyPointsBalance);
+                    //the order total is in the working currency, so the balance is compared in that currency
+                    //and rounded only after the conversion
+                    var loyaltyPointsBalanceAmount = await _currencyService.ConvertFromPrimaryStoreCurrency(
+                        loyaltyPointsBalance * _loyaltyPointsSettings.ExchangeRate,
+                        _contextAccessor.WorkContext.WorkingCurrency);
+                    if (_shoppingCartSettings.RoundPrices)
+                        loyaltyPointsBalanceAmount = RoundingHelper.RoundPrice(loyaltyPointsBalanceAmount,
+                            _contextAccessor.WorkContext.WorkingCurrency);
                     if (orderTotal > 0)
                     {
                         if (orderTotal > loyaltyPointsBalanceAmount)
                         {
                             redeemedLoyaltyPoints = loyaltyPointsBalance;
-                            redeemedLoyaltyPointsAmount =
-                                await _currencyService.ConvertFromPrimaryStoreCurrency(loyaltyPointsBalanceAmount,
-                                    _contextAccessor.WorkContext.WorkingCurrency);
+                            redeemedLoyaltyPointsAmount = loyaltyPointsBalanceAmount;
                         }
                         else
                         {
                             redeemedLoyaltyPointsAmount = orderTotal;
-                            redeemedLoyaltyPoints = ConvertAmountToLoyaltyPoints(
+                            //rounding can push the points one over the balance
+                            redeemedLoyaltyPoints = Math.Min(loyaltyPointsBalance, ConvertAmountToLoyaltyPoints(
                                 await _currencyService.ConvertToPrimaryStoreCurrency(redeemedLoyaltyPointsAmount,
-                                    _contextAccessor.WorkContext.WorkingCurrency));
+                                    _contextAccessor.WorkContext.WorkingCurrency)));
                         }
                     }
                 }

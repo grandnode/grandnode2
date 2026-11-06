@@ -10,7 +10,7 @@
 }
 <div class="page news-item-page" vue-island="news">
     <div class="card mt-3">
-        <div class="card-header">
+        <div class="card-header" v-pre>
             @if (!string.IsNullOrEmpty(Model.PictureModel.ImageUrl))
             {
                 <img class="img-fluid mb-3" src="@Model.PictureModel.ImageUrl" alt="@Model.PictureModel.AlternateText" loading="lazy">
@@ -23,7 +23,7 @@
             </span>
         </div>
         @await Component.InvokeAsync("Widget", new { widgetZone = "newsitem_page_before_body", additionalData = Model.Id })
-        <div class="card-body">
+        <div class="card-body" v-pre>
             @Html.Raw(Model.Full)
         </div>
     </div>
