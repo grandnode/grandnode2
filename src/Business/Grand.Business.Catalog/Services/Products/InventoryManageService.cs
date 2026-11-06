@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Commands.Catalog;
+﻿using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Utilities.Catalog;
@@ -21,7 +21,8 @@ public class InventoryManageService : IInventoryManageService
         IStockQuantityService stockQuantityService,
         IMediator mediator,
         CatalogSettings catalogSettings,
-        IResourceLock resourceLock)
+        IResourceLock resourceLock,
+        StockSideEffects stockSideEffects)
     {
         _productRepository = productRepository;
         _inventoryJournalRepository = inventoryJournalRepository;
@@ -29,6 +30,7 @@ public class InventoryManageService : IInventoryManageService
         _mediator = mediator;
         _catalogSettings = catalogSettings;
         _resourceLock = resourceLock;
+        _stockSideEffects = stockSideEffects;
     }
 
     #endregion
@@ -41,6 +43,7 @@ public class InventoryManageService : IInventoryManageService
     private readonly IMediator _mediator;
     private readonly CatalogSettings _catalogSettings;
     private readonly IResourceLock _resourceLock;
+    private readonly StockSideEffects _stockSideEffects;
 
     #endregion
 
@@ -401,42 +404,7 @@ public class InventoryManageService : IInventoryManageService
             //check if minimum quantity is reached
             if (quantityToChange < 0 && product.MinStockQuantity >=
                 _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId))
-                switch (product.LowStockActivityId)
-                {
-                    case LowStockActivity.DisableBuyButton:
-                        product.DisableBuyButton = true;
-                        product.LowStock = true;
-
-                        await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
-                            UpdateBuilder<Product>.Create()
-                                .Set(x => x.DisableBuyButton, product.DisableBuyButton)
-                                .Set(x => x.LowStock, product.LowStock));
-
-                        await _mediator.Publish(new ProductChangedEvent(product.Id));
-
-                        //event notification
-                        await _mediator.EntityUpdated(product);
-
-                        break;
-                    case LowStockActivity.Unpublish:
-                        product.Published = false;
-                        product.LowStock = true;
-
-                        await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
-                            UpdateBuilder<Product>.Create()
-                                .Set(x => x.Published, product.Published)
-                                .Set(x => x.LowStock, product.LowStock));
-
-                        await _mediator.Publish(new ProductChangedEvent(product.Id, listsChanged: true));
-
-                        //event
-                        await _mediator.Publish(new ProductUnPublishEvent(product));
-
-                        //event notification
-                        await _mediator.EntityUpdated(product);
-
-                        break;
-                }
+                await _stockSideEffects.LowStockReached(product);
 
             //qty is increased. product is out of stock (minimum stock quantity is reached again)? a reservation given
             //back for an order that was never placed undoes its own low-stock action, once above the minimum again
@@ -445,49 +413,12 @@ public class InventoryManageService : IInventoryManageService
                     _stockQuantityService.GetTotalStockQuantity(product,
                         warehouseId: StockWarehouse(product, warehouseId))))
                 if (quantityToChange > 0 && product.MinStockQuantity >= prevStockQuantity)
-                    switch (product.LowStockActivityId)
-                    {
-                        case LowStockActivity.DisableBuyButton:
-                            product.DisableBuyButton = false;
-                            product.LowStock = product.MinStockQuantity <= prevStockQuantity;
-
-                            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
-                                UpdateBuilder<Product>.Create()
-                                    .Set(x => x.DisableBuyButton, product.DisableBuyButton)
-                                    .Set(x => x.LowStock, product.LowStock));
-
-                            await _mediator.Publish(new ProductChangedEvent(product.Id));
-
-                            //event notification
-                            await _mediator.EntityUpdated(product);
-
-                            break;
-                        case LowStockActivity.Unpublish:
-                            product.Published = true;
-                            product.LowStock = product.MinStockQuantity < prevStockQuantity;
-
-                            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
-                                UpdateBuilder<Product>.Create()
-                                    .Set(x => x.Published, product.Published)
-                                    .Set(x => x.LowStock, product.LowStock));
-
-                            await _mediator.Publish(new ProductChangedEvent(product.Id, listsChanged: true));
-
-                            //event
-                            await _mediator.Publish(new ProductPublishEvent(product));
-
-                            //event notification
-                            await _mediator.EntityUpdated(product);
-
-                            break;
-                    }
+                    await _stockSideEffects.LowStockLifted(product, prevStockQuantity);
 
             //send email notification
             if (quantityToChange < 0 && _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId) <
                 product.NotifyAdminForQuantityBelow)
-                await _mediator.Send(new SendQuantityBelowStoreOwnerCommand {
-                    Product = product
-                });
+                await _stockSideEffects.QuantityBelow(product);
         }
 
         if (attributes != null && product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
@@ -502,10 +433,7 @@ public class InventoryManageService : IInventoryManageService
 
                 //send email notification
                 if (quantityToChange < 0 && combination.StockQuantity < combination.NotifyAdminForQuantityBelow)
-                    await _mediator.Send(new SendQuantityBelowStoreOwnerCommand {
-                        Product = product,
-                        ProductAttributeCombination = combination
-                    });
+                    await _stockSideEffects.QuantityBelow(product, combination);
             }
         }
 

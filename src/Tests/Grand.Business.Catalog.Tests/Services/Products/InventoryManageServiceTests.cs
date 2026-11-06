@@ -1,4 +1,6 @@
-﻿using Grand.Business.Catalog.Services.Products;
+﻿using Grand.Business.Catalog.Services.Inventory;
+using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
@@ -43,7 +45,9 @@ public class InventoryManageServiceTests
         _settings = new CatalogSettings();
         _stockQuantityService = new StockQuantityService();
         _inventoryManageService = new InventoryManageService(_repository, _repositoryInventoryJournal,
-            _stockQuantityService, _mediatorMock.Object, _settings, new MongoResourceLockTest());
+            _stockQuantityService, _mediatorMock.Object, _settings, new MongoResourceLockTest(),
+            new StockSideEffects(_repository, new Mock<IOutOfStockSubscriptionService>().Object,
+                _mediatorMock.Object, _settings));
     }
 
     private Product Stored(Product product)
