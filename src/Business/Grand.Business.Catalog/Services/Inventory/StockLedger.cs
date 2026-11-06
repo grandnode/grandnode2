@@ -1,0 +1,440 @@
+using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Data;
+using Grand.Domain.Catalog;
+using Grand.Domain.Common;
+using Grand.Infrastructure.Extensions;
+using Grand.Mediator;
+
+namespace Grand.Business.Catalog.Services.Inventory;
+
+/// <summary>
+///     Applies stock changes to a product read under its <see cref="ProductStockLock" /> key and writes them to the
+///     inventory journal. The caller holds the key, and the lock is not re-entrant: code holding it calls this, never
+///     IStockMovementService.
+///     The entries are written before the product, and the product write stamps the revision of its last entry. An entry
+///     newer than the product's revision is one whose product write was lost; it is applied before the next change, so
+///     the stored stock always comes back to the sum of the journal.
+/// </summary>
+public sealed class StockLedger(
+    IRepository<Product> productRepository,
+    IRepository<InventoryJournal> inventoryJournalRepository,
+    IWarehouseService warehouseService,
+    StockSideEffects stockSideEffects,
+    IMediator mediator)
+{
+    /// <summary>
+    ///     Applies the changes to the product, which the caller read under the product's lock
+    /// </summary>
+    /// <returns>The keys of the errors; nothing is written when there is one</returns>
+    public async Task<IList<string>> Apply(Product product, IReadOnlyList<StockChange> changes)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+        ArgumentNullException.ThrowIfNull(changes);
+
+        if (!Tracked(product))
+            return [StockErrors.StockNotTracked];
+
+        var repaired = await Repair(product);
+        Sum(product);
+        var before = Available(product);
+
+        var errors = new List<string>();
+        var entries = new List<InventoryJournal>();
+        var movementTypes = new Dictionary<(string, string), InventoryMovementType>();
+        var reservedChanged = false;
+        foreach (var change in changes)
+        {
+            var bucket = Locate(product, null, change.Attributes, change.WarehouseId, out var error);
+            if (bucket == null)
+            {
+                errors.Add(error);
+                continue;
+            }
+
+            var delta = change.SetTo ? change.Quantity - bucket.Stock : change.Quantity;
+            if (change.MovementType == InventoryMovementType.TransferOut &&
+                product.BackorderModeId == BackorderMode.NoBackorders && bucket.Stock - bucket.Reserved < -delta)
+            {
+                errors.Add(StockErrors.NotEnoughAvailable);
+                continue;
+            }
+
+            if (delta != 0)
+            {
+                Move(bucket, delta, change.MovementType);
+                entries.Add(Entry(product, bucket, delta, change.MovementType, change.Source));
+            }
+
+            if (change.ReservedQuantity is { } reserved && reserved != bucket.Reserved)
+            {
+                bucket.Reserved = reserved;
+                reservedChanged = true;
+            }
+
+            movementTypes[bucket.Key] = change.MovementType;
+        }
+
+        if (errors.Count > 0 || (entries.Count == 0 && !reservedChanged && !repaired))
+            return errors;
+
+        await Insert(product, entries);
+        await Write(product);
+
+        if (changes.Count > 0)
+            await stockSideEffects.Run(product, Changed(product, before, Available(product), movementTypes,
+                changes[^1].MovementType));
+
+        return errors;
+    }
+
+    /// <summary>
+    ///     Starts the history of every bucket of the product's current configuration again with its stored stock
+    /// </summary>
+    public async Task OpenBalance(Product product, string customerId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        if (!Tracked(product))
+            return;
+
+        await Repair(product);
+        Sum(product);
+
+        var source = new StockSource(nameof(Product), product.Id, CustomerId: customerId ?? "");
+        await Insert(product, Buckets(product)
+            .Select(bucket => Entry(product, bucket, bucket.Stock, InventoryMovementType.OpeningBalance, source))
+            .ToList());
+        await Write(product);
+    }
+
+    /// <summary>
+    ///     Works the product and combination sums out again from their buckets and writes them
+    /// </summary>
+    public async Task RecomputeSums(Product product)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        await Repair(product);
+        await Write(product);
+    }
+
+    private static bool Tracked(Product product)
+    {
+        return product.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
+            or ManageInventoryMethod.ManageStockByAttributes;
+    }
+
+    /// <summary>
+    ///     Applies the entries whose product write was lost
+    /// </summary>
+    private async Task<bool> Repair(Product product)
+    {
+        var pending = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
+            .Where(x => x.ProductId == product.Id && x.StockRevision > product.StockRevision)
+            .OrderBy(x => x.StockRevision));
+
+        foreach (var entry in pending)
+        {
+            if (entry.MovementTypeId is not (InventoryMovementType.OpeningBalance or InventoryMovementType.Legacy) &&
+                Locate(product, entry.CombinationId, entry.Attributes, entry.WarehouseId, out _) is { } bucket)
+                Move(bucket, entry.InQty - entry.OutQty, entry.MovementTypeId);
+
+            product.StockRevision = entry.StockRevision;
+        }
+
+        return pending.Count > 0;
+    }
+
+    /// <summary>
+    ///     Changes the bucket's stock; a shipment takes its quantity out of the reservation too, and its reversal puts it
+    ///     back, as booking a shipment always did
+    /// </summary>
+    private static void Move(Bucket bucket, int delta, InventoryMovementType movementType)
+    {
+        bucket.Stock += delta;
+        bucket.Reserved = movementType switch {
+            InventoryMovementType.Shipment => Math.Max(0, bucket.Reserved + delta),
+            InventoryMovementType.ShipmentReversal => bucket.Reserved + delta,
+            _ => bucket.Reserved
+        };
+    }
+
+    /// <summary>
+    ///     The bucket a change applies to, by the product's inventory method; a missing warehouse row is created
+    /// </summary>
+    private static Bucket Locate(Product product, string combinationId, IList<CustomAttribute> attributes,
+        string warehouseId, out string error)
+    {
+        error = null;
+        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
+        {
+            //a product kept in one warehouse has all its stock there, whatever warehouse the change names
+            if (!product.UseMultipleWarehouses)
+                return new Bucket(product, null, "", product.WarehouseId ?? "");
+
+            if (string.IsNullOrEmpty(warehouseId))
+            {
+                error = StockErrors.WarehouseRequired;
+                return null;
+            }
+
+            var row = product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
+            if (row == null)
+            {
+                row = new ProductWarehouseInventory { WarehouseId = warehouseId };
+                product.ProductWarehouseInventory.Add(row);
+            }
+
+            return new Bucket(row, null, warehouseId, warehouseId);
+        }
+
+        if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes)
+        {
+            error = StockErrors.StockNotTracked;
+            return null;
+        }
+
+        var combination = !string.IsNullOrEmpty(combinationId)
+            ? product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == combinationId)
+            : attributes is { Count: > 0 }
+                ? product.FindProductAttributeCombination(attributes)
+                : null;
+        if (combination == null)
+        {
+            error = StockErrors.CombinationNotFound;
+            return null;
+        }
+
+        if (!product.UseMultipleWarehouses)
+            return new Bucket(combination, combination, "", product.WarehouseId ?? "");
+
+        if (string.IsNullOrEmpty(warehouseId))
+        {
+            error = StockErrors.WarehouseRequired;
+            return null;
+        }
+
+        var combinationRow = combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
+        if (combinationRow == null)
+        {
+            combinationRow = new ProductCombinationWarehouseInventory { WarehouseId = warehouseId };
+            combination.WarehouseInventory.Add(combinationRow);
+        }
+
+        return new Bucket(combinationRow, combination, warehouseId, warehouseId);
+    }
+
+    /// <summary>
+    ///     Every bucket of the product's current configuration
+    /// </summary>
+    private static IEnumerable<Bucket> Buckets(Product product)
+    {
+        switch (product.ManageInventoryMethodId)
+        {
+            case ManageInventoryMethod.ManageStock when !product.UseMultipleWarehouses:
+                yield return new Bucket(product, null, "", product.WarehouseId ?? "");
+                break;
+            case ManageInventoryMethod.ManageStock:
+                foreach (var row in product.ProductWarehouseInventory)
+                    yield return new Bucket(row, null, row.WarehouseId, row.WarehouseId);
+                break;
+            case ManageInventoryMethod.ManageStockByAttributes:
+                foreach (var combination in product.ProductAttributeCombinations)
+                    if (!product.UseMultipleWarehouses)
+                        yield return new Bucket(combination, combination, "", product.WarehouseId ?? "");
+                    else
+                        foreach (var row in combination.WarehouseInventory)
+                            yield return new Bucket(row, combination, row.WarehouseId, row.WarehouseId);
+                break;
+        }
+    }
+
+    /// <summary>
+    ///     With multiple warehouses a product's or combination's stock is the sum of its rows, and a product stocked by
+    ///     attributes holds the sum of its combinations
+    /// </summary>
+    private static void Sum(Product product)
+    {
+        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock && product.UseMultipleWarehouses)
+        {
+            product.StockQuantity = product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
+            product.ReservedQuantity = product.ProductWarehouseInventory.Sum(x => x.ReservedQuantity);
+        }
+
+        if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes)
+            return;
+
+        if (product.UseMultipleWarehouses)
+            foreach (var combination in product.ProductAttributeCombinations)
+            {
+                combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
+                combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
+            }
+
+        product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
+        product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
+    }
+
+    private static InventoryJournal Entry(Product product, Bucket bucket, int delta,
+        InventoryMovementType movementType, StockSource source)
+    {
+        return new InventoryJournal {
+            ProductId = product.Id,
+            CombinationId = bucket.CombinationId,
+            Attributes = bucket.Attributes,
+            WarehouseId = bucket.WarehouseId,
+            InQty = Math.Max(0, delta),
+            OutQty = Math.Max(0, -delta),
+            MovementTypeId = movementType,
+            CreateDateUtc = DateTime.UtcNow,
+            ObjectType = source.ObjectType,
+            ObjectId = source.ObjectId,
+            PositionId = source.PositionId,
+            Reference = source.Reference,
+            CustomerId = source.CustomerId,
+            Comments = source.Comment
+        };
+    }
+
+    private async Task Insert(Product product, IList<InventoryJournal> entries)
+    {
+        var warehouseStores = new Dictionary<string, string>();
+        foreach (var entry in entries)
+        {
+            if (!warehouseStores.TryGetValue(entry.WarehouseId, out var storeId))
+            {
+                storeId = string.IsNullOrEmpty(entry.WarehouseId)
+                    ? ""
+                    : (await warehouseService.GetWarehouseById(entry.WarehouseId))?.StoreId ?? "";
+                warehouseStores[entry.WarehouseId] = storeId;
+            }
+
+            entry.StoreId = storeId;
+            entry.StockRevision = ++product.StockRevision;
+            await inventoryJournalRepository.InsertAsync(entry);
+        }
+    }
+
+    /// <summary>
+    ///     Writes every stock field of the product in one update, so they never land out of step
+    /// </summary>
+    private async Task Write(Product product)
+    {
+        Sum(product);
+        if (product.ReservedQuantity < 0)
+            product.ReservedQuantity = 0;
+
+        product.LowStock = (product.MinStockQuantity > 0 &&
+                            product.MinStockQuantity >= product.StockQuantity - product.ReservedQuantity) ||
+                           product.StockQuantity - product.ReservedQuantity <= 0;
+
+        await productRepository.UpdateOneAsync(x => x.Id == product.Id,
+            UpdateBuilder<Product>.Create()
+                .Set(x => x.StockQuantity, product.StockQuantity)
+                .Set(x => x.ReservedQuantity, product.ReservedQuantity)
+                .Set(x => x.LowStock, product.LowStock)
+                .Set(x => x.ProductWarehouseInventory, product.ProductWarehouseInventory)
+                .Set(x => x.ProductAttributeCombinations, product.ProductAttributeCombinations)
+                .Set(x => x.StockRevision, product.StockRevision));
+
+        await mediator.Publish(new ProductChangedEvent(product.Id));
+        await mediator.Publish(new UpdateStockEvent(product));
+        await mediator.EntityUpdated(product);
+    }
+
+    /// <summary>
+    ///     Available stock by (combination, warehouse row), totals included under an empty warehouse
+    /// </summary>
+    private static Dictionary<(string, string), int> Available(Product product)
+    {
+        var available = new Dictionary<(string, string), int> {
+            [("", "")] = product.StockQuantity - product.ReservedQuantity
+        };
+        foreach (var row in product.ProductWarehouseInventory)
+            available[("", row.WarehouseId)] = row.StockQuantity - row.ReservedQuantity;
+        foreach (var combination in product.ProductAttributeCombinations)
+        {
+            available[(combination.Id, "")] = combination.StockQuantity - combination.ReservedQuantity;
+            foreach (var row in combination.WarehouseInventory)
+                available[(combination.Id, row.WarehouseId)] = row.StockQuantity - row.ReservedQuantity;
+        }
+
+        return available;
+    }
+
+    private static List<BucketChange> Changed(Product product, Dictionary<(string, string), int> before,
+        Dictionary<(string, string), int> after, Dictionary<(string, string), InventoryMovementType> movementTypes,
+        InventoryMovementType totalMovementType)
+    {
+        var changed = new List<BucketChange>();
+        foreach (var ((combinationId, warehouseId), availableAfter) in after)
+        {
+            var availableBefore = before.GetValueOrDefault((combinationId, warehouseId));
+            if (availableBefore == availableAfter)
+                continue;
+
+            var attributes = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == combinationId)
+                ?.Attributes ?? [];
+            changed.Add(new BucketChange(combinationId, attributes, warehouseId, availableBefore, availableAfter,
+                movementTypes.GetValueOrDefault((combinationId, warehouseId), totalMovementType)));
+        }
+
+        return changed;
+    }
+
+    /// <summary>
+    ///     One stock bucket: the product, a combination, or a warehouse row of either
+    /// </summary>
+    /// <param name="target">the object holding the bucket's quantities</param>
+    /// <param name="combination">the combination, for a product stocked by attributes</param>
+    /// <param name="rowWarehouseId">the warehouse of a row; empty for a product or combination</param>
+    /// <param name="warehouseId">the warehouse the journal entry names</param>
+    private sealed class Bucket(object target, ProductAttributeCombination combination, string rowWarehouseId,
+        string warehouseId)
+    {
+        public (string, string) Key => (CombinationId, rowWarehouseId);
+        public string CombinationId => combination?.Id ?? "";
+        public IList<CustomAttribute> Attributes => combination?.Attributes ?? new List<CustomAttribute>();
+        public string WarehouseId => warehouseId;
+
+        public int Stock {
+            get => target switch {
+                Product x => x.StockQuantity,
+                ProductAttributeCombination x => x.StockQuantity,
+                ProductWarehouseInventory x => x.StockQuantity,
+                ProductCombinationWarehouseInventory x => x.StockQuantity,
+                _ => throw new InvalidOperationException()
+            };
+            set {
+                switch (target)
+                {
+                    case Product x: x.StockQuantity = value; break;
+                    case ProductAttributeCombination x: x.StockQuantity = value; break;
+                    case ProductWarehouseInventory x: x.StockQuantity = value; break;
+                    case ProductCombinationWarehouseInventory x: x.StockQuantity = value; break;
+                }
+            }
+        }
+
+        public int Reserved {
+            get => target switch {
+                Product x => x.ReservedQuantity,
+                ProductAttributeCombination x => x.ReservedQuantity,
+                ProductWarehouseInventory x => x.ReservedQuantity,
+                ProductCombinationWarehouseInventory x => x.ReservedQuantity,
+                _ => throw new InvalidOperationException()
+            };
+            set {
+                switch (target)
+                {
+                    case Product x: x.ReservedQuantity = value; break;
+                    case ProductAttributeCombination x: x.ReservedQuantity = value; break;
+                    case ProductWarehouseInventory x: x.ReservedQuantity = value; break;
+                    case ProductCombinationWarehouseInventory x: x.ReservedQuantity = value; break;
+                }
+            }
+        }
+    }
+}
