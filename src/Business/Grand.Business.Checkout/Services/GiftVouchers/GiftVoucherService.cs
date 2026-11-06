@@ -20,10 +20,13 @@ public class GiftVoucherService : IGiftVoucherService
     /// </summary>
     /// <param name="giftVoucherRepository">Gift voucher context</param>
     /// <param name="mediator">Mediator</param>
-    public GiftVoucherService(IRepository<GiftVoucher> giftVoucherRepository, IMediator mediator)
+    /// <param name="resourceLock">Lock</param>
+    public GiftVoucherService(IRepository<GiftVoucher> giftVoucherRepository, IMediator mediator,
+        IResourceLock resourceLock)
     {
         _giftVoucherRepository = giftVoucherRepository;
         _mediator = mediator;
+        _resourceLock = resourceLock;
     }
 
     #endregion
@@ -32,6 +35,7 @@ public class GiftVoucherService : IGiftVoucherService
 
     private readonly IRepository<GiftVoucher> _giftVoucherRepository;
     private readonly IMediator _mediator;
+    private readonly IResourceLock _resourceLock;
 
     #endregion
 
@@ -137,6 +141,42 @@ public class GiftVoucherService : IGiftVoucherService
         await _mediator.EntityDeleted(giftVoucher);
     }
 
+    public virtual async Task<bool> TryRedeem(string giftVoucherId, double amount, string orderId)
+    {
+        await using var _ = await _resourceLock.Acquire([LockKey(giftVoucherId)]);
+
+        var giftVoucher = await _giftVoucherRepository.GetByIdAsync(giftVoucherId);
+        if (giftVoucher is not { IsGiftVoucherActivated: true })
+            return false;
+
+        //the balance is a sum of doubles: one redeemed down to zero may differ from the amount by noise alone
+        if (Math.Round(giftVoucher.GetGiftVoucherRemainingAmount(), 6) < Math.Round(amount, 6))
+            return false;
+
+        var usage = new GiftVoucherUsageHistory {
+            GiftVoucherId = giftVoucher.Id,
+            UsedWithOrderId = orderId,
+            UsedValue = amount,
+            CreatedOnUtc = DateTime.UtcNow
+        };
+        //only the new entry is written, so a whole-document update made elsewhere cannot drop it
+        await _giftVoucherRepository.AddToCollectionField(giftVoucher.Id, x => x.GiftVoucherUsageHistory, usage);
+        giftVoucher.GiftVoucherUsageHistory.Add(usage);
+
+        //event notification
+        await _mediator.EntityUpdated(giftVoucher);
+
+        return true;
+    }
+
+    public virtual async Task CancelRedemption(string giftVoucherId, string orderId)
+    {
+        await using var _ = await _resourceLock.Acquire([LockKey(giftVoucherId)]);
+
+        await _giftVoucherRepository.RemoveCollectionFieldItem(giftVoucherId, x => x.GiftVoucherUsageHistory,
+            x => x.UsedWithOrderId == orderId);
+    }
+
     /// <summary>
     ///     Gets gift vouchers by 'PurchasedWithOrderItemId'
     /// </summary>
@@ -165,6 +205,11 @@ public class GiftVoucherService : IGiftVoucherService
     public virtual string GenerateGiftVoucherCode()
     {
         return Guid.NewGuid().ToString()[..8];
+    }
+
+    private static string LockKey(string giftVoucherId)
+    {
+        return $"{nameof(GiftVoucher)}:{giftVoucherId}";
     }
 
     #endregion
