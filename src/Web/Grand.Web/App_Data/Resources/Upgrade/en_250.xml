@@ -960,4 +960,58 @@
 	<Resource Name="Admin.Catalog.Products.StockChangesOnlyThroughDocuments" Area="Admin">
 		<Value>Stock changes only through inventory documents: the stock quantities were not saved. Post a receipt, an adjustment or a stock count instead.</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Documents" Area="Admin">
+		<Value>Inventory documents</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.StockAtDate" Area="Admin">
+		<Value>Stock at date</Value>
+	</Resource>
+	<Resource Name="Permission.ManageInventoryDocuments" Area="Admin">
+		<Value>Manage inventory documents</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.NotFound" Area="Admin">
+		<Value>The inventory document was not found.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.Posted" Area="Admin">
+		<Value>The document is posted and cannot be changed. Fix a mistake with another document.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.NoLines" Area="Admin">
+		<Value>The document has no lines.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.WarehouseNotFound" Area="Admin">
+		<Value>Choose the warehouse of the document.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.TargetWarehouseInvalid" Area="Admin">
+		<Value>Choose a target warehouse other than the source warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ProductInOtherWarehouse" Area="Admin">
+		<Value>A product kept in one warehouse can only be booked in that warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.TransferNeedsMultipleWarehouses" Area="Admin">
+		<Value>Only a product kept in multiple warehouses can be transferred.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.QuantityMustBePositive" Area="Admin">
+		<Value>The quantity must be greater than zero.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.QuantityMustNotBeZero" Area="Admin">
+		<Value>The quantity cannot be zero.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.UnitCostRequired" Area="Admin">
+		<Value>Enter the unit cost of every line (it can be 0).</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.CommentRequired" Area="Admin">
+		<Value>An adjustment needs a comment saying why.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.CountedNegative" Area="Admin">
+		<Value>A counted quantity cannot be below zero.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.LineBooked" Area="Admin">
+		<Value>A posting of this document stopped part way: the lines it booked cannot be changed. Post the document again.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ReturnNotReceivable" Area="Admin">
+		<Value>A rejected or cancelled merchandise return cannot be received.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ReturnQuantityExceeded" Area="Admin">
+		<Value>The return receipts of this merchandise return take in more than was returned.</Value>
+	</Resource>
 </Language>

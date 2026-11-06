@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Data.Audit;
+using Grand.Data.Inventory;
 using Grand.Domain;
 using Grand.Domain.Audit;
 using Grand.Domain.Admin;
@@ -128,6 +129,8 @@ public partial class InstallationService : IInstallationService
         IRepository<ExternalAuthentication> externalAuthenticationRepository,
         IRepository<OidcSession> oidcSessionRepository,
         IRepository<AuditEntry> auditEntryRepository,
+        IRepository<InventoryJournal> inventoryJournalRepository,
+        IRepository<InventoryDocument> inventoryDocumentRepository,
         IRepository<MerchandiseReturnReason> merchandiseReturnReasonRepository,
         IRepository<MerchandiseReturnAction> merchandiseReturnActionRepository,
         IRepository<ContactUs> contactUsRepository,
@@ -227,6 +230,8 @@ public partial class InstallationService : IInstallationService
         _externalAuthenticationRepository = externalAuthenticationRepository;
         _oidcSessionRepository = oidcSessionRepository;
         _auditEntryRepository = auditEntryRepository;
+        _inventoryJournalRepository = inventoryJournalRepository;
+        _inventoryDocumentRepository = inventoryDocumentRepository;
         _discountusageRepository = discountusageRepository;
         _merchandiseReturnReasonRepository = merchandiseReturnReasonRepository;
         _contactUsRepository = contactUsRepository;
@@ -306,6 +311,7 @@ public partial class InstallationService : IInstallationService
             await InstallVendors();
             await InstallWarehouses();
             await InstallProducts(defaultUserEmail);
+            await JournalSampleStock();
             await InstallCollections();
             await InstallDiscounts();
             await InstallBlogPosts();
@@ -396,6 +402,8 @@ public partial class InstallationService : IInstallationService
     private readonly IRepository<ExternalAuthentication> _externalAuthenticationRepository;
     private readonly IRepository<OidcSession> _oidcSessionRepository;
     private readonly IRepository<AuditEntry> _auditEntryRepository;
+    private readonly IRepository<InventoryJournal> _inventoryJournalRepository;
+    private readonly IRepository<InventoryDocument> _inventoryDocumentRepository;
     private readonly IRepository<MerchandiseReturnReason> _merchandiseReturnReasonRepository;
     private readonly IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;
     private readonly IRepository<ContactUs> _contactUsRepository;
@@ -966,6 +974,9 @@ public partial class InstallationService : IInstallationService
 
         //audit log: the list by date, the history popup by entity, the actor filter and the operation link
         await AuditIndexes.Create(dbContext, _auditEntryRepository);
+
+        //inventory journal and documents
+        await InventoryIndexes.Create(dbContext, _inventoryJournalRepository, _inventoryDocumentRepository);
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,

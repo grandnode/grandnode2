@@ -58,11 +58,30 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.Products, PermissionSystemName.Categories, PermissionSystemName.Brands,
                 PermissionSystemName.Collections, PermissionSystemName.ProductReviews,
                 PermissionSystemName.ProductTags,
-                PermissionSystemName.ProductAttributes, PermissionSystemName.SpecificationAttributes
+                PermissionSystemName.ProductAttributes, PermissionSystemName.SpecificationAttributes,
+                PermissionSystemName.InventoryDocuments
             },
             IconClass = "bi bi-diagram-3",
             DisplayOrder = 1,
             ChildNodes = new List<AdminSiteMap> {
+                new() {
+                    SystemName = "Inventory documents",
+                    ResourceName = "Admin.Inventory.Documents",
+                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+                    ControllerName = "InventoryDocument",
+                    ActionName = "List",
+                    DisplayOrder = 20,
+                    IconClass = "bi bi-record-circle"
+                },
+                new() {
+                    SystemName = "Stock at date",
+                    ResourceName = "Admin.Inventory.StockAtDate",
+                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+                    ControllerName = "InventoryReport",
+                    ActionName = "StockAtDate",
+                    DisplayOrder = 21,
+                    IconClass = "bi bi-record-circle"
+                },
                 new() {
                     SystemName = "Products",
                     ResourceName = "Admin.Catalog.Products.Manage",

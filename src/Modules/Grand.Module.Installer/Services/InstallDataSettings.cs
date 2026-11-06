@@ -167,6 +167,8 @@ public partial class InstallationService
             HideStoreColumn = true
         });
 
+        //system-wide: stored for all stores and never per store
+        await _settingRepository.SaveSetting(new InventorySettings());
         await _settingRepository.SaveSetting(new CatalogSettings {
             AllowViewUnpublishedProductPage = true,
             DisplayDiscontinuedMessageForUnpublishedProducts = true,
