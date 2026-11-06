@@ -54,6 +54,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<StockSideEffects>();
         serviceCollection.AddScoped<StockLedger>();
         serviceCollection.AddScoped<IStockMovementService, StockMovementService>();
+        serviceCollection.AddScoped<IInventoryDocumentService, InventoryDocumentService>();
         serviceCollection.AddScoped<IProductCategoryService, ProductCategoryService>();
         serviceCollection.AddScoped<IProductCollectionService, ProductCollectionService>();
         serviceCollection.AddScoped<IProductReviewService, ProductReviewService>();

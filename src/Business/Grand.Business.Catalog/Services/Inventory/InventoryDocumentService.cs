@@ -1,0 +1,248 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Data;
+using Grand.Domain;
+using Grand.Domain.Catalog;
+using Grand.Infrastructure.Extensions;
+using Grand.Mediator;
+using System.Globalization;
+
+namespace Grand.Business.Catalog.Services.Inventory;
+
+public class InventoryDocumentService(
+    IRepository<InventoryDocument> inventoryDocumentRepository,
+    IRepository<Product> productRepository,
+    IRepository<InventoryJournal> inventoryJournalRepository,
+    IWarehouseService warehouseService,
+    IResourceLock resourceLock,
+    ISettingService settingService,
+    IMediator mediator) : IInventoryDocumentService
+{
+    public Task<InventoryDocument> GetById(string id)
+    {
+        return inventoryDocumentRepository.GetByIdAsync(id);
+    }
+
+    public Task<IPagedList<InventoryDocument>> Search(InventoryDocumentSearch search, int pageIndex = 0,
+        int pageSize = int.MaxValue)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+
+        var query = inventoryDocumentRepository.Table;
+        if (search.Type.HasValue)
+            query = query.Where(x => x.DocumentTypeId == search.Type.Value);
+        if (search.Status.HasValue)
+            query = query.Where(x => x.StatusId == search.Status.Value);
+        if (!string.IsNullOrEmpty(search.WarehouseId))
+            query = query.Where(x => x.WarehouseId == search.WarehouseId || x.TargetWarehouseId == search.WarehouseId);
+        if (search.StoreId != null)
+            query = query.Where(x => x.StoreId == search.StoreId);
+        if (!string.IsNullOrEmpty(search.Number))
+            query = query.Where(x => x.Number.Contains(search.Number));
+        if (search.FromUtc.HasValue)
+            query = query.Where(x => x.CreatedOnUtc >= search.FromUtc.Value);
+        if (search.ToUtc.HasValue)
+            query = query.Where(x => x.CreatedOnUtc <= search.ToUtc.Value);
+
+        return inventoryDocumentRepository.PagedAsync(query.OrderByDescending(x => x.CreatedOnUtc), pageIndex,
+            pageSize);
+    }
+
+    public async Task<InventoryDocument> CreateDraft(InventoryDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        document.StatusId = InventoryDocumentStatus.Draft;
+        document.PostedOnUtc = null;
+        document.PostedBy = null;
+        document.StoreId = await StoreOf(document.WarehouseId);
+
+        //numbers go per type and year; taking the next one and saving it hold the same lock, so no two drafts
+        //share one, and a deleted draft leaves a gap
+        var year = DateTime.UtcNow.Year;
+        await using (await resourceLock.Acquire([$"InventoryDocumentNumber:{document.DocumentTypeId}:{year}"]))
+        {
+            var last = await inventoryDocumentRepository.FirstOrDefaultAsync(inventoryDocumentRepository.Table
+                .Where(x => x.DocumentTypeId == document.DocumentTypeId && x.Year == year)
+                .OrderByDescending(x => x.Sequence));
+
+            document.Year = year;
+            document.Sequence = (last?.Sequence ?? 0) + 1;
+            document.Number = string.Format(CultureInfo.InvariantCulture, "{0}/{1}/{2:0000}",
+                await Prefix(document.DocumentTypeId), year, document.Sequence);
+            await inventoryDocumentRepository.InsertAsync(document);
+        }
+
+        await mediator.EntityInserted(document);
+        return document;
+    }
+
+    public async Task<IList<string>> UpdateDraft(InventoryDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        var stored = await inventoryDocumentRepository.GetByIdAsync(document.Id);
+        if (stored == null)
+            return [InventoryDocumentErrors.NotFound];
+        if (stored.StatusId == InventoryDocumentStatus.Posted)
+            return [InventoryDocumentErrors.Posted];
+
+        //a posting that stopped part way booked some lines: those, and the warehouses they were booked in, stay
+        var booked = await BookedLines(stored.Id);
+        if (booked.Count > 0 && (document.WarehouseId != stored.WarehouseId ||
+                                 document.TargetWarehouseId != stored.TargetWarehouseId ||
+                                 stored.Lines.Where(x => booked.Contains(x.Id)).Any(x =>
+                                     !SameBooking(x, document.Lines.FirstOrDefault(y => y.Id == x.Id)))))
+            return [InventoryDocumentErrors.LineBooked];
+
+        document.Number = stored.Number;
+        document.Year = stored.Year;
+        document.Sequence = stored.Sequence;
+        document.DocumentTypeId = stored.DocumentTypeId;
+        document.StatusId = InventoryDocumentStatus.Draft;
+        document.StoreId = await StoreOf(document.WarehouseId);
+        await inventoryDocumentRepository.UpdateAsync(document);
+
+        await mediator.EntityUpdated(document);
+        return [];
+    }
+
+    public async Task<IList<string>> DeleteDraft(string id)
+    {
+        var stored = await inventoryDocumentRepository.GetByIdAsync(id);
+        if (stored == null)
+            return [InventoryDocumentErrors.NotFound];
+        if (stored.StatusId == InventoryDocumentStatus.Posted)
+            return [InventoryDocumentErrors.Posted];
+        if ((await BookedLines(stored.Id)).Count > 0)
+            return [InventoryDocumentErrors.LineBooked];
+
+        await inventoryDocumentRepository.DeleteAsync(stored);
+
+        await mediator.EntityDeleted(stored);
+        return [];
+    }
+
+    public async Task<IList<string>> Validate(InventoryDocument document)
+    {
+        ArgumentNullException.ThrowIfNull(document);
+
+        var errors = new List<string>();
+
+        void Add(string error)
+        {
+            if (!errors.Contains(error))
+                errors.Add(error);
+        }
+
+        if (document.Lines.Count == 0)
+            Add(InventoryDocumentErrors.NoLines);
+
+        if (string.IsNullOrEmpty(document.WarehouseId) ||
+            await warehouseService.GetWarehouseById(document.WarehouseId) == null)
+            Add(InventoryDocumentErrors.WarehouseNotFound);
+
+        var transfer = document.DocumentTypeId == InventoryDocumentType.Transfer;
+        if (transfer && (string.IsNullOrEmpty(document.TargetWarehouseId) ||
+                         document.TargetWarehouseId == document.WarehouseId ||
+                         await warehouseService.GetWarehouseById(document.TargetWarehouseId) == null))
+            Add(InventoryDocumentErrors.TargetWarehouseInvalid);
+
+        if (document.DocumentTypeId == InventoryDocumentType.Adjustment && string.IsNullOrWhiteSpace(document.Comment))
+            Add(InventoryDocumentErrors.CommentRequired);
+
+        foreach (var line in document.Lines)
+        {
+            var product = string.IsNullOrEmpty(line.ProductId)
+                ? null
+                : await productRepository.GetByIdAsync(line.ProductId);
+            if (product == null)
+            {
+                Add(StockErrors.ProductNotFound);
+                continue;
+            }
+
+            if (product.ManageInventoryMethodId is not (ManageInventoryMethod.ManageStock
+                or ManageInventoryMethod.ManageStockByAttributes))
+            {
+                Add(StockErrors.StockNotTracked);
+                continue;
+            }
+
+            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes &&
+                (line.Attributes is not { Count: > 0 } ||
+                 product.FindProductAttributeCombination(line.Attributes) == null))
+                Add(StockErrors.CombinationNotFound);
+
+            //a product kept in one warehouse is booked there, or anywhere when it names none
+            if (!product.UseMultipleWarehouses && !string.IsNullOrEmpty(product.WarehouseId) &&
+                product.WarehouseId != document.WarehouseId)
+                Add(InventoryDocumentErrors.ProductInOtherWarehouse);
+
+            if (transfer && !product.UseMultipleWarehouses)
+                Add(InventoryDocumentErrors.TransferNeedsMultipleWarehouses);
+
+            switch (document.DocumentTypeId)
+            {
+                case InventoryDocumentType.Receipt:
+                    if (line.Quantity <= 0) Add(InventoryDocumentErrors.QuantityMustBePositive);
+                    if (line.UnitCost is null or < 0) Add(InventoryDocumentErrors.UnitCostRequired);
+                    break;
+                case InventoryDocumentType.Transfer:
+                case InventoryDocumentType.ReturnReceipt:
+                    if (line.Quantity <= 0) Add(InventoryDocumentErrors.QuantityMustBePositive);
+                    break;
+                case InventoryDocumentType.Adjustment:
+                    if (line.Quantity == 0) Add(InventoryDocumentErrors.QuantityMustNotBeZero);
+                    break;
+                case InventoryDocumentType.StockCount:
+                    if (line.CountedQuantity < 0) Add(InventoryDocumentErrors.CountedNegative);
+                    break;
+            }
+        }
+
+        return errors;
+    }
+
+    private async Task<string> StoreOf(string warehouseId)
+    {
+        return string.IsNullOrEmpty(warehouseId)
+            ? ""
+            : (await warehouseService.GetWarehouseById(warehouseId))?.StoreId ?? "";
+    }
+
+    private async Task<string> Prefix(InventoryDocumentType documentType)
+    {
+        var settings = await settingService.LoadSetting<InventorySettings>();
+        return documentType switch {
+            InventoryDocumentType.Receipt => settings.ReceiptNumberPrefix,
+            InventoryDocumentType.Transfer => settings.TransferNumberPrefix,
+            InventoryDocumentType.Adjustment => settings.AdjustmentNumberPrefix,
+            InventoryDocumentType.StockCount => settings.StockCountNumberPrefix,
+            InventoryDocumentType.ReturnReceipt => settings.ReturnReceiptNumberPrefix,
+            _ => throw new ArgumentOutOfRangeException(nameof(documentType))
+        };
+    }
+
+    /// <summary>
+    ///     The lines of the document that have a journal entry
+    /// </summary>
+    private async Task<HashSet<string>> BookedLines(string documentId)
+    {
+        var positions = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
+            .Where(x => x.ObjectType == nameof(InventoryDocument) && x.ObjectId == documentId)
+            .Select(x => x.PositionId));
+        return positions.ToHashSet();
+    }
+
+    private static bool SameBooking(InventoryDocumentLine stored, InventoryDocumentLine line)
+    {
+        return line != null && line.ProductId == stored.ProductId && line.Quantity == stored.Quantity &&
+               line.CountedQuantity == stored.CountedQuantity && line.UnitCost == stored.UnitCost &&
+               line.Condition == stored.Condition &&
+               line.Attributes.Select(x => (x.Key, x.Value))
+                   .SequenceEqual(stored.Attributes.Select(x => (x.Key, x.Value)));
+    }
+}
