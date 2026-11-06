@@ -9,6 +9,6 @@ public interface IResourceLock
     /// <summary>
     ///     Waits until every key is free and holds them until the returned handle is disposed
     /// </summary>
-    /// <exception cref="TimeoutException">A key stayed held by another caller for the whole wait</exception>
+    /// <exception cref="ResourceLockTimeoutException">A key stayed held by another caller for the whole wait</exception>
     Task<IAsyncDisposable> Acquire(IEnumerable<string> keys, CancellationToken cancellationToken = default);
 }

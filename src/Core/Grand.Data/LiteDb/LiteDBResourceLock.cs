@@ -25,10 +25,11 @@ public class LiteDBResourceLock(Func<LiteDatabase> database, TimeSpan? lease = n
         }
     }
 
-    protected override Task DeleteExpired(string key, long nowUtcTicks)
+    protected override Task<bool> DeleteExpired(string key, long nowUtcTicks)
     {
-        Collection().DeleteMany(Query.And(Query.EQ("_id", key), Query.LT(ExpiresUtcTicksField, nowUtcTicks)));
-        return Task.CompletedTask;
+        var deleted = Collection()
+            .DeleteMany(Query.And(Query.EQ("_id", key), Query.LT(ExpiresUtcTicksField, nowUtcTicks)));
+        return Task.FromResult(deleted > 0);
     }
 
     protected override Task Delete(string key, string owner)

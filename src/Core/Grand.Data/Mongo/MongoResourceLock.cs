@@ -28,9 +28,11 @@ public class MongoResourceLock(Func<IMongoDatabase> database, TimeSpan? lease = 
         }
     }
 
-    protected override Task DeleteExpired(string key, long nowUtcTicks)
+    protected override async Task<bool> DeleteExpired(string key, long nowUtcTicks)
     {
-        return Collection().DeleteOneAsync(Filter.Eq("_id", key) & Filter.Lt(ExpiresUtcTicksField, nowUtcTicks));
+        var result = await Collection()
+            .DeleteOneAsync(Filter.Eq("_id", key) & Filter.Lt(ExpiresUtcTicksField, nowUtcTicks));
+        return result.DeletedCount > 0;
     }
 
     protected override Task Delete(string key, string owner)

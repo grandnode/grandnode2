@@ -28,21 +28,21 @@ public abstract class ResourceLockBase(TimeSpan? lease = null, TimeSpan? wait = 
         {
             //one order for every caller, so two callers wanting the same keys never wait on each other
             foreach (var key in keys.Distinct(StringComparer.Ordinal).Order(StringComparer.Ordinal))
-                while (true)
+            {
+                while (!await TryInsert(key, owner, (DateTime.UtcNow + _lease).Ticks))
                 {
-                    //a holder whose process died never lets go
-                    await DeleteExpired(key, DateTime.UtcNow.Ticks);
-                    if (await TryInsert(key, owner, (DateTime.UtcNow + _lease).Ticks))
-                    {
-                        taken.Add(key);
-                        break;
-                    }
+                    //a holder whose process died never lets go: once its lease ended, the key is tried again at once
+                    if (await DeleteExpired(key, DateTime.UtcNow.Ticks))
+                        continue;
 
                     if (DateTime.UtcNow >= deadline)
-                        throw new TimeoutException($"The resource '{key}' is in use by another operation");
+                        throw new ResourceLockTimeoutException(key);
 
                     await Task.Delay(RetryDelay, cancellationToken);
                 }
+
+                taken.Add(key);
+            }
         }
         catch
         {
@@ -59,9 +59,10 @@ public abstract class ResourceLockBase(TimeSpan? lease = null, TimeSpan? wait = 
     protected abstract Task<bool> TryInsert(string key, string owner, long expiresUtcTicks);
 
     /// <summary>
-    ///     Deletes the key's document when its lease ended before <paramref name="nowUtcTicks" />
+    ///     Deletes the key's document when its lease ended before <paramref name="nowUtcTicks" />; false when there
+    ///     was none to delete
     /// </summary>
-    protected abstract Task DeleteExpired(string key, long nowUtcTicks);
+    protected abstract Task<bool> DeleteExpired(string key, long nowUtcTicks);
 
     /// <summary>
     ///     Deletes the key's document only when this owner still holds it: after a lease ran out the key may be held by

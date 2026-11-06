@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -176,11 +177,24 @@ public class CheckoutClaimServiceTests
     public async Task Claim_ResourceBusyForTheWholeWait_RefusesAndReleases()
     {
         _giftVoucherServiceMock.Setup(x => x.TryRedeem("g1", 30, "o1"))
-            .ThrowsAsync(new TimeoutException("The resource 'GiftVoucher:g1' is in use by another operation"));
+            .ThrowsAsync(new ResourceLockTimeoutException("GiftVoucher:g1"));
 
         var claim = await _service.Claim(_details, "CODE1");
 
         Assert.IsFalse(claim.Succeeded);
+        _inventoryManageServiceMock.Verify(x => x.CancelReservation(_product, 2, _attributes, "w1"), Times.Once);
+        _discountServiceMock.Verify(x => x.ReleaseDiscountUsageHistory(It.IsAny<DiscountUsageHistory>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Claim_DatabaseTimeout_ReleasesAndThrows()
+    {
+        _giftVoucherServiceMock.Setup(x => x.TryRedeem("g1", 30, "o1"))
+            .ThrowsAsync(new TimeoutException("No server is available"));
+
+        await Assert.ThrowsExactlyAsync<TimeoutException>(() => _service.Claim(_details, "CODE1"));
+
         _inventoryManageServiceMock.Verify(x => x.CancelReservation(_product, 2, _attributes, "w1"), Times.Once);
         _discountServiceMock.Verify(x => x.ReleaseDiscountUsageHistory(It.IsAny<DiscountUsageHistory>()),
             Times.Once);

@@ -20,7 +20,7 @@ public abstract class ResourceLockTestsBase
 
         await using var first = await resourceLock.Acquire([_key]);
 
-        await Assert.ThrowsExactlyAsync<TimeoutException>(() => resourceLock.Acquire([_key]));
+        await Assert.ThrowsExactlyAsync<ResourceLockTimeoutException>(() => resourceLock.Acquire([_key]));
     }
 
     [TestMethod]
@@ -57,7 +57,7 @@ public abstract class ResourceLockTestsBase
         await using var second = await longLease.Acquire([_key]);
         await first.DisposeAsync();
 
-        await Assert.ThrowsExactlyAsync<TimeoutException>(() => longLease.Acquire([_key]));
+        await Assert.ThrowsExactlyAsync<ResourceLockTimeoutException>(() => longLease.Acquire([_key]));
     }
 
     [TestMethod]

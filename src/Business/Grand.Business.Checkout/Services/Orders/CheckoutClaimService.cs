@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Data;
 using Grand.Domain.Discounts;
 using Microsoft.Extensions.Logging;
 
@@ -53,9 +54,10 @@ public class CheckoutClaimService : ICheckoutClaimService
                               && await ClaimGiftVouchers(details, claim)
                               && await ClaimLoyaltyPoints(details, claim);
         }
-        catch (TimeoutException ex)
+        catch (ResourceLockTimeoutException ex)
         {
-            //another checkout held a resource for the whole wait: a refusal, so the buyer is asked to try again
+            //another checkout held a resource for the whole wait: a refusal, so the buyer is asked to try again; a
+            //database timeout is a failure and goes on as one
             _logger.LogWarning(ex, "A resource of order {OrderId} stayed in use by another checkout", claim.OrderId);
             claim.Succeeded = false;
         }
