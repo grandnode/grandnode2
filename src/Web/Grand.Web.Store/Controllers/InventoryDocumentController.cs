@@ -60,7 +60,7 @@ public class InventoryDocumentController(
 
     [HttpGet]
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
-    public Task<IActionResult> Edit(string id) => EditGetCore(id);
+    public Task<IActionResult> Edit(string id, int page = 1) => EditGetCore(id, page);
 
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.Edit)]

@@ -20,8 +20,8 @@ public static class InventoryIndexes
             OrderBuilder<InventoryJournal>.Create().Ascending(x => x.WarehouseId).Descending(x => x.CreateDateUtc),
             "WarehouseId_CreateDateUtc");
         await databaseContext.CreateIndex(journal,
-            OrderBuilder<InventoryJournal>.Create().Ascending(x => x.ObjectType).Ascending(x => x.ObjectId),
-            "ObjectType_ObjectId");
+            OrderBuilder<InventoryJournal>.Create().Ascending(x => x.ObjectType).Ascending(x => x.ObjectId)
+                .Ascending(x => x.ProductId), "ObjectType_ObjectId_ProductId");
         await databaseContext.CreateIndex(journal,
             OrderBuilder<InventoryJournal>.Create().Ascending(x => x.PositionId), "PositionId");
 

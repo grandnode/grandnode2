@@ -70,7 +70,7 @@ public class InventoryJournalServiceTests
         await Entry(product.Id, start.AddDays(2), 5, InventoryMovementType.Receipt);
         await Entry(product.Id, start.AddDays(5), 0, InventoryMovementType.Shipment, outQty: 2);
 
-        var rows = await _service.GetStockAtDate("w1", start.AddDays(3), null);
+        var (rows, _) = await _service.GetStockAtDate("w1", start.AddDays(3), null, 0, 100);
 
         var row = rows.Single();
         Assert.AreEqual(product.Id, row.ProductId);
@@ -87,7 +87,7 @@ public class InventoryJournalServiceTests
         var start = DateTime.UtcNow.AddDays(-10);
         await Entry(product.Id, start, 4, InventoryMovementType.OpeningBalance);
 
-        var rows = await _service.GetStockAtDate("w1", start.AddDays(-1), null);
+        var (rows, _) = await _service.GetStockAtDate("w1", start.AddDays(-1), null, 0, 100);
 
         Assert.IsFalse(rows.Single().Available);
     }
@@ -102,7 +102,7 @@ public class InventoryJournalServiceTests
             ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 3 } }
         });
 
-        var rows = await _service.GetStockAtDate("w1", DateTime.UtcNow, null);
+        var (rows, _) = await _service.GetStockAtDate("w1", DateTime.UtcNow, null, 0, 100);
 
         Assert.AreEqual(3, rows.Single().Stock);
     }
@@ -116,8 +116,26 @@ public class InventoryJournalServiceTests
                 LimitedToStores = limited, Stores = stores.ToList()
             });
 
-        var rows = await _service.GetStockAtDate("w1", DateTime.UtcNow, "store1");
+        var (rows, _) = await _service.GetStockAtDate("w1", DateTime.UtcNow, "store1", 0, 100);
 
         Assert.AreEqual(2, rows.Count);
+    }
+
+    [TestMethod]
+    public async Task GetStockAtDate_PagesThroughTheProductsKeptInTheWarehouse()
+    {
+        for (var i = 0; i < 2; i++)
+            await _products.InsertAsync(new Product
+                { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, WarehouseId = "w1", StockQuantity = 1 });
+        //kept in other warehouses only
+        await _products.InsertAsync(new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "w2", StockQuantity = 3 } }
+        });
+
+        var (rows, productCount) = await _service.GetStockAtDate("w1", DateTime.UtcNow, null, 1, 1);
+
+        Assert.AreEqual(1, rows.Count);
+        Assert.AreEqual(2, productCount);
     }
 }

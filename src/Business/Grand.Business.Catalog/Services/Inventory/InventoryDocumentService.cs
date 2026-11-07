@@ -28,16 +28,17 @@ public class InventoryDocumentService(
 {
     private const int StockCountPageSize = 500;
 
-    public async Task<InventoryDocument> CreateStockCount(string warehouseId, IList<string> categoryIds,
-        IList<string> brandIds, string customerId)
+    /// <summary>
+    ///     The lines a document holds at most: they are stored with it, and a large warehouse is counted in parts
+    /// </summary>
+    public const int MaxLines = 5000;
+
+    public async Task<(InventoryDocument Document, IList<string> Errors)> CreateStockCount(string warehouseId,
+        IList<string> categoryIds, IList<string> brandIds, string customerId)
     {
         ArgumentException.ThrowIfNullOrEmpty(warehouseId);
 
-        //the products that can hold stock in the warehouse; which of their buckets are there is read from each
-        var query = productRepository.Table.Where(x =>
-            (x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
-             x.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
-            (x.UseMultipleWarehouses || x.WarehouseId == warehouseId));
+        var query = productRepository.Table.Where(StockBuckets.KeptIn(warehouseId));
         if (categoryIds is { Count: > 0 })
             query = query.Where(x => x.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
         if (brandIds is { Count: > 0 })
@@ -57,11 +58,13 @@ public class InventoryDocumentService(
                 document.Lines.Add(new InventoryDocumentLine
                     { ProductId = product.Id, Attributes = attributes, ExpectedQuantity = stock });
 
+            if (document.Lines.Count > MaxLines)
+                return (null, [InventoryDocumentErrors.TooManyLines]);
             if (!products.HasNextPage)
                 break;
         }
 
-        return await CreateDraft(document);
+        return (await CreateDraft(document), []);
     }
 
     public async Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(
@@ -151,25 +154,29 @@ public class InventoryDocumentService(
 
     public async Task<IList<string>> Post(string id, string customerId)
     {
-        //the posting holds the document's key, so the draft cannot be saved or deleted under it
-        await using var documentLock = await resourceLock.Acquire([DocumentLockKey(id)]);
-
-        var document = await inventoryDocumentRepository.GetByIdAsync(id);
-        if (document == null)
-            return [InventoryDocumentErrors.NotFound];
-        if (document.StatusId == InventoryDocumentStatus.Posted)
-            return [InventoryDocumentErrors.Posted];
-
         //every line is checked before the first write
-        var errors = await Validate(document);
-        if (errors.Count > 0)
-            return errors;
+        InventoryDocument document;
+        await using (await resourceLock.Acquire([DocumentLockKey(id)]))
+        {
+            document = await inventoryDocumentRepository.GetByIdAsync(id);
+            if (document == null)
+                return [InventoryDocumentErrors.NotFound];
+            if (document.StatusId == InventoryDocumentStatus.Posted)
+                return [InventoryDocumentErrors.Posted];
 
-        //one product's lock at a time: a large stock count never holds every key at once, which would outlive
-        //the lease; a product that fails stops the posting, and posting again continues after the products booked
+            var invalid = await Validate(document);
+            if (invalid.Count > 0)
+                return invalid;
+        }
+
+        //one product at a time, with the document's key: no lease has to outlast a large stock count, and a draft
+        //saved meanwhile stops the posting instead of being booked half as it was; a product that fails stops it
+        //too, and posting again continues after the products booked
         foreach (var productLines in document.Lines.GroupBy(x => x.ProductId))
         {
-            await using var _ = await resourceLock.Acquire([ProductStockLock.Key(productLines.Key)]);
+            await using var _ = await resourceLock.Acquire([DocumentLockKey(id), ProductStockLock.Key(productLines.Key)]);
+            if (await Changed(document))
+                return [InventoryDocumentErrors.ChangedWhilePosting];
 
             var product = await productRepository.GetByIdAsync(productLines.Key);
             var booked = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
@@ -184,23 +191,40 @@ public class InventoryDocumentService(
             if (changes.Count == 0)
                 continue;
 
-            errors = await stockLedger.Apply(product, changes);
+            var errors = await stockLedger.Apply(product, changes);
             if (errors.Count > 0)
                 return errors;
         }
 
-        document.StatusId = InventoryDocumentStatus.Posted;
-        document.PostedOnUtc = DateTime.UtcNow;
-        document.PostedBy = customerId;
-        await inventoryDocumentRepository.UpdateOneAsync(
-            x => x.Id == document.Id && x.StatusId == InventoryDocumentStatus.Draft,
-            UpdateBuilder<InventoryDocument>.Create()
-                .Set(x => x.StatusId, document.StatusId)
-                .Set(x => x.PostedOnUtc, document.PostedOnUtc)
-                .Set(x => x.PostedBy, document.PostedBy));
+        await using (await resourceLock.Acquire([DocumentLockKey(id)]))
+        {
+            if (await Changed(document))
+                return [InventoryDocumentErrors.ChangedWhilePosting];
+
+            document.StatusId = InventoryDocumentStatus.Posted;
+            document.PostedOnUtc = DateTime.UtcNow;
+            document.PostedBy = customerId;
+            await inventoryDocumentRepository.UpdateOneAsync(x => x.Id == document.Id,
+                UpdateBuilder<InventoryDocument>.Create()
+                    .Set(x => x.StatusId, document.StatusId)
+                    .Set(x => x.PostedOnUtc, document.PostedOnUtc)
+                    .Set(x => x.PostedBy, document.PostedBy));
+        }
 
         await mediator.EntityUpdated(document);
         return [];
+    }
+
+    /// <summary>
+    ///     Whether the stored document is no longer the draft the posting read: saved, deleted or posted since
+    /// </summary>
+    private async Task<bool> Changed(InventoryDocument document)
+    {
+        var stored = await inventoryDocumentRepository.FirstOrDefaultAsync(inventoryDocumentRepository.Table
+            .Where(x => x.Id == document.Id)
+            .Select(x => new { x.StatusId, x.UpdatedOnUtc }));
+        return stored == null || stored.StatusId != InventoryDocumentStatus.Draft ||
+               stored.UpdatedOnUtc != document.UpdatedOnUtc;
     }
 
     /// <summary>
@@ -369,6 +393,8 @@ public class InventoryDocumentService(
 
         if (document.Lines.Count == 0)
             Add(InventoryDocumentErrors.NoLines);
+        if (document.Lines.Count > MaxLines)
+            Add(InventoryDocumentErrors.TooManyLines);
 
         if (string.IsNullOrEmpty(document.WarehouseId) ||
             await warehouseService.GetWarehouseById(document.WarehouseId) == null)
@@ -393,11 +419,12 @@ public class InventoryDocumentService(
             await ReturnQuantityExceeded(document))
             Add(InventoryDocumentErrors.ReturnQuantityExceeded);
 
+        var products = new Dictionary<string, Product>();
         foreach (var line in document.Lines)
         {
-            var product = string.IsNullOrEmpty(line.ProductId)
-                ? null
-                : await productRepository.GetByIdAsync(line.ProductId);
+            Product product = null;
+            if (!string.IsNullOrEmpty(line.ProductId) && !products.TryGetValue(line.ProductId, out product))
+                products[line.ProductId] = product = await productRepository.GetByIdAsync(line.ProductId);
             if (product == null)
             {
                 Add(StockErrors.ProductNotFound);

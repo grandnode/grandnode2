@@ -42,10 +42,15 @@ public interface IInventoryJournalService
         DateTime? toUtc, IList<string> storeIds, int pageIndex, int pageSize);
 
     /// <summary>
-    ///     The stock of every bucket kept in the warehouse at a date: the stored stock less what changed since
+    ///     The stock at a date of every bucket a page of products keeps in the warehouse: the stored stock less what
+    ///     changed since
     /// </summary>
     /// <param name="warehouseId">The warehouse</param>
     /// <param name="atUtc">The date</param>
     /// <param name="storeId">Only products a store sees: those not limited to stores and its own; null for all</param>
-    Task<IList<StockAtDateRow>> GetStockAtDate(string warehouseId, DateTime atUtc, string storeId);
+    /// <param name="pageIndex">Page index, of products</param>
+    /// <param name="pageSize">Page size, in products</param>
+    /// <returns>The buckets of the page's products, and how many products the warehouse keeps</returns>
+    Task<(IList<StockAtDateRow> Rows, int ProductCount)> GetStockAtDate(string warehouseId, DateTime atUtc,
+        string storeId, int pageIndex, int pageSize);
 }

@@ -53,9 +53,9 @@ public abstract class BaseInventoryReportController(
         var atUtc = atDate.HasValue
             ? dateTimeService.ConvertToUtcTime(atDate.Value, dateTimeService.CurrentTimeZone)
             : DateTime.UtcNow;
-        //a warehouse of this store may hold a product of another one
-        var stock = await inventoryJournalService.GetStockAtDate(warehouse.Id, atUtc,
-            await productScope.GetDefaultStoreIdAsync());
+        //a warehouse of this store may hold a product of another one; the grid pages through products
+        var (stock, productCount) = await inventoryJournalService.GetStockAtDate(warehouse.Id, atUtc,
+            await productScope.GetDefaultStoreIdAsync(), command.Page - 1, command.PageSize);
 
         var rows = new List<StockAtDateRowModel>();
         foreach (var row in stock)
@@ -74,6 +74,6 @@ public abstract class BaseInventoryReportController(
             });
         }
 
-        return Json(new DataSourceResult { Data = rows, Total = rows.Count });
+        return Json(new DataSourceResult { Data = rows, Total = productCount });
     }
 }

@@ -112,9 +112,8 @@ public class StockHistoryControllerTests
         _productService.Setup(x => x.GetProductById(own.Id, false)).ReturnsAsync(own);
         _warehouseService.Setup(x => x.GetWarehouseById("w-own"))
             .ReturnsAsync(new Warehouse { Id = "w-own", StoreId = StoreId });
-        _journalService.Setup(x => x.GetStockAtDate("w-own", It.IsAny<DateTime>(), StoreId)).ReturnsAsync([
-            new StockAtDateRow(own.Id, "own", "", "", [], 1, true)
-        ]);
+        _journalService.Setup(x => x.GetStockAtDate("w-own", It.IsAny<DateTime>(), StoreId, It.IsAny<int>(),
+            It.IsAny<int>())).ReturnsAsync(([new StockAtDateRow(own.Id, "own", "", "", [], 1, true)], 1));
 
         var result = (JsonResult)await Report().StockAtDateData(new DataSourceRequest(), "w-own", null);
 
@@ -141,6 +140,7 @@ public class StockHistoryControllerTests
     {
         await Report().StockAtDateData(new DataSourceRequest(), "w-other", null);
 
-        _journalService.Verify(x => x.GetStockAtDate(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<string>()), Times.Never);
+        _journalService.Verify(x => x.GetStockAtDate(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<int>(),
+            It.IsAny<int>()), Times.Never);
     }
 }

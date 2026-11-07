@@ -63,8 +63,9 @@ public interface IInventoryDocumentService
     /// <param name="categoryIds">Only products of these categories; empty for all</param>
     /// <param name="brandIds">Only products of these brands; empty for all</param>
     /// <param name="customerId">Who creates it</param>
-    Task<InventoryDocument> CreateStockCount(string warehouseId, IList<string> categoryIds, IList<string> brandIds,
-        string customerId);
+    /// <returns>The draft, or null and the keys of the errors</returns>
+    Task<(InventoryDocument Document, IList<string> Errors)> CreateStockCount(string warehouseId,
+        IList<string> categoryIds, IList<string> brandIds, string customerId);
 
     /// <summary>
     ///     A return receipt draft of what a merchandise return gives back and has not been received yet

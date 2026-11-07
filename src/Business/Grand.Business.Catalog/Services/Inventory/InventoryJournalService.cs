@@ -10,8 +10,6 @@ public class InventoryJournalService(
     IRepository<InventoryJournal> inventoryJournalRepository,
     IRepository<Product> productRepository) : IInventoryJournalService
 {
-    private const int ProductPageSize = 500;
-
     public Task<IPagedList<InventoryJournal>> GetProductHistory(string productId, string warehouseId,
         DateTime? fromUtc, DateTime? toUtc, IList<string> storeIds, int pageIndex, int pageSize)
     {
@@ -33,33 +31,24 @@ public class InventoryJournalService(
             pageSize);
     }
 
-    public async Task<IList<StockAtDateRow>> GetStockAtDate(string warehouseId, DateTime atUtc, string storeId)
+    public async Task<(IList<StockAtDateRow> Rows, int ProductCount)> GetStockAtDate(string warehouseId,
+        DateTime atUtc, string storeId, int pageIndex, int pageSize)
     {
         ArgumentException.ThrowIfNullOrEmpty(warehouseId);
 
-        var query = productRepository.Table.Where(x =>
-            (x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
-             x.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
-            (x.UseMultipleWarehouses || x.WarehouseId == warehouseId));
+        var query = productRepository.Table.Where(StockBuckets.KeptIn(warehouseId));
         if (storeId != null)
             query = query.Where(x => !x.LimitedToStores || x.Stores.Contains(storeId));
-        query = query.OrderBy(x => x.Id);
 
-        var rows = new List<StockAtDateRow>();
-        for (var pageIndex = 0;; pageIndex++)
-        {
-            var products = await productRepository.PagedAsync(query, pageIndex, ProductPageSize);
-            var productIds = products.Select(x => x.Id).ToList();
-            var entries = (await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table.Where(x =>
-                    productIds.Contains(x.ProductId) && x.WarehouseId == warehouseId &&
-                    (x.CreateDateUtc > atUtc || x.MovementTypeId == InventoryMovementType.OpeningBalance))))
-                .ToLookup(x => x.ProductId);
-            foreach (var product in products)
-                rows.AddRange(StockAtDate(product, warehouseId, atUtc, entries[product.Id]));
+        var products = await productRepository.PagedAsync(query.OrderBy(x => x.Id), pageIndex, pageSize);
+        var productIds = products.Select(x => x.Id).ToList();
+        var entries = (await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table.Where(x =>
+                productIds.Contains(x.ProductId) && x.WarehouseId == warehouseId &&
+                (x.CreateDateUtc > atUtc || x.MovementTypeId == InventoryMovementType.OpeningBalance))))
+            .ToLookup(x => x.ProductId);
 
-            if (!products.HasNextPage)
-                return rows;
-        }
+        return (products.SelectMany(product => StockAtDate(product, warehouseId, atUtc, entries[product.Id])).ToList(),
+            products.TotalCount);
     }
 
     private static IEnumerable<StockAtDateRow> StockAtDate(Product product, string warehouseId, DateTime atUtc,

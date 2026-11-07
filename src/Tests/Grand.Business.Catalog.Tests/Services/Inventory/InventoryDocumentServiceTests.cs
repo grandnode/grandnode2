@@ -70,7 +70,7 @@ public class InventoryDocumentServiceTests
         var single = await Product(p => p.WarehouseId = "w1");
         var multi = await MultiWarehouseProduct(4, 9);
 
-        var document = await _service.CreateStockCount("w1", [], [], "staff");
+        var (document, _) = await _service.CreateStockCount("w1", [], [], "staff");
 
         Assert.AreEqual(InventoryDocumentType.StockCount, document.DocumentTypeId);
         Assert.AreEqual(10, document.Lines.Single(x => x.ProductId == single.Id).ExpectedQuantity);
@@ -87,7 +87,7 @@ public class InventoryDocumentServiceTests
         combinations.WarehouseId = "w1";
         await _products.InsertAsync(combinations);
 
-        var document = await _service.CreateStockCount("w1", [], [], "staff");
+        var (document, _) = await _service.CreateStockCount("w1", [], [], "staff");
 
         Assert.AreEqual(2, document.Lines.Count);
         Assert.IsTrue(document.Lines.All(x => x.ProductId == combinations.Id));
@@ -103,7 +103,7 @@ public class InventoryDocumentServiceTests
         });
         await Product(p => p.WarehouseId = "w1");
 
-        var document = await _service.CreateStockCount("w1", ["c1"], [], "staff");
+        var (document, _) = await _service.CreateStockCount("w1", ["c1"], [], "staff");
 
         Assert.AreEqual(inCategory.Id, document.Lines.Single().ProductId);
     }
@@ -296,6 +296,40 @@ public class InventoryDocumentServiceTests
     }
 
     [TestMethod]
+    public async Task Post_DraftSavedWhilePosting_StopsBeforeBooking()
+    {
+        var product = await Product();
+        var document = await Draft(Document(InventoryDocumentType.Adjustment, Line(product, 1)));
+        var resourceLock = new Mock<IResourceLock>();
+        resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Returns(async (IEnumerable<string> keys, CancellationToken _) =>
+            {
+                //another user saves the draft just as its first product is to be booked
+                if (keys.Contains(ProductStockLock.Key(product.Id)))
+                    await _documents.UpdateAsync(_documents.Table.Single(x => x.Id == document.Id));
+                return new Mock<IAsyncDisposable>().Object;
+            });
+
+        var errors = await Service(resourceLock.Object).Post(document.Id, "staff");
+
+        CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.ChangedWhilePosting }, errors.ToArray());
+        Assert.IsFalse(_journal.Table.Any(x => x.ObjectId == document.Id));
+        Assert.AreEqual(InventoryDocumentStatus.Draft, _documents.Table.Single().StatusId);
+    }
+
+    [TestMethod]
+    public async Task Validate_MoreLinesThanADocumentHolds_Rejected()
+    {
+        var product = await Product();
+        var document = Document(InventoryDocumentType.Receipt,
+            Enumerable.Range(0, InventoryDocumentService.MaxLines + 1).Select(_ => Line(product, 1)).ToArray());
+
+        var errors = await _service.Validate(document);
+
+        CollectionAssert.Contains(errors.ToList(), InventoryDocumentErrors.TooManyLines);
+    }
+
+    [TestMethod]
     public async Task Post_StockCount_SameBucketTwice_Rejected()
     {
         var product = await Product();
@@ -362,7 +396,7 @@ public class InventoryDocumentServiceTests
     }
 
     [TestMethod]
-    public async Task Post_ManyProducts_HoldsTheDocumentAndOneProductKeyAtATime()
+    public async Task Post_ManyProducts_HoldsTheDocumentKeyWithOneProductKeyAtATime()
     {
         var products = new List<Product>();
         for (var i = 0; i < 3; i++)
@@ -377,11 +411,12 @@ public class InventoryDocumentServiceTests
 
         await Service(resourceLock.Object).Post(document.Id, "staff");
 
-        Assert.AreEqual(4, acquired.Count);
-        Assert.IsTrue(acquired.All(x => x.Length == 1));
-        Assert.AreEqual($"InventoryDocument:{document.Id}", acquired[0][0]);
+        var documentKey = $"InventoryDocument:{document.Id}";
+        Assert.AreEqual(5, acquired.Count);
+        Assert.IsTrue(acquired.All(x => x.Contains(documentKey)));
         CollectionAssert.AreEquivalent(products.Select(p => ProductStockLock.Key(p.Id)).ToArray(),
-            acquired.Skip(1).Select(x => x[0]).ToArray());
+            acquired.SelectMany(x => x).Where(x => x != documentKey).ToArray());
+        Assert.IsTrue(acquired.All(x => x.Length <= 2));
     }
 
     [TestMethod]

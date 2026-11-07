@@ -1,5 +1,6 @@
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Core.Utilities.Catalog;
 
@@ -72,6 +73,20 @@ public static class StockBuckets
 
         product.StockRevision = entries.Count;
         return entries;
+    }
+
+    /// <summary>
+    ///     The products that track stock and keep a bucket in the warehouse, as a query filter: kept in that one
+    ///     warehouse, or with a warehouse row there
+    /// </summary>
+    public static Expression<Func<Product, bool>> KeptIn(string warehouseId)
+    {
+        return x => (x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
+                     x.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
+                    ((!x.UseMultipleWarehouses && x.WarehouseId == warehouseId) ||
+                     (x.UseMultipleWarehouses &&
+                      (x.ProductWarehouseInventory.Any(w => w.WarehouseId == warehouseId) ||
+                       x.ProductAttributeCombinations.Any(c => c.WarehouseInventory.Any(w => w.WarehouseId == warehouseId)))));
     }
 
     /// <summary>

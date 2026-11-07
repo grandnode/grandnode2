@@ -1014,6 +1014,12 @@
 	<Resource Name="Admin.Inventory.Documents.Errors.DuplicateLine" Area="Admin">
 		<Value>A stock count lists the same product or combination more than once: remove the extra lines.</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ChangedWhilePosting" Area="Admin">
+		<Value>The document was changed while it was being posted: post it again to book the rest.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.TooManyLines" Area="Admin">
+		<Value>A document holds at most 5,000 lines: count a large warehouse in parts, by categories or brands.</Value>
+	</Resource>
 	<Resource Name="Admin.Inventory.Documents.Errors.ReturnNotReceivable" Area="Admin">
 		<Value>A rejected or cancelled merchandise return cannot be received.</Value>
 	</Resource>

@@ -222,7 +222,7 @@ public class InventoryDocumentControllerTests
             Lines = { new InventoryDocumentLine { ProductId = own.Id }, new InventoryDocumentLine { ProductId = foreign.Id } }
         };
         _documentService.Setup(x => x.CreateStockCount("w-own", It.IsAny<IList<string>>(),
-            It.IsAny<IList<string>>(), "staff")).ReturnsAsync(count);
+            It.IsAny<IList<string>>(), "staff")).ReturnsAsync((count, []));
 
         await _controller.Create(new InventoryDocumentModel
             { DocumentTypeId = (int)InventoryDocumentType.StockCount, WarehouseId = "w-own" });

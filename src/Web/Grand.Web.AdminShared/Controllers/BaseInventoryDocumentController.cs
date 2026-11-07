@@ -113,8 +113,15 @@ public abstract class BaseInventoryDocumentController(
         var type = (InventoryDocumentType)model.DocumentTypeId;
         if (type == InventoryDocumentType.StockCount)
         {
-            var count = await inventoryDocumentService.CreateStockCount(model.WarehouseId, model.CategoryIds,
-                model.BrandIds, CustomerId);
+            var (count, refused) = await inventoryDocumentService.CreateStockCount(model.WarehouseId,
+                model.CategoryIds, model.BrandIds, CustomerId);
+            if (count == null)
+            {
+                Error(string.Join(" ", inventoryDocumentViewModelService.Translate(refused)));
+                await inventoryDocumentViewModelService.PrepareModel(model, null);
+                return View("Create", model);
+            }
+
             return await KeepAccessibleLines(count, false)
                 ? RedirectToAction("Edit", new { id = count.Id })
                 : RedirectToAction("List");
@@ -161,14 +168,14 @@ public abstract class BaseInventoryDocumentController(
             : RedirectToAction("List");
     }
 
-    protected virtual async Task<IActionResult> EditGetCore(string id)
+    protected virtual async Task<IActionResult> EditGetCore(string id, int page)
     {
         var document = await inventoryDocumentService.GetById(id);
         if (!await HasAccess(document))
             return Denied();
 
         var model = new InventoryDocumentModel();
-        await inventoryDocumentViewModelService.PrepareModel(model, document);
+        await inventoryDocumentViewModelService.PrepareModel(model, document, page);
         return View("Edit", model);
     }
 
@@ -194,8 +201,10 @@ public abstract class BaseInventoryDocumentController(
         else
             Success(translationService.GetResource("Admin.Inventory.Documents.Updated"));
 
-        return continueEditing || errors.Count > 0
-            ? RedirectToAction("Edit", new { id = document.Id })
+        //the form holds a page of lines: the pager saves it and turns the page, and a line added by SKU is on the last
+        var page = string.IsNullOrWhiteSpace(model.AddSku) ? model.LinesTarget ?? model.LinesPage : int.MaxValue;
+        return continueEditing || errors.Count > 0 || model.LinesTarget.HasValue
+            ? RedirectToAction("Edit", new { id = document.Id, page })
             : RedirectToAction("List");
     }
 

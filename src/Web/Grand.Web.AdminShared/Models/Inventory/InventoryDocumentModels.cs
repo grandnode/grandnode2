@@ -84,7 +84,14 @@ public class InventoryDocumentModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Inventory.Documents.Fields.AddSku")]
     public string AddSku { get; set; }
 
+    //the lines of one page: the form posts a page at a time, as a large stock count would exceed its field limit
     public IList<InventoryDocumentLineModel> Lines { get; set; } = new List<InventoryDocumentLineModel>();
+
+    public int LinesPage { get; set; } = 1;
+    public int LinesPageCount { get; set; } = 1;
+
+    //the page the pager turns to, after saving this one
+    public int? LinesTarget { get; set; }
 
     public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailableCategories { get; set; } = new List<SelectListItem>();

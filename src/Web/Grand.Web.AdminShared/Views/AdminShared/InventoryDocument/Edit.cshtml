@@ -8,6 +8,7 @@
 <form asp-area="@area" asp-controller="InventoryDocument" asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id"/>
     <input type="hidden" asp-for="DocumentTypeId"/>
+    <input type="hidden" asp-for="LinesPage"/>
     <admin-page sticky title="@Model.Number" icon="bi-box-seam" meta="@($"{Model.DocumentType} · {Model.Status}")"
                 back-url="@Url.Action("List")" back-text="@Loc["Admin.Inventory.Documents.BackToList"]">
         <page-actions>
@@ -98,6 +99,27 @@
                         </tbody>
                     </table>
                 </div>
+                @if (Model.LinesPageCount > 1)
+                {
+                    @* a page of lines at a time; turning the page of a draft saves it first *@
+                    <nav class="d-flex justify-content-end p-2">
+                        <ul class="pagination pagination-sm flex-wrap mb-0">
+                            @for (var linesPage = 1; linesPage <= Model.LinesPageCount; linesPage++)
+                            {
+                                <li class="page-item @(linesPage == Model.LinesPage ? "active" : "")">
+                                    @if (Model.Posted)
+                                    {
+                                        <a class="page-link" href="@Url.Action("Edit", new { area, id = Model.Id, page = linesPage })">@linesPage</a>
+                                    }
+                                    else
+                                    {
+                                        <button class="page-link" type="submit" name="LinesTarget" value="@linesPage">@linesPage</button>
+                                    }
+                                </li>
+                            }
+                        </ul>
+                    </nav>
+                }
                 @if (Model.Lines.Count == 0)
                 {
                     <div class="grand-empty">

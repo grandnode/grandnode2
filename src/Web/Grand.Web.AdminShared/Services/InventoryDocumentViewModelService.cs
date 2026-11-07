@@ -24,7 +24,7 @@ public interface IInventoryDocumentViewModelService
     /// <summary>
     ///     The model of a document; with a null document, of a new one of the model's type
     /// </summary>
-    Task PrepareModel(InventoryDocumentModel model, InventoryDocument document);
+    Task PrepareModel(InventoryDocumentModel model, InventoryDocument document, int linesPage = 1);
 
     /// <summary>
     ///     The warehouses the current user may put on a document
@@ -60,6 +60,9 @@ public class InventoryDocumentViewModelService(
     IAdminDataScope<Warehouse> warehouseScope,
     IAdminDataScope<Product> productScope) : IInventoryDocumentViewModelService
 {
+    //five form fields a line: a hundred stay well within the form's limit of 1024
+    private const int LinesPageSize = 100;
+
     public async Task<InventoryDocumentListModel> PrepareListModel()
     {
         var model = new InventoryDocumentListModel();
@@ -111,7 +114,7 @@ public class InventoryDocumentViewModelService(
         return usable;
     }
 
-    public async Task PrepareModel(InventoryDocumentModel model, InventoryDocument document)
+    public async Task PrepareModel(InventoryDocumentModel model, InventoryDocument document, int linesPage = 1)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -128,7 +131,9 @@ public class InventoryDocumentViewModelService(
             model.ExternalReference = document.ExternalReference;
             model.Comment = document.Comment;
             model.Lines.Clear();
-            foreach (var line in document.Lines)
+            model.LinesPageCount = Math.Max(1, (document.Lines.Count + LinesPageSize - 1) / LinesPageSize);
+            model.LinesPage = Math.Clamp(linesPage, 1, model.LinesPageCount);
+            foreach (var line in document.Lines.Skip((model.LinesPage - 1) * LinesPageSize).Take(LinesPageSize))
             {
                 var product = await productService.GetProductById(line.ProductId);
                 model.Lines.Add(new InventoryDocumentLineModel {
