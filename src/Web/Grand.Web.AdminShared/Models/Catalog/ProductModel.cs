@@ -305,6 +305,8 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.StartPrice")]
     public double StartPrice { get; set; }
 
+    //a receipt sets the average cost to four decimals: the form keeps them, or saving it would round the cost
+    [UIHint("DoubleN4")]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ProductCost")]
     public double ProductCost { get; set; }
 
