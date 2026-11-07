@@ -66,6 +66,10 @@
                                         @Html.Raw(item.AttributeInfo)
                                     </p>
                                 }
+                                @if (!string.IsNullOrEmpty(item.UnitsInfo))
+                                {
+                                    <p>@item.UnitsInfo</p>
+                                }
                                 @if (!string.IsNullOrEmpty(item.RecurringInfo))
                                 {
                                     <p>

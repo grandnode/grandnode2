@@ -85,6 +85,16 @@ public class OrderDetailsModel : BaseEntityModel
 
     public class OrderItemModel : BaseEntityModel
     {
+        /// <summary>
+        ///     The serial numbers shipped
+        /// </summary>
+        public IList<string> SerialNumbers { get; set; } = new List<string>();
+
+        /// <summary>
+        ///     The end of the warranty of the units shipped
+        /// </summary>
+        public DateTime? WarrantyUntil { get; set; }
+
         public Guid OrderItemGuid { get; set; }
         public string Sku { get; set; }
         public string ProductId { get; set; }
