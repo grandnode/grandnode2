@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
 
@@ -71,6 +72,12 @@ public interface ICatalogMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendQuantityBelowStoreOwnerMessage(Product product, string languageId);
+
+    /// <summary>
+    ///     Sends the store owner the batches of the store that became expiring or expired
+    /// </summary>
+    /// <returns>Queued email identifier; 0 without the message template</returns>
+    Task<int> SendBatchesExpiringStoreOwnerMessage(Store store, IList<ExpiringBatch> batches, string languageId);
 
     /// <summary>
     ///     Sends a "quantity below" notification to a store owner

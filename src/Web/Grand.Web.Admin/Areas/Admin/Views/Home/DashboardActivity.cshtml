@@ -15,6 +15,14 @@
         <span class="grand-activity__label">@Loc["Admin.Dashboard.ActivityOverview.LowStockProducts"]</span>
         <span class="grand-activity__count">@Model.LowStockProducts</span>
     </li>
+    @if (Model.ExpiringBatches + Model.ExpiredBatches > 0)
+    {
+        <li class="grand-activity__item grand-activity__item--stock">
+            <span class="grand-activity__icon" aria-hidden="true"><i class="bi bi-hourglass-split"></i></span>
+            <a class="grand-activity__label" href="@Url.Action("Batches", "ProductUnit", new { area = "Admin" })">@Loc["Admin.Inventory.Units.ExpiringBatches"]</a>
+            <span class="grand-activity__count">@Model.ExpiringBatches / @Model.ExpiredBatches</span>
+        </li>
+    }
     <li class="grand-activity__item grand-activity__item--customers">
         <span class="grand-activity__icon" aria-hidden="true"><i class="bi bi-person-check"></i></span>
         <span class="grand-activity__label">@Loc["Admin.Dashboard.ActivityOverview.TodayRegisteredCustomers"]</span>

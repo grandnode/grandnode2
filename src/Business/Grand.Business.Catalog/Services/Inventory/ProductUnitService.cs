@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Catalog;
@@ -17,8 +18,72 @@ public class ProductUnitService(
     ISettingService settingService,
     IRepository<InventoryJournal> journalRepository,
     IRepository<Shipment> shipmentRepository,
-    IRepository<Order> orderRepository) : IProductUnitService
+    IRepository<Order> orderRepository,
+    IWarehouseService warehouseService) : IProductUnitService
 {
+    /// <summary>
+    ///     The furthest a product's own warning days reach: batches expiring later are not read
+    /// </summary>
+    private const int MaxWarningDays = 366;
+
+    public async Task<IList<ExpiringBatch>> BatchesToNotify(DateTime today)
+    {
+        var date = DateTime.SpecifyKind(today.Date, DateTimeKind.Utc);
+        var until = date.AddDays(MaxWarningDays);
+        var batches = await batchRepository.ToListAsync(batchRepository.Table.Where(x =>
+            x.Quantity > 0 && x.ExpiryDateUtc != null && x.ExpiryDateUtc <= until));
+
+        var settings = await settingService.LoadSetting<InventorySettings>();
+        var products = new Dictionary<string, Product>();
+        var warehouses = new Dictionary<string, string>();
+        var expiring = new List<ExpiringBatch>();
+        foreach (var batch in batches)
+        {
+            if (!products.TryGetValue(batch.ProductId, out var product))
+                products[batch.ProductId] = product = await productRepository.GetByIdAsync(batch.ProductId);
+            if (product == null)
+                continue;
+
+            var status = BatchExpiry.Status(batch.ExpiryDateUtc, date, BatchExpiry.WarningDays(product, settings));
+            if (status is not (BatchExpiryStatus.Expiring or BatchExpiryStatus.Expired) ||
+                status == batch.ExpiryNotifiedStatusId)
+                continue;
+
+            if (!warehouses.TryGetValue(batch.WarehouseId ?? "", out var warehouse))
+                warehouses[batch.WarehouseId ?? ""] = warehouse = string.IsNullOrEmpty(batch.WarehouseId)
+                    ? ""
+                    : (await warehouseService.GetWarehouseById(batch.WarehouseId))?.Name ?? batch.WarehouseId;
+            expiring.Add(new ExpiringBatch(batch, product.Name, product.Sku, warehouse, status.Value));
+        }
+
+        return expiring.OrderBy(x => x.Batch.ExpiryDateUtc).ToList();
+    }
+
+    public async Task MarkNotified(IEnumerable<ExpiringBatch> batches)
+    {
+        ArgumentNullException.ThrowIfNull(batches);
+
+        //one field: the ledger owns the quantity
+        foreach (var batch in batches)
+        {
+            batch.Batch.ExpiryNotifiedStatusId = batch.Status;
+            await batchRepository.UpdateField(batch.Batch.Id, x => x.ExpiryNotifiedStatusId,
+                (BatchExpiryStatus?)batch.Status);
+        }
+    }
+
+    public async Task<(int Expiring, int Expired)> ExpiryCounts(string storeId, DateTime today)
+    {
+        var date = DateTime.SpecifyKind(today.Date, DateTimeKind.Utc);
+        var warningEnd = date.AddDays((await settingService.LoadSetting<InventorySettings>()).ExpiryWarningDays);
+        var query = batchRepository.Table.Where(x => x.Quantity > 0 && x.ExpiryDateUtc != null);
+        if (storeId != null)
+            query = query.Where(x => x.StoreId == storeId);
+
+        return (await batchRepository.CountAsync(query.Where(x => x.ExpiryDateUtc >= date && x.ExpiryDateUtc <= warningEnd)),
+            await batchRepository.CountAsync(query.Where(x => x.ExpiryDateUtc < date)));
+    }
+
     public Task<IPagedList<ProductSerialNumber>> SearchSerialNumbers(UnitSearch search, int pageIndex = 0,
         int pageSize = int.MaxValue)
     {

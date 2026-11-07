@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Messages.Common;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Messages;
@@ -261,6 +262,28 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     /// </summary>
     /// <param name="product">Product</param>
     /// <param name="languageId">Message language identifier</param>
+    public virtual async Task<int> SendBatchesExpiringStoreOwnerMessage(Store store, IList<ExpiringBatch> batches,
+        string languageId)
+    {
+        ArgumentNullException.ThrowIfNull(store);
+        ArgumentNullException.ThrowIfNull(batches);
+
+        var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
+        var messageTemplate =
+            await _messageLookupService.GetMessageTemplate("Inventory.BatchesExpiring.StoreOwnerNotification", store.Id);
+        if (messageTemplate == null)
+            return 0;
+
+        var emailAccount = await _messageLookupService.GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
+        var builder = new LiquidObjectBuilder(_mediator);
+        builder.AddStoreTokens(store, language, emailAccount).AddInventoryTokens(batches);
+        var liquidObject = await builder.BuildAsync();
+        await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
+
+        return await _messageProviderService.SendNotification(messageTemplate, emailAccount, language.Id,
+            liquidObject, emailAccount.Email, emailAccount.DisplayName);
+    }
+
     public virtual async Task<int> SendQuantityBelowStoreOwnerMessage(Product product, string languageId)
     {
         ArgumentNullException.ThrowIfNull(product);

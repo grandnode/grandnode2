@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Domain.Blogs;
@@ -34,6 +35,16 @@ public class LiquidObjectBuilder
         _object = liquidObject;
         _chain = new List<Func<LiquidObject, Task>>();
         _mediator = mediator;
+    }
+
+    public LiquidObjectBuilder AddInventoryTokens(IEnumerable<ExpiringBatch> batches)
+    {
+        _chain.Add(liquidObject =>
+        {
+            liquidObject.Inventory = new LiquidInventory(batches);
+            return Task.CompletedTask;
+        });
+        return this;
     }
 
     public LiquidObjectBuilder AddStoreTokens(Store store, Language language, EmailAccount emailAccount)

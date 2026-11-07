@@ -464,7 +464,7 @@ public static class StockTestFixture
             serials ?? new MongoDBRepositoryTest<ProductSerialNumber>(),
             products ?? new MongoDBRepositoryTest<Product>(), settingService.Object,
             journal ?? new MongoDBRepositoryTest<InventoryJournal>(), shipments ?? new MongoDBRepositoryTest<Shipment>(),
-            orders ?? new MongoDBRepositoryTest<Order>());
+            orders ?? new MongoDBRepositoryTest<Order>(), Warehouses());
     }
 
     public static StockMovementService MovementService(IRepository<Product> products,

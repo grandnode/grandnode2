@@ -84,9 +84,10 @@ public abstract class BaseProductUnitController(
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpGet]
-    public async Task<IActionResult> Batches(string productId)
+    public async Task<IActionResult> Batches(string productId, int? expiryStatus)
     {
-        var model = new BatchListModel { ProductId = productId };
+        //the expiring batches report is this list filtered by its expiry status
+        var model = new BatchListModel { ProductId = productId, SearchExpiryStatusId = expiryStatus };
         model.AvailableExpiryStatuses.Add(new SelectListItem { Text = "", Value = "" });
         foreach (var status in Enum.GetValues<BatchExpiryStatus>())
             model.AvailableExpiryStatuses.Add(new SelectListItem

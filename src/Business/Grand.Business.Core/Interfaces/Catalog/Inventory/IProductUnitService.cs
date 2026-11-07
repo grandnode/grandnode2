@@ -63,6 +63,16 @@ public sealed record UnitSearch
 }
 
 /// <summary>
+///     A batch holding stock that became expiring or expired since the store owner was last told
+/// </summary>
+public sealed record ExpiringBatch(
+    ProductBatch Batch,
+    string ProductName,
+    string Sku,
+    string WarehouseName,
+    BatchExpiryStatus Status);
+
+/// <summary>
 ///     A shipment that shipped units of a batch: who received them
 /// </summary>
 public sealed record BatchRecipient(
@@ -160,6 +170,25 @@ public interface IProductUnitService
     ///     The stock buckets of a product tracking units, with the stock batches or serial numbers hold
     /// </summary>
     Task<IList<UnitBucketView>> Buckets(Product product);
+
+    /// <summary>
+    ///     The batches holding stock whose expiry status today is expiring or expired and was not e-mailed yet,
+    ///     earliest expiry first
+    /// </summary>
+    /// <param name="today">The date in the store's time zone</param>
+    Task<IList<ExpiringBatch>> BatchesToNotify(DateTime today);
+
+    /// <summary>
+    ///     Records the status each batch was e-mailed with
+    /// </summary>
+    Task MarkNotified(IEnumerable<ExpiringBatch> batches);
+
+    /// <summary>
+    ///     How many batches holding stock are expiring and expired, by the inventory setting's warning days
+    /// </summary>
+    /// <param name="storeId">The store of their warehouses; null for every store</param>
+    /// <param name="today">The date in the store's time zone</param>
+    Task<(int Expiring, int Expired)> ExpiryCounts(string storeId, DateTime today);
 
     /// <summary>
     ///     Why the change of a product is refused: switching tracking off or to the other mode, or changing the

@@ -104,6 +104,42 @@ public class ProductUnitServiceSearchTests
     }
 
     [TestMethod]
+    public async Task BatchesToNotify_ExpiringOnce_ExpiredAgain_ZeroQuantityLeft()
+    {
+        await _fixture.Products.InsertAsync(new Product { Id = "p1", Name = "p", Sku = "s1" });
+        await Batch("SOON", Today.AddDays(5));
+        await Batch("EMPTY", Today.AddDays(-5), 0);
+        await Batch("LATER", Today.AddDays(90));
+
+        var first = await _service.BatchesToNotify(Today);
+        await _service.MarkNotified(first);
+        var second = await _service.BatchesToNotify(Today);
+        var later = await _service.BatchesToNotify(Today.AddDays(6));
+
+        Assert.AreEqual("SOON", first.Single().Batch.Number);
+        Assert.AreEqual(BatchExpiryStatus.Expiring, first.Single().Status);
+        Assert.AreEqual("p", first.Single().ProductName);
+        Assert.AreEqual(0, second.Count);
+        Assert.AreEqual(BatchExpiryStatus.Expired, later.Single().Status);
+    }
+
+    [TestMethod]
+    public async Task ExpiryCounts_StoreScope()
+    {
+        await Batch("EXPIRED", Today.AddDays(-1));
+        await Batch("SOON", Today.AddDays(5));
+        await _fixture.Batches.InsertAsync(new ProductBatch {
+            ProductId = "p1", Number = "OTHER", NumberKey = "OTHER", ExpiryDateUtc = Today.AddDays(-1), Quantity = 1,
+            StoreId = "store2", WarehouseId = "w9", CombinationId = ""
+        });
+
+        var (expiring, expired) = await _service.ExpiryCounts("store1", Today);
+
+        Assert.AreEqual(1, expiring);
+        Assert.AreEqual(1, expired);
+    }
+
+    [TestMethod]
     public async Task Buckets_PoolPerWarehouse()
     {
         var product = await _fixture.Stocked(new Product {
