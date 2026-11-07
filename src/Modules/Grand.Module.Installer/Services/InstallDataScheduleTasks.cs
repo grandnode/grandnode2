@@ -63,6 +63,12 @@ public partial class InstallationService
                 Enabled = true,
                 StopOnError = false,
                 TimeInterval = 1440
+            },
+            new ScheduleTask {
+                ScheduleTaskName = "Inventory batch expiry notification",
+                Enabled = true,
+                StopOnError = false,
+                TimeInterval = 1440
             }
         };
         tasks.ForEach(x => _scheduleTaskRepository.Insert(x));

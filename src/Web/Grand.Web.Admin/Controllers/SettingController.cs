@@ -151,7 +151,9 @@ public class SettingController(
             TransferNumberPrefix = inventorySettings.TransferNumberPrefix,
             AdjustmentNumberPrefix = inventorySettings.AdjustmentNumberPrefix,
             StockCountNumberPrefix = inventorySettings.StockCountNumberPrefix,
-            ReturnReceiptNumberPrefix = inventorySettings.ReturnReceiptNumberPrefix
+            ReturnReceiptNumberPrefix = inventorySettings.ReturnReceiptNumberPrefix,
+            AssignmentNumberPrefix = inventorySettings.AssignmentNumberPrefix,
+            ExpiryWarningDays = inventorySettings.ExpiryWarningDays
         };
         return View(model);
     }
@@ -174,6 +176,8 @@ public class SettingController(
         inventorySettings.AdjustmentNumberPrefix = model.Inventory.AdjustmentNumberPrefix;
         inventorySettings.StockCountNumberPrefix = model.Inventory.StockCountNumberPrefix;
         inventorySettings.ReturnReceiptNumberPrefix = model.Inventory.ReturnReceiptNumberPrefix;
+        inventorySettings.AssignmentNumberPrefix = model.Inventory.AssignmentNumberPrefix;
+        inventorySettings.ExpiryWarningDays = Math.Max(0, model.Inventory.ExpiryWarningDays);
         await settingService.SaveSetting(inventorySettings, "");
 
         //now clear cache

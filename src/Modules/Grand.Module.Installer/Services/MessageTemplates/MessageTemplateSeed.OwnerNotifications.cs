@@ -8,6 +8,24 @@ public static partial class MessageTemplateSeed
     {
         return new List<MessageTemplate> {
             new() {
+                Name = "Inventory.BatchesExpiring.StoreOwnerNotification",
+                Subject = "{{Store.Name}} — Batches expiring or expired",
+                Body = Layout(
+                    "Batches of your store are expiring or have expired.",
+                    "Expiring batches",
+                    """
+                    <p>These batches of {{Store.Name}} hold stock and are expiring or have expired. Nothing is blocked: decide what to do with them.</p>
+                    <table role='presentation' style='width: 100%; border-collapse: collapse; font-size: 14px;'>
+                    <tr><th style='text-align: left;'>Product</th><th style='text-align: left;'>Warehouse</th><th style='text-align: left;'>Batch</th><th style='text-align: left;'>Expiry date</th><th style='text-align: right;'>Quantity</th><th style='text-align: left;'>Status</th></tr>
+                    {% for batch in Inventory.Batches %}
+                    <tr><td>{{batch.ProductName | Escape}}</td><td>{{batch.Warehouse | Escape}}</td><td>{{batch.Number | Escape}}</td><td>{{batch.ExpiryDate}}</td><td style='text-align: right;'>{{batch.Quantity}}</td><td>{{batch.Status}}</td></tr>
+                    {% endfor %}
+                    </table>
+                    """),
+                IsActive = true,
+                EmailAccountId = ea
+            },
+            new() {
                 Name = "NewCustomer.Notification",
                 Subject = "{{Store.Name}} — New customer registered",
                 Body = Layout(

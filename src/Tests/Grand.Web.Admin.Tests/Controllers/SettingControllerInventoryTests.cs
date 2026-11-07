@@ -57,6 +57,20 @@ public class SettingControllerInventoryTests
     }
 
     [TestMethod]
+    public async Task Catalog_Post_SavesExpiryWarningDaysAndAssignmentPrefix()
+    {
+        var model = new CatalogSettingsModel {
+            Inventory = { ExpiryWarningDays = 14, AssignmentNumberPrefix = "AS" }
+        };
+
+        await _controller.Catalog(model);
+
+        _settingService.Verify(x => x.SaveSetting(
+            It.Is<InventorySettings>(s => s.ExpiryWarningDays == 14 && s.AssignmentNumberPrefix == "AS"), ""),
+            Times.Once);
+    }
+
+    [TestMethod]
     public async Task Catalog_Post_WithStoreScope_SavesInventorySettingsGlobally()
     {
         var model = new CatalogSettingsModel {

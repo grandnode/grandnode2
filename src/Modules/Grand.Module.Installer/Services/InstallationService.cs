@@ -131,6 +131,8 @@ public partial class InstallationService : IInstallationService
         IRepository<AuditEntry> auditEntryRepository,
         IRepository<InventoryJournal> inventoryJournalRepository,
         IRepository<InventoryDocument> inventoryDocumentRepository,
+        IRepository<ProductBatch> productBatchRepository,
+        IRepository<ProductSerialNumber> productSerialNumberRepository,
         IRepository<MerchandiseReturnReason> merchandiseReturnReasonRepository,
         IRepository<MerchandiseReturnAction> merchandiseReturnActionRepository,
         IRepository<ContactUs> contactUsRepository,
@@ -232,6 +234,8 @@ public partial class InstallationService : IInstallationService
         _auditEntryRepository = auditEntryRepository;
         _inventoryJournalRepository = inventoryJournalRepository;
         _inventoryDocumentRepository = inventoryDocumentRepository;
+        _productBatchRepository = productBatchRepository;
+        _productSerialNumberRepository = productSerialNumberRepository;
         _discountusageRepository = discountusageRepository;
         _merchandiseReturnReasonRepository = merchandiseReturnReasonRepository;
         _contactUsRepository = contactUsRepository;
@@ -404,6 +408,8 @@ public partial class InstallationService : IInstallationService
     private readonly IRepository<AuditEntry> _auditEntryRepository;
     private readonly IRepository<InventoryJournal> _inventoryJournalRepository;
     private readonly IRepository<InventoryDocument> _inventoryDocumentRepository;
+    private readonly IRepository<ProductBatch> _productBatchRepository;
+    private readonly IRepository<ProductSerialNumber> _productSerialNumberRepository;
     private readonly IRepository<MerchandiseReturnReason> _merchandiseReturnReasonRepository;
     private readonly IRepository<MerchandiseReturnAction> _merchandiseReturnActionRepository;
     private readonly IRepository<ContactUs> _contactUsRepository;
@@ -977,6 +983,7 @@ public partial class InstallationService : IInstallationService
 
         //inventory journal and documents
         await InventoryIndexes.Create(dbContext, _inventoryJournalRepository, _inventoryDocumentRepository);
+        await InventoryIndexes.CreateUnitIndexes(dbContext, _productBatchRepository, _productSerialNumberRepository);
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,
