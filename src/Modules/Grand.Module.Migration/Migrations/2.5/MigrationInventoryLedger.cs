@@ -107,12 +107,15 @@ public class MigrationInventoryLedger : IMigration
         for (var pageIndex = 0;; pageIndex++)
         {
             var products = await productRepository.PagedAsync(query, pageIndex, PageSize);
-            foreach (var product in products)
+            //a product opened by an earlier run keeps its history
+            var productIds = products.Select(x => x.Id).ToList();
+            var opened = (await journalRepository.ToListAsync(journalRepository.Table
+                    .Where(x => productIds.Contains(x.ProductId) &&
+                                x.MovementTypeId == InventoryMovementType.OpeningBalance)
+                    .Select(x => x.ProductId)))
+                .ToHashSet();
+            foreach (var product in products.Where(x => !opened.Contains(x.Id)))
             {
-                if (await journalRepository.AnyAsync(journalRepository.Table.Where(x =>
-                        x.ProductId == product.Id && x.MovementTypeId == InventoryMovementType.OpeningBalance)))
-                    continue;
-
                 Sum(product);
                 var revision = product.StockRevision;
                 foreach (var (combinationId, attributes, warehouseId, stock) in Buckets(product))
