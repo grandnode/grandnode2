@@ -46,4 +46,26 @@ public sealed record StockChange(
     ///     The purchase price of one unit received; only a receipt carries it
     /// </summary>
     public decimal? UnitCost { get; init; }
+
+    /// <summary>
+    ///     A batch-tracked product: the batch the change moves; empty for the stock without a batch. For a
+    ///     <see cref="InventoryMovementType.TrackingAssignment" /> the quantity is what the batch takes from that stock
+    /// </summary>
+    public string BatchNumber { get; init; }
+
+    /// <summary>
+    ///     A batch received: its expiry date
+    /// </summary>
+    public DateTime? ExpiryDateUtc { get; init; }
+
+    /// <summary>
+    ///     A serial-tracked product: the serial numbers the change moves; the rest of the quantity is stock without them
+    /// </summary>
+    public IReadOnlyList<string> SerialNumbers { get; init; } = [];
+
+    /// <summary>
+    ///     A stock count of a serial-tracked bucket: every serial number found in it. The change is worked out under the
+    ///     lock against the units stored then; null for any other change
+    /// </summary>
+    public IReadOnlyList<string> CountedSerialNumbers { get; init; }
 }

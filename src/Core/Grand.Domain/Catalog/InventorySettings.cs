@@ -38,4 +38,14 @@ public class InventorySettings : ISettings
     ///     Gets or sets the number prefix of a return receipt
     /// </summary>
     public string ReturnReceiptNumberPrefix { get; set; } = "ZW";
+
+    /// <summary>
+    ///     Gets or sets the number prefix of an assignment of batches or serial numbers to stock without them
+    /// </summary>
+    public string AssignmentNumberPrefix { get; set; } = "PRZ";
+
+    /// <summary>
+    ///     Gets or sets the days before the expiry date a batch is reported as expiring
+    /// </summary>
+    public int ExpiryWarningDays { get; set; } = 30;
 }

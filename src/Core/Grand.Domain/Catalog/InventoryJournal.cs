@@ -44,4 +44,24 @@ public class InventoryJournal : BaseEntity
     ///     before the next change
     /// </summary>
     public int StockRevision { get; set; }
+
+    /// <summary>
+    ///     The batch the change moved; empty for the stock without a batch
+    /// </summary>
+    public string BatchNumber { get; set; }
+
+    /// <summary>
+    ///     The serial numbers the change moved
+    /// </summary>
+    public IList<string> SerialNumbers { get; set; } = new List<string>();
+
+    /// <summary>
+    ///     A receipt of a batch: its expiry date
+    /// </summary>
+    public DateTime? ExpiryDateUtc { get; set; }
+
+    /// <summary>
+    ///     A receipt: the purchase price of one unit, in the primary store currency
+    /// </summary>
+    public decimal? UnitCost { get; set; }
 }

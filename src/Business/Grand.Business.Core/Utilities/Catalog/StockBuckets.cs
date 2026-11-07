@@ -121,6 +121,18 @@ public static class StockBuckets
     }
 
     /// <summary>
+    ///     The warehouse the inventory journal names for a change of the product in the warehouse, and so the warehouse
+    ///     of its batches and serial numbers: a product kept in one warehouse has all its stock there, whatever
+    ///     warehouse a shipment or order item names
+    /// </summary>
+    public static string UnitWarehouse(Product product, string warehouseId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        return product.UseMultipleWarehouses ? warehouseId ?? "" : product.WarehouseId ?? "";
+    }
+
+    /// <summary>
     ///     The warehouses the product's buckets name
     /// </summary>
     public static IEnumerable<string> Warehouses(Product product)

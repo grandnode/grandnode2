@@ -42,4 +42,19 @@ public class InventoryDocumentLine : SubBaseEntity
     public string MerchandiseReturnItemId { get; set; }
 
     public string Comment { get; set; }
+
+    /// <summary>
+    ///     A batch-tracked product: the batch the line books; empty for the stock without a batch
+    /// </summary>
+    public string BatchNumber { get; set; }
+
+    /// <summary>
+    ///     A receipt of a batch: its expiry date
+    /// </summary>
+    public DateTime? ExpiryDateUtc { get; set; }
+
+    /// <summary>
+    ///     A serial-tracked product: the serial numbers the line books
+    /// </summary>
+    public IList<string> SerialNumbers { get; set; } = new List<string>();
 }
