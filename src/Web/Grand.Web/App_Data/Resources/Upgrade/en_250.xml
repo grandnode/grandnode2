@@ -1387,7 +1387,7 @@
 		<Value>Not enough stock without batches or serial numbers.</Value>
 	</Resource>
 	<Resource Name="Admin.Inventory.Units.Errors.UnitsAssigned" Area="Admin">
-		<Value>{0} units are held in batches or serial numbers: tracking, inventory method or warehouses cannot change until they are booked out.</Value>
+		<Value>Units held in batches or serial numbers: {0}. Tracking, the inventory method and the warehouses cannot change until they are booked out.</Value>
 	</Resource>
 	<Resource Name="Admin.Inventory.Units.Errors.TrackedStockDocumentsOnly" Area="Admin">
 		<Value>The stock of a batch- or serial-tracked product changes through inventory documents and shipments.</Value>

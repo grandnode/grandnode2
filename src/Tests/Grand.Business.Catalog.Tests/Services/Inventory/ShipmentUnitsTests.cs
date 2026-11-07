@@ -170,6 +170,17 @@ public class ShipmentUnitsTests
     }
 
     [TestMethod]
+    public async Task PrepareShipmentUnits_ScannedInOtherCase_TakesTheStoredSpelling()
+    {
+        var product = await Serialized(1, "A1");
+        var shipment = Shipment(product, 2, serialNumbers: ["a1", " new-1 "]);
+
+        Assert.AreEqual(0, (await _units.PrepareShipmentUnits(shipment)).Count);
+
+        CollectionAssert.AreEqual(new[] { "A1", "new-1" }, shipment.ShipmentItems.Single().SerialNumbers.ToArray());
+    }
+
+    [TestMethod]
     public async Task PrepareShipmentUnits_SerialCountMismatch_Error()
     {
         var product = await Serialized(0, "A1", "A2");

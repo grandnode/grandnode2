@@ -352,6 +352,9 @@ public class ProductUnitService(
         var itemKeys = numbers.Select(UnitNumbers.Key).ToList();
         var stored = await serialNumberRepository.ToListAsync(serialNumberRepository.Table.Where(x =>
             x.ProductId == product.Id && itemKeys.Contains(x.NumberKey)));
+        //the shipment and the order views name a known unit as it was received
+        item.SerialNumbers = numbers.Select(x => stored.FirstOrDefault(s => s.NumberKey == UnitNumbers.Key(x))?.Number ??
+                                                 x.Trim()).ToList();
         var added = 0;
         foreach (var key in itemKeys)
             switch (stored.FirstOrDefault(x => x.NumberKey == key))
