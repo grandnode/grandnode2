@@ -457,13 +457,18 @@ public static class StockTestFixture
     }
 
     public static StockLedger Ledger(IRepository<Product> products, IRepository<InventoryJournal> journal,
-        IOutOfStockSubscriptionService outOfStockSubscriptionService = null, IMediator mediator = null)
+        IOutOfStockSubscriptionService outOfStockSubscriptionService = null, IMediator mediator = null,
+        IRepository<ProductBatch> batches = null, IRepository<ProductSerialNumber> serials = null,
+        IRepository<Shipment> shipments = null)
     {
         mediator ??= new Mock<IMediator>().Object;
         return new StockLedger(products, journal, Warehouses(),
             new StockSideEffects(products,
                 outOfStockSubscriptionService ?? new Mock<IOutOfStockSubscriptionService>().Object, mediator,
-                new CatalogSettings()), mediator);
+                new CatalogSettings()), mediator,
+            new StockUnits(batches ?? new MongoDBRepositoryTest<ProductBatch>(),
+                serials ?? new MongoDBRepositoryTest<ProductSerialNumber>(),
+                shipments ?? new MongoDBRepositoryTest<Shipment>(), Warehouses()));
     }
 
     /// <summary>

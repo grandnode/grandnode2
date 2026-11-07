@@ -22,7 +22,8 @@ public sealed class StockLedger(
     IRepository<InventoryJournal> inventoryJournalRepository,
     IWarehouseService warehouseService,
     StockSideEffects stockSideEffects,
-    IMediator mediator)
+    IMediator mediator,
+    StockUnits stockUnits)
 {
     /// <summary>
     ///     Applies the changes to the product, which the caller read under the product's lock
@@ -36,12 +37,17 @@ public sealed class StockLedger(
         if (!Tracked(product.ManageInventoryMethodId))
             return [StockErrors.StockNotTracked];
 
-        var repaired = await Repair(product);
+        var pending = await Pending(product);
+        //a product tracking batches or serial numbers moves them with its stock
+        var units = InventoryTracking.Tracked(product) ? await stockUnits.Load(product, changes, pending) : null;
+        var repaired = Repair(product, pending);
         Sum(product);
         var before = Available(product);
 
         var errors = new List<string>();
         var entries = new List<InventoryJournal>();
+        var unitEntries = new List<(StockChange Change, InventoryJournal Entry)>();
+        var unitBuckets = new Dictionary<(string, string), Bucket>();
         var movementTypes = new Dictionary<(string, string), InventoryMovementType>();
         var reservedChanged = false;
         var costChanged = false;
@@ -56,7 +62,9 @@ public sealed class StockLedger(
                 continue;
             }
 
-            var delta = change.SetTo ? change.Quantity - bucket.Stock : change.Quantity;
+            //an assignment gives units to stock without them: it moves no stock
+            var assignment = change.MovementType == InventoryMovementType.TrackingAssignment;
+            var delta = assignment ? 0 : change.SetTo ? change.Quantity - bucket.Stock : change.Quantity;
             if (change.MovementType == InventoryMovementType.TransferOut &&
                 product.BackorderModeId == BackorderMode.NoBackorders && bucket.Stock - bucket.Reserved < -delta)
             {
@@ -64,7 +72,31 @@ public sealed class StockLedger(
                 continue;
             }
 
-            if (delta != 0)
+            if (units != null)
+            {
+                var unitError = await stockUnits.Apply(units, product, UnitsOf(bucket), delta, change);
+                if (unitError != null)
+                {
+                    errors.Add(unitError);
+                    continue;
+                }
+
+                unitBuckets[bucket.Key] = bucket;
+            }
+            else if (assignment)
+            {
+                errors.Add(StockErrors.StockNotTracked);
+                continue;
+            }
+
+            if (assignment)
+            {
+                var entry = Entry(product, bucket, 0, change.MovementType, change.Source, change);
+                entry.InQty = entry.OutQty = change.Quantity;
+                entries.Add(entry);
+                unitEntries.Add((change, entry));
+            }
+            else if (delta != 0)
             {
                 if (change is { MovementType: InventoryMovementType.Receipt, UnitCost: { } unitCost } && delta > 0)
                 {
@@ -74,7 +106,10 @@ public sealed class StockLedger(
 
                 onHand += delta;
                 Move(bucket, delta, change.MovementType);
-                entries.Add(Entry(product, bucket, delta, change.MovementType, change.Source));
+                var entry = Entry(product, bucket, delta, change.MovementType, change.Source,
+                    units != null ? change : null);
+                entries.Add(entry);
+                unitEntries.Add((change, entry));
             }
 
             if (change.ReservedQuantity is { } reserved && reserved != bucket.Reserved)
@@ -86,10 +121,21 @@ public sealed class StockLedger(
             movementTypes[bucket.Key] = change.MovementType;
         }
 
+        if (units != null && errors.Count == 0 &&
+            await stockUnits.CheckPools(units, unitBuckets.Values.Select(UnitsOf)) is { } poolError)
+            errors.Add(poolError);
+
         if (errors.Count > 0 || (entries.Count == 0 && !reservedChanged && !repaired))
             return errors;
 
         await Insert(product, entries);
+        if (units != null)
+        {
+            foreach (var (change, entry) in unitEntries)
+                stockUnits.Stamp(units, change, entry);
+            await stockUnits.Write(units);
+        }
+
         await Write(product, costChanged);
 
         if (changes.Count > 0)
@@ -112,7 +158,7 @@ public sealed class StockLedger(
         if (!Tracked(previousMethod) && !Tracked(product.ManageInventoryMethodId))
             return;
 
-        await Repair(product);
+        Repair(product, await Pending(product));
 
         var source = new StockSource(nameof(Product), product.Id, CustomerId: customerId ?? "");
         //read before Sum, which works the sums out for the current configuration
@@ -136,7 +182,7 @@ public sealed class StockLedger(
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        await Repair(product);
+        Repair(product, await Pending(product));
         await Write(product);
     }
 
@@ -157,15 +203,21 @@ public sealed class StockLedger(
     }
 
     /// <summary>
+    ///     The entries whose product write was lost, oldest first
+    /// </summary>
+    private async Task<IList<InventoryJournal>> Pending(Product product)
+    {
+        return await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
+            .Where(x => x.ProductId == product.Id && x.StockRevision > product.StockRevision)
+            .OrderBy(x => x.StockRevision));
+    }
+
+    /// <summary>
     ///     Applies the entries whose product write was lost; the balances of a reopening record the stored stock and
     ///     change nothing
     /// </summary>
-    private async Task<bool> Repair(Product product)
+    private static bool Repair(Product product, IList<InventoryJournal> pending)
     {
-        var pending = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
-            .Where(x => x.ProductId == product.Id && x.StockRevision > product.StockRevision)
-            .OrderBy(x => x.StockRevision));
-
         foreach (var entry in pending)
         {
             if (entry.MovementTypeId is not (InventoryMovementType.OpeningBalance or
@@ -310,10 +362,15 @@ public sealed class StockLedger(
         product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
     }
 
+    /// <param name="units">The change whose units the entry names; null for a product tracking none</param>
     private static InventoryJournal Entry(Product product, Bucket bucket, int delta,
-        InventoryMovementType movementType, StockSource source)
+        InventoryMovementType movementType, StockSource source, StockChange units = null)
     {
         return new InventoryJournal {
+            BatchNumber = string.IsNullOrWhiteSpace(units?.BatchNumber) ? null : units.BatchNumber.Trim(),
+            SerialNumbers = units?.SerialNumbers.Select(x => x.Trim()).ToList() ?? [],
+            ExpiryDateUtc = units?.ExpiryDateUtc,
+            UnitCost = units?.UnitCost,
             ProductId = product.Id,
             CombinationId = bucket.CombinationId,
             Attributes = bucket.Attributes,
@@ -418,6 +475,11 @@ public sealed class StockLedger(
         }
 
         return changed;
+    }
+
+    private static UnitBucket UnitsOf(Bucket bucket)
+    {
+        return new UnitBucket(bucket.CombinationId, bucket.Attributes, bucket.WarehouseId, bucket.Stock);
     }
 
     /// <summary>
