@@ -1221,4 +1221,7 @@
 	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ProductCopy" Area="Admin">
 		<Value>Product copy</Value>
 	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ClosingBalance" Area="Admin">
+		<Value>Closing balance</Value>
+	</Resource>
 </Language>

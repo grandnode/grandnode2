@@ -15,6 +15,11 @@ public enum InventoryMovementType
     /// </summary>
     Legacy = 1,
 
+    /// <summary>
+    ///     The stock a bucket held when another inventory method or warehouse mode took it out of use
+    /// </summary>
+    ClosingBalance = 2,
+
     Shipment = 10,
     ShipmentReversal = 11,
     Receipt = 20,

@@ -353,7 +353,8 @@ public class ProductService : IProductService
             {
                 var storedProduct = await _productRepository.GetByIdAsync(product.Id);
                 if (storedProduct != null)
-                    await _stockLedger.OpenBalance(storedProduct, "");
+                    await _stockLedger.Reopen(storedProduct, oldProduct.ManageInventoryMethodId,
+                        oldProduct.UseMultipleWarehouses, "");
             }
 
         if (!oldProduct.AdditionalShippingCharge.Equals(product.AdditionalShippingCharge) ||

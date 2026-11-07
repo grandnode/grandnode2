@@ -215,7 +215,8 @@ public class InventoryDocumentServiceTests
     private async Task Opened(Product product)
     {
         //the history of a product that existed before the journal starts with its opening balance
-        await StockTestFixture.Ledger(_products, _journal).OpenBalance(Stored(product), "");
+        await StockTestFixture.Ledger(_products, _journal)
+            .Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "");
     }
 
     [TestMethod]

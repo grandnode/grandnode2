@@ -33,7 +33,7 @@ public sealed class StockLedger(
         ArgumentNullException.ThrowIfNull(product);
         ArgumentNullException.ThrowIfNull(changes);
 
-        if (!Tracked(product))
+        if (!Tracked(product.ManageInventoryMethodId))
             return [StockErrors.StockNotTracked];
 
         var repaired = await Repair(product);
@@ -100,22 +100,31 @@ public sealed class StockLedger(
     }
 
     /// <summary>
-    ///     Starts the history of every bucket of the product's current configuration again with its stored stock
+    ///     Moves the product's history from its previous inventory method or warehouse mode to the current one: every
+    ///     bucket of the previous configuration is closed by an entry taking its stock out, and every bucket of the
+    ///     current one starts again with its stored stock
     /// </summary>
-    public async Task OpenBalance(Product product, string customerId)
+    public async Task Reopen(Product product, ManageInventoryMethod previousMethod, bool previousMultipleWarehouses,
+        string customerId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        if (!Tracked(product))
+        if (!Tracked(previousMethod) && !Tracked(product.ManageInventoryMethodId))
             return;
 
         await Repair(product);
-        Sum(product);
 
         var source = new StockSource(nameof(Product), product.Id, CustomerId: customerId ?? "");
-        await Insert(product, Buckets(product)
-            .Select(bucket => Entry(product, bucket, bucket.Stock, InventoryMovementType.OpeningBalance, source))
-            .ToList());
+        //read before Sum, which works the sums out for the current configuration
+        var entries = Buckets(product, previousMethod, previousMultipleWarehouses)
+            .Where(bucket => bucket.Stock != 0)
+            .Select(bucket => Entry(product, bucket, -bucket.Stock, InventoryMovementType.ClosingBalance, source))
+            .ToList();
+        Sum(product);
+        entries.AddRange(Buckets(product, product.ManageInventoryMethodId, product.UseMultipleWarehouses)
+            .Select(bucket => Entry(product, bucket, bucket.Stock, InventoryMovementType.OpeningBalance, source)));
+
+        await Insert(product, entries);
         await Write(product);
     }
 
@@ -141,10 +150,9 @@ public sealed class StockLedger(
             MidpointRounding.AwayFromZero);
     }
 
-    private static bool Tracked(Product product)
+    private static bool Tracked(ManageInventoryMethod method)
     {
-        return product.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
-            or ManageInventoryMethod.ManageStockByAttributes;
+        return method is ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes;
     }
 
     /// <summary>
@@ -248,13 +256,13 @@ public sealed class StockLedger(
     }
 
     /// <summary>
-    ///     Every bucket of the product's current configuration
+    ///     Every bucket the product has under the given inventory method and warehouse mode
     /// </summary>
-    private static IEnumerable<Bucket> Buckets(Product product)
+    private static IEnumerable<Bucket> Buckets(Product product, ManageInventoryMethod method, bool multipleWarehouses)
     {
-        switch (product.ManageInventoryMethodId)
+        switch (method)
         {
-            case ManageInventoryMethod.ManageStock when !product.UseMultipleWarehouses:
+            case ManageInventoryMethod.ManageStock when !multipleWarehouses:
                 yield return new Bucket(product, null, "", product.WarehouseId ?? "");
                 break;
             case ManageInventoryMethod.ManageStock:
@@ -263,7 +271,7 @@ public sealed class StockLedger(
                 break;
             case ManageInventoryMethod.ManageStockByAttributes:
                 foreach (var combination in product.ProductAttributeCombinations)
-                    if (!product.UseMultipleWarehouses)
+                    if (!multipleWarehouses)
                         yield return new Bucket(combination, combination, "", product.WarehouseId ?? "");
                     else
                         foreach (var row in combination.WarehouseInventory)

@@ -241,7 +241,7 @@ public class StockLedgerTests
     }
 
     [TestMethod]
-    public async Task OpenBalance_AfterSwitchToMultiWarehouse_WritesOneEntryPerRowAndRecomputesSum()
+    public async Task Reopen_FromUntracked_WritesOneEntryPerRowAndRecomputesSum()
     {
         var product = await Insert(new Product {
             ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
@@ -252,7 +252,7 @@ public class StockLedgerTests
             }
         });
 
-        await _ledger.OpenBalance(Stored(product), "staff");
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "staff");
 
         var entries = Entries(product);
         Assert.AreEqual(2, entries.Count);
@@ -260,6 +260,65 @@ public class StockLedgerTests
         Assert.AreEqual(5, Stored(product).StockQuantity);
         Assert.AreEqual(2, Stored(product).StockRevision);
         Assert.AreEqual(3, StockTestFixture.JournalSum(_journal, product.Id, "", "w2"));
+    }
+
+    [TestMethod]
+    public async Task Reopen_SwitchedToMultipleWarehouses_ClosesTheProductAndOpensItsRows()
+    {
+        var product = await Insert(new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10,
+            ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 2 } }
+        });
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "");
+        var switched = Stored(product);
+        switched.UseMultipleWarehouses = true;
+
+        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStock, false, "staff");
+
+        var closing = Entries(product).Single(x => x.MovementTypeId == InventoryMovementType.ClosingBalance);
+        Assert.AreEqual(10, closing.OutQty);
+        Assert.AreEqual(0, StockTestFixture.JournalSum(_journal, product.Id, "", ""));
+        Assert.AreEqual(2, StockTestFixture.JournalSum(_journal, product.Id, "", "w1"));
+        Assert.AreEqual(2, Stored(product).StockQuantity);
+    }
+
+    [TestMethod]
+    public async Task Reopen_CombinationsMovedToWarehouses_ClosesEveryCombination()
+    {
+        var product = await Insert(new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes, StockQuantity = 10,
+            ProductAttributeCombinations = {
+                new ProductAttributeCombination { StockQuantity = 4 },
+                new ProductAttributeCombination { StockQuantity = 6 }
+            }
+        });
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "");
+        var switched = Stored(product);
+        switched.UseMultipleWarehouses = true;
+
+        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStockByAttributes, false, "staff");
+
+        var closings = Entries(product).Where(x => x.MovementTypeId == InventoryMovementType.ClosingBalance).ToList();
+        CollectionAssert.AreEquivalent(new[] { 4, 6 }, closings.Select(x => x.OutQty).ToArray());
+        Assert.IsTrue(product.ProductAttributeCombinations.All(x =>
+            StockTestFixture.JournalSum(_journal, product.Id, x.Id, "") == 0));
+        Assert.AreEqual(0, Stored(product).StockQuantity);
+    }
+
+    [TestMethod]
+    public async Task Reopen_StockNoLongerTracked_ClosesTheBucket()
+    {
+        var product = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 });
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "");
+        var switched = Stored(product);
+        switched.ManageInventoryMethodId = ManageInventoryMethod.DontManageStock;
+
+        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStock, false, "staff");
+
+        Assert.AreEqual(7, Entries(product).Single(x => x.MovementTypeId == InventoryMovementType.ClosingBalance).OutQty);
+        Assert.AreEqual(0, StockTestFixture.JournalSum(_journal, product.Id, "", ""));
+        Assert.AreEqual(2, Stored(product).StockRevision);
     }
 
     private static StockChange Receipt(int quantity, decimal unitCost, IList<CustomAttribute> attributes = null) =>

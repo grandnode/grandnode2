@@ -83,6 +83,20 @@ public class ProductServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateProduct_SwitchedToMultipleWarehouses_ClosesThePreviousBucket()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 };
+        await _productRepository.InsertAsync(product);
+
+        product.UseMultipleWarehouses = true;
+        await _productService.UpdateProduct(product);
+
+        var entry = _journalRepository.Table.Single(x => x.ProductId == product.Id);
+        Assert.AreEqual(InventoryMovementType.ClosingBalance, entry.MovementTypeId);
+        Assert.AreEqual(7, entry.OutQty);
+    }
+
+    [TestMethod]
     public async Task UpdateProduct_InventoryMethodChanged_WritesOpeningBalance()
     {
         var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.DontManageStock, StockQuantity = 7 };
