@@ -1,0 +1,40 @@
+@model ProductModel
+@using Grand.Domain.Catalog
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var batches = Model.InventoryTrackingModeId == InventoryTrackingMode.Batch;
+}
+@* the stock of each bucket: what batches or serial numbers hold, and what is still without them *@
+<admin-card flush>
+    <card-actions>
+        <a class="btn btn-outline-secondary btn-sm"
+           href="@Url.Action(batches ? "Batches" : "SerialNumbers", "ProductUnit", new { area, productId = Model.Id })">
+            <i class="bi bi-list-ul"></i> @Loc[batches ? "Admin.Inventory.Units.Batches" : "Admin.Inventory.Units.SerialNumbers"]
+        </a>
+    </card-actions>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+            <tr>
+                <th>@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</th>
+                <th>@Loc["Admin.Catalog.Products.StockHistory.Combination"]</th>
+                <th class="text-end">@Loc["Admin.Inventory.StockAtDate.Fields.Stock"]</th>
+                <th class="text-end">@Loc["Admin.Inventory.Units.Fields.Assigned"]</th>
+                <th class="text-end">@Loc["Admin.Inventory.Units.Fields.Pool"]</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var bucket in Model.UnitBuckets)
+            {
+                <tr>
+                    <td>@bucket.Warehouse</td>
+                    <td>@bucket.Combination</td>
+                    <td class="text-end">@bucket.Stock</td>
+                    <td class="text-end">@bucket.Assigned</td>
+                    <td class="text-end">@bucket.Pool</td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</admin-card>

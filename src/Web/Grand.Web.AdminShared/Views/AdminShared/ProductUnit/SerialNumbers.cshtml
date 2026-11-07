@@ -1,0 +1,55 @@
+@model Grand.Web.AdminShared.Models.Inventory.SerialNumberListModel
+@{
+    ViewBag.Title = Loc["Admin.Inventory.Units.SerialNumbers"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<admin-page title="@Loc["Admin.Inventory.Units.SerialNumbers"]" icon="bi-upc-scan">
+    <admin-card>
+        <div class="grand-fields grand-fields--3col">
+            <admin-field asp-for="SearchNumber"/>
+            <admin-field asp-for="SearchStatusId" asp-items="Model.AvailableStatuses"/>
+            <admin-field asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses"/>
+        </div>
+        <input type="hidden" asp-for="ProductId"/>
+        <card-actions>
+            <button type="button" id="serialnumbers-search" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
+            </button>
+        </card-actions>
+    </admin-card>
+
+    <admin-card flush>
+        <admin-grid id="serialnumbers-grid"
+                    read-url="@Url.Action("SerialNumberList", "ProductUnit", new { area })"
+                    additional-data="serialNumbersData">
+            <grid-column field="Number" title="@Loc["Admin.Inventory.Units.Fields.SerialNumber"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("SerialNumber", "ProductUnit", new { area })/{{ Id }}">{{ Number }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="ProductName" title="@Loc["Admin.Inventory.Documents.Fields.Product"]"/>
+            <grid-column field="Status" title="@Loc["Admin.Inventory.Units.Fields.Status"]" width="120"/>
+            <grid-column field="Warehouse" title="@Loc["Admin.Inventory.Documents.Fields.Warehouse"]" width="160"/>
+            <grid-column field="WarrantyUntil" title="@Loc["Admin.Inventory.Units.WarrantyUntil"]" width="140" format="{0:d}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+    function serialNumbersData() {
+        var data = {
+            SearchNumber: $('#@Html.IdFor(model => model.SearchNumber)').val(),
+            SearchStatusId: $('#@Html.IdFor(model => model.SearchStatusId)').val(),
+            SearchWarehouseId: $('#@Html.IdFor(model => model.SearchWarehouseId)').val(),
+            ProductId: $('#@Html.IdFor(model => model.ProductId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#serialnumbers-search').click(function () {
+            GrandAdmin.grids.get('#serialnumbers-grid').dataSource.page(1);
+            return false;
+        });
+    });
+</script>

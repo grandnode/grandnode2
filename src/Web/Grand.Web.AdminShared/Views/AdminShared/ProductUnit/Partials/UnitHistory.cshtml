@@ -1,0 +1,46 @@
+@model IList<Grand.Web.AdminShared.Models.Inventory.StockHistoryRowModel>
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<admin-card title="@Loc["Admin.Catalog.Products.StockHistory"]" flush>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+            <tr>
+                <th>@Loc["Admin.Inventory.Documents.Fields.CreatedOn"]</th>
+                <th>@Loc["Admin.Catalog.Products.StockHistory.MovementType"]</th>
+                <th>@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</th>
+                <th class="text-end">@Loc["Admin.Catalog.Products.StockHistory.In"]</th>
+                <th class="text-end">@Loc["Admin.Catalog.Products.StockHistory.Out"]</th>
+                <th>@Loc["Admin.Catalog.Products.StockHistory.Reference"]</th>
+            </tr>
+            </thead>
+            <tbody>
+            @foreach (var row in Model)
+            {
+                <tr>
+                    <td>@row.Date</td>
+                    <td>@row.MovementType</td>
+                    <td>@row.Warehouse</td>
+                    <td class="text-end">@row.In</td>
+                    <td class="text-end">@row.Out</td>
+                    <td>
+                        @if (!string.IsNullOrEmpty(row.DocumentId))
+                        {
+                            <a href="@Url.Action("Edit", "InventoryDocument", new { area, id = row.DocumentId })">@row.Reference</a>
+                        }
+                        else if (!string.IsNullOrEmpty(row.ShipmentId))
+                        {
+                            <a href="@Url.Action("ShipmentDetails", "Shipment", new { area, id = row.ShipmentId })">@row.Reference</a>
+                        }
+                        else
+                        {
+                            @row.Reference
+                        }
+                    </td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+</admin-card>

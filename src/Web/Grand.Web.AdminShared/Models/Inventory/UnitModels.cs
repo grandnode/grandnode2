@@ -1,0 +1,120 @@
+using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.Models;
+using Microsoft.AspNetCore.Mvc.Rendering;
+
+namespace Grand.Web.AdminShared.Models.Inventory;
+
+public class SerialNumberListModel : BaseModel
+{
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.SerialNumber")]
+    public string SearchNumber { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.Status")]
+    public int? SearchStatusId { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Documents.Fields.Warehouse")]
+    public string SearchWarehouseId { get; set; }
+
+    /// <summary>
+    ///     The serial numbers of one product, from its edit page
+    /// </summary>
+    public string ProductId { get; set; }
+
+    public IList<SelectListItem> AvailableStatuses { get; set; } = new List<SelectListItem>();
+    public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
+}
+
+public class SerialNumberRowModel
+{
+    public string Id { get; set; }
+    public string Number { get; set; }
+    public string ProductId { get; set; }
+    public string ProductName { get; set; }
+    public string Status { get; set; }
+    public string Warehouse { get; set; }
+    public string OrderId { get; set; }
+    public DateTime? ShippedOn { get; set; }
+    public DateTime? WarrantyUntil { get; set; }
+}
+
+public class SerialNumberModel : SerialNumberRowModel
+{
+    public DateTime ReceivedOn { get; set; }
+    public string ReceiptDocumentId { get; set; }
+    public string ShipmentId { get; set; }
+    public bool InWarranty { get; set; }
+    public IList<StockHistoryRowModel> History { get; set; } = new List<StockHistoryRowModel>();
+}
+
+public class BatchListModel : BaseModel
+{
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.BatchNumber")]
+    public string SearchNumber { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Documents.Fields.Warehouse")]
+    public string SearchWarehouseId { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.ExpiryStatus")]
+    public int? SearchExpiryStatusId { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.WithStockOnly")]
+    public bool WithStockOnly { get; set; } = true;
+
+    /// <summary>
+    ///     The batches of one product, from its edit page
+    /// </summary>
+    public string ProductId { get; set; }
+
+    public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
+    public IList<SelectListItem> AvailableExpiryStatuses { get; set; } = new List<SelectListItem>();
+}
+
+public class BatchRowModel
+{
+    public string Id { get; set; }
+    public string Number { get; set; }
+    public string ProductId { get; set; }
+    public string ProductName { get; set; }
+    public string Warehouse { get; set; }
+    public DateTime? ExpiryDate { get; set; }
+
+    /// <summary>
+    ///     The expiry status translated; empty without an expiry date
+    /// </summary>
+    public string ExpiryStatus { get; set; }
+
+    public int Quantity { get; set; }
+}
+
+public class BatchModel : BatchRowModel
+{
+    public decimal? UnitCost { get; set; }
+    public DateTime ReceivedOn { get; set; }
+    public string ReceiptDocumentId { get; set; }
+    public IList<BatchRecipientModel> Recipients { get; set; } = new List<BatchRecipientModel>();
+    public IList<StockHistoryRowModel> History { get; set; } = new List<StockHistoryRowModel>();
+}
+
+public class BatchRecipientModel
+{
+    public string ShipmentId { get; set; }
+    public int ShipmentNumber { get; set; }
+    public string OrderId { get; set; }
+    public int OrderNumber { get; set; }
+    public string CustomerId { get; set; }
+    public string CustomerEmail { get; set; }
+    public int Quantity { get; set; }
+    public DateTime ShippedOn { get; set; }
+}
+
+/// <summary>
+///     One stock bucket on the product's batches or serial numbers tab
+/// </summary>
+public class UnitBucketRowModel
+{
+    public string Warehouse { get; set; }
+    public string Combination { get; set; }
+    public int Stock { get; set; }
+    public int Assigned { get; set; }
+    public int Pool { get; set; }
+}

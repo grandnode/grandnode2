@@ -143,6 +143,17 @@
         @* the journal of the product's stock; the vendor panel has no inventory screens *@
         @if (!string.IsNullOrEmpty(Model.Id) && Scope.ResourceKeyPrefix != "Vendor")
         {
+            @if (Model.InventoryTrackingModeId != InventoryTrackingMode.None)
+            {
+                <tabstrip-item text="@Loc[Model.InventoryTrackingModeId == InventoryTrackingMode.Batch ? "Admin.Inventory.Units.Batches" : "Admin.Inventory.Units.SerialNumbers"]"
+                               tab-index="25" id="tab-units">
+                    <content>
+                        <div>
+                            <partial name="Partials/CreateOrUpdate.Units" model="Model"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+            }
             <tabstrip-item text="@Loc["Admin.Catalog.Products.StockHistory"]" tab-index="24" id="tab-stock-history">
                 <content>
                     <div>

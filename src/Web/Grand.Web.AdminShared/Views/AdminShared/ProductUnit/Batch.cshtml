@@ -1,0 +1,65 @@
+@model Grand.Web.AdminShared.Models.Inventory.BatchModel
+@{
+    ViewBag.Title = Model.Number;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<admin-page title="@Model.Number" icon="bi-boxes" meta="@Model.ExpiryStatus"
+            back-url="@Url.Action("Batches", new { area })" back-text="@Loc["Admin.Inventory.Units.Batches"]">
+    <page-actions>
+        <a class="btn btn-outline-secondary" href="@Url.Action("BatchRecipientsCsv", new { area, id = Model.Id })">
+            <i class="bi bi-filetype-csv"></i> @Loc["Admin.Inventory.Units.RecipientsCsv"]
+        </a>
+    </page-actions>
+    <admin-card>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Product"]</dt>
+            <dd class="col-sm-9"><a href="@Url.Action("Edit", "Product", new { area, id = Model.ProductId })">@Model.ProductName</a></dd>
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</dt>
+            <dd class="col-sm-9">@Model.Warehouse</dd>
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]</dt>
+            <dd class="col-sm-9">@Model.ExpiryDate?.ToShortDateString() @Model.ExpiryStatus</dd>
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Quantity"]</dt>
+            <dd class="col-sm-9">@Model.Quantity</dd>
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.UnitCost"]</dt>
+            <dd class="col-sm-9">@Model.UnitCost</dd>
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ReceivedOn"]</dt>
+            <dd class="col-sm-9">
+                @Model.ReceivedOn.ToShortDateString()
+                @if (!string.IsNullOrEmpty(Model.ReceiptDocumentId))
+                {
+                    <a href="@Url.Action("Edit", "InventoryDocument", new { area, id = Model.ReceiptDocumentId })">@Loc["Admin.Inventory.Units.Receipt"]</a>
+                }
+            </dd>
+        </dl>
+    </admin-card>
+
+    @* a recall: every shipment that kept units of the batch *@
+    <admin-card title="@Loc["Admin.Inventory.Units.Recipients"]" flush>
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>@Loc["Admin.Inventory.Units.Shipment"]</th>
+                    <th>@Loc["Admin.Inventory.Units.Order"]</th>
+                    <th>@Loc["Admin.Inventory.Units.Customer"]</th>
+                    <th class="text-end">@Loc["Admin.Inventory.Documents.Fields.Quantity"]</th>
+                    <th>@Loc["Admin.Inventory.Units.ShippedOn"]</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var recipient in Model.Recipients)
+                {
+                    <tr>
+                        <td><a href="@Url.Action("ShipmentDetails", "Shipment", new { area, id = recipient.ShipmentId })">#@recipient.ShipmentNumber</a></td>
+                        <td><a href="@Url.Action("Edit", "Order", new { area, id = recipient.OrderId })">#@recipient.OrderNumber</a></td>
+                        <td>@recipient.CustomerEmail</td>
+                        <td class="text-end">@recipient.Quantity</td>
+                        <td>@recipient.ShippedOn.ToShortDateString()</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    </admin-card>
+    <partial name="Partials/UnitHistory" model="Model.History"/>
+</admin-page>

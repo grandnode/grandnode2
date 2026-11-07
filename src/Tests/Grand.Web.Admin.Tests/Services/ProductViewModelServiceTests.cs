@@ -157,7 +157,39 @@ public class ProductViewModelServiceTests
             _enumTranslationServiceMock.Object,
             _scopeMock.Object,
             _stockMovementServiceMock.Object,
-            _settingServiceMock.Object);
+            _settingServiceMock.Object,
+            _productUnitServiceMock.Object);
+    }
+
+    private readonly Mock<IProductUnitService> _productUnitServiceMock = new();
+
+    [TestMethod]
+    public async Task TrackingChangeRefused_UnitsAssigned_MessageWithQuantity()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            InventoryTrackingModeId = InventoryTrackingMode.SerialNumber
+        };
+        var model = new ProductModel {
+            Id = product.Id, ManageInventoryMethodId = (int)ManageInventoryMethod.ManageStock,
+            InventoryTrackingModeId = InventoryTrackingMode.None
+        };
+        _productUnitServiceMock.Setup(x => x.TrackingChangeRefused(product, It.Is<Product>(p =>
+                p.InventoryTrackingModeId == InventoryTrackingMode.None)))
+            .ReturnsAsync(UnitErrors.UnitsAssigned);
+        _productUnitServiceMock.Setup(x => x.AssignedQuantity(product.Id, null)).ReturnsAsync(4);
+        _translationServiceMock.Setup(x => x.GetResource(UnitErrors.UnitsAssigned)).Returns("assigned: {0}");
+
+        Assert.AreEqual("assigned: 4", await _productViewModelService.TrackingChangeRefused(product, model));
+    }
+
+    [TestMethod]
+    public async Task TrackingChangeRefused_Allowed_Null()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock };
+        var model = new ProductModel { ManageInventoryMethodId = (int)ManageInventoryMethod.ManageStock };
+
+        Assert.IsNull(await _productViewModelService.TrackingChangeRefused(product, model));
     }
 
     private void StockChangesOnlyThroughDocuments(bool value) =>

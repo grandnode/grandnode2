@@ -96,6 +96,8 @@ public abstract class BaseProductController(
     {
         if (await productViewModelService.StockChangeRefused(model) is { } stockRefused)
             ModelState.AddModelError("", stockRefused);
+        if (await productViewModelService.TrackingChangeRefused(null, model) is { } trackingRefused)
+            ModelState.AddModelError("", trackingRefused);
 
         if (ModelState.IsValid)
         {
@@ -169,6 +171,9 @@ public abstract class BaseProductController(
         //the server is the guard, not the read-only fields
         if (await productViewModelService.StockChangeRefused(model) is { } stockRefused)
             ModelState.AddModelError("", stockRefused);
+        //batches or serial numbers assigned stay where they are
+        if (await productViewModelService.TrackingChangeRefused(product, model) is { } trackingRefused)
+            ModelState.AddModelError("", trackingRefused);
 
         if (ModelState.IsValid)
         {

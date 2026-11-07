@@ -21,6 +21,7 @@ public class ProductProfile : Profile, IAutoMapperProfile
             .ForMember(dest => dest.OriginalReservedQuantity, mo => mo.Ignore())
             .ForMember(dest => dest.OriginalProductCost, mo => mo.Ignore())
             .ForMember(dest => dest.StockChangesOnlyThroughDocuments, mo => mo.Ignore())
+            .ForMember(dest => dest.UnitBuckets, mo => mo.Ignore())
             .ForMember(dest => dest.BrandName, mo => mo.Ignore())
             .ForMember(dest => dest.CategoryName, mo => mo.Ignore())
             .ForMember(dest => dest.CreatedOn, mo => mo.Ignore())

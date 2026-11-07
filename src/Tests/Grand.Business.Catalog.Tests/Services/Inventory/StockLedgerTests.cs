@@ -7,6 +7,7 @@ using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -453,14 +454,17 @@ public static class StockTestFixture
 
     public static ProductUnitService UnitService(IRepository<ProductBatch> batches = null,
         IRepository<ProductSerialNumber> serials = null, IRepository<Product> products = null,
-        InventorySettings settings = null)
+        InventorySettings settings = null, IRepository<InventoryJournal> journal = null,
+        IRepository<Shipment> shipments = null, IRepository<Order> orders = null)
     {
         var settingService = new Mock<ISettingService>();
         settingService.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
             .ReturnsAsync(settings ?? new InventorySettings());
         return new ProductUnitService(batches ?? new MongoDBRepositoryTest<ProductBatch>(),
             serials ?? new MongoDBRepositoryTest<ProductSerialNumber>(),
-            products ?? new MongoDBRepositoryTest<Product>(), settingService.Object);
+            products ?? new MongoDBRepositoryTest<Product>(), settingService.Object,
+            journal ?? new MongoDBRepositoryTest<InventoryJournal>(), shipments ?? new MongoDBRepositoryTest<Shipment>(),
+            orders ?? new MongoDBRepositoryTest<Order>());
     }
 
     public static StockMovementService MovementService(IRepository<Product> products,

@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Web.AdminShared.Models.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
@@ -62,7 +63,8 @@ public class ProductViewModelService(
     IEnumTranslationService enumTranslationService,
     IAdminDataScope<Product> scope,
     IStockMovementService stockMovementService,
-    ISettingService settingService)
+    ISettingService settingService,
+    IProductUnitService productUnitService)
     : IProductViewModelService
 {
     private StockSource ManualEditSource(Product product)
@@ -104,6 +106,34 @@ public class ProductViewModelService(
                InventoryTracking.Tracked(stored);
     }
 
+    public virtual async Task<string> TrackingChangeRefused(Product product, ProductModel model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        var changed = new Product {
+            ManageInventoryMethodId = (ManageInventoryMethod)model.ManageInventoryMethodId,
+            InventoryTrackingModeId = model.InventoryTrackingModeId,
+            UseMultipleWarehouses = model.UseMultipleWarehouses,
+            WarehouseId = model.WarehouseId
+        };
+        //a new product changes nothing stored: only an unsupported tracking is refused
+        var stored = product ?? new Product {
+            ManageInventoryMethodId = changed.ManageInventoryMethodId,
+            UseMultipleWarehouses = changed.UseMultipleWarehouses, WarehouseId = changed.WarehouseId
+        };
+        if (product != null)
+            changed.Id = product.Id;
+
+        var refused = await productUnitService.TrackingChangeRefused(stored, changed);
+        if (refused == null)
+            return null;
+
+        var message = translationService.GetResource(refused);
+        return refused == UnitErrors.UnitsAssigned
+            ? string.Format(message, await productUnitService.AssignedQuantity(stored.Id))
+            : message;
+    }
+
     public virtual async Task PrepareProductModel(ProductModel model, Product product,
         bool setPredefinedValues, bool excludeProperties)
     {
@@ -116,6 +146,17 @@ public class ProductViewModelService(
         model.StockChangesOnlyThroughDocuments = product != null
             ? InventoryTracking.StockDocumentOnly(product, inventorySettings)
             : inventorySettings.StockChangesOnlyThroughDocuments;
+        //the stock each bucket holds in batches or serial numbers, and without them
+        if (product != null && InventoryTracking.Tracked(product))
+            foreach (var bucket in await productUnitService.Buckets(product))
+                model.UnitBuckets.Add(new UnitBucketRowModel {
+                    Warehouse = string.IsNullOrEmpty(bucket.WarehouseId)
+                        ? ""
+                        : (await warehouseService.GetWarehouseById(bucket.WarehouseId))?.Name ?? bucket.WarehouseId,
+                    Combination = string.Join(", ", product.ParseProductAttributeValues(bucket.Attributes)
+                        .Select(x => x.Name)),
+                    Stock = bucket.Stock, Assigned = bucket.Assigned, Pool = bucket.Pool
+                });
 
         //the stock the form shows: only a value changed since is applied when it is saved
         if (product != null && !excludeProperties)

@@ -2,6 +2,8 @@ using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
+using Grand.Domain;
+using Grand.Domain.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Shipping;
@@ -12,8 +14,145 @@ public class ProductUnitService(
     IRepository<ProductBatch> batchRepository,
     IRepository<ProductSerialNumber> serialNumberRepository,
     IRepository<Product> productRepository,
-    ISettingService settingService) : IProductUnitService
+    ISettingService settingService,
+    IRepository<InventoryJournal> journalRepository,
+    IRepository<Shipment> shipmentRepository,
+    IRepository<Order> orderRepository) : IProductUnitService
 {
+    public Task<IPagedList<ProductSerialNumber>> SearchSerialNumbers(UnitSearch search, int pageIndex = 0,
+        int pageSize = int.MaxValue)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+
+        var query = serialNumberRepository.Table;
+        var key = UnitNumbers.Key(search.Number);
+        if (key != "")
+            query = search.Prefix
+                ? query.Where(x => x.NumberKey.StartsWith(key))
+                : query.Where(x => x.NumberKey == key);
+        if (!string.IsNullOrEmpty(search.ProductId))
+            query = query.Where(x => x.ProductId == search.ProductId);
+        if (search.Status.HasValue)
+            query = query.Where(x => x.StatusId == search.Status.Value);
+        if (!string.IsNullOrEmpty(search.WarehouseId))
+            query = query.Where(x => x.WarehouseId == search.WarehouseId);
+        if (search.StoreId != null)
+            query = query.Where(x => x.StoreId == search.StoreId);
+
+        return serialNumberRepository.PagedAsync(query.OrderBy(x => x.NumberKey), pageIndex, pageSize);
+    }
+
+    public async Task<IPagedList<ProductBatch>> SearchBatches(UnitSearch search, int pageIndex = 0,
+        int pageSize = int.MaxValue)
+    {
+        ArgumentNullException.ThrowIfNull(search);
+
+        var query = batchRepository.Table;
+        var key = UnitNumbers.Key(search.Number);
+        if (key != "")
+            query = search.Prefix
+                ? query.Where(x => x.NumberKey.StartsWith(key))
+                : query.Where(x => x.NumberKey == key);
+        if (!string.IsNullOrEmpty(search.ProductId))
+            query = query.Where(x => x.ProductId == search.ProductId);
+        if (!string.IsNullOrEmpty(search.WarehouseId))
+            query = query.Where(x => x.WarehouseId == search.WarehouseId);
+        if (search.StoreId != null)
+            query = query.Where(x => x.StoreId == search.StoreId);
+        if (search.WithStockOnly)
+            query = query.Where(x => x.Quantity > 0);
+
+        //by the inventory setting's warning days: a product's own days show on each batch
+        var today = DateTime.SpecifyKind(search.Today.Date, DateTimeKind.Utc);
+        var warningEnd = today.AddDays((await settingService.LoadSetting<InventorySettings>()).ExpiryWarningDays);
+        query = search.ExpiryStatus switch {
+            BatchExpiryStatus.Expired => query.Where(x => x.ExpiryDateUtc != null && x.ExpiryDateUtc < today),
+            BatchExpiryStatus.Expiring => query.Where(x =>
+                x.ExpiryDateUtc != null && x.ExpiryDateUtc >= today && x.ExpiryDateUtc <= warningEnd),
+            BatchExpiryStatus.Valid => query.Where(x => x.ExpiryDateUtc != null && x.ExpiryDateUtc > warningEnd),
+            _ => query
+        };
+
+        return await batchRepository.PagedAsync(query.OrderBy(x => x.ExpiryDateUtc).ThenBy(x => x.NumberKey),
+            pageIndex, pageSize);
+    }
+
+    public Task<ProductSerialNumber> GetSerialNumber(string id)
+    {
+        return serialNumberRepository.GetByIdAsync(id);
+    }
+
+    public Task<ProductBatch> GetBatch(string id)
+    {
+        return batchRepository.GetByIdAsync(id);
+    }
+
+    public async Task<IList<InventoryJournal>> History(string productId, string batchNumber, string serialNumber)
+    {
+        var query = journalRepository.Table.Where(x => x.ProductId == productId);
+        query = !string.IsNullOrEmpty(serialNumber)
+            ? query.Where(x => x.SerialNumbers.Contains(serialNumber))
+            : query.Where(x => x.BatchNumber != null);
+        var entries = await journalRepository.ToListAsync(query.OrderByDescending(x => x.StockRevision));
+        var key = UnitNumbers.Key(batchNumber);
+        return string.IsNullOrEmpty(serialNumber)
+            ? entries.Where(x => UnitNumbers.Key(x.BatchNumber) == key).ToList()
+            : entries;
+    }
+
+    public async Task<IList<BatchRecipient>> BatchRecipients(ProductBatch batch)
+    {
+        ArgumentNullException.ThrowIfNull(batch);
+
+        var entries = await journalRepository.ToListAsync(journalRepository.Table.Where(x =>
+            x.ProductId == batch.ProductId && x.ObjectType == nameof(Shipment) && x.BatchNumber != null));
+        var recipients = new List<BatchRecipient>();
+        foreach (var shipped in entries.Where(x => UnitNumbers.Key(x.BatchNumber) == batch.NumberKey)
+                     .GroupBy(x => x.ObjectId))
+        {
+            var quantity = shipped.Sum(x => x.MovementTypeId switch {
+                InventoryMovementType.Shipment => x.OutQty - x.InQty,
+                InventoryMovementType.ShipmentReversal => x.OutQty - x.InQty,
+                _ => 0
+            });
+            if (quantity <= 0)
+                continue;
+
+            var shipment = await shipmentRepository.GetByIdAsync(shipped.Key);
+            var order = shipment == null ? null : await orderRepository.GetByIdAsync(shipment.OrderId);
+            recipients.Add(new BatchRecipient(shipped.Key, shipment?.ShipmentNumber ?? 0, shipment?.OrderId,
+                order?.OrderNumber ?? 0, order?.CustomerId, order?.CustomerEmail, quantity,
+                shipment?.CreatedOnUtc ?? shipped.Min(x => x.CreateDateUtc)));
+        }
+
+        return recipients.OrderBy(x => x.ShippedOnUtc).ToList();
+    }
+
+    public async Task<IList<UnitBucketView>> Buckets(Product product)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        var buckets = new List<UnitBucketView>();
+        if (!InventoryTracking.Tracked(product))
+            return buckets;
+
+        IEnumerable<string> warehouses = product.UseMultipleWarehouses ? StockBuckets.Warehouses(product) : [product.WarehouseId];
+        foreach (var warehouseId in warehouses)
+        foreach (var (combinationId, attributes, stock) in StockBuckets.In(product, warehouseId))
+        {
+            var unitWarehouse = StockBuckets.UnitWarehouse(product, warehouseId);
+            var combination = combinationId ?? "";
+            var assigned = product.InventoryTrackingModeId == InventoryTrackingMode.Batch
+                ? (await Batches(product.Id, combination, unitWarehouse)).Sum(x => x.Quantity)
+                : await serialNumberRepository.CountAsync(serialNumberRepository.Table.Where(x =>
+                    x.ProductId == product.Id && x.CombinationId == combination && x.WarehouseId == unitWarehouse &&
+                    x.StatusId == SerialNumberStatus.InStock));
+            buckets.Add(new UnitBucketView(combination, attributes, unitWarehouse, stock, assigned));
+        }
+
+        return buckets;
+    }
+
     public async Task<IList<BatchAllocation>> ProposeBatches(Product product, IList<CustomAttribute> attributes,
         string warehouseId, int quantity, DateTime today)
     {

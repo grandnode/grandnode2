@@ -1,3 +1,4 @@
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Shipping;
@@ -23,6 +24,72 @@ public sealed record BatchAllocation(
 ///     Why the units of a shipment item cannot be shipped
 /// </summary>
 public sealed record ShipmentUnitError(string ShipmentItemId, string ProductName, string ErrorKey);
+
+/// <summary>
+///     The filter of the batch and serial number screens; an empty field filters nothing
+/// </summary>
+public sealed record UnitSearch
+{
+    /// <summary>
+    ///     The number, compared without case
+    /// </summary>
+    public string Number { get; init; }
+
+    /// <summary>
+    ///     The number is the start of the numbers found
+    /// </summary>
+    public bool Prefix { get; init; }
+
+    public string ProductId { get; init; }
+    public SerialNumberStatus? Status { get; init; }
+    public string WarehouseId { get; init; }
+
+    /// <summary>
+    ///     The store of the units' warehouses; null for every store
+    /// </summary>
+    public string StoreId { get; init; }
+
+    public BatchExpiryStatus? ExpiryStatus { get; init; }
+
+    /// <summary>
+    ///     Only batches holding stock
+    /// </summary>
+    public bool WithStockOnly { get; init; }
+
+    /// <summary>
+    ///     The date the expiry status is worked out at, in the store's time zone
+    /// </summary>
+    public DateTime Today { get; init; }
+}
+
+/// <summary>
+///     A shipment that shipped units of a batch: who received them
+/// </summary>
+public sealed record BatchRecipient(
+    string ShipmentId,
+    int ShipmentNumber,
+    string OrderId,
+    int OrderNumber,
+    string CustomerId,
+    string CustomerEmail,
+    int Quantity,
+    DateTime ShippedOnUtc);
+
+/// <summary>
+///     One stock bucket of a product tracking units: its stock and the part of it batches or serial numbers hold
+/// </summary>
+public sealed record UnitBucketView(
+    string CombinationId,
+    IList<CustomAttribute> Attributes,
+    string WarehouseId,
+    int Stock,
+    int Assigned)
+{
+    /// <summary>
+    ///     The stock without units
+    /// </summary>
+    public int Pool => Stock - Assigned;
+}
 
 /// <summary>
 ///     The batches and serial numbers products hold: what is assigned, and which changes of a product they block
@@ -69,6 +136,30 @@ public interface IProductUnitService
     /// </summary>
     /// <returns>The errors, one per item at most; the shipment is not to be stored when there is one</returns>
     Task<IList<ShipmentUnitError>> PrepareShipmentUnits(Shipment shipment);
+
+    Task<IPagedList<ProductSerialNumber>> SearchSerialNumbers(UnitSearch search, int pageIndex = 0,
+        int pageSize = int.MaxValue);
+
+    Task<IPagedList<ProductBatch>> SearchBatches(UnitSearch search, int pageIndex = 0, int pageSize = int.MaxValue);
+
+    Task<ProductSerialNumber> GetSerialNumber(string id);
+
+    Task<ProductBatch> GetBatch(string id);
+
+    /// <summary>
+    ///     The journal entries of the product naming the batch or the serial number, newest first
+    /// </summary>
+    Task<IList<InventoryJournal>> History(string productId, string batchNumber, string serialNumber);
+
+    /// <summary>
+    ///     Every shipment that shipped units of the product's batch and kept them, with its order and customer
+    /// </summary>
+    Task<IList<BatchRecipient>> BatchRecipients(ProductBatch batch);
+
+    /// <summary>
+    ///     The stock buckets of a product tracking units, with the stock batches or serial numbers hold
+    /// </summary>
+    Task<IList<UnitBucketView>> Buckets(Product product);
 
     /// <summary>
     ///     Why the change of a product is refused: switching tracking off or to the other mode, or changing the

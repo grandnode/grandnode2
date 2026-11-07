@@ -1,4 +1,5 @@
 ﻿using Grand.Domain.Catalog;
+using Grand.Web.AdminShared.Models.Inventory;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.AdminShared.Models.Discounts;
@@ -213,6 +214,9 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
 
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.InventoryTrackingMode")]
     public InventoryTrackingMode InventoryTrackingModeId { get; set; }
+
+    //the stock each bucket holds in batches or serial numbers, shown on their tab
+    public IList<UnitBucketRowModel> UnitBuckets { get; set; } = new List<UnitBucketRowModel>();
 
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.WarrantyMonths")]
     public int WarrantyMonths { get; set; }
