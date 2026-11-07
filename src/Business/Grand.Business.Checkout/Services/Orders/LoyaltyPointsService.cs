@@ -19,13 +19,16 @@ public class LoyaltyPointsService : ILoyaltyPointsService
     /// <param name="rphRepository">LoyaltyPointsHistory repository</param>
     /// <param name="loyaltyPointsSettings">Loyalty points settings</param>
     /// <param name="mediator">Mediator</param>
+    /// <param name="resourceLock">Lock</param>
     public LoyaltyPointsService(IRepository<LoyaltyPointsHistory> rphRepository,
         LoyaltyPointsSettings loyaltyPointsSettings,
-        IMediator mediator)
+        IMediator mediator,
+        IResourceLock resourceLock)
     {
         _rphRepository = rphRepository;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _mediator = mediator;
+        _resourceLock = resourceLock;
     }
 
     #endregion
@@ -35,6 +38,7 @@ public class LoyaltyPointsService : ILoyaltyPointsService
     private readonly IRepository<LoyaltyPointsHistory> _rphRepository;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
     private readonly IMediator _mediator;
+    private readonly IResourceLock _resourceLock;
 
     #endregion
 
@@ -76,21 +80,21 @@ public class LoyaltyPointsService : ILoyaltyPointsService
         string storeId, string message = "",
         string usedWithOrderId = "", double usedAmount = 0)
     {
-        var loyaltyPointsHistory = new LoyaltyPointsHistory {
-            CustomerId = customerId,
-            UsedWithOrderId = usedWithOrderId,
-            Points = points,
-            PointsBalance = await GetLoyaltyPointsBalance(customerId, storeId) + points,
-            UsedAmount = usedAmount,
-            Message = message,
-            StoreId = storeId
-        };
-        await _rphRepository.InsertAsync(loyaltyPointsHistory);
+        //each record carries the balance after it, read from the record before it
+        await using var _ = await _resourceLock.Acquire([LockKey(customerId, storeId)]);
 
-        //event notification
-        await _mediator.EntityInserted(loyaltyPointsHistory);
+        return await InsertLoyaltyPointsHistory(customerId, points, storeId, message, usedWithOrderId, usedAmount);
+    }
 
-        return loyaltyPointsHistory;
+    public virtual async Task<LoyaltyPointsHistory> TryRedeemLoyaltyPoints(string customerId, int points,
+        string storeId, string message, string usedWithOrderId, double usedAmount)
+    {
+        await using var _ = await _resourceLock.Acquire([LockKey(customerId, storeId)]);
+
+        if (await GetLoyaltyPointsBalance(customerId, storeId) < points)
+            return null;
+
+        return await InsertLoyaltyPointsHistory(customerId, -points, storeId, message, usedWithOrderId, usedAmount);
     }
 
     public virtual async Task<IList<LoyaltyPointsHistory>> GetLoyaltyPointsHistory(string customerId = "",
@@ -108,6 +112,43 @@ public class LoyaltyPointsService : ILoyaltyPointsService
         query = query.OrderByDescending(rph => rph.CreatedOnUtc).ThenByDescending(rph => rph.Id);
 
         return await _rphRepository.ToListAsync(query);
+    }
+
+    #endregion
+
+    #region Utilities
+
+    /// <summary>
+    ///     Inserts a record; the caller holds the balance's lock
+    /// </summary>
+    private async Task<LoyaltyPointsHistory> InsertLoyaltyPointsHistory(string customerId, int points,
+        string storeId, string message, string usedWithOrderId, double usedAmount)
+    {
+        var loyaltyPointsHistory = new LoyaltyPointsHistory {
+            CustomerId = customerId,
+            UsedWithOrderId = usedWithOrderId,
+            Points = points,
+            PointsBalance = await GetLoyaltyPointsBalance(customerId, storeId) + points,
+            UsedAmount = usedAmount,
+            Message = message,
+            StoreId = storeId
+        };
+        await _rphRepository.InsertAsync(loyaltyPointsHistory);
+
+        //event notification
+        await _mediator.EntityInserted(loyaltyPointsHistory);
+
+        return loyaltyPointsHistory;
+    }
+
+    /// <summary>
+    ///     One key per balance: shared by all stores, or one per store
+    /// </summary>
+    private string LockKey(string customerId, string storeId)
+    {
+        return _loyaltyPointsSettings.PointsAccumulatedForAllStores
+            ? $"LoyaltyPoints:{customerId}"
+            : $"LoyaltyPoints:{customerId}:{storeId}";
     }
 
     #endregion

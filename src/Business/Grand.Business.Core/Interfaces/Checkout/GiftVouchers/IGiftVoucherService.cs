@@ -59,6 +59,18 @@ public interface IGiftVoucherService
     Task DeleteGiftVoucher(GiftVoucher giftVoucher);
 
     /// <summary>
+    ///     Records the use of an amount for an order, when the stored balance of the activated gift voucher still covers
+    ///     it
+    /// </summary>
+    /// <returns>False when the gift voucher is missing, not activated, or its balance is short</returns>
+    Task<bool> TryRedeem(string giftVoucherId, double amount, string orderId);
+
+    /// <summary>
+    ///     Removes the use recorded for an order
+    /// </summary>
+    Task CancelRedemption(string giftVoucherId, string orderId);
+
+    /// <summary>
     ///     Gets gift vouchers by 'PurchasedWithOrderItemId'
     /// </summary>
     /// <param name="purchasedWithOrderItemId">Purchased with order item identifier</param>

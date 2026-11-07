@@ -900,4 +900,340 @@
 	<Resource Name="Admin.Orders.OrderTags.Updated" Area="Admin">
 		<Value>The order's tag has been updated successfully.</Value>
 	</Resource>
+	<Resource Name="ShoppingCart.ChangedDuringCheckout" Area="Front">
+		<Value>Some items in your cart are no longer available in the requested amount. Please review your cart and try again.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory" Area="Admin">
+		<Value>Inventory</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.StockChangesOnlyThroughDocuments" Area="Admin">
+		<Value>Stock changes only through inventory documents</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.StockChangesOnlyThroughDocuments.Hint" Area="Admin">
+		<Value>When on, the stock quantities on product, combination and warehouse forms are read-only in every panel, and product import ignores stock columns. Stock then changes through inventory documents, orders and the API. This setting applies to all stores.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ReceiptNumberPrefix" Area="Admin">
+		<Value>Receipt number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ReceiptNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of receipt numbers, e.g. PZ gives PZ/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.TransferNumberPrefix" Area="Admin">
+		<Value>Transfer number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.TransferNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of transfer numbers, e.g. MM gives MM/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.AdjustmentNumberPrefix" Area="Admin">
+		<Value>Adjustment number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.AdjustmentNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of adjustment numbers, e.g. KOR gives KOR/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.StockCountNumberPrefix" Area="Admin">
+		<Value>Stock count number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.StockCountNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of stock count numbers, e.g. INW gives INW/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ReturnReceiptNumberPrefix" Area="Admin">
+		<Value>Return receipt number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ReturnReceiptNumberPrefix.Hint" Area="Admin">
+		<Value>The prefix of return receipt numbers, e.g. ZW gives ZW/2026/0001.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.ProductNotFound" Area="Admin">
+		<Value>The product was not found.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.StockNotTracked" Area="Admin">
+		<Value>The product does not track stock by product or by attribute combinations.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.WarehouseRequired" Area="Admin">
+		<Value>The product keeps stock in multiple warehouses: choose a warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.CombinationNotFound" Area="Admin">
+		<Value>The product has no attribute combination with these attributes.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.NotEnoughAvailable" Area="Admin">
+		<Value>The warehouse does not have this quantity available.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockChangesOnlyThroughDocuments" Area="Admin">
+		<Value>Stock changes only through inventory documents: the stock quantities were not saved. Post a receipt, an adjustment or a stock count instead.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.ProductAttributeCombinations.StockNotTracked" Area="Admin">
+		<Value>A combination holds stock only when the product manages stock by attributes.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents" Area="Admin">
+		<Value>Inventory documents</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.StockAtDate" Area="Admin">
+		<Value>Stock at date</Value>
+	</Resource>
+	<Resource Name="Permission.ManageInventoryDocuments" Area="Admin">
+		<Value>Manage inventory documents</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.NotFound" Area="Admin">
+		<Value>The inventory document was not found.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.Posted" Area="Admin">
+		<Value>The document is posted and cannot be changed. Fix a mistake with another document.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.NoLines" Area="Admin">
+		<Value>The document has no lines.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.WarehouseNotFound" Area="Admin">
+		<Value>Choose the warehouse of the document.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.TargetWarehouseInvalid" Area="Admin">
+		<Value>Choose a target warehouse other than the source warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ProductInOtherWarehouse" Area="Admin">
+		<Value>A product kept in one warehouse can only be booked in that warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.TransferNeedsMultipleWarehouses" Area="Admin">
+		<Value>Only a product kept in multiple warehouses can be transferred.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.QuantityMustBePositive" Area="Admin">
+		<Value>The quantity must be greater than zero.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.QuantityMustNotBeZero" Area="Admin">
+		<Value>The quantity cannot be zero.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.UnitCostRequired" Area="Admin">
+		<Value>Enter the unit cost of every line (it can be 0).</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.CommentRequired" Area="Admin">
+		<Value>An adjustment needs a comment saying why.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.CountedNegative" Area="Admin">
+		<Value>A counted quantity cannot be below zero.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.LineBooked" Area="Admin">
+		<Value>A posting of this document stopped part way: the lines it booked cannot be changed. Post the document again.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.DuplicateLine" Area="Admin">
+		<Value>A stock count lists the same product or combination more than once: remove the extra lines.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ChangedWhilePosting" Area="Admin">
+		<Value>The document was changed while it was being posted: post it again to book the rest.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.TooManyLines" Area="Admin">
+		<Value>A document holds at most 5,000 lines: count a large warehouse in parts, by categories or brands.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ReturnNotReceivable" Area="Admin">
+		<Value>A rejected or cancelled merchandise return cannot be received.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ReturnQuantityExceeded" Area="Admin">
+		<Value>The return receipts of this merchandise return take in more than was returned.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.BackToList" Area="Admin">
+		<Value>back to inventory documents</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.CreateDraft" Area="Admin">
+		<Value>Create draft</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Post" Area="Admin">
+		<Value>Post</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.PostConfirm" Area="Admin">
+		<Value>Posting books the stock of every line and the document can no longer be changed. Post it?</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.PostedSuccessfully" Area="Admin">
+		<Value>The document has been posted.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Updated" Area="Admin">
+		<Value>The document has been saved.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Deleted" Area="Admin">
+		<Value>The draft has been deleted.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.AccessDenied" Area="Admin">
+		<Value>You do not have access to this document or warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.NoLines" Area="Admin">
+		<Value>No lines yet: add a product by its SKU below.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.ReceiveToStock" Area="Admin">
+		<Value>Receive to stock</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.SkuNotFound" Area="Admin">
+		<Value>No product has this SKU.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Number" Area="Admin">
+		<Value>Number</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.DocumentType" Area="Admin">
+		<Value>Type</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Status" Area="Admin">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Warehouse" Area="Admin">
+		<Value>Warehouse</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.TargetWarehouse" Area="Admin">
+		<Value>Target warehouse</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.SupplierName" Area="Admin">
+		<Value>Supplier</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.ExternalReference" Area="Admin">
+		<Value>Supplier's document number</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Comment" Area="Admin">
+		<Value>Comment</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.CreatedOn" Area="Admin">
+		<Value>Created on</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.PostedOn" Area="Admin">
+		<Value>Posted on</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Categories" Area="Admin">
+		<Value>Categories</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Categories.Hint" Area="Admin">
+		<Value>Count only the products of these categories; none chosen counts every product kept in the warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Brands" Area="Admin">
+		<Value>Brands</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Brands.Hint" Area="Admin">
+		<Value>Count only the products of these brands.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.AddSku" Area="Admin">
+		<Value>Add a product by SKU</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.AddSku.Hint" Area="Admin">
+		<Value>Saving adds the product with this SKU; a product kept by attribute combinations adds a line for each combination.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Lines" Area="Admin">
+		<Value>Lines</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Product" Area="Admin">
+		<Value>Product</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Quantity" Area="Admin">
+		<Value>Quantity</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.ExpectedQuantity" Area="Admin">
+		<Value>Expected</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.CountedQuantity" Area="Admin">
+		<Value>Counted</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.UnitCost" Area="Admin">
+		<Value>Unit cost</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.Condition" Area="Admin">
+		<Value>Condition</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.Receipt" Area="Admin">
+		<Value>Receipt</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.Transfer" Area="Admin">
+		<Value>Transfer</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.Adjustment" Area="Admin">
+		<Value>Adjustment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.StockCount" Area="Admin">
+		<Value>Stock count</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.ReturnReceipt" Area="Admin">
+		<Value>Return receipt</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentStatus.Draft" Area="Admin">
+		<Value>Draft</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentStatus.Posted" Area="Admin">
+		<Value>Posted</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.ReturnLineCondition.Restock" Area="Admin">
+		<Value>Back on stock</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.ReturnLineCondition.Scrap" Area="Admin">
+		<Value>Scrap</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory" Area="Admin">
+		<Value>Stock history</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.From" Area="Admin">
+		<Value>From</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.To" Area="Admin">
+		<Value>To</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Date" Area="Admin">
+		<Value>Date</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.MovementType" Area="Admin">
+		<Value>Movement</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Combination" Area="Admin">
+		<Value>Combination</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.In" Area="Admin">
+		<Value>In</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Out" Area="Admin">
+		<Value>Out</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Reference" Area="Admin">
+		<Value>Reference</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockHistory.Who" Area="Admin">
+		<Value>Who</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.StockAtDate.Fields.AtDate" Area="Admin">
+		<Value>Date</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.StockAtDate.Fields.Stock" Area="Admin">
+		<Value>Stock</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.OpeningBalance" Area="Admin">
+		<Value>Opening balance</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Legacy" Area="Admin">
+		<Value>Before the journal</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Shipment" Area="Admin">
+		<Value>Shipment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ShipmentReversal" Area="Admin">
+		<Value>Shipment reversed</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Receipt" Area="Admin">
+		<Value>Receipt</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.TransferOut" Area="Admin">
+		<Value>Transfer out</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.TransferIn" Area="Admin">
+		<Value>Transfer in</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Adjustment" Area="Admin">
+		<Value>Adjustment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.StockCount" Area="Admin">
+		<Value>Stock count</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ReturnReceipt" Area="Admin">
+		<Value>Return receipt</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ManualEdit" Area="Admin">
+		<Value>Edited in the panel</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Api" Area="Admin">
+		<Value>API</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.Import" Area="Admin">
+		<Value>Import</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ProductCopy" Area="Admin">
+		<Value>Product copy</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ClosingBalance" Area="Admin">
+		<Value>Closing balance</Value>
+	</Resource>
 </Language>

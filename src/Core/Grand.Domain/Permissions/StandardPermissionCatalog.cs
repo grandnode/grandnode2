@@ -14,6 +14,17 @@ public static partial class StandardPermission
         }
     };
 
+    public static readonly Permission ManageInventoryDocuments = new() {
+        Name = "Manage inventory documents",
+        SystemName = PermissionSystemName.InventoryDocuments,
+        Area = "Admin area",
+        Category = CategoryCatalog,
+        Actions = new List<string> {
+            PermissionActionName.List, PermissionActionName.Preview, PermissionActionName.Create,
+            PermissionActionName.Edit, PermissionActionName.Delete
+        }
+    };
+
     public static readonly Permission ManageCategories = new() {
         Name = "Manage Categories",
         SystemName = PermissionSystemName.Categories,

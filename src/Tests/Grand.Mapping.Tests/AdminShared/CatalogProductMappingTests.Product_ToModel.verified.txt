@@ -47,6 +47,7 @@
   ManageInventoryMethodId: 1,
   UseMultipleWarehouses: false,
   StockQuantity: 50,
+  StockChangesOnlyThroughDocuments: false,
   StockAvailability: false,
   DisplayStockQuantity: true,
   AllowOutOfStockSubscriptions: false,

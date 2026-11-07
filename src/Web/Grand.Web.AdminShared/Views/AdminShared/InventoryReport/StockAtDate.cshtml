@@ -1,0 +1,52 @@
+@model Grand.Web.AdminShared.Models.Inventory.StockAtDateModel
+@{
+    ViewBag.Title = Loc["Admin.Inventory.StockAtDate"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@* the stored stock less every change after the date; "-" where the history starts later *@
+<admin-page title="@Loc["Admin.Inventory.StockAtDate"]" icon="bi-box-seam">
+    <admin-card>
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
+            <admin-field asp-for="AtDate"/>
+        </div>
+        <card-actions>
+            <button type="button" id="stockatdate-search" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
+            </button>
+        </card-actions>
+    </admin-card>
+
+    <admin-card flush>
+        <admin-grid id="stockatdate-grid"
+                    read-url="@Url.Action("StockAtDateData", "InventoryReport", new { area })"
+                    additional-data="stockAtDateData"
+                    auto-bind="false">
+            <grid-column field="ProductName" title="@Loc["Admin.Inventory.Documents.Fields.Product"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Product", new { area })/{{ ProductId }}">{{ ProductName }}</a>
+                    <div class="grand-cell-sub">{{ Sku }}</div>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Combination" title="@Loc["Admin.Catalog.Products.StockHistory.Combination"]"/>
+            <grid-column field="Stock" title="@Loc["Admin.Inventory.StockAtDate.Fields.Stock"]" width="120"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+    function stockAtDateData() {
+        var data = {
+            warehouseId: $('#@Html.IdFor(model => model.WarehouseId)').val(),
+            atDate: $('#@Html.IdFor(model => model.AtDate)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#stockatdate-search').click(function () {
+            GrandAdmin.grids.get('#stockatdate-grid').dataSource.page(1);
+            return false;
+        });
+    });
+</script>

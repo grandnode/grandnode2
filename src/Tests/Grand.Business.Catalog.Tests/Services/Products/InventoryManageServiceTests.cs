@@ -1,9 +1,13 @@
-﻿using Grand.Business.Catalog.Services.Products;
+﻿using Grand.Business.Catalog.Services.Inventory;
+using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Catalog.Tests.Services.Inventory;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
@@ -11,6 +15,7 @@ using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Diagnostics;
 
 namespace Grand.Business.Catalog.Tests.Services.Products;
 
@@ -41,7 +46,357 @@ public class InventoryManageServiceTests
         _settings = new CatalogSettings();
         _stockQuantityService = new StockQuantityService();
         _inventoryManageService = new InventoryManageService(_repository, _repositoryInventoryJournal,
-            _stockQuantityService, _mediatorMock.Object, _settings);
+            _stockQuantityService, _mediatorMock.Object, _settings, new MongoResourceLockTest(),
+            new StockSideEffects(_repository, new Mock<IOutOfStockSubscriptionService>().Object,
+                _mediatorMock.Object, _settings),
+            StockTestFixture.Ledger(_repository, _repositoryInventoryJournal, mediator: _mediatorMock.Object));
+    }
+
+    private List<InventoryJournal> Journal(Product product) =>
+        _repositoryInventoryJournal.Table.Where(x => x.ProductId == product.Id).OrderBy(x => x.StockRevision)
+            .ToList();
+
+    [TestMethod]
+    public async Task BookReservedInventory_WritesShipmentEntryAndLowersStockAndReserved()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10, ReservedQuantity = 4 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment { ShipmentNumber = 12, TrackingNumber = "T1" };
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        Assert.AreEqual(7, Stored(product).StockQuantity);
+        Assert.AreEqual(1, Stored(product).ReservedQuantity);
+        var entry = Journal(product).Single();
+        Assert.AreEqual(InventoryMovementType.Shipment, entry.MovementTypeId);
+        Assert.AreEqual(3, entry.OutQty);
+        Assert.AreEqual(nameof(Shipment), entry.ObjectType);
+        Assert.AreEqual(shipment.Id, entry.ObjectId);
+        Assert.AreEqual(shipmentItem.Id, entry.PositionId);
+        Assert.AreEqual("12", entry.Reference);
+    }
+
+    [TestMethod]
+    public async Task BookReservedInventory_SingleWarehouseProductItemNamesOtherWarehouse_BooksProductBucket()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 5, ReservedQuantity = 2,
+            WarehouseId = "w1"
+        };
+        await _repository.InsertAsync(product);
+
+        await _inventoryManageService.BookReservedInventory(product, new Shipment(),
+            new ShipmentItem { Quantity = 2, WarehouseId = "w2" });
+
+        Assert.AreEqual(3, Stored(product).StockQuantity);
+        Assert.AreEqual(0, Stored(product).ReservedQuantity);
+        Assert.AreEqual("w1", Journal(product).Single().WarehouseId);
+    }
+
+    [TestMethod]
+    public async Task BookReservedInventory_Twice_BooksOnce()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10, ReservedQuantity = 3 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        Assert.AreEqual(7, Stored(product).StockQuantity);
+        Assert.AreEqual(1, Journal(product).Count);
+    }
+
+    [TestMethod]
+    public async Task ReverseBookedInventory_WritesReversalAndKeepsShipmentEntry()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10, ReservedQuantity = 3 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        await _inventoryManageService.ReverseBookedInventory(shipment, shipmentItem);
+
+        Assert.AreEqual(10, Stored(product).StockQuantity);
+        Assert.AreEqual(3, Stored(product).ReservedQuantity);
+        CollectionAssert.AreEqual(
+            new[] { InventoryMovementType.Shipment, InventoryMovementType.ShipmentReversal },
+            Journal(product).Select(x => x.MovementTypeId).ToArray());
+        Assert.AreEqual(3, Journal(product).Last().InQty);
+    }
+
+    [TestMethod]
+    public async Task ReverseBookedInventory_MultiWarehouse_RecomputesProductSum()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            StockQuantity = 5, ReservedQuantity = 2,
+            ProductWarehouseInventory = {
+                new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 5, ReservedQuantity = 2 }
+            }
+        };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 2, WarehouseId = "w1" };
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        await _inventoryManageService.ReverseBookedInventory(shipment, shipmentItem);
+
+        var stored = Stored(product);
+        Assert.AreEqual(5, stored.ProductWarehouseInventory.Single().StockQuantity);
+        Assert.AreEqual(5, stored.StockQuantity);
+        Assert.AreEqual(2, stored.ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task ReverseBookedInventory_LegacyEntryBeforeUpgrade_WritesReversal()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+        //booked before the journal recorded every change; the migration marked it legacy
+        await _repositoryInventoryJournal.InsertAsync(new InventoryJournal {
+            ProductId = product.Id, ObjectType = nameof(Shipment), ObjectId = shipment.Id,
+            PositionId = shipmentItem.Id, OutQty = 3, MovementTypeId = InventoryMovementType.Legacy,
+            CreateDateUtc = DateTime.UtcNow.AddDays(-1)
+        });
+
+        await _inventoryManageService.ReverseBookedInventory(shipment, shipmentItem);
+
+        Assert.AreEqual(10, Stored(product).StockQuantity);
+        Assert.AreEqual(2, Journal(product).Count);
+        Assert.IsTrue(Journal(product).Any(x => x.MovementTypeId == InventoryMovementType.Legacy));
+        Assert.AreEqual(3, Journal(product).Single(x => x.MovementTypeId == InventoryMovementType.ShipmentReversal)
+            .InQty);
+    }
+
+    [TestMethod]
+    public async Task Reverse_ThenBookAgain_BooksAgain()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10, ReservedQuantity = 3 };
+        await _repository.InsertAsync(product);
+        var shipment = new Shipment();
+        var shipmentItem = new ShipmentItem { Quantity = 3 };
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+        await _inventoryManageService.ReverseBookedInventory(shipment, shipmentItem);
+
+        await _inventoryManageService.BookReservedInventory(product, shipment, shipmentItem);
+
+        Assert.AreEqual(7, Stored(product).StockQuantity);
+        Assert.AreEqual(3, Journal(product).Count);
+    }
+
+    private Product Stored(Product product)
+    {
+        return _repository.Table.First(x => x.Id == product.Id);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_ParallelOrdersForLastUnit_OnlyOneSucceeds()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockQuantity = 1
+        };
+        await _repository.InsertAsync(product);
+
+        var results = await Task.WhenAll(Enumerable.Range(0, 10).Select(_ => Task.Run(() =>
+            _inventoryManageService.TryReserve(product, 1, null, ""))));
+
+        Assert.AreEqual(1, results.Count(x => x));
+        Assert.AreEqual(1, Stored(product).ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_StaleProductObject_UsesStoredQuantities()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockQuantity = 1,
+            ReservedQuantity = 1
+        };
+        await _repository.InsertAsync(product);
+        product.ReservedQuantity = 0;
+
+        Assert.IsFalse(await _inventoryManageService.TryReserve(product, 1, null, ""));
+        Assert.AreEqual(1, Stored(product).ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_BackordersAllowed_ReservesBeyondStock()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.AllowQtyBelowZero,
+            StockQuantity = 0
+        };
+        await _repository.InsertAsync(product);
+
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 2, null, ""));
+        Assert.AreEqual(2, Stored(product).ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_CombinationOutOfStock_ReturnsFalse()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination {
+            StockQuantity = 0, AllowOutOfStockOrders = false
+        });
+        await _repository.InsertAsync(product);
+
+        Assert.IsFalse(await _inventoryManageService.TryReserve(product, 1, new List<CustomAttribute>(), ""));
+        Assert.AreEqual(0, Stored(product).ProductAttributeCombinations.First().ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_MultipleWarehouses_ChecksTheGivenWarehouse()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            UseMultipleWarehouses = true
+        };
+        product.ProductWarehouseInventory.Add(new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 0 });
+        product.ProductWarehouseInventory.Add(new ProductWarehouseInventory { WarehouseId = "w2", StockQuantity = 5 });
+        await _repository.InsertAsync(product);
+
+        Assert.IsFalse(await _inventoryManageService.TryReserve(product, 1, null, "w1"));
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, null, "w2"));
+        Assert.AreEqual(1, Stored(product).ProductWarehouseInventory.First(x => x.WarehouseId == "w2").ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_SingleWarehouseProductElsewhereThanTheGivenWarehouse_UsesItsStock()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            WarehouseId = "w1",
+            StockQuantity = 5
+        };
+        await _repository.InsertAsync(product);
+
+        //the order item falls back to the store's default warehouse w2
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, null, "w2"));
+        Assert.AreEqual(1, Stored(product).ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_SingleWarehouseCombinationElsewhereThanTheGivenWarehouse_UsesItsStock()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes, WarehouseId = "w1"
+        };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { StockQuantity = 5 });
+        await _repository.InsertAsync(product);
+
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, new List<CustomAttribute>(), "w2"));
+    }
+
+    [TestMethod]
+    public async Task TryReserve_BundleChildOutOfStock_ReturnsFalse()
+    {
+        var child = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockQuantity = 3
+        };
+        await _repository.InsertAsync(child);
+        var bundle = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByBundleProducts };
+        bundle.BundleProducts.Add(new BundleProduct { ProductId = child.Id, Quantity = 2 });
+        await _repository.InsertAsync(bundle);
+
+        Assert.IsFalse(await _inventoryManageService.TryReserve(bundle, 2, null, ""));
+        Assert.AreEqual(0, Stored(child).ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task TryReserve_DoesNotWaitOnItsOwnLock()
+    {
+        var child = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockQuantity = 5
+        };
+        await _repository.InsertAsync(child);
+        var bundle = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByBundleProducts };
+        bundle.BundleProducts.Add(new BundleProduct { ProductId = child.Id, Quantity = 2 });
+        await _repository.InsertAsync(bundle);
+        var stopwatch = Stopwatch.StartNew();
+
+        Assert.IsTrue(await _inventoryManageService.TryReserve(bundle, 1, null, ""));
+
+        Assert.IsLessThan(2000, stopwatch.ElapsedMilliseconds);
+        Assert.AreEqual(2, Stored(child).ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task CancelReservation_ReservationUnpublishedProduct_PublishesItAgain()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockQuantity = 5,
+            MinStockQuantity = 2,
+            LowStockActivityId = LowStockActivity.Unpublish,
+            Published = true
+        };
+        await _repository.InsertAsync(product);
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 3, null, ""));
+        Assert.IsFalse(Stored(product).Published);
+
+        await _inventoryManageService.CancelReservation(product, 3, null, "");
+
+        var stored = Stored(product);
+        Assert.IsTrue(stored.Published);
+        Assert.AreEqual(0, stored.ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task CancelReservation_StillAtMinimum_StaysUnpublished()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            BackorderModeId = BackorderMode.NoBackorders,
+            StockQuantity = 5,
+            ReservedQuantity = 3,
+            MinStockQuantity = 2,
+            LowStockActivityId = LowStockActivity.Unpublish,
+            Published = false
+        };
+        await _repository.InsertAsync(product);
+        Assert.IsTrue(await _inventoryManageService.TryReserve(product, 1, null, ""));
+
+        await _inventoryManageService.CancelReservation(product, 1, null, "");
+
+        Assert.IsFalse(Stored(product).Published);
+    }
+
+    [TestMethod]
+    public async Task AdjustReserved_ParallelReleases_AllApplied()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            StockQuantity = 10,
+            ReservedQuantity = 10
+        };
+        await _repository.InsertAsync(product);
+
+        await Task.WhenAll(Enumerable.Range(0, 10).Select(_ => Task.Run(() =>
+            _inventoryManageService.AdjustReserved(product, 1))));
+
+        Assert.AreEqual(0, Stored(product).ReservedQuantity);
     }
 
 

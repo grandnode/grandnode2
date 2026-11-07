@@ -13,6 +13,7 @@ public static class PermissionExtensions
             StandardPermission.ManageAccessStoreManagerPanel,
             StandardPermission.AllowCustomerImpersonation,
             StandardPermission.ManageProducts,
+            StandardPermission.ManageInventoryDocuments,
             StandardPermission.ManageCategories,
             StandardPermission.ManageBrands,
             StandardPermission.ManageCollections,
@@ -93,6 +94,7 @@ public static class PermissionExtensions
                     StandardPermission.ManageAccessAdminPanel,
                     StandardPermission.AllowCustomerImpersonation,
                     StandardPermission.ManageProducts,
+                    StandardPermission.ManageInventoryDocuments,
                     StandardPermission.ManageCategories,
                     StandardPermission.ManageBrands,
                     StandardPermission.ManageCollections,
@@ -201,6 +203,7 @@ public static class PermissionExtensions
                 Permissions = [
                     StandardPermission.ManageAccessStoreManagerPanel,
                     StandardPermission.ManageProducts,
+                    StandardPermission.ManageInventoryDocuments,
                     StandardPermission.ManageProductAttributes,
                     StandardPermission.ManageSpecificationAttributes,
                     StandardPermission.ManageProductReviews,

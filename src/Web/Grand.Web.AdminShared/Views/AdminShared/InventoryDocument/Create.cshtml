@@ -1,0 +1,37 @@
+@model Grand.Web.AdminShared.Models.Inventory.InventoryDocumentModel
+@using Grand.Domain.Catalog
+@{
+    ViewBag.Title = Model.DocumentType;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="InventoryDocument" asp-action="Create" method="post">
+    <input type="hidden" asp-for="DocumentTypeId"/>
+    <admin-page title="@Model.DocumentType" icon="bi-box-seam"
+                back-url="@Url.Action("List")" back-text="@Loc["Admin.Inventory.Documents.BackToList"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Inventory.Documents.CreateDraft"]
+            </button>
+        </page-actions>
+
+        @if (Model.DocumentTypeId == (int)InventoryDocumentType.StockCount)
+        {
+            @* a count lists every product kept in the warehouse, or those of the chosen categories and brands *@
+            <admin-card>
+                <div class="grand-fields grand-fields--2col">
+                    <admin-field asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
+                    <admin-field asp-for="CategoryIds">
+                        <select asp-for="CategoryIds" asp-items="Model.AvailableCategories" multiple class="form-select"></select>
+                    </admin-field>
+                    <admin-field asp-for="BrandIds">
+                        <select asp-for="BrandIds" asp-items="Model.AvailableBrands" multiple class="form-select"></select>
+                    </admin-field>
+                </div>
+            </admin-card>
+        }
+        else
+        {
+            <partial name="Partials/CreateOrUpdate.Header" model="Model"/>
+        }
+    </admin-page>
+</form>

@@ -1,9 +1,12 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
@@ -20,7 +23,6 @@ using ProductExtensions = Grand.Domain.Catalog.ProductExtensions;
 namespace Grand.Web.AdminShared.Services;
 
 public class ProductAttributeCombinationViewModelService(
-    IInventoryManageService inventoryManageService,
     IPictureService pictureService,
     IProductAttributeService productAttributeService,
     ICurrencyService currencyService,
@@ -29,9 +31,10 @@ public class ProductAttributeCombinationViewModelService(
     IGroupService groupService,
     IWarehouseService warehouseService,
     IStoreService storeService,
-    IOutOfStockSubscriptionService outOfStockSubscriptionService,
     IProductAttributeFormatter productAttributeFormatter,
-    CurrencySettings currencySettings)
+    CurrencySettings currencySettings,
+    IStockMovementService stockMovementService,
+    ISettingService settingService)
     : IProductAttributeCombinationViewModelService
 {
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
@@ -99,41 +102,6 @@ public class ProductAttributeCombinationViewModelService(
             (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
     }
 
-    public virtual async Task OutOfStockNotifications(Product product, ProductAttributeCombination combination,
-        ProductAttributeCombination prevcombination)
-    {
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes &&
-            product.BackorderModeId == BackorderMode.NoBackorders &&
-            product.AllowOutOfStockSubscriptions &&
-            combination.StockQuantity > 0 &&
-            prevcombination.StockQuantity <= 0 && !product.UseMultipleWarehouses &&
-            product.Published)
-            await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, combination.Attributes, "");
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes &&
-            product.BackorderModeId == BackorderMode.NoBackorders &&
-            product.AllowOutOfStockSubscriptions &&
-            product.UseMultipleWarehouses &&
-            product.Published)
-        {
-            foreach (var actualStock in combination.WarehouseInventory)
-            {
-                if (actualStock.StockQuantity - actualStock.ReservedQuantity <= 0)
-                    continue;
-
-                var prevstock =
-                    prevcombination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == actualStock.WarehouseId);
-                if (prevstock == null || prevstock.StockQuantity - prevstock.ReservedQuantity <= 0)
-                    await outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
-                        combination.Attributes, actualStock.WarehouseId);
-            }
-
-            if (combination.WarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) > 0)
-                if (prevcombination.WarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) <= 0)
-                    await outOfStockSubscriptionService.SendNotificationsToSubscribers(product, combination.Attributes,
-                        "");
-        }
-    }
-
     public virtual async Task<IList<ProductModel.ProductAttributeCombinationModel>>
         PrepareProductAttributeCombinationModel(Product product)
     {
@@ -167,6 +135,8 @@ public class ProductAttributeCombinationViewModelService(
         string combinationId)
     {
         var model = new ProductAttributeCombinationModel();
+        var stockChangesOnlyThroughDocuments =
+            (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments;
         var wim = new List<ProductAttributeCombinationModel.WarehouseInventoryModel>();
         foreach (var warehouse in await warehouseService.GetAllWarehouses())
         {
@@ -189,6 +159,9 @@ public class ProductAttributeCombinationViewModelService(
             if (combination != null)
             {
                 model = combination.ToModel();
+                //the stock the form shows: only a value changed since is applied when it is saved
+                model.OriginalStockQuantity = combination.StockQuantity;
+                model.OriginalReservedQuantity = combination.ReservedQuantity;
                 model.UseMultipleWarehouses = product.UseMultipleWarehouses;
                 model.WarehouseInventoryModels = wim;
                 model.ProductId = product.Id;
@@ -206,11 +179,14 @@ public class ProductAttributeCombinationViewModelService(
                             warehouseInventoryModel.Id = _winv.Id;
                             warehouseInventoryModel.StockQuantity = _winv.StockQuantity;
                             warehouseInventoryModel.ReservedQuantity = _winv.ReservedQuantity;
+                            warehouseInventoryModel.OriginalStockQuantity = _winv.StockQuantity;
+                            warehouseInventoryModel.OriginalReservedQuantity = _winv.ReservedQuantity;
                         }
                     }
             }
         }
 
+        model.StockChangesOnlyThroughDocuments = stockChangesOnlyThroughDocuments;
         return model;
     }
 
@@ -220,42 +196,55 @@ public class ProductAttributeCombinationViewModelService(
         var customAttributes = new List<CustomAttribute>();
         var warnings = new List<string>();
 
-        async Task PrepareCombinationWarehouseInventory(ProductAttributeCombination combination)
-        {
-            var warehouses = await warehouseService.GetAllWarehouses();
+        var source = new StockSource(nameof(Product), product.Id, Reference: product.Sku ?? "",
+            CustomerId: contextAccessor.WorkContext.CurrentCustomer.Id);
 
-            foreach (var warehouse in warehouses)
-            {
-                var whim = model.WarehouseInventoryModels.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
-                var existingPwI = combination.WarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouse.Id);
-                if (existingPwI != null)
-                {
-                    if (whim is { WarehouseUsed: true })
-                    {
-                        //update 
-                        existingPwI.StockQuantity = whim.StockQuantity;
-                        existingPwI.ReservedQuantity = whim.ReservedQuantity;
-                    }
-                    else
-                    {
-                        //delete 
-                        combination.WarehouseInventory.Remove(existingPwI);
-                    }
-                }
-                else
-                {
-                    if (whim is { WarehouseUsed: true })
-                    {
-                        //no need to insert a record for qty 0
-                        existingPwI = new ProductCombinationWarehouseInventory {
-                            WarehouseId = whim.WarehouseId,
-                            StockQuantity = whim.StockQuantity,
-                            ReservedQuantity = whim.ReservedQuantity
-                        };
-                        combination.WarehouseInventory.Add(existingPwI);
-                    }
-                }
-            }
+        //only the values changed since the popup was shown; an unticked warehouse gives up its stock
+        List<StockChange> StockChanges(ProductAttributeCombination combination)
+        {
+            if (!product.UseMultipleWarehouses)
+                return new[] {
+                    StockFormChange.Of(combination.Attributes, "", model.StockQuantity, model.OriginalStockQuantity,
+                        model.ReservedQuantity, model.OriginalReservedQuantity, source)
+                }.Where(x => x != null).ToList();
+
+            return model.WarehouseInventoryModels
+                .Select(x => StockFormChange.Of(combination.Attributes, x.WarehouseId,
+                    x.WarehouseUsed ? x.StockQuantity : 0, x.OriginalStockQuantity,
+                    x.WarehouseUsed ? x.ReservedQuantity : 0, x.OriginalReservedQuantity, source))
+                .Where(x => x != null).ToList();
+        }
+
+        //the server is the guard, not the read-only fields
+        async Task<bool> Refused(List<StockChange> changes)
+        {
+            if (changes.Count == 0)
+                return false;
+
+            //a combination holds stock only for a product stocked by attributes
+            if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes)
+                warnings.Add(translationService.GetResource(
+                    "Admin.Catalog.Products.ProductAttributeCombinations.StockNotTracked"));
+            else if (changes.Any(x => x.SetTo) &&
+                     (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments)
+                warnings.Add(translationService.GetResource("Admin.Catalog.Products.StockChangesOnlyThroughDocuments"));
+
+            return warnings.Count > 0;
+        }
+
+        async Task ApplyStock(List<StockChange> changes)
+        {
+            if (changes.Count > 0)
+                warnings.AddRange((await stockMovementService.Apply(product.Id, changes))
+                    .Select(translationService.GetResource));
+        }
+
+        void MarkUsedWarehouses(ProductAttributeCombination combination)
+        {
+            combination.WarehouseInventory.Clear();
+            foreach (var whim in model.WarehouseInventoryModels.Where(x => x.WarehouseUsed))
+                combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory
+                    { WarehouseId = whim.WarehouseId });
         }
 
         if (string.IsNullOrEmpty(model.Id))
@@ -339,8 +328,6 @@ public class ProductAttributeCombinationViewModelService(
             {
                 var combination = new ProductAttributeCombination {
                     Attributes = customAttributes,
-                    StockQuantity = model.StockQuantity,
-                    ReservedQuantity = model.ReservedQuantity,
                     AllowOutOfStockOrders = model.AllowOutOfStockOrders,
                     Sku = model.Sku,
                     Text = model.Text,
@@ -351,22 +338,17 @@ public class ProductAttributeCombinationViewModelService(
                     PictureId = model.PictureId
                 };
 
+                var changes = StockChanges(combination);
+                if (await Refused(changes))
+                    return warnings;
+
                 if (product.UseMultipleWarehouses)
-                {
-                    await PrepareCombinationWarehouseInventory(combination);
-                    combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
-                    combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
-                }
+                    MarkUsedWarehouses(combination);
 
                 await productAttributeService.InsertProductAttributeCombination(combination, product.Id);
                 product.ProductAttributeCombinations.Add(combination);
 
-                if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-                {
-                    product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
-                    product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-                    await inventoryManageService.UpdateStockProduct(product, false);
-                }
+                await ApplyStock(changes);
             }
         }
         else
@@ -378,10 +360,6 @@ public class ProductAttributeCombinationViewModelService(
                 return warnings;
             }
 
-            var prevCombination = (ProductAttributeCombination)combination.Clone();
-
-            combination.StockQuantity = model.StockQuantity;
-            combination.ReservedQuantity = model.ReservedQuantity;
             combination.AllowOutOfStockOrders = model.AllowOutOfStockOrders;
             combination.Sku = model.Sku;
             combination.Text = model.Text;
@@ -391,25 +369,20 @@ public class ProductAttributeCombinationViewModelService(
             combination.NotifyAdminForQuantityBelow = model.NotifyAdminForQuantityBelow;
             combination.PictureId = model.PictureId;
 
-            if (product.UseMultipleWarehouses)
-            {
-                await PrepareCombinationWarehouseInventory(combination);
-                combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
-                combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
-            }
+            //the stock first: a warehouse left unticked is emptied, then the update drops its row
+            var changes = StockChanges(combination);
+            if (await Refused(changes))
+                return warnings;
 
-            //notification - out of stock
-            await OutOfStockNotifications(product, combination, prevCombination);
+            await ApplyStock(changes);
+            if (warnings.Count > 0)
+                return warnings;
+
+            if (product.UseMultipleWarehouses)
+                MarkUsedWarehouses(combination);
 
             //update combination
             await productAttributeService.UpdateProductAttributeCombination(combination, product.Id);
-
-            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-            {
-                product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
-                product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-                await inventoryManageService.UpdateStockProduct(product, false);
-            }
         }
 
         return warnings;
@@ -449,11 +422,7 @@ public class ProductAttributeCombinationViewModelService(
         }
 
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-        {
-            product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
-            product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-            await inventoryManageService.UpdateStockProduct(product, false);
-        }
+            await stockMovementService.RecomputeSums(product.Id);
     }
 
     public virtual async Task ClearAllAttributeCombinations(Product product)

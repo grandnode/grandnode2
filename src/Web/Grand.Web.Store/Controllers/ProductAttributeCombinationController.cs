@@ -16,7 +16,6 @@ namespace Grand.Web.Store.Controllers;
 public class ProductAttributeCombinationController(
     IProductAttributeCombinationViewModelService productAttributeCombinationViewModelService,
     IProductService productService,
-    IInventoryManageService inventoryManageService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
-    : BaseProductAttributeCombinationController(productAttributeCombinationViewModelService, productService, inventoryManageService, translationService, scope);
+    : BaseProductAttributeCombinationController(productAttributeCombinationViewModelService, productService, translationService, scope);

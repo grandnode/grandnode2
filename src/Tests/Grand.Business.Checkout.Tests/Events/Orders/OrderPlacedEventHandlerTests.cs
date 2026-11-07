@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Checkout.Events.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Data;
 using Grand.Domain.Catalog;
@@ -14,7 +13,6 @@ namespace Grand.Business.Checkout.Tests.Events.Orders;
 public class OrderPlacedEventHandlerTests
 {
     private Mock<ICustomerService> _customerServiceMock;
-    private Mock<ILoyaltyPointsService> _loyaltyPointsServiceMock;
     private OrderPlacedEventHandler _orderPlacedEventHandler;
     private Mock<IRepository<ProductAlsoPurchased>> _productAlsoPurchasedRepository;
 
@@ -23,9 +21,8 @@ public class OrderPlacedEventHandlerTests
     {
         _productAlsoPurchasedRepository = new Mock<IRepository<ProductAlsoPurchased>>();
         _customerServiceMock = new Mock<ICustomerService>();
-        _loyaltyPointsServiceMock = new Mock<ILoyaltyPointsService>();
         _orderPlacedEventHandler = new OrderPlacedEventHandler(_productAlsoPurchasedRepository.Object,
-            _customerServiceMock.Object, _loyaltyPointsServiceMock.Object);
+            _customerServiceMock.Object);
     }
 
     [TestMethod]
@@ -40,9 +37,6 @@ public class OrderPlacedEventHandlerTests
         await _orderPlacedEventHandler.Handle(notification, CancellationToken.None);
         //Assert
         _productAlsoPurchasedRepository.Verify(c => c.InsertAsync(It.IsAny<ProductAlsoPurchased>()), Times.AtLeastOnce);
-        _loyaltyPointsServiceMock.Verify(
-            c => c.AddLoyaltyPointsHistory(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<string>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<double>()), Times.Once);
         _customerServiceMock.Verify(c => c.UpdateCustomerField(order.CustomerId, x => x.FreeShipping, false),
             Times.Once);
         _customerServiceMock.Verify(

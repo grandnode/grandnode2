@@ -1,0 +1,29 @@
+@model Grand.Web.AdminShared.Models.Inventory.InventoryDocumentModel
+@using Grand.Domain.Catalog
+
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        @if (Model.DocumentTypeId == (int)InventoryDocumentType.StockCount)
+        {
+            @* a stock count's lines expect the stock of the warehouse it was made for *@
+            <admin-field asp-for="WarehouseId">
+                <input type="hidden" asp-for="WarehouseId"/>
+                <span class="form-control-plaintext">@Model.AvailableWarehouses.FirstOrDefault(x => x.Value == Model.WarehouseId)?.Text</span>
+            </admin-field>
+        }
+        else
+        {
+            <admin-field asp-for="WarehouseId" asp-items="Model.AvailableWarehouses"/>
+        }
+        @if (Model.DocumentTypeId == (int)InventoryDocumentType.Transfer)
+        {
+            <admin-field asp-for="TargetWarehouseId" asp-items="Model.AvailableWarehouses"/>
+        }
+        @if (Model.DocumentTypeId == (int)InventoryDocumentType.Receipt)
+        {
+            <admin-field asp-for="SupplierName"/>
+            <admin-field asp-for="ExternalReference"/>
+        }
+        <admin-field asp-for="Comment"/>
+    </div>
+</admin-card>

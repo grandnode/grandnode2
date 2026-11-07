@@ -60,7 +60,8 @@ public class DiscountServiceTests
             new DiscountValidationService(_discountProviderLoader, _discountCouponRepository,
                 _discountUsageHistoryRepository);
         _dicountService = new DiscountService(_cacheBase, _repository, _discountCouponRepository,
-            _discountUsageHistoryRepository, _mediatorMock.Object, new AccessControlConfig());
+            _discountUsageHistoryRepository, _mediatorMock.Object, new AccessControlConfig(),
+            new MongoResourceLockTest());
         handler = new GetDiscountUsageHistoryQueryHandler(_discountUsageHistoryRepository);
         _getDiscountAmountProviderHandler = new GetDiscountAmountProviderHandler(_discountProviderLoader);
     }
@@ -946,5 +947,114 @@ public class DiscountServiceTests
     {
         return _discountUsageHistoryRepository.InsertAsync(new DiscountUsageHistory
             { DiscountId = discountId, CustomerId = customerId, OrderId = "order" });
+    }
+
+    private async Task<Discount> InsertLimitedDiscount(DiscountLimitationType limitation, int times,
+        bool reused = true)
+    {
+        var discount = new Discount {
+            Name = "limited", IsEnabled = true, DiscountLimitationId = limitation, LimitationTimes = times,
+            Reused = reused
+        };
+        await _repository.InsertAsync(discount);
+        return discount;
+    }
+
+    private async Task<DiscountCoupon> InsertCoupon(Discount discount, bool used)
+    {
+        var coupon = new DiscountCoupon {
+            CouponCode = $"C{Guid.NewGuid():N}", DiscountId = discount.Id, Used = used, Qty = used ? 1 : 0
+        };
+        await _discountCouponRepository.InsertAsync(coupon);
+        return coupon;
+    }
+
+    private static DiscountUsageHistory Usage(Discount discount, string customerId = "c1", string couponCode = null)
+    {
+        return new DiscountUsageHistory {
+            DiscountId = discount.Id, CustomerId = customerId, CouponCode = couponCode,
+            OrderId = Guid.NewGuid().ToString("N")
+        };
+    }
+
+    private int UsageCount(Discount discount)
+    {
+        return _discountUsageHistoryRepository.Table.Count(x => x.DiscountId == discount.Id);
+    }
+
+    [TestMethod]
+    public async Task TryInsert_NTimesReached_ReturnsFalse()
+    {
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 1);
+        await _discountUsageHistoryRepository.InsertAsync(Usage(discount));
+
+        Assert.IsFalse(await _dicountService.TryInsertDiscountUsageHistory(discount, Usage(discount, "c2")));
+        Assert.AreEqual(1, UsageCount(discount));
+    }
+
+    [TestMethod]
+    public async Task TryInsert_NTimesPerUser_OtherCustomerStillAllowed()
+    {
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimesPerUser, 1);
+        await _discountUsageHistoryRepository.InsertAsync(Usage(discount));
+
+        Assert.IsFalse(await _dicountService.TryInsertDiscountUsageHistory(discount, Usage(discount)));
+        Assert.IsTrue(await _dicountService.TryInsertDiscountUsageHistory(discount, Usage(discount, "c2")));
+        Assert.AreEqual(2, UsageCount(discount));
+    }
+
+    [TestMethod]
+    public async Task TryInsert_SingleUseCouponAlreadyUsed_ReturnsFalse()
+    {
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.Nolimits, 0, false);
+        var coupon = await InsertCoupon(discount, true);
+
+        Assert.IsFalse(await _dicountService.TryInsertDiscountUsageHistory(discount,
+            Usage(discount, couponCode: coupon.CouponCode)));
+        Assert.AreEqual(0, UsageCount(discount));
+    }
+
+    [TestMethod]
+    public async Task TryInsert_ParallelUsesOfOneTimeDiscount_OnlyOneSucceeds()
+    {
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.NTimes, 1);
+
+        var results = await Task.WhenAll(Enumerable.Range(0, 10).Select(i => Task.Run(() =>
+            _dicountService.TryInsertDiscountUsageHistory(discount, Usage(discount, $"c{i}")))));
+
+        Assert.AreEqual(1, results.Count(x => x));
+        Assert.AreEqual(1, UsageCount(discount));
+    }
+
+    [TestMethod]
+    public async Task TryInsert_ParallelUsesOfSingleUseCoupon_OnlyOneSucceeds()
+    {
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.Nolimits, 0, false);
+        var coupon = await InsertCoupon(discount, false);
+
+        var results = await Task.WhenAll(Enumerable.Range(0, 10).Select(i => Task.Run(() =>
+            _dicountService.TryInsertDiscountUsageHistory(discount,
+                Usage(discount, $"c{i}", coupon.CouponCode)))));
+
+        Assert.AreEqual(1, results.Count(x => x));
+        var stored = await _discountCouponRepository.GetByIdAsync(coupon.Id);
+        Assert.IsTrue(stored.Used);
+        Assert.AreEqual(1, stored.Qty);
+    }
+
+    [TestMethod]
+    public async Task Release_DeletesRowAndFreesCoupon()
+    {
+        var discount = await InsertLimitedDiscount(DiscountLimitationType.Nolimits, 0, false);
+        var coupon = await InsertCoupon(discount, false);
+        var usage = Usage(discount, couponCode: coupon.CouponCode);
+        Assert.IsTrue(await _dicountService.TryInsertDiscountUsageHistory(discount, usage));
+
+        await _dicountService.ReleaseDiscountUsageHistory(usage);
+
+        Assert.AreEqual(0, UsageCount(discount));
+        var stored = await _discountCouponRepository.GetByIdAsync(coupon.Id);
+        Assert.IsFalse(stored.Used);
+        Assert.AreEqual(0, stored.Qty);
     }
 }

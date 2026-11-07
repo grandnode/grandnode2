@@ -74,6 +74,36 @@ public class StockQuantityService : IStockQuantityService
         return (status.Resource, status.Arg0);
     }
 
+    public virtual StockCheck CheckStock(Product product, int quantity, IList<CustomAttribute>? attributes,
+        string warehouseId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        switch (product.ManageInventoryMethodId)
+        {
+            case ManageInventoryMethod.ManageStock:
+            {
+                if (product.BackorderModeId != BackorderMode.NoBackorders)
+                    return new StockCheck(true, 0, false);
+
+                var stockQuantity = GetTotalStockQuantity(product, warehouseId: warehouseId);
+                return new StockCheck(stockQuantity >= quantity, stockQuantity, false);
+            }
+            case ManageInventoryMethod.ManageStockByAttributes:
+            {
+                var combination = product.FindProductAttributeCombination(attributes!);
+                if (combination == null)
+                    return new StockCheck(false, 0, true);
+
+                var stockQuantity = GetTotalStockQuantityForCombination(product, combination, warehouseId: warehouseId);
+                return new StockCheck(combination.AllowOutOfStockOrders || stockQuantity >= quantity, stockQuantity,
+                    false);
+            }
+            default:
+                return new StockCheck(true, 0, false);
+        }
+    }
+
     public virtual StockStatus GetStockStatus(Product product, string warehouseId,
         IList<CustomAttribute> attributes)
     {

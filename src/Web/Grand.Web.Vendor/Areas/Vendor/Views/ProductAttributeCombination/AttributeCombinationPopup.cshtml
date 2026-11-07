@@ -38,9 +38,23 @@
     }
 
     <div class="grand-fields grand-fields--2col">
+        @* the stock the popup showed: a value is saved only when it changed. While stock changes only
+           through inventory documents, the stock is shown and posted unchanged *@
+        <input type="hidden" asp-for="OriginalStockQuantity"/>
+        <input type="hidden" asp-for="OriginalReservedQuantity"/>
         @if (!Model.UseMultipleWarehouses)
         {
-            <admin-field asp-for="StockQuantity" size="md"/>
+            <admin-field asp-for="StockQuantity" size="md">
+                @if (Model.StockChangesOnlyThroughDocuments)
+                {
+                    <input type="hidden" asp-for="StockQuantity"/>
+                    <span class="form-control-plaintext">@Model.StockQuantity</span>
+                }
+                else
+                {
+                    <admin-input asp-for="StockQuantity"/>
+                }
+            </admin-field>
             <admin-field asp-for="ReservedQuantity" size="md"/>
         }
         <admin-field asp-for="Sku"/>
@@ -75,13 +89,32 @@
                             <td>
                                 @item.WarehouseName
                                 <input asp-for="@Model.WarehouseInventoryModels[i].WarehouseId" type="hidden"/>
+                                <input asp-for="@Model.WarehouseInventoryModels[i].OriginalStockQuantity" type="hidden"/>
+                                <input asp-for="@Model.WarehouseInventoryModels[i].OriginalReservedQuantity" type="hidden"/>
                             </td>
-                            <td class="text-center">
-                                <input asp-for="@Model.WarehouseInventoryModels[i].WarehouseUsed" class="form-check-input"/>
-                            </td>
-                            <td>
-                                <admin-input asp-for="@Model.WarehouseInventoryModels[i].StockQuantity"/>
-                            </td>
+                            @if (Model.StockChangesOnlyThroughDocuments)
+                            {
+                                <td class="text-center">
+                                    <input type="hidden" asp-for="@Model.WarehouseInventoryModels[i].WarehouseUsed"/>
+                                    @if (item.WarehouseUsed)
+                                    {
+                                        <i class="bi bi-check-lg"></i>
+                                    }
+                                </td>
+                                <td>
+                                    <input type="hidden" asp-for="@Model.WarehouseInventoryModels[i].StockQuantity"/>
+                                    @item.StockQuantity
+                                </td>
+                            }
+                            else
+                            {
+                                <td class="text-center">
+                                    <input asp-for="@Model.WarehouseInventoryModels[i].WarehouseUsed" class="form-check-input"/>
+                                </td>
+                                <td>
+                                    <admin-input asp-for="@Model.WarehouseInventoryModels[i].StockQuantity"/>
+                                </td>
+                            }
                             <td>
                                 <admin-input asp-for="@Model.WarehouseInventoryModels[i].ReservedQuantity"/>
                             </td>

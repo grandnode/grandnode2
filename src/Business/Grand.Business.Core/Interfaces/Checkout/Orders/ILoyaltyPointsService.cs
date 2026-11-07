@@ -29,6 +29,19 @@ public interface ILoyaltyPointsService
         string usedWithOrderId = "", double usedAmount = 0);
 
     /// <summary>
+    ///     Redeems points as a payment, when the stored balance still holds them
+    /// </summary>
+    /// <param name="customerId">Customer ident</param>
+    /// <param name="points">Number of points to redeem</param>
+    /// <param name="storeId">Store identifier</param>
+    /// <param name="message">Message</param>
+    /// <param name="usedWithOrderId">the order for which points are redeemed as a payment</param>
+    /// <param name="usedAmount">Used amount</param>
+    /// <returns>The history record, or null when the balance is short</returns>
+    Task<LoyaltyPointsHistory> TryRedeemLoyaltyPoints(string customerId, int points, string storeId,
+        string message, string usedWithOrderId, double usedAmount);
+
+    /// <summary>
     ///     Load loyalty point history records
     /// </summary>
     /// <param name="customerId">Customer identifier; "" to load all records</param>

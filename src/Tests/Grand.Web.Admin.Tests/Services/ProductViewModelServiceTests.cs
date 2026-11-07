@@ -22,6 +22,9 @@ using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Infrastructure.Mapper;
 using Grand.Mapping;
 using Grand.Web.AdminShared.Interfaces;
@@ -52,6 +55,8 @@ public class ProductViewModelServiceTests
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<IVendorService> _vendorServiceMock;
     private Mock<IWarehouseService> _warehouseServiceMock;
+    private Mock<IStockMovementService> _stockMovementServiceMock;
+    private Mock<ISettingService> _settingServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -70,9 +75,13 @@ public class ProductViewModelServiceTests
         _warehouseServiceMock = new Mock<IWarehouseService>();
 
         _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
+        _stockMovementServiceMock = new Mock<IStockMovementService>();
+        _settingServiceMock = new Mock<ISettingService>();
+        StockChangesOnlyThroughDocuments(false);
 
         var workContextMock = new Mock<IWorkContext>();
-        workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer { StaffStoreId = StaffStoreId });
+        workContextMock.Setup(w => w.CurrentCustomer)
+            .Returns(new Customer { Id = "staff", StaffStoreId = StaffStoreId });
         var contextAccessorMock = new Mock<IContextAccessor>();
         contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
 
@@ -120,7 +129,6 @@ public class ProductViewModelServiceTests
 
         _productViewModelService = new ProductViewModelService(
             _productServiceMock.Object,
-            new Mock<IInventoryManageService>().Object,
             new Mock<IPictureService>().Object,
             new Mock<IProductAttributeService>().Object,
             new Mock<IProductTagService>().Object,
@@ -139,7 +147,6 @@ public class ProductViewModelServiceTests
             _discountServiceMock.Object,
             new Mock<ICustomerService>().Object,
             _storeServiceMock.Object,
-            new Mock<IOutOfStockSubscriptionService>().Object,
             new Mock<IDownloadService>().Object,
             new Mock<IStockQuantityService>().Object,
             new CurrencySettings(),
@@ -148,7 +155,137 @@ public class ProductViewModelServiceTests
             new SeoSettings(),
             new Mock<ISeNameService>().Object,
             _enumTranslationServiceMock.Object,
-            _scopeMock.Object);
+            _scopeMock.Object,
+            _stockMovementServiceMock.Object,
+            _settingServiceMock.Object);
+    }
+
+    private void StockChangesOnlyThroughDocuments(bool value) =>
+        _settingServiceMock.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
+            .ReturnsAsync(new InventorySettings { StockChangesOnlyThroughDocuments = value });
+
+    private static (Product, ProductModel) SingleWarehouseProduct(int stored, int posted, int original)
+    {
+        var product = new Product
+            { Name = "p", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = stored };
+        var model = new ProductModel {
+            Id = product.Id, Name = "p", ManageInventoryMethodId = (int)ManageInventoryMethod.ManageStock,
+            StockQuantity = posted, OriginalStockQuantity = original
+        };
+        return (product, model);
+    }
+
+    [TestMethod]
+    public async Task UpdateProductModel_StockChanged_AppliesSetToManualEdit()
+    {
+        var (product, model) = SingleWarehouseProduct(5, 9, 5);
+
+        await _productViewModelService.UpdateProductModel(product, model);
+
+        _stockMovementServiceMock.Verify(x => x.Apply(product.Id, It.Is<IReadOnlyList<StockChange>>(c =>
+            c.Count == 1 && c[0].SetTo && c[0].Quantity == 9 &&
+            c[0].MovementType == InventoryMovementType.ManualEdit && c[0].ReservedQuantity == null &&
+            c[0].Source.CustomerId == "staff")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdateProductModel_StockUntouchedWhileOrderShipped_KeepsOrderChange()
+    {
+        //the form showed 7; an order took two units before it was saved
+        var (product, model) = SingleWarehouseProduct(5, 7, 7);
+
+        await _productViewModelService.UpdateProductModel(product, model);
+
+        _stockMovementServiceMock.Verify(x => x.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateProductModel_OnlyReservedChanged_KeepsStockAndSetsReserved()
+    {
+        var (product, model) = SingleWarehouseProduct(5, 7, 7);
+        model.ReservedQuantity = 2;
+
+        await _productViewModelService.UpdateProductModel(product, model);
+
+        _stockMovementServiceMock.Verify(x => x.Apply(product.Id, It.Is<IReadOnlyList<StockChange>>(c =>
+            c.Count == 1 && !c[0].SetTo && c[0].Quantity == 0 && c[0].ReservedQuantity == 2)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_SettingOn_StockChanged_ReturnsError()
+    {
+        StockChangesOnlyThroughDocuments(true);
+        var (_, model) = SingleWarehouseProduct(5, 9, 5);
+
+        Assert.IsNotNull(await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_SettingOn_StockUntouched_Allowed()
+    {
+        StockChangesOnlyThroughDocuments(true);
+        var (_, model) = SingleWarehouseProduct(5, 7, 7);
+
+        Assert.IsNull(await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_SettingOn_StockedWarehouseUnticked_ReturnsError()
+    {
+        StockChangesOnlyThroughDocuments(true);
+        var (_, model) = SingleWarehouseProduct(0, 0, 0);
+        model.ProductWarehouseInventoryModels.Add(new ProductModel.ProductWarehouseInventoryModel
+            { WarehouseId = "w1", WarehouseUsed = false, StockQuantity = 4, OriginalStockQuantity = 4 });
+
+        Assert.IsNotNull(await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_SettingOff_Allowed()
+    {
+        var (_, model) = SingleWarehouseProduct(5, 9, 5);
+
+        Assert.IsNull(await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task SaveProductWarehouseInventory_RowChanged_AppliesSetToForThatWarehouse()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 3 } }
+        };
+        _warehouseServiceMock
+            .Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>(new List<Warehouse> { new() { Id = "w1" } }, 0, 10));
+
+        await _productViewModelService.SaveProductWarehouseInventory(product, [
+            new ProductModel.ProductWarehouseInventoryModel
+                { WarehouseId = "w1", WarehouseUsed = true, StockQuantity = 8, OriginalStockQuantity = 3 }
+        ]);
+
+        _stockMovementServiceMock.Verify(x => x.Apply(product.Id, It.Is<IReadOnlyList<StockChange>>(c =>
+            c.Count == 1 && c[0].WarehouseId == "w1" && c[0].SetTo && c[0].Quantity == 8)), Times.Once);
+        _productServiceMock.Verify(x => x.UpdateProductWarehouseInventory(It.IsAny<ProductWarehouseInventory>(),
+            It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task InsertProductModel_JournalsInitialStock()
+    {
+        var journaled = false;
+        _stockMovementServiceMock.Setup(x => x.JournalNewProduct(It.IsAny<Product>(),
+                InventoryMovementType.ManualEdit, It.IsAny<StockSource>()))
+            .Callback(() => journaled = true);
+        _productServiceMock.Setup(x => x.InsertProduct(It.IsAny<Product>()))
+            .Callback(() => Assert.IsTrue(journaled, "the stock is journaled before the product is inserted"));
+
+        await _productViewModelService.InsertProductModel(new ProductModel
+            { Name = "p", ManageInventoryMethodId = (int)ManageInventoryMethod.ManageStock, StockQuantity = 4 });
+
+        _stockMovementServiceMock.Verify(x => x.JournalNewProduct(It.Is<Product>(p => p.StockQuantity == 4),
+            InventoryMovementType.ManualEdit, It.IsAny<StockSource>()), Times.Once);
     }
 
     [TestMethod]

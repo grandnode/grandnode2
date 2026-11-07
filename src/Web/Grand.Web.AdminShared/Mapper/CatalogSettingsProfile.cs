@@ -11,6 +11,7 @@ public class CatalogSettingsProfile : Profile, IAutoMapperProfile
     {
         CreateMap<CatalogSettings, CatalogSettingsModel>()
             .ForMember(dest => dest.ActiveStore, mo => mo.Ignore())
+            .ForMember(dest => dest.Inventory, mo => mo.Ignore())
             .ForMember(dest => dest.UserFields, mo => mo.Ignore());
 
         CreateMap<CatalogSettingsModel, CatalogSettings>()

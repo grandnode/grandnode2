@@ -1,3 +1,7 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain.Customers;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
@@ -22,33 +26,41 @@ namespace Grand.Web.Admin.Tests.Services;
 [TestClass]
 public class ProductAttributeCombinationViewModelServiceTests
 {
-    private Mock<IInventoryManageService> _inventoryManageServiceMock;
+    private Mock<IStockMovementService> _stockMovementServiceMock;
+    private Mock<ISettingService> _settingServiceMock;
     private Mock<IProductAttributeService> _productAttributeServiceMock;
     private Mock<IWarehouseService> _warehouseServiceMock;
-    private Mock<IOutOfStockSubscriptionService> _outOfStockSubscriptionServiceMock;
     private ProductAttributeCombinationViewModelService _service;
 
     [TestInitialize]
     public void Setup()
     {
-        _inventoryManageServiceMock = new Mock<IInventoryManageService>();
+        _stockMovementServiceMock = new Mock<IStockMovementService>();
+        _stockMovementServiceMock.Setup(x => x.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()))
+            .ReturnsAsync([]);
+        _settingServiceMock = new Mock<ISettingService>();
+        _settingServiceMock.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
+            .ReturnsAsync(new InventorySettings());
+        var workContext = new Mock<IWorkContext>();
+        workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "staff" });
+        var contextAccessor = new Mock<IContextAccessor>();
+        contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         _productAttributeServiceMock = new Mock<IProductAttributeService>();
         _warehouseServiceMock = new Mock<IWarehouseService>();
-        _outOfStockSubscriptionServiceMock = new Mock<IOutOfStockSubscriptionService>();
 
         _service = new ProductAttributeCombinationViewModelService(
-            _inventoryManageServiceMock.Object,
             new Mock<IPictureService>().Object,
             _productAttributeServiceMock.Object,
             new Mock<ICurrencyService>().Object,
             new Mock<IRequestTranslationService>().Object,
-            new Mock<IContextAccessor>().Object,
+            contextAccessor.Object,
             new Mock<IGroupService>().Object,
             _warehouseServiceMock.Object,
             new Mock<IStoreService>().Object,
-            _outOfStockSubscriptionServiceMock.Object,
             new Mock<IProductAttributeFormatter>().Object,
-            new CurrencySettings());
+            new CurrencySettings(),
+            _stockMovementServiceMock.Object,
+            _settingServiceMock.Object);
     }
 
     private static Product ProductWithOneCombination()
@@ -74,8 +86,13 @@ public class ProductAttributeCombinationViewModelServiceTests
         return product;
     }
 
+    private static bool Change(IReadOnlyList<StockChange> changes, string warehouseId, int quantity, int? reserved) =>
+        changes.Count == 1 && changes[0].WarehouseId == warehouseId && changes[0].SetTo &&
+        changes[0].Quantity == quantity && changes[0].ReservedQuantity == reserved &&
+        changes[0].MovementType == InventoryMovementType.ManualEdit;
+
     [TestMethod]
-    public async Task Insert_ManageStockByAttributes_ProductStockIncludesTheNewCombination()
+    public async Task Insert_ManageStockByAttributes_AppliesTheCombinationStockThroughTheLedger()
     {
         var product = ProductWithOneCombination();
         var model = new ProductAttributeCombinationModel {
@@ -87,19 +104,24 @@ public class ProductAttributeCombinationViewModelServiceTests
         var warnings = await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
 
         Assert.AreEqual(0, warnings.Count);
-        _inventoryManageServiceMock.Verify(i => i.UpdateStockProduct(
-            It.Is<Product>(p => p.Id == "p1" && p.StockQuantity == 12 && p.ReservedQuantity == 3), false), Times.Once);
+        _productAttributeServiceMock.Verify(s => s.InsertProductAttributeCombination(
+            It.IsAny<ProductAttributeCombination>(), "p1"), Times.Once);
+        _stockMovementServiceMock.Verify(s => s.Apply("p1",
+            It.Is<IReadOnlyList<StockChange>>(c => Change(c, "", 7, 2) && c[0].Attributes[0].Value == "v1")),
+            Times.Once);
     }
 
     [TestMethod]
-    public async Task Update_ManageStockByAttributes_RecalculatesTheGivenProductNotModelProductId()
+    public async Task CombinationPopup_Update_StockChanged_AppliesSetToForCombination()
     {
         var product = ProductWithOneCombination();
         var model = new ProductAttributeCombinationModel {
             Id = "c1",
             ProductId = "another-product",
             StockQuantity = 3,
-            ReservedQuantity = 0
+            OriginalStockQuantity = 5,
+            ReservedQuantity = 1,
+            OriginalReservedQuantity = 1
         };
 
         var warnings = await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
@@ -107,10 +129,62 @@ public class ProductAttributeCombinationViewModelServiceTests
         Assert.AreEqual(0, warnings.Count);
         _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
             It.Is<ProductAttributeCombination>(c => c.Id == "c1"), "p1"), Times.Once);
-        _inventoryManageServiceMock.Verify(i => i.UpdateStockProduct(
-            It.Is<Product>(p => p.Id == "p1" && p.StockQuantity == 3), false), Times.Once);
-        _inventoryManageServiceMock.Verify(i => i.UpdateStockProduct(
-            It.Is<Product>(p => p.Id != "p1"), It.IsAny<bool>()), Times.Never);
+        _stockMovementServiceMock.Verify(s => s.Apply("p1",
+            It.Is<IReadOnlyList<StockChange>>(c => Change(c, "", 3, null))), Times.Once);
+        _stockMovementServiceMock.Verify(s => s.Apply("another-product", It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CombinationPopup_Update_StockUntouched_AppliesNothing()
+    {
+        var product = ProductWithOneCombination();
+        var model = new ProductAttributeCombinationModel {
+            Id = "c1", StockQuantity = 5, OriginalStockQuantity = 5, ReservedQuantity = 1,
+            OriginalReservedQuantity = 1, Sku = "sku"
+        };
+
+        await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
+
+        _stockMovementServiceMock.Verify(s => s.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+        _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
+            It.Is<ProductAttributeCombination>(c => c.Sku == "sku"), "p1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CombinationPopup_SettingOn_StockChanged_RefusedWithoutSaving()
+    {
+        _settingServiceMock.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
+            .ReturnsAsync(new InventorySettings { StockChangesOnlyThroughDocuments = true });
+        var product = ProductWithOneCombination();
+        var model = new ProductAttributeCombinationModel
+            { Id = "c1", StockQuantity = 9, OriginalStockQuantity = 5, Sku = "sku" };
+
+        var warnings = await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
+
+        Assert.AreEqual(1, warnings.Count);
+        _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
+            It.IsAny<ProductAttributeCombination>(), It.IsAny<string>()), Times.Never);
+        _stockMovementServiceMock.Verify(s => s.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CombinationPopup_ProductNotStockedByAttributes_StockChanged_RefusedWithoutSaving()
+    {
+        var product = ProductWithOneCombination();
+        product.ManageInventoryMethodId = ManageInventoryMethod.ManageStock;
+        var model = new ProductAttributeCombinationModel
+            { Id = "c1", StockQuantity = 9, OriginalStockQuantity = 5, Sku = "sku" };
+
+        var warnings = await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
+
+        Assert.AreEqual(1, warnings.Count);
+        _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
+            It.IsAny<ProductAttributeCombination>(), It.IsAny<string>()), Times.Never);
+        _stockMovementServiceMock.Verify(s => s.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
     }
 
     [TestMethod]
@@ -124,21 +198,17 @@ public class ProductAttributeCombinationViewModelServiceTests
         Assert.AreEqual(1, warnings.Count);
         _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
             It.IsAny<ProductAttributeCombination>(), It.IsAny<string>()), Times.Never);
-        _inventoryManageServiceMock.Verify(i => i.UpdateStockProduct(It.IsAny<Product>(), It.IsAny<bool>()),
+        _stockMovementServiceMock.Verify(s => s.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
             Times.Never);
     }
 
     [TestMethod]
-    public async Task Update_MultipleWarehouses_ReservedQuantityIsTheWarehouseSum()
+    public async Task Update_MultipleWarehouses_AppliesTheChangedRowAndMarksItUsed()
     {
         var product = ProductWithOneCombination();
         product.UseMultipleWarehouses = true;
-        _warehouseServiceMock.Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(new PagedList<Warehouse> { new() { Id = "w1" } });
         var model = new ProductAttributeCombinationModel {
             Id = "c1",
-            StockQuantity = 100,
-            ReservedQuantity = 90,
             WarehouseInventoryModels = [
                 new ProductAttributeCombinationModel.WarehouseInventoryModel {
                     WarehouseId = "w1", WarehouseUsed = true, StockQuantity = 4, ReservedQuantity = 2
@@ -148,199 +218,31 @@ public class ProductAttributeCombinationViewModelServiceTests
 
         await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
 
-        var combination = product.ProductAttributeCombinations.Single(c => c.Id == "c1");
-        Assert.AreEqual(4, combination.StockQuantity);
-        Assert.AreEqual(2, combination.ReservedQuantity);
-        _inventoryManageServiceMock.Verify(i => i.UpdateStockProduct(
-            It.Is<Product>(p => p.StockQuantity == 4 && p.ReservedQuantity == 2), false), Times.Once);
+        _stockMovementServiceMock.Verify(s => s.Apply("p1",
+            It.Is<IReadOnlyList<StockChange>>(c => Change(c, "w1", 4, 2))), Times.Once);
+        _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
+            It.Is<ProductAttributeCombination>(c => c.WarehouseInventory.Single().WarehouseId == "w1"), "p1"),
+            Times.Once);
     }
-
-    [TestMethod]
-    public async Task Update_MultipleWarehouses_NotifiesWhenWarehouseBecomesAvailable()
-    {
-        var product = ProductWithOneCombination();
-        product.UseMultipleWarehouses = true;
-        product.Published = true;
-        product.AllowOutOfStockSubscriptions = true;
-        product.BackorderModeId = BackorderMode.NoBackorders;
-        var combination = product.ProductAttributeCombinations.Single();
-        combination.StockQuantity = 0;
-        combination.ReservedQuantity = 0;
-        combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
-            WarehouseId = "w1", StockQuantity = 0, ReservedQuantity = 0
-        });
-        _warehouseServiceMock.Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(new PagedList<Warehouse> { new() { Id = "w1" } });
-
-        await _service.InsertOrUpdateProductAttributeCombinationPopup(product, new ProductAttributeCombinationModel {
-            Id = "c1",
-            WarehouseInventoryModels = [
-                new ProductAttributeCombinationModel.WarehouseInventoryModel {
-                    WarehouseId = "w1", WarehouseUsed = true, StockQuantity = 5, ReservedQuantity = 0
-                }
-            ]
-        });
-
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), "w1"), Times.Once);
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), ""), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Update_MultipleWarehouses_NotifiesWhenReservedStockBecomesAvailable()
-    {
-        var product = ProductWithOneCombination();
-        product.UseMultipleWarehouses = true;
-        product.Published = true;
-        product.AllowOutOfStockSubscriptions = true;
-        product.BackorderModeId = BackorderMode.NoBackorders;
-        var combination = product.ProductAttributeCombinations.Single();
-        combination.StockQuantity = 5;
-        combination.ReservedQuantity = 5;
-        combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
-            WarehouseId = "w1", StockQuantity = 5, ReservedQuantity = 5
-        });
-        _warehouseServiceMock.Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(new PagedList<Warehouse> { new() { Id = "w1" } });
-
-        await _service.InsertOrUpdateProductAttributeCombinationPopup(product, new ProductAttributeCombinationModel {
-            Id = "c1",
-            WarehouseInventoryModels = [
-                new ProductAttributeCombinationModel.WarehouseInventoryModel {
-                    WarehouseId = "w1", WarehouseUsed = true, StockQuantity = 5, ReservedQuantity = 4
-                }
-            ]
-        });
-
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), "w1"), Times.Once);
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), ""), Times.Once);
-    }
-
     [TestMethod]
     public void Clone_WarehouseInventoryIsAnIndependentSnapshot()
     {
         var combination = new ProductAttributeCombination();
         combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
-            WarehouseId = "w1", StockQuantity = 0, ReservedQuantity = 0
+            Id = "entry1", WarehouseId = "w1", StockQuantity = 5, ReservedQuantity = 5
         });
         var before = (ProductAttributeCombination)combination.Clone();
 
         var originalWarehouse = combination.WarehouseInventory.Single();
-        originalWarehouse.StockQuantity = 5;
+        originalWarehouse.StockQuantity = 7;
+        originalWarehouse.ReservedQuantity = 0;
         combination.WarehouseInventory.Clear();
 
         Assert.AreEqual(1, before.WarehouseInventory.Count);
-        Assert.AreEqual("w1", before.WarehouseInventory.Single().WarehouseId);
-        Assert.AreEqual(0, before.WarehouseInventory.Single().StockQuantity);
-    }
-
-    [TestMethod]
-    public async Task Update_MultipleWarehouses_DoesNotNotifyWhenAvailabilityStaysZero()
-    {
-        var product = ProductWithOneCombination();
-        product.UseMultipleWarehouses = true;
-        product.Published = true;
-        product.AllowOutOfStockSubscriptions = true;
-        product.BackorderModeId = BackorderMode.NoBackorders;
-        var combination = product.ProductAttributeCombinations.Single();
-        combination.StockQuantity = 5;
-        combination.ReservedQuantity = 5;
-        combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
-            WarehouseId = "w1", StockQuantity = 5, ReservedQuantity = 5
-        });
-        _warehouseServiceMock.Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(new PagedList<Warehouse> { new() { Id = "w1" } });
-
-        await _service.InsertOrUpdateProductAttributeCombinationPopup(product, new ProductAttributeCombinationModel {
-            Id = "c1",
-            WarehouseInventoryModels = [
-                new ProductAttributeCombinationModel.WarehouseInventoryModel {
-                    WarehouseId = "w1", WarehouseUsed = true, StockQuantity = 6, ReservedQuantity = 6
-                }
-            ]
-        });
-
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), It.IsAny<string>()), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task Update_MultipleWarehouses_NotifiesOnlyNewlyAvailableWarehouseWhenTotalWasInStock()
-    {
-        var product = ProductWithOneCombination();
-        product.UseMultipleWarehouses = true;
-        product.Published = true;
-        product.AllowOutOfStockSubscriptions = true;
-        product.BackorderModeId = BackorderMode.NoBackorders;
-        var combination = product.ProductAttributeCombinations.Single();
-        combination.StockQuantity = 4;
-        combination.ReservedQuantity = 0;
-        combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
-            WarehouseId = "w1", StockQuantity = 0, ReservedQuantity = 0
-        });
-        combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
-            WarehouseId = "w2", StockQuantity = 4, ReservedQuantity = 0
-        });
-        _warehouseServiceMock.Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(new PagedList<Warehouse> { new() { Id = "w1" }, new() { Id = "w2" } });
-
-        await _service.InsertOrUpdateProductAttributeCombinationPopup(product, new ProductAttributeCombinationModel {
-            Id = "c1",
-            WarehouseInventoryModels = [
-                new ProductAttributeCombinationModel.WarehouseInventoryModel {
-                    WarehouseId = "w1", WarehouseUsed = true, StockQuantity = 3, ReservedQuantity = 0
-                },
-                new ProductAttributeCombinationModel.WarehouseInventoryModel {
-                    WarehouseId = "w2", WarehouseUsed = true, StockQuantity = 4, ReservedQuantity = 0
-                }
-            ]
-        });
-
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), "w1"), Times.Once);
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), ""), Times.Never);
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), "w2"), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task Update_MultipleWarehouses_NotifiesNewlyAssignedWarehouse()
-    {
-        var product = ProductWithOneCombination();
-        product.UseMultipleWarehouses = true;
-        product.Published = true;
-        product.AllowOutOfStockSubscriptions = true;
-        product.BackorderModeId = BackorderMode.NoBackorders;
-        var combination = product.ProductAttributeCombinations.Single();
-        combination.StockQuantity = 4;
-        combination.ReservedQuantity = 0;
-        combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
-            WarehouseId = "w1", StockQuantity = 4, ReservedQuantity = 0
-        });
-        _warehouseServiceMock.Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(new PagedList<Warehouse> { new() { Id = "w1" }, new() { Id = "w2" } });
-
-        await _service.InsertOrUpdateProductAttributeCombinationPopup(product, new ProductAttributeCombinationModel {
-            Id = "c1",
-            WarehouseInventoryModels = [
-                new ProductAttributeCombinationModel.WarehouseInventoryModel {
-                    WarehouseId = "w1", WarehouseUsed = true, StockQuantity = 4, ReservedQuantity = 0
-                },
-                new ProductAttributeCombinationModel.WarehouseInventoryModel {
-                    WarehouseId = "w2", WarehouseUsed = true, StockQuantity = 3, ReservedQuantity = 0
-                }
-            ]
-        });
-
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), "w2"), Times.Once);
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), ""), Times.Never);
-        _outOfStockSubscriptionServiceMock.Verify(s => s.SendNotificationsToSubscribers(
-            product, It.IsAny<IList<CustomAttribute>>(), "w1"), Times.Never);
+        var snapshot = before.WarehouseInventory.Single();
+        Assert.AreEqual("entry1", snapshot.Id);
+        Assert.AreEqual("w1", snapshot.WarehouseId);
+        Assert.AreEqual(5, snapshot.StockQuantity);
+        Assert.AreEqual(5, snapshot.ReservedQuantity);
     }
 }

@@ -1,5 +1,7 @@
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Mapping;
 using Grand.Business.Catalog.Services.ExportImport;
+using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Common.Services.Security;
 using Grand.Business.Common.Services.Seo;
@@ -101,8 +103,14 @@ public class ProductImportDataObjectTests
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
+        _journal = new MongoDBRepositoryTest<InventoryJournal>();
+        _inventorySettings = new InventorySettings();
+        var settingService = new Mock<ISettingService>();
+        settingService.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
+            .ReturnsAsync(() => _inventorySettings);
         _productService = new ProductService(_cacheBase, _repository, _mediatorMock.Object,
-            new AclService(new AccessControlConfig()));
+            new AclService(new AccessControlConfig()), new MongoResourceLockTest(),
+            StockTestFixture.Ledger(_repository, _journal));
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _productImportDataObject = new ProductImportDataObject
         (_productService, _pictureServiceMock.Object, _productLayoutServiceMock.Object, _deliveryDateServiceMock.Object,
@@ -114,6 +122,8 @@ public class ProductImportDataObjectTests
             _securityConfig,
             _taxSettings,
             new ImportHtmlGuard(new HtmlSanitizationService(_securityConfig), _securityConfig),
+            StockTestFixture.MovementService(_repository, _journal, new MongoResourceLockTest()),
+            settingService.Object,
             (_loggerMock = new Mock<ILogger<ProductImportDataObject>>()).Object,
             (url, cancellationToken) =>
             {
@@ -368,6 +378,61 @@ public class ProductImportDataObjectTests
             new List<ProductDto> { new() { Id = "0123456789abcdef01234567", Sku = "SKU-9", Name = "by sku" } });
 
         Assert.AreEqual("by sku", _repository.Table.Single().Name);
+    }
+
+    private IRepository<InventoryJournal> _journal;
+    private InventorySettings _inventorySettings;
+
+    [TestMethod]
+    public async Task Import_ExistingProductStockColumn_AppliesSetToImport()
+    {
+        SetupLookups();
+        var existing = new Product
+            { Name = "p", Sku = "SKU-S", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2 };
+        await _repository.InsertAsync(existing);
+
+        await _productImportDataObject.Import(new List<ProductDto> { new() { Sku = "SKU-S", StockQuantity = 9 } },
+            false);
+
+        Assert.AreEqual(9, _repository.Table.Single().StockQuantity);
+        var entry = _journal.Table.Single(x => x.ProductId == existing.Id);
+        Assert.AreEqual(InventoryMovementType.Import, entry.MovementTypeId);
+        Assert.AreEqual(7, entry.InQty);
+    }
+
+    [TestMethod]
+    public async Task Import_SettingOn_IgnoresStockAndWarns()
+    {
+        SetupLookups();
+        _inventorySettings.StockChangesOnlyThroughDocuments = true;
+        var existing = new Product
+            { Name = "p", Sku = "SKU-S", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2 };
+        await _repository.InsertAsync(existing);
+
+        var result = await _productImportDataObject.Import(
+            new List<ProductDto> { new() { Sku = "SKU-S", StockQuantity = 9 } }, false);
+
+        Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
+        Assert.IsFalse(_journal.Table.Any());
+        Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("Stock columns are ignored")));
+    }
+
+    [TestMethod]
+    public async Task Import_NewProduct_JournalsInitialStock()
+    {
+        SetupLookups();
+
+        await _productImportDataObject.Import(new List<ProductDto> {
+            new() {
+                Name = "new", Sku = "SKU-N", ManageInventoryMethodId = (int)ManageInventoryMethod.ManageStock,
+                StockQuantity = 5
+            }
+        }, false);
+
+        var product = _repository.Table.Single();
+        Assert.AreEqual(5, product.StockQuantity);
+        Assert.AreEqual(1, product.StockRevision);
+        Assert.AreEqual(5, StockTestFixture.JournalSum(_journal, product.Id, "", ""));
     }
 
     [TestMethod]

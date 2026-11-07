@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Events.Handlers;
+using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -23,7 +24,57 @@ public class WarehouseDeletedEventHandlerTests
     {
         _repository = new MongoDBRepositoryTest<Product>();
         _cacheMock = new Mock<ICacheBase>();
-        _handler = new WarehouseDeletedEventHandler(_repository, _cacheMock.Object);
+        _journal = new MongoDBRepositoryTest<InventoryJournal>();
+        _handler = new WarehouseDeletedEventHandler(_repository, _cacheMock.Object, new MongoResourceLockTest(),
+            StockTestFixture.Ledger(_repository, _journal));
+    }
+
+    private IRepository<InventoryJournal> _journal;
+
+    [TestMethod]
+    public async Task WarehouseDeleted_RowWithStock_WritesAdjustmentOutAndRemovesRow()
+    {
+        var warehouse = new Warehouse();
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            StockQuantity = 8,
+            ProductWarehouseInventory = {
+                new ProductWarehouseInventory { WarehouseId = warehouse.Id, StockQuantity = 5 },
+                new ProductWarehouseInventory { WarehouseId = "other", StockQuantity = 3 }
+            }
+        };
+        await _repository.InsertAsync(product);
+
+        await _handler.Handle(new EntityDeleted<Warehouse>(warehouse), CancellationToken.None);
+
+        var stored = _repository.Table.Single(x => x.Id == product.Id);
+        Assert.AreEqual("other", stored.ProductWarehouseInventory.Single().WarehouseId);
+        Assert.AreEqual(3, stored.StockQuantity);
+        var entry = _journal.Table.Single(x => x.ProductId == product.Id);
+        Assert.AreEqual(InventoryMovementType.Adjustment, entry.MovementTypeId);
+        Assert.AreEqual(5, entry.OutQty);
+        Assert.AreEqual(warehouse.Id, entry.WarehouseId);
+        Assert.AreEqual("Warehouse deleted", entry.Comments);
+    }
+
+    [TestMethod]
+    public async Task WarehouseDeleted_ProductKeptThere_MovesItsHistoryOutOfTheWarehouse()
+    {
+        var warehouse = new Warehouse();
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, WarehouseId = warehouse.Id, StockQuantity = 4 };
+        await _repository.InsertAsync(product);
+
+        await _handler.Handle(new EntityDeleted<Warehouse>(warehouse), CancellationToken.None);
+
+        var stored = _repository.Table.Single(x => x.Id == product.Id);
+        Assert.AreEqual("", stored.WarehouseId);
+        Assert.AreEqual(4, stored.StockQuantity);
+        var entries = _journal.Table.Where(x => x.ProductId == product.Id).ToList();
+        Assert.AreEqual(4, entries.Single(x => x.MovementTypeId == InventoryMovementType.ClosingBalance &&
+                                               x.WarehouseId == warehouse.Id).OutQty);
+        Assert.AreEqual(4, entries.Single(x => x.MovementTypeId == InventoryMovementType.OpeningBalance &&
+                                               x.WarehouseId == "").InQty);
     }
 
     [TestMethod]

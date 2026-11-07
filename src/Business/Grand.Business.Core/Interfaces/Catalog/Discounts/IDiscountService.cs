@@ -85,6 +85,20 @@ public interface IDiscountService
     Task DeleteDiscountUsageHistory(DiscountUsageHistory discountUsageHistory);
 
     /// <summary>
+    ///     Records the use of a discount, when its usage limit and its single-use coupon still allow one more
+    /// </summary>
+    /// <param name="discount">Discount</param>
+    /// <param name="discountUsageHistory">Discount usage history item</param>
+    /// <returns>False when the limit is reached or the coupon is already used</returns>
+    Task<bool> TryInsertDiscountUsageHistory(Discount discount, DiscountUsageHistory discountUsageHistory);
+
+    /// <summary>
+    ///     Removes a recorded use of a discount and frees its coupon
+    /// </summary>
+    /// <param name="discountUsageHistory">Discount usage history item</param>
+    Task ReleaseDiscountUsageHistory(DiscountUsageHistory discountUsageHistory);
+
+    /// <summary>
     ///     Gets all existing coupon codes for discount
     /// </summary>
     /// <param name="discountId"></param>

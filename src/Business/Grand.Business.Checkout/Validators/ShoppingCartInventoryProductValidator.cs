@@ -52,100 +52,65 @@ public class ShoppingCartInventoryProductValidator : AbstractValidator<ShoppingC
             if (!hasQtyWarnings)
                 switch (value.Product.ManageInventoryMethodId)
                 {
-                    case ManageInventoryMethod.DontManageStock:
-                    {
-                        //do nothing
-                    }
-                        break;
                     case ManageInventoryMethod.ManageStock:
                     {
-                        if (value.Product.BackorderModeId == BackorderMode.NoBackorders)
-                        {
-                            var qty = value.ShoppingCartItem.Quantity;
+                        var qty = value.ShoppingCartItem.Quantity;
 
-                            qty += value.Customer.ShoppingCartItems
-                                .Where(x => x.ShoppingCartTypeId == value.ShoppingCartItem.ShoppingCartTypeId &&
-                                            x.WarehouseId == warehouseId &&
-                                            x.ProductId == value.ShoppingCartItem.ProductId &&
-                                            x.StoreId == value.ShoppingCartItem.StoreId &&
-                                            x.Id != value.ShoppingCartItem.Id)
-                                .Sum(x => x.Quantity);
+                        qty += value.Customer.ShoppingCartItems
+                            .Where(x => x.ShoppingCartTypeId == value.ShoppingCartItem.ShoppingCartTypeId &&
+                                        x.WarehouseId == warehouseId &&
+                                        x.ProductId == value.ShoppingCartItem.ProductId &&
+                                        x.StoreId == value.ShoppingCartItem.StoreId &&
+                                        x.Id != value.ShoppingCartItem.Id)
+                            .Sum(x => x.Quantity);
 
-                            var maximumQuantityCanBeAdded =
-                                stockQuantityService.GetTotalStockQuantity(value.Product, warehouseId: warehouseId);
-                            if (maximumQuantityCanBeAdded < qty)
-                                context.AddFailure(maximumQuantityCanBeAdded <= 0
-                                    ? translationService.GetResource("ShoppingCart.OutOfStock", value.Language.Id)
-                                    : string.Format(
-                                        translationService.GetResource("ShoppingCart.QuantityExceedsStock", value.Language.Id),
-                                        maximumQuantityCanBeAdded));
-                        }
+                        var stock = stockQuantityService.CheckStock(value.Product, qty,
+                            value.ShoppingCartItem.Attributes, warehouseId);
+                        if (!stock.Covered)
+                            context.AddFailure(stock.StockQuantity <= 0
+                                ? translationService.GetResource("ShoppingCart.OutOfStock", value.Language.Id)
+                                : string.Format(
+                                    translationService.GetResource("ShoppingCart.QuantityExceedsStock", value.Language.Id),
+                                    stock.StockQuantity));
                     }
                         break;
                     case ManageInventoryMethod.ManageStockByBundleProducts:
                     {
                         foreach (var item in value.Product.BundleProducts)
                         {
-                            var qty = value.ShoppingCartItem.Quantity * item.Quantity;
                             var p1 = await productService.GetProductById(item.ProductId);
                             if (p1 is not { BackorderModeId: BackorderMode.NoBackorders }) continue;
-                            if (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
-                            {
-                                var maximumQuantityCanBeAdded =
-                                    stockQuantityService.GetTotalStockQuantity(p1, warehouseId: warehouseId);
-                                if (maximumQuantityCanBeAdded < qty)
-                                    context.AddFailure(string.Format(
-                                        translationService.GetResource("ShoppingCart.OutOfStock.BundleProduct", value.Language.Id),
-                                        p1.Name));
-                            }
 
-                            if (p1.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes)
-                                continue;
-                            var combination = p1.FindProductAttributeCombination(value.ShoppingCartItem.Attributes);
-                            if (combination != null)
-                            {
-                                //combination exists - check stock level
-                                var stockQuantity =
-                                    stockQuantityService.GetTotalStockQuantityForCombination(p1, combination,
-                                        warehouseId: warehouseId);
-                                if (!combination.AllowOutOfStockOrders && stockQuantity < qty)
-                                    context.AddFailure(stockQuantity <= 0
-                                        ? string.Format(
-                                            translationService.GetResource(
-                                                "ShoppingCart.OutOfStock.BundleProduct", value.Language.Id), p1.Name)
-                                        : string.Format(
-                                            translationService.GetResource(
-                                                "ShoppingCart.QuantityExceedsStock.BundleProduct", value.Language.Id), p1.Name,
-                                            stockQuantity));
-                            }
-                            else
-                            {
+                            var stock = stockQuantityService.CheckStock(p1, value.ShoppingCartItem.Quantity * item.Quantity,
+                                value.ShoppingCartItem.Attributes, warehouseId);
+                            if (stock.Covered) continue;
+
+                            if (stock.CombinationMissing)
                                 context.AddFailure(translationService.GetResource("ShoppingCart.Combination.NotExist", value.Language.Id));
-                            }
+                            else if (p1.ManageInventoryMethodId == ManageInventoryMethod.ManageStock || stock.StockQuantity <= 0)
+                                context.AddFailure(string.Format(
+                                    translationService.GetResource("ShoppingCart.OutOfStock.BundleProduct", value.Language.Id),
+                                    p1.Name));
+                            else
+                                context.AddFailure(string.Format(
+                                    translationService.GetResource(
+                                        "ShoppingCart.QuantityExceedsStock.BundleProduct", value.Language.Id), p1.Name,
+                                    stock.StockQuantity));
                         }
                     }
                         break;
                     case ManageInventoryMethod.ManageStockByAttributes:
                     {
-                        var combination =
-                            value.Product.FindProductAttributeCombination(value.ShoppingCartItem.Attributes);
-                        if (combination != null)
-                        {
-                            //combination exists - check stock level
-                            var stockQuantity =
-                                stockQuantityService.GetTotalStockQuantityForCombination(value.Product, combination,
-                                    warehouseId: warehouseId);
-                            if (!combination.AllowOutOfStockOrders && stockQuantity < value.ShoppingCartItem.Quantity)
-                                context.AddFailure(stockQuantity <= 0
-                                    ? translationService.GetResource("ShoppingCart.OutOfStock", value.Language.Id)
-                                    : string.Format(
-                                        translationService.GetResource("ShoppingCart.QuantityExceedsStock", value.Language.Id),
-                                        stockQuantity));
-                        }
-                        else
-                        {
+                        var stock = stockQuantityService.CheckStock(value.Product, value.ShoppingCartItem.Quantity,
+                            value.ShoppingCartItem.Attributes, warehouseId);
+                        if (stock.CombinationMissing)
                             context.AddFailure(translationService.GetResource("ShoppingCart.Combination.NotExist", value.Language.Id));
-                        }
+                        else if (!stock.Covered)
+                            context.AddFailure(stock.StockQuantity <= 0
+                                ? translationService.GetResource("ShoppingCart.OutOfStock", value.Language.Id)
+                                : string.Format(
+                                    translationService.GetResource("ShoppingCart.QuantityExceedsStock", value.Language.Id),
+                                    stock.StockQuantity));
                     }
                         break;
                 }
