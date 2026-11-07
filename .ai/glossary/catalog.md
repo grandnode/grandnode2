@@ -68,6 +68,10 @@ Prices are stored in the store's primary currency and converted for display. Nev
 | **Movement type** | `InventoryMovementType` — what caused a journal entry: shipment, receipt, transfer, adjustment, stock count, return receipt, manual edit, API, import, opening/closing balance |
 | **Stock bucket** | one place stock is kept: the product, a combination, or either of them in one warehouse (`StockBuckets`) |
 | **Inventory document** | `InventoryDocument` — receipt, transfer, adjustment, stock count or return receipt; draft, then posted and frozen |
+| **Batch** | `ProductBatch` — a quantity with one number, expiry date and cost in one stock bucket; "lot" is not used |
+| **Serial number** | `ProductSerialNumber` — one unit with its status, warehouse, order and warranty |
+| **Pool** | stock without units: a bucket's stock less its batches or in-stock serial numbers; never stored |
+| **Warranty** | `Product.WarrantyMonths`, fixed per unit at shipment as `ShipmentItem.WarrantyUntilUtc` |
 | **Stock count** | the inventory document that books counted − expected; never "stocktake" or "inventory count" in type names |
 | **Out of stock subscription** | `OutOfStockSubscription` — customer notification request |
 
