@@ -29,7 +29,22 @@ public sealed class StockLedger(
     ///     Applies the changes to the product, which the caller read under the product's lock
     /// </summary>
     /// <returns>The keys of the errors; nothing is written when there is one</returns>
-    public async Task<IList<string>> Apply(Product product, IReadOnlyList<StockChange> changes)
+    public Task<IList<string>> Apply(Product product, IReadOnlyList<StockChange> changes)
+    {
+        return Run(product, changes, true);
+    }
+
+    /// <summary>
+    ///     Checks the changes by the rules <see cref="Apply" /> books them with, against the stock and units stored now,
+    ///     and writes nothing; the product passed is changed in memory
+    /// </summary>
+    /// <returns>The keys of the errors</returns>
+    public Task<IList<string>> Check(Product product, IReadOnlyList<StockChange> changes)
+    {
+        return Run(product, changes, false);
+    }
+
+    private async Task<IList<string>> Run(Product product, IReadOnlyList<StockChange> changes, bool write)
     {
         ArgumentNullException.ThrowIfNull(product);
         ArgumentNullException.ThrowIfNull(changes);
@@ -152,7 +167,7 @@ public sealed class StockLedger(
             await stockUnits.CheckPools(units, unitBuckets.Values.Select(UnitsOf)) is { } poolError)
             errors.Add(poolError);
 
-        if (errors.Count > 0 || (entries.Count == 0 && !reservedChanged && !repaired))
+        if (!write || errors.Count > 0 || (entries.Count == 0 && !reservedChanged && !repaired))
             return errors;
 
         if (units != null)

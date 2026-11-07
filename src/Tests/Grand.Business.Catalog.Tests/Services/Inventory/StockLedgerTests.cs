@@ -460,11 +460,14 @@ public static class StockTestFixture
         var settingService = new Mock<ISettingService>();
         settingService.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
             .ReturnsAsync(settings ?? new InventorySettings());
-        return new ProductUnitService(batches ?? new MongoDBRepositoryTest<ProductBatch>(),
-            serials ?? new MongoDBRepositoryTest<ProductSerialNumber>(),
-            products ?? new MongoDBRepositoryTest<Product>(), settingService.Object,
-            journal ?? new MongoDBRepositoryTest<InventoryJournal>(), shipments ?? new MongoDBRepositoryTest<Shipment>(),
-            orders ?? new MongoDBRepositoryTest<Order>(), Warehouses());
+        batches ??= new MongoDBRepositoryTest<ProductBatch>();
+        serials ??= new MongoDBRepositoryTest<ProductSerialNumber>();
+        products ??= new MongoDBRepositoryTest<Product>();
+        journal ??= new MongoDBRepositoryTest<InventoryJournal>();
+        shipments ??= new MongoDBRepositoryTest<Shipment>();
+        return new ProductUnitService(batches, serials, products, settingService.Object, journal, shipments,
+            orders ?? new MongoDBRepositoryTest<Order>(), Warehouses(),
+            Ledger(products, journal, batches: batches, serials: serials, shipments: shipments));
     }
 
     public static StockMovementService MovementService(IRepository<Product> products,

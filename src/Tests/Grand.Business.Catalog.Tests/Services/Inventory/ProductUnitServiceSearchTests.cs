@@ -243,4 +243,26 @@ public class ProductUnitServiceSearchTests
         Assert.AreEqual(2, w1.Pool);
         Assert.AreEqual(2, buckets.Single(x => x.WarehouseId == "w2").Pool);
     }
+
+    [TestMethod]
+    public async Task Buckets_SerialNumbersInStockCountedPerWarehouse()
+    {
+        var product = await _fixture.Stocked(new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true
+        }, InventoryTrackingMode.SerialNumber, ("w1", null, 3), ("w2", null, 1));
+        foreach (var (number, warehouseId, status) in new[] {
+                     ("A1", "w1", SerialNumberStatus.InStock), ("A2", "w1", SerialNumberStatus.InStock),
+                     ("A3", "w1", SerialNumberStatus.Shipped), ("B1", "w2", SerialNumberStatus.InStock)
+                 })
+            await _fixture.Serials.InsertAsync(new ProductSerialNumber {
+                ProductId = product.Id, Number = number, NumberKey = number, WarehouseId = warehouseId,
+                CombinationId = "", StatusId = status
+            });
+
+        var buckets = await _service.Buckets(_fixture.Stored(product));
+
+        Assert.AreEqual(2, buckets.Single(x => x.WarehouseId == "w1").Assigned);
+        Assert.AreEqual(1, buckets.Single(x => x.WarehouseId == "w1").Pool);
+        Assert.AreEqual(0, buckets.Single(x => x.WarehouseId == "w2").Pool);
+    }
 }

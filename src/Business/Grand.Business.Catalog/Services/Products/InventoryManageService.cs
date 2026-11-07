@@ -566,7 +566,7 @@ public class InventoryManageService : IInventoryManageService
               product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)) &&
             NetShipped(await ShipmentEntries(shipmentItem.Id, product.Id)) <= 0)
         {
-            var errors = await _stockLedger.Apply(product, ShipmentChanges(product, shipment, shipmentItem));
+            var errors = await _stockLedger.Apply(product, ShipmentStock.Changes(product, shipment, shipmentItem));
             if (errors.Count > 0 && InventoryTracking.Tracked(product))
                 await UnitsNotBooked(product, shipment, shipmentItem, errors);
         }
@@ -586,30 +586,6 @@ public class InventoryManageService : IInventoryManageService
     }
 
     /// <summary>
-    ///     What a shipment item books: its quantity, with the batches and serial numbers it names for a product
-    ///     tracking them; the quantity no batch names comes from the stock without one
-    /// </summary>
-    private static List<StockChange> ShipmentChanges(Product product, Shipment shipment, ShipmentItem shipmentItem)
-    {
-        StockChange Change(int quantity) => new(shipmentItem.Attributes ?? [], shipmentItem.WarehouseId, -quantity,
-            false, InventoryMovementType.Shipment, ShipmentSource(shipment, shipmentItem));
-
-        if (!InventoryTracking.Tracked(product))
-            return [Change(shipmentItem.Quantity)];
-        if (product.InventoryTrackingModeId == InventoryTrackingMode.SerialNumber)
-            return [Change(shipmentItem.Quantity) with { SerialNumbers = (shipmentItem.SerialNumbers ?? []).ToList() }];
-
-        var changes = (shipmentItem.Batches ?? []).Where(x => x.Quantity > 0)
-            .GroupBy(x => UnitNumbers.Key(x.Number))
-            .Select(x => Change(x.Sum(y => y.Quantity)) with { BatchNumber = x.First().Number })
-            .ToList();
-        var withoutBatch = shipmentItem.Quantity + changes.Sum(x => x.Quantity);
-        if (withoutBatch > 0)
-            changes.Add(Change(withoutBatch));
-        return changes;
-    }
-
-    /// <summary>
     ///     Another shipment took a unit this one named between its check and its booking: the shipment is stored, so
     ///     its item is marked, and fixed by deleting and adding the shipment again
     /// </summary>
@@ -626,12 +602,6 @@ public class InventoryManageService : IInventoryManageService
         shipmentItem.UnitsNotBooked = true;
         await _shipmentRepository.UpdateCollectionFieldItem(shipment.Id, x => x.ShipmentItems,
             z => z.Id == shipmentItem.Id, shipmentItem);
-    }
-
-    private static StockSource ShipmentSource(Shipment shipment, ShipmentItem shipmentItem)
-    {
-        return new StockSource(nameof(Shipment), shipment.Id, shipmentItem.Id, shipment.ShipmentNumber.ToString(),
-            Comment: $"Shipment - {shipment.TrackingNumber}");
     }
 
     /// <summary>
@@ -660,7 +630,7 @@ public class InventoryManageService : IInventoryManageService
                 .Select(bucket => (Entry: bucket.First(), Quantity: NetShipped(bucket), SerialNumbers: ShippedNumbers(bucket)))
                 .Where(x => x.Quantity > 0)
                 .Select(x => new StockChange(x.Entry.Attributes ?? [], x.Entry.WarehouseId, x.Quantity, false,
-                    InventoryMovementType.ShipmentReversal, ShipmentSource(shipment, shipmentItem)) {
+                    InventoryMovementType.ShipmentReversal, ShipmentStock.Source(shipment, shipmentItem)) {
                     BatchNumber = x.Entry.BatchNumber, SerialNumbers = x.SerialNumbers
                 })
                 .ToList();
