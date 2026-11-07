@@ -235,8 +235,13 @@ public class InventoryDocumentService(
     {
         var source = new StockSource(nameof(InventoryDocument), document.Id, line.Id, document.Number, customerId,
             line.Comment ?? document.Comment ?? "");
+        //the units a line names; the ledger books them for a product tracking them and ignores them otherwise
         StockChange Change(string warehouseId, int quantity, InventoryMovementType movementType) =>
-            new(line.Attributes, warehouseId, quantity, false, movementType, source);
+            new(line.Attributes, warehouseId, quantity, false, movementType, source) {
+                BatchNumber = string.IsNullOrWhiteSpace(line.BatchNumber) ? null : line.BatchNumber.Trim(),
+                ExpiryDateUtc = line.ExpiryDateUtc,
+                SerialNumbers = (line.SerialNumbers ?? []).ToList()
+            };
 
         switch (document.DocumentTypeId)
         {
@@ -263,6 +268,10 @@ public class InventoryDocumentService(
                 //a scrapped item is recorded on the document only
                 if (line.Condition == ReturnLineCondition.Restock)
                     yield return Change(document.WarehouseId, line.Quantity, InventoryMovementType.ReturnReceipt);
+                break;
+            case InventoryDocumentType.Assignment:
+                yield return Change(document.WarehouseId, line.Quantity, InventoryMovementType.TrackingAssignment)
+                    with { UnitCost = line.UnitCost };
                 break;
         }
     }
@@ -451,6 +460,11 @@ public class InventoryDocumentService(
             if (transfer && !product.UseMultipleWarehouses)
                 Add(InventoryDocumentErrors.TransferNeedsMultipleWarehouses);
 
+            if (document.DocumentTypeId == InventoryDocumentType.Assignment && !InventoryTracking.Tracked(product))
+                Add(StockErrors.StockNotTracked);
+            foreach (var error in UnitErrorsOf(document, line, product))
+                Add(error);
+
             switch (document.DocumentTypeId)
             {
                 case InventoryDocumentType.Receipt:
@@ -459,6 +473,7 @@ public class InventoryDocumentService(
                     break;
                 case InventoryDocumentType.Transfer:
                 case InventoryDocumentType.ReturnReceipt:
+                case InventoryDocumentType.Assignment:
                     if (line.Quantity <= 0) Add(InventoryDocumentErrors.QuantityMustBePositive);
                     break;
                 case InventoryDocumentType.Adjustment:
@@ -470,7 +485,40 @@ public class InventoryDocumentService(
             }
         }
 
+        //a serial number is one unit: it is named once a document
+        foreach (var productLines in document.Lines.Where(x => products.GetValueOrDefault(x.ProductId ?? "") is
+                         { InventoryTrackingModeId: InventoryTrackingMode.SerialNumber })
+                     .GroupBy(x => x.ProductId))
+            if (UnitNumbers.Duplicates(productLines.SelectMany(x => x.SerialNumbers ?? [])).Count > 0)
+                Add(UnitErrors.SerialDuplicate);
+
         return errors;
+    }
+
+    /// <summary>
+    ///     What a line of a product tracking its units lacks: the batch of what comes in, or a serial number for every
+    ///     unit received, adjusted, moved or assigned. Whether the units are there to move is the ledger's check
+    /// </summary>
+    private static IEnumerable<string> UnitErrorsOf(InventoryDocument document, InventoryDocumentLine line,
+        Product product)
+    {
+        if (!InventoryTracking.Tracked(product))
+            yield break;
+
+        var type = document.DocumentTypeId;
+        if (product.InventoryTrackingModeId == InventoryTrackingMode.Batch)
+        {
+            if (string.IsNullOrWhiteSpace(line.BatchNumber) &&
+                (type is InventoryDocumentType.Receipt or InventoryDocumentType.Assignment ||
+                 (type == InventoryDocumentType.Adjustment && line.Quantity > 0)))
+                yield return UnitErrors.BatchRequired;
+            yield break;
+        }
+
+        if (type is InventoryDocumentType.Receipt or InventoryDocumentType.Adjustment or InventoryDocumentType.Transfer
+                or InventoryDocumentType.Assignment &&
+            (line.SerialNumbers?.Count ?? 0) != Math.Abs(line.Quantity))
+            yield return UnitErrors.SerialCountMismatch;
     }
 
     /// <summary>
@@ -510,6 +558,7 @@ public class InventoryDocumentService(
             InventoryDocumentType.Adjustment => settings.AdjustmentNumberPrefix,
             InventoryDocumentType.StockCount => settings.StockCountNumberPrefix,
             InventoryDocumentType.ReturnReceipt => settings.ReturnReceiptNumberPrefix,
+            InventoryDocumentType.Assignment => settings.AssignmentNumberPrefix,
             _ => throw new ArgumentOutOfRangeException(nameof(documentType))
         };
     }
@@ -539,7 +588,9 @@ public class InventoryDocumentService(
     {
         return line != null && line.ProductId == stored.ProductId && line.Quantity == stored.Quantity &&
                line.CountedQuantity == stored.CountedQuantity && line.UnitCost == stored.UnitCost &&
-               line.Condition == stored.Condition &&
+               line.Condition == stored.Condition && line.BatchNumber == stored.BatchNumber &&
+               line.ExpiryDateUtc == stored.ExpiryDateUtc &&
+               (line.SerialNumbers ?? []).SequenceEqual(stored.SerialNumbers ?? []) &&
                line.Attributes.Select(x => (x.Key, x.Value))
                    .SequenceEqual(stored.Attributes.Select(x => (x.Key, x.Value)));
     }
