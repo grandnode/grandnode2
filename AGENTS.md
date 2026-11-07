@@ -90,6 +90,7 @@ A change that crosses domains loads every skill it touches.
 | `.ai/knowledge/module-types.md` | shipped modules (API, installer, migration) and how they differ from plugins |
 | `.ai/knowledge/template-types.md` | which kind of view (storefront, admin, plugin, theme, PDF, message template) a change belongs in |
 | `.ai/knowledge/mongodb.md` | `IRepository<T>`, query patterns, partial updates, write conventions |
+| `.ai/knowledge/inventory.md` | stock buckets, the one stock-change path (`IStockMovementService`, `StockLedger`), the append-only journal, inventory documents |
 | `.ai/knowledge/caching.md` | `ICacheBase`, `CacheKey` constants, key composition, invalidation including cross-family clearing |
 | `.ai/knowledge/performance.md` | pagination, partial field writes, and the cost side of caching |
 | `.ai/knowledge/domain-events.md` | commands vs queries vs notifications, entity events, handler rules |
