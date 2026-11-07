@@ -70,7 +70,7 @@ public class InventoryJournalServiceTests
         await Entry(product.Id, start.AddDays(2), 5, InventoryMovementType.Receipt);
         await Entry(product.Id, start.AddDays(5), 0, InventoryMovementType.Shipment, outQty: 2);
 
-        var rows = await _service.GetStockAtDate("w1", start.AddDays(3));
+        var rows = await _service.GetStockAtDate("w1", start.AddDays(3), null);
 
         var row = rows.Single();
         Assert.AreEqual(product.Id, row.ProductId);
@@ -87,7 +87,7 @@ public class InventoryJournalServiceTests
         var start = DateTime.UtcNow.AddDays(-10);
         await Entry(product.Id, start, 4, InventoryMovementType.OpeningBalance);
 
-        var rows = await _service.GetStockAtDate("w1", start.AddDays(-1));
+        var rows = await _service.GetStockAtDate("w1", start.AddDays(-1), null);
 
         Assert.IsFalse(rows.Single().Available);
     }
@@ -102,8 +102,22 @@ public class InventoryJournalServiceTests
             ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 3 } }
         });
 
-        var rows = await _service.GetStockAtDate("w1", DateTime.UtcNow);
+        var rows = await _service.GetStockAtDate("w1", DateTime.UtcNow, null);
 
         Assert.AreEqual(3, rows.Single().Stock);
+    }
+
+    [TestMethod]
+    public async Task GetStockAtDate_Store_LeavesOutProductsLimitedToOtherStores()
+    {
+        foreach (var (limited, stores) in new[] { (false, new string[0]), (true, ["store1"]), (true, ["store2"]) })
+            await _products.InsertAsync(new Product {
+                ManageInventoryMethodId = ManageInventoryMethod.ManageStock, WarehouseId = "w1", StockQuantity = 1,
+                LimitedToStores = limited, Stores = stores.ToList()
+            });
+
+        var rows = await _service.GetStockAtDate("w1", DateTime.UtcNow, "store1");
+
+        Assert.AreEqual(2, rows.Count);
     }
 }

@@ -960,6 +960,9 @@
 	<Resource Name="Admin.Catalog.Products.StockChangesOnlyThroughDocuments" Area="Admin">
 		<Value>Stock changes only through inventory documents: the stock quantities were not saved. Post a receipt, an adjustment or a stock count instead.</Value>
 	</Resource>
+	<Resource Name="Admin.Catalog.Products.ProductAttributeCombinations.StockNotTracked" Area="Admin">
+		<Value>A combination holds stock only when the product manages stock by attributes.</Value>
+	</Resource>
 	<Resource Name="Admin.Inventory.Documents" Area="Admin">
 		<Value>Inventory documents</Value>
 	</Resource>
@@ -1007,6 +1010,9 @@
 	</Resource>
 	<Resource Name="Admin.Inventory.Documents.Errors.LineBooked" Area="Admin">
 		<Value>A posting of this document stopped part way: the lines it booked cannot be changed. Post the document again.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.DuplicateLine" Area="Admin">
+		<Value>A stock count lists the same product or combination more than once: remove the extra lines.</Value>
 	</Resource>
 	<Resource Name="Admin.Inventory.Documents.Errors.ReturnNotReceivable" Area="Admin">
 		<Value>A rejected or cancelled merchandise return cannot be received.</Value>

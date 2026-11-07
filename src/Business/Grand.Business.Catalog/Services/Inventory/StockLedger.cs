@@ -100,12 +100,12 @@ public sealed class StockLedger(
     }
 
     /// <summary>
-    ///     Moves the product's history from its previous inventory method or warehouse mode to the current one: every
-    ///     bucket of the previous configuration is closed by an entry taking its stock out, and every bucket of the
-    ///     current one starts again with its stored stock
+    ///     Moves the product's history from its previous inventory method, warehouse mode or warehouse to the current
+    ///     one: every bucket of the previous configuration is closed by an entry taking its stock out, and every bucket
+    ///     of the current one starts again with its stored stock
     /// </summary>
     public async Task Reopen(Product product, ManageInventoryMethod previousMethod, bool previousMultipleWarehouses,
-        string customerId)
+        string previousWarehouseId, string customerId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -116,12 +116,13 @@ public sealed class StockLedger(
 
         var source = new StockSource(nameof(Product), product.Id, CustomerId: customerId ?? "");
         //read before Sum, which works the sums out for the current configuration
-        var entries = Buckets(product, previousMethod, previousMultipleWarehouses)
+        var entries = Buckets(product, previousMethod, previousMultipleWarehouses, previousWarehouseId)
             .Where(bucket => bucket.Stock != 0)
             .Select(bucket => Entry(product, bucket, -bucket.Stock, InventoryMovementType.ClosingBalance, source))
             .ToList();
         Sum(product);
-        entries.AddRange(Buckets(product, product.ManageInventoryMethodId, product.UseMultipleWarehouses)
+        entries.AddRange(Buckets(product, product.ManageInventoryMethodId, product.UseMultipleWarehouses,
+                product.WarehouseId)
             .Select(bucket => Entry(product, bucket, bucket.Stock, InventoryMovementType.OpeningBalance, source)));
 
         await Insert(product, entries);
@@ -156,7 +157,8 @@ public sealed class StockLedger(
     }
 
     /// <summary>
-    ///     Applies the entries whose product write was lost
+    ///     Applies the entries whose product write was lost; the balances of a reopening record the stored stock and
+    ///     change nothing
     /// </summary>
     private async Task<bool> Repair(Product product)
     {
@@ -166,7 +168,8 @@ public sealed class StockLedger(
 
         foreach (var entry in pending)
         {
-            if (entry.MovementTypeId is not (InventoryMovementType.OpeningBalance or InventoryMovementType.Legacy) &&
+            if (entry.MovementTypeId is not (InventoryMovementType.OpeningBalance or
+                    InventoryMovementType.ClosingBalance or InventoryMovementType.Legacy) &&
                 Locate(product, entry.CombinationId, entry.Attributes, entry.WarehouseId, out _) is { } bucket)
                 Move(bucket, entry.InQty - entry.OutQty, entry.MovementTypeId);
 
@@ -256,14 +259,15 @@ public sealed class StockLedger(
     }
 
     /// <summary>
-    ///     Every bucket the product has under the given inventory method and warehouse mode
+    ///     Every bucket the product has under the given inventory method, warehouse mode and warehouse
     /// </summary>
-    private static IEnumerable<Bucket> Buckets(Product product, ManageInventoryMethod method, bool multipleWarehouses)
+    private static IEnumerable<Bucket> Buckets(Product product, ManageInventoryMethod method, bool multipleWarehouses,
+        string warehouseId)
     {
         switch (method)
         {
             case ManageInventoryMethod.ManageStock when !multipleWarehouses:
-                yield return new Bucket(product, null, "", product.WarehouseId ?? "");
+                yield return new Bucket(product, null, "", warehouseId ?? "");
                 break;
             case ManageInventoryMethod.ManageStock:
                 foreach (var row in product.ProductWarehouseInventory)
@@ -272,7 +276,7 @@ public sealed class StockLedger(
             case ManageInventoryMethod.ManageStockByAttributes:
                 foreach (var combination in product.ProductAttributeCombinations)
                     if (!multipleWarehouses)
-                        yield return new Bucket(combination, combination, "", product.WarehouseId ?? "");
+                        yield return new Bucket(combination, combination, "", warehouseId ?? "");
                     else
                         foreach (var row in combination.WarehouseInventory)
                             yield return new Bucket(row, combination, row.WarehouseId, row.WarehouseId);

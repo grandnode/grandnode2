@@ -216,14 +216,27 @@ public class ProductAttributeCombinationViewModelService(
         }
 
         //the server is the guard, not the read-only fields
-        async Task<bool> Refused(IEnumerable<StockChange> changes)
+        async Task<bool> Refused(List<StockChange> changes)
         {
-            if (!changes.Any(x => x.SetTo) ||
-                !(await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments)
+            if (changes.Count == 0)
                 return false;
 
-            warnings.Add(translationService.GetResource("Admin.Catalog.Products.StockChangesOnlyThroughDocuments"));
-            return true;
+            //a combination holds stock only for a product stocked by attributes
+            if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes)
+                warnings.Add(translationService.GetResource(
+                    "Admin.Catalog.Products.ProductAttributeCombinations.StockNotTracked"));
+            else if (changes.Any(x => x.SetTo) &&
+                     (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments)
+                warnings.Add(translationService.GetResource("Admin.Catalog.Products.StockChangesOnlyThroughDocuments"));
+
+            return warnings.Count > 0;
+        }
+
+        async Task ApplyStock(List<StockChange> changes)
+        {
+            if (changes.Count > 0)
+                warnings.AddRange((await stockMovementService.Apply(product.Id, changes))
+                    .Select(translationService.GetResource));
         }
 
         void MarkUsedWarehouses(ProductAttributeCombination combination)
@@ -335,8 +348,7 @@ public class ProductAttributeCombinationViewModelService(
                 await productAttributeService.InsertProductAttributeCombination(combination, product.Id);
                 product.ProductAttributeCombinations.Add(combination);
 
-                if (changes.Count > 0)
-                    await stockMovementService.Apply(product.Id, changes);
+                await ApplyStock(changes);
             }
         }
         else
@@ -362,8 +374,9 @@ public class ProductAttributeCombinationViewModelService(
             if (await Refused(changes))
                 return warnings;
 
-            if (changes.Count > 0)
-                await stockMovementService.Apply(product.Id, changes);
+            await ApplyStock(changes);
+            if (warnings.Count > 0)
+                return warnings;
 
             if (product.UseMultipleWarehouses)
                 MarkUsedWarehouses(combination);

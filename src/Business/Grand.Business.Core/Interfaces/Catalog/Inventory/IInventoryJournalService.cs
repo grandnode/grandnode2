@@ -44,5 +44,8 @@ public interface IInventoryJournalService
     /// <summary>
     ///     The stock of every bucket kept in the warehouse at a date: the stored stock less what changed since
     /// </summary>
-    Task<IList<StockAtDateRow>> GetStockAtDate(string warehouseId, DateTime atUtc);
+    /// <param name="warehouseId">The warehouse</param>
+    /// <param name="atUtc">The date</param>
+    /// <param name="storeId">Only products a store sees: those not limited to stores and its own; null for all</param>
+    Task<IList<StockAtDateRow>> GetStockAtDate(string warehouseId, DateTime atUtc, string storeId);
 }

@@ -112,6 +112,40 @@ public class ProductServiceTests
     }
 
     [TestMethod]
+    public async Task UpdateProduct_NoLongerTracked_ClosesTheStockTheLedgerHolds()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 8 };
+        await _productRepository.InsertAsync(product);
+
+        //the form showed 10 before an order took 2, and the method is switched with it
+        product.StockQuantity = 10;
+        product.ManageInventoryMethodId = ManageInventoryMethod.DontManageStock;
+        await _productService.UpdateProduct(product);
+
+        var entry = _journalRepository.Table.Single(x => x.ProductId == product.Id);
+        Assert.AreEqual(InventoryMovementType.ClosingBalance, entry.MovementTypeId);
+        Assert.AreEqual(8, entry.OutQty);
+        Assert.AreEqual(10, _productRepository.Table.First(x => x.Id == product.Id).StockQuantity);
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_WarehouseChanged_MovesTheBucketsHistory()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 5, WarehouseId = "w1" };
+        await _productRepository.InsertAsync(product);
+
+        product.WarehouseId = "w2";
+        await _productService.UpdateProduct(product);
+
+        var entries = _journalRepository.Table.Where(x => x.ProductId == product.Id).ToList();
+        Assert.AreEqual(5, entries.Single(x => x.MovementTypeId == InventoryMovementType.ClosingBalance &&
+                                               x.WarehouseId == "w1").OutQty);
+        Assert.AreEqual(5, entries.Single(x => x.MovementTypeId == InventoryMovementType.OpeningBalance &&
+                                               x.WarehouseId == "w2").InQty);
+    }
+
+    [TestMethod]
     public async Task UpdateProduct_InventoryMethodUnchanged_WritesNoEntry()
     {
         var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 };

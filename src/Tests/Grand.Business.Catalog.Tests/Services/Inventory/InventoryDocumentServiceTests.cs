@@ -216,7 +216,7 @@ public class InventoryDocumentServiceTests
     {
         //the history of a product that existed before the journal starts with its opening balance
         await StockTestFixture.Ledger(_products, _journal)
-            .Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "");
+            .Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, null, "");
     }
 
     [TestMethod]
@@ -296,6 +296,20 @@ public class InventoryDocumentServiceTests
     }
 
     [TestMethod]
+    public async Task Post_StockCount_SameBucketTwice_Rejected()
+    {
+        var product = await Product();
+        var document = await Draft(Document(InventoryDocumentType.StockCount,
+            new InventoryDocumentLine { ProductId = product.Id, ExpectedQuantity = 10, CountedQuantity = 12 },
+            new InventoryDocumentLine { ProductId = product.Id, ExpectedQuantity = 10, CountedQuantity = 12 }));
+
+        var errors = await _service.Post(document.Id, "staff");
+
+        CollectionAssert.Contains(errors.ToList(), InventoryDocumentErrors.DuplicateLine);
+        Assert.AreEqual(10, Stored(product).StockQuantity);
+    }
+
+    [TestMethod]
     public async Task Post_StockCount_EmptyCountedLine_Skipped()
     {
         var product = await Product();
@@ -348,7 +362,7 @@ public class InventoryDocumentServiceTests
     }
 
     [TestMethod]
-    public async Task Post_ManyProducts_AcquiresOneProductKeyPerCall()
+    public async Task Post_ManyProducts_HoldsTheDocumentAndOneProductKeyAtATime()
     {
         var products = new List<Product>();
         for (var i = 0; i < 3; i++)
@@ -363,10 +377,11 @@ public class InventoryDocumentServiceTests
 
         await Service(resourceLock.Object).Post(document.Id, "staff");
 
-        Assert.AreEqual(3, acquired.Count);
+        Assert.AreEqual(4, acquired.Count);
         Assert.IsTrue(acquired.All(x => x.Length == 1));
+        Assert.AreEqual($"InventoryDocument:{document.Id}", acquired[0][0]);
         CollectionAssert.AreEquivalent(products.Select(p => ProductStockLock.Key(p.Id)).ToArray(),
-            acquired.Select(x => x[0]).ToArray());
+            acquired.Skip(1).Select(x => x[0]).ToArray());
     }
 
     [TestMethod]
@@ -616,6 +631,19 @@ public class InventoryDocumentServiceTests
 
         CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.LineBooked }, errors.ToArray());
         Assert.AreEqual(2, _documents.Table.Single().Lines.Single().Quantity);
+    }
+
+    [TestMethod]
+    public async Task UpdateDraft_StockCountWarehouse_Kept()
+    {
+        var product = await Product();
+        var document = await _service.CreateDraft(Document(InventoryDocumentType.StockCount,
+            new InventoryDocumentLine { ProductId = product.Id, ExpectedQuantity = 10 }));
+
+        document.WarehouseId = "w2";
+        await _service.UpdateDraft(document);
+
+        Assert.AreEqual("w1", _documents.Table.Single().WarehouseId);
     }
 
     [TestMethod]

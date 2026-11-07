@@ -252,7 +252,7 @@ public class StockLedgerTests
             }
         });
 
-        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "staff");
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, null, "staff");
 
         var entries = Entries(product);
         Assert.AreEqual(2, entries.Count);
@@ -269,11 +269,11 @@ public class StockLedgerTests
             ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10,
             ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 2 } }
         });
-        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "");
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, null, "");
         var switched = Stored(product);
         switched.UseMultipleWarehouses = true;
 
-        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStock, false, "staff");
+        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStock, false, null, "staff");
 
         var closing = Entries(product).Single(x => x.MovementTypeId == InventoryMovementType.ClosingBalance);
         Assert.AreEqual(10, closing.OutQty);
@@ -292,11 +292,11 @@ public class StockLedgerTests
                 new ProductAttributeCombination { StockQuantity = 6 }
             }
         });
-        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "");
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, null, "");
         var switched = Stored(product);
         switched.UseMultipleWarehouses = true;
 
-        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStockByAttributes, false, "staff");
+        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStockByAttributes, false, null, "staff");
 
         var closings = Entries(product).Where(x => x.MovementTypeId == InventoryMovementType.ClosingBalance).ToList();
         CollectionAssert.AreEquivalent(new[] { 4, 6 }, closings.Select(x => x.OutQty).ToArray());
@@ -310,15 +310,55 @@ public class StockLedgerTests
     {
         var product = await Insert(new Product
             { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 });
-        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, "");
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, null, "");
         var switched = Stored(product);
         switched.ManageInventoryMethodId = ManageInventoryMethod.DontManageStock;
 
-        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStock, false, "staff");
+        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStock, false, null, "staff");
 
         Assert.AreEqual(7, Entries(product).Single(x => x.MovementTypeId == InventoryMovementType.ClosingBalance).OutQty);
         Assert.AreEqual(0, StockTestFixture.JournalSum(_journal, product.Id, "", ""));
         Assert.AreEqual(2, Stored(product).StockRevision);
+    }
+
+    [TestMethod]
+    public async Task Reopen_WarehouseChanged_ClosesTheOldWarehouseAndOpensTheNewOne()
+    {
+        var product = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 5, WarehouseId = "w1" });
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, null, "");
+        var moved = Stored(product);
+        moved.WarehouseId = "w2";
+
+        await _ledger.Reopen(moved, ManageInventoryMethod.ManageStock, false, "w1", "staff");
+
+        Assert.AreEqual(0, StockTestFixture.JournalSum(_journal, product.Id, "", "w1"));
+        Assert.AreEqual(5, StockTestFixture.JournalSum(_journal, product.Id, "", "w2"));
+    }
+
+    [TestMethod]
+    public async Task Apply_AfterReopenWriteLost_BalancesChangeNothing()
+    {
+        var product = await Insert(new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            ProductWarehouseInventory = {
+                new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 3 },
+                new ProductWarehouseInventory { WarehouseId = "w2", StockQuantity = 4 }
+            }
+        });
+        await _ledger.Reopen(Stored(product), ManageInventoryMethod.DontManageStock, false, null, "");
+        //the product is written with its new mode before its history is reopened
+        await _products.UpdateField(product.Id, x => x.UseMultipleWarehouses, false);
+        var switched = Stored(product);
+        var revision = switched.StockRevision;
+        await _ledger.Reopen(switched, ManageInventoryMethod.ManageStock, true, null, "");
+        //the product write of the reopening was lost
+        await _products.UpdateField(product.Id, x => x.StockRevision, revision);
+
+        await Apply(product, By(1));
+
+        Assert.AreEqual(8, Stored(product).StockQuantity);
+        Assert.AreEqual(8, StockTestFixture.JournalSum(_journal, product.Id, "", ""));
     }
 
     private static StockChange Receipt(int quantity, decimal unitCost, IList<CustomAttribute> attributes = null) =>

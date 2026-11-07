@@ -21,6 +21,7 @@ public static class InventoryDocumentErrors
     public const string CommentRequired = "Admin.Inventory.Documents.Errors.CommentRequired";
     public const string CountedNegative = "Admin.Inventory.Documents.Errors.CountedNegative";
     public const string LineBooked = "Admin.Inventory.Documents.Errors.LineBooked";
+    public const string DuplicateLine = "Admin.Inventory.Documents.Errors.DuplicateLine";
     public const string ReturnNotReceivable = "Admin.Inventory.Documents.Errors.ReturnNotReceivable";
     public const string ReturnQuantityExceeded = "Admin.Inventory.Documents.Errors.ReturnQuantityExceeded";
 }

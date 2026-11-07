@@ -308,6 +308,9 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ProductCost")]
     public double ProductCost { get; set; }
 
+    //the cost the form showed: a receipt may have changed the stored one since
+    public double OriginalProductCost { get; set; }
+
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.EnteredPrice")]
     public bool EnteredPrice { get; set; }
 

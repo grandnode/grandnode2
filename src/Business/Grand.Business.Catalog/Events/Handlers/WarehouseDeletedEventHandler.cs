@@ -36,6 +36,15 @@ public class WarehouseDeletedEventHandler : INotificationHandler<EntityDeleted<W
         foreach (var productId in productIds)
             await RemoveWarehouseRow(productId, warehouseId);
 
+        //a product kept in the deleted warehouse keeps its stock without one: its history starts again there
+        var keptProductIds = await _productRepository.ToListAsync(_productRepository.Table
+            .Where(x => x.WarehouseId == warehouseId && !x.UseMultipleWarehouses &&
+                        (x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
+                         x.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes))
+            .Select(x => x.Id), cancellationToken);
+        foreach (var productId in keptProductIds)
+            await LeaveWarehouse(productId, warehouseId);
+
         await _productRepository.UpdateManyAsync(x => x.WarehouseId == warehouseId,
             UpdateBuilder<Product>.Create().Set(x => x.WarehouseId, ""));
 
@@ -68,5 +77,18 @@ public class WarehouseDeletedEventHandler : INotificationHandler<EntityDeleted<W
 
         product.ProductWarehouseInventory.Remove(row);
         await _stockLedger.RecomputeSums(product);
+    }
+
+    private async Task LeaveWarehouse(string productId, string warehouseId)
+    {
+        await using var _ = await _resourceLock.Acquire([ProductStockLock.Key(productId)]);
+
+        var product = await _productRepository.GetByIdAsync(productId);
+        if (product == null || product.WarehouseId != warehouseId || product.UseMultipleWarehouses)
+            return;
+
+        await _productRepository.UpdateField(productId, x => x.WarehouseId, "");
+        product.WarehouseId = "";
+        await _stockLedger.Reopen(product, product.ManageInventoryMethodId, false, warehouseId, "");
     }
 }

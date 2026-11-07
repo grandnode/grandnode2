@@ -33,39 +33,39 @@ public class InventoryJournalService(
             pageSize);
     }
 
-    public async Task<IList<StockAtDateRow>> GetStockAtDate(string warehouseId, DateTime atUtc)
+    public async Task<IList<StockAtDateRow>> GetStockAtDate(string warehouseId, DateTime atUtc, string storeId)
     {
         ArgumentException.ThrowIfNullOrEmpty(warehouseId);
 
         var query = productRepository.Table.Where(x =>
-                (x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
-                 x.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
-                (x.UseMultipleWarehouses || x.WarehouseId == warehouseId))
-            .OrderBy(x => x.Id);
+            (x.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
+             x.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes) &&
+            (x.UseMultipleWarehouses || x.WarehouseId == warehouseId));
+        if (storeId != null)
+            query = query.Where(x => !x.LimitedToStores || x.Stores.Contains(storeId));
+        query = query.OrderBy(x => x.Id);
 
         var rows = new List<StockAtDateRow>();
         for (var pageIndex = 0;; pageIndex++)
         {
             var products = await productRepository.PagedAsync(query, pageIndex, ProductPageSize);
+            var productIds = products.Select(x => x.Id).ToList();
+            var entries = (await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table.Where(x =>
+                    productIds.Contains(x.ProductId) && x.WarehouseId == warehouseId &&
+                    (x.CreateDateUtc > atUtc || x.MovementTypeId == InventoryMovementType.OpeningBalance))))
+                .ToLookup(x => x.ProductId);
             foreach (var product in products)
-                rows.AddRange(await StockAtDate(product, warehouseId, atUtc));
+                rows.AddRange(StockAtDate(product, warehouseId, atUtc, entries[product.Id]));
 
             if (!products.HasNextPage)
                 return rows;
         }
     }
 
-    private async Task<IEnumerable<StockAtDateRow>> StockAtDate(Product product, string warehouseId, DateTime atUtc)
+    private static IEnumerable<StockAtDateRow> StockAtDate(Product product, string warehouseId, DateTime atUtc,
+        IEnumerable<InventoryJournal> entries)
     {
-        var buckets = StockBuckets.In(product, warehouseId).ToList();
-        if (buckets.Count == 0)
-            return [];
-
-        var entries = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table.Where(x =>
-            x.ProductId == product.Id && x.WarehouseId == warehouseId &&
-            (x.CreateDateUtc > atUtc || x.MovementTypeId == InventoryMovementType.OpeningBalance)));
-
-        return buckets.Select(bucket =>
+        return StockBuckets.In(product, warehouseId).Select(bucket =>
         {
             var bucketEntries = entries.Where(x => (x.CombinationId ?? "") == bucket.CombinationId).ToList();
             //the history of a bucket starts with its latest opening balance; a bucket without one has it all

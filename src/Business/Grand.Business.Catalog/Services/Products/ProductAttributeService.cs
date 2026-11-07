@@ -324,7 +324,18 @@ public class ProductAttributeService : IProductAttributeService
             var stored = product?.ProductAttributeCombinations.FirstOrDefault(x => x.Id == combination.Id);
             if (product?.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes && stored != null)
             {
-                //the product's stock is the sum of its combinations; the combination's history stays by product
+                //the stock the combination holds leaves the journal first, so the product's history keeps adding up
+                var held = product.UseMultipleWarehouses
+                    ? stored.WarehouseInventory.Select(x => (x.WarehouseId, x.StockQuantity))
+                    : [("", stored.StockQuantity)];
+                var changes = held.Where(x => x.StockQuantity != 0)
+                    .Select(x => new StockChange(stored.Attributes, x.WarehouseId, -x.StockQuantity, false,
+                        InventoryMovementType.Adjustment,
+                        new StockSource(nameof(Product), productId, Comment: "Attribute combination removed")))
+                    .ToList();
+                if (changes.Count > 0)
+                    await _stockLedger.Apply(product, changes);
+
                 product.ProductAttributeCombinations.Remove(stored);
                 await _stockLedger.RecomputeSums(product);
             }

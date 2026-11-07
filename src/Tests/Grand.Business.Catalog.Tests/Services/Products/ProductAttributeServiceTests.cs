@@ -20,6 +20,7 @@ public class ProductAttributeServiceTests
     private ProductAttributeService _productAttributeService;
     private IRepository<Product> _repository;
     private IRepository<ProductAttribute> _repositoryproductAttribute;
+    private IRepository<InventoryJournal> _journal;
 
     [TestInitialize]
     public void Init()
@@ -29,11 +30,11 @@ public class ProductAttributeServiceTests
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
+        _journal = new MongoDBRepositoryTest<InventoryJournal>();
 
         _productAttributeService =
             new ProductAttributeService(_cacheBase, _repositoryproductAttribute, _repository, _mediatorMock.Object,
-                new MongoResourceLockTest(),
-                StockTestFixture.Ledger(_repository, new MongoDBRepositoryTest<InventoryJournal>()));
+                new MongoResourceLockTest(), StockTestFixture.Ledger(_repository, _journal));
     }
 
     [TestMethod]
@@ -105,18 +106,25 @@ public class ProductAttributeServiceTests
     }
 
     [TestMethod]
-    public async Task DeleteProductAttributeCombination_RecomputesProductSum()
+    public async Task DeleteProductAttributeCombination_BooksItsStockOutAndRecomputesProductSum()
     {
-        var combination = new ProductAttributeCombination { StockQuantity = 6 };
+        var combination = new ProductAttributeCombination
+            { Attributes = StockTestFixture.Attributes("red"), StockQuantity = 6 };
         var product = new Product {
             ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes, StockQuantity = 9,
-            ProductAttributeCombinations = { combination, new ProductAttributeCombination { StockQuantity = 3 } }
+            ProductAttributeCombinations = {
+                combination,
+                new ProductAttributeCombination { Attributes = StockTestFixture.Attributes("blue"), StockQuantity = 3 }
+            }
         };
         await _repository.InsertAsync(product);
 
         await _productAttributeService.DeleteProductAttributeCombination(combination, product.Id);
 
         Assert.AreEqual(3, _repository.Table.First(x => x.Id == product.Id).StockQuantity);
+        var entry = _journal.Table.Single(x => x.ProductId == product.Id);
+        Assert.AreEqual(combination.Id, entry.CombinationId);
+        Assert.AreEqual(6, entry.OutQty);
     }
 
     [TestMethod]

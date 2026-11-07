@@ -36,6 +36,8 @@ public class ProductAttributeCombinationViewModelServiceTests
     public void Setup()
     {
         _stockMovementServiceMock = new Mock<IStockMovementService>();
+        _stockMovementServiceMock.Setup(x => x.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()))
+            .ReturnsAsync([]);
         _settingServiceMock = new Mock<ISettingService>();
         _settingServiceMock.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
             .ReturnsAsync(new InventorySettings());
@@ -156,6 +158,23 @@ public class ProductAttributeCombinationViewModelServiceTests
         _settingServiceMock.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
             .ReturnsAsync(new InventorySettings { StockChangesOnlyThroughDocuments = true });
         var product = ProductWithOneCombination();
+        var model = new ProductAttributeCombinationModel
+            { Id = "c1", StockQuantity = 9, OriginalStockQuantity = 5, Sku = "sku" };
+
+        var warnings = await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
+
+        Assert.AreEqual(1, warnings.Count);
+        _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
+            It.IsAny<ProductAttributeCombination>(), It.IsAny<string>()), Times.Never);
+        _stockMovementServiceMock.Verify(s => s.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CombinationPopup_ProductNotStockedByAttributes_StockChanged_RefusedWithoutSaving()
+    {
+        var product = ProductWithOneCombination();
+        product.ManageInventoryMethodId = ManageInventoryMethod.ManageStock;
         var model = new ProductAttributeCombinationModel
             { Id = "c1", StockQuantity = 9, OriginalStockQuantity = 5, Sku = "sku" };
 

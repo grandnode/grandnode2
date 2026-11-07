@@ -151,6 +151,9 @@ public class InventoryDocumentService(
 
     public async Task<IList<string>> Post(string id, string customerId)
     {
+        //the posting holds the document's key, so the draft cannot be saved or deleted under it
+        await using var documentLock = await resourceLock.Acquire([DocumentLockKey(id)]);
+
         var document = await inventoryDocumentRepository.GetByIdAsync(id);
         if (document == null)
             return [InventoryDocumentErrors.NotFound];
@@ -303,6 +306,8 @@ public class InventoryDocumentService(
     {
         ArgumentNullException.ThrowIfNull(document);
 
+        await using var documentLock = await resourceLock.Acquire([DocumentLockKey(document.Id)]);
+
         var stored = await inventoryDocumentRepository.GetByIdAsync(document.Id);
         if (stored == null)
             return [InventoryDocumentErrors.NotFound];
@@ -321,6 +326,9 @@ public class InventoryDocumentService(
         document.Year = stored.Year;
         document.Sequence = stored.Sequence;
         document.DocumentTypeId = stored.DocumentTypeId;
+        //a stock count's lines expect the stock of the warehouse it was made for
+        if (stored.DocumentTypeId == InventoryDocumentType.StockCount)
+            document.WarehouseId = stored.WarehouseId;
         document.StatusId = InventoryDocumentStatus.Draft;
         document.StoreId = await StoreOf(document.WarehouseId);
         await inventoryDocumentRepository.UpdateAsync(document);
@@ -331,6 +339,8 @@ public class InventoryDocumentService(
 
     public async Task<IList<string>> DeleteDraft(string id)
     {
+        await using var documentLock = await resourceLock.Acquire([DocumentLockKey(id)]);
+
         var stored = await inventoryDocumentRepository.GetByIdAsync(id);
         if (stored == null)
             return [InventoryDocumentErrors.NotFound];
@@ -372,6 +382,11 @@ public class InventoryDocumentService(
 
         if (document.DocumentTypeId == InventoryDocumentType.Adjustment && string.IsNullOrWhiteSpace(document.Comment))
             Add(InventoryDocumentErrors.CommentRequired);
+
+        //a stock count books the difference of each line: one bucket counted twice would book it twice
+        if (document.DocumentTypeId == InventoryDocumentType.StockCount &&
+            document.Lines.GroupBy(x => (x.ProductId, Attributes: AttributesKey(x.Attributes))).Any(x => x.Count() > 1))
+            Add(InventoryDocumentErrors.DuplicateLine);
 
         if (document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
             !string.IsNullOrEmpty(document.MerchandiseReturnId) &&
@@ -481,6 +496,16 @@ public class InventoryDocumentService(
             .Where(x => x.ObjectType == nameof(InventoryDocument) && x.ObjectId == documentId)
             .Select(x => x.PositionId));
         return positions.ToHashSet();
+    }
+
+    private static string DocumentLockKey(string documentId)
+    {
+        return $"InventoryDocument:{documentId}";
+    }
+
+    private static string AttributesKey(IList<CustomAttribute> attributes)
+    {
+        return string.Join("|", (attributes ?? []).Select(x => $"{x.Key}={x.Value}").Order(StringComparer.Ordinal));
     }
 
     private static bool SameBooking(InventoryDocumentLine stored, InventoryDocumentLine line)

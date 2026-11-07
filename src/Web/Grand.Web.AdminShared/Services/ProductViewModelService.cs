@@ -103,6 +103,8 @@ public class ProductViewModelService(
         {
             model.OriginalStockQuantity = product.StockQuantity;
             model.OriginalReservedQuantity = product.ReservedQuantity;
+            //a receipt sets the average cost: only a cost changed since is saved
+            model.OriginalProductCost = product.ProductCost;
         }
 
         if (product != null)
@@ -614,9 +616,12 @@ public class ProductViewModelService(
     {
         var prevDownloadId = product.DownloadId;
         var prevSampleDownloadId = product.SampleDownloadId;
+        var storedProductCost = product.ProductCost;
 
         //product
         product = model.ToEntity(product, dateTimeService);
+        if (model.ProductCost.Equals(model.OriginalProductCost))
+            product.ProductCost = storedProductCost;
         product.AutoAddRequiredProducts = model.AutoAddRequiredProducts;
 
         // VendorId: re-forced to scope.DefaultVendorId (when set) after mapping, not merely left alone -
@@ -821,6 +826,10 @@ public class ProductViewModelService(
                 product.Published = pModel.Published;
                 product.Name = pModel.Name;
                 product.ManageInventoryMethodId = (ManageInventoryMethod)pModel.ManageInventoryMethodId;
+                //a product that tracks no stock keeps it as a plain value
+                if (product.ManageInventoryMethodId is not (ManageInventoryMethod.ManageStock
+                    or ManageInventoryMethod.ManageStockByAttributes))
+                    product.StockQuantity = pModel.StockQuantity;
                 await productService.UpdateProduct(product);
 
                 if (stockChanged && !stockChangesOnlyThroughDocuments &&

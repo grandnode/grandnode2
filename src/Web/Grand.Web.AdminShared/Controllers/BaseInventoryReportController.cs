@@ -53,14 +53,15 @@ public abstract class BaseInventoryReportController(
         var atUtc = atDate.HasValue
             ? dateTimeService.ConvertToUtcTime(atDate.Value, dateTimeService.CurrentTimeZone)
             : DateTime.UtcNow;
-        var stock = await inventoryJournalService.GetStockAtDate(warehouse.Id, atUtc);
+        //a warehouse of this store may hold a product of another one
+        var stock = await inventoryJournalService.GetStockAtDate(warehouse.Id, atUtc,
+            await productScope.GetDefaultStoreIdAsync());
 
         var rows = new List<StockAtDateRowModel>();
         foreach (var row in stock)
         {
-            //a warehouse of this store may hold a product of another one
             var product = await productService.GetProductById(row.ProductId);
-            if (product == null || !await productScope.CanView(product))
+            if (product == null)
                 continue;
 
             rows.Add(new StockAtDateRowModel {

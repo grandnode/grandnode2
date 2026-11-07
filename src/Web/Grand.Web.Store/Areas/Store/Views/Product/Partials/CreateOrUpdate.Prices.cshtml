@@ -20,6 +20,7 @@
         <admin-field asp-for="OldPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
         <admin-field asp-for="CatalogPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
         <admin-field asp-for="StartPrice" id="pnlStartPrice" suffix="@Model.PrimaryStoreCurrencyCode"/>
+        <input type="hidden" asp-for="OriginalProductCost"/>
         <admin-field asp-for="ProductCost" suffix="@Model.PrimaryStoreCurrencyCode"/>
     </div>
 </admin-card>

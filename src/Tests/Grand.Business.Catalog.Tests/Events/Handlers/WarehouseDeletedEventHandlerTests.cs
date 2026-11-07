@@ -58,6 +58,26 @@ public class WarehouseDeletedEventHandlerTests
     }
 
     [TestMethod]
+    public async Task WarehouseDeleted_ProductKeptThere_MovesItsHistoryOutOfTheWarehouse()
+    {
+        var warehouse = new Warehouse();
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, WarehouseId = warehouse.Id, StockQuantity = 4 };
+        await _repository.InsertAsync(product);
+
+        await _handler.Handle(new EntityDeleted<Warehouse>(warehouse), CancellationToken.None);
+
+        var stored = _repository.Table.Single(x => x.Id == product.Id);
+        Assert.AreEqual("", stored.WarehouseId);
+        Assert.AreEqual(4, stored.StockQuantity);
+        var entries = _journal.Table.Where(x => x.ProductId == product.Id).ToList();
+        Assert.AreEqual(4, entries.Single(x => x.MovementTypeId == InventoryMovementType.ClosingBalance &&
+                                               x.WarehouseId == warehouse.Id).OutQty);
+        Assert.AreEqual(4, entries.Single(x => x.MovementTypeId == InventoryMovementType.OpeningBalance &&
+                                               x.WarehouseId == "").InQty);
+    }
+
+    [TestMethod]
     public async Task HandleTest()
     {
         //Arrange

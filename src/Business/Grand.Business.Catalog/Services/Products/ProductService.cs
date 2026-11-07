@@ -338,23 +338,31 @@ public class ProductService : IProductService
             .Set(x => x.UserFields, product.UserFields)
             .Set(x => x.Ticks, DateTime.UtcNow.Ticks);
 
-        //a product that tracks no stock keeps its counters as plain values, written with the product
-        if (product.ManageInventoryMethodId is not (ManageInventoryMethod.ManageStock
-            or ManageInventoryMethod.ManageStockByAttributes))
+        //a product that tracks no stock keeps its counters as plain values, written with the product; one that
+        //tracked them gets them only once its buckets are closed with the stock the ledger holds
+        var plainCounters = !TracksStock(product.ManageInventoryMethodId);
+        if (plainCounters && !TracksStock(oldProduct.ManageInventoryMethodId))
             update.Set(x => x.StockQuantity, product.StockQuantity)
                 .Set(x => x.ReservedQuantity, product.ReservedQuantity);
 
         await _productRepository.UpdateOneAsync(x => x.Id == product.Id, update);
 
-        //another inventory method or warehouse mode puts the stock in other buckets: their history starts again
+        //another inventory method, warehouse mode or warehouse puts the stock in other buckets: their history starts
+        //again
         if (oldProduct.ManageInventoryMethodId != product.ManageInventoryMethodId ||
-            oldProduct.UseMultipleWarehouses != product.UseMultipleWarehouses)
+            oldProduct.UseMultipleWarehouses != product.UseMultipleWarehouses ||
+            (!product.UseMultipleWarehouses && (oldProduct.WarehouseId ?? "") != (product.WarehouseId ?? "")))
             await using (await _resourceLock.Acquire([ProductStockLock.Key(product.Id)]))
             {
                 var storedProduct = await _productRepository.GetByIdAsync(product.Id);
                 if (storedProduct != null)
                     await _stockLedger.Reopen(storedProduct, oldProduct.ManageInventoryMethodId,
-                        oldProduct.UseMultipleWarehouses, "");
+                        oldProduct.UseMultipleWarehouses, oldProduct.WarehouseId, "");
+
+                if (plainCounters && TracksStock(oldProduct.ManageInventoryMethodId))
+                    await _productRepository.UpdateOneAsync(x => x.Id == product.Id, UpdateBuilder<Product>.Create()
+                        .Set(x => x.StockQuantity, product.StockQuantity)
+                        .Set(x => x.ReservedQuantity, product.ReservedQuantity));
             }
 
         if (!oldProduct.AdditionalShippingCharge.Equals(product.AdditionalShippingCharge) ||
@@ -381,6 +389,11 @@ public class ProductService : IProductService
 
         //event notification
         await _mediator.EntityUpdated(product);
+    }
+
+    private static bool TracksStock(ManageInventoryMethod method)
+    {
+        return method is ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes;
     }
 
     public virtual async Task UpdateProductField<T>(Product product,

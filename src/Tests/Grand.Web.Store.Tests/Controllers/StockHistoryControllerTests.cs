@@ -106,19 +106,14 @@ public class StockHistoryControllerTests
     }
 
     [TestMethod]
-    public async Task Store_StockAtDate_ProductOfOtherStore_LeftOut()
+    public async Task Store_StockAtDate_AsksForTheProductsOfTheStore()
     {
         var own = new Product();
-        var foreign = new Product();
-        foreach (var product in new[] { own, foreign })
-            _productService.Setup(x => x.GetProductById(product.Id, false)).ReturnsAsync(product);
-        _productScope.Setup(x => x.CanView(own)).ReturnsAsync(true);
-        _productScope.Setup(x => x.CanView(foreign)).ReturnsAsync(false);
+        _productService.Setup(x => x.GetProductById(own.Id, false)).ReturnsAsync(own);
         _warehouseService.Setup(x => x.GetWarehouseById("w-own"))
             .ReturnsAsync(new Warehouse { Id = "w-own", StoreId = StoreId });
-        _journalService.Setup(x => x.GetStockAtDate("w-own", It.IsAny<DateTime>())).ReturnsAsync([
-            new StockAtDateRow(own.Id, "own", "", "", [], 1, true),
-            new StockAtDateRow(foreign.Id, "foreign", "", "", [], 2, true)
+        _journalService.Setup(x => x.GetStockAtDate("w-own", It.IsAny<DateTime>(), StoreId)).ReturnsAsync([
+            new StockAtDateRow(own.Id, "own", "", "", [], 1, true)
         ]);
 
         var result = (JsonResult)await Report().StockAtDateData(new DataSourceRequest(), "w-own", null);
@@ -146,6 +141,6 @@ public class StockHistoryControllerTests
     {
         await Report().StockAtDateData(new DataSourceRequest(), "w-other", null);
 
-        _journalService.Verify(x => x.GetStockAtDate(It.IsAny<string>(), It.IsAny<DateTime>()), Times.Never);
+        _journalService.Verify(x => x.GetStockAtDate(It.IsAny<string>(), It.IsAny<DateTime>(), It.IsAny<string>()), Times.Never);
     }
 }
