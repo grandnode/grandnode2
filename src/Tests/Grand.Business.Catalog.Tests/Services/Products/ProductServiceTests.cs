@@ -43,9 +43,59 @@ public class ProductServiceTests
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
         _journalRepository = new MongoDBRepositoryTest<InventoryJournal>();
+        _serials = new MongoDBRepositoryTest<ProductSerialNumber>();
         _productService = new ProductService(_cacheBase, _productRepository,
             _mediatorMock.Object, _aclServiceMock, new MongoResourceLockTest(),
-            StockTestFixture.Ledger(_productRepository, _journalRepository));
+            StockTestFixture.Ledger(_productRepository, _journalRepository, serials: _serials),
+            StockTestFixture.UnitService(serials: _serials));
+    }
+
+    private IRepository<ProductSerialNumber> _serials;
+
+    [TestMethod]
+    public async Task UpdateProduct_NoneToBatch_WritesTrackingStartedMarkers()
+    {
+        var product = new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 4, WarehouseId = "w1" };
+        await _productRepository.InsertAsync(product);
+
+        product.InventoryTrackingModeId = InventoryTrackingMode.Batch;
+        product.WarrantyMonths = 24;
+        product.ExpiryWarningDays = 10;
+        await _productService.UpdateProduct(product);
+
+        var stored = _productRepository.Table.First(x => x.Id == product.Id);
+        Assert.AreEqual(InventoryTrackingMode.Batch, stored.InventoryTrackingModeId);
+        Assert.AreEqual(24, stored.WarrantyMonths);
+        Assert.AreEqual(10, stored.ExpiryWarningDays);
+        var marker = _journalRepository.Table.Single(x => x.ProductId == product.Id);
+        Assert.AreEqual(InventoryMovementType.TrackingStarted, marker.MovementTypeId);
+        Assert.AreEqual("pool 4", marker.Comments);
+        Assert.AreEqual(4, stored.StockQuantity);
+    }
+
+    [TestMethod]
+    public async Task UpdateProduct_SerialToNone_WithInStockSerial_Throws_NothingWritten()
+    {
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 1, WarehouseId = "w1",
+            InventoryTrackingModeId = InventoryTrackingMode.SerialNumber, Name = "before"
+        };
+        await _productRepository.InsertAsync(product);
+        await _serials.InsertAsync(new ProductSerialNumber {
+            ProductId = product.Id, StatusId = SerialNumberStatus.InStock, WarehouseId = "w1", CombinationId = "",
+            Number = "A1", NumberKey = "A1"
+        });
+
+        product.InventoryTrackingModeId = InventoryTrackingMode.None;
+        product.Name = "after";
+        var error = await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            _productService.UpdateProduct(product));
+
+        Assert.AreEqual(UnitErrors.UnitsAssigned, error.Message);
+        var stored = _productRepository.Table.First(x => x.Id == product.Id);
+        Assert.AreEqual(InventoryTrackingMode.SerialNumber, stored.InventoryTrackingModeId);
+        Assert.AreEqual("before", stored.Name);
     }
 
     private IRepository<InventoryJournal> _journalRepository;
@@ -248,7 +298,7 @@ public class ProductServiceTests
             .ReturnsAsync((IQueryable<Product> query, CancellationToken _) => query.ToList());
         var productService = new ProductService(_cacheBase, repositoryMock.Object, _mediatorMock.Object,
             _aclServiceMock, new MongoResourceLockTest(),
-            StockTestFixture.Ledger(repositoryMock.Object, _journalRepository));
+            StockTestFixture.Ledger(repositoryMock.Object, _journalRepository), StockTestFixture.UnitService());
         var access = CatalogAccess.For(new Customer(), "");
 
         //Act
@@ -282,7 +332,7 @@ public class ProductServiceTests
             });
         var productService = new ProductService(_cacheBase, repositoryMock.Object, _mediatorMock.Object,
             _aclServiceMock, new MongoResourceLockTest(),
-            StockTestFixture.Ledger(repositoryMock.Object, _journalRepository));
+            StockTestFixture.Ledger(repositoryMock.Object, _journalRepository), StockTestFixture.UnitService());
         var access = CatalogAccess.For(new Customer(), "");
         await productService.GetProductsByIds(["p1", "p3"], access);
         queried.Clear();

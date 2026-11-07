@@ -188,6 +188,13 @@ public class CopyProductService : ICopyProductService
         // product <-> discounts mapping
         foreach (var discount in product.AppliedDiscounts) productCopy.AppliedDiscounts.Add(discount);
 
+        productCopy.InventoryTrackingModeId = product.InventoryTrackingModeId;
+        productCopy.WarrantyMonths = product.WarrantyMonths;
+        productCopy.ExpiryWarningDays = product.ExpiryWarningDays;
+        //batches and serial numbers are physical units: a copy of a product tracking them starts with no stock
+        if (InventoryTracking.Tracked(product))
+            WithoutStock(productCopy);
+
         //the copy starts with the source's stock: its journal says where the stock came from
         await _stockMovementService.JournalNewProduct(productCopy, InventoryMovementType.ProductCopy,
             new StockSource(nameof(Product), product.Id, Reference: product.Name));
@@ -205,4 +212,38 @@ public class CopyProductService : ICopyProductService
     }
 
     #endregion
+
+    /// <summary>
+    ///     Empties the stock of a copy: its warehouse rows and combinations are its own, without stock
+    /// </summary>
+    private static void WithoutStock(Product copy)
+    {
+        copy.StockQuantity = 0;
+        copy.ReservedQuantity = 0;
+        copy.LowStock = true;
+        var rows = copy.ProductWarehouseInventory.Select(x => new ProductWarehouseInventory { WarehouseId = x.WarehouseId })
+            .ToList();
+        copy.ProductWarehouseInventory.Clear();
+        foreach (var row in rows)
+            copy.ProductWarehouseInventory.Add(row);
+
+        var combinations = copy.ProductAttributeCombinations.Select(x => new ProductAttributeCombination {
+            Id = x.Id,
+            Attributes = x.Attributes,
+            AllowOutOfStockOrders = x.AllowOutOfStockOrders,
+            Text = x.Text,
+            Sku = x.Sku,
+            Mpn = x.Mpn,
+            Gtin = x.Gtin,
+            OverriddenPrice = x.OverriddenPrice,
+            NotifyAdminForQuantityBelow = x.NotifyAdminForQuantityBelow,
+            PictureId = x.PictureId
+        }).ToList();
+        foreach (var (combination, source) in combinations.Zip(copy.ProductAttributeCombinations))
+        foreach (var row in source.WarehouseInventory)
+            combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory { WarehouseId = row.WarehouseId });
+        copy.ProductAttributeCombinations.Clear();
+        foreach (var combination in combinations)
+            copy.ProductAttributeCombinations.Add(combination);
+    }
 }

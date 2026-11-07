@@ -450,6 +450,13 @@ public static class StockTestFixture
         return warehouseService.Object;
     }
 
+    public static ProductUnitService UnitService(IRepository<ProductBatch> batches = null,
+        IRepository<ProductSerialNumber> serials = null)
+    {
+        return new ProductUnitService(batches ?? new MongoDBRepositoryTest<ProductBatch>(),
+            serials ?? new MongoDBRepositoryTest<ProductSerialNumber>());
+    }
+
     public static StockMovementService MovementService(IRepository<Product> products,
         IRepository<InventoryJournal> journal, IResourceLock resourceLock)
     {

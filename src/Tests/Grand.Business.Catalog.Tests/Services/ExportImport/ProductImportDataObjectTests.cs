@@ -110,7 +110,7 @@ public class ProductImportDataObjectTests
             .ReturnsAsync(() => _inventorySettings);
         _productService = new ProductService(_cacheBase, _repository, _mediatorMock.Object,
             new AclService(new AccessControlConfig()), new MongoResourceLockTest(),
-            StockTestFixture.Ledger(_repository, _journal));
+            StockTestFixture.Ledger(_repository, _journal), StockTestFixture.UnitService());
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _productImportDataObject = new ProductImportDataObject
         (_productService, _pictureServiceMock.Object, _productLayoutServiceMock.Object, _deliveryDateServiceMock.Object,

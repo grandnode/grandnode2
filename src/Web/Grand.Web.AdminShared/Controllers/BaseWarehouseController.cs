@@ -1,4 +1,6 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Directory;
@@ -19,7 +21,8 @@ public abstract class BaseWarehouseController(
     ICountryService countryService,
     IStoreService storeService,
     IRequestTranslationService translationService,
-    IAdminDataScope<Grand.Domain.Shipping.Warehouse> scope) : BaseController
+    IAdminDataScope<Grand.Domain.Shipping.Warehouse> scope,
+    IProductUnitService productUnitService) : BaseController
 {
     protected virtual async Task PrepareWarehouseModel(WarehouseModel model)
     {
@@ -125,6 +128,14 @@ public abstract class BaseWarehouseController(
     {
         var warehouse = await warehouseService.GetWarehouseById(id);
         if (warehouse == null || !await scope.HasAccess(warehouse)) return RedirectToAction("Warehouses");
+        //batches and serial numbers kept there would be left without stock
+        var assigned = await productUnitService.AssignedInWarehouse(warehouse.Id);
+        if (assigned > 0)
+        {
+            Error(string.Format(translationService.GetResource(UnitErrors.UnitsAssigned), assigned));
+            return RedirectToAction("EditWarehouse", new { id = warehouse.Id });
+        }
+
         await warehouseService.DeleteWarehouse(warehouse);
         Success(translationService.GetResource("Admin.Configuration.Shipping.Warehouses.Deleted"));
         return RedirectToAction("Warehouses");

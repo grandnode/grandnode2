@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -23,6 +24,7 @@ public class BaseWarehouseControllerTests
     private Mock<ICountryService> _countryServiceMock;
     private Mock<IStoreService> _storeServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
+    private readonly Mock<IProductUnitService> _productUnitServiceMock = new();
 
     [TestInitialize]
     public void Setup()
@@ -39,12 +41,37 @@ public class BaseWarehouseControllerTests
 
     private WarehouseController Build(IAdminDataScope<Warehouse> scope) =>
         new(_warehouseServiceMock.Object, _countryServiceMock.Object, _storeServiceMock.Object,
-            _translationServiceMock.Object, scope)
+            _translationServiceMock.Object, scope, _productUnitServiceMock.Object)
         {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() },
             TempData = new Microsoft.AspNetCore.Mvc.ViewFeatures.TempDataDictionary(
                 new DefaultHttpContext(), Mock.Of<Microsoft.AspNetCore.Mvc.ViewFeatures.ITempDataProvider>())
         };
+
+    [TestMethod]
+    public async Task Delete_WarehouseHoldingUnits_Refused()
+    {
+        var controller = Build(new GlobalAdminDataScope<Warehouse>());
+        var warehouse = new Warehouse { Id = "w1" };
+        _warehouseServiceMock.Setup(s => s.GetWarehouseById("w1")).ReturnsAsync(warehouse);
+        _productUnitServiceMock.Setup(s => s.AssignedInWarehouse("w1")).ReturnsAsync(3);
+
+        await controller.DeleteWarehouse("w1");
+
+        _warehouseServiceMock.Verify(s => s.DeleteWarehouse(It.IsAny<Warehouse>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Delete_WarehouseWithoutUnits_Deleted()
+    {
+        var controller = Build(new GlobalAdminDataScope<Warehouse>());
+        var warehouse = new Warehouse { Id = "w1" };
+        _warehouseServiceMock.Setup(s => s.GetWarehouseById("w1")).ReturnsAsync(warehouse);
+
+        await controller.DeleteWarehouse("w1");
+
+        _warehouseServiceMock.Verify(s => s.DeleteWarehouse(warehouse), Times.Once);
+    }
 
     [TestMethod]
     public async Task Create_GlobalScope_DoesNotForceStoreId()

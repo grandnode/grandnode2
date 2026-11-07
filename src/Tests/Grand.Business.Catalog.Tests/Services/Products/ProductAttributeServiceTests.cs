@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
@@ -34,7 +35,32 @@ public class ProductAttributeServiceTests
 
         _productAttributeService =
             new ProductAttributeService(_cacheBase, _repositoryproductAttribute, _repository, _mediatorMock.Object,
-                new MongoResourceLockTest(), StockTestFixture.Ledger(_repository, _journal));
+                new MongoResourceLockTest(), StockTestFixture.Ledger(_repository, _journal, batches: _batches),
+                StockTestFixture.UnitService(batches: _batches));
+    }
+
+    private readonly IRepository<ProductBatch> _batches = new MongoDBRepositoryTest<ProductBatch>();
+
+    [TestMethod]
+    public async Task DeleteCombination_WithAssignedUnits_Throws()
+    {
+        var combination = new ProductAttributeCombination
+            { Attributes = StockTestFixture.Attributes("red"), StockQuantity = 6 };
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes, StockQuantity = 6,
+            InventoryTrackingModeId = InventoryTrackingMode.Batch, ProductAttributeCombinations = { combination }
+        };
+        await _repository.InsertAsync(product);
+        await _batches.InsertAsync(new ProductBatch {
+            ProductId = product.Id, CombinationId = combination.Id, WarehouseId = "", Number = "L1", NumberKey = "L1",
+            Quantity = 2
+        });
+
+        var error = await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            _productAttributeService.DeleteProductAttributeCombination(combination, product.Id));
+
+        Assert.AreEqual(UnitErrors.UnitsAssigned, error.Message);
+        Assert.AreEqual(1, _repository.Table.First(x => x.Id == product.Id).ProductAttributeCombinations.Count);
     }
 
     [TestMethod]
