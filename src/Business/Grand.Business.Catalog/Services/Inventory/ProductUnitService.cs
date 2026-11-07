@@ -30,6 +30,17 @@ public class ProductUnitService(
                 x.WarehouseId == warehouseId && x.StatusId == SerialNumberStatus.InStock));
     }
 
+    public async Task<IList<ProductBatch>> Batches(string productId, string combinationId, string warehouseId)
+    {
+        combinationId ??= "";
+        warehouseId ??= "";
+        var batches = await batchRepository.ToListAsync(batchRepository.Table.Where(x =>
+            x.ProductId == productId && x.CombinationId == combinationId && x.WarehouseId == warehouseId &&
+            x.Quantity != 0));
+        return batches.OrderBy(x => x.ExpiryDateUtc == null).ThenBy(x => x.ExpiryDateUtc).ThenBy(x => x.Number)
+            .ToList();
+    }
+
     public async Task<string> TrackingChangeRefused(Product stored, Product changed)
     {
         ArgumentNullException.ThrowIfNull(stored);
