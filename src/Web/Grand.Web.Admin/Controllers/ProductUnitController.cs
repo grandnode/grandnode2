@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
@@ -29,6 +30,8 @@ public class ProductUnitController(
     IEnumTranslationService enumTranslationService,
     IRequestTranslationService translationService,
     IInventoryDocumentViewModelService inventoryDocumentViewModelService,
-    IAdminDataScope<Product> productScope)
+    IAdminDataScope<Product> productScope,
+    ISettingService settingService)
     : BaseProductUnitController(productUnitService, productService, warehouseService, dateTimeService,
-        enumTranslationService, translationService, inventoryDocumentViewModelService, productScope);
+        enumTranslationService, translationService, inventoryDocumentViewModelService, productScope,
+        settingService);

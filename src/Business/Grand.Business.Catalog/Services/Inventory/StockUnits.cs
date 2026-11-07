@@ -102,6 +102,40 @@ public sealed class StockUnits(
     }
 
     /// <summary>
+    ///     A shipment reversal gives back only the serial numbers still shipped under its shipment: one returned since,
+    ///     or returned and shipped again, came back to stock with its return, so it is left out with its unit
+    /// </summary>
+    public IReadOnlyList<StockChange> StillShipped(UnitSet set, IReadOnlyList<StockChange> changes)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        ArgumentNullException.ThrowIfNull(changes);
+
+        if (set.Mode != InventoryTrackingMode.SerialNumber ||
+            changes.All(x => x.MovementType != InventoryMovementType.ShipmentReversal))
+            return changes;
+
+        var kept = new List<StockChange>();
+        foreach (var change in changes)
+        {
+            if (change.MovementType != InventoryMovementType.ShipmentReversal)
+            {
+                kept.Add(change);
+                continue;
+            }
+
+            var numbers = change.SerialNumbers.Where(x =>
+                set.SerialNumbers.GetValueOrDefault(UnitNumbers.Key(x)) is
+                    { StatusId: SerialNumberStatus.Shipped } serialNumber &&
+                serialNumber.ShipmentId == change.Source.ObjectId).ToList();
+            var quantity = change.Quantity - (change.SerialNumbers.Count - numbers.Count);
+            if (quantity > 0)
+                kept.Add(change with { Quantity = quantity, SerialNumbers = numbers });
+        }
+
+        return kept;
+    }
+
+    /// <summary>
     ///     The order a shipment item belongs to, as its shipped serial numbers record it
     /// </summary>
     public async Task<ShipmentUnitInfo> ShipmentInfo(string shipmentId, string shipmentItemId)
@@ -380,7 +414,12 @@ public sealed class StockUnits(
                     await batchRepository.InsertAsync(batch);
                     break;
                 case ProductBatch batch:
-                    await batchRepository.UpdateAsync(batch);
+                    //only what the ledger changes: the expiry task and a warehouse moved to another store write
+                    //the batch's other fields without the product's lock
+                    await batchRepository.UpdateOneAsync(x => x.Id == batch.Id,
+                        UpdateBuilder<ProductBatch>.Create()
+                            .Set(x => x.Quantity, batch.Quantity)
+                            .Set(x => x.StockRevision, batch.StockRevision));
                     break;
                 case ProductSerialNumber serialNumber when set.Added.Contains(serialNumber):
                     await serialNumberRepository.InsertAsync(serialNumber);

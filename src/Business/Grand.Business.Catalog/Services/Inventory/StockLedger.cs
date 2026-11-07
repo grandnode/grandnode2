@@ -41,6 +41,8 @@ public sealed class StockLedger(
         var (repaired, units) = await RepairWithUnits(product, changes);
         Sum(product);
         var before = Available(product);
+        if (units != null)
+            changes = stockUnits.StillShipped(units, changes);
 
         //a counted serial line is worked out against the units stored now
         if (units != null && changes.Any(x => x.CountedSerialNumbers != null))

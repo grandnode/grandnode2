@@ -68,7 +68,8 @@ public class CopyProductServiceTests
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
         var combination = new ProductAttributeCombination {
             Attributes = StockTestFixture.Attributes("v1"), StockQuantity = 3, Sku = "s1",
-            WarehouseInventory = { new ProductCombinationWarehouseInventory { WarehouseId = "w1", StockQuantity = 3 } }
+            WarehouseInventory = { new ProductCombinationWarehouseInventory { WarehouseId = "w1", StockQuantity = 3 } },
+            TierPrices = { new ProductCombinationTierPrices { Quantity = 5, Price = 9 } }
         };
         var product = new Product {
             Name = "name", ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes,
@@ -86,6 +87,7 @@ public class CopyProductServiceTests
         Assert.AreEqual(0, copied.StockQuantity);
         Assert.AreEqual(0, copied.WarehouseInventory.Single().StockQuantity);
         Assert.AreEqual("s1", copied.Sku);
+        Assert.AreEqual(5, copied.TierPrices.Single().Quantity);
         Assert.AreEqual(InventoryTrackingMode.SerialNumber, copy.InventoryTrackingModeId);
         Assert.AreEqual(12, copy.WarrantyMonths);
         Assert.AreEqual(5, copy.ExpiryWarningDays);

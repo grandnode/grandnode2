@@ -259,11 +259,13 @@ public class InventoryDocumentService(
                             x.ProductId == productLines.Key)
                 .Select(x => new { x.PositionId, x.MovementTypeId }));
 
-            //a counted serial line states the units of its bucket and is worked out against them as they are now:
-            //booked again, it books only what still differs
+            //a product's changes are booked together, so a product with entries of the document is done: a counted
+            //serial line, worked out against the units as they are now, would count again what changed since
             var changes = productLines.SelectMany(line => Changes(document, line, customerId, product))
-                .Where(change => change.CountedSerialNumbers != null || !booked.Any(x =>
-                    x.PositionId == change.Source.PositionId && x.MovementTypeId == change.MovementType))
+                .Where(change => change.CountedSerialNumbers != null
+                    ? booked.Count == 0
+                    : !booked.Any(x =>
+                        x.PositionId == change.Source.PositionId && x.MovementTypeId == change.MovementType))
                 .ToList();
             if (changes.Count == 0)
                 continue;

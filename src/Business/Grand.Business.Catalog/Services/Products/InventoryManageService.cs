@@ -667,7 +667,14 @@ public class InventoryManageService : IInventoryManageService
             if (changes.Count == 0)
                 continue;
 
-            await _stockLedger.Apply(product, changes);
+            var errors = await _stockLedger.Apply(product, changes);
+            if (errors.Count > 0)
+            {
+                _logger.LogWarning(
+                    "Shipment {ShipmentNumber}: the stock of product {ProductId} was not given back: {Errors}",
+                    shipment.ShipmentNumber, product.Id, string.Join(", ", errors));
+                continue;
+            }
 
             await _mediator.Publish(new ProductChangedEvent(product.Id));
 

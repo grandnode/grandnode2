@@ -155,6 +155,10 @@
                     data: postData,
                     dataType: 'json',
                     success: function(data) {
+                        if (data && data.Errors) {
+                            display_kendoui_grid_error({ errors: data.Errors });
+                            return;
+                        }
                         //refresh grid
                         var grid = GrandAdmin.grids.get("#attributecombinations-grid");
                         grid.dataSource.read();

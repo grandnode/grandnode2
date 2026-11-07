@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain;
@@ -36,7 +37,8 @@ public class ProductUnitControllerTests
         _controller = new ProductUnitController(_units.Object, new Mock<IProductService>().Object,
             _warehouses.Object, new Mock<IDateTimeService>().Object,
             new Mock<IEnumTranslationService>().Object, new Mock<IRequestTranslationService>().Object,
-            new Mock<IInventoryDocumentViewModelService>().Object, productScope.Object) {
+            new Mock<IInventoryDocumentViewModelService>().Object, productScope.Object,
+            new Mock<ISettingService>().Object) {
             TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>())
         };
     }

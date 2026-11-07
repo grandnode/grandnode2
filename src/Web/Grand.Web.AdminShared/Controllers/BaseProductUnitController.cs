@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
@@ -35,8 +36,11 @@ public abstract class BaseProductUnitController(
     IEnumTranslationService enumTranslationService,
     IRequestTranslationService translationService,
     IInventoryDocumentViewModelService inventoryDocumentViewModelService,
-    IAdminDataScope<Product> productScope) : BaseController
+    IAdminDataScope<Product> productScope,
+    ISettingService settingService) : BaseController
 {
+    private InventorySettings _inventorySettings;
+
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpGet]
     public async Task<IActionResult> SerialNumbers(string productId)
@@ -284,9 +288,11 @@ public abstract class BaseProductUnitController(
         row.Warehouse = await WarehouseName(batch.WarehouseId);
         row.ExpiryDate = batch.ExpiryDateUtc;
         row.Quantity = batch.Quantity;
+        //the warning days the expiry e-mail and the dashboard count with
+        _inventorySettings ??= await settingService.LoadSetting<InventorySettings>();
         var status = product == null
             ? null
-            : BatchExpiry.Status(batch.ExpiryDateUtc, Today(), product.ExpiryWarningDays ?? 30);
+            : BatchExpiry.Status(batch.ExpiryDateUtc, Today(), BatchExpiry.WarningDays(product, _inventorySettings));
         row.ExpiryStatus = status.HasValue ? enumTranslationService.GetTranslationEnum(status.Value) : "";
         return row;
     }

@@ -284,7 +284,7 @@ public class ProductUnitService(
         //the repository stamps the creation date on insert: a shipment not stored yet is created now
         var createdOnUtc = shipment.CreatedOnUtc == default ? DateTime.UtcNow : shipment.CreatedOnUtc;
         var errors = new List<ShipmentUnitError>();
-        var named = new Dictionary<string, HashSet<string>>();
+        var taken = new ShipmentTaken();
         foreach (var item in shipment.ShipmentItems)
         {
             var product = await productRepository.GetByIdAsync(item.ProductId);
@@ -297,12 +297,12 @@ public class ProductUnitService(
                 if (product.WarrantyMonths > 0)
                     item.WarrantyUntilUtc = createdOnUtc.AddMonths(product.WarrantyMonths);
                 error = product.InventoryTrackingModeId == InventoryTrackingMode.Batch
-                    ? await BatchError(product, item)
-                    : await SerialNumberError(product, item, named);
+                    ? await BatchError(product, item, taken)
+                    : await SerialNumberError(product, item, taken);
             }
             else
             {
-                error = await TrackedChildError(product, item);
+                error = await TrackedChildError(product, item, taken);
             }
 
             if (error != null)
@@ -333,44 +333,74 @@ public class ProductUnitService(
             : product.StockQuantity);
     }
 
-    private async Task<string> BatchError(Product product, ShipmentItem item)
+    /// <summary>
+    ///     What the items of a shipment checked so far take from the units stored and from the stock without units:
+    ///     each item is checked against what the items before it left
+    /// </summary>
+    private sealed class ShipmentTaken
+    {
+        /// <summary>
+        ///     The serial numbers named, by product
+        /// </summary>
+        public Dictionary<string, HashSet<string>> Named { get; } = new();
+
+        /// <summary>
+        ///     The quantity taken from each batch, by product, combination, warehouse and batch number key
+        /// </summary>
+        public Dictionary<(string, string, string, string), int> Batches { get; } = new();
+
+        /// <summary>
+        ///     The quantity taken from the stock without units, by product, combination and warehouse
+        /// </summary>
+        public Dictionary<(string, string, string), int> Pool { get; } = new();
+    }
+
+    private async Task<string> BatchError(Product product, ShipmentItem item, ShipmentTaken taken)
     {
         var (combinationId, stock) = Bucket(product, item.Attributes, item.WarehouseId);
-        var batches = await Batches(product.Id, combinationId, StockBuckets.UnitWarehouse(product, item.WarehouseId));
-        var taken = 0;
+        var warehouseId = StockBuckets.UnitWarehouse(product, item.WarehouseId);
+        var batches = await Batches(product.Id, combinationId, warehouseId);
+        var fromBatches = new List<((string, string, string, string) Key, int Quantity)>();
         foreach (var batch in (item.Batches ?? []).GroupBy(x => UnitNumbers.Key(x.Number)))
         {
             var stored = batches.FirstOrDefault(x => x.NumberKey == batch.Key);
             if (stored == null)
                 return UnitErrors.BatchNotFound;
-            if (stored.Quantity < batch.Sum(x => x.Quantity))
+            var key = (product.Id, combinationId, warehouseId, batch.Key);
+            var quantity = batch.Sum(x => x.Quantity);
+            if (stored.Quantity - taken.Batches.GetValueOrDefault(key) < quantity)
                 return UnitErrors.BatchQuantityExceeded;
-            taken += batch.Sum(x => x.Quantity);
+            fromBatches.Add((key, quantity));
         }
 
-        if (taken > item.Quantity)
+        var fromPool = item.Quantity - fromBatches.Sum(x => x.Quantity);
+        if (fromPool < 0)
             return UnitErrors.BatchQuantityExceeded;
 
-        var pool = stock - batches.Sum(x => x.Quantity);
-        return item.Quantity - taken > Math.Max(0, pool) && product.BackorderModeId == BackorderMode.NoBackorders
-            ? UnitErrors.PoolExceeded
-            : null;
+        var bucketKey = (product.Id, combinationId, warehouseId);
+        var pool = stock - batches.Sum(x => x.Quantity) - taken.Pool.GetValueOrDefault(bucketKey);
+        if (fromPool > Math.Max(0, pool) && product.BackorderModeId == BackorderMode.NoBackorders)
+            return UnitErrors.PoolExceeded;
+
+        foreach (var (key, quantity) in fromBatches)
+            taken.Batches[key] = taken.Batches.GetValueOrDefault(key) + quantity;
+        taken.Pool[bucketKey] = taken.Pool.GetValueOrDefault(bucketKey) + fromPool;
+        return null;
     }
 
     /// <summary>
     ///     A unit with a serial number ships with it: in stock in the warehouse shipped from, or new for the product
     ///     while there is stock without numbers to take it from
     /// </summary>
-    /// <param name="named">The serial numbers the shipment's items named so far, by product</param>
-    private async Task<string> SerialNumberError(Product product, ShipmentItem item,
-        Dictionary<string, HashSet<string>> named)
+    /// <param name="taken">What the shipment's items checked so far named and took</param>
+    private async Task<string> SerialNumberError(Product product, ShipmentItem item, ShipmentTaken taken)
     {
         var numbers = item.SerialNumbers ?? [];
         if (numbers.Count != item.Quantity)
             return UnitErrors.SerialCountMismatch;
 
-        if (!named.TryGetValue(product.Id, out var keys))
-            named[product.Id] = keys = [];
+        if (!taken.Named.TryGetValue(product.Id, out var keys))
+            taken.Named[product.Id] = keys = [];
         if (numbers.Any(x => !keys.Add(UnitNumbers.Key(x))))
             return UnitErrors.SerialDuplicate;
 
@@ -401,10 +431,15 @@ public class ProductUnitService(
         if (added == 0)
             return null;
 
+        var bucketKey = (product.Id, combinationId, warehouseId);
         var inStock = await serialNumberRepository.CountAsync(serialNumberRepository.Table.Where(x =>
             x.ProductId == product.Id && x.CombinationId == combinationId && x.WarehouseId == warehouseId &&
             x.StatusId == SerialNumberStatus.InStock));
-        return added > stock - inStock ? UnitErrors.PoolExceeded : null;
+        if (added > stock - inStock - taken.Pool.GetValueOrDefault(bucketKey))
+            return UnitErrors.PoolExceeded;
+
+        taken.Pool[bucketKey] = taken.Pool.GetValueOrDefault(bucketKey) + added;
+        return null;
     }
 
     /// <summary>
@@ -412,7 +447,7 @@ public class ProductUnitService(
     ///     units: never one tracking serial numbers, and one tracking batches only while that stock covers it or it
     ///     allows backorders
     /// </summary>
-    private async Task<string> TrackedChildError(Product product, ShipmentItem item)
+    private async Task<string> TrackedChildError(Product product, ShipmentItem item, ShipmentTaken taken)
     {
         var children = new List<(string ProductId, int Quantity)>();
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
@@ -430,9 +465,13 @@ public class ProductUnitService(
                 return UnitErrors.TrackedBundleChild;
 
             var (combinationId, stock) = Bucket(child, [], item.WarehouseId);
-            var batches = await Batches(child.Id, combinationId, StockBuckets.UnitWarehouse(child, item.WarehouseId));
-            if (quantity > stock - batches.Sum(x => x.Quantity) && child.BackorderModeId == BackorderMode.NoBackorders)
+            var warehouseId = StockBuckets.UnitWarehouse(child, item.WarehouseId);
+            var bucketKey = (child.Id, combinationId, warehouseId);
+            var batches = await Batches(child.Id, combinationId, warehouseId);
+            if (quantity > stock - batches.Sum(x => x.Quantity) - taken.Pool.GetValueOrDefault(bucketKey) &&
+                child.BackorderModeId == BackorderMode.NoBackorders)
                 return UnitErrors.TrackedBundleChild;
+            taken.Pool[bucketKey] = taken.Pool.GetValueOrDefault(bucketKey) + quantity;
         }
 
         return null;

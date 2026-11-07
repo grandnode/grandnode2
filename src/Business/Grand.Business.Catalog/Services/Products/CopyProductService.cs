@@ -240,8 +240,12 @@ public class CopyProductService : ICopyProductService
             PictureId = x.PictureId
         }).ToList();
         foreach (var (combination, source) in combinations.Zip(copy.ProductAttributeCombinations))
-        foreach (var row in source.WarehouseInventory)
-            combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory { WarehouseId = row.WarehouseId });
+        {
+            foreach (var row in source.WarehouseInventory)
+                combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory { WarehouseId = row.WarehouseId });
+            foreach (var tierPrice in source.TierPrices)
+                combination.TierPrices.Add(tierPrice);
+        }
         copy.ProductAttributeCombinations.Clear();
         foreach (var combination in combinations)
             copy.ProductAttributeCombinations.Add(combination);

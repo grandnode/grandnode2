@@ -225,7 +225,7 @@ public class StockLedgerSerialTests
     }
 
     [TestMethod]
-    public async Task Reversal_NumberOfOtherShipment_Refused()
+    public async Task Reversal_NumberOfOtherShipment_LeftOut()
     {
         var product = await Received(Single(), "", "A1");
         var shipment = await Shipment();
@@ -234,7 +234,28 @@ public class StockLedgerSerialTests
 
         var errors = await _fixture.Apply(product, Reversal(other, 1, "", "A1"));
 
-        CollectionAssert.AreEqual(new[] { UnitErrors.SerialNotShipped }, errors.ToArray());
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(SerialNumberStatus.Shipped, Serial(product, "A1").StatusId);
+        Assert.AreEqual(0, _fixture.Stored(product).StockQuantity);
+        _fixture.AssertInStep(product);
+    }
+
+    [TestMethod]
+    public async Task Reversal_NumberReturnedSince_LeftOutWithItsUnit_RestGivenBack()
+    {
+        var product = await Received(Single(), "", "A1", "A2");
+        var shipment = await Shipment();
+        await _fixture.Apply(product, Shipping(shipment, 2, "", "A1", "A2"));
+        await _fixture.Apply(product, Numbers(1, InventoryMovementType.ReturnReceipt, "", "A1"));
+
+        var errors = await _fixture.Apply(product, Reversal(shipment, 2, "", "A1", "A2"));
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(SerialNumberStatus.InStock, Serial(product, "A1").StatusId);
+        Assert.AreEqual(SerialNumberStatus.InStock, Serial(product, "A2").StatusId);
+        Assert.AreEqual(2, _fixture.Stored(product).StockQuantity);
+        CollectionAssert.AreEqual(new[] { "A2" }, _fixture.Entries(product).Last().SerialNumbers.ToArray());
+        _fixture.AssertInStep(product);
     }
 
     [TestMethod]

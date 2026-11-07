@@ -202,6 +202,36 @@ public class ShipmentUnitsTests
     }
 
     [TestMethod]
+    public async Task PrepareShipmentUnits_TwoItemsFromOneBatch_SecondCheckedAgainstWhatIsLeft()
+    {
+        var product = await Batched(("A", 5, null));
+        var shipment = Shipment(product, 5, batches: [new ShipmentItemBatch { Number = "A", Quantity = 5 }]);
+        shipment.ShipmentItems.Add(new ShipmentItem {
+            OrderItemId = "oi2", ProductId = product.Id, Quantity = 5, WarehouseId = "w1",
+            Batches = [new ShipmentItemBatch { Number = "A", Quantity = 5 }]
+        });
+
+        var errors = await _units.PrepareShipmentUnits(shipment);
+
+        Assert.AreEqual(UnitErrors.BatchQuantityExceeded, errors.Single().ErrorKey);
+        Assert.AreEqual(shipment.ShipmentItems.Last().Id, errors.Single().ShipmentItemId);
+    }
+
+    [TestMethod]
+    public async Task PrepareShipmentUnits_TwoItemsOfNewSerials_SecondCheckedAgainstPoolLeft()
+    {
+        var product = await Serialized(1);
+        var shipment = Shipment(product, 1, serialNumbers: "N1");
+        shipment.ShipmentItems.Add(new ShipmentItem {
+            OrderItemId = "oi2", ProductId = product.Id, Quantity = 1, WarehouseId = "w1", SerialNumbers = ["N2"]
+        });
+
+        var errors = await _units.PrepareShipmentUnits(shipment);
+
+        Assert.AreEqual(UnitErrors.PoolExceeded, errors.Single().ErrorKey);
+    }
+
+    [TestMethod]
     public async Task PrepareShipmentUnits_BatchQuantityExceeded_Error()
     {
         var product = await Batched(("L1", 1, null));

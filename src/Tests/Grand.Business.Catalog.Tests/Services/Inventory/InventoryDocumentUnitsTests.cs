@@ -148,6 +148,30 @@ public class InventoryDocumentUnitsTests
     }
 
     [TestMethod]
+    public async Task Post_StockCount_SerialLineBookedBefore_NotCountedAgain()
+    {
+        var product = await Serialized();
+        await Receive(product, "A1", "A2");
+        var (document, _) = await _service.CreateStockCount("w1", [], [], "staff");
+        var line = document.Lines.Single(x => x.ProductId == product.Id);
+        line.SerialNumbers = ["A1"];
+        line.CountedQuantity = 1;
+        await _service.UpdateDraft(document);
+        //the product is booked, then another product stops the posting: the document stays a draft
+        Assert.AreEqual(0, (await _service.Post(document.Id, "staff")).Count);
+        await _documents.UpdateOneAsync(x => x.Id == document.Id,
+            UpdateBuilder<InventoryDocument>.Create().Set(x => x.StatusId, InventoryDocumentStatus.Draft));
+        await Receive(product, "Y1");
+
+        var errors = await _service.Post(document.Id, "staff");
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(SerialNumberStatus.InStock, _fixture.SerialsOf(product).Single(x => x.NumberKey == "Y1").StatusId);
+        Assert.AreEqual(2, _fixture.Stored(product).StockQuantity);
+        _fixture.AssertInStep(product);
+    }
+
+    [TestMethod]
     public async Task CreateReturnReceipt_Serial_PrefillsShippedNumbers()
     {
         var product = await Serialized();
