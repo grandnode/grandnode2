@@ -46,7 +46,7 @@ public class InventoryDocumentServiceTests
     private InventoryDocumentService Service(IResourceLock resourceLock) =>
         new(_documents, _products, _journal, StockTestFixture.Warehouses(), resourceLock, _settingService,
             new Mock<IMediator>().Object, StockTestFixture.Ledger(_products, _journal),
-            _merchandiseReturnService.Object, _orderService.Object, StockTestFixture.UnitService(),
+            _merchandiseReturnService.Object, _orderService.Object, StockTestFixture.UnitService(products: _products),
             new Mock<IShipmentService>().Object);
 
     /// <summary>

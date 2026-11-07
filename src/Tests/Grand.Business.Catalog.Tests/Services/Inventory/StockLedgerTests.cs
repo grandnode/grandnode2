@@ -1,6 +1,7 @@
 using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
@@ -451,10 +452,15 @@ public static class StockTestFixture
     }
 
     public static ProductUnitService UnitService(IRepository<ProductBatch> batches = null,
-        IRepository<ProductSerialNumber> serials = null)
+        IRepository<ProductSerialNumber> serials = null, IRepository<Product> products = null,
+        InventorySettings settings = null)
     {
+        var settingService = new Mock<ISettingService>();
+        settingService.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
+            .ReturnsAsync(settings ?? new InventorySettings());
         return new ProductUnitService(batches ?? new MongoDBRepositoryTest<ProductBatch>(),
-            serials ?? new MongoDBRepositoryTest<ProductSerialNumber>());
+            serials ?? new MongoDBRepositoryTest<ProductSerialNumber>(),
+            products ?? new MongoDBRepositoryTest<Product>(), settingService.Object);
     }
 
     public static StockMovementService MovementService(IRepository<Product> products,

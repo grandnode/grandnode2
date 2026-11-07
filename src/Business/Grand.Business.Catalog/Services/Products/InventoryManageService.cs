@@ -8,6 +8,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Catalog.Services.Products;
 
@@ -23,8 +24,12 @@ public class InventoryManageService : IInventoryManageService
         CatalogSettings catalogSettings,
         IResourceLock resourceLock,
         StockSideEffects stockSideEffects,
-        StockLedger stockLedger)
+        StockLedger stockLedger,
+        IRepository<Shipment> shipmentRepository,
+        ILogger<InventoryManageService> logger)
     {
+        _shipmentRepository = shipmentRepository;
+        _logger = logger;
         _productRepository = productRepository;
         _inventoryJournalRepository = inventoryJournalRepository;
         _stockQuantityService = stockQuantityService;
@@ -47,6 +52,8 @@ public class InventoryManageService : IInventoryManageService
     private readonly IResourceLock _resourceLock;
     private readonly StockSideEffects _stockSideEffects;
     private readonly StockLedger _stockLedger;
+    private readonly IRepository<Shipment> _shipmentRepository;
+    private readonly ILogger<InventoryManageService> _logger;
 
     #endregion
 
@@ -120,6 +127,18 @@ public class InventoryManageService : IInventoryManageService
             InventoryMovementType.ShipmentReversal => -x.InQty,
             _ => 0
         });
+    }
+
+    /// <summary>
+    ///     The serial numbers a shipment item's entries shipped and did not give back
+    /// </summary>
+    private static List<string> ShippedNumbers(IEnumerable<InventoryJournal> entries)
+    {
+        var list = entries.ToList();
+        var returned = list.Where(x => x.MovementTypeId == InventoryMovementType.ShipmentReversal)
+            .SelectMany(x => x.SerialNumbers ?? []).Select(UnitNumbers.Key).ToHashSet();
+        return list.Where(x => x.MovementTypeId == InventoryMovementType.Shipment)
+            .SelectMany(x => x.SerialNumbers ?? []).Where(x => !returned.Contains(UnitNumbers.Key(x))).ToList();
     }
 
     /// <summary>
@@ -546,10 +565,11 @@ public class InventoryManageService : IInventoryManageService
              (shipmentItem.Attributes != null &&
               product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)) &&
             NetShipped(await ShipmentEntries(shipmentItem.Id, product.Id)) <= 0)
-            await _stockLedger.Apply(product, [
-                new StockChange(shipmentItem.Attributes ?? [], shipmentItem.WarehouseId, -shipmentItem.Quantity,
-                    false, InventoryMovementType.Shipment, ShipmentSource(shipment, shipmentItem))
-            ]);
+        {
+            var errors = await _stockLedger.Apply(product, ShipmentChanges(product, shipment, shipmentItem));
+            if (errors.Count > 0 && InventoryTracking.Tracked(product))
+                await UnitsNotBooked(product, shipment, shipmentItem, errors);
+        }
 
         //manage stock by bundle products
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
@@ -563,6 +583,49 @@ public class InventoryManageService : IInventoryManageService
 
         //event notification
         await _mediator.EntityUpdated(product);
+    }
+
+    /// <summary>
+    ///     What a shipment item books: its quantity, with the batches and serial numbers it names for a product
+    ///     tracking them; the quantity no batch names comes from the stock without one
+    /// </summary>
+    private static List<StockChange> ShipmentChanges(Product product, Shipment shipment, ShipmentItem shipmentItem)
+    {
+        StockChange Change(int quantity) => new(shipmentItem.Attributes ?? [], shipmentItem.WarehouseId, -quantity,
+            false, InventoryMovementType.Shipment, ShipmentSource(shipment, shipmentItem));
+
+        if (!InventoryTracking.Tracked(product))
+            return [Change(shipmentItem.Quantity)];
+        if (product.InventoryTrackingModeId == InventoryTrackingMode.SerialNumber)
+            return [Change(shipmentItem.Quantity) with { SerialNumbers = (shipmentItem.SerialNumbers ?? []).ToList() }];
+
+        var changes = (shipmentItem.Batches ?? []).Where(x => x.Quantity > 0)
+            .GroupBy(x => UnitNumbers.Key(x.Number))
+            .Select(x => Change(x.Sum(y => y.Quantity)) with { BatchNumber = x.First().Number })
+            .ToList();
+        var withoutBatch = shipmentItem.Quantity + changes.Sum(x => x.Quantity);
+        if (withoutBatch > 0)
+            changes.Add(Change(withoutBatch));
+        return changes;
+    }
+
+    /// <summary>
+    ///     Another shipment took a unit this one named between its check and its booking: the shipment is stored, so
+    ///     its item is marked, and fixed by deleting and adding the shipment again
+    /// </summary>
+    private async Task UnitsNotBooked(Product product, Shipment shipment, ShipmentItem shipmentItem,
+        IList<string> errors)
+    {
+        _logger.LogWarning("Shipment {ShipmentNumber}: the units of product {ProductId} were not booked: {Errors}",
+            shipment.ShipmentNumber, product.Id, string.Join(", ", errors));
+
+        //a bundle's product books under its item's id: only the item itself is marked
+        if (shipmentItem.ProductId != product.Id)
+            return;
+
+        shipmentItem.UnitsNotBooked = true;
+        await _shipmentRepository.UpdateCollectionFieldItem(shipment.Id, x => x.ShipmentItems,
+            z => z.Id == shipmentItem.Id, shipmentItem);
     }
 
     private static StockSource ShipmentSource(Shipment shipment, ShipmentItem shipmentItem)
@@ -591,12 +654,15 @@ public class InventoryManageService : IInventoryManageService
                 continue;
 
             //read again under the lock: a reversal running alongside must not give the stock back twice
+            //the same units come back: each batch its quantity, and the serial numbers not given back yet
             var changes = (await ShipmentEntries(shipmentItem.Id, product.Id))
-                .GroupBy(x => (x.WarehouseId ?? "", x.CombinationId ?? ""))
-                .Select(bucket => (Entry: bucket.First(), Quantity: NetShipped(bucket)))
+                .GroupBy(x => (x.WarehouseId ?? "", x.CombinationId ?? "", UnitNumbers.Key(x.BatchNumber)))
+                .Select(bucket => (Entry: bucket.First(), Quantity: NetShipped(bucket), SerialNumbers: ShippedNumbers(bucket)))
                 .Where(x => x.Quantity > 0)
                 .Select(x => new StockChange(x.Entry.Attributes ?? [], x.Entry.WarehouseId, x.Quantity, false,
-                    InventoryMovementType.ShipmentReversal, ShipmentSource(shipment, shipmentItem)))
+                    InventoryMovementType.ShipmentReversal, ShipmentSource(shipment, shipmentItem)) {
+                    BatchNumber = x.Entry.BatchNumber, SerialNumbers = x.SerialNumbers
+                })
                 .ToList();
             if (changes.Count == 0)
                 continue;
