@@ -1,4 +1,6 @@
-﻿using Grand.Infrastructure.ModelBinding;
+﻿using Grand.Domain.Catalog;
+using Grand.Domain.Shipping;
+using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using System.ComponentModel.DataAnnotations;
@@ -102,7 +104,38 @@ public class ShipmentModel : BaseEntityModel
         public List<WarehouseInfo> AvailableWarehouses { get; set; } = new();
         public string WarehouseId { get; set; }
 
+        /// <summary>
+        ///     The units the product tracks; None for a product tracking none
+        /// </summary>
+        public InventoryTrackingMode TrackingMode { get; set; }
+
+        /// <summary>
+        ///     Before a shipment is created: what each warehouse's batches give, the batch expiring first first
+        /// </summary>
+        public List<BatchProposalModel> BatchProposals { get; set; } = new();
+
+        //what a shipment shipped
+        public IList<string> SerialNumbers { get; set; } = new List<string>();
+        public IList<ShipmentItemBatch> Batches { get; set; } = new List<ShipmentItemBatch>();
+        public DateTime? WarrantyUntil { get; set; }
+        public bool UnitsNotBooked { get; set; }
+
         #region Nested Classes
+
+        public class BatchProposalModel
+        {
+            public string WarehouseId { get; set; }
+
+            /// <summary>
+            ///     The batch; empty for the stock without one
+            /// </summary>
+            public string Number { get; set; }
+
+            public DateTime? ExpiryDate { get; set; }
+            public BatchExpiryStatus? ExpiryStatus { get; set; }
+            public int Available { get; set; }
+            public int Quantity { get; set; }
+        }
 
         public class WarehouseInfo : BaseModel
         {

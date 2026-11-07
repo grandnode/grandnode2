@@ -92,7 +92,7 @@
 <admin-card title="@Loc["Admin.Orders.Shipments.Products"]" flush>
     @* the items travel with the page, as the table had them; all rows, no pager *@
     <admin-grid id="shipmentitems-grid"
-                data="@Model.Items.Select(x => new { x.ProductId, x.ProductName, x.AttributeInfo, x.RentalInfo, x.Sku, x.ShippedFromWarehouse, x.ItemWeight, x.ItemDimensions, x.QuantityInThisShipment })"
+                data="@Model.Items.Select(x => new { x.ProductId, x.ProductName, x.AttributeInfo, x.RentalInfo, x.Sku, x.ShippedFromWarehouse, x.ItemWeight, x.ItemDimensions, x.QuantityInThisShipment, Units = string.Join(", ", x.SerialNumbers.Concat(x.Batches.Select(b => $"{b.Number} × {b.Quantity}"))), Warranty = x.WarrantyUntil.HasValue ? x.WarrantyUntil.Value.ToShortDateString() : "", x.UnitsNotBooked })"
                 pager="None">
         <grid-column field="ProductName" title="@Loc["Admin.Orders.Shipments.Products.ProductName"]" width="350">
             <cell-template>
@@ -100,6 +100,9 @@
                     <em><a href="@Url.Action("Edit", "Product", new { area = area })/{{ ProductId }}">{{ ProductName }}</a></em>
                     <p data-if="AttributeInfo">{{{ AttributeInfo }}}</p>
                     <p data-if="RentalInfo">{{{ RentalInfo }}}</p>
+                    <p data-if="Units">{{ Units }}</p>
+                    <p data-if="Warranty">@Loc["Admin.Inventory.Units.WarrantyUntil"] {{ Warranty }}</p>
+                    <p data-if="UnitsNotBooked"><span class="badge bg-danger">@Loc["Admin.Inventory.Units.NotBooked"]</span></p>
                 </div>
             </cell-template>
         </grid-column>

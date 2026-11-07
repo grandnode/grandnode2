@@ -23,6 +23,12 @@ public interface IShipmentViewModelService
 
     Task<(bool valid, string message)> ValidStockShipment(Shipment shipment);
 
+    /// <summary>
+    ///     Checks the batches and serial numbers a shipment names and fixes the warranty of its units
+    /// </summary>
+    /// <returns>The messages, one an item that cannot ship, naming its product; empty when it can</returns>
+    Task<IList<string>> PrepareShipmentUnits(Shipment shipment);
+
     Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(ShipmentListModel model, int pageIndex,
         int pageSize);
 }

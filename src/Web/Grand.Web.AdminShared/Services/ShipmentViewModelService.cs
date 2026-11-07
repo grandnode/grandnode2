@@ -1,4 +1,6 @@
-﻿using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Utilities.Catalog;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -35,6 +37,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
     private readonly IWarehouseService _warehouseService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IAdminDataScope<Shipment> _scope;
+    private readonly IProductUnitService _productUnitService;
 
     public ShipmentViewModelService(
         IOrderService orderService,
@@ -52,8 +55,10 @@ public class ShipmentViewModelService : IShipmentViewModelService
         MeasureSettings measureSettings,
         ShippingSettings shippingSettings,
         ShippingProviderSettings shippingProviderSettings,
-        IAdminDataScope<Shipment> scope)
+        IAdminDataScope<Shipment> scope,
+        IProductUnitService productUnitService)
     {
+        _productUnitService = productUnitService;
         _orderService = orderService;
         _contextAccessor = contextAccessor;
         _productService = productService;
@@ -141,7 +146,13 @@ public class ShipmentViewModelService : IShipmentViewModelService
                         QuantityOrdered = qtyOrdered,
                         QuantityInThisShipment = qtyInThisShipment,
                         QuantityInAllShipments = qtyInAllShipments,
-                        QuantityToAdd = maxQtyToAdd
+                        QuantityToAdd = maxQtyToAdd,
+                        SerialNumbers = shipmentItem.SerialNumbers ?? [],
+                        Batches = shipmentItem.Batches ?? [],
+                        WarrantyUntil = shipmentItem.WarrantyUntilUtc.HasValue
+                            ? _dateTimeService.ConvertToUserTime(shipmentItem.WarrantyUntilUtc.Value, DateTimeKind.Utc)
+                            : null,
+                        UnitsNotBooked = shipmentItem.UnitsNotBooked
                     };
 
                     model.Items.Add(shipmentItemModel);
@@ -451,6 +462,8 @@ public class ShipmentViewModelService : IShipmentViewModelService
                 }
             }
 
+            await PrepareUnits(shipmentItemModel, product, orderItem, maxQtyToAdd);
+
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
             {
                 if (!string.IsNullOrEmpty(orderItem.WarehouseId))
@@ -488,6 +501,43 @@ public class ShipmentViewModelService : IShipmentViewModelService
         }
 
         return model;
+    }
+
+    /// <summary>
+    ///     What a tracked item asks for: serial numbers to scan, or the batches each warehouse gives
+    /// </summary>
+    private async Task PrepareUnits(ShipmentModel.ShipmentItemModel model, Product product, OrderItem orderItem,
+        int quantity)
+    {
+        if (!InventoryTracking.Tracked(product))
+            return;
+
+        model.TrackingMode = product.InventoryTrackingModeId;
+        if (model.TrackingMode != InventoryTrackingMode.Batch)
+            return;
+
+        var today = _dateTimeService.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).Date;
+        var warehouses = product.UseMultipleWarehouses
+            ? model.AvailableWarehouses.Select(x => x.WarehouseId).ToList()
+            : [orderItem.WarehouseId ?? ""];
+        foreach (var warehouseId in warehouses)
+        foreach (var allocation in await _productUnitService.ProposeBatches(product, orderItem.Attributes ?? [],
+                     warehouseId, quantity, today))
+            model.BatchProposals.Add(new ShipmentModel.ShipmentItemModel.BatchProposalModel {
+                WarehouseId = warehouseId,
+                Number = allocation.Number,
+                ExpiryDate = allocation.ExpiryDateUtc,
+                ExpiryStatus = allocation.Status,
+                Available = allocation.Available,
+                Quantity = allocation.Quantity
+            });
+    }
+
+    public virtual async Task<IList<string>> PrepareShipmentUnits(Shipment shipment)
+    {
+        return (await _productUnitService.PrepareShipmentUnits(shipment))
+            .Select(x => $"{x.ProductName}: {_translationService.GetResource(x.ErrorKey)}")
+            .ToList();
     }
 
     public virtual async Task<(bool valid, string message)> ValidStockShipment(Shipment shipment)
@@ -594,6 +644,19 @@ public class ShipmentViewModelService : IShipmentViewModelService
                 WarehouseId = warehouseId,
                 Attributes = orderItem.Attributes
             };
+            //the units the form names, for a product tracking them; the batches of the warehouse shipped from
+            if (product != null && InventoryTracking.Tracked(product))
+            {
+                if (product.InventoryTrackingModeId == InventoryTrackingMode.SerialNumber)
+                    shipmentItem.SerialNumbers = UnitNumbers.Parse(shipmentItemModel.SerialNumbersText);
+                else
+                    shipmentItem.Batches = shipmentItemModel.Batches
+                        .Where(x => x.Quantity > 0 && !string.IsNullOrWhiteSpace(x.Number) &&
+                                    (!product.UseMultipleWarehouses || x.WarehouseId == warehouseId))
+                        .Select(x => new ShipmentItemBatch { Number = x.Number.Trim(), Quantity = x.Quantity })
+                        .ToList();
+            }
+
             shipment.ShipmentItems.Add(shipmentItem);
         }
 
