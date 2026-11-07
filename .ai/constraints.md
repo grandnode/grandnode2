@@ -66,6 +66,10 @@ Loading every store's records and filtering in C# is both a performance defect a
 A cached read that survives its write serves stale — sometimes deleted — data, and the cache is cleared only by the family's cache event handler reacting to the event.
 → `_mediator.EntityInserted/Updated/Deleted` after the write; the `<Family>CacheEventHandler` clears `CacheKey.*_PATTERN_KEY`. A product write also publishes `ProductChangedEvent`. See `.ai/knowledge/caching.md` and `.ai/examples/cached-store-scoped-service.md`.
 
+### Never write a tracked stock counter directly
+Assigning `StockQuantity` on a product, combination or warehouse row and saving it skips the journal and overwrites concurrent changes with a stale value; the stored stock then stops being the sum of the journal.
+→ `IStockMovementService.Apply` with a `StockChange` (a difference, or `SetTo`). Code already holding `ProductStockLock.Key` calls `StockLedger`. Untracked products (`DontManageStock`, bundles) are the exception. See `.ai/knowledge/inventory.md`.
+
 ### Never omit a result-changing variable from a cache key
 Store id, language id, customer group, currency, vendor id, page index. A missing store id is a cross-store data leak.
 

@@ -64,10 +64,14 @@ Prices are stored in the store's primary currency and converted for display. Nev
 | **Warehouse** | `Grand.Domain.Shipping.Warehouse` — stock location; per-combination stock in `ProductCombinationWarehouseInventory` |
 | **Backorder mode** | `BackorderMode` — what happens at zero stock |
 | **Low stock activity** | `LowStockActivity` — automatic reaction at the minimum threshold |
-| **Inventory journal** | `InventoryJournal` — the movement log |
+| **Inventory journal** | `InventoryJournal` — the append-only log of physical stock movements; the stored stock equals the sum of its entries |
+| **Movement type** | `InventoryMovementType` — what caused a journal entry: shipment, receipt, transfer, adjustment, stock count, return receipt, manual edit, API, import, opening/closing balance |
+| **Stock bucket** | one place stock is kept: the product, a combination, or either of them in one warehouse (`StockBuckets`) |
+| **Inventory document** | `InventoryDocument` — receipt, transfer, adjustment, stock count or return receipt; draft, then posted and frozen |
+| **Stock count** | the inventory document that books counted − expected; never "stocktake" or "inventory count" in type names |
 | **Out of stock subscription** | `OutOfStockSubscription` — customer notification request |
 
-Stock lives at the product, the combination, or the warehouse level depending on the inventory method. Code that adjusts stock must handle all three.
+Stock lives at the product, the combination, or the warehouse level depending on the inventory method. Code that changes it goes through `IStockMovementService`, which handles all three; see `.ai/knowledge/inventory.md`.
 
 ## Layout
 
