@@ -1,6 +1,7 @@
-﻿using Grand.Business.Core.Commands.Catalog;
+﻿using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -20,7 +21,9 @@ public class InventoryManageService : IInventoryManageService
         IStockQuantityService stockQuantityService,
         IMediator mediator,
         CatalogSettings catalogSettings,
-        IResourceLock resourceLock)
+        IResourceLock resourceLock,
+        StockSideEffects stockSideEffects,
+        StockLedger stockLedger)
     {
         _productRepository = productRepository;
         _inventoryJournalRepository = inventoryJournalRepository;
@@ -28,6 +31,8 @@ public class InventoryManageService : IInventoryManageService
         _mediator = mediator;
         _catalogSettings = catalogSettings;
         _resourceLock = resourceLock;
+        _stockSideEffects = stockSideEffects;
+        _stockLedger = stockLedger;
     }
 
     #endregion
@@ -40,74 +45,12 @@ public class InventoryManageService : IInventoryManageService
     private readonly IMediator _mediator;
     private readonly CatalogSettings _catalogSettings;
     private readonly IResourceLock _resourceLock;
+    private readonly StockSideEffects _stockSideEffects;
+    private readonly StockLedger _stockLedger;
 
     #endregion
 
     #region Utilities methods
-
-    private async Task ManageStockInventory(Product product, ShipmentItem shipmentItem)
-    {
-        if (product.UseMultipleWarehouses)
-        {
-            var pwi = product.ProductWarehouseInventory.FirstOrDefault(pi =>
-                pi.WarehouseId == shipmentItem.WarehouseId);
-            if (pwi == null)
-                return;
-
-            pwi.ReservedQuantity -= shipmentItem.Quantity;
-            pwi.StockQuantity -= shipmentItem.Quantity;
-            if (pwi.ReservedQuantity < 0)
-                pwi.ReservedQuantity = 0;
-
-            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
-            product.StockQuantity = product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
-            product.ReservedQuantity = product.ProductWarehouseInventory.Sum(x => x.ReservedQuantity);
-            await UpdateStockProduct(product);
-        }
-        else
-        {
-            product.ReservedQuantity -= shipmentItem.Quantity;
-            product.StockQuantity -= shipmentItem.Quantity;
-            await UpdateStockProduct(product);
-        }
-    }
-
-    private async Task ManageStockByAttributesInventory(Product product, ShipmentItem shipmentItem)
-    {
-        var combination = product.FindProductAttributeCombination(shipmentItem.Attributes);
-        if (combination == null)
-            return;
-
-        if (!product.UseMultipleWarehouses)
-        {
-            combination.ReservedQuantity -= shipmentItem.Quantity;
-            combination.StockQuantity -= shipmentItem.Quantity;
-            if (combination.ReservedQuantity < 0)
-                combination.ReservedQuantity = 0;
-
-            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
-        }
-        else
-        {
-            var pwi = combination.WarehouseInventory.FirstOrDefault(pi => pi.WarehouseId == shipmentItem.WarehouseId);
-            if (pwi == null)
-                return;
-
-            pwi.ReservedQuantity -= shipmentItem.Quantity;
-            pwi.StockQuantity -= shipmentItem.Quantity;
-            if (pwi.ReservedQuantity < 0)
-                pwi.ReservedQuantity = 0;
-
-            combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
-            combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
-
-            await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
-        }
-
-        product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
-        product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-        await UpdateStockProduct(product);
-    }
 
     private async Task ManageStockByBundleProductsInventory(Product product, Shipment shipment,
         ShipmentItem shipmentItem)
@@ -125,8 +68,7 @@ public class InventoryManageService : IInventoryManageService
                 Quantity = shipmentItem.Quantity * item.Quantity,
                 WarehouseId = shipmentItem.WarehouseId
             };
-            if (!await CheckExistsInventoryJournal(p1, shipmentItem1))
-                await BookReservedInventoryCore(p1, shipment, shipmentItem1);
+            await BookReservedInventoryCore(p1, shipment, shipmentItem1);
         }
     }
 
@@ -141,7 +83,6 @@ public class InventoryManageService : IInventoryManageService
             if (associatedProduct == null
                 || associatedProduct.Id == product.Id
                 || associatedProduct.ManageInventoryMethodId == ManageInventoryMethod.DontManageStock) continue;
-            if (await CheckExistsInventoryJournal(associatedProduct, shipmentItem)) continue;
             var item = new ShipmentItem {
                 Id = shipmentItem.Id,
                 Attributes = shipmentItem.Attributes,
@@ -154,104 +95,31 @@ public class InventoryManageService : IInventoryManageService
         }
     }
 
-    private async Task<bool> CheckExistsInventoryJournal(Product product, ShipmentItem shipmentItem)
+    /// <summary>
+    ///     The journal entries of a shipment item: its bookings and their reversals, for every product it touched
+    /// </summary>
+    private async Task<IList<InventoryJournal>> ShipmentEntries(string positionId, string productId = null)
     {
-        var query = from j in _inventoryJournalRepository.Table
-            where j.ProductId == product.Id && j.PositionId == shipmentItem.Id
-            select j.Id;
+        var query = _inventoryJournalRepository.Table.Where(j =>
+            j.PositionId == positionId && j.ObjectType == nameof(Shipment));
+        if (productId != null)
+            query = query.Where(j => j.ProductId == productId);
 
-        return await _inventoryJournalRepository.AnyAsync(query);
+        return await _inventoryJournalRepository.ToListAsync(query);
     }
 
-    private async Task ReverseBookedInventory(Product product, InventoryJournal inventoryJournal)
+    /// <summary>
+    ///     The quantity a shipment item has booked out of the product and not reversed. A booking written before every
+    ///     change was journaled counts too: the upgrade marked it legacy, and before the upgrade it reads as type 0
+    /// </summary>
+    private static int NetShipped(IEnumerable<InventoryJournal> entries)
     {
-        switch (product.ManageInventoryMethodId)
-        {
-            //standard manage stock
-            case ManageInventoryMethod.ManageStock when product.UseMultipleWarehouses:
-            {
-                var pwi = product.ProductWarehouseInventory.FirstOrDefault(x =>
-                    x.WarehouseId == inventoryJournal.WarehouseId);
-                if (pwi == null)
-                    return;
-
-                pwi.StockQuantity += inventoryJournal.OutQty;
-                pwi.ReservedQuantity += inventoryJournal.OutQty;
-                if (pwi.ReservedQuantity < 0)
-                    pwi.ReservedQuantity = 0;
-
-                await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductWarehouseInventory, z => z.Id == pwi.Id, pwi);
-                break;
-            }
-            case ManageInventoryMethod.ManageStock:
-                product.StockQuantity += inventoryJournal.OutQty;
-                product.ReservedQuantity += inventoryJournal.OutQty;
-                await UpdateStockProduct(product);
-                break;
-            //manage stock by attributes
-            case ManageInventoryMethod.ManageStockByAttributes:
-            {
-                var combination = product.FindProductAttributeCombination(inventoryJournal.Attributes);
-                if (combination == null)
-                    return;
-
-                if (!product.UseMultipleWarehouses)
-                {
-                    combination.StockQuantity += inventoryJournal.OutQty;
-                    combination.ReservedQuantity += inventoryJournal.OutQty;
-                    if (combination.ReservedQuantity < 0)
-                        combination.ReservedQuantity = 0;
-
-                    product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
-                    product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-
-                    await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
-                    await UpdateStockProduct(product);
-                }
-                else
-                {
-                    var pwi = combination.WarehouseInventory.FirstOrDefault(x =>
-                        x.WarehouseId == inventoryJournal.WarehouseId);
-                    if (pwi == null)
-                        return;
-
-                    pwi.StockQuantity += inventoryJournal.OutQty;
-                    pwi.ReservedQuantity += inventoryJournal.OutQty;
-
-                    if (pwi.ReservedQuantity < 0)
-                        pwi.ReservedQuantity = 0;
-
-                    combination.StockQuantity = combination.WarehouseInventory.Sum(x => x.StockQuantity);
-                    combination.ReservedQuantity = combination.WarehouseInventory.Sum(x => x.ReservedQuantity);
-                    product.StockQuantity = product.ProductAttributeCombinations.Sum(x => x.StockQuantity);
-                    product.ReservedQuantity = product.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-
-                    await _productRepository.UpdateCollectionFieldItem(product.Id, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
-                    await UpdateStockProduct(product);
-                }
-
-                break;
-            }
-        }
-
-        await _inventoryJournalRepository.DeleteAsync(inventoryJournal);
-    }
-
-    private async Task InsertInventoryJournal(Product product, Shipment shipment, ShipmentItem shipmentItem)
-    {
-        var ij = new InventoryJournal {
-            CreateDateUtc = DateTime.UtcNow,
-            ObjectType = typeof(Shipment).Name,
-            ObjectId = shipment.Id,
-            PositionId = shipmentItem.Id,
-            Attributes = shipmentItem.Attributes,
-            ProductId = product.Id,
-            WarehouseId = shipmentItem.WarehouseId,
-            Reference = shipment.ShipmentNumber.ToString(),
-            Comments = $"Shipment - {shipment.TrackingNumber}",
-            OutQty = shipmentItem.Quantity
-        };
-        await _inventoryJournalRepository.InsertAsync(ij);
+        return entries.Sum(x => x.MovementTypeId switch {
+            InventoryMovementType.Shipment or InventoryMovementType.Legacy
+                or InventoryMovementType.OpeningBalance => x.OutQty,
+            InventoryMovementType.ShipmentReversal => -x.InQty,
+            _ => 0
+        });
     }
 
     /// <summary>
@@ -273,7 +141,7 @@ public class InventoryManageService : IInventoryManageService
 
     private static string LockKey(string productId)
     {
-        return $"{nameof(Product)}:{productId}";
+        return ProductStockLock.Key(productId);
     }
 
     /// <summary>
@@ -400,42 +268,7 @@ public class InventoryManageService : IInventoryManageService
             //check if minimum quantity is reached
             if (quantityToChange < 0 && product.MinStockQuantity >=
                 _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId))
-                switch (product.LowStockActivityId)
-                {
-                    case LowStockActivity.DisableBuyButton:
-                        product.DisableBuyButton = true;
-                        product.LowStock = true;
-
-                        await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
-                            UpdateBuilder<Product>.Create()
-                                .Set(x => x.DisableBuyButton, product.DisableBuyButton)
-                                .Set(x => x.LowStock, product.LowStock));
-
-                        await _mediator.Publish(new ProductChangedEvent(product.Id));
-
-                        //event notification
-                        await _mediator.EntityUpdated(product);
-
-                        break;
-                    case LowStockActivity.Unpublish:
-                        product.Published = false;
-                        product.LowStock = true;
-
-                        await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
-                            UpdateBuilder<Product>.Create()
-                                .Set(x => x.Published, product.Published)
-                                .Set(x => x.LowStock, product.LowStock));
-
-                        await _mediator.Publish(new ProductChangedEvent(product.Id, listsChanged: true));
-
-                        //event
-                        await _mediator.Publish(new ProductUnPublishEvent(product));
-
-                        //event notification
-                        await _mediator.EntityUpdated(product);
-
-                        break;
-                }
+                await _stockSideEffects.LowStockReached(product);
 
             //qty is increased. product is out of stock (minimum stock quantity is reached again)? a reservation given
             //back for an order that was never placed undoes its own low-stock action, once above the minimum again
@@ -444,49 +277,12 @@ public class InventoryManageService : IInventoryManageService
                     _stockQuantityService.GetTotalStockQuantity(product,
                         warehouseId: StockWarehouse(product, warehouseId))))
                 if (quantityToChange > 0 && product.MinStockQuantity >= prevStockQuantity)
-                    switch (product.LowStockActivityId)
-                    {
-                        case LowStockActivity.DisableBuyButton:
-                            product.DisableBuyButton = false;
-                            product.LowStock = product.MinStockQuantity <= prevStockQuantity;
-
-                            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
-                                UpdateBuilder<Product>.Create()
-                                    .Set(x => x.DisableBuyButton, product.DisableBuyButton)
-                                    .Set(x => x.LowStock, product.LowStock));
-
-                            await _mediator.Publish(new ProductChangedEvent(product.Id));
-
-                            //event notification
-                            await _mediator.EntityUpdated(product);
-
-                            break;
-                        case LowStockActivity.Unpublish:
-                            product.Published = true;
-                            product.LowStock = product.MinStockQuantity < prevStockQuantity;
-
-                            await _productRepository.UpdateOneAsync(x => x.Id == product.Id,
-                                UpdateBuilder<Product>.Create()
-                                    .Set(x => x.Published, product.Published)
-                                    .Set(x => x.LowStock, product.LowStock));
-
-                            await _mediator.Publish(new ProductChangedEvent(product.Id, listsChanged: true));
-
-                            //event
-                            await _mediator.Publish(new ProductPublishEvent(product));
-
-                            //event notification
-                            await _mediator.EntityUpdated(product);
-
-                            break;
-                    }
+                    await _stockSideEffects.LowStockLifted(product, prevStockQuantity);
 
             //send email notification
             if (quantityToChange < 0 && _stockQuantityService.GetTotalStockQuantity(product, warehouseId: warehouseId) <
                 product.NotifyAdminForQuantityBelow)
-                await _mediator.Send(new SendQuantityBelowStoreOwnerCommand {
-                    Product = product
-                });
+                await _stockSideEffects.QuantityBelow(product);
         }
 
         if (attributes != null && product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
@@ -501,10 +297,7 @@ public class InventoryManageService : IInventoryManageService
 
                 //send email notification
                 if (quantityToChange < 0 && combination.StockQuantity < combination.NotifyAdminForQuantityBelow)
-                    await _mediator.Send(new SendQuantityBelowStoreOwnerCommand {
-                        Product = product,
-                        ProductAttributeCombination = combination
-                    });
+                    await _stockSideEffects.QuantityBelow(product, combination);
             }
         }
 
@@ -748,13 +541,15 @@ public class InventoryManageService : IInventoryManageService
     /// </summary>
     private async Task BookReservedInventoryCore(Product product, Shipment shipment, ShipmentItem shipmentItem)
     {
-        //standard manage stock 
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
-            await ManageStockInventory(product, shipmentItem);
-        //manage stock by attributes
-        if (shipmentItem.Attributes != null &&
-            product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-            await ManageStockByAttributesInventory(product, shipmentItem);
+        //standard manage stock, or manage stock by attributes; once per shipment item, until it is reversed
+        if ((product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock ||
+             (shipmentItem.Attributes != null &&
+              product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)) &&
+            NetShipped(await ShipmentEntries(shipmentItem.Id, product.Id)) <= 0)
+            await _stockLedger.Apply(product, [
+                new StockChange(shipmentItem.Attributes ?? [], shipmentItem.WarehouseId, -shipmentItem.Quantity,
+                    false, InventoryMovementType.Shipment, ShipmentSource(shipment, shipmentItem))
+            ]);
 
         //manage stock by bundle products
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
@@ -768,11 +563,12 @@ public class InventoryManageService : IInventoryManageService
 
         //event notification
         await _mediator.EntityUpdated(product);
+    }
 
-        //insert inventory journal
-        if (product.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
-            or ManageInventoryMethod.ManageStockByAttributes)
-            await InsertInventoryJournal(product, shipment, shipmentItem);
+    private static StockSource ShipmentSource(Shipment shipment, ShipmentItem shipmentItem)
+    {
+        return new StockSource(nameof(Shipment), shipment.Id, shipmentItem.Id, shipment.ShipmentNumber.ToString(),
+            Comment: $"Shipment - {shipment.TrackingNumber}");
     }
 
     /// <summary>
@@ -786,17 +582,26 @@ public class InventoryManageService : IInventoryManageService
         ArgumentNullException.ThrowIfNull(shipment);
         ArgumentNullException.ThrowIfNull(shipmentItem);
 
-        var inventoryJournals = _inventoryJournalRepository.Table.Where(j => j.PositionId == shipmentItem.Id);
-
-        foreach (var inventoryJournal in inventoryJournals)
+        foreach (var productEntries in (await ShipmentEntries(shipmentItem.Id)).GroupBy(x => x.ProductId))
         {
-            await using var _ = await _resourceLock.Acquire([LockKey(inventoryJournal.ProductId)]);
+            await using var _ = await _resourceLock.Acquire([LockKey(productEntries.Key)]);
 
-            var product = await _productRepository.GetByIdAsync(inventoryJournal.ProductId);
+            var product = await _productRepository.GetByIdAsync(productEntries.Key);
             if (product == null)
                 continue;
 
-            await ReverseBookedInventory(product, inventoryJournal);
+            //read again under the lock: a reversal running alongside must not give the stock back twice
+            var changes = (await ShipmentEntries(shipmentItem.Id, product.Id))
+                .GroupBy(x => (x.WarehouseId ?? "", x.CombinationId ?? ""))
+                .Select(bucket => (Entry: bucket.First(), Quantity: NetShipped(bucket)))
+                .Where(x => x.Quantity > 0)
+                .Select(x => new StockChange(x.Entry.Attributes ?? [], x.Entry.WarehouseId, x.Quantity, false,
+                    InventoryMovementType.ShipmentReversal, ShipmentSource(shipment, shipmentItem)))
+                .ToList();
+            if (changes.Count == 0)
+                continue;
+
+            await _stockLedger.Apply(product, changes);
 
             await _mediator.Publish(new ProductChangedEvent(product.Id));
 

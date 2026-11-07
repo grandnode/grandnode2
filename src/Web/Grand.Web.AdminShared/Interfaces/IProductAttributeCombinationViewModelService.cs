@@ -5,9 +5,6 @@ namespace Grand.Web.AdminShared.Interfaces;
 
 public interface IProductAttributeCombinationViewModelService
 {
-    Task OutOfStockNotifications(Product product, ProductAttributeCombination combination,
-        ProductAttributeCombination prevcombination);
-
     Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model, Product product);
 
     Task<IList<ProductModel.ProductAttributeCombinationModel>> PrepareProductAttributeCombinationModel(Product product);

@@ -34,6 +34,7 @@
   IsTaxExempt: false,
   IsTele: false,
   UseMultipleWarehouses: false,
+  StockChangesOnlyThroughDocuments: false,
   StockAvailability: false,
   DisplayStockQuantity: false,
   AllowOutOfStockSubscriptions: false,

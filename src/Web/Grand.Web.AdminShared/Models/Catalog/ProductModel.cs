@@ -225,6 +225,14 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ReservedQuantity")]
     public int ReservedQuantity { get; set; }
 
+    //the stock the form showed: only a value changed since is applied
+    public int OriginalStockQuantity { get; set; }
+
+    public int OriginalReservedQuantity { get; set; }
+
+    //the stock fields are read-only: stock changes only through inventory documents
+    public bool StockChangesOnlyThroughDocuments { get; set; }
+
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.StockQuantity")]
     public string StockQuantityStr { get; set; }
 
@@ -297,8 +305,13 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.StartPrice")]
     public double StartPrice { get; set; }
 
+    //a receipt sets the average cost to four decimals: the form keeps them, or saving it would round the cost
+    [UIHint("DoubleN4")]
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ProductCost")]
     public double ProductCost { get; set; }
+
+    //the cost the form showed: a receipt may have changed the stored one since
+    public double OriginalProductCost { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.EnteredPrice")]
     public bool EnteredPrice { get; set; }
@@ -743,6 +756,10 @@ public class ProductModel : BaseEntityModel, ILocalizedModel<ProductLocalizedMod
 
         [GrandResourceDisplayName("Admin.Catalog.Products.ProductWarehouseInventory.Fields.ReservedQuantity")]
         public int ReservedQuantity { get; set; }
+
+        public int OriginalStockQuantity { get; set; }
+
+        public int OriginalReservedQuantity { get; set; }
     }
 
     public class ReservationModel : BaseEntityModel

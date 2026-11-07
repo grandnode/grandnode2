@@ -24,15 +24,13 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
     public class TestProductAttributeCombinationController(
         IProductAttributeCombinationViewModelService productAttributeCombinationViewModelService,
         IProductService productService,
-        IInventoryManageService inventoryManageService,
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
-        : BaseProductAttributeCombinationController(productAttributeCombinationViewModelService, productService, inventoryManageService, translationService, scope);
+        : BaseProductAttributeCombinationController(productAttributeCombinationViewModelService, productService, translationService, scope);
 
     protected override TestProductAttributeCombinationController CreateController() => new(
         _productAttributeCombinationViewModelServiceMock.Object,
         _productServiceMock.Object,
-        _inventoryManageServiceMock.Object,
         _translationServiceMock.Object,
         _scopeMock.Object);
 

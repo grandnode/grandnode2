@@ -14,6 +14,7 @@ public class PermissionProvider : IPermissionProvider
             StandardPermission.ManageAccessStoreManagerPanel,
             StandardPermission.AllowCustomerImpersonation,
             StandardPermission.ManageProducts,
+            StandardPermission.ManageInventoryDocuments,
             StandardPermission.ManageCategories,
             StandardPermission.ManageBrands,
             StandardPermission.ManageCollections,
@@ -94,6 +95,7 @@ public class PermissionProvider : IPermissionProvider
                     StandardPermission.ManageAccessAdminPanel,
                     StandardPermission.AllowCustomerImpersonation,
                     StandardPermission.ManageProducts,
+                    StandardPermission.ManageInventoryDocuments,
                     StandardPermission.ManageCategories,
                     StandardPermission.ManageBrands,
                     StandardPermission.ManageCollections,
@@ -202,6 +204,7 @@ public class PermissionProvider : IPermissionProvider
                 Permissions = [
                     StandardPermission.ManageAccessStoreManagerPanel,
                     StandardPermission.ManageProducts,
+                    StandardPermission.ManageInventoryDocuments,
                     StandardPermission.ManageFiles,
                     StandardPermission.ManagePictures,
                     StandardPermission.ManageCategories,

@@ -18,6 +18,14 @@ public class ProductAttributeCombinationModel : BaseModel
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.ReservedQuantity")]
     public int ReservedQuantity { get; set; }
 
+    //the stock the form showed: only a value changed since is applied
+    public int OriginalStockQuantity { get; set; }
+
+    public int OriginalReservedQuantity { get; set; }
+
+    //the stock fields are read-only: stock changes only through inventory documents
+    public bool StockChangesOnlyThroughDocuments { get; set; }
+
     [GrandResourceDisplayName(
         "Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.AllowOutOfStockOrders")]
     public bool AllowOutOfStockOrders { get; set; }
@@ -104,6 +112,10 @@ public class ProductAttributeCombinationModel : BaseModel
         [GrandResourceDisplayName(
             "Admin.Catalog.Products.ProductAttributes.AttributeCombination.WarehouseInventory.Fields.ReservedQuantity")]
         public int ReservedQuantity { get; set; }
+
+        public int OriginalStockQuantity { get; set; }
+
+        public int OriginalReservedQuantity { get; set; }
     }
 
     #endregion

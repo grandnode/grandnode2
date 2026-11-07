@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -19,6 +20,7 @@ public class ProductAttributeServiceTests
     private ProductAttributeService _productAttributeService;
     private IRepository<Product> _repository;
     private IRepository<ProductAttribute> _repositoryproductAttribute;
+    private IRepository<InventoryJournal> _journal;
 
     [TestInitialize]
     public void Init()
@@ -28,9 +30,101 @@ public class ProductAttributeServiceTests
         _mediatorMock = new Mock<IMediator>();
         _cacheBase = new MemoryCacheBase(MemoryCacheTest.Get(), _mediatorMock.Object,
             new CacheConfig { DefaultCacheTimeMinutes = 1 });
+        _journal = new MongoDBRepositoryTest<InventoryJournal>();
 
         _productAttributeService =
-            new ProductAttributeService(_cacheBase, _repositoryproductAttribute, _repository, _mediatorMock.Object);
+            new ProductAttributeService(_cacheBase, _repositoryproductAttribute, _repository, _mediatorMock.Object,
+                new MongoResourceLockTest(), StockTestFixture.Ledger(_repository, _journal));
+    }
+
+    [TestMethod]
+    public async Task UpdateProductAttributeCombination_StaleStock_StoredStockKept()
+    {
+        var combination = new ProductAttributeCombination {
+            StockQuantity = 6, ReservedQuantity = 2,
+            WarehouseInventory = { new ProductCombinationWarehouseInventory { WarehouseId = "w1", StockQuantity = 6 } }
+        };
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes,
+            ProductAttributeCombinations = { combination }
+        };
+        await _repository.InsertAsync(product);
+
+        var edited = (ProductAttributeCombination)combination.Clone();
+        edited.WarehouseInventory.Clear();
+        edited.StockQuantity = 1;
+        edited.ReservedQuantity = 0;
+        edited.Sku = "sku";
+        await _productAttributeService.UpdateProductAttributeCombination(edited, product.Id);
+
+        var stored = _repository.Table.First(x => x.Id == product.Id).ProductAttributeCombinations.First();
+        Assert.AreEqual("sku", stored.Sku);
+        Assert.AreEqual(6, stored.StockQuantity);
+        Assert.AreEqual(2, stored.ReservedQuantity);
+        Assert.AreEqual(6, stored.WarehouseInventory.Single().StockQuantity);
+    }
+
+    [TestMethod]
+    public async Task UpdateProductAttributeCombination_EmptyRowLeftOut_IsRemovedAndNewRowStartsEmpty()
+    {
+        var combination = new ProductAttributeCombination {
+            WarehouseInventory = {
+                new ProductCombinationWarehouseInventory { WarehouseId = "w1" },
+                new ProductCombinationWarehouseInventory { WarehouseId = "w2", StockQuantity = 3 }
+            }
+        };
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes, UseMultipleWarehouses = true,
+            ProductAttributeCombinations = { combination }
+        };
+        await _repository.InsertAsync(product);
+
+        var edited = new ProductAttributeCombination {
+            Id = combination.Id,
+            WarehouseInventory = { new ProductCombinationWarehouseInventory { WarehouseId = "w3", StockQuantity = 9 } }
+        };
+        await _productAttributeService.UpdateProductAttributeCombination(edited, product.Id);
+
+        var rows = _repository.Table.First(x => x.Id == product.Id).ProductAttributeCombinations.Single()
+            .WarehouseInventory.OrderBy(x => x.WarehouseId).ToList();
+        CollectionAssert.AreEqual(new[] { "w2", "w3" }, rows.Select(x => x.WarehouseId).ToArray());
+        CollectionAssert.AreEqual(new[] { 3, 0 }, rows.Select(x => x.StockQuantity).ToArray());
+    }
+
+    [TestMethod]
+    public async Task InsertProductAttributeCombination_WithStock_InsertedWithoutStock()
+    {
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes };
+        await _repository.InsertAsync(product);
+
+        await _productAttributeService.InsertProductAttributeCombination(
+            new ProductAttributeCombination { StockQuantity = 4, ReservedQuantity = 1 }, product.Id);
+
+        var stored = _repository.Table.First(x => x.Id == product.Id).ProductAttributeCombinations.Single();
+        Assert.AreEqual(0, stored.StockQuantity);
+        Assert.AreEqual(0, stored.ReservedQuantity);
+    }
+
+    [TestMethod]
+    public async Task DeleteProductAttributeCombination_BooksItsStockOutAndRecomputesProductSum()
+    {
+        var combination = new ProductAttributeCombination
+            { Attributes = StockTestFixture.Attributes("red"), StockQuantity = 6 };
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes, StockQuantity = 9,
+            ProductAttributeCombinations = {
+                combination,
+                new ProductAttributeCombination { Attributes = StockTestFixture.Attributes("blue"), StockQuantity = 3 }
+            }
+        };
+        await _repository.InsertAsync(product);
+
+        await _productAttributeService.DeleteProductAttributeCombination(combination, product.Id);
+
+        Assert.AreEqual(3, _repository.Table.First(x => x.Id == product.Id).StockQuantity);
+        var entry = _journal.Table.Single(x => x.ProductId == product.Id);
+        Assert.AreEqual(combination.Id, entry.CombinationId);
+        Assert.AreEqual(6, entry.OutQty);
     }
 
     [TestMethod]

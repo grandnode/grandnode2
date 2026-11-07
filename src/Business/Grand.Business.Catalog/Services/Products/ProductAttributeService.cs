@@ -1,5 +1,7 @@
+using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Core.Events.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
@@ -28,12 +30,16 @@ public class ProductAttributeService : IProductAttributeService
     public ProductAttributeService(ICacheBase cacheBase,
         IRepository<ProductAttribute> productAttributeRepository,
         IRepository<Product> productRepository,
-        IMediator mediator)
+        IMediator mediator,
+        IResourceLock resourceLock,
+        StockLedger stockLedger)
     {
         _cacheBase = cacheBase;
         _productAttributeRepository = productAttributeRepository;
         _productRepository = productRepository;
         _mediator = mediator;
+        _resourceLock = resourceLock;
+        _stockLedger = stockLedger;
     }
 
     #endregion
@@ -43,6 +49,8 @@ public class ProductAttributeService : IProductAttributeService
     private readonly IRepository<ProductAttribute> _productAttributeRepository;
     private readonly IRepository<Product> _productRepository;
     private readonly IMediator _mediator;
+    private readonly IResourceLock _resourceLock;
+    private readonly StockLedger _stockLedger;
     private readonly ICacheBase _cacheBase;
     
     #endregion
@@ -310,7 +318,33 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(combination);
 
-        await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id);
+        await using (await _resourceLock.Acquire([ProductStockLock.Key(productId)]))
+        {
+            var product = await _productRepository.GetByIdAsync(productId);
+            var stored = product?.ProductAttributeCombinations.FirstOrDefault(x => x.Id == combination.Id);
+            if (product?.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes && stored != null)
+            {
+                //the stock the combination holds leaves the journal first, so the product's history keeps adding up
+                var held = product.UseMultipleWarehouses
+                    ? stored.WarehouseInventory.Select(x => (x.WarehouseId, x.StockQuantity))
+                    : [("", stored.StockQuantity)];
+                var changes = held.Where(x => x.StockQuantity != 0)
+                    .Select(x => new StockChange(stored.Attributes, x.WarehouseId, -x.StockQuantity, false,
+                        InventoryMovementType.Adjustment,
+                        new StockSource(nameof(Product), productId, Comment: "Attribute combination removed")))
+                    .ToList();
+                if (changes.Count > 0)
+                    await _stockLedger.Apply(product, changes);
+
+                product.ProductAttributeCombinations.Remove(stored);
+                await _stockLedger.RecomputeSums(product);
+            }
+            else
+            {
+                await _productRepository.RemoveCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id);
+            }
+        }
+
         await _mediator.Publish(new ProductChangedEvent(productId));
 
         //event notification
@@ -327,7 +361,17 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(combination);
 
-        await _productRepository.AddToCollectionField(productId, x => x.ProductAttributeCombinations, combination);
+        //a new combination starts empty: its stock changes only through the stock ledger
+        combination.StockQuantity = 0;
+        combination.ReservedQuantity = 0;
+        foreach (var row in combination.WarehouseInventory)
+        {
+            row.StockQuantity = 0;
+            row.ReservedQuantity = 0;
+        }
+
+        await using (await _resourceLock.Acquire([ProductStockLock.Key(productId)]))
+            await _productRepository.AddToCollectionField(productId, x => x.ProductAttributeCombinations, combination);
 
         await _mediator.Publish(new ProductChangedEvent(productId));
 
@@ -345,7 +389,30 @@ public class ProductAttributeService : IProductAttributeService
     {
         ArgumentNullException.ThrowIfNull(combination);
 
-        await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
+        await using (await _resourceLock.Acquire([ProductStockLock.Key(productId)]))
+        {
+            //the stored stock stays: it changes only through the stock ledger
+            var stored = (await _productRepository.GetByIdAsync(productId))?.ProductAttributeCombinations
+                .FirstOrDefault(x => x.Id == combination.Id);
+            if (stored != null)
+            {
+                combination.StockQuantity = stored.StockQuantity;
+                combination.ReservedQuantity = stored.ReservedQuantity;
+
+                //the passed rows say which warehouses are used: a new one starts empty, and a stored one that is
+                //left out goes only when it holds nothing
+                var usedWarehouses = combination.WarehouseInventory.Select(x => x.WarehouseId).ToList();
+                combination.WarehouseInventory.Clear();
+                foreach (var row in stored.WarehouseInventory.Where(x =>
+                             usedWarehouses.Contains(x.WarehouseId) || x.StockQuantity != 0 || x.ReservedQuantity != 0))
+                    combination.WarehouseInventory.Add(row);
+                foreach (var warehouseId in usedWarehouses.Except(stored.WarehouseInventory.Select(x => x.WarehouseId)))
+                    combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory
+                        { WarehouseId = warehouseId });
+            }
+
+            await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeCombinations, z => z.Id == combination.Id, combination);
+        }
 
         await _mediator.Publish(new ProductChangedEvent(productId));
 

@@ -1,34 +1,37 @@
-﻿using Grand.Module.Api.Commands.Models.Catalog;
+using Grand.Module.Api.Commands.Models.Catalog;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Extensions;
 using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Seo;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
 public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
-    private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
     private readonly IProductService _productService;
     private readonly ISlugService _slugService;
-    private readonly IStockQuantityService _stockQuantityService;
+    private readonly IStockMovementService _stockMovementService;
     private readonly ISeNameService _seNameService;
     public UpdateProductCommandHandler(
         IProductService productService,
         ISlugService slugService,
-        IOutOfStockSubscriptionService outOfStockSubscriptionService,
-        IStockQuantityService stockQuantityService,
+        IStockMovementService stockMovementService,
+        IContextAccessor contextAccessor,
         IMediator mediator,
         ISeNameService seNameService)
     {
         _productService = productService;
         _slugService = slugService;
-        _outOfStockSubscriptionService = outOfStockSubscriptionService;
-        _stockQuantityService = stockQuantityService;
+        _stockMovementService = stockMovementService;
+        _contextAccessor = contextAccessor;
         _mediator = mediator;
         _seNameService = seNameService;
     }
@@ -38,6 +41,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         //product
         var product = await _productService.GetProductById(request.Model.Id);
         var prevStockQuantity = product.StockQuantity;
+        var prevReservedQuantity = product.ReservedQuantity;
         var prevPublished = product.Published;
 
         product = request.Model.ToEntity(product);
@@ -48,12 +52,19 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         //update product
         await _productService.UpdateProduct(product);
 
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
-            product.BackorderModeId == BackorderMode.NoBackorders &&
-            product.AllowOutOfStockSubscriptions &&
-            _stockQuantityService.GetTotalStockQuantity(product) > 0 &&
-            prevStockQuantity <= 0 && product.Published)
-            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
+        //the stock of a product kept in one place changes through the stock journal, by the difference
+        var stockChanged = product.StockQuantity != prevStockQuantity;
+        var reservedChanged = product.ReservedQuantity != prevReservedQuantity;
+        if ((stockChanged || reservedChanged) &&
+            product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock && !product.UseMultipleWarehouses)
+            await _stockMovementService.Apply(product.Id, [
+                new StockChange([], "", stockChanged ? product.StockQuantity : 0, stockChanged,
+                    InventoryMovementType.Api,
+                    new StockSource("Api", product.Id, Reference: product.Sku ?? "",
+                        CustomerId: _contextAccessor.WorkContext?.CurrentCustomer?.Id ?? "")) {
+                    ReservedQuantity = reservedChanged ? product.ReservedQuantity : null
+                }
+            ]);
 
         switch (prevPublished)
         {

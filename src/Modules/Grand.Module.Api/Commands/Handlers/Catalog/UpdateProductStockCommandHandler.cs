@@ -1,5 +1,8 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
+using Grand.Infrastructure;
 using Grand.Module.Api.Commands.Models.Catalog;
 using Grand.Mediator;
 
@@ -7,109 +10,50 @@ namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
 public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductStockCommand, bool>
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly IInventoryManageService _inventoryManageService;
-    private readonly IOutOfStockSubscriptionService _outOfStockSubscriptionService;
     private readonly IProductService _productService;
-    private readonly IStockQuantityService _stockQuantityService;
+    private readonly IStockMovementService _stockMovementService;
 
     public UpdateProductStockCommandHandler(
         IProductService productService,
         IInventoryManageService inventoryManageService,
-        IStockQuantityService stockQuantityService,
-        IOutOfStockSubscriptionService outOfStockSubscriptionService)
+        IStockMovementService stockMovementService,
+        IContextAccessor contextAccessor)
     {
         _productService = productService;
         _inventoryManageService = inventoryManageService;
-        _stockQuantityService = stockQuantityService;
-        _outOfStockSubscriptionService = outOfStockSubscriptionService;
+        _stockMovementService = stockMovementService;
+        _contextAccessor = contextAccessor;
     }
 
     public async Task<bool> Handle(UpdateProductStockCommand request, CancellationToken cancellationToken)
     {
         var product = await _productService.GetProductById(request.Product.Id);
-        if (product != null)
+        if (product == null)
+            return true;
+
+        if (!string.IsNullOrEmpty(request.WarehouseId) && !product.UseMultipleWarehouses)
+            throw new ArgumentException(
+                "Product don't support multiple warehouses (warehouseId should be null or empty)");
+
+        //a product that tracks no stock keeps the value as a plain counter
+        if (product.ManageInventoryMethodId is not (ManageInventoryMethod.ManageStock
+            or ManageInventoryMethod.ManageStockByAttributes))
         {
-            var prevStockQuantity = _stockQuantityService.GetTotalStockQuantity(product);
-            var prevMultiWarehouseStock = product.ProductWarehouseInventory.Select(i => new ProductWarehouseInventory {
-                WarehouseId = i.WarehouseId,
-                StockQuantity = i.StockQuantity,
-                ReservedQuantity = i.ReservedQuantity
-            })
-                .ToList();
-
-            if (string.IsNullOrEmpty(request.WarehouseId))
-            {
-                product.StockQuantity = request.Stock;
-                await _inventoryManageService.UpdateStockProduct(product, false);
-            }
-            else
-            {
-                if (product.UseMultipleWarehouses)
-                {
-                    var existingPwI =
-                        product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == request.WarehouseId);
-                    if (existingPwI != null)
-                    {
-                        existingPwI.StockQuantity = request.Stock;
-                        await _productService.UpdateProductWarehouseInventory(existingPwI, product.Id);
-                    }
-                    else
-                    {
-                        var newPwI = new ProductWarehouseInventory {
-                            WarehouseId = request.WarehouseId,
-                            StockQuantity = request.Stock,
-                            ReservedQuantity = 0
-                        };
-                        await _productService.InsertProductWarehouseInventory(newPwI, product.Id);
-                    }
-
-                    product.StockQuantity = product.ProductWarehouseInventory.Sum(x => x.StockQuantity);
-                    product.ReservedQuantity = product.ProductWarehouseInventory.Sum(x => x.ReservedQuantity);
-                    await _inventoryManageService.UpdateStockProduct(product, false);
-                }
-                else
-                {
-                    throw new ArgumentException(
-                        "Product don't support multiple warehouses (warehouseId should be null or empty)");
-                }
-            }
-
-            await OutOfStockNotifications(product, prevStockQuantity, prevMultiWarehouseStock);
+            product.StockQuantity = request.Stock;
+            await _inventoryManageService.UpdateStockProduct(product, false);
+            return true;
         }
+
+        var errors = await _stockMovementService.Apply(product.Id, [
+            new StockChange([], request.WarehouseId ?? "", request.Stock, true, InventoryMovementType.Api,
+                new StockSource("Api", product.Id, Reference: product.Sku ?? "",
+                    CustomerId: _contextAccessor.WorkContext?.CurrentCustomer?.Id ?? ""))
+        ]);
+        if (errors.Count > 0)
+            throw new ArgumentException(errors[0]);
 
         return true;
-    }
-
-    protected async Task OutOfStockNotifications(Product product, int prevStockQuantity,
-        List<ProductWarehouseInventory> prevMultiWarehouseStock)
-    {
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
-            product.BackorderModeId == BackorderMode.NoBackorders &&
-            product.AllowOutOfStockSubscriptions &&
-            _stockQuantityService.GetTotalStockQuantity(product) > 0 &&
-            prevStockQuantity <= 0 && !product.UseMultipleWarehouses &&
-            product.Published)
-            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock &&
-            product.BackorderModeId == BackorderMode.NoBackorders &&
-            product.AllowOutOfStockSubscriptions &&
-            product.UseMultipleWarehouses &&
-            product.Published)
-        {
-            foreach (var prevstock in prevMultiWarehouseStock)
-                if (prevstock.StockQuantity - prevstock.ReservedQuantity <= 0)
-                {
-                    var actualStock =
-                        product.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == prevstock.WarehouseId);
-                    if (actualStock != null)
-                        if (actualStock.StockQuantity - actualStock.ReservedQuantity > 0)
-                            await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product,
-                                prevstock.WarehouseId);
-                }
-
-            if (product.ProductWarehouseInventory.Sum(x => x.StockQuantity - x.ReservedQuantity) > 0)
-                if (prevMultiWarehouseStock.Sum(x => x.StockQuantity - x.ReservedQuantity) <= 0)
-                    await _outOfStockSubscriptionService.SendNotificationsToSubscribers(product, "");
-        }
     }
 }

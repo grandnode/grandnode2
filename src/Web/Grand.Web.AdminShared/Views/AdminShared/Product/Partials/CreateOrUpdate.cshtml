@@ -140,6 +140,17 @@
                 </div>
             </content>
         </tabstrip-item>
+        @* the journal of the product's stock; the vendor panel has no inventory screens *@
+        @if (!string.IsNullOrEmpty(Model.Id) && Scope.ResourceKeyPrefix != "Vendor")
+        {
+            <tabstrip-item text="@Loc["Admin.Catalog.Products.StockHistory"]" tab-index="24" id="tab-stock-history">
+                <content>
+                    <div>
+                        <partial name="Partials/CreateOrUpdate.StockHistory" model="Model"/>
+                    </div>
+                </content>
+            </tabstrip-item>
+        }
         <tabstrip-item text="@Loc[$"{Scope.ResourceKeyPrefix}.Catalog.Products.LinkedProducts"]" tab-index="12">
             <content>
                 <div>

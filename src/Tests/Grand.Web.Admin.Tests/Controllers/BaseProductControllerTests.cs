@@ -242,6 +242,35 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         _productViewModelServiceMock.Verify(s => s.UpdateProductModel(product, It.IsAny<ProductModel>()), Times.Once);
     }
 
+    [TestMethod]
+    public async Task EditPost_StockChangeRefused_ShowsTheFormWithoutUpdating()
+    {
+        var product = new Product { Id = "p1", Ticks = 5 };
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _productViewModelServiceMock.Setup(s => s.StockChangeRefused(It.IsAny<ProductModel>()))
+            .ReturnsAsync("only through documents");
+
+        var result = await _controller.Edit(new ProductModel { Id = "p1", Ticks = 5 }, continueEditing: false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.IsFalse(_controller.ModelState.IsValid);
+        _productViewModelServiceMock.Verify(
+            s => s.UpdateProductModel(It.IsAny<Product>(), It.IsAny<ProductModel>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CreatePost_StockChangeRefused_ShowsTheFormWithoutInserting()
+    {
+        _productViewModelServiceMock.Setup(s => s.StockChangeRefused(It.IsAny<ProductModel>()))
+            .ReturnsAsync("only through documents");
+
+        var result = await _controller.Create(new ProductModel { StockQuantity = 3 }, continueEditing: false);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _productViewModelServiceMock.Verify(s => s.InsertProductModel(It.IsAny<ProductModel>()), Times.Never);
+    }
+
     // --- Delete --------------------------------------------------------------------------------------
 
     [TestMethod]

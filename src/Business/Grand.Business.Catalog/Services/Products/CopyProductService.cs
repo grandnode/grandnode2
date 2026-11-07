@@ -1,5 +1,7 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Seo;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 
 namespace Grand.Business.Catalog.Services.Products;
@@ -15,17 +17,20 @@ public class CopyProductService : ICopyProductService
     private readonly IProductService _productService;
     private readonly ISlugService _slugService;
     private readonly ISeNameService _seNameService;
+    private readonly IStockMovementService _stockMovementService;
     
     #endregion
     #region Ctor
 
     public CopyProductService(IProductService productService,
         ISlugService slugService,
-        ISeNameService seNameService)
+        ISeNameService seNameService,
+        IStockMovementService stockMovementService)
     {
         _productService = productService;
         _slugService = slugService;
         _seNameService = seNameService;
+        _stockMovementService = stockMovementService;
     }
 
     #endregion
@@ -182,6 +187,10 @@ public class CopyProductService : ICopyProductService
 
         // product <-> discounts mapping
         foreach (var discount in product.AppliedDiscounts) productCopy.AppliedDiscounts.Add(discount);
+
+        //the copy starts with the source's stock: its journal says where the stock came from
+        await _stockMovementService.JournalNewProduct(productCopy, InventoryMovementType.ProductCopy,
+            new StockSource(nameof(Product), product.Id, Reference: product.Name));
 
         //validate search engine name
         await _productService.InsertProduct(productCopy);

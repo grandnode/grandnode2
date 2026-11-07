@@ -1,0 +1,13 @@
+@model CatalogSettingsModel
+
+@* system-wide: saved for all stores whatever store scope the page shows *@
+<admin-card>
+    <div class="grand-fields">
+        <admin-field asp-for="Inventory.StockChangesOnlyThroughDocuments"/>
+        <admin-field asp-for="Inventory.ReceiptNumberPrefix"/>
+        <admin-field asp-for="Inventory.TransferNumberPrefix"/>
+        <admin-field asp-for="Inventory.AdjustmentNumberPrefix"/>
+        <admin-field asp-for="Inventory.StockCountNumberPrefix"/>
+        <admin-field asp-for="Inventory.ReturnReceiptNumberPrefix"/>
+    </div>
+</admin-card>

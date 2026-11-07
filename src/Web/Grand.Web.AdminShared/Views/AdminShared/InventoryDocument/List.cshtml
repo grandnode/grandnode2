@@ -1,0 +1,66 @@
+@model Grand.Web.AdminShared.Models.Inventory.InventoryDocumentListModel
+@{
+    ViewBag.Title = Loc["Admin.Inventory.Documents"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@* a return receipt is created from its merchandise return, so the new-document menu leaves it out *@
+<admin-page title="@Loc["Admin.Inventory.Documents"]" icon="bi-box-seam">
+    <page-actions>
+        <admin-action-menu text="@Loc["Admin.Common.AddNew"]">
+            <admin-action icon="bi-plus-lg" text="@Loc["Enums.Grand.Domain.Catalog.InventoryDocumentType.Receipt"]"
+                          url="@Url.Action("Create", new { area, type = 10 })"/>
+            <admin-action icon="bi-plus-lg" text="@Loc["Enums.Grand.Domain.Catalog.InventoryDocumentType.Transfer"]"
+                          url="@Url.Action("Create", new { area, type = 20 })"/>
+            <admin-action icon="bi-plus-lg" text="@Loc["Enums.Grand.Domain.Catalog.InventoryDocumentType.Adjustment"]"
+                          url="@Url.Action("Create", new { area, type = 30 })"/>
+            <admin-action icon="bi-plus-lg" text="@Loc["Enums.Grand.Domain.Catalog.InventoryDocumentType.StockCount"]"
+                          url="@Url.Action("Create", new { area, type = 40 })"/>
+        </admin-action-menu>
+    </page-actions>
+
+    <admin-filters id="inventorydocument-filters" submit-id="search-inventorydocuments">
+        <filters-search>
+            <admin-input asp-for="SearchNumber"/>
+        </filters-search>
+        <admin-field asp-for="SearchDocumentTypeId" asp-items="Model.AvailableDocumentTypes"/>
+        <admin-field asp-for="SearchStatusId" asp-items="Model.AvailableStatuses"/>
+        <admin-field asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses"/>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="inventorydocuments-grid"
+                    read-url="@Url.Action("ListData", "InventoryDocument", new { area })"
+                    additional-data="additionalData">
+            <grid-column field="Number" title="@Loc["Admin.Inventory.Documents.Fields.Number"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="Edit/{{ Id }}">{{ Number }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="DocumentType" title="@Loc["Admin.Inventory.Documents.Fields.DocumentType"]"/>
+            <grid-column field="Warehouse" title="@Loc["Admin.Inventory.Documents.Fields.Warehouse"]"/>
+            <grid-column field="Lines" title="@Loc["Admin.Inventory.Documents.Fields.Lines"]" width="90"/>
+            <grid-column field="Status" title="@Loc["Admin.Inventory.Documents.Fields.Status"]" width="120"/>
+            <grid-column field="CreatedOn" title="@Loc["Admin.Inventory.Documents.Fields.CreatedOn"]" width="160"
+                         format="{0:G}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+    function additionalData() {
+        var data = {
+            SearchNumber: $('#@Html.IdFor(model => model.SearchNumber)').val(),
+            SearchDocumentTypeId: $('#@Html.IdFor(model => model.SearchDocumentTypeId)').val(),
+            SearchStatusId: $('#@Html.IdFor(model => model.SearchStatusId)').val(),
+            SearchWarehouseId: $('#@Html.IdFor(model => model.SearchWarehouseId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#search-inventorydocuments').click(function () {
+            GrandAdmin.grids.get('#inventorydocuments-grid').dataSource.page(1);
+            return false;
+        });
+    });
+</script>

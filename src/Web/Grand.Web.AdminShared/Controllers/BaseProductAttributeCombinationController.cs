@@ -18,7 +18,6 @@ namespace Grand.Web.AdminShared.Controllers;
 public abstract class BaseProductAttributeCombinationController(
     IProductAttributeCombinationViewModelService productAttributeCombinationViewModelService,
     IProductService productService,
-    IInventoryManageService inventoryManageService,
     IRequestTranslationService translationService,
     IAdminDataScope<Product> scope)
     : BaseController
@@ -74,14 +73,8 @@ public abstract class BaseProductAttributeCombinationController(
         if (combination == null)
             throw new ArgumentException("No product attribute combination found with the specified id");
 
+        //the product's stock sums are worked out again by the delete itself
         await productAttributeService.DeleteProductAttributeCombination(combination, productId);
-        if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-        {
-            var pr = await productService.GetProductById(productId);
-            pr.StockQuantity = pr.ProductAttributeCombinations.Sum(x => x.StockQuantity);
-            pr.ReservedQuantity = pr.ProductAttributeCombinations.Sum(x => x.ReservedQuantity);
-            await inventoryManageService.UpdateStockProduct(pr, false);
-        }
 
         return new JsonResult("");
     }
@@ -175,14 +168,8 @@ public abstract class BaseProductAttributeCombinationController(
 
         if (ModelState.IsValid)
         {
+            //each delete works the product's stock sums out again
             await productAttributeCombinationViewModelService.ClearAllAttributeCombinations(product);
-
-            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
-            {
-                product.StockQuantity = 0;
-                product.ReservedQuantity = 0;
-                await inventoryManageService.UpdateStockProduct(product, false);
-            }
 
             return Json(new { Success = true });
         }
