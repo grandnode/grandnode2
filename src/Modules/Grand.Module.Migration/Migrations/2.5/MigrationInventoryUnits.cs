@@ -49,7 +49,8 @@ public class MigrationInventoryUnits : IMigration
         await Step("indexes", () => InventoryIndexes.CreateUnitIndexes(
             serviceProvider.GetRequiredService<IDatabaseContext>(),
             serviceProvider.GetRequiredService<IRepository<ProductBatch>>(),
-            serviceProvider.GetRequiredService<IRepository<ProductSerialNumber>>()));
+            serviceProvider.GetRequiredService<IRepository<ProductSerialNumber>>(),
+            serviceProvider.GetRequiredService<IRepository<InventoryJournal>>()));
         await Step("task", () => AddTask(serviceProvider));
         await Step("template", () => AddTemplate(serviceProvider));
         await Step("admin menu", () => AddSiteMap(serviceProvider));

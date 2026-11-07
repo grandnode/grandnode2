@@ -43,5 +43,5 @@
             }
         </dl>
     </admin-card>
-    <partial name="Partials/UnitHistory" model="Model.History"/>
+    <partial name="Partials/UnitHistory" model="@Url.Action("SerialNumberHistoryList", "ProductUnit", new { area, id = Model.Id })"/>
 </admin-page>

@@ -69,6 +69,16 @@ public class StockLedgerSerialTests
     }
 
     [TestMethod]
+    public async Task Adjustment_NumberInOtherCase_JournalNamesTheReceivedSpelling()
+    {
+        var product = await Received(Single(), "", "A1");
+
+        await _fixture.Apply(product, Numbers(-1, InventoryMovementType.Adjustment, "", " a1 "));
+
+        CollectionAssert.AreEqual(new[] { "A1" }, _fixture.Entries(product).Last().SerialNumbers.ToArray());
+    }
+
+    [TestMethod]
     public async Task Receipt_NumberInStock_Refused()
     {
         var product = await Received(Single(), "", "A1");

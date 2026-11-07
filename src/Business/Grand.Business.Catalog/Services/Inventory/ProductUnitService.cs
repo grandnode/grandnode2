@@ -30,18 +30,22 @@ public class ProductUnitService(
     {
         var date = DateTime.SpecifyKind(today.Date, DateTimeKind.Utc);
         var until = date.AddDays(MaxWarningDays);
+        //a batch reported expired has nothing more to report
         var batches = await batchRepository.ToListAsync(batchRepository.Table.Where(x =>
-            x.Quantity > 0 && x.ExpiryDateUtc != null && x.ExpiryDateUtc <= until));
+            x.Quantity > 0 && x.ExpiryDateUtc != null && x.ExpiryDateUtc <= until &&
+            x.ExpiryNotifiedStatusId != BatchExpiryStatus.Expired));
+        if (batches.Count == 0)
+            return [];
 
         var settings = await settingService.LoadSetting<InventorySettings>();
-        var products = new Dictionary<string, Product>();
+        var productIds = batches.Select(x => x.ProductId).Distinct().ToList();
+        var products = (await productRepository.ToListAsync(productRepository.Table.Where(x =>
+            productIds.Contains(x.Id)))).ToDictionary(x => x.Id);
         var warehouses = new Dictionary<string, string>();
         var expiring = new List<ExpiringBatch>();
         foreach (var batch in batches)
         {
             if (!products.TryGetValue(batch.ProductId, out var product))
-                products[batch.ProductId] = product = await productRepository.GetByIdAsync(batch.ProductId);
-            if (product == null)
                 continue;
 
             var status = BatchExpiry.Status(batch.ExpiryDateUtc, date, BatchExpiry.WarningDays(product, settings));
@@ -152,45 +156,68 @@ public class ProductUnitService(
         return batchRepository.GetByIdAsync(id);
     }
 
-    public async Task<IList<InventoryJournal>> History(string productId, string batchNumber, string serialNumber)
-    {
-        var query = journalRepository.Table.Where(x => x.ProductId == productId);
-        query = !string.IsNullOrEmpty(serialNumber)
-            ? query.Where(x => x.SerialNumbers.Contains(serialNumber))
-            : query.Where(x => x.BatchNumber != null);
-        var entries = await journalRepository.ToListAsync(query.OrderByDescending(x => x.StockRevision));
-        var key = UnitNumbers.Key(batchNumber);
-        return string.IsNullOrEmpty(serialNumber)
-            ? entries.Where(x => UnitNumbers.Key(x.BatchNumber) == key).ToList()
-            : entries;
-    }
-
-    public async Task<IList<BatchRecipient>> BatchRecipients(ProductBatch batch)
+    public Task<IPagedList<InventoryJournal>> History(ProductBatch batch, int pageIndex, int pageSize)
     {
         ArgumentNullException.ThrowIfNull(batch);
 
-        var entries = await journalRepository.ToListAsync(journalRepository.Table.Where(x =>
-            x.ProductId == batch.ProductId && x.ObjectType == nameof(Shipment) && x.BatchNumber != null));
-        var recipients = new List<BatchRecipient>();
-        foreach (var shipped in entries.Where(x => UnitNumbers.Key(x.BatchNumber) == batch.NumberKey)
-                     .GroupBy(x => x.ObjectId))
+        return journalRepository.PagedAsync(BatchEntries(batch).OrderByDescending(x => x.StockRevision), pageIndex,
+            pageSize);
+    }
+
+    public Task<IPagedList<InventoryJournal>> History(ProductSerialNumber serialNumber, IList<string> warehouseIds,
+        int pageIndex, int pageSize)
+    {
+        ArgumentNullException.ThrowIfNull(serialNumber);
+
+        var query = journalRepository.Table.Where(x =>
+            x.ProductId == serialNumber.ProductId && x.SerialNumbers.Contains(serialNumber.Number));
+        if (warehouseIds != null)
+            query = query.Where(x => warehouseIds.Contains(x.WarehouseId));
+        return journalRepository.PagedAsync(query.OrderByDescending(x => x.StockRevision), pageIndex, pageSize);
+    }
+
+    public async Task<IPagedList<BatchRecipient>> BatchRecipients(ProductBatch batch, int pageIndex, int pageSize)
+    {
+        ArgumentNullException.ThrowIfNull(batch);
+
+        //only deleting a shipment reverses it, and it gives back all it shipped: a reversed shipment kept nothing.
+        //The reversed ones are few, the shipped ones are paged in the database
+        var shipped = BatchEntries(batch).Where(x => x.ObjectType == nameof(Shipment));
+        var reversed = await journalRepository.ToListAsync(shipped
+            .Where(x => x.MovementTypeId == InventoryMovementType.ShipmentReversal).Select(x => x.ObjectId));
+        var entries = await journalRepository.PagedAsync(shipped
+            .Where(x => x.MovementTypeId == InventoryMovementType.Shipment && !reversed.Contains(x.ObjectId))
+            .OrderBy(x => x.StockRevision), pageIndex, pageSize);
+
+        //two reads for the page, whatever its size
+        var shipmentIds = entries.Select(x => x.ObjectId).Distinct().ToList();
+        var shipments = (await shipmentRepository.ToListAsync(shipmentRepository.Table.Where(x =>
+            shipmentIds.Contains(x.Id)))).ToDictionary(x => x.Id);
+        var orderIds = shipments.Values.Select(x => x.OrderId).Distinct().ToList();
+        var orders = (await orderRepository.ToListAsync(orderRepository.Table.Where(x =>
+            orderIds.Contains(x.Id)))).ToDictionary(x => x.Id);
+
+        return new PagedList<BatchRecipient>(entries.Select(entry =>
         {
-            var quantity = shipped.Sum(x => x.MovementTypeId switch {
-                InventoryMovementType.Shipment => x.OutQty - x.InQty,
-                InventoryMovementType.ShipmentReversal => x.OutQty - x.InQty,
-                _ => 0
-            });
-            if (quantity <= 0)
-                continue;
+            var shipment = shipments.GetValueOrDefault(entry.ObjectId);
+            var order = shipment == null ? null : orders.GetValueOrDefault(shipment.OrderId);
+            return new BatchRecipient(entry.ObjectId, shipment?.ShipmentNumber ?? 0, shipment?.OrderId,
+                order?.OrderNumber ?? 0, order?.CustomerId, order?.CustomerEmail, entry.OutQty - entry.InQty,
+                shipment?.CreatedOnUtc ?? entry.CreateDateUtc);
+        }).ToList(), pageIndex, pageSize, entries.TotalCount);
+    }
 
-            var shipment = await shipmentRepository.GetByIdAsync(shipped.Key);
-            var order = shipment == null ? null : await orderRepository.GetByIdAsync(shipment.OrderId);
-            recipients.Add(new BatchRecipient(shipped.Key, shipment?.ShipmentNumber ?? 0, shipment?.OrderId,
-                order?.OrderNumber ?? 0, order?.CustomerId, order?.CustomerEmail, quantity,
-                shipment?.CreatedOnUtc ?? shipped.Min(x => x.CreateDateUtc)));
-        }
-
-        return recipients.OrderBy(x => x.ShippedOnUtc).ToList();
+    /// <summary>
+    ///     The entries of the batch: the same number in another warehouse or combination is another batch, and the
+    ///     journal spells the number as the batch does
+    /// </summary>
+    private IQueryable<InventoryJournal> BatchEntries(ProductBatch batch)
+    {
+        var combinationId = batch.CombinationId ?? "";
+        var warehouseId = batch.WarehouseId ?? "";
+        return journalRepository.Table.Where(x =>
+            x.ProductId == batch.ProductId && x.BatchNumber == batch.Number && x.WarehouseId == warehouseId &&
+            x.CombinationId == combinationId);
     }
 
     public async Task<IList<UnitBucketView>> Buckets(Product product)

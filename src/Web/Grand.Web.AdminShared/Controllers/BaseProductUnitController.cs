@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Utilities.Catalog;
+using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
@@ -78,8 +79,29 @@ public abstract class BaseProductUnitController(
         model.ReceiptDocumentId = serialNumber.ReceiptDocumentId;
         model.ShipmentId = serialNumber.ShipmentId;
         model.InWarranty = serialNumber.WarrantyUntilUtc > DateTime.UtcNow;
-        model.History = await History(serialNumber.ProductId, null, serialNumber.Number);
         return View("SerialNumber", model);
+    }
+
+    /// <summary>
+    ///     A page of the serial number's history; a store reads the moves in its own warehouses only, a unit
+    ///     transferred in from another store's warehouse included
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> SerialNumberHistoryList(DataSourceRequest command, string id)
+    {
+        var serialNumber = await productUnitService.GetSerialNumber(id);
+        if (serialNumber == null || !await CanSee(serialNumber.StoreId))
+            return ErrorForKendoGridJson(translationService.GetResource("Admin.Inventory.Documents.AccessDenied"));
+
+        var storeId = await productScope.GetDefaultStoreIdAsync();
+        var warehouseIds = storeId == null
+            ? null
+            : (await warehouseService.GetAllWarehouses()).Where(x => (x.StoreId ?? "") == storeId)
+            .Select(x => x.Id).ToList();
+        var entries = await productUnitService.History(serialNumber, warehouseIds, command.Page - 1,
+            command.PageSize);
+        return Json(new DataSourceResult { Data = await History(entries), Total = entries.TotalCount });
     }
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
@@ -124,15 +146,42 @@ public abstract class BaseProductUnitController(
         model.UnitCost = batch.UnitCost;
         model.ReceivedOn = dateTimeService.ConvertToUserTime(batch.ReceivedOnUtc, DateTimeKind.Utc);
         model.ReceiptDocumentId = batch.ReceiptDocumentId;
-        foreach (var recipient in await productUnitService.BatchRecipients(batch))
-            model.Recipients.Add(new BatchRecipientModel {
+        return View("Batch", model);
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> BatchHistoryList(DataSourceRequest command, string id)
+    {
+        var batch = await productUnitService.GetBatch(id);
+        if (batch == null || !await CanSee(batch.StoreId))
+            return ErrorForKendoGridJson(translationService.GetResource("Admin.Inventory.Documents.AccessDenied"));
+
+        var entries = await productUnitService.History(batch, command.Page - 1, command.PageSize);
+        return Json(new DataSourceResult { Data = await History(entries), Total = entries.TotalCount });
+    }
+
+    /// <summary>
+    ///     A page of who received the batch
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    [HttpPost]
+    public async Task<IActionResult> BatchRecipientList(DataSourceRequest command, string id)
+    {
+        var batch = await productUnitService.GetBatch(id);
+        if (batch == null || !await CanSee(batch.StoreId))
+            return ErrorForKendoGridJson(translationService.GetResource("Admin.Inventory.Documents.AccessDenied"));
+
+        var recipients = await productUnitService.BatchRecipients(batch, command.Page - 1, command.PageSize);
+        return Json(new DataSourceResult {
+            Data = recipients.Select(recipient => new BatchRecipientModel {
                 ShipmentId = recipient.ShipmentId, ShipmentNumber = recipient.ShipmentNumber,
                 OrderId = recipient.OrderId, OrderNumber = recipient.OrderNumber, CustomerId = recipient.CustomerId,
                 CustomerEmail = recipient.CustomerEmail, Quantity = recipient.Quantity,
                 ShippedOn = dateTimeService.ConvertToUserTime(recipient.ShippedOnUtc, DateTimeKind.Utc)
-            });
-        model.History = await History(batch.ProductId, batch.Number, null);
-        return View("Batch", model);
+            }).ToList(),
+            Total = recipients.TotalCount
+        });
     }
 
     /// <summary>
@@ -146,15 +195,24 @@ public abstract class BaseProductUnitController(
         if (batch == null || !await CanSee(batch.StoreId))
             return Denied("Batches");
 
+        //a recall needs every recipient: read a page at a time
         var csv = new StringBuilder("Batch;Shipment;Order;Customer;Email;Quantity;Shipped\r\n");
-        foreach (var recipient in await productUnitService.BatchRecipients(batch))
-            csv.Append(string.Join(";", Csv(batch.Number), recipient.ShipmentNumber, recipient.OrderNumber,
-                    Csv(recipient.CustomerId), Csv(recipient.CustomerEmail), recipient.Quantity,
-                    recipient.ShippedOnUtc.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)))
-                .Append("\r\n");
+        IPagedList<BatchRecipient> page;
+        var pageIndex = 0;
+        do
+        {
+            page = await productUnitService.BatchRecipients(batch, pageIndex++, CsvPageSize);
+            foreach (var recipient in page)
+                csv.Append(string.Join(";", Csv(batch.Number), recipient.ShipmentNumber, recipient.OrderNumber,
+                        Csv(recipient.CustomerId), Csv(recipient.CustomerEmail), recipient.Quantity,
+                        recipient.ShippedOnUtc.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)))
+                    .Append("\r\n");
+        } while (page.HasNextPage);
         return File(Encoding.UTF8.GetPreamble().Concat(Encoding.UTF8.GetBytes(csv.ToString())).ToArray(),
             "text/csv", $"batch-{batch.Number}.csv");
     }
+
+    private const int CsvPageSize = 1000;
 
     /// <summary>
     ///     A CSV field, quoted, and never read as a formula by a spreadsheet
@@ -233,11 +291,11 @@ public abstract class BaseProductUnitController(
         return row;
     }
 
-    private async Task<IList<StockHistoryRowModel>> History(string productId, string batchNumber,
-        string serialNumber)
+    private async Task<IList<StockHistoryRowModel>> History(IEnumerable<InventoryJournal> entries)
     {
         var rows = new List<StockHistoryRowModel>();
-        foreach (var entry in await productUnitService.History(productId, batchNumber, serialNumber))
+        foreach (var entry in entries)
+        {
             rows.Add(new StockHistoryRowModel {
                 Date = dateTimeService.ConvertToUserTime(entry.CreateDateUtc, DateTimeKind.Utc),
                 MovementType = enumTranslationService.GetTranslationEnum(entry.MovementTypeId),
@@ -249,6 +307,8 @@ public abstract class BaseProductUnitController(
                 ShipmentId = entry.ObjectType == nameof(Shipment) ? entry.ObjectId : null,
                 Comment = entry.Comments
             });
+        }
+
         return rows;
     }
 }

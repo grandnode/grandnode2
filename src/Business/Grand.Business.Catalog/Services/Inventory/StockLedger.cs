@@ -153,6 +153,9 @@ public sealed class StockLedger(
         if (errors.Count > 0 || (entries.Count == 0 && !reservedChanged && !repaired))
             return errors;
 
+        if (units != null)
+            foreach (var (change, entry) in unitEntries)
+                stockUnits.Name(units, change, entry);
         await Insert(product, entries);
         if (units != null)
         {

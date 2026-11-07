@@ -329,6 +329,27 @@ public sealed class StockUnits(
     /// <summary>
     ///     Stamps the records the change touched with the revision of its journal entry
     /// </summary>
+    /// <summary>
+    ///     Names the entry's batch and serial numbers as their records spell them, whatever spelling the change used:
+    ///     the history of a unit finds its entries by the stored number
+    /// </summary>
+    public void Name(UnitSet set, StockChange change, InventoryJournal entry)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        ArgumentNullException.ThrowIfNull(entry);
+
+        if (!set.Touched.TryGetValue(change, out var records))
+            return;
+
+        if (entry.BatchNumber != null &&
+            records.OfType<ProductBatch>().FirstOrDefault(x => x.NumberKey == UnitNumbers.Key(entry.BatchNumber)) is
+                { } batch)
+            entry.BatchNumber = batch.Number;
+        var serialNumbers = records.OfType<ProductSerialNumber>().ToList();
+        entry.SerialNumbers = entry.SerialNumbers.Select(x =>
+            serialNumbers.FirstOrDefault(s => s.NumberKey == UnitNumbers.Key(x))?.Number ?? x).ToList();
+    }
+
     public void Stamp(UnitSet set, StockChange change, InventoryJournal entry)
     {
         ArgumentNullException.ThrowIfNull(set);

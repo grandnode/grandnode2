@@ -59,6 +59,7 @@ A product of `ManageStock` or `ManageStockByAttributes` tracks units by `Product
 - **`ProductSerialNumber`**: one record per unit, `InStock`, `Shipped`, `Scrapped` or `Missing`, with its warehouse and, once shipped, order, shipment and `WarrantyUntilUtc`.
 - **Pool**: not stored. A bucket's stock less its assigned units (batch quantities, or in-stock serial numbers). Switching tracking on makes the whole stock the pool (`TrackingStarted` marker); an `Assignment` document, a shipment naming a new serial number, or a stock count fills it.
 - Numbers compare by `NumberKey` (`UnitNumbers.Key`: trimmed, upper-cased); both unique indexes use it.
+- The journal names a unit as its record spells it (`StockUnits.Name`, before the entries are inserted), so a unit's history and a batch's recipients filter by number in the database, scoped to the batch's warehouse and combination, and read a page at a time. Never load a product's journal to filter it in memory.
 - Units live in the bucket's journal warehouse: `StockBuckets.UnitWarehouse(product, warehouseId)`. A single-warehouse product keeps them in its own warehouse whatever an order item names.
 
 ### How units move

@@ -42,7 +42,7 @@ public static class InventoryIndexes
     ///     ledger checks it under the product's lock before every write
     /// </summary>
     public static async Task CreateUnitIndexes(IDatabaseContext databaseContext, IRepository<ProductBatch> batches,
-        IRepository<ProductSerialNumber> serialNumbers)
+        IRepository<ProductSerialNumber> serialNumbers, IRepository<InventoryJournal> journal)
     {
         await databaseContext.CreateIndex(batches,
             OrderBuilder<ProductBatch>.Create().Ascending(x => x.ProductId).Ascending(x => x.CombinationId)
@@ -52,6 +52,10 @@ public static class InventoryIndexes
             OrderBuilder<ProductBatch>.Create().Ascending(x => x.ExpiryDateUtc), "ExpiryDateUtc");
         await databaseContext.CreateIndex(batches,
             OrderBuilder<ProductBatch>.Create().Ascending(x => x.NumberKey), "NumberKey");
+        //the store manager's list and dashboard
+        await databaseContext.CreateIndex(batches,
+            OrderBuilder<ProductBatch>.Create().Ascending(x => x.StoreId).Ascending(x => x.ExpiryDateUtc),
+            "StoreId_ExpiryDateUtc");
 
         await databaseContext.CreateIndex(serialNumbers,
             OrderBuilder<ProductSerialNumber>.Create().Ascending(x => x.ProductId).Ascending(x => x.NumberKey),
@@ -60,5 +64,14 @@ public static class InventoryIndexes
             OrderBuilder<ProductSerialNumber>.Create().Ascending(x => x.NumberKey), "NumberKey");
         await databaseContext.CreateIndex(serialNumbers,
             OrderBuilder<ProductSerialNumber>.Create().Ascending(x => x.OrderId), "OrderId");
+        //the store manager's list
+        await databaseContext.CreateIndex(serialNumbers,
+            OrderBuilder<ProductSerialNumber>.Create().Ascending(x => x.StoreId).Ascending(x => x.NumberKey),
+            "StoreId_NumberKey");
+
+        //the history and the recipients of a batch, a page at a time
+        await databaseContext.CreateIndex(journal,
+            OrderBuilder<InventoryJournal>.Create().Ascending(x => x.ProductId).Ascending(x => x.BatchNumber)
+                .Ascending(x => x.StockRevision), "ProductId_BatchNumber_StockRevision");
     }
 }

@@ -78,6 +78,17 @@ public class StockLedgerBatchTests
     }
 
     [TestMethod]
+    public async Task Receipt_ExistingBatchOtherSpelling_JournalNamesTheReceivedSpelling()
+    {
+        var product = await _fixture.Stocked(Single(), InventoryTrackingMode.Batch);
+        await _fixture.Apply(product, Receipt(10, "L1", January, 2.5m));
+
+        await _fixture.Apply(product, Receipt(5, " l1 "));
+
+        Assert.AreEqual("L1", _fixture.Entries(product).Last().BatchNumber);
+    }
+
+    [TestMethod]
     public async Task Receipt_ExistingBatchOtherExpiry_Refused()
     {
         var product = await _fixture.Stocked(Single(), InventoryTrackingMode.Batch);

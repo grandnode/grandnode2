@@ -157,14 +157,25 @@ public interface IProductUnitService
     Task<ProductBatch> GetBatch(string id);
 
     /// <summary>
-    ///     The journal entries of the product naming the batch or the serial number, newest first
+    ///     A page of the journal entries of the batch, in its warehouse, newest first
     /// </summary>
-    Task<IList<InventoryJournal>> History(string productId, string batchNumber, string serialNumber);
+    Task<IPagedList<InventoryJournal>> History(ProductBatch batch, int pageIndex, int pageSize);
 
     /// <summary>
-    ///     Every shipment that shipped units of the product's batch and kept them, with its order and customer
+    ///     A page of the journal entries naming the serial number, newest first
     /// </summary>
-    Task<IList<BatchRecipient>> BatchRecipients(ProductBatch batch);
+    /// <param name="serialNumber">The serial number</param>
+    /// <param name="warehouseIds">The warehouses whose entries are read; null for every warehouse it passed through</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
+    Task<IPagedList<InventoryJournal>> History(ProductSerialNumber serialNumber, IList<string> warehouseIds,
+        int pageIndex, int pageSize);
+
+    /// <summary>
+    ///     A page of the shipments that shipped units of the batch from its warehouse and kept them, with their order
+    ///     and customer, in shipping order
+    /// </summary>
+    Task<IPagedList<BatchRecipient>> BatchRecipients(ProductBatch batch, int pageIndex, int pageSize);
 
     /// <summary>
     ///     The stock buckets of a product tracking units, with the stock batches or serial numbers hold

@@ -33,33 +33,24 @@
         </dl>
     </admin-card>
 
-    @* a recall: every shipment that kept units of the batch *@
+    @* a recall: every shipment that kept units of the batch, a page at a time *@
     <admin-card title="@Loc["Admin.Inventory.Units.Recipients"]" flush>
-        <div class="table-responsive">
-            <table class="table table-sm align-middle mb-0">
-                <thead>
-                <tr>
-                    <th>@Loc["Admin.Inventory.Units.Shipment"]</th>
-                    <th>@Loc["Admin.Inventory.Units.Order"]</th>
-                    <th>@Loc["Admin.Inventory.Units.Customer"]</th>
-                    <th class="text-end">@Loc["Admin.Inventory.Documents.Fields.Quantity"]</th>
-                    <th>@Loc["Admin.Inventory.Units.ShippedOn"]</th>
-                </tr>
-                </thead>
-                <tbody>
-                @foreach (var recipient in Model.Recipients)
-                {
-                    <tr>
-                        <td><a href="@Url.Action("ShipmentDetails", "Shipment", new { area, id = recipient.ShipmentId })">#@recipient.ShipmentNumber</a></td>
-                        <td><a href="@Url.Action("Edit", "Order", new { area, id = recipient.OrderId })">#@recipient.OrderNumber</a></td>
-                        <td>@recipient.CustomerEmail</td>
-                        <td class="text-end">@recipient.Quantity</td>
-                        <td>@recipient.ShippedOn.ToShortDateString()</td>
-                    </tr>
-                }
-                </tbody>
-            </table>
-        </div>
+        <admin-grid id="batchrecipients-grid"
+                    read-url="@Url.Action("BatchRecipientList", "ProductUnit", new { area, id = Model.Id })">
+            <grid-column field="ShipmentNumber" title="@Loc["Admin.Inventory.Units.Shipment"]" width="110">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area })/{{ ShipmentId }}">#{{ ShipmentNumber }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="OrderNumber" title="@Loc["Admin.Inventory.Units.Order"]" width="110">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area })/{{ OrderId }}">#{{ OrderNumber }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="CustomerEmail" title="@Loc["Admin.Inventory.Units.Customer"]"/>
+            <grid-column field="Quantity" title="@Loc["Admin.Inventory.Documents.Fields.Quantity"]" width="100"/>
+            <grid-column field="ShippedOn" title="@Loc["Admin.Inventory.Units.ShippedOn"]" width="130" format="{0:d}"/>
+        </admin-grid>
     </admin-card>
-    <partial name="Partials/UnitHistory" model="Model.History"/>
+    <partial name="Partials/UnitHistory" model="@Url.Action("BatchHistoryList", "ProductUnit", new { area, id = Model.Id })"/>
 </admin-page>

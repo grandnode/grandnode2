@@ -39,6 +39,7 @@ public class MigrationInventoryUnitsTests
         services.AddSingleton<IRepository<AdminSiteMap>>(_siteMap);
         services.AddSingleton<IRepository<ProductBatch>>(new LiteDBRepositoryMock<ProductBatch>());
         services.AddSingleton<IRepository<ProductSerialNumber>>(new LiteDBRepositoryMock<ProductSerialNumber>());
+        services.AddSingleton<IRepository<InventoryJournal>>(new LiteDBRepositoryMock<InventoryJournal>());
         services.AddSingleton(new Mock<IDatabaseContext>().Object);
         services.AddSingleton(new Mock<ICacheBase>().Object);
         services.AddSingleton<ILogger<MigrationInventoryUnits>>(NullLogger<MigrationInventoryUnits>.Instance);

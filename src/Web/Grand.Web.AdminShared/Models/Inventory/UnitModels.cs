@@ -43,7 +43,6 @@ public class SerialNumberModel : SerialNumberRowModel
     public string ReceiptDocumentId { get; set; }
     public string ShipmentId { get; set; }
     public bool InWarranty { get; set; }
-    public IList<StockHistoryRowModel> History { get; set; } = new List<StockHistoryRowModel>();
 }
 
 public class BatchListModel : BaseModel
@@ -91,8 +90,6 @@ public class BatchModel : BatchRowModel
     public decimal? UnitCost { get; set; }
     public DateTime ReceivedOn { get; set; }
     public string ReceiptDocumentId { get; set; }
-    public IList<BatchRecipientModel> Recipients { get; set; } = new List<BatchRecipientModel>();
-    public IList<StockHistoryRowModel> History { get; set; } = new List<StockHistoryRowModel>();
 }
 
 public class BatchRecipientModel
