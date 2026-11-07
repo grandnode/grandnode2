@@ -242,6 +242,60 @@ public class ProductViewModelServiceTests
     }
 
     [TestMethod]
+    public async Task StockChangeRefused_TrackedProduct_SettingOff_ChangedStock_ReturnsMessage()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        var (_, model) = SingleWarehouseProduct(5, 9, 5);
+        model.InventoryTrackingModeId = InventoryTrackingMode.SerialNumber;
+
+        Assert.IsNotNull(await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_StoredTrackedSwitchedOff_ChangedStock_ReturnsMessage()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        var (product, model) = SingleWarehouseProduct(5, 9, 5);
+        product.InventoryTrackingModeId = InventoryTrackingMode.Batch;
+        _productServiceMock.Setup(x => x.GetProductById(model.Id, It.IsAny<bool>())).ReturnsAsync(product);
+
+        Assert.IsNotNull(await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_NewTrackedProductWithStock_ReturnsMessage()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        var model = new ProductModel {
+            Name = "p", ManageInventoryMethodId = (int)ManageInventoryMethod.ManageStock, StockQuantity = 3,
+            InventoryTrackingModeId = InventoryTrackingMode.Batch
+        };
+
+        Assert.IsNotNull(await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task UpdateBulkEdit_TrackedProduct_StockIgnored()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        var product = new Product {
+            Name = "p", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 5,
+            InventoryTrackingModeId = InventoryTrackingMode.SerialNumber
+        };
+        _productServiceMock.Setup(x => x.GetProductById(product.Id, true)).ReturnsAsync(product);
+
+        await _productViewModelService.UpdateBulkEdit([
+            new BulkEditProductModel {
+                Id = product.Id, Name = "p", StockQuantity = 9,
+                ManageInventoryMethodId = (int)ManageInventoryMethod.ManageStock
+            }
+        ]);
+
+        _stockMovementServiceMock.Verify(x => x.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
+    [TestMethod]
     public async Task StockChangeRefused_SettingOff_Allowed()
     {
         var (_, model) = SingleWarehouseProduct(5, 9, 5);

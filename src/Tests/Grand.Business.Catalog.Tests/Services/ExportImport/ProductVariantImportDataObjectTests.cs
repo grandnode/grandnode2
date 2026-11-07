@@ -43,7 +43,8 @@ public class ProductVariantImportDataObjectTests
         _attributeService =
             new Mock<ProductAttributeService>(cache, attributeRepository, _productRepository, mediator.Object,
                 new MongoResourceLockTest(),
-                StockTestFixture.Ledger(_productRepository, new MongoDBRepositoryTest<InventoryJournal>())) {
+                StockTestFixture.Ledger(_productRepository, new MongoDBRepositoryTest<InventoryJournal>()),
+                StockTestFixture.UnitService()) {
                 CallBase = true
             };
 

@@ -401,6 +401,24 @@ public class ProductImportDataObjectTests
     }
 
     [TestMethod]
+    public async Task Import_TrackedProduct_StockColumnsIgnored_WarningReported()
+    {
+        SetupLookups();
+        var existing = new Product {
+            Name = "p", Sku = "SKU-T", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2,
+            InventoryTrackingModeId = InventoryTrackingMode.Batch
+        };
+        await _repository.InsertAsync(existing);
+
+        var result = await _productImportDataObject.Import(
+            new List<ProductDto> { new() { Sku = "SKU-T", StockQuantity = 9 } }, false);
+
+        Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
+        Assert.IsFalse(_journal.Table.Any());
+        Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("batch- or serial-tracked")));
+    }
+
+    [TestMethod]
     public async Task Import_SettingOn_IgnoresStockAndWarns()
     {
         SetupLookups();

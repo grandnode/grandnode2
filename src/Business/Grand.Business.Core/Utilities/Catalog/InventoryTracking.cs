@@ -8,6 +8,12 @@ namespace Grand.Business.Core.Utilities.Catalog;
 public static class InventoryTracking
 {
     /// <summary>
+    ///     Why a stock write from outside the back office is refused for a product tracking its units
+    /// </summary>
+    public const string StockDocumentsOnlyMessage =
+        "stock of a batch- or serial-tracked product changes through inventory documents";
+
+    /// <summary>
     ///     The product tracks batches or serial numbers; only a product whose stock is tracked can
     /// </summary>
     public static bool Tracked(Product product)

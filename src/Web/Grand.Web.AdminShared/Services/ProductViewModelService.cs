@@ -75,7 +75,7 @@ public class ProductViewModelService(
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        if (!(await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments)
+        if (!await StockDocumentOnly(model))
             return null;
 
         //an unticked warehouse gives up the stock it held
@@ -87,6 +87,23 @@ public class ProductViewModelService(
             : null;
     }
 
+    /// <summary>
+    ///     Whether the form's stock changes only through documents: by the setting, or for a product tracking batches or
+    ///     serial numbers, as stored or as the form makes it
+    /// </summary>
+    private async Task<bool> StockDocumentOnly(ProductModel model)
+    {
+        var settings = await settingService.LoadSetting<InventorySettings>();
+        if (InventoryTracking.StockDocumentOnly(new Product {
+                ManageInventoryMethodId = (ManageInventoryMethod)model.ManageInventoryMethodId,
+                InventoryTrackingModeId = model.InventoryTrackingModeId
+            }, settings))
+            return true;
+
+        return !string.IsNullOrEmpty(model.Id) && await productService.GetProductById(model.Id) is { } stored &&
+               InventoryTracking.Tracked(stored);
+    }
+
     public virtual async Task PrepareProductModel(ProductModel model, Product product,
         bool setPredefinedValues, bool excludeProperties)
     {
@@ -95,8 +112,10 @@ public class ProductViewModelService(
         model.PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
         model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
         model.BaseDimensionIn = (await measureService.GetMeasureDimensionById(measureSettings.BaseDimensionId))?.Name;
-        model.StockChangesOnlyThroughDocuments =
-            (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments;
+        var inventorySettings = await settingService.LoadSetting<InventorySettings>();
+        model.StockChangesOnlyThroughDocuments = product != null
+            ? InventoryTracking.StockDocumentOnly(product, inventorySettings)
+            : inventorySettings.StockChangesOnlyThroughDocuments;
 
         //the stock the form shows: only a value changed since is applied when it is saved
         if (product != null && !excludeProperties)
@@ -593,6 +612,10 @@ public class ProductViewModelService(
         product.Locales = await seNameService.TranslationSeNameProperties(model.Locales, product, x => x.Name);
         product.SeName = await seNameService.ValidateSeName(product, model.SeName, product.Name, true);
 
+        //batches and serial numbers come in with documents: a product tracking them starts with no stock
+        if (InventoryTracking.Tracked(product))
+            product.StockQuantity = product.ReservedQuantity = 0;
+
         //the stock the product starts with goes into the journal before the product exists
         await stockMovementService.JournalNewProduct(product, InventoryMovementType.ManualEdit,
             ManualEditSource(product));
@@ -809,8 +832,7 @@ public class ProductViewModelService(
 
     public virtual async Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products)
     {
-        var stockChangesOnlyThroughDocuments =
-            (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments;
+        var inventorySettings = await settingService.LoadSetting<InventorySettings>();
         foreach (var pModel in products)
         {
             //update
@@ -819,6 +841,7 @@ public class ProductViewModelService(
             {
                 //the grid shows no earlier value: the stored one is what it changes
                 var stockChanged = pModel.StockQuantity != product.StockQuantity;
+                var stockChangesOnlyThroughDocuments = InventoryTracking.StockDocumentOnly(product, inventorySettings);
 
                 product.Sku = pModel.Sku;
                 product.Price = pModel.Price;

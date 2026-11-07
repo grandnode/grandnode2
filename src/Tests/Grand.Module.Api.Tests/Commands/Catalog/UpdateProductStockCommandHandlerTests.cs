@@ -43,6 +43,22 @@ public class UpdateProductStockCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_TrackedProduct_Refused_NoMovement()
+    {
+        var product = Stored(new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            InventoryTrackingModeId = InventoryTrackingMode.SerialNumber
+        });
+
+        var result = await _handler.Handle(
+            new UpdateProductStockCommand { Product = new ProductDto { Id = product.Id }, Stock = 12 }, default);
+
+        Assert.IsFalse(result);
+        _stockMovementServiceMock.Verify(x => x.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
+    [TestMethod]
     public async Task Handle_SetsStockThroughLedgerAsApi()
     {
         var product = Stored(new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock });

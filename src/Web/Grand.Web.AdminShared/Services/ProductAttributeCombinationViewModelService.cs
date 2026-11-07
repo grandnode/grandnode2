@@ -136,7 +136,7 @@ public class ProductAttributeCombinationViewModelService(
     {
         var model = new ProductAttributeCombinationModel();
         var stockChangesOnlyThroughDocuments =
-            (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments;
+            InventoryTracking.StockDocumentOnly(product, await settingService.LoadSetting<InventorySettings>());
         var wim = new List<ProductAttributeCombinationModel.WarehouseInventoryModel>();
         foreach (var warehouse in await warehouseService.GetAllWarehouses())
         {
@@ -226,7 +226,7 @@ public class ProductAttributeCombinationViewModelService(
                 warnings.Add(translationService.GetResource(
                     "Admin.Catalog.Products.ProductAttributeCombinations.StockNotTracked"));
             else if (changes.Any(x => x.SetTo) &&
-                     (await settingService.LoadSetting<InventorySettings>()).StockChangesOnlyThroughDocuments)
+                     InventoryTracking.StockDocumentOnly(product, await settingService.LoadSetting<InventorySettings>()))
                 warnings.Add(translationService.GetResource("Admin.Catalog.Products.StockChangesOnlyThroughDocuments"));
 
             return warnings.Count > 0;
