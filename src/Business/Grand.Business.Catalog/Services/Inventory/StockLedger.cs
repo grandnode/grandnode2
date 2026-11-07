@@ -62,9 +62,11 @@ public sealed class StockLedger(
                 continue;
             }
 
-            //an assignment gives units to stock without them: it moves no stock
-            var assignment = change.MovementType == InventoryMovementType.TrackingAssignment;
-            var delta = assignment ? 0 : change.SetTo ? change.Quantity - bucket.Stock : change.Quantity;
+            //an assignment gives units to stock without them, and a scrapped return was out of stock already:
+            //neither moves stock
+            var unitsOnly = change.MovementType is InventoryMovementType.TrackingAssignment
+                or InventoryMovementType.ReturnScrapped;
+            var delta = unitsOnly ? 0 : change.SetTo ? change.Quantity - bucket.Stock : change.Quantity;
             if (change.MovementType == InventoryMovementType.TransferOut &&
                 product.BackorderModeId == BackorderMode.NoBackorders && bucket.Stock - bucket.Reserved < -delta)
             {
@@ -83,16 +85,17 @@ public sealed class StockLedger(
 
                 unitBuckets[bucket.Key] = bucket;
             }
-            else if (assignment)
+            else if (unitsOnly)
             {
                 errors.Add(StockErrors.StockNotTracked);
                 continue;
             }
 
-            if (assignment)
+            if (unitsOnly)
             {
                 var entry = Entry(product, bucket, 0, change.MovementType, change.Source, change);
-                entry.InQty = entry.OutQty = change.Quantity;
+                if (change.MovementType == InventoryMovementType.TrackingAssignment)
+                    entry.InQty = entry.OutQty = change.Quantity;
                 entries.Add(entry);
                 unitEntries.Add((change, entry));
             }
