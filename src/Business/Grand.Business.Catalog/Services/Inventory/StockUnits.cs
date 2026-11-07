@@ -127,10 +127,7 @@ public sealed class StockUnits(
         ArgumentNullException.ThrowIfNull(bucket);
         ArgumentNullException.ThrowIfNull(change);
 
-        if (set.Mode == InventoryTrackingMode.SerialNumber && !set.InStock.ContainsKey(bucket.Key))
-            set.InStock[bucket.Key] = await serialNumberRepository.CountAsync(serialNumberRepository.Table.Where(x =>
-                x.ProductId == product.Id && x.CombinationId == (bucket.CombinationId ?? "") &&
-                x.WarehouseId == (bucket.WarehouseId ?? "") && x.StatusId == SerialNumberStatus.InStock));
+        await CountInStock(set, product, bucket.CombinationId, bucket.WarehouseId);
         set.InitialPool.TryAdd(bucket.Key, bucket.Stock - Assigned(set, bucket));
 
         return set.Mode switch {
@@ -138,6 +135,168 @@ public sealed class StockUnits(
             InventoryTrackingMode.SerialNumber => await ApplySerialNumbers(set, product, bucket, delta, change),
             _ => null
         };
+    }
+
+    /// <summary>
+    ///     Applies again the units of an entry whose writes may have been lost: a record stamped with the entry's
+    ///     revision or a later one has it already and is left alone. Nothing is checked: the entry was checked when it
+    ///     was written
+    /// </summary>
+    public async Task Replay(UnitSet set, Product product, UnitBucket bucket, InventoryJournal entry)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        ArgumentNullException.ThrowIfNull(bucket);
+        ArgumentNullException.ThrowIfNull(entry);
+
+        var change = new StockChange(bucket.Attributes, bucket.WarehouseId, entry.InQty - entry.OutQty, false,
+            entry.MovementTypeId, new StockSource(entry.ObjectType, entry.ObjectId, entry.PositionId)) {
+            BatchNumber = entry.BatchNumber, UnitCost = entry.UnitCost
+        };
+
+        if (set.Mode == InventoryTrackingMode.Batch && !string.IsNullOrWhiteSpace(entry.BatchNumber))
+        {
+            var key = UnitNumbers.Key(entry.BatchNumber);
+            var batch = Find(set, bucket, key);
+            if (batch != null && batch.StockRevision >= entry.StockRevision)
+                return;
+
+            if (batch == null)
+            {
+                batch = (await Receive(set, product, bucket, key, change)).Batch;
+                batch.ExpiryDateUtc ??= Date(entry.ExpiryDateUtc);
+            }
+
+            batch.Quantity += entry.MovementTypeId == InventoryMovementType.TrackingAssignment
+                ? entry.InQty
+                : entry.InQty - entry.OutQty;
+            batch.StockRevision = entry.StockRevision;
+            set.Changed.Add(batch);
+            return;
+        }
+
+        if (set.Mode != InventoryTrackingMode.SerialNumber || entry.SerialNumbers is not { Count: > 0 } ||
+            entry.MovementTypeId == InventoryMovementType.TransferOut)
+            //a transfer's entry in the other warehouse places its numbers
+            return;
+
+        await CountInStock(set, product, bucket.CombinationId, bucket.WarehouseId);
+        var shipment = entry.MovementTypeId == InventoryMovementType.Shipment
+            ? await ShipmentInfo(entry.ObjectId, entry.PositionId)
+            : null;
+        foreach (var number in entry.SerialNumbers)
+        {
+            var serialNumber = set.SerialNumbers.GetValueOrDefault(UnitNumbers.Key(number));
+            if (serialNumber != null && serialNumber.StockRevision >= entry.StockRevision)
+                continue;
+
+            if (serialNumber == null)
+                serialNumber = await Create(set, product, bucket, number, change);
+            else
+                await Leave(set, product, serialNumber);
+
+            switch (entry.MovementTypeId)
+            {
+                case InventoryMovementType.Shipment:
+                    serialNumber.StatusId = SerialNumberStatus.Shipped;
+                    serialNumber.WarehouseId = bucket.WarehouseId ?? "";
+                    serialNumber.OrderId = shipment.OrderId;
+                    serialNumber.OrderItemId = shipment.OrderItemId;
+                    serialNumber.ShipmentId = shipment.ShipmentId;
+                    serialNumber.ShippedOnUtc = shipment.ShippedOnUtc;
+                    serialNumber.WarrantyUntilUtc = shipment.WarrantyUntilUtc;
+                    break;
+                case InventoryMovementType.ReturnScrapped:
+                    serialNumber.StatusId = SerialNumberStatus.Scrapped;
+                    break;
+                case InventoryMovementType.StockCount when entry.OutQty > entry.InQty:
+                    serialNumber.StatusId = SerialNumberStatus.Missing;
+                    break;
+                case not InventoryMovementType.TrackingAssignment when entry.OutQty > entry.InQty:
+                    serialNumber.StatusId = SerialNumberStatus.Scrapped;
+                    break;
+                default:
+                    await Place(set, serialNumber, bucket);
+                    if (entry.MovementTypeId is InventoryMovementType.ShipmentReversal
+                        or InventoryMovementType.ReturnReceipt)
+                    {
+                        serialNumber.OrderId = serialNumber.OrderItemId = serialNumber.ShipmentId = null;
+                        serialNumber.ShippedOnUtc = serialNumber.WarrantyUntilUtc = null;
+                    }
+
+                    break;
+            }
+
+            serialNumber.StockRevision = entry.StockRevision;
+            set.Changed.Add(serialNumber);
+        }
+    }
+
+    /// <summary>
+    ///     The changes a stock count of a serial-tracked bucket books: the serial numbers found are all the units the
+    ///     bucket holds. A number in stock here is confirmed; one unknown, scrapped or missing is assigned to the stock
+    ///     without numbers while it lasts, and beyond it booked in as found; a number in stock here and not found is
+    ///     missing, and the stock without numbers left is booked out
+    /// </summary>
+    /// <returns>The changes, or the key of the error</returns>
+    public async Task<(IReadOnlyList<StockChange> Changes, string Error)> ExpandCount(UnitSet set, Product product,
+        UnitBucket bucket, StockChange change)
+    {
+        ArgumentNullException.ThrowIfNull(set);
+        ArgumentNullException.ThrowIfNull(bucket);
+        ArgumentNullException.ThrowIfNull(change);
+
+        var scanned = change.CountedSerialNumbers ?? [];
+        if (UnitNumbers.Duplicates(scanned).Count > 0)
+            return ([], UnitErrors.SerialDuplicate);
+
+        var combinationId = bucket.CombinationId ?? "";
+        var warehouseId = bucket.WarehouseId ?? "";
+        foreach (var serialNumber in await serialNumberRepository.ToListAsync(serialNumberRepository.Table.Where(x =>
+                     x.ProductId == product.Id && x.CombinationId == combinationId && x.WarehouseId == warehouseId &&
+                     x.StatusId == SerialNumberStatus.InStock)))
+            set.SerialNumbers.TryAdd(serialNumber.NumberKey, serialNumber);
+        await CountInStock(set, product, combinationId, warehouseId);
+
+        var pool = bucket.Stock - set.InStock[bucket.Key];
+        var keys = scanned.Select(UnitNumbers.Key).ToHashSet();
+        var assigned = new List<string>();
+        var found = new List<string>();
+        foreach (var number in scanned)
+        {
+            var serialNumber = set.SerialNumbers.GetValueOrDefault(UnitNumbers.Key(number));
+            if (serialNumber is { StatusId: SerialNumberStatus.InStock } &&
+                InBucket(serialNumber.CombinationId, serialNumber.WarehouseId, bucket))
+                continue;
+            if (serialNumber is { StatusId: SerialNumberStatus.InStock })
+                return ([], UnitErrors.SerialInOtherWarehouse);
+            if (serialNumber is { StatusId: SerialNumberStatus.Shipped })
+                return ([], UnitErrors.SerialShipped);
+
+            (assigned.Count < pool ? assigned : found).Add(number);
+        }
+
+        var missing = set.SerialNumbers.Values
+            .Where(x => x.StatusId == SerialNumberStatus.InStock &&
+                        InBucket(x.CombinationId, x.WarehouseId, bucket) && !keys.Contains(x.NumberKey))
+            .Select(x => x.Number).ToList();
+        var poolLeft = Math.Max(0, pool - assigned.Count);
+
+        StockChange Part(int quantity, InventoryMovementType movementType, IReadOnlyList<string> numbers)
+        {
+            return change with {
+                Quantity = quantity, SetTo = false, MovementType = movementType, SerialNumbers = numbers,
+                CountedSerialNumbers = null
+            };
+        }
+
+        var changes = new List<StockChange>();
+        if (assigned.Count > 0)
+            changes.Add(Part(assigned.Count, InventoryMovementType.TrackingAssignment, assigned));
+        if (found.Count > 0)
+            changes.Add(Part(found.Count, InventoryMovementType.StockCount, found));
+        if (missing.Count + poolLeft > 0)
+            changes.Add(Part(-(missing.Count + poolLeft), InventoryMovementType.StockCount, missing));
+        return (changes, null);
     }
 
     /// <summary>
@@ -209,6 +368,32 @@ public sealed class StockUnits(
                     await serialNumberRepository.UpdateAsync(serialNumber);
                     break;
             }
+    }
+
+    /// <summary>
+    ///     Reads how many serial numbers are in stock in the bucket, once per call; the call keeps the count since
+    /// </summary>
+    private async Task CountInStock(UnitSet set, Product product, string combinationId, string warehouseId)
+    {
+        var key = (combinationId ?? "", warehouseId ?? "");
+        if (set.Mode != InventoryTrackingMode.SerialNumber || set.InStock.ContainsKey(key))
+            return;
+
+        set.InStock[key] = await serialNumberRepository.CountAsync(serialNumberRepository.Table.Where(x =>
+            x.ProductId == product.Id && x.CombinationId == key.Item1 && x.WarehouseId == key.Item2 &&
+            x.StatusId == SerialNumberStatus.InStock));
+    }
+
+    /// <summary>
+    ///     Takes a serial number in stock out of the count of its bucket
+    /// </summary>
+    private async Task Leave(UnitSet set, Product product, ProductSerialNumber serialNumber)
+    {
+        if (serialNumber.StatusId != SerialNumberStatus.InStock)
+            return;
+
+        await CountInStock(set, product, serialNumber.CombinationId, serialNumber.WarehouseId);
+        set.InStock[(serialNumber.CombinationId ?? "", serialNumber.WarehouseId ?? "")]--;
     }
 
     private static int Assigned(UnitSet set, UnitBucket bucket)

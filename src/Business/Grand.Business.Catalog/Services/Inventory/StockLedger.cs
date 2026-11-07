@@ -37,12 +37,34 @@ public sealed class StockLedger(
         if (!Tracked(product.ManageInventoryMethodId))
             return [StockErrors.StockNotTracked];
 
-        var pending = await Pending(product);
         //a product tracking batches or serial numbers moves them with its stock
-        var units = InventoryTracking.Tracked(product) ? await stockUnits.Load(product, changes, pending) : null;
-        var repaired = Repair(product, pending);
+        var (repaired, units) = await RepairWithUnits(product, changes);
         Sum(product);
         var before = Available(product);
+
+        //a counted serial line is worked out against the units stored now
+        if (units != null && changes.Any(x => x.CountedSerialNumbers != null))
+        {
+            var expanded = new List<StockChange>();
+            foreach (var change in changes)
+            {
+                if (change.CountedSerialNumbers == null)
+                {
+                    expanded.Add(change);
+                    continue;
+                }
+
+                var bucket = Locate(product, null, change.Attributes, change.WarehouseId, out var locateError);
+                var (counted, countError) = bucket == null
+                    ? ([], locateError)
+                    : await stockUnits.ExpandCount(units, product, UnitsOf(bucket), change);
+                if (countError != null)
+                    return [countError];
+                expanded.AddRange(counted);
+            }
+
+            changes = expanded;
+        }
 
         var errors = new List<string>();
         var entries = new List<InventoryJournal>();
@@ -161,7 +183,7 @@ public sealed class StockLedger(
         if (!Tracked(previousMethod) && !Tracked(product.ManageInventoryMethodId))
             return;
 
-        Repair(product, await Pending(product));
+        var (_, units) = await RepairWithUnits(product, []);
 
         var source = new StockSource(nameof(Product), product.Id, CustomerId: customerId ?? "");
         //read before Sum, which works the sums out for the current configuration
@@ -175,6 +197,36 @@ public sealed class StockLedger(
             .Select(bucket => Entry(product, bucket, bucket.Stock, InventoryMovementType.OpeningBalance, source)));
 
         await Insert(product, entries);
+        if (units != null)
+            await stockUnits.Write(units);
+        await Write(product);
+    }
+
+    /// <summary>
+    ///     Marks the stock each bucket holds when batch or serial tracking is switched on: it becomes stock without
+    ///     units, assigned later by a document, a shipment or a stock count. The entries move nothing
+    /// </summary>
+    public async Task StartTracking(Product product, string customerId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        if (!Tracked(product.ManageInventoryMethodId))
+            return;
+
+        var (_, units) = await RepairWithUnits(product, []);
+        Sum(product);
+
+        var source = new StockSource(nameof(Product), product.Id, CustomerId: customerId ?? "");
+        var entries = Buckets(product, product.ManageInventoryMethodId, product.UseMultipleWarehouses,
+                product.WarehouseId)
+            .Where(bucket => bucket.Stock != 0)
+            .Select(bucket => Entry(product, bucket, 0, InventoryMovementType.TrackingStarted,
+                source with { Comment = $"pool {bucket.Stock}" }))
+            .ToList();
+
+        await Insert(product, entries);
+        if (units != null)
+            await stockUnits.Write(units);
         await Write(product);
     }
 
@@ -185,7 +237,9 @@ public sealed class StockLedger(
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        Repair(product, await Pending(product));
+        var (_, units) = await RepairWithUnits(product, []);
+        if (units != null)
+            await stockUnits.Write(units);
         await Write(product);
     }
 
@@ -203,6 +257,23 @@ public sealed class StockLedger(
     private static bool Tracked(ManageInventoryMethod method)
     {
         return method is ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes;
+    }
+
+    /// <summary>
+    ///     Applies the entries whose product write was lost, with their units, to the product and the units read
+    /// </summary>
+    /// <returns>Whether an entry was applied, and the units read for a product tracking them, or null</returns>
+    private async Task<(bool Repaired, UnitSet Units)> RepairWithUnits(Product product,
+        IReadOnlyList<StockChange> changes)
+    {
+        var pending = await Pending(product);
+        var units = InventoryTracking.Tracked(product) ? await stockUnits.Load(product, changes, pending) : null;
+        if (units != null)
+            foreach (var entry in pending)
+                if (Locate(product, entry.CombinationId, entry.Attributes, entry.WarehouseId, out _) is { } bucket)
+                    await stockUnits.Replay(units, product, UnitsOf(bucket), entry);
+
+        return (Repair(product, pending), units);
     }
 
     /// <summary>
