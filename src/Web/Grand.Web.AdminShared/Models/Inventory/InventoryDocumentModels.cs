@@ -1,3 +1,4 @@
+using Grand.Domain.Catalog;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -109,6 +110,23 @@ public class InventoryDocumentLineModel : BaseEntityModel
     public decimal? UnitCost { get; set; }
     public int ConditionId { get; set; }
     public string Comment { get; set; }
+
+    /// <summary>
+    ///     The units the line's product tracks; None for a product tracking none
+    /// </summary>
+    public InventoryTrackingMode TrackingMode { get; set; }
+
+    public string BatchNumber { get; set; }
+
+    /// <summary>
+    ///     A date without time
+    /// </summary>
+    public DateTime? ExpiryDate { get; set; }
+
+    /// <summary>
+    ///     The serial numbers, one a line: a single form field, however many there are
+    /// </summary>
+    public string SerialNumbersText { get; set; }
 
     /// <summary>
     ///     The line is taken off the draft when it is saved

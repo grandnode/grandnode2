@@ -119,6 +119,16 @@ public class InventoryDocumentControllerTests
     }
 
     [TestMethod]
+    public async Task Store_CreateAssignment_OtherStoreWarehouse_Rejected()
+    {
+        var result = await _controller.Create(new InventoryDocumentModel
+            { DocumentTypeId = (int)InventoryDocumentType.Assignment, WarehouseId = "w-other" });
+
+        AssertRedirectedTo(result, "List");
+        _documentService.Verify(x => x.CreateDraft(It.IsAny<InventoryDocument>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Store_Create_SharedWarehouse_Rejected()
     {
         var result = await _controller.Create(new InventoryDocumentModel
