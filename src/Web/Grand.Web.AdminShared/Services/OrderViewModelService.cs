@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -68,6 +69,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IEnumTranslationService _enumTranslationService;
     private readonly IAdminDataScope<Order> _scope;
     private readonly IOrderApprovalService _orderApprovalService;
+    private readonly IShipmentService _shipmentService;
 
     #endregion
 
@@ -103,9 +105,11 @@ public class OrderViewModelService : IOrderViewModelService
         IMediator mediator,
         IEnumTranslationService enumTranslationService,
         IAdminDataScope<Order> scope,
-        IOrderApprovalService orderApprovalService)
+        IOrderApprovalService orderApprovalService,
+        IShipmentService shipmentService)
     {
         _orderApprovalService = orderApprovalService;
+        _shipmentService = shipmentService;
         _orderService = orderService;
         _dateTimeService = dateTimeService;
         _priceFormatter = priceFormatter;
@@ -771,7 +775,11 @@ public class OrderViewModelService : IOrderViewModelService
 
         model.CheckoutAttributeInfo = order.CheckoutAttributeDescription;
         var hasDownloadableItems = false;
-        var products = _scope.FilterOrderItems(order.OrderItems);
+        var products = _scope.FilterOrderItems(order.OrderItems).ToList();
+        //the units the shipments shipped, with their warranty
+        var shipments = products.Any(x => x.ShipQty > 0)
+            ? await _shipmentService.GetShipmentsByOrder(order.Id)
+            : [];
         foreach (var orderItem in products)
         {
             var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
@@ -782,6 +790,7 @@ public class OrderViewModelService : IOrderViewModelService
                 hasDownloadableItems = true;
 
             var orderItemModel = new OrderModel.OrderItemModel {
+                UnitsInfo = UnitsInfo(ShippedUnits.Of(shipments, orderItem.Id)),
                 Id = orderItem.Id,
                 ProductId = orderItem.ProductId,
                 ProductName = product.Name,
@@ -1026,5 +1035,26 @@ public class OrderViewModelService : IOrderViewModelService
                 picture = await _pictureService.GetPictureById(pp.PictureId);
         }
         return picture;
+    }
+
+    /// <summary>
+    ///     A line a shipment: its number, the serial numbers or batches it shipped, and the warranty of its units
+    /// </summary>
+    private string UnitsInfo(IList<ShippedUnit> units)
+    {
+        return string.Join(" | ", units.Select(unit =>
+        {
+            var shipped = string.Join(", ",
+                unit.SerialNumbers.Concat(unit.Batches.Select(x => $"{x.Number} × {x.Quantity}")));
+            var info = $"#{unit.ShipmentNumber} {_dateTimeService.ConvertToUserTime(unit.ShippedOnUtc, DateTimeKind.Utc):d}: {shipped}";
+            if (!unit.WarrantyUntilUtc.HasValue)
+                return info;
+
+            var status = _translationService.GetResource(unit.InWarranty(DateTime.UtcNow)
+                ? "Admin.Inventory.Units.InWarranty"
+                : "Admin.Inventory.Units.WarrantyEnded");
+            return $"{info}; {_translationService.GetResource("Admin.Inventory.Units.WarrantyUntil")} " +
+                   $"{_dateTimeService.ConvertToUserTime(unit.WarrantyUntilUtc.Value, DateTimeKind.Utc):d} ({status})";
+        }));
     }
 }

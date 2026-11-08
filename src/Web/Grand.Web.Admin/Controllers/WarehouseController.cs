@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -25,8 +26,10 @@ public class WarehouseController(
     ICountryService countryService,
     IStoreService storeService,
     IRequestTranslationService translationService,
-    IAdminDataScope<Grand.Domain.Shipping.Warehouse> scope)
-    : BaseWarehouseController(warehouseService, countryService, storeService, translationService, scope)
+    IAdminDataScope<Grand.Domain.Shipping.Warehouse> scope,
+    IProductUnitService productUnitService)
+    : BaseWarehouseController(warehouseService, countryService, storeService, translationService, scope,
+        productUnitService)
 {
     [HttpGet]
     public IActionResult Warehouses() => View();

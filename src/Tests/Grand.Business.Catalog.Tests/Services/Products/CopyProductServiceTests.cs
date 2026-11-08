@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Catalog.Services.Products;
+using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Business.Common.Services.Seo;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -59,6 +60,41 @@ public class CopyProductServiceTests
         Assert.AreEqual(6, copy.StockQuantity);
     }
 
+
+    [TestMethod]
+    public async Task CopyProduct_Tracked_CopyHasNoStock_KeepsTrackingSettings()
+    {
+        _langServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
+            .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
+        var combination = new ProductAttributeCombination {
+            Attributes = StockTestFixture.Attributes("v1"), StockQuantity = 3, Sku = "s1",
+            WarehouseInventory = { new ProductCombinationWarehouseInventory { WarehouseId = "w1", StockQuantity = 3 } },
+            TierPrices = { new ProductCombinationTierPrices { Quantity = 5, Price = 9 } }
+        };
+        var product = new Product {
+            Name = "name", ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes,
+            UseMultipleWarehouses = true, StockQuantity = 3, InventoryTrackingModeId = InventoryTrackingMode.SerialNumber,
+            WarrantyMonths = 12, ExpiryWarningDays = 5, ProductAttributeCombinations = { combination },
+            ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 3 } }
+        };
+
+        var copy = await _copyProductService.CopyProduct(product, "copy-product");
+
+        Assert.AreEqual(0, copy.StockQuantity);
+        Assert.AreEqual(0, copy.ProductWarehouseInventory.Single().StockQuantity);
+        Assert.AreEqual("w1", copy.ProductWarehouseInventory.Single().WarehouseId);
+        var copied = copy.ProductAttributeCombinations.Single();
+        Assert.AreEqual(0, copied.StockQuantity);
+        Assert.AreEqual(0, copied.WarehouseInventory.Single().StockQuantity);
+        Assert.AreEqual("s1", copied.Sku);
+        Assert.AreEqual(5, copied.TierPrices.Single().Quantity);
+        Assert.AreEqual(InventoryTrackingMode.SerialNumber, copy.InventoryTrackingModeId);
+        Assert.AreEqual(12, copy.WarrantyMonths);
+        Assert.AreEqual(5, copy.ExpiryWarningDays);
+        //the source keeps its stock
+        Assert.AreEqual(3, combination.StockQuantity);
+        Assert.AreEqual(3, product.ProductWarehouseInventory.Single().StockQuantity);
+    }
 
     [TestMethod]
     public async Task CopyProduct_InserAndReturnNewProduct()

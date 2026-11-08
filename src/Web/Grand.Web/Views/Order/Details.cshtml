@@ -482,6 +482,15 @@
                                             {
                                                 <div class="rental-info">@Html.Raw(item.RentalInfo)</div>
                                             }
+                                            @if (item.SerialNumbers.Count > 0)
+                                            {
+                                                @* typed in the back office: never a template *@
+                                                <div class="serial-numbers" v-pre>@Loc["Order.SerialNumbers"]: @string.Join(", ", item.SerialNumbers)</div>
+                                            }
+                                            @if (item.WarrantyUntil.HasValue)
+                                            {
+                                                <div class="warranty">@Loc["Order.WarrantyUntil"]: @item.WarrantyUntil.Value.ToShortDateString()</div>
+                                            }
                                             @if (!string.IsNullOrEmpty(item.DownloadId))
                                             {
                                                 <div class="download">

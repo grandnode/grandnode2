@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Catalog.Services.Inventory;
 using Grand.Data;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
@@ -45,7 +46,8 @@ public class InventoryDocumentServiceTests
     private InventoryDocumentService Service(IResourceLock resourceLock) =>
         new(_documents, _products, _journal, StockTestFixture.Warehouses(), resourceLock, _settingService,
             new Mock<IMediator>().Object, StockTestFixture.Ledger(_products, _journal),
-            _merchandiseReturnService.Object, _orderService.Object);
+            _merchandiseReturnService.Object, _orderService.Object, StockTestFixture.UnitService(products: _products),
+            new Mock<IShipmentService>().Object);
 
     /// <summary>
     ///     A return of two units of the product, ordered from w1

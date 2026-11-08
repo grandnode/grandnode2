@@ -36,4 +36,25 @@ public class ShipmentItem : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Warehouse))]
     public string WarehouseId { get; set; }
+
+    /// <summary>
+    ///     A batch-tracked product: the batches shipped; the rest of the quantity is stock without a batch
+    /// </summary>
+    public IList<ShipmentItemBatch> Batches { get; set; } = new List<ShipmentItemBatch>();
+
+    /// <summary>
+    ///     A serial-tracked product: the serial numbers shipped
+    /// </summary>
+    public IList<string> SerialNumbers { get; set; } = new List<string>();
+
+    /// <summary>
+    ///     The end of the warranty: the shipment's creation date plus the product's warranty months at that moment
+    /// </summary>
+    public DateTime? WarrantyUntilUtc { get; set; }
+
+    /// <summary>
+    ///     The units named were taken by another shipment between the check and the booking: neither the stock nor
+    ///     the units of the item were booked
+    /// </summary>
+    public bool UnitsNotBooked { get; set; }
 }

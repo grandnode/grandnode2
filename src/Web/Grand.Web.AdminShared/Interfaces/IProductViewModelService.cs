@@ -16,6 +16,13 @@ public interface IProductViewModelService
     /// </summary>
     Task<string> StockChangeRefused(ProductModel model);
 
+    /// <summary>
+    ///     Why the form may not change the product's tracking, inventory method or warehouses: batches or serial
+    ///     numbers are assigned, with their quantity; null when it may
+    /// </summary>
+    /// <param name="product">The product as stored; null for a new one</param>
+    Task<string> TrackingChangeRefused(Product product, ProductModel model);
+
     Task SaveProductWarehouseInventory(Product product, IList<ProductModel.ProductWarehouseInventoryModel> model);
     Task<ProductListModel> PrepareProductListModel();
 

@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Queries.Catalog;
@@ -32,9 +33,11 @@ public class ProductService : IProductService
         IMediator mediator,
         IAclService aclService,
         IResourceLock resourceLock,
-        StockLedger stockLedger
+        StockLedger stockLedger,
+        IProductUnitService productUnitService
     )
     {
+        _productUnitService = productUnitService;
         _cacheBase = cacheBase;
         _productRepository = productRepository;
         _mediator = mediator;
@@ -55,6 +58,7 @@ public class ProductService : IProductService
     private readonly IMediator _mediator;
     private readonly IResourceLock _resourceLock;
     private readonly StockLedger _stockLedger;
+    private readonly IProductUnitService _productUnitService;
 
     #endregion
 
@@ -220,6 +224,9 @@ public class ProductService : IProductService
         ArgumentNullException.ThrowIfNull(product);
 
         var oldProduct = await _productRepository.GetByIdAsync(product.Id);
+        //the batches and serial numbers assigned stay where they are: nothing else may break them
+        if (oldProduct != null && await _productUnitService.TrackingChangeRefused(oldProduct, product) is { } refused)
+            throw new InvalidOperationException(refused);
         //update
         var update = UpdateBuilder<Product>.Create()
             .Set(x => x.AdditionalShippingCharge, product.AdditionalShippingCharge)
@@ -336,6 +343,9 @@ public class ProductService : IProductService
             .Set(x => x.Weight, product.Weight)
             .Set(x => x.Width, product.Width)
             .Set(x => x.UserFields, product.UserFields)
+            .Set(x => x.InventoryTrackingModeId, product.InventoryTrackingModeId)
+            .Set(x => x.WarrantyMonths, product.WarrantyMonths)
+            .Set(x => x.ExpiryWarningDays, product.ExpiryWarningDays)
             .Set(x => x.Ticks, DateTime.UtcNow.Ticks);
 
         //a product that tracks no stock keeps its counters as plain values, written with the product; one that
@@ -349,20 +359,26 @@ public class ProductService : IProductService
 
         //another inventory method, warehouse mode or warehouse puts the stock in other buckets: their history starts
         //again
-        if (oldProduct.ManageInventoryMethodId != product.ManageInventoryMethodId ||
-            oldProduct.UseMultipleWarehouses != product.UseMultipleWarehouses ||
-            (!product.UseMultipleWarehouses && (oldProduct.WarehouseId ?? "") != (product.WarehouseId ?? "")))
+        var reopened = oldProduct.ManageInventoryMethodId != product.ManageInventoryMethodId ||
+                       oldProduct.UseMultipleWarehouses != product.UseMultipleWarehouses ||
+                       (!product.UseMultipleWarehouses &&
+                        (oldProduct.WarehouseId ?? "") != (product.WarehouseId ?? ""));
+        //tracking switched on: the stock each bucket holds becomes stock without units
+        var trackingStarted = !InventoryTracking.Tracked(oldProduct) && InventoryTracking.Tracked(product);
+        if (reopened || trackingStarted)
             await using (await _resourceLock.Acquire([ProductStockLock.Key(product.Id)]))
             {
-                var storedProduct = await _productRepository.GetByIdAsync(product.Id);
-                if (storedProduct != null)
+                if (reopened && await _productRepository.GetByIdAsync(product.Id) is { } storedProduct)
                     await _stockLedger.Reopen(storedProduct, oldProduct.ManageInventoryMethodId,
                         oldProduct.UseMultipleWarehouses, oldProduct.WarehouseId, "");
 
-                if (plainCounters && TracksStock(oldProduct.ManageInventoryMethodId))
+                if (reopened && plainCounters && TracksStock(oldProduct.ManageInventoryMethodId))
                     await _productRepository.UpdateOneAsync(x => x.Id == product.Id, UpdateBuilder<Product>.Create()
                         .Set(x => x.StockQuantity, product.StockQuantity)
                         .Set(x => x.ReservedQuantity, product.ReservedQuantity));
+
+                if (trackingStarted && await _productRepository.GetByIdAsync(product.Id) is { } trackedProduct)
+                    await _stockLedger.StartTracking(trackedProduct, "");
             }
 
         if (!oldProduct.AdditionalShippingCharge.Equals(product.AdditionalShippingCharge) ||

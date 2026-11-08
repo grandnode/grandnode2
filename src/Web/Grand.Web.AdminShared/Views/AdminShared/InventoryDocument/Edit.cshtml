@@ -4,6 +4,10 @@
     ViewBag.Title = Model.Number;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     var type = (InventoryDocumentType)Model.DocumentTypeId;
+    //a line of a product tracking batches or serial numbers names them
+    var units = Model.Lines.Any(x => x.TrackingMode != InventoryTrackingMode.None);
+    var expiryEntered = type is InventoryDocumentType.Receipt or InventoryDocumentType.Adjustment
+        or InventoryDocumentType.Assignment;
 }
 <form asp-area="@area" asp-controller="InventoryDocument" asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id"/>
@@ -48,6 +52,10 @@
                             {
                                 <th>@Loc["Admin.Inventory.Documents.Fields.Quantity"]</th>
                             }
+                            @if (units)
+                            {
+                                <th>@Loc["Admin.Inventory.Units.Fields.Units"]</th>
+                            }
                             @if (type == InventoryDocumentType.Receipt)
                             {
                                 <th>@Loc["Admin.Inventory.Documents.Fields.UnitCost"]</th>
@@ -78,6 +86,33 @@
                                 else
                                 {
                                     <td><input asp-for="Lines[i].Quantity" class="form-control" type="number"/></td>
+                                }
+                                @if (units)
+                                {
+                                    <td>
+                                        @switch (line.TrackingMode)
+                                        {
+                                            case InventoryTrackingMode.Batch:
+                                                <input asp-for="Lines[i].BatchNumber" class="form-control"
+                                                       placeholder="@Loc["Admin.Inventory.Units.Fields.BatchNumber"]"/>
+                                                @if (expiryEntered)
+                                                {
+                                                    <input asp-for="Lines[i].ExpiryDate" class="form-control mt-1" type="date"
+                                                           title="@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]"/>
+                                                }
+                                                else if (line.ExpiryDate.HasValue)
+                                                {
+                                                    <div class="grand-cell-sub">@line.ExpiryDate.Value.ToShortDateString()</div>
+                                                }
+                                                break;
+                                            case InventoryTrackingMode.SerialNumber:
+                                                @* one number a line: a scanner sends Enter after each *@
+                                                <textarea asp-for="Lines[i].SerialNumbersText" class="form-control" rows="2"
+                                                          data-grand-scan placeholder="@Loc["Admin.Inventory.Units.Fields.SerialNumbers"]"></textarea>
+                                                <div class="grand-cell-sub" data-grand-scan-count></div>
+                                                break;
+                                        }
+                                    </td>
                                 }
                                 @if (type == InventoryDocumentType.Receipt)
                                 {
@@ -139,3 +174,19 @@
     </admin-page>
 </form>
 <admin-delete-confirmation button-id="inventorydocument-delete"/>
+<script>
+    //counts the serial numbers scanned and marks a number scanned twice; the server refuses duplicates anyway
+    document.querySelectorAll('[data-grand-scan]').forEach(function (box) {
+        var count = box.parentElement.querySelector('[data-grand-scan-count]');
+        function update() {
+            var numbers = box.value.split(/[\r\n,;]+/).map(function (x) { return x.trim(); })
+                .filter(function (x) { return x.length > 0; });
+            var keys = numbers.map(function (x) { return x.toUpperCase(); });
+            var duplicate = keys.some(function (x, i) { return keys.indexOf(x) !== i; });
+            box.classList.toggle('is-invalid', duplicate);
+            count.textContent = numbers.length + (duplicate ? ' Â· @Loc["Admin.Inventory.Units.DuplicateScanned"]' : '');
+        }
+        box.addEventListener('input', update);
+        update();
+    });
+</script>

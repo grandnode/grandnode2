@@ -1,4 +1,5 @@
 @using Grand.Domain.Shipping
+@using Grand.Domain.Catalog
 @model ShipmentModel
 @inject IAdminDataScope<Shipment> Scope
 @{
@@ -157,6 +158,60 @@
                                 </div>
                             </td>
                         </tr>
+                        @if (item.TrackingMode == InventoryTrackingMode.SerialNumber)
+                        {
+                            <tr>
+                                <td colspan="8">
+                                    @* a serial-tracked unit ships with its number: one a line, a scanner sends Enter *@
+                                    <textarea name="Items[@j].SerialNumbersText" class="form-control" rows="2" data-grand-scan
+                                              placeholder="@Loc["Admin.Inventory.Units.Fields.SerialNumbers"]"></textarea>
+                                    <div class="grand-cell-sub" data-grand-scan-count></div>
+                                </td>
+                            </tr>
+                        }
+                        @if (item.TrackingMode == InventoryTrackingMode.Batch)
+                        {
+                            <tr>
+                                <td colspan="8">
+                                    <table class="table table-sm mb-0" data-grand-batches="Items_@(j)__WarehouseId">
+                                        @for (var k = 0; k < item.BatchProposals.Count; k++)
+                                        {
+                                            var proposal = item.BatchProposals[k];
+                                            <tr data-warehouse="@proposal.WarehouseId">
+                                                <td>
+                                                    <input type="hidden" name="Items[@j].Batches[@k].WarehouseId" value="@proposal.WarehouseId"/>
+                                                    <input type="hidden" name="Items[@j].Batches[@k].Number" value="@proposal.Number"/>
+                                                    @if (string.IsNullOrEmpty(proposal.Number))
+                                                    {
+                                                        <span class="badge bg-warning text-dark">@Loc["Admin.Inventory.Units.WithoutBatch"]</span>
+                                                    }
+                                                    else
+                                                    {
+                                                        @proposal.Number
+                                                    }
+                                                </td>
+                                                <td>
+                                                    @proposal.ExpiryDate?.ToShortDateString()
+                                                    @if (proposal.ExpiryStatus == BatchExpiryStatus.Expired)
+                                                    {
+                                                        <span class="badge bg-danger">@Loc["Enums.Grand.Domain.Catalog.BatchExpiryStatus.Expired"]</span>
+                                                    }
+                                                    else if (proposal.ExpiryStatus == BatchExpiryStatus.Expiring)
+                                                    {
+                                                        <span class="badge bg-warning text-dark">@Loc["Enums.Grand.Domain.Catalog.BatchExpiryStatus.Expiring"]</span>
+                                                    }
+                                                </td>
+                                                <td class="text-end">@proposal.Available</td>
+                                                <td style="width: 8rem">
+                                                    <input name="Items[@j].Batches[@k].Quantity" type="number" min="0" value="@proposal.Quantity"
+                                                           class="form-control form-control-sm"/>
+                                                </td>
+                                            </tr>
+                                        }
+                                    </table>
+                                </td>
+                            </tr>
+                        }
                     }
                     </tbody>
                 </table>
@@ -164,3 +219,30 @@
         </admin-card>
     </admin-page>
 </form>
+<script>
+    //counts the serial numbers scanned and marks a number scanned twice; the server refuses duplicates anyway
+    document.querySelectorAll('[data-grand-scan]').forEach(function (box) {
+        var count = box.parentElement.querySelector('[data-grand-scan-count]');
+        function update() {
+            var numbers = box.value.split(/[\r\n,;]+/).map(function (x) { return x.trim(); })
+                .filter(function (x) { return x.length > 0; });
+            var keys = numbers.map(function (x) { return x.toUpperCase(); });
+            var duplicate = keys.some(function (x, i) { return keys.indexOf(x) !== i; });
+            box.classList.toggle('is-invalid', duplicate);
+            count.textContent = numbers.length + (duplicate ? ' Â· @Loc["Admin.Inventory.Units.DuplicateScanned"]' : '');
+        }
+        box.addEventListener('input', update);
+        update();
+    });
+    //the batches shown are those of the warehouse chosen; the others are not booked
+    document.querySelectorAll('[data-grand-batches]').forEach(function (table) {
+        var select = document.getElementById(table.getAttribute('data-grand-batches'));
+        function show() {
+            table.querySelectorAll('tr[data-warehouse]').forEach(function (row) {
+                row.hidden = !!select && row.getAttribute('data-warehouse') !== select.value;
+            });
+        }
+        if (select) select.addEventListener('change', show);
+        show();
+    });
+</script>

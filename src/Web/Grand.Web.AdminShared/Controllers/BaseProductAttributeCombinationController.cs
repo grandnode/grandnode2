@@ -1,4 +1,6 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.SharedKernel.Extensions;
@@ -53,7 +55,8 @@ public abstract class BaseProductAttributeCombinationController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> ProductAttributeCombinationDelete(string id, string productId,
-        [FromServices] IProductAttributeService productAttributeService)
+        [FromServices] IProductAttributeService productAttributeService,
+        [FromServices] IProductUnitService productUnitService)
     {
         var product = await productService.GetProductById(productId);
         if (product == null)
@@ -72,6 +75,9 @@ public abstract class BaseProductAttributeCombinationController(
         var combination = product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == id);
         if (combination == null)
             throw new ArgumentException("No product attribute combination found with the specified id");
+
+        if (await UnitsAssigned(productUnitService, product, combination.Id) is { } unitsAssigned)
+            return ErrorForKendoGridJson(unitsAssigned);
 
         //the product's stock sums are worked out again by the delete itself
         await productAttributeService.DeleteProductAttributeCombination(combination, productId);
@@ -155,7 +161,8 @@ public abstract class BaseProductAttributeCombinationController(
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> ClearAllAttributeCombinations(string productId)
+    public async Task<IActionResult> ClearAllAttributeCombinations(string productId,
+        [FromServices] IProductUnitService productUnitService)
     {
         var product = await productService.GetProductById(productId);
         if (product == null)
@@ -166,6 +173,10 @@ public abstract class BaseProductAttributeCombinationController(
             return ErrorForKendoGridJson(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
+        //checked for every combination first, so the clearing never stops halfway
+        if (await UnitsAssigned(productUnitService, product) is { } unitsAssigned)
+            return ErrorForKendoGridJson(unitsAssigned);
+
         if (ModelState.IsValid)
         {
             //each delete works the product's stock sums out again
@@ -175,6 +186,26 @@ public abstract class BaseProductAttributeCombinationController(
         }
 
         return ErrorForKendoGridJson(ModelState);
+    }
+
+    /// <summary>
+    ///     Why combinations cannot be deleted: batches or serial numbers assigned to them would be left without stock
+    /// </summary>
+    /// <param name="productUnitService">Product unit service</param>
+    /// <param name="product">Product</param>
+    /// <param name="combinationId">The combination; null for every combination of the product</param>
+    /// <returns>The error message, or null</returns>
+    private async Task<string> UnitsAssigned(IProductUnitService productUnitService, Product product,
+        string combinationId = null)
+    {
+        if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes ||
+            !InventoryTracking.Tracked(product))
+            return null;
+
+        var assigned = await productUnitService.AssignedQuantity(product.Id, combinationId);
+        return assigned > 0
+            ? string.Format(translationService.GetResource(UnitErrors.UnitsAssigned), assigned)
+            : null;
     }
 
     #endregion

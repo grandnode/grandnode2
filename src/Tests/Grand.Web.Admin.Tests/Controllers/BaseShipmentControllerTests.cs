@@ -60,6 +60,7 @@ public class BaseShipmentControllerTests
     public void Setup()
     {
         _shipmentViewModelServiceMock = new Mock<IShipmentViewModelService>();
+        _shipmentViewModelServiceMock.Setup(v => v.PrepareShipmentUnits(It.IsAny<Shipment>())).ReturnsAsync([]);
         _orderServiceMock = new Mock<IOrderService>();
         _shipmentServiceMock = new Mock<IShipmentService>();
         _scopeMock = new Mock<IAdminDataScope<Shipment>>();
@@ -274,6 +275,27 @@ public class BaseShipmentControllerTests
         _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.Shipments.OrderAwaitsApproval"), Times.Once);
         _shipmentServiceMock.Verify(s => s.InsertShipment(It.IsAny<Shipment>()), Times.Never);
         _orderServiceMock.Verify(s => s.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddShipmentPost_UnitErrors_ShipmentNotInserted()
+    {
+        var order = new Order { Id = "o1" };
+        _orderServiceMock.Setup(s => s.GetOrderById("o1")).ReturnsAsync(order);
+        _scopeMock.Setup(s => s.FilterOrderItems(It.IsAny<IEnumerable<OrderItem>>()))
+            .Returns((IEnumerable<OrderItem> items) => items);
+        var shipment = new Shipment { Id = "s1", ShipmentItems = { new ShipmentItem() } };
+        _shipmentViewModelServiceMock
+            .Setup(v => v.PrepareShipment(order, It.IsAny<IEnumerable<OrderItem>>(), It.IsAny<AddShipmentModel>()))
+            .ReturnsAsync((shipment, (double?)1));
+        _shipmentViewModelServiceMock.Setup(v => v.ValidStockShipment(shipment)).ReturnsAsync((true, null));
+        _shipmentViewModelServiceMock.Setup(v => v.PrepareShipmentUnits(shipment))
+            .ReturnsAsync(["p: serial number in another warehouse"]);
+
+        var result = await _controller.AddShipment(new AddShipmentModel { OrderId = "o1" }, false);
+
+        Assert.AreEqual("AddShipment", (result as RedirectToActionResult)?.ActionName);
+        _shipmentServiceMock.Verify(s => s.InsertShipment(It.IsAny<Shipment>()), Times.Never);
     }
 
     [TestMethod]

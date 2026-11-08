@@ -33,6 +33,10 @@ public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductSto
         if (product == null)
             return true;
 
+        //the stock of a product tracking batches or serial numbers changes only with the units named
+        if (InventoryTracking.Tracked(product))
+            return false;
+
         if (!string.IsNullOrEmpty(request.WarehouseId) && !product.UseMultipleWarehouses)
             throw new ArgumentException(
                 "Product don't support multiple warehouses (warehouseId should be null or empty)");

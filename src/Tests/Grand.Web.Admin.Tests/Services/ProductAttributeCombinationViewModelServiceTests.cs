@@ -171,6 +171,21 @@ public class ProductAttributeCombinationViewModelServiceTests
     }
 
     [TestMethod]
+    public async Task CombinationPopup_TrackedProduct_SettingOff_StockChanged_RefusedWithoutSaving()
+    {
+        var product = ProductWithOneCombination();
+        product.InventoryTrackingModeId = InventoryTrackingMode.Batch;
+        var model = new ProductAttributeCombinationModel
+            { Id = "c1", StockQuantity = 9, OriginalStockQuantity = 5, Sku = "sku" };
+
+        var warnings = await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
+
+        Assert.AreEqual(1, warnings.Count);
+        _stockMovementServiceMock.Verify(s => s.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
+    [TestMethod]
     public async Task CombinationPopup_ProductNotStockedByAttributes_StockChanged_RefusedWithoutSaving()
     {
         var product = ProductWithOneCombination();

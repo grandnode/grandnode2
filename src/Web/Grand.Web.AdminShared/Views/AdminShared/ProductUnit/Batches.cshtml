@@ -1,0 +1,58 @@
+@model Grand.Web.AdminShared.Models.Inventory.BatchListModel
+@{
+    ViewBag.Title = Loc["Admin.Inventory.Units.Batches"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<admin-page title="@Loc["Admin.Inventory.Units.Batches"]" icon="bi-boxes">
+    <admin-card>
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="SearchNumber"/>
+            <admin-field asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses"/>
+            <admin-field asp-for="SearchExpiryStatusId" asp-items="Model.AvailableExpiryStatuses"/>
+            <admin-field asp-for="WithStockOnly"/>
+        </div>
+        <input type="hidden" asp-for="ProductId"/>
+        <card-actions>
+            <button type="button" id="batches-search" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
+            </button>
+        </card-actions>
+    </admin-card>
+
+    <admin-card flush>
+        <admin-grid id="batches-grid"
+                    read-url="@Url.Action("BatchList", "ProductUnit", new { area })"
+                    additional-data="batchesData">
+            <grid-column field="Number" title="@Loc["Admin.Inventory.Units.Fields.BatchNumber"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Batch", "ProductUnit", new { area })/{{ Id }}">{{ Number }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="ProductName" title="@Loc["Admin.Inventory.Documents.Fields.Product"]"/>
+            <grid-column field="Warehouse" title="@Loc["Admin.Inventory.Documents.Fields.Warehouse"]" width="160"/>
+            <grid-column field="ExpiryDate" title="@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]" width="130" format="{0:d}"/>
+            <grid-column field="ExpiryStatus" title="@Loc["Admin.Inventory.Units.Fields.ExpiryStatus"]" width="130"/>
+            <grid-column field="Quantity" title="@Loc["Admin.Inventory.Documents.Fields.Quantity"]" width="100"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+    function batchesData() {
+        var data = {
+            SearchNumber: $('#@Html.IdFor(model => model.SearchNumber)').val(),
+            SearchWarehouseId: $('#@Html.IdFor(model => model.SearchWarehouseId)').val(),
+            SearchExpiryStatusId: $('#@Html.IdFor(model => model.SearchExpiryStatusId)').val(),
+            WithStockOnly: $('#@Html.IdFor(model => model.WithStockOnly)').is(':checked'),
+            ProductId: $('#@Html.IdFor(model => model.ProductId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#batches-search').click(function () {
+            GrandAdmin.grids.get('#batches-grid').dataSource.page(1);
+            return false;
+        });
+    });
+</script>

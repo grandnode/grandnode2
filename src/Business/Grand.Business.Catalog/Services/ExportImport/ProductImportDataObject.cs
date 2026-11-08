@@ -175,6 +175,13 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             dto.ReservedQuantity = null;
             warnings.Add("Stock columns are ignored: stock changes only through inventory documents.");
         }
+        else if ((dto.StockQuantity.HasValue || dto.ReservedQuantity.HasValue) && existing != null &&
+                 InventoryTracking.Tracked(existing))
+        {
+            dto.StockQuantity = null;
+            dto.ReservedQuantity = null;
+            warnings.Add($"Stock columns are ignored: {InventoryTracking.StockDocumentsOnlyMessage}.");
+        }
 
         var references = await ResolveReferences(dto, warnings);
         //the Sku is what a later call matches on; without one the row cannot be found again

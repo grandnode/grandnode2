@@ -50,3 +50,27 @@ Reservations are order state, not journaled: `IInventoryManageService.TryReserve
 - At most 5000 lines a document; the edit form pages 100 lines (the 1024 form-field limit).
 
 Admin and Store share `BaseInventoryDocumentController`. The Store panel uses only its own store's warehouses and products; shared warehouses (empty `StoreId`) are Main Admin-only on documents. Permission: `PermissionSystemName.InventoryDocuments`.
+
+## Batches and serial numbers
+
+A product of `ManageStock` or `ManageStockByAttributes` tracks units by `Product.InventoryTrackingModeId`: `None`, `Batch` or `SerialNumber`, never both. `InventoryTracking.Tracked(product)` is the test; mode `None` behaves exactly as without this feature.
+
+- **`ProductBatch`**: one record per product, combination, bucket warehouse and batch number, with expiry date, unit cost and quantity. A record at 0 stays, for recalls.
+- **`ProductSerialNumber`**: one record per unit, `InStock`, `Shipped`, `Scrapped` or `Missing`, with its warehouse and, once shipped, order, shipment and `WarrantyUntilUtc`.
+- **Pool**: not stored. A bucket's stock less its assigned units (batch quantities, or in-stock serial numbers). Switching tracking on makes the whole stock the pool (`TrackingStarted` marker); an `Assignment` document, a shipment naming a new serial number, or a stock count fills it.
+- Numbers compare by `NumberKey` (`UnitNumbers.Key`: trimmed, upper-cased); both unique indexes use it.
+- The journal names a unit as its record spells it (`StockUnits.Name`, before the entries are inserted), so a unit's history and a batch's recipients filter by number in the database, scoped to the batch's warehouse and combination, and read a page at a time. Never load a product's journal to filter it in memory.
+- Units live in the bucket's journal warehouse: `StockBuckets.UnitWarehouse(product, warehouseId)`. A single-warehouse product keeps them in its own warehouse whatever an order item names.
+
+### How units move
+
+A `StockChange` names its units (`BatchNumber`, `ExpiryDateUtc`, `SerialNumbers`, or `CountedSerialNumbers` for a counted serial line); the rest of its quantity is the pool. `StockLedger` hands them to `StockUnits` under the same product lock: entries are written first, then the unit records, then the product. Each unit record carries the `StockRevision` of the last entry that changed it, so the repair re-applies a lost unit write once and never twice (`RepairWithUnits`, also in `Reopen`, `RecomputeSums` and `StartTracking`).
+
+- `TrackingAssignment` (`InQty` = `OutQty` = n) and `ReturnScrapped` (0/0) change units, never stock.
+- A serial-mode `Shipment` names exactly its quantity of numbers; a batch pool goes below zero only through a shipment of a product allowing backorders.
+- A counted serial line is declarative ("these are all the units of the bucket") and is expanded under the lock; posting it again books only what still differs.
+- Shipments: `IProductUnitService.PrepareShipmentUnits` checks the units and stamps the warranty before the shipment is stored; `BookReservedInventory` books them, and a unit taken meanwhile leaves the item `UnitsNotBooked` with nothing booked. Bundle children book from the pool; a serial-tracked child refuses the bundle item.
+- Stock of a tracked product changes only through documents and shipments (`InventoryTracking.StockDocumentOnly`): forms, bulk edit, import and the API refuse a changed value.
+- A change of mode (other than from `None`), inventory method or warehouses, and deleting a combination or warehouse, is refused while units are assigned (`IProductUnitService.TrackingChangeRefused`, `AssignedQuantity`).
+
+Screens: `BaseProductUnitController` (serial numbers, batches, recall CSV), the product's units tab, the order views (`ShippedUnits.Of` reads the shipments). The daily task "Inventory batch expiry notification" e-mails `Inventory.BatchesExpiring.StoreOwnerNotification` per store, once per status (`ProductBatch.ExpiryNotifiedStatusId`). Expiry never blocks.

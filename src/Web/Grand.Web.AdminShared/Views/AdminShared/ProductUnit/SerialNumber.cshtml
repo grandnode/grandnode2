@@ -1,0 +1,47 @@
+@model Grand.Web.AdminShared.Models.Inventory.SerialNumberModel
+@{
+    ViewBag.Title = Model.Number;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<admin-page title="@Model.Number" icon="bi-upc-scan" meta="@Model.Status"
+            back-url="@Url.Action("SerialNumbers", new { area })" back-text="@Loc["Admin.Inventory.Units.SerialNumbers"]">
+    <admin-card>
+        <dl class="row mb-0">
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Product"]</dt>
+            <dd class="col-sm-9"><a href="@Url.Action("Edit", "Product", new { area, id = Model.ProductId })">@Model.ProductName</a></dd>
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</dt>
+            <dd class="col-sm-9">@Model.Warehouse</dd>
+            <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ReceivedOn"]</dt>
+            <dd class="col-sm-9">
+                @Model.ReceivedOn.ToShortDateString()
+                @if (!string.IsNullOrEmpty(Model.ReceiptDocumentId))
+                {
+                    <a href="@Url.Action("Edit", "InventoryDocument", new { area, id = Model.ReceiptDocumentId })">@Loc["Admin.Inventory.Units.Receipt"]</a>
+                }
+            </dd>
+            @if (!string.IsNullOrEmpty(Model.OrderId))
+            {
+                <dt class="col-sm-3">@Loc["Admin.Inventory.Units.ShippedOn"]</dt>
+                <dd class="col-sm-9">
+                    @Model.ShippedOn?.ToShortDateString()
+                    <a href="@Url.Action("Edit", "Order", new { area, id = Model.OrderId })">@Loc["Admin.Inventory.Units.Order"]</a>
+                    @if (!string.IsNullOrEmpty(Model.ShipmentId))
+                    {
+                        <a href="@Url.Action("ShipmentDetails", "Shipment", new { area, id = Model.ShipmentId })">@Loc["Admin.Inventory.Units.Shipment"]</a>
+                    }
+                </dd>
+            }
+            @if (Model.WarrantyUntil.HasValue)
+            {
+                <dt class="col-sm-3">@Loc["Admin.Inventory.Units.WarrantyUntil"]</dt>
+                <dd class="col-sm-9">
+                    @Model.WarrantyUntil.Value.ToShortDateString()
+                    <span class="badge @(Model.InWarranty ? "bg-success" : "bg-secondary")">
+                        @Loc[Model.InWarranty ? "Admin.Inventory.Units.InWarranty" : "Admin.Inventory.Units.WarrantyEnded"]
+                    </span>
+                </dd>
+            }
+        </dl>
+    </admin-card>
+    <partial name="Partials/UnitHistory" model="@Url.Action("SerialNumberHistoryList", "ProductUnit", new { area, id = Model.Id })"/>
+</admin-page>

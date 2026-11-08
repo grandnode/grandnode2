@@ -148,7 +148,13 @@ public class InventoryDocumentViewModelService(
                     CountedQuantity = line.CountedQuantity,
                     UnitCost = line.UnitCost,
                     ConditionId = (int)line.Condition,
-                    Comment = line.Comment
+                    Comment = line.Comment,
+                    TrackingMode = product != null && InventoryTracking.Tracked(product)
+                        ? product.InventoryTrackingModeId
+                        : InventoryTrackingMode.None,
+                    BatchNumber = line.BatchNumber,
+                    ExpiryDate = line.ExpiryDateUtc,
+                    SerialNumbersText = string.Join("\n", line.SerialNumbers ?? [])
                 });
             }
         }
@@ -200,6 +206,7 @@ public class InventoryDocumentViewModelService(
             line.UnitCost = lineModel.UnitCost;
             line.Condition = (ReturnLineCondition)lineModel.ConditionId;
             line.Comment = lineModel.Comment;
+            await ApplyUnits(document, line, lineModel);
         }
 
         if (!string.IsNullOrWhiteSpace(model.AddSku))
@@ -221,6 +228,38 @@ public class InventoryDocumentViewModelService(
         }
 
         return errors;
+    }
+
+    /// <summary>
+    ///     The units a line names, for a product tracking them: its batch and expiry date, or its serial numbers, which
+    ///     decide its quantity; a counted serial line counts the numbers scanned
+    /// </summary>
+    private async Task ApplyUnits(InventoryDocument document, InventoryDocumentLine line,
+        InventoryDocumentLineModel lineModel)
+    {
+        var product = await productService.GetProductById(line.ProductId);
+        if (product == null || !InventoryTracking.Tracked(product))
+            return;
+
+        if (product.InventoryTrackingModeId == InventoryTrackingMode.Batch)
+        {
+            line.BatchNumber = string.IsNullOrWhiteSpace(lineModel.BatchNumber) ? null : lineModel.BatchNumber.Trim();
+            line.ExpiryDateUtc = lineModel.ExpiryDate.HasValue
+                ? DateTime.SpecifyKind(lineModel.ExpiryDate.Value.Date, DateTimeKind.Utc)
+                : null;
+            return;
+        }
+
+        line.SerialNumbers = UnitNumbers.Parse(lineModel.SerialNumbersText);
+        if (document.DocumentTypeId == InventoryDocumentType.StockCount)
+        {
+            if (lineModel.CountedQuantity.HasValue || line.SerialNumbers.Count > 0)
+                line.CountedQuantity = line.SerialNumbers.Count;
+        }
+        else if (line.SerialNumbers.Count > 0 && document.DocumentTypeId != InventoryDocumentType.ReturnReceipt)
+        {
+            line.Quantity = lineModel.Quantity < 0 ? -line.SerialNumbers.Count : line.SerialNumbers.Count;
+        }
     }
 
     /// <summary>

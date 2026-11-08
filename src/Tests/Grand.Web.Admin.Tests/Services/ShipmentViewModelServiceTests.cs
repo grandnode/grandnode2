@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -60,14 +61,108 @@ public class ShipmentViewModelServiceTests
             _measureServiceMock.Object,
             new Mock<IDateTimeService>().Object,
             new Mock<ICountryService>().Object,
-            new Mock<IRequestTranslationService>().Object,
+            _translationServiceMock.Object,
             new Mock<IDownloadService>().Object,
             new Mock<IShippingService>().Object,
             new Mock<IStockQuantityService>().Object,
             new MeasureSettings(),
             new ShippingSettings(),
             new ShippingProviderSettings(),
-            _scopeMock.Object);
+            _scopeMock.Object,
+            _productUnitServiceMock.Object);
+    }
+
+    private readonly Mock<IProductUnitService> _productUnitServiceMock = new();
+    private readonly Mock<IRequestTranslationService> _translationServiceMock = new();
+
+    private (Order, OrderItem) TrackedOrder(InventoryTrackingMode mode, bool multipleWarehouses = false)
+    {
+        var order = new Order { Id = "order1", SeId = "se1", StoreId = "store1" };
+        var orderItem = new OrderItem
+            { Id = "oi-A", ProductId = "p-A", IsShipEnabled = true, OpenQty = 2, Quantity = 2, WarehouseId = "w1" };
+        var product = new Product {
+            Id = "p-A", Name = "p", IsShipEnabled = true, ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            InventoryTrackingModeId = mode, WarehouseId = multipleWarehouses ? "" : "w1",
+            UseMultipleWarehouses = multipleWarehouses,
+            ProductWarehouseInventory = {
+                new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 2 },
+                new ProductWarehouseInventory { WarehouseId = "w2", StockQuantity = 2 }
+            }
+        };
+        _productServiceMock.Setup(p => p.GetProductById("p-A", It.IsAny<bool>())).ReturnsAsync(product);
+        _productServiceMock.Setup(p => p.GetProductByIdIncludeArch("p-A")).ReturnsAsync(product);
+        order.OrderItems.Add(orderItem);
+        return (order, orderItem);
+    }
+
+    [TestMethod]
+    public async Task PrepareShipment_SerialNumbersText_ParsedOntoShipmentItem()
+    {
+        var (order, orderItem) = TrackedOrder(InventoryTrackingMode.SerialNumber);
+        var model = new AddShipmentModel {
+            OrderId = order.Id,
+            Items = [new() { OrderItemId = "oi-A", QuantityToAdd = 2, SerialNumbersText = " A1\nA2 " }]
+        };
+
+        var (shipment, _) = await _service.PrepareShipment(order, [orderItem], model);
+
+        CollectionAssert.AreEqual(new[] { "A1", "A2" }, shipment.ShipmentItems.Single().SerialNumbers.ToArray());
+    }
+
+    [TestMethod]
+    public async Task PrepareShipment_Batches_OnlyOfTheChosenWarehouse()
+    {
+        var (order, orderItem) = TrackedOrder(InventoryTrackingMode.Batch, true);
+        var model = new AddShipmentModel {
+            OrderId = order.Id,
+            Items = [
+                new() {
+                    OrderItemId = "oi-A", QuantityToAdd = 2, WarehouseId = "w2",
+                    Batches = [
+                        new() { WarehouseId = "w1", Number = "L1", Quantity = 2 },
+                        new() { WarehouseId = "w2", Number = "L2", Quantity = 2 },
+                        new() { WarehouseId = "w2", Number = "L3", Quantity = 0 }
+                    ]
+                }
+            ]
+        };
+
+        var (shipment, _) = await _service.PrepareShipment(order, [orderItem], model);
+
+        var batch = shipment.ShipmentItems.Single().Batches.Single();
+        Assert.AreEqual("L2", batch.Number);
+        Assert.AreEqual(2, batch.Quantity);
+    }
+
+    [TestMethod]
+    public async Task PrepareShipmentModel_BatchItem_ProposalPerWarehouse()
+    {
+        var (order, _) = TrackedOrder(InventoryTrackingMode.Batch, true);
+        _warehouseServiceMock.Setup(w => w.GetWarehouseById(It.IsAny<string>()))
+            .ReturnsAsync((string id) => new Warehouse { Id = id, Name = id });
+        _productUnitServiceMock.Setup(x => x.ProposeBatches(It.IsAny<Product>(),
+                It.IsAny<IList<Grand.Domain.Common.CustomAttribute>>(), It.IsAny<string>(), 2, It.IsAny<DateTime>()))
+            .ReturnsAsync((Product _, IList<Grand.Domain.Common.CustomAttribute> _, string warehouseId, int _,
+                DateTime _) => [new BatchAllocation("L-" + warehouseId, null, null, 2, 2)]);
+
+        var model = await _service.PrepareShipmentModel(order);
+
+        var item = model.Items.Single();
+        Assert.AreEqual(InventoryTrackingMode.Batch, item.TrackingMode);
+        CollectionAssert.AreEquivalent(new[] { "L-w1", "L-w2" }, item.BatchProposals.Select(x => x.Number).ToArray());
+        Assert.AreEqual("w2", item.BatchProposals.Single(x => x.Number == "L-w2").WarehouseId);
+    }
+
+    [TestMethod]
+    public async Task PrepareShipmentUnits_FormatsErrorsWithProductName()
+    {
+        _productUnitServiceMock.Setup(x => x.PrepareShipmentUnits(It.IsAny<Shipment>()))
+            .ReturnsAsync([new ShipmentUnitError("si1", "p", "key")]);
+        _translationServiceMock.Setup(t => t.GetResource("key")).Returns("message");
+
+        var errors = await _service.PrepareShipmentUnits(new Shipment());
+
+        CollectionAssert.AreEqual(new[] { "p: message" }, errors.ToArray());
     }
 
     [TestMethod]

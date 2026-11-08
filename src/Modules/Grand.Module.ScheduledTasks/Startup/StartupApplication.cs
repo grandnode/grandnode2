@@ -28,6 +28,8 @@ public class StartupApplication : IStartupApplication
 
         serviceCollection.AddKeyedScoped<IScheduleTask, QueuedMessagesSendScheduleTask>("Send emails");
         serviceCollection.AddKeyedScoped<IScheduleTask, ClearCacheScheduleTask>("Clear cache");
+        serviceCollection.AddKeyedScoped<IScheduleTask, InventoryBatchExpiryScheduleTask>(
+            "Inventory batch expiry notification");
         serviceCollection.AddKeyedScoped<IScheduleTask, GenerateSitemapXmlTask>("Generate sitemap XML file");
         serviceCollection.AddKeyedScoped<IScheduleTask, DeleteGuestsScheduleTask>("Delete guests");
         serviceCollection.AddKeyedScoped<IScheduleTask, DeleteOidcSessionsScheduleTask>("Delete OpenID Connect sessions");

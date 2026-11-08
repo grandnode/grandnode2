@@ -9,5 +9,6 @@ public enum InventoryDocumentType
     Transfer = 20,
     Adjustment = 30,
     StockCount = 40,
-    ReturnReceipt = 50
+    ReturnReceipt = 50,
+    Assignment = 60
 }

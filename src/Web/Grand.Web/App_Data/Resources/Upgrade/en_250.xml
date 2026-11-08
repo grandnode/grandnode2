@@ -1236,4 +1236,214 @@
 	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ClosingBalance" Area="Admin">
 		<Value>Closing balance</Value>
 	</Resource>
+	<Resource Name="Admin.Catalog.Products.Fields.InventoryTrackingMode" Area="Admin">
+		<Value>Track units</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Fields.InventoryTrackingMode.Hint" Area="Admin">
+		<Value>None, batches (number, expiry date, quantity per warehouse) or serial numbers (one record per unit). Never both. Switching on keeps the stock as stock without units, assigned later.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Fields.WarrantyMonths" Area="Admin">
+		<Value>Warranty (months)</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Fields.WarrantyMonths.Hint" Area="Admin">
+		<Value>The warranty of a unit shipped, counted from the shipment date. 0 for none.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Fields.ExpiryWarningDays" Area="Admin">
+		<Value>Expiry warning (days)</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.Fields.ExpiryWarningDays.Hint" Area="Admin">
+		<Value>Days before its expiry date a batch is reported as expiring. Empty for the inventory setting.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.AssignmentNumberPrefix" Area="Admin">
+		<Value>Assignment number prefix</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.AssignmentNumberPrefix.Hint" Area="Admin">
+		<Value>The number prefix of a document assigning batches or serial numbers to stock without them.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ExpiryWarningDays" Area="Admin">
+		<Value>Expiry warning (days)</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Catalog.Inventory.ExpiryWarningDays.Hint" Area="Admin">
+		<Value>Days before its expiry date a batch is reported as expiring, unless the product sets its own.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Batches" Area="Admin">
+		<Value>Batches</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.SerialNumbers" Area="Admin">
+		<Value>Serial numbers</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.ExpiringBatches" Area="Admin">
+		<Value>Expiring / expired batches</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Customer" Area="Admin">
+		<Value>Customer</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Order" Area="Admin">
+		<Value>Order</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Receipt" Area="Admin">
+		<Value>Receipt</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Shipment" Area="Admin">
+		<Value>Shipment</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.ShippedOn" Area="Admin">
+		<Value>Shipped on</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Recipients" Area="Admin">
+		<Value>Who received it</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.RecipientsCsv" Area="Admin">
+		<Value>Export recipients (CSV)</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.DuplicateScanned" Area="Admin">
+		<Value>a number is scanned twice</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.InWarranty" Area="Admin">
+		<Value>in warranty</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.WarrantyEnded" Area="Admin">
+		<Value>warranty ended</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.WarrantyUntil" Area="Admin">
+		<Value>Warranty until</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.NotBooked" Area="Admin">
+		<Value>Units not booked: delete the shipment and add it again</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.WithoutBatch" Area="Admin">
+		<Value>without batch</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.Units" Area="Admin">
+		<Value>Batch / serial numbers</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.BatchNumber" Area="Admin">
+		<Value>Batch</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.ExpiryDate" Area="Admin">
+		<Value>Expiry date</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.ExpiryStatus" Area="Admin">
+		<Value>Expiry</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.SerialNumber" Area="Admin">
+		<Value>Serial number</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.SerialNumbers" Area="Admin">
+		<Value>Serial numbers, one a line</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.Status" Area="Admin">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.ReceivedOn" Area="Admin">
+		<Value>Received on</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.WithStockOnly" Area="Admin">
+		<Value>Only with stock</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.Assigned" Area="Admin">
+		<Value>In batches / serial numbers</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.Pool" Area="Admin">
+		<Value>Without units</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.BatchRequired" Area="Admin">
+		<Value>A batch number is required for this product.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.BatchNotFound" Area="Admin">
+		<Value>The batch is not in this warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.BatchQuantityExceeded" Area="Admin">
+		<Value>The batch does not hold that quantity.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.BatchExpiryMismatch" Area="Admin">
+		<Value>The batch already exists with another expiry date.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.SerialRequired" Area="Admin">
+		<Value>Serial numbers are required for these units.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.SerialCountMismatch" Area="Admin">
+		<Value>The number of serial numbers does not match the quantity.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.SerialDuplicate" Area="Admin">
+		<Value>A serial number is given twice.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.SerialInStock" Area="Admin">
+		<Value>A serial number is already in stock.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.SerialShipped" Area="Admin">
+		<Value>A serial number is already shipped.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.SerialNotInStock" Area="Admin">
+		<Value>A serial number is not in stock in this warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.SerialInOtherWarehouse" Area="Admin">
+		<Value>A serial number is in stock in another warehouse: move it with a transfer.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.SerialNotShipped" Area="Admin">
+		<Value>A serial number was not shipped for this item.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.PoolExceeded" Area="Admin">
+		<Value>Not enough stock without batches or serial numbers.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.UnitsAssigned" Area="Admin">
+		<Value>Units held in batches or serial numbers: {0}. Tracking, the inventory method and the warehouses cannot change until they are booked out.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.TrackedStockDocumentsOnly" Area="Admin">
+		<Value>The stock of a batch- or serial-tracked product changes through inventory documents and shipments.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.TrackedBundleChild" Area="Admin">
+		<Value>A product of this bundle tracks serial numbers, or its stock without batches does not cover it: ship it as a separate item.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.TrackingNotSupported" Area="Admin">
+		<Value>Batches and serial numbers need a product whose stock is tracked.</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryTrackingMode.None" Area="Admin">
+		<Value>None</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryTrackingMode.Batch" Area="Admin">
+		<Value>Batches</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryTrackingMode.SerialNumber" Area="Admin">
+		<Value>Serial numbers</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.SerialNumberStatus.InStock" Area="Admin">
+		<Value>In stock</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.SerialNumberStatus.Shipped" Area="Admin">
+		<Value>Shipped</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.SerialNumberStatus.Scrapped" Area="Admin">
+		<Value>Scrapped</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.SerialNumberStatus.Missing" Area="Admin">
+		<Value>Missing</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.BatchExpiryStatus.Valid" Area="Admin">
+		<Value>Valid</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.BatchExpiryStatus.Expiring" Area="Admin">
+		<Value>Expiring</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.BatchExpiryStatus.Expired" Area="Admin">
+		<Value>Expired</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryDocumentType.Assignment" Area="Admin">
+		<Value>Assignment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.TrackingStarted" Area="Admin">
+		<Value>Tracking started</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.TrackingAssignment" Area="Admin">
+		<Value>Units assigned</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.InventoryMovementType.ReturnScrapped" Area="Admin">
+		<Value>Return scrapped</Value>
+	</Resource>
+	<Resource Name="Order.SerialNumbers" Area="Front">
+		<Value>Serial numbers</Value>
+	</Resource>
+	<Resource Name="Order.WarrantyUntil" Area="Front">
+		<Value>Warranty until</Value>
+	</Resource>
 </Language>

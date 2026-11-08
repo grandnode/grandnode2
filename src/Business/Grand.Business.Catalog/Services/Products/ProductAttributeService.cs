@@ -1,5 +1,6 @@
 using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Core.Events.Catalog;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
@@ -32,8 +33,10 @@ public class ProductAttributeService : IProductAttributeService
         IRepository<Product> productRepository,
         IMediator mediator,
         IResourceLock resourceLock,
-        StockLedger stockLedger)
+        StockLedger stockLedger,
+        IProductUnitService productUnitService)
     {
+        _productUnitService = productUnitService;
         _cacheBase = cacheBase;
         _productAttributeRepository = productAttributeRepository;
         _productRepository = productRepository;
@@ -46,6 +49,7 @@ public class ProductAttributeService : IProductAttributeService
 
     #region Fields
 
+    private readonly IProductUnitService _productUnitService;
     private readonly IRepository<ProductAttribute> _productAttributeRepository;
     private readonly IRepository<Product> _productRepository;
     private readonly IMediator _mediator;
@@ -324,6 +328,11 @@ public class ProductAttributeService : IProductAttributeService
             var stored = product?.ProductAttributeCombinations.FirstOrDefault(x => x.Id == combination.Id);
             if (product?.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes && stored != null)
             {
+                //units assigned to the combination would be left without stock
+                if (InventoryTracking.Tracked(product) &&
+                    await _productUnitService.AssignedQuantity(productId, stored.Id) > 0)
+                    throw new InvalidOperationException(UnitErrors.UnitsAssigned);
+
                 //the stock the combination holds leaves the journal first, so the product's history keeps adding up
                 var held = product.UseMultipleWarehouses
                     ? stored.WarehouseInventory.Select(x => (x.WarehouseId, x.StockQuantity))

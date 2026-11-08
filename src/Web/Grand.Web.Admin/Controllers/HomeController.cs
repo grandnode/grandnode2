@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
@@ -36,9 +37,13 @@ public class HomeController : BaseHomeControllerWithSetLanguage
         IOrderReportService orderReportService,
         IProductsReportService productsReportService,
         ILogger<HomeController> logger,
-        IMediator mediator)
+        IMediator mediator,
+        IProductUnitService productUnitService,
+        IDateTimeService dateTimeService)
         : base(countryService, translationService, contextAccessor)
     {
+        _productUnitService = productUnitService;
+        _dateTimeService = dateTimeService;
         _contextAccessor = contextAccessor;
         _storeService = storeService;
         _customerService = customerService;
@@ -67,6 +72,8 @@ public class HomeController : BaseHomeControllerWithSetLanguage
 
         var lowStockProducts = await _productsReportService.LowStockProducts(storeId: storeId);
         model.LowStockProducts = lowStockProducts.products.Count + lowStockProducts.combinations.Count;
+        (model.ExpiringBatches, model.ExpiredBatches) = await _productUnitService.ExpiryCounts(null,
+            _dateTimeService.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).Date);
 
         model.MerchandiseReturns = await _mediator.Send(new GetMerchandiseReturnCountQuery
             { RequestStatusId = 0, StoreId = storeId });
@@ -87,6 +94,8 @@ public class HomeController : BaseHomeControllerWithSetLanguage
     #region Fields
 
     private readonly IContextAccessor _contextAccessor;
+    private readonly IProductUnitService _productUnitService;
+    private readonly IDateTimeService _dateTimeService;
     private readonly IStoreService _storeService;
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;

@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
@@ -102,5 +103,11 @@ public class ProductValidator : BaseGrandValidator<ProductDto>
 
             return true;
         }).WithMessage(translationService.GetResource("Api.Catalog.Product.Fields.Id.NotExists", languageId));
+
+        //the stock of a product tracking batches or serial numbers changes only with the units named
+        RuleFor(x => x).MustAsync(async (x, _, _) =>
+                string.IsNullOrEmpty(x.Id) || await productService.GetProductById(x.Id) is not { } product ||
+                !InventoryTracking.Tracked(product) || product.StockQuantity == x.StockQuantity)
+            .WithMessage(InventoryTracking.StockDocumentsOnlyMessage);
     }
 }

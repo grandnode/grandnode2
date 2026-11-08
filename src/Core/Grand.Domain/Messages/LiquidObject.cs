@@ -18,6 +18,7 @@ public class LiquidObject
     public Drop Customer { get; set; }
 
     public Drop GiftVoucher { get; set; }
+    public Drop Inventory { get; set; }
 
     public Drop Knowledgebase { get; set; }
 

@@ -285,6 +285,11 @@ public class OrderModel : BaseEntityModel
 
     public class OrderItemModel : BaseEntityModel
     {
+        /// <summary>
+        ///     What the shipments shipped of the item: serial numbers or batches, and the warranty
+        /// </summary>
+        public string UnitsInfo { get; set; }
+
         public string ProductId { get; set; }
         public string ProductName { get; set; }
         public string VendorName { get; set; }

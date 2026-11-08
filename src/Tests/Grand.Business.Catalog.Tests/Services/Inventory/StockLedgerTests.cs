@@ -1,11 +1,13 @@
 using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -450,6 +452,24 @@ public static class StockTestFixture
         return warehouseService.Object;
     }
 
+    public static ProductUnitService UnitService(IRepository<ProductBatch> batches = null,
+        IRepository<ProductSerialNumber> serials = null, IRepository<Product> products = null,
+        InventorySettings settings = null, IRepository<InventoryJournal> journal = null,
+        IRepository<Shipment> shipments = null, IRepository<Order> orders = null)
+    {
+        var settingService = new Mock<ISettingService>();
+        settingService.Setup(x => x.LoadSetting<InventorySettings>(It.IsAny<string>()))
+            .ReturnsAsync(settings ?? new InventorySettings());
+        batches ??= new MongoDBRepositoryTest<ProductBatch>();
+        serials ??= new MongoDBRepositoryTest<ProductSerialNumber>();
+        products ??= new MongoDBRepositoryTest<Product>();
+        journal ??= new MongoDBRepositoryTest<InventoryJournal>();
+        shipments ??= new MongoDBRepositoryTest<Shipment>();
+        return new ProductUnitService(batches, serials, products, settingService.Object, journal, shipments,
+            orders ?? new MongoDBRepositoryTest<Order>(), Warehouses(),
+            Ledger(products, journal, batches: batches, serials: serials, shipments: shipments));
+    }
+
     public static StockMovementService MovementService(IRepository<Product> products,
         IRepository<InventoryJournal> journal, IResourceLock resourceLock)
     {
@@ -457,13 +477,18 @@ public static class StockTestFixture
     }
 
     public static StockLedger Ledger(IRepository<Product> products, IRepository<InventoryJournal> journal,
-        IOutOfStockSubscriptionService outOfStockSubscriptionService = null, IMediator mediator = null)
+        IOutOfStockSubscriptionService outOfStockSubscriptionService = null, IMediator mediator = null,
+        IRepository<ProductBatch> batches = null, IRepository<ProductSerialNumber> serials = null,
+        IRepository<Shipment> shipments = null)
     {
         mediator ??= new Mock<IMediator>().Object;
         return new StockLedger(products, journal, Warehouses(),
             new StockSideEffects(products,
                 outOfStockSubscriptionService ?? new Mock<IOutOfStockSubscriptionService>().Object, mediator,
-                new CatalogSettings()), mediator);
+                new CatalogSettings()), mediator,
+            new StockUnits(batches ?? new MongoDBRepositoryTest<ProductBatch>(),
+                serials ?? new MongoDBRepositoryTest<ProductSerialNumber>(),
+                shipments ?? new MongoDBRepositoryTest<Shipment>(), Warehouses()));
     }
 
     /// <summary>

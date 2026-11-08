@@ -110,7 +110,7 @@ public class ProductImportDataObjectTests
             .ReturnsAsync(() => _inventorySettings);
         _productService = new ProductService(_cacheBase, _repository, _mediatorMock.Object,
             new AclService(new AccessControlConfig()), new MongoResourceLockTest(),
-            StockTestFixture.Ledger(_repository, _journal));
+            StockTestFixture.Ledger(_repository, _journal), StockTestFixture.UnitService());
         _seNameService = new SeNameService(_slugServiceMock.Object, _languageServiceMock.Object, new SeoSettings());
         _productImportDataObject = new ProductImportDataObject
         (_productService, _pictureServiceMock.Object, _productLayoutServiceMock.Object, _deliveryDateServiceMock.Object,
@@ -398,6 +398,24 @@ public class ProductImportDataObjectTests
         var entry = _journal.Table.Single(x => x.ProductId == existing.Id);
         Assert.AreEqual(InventoryMovementType.Import, entry.MovementTypeId);
         Assert.AreEqual(7, entry.InQty);
+    }
+
+    [TestMethod]
+    public async Task Import_TrackedProduct_StockColumnsIgnored_WarningReported()
+    {
+        SetupLookups();
+        var existing = new Product {
+            Name = "p", Sku = "SKU-T", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2,
+            InventoryTrackingModeId = InventoryTrackingMode.Batch
+        };
+        await _repository.InsertAsync(existing);
+
+        var result = await _productImportDataObject.Import(
+            new List<ProductDto> { new() { Sku = "SKU-T", StockQuantity = 9 } }, false);
+
+        Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
+        Assert.IsFalse(_journal.Table.Any());
+        Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("batch- or serial-tracked")));
     }
 
     [TestMethod]

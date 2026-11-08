@@ -8,6 +8,7 @@ using Grand.Domain;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
+using Grand.Domain.Shipping;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 using System.Globalization;
@@ -24,7 +25,9 @@ public class InventoryDocumentService(
     IMediator mediator,
     StockLedger stockLedger,
     IMerchandiseReturnService merchandiseReturnService,
-    IOrderService orderService) : IInventoryDocumentService
+    IOrderService orderService,
+    IProductUnitService productUnitService,
+    IShipmentService shipmentService) : IInventoryDocumentService
 {
     private const int StockCountPageSize = 500;
 
@@ -54,9 +57,8 @@ public class InventoryDocumentService(
         {
             var products = await productRepository.PagedAsync(query, pageIndex, StockCountPageSize);
             foreach (var product in products)
-            foreach (var (_, attributes, stock) in StockBuckets.In(product, warehouseId))
-                document.Lines.Add(new InventoryDocumentLine
-                    { ProductId = product.Id, Attributes = attributes, ExpectedQuantity = stock });
+            foreach (var (combinationId, attributes, stock) in StockBuckets.In(product, warehouseId))
+                await AddStockCountLines(document, product, combinationId, attributes, stock);
 
             if (document.Lines.Count > MaxLines)
                 return (null, [InventoryDocumentErrors.TooManyLines]);
@@ -65,6 +67,51 @@ public class InventoryDocumentService(
         }
 
         return (await CreateDraft(document), []);
+    }
+
+    /// <summary>
+    ///     The lines a bucket is counted on: one, or for a batch-tracked product one per batch holding stock and one
+    ///     for the stock without a batch. A serial-tracked bucket is one line whose serial numbers are scanned
+    /// </summary>
+    private async Task AddStockCountLines(InventoryDocument document, Product product, string combinationId,
+        IList<CustomAttribute> attributes, int stock)
+    {
+        if (!InventoryTracking.Tracked(product) || product.InventoryTrackingModeId != InventoryTrackingMode.Batch)
+        {
+            document.Lines.Add(new InventoryDocumentLine
+                { ProductId = product.Id, Attributes = attributes, ExpectedQuantity = stock });
+            return;
+        }
+
+        var batches = await productUnitService.Batches(product.Id, combinationId,
+            StockBuckets.UnitWarehouse(product, document.WarehouseId));
+        foreach (var batch in batches)
+            document.Lines.Add(new InventoryDocumentLine {
+                ProductId = product.Id, Attributes = attributes, BatchNumber = batch.Number,
+                ExpectedQuantity = batch.Quantity
+            });
+        document.Lines.Add(new InventoryDocumentLine {
+            ProductId = product.Id, Attributes = attributes, ExpectedQuantity = stock - batches.Sum(x => x.Quantity)
+        });
+    }
+
+    /// <summary>
+    ///     What the shipments of an order shipped of each order item: the quantity, the serial numbers and batches
+    /// </summary>
+    private async Task<Dictionary<string, (int Quantity, List<string> SerialNumbers, List<ShipmentItemBatch> Batches)>>
+        Shipped(string orderId)
+    {
+        var shipped = new Dictionary<string, (int, List<string>, List<ShipmentItemBatch>)>();
+        foreach (var item in (await shipmentService.GetShipmentsByOrder(orderId)).SelectMany(x => x.ShipmentItems))
+        {
+            var (quantity, serialNumbers, batches) = shipped.GetValueOrDefault(item.OrderItemId,
+                (0, new List<string>(), new List<ShipmentItemBatch>()));
+            serialNumbers.AddRange(item.SerialNumbers ?? []);
+            batches.AddRange(item.Batches ?? []);
+            shipped[item.OrderItemId] = (quantity + item.Quantity, serialNumbers, batches);
+        }
+
+        return shipped;
     }
 
     public async Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(
@@ -84,14 +131,42 @@ public class InventoryDocumentService(
             MerchandiseReturnId = merchandiseReturn.Id,
             CreatedBy = customerId
         };
+        Dictionary<string, (int Quantity, List<string> SerialNumbers, List<ShipmentItemBatch> Batches)> shipped = null;
         foreach (var item in returned)
         {
             var quantity = item.Quantity - received.GetValueOrDefault((item.ReturnItemId, item.ProductId));
-            if (quantity > 0)
-                document.Lines.Add(new InventoryDocumentLine {
-                    ProductId = item.ProductId, Attributes = item.Attributes, Quantity = quantity,
-                    MerchandiseReturnItemId = item.ReturnItemId
-                });
+            if (quantity <= 0)
+                continue;
+
+            var line = new InventoryDocumentLine {
+                ProductId = item.ProductId, Attributes = item.Attributes, Quantity = quantity,
+                MerchandiseReturnItemId = item.ReturnItemId
+            };
+            //the units shipped for the order item come back: the serial numbers to untick, or the batches
+            var product = await productRepository.GetByIdAsync(item.ProductId);
+            var orderItemId = merchandiseReturn.MerchandiseReturnItems.FirstOrDefault(x => x.Id == item.ReturnItemId)
+                ?.OrderItemId;
+            if (product != null && InventoryTracking.Tracked(product) && orderItemId != null &&
+                (shipped ??= await Shipped(merchandiseReturn.OrderId)).TryGetValue(orderItemId, out var units))
+            {
+                if (product.InventoryTrackingModeId == InventoryTrackingMode.SerialNumber)
+                    line.SerialNumbers = units.SerialNumbers.ToList();
+                else
+                    foreach (var batch in units.Batches.GroupBy(x => UnitNumbers.Key(x.Number)))
+                    {
+                        var fromBatch = Math.Min(line.Quantity, batch.Sum(x => x.Quantity));
+                        if (fromBatch <= 0)
+                            continue;
+                        document.Lines.Add(new InventoryDocumentLine {
+                            ProductId = item.ProductId, Attributes = item.Attributes, Quantity = fromBatch,
+                            BatchNumber = batch.First().Number, MerchandiseReturnItemId = item.ReturnItemId
+                        });
+                        line.Quantity -= fromBatch;
+                    }
+            }
+
+            if (line.Quantity > 0)
+                document.Lines.Add(line);
         }
 
         if (document.Lines.Count == 0)
@@ -184,9 +259,13 @@ public class InventoryDocumentService(
                             x.ProductId == productLines.Key)
                 .Select(x => new { x.PositionId, x.MovementTypeId }));
 
-            var changes = productLines.SelectMany(line => Changes(document, line, customerId))
-                .Where(change => !booked.Any(x =>
-                    x.PositionId == change.Source.PositionId && x.MovementTypeId == change.MovementType))
+            //a product's changes are booked together, so a product with entries of the document is done: a counted
+            //serial line, worked out against the units as they are now, would count again what changed since
+            var changes = productLines.SelectMany(line => Changes(document, line, customerId, product))
+                .Where(change => change.CountedSerialNumbers != null
+                    ? booked.Count == 0
+                    : !booked.Any(x =>
+                        x.PositionId == change.Source.PositionId && x.MovementTypeId == change.MovementType))
                 .ToList();
             if (changes.Count == 0)
                 continue;
@@ -231,12 +310,19 @@ public class InventoryDocumentService(
     ///     The stock changes a line books
     /// </summary>
     private static IEnumerable<StockChange> Changes(InventoryDocument document, InventoryDocumentLine line,
-        string customerId)
+        string customerId, Product product)
     {
+        var serialTracked = product != null && InventoryTracking.Tracked(product) &&
+                            product.InventoryTrackingModeId == InventoryTrackingMode.SerialNumber;
         var source = new StockSource(nameof(InventoryDocument), document.Id, line.Id, document.Number, customerId,
             line.Comment ?? document.Comment ?? "");
+        //the units a line names; the ledger books them for a product tracking them and ignores them otherwise
         StockChange Change(string warehouseId, int quantity, InventoryMovementType movementType) =>
-            new(line.Attributes, warehouseId, quantity, false, movementType, source);
+            new(line.Attributes, warehouseId, quantity, false, movementType, source) {
+                BatchNumber = string.IsNullOrWhiteSpace(line.BatchNumber) ? null : line.BatchNumber.Trim(),
+                ExpiryDateUtc = line.ExpiryDateUtc,
+                SerialNumbers = (line.SerialNumbers ?? []).ToList()
+            };
 
         switch (document.DocumentTypeId)
         {
@@ -252,6 +338,13 @@ public class InventoryDocumentService(
             case InventoryDocumentType.Adjustment:
                 yield return Change(document.WarehouseId, line.Quantity, InventoryMovementType.Adjustment);
                 break;
+            case InventoryDocumentType.StockCount when serialTracked:
+                //the serial numbers scanned are all the units of the bucket
+                if (line.CountedQuantity.HasValue)
+                    yield return Change(document.WarehouseId, 0, InventoryMovementType.StockCount) with {
+                        SerialNumbers = [], CountedSerialNumbers = (line.SerialNumbers ?? []).ToList()
+                    };
+                break;
             case InventoryDocumentType.StockCount:
                 //the difference to what was expected, applied to the stock as it is now: a sale during the count
                 //stays booked
@@ -263,6 +356,13 @@ public class InventoryDocumentService(
                 //a scrapped item is recorded on the document only
                 if (line.Condition == ReturnLineCondition.Restock)
                     yield return Change(document.WarehouseId, line.Quantity, InventoryMovementType.ReturnReceipt);
+                //a scrapped unit with a serial number is marked so; it was out of stock already
+                else if (serialTracked && line.SerialNumbers is { Count: > 0 })
+                    yield return Change(document.WarehouseId, 0, InventoryMovementType.ReturnScrapped);
+                break;
+            case InventoryDocumentType.Assignment:
+                yield return Change(document.WarehouseId, line.Quantity, InventoryMovementType.TrackingAssignment)
+                    with { UnitCost = line.UnitCost };
                 break;
         }
     }
@@ -411,7 +511,8 @@ public class InventoryDocumentService(
 
         //a stock count books the difference of each line: one bucket counted twice would book it twice
         if (document.DocumentTypeId == InventoryDocumentType.StockCount &&
-            document.Lines.GroupBy(x => (x.ProductId, Attributes: AttributesKey(x.Attributes))).Any(x => x.Count() > 1))
+            document.Lines.GroupBy(x => (x.ProductId, Attributes: AttributesKey(x.Attributes),
+                Batch: UnitNumbers.Key(x.BatchNumber))).Any(x => x.Count() > 1))
             Add(InventoryDocumentErrors.DuplicateLine);
 
         if (document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
@@ -451,6 +552,11 @@ public class InventoryDocumentService(
             if (transfer && !product.UseMultipleWarehouses)
                 Add(InventoryDocumentErrors.TransferNeedsMultipleWarehouses);
 
+            if (document.DocumentTypeId == InventoryDocumentType.Assignment && !InventoryTracking.Tracked(product))
+                Add(StockErrors.StockNotTracked);
+            foreach (var error in UnitErrorsOf(document, line, product))
+                Add(error);
+
             switch (document.DocumentTypeId)
             {
                 case InventoryDocumentType.Receipt:
@@ -459,6 +565,7 @@ public class InventoryDocumentService(
                     break;
                 case InventoryDocumentType.Transfer:
                 case InventoryDocumentType.ReturnReceipt:
+                case InventoryDocumentType.Assignment:
                     if (line.Quantity <= 0) Add(InventoryDocumentErrors.QuantityMustBePositive);
                     break;
                 case InventoryDocumentType.Adjustment:
@@ -466,11 +573,97 @@ public class InventoryDocumentService(
                     break;
                 case InventoryDocumentType.StockCount:
                     if (line.CountedQuantity < 0) Add(InventoryDocumentErrors.CountedNegative);
+                    //a surplus belongs to a batch: the stock without one can only be found missing
+                    if (InventoryTracking.Tracked(product) &&
+                        product.InventoryTrackingModeId == InventoryTrackingMode.Batch &&
+                        string.IsNullOrWhiteSpace(line.BatchNumber) && line.CountedQuantity > line.ExpectedQuantity)
+                        Add(UnitErrors.PoolExceeded);
                     break;
             }
         }
 
+        if (document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
+            !string.IsNullOrEmpty(document.MerchandiseReturnId))
+            foreach (var error in await ReturnedUnitErrors(document, products))
+                Add(error);
+
+        //a serial number is one unit: it is named once a document
+        foreach (var productLines in document.Lines.Where(x => products.GetValueOrDefault(x.ProductId ?? "") is
+                         { InventoryTrackingModeId: InventoryTrackingMode.SerialNumber })
+                     .GroupBy(x => x.ProductId))
+            if (UnitNumbers.Duplicates(productLines.SelectMany(x => x.SerialNumbers ?? [])).Count > 0)
+                Add(UnitErrors.SerialDuplicate);
+
         return errors;
+    }
+
+    /// <summary>
+    ///     What the serial numbers of a return receipt break: each was shipped for the order item it comes back for,
+    ///     and only units shipped without a number may come back without one
+    /// </summary>
+    private async Task<IList<string>> ReturnedUnitErrors(InventoryDocument document,
+        Dictionary<string, Product> products)
+    {
+        var errors = new List<string>();
+        if (!document.Lines.Any(x => products.GetValueOrDefault(x.ProductId ?? "") is { } product &&
+                                     InventoryTracking.Tracked(product) &&
+                                     product.InventoryTrackingModeId == InventoryTrackingMode.SerialNumber))
+            return errors;
+
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(document.MerchandiseReturnId);
+        if (merchandiseReturn == null)
+            return errors;
+
+        var shipped = await Shipped(merchandiseReturn.OrderId);
+        foreach (var line in document.Lines)
+        {
+            if (products.GetValueOrDefault(line.ProductId ?? "") is not { } product ||
+                !InventoryTracking.Tracked(product) ||
+                product.InventoryTrackingModeId != InventoryTrackingMode.SerialNumber)
+                continue;
+
+            var orderItemId = merchandiseReturn.MerchandiseReturnItems
+                .FirstOrDefault(x => x.Id == line.MerchandiseReturnItemId)?.OrderItemId;
+            var (quantity, serialNumbers, _) = orderItemId != null && shipped.TryGetValue(orderItemId, out var value)
+                ? value
+                : (0, new List<string>(), new List<ShipmentItemBatch>());
+            var numbers = line.SerialNumbers ?? [];
+            var keys = serialNumbers.Select(UnitNumbers.Key).ToHashSet();
+            if (numbers.Count > line.Quantity)
+                errors.Add(UnitErrors.SerialCountMismatch);
+            if (numbers.Any(x => !keys.Contains(UnitNumbers.Key(x))))
+                errors.Add(UnitErrors.SerialNotShipped);
+            if (line.Quantity - numbers.Count > quantity - serialNumbers.Count)
+                errors.Add(UnitErrors.SerialRequired);
+        }
+
+        return errors;
+    }
+
+    /// <summary>
+    ///     What a line of a product tracking its units lacks: the batch of what comes in, or a serial number for every
+    ///     unit received, adjusted, moved or assigned. Whether the units are there to move is the ledger's check
+    /// </summary>
+    private static IEnumerable<string> UnitErrorsOf(InventoryDocument document, InventoryDocumentLine line,
+        Product product)
+    {
+        if (!InventoryTracking.Tracked(product))
+            yield break;
+
+        var type = document.DocumentTypeId;
+        if (product.InventoryTrackingModeId == InventoryTrackingMode.Batch)
+        {
+            if (string.IsNullOrWhiteSpace(line.BatchNumber) &&
+                (type is InventoryDocumentType.Receipt or InventoryDocumentType.Assignment ||
+                 (type == InventoryDocumentType.Adjustment && line.Quantity > 0)))
+                yield return UnitErrors.BatchRequired;
+            yield break;
+        }
+
+        if (type is InventoryDocumentType.Receipt or InventoryDocumentType.Adjustment or InventoryDocumentType.Transfer
+                or InventoryDocumentType.Assignment &&
+            (line.SerialNumbers?.Count ?? 0) != Math.Abs(line.Quantity))
+            yield return UnitErrors.SerialCountMismatch;
     }
 
     /// <summary>
@@ -510,6 +703,7 @@ public class InventoryDocumentService(
             InventoryDocumentType.Adjustment => settings.AdjustmentNumberPrefix,
             InventoryDocumentType.StockCount => settings.StockCountNumberPrefix,
             InventoryDocumentType.ReturnReceipt => settings.ReturnReceiptNumberPrefix,
+            InventoryDocumentType.Assignment => settings.AssignmentNumberPrefix,
             _ => throw new ArgumentOutOfRangeException(nameof(documentType))
         };
     }
@@ -539,7 +733,9 @@ public class InventoryDocumentService(
     {
         return line != null && line.ProductId == stored.ProductId && line.Quantity == stored.Quantity &&
                line.CountedQuantity == stored.CountedQuantity && line.UnitCost == stored.UnitCost &&
-               line.Condition == stored.Condition &&
+               line.Condition == stored.Condition && line.BatchNumber == stored.BatchNumber &&
+               line.ExpiryDateUtc == stored.ExpiryDateUtc &&
+               (line.SerialNumbers ?? []).SequenceEqual(stored.SerialNumbers ?? []) &&
                line.Attributes.Select(x => (x.Key, x.Value))
                    .SequenceEqual(stored.Attributes.Select(x => (x.Key, x.Value)));
     }

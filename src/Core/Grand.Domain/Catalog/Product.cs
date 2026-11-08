@@ -360,6 +360,21 @@ public class Product : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEn
     public int StockRevision { get; set; }
 
     /// <summary>
+    ///     Gets or sets which units the inventory knows: none, batches or serial numbers
+    /// </summary>
+    public InventoryTrackingMode InventoryTrackingModeId { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the warranty in months, counted from the shipment; 0 for none
+    /// </summary>
+    public int WarrantyMonths { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the days before the expiry date a batch is reported as expiring; null for the inventory setting
+    /// </summary>
+    public int? ExpiryWarningDays { get; set; }
+
+    /// <summary>
     ///     Gets or sets a value indicating whether to display stock availability
     /// </summary>
     public bool StockAvailability { get; set; }

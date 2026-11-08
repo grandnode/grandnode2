@@ -281,5 +281,11 @@ public class CatalogSettingsModel : BaseModel
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.ReturnReceiptNumberPrefix")]
         public string ReturnReceiptNumberPrefix { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.AssignmentNumberPrefix")]
+        public string AssignmentNumberPrefix { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.ExpiryWarningDays")]
+        public int ExpiryWarningDays { get; set; }
     }
 }

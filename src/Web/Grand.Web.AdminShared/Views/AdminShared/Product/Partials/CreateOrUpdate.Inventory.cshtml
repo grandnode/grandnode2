@@ -11,6 +11,10 @@
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="ManageInventoryMethodId" asp-items="EnumTranslationService.ToSelectList((ManageInventoryMethod)Model.ManageInventoryMethodId)"/>
         <admin-field asp-for="WarehouseId" id="pnlWarehouse" asp-items="Model.AvailableWarehouses"/>
+        @* batches or serial numbers: what the inventory knows of each unit *@
+        <admin-field asp-for="InventoryTrackingModeId" asp-items="EnumTranslationService.ToSelectList(Model.InventoryTrackingModeId)"/>
+        <admin-field asp-for="WarrantyMonths"/>
+        <admin-field asp-for="ExpiryWarningDays"/>
         @* the quantity and the unit it is counted in are one answer *@
         @* the stock the form showed: a value is saved only when it changed. While stock changes only
            through inventory documents, the stock is shown and posted unchanged *@

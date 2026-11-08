@@ -83,6 +83,24 @@ public static class StandardAdminSiteMap
                     IconClass = "bi bi-record-circle"
                 },
                 new() {
+                    SystemName = "Batches",
+                    ResourceName = "Admin.Inventory.Units.Batches",
+                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+                    ControllerName = "ProductUnit",
+                    ActionName = "Batches",
+                    DisplayOrder = 22,
+                    IconClass = "bi bi-record-circle"
+                },
+                new() {
+                    SystemName = "Serial numbers",
+                    ResourceName = "Admin.Inventory.Units.SerialNumbers",
+                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+                    ControllerName = "ProductUnit",
+                    ActionName = "SerialNumbers",
+                    DisplayOrder = 23,
+                    IconClass = "bi bi-record-circle"
+                },
+                new() {
                     SystemName = "Products",
                     ResourceName = "Admin.Catalog.Products.Manage",
                     PermissionNames = new List<string> { PermissionSystemName.Products },

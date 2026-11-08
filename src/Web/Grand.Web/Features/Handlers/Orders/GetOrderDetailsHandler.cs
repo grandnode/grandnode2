@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Checkout.Orders;
@@ -379,6 +380,11 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
     private async Task PrepareOrderItems(GetOrderDetails request, OrderDetailsModel model)
     {
         model.ShowSku = _catalogSettings.ShowSkuOnProductDetailsPage;
+        //what the shipped shipments shipped of each item: the customer sees its serial numbers and warranty
+        var shipped = request.Order.OrderItems.Any(x => x.ShipQty > 0)
+            ? (await _shipmentService.GetShipmentsByOrder(request.Order.Id)).Where(x => x.ShippedDateUtc.HasValue)
+            .ToList()
+            : [];
         foreach (var orderItem in request.Order.OrderItems)
         {
             var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
@@ -438,6 +444,11 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
                 orderItemModel.LicenseId = !string.IsNullOrEmpty(orderItem.LicenseDownloadId)
                     ? orderItem.LicenseDownloadId
                     : "";
+
+            var units = ShippedUnits.Of(shipped, orderItem.Id);
+            orderItemModel.SerialNumbers = units.SelectMany(x => x.SerialNumbers).ToList();
+            if (units.Max(x => x.WarrantyUntilUtc) is { } warrantyUntil)
+                orderItemModel.WarrantyUntil = _dateTimeService.ConvertToUserTime(warrantyUntil, DateTimeKind.Utc);
 
             model.Items.Add(orderItemModel);
         }

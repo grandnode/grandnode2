@@ -210,6 +210,15 @@ public abstract class BaseShipmentController(
             return RedirectToAction("AddShipment", new { orderId = model.OrderId });
         }
 
+        //the batches and serial numbers it names, checked against the stored units before it is stored
+        var unitErrors = await shipmentViewModelService.PrepareShipmentUnits(shipment);
+        if (unitErrors.Count > 0)
+        {
+            foreach (var unitError in unitErrors)
+                Error(unitError);
+            return RedirectToAction("AddShipment", new { orderId = model.OrderId });
+        }
+
         shipment.TotalWeight = totalWeight;
         await shipmentService.InsertShipment(shipment);
 

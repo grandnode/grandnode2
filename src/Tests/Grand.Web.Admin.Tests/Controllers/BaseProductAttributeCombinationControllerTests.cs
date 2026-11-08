@@ -1,4 +1,6 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
@@ -27,6 +29,8 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         IRequestTranslationService translationService,
         IAdminDataScope<Product> scope)
         : BaseProductAttributeCombinationController(productAttributeCombinationViewModelService, productService, translationService, scope);
+
+    private readonly Mock<IProductUnitService> _unitsMock = new();
 
     protected override TestProductAttributeCombinationController CreateController() => new(
         _productAttributeCombinationViewModelServiceMock.Object,
@@ -77,7 +81,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var attrServiceMock = new Mock<IProductAttributeService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
-            () => _controller.ProductAttributeCombinationDelete("c1", "missing", attrServiceMock.Object));
+            () => _controller.ProductAttributeCombinationDelete("c1", "missing", attrServiceMock.Object, _unitsMock.Object));
     }
 
     [TestMethod]
@@ -89,7 +93,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
         var attrServiceMock = new Mock<IProductAttributeService>();
 
-        var result = await _controller.ProductAttributeCombinationDelete("c1", "p1", attrServiceMock.Object);
+        var result = await _controller.ProductAttributeCombinationDelete("c1", "p1", attrServiceMock.Object, _unitsMock.Object);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
@@ -107,7 +111,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         var attrServiceMock = new Mock<IProductAttributeService>();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
-            () => _controller.ProductAttributeCombinationDelete("missing-c", "p1", attrServiceMock.Object));
+            () => _controller.ProductAttributeCombinationDelete("missing-c", "p1", attrServiceMock.Object, _unitsMock.Object));
     }
 
     [TestMethod]
@@ -120,10 +124,50 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         var attrServiceMock = new Mock<IProductAttributeService>();
 
-        var result = await _controller.ProductAttributeCombinationDelete("c1", "p1", attrServiceMock.Object);
+        var result = await _controller.ProductAttributeCombinationDelete("c1", "p1", attrServiceMock.Object, _unitsMock.Object);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         attrServiceMock.Verify(s => s.DeleteProductAttributeCombination(combination, "p1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ProductAttributeCombinationDelete_UnitsAssigned_ReturnsErrorJson_DoesNotDelete()
+    {
+        var product = new Product {
+            Id = "p1", ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes,
+            InventoryTrackingModeId = InventoryTrackingMode.Batch
+        };
+        var combination = new ProductAttributeCombination { Id = "c1" };
+        product.ProductAttributeCombinations.Add(combination);
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _unitsMock.Setup(s => s.AssignedQuantity("p1", "c1")).ReturnsAsync(2);
+        _translationServiceMock.Setup(t => t.GetResource(UnitErrors.UnitsAssigned)).Returns("{0} units assigned");
+        var attrServiceMock = new Mock<IProductAttributeService>();
+
+        var result = await _controller.ProductAttributeCombinationDelete("c1", "p1", attrServiceMock.Object, _unitsMock.Object);
+
+        Assert.AreEqual("2 units assigned", ((result as JsonResult)?.Value as DataSourceResult)?.Errors);
+        attrServiceMock.Verify(
+            s => s.DeleteProductAttributeCombination(It.IsAny<ProductAttributeCombination>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ClearAllAttributeCombinations_UnitsAssigned_ReturnsErrorJson_DoesNotClear()
+    {
+        var product = new Product {
+            Id = "p1", ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes,
+            InventoryTrackingModeId = InventoryTrackingMode.SerialNumber
+        };
+        _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
+        _unitsMock.Setup(s => s.AssignedQuantity("p1", null)).ReturnsAsync(1);
+
+        var result = await _controller.ClearAllAttributeCombinations("p1", _unitsMock.Object);
+
+        Assert.IsNotNull(((result as JsonResult)?.Value as DataSourceResult)?.Errors);
+        _productAttributeCombinationViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(It.IsAny<Product>()), Times.Never);
     }
 
     // --- AttributeCombinationPopup (GET) ---------------------------------------------------------------
@@ -281,7 +325,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(
-            () => _controller.ClearAllAttributeCombinations("missing"));
+            () => _controller.ClearAllAttributeCombinations("missing", _unitsMock.Object));
     }
 
     [TestMethod]
@@ -291,7 +335,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
 
-        var result = await _controller.ClearAllAttributeCombinations("p1");
+        var result = await _controller.ClearAllAttributeCombinations("p1", _unitsMock.Object);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _translationServiceMock.Verify(t => t.GetResource("Admin.Catalog.Products.Permissions"), Times.Once);
@@ -306,7 +350,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
 
-        var result = await _controller.ClearAllAttributeCombinations("p1");
+        var result = await _controller.ClearAllAttributeCombinations("p1", _unitsMock.Object);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _productAttributeCombinationViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(product), Times.Once);
@@ -320,7 +364,7 @@ public class BaseProductAttributeCombinationControllerTests : ProductControllerT
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
         _controller.ModelState.AddModelError("x", "err");
 
-        var result = await _controller.ClearAllAttributeCombinations("p1");
+        var result = await _controller.ClearAllAttributeCombinations("p1", _unitsMock.Object);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _productAttributeCombinationViewModelServiceMock.Verify(s => s.ClearAllAttributeCombinations(It.IsAny<Product>()), Times.Never);

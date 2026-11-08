@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Module.Api.Attributes;
@@ -142,7 +143,8 @@ public class ProductController : BaseApiController
 
         if (model == null) return BadRequest();
 
-        await _mediator.Send(new UpdateProductStockCommand { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock });
+        if (!await _mediator.Send(new UpdateProductStockCommand { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock }))
+            return BadRequest(InventoryTracking.StockDocumentsOnlyMessage);
 
         return Ok(true);
     }

@@ -14,6 +14,7 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
+using Microsoft.Extensions.Logging.Abstractions;
 using Moq;
 using System.Diagnostics;
 
@@ -49,7 +50,8 @@ public class InventoryManageServiceTests
             _stockQuantityService, _mediatorMock.Object, _settings, new MongoResourceLockTest(),
             new StockSideEffects(_repository, new Mock<IOutOfStockSubscriptionService>().Object,
                 _mediatorMock.Object, _settings),
-            StockTestFixture.Ledger(_repository, _repositoryInventoryJournal, mediator: _mediatorMock.Object));
+            StockTestFixture.Ledger(_repository, _repositoryInventoryJournal, mediator: _mediatorMock.Object),
+            new MongoDBRepositoryTest<Shipment>(), NullLogger<InventoryManageService>.Instance);
     }
 
     private List<InventoryJournal> Journal(Product product) =>
