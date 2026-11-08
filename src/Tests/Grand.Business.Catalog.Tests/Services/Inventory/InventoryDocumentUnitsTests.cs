@@ -393,7 +393,10 @@ public class InventoryDocumentUnitsTests
             InventoryTrackingMode.None, ("", null, 2));
         var document = await Draft(InventoryDocumentType.Assignment, Line(product, 1, "L1"));
 
-        CollectionAssert.Contains((await _service.Validate(document)).ToList(), StockErrors.StockNotTracked);
+        //the product keeps stock: what it lacks is batches or serial numbers to give it
+        var errors = (await _service.Validate(document)).ToList();
+        CollectionAssert.Contains(errors, InventoryDocumentErrors.UnitsNotTracked);
+        CollectionAssert.DoesNotContain(errors, StockErrors.StockNotTracked);
     }
 
     [TestMethod]

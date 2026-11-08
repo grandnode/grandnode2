@@ -51,6 +51,23 @@ public class GetSearchProductsQueryHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_KeywordsOfACombinationSku_FindItsProduct()
+    {
+        var product = new Product { Name = "Cardigan", Sku = "FA-001", Published = true, VisibleIndividually = true };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { Sku = "FA-001-XL-RED" });
+        await _repository.InsertAsync(product);
+
+        var found = await handler.Handle(new GetSearchProductsQuery { Customer = new Customer(), Keywords = "xl-red" },
+            CancellationToken.None);
+        var notBySku = await handler.Handle(
+            new GetSearchProductsQuery { Customer = new Customer(), Keywords = "xl-red", SearchSku = false },
+            CancellationToken.None);
+
+        Assert.AreEqual(product.Id, found.products.Single().Id);
+        Assert.AreEqual(0, notBySku.products.Count);
+    }
+
+    [TestMethod]
     public async Task Handle_WhenCustomerGroupIdsGivenWithoutCustomer_FiltersByThoseGroups()
     {
         //Arrange

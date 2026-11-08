@@ -1026,6 +1026,9 @@
 	<Resource Name="Admin.Inventory.Documents.Errors.ReturnQuantityExceeded" Area="Admin">
 		<Value>The return receipts of this merchandise return take in more than was returned.</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.UnitsNotTracked" Area="Admin">
+		<Value>An assignment gives batches or serial numbers to stock that has none: only products tracking batches or serial numbers (Inventory tab, Track units) can be on it.</Value>
+	</Resource>
 	<Resource Name="Admin.Inventory.Documents.BackToList" Area="Admin">
 		<Value>back to inventory documents</Value>
 	</Resource>
@@ -1050,14 +1053,41 @@
 	<Resource Name="Admin.Inventory.Documents.AccessDenied" Area="Admin">
 		<Value>You do not have access to this document or warehouse.</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Documents.AddProduct" Area="Admin">
+		<Value>Add product</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.AddProduct.Placeholder" Area="Admin">
+		<Value>Type a name or SKU...</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.AddProduct.Hint" Area="Admin">
+		<Value>Choosing a product adds it at once, or adds to its line when it is already there. A product with attribute combinations asks how many of each came.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.AddLines" Area="Admin">
+		<Value>Add</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.AddProducts" Area="Admin">
+		<Value>Add many</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.AddProducts.Hint" Area="Admin">
+		<Value>One of each product checked is added, and one of each combination of a product with attributes; a product already on the document gets one more.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.ProductsLeftOut" Area="Admin">
+		<Value>Not added, as this document cannot book their stock:</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ProductNotFound" Area="Admin">
+		<Value>The product was not found, or its stock is not managed.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Fields.UnitCost.Hint" Area="Admin">
+		<Value>The net price paid for one unit, in the primary store currency. It starts at the product's current cost; posting the receipt updates the product's average cost.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.NoWarehouses" Area="Admin">
+		<Value>There is no warehouse to keep stock in yet. Add one first:</Value>
+	</Resource>
 	<Resource Name="Admin.Inventory.Documents.NoLines" Area="Admin">
-		<Value>No lines yet: add a product by its SKU below.</Value>
+		<Value>No lines yet: add a product above.</Value>
 	</Resource>
 	<Resource Name="Admin.Inventory.Documents.ReceiveToStock" Area="Admin">
 		<Value>Receive to stock</Value>
-	</Resource>
-	<Resource Name="Admin.Inventory.Documents.Errors.SkuNotFound" Area="Admin">
-		<Value>No product has this SKU.</Value>
 	</Resource>
 	<Resource Name="Admin.Inventory.Documents.Fields.Number" Area="Admin">
 		<Value>Number</Value>
@@ -1101,12 +1131,6 @@
 	<Resource Name="Admin.Inventory.Documents.Fields.Brands.Hint" Area="Admin">
 		<Value>Count only the products of these brands.</Value>
 	</Resource>
-	<Resource Name="Admin.Inventory.Documents.Fields.AddSku" Area="Admin">
-		<Value>Add a product by SKU</Value>
-	</Resource>
-	<Resource Name="Admin.Inventory.Documents.Fields.AddSku.Hint" Area="Admin">
-		<Value>Saving adds the product with this SKU; a product kept by attribute combinations adds a line for each combination.</Value>
-	</Resource>
 	<Resource Name="Admin.Inventory.Documents.Fields.Lines" Area="Admin">
 		<Value>Lines</Value>
 	</Resource>
@@ -1123,7 +1147,7 @@
 		<Value>Counted</Value>
 	</Resource>
 	<Resource Name="Admin.Inventory.Documents.Fields.UnitCost" Area="Admin">
-		<Value>Unit cost</Value>
+		<Value>Purchase price / unit</Value>
 	</Resource>
 	<Resource Name="Admin.Inventory.Documents.Fields.Condition" Area="Admin">
 		<Value>Condition</Value>
@@ -1298,6 +1322,15 @@
 	</Resource>
 	<Resource Name="Admin.Inventory.Units.DuplicateScanned" Area="Admin">
 		<Value>a number is scanned twice</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.MoreSerialNumbers" Area="Admin">
+		<Value>+{0} more</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.SerialNumbersCount" Area="Admin">
+		<Value>Serial numbers: {0}</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.QuantityWillBe" Area="Admin">
+		<Value>the quantity is set to {0} on saving</Value>
 	</Resource>
 	<Resource Name="Admin.Inventory.Units.InWarranty" Area="Admin">
 		<Value>in warranty</Value>

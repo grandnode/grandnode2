@@ -12,29 +12,34 @@
         <admin-field asp-for="ManageInventoryMethodId" asp-items="EnumTranslationService.ToSelectList((ManageInventoryMethod)Model.ManageInventoryMethodId)"/>
         <admin-field asp-for="WarehouseId" id="pnlWarehouse" asp-items="Model.AvailableWarehouses"/>
         @* batches or serial numbers: what the inventory knows of each unit *@
-        <admin-field asp-for="InventoryTrackingModeId" asp-items="EnumTranslationService.ToSelectList(Model.InventoryTrackingModeId)"/>
-        <admin-field asp-for="WarrantyMonths"/>
-        <admin-field asp-for="ExpiryWarningDays"/>
-        @* the quantity and the unit it is counted in are one answer *@
+        <div class="grand-fields grand-fields--3col grand-fields__row">
+            <admin-field asp-for="InventoryTrackingModeId" asp-items="EnumTranslationService.ToSelectList(Model.InventoryTrackingModeId)"/>
+            <admin-field asp-for="WarrantyMonths"/>
+            <admin-field asp-for="ExpiryWarningDays"/>
+        </div>
         @* the stock the form showed: a value is saved only when it changed. While stock changes only
            through inventory documents, the stock is shown and posted unchanged *@
         <input type="hidden" asp-for="OriginalStockQuantity"/>
         <input type="hidden" asp-for="OriginalReservedQuantity"/>
-        <admin-field asp-for="StockQuantity" id="pnlStockQuantity">
-            <div class="input-group grand-unit-group">
-                @if (Model.StockChangesOnlyThroughDocuments)
-                {
-                    <input type="hidden" asp-for="StockQuantity"/>
-                    <span class="form-control-plaintext">@Model.StockQuantity</span>
-                }
-                else
-                {
-                    <admin-input asp-for="StockQuantity"/>
-                }
-                <admin-select asp-for="UnitId" asp-items="Model.AvailableUnits"/>
-            </div>
-        </admin-field>
-        <admin-field asp-for="ReservedQuantity" id="pnlReservedQuantity"/>
+        @* the stock and what is reserved of it share a line, whichever field is hidden before them *@
+        <div class="grand-fields grand-fields--2col grand-fields__row">
+            @* the quantity and the unit it is counted in are one answer *@
+            <admin-field asp-for="StockQuantity" id="pnlStockQuantity">
+                <div class="input-group grand-unit-group">
+                    @if (Model.StockChangesOnlyThroughDocuments)
+                    {
+                        <input type="hidden" asp-for="StockQuantity"/>
+                        <span class="form-control-plaintext">@Model.StockQuantity</span>
+                    }
+                    else
+                    {
+                        <admin-input asp-for="StockQuantity"/>
+                    }
+                    <admin-select asp-for="UnitId" asp-items="Model.AvailableUnits"/>
+                </div>
+            </admin-field>
+            <admin-field asp-for="ReservedQuantity" id="pnlReservedQuantity"/>
+        </div>
 
         @* the switch takes the place of the warehouse and the quantities above: on, the stock
            is kept per warehouse in the table right under it *@

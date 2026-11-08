@@ -17,4 +17,9 @@ public interface IProductAddPopupViewModelService
 
     Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(ProductModel.AddProductModel model,
         int pageIndex, int pageSize);
+
+    /// <summary>
+    ///     The search of a product popup outside the product screens, with the stores and vendors of the panel
+    /// </summary>
+    Task<T> PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new();
 }

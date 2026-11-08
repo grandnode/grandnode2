@@ -553,7 +553,7 @@ public class InventoryDocumentService(
                 Add(InventoryDocumentErrors.TransferNeedsMultipleWarehouses);
 
             if (document.DocumentTypeId == InventoryDocumentType.Assignment && !InventoryTracking.Tracked(product))
-                Add(StockErrors.StockNotTracked);
+                Add(InventoryDocumentErrors.UnitsNotTracked);
             foreach (var error in UnitErrorsOf(document, line, product))
                 Add(error);
 

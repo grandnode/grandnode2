@@ -26,13 +26,68 @@
             <tbody>
             @foreach (var bucket in Model.UnitBuckets)
             {
-                <tr>
-                    <td>@bucket.Warehouse</td>
+                <tr class="@(bucket.Units.Count > 0 ? "border-bottom-0" : "")">
+                    <td class="fw-semibold">@bucket.Warehouse</td>
                     <td>@bucket.Combination</td>
                     <td class="text-end">@bucket.Stock</td>
                     <td class="text-end">@bucket.Assigned</td>
                     <td class="text-end">@bucket.Pool</td>
                 </tr>
+                @* what the bucket holds, right under it: batches with their quantities and expiry, or serial numbers *@
+                @if (bucket.Units.Count > 0)
+                {
+                    <tr>
+                        <td colspan="5" class="ps-4 pt-0">
+                            @if (batches)
+                            {
+                                <table class="table table-sm table-borderless align-middle mb-0">
+                                    <thead>
+                                    <tr class="text-body-secondary small">
+                                        <th class="fw-normal">@Loc["Admin.Inventory.Units.Fields.BatchNumber"]</th>
+                                        <th class="fw-normal text-end">@Loc["Admin.Inventory.Documents.Fields.Quantity"]</th>
+                                        <th class="fw-normal">@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
+                                    @foreach (var unit in bucket.Units)
+                                    {
+                                        <tr>
+                                            <td><a class="text-decoration-none" href="@Url.Action("Batch", "ProductUnit", new { area, id = unit.Id })">@unit.Number</a></td>
+                                            <td class="text-end">@unit.Quantity</td>
+                                            <td>
+                                                @unit.ExpiryDate?.ToShortDateString()
+                                                @if (unit.ExpiryStatus is BatchExpiryStatus.Expired or BatchExpiryStatus.Expiring)
+                                                {
+                                                    <span class="badge @(unit.ExpiryStatus == BatchExpiryStatus.Expired ? "text-bg-danger" : "text-bg-warning")">
+                                                        @EnumTranslationService.GetTranslationEnum(unit.ExpiryStatus.Value)
+                                                    </span>
+                                                }
+                                            </td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            }
+                            else
+                            {
+                                <div class="d-flex flex-wrap gap-1">
+                                    @foreach (var unit in bucket.Units)
+                                    {
+                                        <a class="badge text-bg-light border text-decoration-none fw-normal"
+                                           href="@Url.Action("SerialNumber", "ProductUnit", new { area, id = unit.Id })">@unit.Number</a>
+                                    }
+                                    @if (bucket.MoreUnits > 0)
+                                    {
+                                        <a class="small text-decoration-none ms-1"
+                                           href="@Url.Action("SerialNumbers", "ProductUnit", new { area, productId = Model.Id })">
+                                            @string.Format(Loc["Admin.Inventory.Units.MoreSerialNumbers"].Value, bucket.MoreUnits)
+                                        </a>
+                                    }
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
             }
             </tbody>
         </table>

@@ -126,6 +126,25 @@
     grid-template-columns: repeat(auto-fit, minmax(max(16rem, 45%), 1fr));
 }
 
+//three short fields that belong together, the same way: three where they fit, fewer where not
+.grand-fields--3col {
+    grid-template-columns: repeat(auto-fit, minmax(max(12rem, 30%), 1fr));
+}
+
+/*
+ * Fields that must share a line - a quantity and what is reserved of it - as a grid of their
+ * own taking the whole row of the grid around them, so a field the view's script hides in front
+ * of them does not push one of them onto the next line. With none of them visible the row is
+ * gone, not left as an empty gap.
+ */
+.grand-fields__row {
+    grid-column: 1 / -1;
+}
+
+.grand-fields__row:not(:has(.grand-field:not([style*="display: none"]))) {
+    display: none;
+}
+
 .grand-field {
     display: flex;
     flex-direction: column;
@@ -678,6 +697,20 @@
 .grand-unit-group > .grand-numeric-group > .grand-numeric-spin {
     border-start-end-radius: 0 !important;
     border-end-end-radius: 0 !important;
+}
+
+//a quantity shown, not typed - the stock changes only through inventory documents: it is as wide as
+//its digits, and the unit stands right after it as a field of its own, not glued to an input
+.grand-unit-group > .form-control-plaintext {
+    flex: 0 0 auto;
+    width: auto;
+    min-width: 2rem;
+    padding-inline-end: .75rem;
+}
+
+.grand-unit-group > .form-control-plaintext + .form-select {
+    margin-inline-start: 0;
+    border-radius: var(--bs-border-radius) !important;
 }
 
 .grand-unit-group > .form-select {
