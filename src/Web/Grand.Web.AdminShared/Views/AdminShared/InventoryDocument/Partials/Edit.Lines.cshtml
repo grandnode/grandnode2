@@ -103,8 +103,10 @@
                                     break;
                                 case InventoryTrackingMode.SerialNumber:
                                     @* one number a line: a scanner sends Enter after each *@
-                                    <textarea asp-for="Lines[i].SerialNumbersText" class="form-control" rows="2"
-                                              data-grand-scan placeholder="@Loc["Admin.Inventory.Units.Fields.SerialNumbers"]"></textarea>
+                                    @* the numbers decide the quantity on saving, but on a return, which names the returned ones *@
+                                    <textarea asp-for="Lines[i].SerialNumbersText" class="form-control" rows="3"
+                                              data-grand-scan="@(type == InventoryDocumentType.ReturnReceipt ? "names" : "counts")"
+                                              placeholder="@Loc["Admin.Inventory.Units.Fields.SerialNumbers"]"></textarea>
                                     <div class="grand-cell-sub" data-grand-scan-count></div>
                                     break;
                             }

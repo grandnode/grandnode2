@@ -16,7 +16,9 @@
         quantity = Loc["Admin.Inventory.Documents.Fields.Quantity"].Value,
         add = Loc["Admin.Inventory.Documents.AddLines"].Value,
         cancel = Loc["Admin.Common.Cancel"].Value,
-        duplicate = Loc["Admin.Inventory.Units.DuplicateScanned"].Value
+        duplicate = Loc["Admin.Inventory.Units.DuplicateScanned"].Value,
+        serialCount = Loc["Admin.Inventory.Units.SerialNumbersCount"].Value,
+        quantityWillBe = Loc["Admin.Inventory.Units.QuantityWillBe"].Value
     });
 }
 <form id="inventory-document-form" asp-area="@area" asp-controller="InventoryDocument" asp-action="Edit" method="post">
@@ -79,19 +81,28 @@
         var form = document.getElementById('inventory-document-form');
         var lines = document.getElementById('inventory-document-lines');
 
-        //counts the serial numbers scanned and marks a number scanned twice; the server refuses duplicates anyway
+        //counts the serial numbers scanned and marks a number scanned twice; the server refuses duplicates anyway.
+        //Where the numbers decide the quantity, a quantity typed otherwise is said to change on saving
         function initScan(root) {
             root.querySelectorAll('[data-grand-scan]').forEach(function (box) {
                 var count = box.parentElement.querySelector('[data-grand-scan-count]');
+                var quantity = box.closest('tr').querySelector('[data-grand-quantity]');
+                var counts = box.getAttribute('data-grand-scan') === 'counts';
                 function update() {
                     var numbers = box.value.split(/[\r\n,;]+/).map(function (x) { return x.trim(); })
                         .filter(function (x) { return x.length > 0; });
                     var keys = numbers.map(function (x) { return x.toUpperCase(); });
                     var duplicate = keys.some(function (x, i) { return keys.indexOf(x) !== i; });
+                    var typed = quantity ? Math.abs(parseInt(quantity.value, 10) || 0) : numbers.length;
+                    var changes = counts && numbers.length > 0 && typed !== numbers.length;
                     box.classList.toggle('is-invalid', duplicate);
-                    count.textContent = numbers.length + (duplicate ? ' · ' + options.duplicate : '');
+                    count.classList.toggle('text-warning', changes);
+                    count.textContent = options.serialCount.replace('{0}', numbers.length) +
+                        (changes ? ' · ' + options.quantityWillBe.replace('{0}', numbers.length) : '') +
+                        (duplicate ? ' · ' + options.duplicate : '');
                 }
                 box.addEventListener('input', update);
+                if (quantity) quantity.addEventListener('input', update);
                 update();
             });
         }

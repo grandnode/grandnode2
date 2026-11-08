@@ -1323,6 +1323,12 @@
 	<Resource Name="Admin.Inventory.Units.DuplicateScanned" Area="Admin">
 		<Value>a number is scanned twice</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Units.SerialNumbersCount" Area="Admin">
+		<Value>Serial numbers: {0}</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.QuantityWillBe" Area="Admin">
+		<Value>the quantity is set to {0} on saving</Value>
+	</Resource>
 	<Resource Name="Admin.Inventory.Units.InWarranty" Area="Admin">
 		<Value>in warranty</Value>
 	</Resource>
