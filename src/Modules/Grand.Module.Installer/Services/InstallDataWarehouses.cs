@@ -5,8 +5,17 @@ namespace Grand.Module.Installer.Services;
 
 public partial class InstallationService
 {
-    protected virtual Task InstallWarehouses()
+    /// <summary>
+    ///     Every inventory document books stock in a warehouse, so an installation without sample data still gets one
+    /// </summary>
+    protected virtual Task InstallWarehouses(bool installSampleData)
     {
+        if (!installSampleData)
+        {
+            _warehouseRepository.Insert(new Warehouse { Code = "WHS-MAIN", Name = "Main warehouse" });
+            return Task.CompletedTask;
+        }
+
         var germany = _countryRepository.Table.FirstOrDefault(c => c.TwoLetterIsoCode == "DE");
         var euWarehouseAddress = new Address {
             Address1 = "Speicherstadt Kai 12",

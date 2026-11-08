@@ -304,6 +304,7 @@ public partial class InstallationService : IInstallationService
         await InstallMerchandiseReturnActions();
         await InstallOrderStatus();
         await InstallPermissions();
+        await InstallWarehouses(installSampleData);
 
         if (installSampleData)
         {
@@ -313,7 +314,6 @@ public partial class InstallationService : IInstallationService
             await InstallCategories();
             await InstallBrands();
             await InstallVendors();
-            await InstallWarehouses();
             await InstallProducts(defaultUserEmail);
             await JournalSampleStock();
             await InstallCollections();
