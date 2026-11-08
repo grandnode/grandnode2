@@ -10,5 +10,7 @@ public static class ProductTextIndex
 {
     public const string Name = "Product_Text";
 
-    public static readonly string[] Fields = ["Name", "Sku", "Locales.LocaleValue"];
+    //a SKU search matches the SKUs of attribute combinations too, so the index holds them
+    public static readonly string[] Fields =
+        ["Name", "Sku", "ProductAttributeCombinations.Sku", "Locales.LocaleValue"];
 }

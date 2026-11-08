@@ -485,10 +485,11 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     {
         if (!string.IsNullOrWhiteSpace(request.Keywords))
         {
+            //a SKU search finds a product by its own SKU and by the SKU of any of its attribute combinations
             if (!request.SearchDescriptions)
-                query = query.Where(p => p.Name.ToLower().Contains(request.Keywords.ToLower()) || p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower())));
+                query = query.Where(p => p.Name.ToLower().Contains(request.Keywords.ToLower()) || p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.ProductAttributeCombinations.Any(c => c.Sku != null && c.Sku.ToLower().Contains(request.Keywords.ToLower()))));
             else
-                query = query.Where(p => (p.Name != null && p.Name.ToLower().Contains(request.Keywords.ToLower())) || (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(request.Keywords.ToLower())) || (p.FullDescription != null && p.FullDescription.ToLower().Contains(request.Keywords.ToLower())) || p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower())));
+                query = query.Where(p => (p.Name != null && p.Name.ToLower().Contains(request.Keywords.ToLower())) || (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(request.Keywords.ToLower())) || (p.FullDescription != null && p.FullDescription.ToLower().Contains(request.Keywords.ToLower())) || p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.ProductAttributeCombinations.Any(c => c.Sku != null && c.Sku.ToLower().Contains(request.Keywords.ToLower()))));
         }
         return query;
     }

@@ -69,6 +69,17 @@ public class GetSearchProductsQueryHandlerTextSearchTests
     }
 
     [TestMethod]
+    public async Task TextSearch_CombinationSku()
+    {
+        var product = new Product { Id = "cardigan", Name = "Cardigan", Published = true, VisibleIndividually = true };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination { Sku = "KX9 RED" });
+        await _repository.InsertAsync(product);
+        await Insert("tee", "Tee");
+
+        CollectionAssert.AreEquivalent(new[] { "cardigan" }, await Search("kx9"));
+    }
+
+    [TestMethod]
     public async Task TextSearch_IgnoresCase()
     {
         await Insert("case", "Phone case");
