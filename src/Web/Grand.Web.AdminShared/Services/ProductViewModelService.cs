@@ -134,6 +134,53 @@ public class ProductViewModelService(
             : message;
     }
 
+    //serial numbers listed under a bucket: the rest are counted, and the list screen shows them all
+    private const int SerialNumbersShown = 50;
+
+    /// <summary>
+    ///     Each bucket of the product, with what it holds right under it: its batches, their quantities and expiry, or
+    ///     its serial numbers in stock
+    /// </summary>
+    private async Task PrepareUnitBuckets(ProductModel model, Product product, InventorySettings inventorySettings)
+    {
+        var batches = product.InventoryTrackingModeId == InventoryTrackingMode.Batch;
+        var today = dateTimeService.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).Date;
+        var warningDays = BatchExpiry.WarningDays(product, inventorySettings);
+        IList<ProductSerialNumber> serialNumbers = batches
+            ? []
+            : await productUnitService.SearchSerialNumbers(new UnitSearch
+                { ProductId = product.Id, Status = SerialNumberStatus.InStock });
+
+        foreach (var bucket in await productUnitService.Buckets(product))
+        {
+            var row = new UnitBucketRowModel {
+                Warehouse = string.IsNullOrEmpty(bucket.WarehouseId)
+                    ? ""
+                    : (await warehouseService.GetWarehouseById(bucket.WarehouseId))?.Name ?? bucket.WarehouseId,
+                Combination = string.Join(", ", product.ParseProductAttributeValues(bucket.Attributes)
+                    .Select(x => x.Name)),
+                Stock = bucket.Stock, Assigned = bucket.Assigned, Pool = bucket.Pool
+            };
+            if (batches)
+                foreach (var batch in await productUnitService.Batches(product.Id, bucket.CombinationId ?? "",
+                             bucket.WarehouseId))
+                    row.Units.Add(new UnitInBucketModel {
+                        Id = batch.Id, Number = batch.Number, Quantity = batch.Quantity,
+                        ExpiryDate = batch.ExpiryDateUtc?.Date,
+                        ExpiryStatus = BatchExpiry.Status(batch.ExpiryDateUtc, today, warningDays)
+                    });
+            else
+                foreach (var serialNumber in serialNumbers
+                             .Where(x => (x.WarehouseId ?? "") == (bucket.WarehouseId ?? "") &&
+                                         (x.CombinationId ?? "") == (bucket.CombinationId ?? ""))
+                             .OrderBy(x => x.Number).Take(SerialNumbersShown))
+                    row.Units.Add(new UnitInBucketModel
+                        { Id = serialNumber.Id, Number = serialNumber.Number, Quantity = 1 });
+
+            model.UnitBuckets.Add(row);
+        }
+    }
+
     public virtual async Task PrepareProductModel(ProductModel model, Product product,
         bool setPredefinedValues, bool excludeProperties)
     {
@@ -148,15 +195,7 @@ public class ProductViewModelService(
             : inventorySettings.StockChangesOnlyThroughDocuments;
         //the stock each bucket holds in batches or serial numbers, and without them
         if (product != null && InventoryTracking.Tracked(product))
-            foreach (var bucket in await productUnitService.Buckets(product))
-                model.UnitBuckets.Add(new UnitBucketRowModel {
-                    Warehouse = string.IsNullOrEmpty(bucket.WarehouseId)
-                        ? ""
-                        : (await warehouseService.GetWarehouseById(bucket.WarehouseId))?.Name ?? bucket.WarehouseId,
-                    Combination = string.Join(", ", product.ParseProductAttributeValues(bucket.Attributes)
-                        .Select(x => x.Name)),
-                    Stock = bucket.Stock, Assigned = bucket.Assigned, Pool = bucket.Pool
-                });
+            await PrepareUnitBuckets(model, product, inventorySettings);
 
         //the stock the form shows: only a value changed since is applied when it is saved
         if (product != null && !excludeProperties)

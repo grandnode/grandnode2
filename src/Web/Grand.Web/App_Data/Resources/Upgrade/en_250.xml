@@ -1323,6 +1323,9 @@
 	<Resource Name="Admin.Inventory.Units.DuplicateScanned" Area="Admin">
 		<Value>a number is scanned twice</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Units.MoreSerialNumbers" Area="Admin">
+		<Value>+{0} more</Value>
+	</Resource>
 	<Resource Name="Admin.Inventory.Units.SerialNumbersCount" Area="Admin">
 		<Value>Serial numbers: {0}</Value>
 	</Resource>

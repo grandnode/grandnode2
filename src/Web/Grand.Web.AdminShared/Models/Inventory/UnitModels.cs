@@ -1,3 +1,4 @@
+using Grand.Domain.Catalog;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -114,4 +115,31 @@ public class UnitBucketRowModel
     public int Stock { get; set; }
     public int Assigned { get; set; }
     public int Pool { get; set; }
+
+    /// <summary>
+    ///     The batches holding stock in the bucket, earliest expiry first, or the first of its serial numbers in stock
+    /// </summary>
+    public IList<UnitInBucketModel> Units { get; set; } = new List<UnitInBucketModel>();
+
+    /// <summary>
+    ///     The serial numbers in stock not listed in <see cref="Units" />
+    /// </summary>
+    public int MoreUnits => Math.Max(0, Assigned - Units.Sum(x => x.Quantity));
+}
+
+/// <summary>
+///     A batch or a serial number in a bucket on the product's batches or serial numbers tab
+/// </summary>
+public class UnitInBucketModel
+{
+    public string Id { get; set; }
+    public string Number { get; set; }
+    public int Quantity { get; set; }
+
+    /// <summary>
+    ///     A date without time
+    /// </summary>
+    public DateTime? ExpiryDate { get; set; }
+
+    public BatchExpiryStatus? ExpiryStatus { get; set; }
 }
