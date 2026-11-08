@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
@@ -39,6 +40,8 @@ public class InventoryDocumentControllerTests
     private readonly Mock<IMerchandiseReturnService> _merchandiseReturnService = new();
     private Mock<IAdminDataScope<Product>> _productScope;
     private Mock<IProductService> _productService;
+    private Mock<ICategoryService> _categoryService;
+    private Mock<IBrandService> _brandService;
     private InventoryDocumentViewModelService _viewModelService;
 
     [TestInitialize]
@@ -68,16 +71,19 @@ public class InventoryDocumentControllerTests
         _productService = new Mock<IProductService>();
         _productScope = new Mock<IAdminDataScope<Product>>();
         _merchandiseReturnScope = new Mock<IAdminDataScope<MerchandiseReturn>>();
+        _categoryService = new Mock<ICategoryService>();
+        _brandService = new Mock<IBrandService>();
         var translationService = new Mock<IRequestTranslationService>();
         translationService.Setup(x => x.GetResource(It.IsAny<string>())).Returns("resource");
 
         _viewModelService = new InventoryDocumentViewModelService(_documentService.Object, warehouseService.Object,
-            _productService.Object, new Mock<ICategoryService>().Object, new Mock<IBrandService>().Object,
+            _productService.Object, _categoryService.Object, _brandService.Object,
             translationService.Object, new Mock<IEnumTranslationService>().Object, new Mock<IDateTimeService>().Object,
             warehouseScope, _productScope.Object);
         _controller = new InventoryDocumentController(_documentService.Object, _viewModelService,
             warehouseService.Object, _merchandiseReturnService.Object, translationService.Object,
-            contextAccessor.Object, warehouseScope, _merchandiseReturnScope.Object);
+            contextAccessor.Object, warehouseScope, _merchandiseReturnScope.Object,
+            new Mock<IProductAddPopupViewModelService>().Object);
 
         var httpContext = new DefaultHttpContext();
         httpContext.Request.Form = new FormCollection(new Dictionary<string, StringValues>());
@@ -139,6 +145,28 @@ public class InventoryDocumentControllerTests
     }
 
     [TestMethod]
+    public async Task Create_NoWarehouseChosen_FormShownAgain()
+    {
+        var result = await _controller.Create(new InventoryDocumentModel
+            { DocumentTypeId = (int)InventoryDocumentType.Receipt });
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.AreEqual("Create", ((ViewResult)result).ViewName);
+        _documentService.Verify(x => x.CreateDraft(It.IsAny<InventoryDocument>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SaveDraft_NoWarehouseChosen_StaysOnEdit()
+    {
+        var document = Stored(StoreId, "w-own");
+
+        var result = await _controller.Edit(new InventoryDocumentModel { Id = document.Id }, false);
+
+        AssertRedirectedTo(result, "Edit");
+        _documentService.Verify(x => x.UpdateDraft(It.IsAny<InventoryDocument>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Store_SaveDraft_TamperedWarehouseToShared_Rejected()
     {
         var document = Stored(StoreId, "w-own");
@@ -150,34 +178,151 @@ public class InventoryDocumentControllerTests
         _documentService.Verify(x => x.UpdateDraft(It.IsAny<InventoryDocument>()), Times.Never);
     }
 
+    private Product Stocked(Product product, bool access = true)
+    {
+        _productService.Setup(x => x.GetProductById(product.Id, false)).ReturnsAsync(product);
+        _productScope.Setup(x => x.HasAccess(product)).ReturnsAsync(access);
+        return product;
+    }
+
+    private Task<IActionResult> Add(InventoryDocument document, Product product,
+        params InventoryDocumentAddLineModel[] lines)
+    {
+        return _controller.AddLines(new InventoryDocumentModel {
+            Id = document.Id, WarehouseId = document.WarehouseId, AddProductId = product.Id, AddLines = lines
+        });
+    }
+
     [TestMethod]
     public async Task Store_AddLine_OtherStoreProduct_Rejected()
     {
         var document = Stored(StoreId, "w-own");
-        var product = new Product { Sku = "SKU", ManageInventoryMethodId = ManageInventoryMethod.ManageStock };
-        _productService.Setup(x => x.GetProductBySku("SKU")).ReturnsAsync(product);
-        _productScope.Setup(x => x.HasAccess(product)).ReturnsAsync(false);
+        var product = Stocked(new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock }, false);
 
-        await _controller.Edit(new InventoryDocumentModel { Id = document.Id, WarehouseId = "w-own", AddSku = "SKU" },
-            true);
+        await Add(document, product);
 
         _documentService.Verify(x => x.UpdateDraft(It.IsAny<InventoryDocument>()), Times.Never);
         Assert.AreEqual(0, document.Lines.Count);
     }
 
     [TestMethod]
-    public async Task Store_AddLine_OwnProduct_Saved()
+    public async Task AddLine_Receipt_OneUnitPricedAtTheProductCost()
     {
         var document = Stored(StoreId, "w-own");
-        var product = new Product { Sku = "SKU", ManageInventoryMethodId = ManageInventoryMethod.ManageStock };
-        _productService.Setup(x => x.GetProductBySku("SKU")).ReturnsAsync(product);
-        _productScope.Setup(x => x.HasAccess(product)).ReturnsAsync(true);
+        var product = Stocked(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, ProductCost = 2.5 });
 
-        await _controller.Edit(new InventoryDocumentModel { Id = document.Id, WarehouseId = "w-own", AddSku = "SKU" },
-            true);
+        var result = await Add(document, product);
 
-        _documentService.Verify(x => x.UpdateDraft(It.Is<InventoryDocument>(d =>
-            d.Lines.Single().ProductId == product.Id)), Times.Once);
+        Assert.IsInstanceOfType<PartialViewResult>(result);
+        var line = document.Lines.Single();
+        Assert.AreEqual(1, line.Quantity);
+        Assert.AreEqual(2.5m, line.UnitCost);
+        _documentService.Verify(x => x.UpdateDraft(document), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddLine_ProductAlreadyOnTheDocument_AddsToItsLine()
+    {
+        var document = Stored(StoreId, "w-own");
+        var product = Stocked(new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock });
+        document.Lines.Add(new InventoryDocumentLine { ProductId = product.Id, Quantity = 3, UnitCost = 1 });
+
+        await Add(document, product);
+
+        Assert.AreEqual(4, document.Lines.Single().Quantity);
+    }
+
+    [TestMethod]
+    public async Task AddLine_ProductTrackingBatches_TakesANewLine()
+    {
+        var document = Stored(StoreId, "w-own");
+        var product = Stocked(new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            InventoryTrackingModeId = InventoryTrackingMode.Batch
+        });
+        document.Lines.Add(new InventoryDocumentLine { ProductId = product.Id, Quantity = 3, UnitCost = 1 });
+
+        await Add(document, product);
+
+        Assert.AreEqual(2, document.Lines.Count);
+    }
+
+    [TestMethod]
+    public async Task AddLines_Combinations_AddsTheQuantitiesTyped()
+    {
+        var document = Stored(StoreId, "w-own");
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes };
+        product.ProductAttributeMappings.Add(new ProductAttributeMapping { Id = "size" });
+        var small = new ProductAttributeCombination { Attributes = [new CustomAttribute { Key = "size", Value = "s" }] };
+        var large = new ProductAttributeCombination { Attributes = [new CustomAttribute { Key = "size", Value = "l" }] };
+        product.ProductAttributeCombinations.Add(small);
+        product.ProductAttributeCombinations.Add(large);
+        Stocked(product);
+        document.Lines.Add(new InventoryDocumentLine
+            { ProductId = product.Id, Attributes = small.Attributes, Quantity = 1, UnitCost = 1 });
+
+        await Add(document, product, new InventoryDocumentAddLineModel { CombinationId = small.Id, Quantity = 2 },
+            new InventoryDocumentAddLineModel { CombinationId = large.Id, Quantity = 0 });
+
+        Assert.AreEqual(3, document.Lines.Single().Quantity);
+    }
+
+    [TestMethod]
+    public async Task AddLine_AssignmentOfProductTrackingNoUnits_Refused()
+    {
+        var document = Stored(StoreId, "w-own");
+        document.DocumentTypeId = InventoryDocumentType.Assignment;
+        var product = Stocked(new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock });
+
+        await Add(document, product);
+
+        Assert.AreEqual(0, document.Lines.Count);
+        _documentService.Verify(x => x.UpdateDraft(It.IsAny<InventoryDocument>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddProducts_OneOfEachProductAndOfEachCombination()
+    {
+        var document = Stored(StoreId, "w-own");
+        var simple = Stocked(new Product { Name = "Mug", ManageInventoryMethodId = ManageInventoryMethod.ManageStock });
+        var sized = new Product { Name = "Tee", ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes };
+        sized.ProductAttributeMappings.Add(new ProductAttributeMapping { Id = "size" });
+        sized.ProductAttributeCombinations.Add(new ProductAttributeCombination
+            { Attributes = [new CustomAttribute { Key = "size", Value = "s" }] });
+        sized.ProductAttributeCombinations.Add(new ProductAttributeCombination
+            { Attributes = [new CustomAttribute { Key = "size", Value = "l" }] });
+        Stocked(sized);
+
+        var result = await _controller.AddLines(new InventoryDocumentModel {
+            Id = document.Id, WarehouseId = "w-own", AddProductIds = [simple.Id, sized.Id]
+        });
+
+        Assert.IsInstanceOfType<PartialViewResult>(result);
+        Assert.AreEqual(3, document.Lines.Count);
+        Assert.IsTrue(document.Lines.All(x => x.Quantity == 1));
+        _documentService.Verify(x => x.UpdateDraft(document), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddProducts_AssignmentLeavesOutProductsTrackingNoUnits_AndSaysWhich()
+    {
+        var document = Stored(StoreId, "w-own");
+        document.DocumentTypeId = InventoryDocumentType.Assignment;
+        var tracked = Stocked(new Product {
+            Name = "Drill", ManageInventoryMethodId = ManageInventoryMethod.ManageStock,
+            InventoryTrackingModeId = InventoryTrackingMode.SerialNumber
+        });
+        var untracked = Stocked(new Product
+            { Name = "Mug", ManageInventoryMethodId = ManageInventoryMethod.ManageStock });
+
+        var result = (PartialViewResult)await _controller.AddLines(new InventoryDocumentModel {
+            Id = document.Id, WarehouseId = "w-own", AddProductIds = [tracked.Id, untracked.Id]
+        });
+
+        Assert.AreEqual(tracked.Id, document.Lines.Single().ProductId);
+        StringAssert.Contains(string.Join(" ", (IList<string>)result.ViewData["AddNotices"]), "Mug");
+        _documentService.Verify(x => x.UpdateDraft(document), Times.Once);
     }
 
     [TestMethod]
@@ -185,15 +330,28 @@ public class InventoryDocumentControllerTests
     {
         var document = Stored(StoreId, "w-own");
         document.DocumentTypeId = InventoryDocumentType.StockCount;
-        var product = new Product
-            { Sku = "SKU", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 };
-        _productService.Setup(x => x.GetProductBySku("SKU")).ReturnsAsync(product);
-        _productScope.Setup(x => x.HasAccess(product)).ReturnsAsync(true);
+        var product = Stocked(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 });
 
-        await _controller.Edit(new InventoryDocumentModel { Id = document.Id, WarehouseId = "w-own", AddSku = "SKU" },
-            true);
+        await Add(document, product);
 
-        Assert.AreEqual(7, document.Lines.Single().ExpectedQuantity);
+        var line = document.Lines.Single();
+        Assert.AreEqual(7, line.ExpectedQuantity);
+        Assert.AreEqual(1, line.CountedQuantity);
+        Assert.IsNull(line.UnitCost);
+    }
+
+    [TestMethod]
+    public async Task Store_ProductCombinations_OtherStoreProduct_None()
+    {
+        var document = Stored(StoreId, "w-own");
+        var product = new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes };
+        product.ProductAttributeCombinations.Add(new ProductAttributeCombination());
+        Stocked(product, false);
+
+        var result = (JsonResult)await _controller.ProductCombinations(document.Id, product.Id);
+
+        Assert.AreEqual(0, ((IList<InventoryDocumentCombinationModel>)result.Value).Count);
     }
 
     [TestMethod]
@@ -258,6 +416,29 @@ public class InventoryDocumentControllerTests
 
         AssertRedirectedTo(await _controller.CreateReturnReceipt("return"), "List");
         _documentService.Verify(x => x.DeleteDraft(receipt.Id), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task StockCountForm_RendersTheChosenCategoriesAndBrandsOnly()
+    {
+        var category = new Category { Name = "Audio" };
+        var brand = new Brand { Name = "Acme" };
+        _categoryService.Setup(x => x.GetCategoryById(category.Id)).ReturnsAsync(category);
+        _categoryService.Setup(x => x.GetFormattedBreadCrumb(category, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync("Audio");
+        _brandService.Setup(x => x.GetBrandById(brand.Id)).ReturnsAsync(brand);
+        var model = new InventoryDocumentModel {
+            DocumentTypeId = (int)InventoryDocumentType.StockCount, CategoryIds = [category.Id], BrandIds = [brand.Id]
+        };
+
+        await _viewModelService.PrepareModel(model, null);
+
+        Assert.AreEqual(category.Id, model.AvailableCategories.Single().Value);
+        Assert.AreEqual(brand.Id, model.AvailableBrands.Single().Value);
+        _categoryService.Verify(x => x.GetAllCategories(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<CatalogAccess>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
+        _brandService.Verify(x => x.GetAllBrands(It.IsAny<string>(), It.IsAny<CatalogAccess>(), It.IsAny<int>(),
+            It.IsAny<int>()), Times.Never);
     }
 
     [TestMethod]

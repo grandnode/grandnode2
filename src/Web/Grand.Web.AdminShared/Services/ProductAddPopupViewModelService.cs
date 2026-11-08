@@ -83,7 +83,7 @@ public class ProductAddPopupViewModelService(
         return (products.Select(x => x.ToModel(dateTimeService)).ToList(), products.TotalCount);
     }
 
-    protected virtual async Task<T> PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new()
+    public virtual async Task<T> PrepareAddProductModel<T>() where T : ProductModel.AddProductModel, new()
     {
         var storeId = scope.DefaultStoreId ?? "";
         var model = new T();

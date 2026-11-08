@@ -1,18 +1,27 @@
 @model Grand.Web.AdminShared.Models.Inventory.InventoryDocumentModel
-@using Grand.Domain.Catalog
+@using System.Text.Json
 @{
     ViewBag.Title = Model.Number;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
-    var type = (InventoryDocumentType)Model.DocumentTypeId;
-    //a line of a product tracking batches or serial numbers names them
-    var units = Model.Lines.Any(x => x.TrackingMode != InventoryTrackingMode.None);
-    var expiryEntered = type is InventoryDocumentType.Receipt or InventoryDocumentType.Adjustment
-        or InventoryDocumentType.Assignment;
+    var picker = JsonSerializer.Serialize(new {
+        //what the document can book decides what is offered: an assignment, only products tracking units
+        searchUrl = Url.Action("SearchProducts", new { area, id = Model.Id }),
+        combinationsUrl = Url.Action("ProductCombinations", new { area }),
+        documentId = Model.Id,
+        addUrl = Url.Action("AddLines", new { area }),
+        placeholder = Loc["Admin.Inventory.Documents.AddProduct.Placeholder"].Value,
+        combination = Loc["Admin.Catalog.Products.StockHistory.Combination"].Value,
+        sku = Loc["Admin.Catalog.Products.Fields.Sku"].Value,
+        stock = Loc["Admin.Inventory.StockAtDate.Fields.Stock"].Value,
+        quantity = Loc["Admin.Inventory.Documents.Fields.Quantity"].Value,
+        add = Loc["Admin.Inventory.Documents.AddLines"].Value,
+        cancel = Loc["Admin.Common.Cancel"].Value,
+        duplicate = Loc["Admin.Inventory.Units.DuplicateScanned"].Value
+    });
 }
-<form asp-area="@area" asp-controller="InventoryDocument" asp-action="Edit" method="post">
+<form id="inventory-document-form" asp-area="@area" asp-controller="InventoryDocument" asp-action="Edit" method="post">
     <input type="hidden" asp-for="Id"/>
     <input type="hidden" asp-for="DocumentTypeId"/>
-    <input type="hidden" asp-for="LinesPage"/>
     <admin-page sticky title="@Model.Number" icon="bi-box-seam" meta="@($"{Model.DocumentType} · {Model.Status}")"
                 back-url="@Url.Action("List")" back-text="@Loc["Admin.Inventory.Documents.BackToList"]">
         <page-actions>
@@ -37,156 +46,201 @@
         <fieldset disabled="@Model.Posted">
             <partial name="Partials/CreateOrUpdate.Header" model="Model"/>
 
-            <admin-card title="@Loc["Admin.Inventory.Documents.Fields.Lines"]" flush>
-                <div class="table-responsive">
-                    <table class="table table-sm align-middle mb-0">
-                        <thead>
-                        <tr>
-                            <th>@Loc["Admin.Inventory.Documents.Fields.Product"]</th>
-                            @if (type == InventoryDocumentType.StockCount)
-                            {
-                                <th class="text-end">@Loc["Admin.Inventory.Documents.Fields.ExpectedQuantity"]</th>
-                                <th>@Loc["Admin.Inventory.Documents.Fields.CountedQuantity"]</th>
-                            }
-                            else
-                            {
-                                <th>@Loc["Admin.Inventory.Documents.Fields.Quantity"]</th>
-                            }
-                            @if (units)
-                            {
-                                <th>@Loc["Admin.Inventory.Units.Fields.Units"]</th>
-                            }
-                            @if (type == InventoryDocumentType.Receipt)
-                            {
-                                <th>@Loc["Admin.Inventory.Documents.Fields.UnitCost"]</th>
-                            }
-                            @if (type == InventoryDocumentType.ReturnReceipt)
-                            {
-                                <th>@Loc["Admin.Inventory.Documents.Fields.Condition"]</th>
-                            }
-                            <th>@Loc["Admin.Inventory.Documents.Fields.Comment"]</th>
-                            <th class="text-center">@Loc["Admin.Common.Delete"]</th>
-                        </tr>
-                        </thead>
-                        <tbody>
-                        @for (var i = 0; i < Model.Lines.Count; i++)
-                        {
-                            var line = Model.Lines[i];
-                            <tr>
-                                <td>
-                                    @line.ProductName
-                                    <div class="grand-cell-sub">@line.Sku @line.AttributesText</div>
-                                    <input type="hidden" asp-for="Lines[i].Id"/>
-                                </td>
-                                @if (type == InventoryDocumentType.StockCount)
-                                {
-                                    <td class="text-end">@line.ExpectedQuantity</td>
-                                    <td><input asp-for="Lines[i].CountedQuantity" class="form-control" type="number" min="0"/></td>
-                                }
-                                else
-                                {
-                                    <td><input asp-for="Lines[i].Quantity" class="form-control" type="number"/></td>
-                                }
-                                @if (units)
-                                {
-                                    <td>
-                                        @switch (line.TrackingMode)
-                                        {
-                                            case InventoryTrackingMode.Batch:
-                                                <input asp-for="Lines[i].BatchNumber" class="form-control"
-                                                       placeholder="@Loc["Admin.Inventory.Units.Fields.BatchNumber"]"/>
-                                                @if (expiryEntered)
-                                                {
-                                                    <input asp-for="Lines[i].ExpiryDate" class="form-control mt-1" type="date"
-                                                           title="@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]"/>
-                                                }
-                                                else if (line.ExpiryDate.HasValue)
-                                                {
-                                                    <div class="grand-cell-sub">@line.ExpiryDate.Value.ToShortDateString()</div>
-                                                }
-                                                break;
-                                            case InventoryTrackingMode.SerialNumber:
-                                                @* one number a line: a scanner sends Enter after each *@
-                                                <textarea asp-for="Lines[i].SerialNumbersText" class="form-control" rows="2"
-                                                          data-grand-scan placeholder="@Loc["Admin.Inventory.Units.Fields.SerialNumbers"]"></textarea>
-                                                <div class="grand-cell-sub" data-grand-scan-count></div>
-                                                break;
-                                        }
-                                    </td>
-                                }
-                                @if (type == InventoryDocumentType.Receipt)
-                                {
-                                    <td><input asp-for="Lines[i].UnitCost" class="form-control" type="number" step="0.0001" min="0"/></td>
-                                }
-                                @if (type == InventoryDocumentType.ReturnReceipt)
-                                {
-                                    <td>
-                                        <select asp-for="Lines[i].ConditionId" class="form-select">
-                                            <option value="@((int)ReturnLineCondition.Restock)">@Loc["Enums.Grand.Domain.Catalog.ReturnLineCondition.Restock"]</option>
-                                            <option value="@((int)ReturnLineCondition.Scrap)">@Loc["Enums.Grand.Domain.Catalog.ReturnLineCondition.Scrap"]</option>
-                                        </select>
-                                    </td>
-                                }
-                                <td><input asp-for="Lines[i].Comment" class="form-control"/></td>
-                                <td class="text-center"><input asp-for="Lines[i].Remove" class="form-check-input" type="checkbox"/></td>
-                            </tr>
-                        }
-                        </tbody>
-                    </table>
-                </div>
-                @if (Model.LinesPageCount > 1)
-                {
-                    @* a page of lines at a time; turning the page of a draft saves it first *@
-                    <nav class="d-flex justify-content-end p-2">
-                        <ul class="pagination pagination-sm flex-wrap mb-0">
-                            @for (var linesPage = 1; linesPage <= Model.LinesPageCount; linesPage++)
-                            {
-                                <li class="page-item @(linesPage == Model.LinesPage ? "active" : "")">
-                                    @if (Model.Posted)
-                                    {
-                                        <a class="page-link" href="@Url.Action("Edit", new { area, id = Model.Id, page = linesPage })">@linesPage</a>
-                                    }
-                                    else
-                                    {
-                                        <button class="page-link" type="submit" name="LinesTarget" value="@linesPage">@linesPage</button>
-                                    }
-                                </li>
-                            }
-                        </ul>
-                    </nav>
-                }
-                @if (Model.Lines.Count == 0)
-                {
-                    <div class="grand-empty">
-                        <i class="bi bi-box-seam grand-empty__icon"></i>
-                        <div class="grand-empty__title">@Loc["Admin.Inventory.Documents.NoLines"]</div>
-                    </div>
-                }
-            </admin-card>
-
             @if (!Model.Posted)
             {
+                @* a product is found by its name or SKU and added at once; one stocked by attributes asks how many
+                   of each combination came *@
                 <admin-card>
-                    <admin-field asp-for="AddSku" size="lg"/>
+                    <div class="grand-field">
+                        <label class="grand-field__label" for="add-product">@Loc["Admin.Inventory.Documents.AddProduct"]</label>
+                        <div class="grand-field__control d-flex gap-2">
+                            <div class="flex-grow-1"><select id="add-product"></select></div>
+                            @* many products at once, found by category, brand or the other filters of a product popup *@
+                            <a id="add-products" class="btn btn-outline-secondary text-nowrap"
+                               href="@Url.Action("ProductAddPopup", new { area, id = Model.Id })">
+                                <i class="bi bi-list-check"></i> @Loc["Admin.Inventory.Documents.AddProducts"]
+                            </a>
+                        </div>
+                        <div class="grand-field__hint">@Loc["Admin.Inventory.Documents.AddProduct.Hint"]</div>
+                    </div>
                 </admin-card>
             }
+
+            <div id="inventory-document-lines">
+                <partial name="Partials/Edit.Lines" model="Model"/>
+            </div>
         </fieldset>
     </admin-page>
 </form>
 <admin-delete-confirmation button-id="inventorydocument-delete"/>
 <script>
-    //counts the serial numbers scanned and marks a number scanned twice; the server refuses duplicates anyway
-    document.querySelectorAll('[data-grand-scan]').forEach(function (box) {
-        var count = box.parentElement.querySelector('[data-grand-scan-count]');
-        function update() {
-            var numbers = box.value.split(/[\r\n,;]+/).map(function (x) { return x.trim(); })
-                .filter(function (x) { return x.length > 0; });
-            var keys = numbers.map(function (x) { return x.toUpperCase(); });
-            var duplicate = keys.some(function (x, i) { return keys.indexOf(x) !== i; });
-            box.classList.toggle('is-invalid', duplicate);
-            count.textContent = numbers.length + (duplicate ? ' Â· @Loc["Admin.Inventory.Units.DuplicateScanned"]' : '');
+    (function () {
+        var options = @Html.Raw(picker);
+        var form = document.getElementById('inventory-document-form');
+        var lines = document.getElementById('inventory-document-lines');
+
+        //counts the serial numbers scanned and marks a number scanned twice; the server refuses duplicates anyway
+        function initScan(root) {
+            root.querySelectorAll('[data-grand-scan]').forEach(function (box) {
+                var count = box.parentElement.querySelector('[data-grand-scan-count]');
+                function update() {
+                    var numbers = box.value.split(/[\r\n,;]+/).map(function (x) { return x.trim(); })
+                        .filter(function (x) { return x.length > 0; });
+                    var keys = numbers.map(function (x) { return x.toUpperCase(); });
+                    var duplicate = keys.some(function (x, i) { return keys.indexOf(x) !== i; });
+                    box.classList.toggle('is-invalid', duplicate);
+                    count.textContent = numbers.length + (duplicate ? ' · ' + options.duplicate : '');
+                }
+                box.addEventListener('input', update);
+                update();
+            });
         }
-        box.addEventListener('input', update);
-        update();
-    });
+        initScan(lines);
+
+        var select = document.getElementById('add-product');
+        if (!select) return;
+
+        //the line just added to: its quantity is what is typed next
+        function focusAdded() {
+            var row = lines.querySelector('[data-grand-added="true"]');
+            var input = row && row.querySelector('[data-grand-quantity]');
+            if (!input) return;
+            row.scrollIntoView({ block: 'center' });
+            input.focus();
+            input.select();
+        }
+
+        //the whole form goes with the product, so what was typed in the other lines is saved, not lost
+        function add(productId, combinations, productIds) {
+            var data = new FormData(form);
+            if (productId) data.set('AddProductId', productId);
+            combinations.forEach(function (combination, i) {
+                data.append('AddLines[' + i + '].CombinationId', combination.id);
+                data.append('AddLines[' + i + '].Quantity', combination.quantity);
+            });
+            (productIds || []).forEach(function (id) { data.append('AddProductIds', id); });
+            return fetch(options.addUrl, { method: 'POST', body: data, credentials: 'same-origin' })
+                .then(function (response) {
+                    return response.text().then(function (html) { return { ok: response.ok, html: html }; });
+                })
+                .then(function (result) {
+                    if (!result.ok) {
+                        lines.insertAdjacentHTML('afterbegin',
+                            '<div class="alert alert-danger">' + GrandAdmin.htmlEncode(result.html) + '</div>');
+                        return;
+                    }
+                    lines.innerHTML = result.html;
+                    initScan(lines);
+                    focusAdded();
+                });
+        }
+
+        function chooseCombinations(name, productId, combinations) {
+            var element = document.createElement('div');
+            var cell = GrandAdmin.htmlEncode;
+            //combinations without SKUs of their own leave the column out
+            var skus = combinations.some(function (combination) { return combination.Sku; });
+            element.innerHTML =
+                '<div class="table-responsive"><table class="table table-sm align-middle mb-3"><thead><tr>' +
+                '<th>' + cell(options.combination) + '</th>' + (skus ? '<th>' + cell(options.sku) + '</th>' : '') +
+                '<th class="text-end">' + cell(options.stock) + '</th><th>' + cell(options.quantity) + '</th>' +
+                '</tr></thead><tbody>' +
+                combinations.map(function (combination) {
+                    return '<tr><td>' + cell(combination.Text) + '</td>' +
+                        (skus ? '<td>' + cell(combination.Sku) + '</td>' : '') +
+                        '<td class="text-end">' + cell(combination.Stock) + '</td>' +
+                        '<td><input class="form-control form-control-sm" type="number" min="0" style="max-width: 7rem"' +
+                        ' data-combination="' + cell(combination.Id) + '"/></td></tr>';
+                }).join('') +
+                '</tbody></table></div>' +
+                '<div class="d-flex justify-content-end gap-2">' +
+                '<button type="button" class="btn btn-outline-secondary" data-cancel>' + cell(options.cancel) + '</button>' +
+                '<button type="button" class="btn btn-primary" data-add>' + cell(options.add) + '</button></div>';
+            document.body.appendChild(element);
+
+            var modal = GrandAdmin.modal.get(element, { title: name, width: 720 });
+            var closed = false;
+            function close() {
+                if (closed) return;
+                closed = true;
+                modal.destroy();
+                element.remove();
+            }
+            function submit() {
+                var chosen = [];
+                element.querySelectorAll('[data-combination]').forEach(function (input) {
+                    var quantity = parseInt(input.value, 10);
+                    if (quantity > 0) chosen.push({ id: input.getAttribute('data-combination'), quantity: quantity });
+                });
+                if (chosen.length === 0) {
+                    element.querySelector('[data-combination]').focus();
+                    return;
+                }
+                close();
+                add(productId, chosen);
+            }
+            element.addEventListener('grand-modal:close', close);
+            element.querySelector('[data-cancel]').addEventListener('click', close);
+            element.querySelector('[data-add]').addEventListener('click', submit);
+            element.addEventListener('keydown', function (event) {
+                if (event.key === 'Enter' && event.target.matches('[data-combination]')) {
+                    event.preventDefault();
+                    submit();
+                }
+            });
+            modal.open();
+        }
+
+        function choose(productId, name) {
+            var url = options.combinationsUrl + '?id=' + encodeURIComponent(options.documentId) +
+                '&productId=' + encodeURIComponent(productId);
+            fetch(url, { credentials: 'same-origin' })
+                .then(function (response) { return response.ok ? response.json() : []; })
+                .then(function (combinations) {
+                    if (combinations.length === 0) return add(productId, []);
+                    chooseCombinations(name, productId, combinations);
+                });
+        }
+
+        //the bulk popup hands back the products checked: one of each, every combination of one with attributes
+        window.inventoryDocumentAddProducts = function (productIds) {
+            add(null, [], productIds);
+        };
+        //the popup plugin is loaded in the footer, after this script
+        $(function () {
+            $('#add-products').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
+        });
+
+        var widget = GrandAdmin.select.create(select, {
+            url: options.searchUrl,
+            textField: 'Name',
+            valueField: 'Id',
+            filter: 'contains',
+            placeholder: options.placeholder,
+            onChange: function (value) {
+                if (!value) return;
+                var name = widget.options[value] ? widget.options[value].text : '';
+                //the picker is ready for the next product at once, and does not offer this one again while the
+                //next search is on its way
+                widget.clear(true);
+                widget.clearOptions();
+                //a combination found by its SKU is added as it is, one of it
+                var parts = value.split('|');
+                if (parts.length === 2) return add(parts[0], [{ id: parts[1], quantity: 1 }]);
+                choose(value, name);
+            }
+        });
+    })();
 </script>

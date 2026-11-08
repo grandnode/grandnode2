@@ -12,6 +12,7 @@ using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Localization;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 
 namespace Grand.Web.AdminShared.Controllers;
@@ -29,7 +30,8 @@ public abstract class BaseInventoryDocumentController(
     IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     IAdminDataScope<Warehouse> warehouseScope,
-    IAdminDataScope<MerchandiseReturn> merchandiseReturnScope) : BaseController
+    IAdminDataScope<MerchandiseReturn> merchandiseReturnScope,
+    IProductAddPopupViewModelService productAddPopupViewModelService) : BaseController
 {
     private string CustomerId => contextAccessor.WorkContext.CurrentCustomer.Id;
 
@@ -106,8 +108,14 @@ public abstract class BaseInventoryDocumentController(
 
     protected virtual async Task<IActionResult> CreatePostCore(InventoryDocumentModel model)
     {
-        if (string.IsNullOrEmpty(model.WarehouseId) || !await CanUse(model.WarehouseId) ||
-            !await CanUse(model.TargetWarehouseId))
+        if (string.IsNullOrEmpty(model.WarehouseId))
+        {
+            Error(translationService.GetResource(InventoryDocumentErrors.WarehouseNotFound));
+            await inventoryDocumentViewModelService.PrepareModel(model, null);
+            return View("Create", model);
+        }
+
+        if (!await CanUse(model.WarehouseId) || !await CanUse(model.TargetWarehouseId))
             return Denied();
 
         var type = (InventoryDocumentType)model.DocumentTypeId;
@@ -182,8 +190,16 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> EditPostCore(InventoryDocumentModel model, bool continueEditing)
     {
         var document = await inventoryDocumentService.GetById(model.Id);
-        if (!await HasAccess(document) || string.IsNullOrEmpty(model.WarehouseId) ||
-            !await CanUse(model.WarehouseId) || !await CanUse(model.TargetWarehouseId))
+        if (!await HasAccess(document))
+            return Denied();
+
+        if (string.IsNullOrEmpty(model.WarehouseId))
+        {
+            Error(translationService.GetResource(InventoryDocumentErrors.WarehouseNotFound));
+            return RedirectToAction("Edit", new { id = document.Id });
+        }
+
+        if (!await CanUse(model.WarehouseId) || !await CanUse(model.TargetWarehouseId))
             return Denied();
 
         if (document.StatusId == InventoryDocumentStatus.Posted)
@@ -201,11 +217,111 @@ public abstract class BaseInventoryDocumentController(
         else
             Success(translationService.GetResource("Admin.Inventory.Documents.Updated"));
 
-        //the form holds a page of lines: the pager saves it and turns the page, and a line added by SKU is on the last
-        var page = string.IsNullOrWhiteSpace(model.AddSku) ? model.LinesTarget ?? model.LinesPage : int.MaxValue;
+        //the form holds a page of lines: the pager saves it and turns the page
+        var page = model.LinesTarget ?? model.LinesPage;
         return continueEditing || errors.Count > 0 || model.LinesTarget.HasValue
             ? RedirectToAction("Edit", new { id = document.Id, page })
             : RedirectToAction("List");
+    }
+
+    protected virtual async Task<IActionResult> SearchProductsCore(string id, DataSourceRequestFilter model)
+    {
+        var document = await inventoryDocumentService.GetById(id);
+        if (!await HasAccess(document))
+            return Json(new DataSourceResult { Data = Array.Empty<InventoryDocumentProductModel>() });
+
+        return Json(new DataSourceResult {
+            Data = await inventoryDocumentViewModelService.SearchProducts(document, model.GetNameFilterValue())
+        });
+    }
+
+    protected virtual async Task<IActionResult> ProductCombinationsCore(string id, string productId)
+    {
+        var document = await inventoryDocumentService.GetById(id);
+        if (!await HasAccess(document))
+            return Json(Array.Empty<InventoryDocumentCombinationModel>());
+
+        return Json(await inventoryDocumentViewModelService.ProductCombinations(document, productId));
+    }
+
+    /// <summary>
+    ///     Adds the product the picker chose without leaving the page: the form is saved with it, so what was typed in
+    ///     the other lines stays, and the lines are drawn again on the page holding the line added to
+    /// </summary>
+    protected virtual async Task<IActionResult> AddLinesCore(InventoryDocumentModel model)
+    {
+        var document = await inventoryDocumentService.GetById(model.Id);
+        if (!await HasAccess(document) || !await CanUse(model.WarehouseId) || !await CanUse(model.TargetWarehouseId))
+            return new ContentResult {
+                StatusCode = StatusCodes.Status403Forbidden,
+                Content = translationService.GetResource("Admin.Inventory.Documents.AccessDenied")
+            };
+
+        IList<string> errors = [];
+        IList<string> notices = [];
+        string lineId = null;
+        if (document.StatusId == InventoryDocumentStatus.Posted)
+            errors = [translationService.GetResource(InventoryDocumentErrors.Posted)];
+        if (errors.Count == 0)
+            errors = await inventoryDocumentViewModelService.ApplyModel(document, model);
+        if (errors.Count == 0 && model.AddProductIds.Count > 0)
+        {
+            //the products of the bulk popup that cannot be booked are named, the others added
+            (var leftOut, lineId) =
+                await inventoryDocumentViewModelService.AddProducts(document, model.AddProductIds);
+            if (leftOut.Count > 0)
+                notices = [$"{translationService.GetResource("Admin.Inventory.Documents.ProductsLeftOut")} {string.Join(", ", leftOut)}"];
+        }
+        else if (errors.Count == 0)
+            (errors, lineId) = await inventoryDocumentViewModelService.AddLines(document, model);
+        if (errors.Count == 0)
+            errors = inventoryDocumentViewModelService.Translate(await inventoryDocumentService.UpdateDraft(document));
+
+        //a draft that could not be saved is drawn as it is stored
+        if (errors.Count > 0)
+        {
+            document = await inventoryDocumentService.GetById(document.Id);
+            lineId = null;
+        }
+
+        var added = document.Lines.FirstOrDefault(x => x.Id == lineId);
+        var page = added == null
+            ? model.LinesPage
+            : document.Lines.IndexOf(added) / InventoryDocumentViewModelService.LinesPageSize + 1;
+        var lines = new InventoryDocumentModel();
+        await inventoryDocumentViewModelService.PrepareModel(lines, document, page);
+
+        //the posted values of the lines must not be drawn over the lines as they are now
+        ModelState.Clear();
+        ViewData["AddedLineId"] = lineId;
+        ViewData["AddErrors"] = errors;
+        ViewData["AddNotices"] = errors.Count == 0 ? notices : [];
+        return PartialView("Partials/Edit.Lines", lines);
+    }
+
+    /// <summary>
+    ///     The bulk popup: the search the other product popups have, with products checked to add
+    /// </summary>
+    protected virtual async Task<IActionResult> ProductAddPopupCore(string id)
+    {
+        var document = await inventoryDocumentService.GetById(id);
+        if (!await HasAccess(document))
+            return Content(translationService.GetResource("Admin.Inventory.Documents.AccessDenied"));
+
+        var model = await productAddPopupViewModelService.PrepareAddProductModel<InventoryDocumentProductAddModel>();
+        model.DocumentId = document.Id;
+        return View("ProductAddPopup", model);
+    }
+
+    protected virtual async Task<IActionResult> ProductAddPopupListCore(DataSourceRequest command,
+        InventoryDocumentProductAddModel model)
+    {
+        //Store lists the products of its own store
+        if (warehouseScope.DefaultStoreId is not null) model.SearchStoreId = warehouseScope.DefaultStoreId;
+
+        var (products, totalCount) =
+            await productAddPopupViewModelService.PrepareProductModel(model, command.Page, command.PageSize);
+        return Json(new DataSourceResult { Data = products, Total = totalCount });
     }
 
     protected virtual async Task<IActionResult> PostCore(string id)

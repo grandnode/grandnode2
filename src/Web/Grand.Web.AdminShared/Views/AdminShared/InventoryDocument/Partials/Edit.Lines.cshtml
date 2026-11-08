@@ -1,0 +1,162 @@
+@model Grand.Web.AdminShared.Models.Inventory.InventoryDocumentModel
+@using Grand.Domain.Catalog
+@* the lines of the page shown: drawn by the edit page, and again after the picker added a product to them *@
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var type = (InventoryDocumentType)Model.DocumentTypeId;
+    //a line of a product tracking batches or serial numbers names them
+    var units = Model.Lines.Any(x => x.TrackingMode != InventoryTrackingMode.None);
+    var expiryEntered = type is InventoryDocumentType.Receipt or InventoryDocumentType.Adjustment
+        or InventoryDocumentType.Assignment;
+    var addedLineId = ViewData["AddedLineId"] as string;
+    var addErrors = ViewData["AddErrors"] as IList<string> ?? [];
+    var addNotices = ViewData["AddNotices"] as IList<string> ?? [];
+}
+<input type="hidden" asp-for="LinesPage"/>
+@if (addErrors.Count > 0)
+{
+    <div class="alert alert-danger">@string.Join(" ", addErrors)</div>
+}
+@if (addNotices.Count > 0)
+{
+    <div class="alert alert-warning">@string.Join(" ", addNotices)</div>
+}
+<admin-card title="@Loc["Admin.Inventory.Documents.Fields.Lines"]" flush>
+    <div class="table-responsive">
+        <table class="table table-sm align-middle mb-0">
+            <thead>
+            <tr>
+                <th>@Loc["Admin.Inventory.Documents.Fields.Product"]</th>
+                @if (type == InventoryDocumentType.StockCount)
+                {
+                    <th class="text-end">@Loc["Admin.Inventory.Documents.Fields.ExpectedQuantity"]</th>
+                    <th>@Loc["Admin.Inventory.Documents.Fields.CountedQuantity"]</th>
+                }
+                else
+                {
+                    <th>@Loc["Admin.Inventory.Documents.Fields.Quantity"]</th>
+                }
+                @if (units)
+                {
+                    <th>@Loc["Admin.Inventory.Units.Fields.Units"]</th>
+                }
+                @if (type == InventoryDocumentType.Receipt)
+                {
+                    <th title="@Loc["Admin.Inventory.Documents.Fields.UnitCost.Hint"]">
+                        @Loc["Admin.Inventory.Documents.Fields.UnitCost"] <i class="bi bi-info-circle"></i>
+                    </th>
+                }
+                @if (type == InventoryDocumentType.ReturnReceipt)
+                {
+                    <th>@Loc["Admin.Inventory.Documents.Fields.Condition"]</th>
+                }
+                <th>@Loc["Admin.Inventory.Documents.Fields.Comment"]</th>
+                <th class="text-center">@Loc["Admin.Common.Delete"]</th>
+            </tr>
+            </thead>
+            <tbody>
+            @for (var i = 0; i < Model.Lines.Count; i++)
+            {
+                var line = Model.Lines[i];
+                @* a data- attribute is written even when null, so the line added to is the one saying true *@
+                <tr data-grand-added="@(line.Id == addedLineId ? "true" : "false")">
+                    <td>
+                        @* a new tab, so what was typed on the document is not left behind *@
+                        @if (line.ProductId != null)
+                        {
+                            <a class="text-decoration-none" target="_blank" rel="noopener"
+                               href="@Url.Action("Edit", "Product", new { area, id = line.ProductId })">@line.ProductName</a>
+                        }
+                        else
+                        {
+                            @line.ProductName
+                        }
+                        <div class="grand-cell-sub">@line.Sku @line.AttributesText</div>
+                        <input type="hidden" asp-for="Lines[i].Id"/>
+                    </td>
+                    @if (type == InventoryDocumentType.StockCount)
+                    {
+                        <td class="text-end">@line.ExpectedQuantity</td>
+                        <td><input asp-for="Lines[i].CountedQuantity" class="form-control" type="number" min="0" data-grand-quantity/></td>
+                    }
+                    else
+                    {
+                        <td><input asp-for="Lines[i].Quantity" class="form-control" type="number" data-grand-quantity/></td>
+                    }
+                    @if (units)
+                    {
+                        <td>
+                            @switch (line.TrackingMode)
+                            {
+                                case InventoryTrackingMode.Batch:
+                                    <input asp-for="Lines[i].BatchNumber" class="form-control"
+                                           placeholder="@Loc["Admin.Inventory.Units.Fields.BatchNumber"]"/>
+                                    @if (expiryEntered)
+                                    {
+                                        <input asp-for="Lines[i].ExpiryDate" class="form-control mt-1" type="date"
+                                               title="@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]"/>
+                                    }
+                                    else if (line.ExpiryDate.HasValue)
+                                    {
+                                        <div class="grand-cell-sub">@line.ExpiryDate.Value.ToShortDateString()</div>
+                                    }
+                                    break;
+                                case InventoryTrackingMode.SerialNumber:
+                                    @* one number a line: a scanner sends Enter after each *@
+                                    <textarea asp-for="Lines[i].SerialNumbersText" class="form-control" rows="2"
+                                              data-grand-scan placeholder="@Loc["Admin.Inventory.Units.Fields.SerialNumbers"]"></textarea>
+                                    <div class="grand-cell-sub" data-grand-scan-count></div>
+                                    break;
+                            }
+                        </td>
+                    }
+                    @if (type == InventoryDocumentType.Receipt)
+                    {
+                        @* a price, as the product's price is entered: two decimals in the language of the panel *@
+                        <td><input asp-for="Lines[i].UnitCost" data-val="false" data-grand-numeric='{"format":"n2","decimals":2,"min":0}'/></td>
+                    }
+                    @if (type == InventoryDocumentType.ReturnReceipt)
+                    {
+                        <td>
+                            <select asp-for="Lines[i].ConditionId" class="form-select">
+                                <option value="@((int)ReturnLineCondition.Restock)">@Loc["Enums.Grand.Domain.Catalog.ReturnLineCondition.Restock"]</option>
+                                <option value="@((int)ReturnLineCondition.Scrap)">@Loc["Enums.Grand.Domain.Catalog.ReturnLineCondition.Scrap"]</option>
+                            </select>
+                        </td>
+                    }
+                    <td><input asp-for="Lines[i].Comment" class="form-control"/></td>
+                    <td class="text-center"><input asp-for="Lines[i].Remove" class="form-check-input" type="checkbox"/></td>
+                </tr>
+            }
+            </tbody>
+        </table>
+    </div>
+    @if (Model.LinesPageCount > 1)
+    {
+        @* a page of lines at a time; turning the page of a draft saves it first *@
+        <nav class="d-flex justify-content-end p-2">
+            <ul class="pagination pagination-sm flex-wrap mb-0">
+                @for (var linesPage = 1; linesPage <= Model.LinesPageCount; linesPage++)
+                {
+                    <li class="page-item @(linesPage == Model.LinesPage ? "active" : "")">
+                        @if (Model.Posted)
+                        {
+                            <a class="page-link" href="@Url.Action("Edit", new { area, id = Model.Id, page = linesPage })">@linesPage</a>
+                        }
+                        else
+                        {
+                            <button class="page-link" type="submit" name="LinesTarget" value="@linesPage">@linesPage</button>
+                        }
+                    </li>
+                }
+            </ul>
+        </nav>
+    }
+    @if (Model.Lines.Count == 0)
+    {
+        <div class="grand-empty">
+            <i class="bi bi-box-seam grand-empty__icon"></i>
+            <div class="grand-empty__title">@Loc["Admin.Inventory.Documents.NoLines"]</div>
+        </div>
+    }
+</admin-card>

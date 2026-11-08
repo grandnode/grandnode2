@@ -26,4 +26,7 @@ public static class InventoryDocumentErrors
     public const string ChangedWhilePosting = "Admin.Inventory.Documents.Errors.ChangedWhilePosting";
     public const string ReturnNotReceivable = "Admin.Inventory.Documents.Errors.ReturnNotReceivable";
     public const string ReturnQuantityExceeded = "Admin.Inventory.Documents.Errors.ReturnQuantityExceeded";
+
+    //an assignment gives batches or serial numbers to stock without them: a product tracking neither has none to give
+    public const string UnitsNotTracked = "Admin.Inventory.Documents.Errors.UnitsNotTracked";
 }

@@ -32,9 +32,11 @@ public class InventoryDocumentController(
     IRequestTranslationService translationService,
     IContextAccessor contextAccessor,
     IAdminDataScope<Warehouse> warehouseScope,
-    IAdminDataScope<MerchandiseReturn> merchandiseReturnScope)
+    IAdminDataScope<MerchandiseReturn> merchandiseReturnScope,
+    IProductAddPopupViewModelService productAddPopupViewModelService)
     : BaseInventoryDocumentController(inventoryDocumentService, inventoryDocumentViewModelService, warehouseService,
-        merchandiseReturnService, translationService, contextAccessor, warehouseScope, merchandiseReturnScope)
+        merchandiseReturnService, translationService, contextAccessor, warehouseScope, merchandiseReturnScope,
+        productAddPopupViewModelService)
 {
     [HttpGet]
     [PermissionAuthorizeAction(PermissionActionName.List)]
@@ -67,6 +69,29 @@ public class InventoryDocumentController(
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public Task<IActionResult> Edit(InventoryDocumentModel model, bool continueEditing) =>
         EditPostCore(model, continueEditing);
+
+    [HttpGet]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public Task<IActionResult> SearchProducts(string id, DataSourceRequestFilter model) =>
+        SearchProductsCore(id, model);
+
+    [HttpGet]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public Task<IActionResult> ProductCombinations(string id, string productId) =>
+        ProductCombinationsCore(id, productId);
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public Task<IActionResult> AddLines(InventoryDocumentModel model) => AddLinesCore(model);
+
+    [HttpGet]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public Task<IActionResult> ProductAddPopup(string id) => ProductAddPopupCore(id);
+
+    [HttpPost]
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public Task<IActionResult> ProductAddPopupList(DataSourceRequest command, InventoryDocumentProductAddModel model) =>
+        ProductAddPopupListCore(command, model);
 
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.Edit)]

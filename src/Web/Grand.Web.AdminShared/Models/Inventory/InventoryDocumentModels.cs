@@ -1,4 +1,5 @@
 using Grand.Domain.Catalog;
+using Grand.Web.AdminShared.Models.Catalog;
 using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -80,10 +81,17 @@ public class InventoryDocumentModel : BaseEntityModel
     public IList<string> BrandIds { get; set; } = new List<string>();
 
     /// <summary>
-    ///     A product to add, by its SKU; a product stocked by attributes adds a line per combination
+    ///     The product the picker added, with the quantities of its combinations when it is stocked by attributes
     /// </summary>
-    [GrandResourceDisplayName("Admin.Inventory.Documents.Fields.AddSku")]
-    public string AddSku { get; set; }
+    public string AddProductId { get; set; }
+
+    public IList<InventoryDocumentAddLineModel> AddLines { get; set; } = new List<InventoryDocumentAddLineModel>();
+
+    /// <summary>
+    ///     The products chosen in the bulk popup: one of each, and one of each combination of a product stocked by
+    ///     attributes
+    /// </summary>
+    public IList<string> AddProductIds { get; set; } = new List<string>();
 
     //the lines of one page: the form posts a page at a time, as a large stock count would exceed its field limit
     public IList<InventoryDocumentLineModel> Lines { get; set; } = new List<InventoryDocumentLineModel>();
@@ -99,8 +107,46 @@ public class InventoryDocumentModel : BaseEntityModel
     public IList<SelectListItem> AvailableBrands { get; set; } = new List<SelectListItem>();
 }
 
+/// <summary>
+///     A combination the picker adds, and how many of it; none for a product not stocked by attributes
+/// </summary>
+public class InventoryDocumentAddLineModel
+{
+    public string CombinationId { get; set; }
+    public int Quantity { get; set; }
+}
+
+/// <summary>
+///     The search of the bulk popup, the one the other product popups have
+/// </summary>
+public class InventoryDocumentProductAddModel : ProductModel.AddProductModel
+{
+    public string DocumentId { get; set; }
+}
+
+/// <summary>
+///     A product the picker offers: its name and SKU in one text, as a search list shows them
+/// </summary>
+public class InventoryDocumentProductModel
+{
+    public string Id { get; set; }
+    public string Name { get; set; }
+}
+
+/// <summary>
+///     A combination the picker offers, with the stock its bucket holds in the document's warehouse
+/// </summary>
+public class InventoryDocumentCombinationModel
+{
+    public string Id { get; set; }
+    public string Text { get; set; }
+    public string Sku { get; set; }
+    public int Stock { get; set; }
+}
+
 public class InventoryDocumentLineModel : BaseEntityModel
 {
+    public string ProductId { get; set; }
     public string ProductName { get; set; }
     public string Sku { get; set; }
     public string AttributesText { get; set; }
