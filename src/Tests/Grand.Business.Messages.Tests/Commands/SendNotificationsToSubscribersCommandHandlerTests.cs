@@ -85,6 +85,21 @@ public class SendNotificationsToSubscribersCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task MultipleWarehouses_ManageStockWithoutCombinations_OnlyNotifiesGlobalSubscribers()
+    {
+        var handler = Handler(
+            Subscription("global", ""),
+            Subscription("unassigned-default-warehouse", "w2"));
+        var request = Command(true, "");
+        request.Product.ManageInventoryMethodId = ManageInventoryMethod.ManageStock;
+        request.Attributes = null;
+
+        var notifications = await handler.Handle(request, CancellationToken.None);
+
+        CollectionAssert.AreEquivalent(new[] { "global" }, notifications.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
     public async Task MultipleWarehouses_SpecificNotificationOnlySelectsItsWarehouse()
     {
         var handler = Handler(

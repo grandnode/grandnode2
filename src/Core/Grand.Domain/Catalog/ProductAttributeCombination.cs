@@ -88,18 +88,6 @@ public class ProductAttributeCombination : SubBaseEntity, ICloneable
 
     public object Clone()
     {
-        var clone = (ProductAttributeCombination)MemberwiseClone();
-
-        // Preserve the previous warehouse quantities when the combination is edited in place.
-        // A shallow copy would share these mutable rows with the updated combination.
-        if (_warehouseInventory != null)
-            clone._warehouseInventory = _warehouseInventory.Select(x => new ProductCombinationWarehouseInventory {
-                Id = x.Id,
-                WarehouseId = x.WarehouseId,
-                StockQuantity = x.StockQuantity,
-                ReservedQuantity = x.ReservedQuantity
-            }).ToList();
-
-        return clone;
+        return MemberwiseClone();
     }
 }

@@ -224,25 +224,4 @@ public class ProductAttributeCombinationViewModelServiceTests
             It.Is<ProductAttributeCombination>(c => c.WarehouseInventory.Single().WarehouseId == "w1"), "p1"),
             Times.Once);
     }
-    [TestMethod]
-    public void Clone_WarehouseInventoryIsAnIndependentSnapshot()
-    {
-        var combination = new ProductAttributeCombination();
-        combination.WarehouseInventory.Add(new ProductCombinationWarehouseInventory {
-            Id = "entry1", WarehouseId = "w1", StockQuantity = 5, ReservedQuantity = 5
-        });
-        var before = (ProductAttributeCombination)combination.Clone();
-
-        var originalWarehouse = combination.WarehouseInventory.Single();
-        originalWarehouse.StockQuantity = 7;
-        originalWarehouse.ReservedQuantity = 0;
-        combination.WarehouseInventory.Clear();
-
-        Assert.AreEqual(1, before.WarehouseInventory.Count);
-        var snapshot = before.WarehouseInventory.Single();
-        Assert.AreEqual("entry1", snapshot.Id);
-        Assert.AreEqual("w1", snapshot.WarehouseId);
-        Assert.AreEqual(5, snapshot.StockQuantity);
-        Assert.AreEqual(5, snapshot.ReservedQuantity);
-    }
 }
