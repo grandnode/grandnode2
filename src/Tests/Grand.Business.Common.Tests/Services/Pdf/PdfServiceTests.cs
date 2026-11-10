@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
@@ -33,6 +34,7 @@ public class PdfServiceTests
     private Mock<IRepository<Download>> _downloadRepositoryMock;
     private Mock<IMediator> _mediatorMock;
     private Mock<IOrderService> _orderServiceMock;
+    private readonly Mock<IShipmentService> _shipmentServiceMock = new();
     private PdfSettings _pdfSettings;
     private Mock<IPictureService> _pictureServiceMock;
     private Mock<IProductService> _productServiceMock;
@@ -73,7 +75,7 @@ public class PdfServiceTests
             _productServiceMock.Object, new Mock<ICountryService>().Object,
             storeServiceMock.Object, _pictureServiceMock.Object, new Mock<IPaymentService>().Object,
             giftVoucherServiceMock.Object, _orderServiceMock.Object, _pdfSettings, _mediatorMock.Object,
-            new Mock<ILogger<PdfService>>().Object);
+            new Mock<ILogger<PdfService>>().Object, _shipmentServiceMock.Object);
     }
 
     [TestMethod]
@@ -240,6 +242,60 @@ public class PdfServiceTests
         foreach (var page in pdf.GetPages())
             StringAssert.Contains(page.Text, "Footer & bank account");
         StringAssert.Contains(pdf.GetPage(pdf.NumberOfPages).Text, "Product p1");
+    }
+
+    [TestMethod]
+    public async Task PrintPackagingSlipsToPdf_UnitNumbers_PrintedOnlyWhenTheSettingIsOn()
+    {
+        //Arrange
+        var order = CreateOrder();
+        _orderServiceMock.Setup(o => o.GetOrderById(order.Id)).ReturnsAsync(order);
+        var shipment = new Shipment { OrderId = order.Id, ShipmentNumber = 7 };
+        shipment.ShipmentItems.Add(new ShipmentItem {
+            OrderItemId = "i1", ProductId = "p1", Quantity = 2, SerialNumbers = { "SN-A1", "SN-A2" }
+        });
+        shipment.ShipmentItems.Add(new ShipmentItem {
+            OrderItemId = "i2", ProductId = "p2", Quantity = 1, Batches = { new ShipmentItemBatch { Number = "LOT-7", Quantity = 1 } }
+        });
+        //Act
+        using var off = new MemoryStream();
+        await _service.PrintPackagingSlipsToPdf(off, [shipment], "lang-1");
+        _pdfSettings.ShowUnitNumbersOnPackagingSlips = true;
+        using var on = new MemoryStream();
+        await _service.PrintPackagingSlipsToPdf(on, [shipment], "lang-1");
+        //Assert
+        using (var pdf = PdfDocument.Open(off.ToArray()))
+            Assert.DoesNotContain("SN-A1", pdf.GetPage(1).Text);
+        using (var pdf = PdfDocument.Open(on.ToArray()))
+        {
+            var text = pdf.GetPage(1).Text;
+            StringAssert.Contains(text, "SN-A1, SN-A2");
+            StringAssert.Contains(text, "LOT-7 x 1");
+        }
+    }
+
+    [TestMethod]
+    public async Task PrintOrdersToPdf_UnitNumbers_FromShippedShipmentsWhenTheSettingIsOn()
+    {
+        //Arrange
+        _pdfSettings.ShowUnitNumbersOnInvoices = true;
+        var order = CreateOrder();
+        order.OrderItems.First().ShipQty = 2;
+        var shipped = new Shipment { Id = "s1", OrderId = order.Id, ShippedDateUtc = DateTime.UtcNow };
+        shipped.ShipmentItems.Add(new ShipmentItem { OrderItemId = "i1", SerialNumbers = { "SN-A1" } });
+        //not shipped yet: its numbers are not the customer's
+        var pending = new Shipment { Id = "s2", OrderId = order.Id };
+        pending.ShipmentItems.Add(new ShipmentItem { OrderItemId = "i1", SerialNumbers = { "SN-B9" } });
+        _shipmentServiceMock.Setup(s => s.GetShipmentsByOrder(order.Id))
+            .ReturnsAsync(new List<Shipment> { shipped, pending });
+        //Act
+        using var stream = new MemoryStream();
+        await _service.PrintOrdersToPdf(stream, [order], "lang-1");
+        //Assert
+        using var pdf = PdfDocument.Open(stream.ToArray());
+        var text = pdf.GetPage(1).Text;
+        StringAssert.Contains(text, "SN-A1");
+        Assert.DoesNotContain("SN-B9", text);
     }
 
     [TestMethod]

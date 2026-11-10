@@ -189,6 +189,37 @@
                                         @Html.Raw(item.RentalInfo)
                                     </div>
                                 }
+                                @if (item.Units.Count > 0)
+                                {
+                                    @* numbers and comments are typed in the back office: never a template *@
+                                    <ul class="list-unstyled small mb-0 mt-1 shipped-units" v-pre>
+                                        @foreach (var unit in item.Units)
+                                        {
+                                            <li class="shipped-unit">
+                                                @if (unit.IsSerialNumber)
+                                                {
+                                                    <span>@Loc["Order.Shipments.Product(s).SerialNumber"]: @unit.Number</span>
+                                                }
+                                                else
+                                                {
+                                                    <span>@Loc["Order.Shipments.Product(s).Batch"]: @unit.Number &times; @unit.Quantity</span>
+                                                    @if (unit.ExpiryDate.HasValue)
+                                                    {
+                                                        <span class="text-muted">(@Loc["Order.Shipments.Product(s).ExpiryDate"]: @unit.ExpiryDate.Value.ToShortDateString())</span>
+                                                    }
+                                                }
+                                                @if (!string.IsNullOrEmpty(unit.CustomerComment))
+                                                {
+                                                    <div class="text-muted unit-comment">@unit.CustomerComment</div>
+                                                }
+                                            </li>
+                                        }
+                                    </ul>
+                                }
+                                @if (item.WarrantyUntil.HasValue)
+                                {
+                                    <div class="small warranty">@Loc["Order.WarrantyUntil"]: @item.WarrantyUntil.Value.ToShortDateString()</div>
+                                }
                             </div>
                             <div class="col-md-2 col-12 quantity">
                                 <strong class="d-lg-none">@Loc["Order.Shipments.Product(s).Quantity"]: </strong>

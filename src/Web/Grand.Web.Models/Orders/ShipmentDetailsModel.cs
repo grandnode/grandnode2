@@ -29,6 +29,30 @@ public class ShipmentDetailsModel : BaseEntityModel
 
         public int QuantityOrdered { get; set; }
         public int QuantityShipped { get; set; }
+
+        /// <summary>
+        ///     The batches or serial numbers shipped of the item
+        /// </summary>
+        public IList<ShippedUnitModel> Units { get; set; } = new List<ShippedUnitModel>();
+
+        public DateTime? WarrantyUntil { get; set; }
+    }
+
+    public class ShippedUnitModel : BaseModel
+    {
+        public string Number { get; set; }
+        public int Quantity { get; set; }
+        public bool IsSerialNumber { get; set; }
+
+        /// <summary>
+        ///     The batch's expiry date, a date without time
+        /// </summary>
+        public DateTime? ExpiryDate { get; set; }
+
+        /// <summary>
+        ///     What the store tells the customer about the batch or unit
+        /// </summary>
+        public string CustomerComment { get; set; }
     }
 
     public class ShipmentStatusEventModel : BaseModel
