@@ -199,11 +199,15 @@ public class ProductUnitService(
         if (items.Count == 0)
             return views;
 
-        //a serial number keeps the shipment that shipped it until it comes back; one read for the shipment
-        var serialNumbers = items.Any(x => (x.SerialNumbers?.Count ?? 0) > 0)
-            ? await serialNumberRepository.ToListAsync(serialNumberRepository.Table.Where(x =>
-                x.ShipmentId == shipment.Id))
-            : [];
+        //a serial number is one record per product, wherever it went since: the shipment it names now may be a later
+        //one, after a return
+        var serialItems = items.Where(x => (x.SerialNumbers?.Count ?? 0) > 0).ToList();
+        var serialProductIds = serialItems.Select(x => x.ProductId).Distinct().ToList();
+        var serialKeys = serialItems.SelectMany(x => x.SerialNumbers).Select(UnitNumbers.Key).Distinct().ToList();
+        var serialNumbers = serialItems.Count == 0
+            ? []
+            : await serialNumberRepository.ToListAsync(serialNumberRepository.Table.Where(x =>
+                serialProductIds.Contains(x.ProductId) && serialKeys.Contains(x.NumberKey)));
         var batchItems = items.Where(x => (x.Batches?.Count ?? 0) > 0).ToList();
         var productIds = batchItems.Select(x => x.ProductId).Distinct().ToList();
         var keys = batchItems.SelectMany(x => x.Batches).Select(x => UnitNumbers.Key(x.Number)).Distinct().ToList();
@@ -223,7 +227,7 @@ public class ProductUnitService(
             {
                 var key = UnitNumbers.Key(number);
                 var serialNumber = serialNumbers.FirstOrDefault(x => x.ProductId == item.ProductId && x.NumberKey == key);
-                units.Add(new ShippedUnitView(number, 1, null, serialNumber?.CustomerComment));
+                units.Add(new ShippedUnitView(number, true, 1, null, serialNumber?.CustomerComment));
             }
 
             var product = products.GetValueOrDefault(item.ProductId);
@@ -238,7 +242,7 @@ public class ProductUnitService(
                 var batch = batches.FirstOrDefault(x => x.ProductId == item.ProductId && x.NumberKey == key &&
                                                         (x.WarehouseId ?? "") == warehouseId &&
                                                         (x.CombinationId ?? "") == combinationId);
-                units.Add(new ShippedUnitView(shipped.Number, shipped.Quantity, batch?.ExpiryDateUtc,
+                units.Add(new ShippedUnitView(shipped.Number, false, shipped.Quantity, batch?.ExpiryDateUtc,
                     batch?.CustomerComment));
             }
 

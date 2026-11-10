@@ -1611,4 +1611,7 @@
 	<Resource Name="Order.Shipments.Product(s).ExpiryDate" Area="Front">
 		<Value>expiry date</Value>
 	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.Code.Unique" Area="Admin">
+		<Value>The warehouse already has a location with this code.</Value>
+	</Resource>
 </Language>

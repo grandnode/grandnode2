@@ -29,10 +29,16 @@ public sealed record ShipmentUnitError(string ShipmentItemId, string ProductName
 ///     A batch or serial number a shipment item shipped, as its customer is told about it
 /// </summary>
 /// <param name="Number">The number as the shipment names it</param>
+/// <param name="IsSerialNumber">A serial number; otherwise a batch</param>
 /// <param name="Quantity">The units of a batch; one for a serial number</param>
 /// <param name="ExpiryDateUtc">The batch's expiry date</param>
 /// <param name="CustomerComment">What the store tells the customer about the unit; empty when its record is gone</param>
-public sealed record ShippedUnitView(string Number, int Quantity, DateTime? ExpiryDateUtc, string CustomerComment);
+public sealed record ShippedUnitView(
+    string Number,
+    bool IsSerialNumber,
+    int Quantity,
+    DateTime? ExpiryDateUtc,
+    string CustomerComment);
 
 /// <summary>
 ///     The filter of the batch and serial number screens; an empty field filters nothing

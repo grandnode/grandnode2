@@ -117,7 +117,7 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
                 shipmentItemModel.Units.Add(new ShipmentDetailsModel.ShippedUnitModel {
                     Number = unit.Number,
                     Quantity = unit.Quantity,
-                    IsSerialNumber = (shipmentItem.SerialNumbers?.Count ?? 0) > 0,
+                    IsSerialNumber = unit.IsSerialNumber,
                     ExpiryDate = unit.ExpiryDateUtc?.Date,
                     CustomerComment = unit.CustomerComment
                 });

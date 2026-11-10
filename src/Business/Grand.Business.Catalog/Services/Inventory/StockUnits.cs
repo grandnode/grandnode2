@@ -45,6 +45,11 @@ public sealed class UnitSet
     internal HashSet<string> InTransit { get; } = [];
     internal HashSet<object> Changed { get; } = new(ReferenceEqualityComparer.Instance);
     internal HashSet<object> Added { get; } = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>
+    ///     The serial numbers that came into stock from elsewhere: the place they were kept in is no longer theirs
+    /// </summary>
+    internal HashSet<ProductSerialNumber> Relocated { get; } = new(ReferenceEqualityComparer.Instance);
     internal Dictionary<StockChange, List<object>> Touched { get; } = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
@@ -426,9 +431,12 @@ public sealed class StockUnits(
                     break;
                 case ProductSerialNumber serialNumber:
                     //only what the ledger changes: the location, the device fields and the comments are written by
-                    //the back office without the product's lock
+                    //the back office without the product's lock; the ledger only takes the location away
+                    var update = UpdateBuilder<ProductSerialNumber>.Create();
+                    if (set.Relocated.Contains(serialNumber))
+                        update.Set(x => x.LocationId, null);
                     await serialNumberRepository.UpdateOneAsync(x => x.Id == serialNumber.Id,
-                        UpdateBuilder<ProductSerialNumber>.Create()
+                        update
                             .Set(x => x.StatusId, serialNumber.StatusId)
                             .Set(x => x.CombinationId, serialNumber.CombinationId)
                             .Set(x => x.Attributes, serialNumber.Attributes)
@@ -742,6 +750,14 @@ public sealed class StockUnits(
     /// </summary>
     private async Task Place(UnitSet set, ProductSerialNumber serialNumber, UnitBucket bucket)
     {
+        //a unit back from a customer, a scrap or another warehouse is not on the shelf it was on
+        if (serialNumber.LocationId != null && (serialNumber.StatusId != SerialNumberStatus.InStock ||
+                                                (serialNumber.WarehouseId ?? "") != (bucket.WarehouseId ?? "")))
+        {
+            serialNumber.LocationId = null;
+            set.Relocated.Add(serialNumber);
+        }
+
         if ((serialNumber.WarehouseId ?? "") != (bucket.WarehouseId ?? "") || serialNumber.StoreId == null)
             serialNumber.StoreId = await StoreOf(bucket.WarehouseId);
         serialNumber.StatusId = SerialNumberStatus.InStock;

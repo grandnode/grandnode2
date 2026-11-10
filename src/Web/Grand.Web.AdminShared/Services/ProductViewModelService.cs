@@ -152,17 +152,10 @@ public class ProductViewModelService(
             : await productUnitService.SearchSerialNumbers(new UnitSearch
                 { ProductId = product.Id, Status = SerialNumberStatus.InStock });
 
-        var buckets = await productUnitService.Buckets(product);
-        //the codes of the places the units are kept in, one read for the product's warehouses
-        var locations = (await locationService.GetLocations(buckets.Select(x => x.WarehouseId ?? "").Distinct()
-            .ToList())).ToDictionary(x => x.Id);
-        //a unit moved to another warehouse keeps a stale location of the one it left
-        string LocationCode(string locationId, string warehouseId) =>
-            locations.GetValueOrDefault(locationId ?? "") is { } location && location.WarehouseId == (warehouseId ?? "")
-                ? location.Code
-                : null;
+        //the units shown that are kept in a location, named once all of them are known
+        var located = new List<(UnitInBucketModel Unit, string LocationId, string WarehouseId)>();
 
-        foreach (var bucket in buckets)
+        foreach (var bucket in await productUnitService.Buckets(product))
         {
             var row = new UnitBucketRowModel {
                 Warehouse = string.IsNullOrEmpty(bucket.WarehouseId)
@@ -175,25 +168,40 @@ public class ProductViewModelService(
             if (batches)
                 foreach (var batch in await productUnitService.Batches(product.Id, bucket.CombinationId ?? "",
                              bucket.WarehouseId))
-                    row.Units.Add(new UnitInBucketModel {
+                {
+                    var unit = new UnitInBucketModel {
                         Id = batch.Id, Number = batch.Number, Quantity = batch.Quantity,
                         ExpiryDate = batch.ExpiryDateUtc?.Date,
-                        ExpiryStatus = BatchExpiry.Status(batch.ExpiryDateUtc, today, warningDays),
-                        Location = LocationCode(batch.LocationId, batch.WarehouseId)
-                    });
+                        ExpiryStatus = BatchExpiry.Status(batch.ExpiryDateUtc, today, warningDays)
+                    };
+                    row.Units.Add(unit);
+                    if (!string.IsNullOrEmpty(batch.LocationId))
+                        located.Add((unit, batch.LocationId, batch.WarehouseId));
+                }
             else
                 foreach (var serialNumber in serialNumbers
                              .Where(x => (x.WarehouseId ?? "") == (bucket.WarehouseId ?? "") &&
                                          (x.CombinationId ?? "") == (bucket.CombinationId ?? ""))
                              .OrderBy(x => x.Number).Take(SerialNumbersShown))
-                    row.Units.Add(new UnitInBucketModel {
+                {
+                    var unit = new UnitInBucketModel {
                         Id = serialNumber.Id, Number = serialNumber.Number, Quantity = 1,
-                        Location = LocationCode(serialNumber.LocationId, serialNumber.WarehouseId),
                         ReceivedOn = dateTimeService.ConvertToUserTime(serialNumber.ReceivedOnUtc, DateTimeKind.Utc)
-                    });
+                    };
+                    row.Units.Add(unit);
+                    if (!string.IsNullOrEmpty(serialNumber.LocationId))
+                        located.Add((unit, serialNumber.LocationId, serialNumber.WarehouseId));
+                }
 
             model.UnitBuckets.Add(row);
         }
+
+        //one read for the locations the shown units reference; one of another warehouse is not where a unit is
+        var locations = (await locationService.GetLocationsByIds(located.Select(x => x.LocationId).Distinct()
+            .ToList())).ToDictionary(x => x.Id);
+        foreach (var (unit, locationId, warehouseId) in located)
+            if (locations.GetValueOrDefault(locationId) is { } location && location.WarehouseId == (warehouseId ?? ""))
+                unit.Location = location.Code;
     }
 
     public virtual async Task PrepareProductModel(ProductModel model, Product product,

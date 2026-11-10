@@ -80,6 +80,7 @@ public class ProductUnitDetailsTests
         var serialNumber = _fixture.SerialsOf(product).Single();
         serialNumber.Supplier = "Acme";
         serialNumber.CustomerComment = "Registered for you";
+        serialNumber.LocationId = "loc-w1";
         await _service.UpdateSerialNumberDetails(serialNumber);
 
         var errors = await _fixture.Apply(product, Serials(-1, InventoryMovementType.TransferOut, "w1", "A1"),
@@ -88,9 +89,29 @@ public class ProductUnitDetailsTests
         Assert.AreEqual(0, errors.Count);
         var stored = _fixture.SerialsOf(product).Single();
         Assert.AreEqual("w2", stored.WarehouseId);
+        //the shelf it was on in the warehouse it left is not its place, coming back there included
+        Assert.IsNull(stored.LocationId);
         Assert.AreEqual("Acme", stored.Supplier);
         Assert.AreEqual("Registered for you", stored.CustomerComment);
         _fixture.AssertInStep(product);
+    }
+
+    [TestMethod]
+    public async Task ScrappedSerialNumberBackInTheSameWarehouse_LocationCleared()
+    {
+        var product = await _fixture.Stocked(Multiple(), InventoryTrackingMode.SerialNumber);
+        await _fixture.Apply(product, Serials(1, InventoryMovementType.Receipt, "w1", "A1"));
+        var serialNumber = _fixture.SerialsOf(product).Single();
+        serialNumber.LocationId = "loc-w1";
+        await _service.UpdateSerialNumberDetails(serialNumber);
+
+        await _fixture.Apply(product, Serials(-1, InventoryMovementType.Adjustment, "w1", "A1"));
+        Assert.AreEqual("loc-w1", _fixture.SerialsOf(product).Single().LocationId);
+        await _fixture.Apply(product, Serials(1, InventoryMovementType.Receipt, "w1", "A1"));
+
+        var stored = _fixture.SerialsOf(product).Single();
+        Assert.AreEqual(SerialNumberStatus.InStock, stored.StatusId);
+        Assert.IsNull(stored.LocationId);
     }
 
     [TestMethod]
@@ -143,9 +164,13 @@ public class ProductUnitDetailsTests
         await _fixture.Serials.InsertAsync(new ProductSerialNumber {
             ProductId = "p2", Number = "A1", NumberKey = "A1", ShipmentId = "s1", CustomerComment = "Registered"
         });
-        //returned: it no longer names the shipment
+        //returned and shipped again: it names the later shipment, its comment is still its own
         await _fixture.Serials.InsertAsync(new ProductSerialNumber {
-            ProductId = "p2", Number = "A2", NumberKey = "A2", CustomerComment = "not this"
+            ProductId = "p2", Number = "A2", NumberKey = "A2", ShipmentId = "s9", CustomerComment = "Refurbished"
+        });
+        //the same number of another product is another unit
+        await _fixture.Serials.InsertAsync(new ProductSerialNumber {
+            ProductId = "p9", Number = "A1", NumberKey = "A1", CustomerComment = "not this"
         });
 
         var views = await _service.ShippedUnitViews(shipment);
@@ -155,8 +180,10 @@ public class ProductUnitDetailsTests
         Assert.AreEqual("l1", batch.Number);
         Assert.AreEqual(3, batch.Quantity);
         Assert.AreEqual("from w2", batch.CustomerComment);
-        CollectionAssert.AreEqual(new[] { "Registered", null },
+        Assert.IsFalse(batch.IsSerialNumber);
+        CollectionAssert.AreEqual(new[] { "Registered", "Refurbished" },
             views["i2"].Select(x => x.CustomerComment).ToArray());
+        Assert.IsTrue(views["i2"].All(x => x.IsSerialNumber));
     }
 
     [TestMethod]

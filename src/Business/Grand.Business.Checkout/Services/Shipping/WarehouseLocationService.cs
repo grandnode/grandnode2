@@ -25,6 +25,15 @@ public class WarehouseLocationService(IRepository<WarehouseLocation> locationRep
             pageSize);
     }
 
+    public async Task<IList<WarehouseLocation>> GetLocationsByIds(IList<string> ids)
+    {
+        ArgumentNullException.ThrowIfNull(ids);
+
+        return ids.Count == 0
+            ? []
+            : await locationRepository.ToListAsync(locationRepository.Table.Where(x => ids.Contains(x.Id)));
+    }
+
     public async Task InsertLocation(WarehouseLocation location)
     {
         ArgumentNullException.ThrowIfNull(location);

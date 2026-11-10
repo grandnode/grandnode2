@@ -17,6 +17,11 @@ public interface IWarehouseLocationService
     Task<IPagedList<WarehouseLocation>> GetLocations(IList<string> warehouseIds = null, int pageIndex = 0,
         int pageSize = int.MaxValue);
 
+    /// <summary>
+    ///     The locations of the ids, in no order; a deleted one is missing
+    /// </summary>
+    Task<IList<WarehouseLocation>> GetLocationsByIds(IList<string> ids);
+
     Task InsertLocation(WarehouseLocation location);
 
     Task UpdateLocation(WarehouseLocation location);

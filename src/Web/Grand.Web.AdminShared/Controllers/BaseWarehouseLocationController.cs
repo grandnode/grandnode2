@@ -71,6 +71,7 @@ public abstract class BaseWarehouseLocationController(
         if (ModelState.IsValid && !await CanUse(model.WarehouseId))
             ModelState.AddModelError(nameof(model.WarehouseId),
                 translationService.GetResource("Admin.Configuration.Shipping.WarehouseLocations.Fields.Warehouse.Required"));
+        await CheckCodeFree(model);
         if (!ModelState.IsValid)
         {
             await PrepareModel(model);
@@ -109,6 +110,7 @@ public abstract class BaseWarehouseLocationController(
             return RedirectToAction("List");
         //the units kept there stay in its warehouse: a location never moves to another one
         model.WarehouseId = location.WarehouseId;
+        await CheckCodeFree(model);
         if (!ModelState.IsValid)
         {
             await PrepareModel(model);
@@ -131,6 +133,20 @@ public abstract class BaseWarehouseLocationController(
         await locationService.DeleteLocation(location);
         Success(translationService.GetResource("Admin.Configuration.Shipping.WarehouseLocations.Deleted"));
         return RedirectToAction("List");
+    }
+
+    /// <summary>
+    ///     The code is what staff read on the shelf: two places of one warehouse never share it
+    /// </summary>
+    private async Task CheckCodeFree(WarehouseLocationModel model)
+    {
+        if (string.IsNullOrWhiteSpace(model.Code) || string.IsNullOrEmpty(model.WarehouseId))
+            return;
+        var code = model.Code.Trim();
+        if ((await locationService.GetLocations([model.WarehouseId])).Any(x =>
+                x.Id != model.Id && string.Equals(x.Code, code, StringComparison.OrdinalIgnoreCase)))
+            ModelState.AddModelError(nameof(model.Code),
+                translationService.GetResource("Admin.Configuration.Shipping.WarehouseLocations.Fields.Code.Unique"));
     }
 
     private static WarehouseLocation Apply(WarehouseLocation location, WarehouseLocationModel model)
