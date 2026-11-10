@@ -27,6 +27,7 @@ public class ProductUnitControllerTests
     private const string StoreId = "store1";
     private readonly Mock<IProductUnitService> _units = new();
     private readonly Mock<IWarehouseService> _warehouses = new();
+    private readonly Mock<IWarehouseLocationService> _locations = new();
     private ProductUnitController _controller;
 
     [TestInitialize]
@@ -38,7 +39,7 @@ public class ProductUnitControllerTests
             _warehouses.Object, new Mock<IDateTimeService>().Object,
             new Mock<IEnumTranslationService>().Object, new Mock<IRequestTranslationService>().Object,
             new Mock<IInventoryDocumentViewModelService>().Object, productScope.Object,
-            new Mock<ISettingService>().Object) {
+            new Mock<ISettingService>().Object, _locations.Object) {
             TempData = new TempDataDictionary(new DefaultHttpContext(), Mock.Of<ITempDataProvider>())
         };
     }
@@ -70,6 +71,33 @@ public class ProductUnitControllerTests
 
         _units.Verify(x => x.History(serialNumber, It.Is<IList<string>>(w => w.SequenceEqual(new[] { "w1" })), 0, 10),
             Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Store_SaveBatchOfOtherStore_NotWritten()
+    {
+        _units.Setup(x => x.GetBatch("b1")).ReturnsAsync(new ProductBatch { Id = "b1", StoreId = "store2" });
+
+        var result = await _controller.Batch(new BatchModel { Id = "b1", Supplier = "x" });
+
+        Assert.AreEqual("Batches", (result as RedirectToActionResult)?.ActionName);
+        _units.Verify(x => x.UpdateBatchDetails(It.IsAny<ProductBatch>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Store_SaveSerialNumber_LocationOfOtherWarehouseDropped()
+    {
+        var serialNumber = new ProductSerialNumber { Id = "sn1", StoreId = StoreId, WarehouseId = "w1" };
+        _units.Setup(x => x.GetSerialNumber("sn1")).ReturnsAsync(serialNumber);
+        _locations.Setup(x => x.GetLocationById("loc2"))
+            .ReturnsAsync(new WarehouseLocation { Id = "loc2", WarehouseId = "w2" });
+
+        await _controller.SerialNumber(new SerialNumberModel {
+            Id = "sn1", LocationId = "loc2", Imei = " 490154203237518 ", AdminComment = "  "
+        });
+
+        _units.Verify(x => x.UpdateSerialNumberDetails(It.Is<ProductSerialNumber>(s =>
+            s.LocationId == null && s.Imei == "490154203237518" && s.AdminComment == null)), Times.Once);
     }
 
     [TestMethod]

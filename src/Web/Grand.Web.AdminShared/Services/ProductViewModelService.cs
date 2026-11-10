@@ -64,7 +64,8 @@ public class ProductViewModelService(
     IAdminDataScope<Product> scope,
     IStockMovementService stockMovementService,
     ISettingService settingService,
-    IProductUnitService productUnitService)
+    IProductUnitService productUnitService,
+    IWarehouseLocationService locationService)
     : IProductViewModelService
 {
     private StockSource ManualEditSource(Product product)
@@ -151,7 +152,17 @@ public class ProductViewModelService(
             : await productUnitService.SearchSerialNumbers(new UnitSearch
                 { ProductId = product.Id, Status = SerialNumberStatus.InStock });
 
-        foreach (var bucket in await productUnitService.Buckets(product))
+        var buckets = await productUnitService.Buckets(product);
+        //the codes of the places the units are kept in, one read for the product's warehouses
+        var locations = (await locationService.GetLocations(buckets.Select(x => x.WarehouseId ?? "").Distinct()
+            .ToList())).ToDictionary(x => x.Id);
+        //a unit moved to another warehouse keeps a stale location of the one it left
+        string LocationCode(string locationId, string warehouseId) =>
+            locations.GetValueOrDefault(locationId ?? "") is { } location && location.WarehouseId == (warehouseId ?? "")
+                ? location.Code
+                : null;
+
+        foreach (var bucket in buckets)
         {
             var row = new UnitBucketRowModel {
                 Warehouse = string.IsNullOrEmpty(bucket.WarehouseId)
@@ -167,15 +178,19 @@ public class ProductViewModelService(
                     row.Units.Add(new UnitInBucketModel {
                         Id = batch.Id, Number = batch.Number, Quantity = batch.Quantity,
                         ExpiryDate = batch.ExpiryDateUtc?.Date,
-                        ExpiryStatus = BatchExpiry.Status(batch.ExpiryDateUtc, today, warningDays)
+                        ExpiryStatus = BatchExpiry.Status(batch.ExpiryDateUtc, today, warningDays),
+                        Location = LocationCode(batch.LocationId, batch.WarehouseId)
                     });
             else
                 foreach (var serialNumber in serialNumbers
                              .Where(x => (x.WarehouseId ?? "") == (bucket.WarehouseId ?? "") &&
                                          (x.CombinationId ?? "") == (bucket.CombinationId ?? ""))
                              .OrderBy(x => x.Number).Take(SerialNumbersShown))
-                    row.Units.Add(new UnitInBucketModel
-                        { Id = serialNumber.Id, Number = serialNumber.Number, Quantity = 1 });
+                    row.Units.Add(new UnitInBucketModel {
+                        Id = serialNumber.Id, Number = serialNumber.Number, Quantity = 1,
+                        Location = LocationCode(serialNumber.LocationId, serialNumber.WarehouseId),
+                        ReceivedOn = dateTimeService.ConvertToUserTime(serialNumber.ReceivedOnUtc, DateTimeKind.Utc)
+                    });
 
             model.UnitBuckets.Add(row);
         }

@@ -37,7 +37,8 @@ public abstract class BaseProductUnitController(
     IRequestTranslationService translationService,
     IInventoryDocumentViewModelService inventoryDocumentViewModelService,
     IAdminDataScope<Product> productScope,
-    ISettingService settingService) : BaseController
+    ISettingService settingService,
+    IWarehouseLocationService locationService) : BaseController
 {
     private InventorySettings _inventorySettings;
 
@@ -83,7 +84,42 @@ public abstract class BaseProductUnitController(
         model.ReceiptDocumentId = serialNumber.ReceiptDocumentId;
         model.ShipmentId = serialNumber.ShipmentId;
         model.InWarranty = serialNumber.WarrantyUntilUtc > DateTime.UtcNow;
+        model.LocationId = serialNumber.LocationId;
+        model.ManufacturedOn = serialNumber.ManufacturedOnUtc;
+        model.Supplier = serialNumber.Supplier;
+        model.SupplierWarrantyUntil = serialNumber.SupplierWarrantyUntilUtc;
+        model.Imei = serialNumber.Imei;
+        model.MacAddress = serialNumber.MacAddress;
+        model.FirmwareVersion = serialNumber.FirmwareVersion;
+        model.AdminComment = serialNumber.AdminComment;
+        model.CustomerComment = serialNumber.CustomerComment;
+        await AddLocations(model.AvailableLocations, serialNumber.WarehouseId, serialNumber.LocationId);
         return View("SerialNumber", model);
+    }
+
+    /// <summary>
+    ///     Saves what the back office tells about the unit; its status and warehouse stay the ledger's
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SerialNumber(SerialNumberModel model)
+    {
+        var serialNumber = await productUnitService.GetSerialNumber(model.Id);
+        if (serialNumber == null || !await CanSee(serialNumber.StoreId))
+            return Denied("SerialNumbers");
+
+        serialNumber.LocationId = await LocationIn(serialNumber.WarehouseId, model.LocationId);
+        serialNumber.ManufacturedOnUtc = Date(model.ManufacturedOn);
+        serialNumber.Supplier = Text(model.Supplier);
+        serialNumber.SupplierWarrantyUntilUtc = Date(model.SupplierWarrantyUntil);
+        serialNumber.Imei = Text(model.Imei);
+        serialNumber.MacAddress = Text(model.MacAddress);
+        serialNumber.FirmwareVersion = Text(model.FirmwareVersion);
+        serialNumber.AdminComment = Text(model.AdminComment);
+        serialNumber.CustomerComment = Text(model.CustomerComment);
+        await productUnitService.UpdateSerialNumberDetails(serialNumber);
+        Success(translationService.GetResource("Admin.Inventory.Units.Updated"));
+        return RedirectToAction("SerialNumber", new { id = serialNumber.Id });
     }
 
     /// <summary>
@@ -150,7 +186,74 @@ public abstract class BaseProductUnitController(
         model.UnitCost = batch.UnitCost;
         model.ReceivedOn = dateTimeService.ConvertToUserTime(batch.ReceivedOnUtc, DateTimeKind.Utc);
         model.ReceiptDocumentId = batch.ReceiptDocumentId;
+        model.LocationId = batch.LocationId;
+        model.ManufacturedOn = batch.ManufacturedOnUtc;
+        model.Supplier = batch.Supplier;
+        model.SupplierBatchNumber = batch.SupplierBatchNumber;
+        model.CertificateNumber = batch.CertificateNumber;
+        model.AdminComment = batch.AdminComment;
+        model.CustomerComment = batch.CustomerComment;
+        await AddLocations(model.AvailableLocations, batch.WarehouseId, batch.LocationId);
         return View("Batch", model);
+    }
+
+    /// <summary>
+    ///     Saves what the back office tells about the batch; its quantity stays the ledger's
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> Batch(BatchModel model)
+    {
+        var batch = await productUnitService.GetBatch(model.Id);
+        if (batch == null || !await CanSee(batch.StoreId))
+            return Denied("Batches");
+
+        batch.LocationId = await LocationIn(batch.WarehouseId, model.LocationId);
+        batch.ManufacturedOnUtc = Date(model.ManufacturedOn);
+        batch.Supplier = Text(model.Supplier);
+        batch.SupplierBatchNumber = Text(model.SupplierBatchNumber);
+        batch.CertificateNumber = Text(model.CertificateNumber);
+        batch.AdminComment = Text(model.AdminComment);
+        batch.CustomerComment = Text(model.CustomerComment);
+        await productUnitService.UpdateBatchDetails(batch);
+        Success(translationService.GetResource("Admin.Inventory.Units.Updated"));
+        return RedirectToAction("Batch", new { id = batch.Id });
+    }
+
+    /// <summary>
+    ///     The location when it is a place in the unit's warehouse; any other is dropped
+    /// </summary>
+    private async Task<string> LocationIn(string warehouseId, string locationId)
+    {
+        if (string.IsNullOrEmpty(locationId))
+            return null;
+        var location = await locationService.GetLocationById(locationId);
+        return location != null && location.WarehouseId == (warehouseId ?? "") ? location.Id : null;
+    }
+
+    private async Task AddLocations(IList<SelectListItem> list, string warehouseId, string selectedId)
+    {
+        list.Add(new SelectListItem { Text = "", Value = "" });
+        if (string.IsNullOrEmpty(warehouseId))
+            return;
+        foreach (var location in await locationService.GetLocations([warehouseId]))
+            list.Add(new SelectListItem {
+                Text = string.IsNullOrEmpty(location.Name) ? location.Code : $"{location.Code} - {location.Name}",
+                Value = location.Id, Selected = location.Id == selectedId
+            });
+    }
+
+    /// <summary>
+    ///     A date typed in the back office, kept without time
+    /// </summary>
+    private static DateTime? Date(DateTime? value)
+    {
+        return value.HasValue ? DateTime.SpecifyKind(value.Value.Date, DateTimeKind.Utc) : null;
+    }
+
+    private static string Text(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]

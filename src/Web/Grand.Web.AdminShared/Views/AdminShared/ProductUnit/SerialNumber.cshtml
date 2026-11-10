@@ -3,45 +3,93 @@
     ViewBag.Title = Model.Number;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<admin-page title="@Model.Number" icon="bi-upc-scan" meta="@Model.Status"
-            back-url="@Url.Action("SerialNumbers", new { area })" back-text="@Loc["Admin.Inventory.Units.SerialNumbers"]">
-    <admin-card>
-        <dl class="row mb-0">
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Product"]</dt>
-            <dd class="col-sm-9"><a href="@Url.Action("Edit", "Product", new { area, id = Model.ProductId })">@Model.ProductName</a></dd>
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</dt>
-            <dd class="col-sm-9">@Model.Warehouse</dd>
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ReceivedOn"]</dt>
-            <dd class="col-sm-9">
-                @Model.ReceivedOn.ToShortDateString()
-                @if (!string.IsNullOrEmpty(Model.ReceiptDocumentId))
-                {
-                    <a href="@Url.Action("Edit", "InventoryDocument", new { area, id = Model.ReceiptDocumentId })">@Loc["Admin.Inventory.Units.Receipt"]</a>
-                }
-            </dd>
-            @if (!string.IsNullOrEmpty(Model.OrderId))
-            {
-                <dt class="col-sm-3">@Loc["Admin.Inventory.Units.ShippedOn"]</dt>
-                <dd class="col-sm-9">
-                    @Model.ShippedOn?.ToShortDateString()
-                    <a href="@Url.Action("Edit", "Order", new { area, id = Model.OrderId })">@Loc["Admin.Inventory.Units.Order"]</a>
-                    @if (!string.IsNullOrEmpty(Model.ShipmentId))
-                    {
-                        <a href="@Url.Action("ShipmentDetails", "Shipment", new { area, id = Model.ShipmentId })">@Loc["Admin.Inventory.Units.Shipment"]</a>
-                    }
-                </dd>
-            }
-            @if (Model.WarrantyUntil.HasValue)
-            {
-                <dt class="col-sm-3">@Loc["Admin.Inventory.Units.WarrantyUntil"]</dt>
-                <dd class="col-sm-9">
-                    @Model.WarrantyUntil.Value.ToShortDateString()
-                    <span class="badge @(Model.InWarranty ? "bg-success" : "bg-secondary")">
-                        @Loc[Model.InWarranty ? "Admin.Inventory.Units.InWarranty" : "Admin.Inventory.Units.WarrantyEnded"]
-                    </span>
-                </dd>
-            }
-        </dl>
-    </admin-card>
-    <partial name="Partials/UnitHistory" model="@Url.Action("SerialNumberHistoryList", "ProductUnit", new { area, id = Model.Id })"/>
-</admin-page>
+<form asp-area="@area" asp-controller="ProductUnit" asp-action="SerialNumber" method="post">
+    <input type="hidden" asp-for="Id"/>
+    <admin-page sticky title="@Model.Number" icon="bi-upc-scan" meta="@Model.Status"
+                back-url="@Url.Action("SerialNumbers", new { area })" back-text="@Loc["Admin.Inventory.Units.SerialNumbers"]">
+        <page-actions>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
+
+        @* plugins add tabs of their own to the strip by its name *@
+        <admin-tabstrip name="productserialnumber-edit" BindGrid="true">
+            <items>
+                <tabstrip-item text="@Loc["Admin.Inventory.Units.Info"]" tab-index="0">
+                    <content>
+                        <div>
+                            <admin-card>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Product"]</dt>
+                                    <dd class="col-sm-9"><a href="@Url.Action("Edit", "Product", new { area, id = Model.ProductId })">@Model.ProductName</a></dd>
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</dt>
+                                    <dd class="col-sm-9">@Model.Warehouse</dd>
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ReceivedOn"]</dt>
+                                    <dd class="col-sm-9">
+                                        @Model.ReceivedOn.ToShortDateString()
+                                        @if (!string.IsNullOrEmpty(Model.ReceiptDocumentId))
+                                        {
+                                            <a href="@Url.Action("Edit", "InventoryDocument", new { area, id = Model.ReceiptDocumentId })">@Loc["Admin.Inventory.Units.Receipt"]</a>
+                                        }
+                                    </dd>
+                                    @if (!string.IsNullOrEmpty(Model.OrderId))
+                                    {
+                                        <dt class="col-sm-3">@Loc["Admin.Inventory.Units.ShippedOn"]</dt>
+                                        <dd class="col-sm-9">
+                                            @Model.ShippedOn?.ToShortDateString()
+                                            <a href="@Url.Action("Edit", "Order", new { area, id = Model.OrderId })">@Loc["Admin.Inventory.Units.Order"]</a>
+                                            @if (!string.IsNullOrEmpty(Model.ShipmentId))
+                                            {
+                                                <a href="@Url.Action("ShipmentDetails", "Shipment", new { area, id = Model.ShipmentId })">@Loc["Admin.Inventory.Units.Shipment"]</a>
+                                            }
+                                        </dd>
+                                    }
+                                    @if (Model.WarrantyUntil.HasValue)
+                                    {
+                                        <dt class="col-sm-3">@Loc["Admin.Inventory.Units.WarrantyUntil"]</dt>
+                                        <dd class="col-sm-9">
+                                            @Model.WarrantyUntil.Value.ToShortDateString()
+                                            <span class="badge @(Model.InWarranty ? "bg-success" : "bg-secondary")">
+                                                @Loc[Model.InWarranty ? "Admin.Inventory.Units.InWarranty" : "Admin.Inventory.Units.WarrantyEnded"]
+                                            </span>
+                                        </dd>
+                                    }
+                                </dl>
+                            </admin-card>
+                            @* what the back office tells about the unit, none of it required; its status stays the ledger's *@
+                            <admin-card title="@Loc["Admin.Inventory.Units.Details"]">
+                                <div class="grand-fields grand-fields--2col">
+                                    <admin-field asp-for="LocationId" asp-items="Model.AvailableLocations"/>
+                                    <admin-field asp-for="Supplier"/>
+                                    <admin-field asp-for="ManufacturedOn">
+                                        <input asp-for="ManufacturedOn" type="date" class="form-control" asp-format="{0:yyyy-MM-dd}"/>
+                                    </admin-field>
+                                    <admin-field asp-for="SupplierWarrantyUntil">
+                                        <input asp-for="SupplierWarrantyUntil" type="date" class="form-control" asp-format="{0:yyyy-MM-dd}"/>
+                                    </admin-field>
+                                    <admin-field asp-for="Imei"/>
+                                    <admin-field asp-for="MacAddress"/>
+                                    <admin-field asp-for="FirmwareVersion"/>
+                                    <admin-field asp-for="AdminComment">
+                                        <admin-textarea asp-for="AdminComment"></admin-textarea>
+                                    </admin-field>
+                                    <admin-field asp-for="CustomerComment">
+                                        <admin-textarea asp-for="CustomerComment"></admin-textarea>
+                                    </admin-field>
+                                </div>
+                            </admin-card>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Catalog.Products.StockHistory"]" tab-index="1">
+                    <content>
+                        <div>
+                            <partial name="Partials/UnitHistory" model="@Url.Action("SerialNumberHistoryList", "ProductUnit", new { area, id = Model.Id })"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+            </items>
+        </admin-tabstrip>
+    </admin-page>
+</form>

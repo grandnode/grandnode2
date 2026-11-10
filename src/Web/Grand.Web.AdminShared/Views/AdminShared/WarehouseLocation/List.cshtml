@@ -1,0 +1,52 @@
+@model Grand.Web.AdminShared.Models.Shipping.WarehouseLocationListModel
+@{
+    ViewBag.Title = Loc["Admin.Configuration.Shipping.WarehouseLocations"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<admin-page title="@Loc["Admin.Configuration.Shipping.WarehouseLocations"]" icon="bi-grid-3x3-gap">
+    <admin-card>
+        <div class="grand-fields grand-fields--2col">
+            <admin-field asp-for="SearchWarehouseId" asp-items="Model.AvailableWarehouses"/>
+        </div>
+        <card-actions>
+            <button type="button" id="locations-search" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-search"></i> @Loc["Admin.Common.Search"]
+            </button>
+        </card-actions>
+    </admin-card>
+
+    <admin-card flush>
+        <card-actions>
+            <a href="@Url.Action("Create", new { area })" class="btn btn-outline-secondary btn-sm">
+                <i class="bi bi-plus-lg"></i> @Loc["Admin.Common.AddNew"]
+            </a>
+        </card-actions>
+        <admin-grid id="locations-grid" read-url="@Url.Action("LocationList", new { area })"
+                    additional-data="locationsData">
+            <grid-column field="Code" title="@Loc["Admin.Configuration.Shipping.WarehouseLocations.Fields.Code"]">
+                <cell-template>
+                    <a class="text-decoration-none" href="@Url.Action("Edit", new { area })/{{ Id }}">{{ Code }}</a>
+                </cell-template>
+            </grid-column>
+            <grid-column field="Name" title="@Loc["Admin.Configuration.Shipping.WarehouseLocations.Fields.Name"]"/>
+            <grid-column field="Warehouse" title="@Loc["Admin.Configuration.Shipping.WarehouseLocations.Fields.Warehouse"]"/>
+            <grid-column field="DisplayOrder" title="@Loc["Admin.Configuration.Shipping.WarehouseLocations.Fields.DisplayOrder"]" width="140"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+    function locationsData() {
+        var data = {
+            SearchWarehouseId: $('#@Html.IdFor(model => model.SearchWarehouseId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#locations-search').click(function () {
+            GrandAdmin.grids.get('#locations-grid').dataSource.page(1);
+            return false;
+        });
+    });
+</script>

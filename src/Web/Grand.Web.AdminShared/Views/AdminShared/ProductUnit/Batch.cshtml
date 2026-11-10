@@ -3,54 +3,101 @@
     ViewBag.Title = Model.Number;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
-<admin-page title="@Model.Number" icon="bi-boxes" meta="@Model.ExpiryStatus"
-            back-url="@Url.Action("Batches", new { area })" back-text="@Loc["Admin.Inventory.Units.Batches"]">
-    <page-actions>
-        <a class="btn btn-outline-secondary" href="@Url.Action("BatchRecipientsCsv", new { area, id = Model.Id })">
-            <i class="bi bi-filetype-csv"></i> @Loc["Admin.Inventory.Units.RecipientsCsv"]
-        </a>
-    </page-actions>
-    <admin-card>
-        <dl class="row mb-0">
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Product"]</dt>
-            <dd class="col-sm-9"><a href="@Url.Action("Edit", "Product", new { area, id = Model.ProductId })">@Model.ProductName</a></dd>
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</dt>
-            <dd class="col-sm-9">@Model.Warehouse</dd>
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]</dt>
-            <dd class="col-sm-9">@Model.ExpiryDate?.ToShortDateString() @Model.ExpiryStatus</dd>
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Quantity"]</dt>
-            <dd class="col-sm-9">@Model.Quantity</dd>
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.UnitCost"]</dt>
-            <dd class="col-sm-9">@Model.UnitCost</dd>
-            <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ReceivedOn"]</dt>
-            <dd class="col-sm-9">
-                @Model.ReceivedOn.ToShortDateString()
-                @if (!string.IsNullOrEmpty(Model.ReceiptDocumentId))
-                {
-                    <a href="@Url.Action("Edit", "InventoryDocument", new { area, id = Model.ReceiptDocumentId })">@Loc["Admin.Inventory.Units.Receipt"]</a>
-                }
-            </dd>
-        </dl>
-    </admin-card>
+<form asp-area="@area" asp-controller="ProductUnit" asp-action="Batch" method="post">
+    <input type="hidden" asp-for="Id"/>
+    <admin-page sticky title="@Model.Number" icon="bi-boxes" meta="@Model.ExpiryStatus"
+                back-url="@Url.Action("Batches", new { area })" back-text="@Loc["Admin.Inventory.Units.Batches"]">
+        <page-actions>
+            <a class="btn btn-outline-secondary" href="@Url.Action("BatchRecipientsCsv", new { area, id = Model.Id })">
+                <i class="bi bi-filetype-csv"></i> @Loc["Admin.Inventory.Units.RecipientsCsv"]
+            </a>
+            <button class="btn btn-primary" type="submit" name="save">
+                <i class="bi bi-check-lg"></i> @Loc["Admin.Common.Save"]
+            </button>
+        </page-actions>
 
-    @* a recall: every shipment that kept units of the batch, a page at a time *@
-    <admin-card title="@Loc["Admin.Inventory.Units.Recipients"]" flush>
-        <admin-grid id="batchrecipients-grid"
-                    read-url="@Url.Action("BatchRecipientList", "ProductUnit", new { area, id = Model.Id })">
-            <grid-column field="ShipmentNumber" title="@Loc["Admin.Inventory.Units.Shipment"]" width="110">
-                <cell-template>
-                    <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area })/{{ ShipmentId }}">#{{ ShipmentNumber }}</a>
-                </cell-template>
-            </grid-column>
-            <grid-column field="OrderNumber" title="@Loc["Admin.Inventory.Units.Order"]" width="110">
-                <cell-template>
-                    <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area })/{{ OrderId }}">#{{ OrderNumber }}</a>
-                </cell-template>
-            </grid-column>
-            <grid-column field="CustomerEmail" title="@Loc["Admin.Inventory.Units.Customer"]"/>
-            <grid-column field="Quantity" title="@Loc["Admin.Inventory.Documents.Fields.Quantity"]" width="100"/>
-            <grid-column field="ShippedOn" title="@Loc["Admin.Inventory.Units.ShippedOn"]" width="130" format="{0:d}"/>
-        </admin-grid>
-    </admin-card>
-    <partial name="Partials/UnitHistory" model="@Url.Action("BatchHistoryList", "ProductUnit", new { area, id = Model.Id })"/>
-</admin-page>
+        @* plugins add tabs of their own to the strip by its name *@
+        <admin-tabstrip name="productbatch-edit" BindGrid="true">
+            <items>
+                <tabstrip-item text="@Loc["Admin.Inventory.Units.Info"]" tab-index="0">
+                    <content>
+                        <div>
+                            <admin-card>
+                                <dl class="row mb-0">
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Product"]</dt>
+                                    <dd class="col-sm-9"><a href="@Url.Action("Edit", "Product", new { area, id = Model.ProductId })">@Model.ProductName</a></dd>
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Warehouse"]</dt>
+                                    <dd class="col-sm-9">@Model.Warehouse</dd>
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]</dt>
+                                    <dd class="col-sm-9">@Model.ExpiryDate?.ToShortDateString() @Model.ExpiryStatus</dd>
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.Quantity"]</dt>
+                                    <dd class="col-sm-9">@Model.Quantity</dd>
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Documents.Fields.UnitCost"]</dt>
+                                    <dd class="col-sm-9">@Model.UnitCost</dd>
+                                    <dt class="col-sm-3">@Loc["Admin.Inventory.Units.Fields.ReceivedOn"]</dt>
+                                    <dd class="col-sm-9">
+                                        @Model.ReceivedOn.ToShortDateString()
+                                        @if (!string.IsNullOrEmpty(Model.ReceiptDocumentId))
+                                        {
+                                            <a href="@Url.Action("Edit", "InventoryDocument", new { area, id = Model.ReceiptDocumentId })">@Loc["Admin.Inventory.Units.Receipt"]</a>
+                                        }
+                                    </dd>
+                                </dl>
+                            </admin-card>
+                            @* what the back office tells about the batch, none of it required; the stock stays the ledger's *@
+                            <admin-card title="@Loc["Admin.Inventory.Units.Details"]">
+                                <div class="grand-fields grand-fields--2col">
+                                    <admin-field asp-for="LocationId" asp-items="Model.AvailableLocations"/>
+                                    <admin-field asp-for="ManufacturedOn">
+                                        <input asp-for="ManufacturedOn" type="date" class="form-control" asp-format="{0:yyyy-MM-dd}"/>
+                                    </admin-field>
+                                    <admin-field asp-for="Supplier"/>
+                                    <admin-field asp-for="SupplierBatchNumber"/>
+                                    <admin-field asp-for="CertificateNumber"/>
+                                    <admin-field asp-for="AdminComment">
+                                        <admin-textarea asp-for="AdminComment"></admin-textarea>
+                                    </admin-field>
+                                    <admin-field asp-for="CustomerComment">
+                                        <admin-textarea asp-for="CustomerComment"></admin-textarea>
+                                    </admin-field>
+                                </div>
+                            </admin-card>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                @* a recall: every shipment that kept units of the batch, a page at a time *@
+                <tabstrip-item text="@Loc["Admin.Inventory.Units.Recipients"]" tab-index="1">
+                    <content>
+                        <div>
+                            <admin-card flush>
+                                <admin-grid id="batchrecipients-grid"
+                                            read-url="@Url.Action("BatchRecipientList", "ProductUnit", new { area, id = Model.Id })">
+                                    <grid-column field="ShipmentNumber" title="@Loc["Admin.Inventory.Units.Shipment"]" width="110">
+                                        <cell-template>
+                                            <a class="text-decoration-none" href="@Url.Action("ShipmentDetails", "Shipment", new { area })/{{ ShipmentId }}">#{{ ShipmentNumber }}</a>
+                                        </cell-template>
+                                    </grid-column>
+                                    <grid-column field="OrderNumber" title="@Loc["Admin.Inventory.Units.Order"]" width="110">
+                                        <cell-template>
+                                            <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area })/{{ OrderId }}">#{{ OrderNumber }}</a>
+                                        </cell-template>
+                                    </grid-column>
+                                    <grid-column field="CustomerEmail" title="@Loc["Admin.Inventory.Units.Customer"]"/>
+                                    <grid-column field="Quantity" title="@Loc["Admin.Inventory.Documents.Fields.Quantity"]" width="100"/>
+                                    <grid-column field="ShippedOn" title="@Loc["Admin.Inventory.Units.ShippedOn"]" width="130" format="{0:d}"/>
+                                </admin-grid>
+                            </admin-card>
+                        </div>
+                    </content>
+                </tabstrip-item>
+                <tabstrip-item text="@Loc["Admin.Catalog.Products.StockHistory"]" tab-index="2">
+                    <content>
+                        <div>
+                            <partial name="Partials/UnitHistory" model="@Url.Action("BatchHistoryList", "ProductUnit", new { area, id = Model.Id })"/>
+                        </div>
+                    </content>
+                </tabstrip-item>
+            </items>
+        </admin-tabstrip>
+    </admin-page>
+</form>

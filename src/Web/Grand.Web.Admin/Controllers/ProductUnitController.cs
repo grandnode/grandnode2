@@ -31,7 +31,8 @@ public class ProductUnitController(
     IRequestTranslationService translationService,
     IInventoryDocumentViewModelService inventoryDocumentViewModelService,
     IAdminDataScope<Product> productScope,
-    ISettingService settingService)
+    ISettingService settingService,
+    IWarehouseLocationService locationService)
     : BaseProductUnitController(productUnitService, productService, warehouseService, dateTimeService,
         enumTranslationService, translationService, inventoryDocumentViewModelService, productScope,
-        settingService);
+        settingService, locationService);

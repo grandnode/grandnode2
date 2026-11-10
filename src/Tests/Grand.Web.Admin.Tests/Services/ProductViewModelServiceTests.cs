@@ -158,7 +158,8 @@ public class ProductViewModelServiceTests
             _scopeMock.Object,
             _stockMovementServiceMock.Object,
             _settingServiceMock.Object,
-            _productUnitServiceMock.Object);
+            _productUnitServiceMock.Object,
+            new Mock<IWarehouseLocationService>().Object);
     }
 
     private readonly Mock<IProductUnitService> _productUnitServiceMock = new();
