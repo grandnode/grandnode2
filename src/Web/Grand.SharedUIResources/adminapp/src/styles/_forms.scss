@@ -127,6 +127,11 @@ i.help:hover {
     border-color: var(--grand-form-border);
 }
 
+//_custom.scss gives every .form-control the 36px of a one-line input; a textarea is as tall as its rows
+textarea.form-control {
+    height: auto;
+}
+
 .form-control:hover:not(:disabled):not([readonly]):not(:focus),
 .form-select:hover:not(:disabled):not(:focus) {
     border-color: var(--grand-form-border-hover);
