@@ -334,9 +334,11 @@ public class InventoryDocumentViewModelService(
             return ([translationService.GetResource(InventoryDocumentErrors.UnitsNotTracked)], null);
 
         InventoryDocumentLine added = null;
+        //an adjustment takes stock out as well as in; every other document names what it moves
+        var negative = document.DocumentTypeId == InventoryDocumentType.Adjustment;
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
         {
-            foreach (var addLine in model.AddLines.Where(x => x.Quantity > 0))
+            foreach (var addLine in model.AddLines.Where(x => x.Quantity > 0 || (negative && x.Quantity < 0)))
                 if (product.ProductAttributeCombinations.FirstOrDefault(x => x.Id == addLine.CombinationId) is
                     { } combination)
                     added = AddLine(document, product, combination, addLine.Quantity);
@@ -344,7 +346,8 @@ public class InventoryDocumentViewModelService(
         else
         {
             //a product chosen in the picker is one of it; the quantity is typed on its line
-            var quantity = model.AddLines.FirstOrDefault()?.Quantity is > 0 and var typed ? typed : 1;
+            var typed = model.AddLines.FirstOrDefault()?.Quantity ?? 0;
+            var quantity = typed > 0 || (negative && typed < 0) ? typed : 1;
             added = AddLine(document, product, null, quantity);
         }
 

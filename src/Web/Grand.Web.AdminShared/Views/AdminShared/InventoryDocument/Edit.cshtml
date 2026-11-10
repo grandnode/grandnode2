@@ -8,6 +8,8 @@
         searchUrl = Url.Action("SearchProducts", new { area, id = Model.Id }),
         combinationsUrl = Url.Action("ProductCombinations", new { area }),
         documentId = Model.Id,
+        //an adjustment takes stock out as well as in: its quantities may be negative
+        negative = Model.DocumentTypeId == (int)Grand.Domain.Catalog.InventoryDocumentType.Adjustment,
         addUrl = Url.Action("AddLines", new { area }),
         placeholder = Loc["Admin.Inventory.Documents.AddProduct.Placeholder"].Value,
         combination = Loc["Admin.Catalog.Products.StockHistory.Combination"].Value,
@@ -160,7 +162,8 @@
                     return '<tr><td>' + cell(combination.Text) + '</td>' +
                         (skus ? '<td>' + cell(combination.Sku) + '</td>' : '') +
                         '<td class="text-end">' + cell(combination.Stock) + '</td>' +
-                        '<td><input class="form-control form-control-sm" type="number" min="0" style="max-width: 7rem"' +
+                        '<td><input class="form-control form-control-sm" type="number"' + (options.negative ? '' : ' min="0"') +
+                        ' style="max-width: 7rem"' +
                         ' data-combination="' + cell(combination.Id) + '"/></td></tr>';
                 }).join('') +
                 '</tbody></table></div>' +
@@ -181,7 +184,7 @@
                 var chosen = [];
                 element.querySelectorAll('[data-combination]').forEach(function (input) {
                     var quantity = parseInt(input.value, 10);
-                    if (quantity > 0) chosen.push({ id: input.getAttribute('data-combination'), quantity: quantity });
+                    if (quantity > 0 || (options.negative && quantity < 0)) chosen.push({ id: input.getAttribute('data-combination'), quantity: quantity });
                 });
                 if (chosen.length === 0) {
                     element.querySelector('[data-combination]').focus();
