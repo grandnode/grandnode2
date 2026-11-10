@@ -113,7 +113,7 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
                 QuantityOrdered = orderItem.Quantity,
                 QuantityShipped = shipmentItem.Quantity
             };
-            foreach (var unit in units.GetValueOrDefault(shipmentItem.Id) ?? [])
+            foreach (var unit in units.TryGetValue(shipmentItem.Id, out var shipped) ? shipped : [])
                 shipmentItemModel.Units.Add(new ShipmentDetailsModel.ShippedUnitModel {
                     Number = unit.Number,
                     Quantity = unit.Quantity,

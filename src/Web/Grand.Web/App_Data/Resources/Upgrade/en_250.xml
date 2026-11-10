@@ -1479,4 +1479,136 @@
 	<Resource Name="Order.WarrantyUntil" Area="Front">
 		<Value>Warranty until</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory" Area="Admin">
+		<Value>Inventory</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Info" Area="Admin">
+		<Value>Info</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Details" Area="Admin">
+		<Value>Details</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Updated" Area="Admin">
+		<Value>The details have been saved.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.Location" Area="Admin">
+		<Value>Location</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.Location.Hint" Area="Admin">
+		<Value>The place in the warehouse where it is kept. Locations are managed in Configuration &gt; Shipping &gt; Warehouse locations.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.ManufacturedOn" Area="Admin">
+		<Value>Manufactured on</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.Supplier" Area="Admin">
+		<Value>Supplier</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.SupplierBatchNumber" Area="Admin">
+		<Value>Supplier's batch number</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.SupplierBatchNumber.Hint" Area="Admin">
+		<Value>The number the supplier or manufacturer gave the batch, when it differs from the store's.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.CertificateNumber" Area="Admin">
+		<Value>Certificate number</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.CertificateNumber.Hint" Area="Admin">
+		<Value>The certificate of analysis or conformity the batch came with.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.SupplierWarrantyUntil" Area="Admin">
+		<Value>Supplier warranty until</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.SupplierWarrantyUntil.Hint" Area="Admin">
+		<Value>The warranty the supplier or manufacturer gives the store; the customer's warranty is set when the unit is shipped.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.Imei" Area="Admin">
+		<Value>IMEI</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.MacAddress" Area="Admin">
+		<Value>MAC address</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.FirmwareVersion" Area="Admin">
+		<Value>Firmware version</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.AdminComment" Area="Admin">
+		<Value>Admin comment</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.AdminComment.Hint" Area="Admin">
+		<Value>Seen only in the back office.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.CustomerComment" Area="Admin">
+		<Value>Comment for the customer</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Units.Fields.CustomerComment.Hint" Area="Admin">
+		<Value>Shown to the customer on the details of the shipment that shipped it.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations" Area="Admin">
+		<Value>Warehouse locations</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.AddNew" Area="Admin">
+		<Value>Add a new warehouse location</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.BackToList" Area="Admin">
+		<Value>back to warehouse location list</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.EditDetails" Area="Admin">
+		<Value>Edit warehouse location details</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Added" Area="Admin">
+		<Value>The new warehouse location has been added successfully.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Updated" Area="Admin">
+		<Value>The warehouse location has been updated successfully.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Deleted" Area="Admin">
+		<Value>The warehouse location has been deleted successfully.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.Warehouse" Area="Admin">
+		<Value>Warehouse</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.Warehouse.Required" Area="Admin">
+		<Value>Choose a warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.Code" Area="Admin">
+		<Value>Code</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.Code.Hint" Area="Admin">
+		<Value>The code written on the place: a zone, rack, shelf or bin, such as A-01-03.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.Code.Required" Area="Admin">
+		<Value>Enter the code.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.Name" Area="Admin">
+		<Value>Name</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.DisplayOrder" Area="Admin">
+		<Value>Display order</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.ShowUnitNumbersOnInvoices" Area="Admin">
+		<Value>Batches and serial numbers on order PDFs</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.ShowUnitNumbersOnInvoices.Hint" Area="Admin">
+		<Value>Lists under each product the batches and serial numbers the shipped shipments of the order shipped.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.ShowUnitNumbersOnPackagingSlips" Area="Admin">
+		<Value>Batches and serial numbers on packaging slips</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.ShowUnitNumbersOnPackagingSlips.Hint" Area="Admin">
+		<Value>Lists under each product the batches and serial numbers it ships.</Value>
+	</Resource>
+	<Resource Name="PDFInvoice.SerialNumbers" Area="Front">
+		<Value>Serial numbers: {0}</Value>
+	</Resource>
+	<Resource Name="PDFInvoice.Batches" Area="Front">
+		<Value>Batches: {0}</Value>
+	</Resource>
+	<Resource Name="Order.Shipments.Product(s).SerialNumber" Area="Front">
+		<Value>Serial number</Value>
+	</Resource>
+	<Resource Name="Order.Shipments.Product(s).Batch" Area="Front">
+		<Value>Batch</Value>
+	</Resource>
+	<Resource Name="Order.Shipments.Product(s).ExpiryDate" Area="Front">
+		<Value>expiry date</Value>
+	</Resource>
 </Language>
