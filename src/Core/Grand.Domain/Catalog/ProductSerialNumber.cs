@@ -68,4 +68,39 @@ public class ProductSerialNumber : BaseEntity
     ///     it is already applied
     /// </summary>
     public int StockRevision { get; set; }
+
+    //what the back office tells about the unit, all optional; the ledger never writes these
+
+    /// <summary>
+    ///     The place in the unit's warehouse where it is kept; a location of another warehouse is a stale one
+    /// </summary>
+    public string LocationId { get; set; }
+
+    /// <summary>
+    ///     The production date, a date without time
+    /// </summary>
+    public DateTime? ManufacturedOnUtc { get; set; }
+
+    public string Supplier { get; set; }
+
+    /// <summary>
+    ///     The end of the warranty the supplier or manufacturer gives the store, a date without time
+    /// </summary>
+    public DateTime? SupplierWarrantyUntilUtc { get; set; }
+
+    /// <summary>
+    ///     The IMEI of a device with a mobile modem
+    /// </summary>
+    public string Imei { get; set; }
+
+    public string MacAddress { get; set; }
+
+    public string FirmwareVersion { get; set; }
+
+    public string AdminComment { get; set; }
+
+    /// <summary>
+    ///     Shown to the customer who received the unit
+    /// </summary>
+    public string CustomerComment { get; set; }
 }

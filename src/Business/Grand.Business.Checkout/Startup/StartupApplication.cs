@@ -72,6 +72,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IPickupPointService, PickupPointService>();
         serviceCollection.AddScoped<IDeliveryDateService, DeliveryDateService>();
         serviceCollection.AddScoped<IWarehouseService, WarehouseService>();
+        serviceCollection.AddScoped<IWarehouseLocationService, WarehouseLocationService>();
         serviceCollection.AddScoped<IShippingMethodService, ShippingMethodService>();
     }
 

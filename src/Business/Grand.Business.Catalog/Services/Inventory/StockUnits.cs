@@ -425,7 +425,24 @@ public sealed class StockUnits(
                     await serialNumberRepository.InsertAsync(serialNumber);
                     break;
                 case ProductSerialNumber serialNumber:
-                    await serialNumberRepository.UpdateAsync(serialNumber);
+                    //only what the ledger changes: the location, the device fields and the comments are written by
+                    //the back office without the product's lock
+                    await serialNumberRepository.UpdateOneAsync(x => x.Id == serialNumber.Id,
+                        UpdateBuilder<ProductSerialNumber>.Create()
+                            .Set(x => x.StatusId, serialNumber.StatusId)
+                            .Set(x => x.CombinationId, serialNumber.CombinationId)
+                            .Set(x => x.Attributes, serialNumber.Attributes)
+                            .Set(x => x.WarehouseId, serialNumber.WarehouseId)
+                            .Set(x => x.StoreId, serialNumber.StoreId)
+                            .Set(x => x.UnitCost, serialNumber.UnitCost)
+                            .Set(x => x.ReceivedOnUtc, serialNumber.ReceivedOnUtc)
+                            .Set(x => x.ReceiptDocumentId, serialNumber.ReceiptDocumentId)
+                            .Set(x => x.OrderId, serialNumber.OrderId)
+                            .Set(x => x.OrderItemId, serialNumber.OrderItemId)
+                            .Set(x => x.ShipmentId, serialNumber.ShipmentId)
+                            .Set(x => x.ShippedOnUtc, serialNumber.ShippedOnUtc)
+                            .Set(x => x.WarrantyUntilUtc, serialNumber.WarrantyUntilUtc)
+                            .Set(x => x.StockRevision, serialNumber.StockRevision));
                     break;
             }
     }
@@ -766,7 +783,14 @@ public sealed class StockUnits(
             ExpiryDateUtc = known != null ? known.ExpiryDateUtc : Date(change.ExpiryDateUtc),
             UnitCost = known != null ? known.UnitCost : change.UnitCost,
             ReceivedOnUtc = DateTime.UtcNow,
-            ReceiptDocumentId = known != null ? known.ReceiptDocumentId : ReceiptDocument(change)
+            ReceiptDocumentId = known != null ? known.ReceiptDocumentId : ReceiptDocument(change),
+            //what is known of the batch goes with it; a location is a place in the other warehouse
+            ManufacturedOnUtc = known?.ManufacturedOnUtc,
+            Supplier = known?.Supplier,
+            SupplierBatchNumber = known?.SupplierBatchNumber,
+            CertificateNumber = known?.CertificateNumber,
+            AdminComment = known?.AdminComment,
+            CustomerComment = known?.CustomerComment
         };
         set.Batches.Add(batch);
         set.Added.Add(batch);
