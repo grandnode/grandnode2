@@ -28,7 +28,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
     [TestInitialize]
     public void Init()
     {
-        _order = new Order { Id = "o1", CustomerLanguageId = "customer-language" };
+        _order = new Order { Id = "o1", StoreId = "order-store", CustomerLanguageId = "customer-language" };
         _order.OrderItems.Add(new OrderItem { Id = "a", ProductId = "p", Quantity = 5 });
 
         var workContext = new Mock<IWorkContext>();
@@ -70,7 +70,8 @@ public class MerchandiseReturnSubmitCommandHandlerTests
 
         //Assert
         Assert.AreSame(_order, _request.Order);
-        Assert.AreEqual("s1", _request.StoreId);
+        //the order's store, whose staff handle the return, not the store the request came through
+        Assert.AreEqual("order-store", _request.StoreId);
         Assert.AreEqual("c1", _request.CustomerId);
         Assert.AreEqual("owner", _request.OwnerId);
         Assert.AreEqual("l1", _request.LanguageId);

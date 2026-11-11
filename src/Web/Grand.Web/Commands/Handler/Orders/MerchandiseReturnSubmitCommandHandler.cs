@@ -37,7 +37,8 @@ public class MerchandiseReturnSubmitCommandHandler
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var result = await _merchandiseReturnWorkflowService.Submit(new MerchandiseReturnSubmitRequest {
             Order = request.Order,
-            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
+            //the store the order was placed in, whose staff handle its returns
+            StoreId = request.Order.StoreId,
             CustomerId = customer.Id,
             OwnerId = await _groupService.IsOwner(customer) ? customer.Id : customer.OwnerId,
             LanguageId = _contextAccessor.WorkContext.WorkingLanguage.Id,

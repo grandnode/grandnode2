@@ -79,6 +79,15 @@ public class MerchandiseReturnController : BasePublicController
         });
     }
 
+    /// <summary>
+    ///     An order is returned through the store it was placed in: a customer whose account every store shares
+    ///     would otherwise show the order to the staff of another store
+    /// </summary>
+    private bool OfCurrentStore(Order order)
+    {
+        return order.StoreId == _contextAccessor.StoreContext.CurrentStore.Id;
+    }
+
     private async Task<Address> PrepareAddress(MerchandiseReturnModel model)
     {
         var address = new Address();
@@ -124,7 +133,8 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturn(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) ||
+            !OfCurrentStore(order))
             return Challenge();
 
         if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
@@ -142,7 +152,8 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
     {
         var order = await _orderService.GetOrderById(model.OrderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) ||
+            !OfCurrentStore(order))
             return Challenge();
 
         //what is left to return is checked once, when the return is saved
