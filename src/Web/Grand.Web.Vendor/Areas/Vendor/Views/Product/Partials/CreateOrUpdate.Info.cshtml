@@ -414,6 +414,7 @@
                 <admin-textarea asp-for="@Model.Locales[item].ShortDescription"></admin-textarea>
             </admin-field>
             <admin-field asp-for="@Model.Locales[item].FullDescription" asp-template="Editor"/>
+            <admin-field asp-for="@Model.Locales[item].Flag"/>
             <input asp-for="@Model.Locales[item].LanguageId" type="hidden"/>
         </div>;
 }
