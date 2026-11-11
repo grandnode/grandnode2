@@ -38,8 +38,11 @@ public class GetReturnableQuantitiesQueryHandler
         //validate allowed number of days
         if (_orderSettings.NumberOfDaysMerchandiseReturnAvailable > 0)
         {
-            var daysPassed = (DateTime.UtcNow - request.Order.CreatedOnUtc).TotalDays;
-            if (daysPassed >= _orderSettings.NumberOfDaysMerchandiseReturnAvailable)
+            var periodStart = _orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered
+                ? delivered.Max(x => x.DeliveryDateUtc)
+                : request.Order.CreatedOnUtc;
+            if (periodStart.HasValue && (DateTime.UtcNow - periodStart.Value).TotalDays >=
+                _orderSettings.NumberOfDaysMerchandiseReturnAvailable)
                 return quantities;
         }
 

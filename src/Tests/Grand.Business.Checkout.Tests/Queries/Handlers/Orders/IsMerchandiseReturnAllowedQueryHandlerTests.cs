@@ -108,4 +108,57 @@ public class IsMerchandiseReturnAllowedQueryHandlerTests
         //Assert
         Assert.IsTrue(result);
     }
+
+    [TestMethod]
+    public async Task Handle_PeriodFromDelivery_CountsTheDaysFromTheDelivery()
+    {
+        //Arrange - placed 40 days ago, delivered 2 days ago, 30 days to return
+        _order.CreatedOnUtc = DateTime.UtcNow.AddDays(-40);
+        _shipment.DeliveryDateUtc = DateTime.UtcNow.AddDays(-2);
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 30;
+        _orderSettings.MerchandiseReturnPeriodStart = MerchandiseReturnPeriodStart.Delivered;
+        SetupReturns();
+
+        //Act
+        var result = await _handler.Handle(new IsMerchandiseReturnAllowedQuery { Order = _order },
+            CancellationToken.None);
+
+        //Assert
+        Assert.IsTrue(result);
+    }
+
+    [TestMethod]
+    public async Task Handle_PeriodFromDeliveryElapsed_ReturnsFalse()
+    {
+        //Arrange
+        _order.CreatedOnUtc = DateTime.UtcNow.AddDays(-40);
+        _shipment.DeliveryDateUtc = DateTime.UtcNow.AddDays(-31);
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 30;
+        _orderSettings.MerchandiseReturnPeriodStart = MerchandiseReturnPeriodStart.Delivered;
+        SetupReturns();
+
+        //Act
+        var result = await _handler.Handle(new IsMerchandiseReturnAllowedQuery { Order = _order },
+            CancellationToken.None);
+
+        //Assert
+        Assert.IsFalse(result);
+    }
+
+    [TestMethod]
+    public async Task Handle_PeriodFromOrderPlaced_IsTheDefault()
+    {
+        //Arrange - delivered recently, but the order was placed too long ago
+        _order.CreatedOnUtc = DateTime.UtcNow.AddDays(-40);
+        _shipment.DeliveryDateUtc = DateTime.UtcNow.AddDays(-2);
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 30;
+        SetupReturns();
+
+        //Act
+        var result = await _handler.Handle(new IsMerchandiseReturnAllowedQuery { Order = _order },
+            CancellationToken.None);
+
+        //Assert
+        Assert.IsFalse(result);
+    }
 }

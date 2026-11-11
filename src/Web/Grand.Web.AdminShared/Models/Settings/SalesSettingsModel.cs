@@ -56,6 +56,9 @@ public class SalesSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.Order.NumberOfDaysMerchandiseReturnAvailable")]
         public int NumberOfDaysMerchandiseReturnAvailable { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnPeriodStart")]
+        public MerchandiseReturnPeriodStart MerchandiseReturnPeriodStart { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnFees")]
         public MerchandiseReturnFees MerchandiseReturnFees { get; set; }
 
