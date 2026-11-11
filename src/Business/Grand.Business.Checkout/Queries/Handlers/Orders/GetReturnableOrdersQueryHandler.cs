@@ -44,9 +44,8 @@ public class GetReturnableOrdersQueryHandler : IRequestHandler<GetReturnableOrde
         var utcNow = DateTime.UtcNow;
         var days = _orderSettings.NumberOfDaysMerchandiseReturnAvailable;
         var fromDelivery = _orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered;
-        var orders = request.Orders.Where(x => !x.Deleted &&
-                                               !(days > 0 && !fromDelivery &&
-                                                 (utcNow - x.CreatedOnUtc).TotalDays >= days)).ToList();
+        var orders = request.Orders
+            .Where(x => !x.Deleted && !ReturnableQuantities.PeriodEnded(x, days, fromDelivery, utcNow)).ToList();
         if (orders.Count == 0)
             return returnable;
 
@@ -69,15 +68,16 @@ public class GetReturnableOrdersQueryHandler : IRequestHandler<GetReturnableOrde
         if (productIds.Count == 0)
             return returnable;
 
-        var notReturnable = (await _productRepository.ToListAsync(_productRepository.Table
-                .Where(x => productIds.Contains(x.Id)).Select(x => new { x.Id, x.NotReturnable }), cancellationToken))
-            .ToDictionary(x => x.Id, x => x.NotReturnable);
-        //a product not in the catalog any more may be in its archive; one that is in neither cannot be returned
-        foreach (var productId in productIds.Where(x => !notReturnable.ContainsKey(x)))
-            notReturnable[productId] = (await _productService.GetProductByIdIncludeArch(productId))?.NotReturnable ?? true;
+        var products = (await _productRepository.ToListAsync(_productRepository.Table
+                .Where(x => productIds.Contains(x.Id)), cancellationToken))
+            .ToDictionary(x => x.Id);
+        //a product not in the catalog any more may be in its archive
+        foreach (var productId in productIds.Where(x => !products.ContainsKey(x)))
+            products[productId] = await _productService.GetProductByIdIncludeArch(productId);
 
         foreach (var order in orders)
-            if (order.OrderItems.Any(item => left[order.Id][item.Id] > 0 && !notReturnable[item.ProductId]))
+            if (order.OrderItems.Any(item =>
+                    left[order.Id][item.Id] > 0 && ReturnableQuantities.MayBeReturned(products[item.ProductId])))
                 returnable.Add(order.Id);
 
         return returnable;

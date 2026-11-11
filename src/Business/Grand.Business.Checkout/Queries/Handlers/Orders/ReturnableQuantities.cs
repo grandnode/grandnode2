@@ -1,4 +1,5 @@
 using Grand.Business.Core.Extensions;
+using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 
@@ -19,7 +20,7 @@ internal static class ReturnableQuantities
         IEnumerable<MerchandiseReturn> merchandiseReturns, int days, bool fromDelivery, DateTime utcNow)
     {
         var quantities = order.OrderItems.ToDictionary(x => x.Id, _ => 0);
-        if (days > 0 && !fromDelivery && (utcNow - order.CreatedOnUtc).TotalDays >= days)
+        if (PeriodEnded(order, days, fromDelivery, utcNow))
             return quantities;
 
         //each shipment has its own days, counted from its delivery
@@ -38,6 +39,24 @@ internal static class ReturnableQuantities
         }
 
         return quantities;
+    }
+
+    /// <summary>
+    ///     Whether the return period, counted from the order date, has ended: nothing of the order can be returned, and
+    ///     its shipments and returns need not be read
+    /// </summary>
+    public static bool PeriodEnded(Order order, int days, bool fromDelivery, DateTime utcNow)
+    {
+        return days > 0 && !fromDelivery && (utcNow - order.CreatedOnUtc).TotalDays >= days;
+    }
+
+    /// <summary>
+    ///     Whether the customer may return the product: not one marked not returnable, nor one in neither the catalog
+    ///     nor its archive
+    /// </summary>
+    public static bool MayBeReturned(Product product)
+    {
+        return product is { NotReturnable: false };
     }
 
     private static int DeliveredQuantity(IEnumerable<Shipment> shipments, string orderItemId)

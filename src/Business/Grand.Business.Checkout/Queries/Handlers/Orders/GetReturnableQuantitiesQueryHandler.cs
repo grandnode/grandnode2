@@ -34,7 +34,7 @@ public class GetReturnableQuantitiesQueryHandler
         //validate allowed number of days
         var days = request.ForStaff ? 0 : _orderSettings.NumberOfDaysMerchandiseReturnAvailable;
         var fromDelivery = _orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered;
-        if (days > 0 && !fromDelivery && (DateTime.UtcNow - request.Order.CreatedOnUtc).TotalDays >= days)
+        if (ReturnableQuantities.PeriodEnded(request.Order, days, fromDelivery, DateTime.UtcNow))
             return quantities;
 
         var delivered = (await _shipmentService.GetShipmentsByOrder(request.Order.Id))
@@ -54,12 +54,9 @@ public class GetReturnableQuantitiesQueryHandler
             if (computed[item.Id] <= 0)
                 continue;
 
-            if (!request.ForStaff)
-            {
-                var product = await _productService.GetProductByIdIncludeArch(item.ProductId);
-                if (product == null || product.NotReturnable)
-                    continue;
-            }
+            if (!request.ForStaff &&
+                !ReturnableQuantities.MayBeReturned(await _productService.GetProductByIdIncludeArch(item.ProductId)))
+                continue;
 
             quantities[item.Id] = computed[item.Id];
         }
