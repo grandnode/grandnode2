@@ -2,6 +2,7 @@ extern alias StoreHost;
 extern alias VendorHost;
 
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Vendors;
@@ -42,6 +43,7 @@ public class BaseMerchandiseReturnControllerTests
     protected Mock<IMerchandiseReturnViewModelService> _merchandiseReturnViewModelServiceMock;
     protected Mock<IOrderService> _orderServiceMock;
     protected Mock<IAdminDataScope<MerchandiseReturn>> _scopeMock;
+    protected Mock<IRequestTranslationService> _translationServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -52,12 +54,12 @@ public class BaseMerchandiseReturnControllerTests
         _scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
 
-        var translationServiceMock = new Mock<IRequestTranslationService>();
-        translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
+        _translationServiceMock = new Mock<IRequestTranslationService>();
+        _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
 
         _controller = new TestMerchandiseReturnController(
             _merchandiseReturnViewModelServiceMock.Object,
-            translationServiceMock.Object,
+            _translationServiceMock.Object,
             _merchandiseReturnServiceMock.Object,
             _orderServiceMock.Object,
             _scopeMock.Object);
@@ -348,6 +350,74 @@ public class BaseMerchandiseReturnControllerTests
         var redirect = result as RedirectToActionResult;
         Assert.IsNotNull(redirect);
         Assert.AreEqual("List", redirect.ActionName);
+    }
+
+    [TestMethod]
+    public async Task EditPost_StatusChangeRefused_ShowsPrefixedErrorAndRedirectsToEdit()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+        _merchandiseReturnViewModelServiceMock
+            .Setup(v => v.UpdateMerchandiseReturnModel(entity, It.IsAny<MerchandiseReturnModel>(),
+                It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
+            .ReturnsAsync((entity, MerchandiseReturnErrors.StatusChangeNotAllowed));
+
+        var result = await _controller.Edit(
+            new MerchandiseReturnModel { Id = "mr1", ChangeStatusTo = (int)MerchandiseReturnStatus.Completed },
+            false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            new Grand.Domain.Orders.OrderSettings());
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        _translationServiceMock.Verify(t => t.GetResource("Vendor.Orders.MerchandiseReturns.StatusChangeNotAllowed"),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EditPost_StatusChanged_RedirectsToEditWithSuccess()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
+        _merchandiseReturnViewModelServiceMock
+            .Setup(v => v.UpdateMerchandiseReturnModel(entity, It.IsAny<MerchandiseReturnModel>(),
+                It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
+            .ReturnsAsync((entity, (string)null));
+
+        var result = await _controller.Edit(
+            new MerchandiseReturnModel { Id = "mr1", ChangeStatusTo = (int)MerchandiseReturnStatus.Accepted },
+            false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            new Grand.Domain.Orders.OrderSettings());
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.MerchandiseReturns.StatusChanged"),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Delete_Refused_ShowsPrefixedError()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
+        _merchandiseReturnViewModelServiceMock.Setup(v => v.DeleteMerchandiseReturn(entity))
+            .ReturnsAsync(MerchandiseReturnErrors.Busy);
+
+        await _controller.Delete("mr1");
+
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.MerchandiseReturns.Busy"), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.MerchandiseReturns.Deleted"), Times.Never);
     }
 
     // --- Delete (POST) ---------------------------------------------------------------------------

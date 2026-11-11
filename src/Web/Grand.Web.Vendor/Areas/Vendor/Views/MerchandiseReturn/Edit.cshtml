@@ -14,6 +14,22 @@
                 back-url="@Url.Action("List")"
                 back-text="@Loc["Vendor.Orders.MerchandiseReturns.BackToList"]">
         <page-actions>
+            @* one button per status the return may change to; each saves the form first and tells the customer *@
+            @foreach (var status in Model.NextStatuses)
+            {
+                if (status == (int)MerchandiseReturnStatus.Rejected)
+                {
+                    <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                            data-bs-target="#merchandisereturn-reject" aria-expanded="false" aria-controls="merchandisereturn-reject">
+                        <i class="bi bi-x-circle"></i> @Loc["Vendor.Orders.MerchandiseReturns.ChangeStatus.Rejected"]
+                    </button>
+                    continue;
+                }
+                <button class="btn btn-outline-secondary" type="submit" name="ChangeStatusTo" value="@status"
+                        data-grand-confirm="@(status == (int)MerchandiseReturnStatus.Cancelled ? Loc["Vendor.Orders.MerchandiseReturns.ConfirmCancel"].Value : null)">
+                    @Loc[$"Vendor.Orders.MerchandiseReturns.ChangeStatus.{(MerchandiseReturnStatus)status}"]
+                </button>
+            }
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc["Vendor.Common.SaveContinue"]
             </button>
@@ -26,6 +42,24 @@
             </admin-action-menu>
             <vc:vendor-widget widget-zone="vendor_merchandisereturn_details_buttons" additional-data="Model"/>
         </page-actions>
+
+        @if (Model.NextStatuses.Contains((int)MerchandiseReturnStatus.Rejected))
+        {
+            @* rejecting asks why: the reason is shown to the customer with the return *@
+            <div class="collapse" id="merchandisereturn-reject">
+                <admin-card>
+                    <div class="grand-fields">
+                        <admin-field asp-for="ChangeStatusNote">
+                            <admin-textarea asp-for="ChangeStatusNote"></admin-textarea>
+                        </admin-field>
+                    </div>
+                    <button class="btn btn-outline-danger" type="submit" name="ChangeStatusTo"
+                            value="@((int)MerchandiseReturnStatus.Rejected)">
+                        <i class="bi bi-x-circle"></i> @Loc["Vendor.Orders.MerchandiseReturns.ChangeStatus.Rejected"]
+                    </button>
+                </admin-card>
+            </div>
+        }
 
         <partial name="Partials/CreateOrUpdate" model="Model"/>
     </admin-page>

@@ -131,6 +131,18 @@ public abstract class BaseMerchandiseReturnController(
 
             var (updated, error) = await MerchandiseReturnViewModelService.UpdateMerchandiseReturnModel(
                 merchandiseReturn, model, customAddressAttributes);
+
+            //a status button comes back to the return, whether the change was made or refused
+            if (model.ChangeStatusTo.HasValue)
+            {
+                if (error == null)
+                    Success(TranslationService.GetResource(
+                        $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.StatusChanged"));
+                else
+                    Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
+                return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
+            }
+
             if (error == null)
             {
                 Success(TranslationService.GetResource(
@@ -141,8 +153,6 @@ public abstract class BaseMerchandiseReturnController(
             }
 
             Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
-            //show the status that is stored, not the refused one the form posted
-            ModelState.Remove(nameof(model.MerchandiseReturnStatusId));
         }
 
         await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
@@ -163,8 +173,12 @@ public abstract class BaseMerchandiseReturnController(
 
         if (ModelState.IsValid)
         {
-            await merchandiseReturnViewModelService.DeleteMerchandiseReturn(merchandiseReturn);
-            Success(translationService.GetResource($"{scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Deleted"));
+            var error = await merchandiseReturnViewModelService.DeleteMerchandiseReturn(merchandiseReturn);
+            if (error == null)
+                Success(translationService.GetResource(
+                    $"{scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Deleted"));
+            else
+                Error(translationService.GetResource($"{scope.ResourceKeyPrefix}.{error}"));
         }
 
         return RedirectToAction("List");

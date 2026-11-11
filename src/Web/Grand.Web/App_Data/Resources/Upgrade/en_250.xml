@@ -1668,4 +1668,58 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.NotFound" Area="Vendor">
 		<Value>The merchandise return was not found.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Pending" Area="Admin">
+		<Value>Reopen</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Accepted" Area="Admin">
+		<Value>Accept</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Received" Area="Admin">
+		<Value>Mark as received</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Rejected" Area="Admin">
+		<Value>Reject</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Cancelled" Area="Admin">
+		<Value>Cancel return</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Completed" Area="Admin">
+		<Value>Complete</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatusNote" Area="Admin">
+		<Value>Reason shown to the customer</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.StatusChanged" Area="Admin">
+		<Value>The status has been changed and the customer notified.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ConfirmCancel" Area="Admin">
+		<Value>Cancel this return? The customer gets the quantity back to return again.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Pending" Area="Vendor">
+		<Value>Reopen</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Accepted" Area="Vendor">
+		<Value>Accept</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Received" Area="Vendor">
+		<Value>Mark as received</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Rejected" Area="Vendor">
+		<Value>Reject</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Cancelled" Area="Vendor">
+		<Value>Cancel return</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Completed" Area="Vendor">
+		<Value>Complete</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatusNote" Area="Vendor">
+		<Value>Reason shown to the customer</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.StatusChanged" Area="Vendor">
+		<Value>The status has been changed and the customer notified.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ConfirmCancel" Area="Vendor">
+		<Value>Cancel this return? The customer gets the quantity back to return again.</Value>
+	</Resource>
 </Language>

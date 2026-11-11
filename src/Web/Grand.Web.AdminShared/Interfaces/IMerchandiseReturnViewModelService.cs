@@ -14,20 +14,22 @@ public interface IMerchandiseReturnViewModelService
         MerchandiseReturnListModel model, int pageIndex, int pageSize);
 
     Task<AddressModel> PrepareAddressModel(AddressModel model, Address address, bool excludeProperties);
-    Task NotifyCustomer(MerchandiseReturn merchandiseReturn);
     MerchandiseReturnListModel PrepareReturnRequestListModel();
 
     Task<IList<MerchandiseReturnModel.MerchandiseReturnItemModel>> PrepareMerchandiseReturnItemModel(
         string merchandiseReturnId);
 
     /// <summary>
-    ///     Saves the edit form. When the status change is refused nothing is saved, and Error is the reason as a
-    ///     resource key without the panel's prefix
+    ///     Saves the edit form, then changes the status when a status button posted it (ChangeStatusTo). Error is
+    ///     why the form or the status was not saved, as a resource key without the panel's prefix
     /// </summary>
     Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
         MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes);
 
-    Task DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn);
+    /// <summary>
+    ///     Deletes the return; the reason it was not, as a resource key without the panel's prefix, or null
+    /// </summary>
+    Task<string> DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn);
 
     Task<IList<MerchandiseReturnModel.MerchandiseReturnNote>> PrepareMerchandiseReturnNotes(
         MerchandiseReturn merchandiseReturn);
