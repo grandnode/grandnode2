@@ -558,4 +558,7 @@
 	<Resource Name="Admin.Settings.GeneralCommon.DefaultStoreTimeZone.Server" Area="Admin">
 		<Value>Server time zone</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.QuantityExceeded" Area="Front">
+		<Value>Your merchandise return has not been submitted because the quantity is more than you can still return.</Value>
+	</Resource>
 </Language>
