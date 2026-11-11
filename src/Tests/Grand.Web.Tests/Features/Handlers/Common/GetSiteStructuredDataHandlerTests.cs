@@ -88,4 +88,27 @@ public class GetSiteStructuredDataHandlerTests
         Assert.IsNull(result.ReturnPolicy.ReturnFees);
         Assert.IsNull(result.ReturnPolicy.ReturnMethod);
     }
+
+    [TestMethod]
+    public async Task Handle_DaysCountedFromDelivery_PublishesTheDays()
+    {
+        _orderSettings.MerchandiseReturnsEnabled = true;
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 14;
+        _orderSettings.MerchandiseReturnPeriodStart = MerchandiseReturnPeriodStart.Delivered;
+
+        var result = await _handler.Handle(new GetSiteStructuredData { Store = _store }, default);
+
+        Assert.AreEqual(14, result.ReturnPolicy.ReturnDays);
+    }
+
+    [TestMethod]
+    public async Task Handle_DaysCountedFromOrderPlaced_LeavesTheDaysOut()
+    {
+        _orderSettings.MerchandiseReturnsEnabled = true;
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 14;
+
+        var result = await _handler.Handle(new GetSiteStructuredData { Store = _store }, default);
+
+        Assert.IsNull(result.ReturnPolicy.ReturnDays);
+    }
 }

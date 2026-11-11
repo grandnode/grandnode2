@@ -1614,4 +1614,31 @@
 	<Resource Name="Admin.Configuration.Shipping.WarehouseLocations.Fields.Code.Unique" Area="Admin">
 		<Value>The warehouse already has a location with this code.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnPeriodStart" Area="Admin">
+		<Value>Days to return counted from</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnPeriodStart.Hint" Area="Admin">
+		<Value>The moment the number of days that the merchandise return is available is counted from: the order was placed, or the shipment was delivered - then each shipment of the order has its own days.</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnPeriodStart.OrderPlaced" Area="Common">
+		<Value>Order placed</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnPeriodStart.Delivered" Area="Common">
+		<Value>Shipment delivered</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.QuantityExceeded" Area="Front">
+		<Value>Your merchandise return has not been submitted because the quantity is more than you can still return.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.QuantityExceeded" Area="Admin">
+		<Value>The merchandise return has not been saved: set back to this status, it would take more than is left to return of the order.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.QuantityExceeded" Area="Vendor">
+		<Value>The merchandise return has not been saved: set back to this status, it would take more than is left to return of the order.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.AlreadyReceived" Area="Admin">
+		<Value>The merchandise return has not been saved: its goods were already received to stock, so it cannot be rejected or cancelled.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.AlreadyReceived" Area="Vendor">
+		<Value>The merchandise return has not been saved: its goods were already received to stock, so it cannot be rejected or cancelled.</Value>
+	</Resource>
 </Language>

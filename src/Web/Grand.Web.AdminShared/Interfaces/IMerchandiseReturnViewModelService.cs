@@ -20,7 +20,11 @@ public interface IMerchandiseReturnViewModelService
     Task<IList<MerchandiseReturnModel.MerchandiseReturnItemModel>> PrepareMerchandiseReturnItemModel(
         string merchandiseReturnId);
 
-    Task<MerchandiseReturn> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
+    /// <summary>
+    ///     Saves the edit form. When the status change is refused nothing is saved, and Error is the reason as a
+    ///     resource key without the panel's prefix
+    /// </summary>
+    Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
         MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes);
 
     Task DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn);

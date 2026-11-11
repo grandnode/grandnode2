@@ -319,7 +319,8 @@ public class SettingsMappingTests : VerifyBase
     {
         var model = new SalesSettingsModel.OrderSettingsModel {
             IsReOrderAllowed = true,
-            AnonymousCheckoutAllowed = true
+            AnonymousCheckoutAllowed = true,
+            MerchandiseReturnPeriodStart = MerchandiseReturnPeriodStart.Delivered
         };
         return Verify(_mapper.Map<OrderSettings>(model));
     }

@@ -86,6 +86,11 @@ public class OrderSettings : ISettings
     public int NumberOfDaysMerchandiseReturnAvailable { get; set; }
 
     /// <summary>
+    ///     Gets or sets the moment the days of NumberOfDaysMerchandiseReturnAvailable are counted from
+    /// </summary>
+    public MerchandiseReturnPeriodStart MerchandiseReturnPeriodStart { get; set; }
+
+    /// <summary>
     ///     Gets or sets who pays for a merchandise return. Optional - informational only, published in the
     ///     store's structured data (MerchantReturnPolicy.returnFees); nothing in checkout enforces it
     /// </summary>

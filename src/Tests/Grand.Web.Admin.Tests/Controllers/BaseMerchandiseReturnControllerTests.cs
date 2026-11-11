@@ -337,7 +337,7 @@ public class BaseMerchandiseReturnControllerTests
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
         _merchandiseReturnViewModelServiceMock
             .Setup(v => v.UpdateMerchandiseReturnModel(entity, It.IsAny<MerchandiseReturnModel>(), It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
-            .ReturnsAsync(entity);
+            .ReturnsAsync((entity, (string)null));
         var orderSettings = new Grand.Domain.Orders.OrderSettings { MerchandiseReturns_AllowToSpecifyPickupAddress = false };
 
         var result = await _controller.Edit(new MerchandiseReturnModel { Id = "mr1" }, false,

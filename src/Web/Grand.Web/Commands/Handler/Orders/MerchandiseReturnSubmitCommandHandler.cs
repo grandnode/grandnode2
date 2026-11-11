@@ -1,8 +1,9 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -17,28 +18,62 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     private readonly LanguageSettings _languageSettings;
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IMerchandiseReturnMessageProviderService _merchandiseReturnMessageProviderService;
-    private readonly IProductService _productService;
+    private readonly IMediator _mediator;
     private readonly IContextAccessor _contextAccessor;
+    private readonly IResourceLock _resourceLock;
 
 
     public MerchandiseReturnSubmitCommandHandler(IContextAccessor contextAccessor,
-        IProductService productService,
+        IMediator mediator,
         IMerchandiseReturnService merchandiseReturnService,
         IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
         IGroupService groupService,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        IResourceLock resourceLock)
     {
         _contextAccessor = contextAccessor;
-        _productService = productService;
+        _mediator = mediator;
         _merchandiseReturnService = merchandiseReturnService;
         _merchandiseReturnMessageProviderService = merchandiseReturnMessageProviderService;
         _groupService = groupService;
         _languageSettings = languageSettings;
+        _resourceLock = resourceLock;
     }
 
     public async Task<MerchandiseReturn> Handle(
         MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
     {
+        //two returns submitted at the same time for one order are checked and inserted one after the other
+        MerchandiseReturn rr;
+        await using (await _resourceLock.Acquire([MerchandiseReturnExtensions.QuantityLockKey(request.Order.Id)],
+                         cancellationToken))
+        {
+            rr = await InsertMerchandiseReturn(request, cancellationToken);
+        }
+
+        if (rr == null)
+            return null;
+
+        //notify store owner here (email)
+        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
+            _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
+        //notify customer
+        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
+            request.Order.CustomerLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
+
+        return rr;
+    }
+
+    private async Task<MerchandiseReturn> InsertMerchandiseReturn(
+        MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
+    {
+        //never more than can still be returned, also when another return was submitted in the meantime: the
+        //customer gets the quantity they asked for or nothing, never a smaller return
+        var returnable = await _mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order },
+            cancellationToken);
+        if (request.Model.Items.Any(x => x.Quantity > returnable.GetValueOrDefault(x.Id)))
+            return null;
+
         var rr = new MerchandiseReturn {
             StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
             OrderId = request.Order.Id,
@@ -58,14 +93,11 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
 
         foreach (var orderItem in request.Order.OrderItems)
         {
-            var product = await _productService.GetProductById(orderItem.ProductId);
-            if (product.NotReturnable) continue;
-
-            var quantity = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity;
+            var quantity = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity ?? 0;
             var rrrId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnReasonId;
             var rraId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnActionId;
 
-            if (quantity is not > 0) continue;
+            if (quantity <= 0) continue;
 
             var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(rrrId);
             var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(rraId);
@@ -76,21 +108,16 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
                 ReasonForReturn = rrr != null
                     ? rrr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
                     : "not available",
-                Quantity = quantity.Value,
+                Quantity = quantity,
                 OrderItemId = orderItem.Id
             });
             rr.VendorId = orderItem.VendorId;
         }
 
+        if (rr.MerchandiseReturnItems.Count == 0)
+            return null;
+
         await _merchandiseReturnService.InsertMerchandiseReturn(rr);
-
-        //notify store owner here (email)
-        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
-            _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
-        //notify customer
-        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
-            request.Order.CustomerLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
-
         return rr;
     }
 }
