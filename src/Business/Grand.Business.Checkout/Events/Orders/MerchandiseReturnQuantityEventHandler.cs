@@ -4,6 +4,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
+using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Events.Orders;
@@ -53,6 +54,7 @@ public class MerchandiseReturnQuantityEventHandler :
 
         var merchandiseReturns = (await _mediator.Send(
             new GetMerchandiseReturnQuery { OrderId = order.Id }, cancellationToken)).ToList();
+        var changed = false;
         foreach (var orderItem in order.OrderItems)
         {
             var returnQty = merchandiseReturns.ReturnedQuantity(orderItem.Id);
@@ -62,6 +64,10 @@ public class MerchandiseReturnQuantityEventHandler :
             orderItem.ReturnQty = returnQty;
             await _orderRepository.UpdateCollectionFieldItem(order.Id, x => x.OrderItems, x => x.Id == orderItem.Id,
                 orderItem);
+            changed = true;
         }
+
+        if (changed)
+            await _mediator.EntityUpdated(order);
     }
 }
