@@ -28,8 +28,17 @@
                     </button>
                     continue;
                 }
-                <button class="btn btn-outline-secondary" type="submit" name="ChangeStatusTo" value="@status"
-                        data-grand-confirm="@(status == (int)MerchandiseReturnStatus.Cancelled ? Loc["Admin.Orders.MerchandiseReturns.ConfirmCancel"].Value : null)">
+                @* Razor writes a data- attribute even when its value is null, and an empty
+                   data-grand-confirm still asks: only cancelling asks *@
+                if (status == (int)MerchandiseReturnStatus.Cancelled)
+                {
+                    <button class="btn btn-outline-secondary" type="submit" name="ChangeStatusTo" value="@status"
+                            data-grand-confirm="@Loc["Admin.Orders.MerchandiseReturns.ConfirmCancel"]">
+                        @Loc["Admin.Orders.MerchandiseReturns.ChangeStatus.Cancelled"]
+                    </button>
+                    continue;
+                }
+                <button class="btn btn-outline-secondary" type="submit" name="ChangeStatusTo" value="@status">
                     @Loc[$"Admin.Orders.MerchandiseReturns.ChangeStatus.{(MerchandiseReturnStatus)status}"]
                 </button>
             }
