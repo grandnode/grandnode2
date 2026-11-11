@@ -33,24 +33,22 @@ public class GetReturnableQuantitiesQueryHandler
     {
         var quantities = request.Order.OrderItems.ToDictionary(x => x.Id, _ => 0);
 
+        //validate allowed number of days
+        var days = request.ForStaff ? 0 : _orderSettings.NumberOfDaysMerchandiseReturnAvailable;
+        var fromDelivery = _orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered;
+        if (days > 0 && !fromDelivery && (DateTime.UtcNow - request.Order.CreatedOnUtc).TotalDays >= days)
+            return quantities;
+
         var delivered = (await _shipmentService.GetShipmentsByOrder(request.Order.Id))
             .Where(x => x.DeliveryDateUtc.HasValue).ToList();
         //nothing delivered, nothing to return: spares the queries below for every undelivered order of a list
         if (delivered.Count == 0)
             return quantities;
 
-        //validate allowed number of days
-        var days = _orderSettings.NumberOfDaysMerchandiseReturnAvailable;
-        var withinPeriod = delivered;
-        if (days > 0 && !request.ForStaff)
-        {
-            if (_orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered)
-                //each shipment has its own days, counted from its delivery
-                withinPeriod = delivered.Where(x => (DateTime.UtcNow - x.DeliveryDateUtc!.Value).TotalDays < days)
-                    .ToList();
-            else if ((DateTime.UtcNow - request.Order.CreatedOnUtc).TotalDays >= days)
-                return quantities;
-        }
+        //each shipment has its own days, counted from its delivery
+        var withinPeriod = days > 0 && fromDelivery
+            ? delivered.Where(x => (DateTime.UtcNow - x.DeliveryDateUtc!.Value).TotalDays < days).ToList()
+            : delivered;
 
         var merchandiseReturns =
             await _mediator.Send(new GetMerchandiseReturnQuery { OrderId = request.Order.Id }, cancellationToken);

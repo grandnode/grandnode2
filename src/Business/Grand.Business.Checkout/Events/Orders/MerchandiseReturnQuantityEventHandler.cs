@@ -4,6 +4,7 @@ using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
+using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Events.Orders;
@@ -11,7 +12,9 @@ namespace Grand.Business.Checkout.Events.Orders;
 /// <summary>
 ///     Keeps OrderItem.ReturnQty equal to what the order's merchandise returns take: counted again from the returns
 ///     whenever one is added, changed (a status change to or from rejected or cancelled) or deleted. Only the order
-///     items whose quantity changed are written, so a change made to the rest of the order in the meantime is kept
+///     items whose quantity changed are written, not the whole order, so the order's status, payment and notes changed
+///     in the meantime are kept. Every writer of an order's returns holds MerchandiseReturnExtensions.QuantityLockKey,
+///     so two recounts of one order never interleave
 /// </summary>
 public class MerchandiseReturnQuantityEventHandler :
     INotificationHandler<EntityInserted<MerchandiseReturn>>,
@@ -53,6 +56,7 @@ public class MerchandiseReturnQuantityEventHandler :
 
         var merchandiseReturns =
             await _mediator.Send(new GetMerchandiseReturnQuery { OrderId = order.Id }, cancellationToken);
+        var changed = false;
         foreach (var orderItem in order.OrderItems)
         {
             var returnQty = merchandiseReturns.ReturnedQuantity(orderItem.Id);
@@ -62,6 +66,10 @@ public class MerchandiseReturnQuantityEventHandler :
             orderItem.ReturnQty = returnQty;
             await _orderRepository.UpdateCollectionFieldItem(order.Id, x => x.OrderItems, x => x.Id == orderItem.Id,
                 orderItem);
+            changed = true;
         }
+
+        if (changed)
+            await _mediator.EntityUpdated(order);
     }
 }

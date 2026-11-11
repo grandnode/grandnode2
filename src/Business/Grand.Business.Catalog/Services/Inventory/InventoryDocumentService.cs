@@ -1,3 +1,4 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
@@ -120,8 +121,7 @@ public class InventoryDocumentService(
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null)
             return (null, [InventoryDocumentErrors.NotFound]);
-        if (merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Rejected
-            or MerchandiseReturnStatus.Cancelled)
+        if (!merchandiseReturn.MerchandiseReturnStatus.TakesQuantity())
             return (null, [InventoryDocumentErrors.ReturnNotReceivable]);
 
         var returned = await Returned(merchandiseReturn);
@@ -388,6 +388,8 @@ public class InventoryDocumentService(
             query = query.Where(x => x.StoreId == search.StoreId);
         if (!string.IsNullOrEmpty(search.Number))
             query = query.Where(x => x.Number.Contains(search.Number));
+        if (!string.IsNullOrEmpty(search.MerchandiseReturnId))
+            query = query.Where(x => x.MerchandiseReturnId == search.MerchandiseReturnId);
         if (search.FromUtc.HasValue)
             query = query.Where(x => x.CreatedOnUtc >= search.FromUtc.Value);
         if (search.ToUtc.HasValue)

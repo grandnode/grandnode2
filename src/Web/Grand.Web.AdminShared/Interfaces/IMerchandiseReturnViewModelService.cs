@@ -21,10 +21,10 @@ public interface IMerchandiseReturnViewModelService
         string merchandiseReturnId);
 
     /// <summary>
-    ///     Saves the edit form; null when nothing was saved because setting a rejected or cancelled return back would
-    ///     take more than is left to return of the order
+    ///     Saves the edit form. When the status change is refused nothing is saved, and Error is the reason as a
+    ///     resource key without the panel's prefix
     /// </summary>
-    Task<MerchandiseReturn> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
+    Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
         MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes);
 
     Task DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn);

@@ -41,6 +41,9 @@ public class MerchandiseReturnQuantityEventHandlerTests
             It.IsAny<Expression<Func<Order, IEnumerable<OrderItem>>>>(),
             It.IsAny<Expression<Func<OrderItem, bool>>>(), It.Is<OrderItem>(i => i.Id == "a")), times);
         _orderServiceMock.Verify(x => x.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        //the order's event is published once, and only when something was written
+        _mediatorMock.Verify(x => x.Publish(It.IsAny<EntityUpdated<Order>>(), It.IsAny<CancellationToken>()),
+            times.Equals(Times.Never()) ? Times.Never() : Times.Once());
     }
 
     //the returns stored for the order, as the event handler finds them after the write

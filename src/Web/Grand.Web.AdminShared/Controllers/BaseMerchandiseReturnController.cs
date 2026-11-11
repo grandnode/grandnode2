@@ -129,9 +129,9 @@ public abstract class BaseMerchandiseReturnController(
                 customAddressAttributes = await model.PickupAddress.ParseCustomAddressAttributes(
                     addressAttributeParser, addressAttributeService);
 
-            var updated = await MerchandiseReturnViewModelService.UpdateMerchandiseReturnModel(
+            var (updated, error) = await MerchandiseReturnViewModelService.UpdateMerchandiseReturnModel(
                 merchandiseReturn, model, customAddressAttributes);
-            if (updated != null)
+            if (error == null)
             {
                 Success(TranslationService.GetResource(
                     $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Updated"));
@@ -140,8 +140,9 @@ public abstract class BaseMerchandiseReturnController(
                     : RedirectToAction("List");
             }
 
-            Error(TranslationService.GetResource(
-                $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.QuantityExceeded"));
+            Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
+            //show the status that is stored, not the refused one the form posted
+            ModelState.Remove(nameof(model.MerchandiseReturnStatusId));
         }
 
         await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);

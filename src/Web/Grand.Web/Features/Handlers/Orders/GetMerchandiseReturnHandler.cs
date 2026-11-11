@@ -71,7 +71,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         };
 
         //products
-        await PrepareItems(request, model);
+        await PrepareItems(request, model, cancellationToken);
 
         if (_orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress) await PreparePickupAddress(request, model);
 
@@ -100,9 +100,11 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         return actions;
     }
 
-    private async Task PrepareItems(GetMerchandiseReturn request, MerchandiseReturnModel model)
+    private async Task PrepareItems(GetMerchandiseReturn request, MerchandiseReturnModel model,
+        CancellationToken cancellationToken)
     {
-        var returnable = await _mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order });
+        var returnable = await _mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order },
+            cancellationToken);
         var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
         foreach (var orderItem in request.Order.OrderItems)
         {

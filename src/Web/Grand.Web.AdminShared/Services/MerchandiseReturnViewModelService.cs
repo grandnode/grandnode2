@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -9,6 +10,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
@@ -46,7 +48,8 @@ public class MerchandiseReturnViewModelService(
     CustomerConfig customerConfig,
     IAdminDataScope<MerchandiseReturn> scope,
     IMediator mediator,
-    IResourceLock resourceLock)
+    IResourceLock resourceLock,
+    IInventoryDocumentService inventoryDocumentService)
     : IMerchandiseReturnViewModelService
 {
     public virtual async Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
@@ -244,18 +247,17 @@ public class MerchandiseReturnViewModelService(
         return items;
     }
 
-    public virtual async Task<MerchandiseReturn> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
-        MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes)
+    public virtual async Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(
+        MerchandiseReturn merchandiseReturn, MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes)
     {
         //the lock the storefront holds to submit a return for the order
         await using (await resourceLock.Acquire(
                          [MerchandiseReturnExtensions.QuantityLockKey(merchandiseReturn.OrderId)]))
         {
-            //a rejected or cancelled return set back takes its quantity again, so that quantity must still be left
-            if (!merchandiseReturn.MerchandiseReturnStatus.TakesQuantity() &&
-                ((MerchandiseReturnStatus)model.MerchandiseReturnStatusId).TakesQuantity() &&
-                !await IsQuantityLeft(merchandiseReturn))
-                return null;
+            var error = await StatusChangeError(merchandiseReturn,
+                (MerchandiseReturnStatus)model.MerchandiseReturnStatusId);
+            if (error != null)
+                return (null, error);
 
             merchandiseReturn.CustomerComments = model.CustomerComments;
             merchandiseReturn.StaffNotes = model.StaffNotes;
@@ -278,7 +280,37 @@ public class MerchandiseReturnViewModelService(
 
         if (model.NotifyCustomer)
             await NotifyCustomer(merchandiseReturn);
-        return merchandiseReturn;
+        return (merchandiseReturn, null);
+    }
+
+    /// <summary>
+    ///     Why the status may not change, as a resource key without the panel's prefix; null when it may. Checked
+    ///     against the status stored now, not the copy loaded before the lock, which another save may have changed
+    /// </summary>
+    private async Task<string> StatusChangeError(MerchandiseReturn merchandiseReturn, MerchandiseReturnStatus status)
+    {
+        var stored = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturn.Id) ?? merchandiseReturn;
+        var takesQuantity = stored.MerchandiseReturnStatus.TakesQuantity();
+
+        //a rejected or cancelled return set back takes its quantity again, so that quantity must still be left
+        if (!takesQuantity && status.TakesQuantity() && !await IsQuantityLeft(stored))
+            return "Orders.MerchandiseReturns.QuantityExceeded";
+
+        //rejecting or cancelling gives the quantity back to the customer, so none of it may be in stock already
+        if (takesQuantity && !status.TakesQuantity() && await IsReceived(stored))
+            return "Orders.MerchandiseReturns.AlreadyReceived";
+
+        return null;
+    }
+
+    private async Task<bool> IsReceived(MerchandiseReturn merchandiseReturn)
+    {
+        var receipts = await inventoryDocumentService.Search(new InventoryDocumentSearch {
+            Type = InventoryDocumentType.ReturnReceipt,
+            Status = InventoryDocumentStatus.Posted,
+            MerchandiseReturnId = merchandiseReturn.Id
+        }, 0, 1);
+        return receipts.Count > 0;
     }
 
     private async Task<bool> IsQuantityLeft(MerchandiseReturn merchandiseReturn)
@@ -294,7 +326,10 @@ public class MerchandiseReturnViewModelService(
 
     public virtual async Task DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn)
     {
-        await merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
+        //the order's returned quantities are counted again under the lock its returns are saved with
+        await using (await resourceLock.Acquire(
+                         [MerchandiseReturnExtensions.QuantityLockKey(merchandiseReturn.OrderId)]))
+            await merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
     }
 
     public virtual async Task<IList<MerchandiseReturnModel.MerchandiseReturnNote>> PrepareMerchandiseReturnNotes(

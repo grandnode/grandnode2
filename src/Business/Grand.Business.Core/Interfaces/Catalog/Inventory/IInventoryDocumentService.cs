@@ -18,6 +18,11 @@ public sealed record InventoryDocumentSearch
     public string StoreId { get; init; }
 
     public string Number { get; init; }
+
+    /// <summary>
+    ///     Only the return receipts of this merchandise return
+    /// </summary>
+    public string MerchandiseReturnId { get; init; }
     public DateTime? FromUtc { get; init; }
     public DateTime? ToUtc { get; init; }
 }

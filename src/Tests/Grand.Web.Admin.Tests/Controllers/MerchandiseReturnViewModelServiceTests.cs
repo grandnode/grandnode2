@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -9,6 +10,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
@@ -167,7 +169,8 @@ public class MerchandiseReturnViewModelServiceTests
             customerConfig,
             scopeMock.Object,
             new Mock<IMediator>().Object,
-            new Mock<IResourceLock>().Object);
+            new Mock<IResourceLock>().Object,
+            new Mock<IInventoryDocumentService>().Object);
     }
 
     private static MerchandiseReturnViewModelService BuildWithCustomMocks(
@@ -214,7 +217,8 @@ public class MerchandiseReturnViewModelServiceTests
             customerConfig,
             scope,
             new Mock<IMediator>().Object,
-            new Mock<IResourceLock>().Object);
+            new Mock<IResourceLock>().Object,
+            new Mock<IInventoryDocumentService>().Object);
     }
 
     private static MerchandiseReturn RejectedReturn(int quantity)
@@ -226,11 +230,19 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static (MerchandiseReturnViewModelService service, Mock<IMerchandiseReturnService> merchandiseReturnService,
-        Mock<IMediator> mediator, Mock<IResourceLock> resourceLock) BuildForUpdate(int returnable)
+        Mock<IMediator> mediator, Mock<IResourceLock> resourceLock) BuildForUpdate(int returnable,
+        MerchandiseReturn stored = null, bool received = false)
     {
         var orderServiceMock = new Mock<IOrderService>();
         orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync(new Order { Id = "o1" });
         var merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
+        if (stored != null)
+            merchandiseReturnServiceMock.Setup(x => x.GetMerchandiseReturnById(stored.Id)).ReturnsAsync(stored);
+        var inventoryDocumentServiceMock = new Mock<IInventoryDocumentService>();
+        inventoryDocumentServiceMock.Setup(x => x.Search(It.Is<InventoryDocumentSearch>(s =>
+                    s.MerchandiseReturnId == "r1" && s.Type == InventoryDocumentType.ReturnReceipt &&
+                    s.Status == InventoryDocumentStatus.Posted), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<InventoryDocument>(received ? [new InventoryDocument()] : [], 0, 1));
         var mediatorMock = new Mock<IMediator>();
         mediatorMock.Setup(x => x.Send(It.Is<GetReturnableQuantitiesQuery>(q => q.ForStaff),
                 It.IsAny<CancellationToken>()))
@@ -260,7 +272,8 @@ public class MerchandiseReturnViewModelServiceTests
             new CustomerConfig(),
             new Mock<IAdminDataScope<MerchandiseReturn>>().Object,
             mediatorMock.Object,
-            resourceLockMock.Object);
+            resourceLockMock.Object,
+            inventoryDocumentServiceMock.Object);
         return (service, merchandiseReturnServiceMock, mediatorMock, resourceLockMock);
     }
 
@@ -281,7 +294,8 @@ public class MerchandiseReturnViewModelServiceTests
             Model(MerchandiseReturnStatus.Pending), []);
 
         //Assert
-        Assert.IsNull(result);
+        Assert.IsNull(result.MerchandiseReturn);
+        Assert.AreEqual("Orders.MerchandiseReturns.QuantityExceeded", result.Error);
         Assert.AreEqual(MerchandiseReturnStatus.Rejected, merchandiseReturn.MerchandiseReturnStatus);
         merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
     }
@@ -298,7 +312,7 @@ public class MerchandiseReturnViewModelServiceTests
             Model(MerchandiseReturnStatus.Pending), []);
 
         //Assert
-        Assert.AreEqual(MerchandiseReturnStatus.Pending, result.MerchandiseReturnStatus);
+        Assert.AreEqual(MerchandiseReturnStatus.Pending, result.MerchandiseReturn.MerchandiseReturnStatus);
         merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(merchandiseReturn), Times.Once);
         resourceLock.Verify(x => x.Acquire(It.Is<IEnumerable<string>>(k => k.Single() == "MerchandiseReturn:o1"),
             It.IsAny<CancellationToken>()), Times.Once);
@@ -315,9 +329,75 @@ public class MerchandiseReturnViewModelServiceTests
             Model(MerchandiseReturnStatus.Cancelled), []);
 
         //Assert
-        Assert.IsNotNull(result);
+        Assert.IsNull(result.Error);
         merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Once);
         mediator.Verify(x => x.Send(It.IsAny<GetReturnableQuantitiesQuery>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_CopyLoadedBeforeAnotherSave_ChecksTheStoredStatus()
+    {
+        //Arrange - the form was loaded while the return was pending; meanwhile it was rejected and its units taken
+        var stored = RejectedReturn(2);
+        var (service, merchandiseReturnService, _, _) = BuildForUpdate(0, stored);
+        var loaded = RejectedReturn(2);
+        loaded.MerchandiseReturnStatus = MerchandiseReturnStatus.Pending;
+
+        //Act
+        var result = await service.UpdateMerchandiseReturnModel(loaded, Model(MerchandiseReturnStatus.Pending), []);
+
+        //Assert
+        Assert.AreEqual("Orders.MerchandiseReturns.QuantityExceeded", result.Error);
+        merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_RejectingWhatIsInStock_SavesNothing()
+    {
+        //Arrange - a posted return receipt took the units in
+        var stored = RejectedReturn(2);
+        stored.MerchandiseReturnStatus = MerchandiseReturnStatus.Accepted;
+        var (service, merchandiseReturnService, _, _) = BuildForUpdate(0, stored, received: true);
+
+        //Act
+        var result = await service.UpdateMerchandiseReturnModel(stored, Model(MerchandiseReturnStatus.Rejected), []);
+
+        //Assert
+        Assert.AreEqual("Orders.MerchandiseReturns.AlreadyReceived", result.Error);
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, stored.MerchandiseReturnStatus);
+        merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_RejectingWhatIsNotInStock_Saves()
+    {
+        //Arrange
+        var stored = RejectedReturn(2);
+        stored.MerchandiseReturnStatus = MerchandiseReturnStatus.Pending;
+        var (service, merchandiseReturnService, _, _) = BuildForUpdate(0, stored);
+
+        //Act
+        var result = await service.UpdateMerchandiseReturnModel(stored, Model(MerchandiseReturnStatus.Rejected), []);
+
+        //Assert
+        Assert.IsNull(result.Error);
+        merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(stored), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteMerchandiseReturn_DeletesUnderTheOrderLock()
+    {
+        //Arrange
+        var (service, merchandiseReturnService, _, resourceLock) = BuildForUpdate(0);
+        var merchandiseReturn = RejectedReturn(2);
+
+        //Act
+        await service.DeleteMerchandiseReturn(merchandiseReturn);
+
+        //Assert
+        merchandiseReturnService.Verify(x => x.DeleteMerchandiseReturn(merchandiseReturn), Times.Once);
+        resourceLock.Verify(x => x.Acquire(It.Is<IEnumerable<string>>(k => k.Single() == "MerchandiseReturn:o1"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }
