@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -19,6 +20,7 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     private readonly IMerchandiseReturnMessageProviderService _merchandiseReturnMessageProviderService;
     private readonly IMediator _mediator;
     private readonly IContextAccessor _contextAccessor;
+    private readonly IResourceLock _resourceLock;
 
 
     public MerchandiseReturnSubmitCommandHandler(IContextAccessor contextAccessor,
@@ -26,7 +28,8 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
         IMerchandiseReturnService merchandiseReturnService,
         IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
         IGroupService groupService,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        IResourceLock resourceLock)
     {
         _contextAccessor = contextAccessor;
         _mediator = mediator;
@@ -34,9 +37,34 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
         _merchandiseReturnMessageProviderService = merchandiseReturnMessageProviderService;
         _groupService = groupService;
         _languageSettings = languageSettings;
+        _resourceLock = resourceLock;
     }
 
     public async Task<MerchandiseReturn> Handle(
+        MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
+    {
+        //two returns submitted at the same time for one order are checked and inserted one after the other
+        MerchandiseReturn rr;
+        await using (await _resourceLock.Acquire([$"{nameof(MerchandiseReturn)}:{request.Order.Id}"],
+                         cancellationToken))
+        {
+            rr = await InsertMerchandiseReturn(request, cancellationToken);
+        }
+
+        if (rr == null)
+            return null;
+
+        //notify store owner here (email)
+        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
+            _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
+        //notify customer
+        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
+            request.Order.CustomerLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
+
+        return rr;
+    }
+
+    private async Task<MerchandiseReturn> InsertMerchandiseReturn(
         MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
     {
         //never more than can still be returned, also when another return was submitted in the meantime: the
@@ -90,14 +118,6 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
             return null;
 
         await _merchandiseReturnService.InsertMerchandiseReturn(rr);
-
-        //notify store owner here (email)
-        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
-            _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
-        //notify customer
-        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
-            request.Order.CustomerLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
-
         return rr;
     }
 }

@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
@@ -22,6 +23,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
     private MerchandiseReturnSubmitCommandHandler _handler;
     private Mock<IMediator> _mediatorMock;
     private Mock<IMerchandiseReturnService> _merchandiseReturnServiceMock;
+    private Mock<IResourceLock> _resourceLockMock;
     private Order _order;
 
     [TestInitialize]
@@ -41,10 +43,13 @@ public class MerchandiseReturnSubmitCommandHandlerTests
 
         _mediatorMock = new Mock<IMediator>();
         _merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
+        _resourceLockMock = new Mock<IResourceLock>();
+        _resourceLockMock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
 
         _handler = new MerchandiseReturnSubmitCommandHandler(contextAccessor.Object, _mediatorMock.Object,
             _merchandiseReturnServiceMock.Object, new Mock<IMerchandiseReturnMessageProviderService>().Object,
-            new Mock<IGroupService>().Object, new LanguageSettings());
+            new Mock<IGroupService>().Object, new LanguageSettings(), _resourceLockMock.Object);
     }
 
     private void SetupReturnable(int quantity)
@@ -99,5 +104,27 @@ public class MerchandiseReturnSubmitCommandHandlerTests
 
         //Assert
         Assert.AreEqual(3, result.MerchandiseReturnItems.Single().Quantity);
+    }
+
+    [TestMethod]
+    public async Task Handle_ChecksAndInsertsWhileHoldingTheOrderLock()
+    {
+        //Arrange - record when the lock is taken and let go, against the check and the insert
+        var steps = new List<string>();
+        var held = new Mock<IAsyncDisposable>();
+        held.Setup(x => x.DisposeAsync()).Callback(() => steps.Add("release")).Returns(ValueTask.CompletedTask);
+        _resourceLockMock.Setup(x => x.Acquire(It.Is<IEnumerable<string>>(k => k.Single() == "MerchandiseReturn:o1"),
+                It.IsAny<CancellationToken>()))
+            .Callback(() => steps.Add("acquire")).ReturnsAsync(held.Object);
+        _mediatorMock.Setup(x => x.Send(It.IsAny<GetReturnableQuantitiesQuery>(), It.IsAny<CancellationToken>()))
+            .Callback(() => steps.Add("check")).ReturnsAsync(new Dictionary<string, int> { { "a", 5 } });
+        _merchandiseReturnServiceMock.Setup(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => steps.Add("insert")).Returns(Task.CompletedTask);
+
+        //Act
+        await _handler.Handle(Command(3), CancellationToken.None);
+
+        //Assert
+        CollectionAssert.AreEqual(new[] { "acquire", "check", "insert", "release" }, steps);
     }
 }
