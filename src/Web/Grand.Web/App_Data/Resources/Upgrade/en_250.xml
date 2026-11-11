@@ -1722,4 +1722,7 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.ConfirmCancel" Area="Vendor">
 		<Value>Cancel this return? The customer gets the quantity back to return again.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Busy" Area="Front">
+		<Value>Your return is being saved by another request. Try again in a moment.</Value>
+	</Resource>
 </Language>

@@ -1,125 +1,65 @@
-﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Data;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Localization;
-using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Mediator;
 
 namespace Grand.Web.Commands.Handler.Orders;
 
-public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<MerchandiseReturnSubmitCommand, MerchandiseReturn>
+public class MerchandiseReturnSubmitCommandHandler
+    : IRequestHandler<MerchandiseReturnSubmitCommand, MerchandiseReturnSubmitResult>
 {
     private readonly IGroupService _groupService;
     private readonly LanguageSettings _languageSettings;
-    private readonly IMerchandiseReturnService _merchandiseReturnService;
+    private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
     private readonly IMerchandiseReturnMessageProviderService _merchandiseReturnMessageProviderService;
-    private readonly IMediator _mediator;
     private readonly IContextAccessor _contextAccessor;
-    private readonly IResourceLock _resourceLock;
-
 
     public MerchandiseReturnSubmitCommandHandler(IContextAccessor contextAccessor,
-        IMediator mediator,
-        IMerchandiseReturnService merchandiseReturnService,
+        IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService,
         IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
         IGroupService groupService,
-        LanguageSettings languageSettings,
-        IResourceLock resourceLock)
+        LanguageSettings languageSettings)
     {
         _contextAccessor = contextAccessor;
-        _mediator = mediator;
-        _merchandiseReturnService = merchandiseReturnService;
+        _merchandiseReturnWorkflowService = merchandiseReturnWorkflowService;
         _merchandiseReturnMessageProviderService = merchandiseReturnMessageProviderService;
         _groupService = groupService;
         _languageSettings = languageSettings;
-        _resourceLock = resourceLock;
     }
 
-    public async Task<MerchandiseReturn> Handle(
+    public async Task<MerchandiseReturnSubmitResult> Handle(
         MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
     {
-        //two returns submitted at the same time for one order are checked and inserted one after the other
-        MerchandiseReturn rr;
-        await using (await _resourceLock.Acquire([MerchandiseReturnExtensions.QuantityLockKey(request.Order.Id)],
-                         cancellationToken))
-        {
-            rr = await InsertMerchandiseReturn(request, cancellationToken);
-        }
-
-        if (rr == null)
-            return null;
-
-        //notify store owner here (email)
-        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(rr, request.Order,
-            _languageSettings.DefaultAdminLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
-        //notify customer
-        await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnCustomerMessage(rr, request.Order,
-            request.Order.CustomerLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
-
-        return rr;
-    }
-
-    private async Task<MerchandiseReturn> InsertMerchandiseReturn(
-        MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
-    {
-        //never more than can still be returned, also when another return was submitted in the meantime: the
-        //customer gets the quantity they asked for or nothing, never a smaller return
-        var returnable = await _mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order },
-            cancellationToken);
-        if (request.Model.Items.Any(x => x.Quantity > returnable.GetValueOrDefault(x.Id)))
-            return null;
-
-        var rr = new MerchandiseReturn {
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        var result = await _merchandiseReturnWorkflowService.Submit(new MerchandiseReturnSubmitRequest {
+            Order = request.Order,
             StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
-            OrderId = request.Order.Id,
-            CustomerId = _contextAccessor.WorkContext.CurrentCustomer.Id,
-            OwnerId = await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer)
-                ? _contextAccessor.WorkContext.CurrentCustomer.Id
-                : _contextAccessor.WorkContext.CurrentCustomer.OwnerId,
-            SeId = request.Order.SeId,
-            CustomerComments = request.Model.Comments,
-            StaffNotes = string.Empty,
-            MerchandiseReturnStatus = MerchandiseReturnStatus.Pending,
-            PickupAddress = request.Address
-        };
+            CustomerId = customer.Id,
+            OwnerId = await _groupService.IsOwner(customer) ? customer.Id : customer.OwnerId,
+            LanguageId = _contextAccessor.WorkContext.WorkingLanguage.Id,
+            Comments = request.Model.Comments,
+            PickupAddress = request.Address,
+            PickupDate = request.Model.PickupDate,
+            Items = request.Model.Items.Select(x => new MerchandiseReturnSubmitItem(x.Id, x.Quantity,
+                x.MerchandiseReturnReasonId, x.MerchandiseReturnActionId)).ToList()
+        });
 
-        if (request.Model.PickupDate.HasValue)
-            rr.PickupDate = request.Model.PickupDate.Value;
-
-        foreach (var orderItem in request.Order.OrderItems)
+        //each vendor's return is a return of its own, with its own messages
+        foreach (var merchandiseReturn in result.MerchandiseReturns)
         {
-            var quantity = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity ?? 0;
-            var rrrId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnReasonId;
-            var rraId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnActionId;
-
-            if (quantity <= 0) continue;
-
-            var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(rrrId);
-            var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(rraId);
-            rr.MerchandiseReturnItems.Add(new MerchandiseReturnItem {
-                ReasonId = rrr?.Id,
-                ActionId = rra?.Id,
-                RequestedAction = rra != null
-                    ? rra.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
-                    : "not available",
-                ReasonForReturn = rrr != null
-                    ? rrr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
-                    : "not available",
-                Quantity = quantity,
-                OrderItemId = orderItem.Id
-            });
-            rr.VendorId = orderItem.VendorId;
+            //notify store owner here (email)
+            await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(merchandiseReturn,
+                request.Order, _languageSettings.DefaultAdminLanguageId,
+                host: _contextAccessor.StoreContext.CurrentHost);
+            //notify customer
+            await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnCustomerMessage(merchandiseReturn,
+                request.Order, request.Order.CustomerLanguageId, host: _contextAccessor.StoreContext.CurrentHost);
         }
 
-        if (rr.MerchandiseReturnItems.Count == 0)
-            return null;
-
-        await _merchandiseReturnService.InsertMerchandiseReturn(rr);
-        return rr;
+        return result;
     }
 }

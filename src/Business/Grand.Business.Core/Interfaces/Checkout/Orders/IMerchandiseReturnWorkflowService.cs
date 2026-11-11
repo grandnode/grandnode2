@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -9,6 +10,12 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders;
 /// </summary>
 public interface IMerchandiseReturnWorkflowService
 {
+    /// <summary>
+    ///     Creates what the customer asked to return, one merchandise return for each vendor of the items, or none
+    ///     when more than is left to return was asked for
+    /// </summary>
+    Task<MerchandiseReturnSubmitResult> Submit(MerchandiseReturnSubmitRequest request);
+
     /// <summary>
     ///     Changes the status along the allowed flow and sends the customer the status changed message
     /// </summary>

@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Catalog;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging.Abstractions;
@@ -267,6 +268,160 @@ public class MerchandiseReturnWorkflowServiceTests
         await _service.MarkReceived("r1");
 
         _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    private MerchandiseReturnSubmitRequest SubmitRequest(params MerchandiseReturnSubmitItem[] items)
+    {
+        return new MerchandiseReturnSubmitRequest {
+            Order = _order, StoreId = "s1", CustomerId = "c1", OwnerId = "owner", LanguageId = "l1",
+            Comments = "comments", Items = items.ToList()
+        };
+    }
+
+    private void TwoVendorOrder()
+    {
+        _order.OrderItems.Clear();
+        _order.OrderItems.Add(new OrderItem { Id = "store-item", Quantity = 2 });
+        _order.OrderItems.Add(new OrderItem { Id = "vendor-item", VendorId = "v1", Quantity = 2 });
+        _order.OrderItems.Add(new OrderItem { Id = "store-item-2", VendorId = "", Quantity = 2 });
+        _mediator.Setup(x => x.Send(It.IsAny<GetReturnableQuantitiesQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new Dictionary<string, int> { { "store-item", 2 }, { "vendor-item", 2 }, { "store-item-2", 2 } });
+    }
+
+    [TestMethod]
+    public async Task Submit_ItemsOfTwoVendors_CreatesOneReturnPerVendor()
+    {
+        TwoVendorOrder();
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("store-item", 1, null, null),
+            new MerchandiseReturnSubmitItem("vendor-item", 2, null, null)));
+
+        Assert.IsNull(result.Error);
+        Assert.AreEqual(2, result.MerchandiseReturns.Count);
+        var vendorReturn = result.MerchandiseReturns.Single(x => x.VendorId == "v1");
+        Assert.AreEqual("vendor-item", vendorReturn.MerchandiseReturnItems.Single().OrderItemId);
+        Assert.AreEqual(2, vendorReturn.MerchandiseReturnItems.Single().Quantity);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Exactly(2));
+    }
+
+    [TestMethod]
+    public async Task Submit_StoreAndVendorItems_OneReturnEach()
+    {
+        //a null and an empty vendor are both the store's own items
+        TwoVendorOrder();
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("store-item", 1, null, null),
+            new MerchandiseReturnSubmitItem("store-item-2", 1, null, null),
+            new MerchandiseReturnSubmitItem("vendor-item", 1, null, null)));
+
+        var storeReturn = result.MerchandiseReturns.Single(x => x.VendorId == "");
+        CollectionAssert.AreEquivalent(new[] { "store-item", "store-item-2" },
+            storeReturn.MerchandiseReturnItems.Select(x => x.OrderItemId).ToArray());
+        Assert.AreEqual(2, result.MerchandiseReturns.Count);
+    }
+
+    [TestMethod]
+    public async Task Submit_FillsTheReturnFromTheRequest()
+    {
+        _order.SeId = "se1";
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 2, null, null)));
+
+        var merchandiseReturn = result.MerchandiseReturns.Single();
+        Assert.AreEqual("s1", merchandiseReturn.StoreId);
+        Assert.AreEqual("o1", merchandiseReturn.OrderId);
+        Assert.AreEqual("c1", merchandiseReturn.CustomerId);
+        Assert.AreEqual("owner", merchandiseReturn.OwnerId);
+        Assert.AreEqual("se1", merchandiseReturn.SeId);
+        Assert.AreEqual("comments", merchandiseReturn.CustomerComments);
+        Assert.AreEqual(MerchandiseReturnStatus.Pending, merchandiseReturn.MerchandiseReturnStatus);
+    }
+
+    [TestMethod]
+    public async Task Submit_StoresReasonIdAndActionId_AndTheNamesInTheRequestLanguage()
+    {
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnReasonById("rr1"))
+            .ReturnsAsync(new MerchandiseReturnReason {
+                Id = "rr1", Name = "Broken",
+                Locales = [new TranslationEntity { LanguageId = "l1", LocaleKey = "Name", LocaleValue = "Zepsuty" }]
+            });
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnActionById("ra1"))
+            .ReturnsAsync(new MerchandiseReturnAction { Id = "ra1", Name = "Refund" });
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 1, "rr1", "ra1")));
+
+        //the Ids say what was chosen, the names what the customer read
+        var item = result.MerchandiseReturns.Single().MerchandiseReturnItems.Single();
+        Assert.AreEqual("rr1", item.ReasonId);
+        Assert.AreEqual("Zepsuty", item.ReasonForReturn);
+        Assert.AreEqual("ra1", item.ActionId);
+        Assert.AreEqual("Refund", item.RequestedAction);
+    }
+
+    [TestMethod]
+    public async Task Submit_QuantityAboveReturnable_CreatesNothing_ReturnsSubmitQuantityExceeded()
+    {
+        //another return took 3 of the 5 in the meantime: not a smaller return the customer did not ask for
+        SetupReturnable(2);
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 5, null, null)));
+
+        Assert.AreEqual(MerchandiseReturnErrors.SubmitQuantityExceeded, result.Error);
+        Assert.AreEqual(0, result.MerchandiseReturns.Count);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_ItemNotInOrder_ReturnsSubmitQuantityExceeded()
+    {
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("other", 1, null, null)));
+
+        Assert.AreEqual(MerchandiseReturnErrors.SubmitQuantityExceeded, result.Error);
+    }
+
+    [TestMethod]
+    public async Task Submit_NoPositiveQuantity_ReturnsSubmitNothingToReturn()
+    {
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 0, null, null)));
+
+        Assert.AreEqual(MerchandiseReturnErrors.SubmitNothingToReturn, result.Error);
+        _resourceLock.Verify(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_LockTimeout_ReturnsSubmitBusy()
+    {
+        _resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ResourceLockTimeoutException("MerchandiseReturn:o1"));
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 1, null, null)));
+
+        Assert.AreEqual(MerchandiseReturnErrors.SubmitBusy, result.Error);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_ComputesReturnableOnce_WhileHoldingTheOrderLock()
+    {
+        //record when the lock is taken and let go, against the check and the inserts
+        TwoVendorOrder();
+        var steps = new List<string>();
+        var held = new Mock<IAsyncDisposable>();
+        held.Setup(x => x.DisposeAsync()).Callback(() => steps.Add("release")).Returns(ValueTask.CompletedTask);
+        _resourceLock.Setup(x => x.Acquire(It.Is<IEnumerable<string>>(k => k.Single() == "MerchandiseReturn:o1"),
+                It.IsAny<CancellationToken>()))
+            .Callback(() => steps.Add("acquire")).ReturnsAsync(held.Object);
+        _mediator.Setup(x => x.Send(It.IsAny<GetReturnableQuantitiesQuery>(), It.IsAny<CancellationToken>()))
+            .Callback(() => steps.Add("check"))
+            .ReturnsAsync(new Dictionary<string, int> { { "store-item", 2 }, { "vendor-item", 2 } });
+        _merchandiseReturnService.Setup(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => steps.Add("insert")).Returns(Task.CompletedTask);
+
+        await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("store-item", 1, null, null),
+            new MerchandiseReturnSubmitItem("vendor-item", 1, null, null)));
+
+        CollectionAssert.AreEqual(new[] { "acquire", "check", "insert", "insert", "release" }, steps);
     }
 
     [TestMethod]

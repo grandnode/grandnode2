@@ -21,6 +21,93 @@ public class MerchandiseReturnWorkflowService(
     IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
     ILogger<MerchandiseReturnWorkflowService> logger) : IMerchandiseReturnWorkflowService
 {
+    public async Task<MerchandiseReturnSubmitResult> Submit(MerchandiseReturnSubmitRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var result = new MerchandiseReturnSubmitResult();
+        var items = request.Items.Where(x => x.Quantity > 0).ToList();
+        if (items.Count == 0)
+        {
+            result.Error = MerchandiseReturnErrors.SubmitNothingToReturn;
+            return result;
+        }
+
+        try
+        {
+            //two returns submitted at the same time for one order are checked and inserted one after the other
+            await using (await resourceLock.Acquire([MerchandiseReturnExtensions.QuantityLockKey(request.Order.Id)]))
+            {
+                //never more than can still be returned, also when another return was submitted in the meantime: the
+                //customer gets what they asked for or nothing, never a smaller return
+                var returnable = await mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order });
+                if (items.GroupBy(x => x.OrderItemId)
+                    .Any(x => x.Sum(item => item.Quantity) > returnable.GetValueOrDefault(x.Key)))
+                {
+                    result.Error = MerchandiseReturnErrors.SubmitQuantityExceeded;
+                    return result;
+                }
+
+                //each vendor handles the return of its own items
+                foreach (var vendorItems in request.Order.OrderItems
+                             .Where(orderItem => items.Any(x => x.OrderItemId == orderItem.Id))
+                             .GroupBy(orderItem => orderItem.VendorId ?? ""))
+                {
+                    var merchandiseReturn = await NewMerchandiseReturn(request, vendorItems.Key,
+                        items.Where(x => vendorItems.Any(orderItem => orderItem.Id == x.OrderItemId)));
+                    await merchandiseReturnService.InsertMerchandiseReturn(merchandiseReturn);
+                    result.MerchandiseReturns.Add(merchandiseReturn);
+                }
+            }
+        }
+        catch (ResourceLockTimeoutException ex)
+        {
+            logger.LogWarning(ex, "The returns of order {OrderId} stayed in use by another change", request.Order.Id);
+            result.Error = MerchandiseReturnErrors.SubmitBusy;
+        }
+
+        return result;
+    }
+
+    private async Task<MerchandiseReturn> NewMerchandiseReturn(MerchandiseReturnSubmitRequest request,
+        string vendorId, IEnumerable<MerchandiseReturnSubmitItem> items)
+    {
+        var merchandiseReturn = new MerchandiseReturn {
+            StoreId = request.StoreId,
+            OrderId = request.Order.Id,
+            CustomerId = request.CustomerId,
+            OwnerId = request.OwnerId,
+            SeId = request.Order.SeId,
+            VendorId = vendorId,
+            CustomerComments = request.Comments,
+            StaffNotes = string.Empty,
+            MerchandiseReturnStatus = MerchandiseReturnStatus.Pending,
+            PickupAddress = request.PickupAddress
+        };
+        if (request.PickupDate.HasValue)
+            merchandiseReturn.PickupDate = request.PickupDate.Value;
+
+        foreach (var item in items)
+        {
+            var reason = await merchandiseReturnService.GetMerchandiseReturnReasonById(item.ReasonId);
+            var action = await merchandiseReturnService.GetMerchandiseReturnActionById(item.ActionId);
+            merchandiseReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem {
+                OrderItemId = item.OrderItemId,
+                Quantity = item.Quantity,
+                ReasonId = reason?.Id,
+                ReasonForReturn = reason != null
+                    ? reason.GetTranslation(x => x.Name, request.LanguageId)
+                    : "not available",
+                ActionId = action?.Id,
+                RequestedAction = action != null
+                    ? action.GetTranslation(x => x.Name, request.LanguageId)
+                    : "not available"
+            });
+        }
+
+        return merchandiseReturn;
+    }
+
     public async Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
         string customerNote = null)
     {
