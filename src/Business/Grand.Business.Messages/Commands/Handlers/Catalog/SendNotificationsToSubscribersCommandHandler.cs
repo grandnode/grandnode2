@@ -34,7 +34,8 @@ public class
         ArgumentNullException.ThrowIfNull(request.Product);
 
         var subscriptions =
-            await GetAllSubscriptionsByProductId(request.Product.Id, request.Attributes, request.Warehouse);
+            await GetAllSubscriptionsByProductId(request.Product, request.Attributes, request.Warehouse);
+
         foreach (var subscription in subscriptions)
         {
             var customer = await _customerService.GetCustomerById(subscription.CustomerId);
@@ -52,20 +53,25 @@ public class
     /// <summary>
     ///     Gets all subscriptions
     /// </summary>
-    /// <param name="productId">Product identifier</param>
-    /// <param name="attributes">Attributes</param>
-    /// <param name="warehouseId">Store identifier; pass "" to load all records</param>
+    /// <param name="product">Product whose subscriptions are being selected</param>
+    /// <param name="attributes">Combination attributes, or null for product-level subscriptions</param>
+    /// <param name="warehouseId">Warehouse identifier. An empty value selects only global subscriptions
+    /// for multi-warehouse products; for single-warehouse products it retains the legacy all-records behavior.</param>
     /// <returns>Subscriptions</returns>
-    private async Task<IList<OutOfStockSubscription>> GetAllSubscriptionsByProductId(string productId,
+    private async Task<IList<OutOfStockSubscription>> GetAllSubscriptionsByProductId(Product product,
         IList<CustomAttribute> attributes, string warehouseId)
     {
         var query = _outOfStockSubscriptionRepository.Table
-            .Where(biss => biss.ProductId == productId)
+            .Where(biss => biss.ProductId == product.Id)
             .OrderByDescending(biss => biss.CreatedOnUtc).ToList();
 
-        //warehouse
+        // A warehouse-specific event targets only that warehouse. An aggregate event
+        // on a multi-warehouse product targets only global subscribers; subscribers
+        // assigned to individual warehouses wait for stock in their own warehouse.
         if (!string.IsNullOrEmpty(warehouseId))
             query = query.Where(biss => biss.WarehouseId == warehouseId).ToList();
+        else if (product.UseMultipleWarehouses)
+            query = query.Where(biss => string.IsNullOrEmpty(biss.WarehouseId)).ToList();
 
         //attributes
         if (attributes == null || !attributes.Any()) return await Task.FromResult(query.ToList());
