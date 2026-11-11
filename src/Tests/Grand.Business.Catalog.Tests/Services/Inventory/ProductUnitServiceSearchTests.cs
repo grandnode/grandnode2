@@ -92,7 +92,9 @@ public class ProductUnitServiceSearchTests
 
     private async Task<Shipment> Shipped(int orderNumber, string email)
     {
-        var order = new Order { OrderNumber = orderNumber, CustomerId = "c" + orderNumber, CustomerEmail = email };
+        var order = new Order {
+            OrderNumber = orderNumber, CustomerId = "c" + orderNumber, CustomerEmail = email, StoreId = "store1"
+        };
         await _orders.InsertAsync(order);
         var shipment = new Shipment { OrderId = order.Id, ShipmentNumber = orderNumber };
         await _fixture.Shipments.InsertAsync(shipment);
@@ -115,6 +117,8 @@ public class ProductUnitServiceSearchTests
         Assert.AreEqual(3, recipient.Quantity);
         Assert.AreEqual(7, recipient.OrderNumber);
         Assert.AreEqual("c1@example.com", recipient.CustomerEmail);
+        //the store of the order: a store sees the customers of its own orders only
+        Assert.AreEqual("store1", recipient.StoreId);
     }
 
     [TestMethod]

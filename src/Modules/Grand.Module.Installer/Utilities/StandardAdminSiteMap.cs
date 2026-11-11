@@ -58,48 +58,11 @@ public static class StandardAdminSiteMap
                 PermissionSystemName.Products, PermissionSystemName.Categories, PermissionSystemName.Brands,
                 PermissionSystemName.Collections, PermissionSystemName.ProductReviews,
                 PermissionSystemName.ProductTags,
-                PermissionSystemName.ProductAttributes, PermissionSystemName.SpecificationAttributes,
-                PermissionSystemName.InventoryDocuments
+                PermissionSystemName.ProductAttributes, PermissionSystemName.SpecificationAttributes
             },
             IconClass = "bi bi-diagram-3",
             DisplayOrder = 1,
             ChildNodes = new List<AdminSiteMap> {
-                new() {
-                    SystemName = "Inventory documents",
-                    ResourceName = "Admin.Inventory.Documents",
-                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
-                    ControllerName = "InventoryDocument",
-                    ActionName = "List",
-                    DisplayOrder = 20,
-                    IconClass = "bi bi-record-circle"
-                },
-                new() {
-                    SystemName = "Stock at date",
-                    ResourceName = "Admin.Inventory.StockAtDate",
-                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
-                    ControllerName = "InventoryReport",
-                    ActionName = "StockAtDate",
-                    DisplayOrder = 21,
-                    IconClass = "bi bi-record-circle"
-                },
-                new() {
-                    SystemName = "Batches",
-                    ResourceName = "Admin.Inventory.Units.Batches",
-                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
-                    ControllerName = "ProductUnit",
-                    ActionName = "Batches",
-                    DisplayOrder = 22,
-                    IconClass = "bi bi-record-circle"
-                },
-                new() {
-                    SystemName = "Serial numbers",
-                    ResourceName = "Admin.Inventory.Units.SerialNumbers",
-                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
-                    ControllerName = "ProductUnit",
-                    ActionName = "SerialNumbers",
-                    DisplayOrder = 23,
-                    IconClass = "bi bi-record-circle"
-                },
                 new() {
                     SystemName = "Products",
                     ResourceName = "Admin.Catalog.Products.Manage",
@@ -179,6 +142,53 @@ public static class StandardAdminSiteMap
                     ActionName = "List",
                     PermissionNames = new List<string> { PermissionSystemName.SpecificationAttributes },
                     DisplayOrder = 8,
+                    IconClass = "bi bi-record-circle"
+                }
+            }
+        },
+
+        //the stock of the catalog: documents, batches and serial numbers. Right after Catalog, which shares its order
+        new AdminSiteMap {
+            SystemName = "Inventory",
+            ResourceName = "Admin.Inventory",
+            PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+            IconClass = "bi bi-box-seam",
+            DisplayOrder = 1,
+            ChildNodes = new List<AdminSiteMap> {
+                new() {
+                    SystemName = "Inventory documents",
+                    ResourceName = "Admin.Inventory.Documents",
+                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+                    ControllerName = "InventoryDocument",
+                    ActionName = "List",
+                    DisplayOrder = 0,
+                    IconClass = "bi bi-record-circle"
+                },
+                new() {
+                    SystemName = "Stock at date",
+                    ResourceName = "Admin.Inventory.StockAtDate",
+                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+                    ControllerName = "InventoryReport",
+                    ActionName = "StockAtDate",
+                    DisplayOrder = 1,
+                    IconClass = "bi bi-record-circle"
+                },
+                new() {
+                    SystemName = "Batches",
+                    ResourceName = "Admin.Inventory.Units.Batches",
+                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+                    ControllerName = "ProductUnit",
+                    ActionName = "Batches",
+                    DisplayOrder = 2,
+                    IconClass = "bi bi-record-circle"
+                },
+                new() {
+                    SystemName = "Serial numbers",
+                    ResourceName = "Admin.Inventory.Units.SerialNumbers",
+                    PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
+                    ControllerName = "ProductUnit",
+                    ActionName = "SerialNumbers",
+                    DisplayOrder = 3,
                     IconClass = "bi bi-record-circle"
                 }
             }
@@ -849,6 +859,14 @@ public static class StandardAdminSiteMap
                             ControllerName = "Shipping",
                             DisplayOrder = 6,
                             ActionName = "Warehouses",
+                            IconClass = "bi bi-record-circle"
+                        },
+                        new() {
+                            SystemName = "Warehouse locations",
+                            ResourceName = "Admin.Configuration.Shipping.WarehouseLocations",
+                            ControllerName = "WarehouseLocation",
+                            DisplayOrder = 6,
+                            ActionName = "List",
                             IconClass = "bi bi-record-circle"
                         },
                         new() {

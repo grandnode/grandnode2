@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain;
 using Grand.Domain.Catalog;
+using Grand.Domain.Common;
 using Grand.Domain.Shipping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Inventory;
@@ -148,5 +149,78 @@ public class InventoryDocumentUnitLinesTests
         Assert.IsNull(line.BatchNumber);
         Assert.AreEqual(0, line.SerialNumbers.Count);
         Assert.AreEqual(4, line.Quantity);
+    }
+
+    private Product ProductWithCombinations()
+    {
+        var product = new Product {
+            Name = "p", ManageInventoryMethodId = ManageInventoryMethod.ManageStockByAttributes,
+            ProductAttributeMappings = { new ProductAttributeMapping { Id = "a1" } },
+            ProductAttributeCombinations = {
+                new ProductAttributeCombination {
+                    Attributes = { new CustomAttribute { Key = "a1", Value = "v1" } }
+                },
+                new ProductAttributeCombination {
+                    Attributes = { new CustomAttribute { Key = "a1", Value = "v2" } }
+                }
+            }
+        };
+        _productService.Setup(x => x.GetProductById(product.Id, It.IsAny<bool>())).ReturnsAsync(product);
+        return product;
+    }
+
+    [TestMethod]
+    public async Task AddLines_AdjustmentCombinations_NegativeQuantityTakesStockOut()
+    {
+        var product = ProductWithCombinations();
+        var document = new InventoryDocument { DocumentTypeId = InventoryDocumentType.Adjustment, WarehouseId = "w1" };
+        var model = new InventoryDocumentModel {
+            AddProductId = product.Id,
+            AddLines = {
+                new InventoryDocumentAddLineModel
+                    { CombinationId = product.ProductAttributeCombinations.First().Id, Quantity = -2 },
+                new InventoryDocumentAddLineModel
+                    { CombinationId = product.ProductAttributeCombinations.Last().Id, Quantity = 3 }
+            }
+        };
+
+        var (errors, _) = await _service.AddLines(document, model);
+
+        Assert.AreEqual(0, errors.Count);
+        CollectionAssert.AreEqual(new[] { -2, 3 }, document.Lines.Select(x => x.Quantity).ToArray());
+    }
+
+    [TestMethod]
+    public async Task AddLines_ReceiptCombinations_NegativeQuantityIgnored()
+    {
+        var product = ProductWithCombinations();
+        var document = new InventoryDocument { DocumentTypeId = InventoryDocumentType.Receipt, WarehouseId = "w1" };
+        var model = new InventoryDocumentModel {
+            AddProductId = product.Id,
+            AddLines = {
+                new InventoryDocumentAddLineModel
+                    { CombinationId = product.ProductAttributeCombinations.First().Id, Quantity = -2 },
+                new InventoryDocumentAddLineModel
+                    { CombinationId = product.ProductAttributeCombinations.Last().Id, Quantity = 3 }
+            }
+        };
+
+        await _service.AddLines(document, model);
+
+        CollectionAssert.AreEqual(new[] { 3 }, document.Lines.Select(x => x.Quantity).ToArray());
+    }
+
+    [TestMethod]
+    public async Task AddLines_AdjustmentWithoutCombinations_KeepsNegativeQuantity()
+    {
+        var product = Product(InventoryTrackingMode.None);
+        var document = new InventoryDocument { DocumentTypeId = InventoryDocumentType.Adjustment, WarehouseId = "w1" };
+        var model = new InventoryDocumentModel {
+            AddProductId = product.Id, AddLines = { new InventoryDocumentAddLineModel { Quantity = -1 } }
+        };
+
+        await _service.AddLines(document, model);
+
+        Assert.AreEqual(-1, document.Lines.Single().Quantity);
     }
 }

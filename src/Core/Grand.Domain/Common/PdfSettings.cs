@@ -23,4 +23,15 @@ public class PdfSettings : ISettings
     ///     Gets or sets the text that will appear at the bottom of invoices
     /// </summary>
     public string InvoiceFooterText { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether an order PDF lists the batches and serial numbers its shipments
+    ///     shipped of each item
+    /// </summary>
+    public bool ShowUnitNumbersOnInvoices { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether a packaging slip lists the batches and serial numbers of each item
+    /// </summary>
+    public bool ShowUnitNumbersOnPackagingSlips { get; set; }
 }

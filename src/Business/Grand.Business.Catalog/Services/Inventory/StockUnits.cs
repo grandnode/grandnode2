@@ -45,6 +45,16 @@ public sealed class UnitSet
     internal HashSet<string> InTransit { get; } = [];
     internal HashSet<object> Changed { get; } = new(ReferenceEqualityComparer.Instance);
     internal HashSet<object> Added { get; } = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>
+    ///     The serial numbers that came into stock from elsewhere: the place they were kept in is no longer theirs
+    /// </summary>
+    internal HashSet<ProductSerialNumber> Relocated { get; } = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>
+    ///     The serial numbers the call gave a store: a warehouse moved to another store writes it without the lock
+    /// </summary>
+    internal HashSet<ProductSerialNumber> StoreChanged { get; } = new(ReferenceEqualityComparer.Instance);
     internal Dictionary<StockChange, List<object>> Touched { get; } = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
@@ -425,7 +435,29 @@ public sealed class StockUnits(
                     await serialNumberRepository.InsertAsync(serialNumber);
                     break;
                 case ProductSerialNumber serialNumber:
-                    await serialNumberRepository.UpdateAsync(serialNumber);
+                    //only what the ledger changes: the location, the device fields and the comments are written by
+                    //the back office, and the store by a warehouse moved to another store, without the product's
+                    //lock; the ledger only takes the location away and sets the store of a unit it moves
+                    var update = UpdateBuilder<ProductSerialNumber>.Create();
+                    if (set.Relocated.Contains(serialNumber))
+                        update.Set(x => x.LocationId, null);
+                    if (set.StoreChanged.Contains(serialNumber))
+                        update.Set(x => x.StoreId, serialNumber.StoreId);
+                    await serialNumberRepository.UpdateOneAsync(x => x.Id == serialNumber.Id,
+                        update
+                            .Set(x => x.StatusId, serialNumber.StatusId)
+                            .Set(x => x.CombinationId, serialNumber.CombinationId)
+                            .Set(x => x.Attributes, serialNumber.Attributes)
+                            .Set(x => x.WarehouseId, serialNumber.WarehouseId)
+                            .Set(x => x.UnitCost, serialNumber.UnitCost)
+                            .Set(x => x.ReceivedOnUtc, serialNumber.ReceivedOnUtc)
+                            .Set(x => x.ReceiptDocumentId, serialNumber.ReceiptDocumentId)
+                            .Set(x => x.OrderId, serialNumber.OrderId)
+                            .Set(x => x.OrderItemId, serialNumber.OrderItemId)
+                            .Set(x => x.ShipmentId, serialNumber.ShipmentId)
+                            .Set(x => x.ShippedOnUtc, serialNumber.ShippedOnUtc)
+                            .Set(x => x.WarrantyUntilUtc, serialNumber.WarrantyUntilUtc)
+                            .Set(x => x.StockRevision, serialNumber.StockRevision));
                     break;
             }
     }
@@ -725,8 +757,19 @@ public sealed class StockUnits(
     /// </summary>
     private async Task Place(UnitSet set, ProductSerialNumber serialNumber, UnitBucket bucket)
     {
+        //a unit back from a customer, a scrap or another warehouse is not on the shelf it was on
+        if (serialNumber.LocationId != null && (serialNumber.StatusId != SerialNumberStatus.InStock ||
+                                                (serialNumber.WarehouseId ?? "") != (bucket.WarehouseId ?? "")))
+        {
+            serialNumber.LocationId = null;
+            set.Relocated.Add(serialNumber);
+        }
+
         if ((serialNumber.WarehouseId ?? "") != (bucket.WarehouseId ?? "") || serialNumber.StoreId == null)
+        {
             serialNumber.StoreId = await StoreOf(bucket.WarehouseId);
+            set.StoreChanged.Add(serialNumber);
+        }
         serialNumber.StatusId = SerialNumberStatus.InStock;
         serialNumber.CombinationId = bucket.CombinationId ?? "";
         serialNumber.Attributes = bucket.Attributes ?? [];
@@ -766,7 +809,14 @@ public sealed class StockUnits(
             ExpiryDateUtc = known != null ? known.ExpiryDateUtc : Date(change.ExpiryDateUtc),
             UnitCost = known != null ? known.UnitCost : change.UnitCost,
             ReceivedOnUtc = DateTime.UtcNow,
-            ReceiptDocumentId = known != null ? known.ReceiptDocumentId : ReceiptDocument(change)
+            ReceiptDocumentId = known != null ? known.ReceiptDocumentId : ReceiptDocument(change),
+            //what is known of the batch goes with it; a location is a place in the other warehouse
+            ManufacturedOnUtc = known?.ManufacturedOnUtc,
+            Supplier = known?.Supplier,
+            SupplierBatchNumber = known?.SupplierBatchNumber,
+            CertificateNumber = known?.CertificateNumber,
+            AdminComment = known?.AdminComment,
+            CustomerComment = known?.CustomerComment
         };
         set.Batches.Add(batch);
         set.Added.Add(batch);

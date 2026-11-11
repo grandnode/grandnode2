@@ -46,6 +46,7 @@
                                         <th class="fw-normal">@Loc["Admin.Inventory.Units.Fields.BatchNumber"]</th>
                                         <th class="fw-normal text-end">@Loc["Admin.Inventory.Documents.Fields.Quantity"]</th>
                                         <th class="fw-normal">@Loc["Admin.Inventory.Units.Fields.ExpiryDate"]</th>
+                                        <th class="fw-normal">@Loc["Admin.Inventory.Units.Fields.Location"]</th>
                                     </tr>
                                     </thead>
                                     <tbody>
@@ -63,6 +64,7 @@
                                                     </span>
                                                 }
                                             </td>
+                                            <td>@unit.Location</td>
                                         </tr>
                                     }
                                     </tbody>
@@ -70,20 +72,33 @@
                             }
                             else
                             {
-                                <div class="d-flex flex-wrap gap-1">
+                                @* one number a row, as they are read off the shelf *@
+                                <table class="table table-sm table-borderless align-middle mb-0">
+                                    <thead>
+                                    <tr class="text-body-secondary small">
+                                        <th class="fw-normal">@Loc["Admin.Inventory.Units.Fields.SerialNumber"]</th>
+                                        <th class="fw-normal">@Loc["Admin.Inventory.Units.Fields.Location"]</th>
+                                        <th class="fw-normal">@Loc["Admin.Inventory.Units.Fields.ReceivedOn"]</th>
+                                    </tr>
+                                    </thead>
+                                    <tbody>
                                     @foreach (var unit in bucket.Units)
                                     {
-                                        <a class="badge text-bg-light border text-decoration-none fw-normal"
-                                           href="@Url.Action("SerialNumber", "ProductUnit", new { area, id = unit.Id })">@unit.Number</a>
+                                        <tr>
+                                            <td><a class="text-decoration-none" href="@Url.Action("SerialNumber", "ProductUnit", new { area, id = unit.Id })">@unit.Number</a></td>
+                                            <td>@unit.Location</td>
+                                            <td>@unit.ReceivedOn?.ToShortDateString()</td>
+                                        </tr>
                                     }
-                                    @if (bucket.MoreUnits > 0)
-                                    {
-                                        <a class="small text-decoration-none ms-1"
-                                           href="@Url.Action("SerialNumbers", "ProductUnit", new { area, productId = Model.Id })">
-                                            @string.Format(Loc["Admin.Inventory.Units.MoreSerialNumbers"].Value, bucket.MoreUnits)
-                                        </a>
-                                    }
-                                </div>
+                                    </tbody>
+                                </table>
+                                @if (bucket.MoreUnits > 0)
+                                {
+                                    <a class="small text-decoration-none"
+                                       href="@Url.Action("SerialNumbers", "ProductUnit", new { area, productId = Model.Id })">
+                                        @string.Format(Loc["Admin.Inventory.Units.MoreSerialNumbers"].Value, bucket.MoreUnits)
+                                    </a>
+                                }
                             }
                         </td>
                     </tr>

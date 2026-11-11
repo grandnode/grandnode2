@@ -3,7 +3,6 @@ using Grand.Data.Inventory;
 using Grand.Domain.Admin;
 using Grand.Domain.Catalog;
 using Grand.Domain.Messages;
-using Grand.Domain.Permissions;
 using Grand.Domain.Tasks;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
@@ -108,32 +107,25 @@ public class MigrationInventoryUnits : IMigration
     private static async Task AddSiteMap(IServiceProvider serviceProvider)
     {
         var repository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
-        var catalog = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Catalog"));
-        if (catalog == null)
+        await InventoryMenu.Add(repository,
+            ("Batches", "Admin.Inventory.Units.Batches", "ProductUnit", "Batches", 2),
+            ("Serial numbers", "Admin.Inventory.Units.SerialNumbers", "ProductUnit", "SerialNumbers", 3));
+
+        //the places batches and serial numbers are kept in, next to the warehouses
+        var configuration =
+            await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Configuration"));
+        var shipping = configuration?.ChildNodes.FirstOrDefault(x => x.SystemName == "Shipping");
+        if (shipping == null || shipping.ChildNodes.Any(x => x.SystemName == "Warehouse locations"))
             return;
 
-        var changed = false;
-        foreach (var (systemName, resourceName, actionName, displayOrder) in new[] {
-                     ("Batches", "Admin.Inventory.Units.Batches", "Batches", 22),
-                     ("Serial numbers", "Admin.Inventory.Units.SerialNumbers", "SerialNumbers", 23)
-                 })
-        {
-            if (catalog.ChildNodes.Any(x => x.SystemName == systemName))
-                continue;
-
-            catalog.ChildNodes.Add(new AdminSiteMap {
-                SystemName = systemName,
-                ResourceName = resourceName,
-                PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
-                ControllerName = "ProductUnit",
-                ActionName = actionName,
-                DisplayOrder = displayOrder,
-                IconClass = "bi bi-record-circle"
-            });
-            changed = true;
-        }
-
-        if (changed)
-            await repository.UpdateAsync(catalog);
+        shipping.ChildNodes.Add(new AdminSiteMap {
+            SystemName = "Warehouse locations",
+            ResourceName = "Admin.Configuration.Shipping.WarehouseLocations",
+            ControllerName = "WarehouseLocation",
+            ActionName = "List",
+            DisplayOrder = 6,
+            IconClass = "bi bi-record-circle"
+        });
+        await repository.UpdateAsync(configuration);
     }
 }

@@ -224,31 +224,8 @@ public class MigrationInventoryLedger : IMigration
 
     private static async Task AddSiteMap(IServiceProvider serviceProvider)
     {
-        var repository = serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>();
-        var catalog = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Catalog"));
-        if (catalog == null || catalog.ChildNodes.Any(x => x.SystemName == "Inventory documents"))
-            return;
-
-        catalog.ChildNodes.Add(new AdminSiteMap {
-            SystemName = "Inventory documents",
-            ResourceName = "Admin.Inventory.Documents",
-            PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
-            ControllerName = "InventoryDocument",
-            ActionName = "List",
-            DisplayOrder = 20,
-            IconClass = "bi bi-record-circle"
-        });
-        catalog.ChildNodes.Add(new AdminSiteMap {
-            SystemName = "Stock at date",
-            ResourceName = "Admin.Inventory.StockAtDate",
-            PermissionNames = new List<string> { PermissionSystemName.InventoryDocuments },
-            ControllerName = "InventoryReport",
-            ActionName = "StockAtDate",
-            DisplayOrder = 21,
-            IconClass = "bi bi-record-circle"
-        });
-        if (!catalog.PermissionNames.Contains(PermissionSystemName.InventoryDocuments))
-            catalog.PermissionNames.Add(PermissionSystemName.InventoryDocuments);
-        await repository.UpdateAsync(catalog);
+        await InventoryMenu.Add(serviceProvider.GetRequiredService<IRepository<AdminSiteMap>>(),
+            ("Inventory documents", "Admin.Inventory.Documents", "InventoryDocument", "List", 0),
+            ("Stock at date", "Admin.Inventory.StockAtDate", "InventoryReport", "StockAtDate", 1));
     }
 }

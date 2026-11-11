@@ -45,19 +45,44 @@ public class MigrationInventoryUnitsTests
         services.AddSingleton<ILogger<MigrationInventoryUnits>>(NullLogger<MigrationInventoryUnits>.Instance);
         _serviceProvider = services.BuildServiceProvider();
         _siteMap.Insert(new AdminSiteMap { SystemName = "Catalog", ChildNodes = new List<AdminSiteMap>() });
+        _siteMap.Insert(new AdminSiteMap {
+            SystemName = "Configuration",
+            ChildNodes = new List<AdminSiteMap> {
+                new() { SystemName = "Shipping", ChildNodes = new List<AdminSiteMap> { new() { SystemName = "Warehouses" } } }
+            }
+        });
     }
 
     [TestMethod]
-    public async Task Upgrade_RunTwice_OneTaskOneTemplateTwoNodes()
+    public async Task Upgrade_RunTwice_OneTaskOneTemplateInventoryNodesOnce()
     {
         Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
         Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         Assert.AreEqual(1, _tasks.Table.Count(x => x.ScheduleTaskName == "Inventory batch expiry notification"));
         Assert.AreEqual(1, _templates.Table.Count(x => x.Name == TemplateName));
-        var catalog = _siteMap.Table.Single(x => x.SystemName == "Catalog");
+        Assert.AreEqual(0, _siteMap.Table.Single(x => x.SystemName == "Catalog").ChildNodes.Count);
+        var inventory = _siteMap.Table.Single(x => x.SystemName == "Inventory");
         CollectionAssert.AreEquivalent(new[] { "Batches", "Serial numbers" },
-            catalog.ChildNodes.Select(x => x.SystemName).ToArray());
+            inventory.ChildNodes.Select(x => x.SystemName).ToArray());
+        var shipping = _siteMap.Table.Single(x => x.SystemName == "Configuration").ChildNodes.Single();
+        CollectionAssert.AreEqual(new[] { "Warehouses", "Warehouse locations" },
+            shipping.ChildNodes.Select(x => x.SystemName).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Upgrade_InventorySectionExists_NodesAddedToIt()
+    {
+        _siteMap.Insert(new AdminSiteMap {
+            SystemName = "Inventory",
+            ChildNodes = new List<AdminSiteMap> { new() { SystemName = "Inventory documents" } }
+        });
+
+        await _migration.UpgradeProcess(_serviceProvider);
+
+        var inventory = _siteMap.Table.Single(x => x.SystemName == "Inventory");
+        CollectionAssert.AreEquivalent(new[] { "Inventory documents", "Batches", "Serial numbers" },
+            inventory.ChildNodes.Select(x => x.SystemName).ToArray());
     }
 
     [TestMethod]

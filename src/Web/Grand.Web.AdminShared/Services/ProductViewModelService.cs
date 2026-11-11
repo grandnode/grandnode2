@@ -64,7 +64,8 @@ public class ProductViewModelService(
     IAdminDataScope<Product> scope,
     IStockMovementService stockMovementService,
     ISettingService settingService,
-    IProductUnitService productUnitService)
+    IProductUnitService productUnitService,
+    IWarehouseLocationService locationService)
     : IProductViewModelService
 {
     private StockSource ManualEditSource(Product product)
@@ -146,12 +147,23 @@ public class ProductViewModelService(
         var batches = product.InventoryTrackingModeId == InventoryTrackingMode.Batch;
         var today = dateTimeService.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).Date;
         var warningDays = BatchExpiry.WarningDays(product, inventorySettings);
+        //a store sees the units kept in its own warehouses, as on the unit screens; a product it shares with another
+        //store keeps that store's units to it
+        var storeId = scope.DefaultStoreId;
+        var ownWarehouseIds = storeId == null
+            ? null
+            : (await warehouseService.GetAllWarehouses()).Where(x => (x.StoreId ?? "") == storeId).Select(x => x.Id)
+            .ToHashSet();
         IList<ProductSerialNumber> serialNumbers = batches
             ? []
             : await productUnitService.SearchSerialNumbers(new UnitSearch
-                { ProductId = product.Id, Status = SerialNumberStatus.InStock });
+                { ProductId = product.Id, Status = SerialNumberStatus.InStock, StoreId = storeId });
 
-        foreach (var bucket in await productUnitService.Buckets(product))
+        //the units shown that are kept in a location, named once all of them are known
+        var located = new List<(UnitInBucketModel Unit, string LocationId, string WarehouseId)>();
+
+        foreach (var bucket in (await productUnitService.Buckets(product))
+                 .Where(x => ownWarehouseIds == null || ownWarehouseIds.Contains(x.WarehouseId ?? "")))
         {
             var row = new UnitBucketRowModel {
                 Warehouse = string.IsNullOrEmpty(bucket.WarehouseId)
@@ -164,21 +176,40 @@ public class ProductViewModelService(
             if (batches)
                 foreach (var batch in await productUnitService.Batches(product.Id, bucket.CombinationId ?? "",
                              bucket.WarehouseId))
-                    row.Units.Add(new UnitInBucketModel {
+                {
+                    var unit = new UnitInBucketModel {
                         Id = batch.Id, Number = batch.Number, Quantity = batch.Quantity,
                         ExpiryDate = batch.ExpiryDateUtc?.Date,
                         ExpiryStatus = BatchExpiry.Status(batch.ExpiryDateUtc, today, warningDays)
-                    });
+                    };
+                    row.Units.Add(unit);
+                    if (!string.IsNullOrEmpty(batch.LocationId))
+                        located.Add((unit, batch.LocationId, batch.WarehouseId));
+                }
             else
                 foreach (var serialNumber in serialNumbers
                              .Where(x => (x.WarehouseId ?? "") == (bucket.WarehouseId ?? "") &&
                                          (x.CombinationId ?? "") == (bucket.CombinationId ?? ""))
                              .OrderBy(x => x.Number).Take(SerialNumbersShown))
-                    row.Units.Add(new UnitInBucketModel
-                        { Id = serialNumber.Id, Number = serialNumber.Number, Quantity = 1 });
+                {
+                    var unit = new UnitInBucketModel {
+                        Id = serialNumber.Id, Number = serialNumber.Number, Quantity = 1,
+                        ReceivedOn = dateTimeService.ConvertToUserTime(serialNumber.ReceivedOnUtc, DateTimeKind.Utc)
+                    };
+                    row.Units.Add(unit);
+                    if (!string.IsNullOrEmpty(serialNumber.LocationId))
+                        located.Add((unit, serialNumber.LocationId, serialNumber.WarehouseId));
+                }
 
             model.UnitBuckets.Add(row);
         }
+
+        //one read for the locations the shown units reference; one of another warehouse is not where a unit is
+        var locations = (await locationService.GetLocationsByIds(located.Select(x => x.LocationId).Distinct()
+            .ToList())).ToDictionary(x => x.Id);
+        foreach (var (unit, locationId, warehouseId) in located)
+            if (locations.GetValueOrDefault(locationId) is { } location && location.WarehouseId == (warehouseId ?? ""))
+                unit.Location = location.Code;
     }
 
     public virtual async Task PrepareProductModel(ProductModel model, Product product,

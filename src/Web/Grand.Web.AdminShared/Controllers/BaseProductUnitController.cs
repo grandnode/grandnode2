@@ -37,7 +37,8 @@ public abstract class BaseProductUnitController(
     IRequestTranslationService translationService,
     IInventoryDocumentViewModelService inventoryDocumentViewModelService,
     IAdminDataScope<Product> productScope,
-    ISettingService settingService) : BaseController
+    ISettingService settingService,
+    IWarehouseLocationService locationService) : BaseController
 {
     private InventorySettings _inventorySettings;
 
@@ -83,7 +84,48 @@ public abstract class BaseProductUnitController(
         model.ReceiptDocumentId = serialNumber.ReceiptDocumentId;
         model.ShipmentId = serialNumber.ShipmentId;
         model.InWarranty = serialNumber.WarrantyUntilUtc > DateTime.UtcNow;
+        model.LocationId = serialNumber.LocationId;
+        model.ManufacturedOn = StoredDate(serialNumber.ManufacturedOnUtc);
+        model.Supplier = serialNumber.Supplier;
+        model.SupplierWarrantyUntil = StoredDate(serialNumber.SupplierWarrantyUntilUtc);
+        model.Imei = serialNumber.Imei;
+        model.MacAddress = serialNumber.MacAddress;
+        model.FirmwareVersion = serialNumber.FirmwareVersion;
+        model.AdminComment = serialNumber.AdminComment;
+        model.CustomerComment = serialNumber.CustomerComment;
+        await AddLocations(model.AvailableLocations, serialNumber.WarehouseId, serialNumber.LocationId);
         return View("SerialNumber", model);
+    }
+
+    /// <summary>
+    ///     Saves what the back office tells about the unit; its status and warehouse stay the ledger's
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> SerialNumber(SerialNumberModel model)
+    {
+        var serialNumber = await productUnitService.GetSerialNumber(model.Id);
+        if (serialNumber == null || !await CanSee(serialNumber.StoreId))
+            return Denied("SerialNumbers");
+        //a date not understood would come as none and wipe the one stored
+        if (!ModelState.IsValid)
+        {
+            Error(ModelState);
+            return RedirectToAction("SerialNumber", new { id = serialNumber.Id });
+        }
+
+        serialNumber.LocationId = await LocationIn(serialNumber.WarehouseId, model.LocationId);
+        serialNumber.ManufacturedOnUtc = Date(model.ManufacturedOn);
+        serialNumber.Supplier = Text(model.Supplier);
+        serialNumber.SupplierWarrantyUntilUtc = Date(model.SupplierWarrantyUntil);
+        serialNumber.Imei = Text(model.Imei);
+        serialNumber.MacAddress = Text(model.MacAddress);
+        serialNumber.FirmwareVersion = Text(model.FirmwareVersion);
+        serialNumber.AdminComment = Text(model.AdminComment);
+        serialNumber.CustomerComment = Text(model.CustomerComment);
+        await productUnitService.UpdateSerialNumberDetails(serialNumber);
+        Success(translationService.GetResource("Admin.Inventory.Units.Updated"));
+        return RedirectToAction("SerialNumber", new { id = serialNumber.Id });
     }
 
     /// <summary>
@@ -150,7 +192,87 @@ public abstract class BaseProductUnitController(
         model.UnitCost = batch.UnitCost;
         model.ReceivedOn = dateTimeService.ConvertToUserTime(batch.ReceivedOnUtc, DateTimeKind.Utc);
         model.ReceiptDocumentId = batch.ReceiptDocumentId;
+        model.LocationId = batch.LocationId;
+        model.ManufacturedOn = StoredDate(batch.ManufacturedOnUtc);
+        model.Supplier = batch.Supplier;
+        model.SupplierBatchNumber = batch.SupplierBatchNumber;
+        model.CertificateNumber = batch.CertificateNumber;
+        model.AdminComment = batch.AdminComment;
+        model.CustomerComment = batch.CustomerComment;
+        await AddLocations(model.AvailableLocations, batch.WarehouseId, batch.LocationId);
         return View("Batch", model);
+    }
+
+    /// <summary>
+    ///     Saves what the back office tells about the batch; its quantity stays the ledger's
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> Batch(BatchModel model)
+    {
+        var batch = await productUnitService.GetBatch(model.Id);
+        if (batch == null || !await CanSee(batch.StoreId))
+            return Denied("Batches");
+        if (!ModelState.IsValid)
+        {
+            Error(ModelState);
+            return RedirectToAction("Batch", new { id = batch.Id });
+        }
+
+        batch.LocationId = await LocationIn(batch.WarehouseId, model.LocationId);
+        batch.ManufacturedOnUtc = Date(model.ManufacturedOn);
+        batch.Supplier = Text(model.Supplier);
+        batch.SupplierBatchNumber = Text(model.SupplierBatchNumber);
+        batch.CertificateNumber = Text(model.CertificateNumber);
+        batch.AdminComment = Text(model.AdminComment);
+        batch.CustomerComment = Text(model.CustomerComment);
+        await productUnitService.UpdateBatchDetails(batch);
+        Success(translationService.GetResource("Admin.Inventory.Units.Updated"));
+        return RedirectToAction("Batch", new { id = batch.Id });
+    }
+
+    /// <summary>
+    ///     The location when it is a place in the unit's warehouse; any other is dropped
+    /// </summary>
+    private async Task<string> LocationIn(string warehouseId, string locationId)
+    {
+        if (string.IsNullOrEmpty(locationId))
+            return null;
+        var location = await locationService.GetLocationById(locationId);
+        return location != null && location.WarehouseId == (warehouseId ?? "") ? location.Id : null;
+    }
+
+    private async Task AddLocations(IList<SelectListItem> list, string warehouseId, string selectedId)
+    {
+        list.Add(new SelectListItem { Text = "", Value = "" });
+        if (string.IsNullOrEmpty(warehouseId))
+            return;
+        foreach (var location in await locationService.GetLocations([warehouseId]))
+            list.Add(new SelectListItem {
+                Text = string.IsNullOrEmpty(location.Name) ? location.Code : $"{location.Code} - {location.Name}",
+                Value = location.Id, Selected = location.Id == selectedId
+            });
+    }
+
+    /// <summary>
+    ///     A date typed in the back office, kept without time
+    /// </summary>
+    private static DateTime? Date(DateTime? value)
+    {
+        return value.HasValue ? DateTime.SpecifyKind(value.Value.Date, DateTimeKind.Utc) : null;
+    }
+
+    /// <summary>
+    ///     A date as stored, for the date input: LiteDB reads it back in local time, a day early west of UTC
+    /// </summary>
+    private static DateTime? StoredDate(DateTime? value)
+    {
+        return value is { Kind: DateTimeKind.Local } ? value.Value.ToUniversalTime() : value;
+    }
+
+    private static string Text(string value)
+    {
+        return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
@@ -176,7 +298,7 @@ public abstract class BaseProductUnitController(
         if (batch == null || !await CanSee(batch.StoreId))
             return ErrorForKendoGridJson(translationService.GetResource("Admin.Inventory.Documents.AccessDenied"));
 
-        var recipients = await productUnitService.BatchRecipients(batch, command.Page - 1, command.PageSize);
+        var recipients = await Recipients(batch, command.Page - 1, command.PageSize);
         return Json(new DataSourceResult {
             Data = recipients.Select(recipient => new BatchRecipientModel {
                 ShipmentId = recipient.ShipmentId, ShipmentNumber = recipient.ShipmentNumber,
@@ -205,9 +327,10 @@ public abstract class BaseProductUnitController(
         var pageIndex = 0;
         do
         {
-            page = await productUnitService.BatchRecipients(batch, pageIndex++, CsvPageSize);
+            page = await Recipients(batch, pageIndex++, CsvPageSize);
             foreach (var recipient in page)
-                csv.Append(string.Join(";", Csv(batch.Number), recipient.ShipmentNumber, recipient.OrderNumber,
+                csv.Append(string.Join(";", Csv(batch.Number), recipient.ShipmentNumber,
+                        recipient.OrderId == null ? "" : recipient.OrderNumber.ToString(),
                         Csv(recipient.CustomerId), Csv(recipient.CustomerEmail), recipient.Quantity,
                         recipient.ShippedOnUtc.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)))
                     .Append("\r\n");
@@ -217,6 +340,23 @@ public abstract class BaseProductUnitController(
     }
 
     private const int CsvPageSize = 1000;
+
+    /// <summary>
+    ///     A page of who received the batch. A warehouse may ship the orders of another store: a store sees what
+    ///     went out of its warehouse, but the order and the customer only of its own orders
+    /// </summary>
+    private async Task<IPagedList<BatchRecipient>> Recipients(ProductBatch batch, int pageIndex, int pageSize)
+    {
+        var storeId = await productScope.GetDefaultStoreIdAsync();
+        var recipients = await productUnitService.BatchRecipients(batch, pageIndex, pageSize);
+        if (storeId == null)
+            return recipients;
+
+        return new PagedList<BatchRecipient>(recipients.Select(x => (x.StoreId ?? "") == storeId
+                ? x
+                : x with { OrderId = null, OrderNumber = 0, CustomerId = null, CustomerEmail = null }).ToList(),
+            pageIndex, pageSize, recipients.TotalCount);
+    }
 
     /// <summary>
     ///     A CSV field, quoted, and never read as a formula by a spreadsheet
@@ -286,7 +426,7 @@ public abstract class BaseProductUnitController(
         row.ProductId = batch.ProductId;
         row.ProductName = product?.Name;
         row.Warehouse = await WarehouseName(batch.WarehouseId);
-        row.ExpiryDate = batch.ExpiryDateUtc;
+        row.ExpiryDate = StoredDate(batch.ExpiryDateUtc);
         row.Quantity = batch.Quantity;
         //the warning days the expiry e-mail and the dashboard count with
         _inventorySettings ??= await settingService.LoadSetting<InventorySettings>();

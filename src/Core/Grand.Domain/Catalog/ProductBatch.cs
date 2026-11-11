@@ -66,4 +66,35 @@ public class ProductBatch : BaseEntity
     ///     The expiry status the store owner was last e-mailed about
     /// </summary>
     public BatchExpiryStatus? ExpiryNotifiedStatusId { get; set; }
+
+    //what the back office tells about the batch, all optional; the ledger never writes these
+
+    /// <summary>
+    ///     The place in the batch's warehouse where it is kept
+    /// </summary>
+    public string LocationId { get; set; }
+
+    /// <summary>
+    ///     The production date, a date without time
+    /// </summary>
+    public DateTime? ManufacturedOnUtc { get; set; }
+
+    public string Supplier { get; set; }
+
+    /// <summary>
+    ///     The number the supplier or manufacturer gave the batch
+    /// </summary>
+    public string SupplierBatchNumber { get; set; }
+
+    /// <summary>
+    ///     The certificate of analysis or conformity the batch came with
+    /// </summary>
+    public string CertificateNumber { get; set; }
+
+    public string AdminComment { get; set; }
+
+    /// <summary>
+    ///     Shown to the customers who received units of the batch
+    /// </summary>
+    public string CustomerComment { get; set; }
 }

@@ -1,0 +1,27 @@
+@model Grand.Web.AdminShared.Models.Shipping.WarehouseLocationModel
+@{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<div asp-validation-summary="All"></div>
+<input asp-for="Id" type="hidden"/>
+<input id="active-menu-item" type="hidden" value="@Url.Action("List", new { area })"/>
+<admin-card>
+    <div class="grand-fields grand-fields--2col">
+        @if (string.IsNullOrEmpty(Model.Id))
+        {
+            <admin-field asp-for="WarehouseId" asp-items="Model.AvailableWarehouses" asp-required="true"/>
+        }
+        else
+        {
+            @* the units kept there stay in its warehouse: a location never moves to another one *@
+            <input asp-for="WarehouseId" type="hidden"/>
+            <div class="grand-field">
+                <span class="grand-field__label">@Loc["Admin.Configuration.Shipping.WarehouseLocations.Fields.Warehouse"]</span>
+                <div class="grand-field__control">@Model.AvailableWarehouses.FirstOrDefault(x => x.Selected)?.Text</div>
+            </div>
+        }
+        <admin-field asp-for="Code" asp-required="true"/>
+        <admin-field asp-for="Name"/>
+        <admin-field asp-for="DisplayOrder" size="sm"/>
+    </div>
+</admin-card>

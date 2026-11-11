@@ -4,11 +4,13 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Catalog;
 using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Domain.Media;
@@ -39,6 +41,7 @@ public class PdfService : IPdfService
     private readonly PdfSettings _pdfSettings;
     private readonly IPictureService _pictureService;
     private readonly IProductService _productService;
+    private readonly IShipmentService _shipmentService;
     private readonly IStoreFilesContext _storeFilesContext;
     private readonly IStoreService _storeService;
     private readonly ITranslationService _translationService;
@@ -56,8 +59,10 @@ public class PdfService : IPdfService
         IOrderService orderService,
         PdfSettings pdfSettings,
         IMediator mediator,
-        ILogger<PdfService> logger)
+        ILogger<PdfService> logger,
+        IShipmentService shipmentService)
     {
+        _shipmentService = shipmentService;
         _downloadRepository = downloadRepository;
         _translationService = translationService;
         _storeFilesContext = storeFilesContext;
@@ -167,6 +172,10 @@ public class PdfService : IPdfService
         pdf.Space(4);
 
         var items = order.OrderItems.Where(x => !limitByVendor || x.VendorId == vendorId).ToList();
+        //what the shipped shipments shipped of each item, read only when the store shows it
+        var shipped = _pdfSettings.ShowUnitNumbersOnInvoices && items.Any(x => x.ShipQty > 0)
+            ? (await _shipmentService.GetShipmentsByOrder(order.Id)).Where(x => x.ShippedDateUtc.HasValue).ToList()
+            : [];
         var rows = new List<IReadOnlyList<PdfCell>>();
         foreach (var item in items)
         {
@@ -174,6 +183,8 @@ public class PdfService : IPdfService
             var name = new List<PdfLine> { new(product?.GetTranslation(x => x.Name, lang) ?? item.ProductId) };
             var attributes = PdfHtmlText.ToPlainText(item.AttributeDescription);
             if (attributes.Length > 0) name.Add(new PdfLine(attributes, Small: true));
+            var units = ShippedUnits.Of(shipped, item.Id);
+            name.AddRange(UnitLines(units.SelectMany(x => x.SerialNumbers), units.SelectMany(x => x.Batches), lang));
 
             rows.Add([
                 new PdfCell(name),
@@ -306,6 +317,8 @@ public class PdfService : IPdfService
             var name = new List<PdfLine> { new(product?.GetTranslation(x => x.Name, lang) ?? item.ProductId) };
             var attributes = PdfHtmlText.ToPlainText(orderItem.AttributeDescription);
             if (attributes.Length > 0) name.Add(new PdfLine(attributes, Small: true));
+            if (_pdfSettings.ShowUnitNumbersOnPackagingSlips)
+                name.AddRange(UnitLines(item.SerialNumbers ?? [], item.Batches ?? [], lang));
 
             rows.Add([new PdfCell(name), PdfCell.Of(product?.Sku), PdfCell.Of(item.Quantity.ToString())]);
         }
@@ -388,6 +401,23 @@ public class PdfService : IPdfService
     private string Format(string resourceKey, string lang, object value)
     {
         return string.Format(_translationService.GetResource(resourceKey, lang), value);
+    }
+
+    /// <summary>
+    ///     The serial numbers and the batches shipped of an item, a small line each
+    /// </summary>
+    private IEnumerable<PdfLine> UnitLines(IEnumerable<string> serialNumbers, IEnumerable<ShipmentItemBatch> batches,
+        string lang)
+    {
+        //a unit shipped again after a return, and a batch shipped in parts, are listed once
+        var numbers = serialNumbers.DistinctBy(UnitNumbers.Key).ToList();
+        if (numbers.Count > 0)
+            yield return new PdfLine(Format("PDFInvoice.SerialNumbers", lang, string.Join(", ", numbers)), Small: true);
+        var shippedBatches = batches.Where(x => x.Quantity > 0).GroupBy(x => UnitNumbers.Key(x.Number))
+            .Select(x => $"{x.First().Number} x {x.Sum(batch => batch.Quantity)}").ToList();
+        if (shippedBatches.Count > 0)
+            yield return new PdfLine(Format("PDFInvoice.Batches", lang, string.Join(", ", shippedBatches)),
+                Small: true);
     }
 
     private static string Money(Order order, double amount)

@@ -263,6 +263,12 @@ public class GeneralCommonSettingsModel : BaseModel
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.InvoiceFooterText")]
         public string InvoiceFooterText { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.GeneralCommon.ShowUnitNumbersOnInvoices")]
+        public bool ShowUnitNumbersOnInvoices { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.GeneralCommon.ShowUnitNumbersOnPackagingSlips")]
+        public bool ShowUnitNumbersOnPackagingSlips { get; set; }
     }
 
     public class DisplayMenuSettingsModel : BaseModel

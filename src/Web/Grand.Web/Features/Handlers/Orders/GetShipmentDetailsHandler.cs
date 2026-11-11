@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -17,6 +18,7 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
     private readonly IDateTimeService _dateTimeService;
     private readonly IMediator _mediator;
     private readonly IProductService _productService;
+    private readonly IProductUnitService _productUnitService;
     private readonly IShipmentService _shipmentService;
     private readonly ShippingProviderSettings _shippingProviderSettings;
     private readonly IShippingService _shippingService;
@@ -31,8 +33,10 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
         IMediator mediator,
         ShippingSettings shippingSettings,
         CatalogSettings catalogSettings,
-        ShippingProviderSettings shippingProviderSettings)
+        ShippingProviderSettings shippingProviderSettings,
+        IProductUnitService productUnitService)
     {
+        _productUnitService = productUnitService;
         _dateTimeService = dateTimeService;
         _productService = productService;
         _shippingService = shippingService;
@@ -91,6 +95,8 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
 
         //products in this shipment
         model.ShowSku = _catalogSettings.ShowSkuOnProductDetailsPage;
+        //the batches and serial numbers shipped, with what the store tells the customer about them
+        var units = await _productUnitService.ShippedUnitViews(request.Shipment);
         foreach (var shipmentItem in request.Shipment.ShipmentItems)
         {
             var orderItem = request.Order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
@@ -107,6 +113,17 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
                 QuantityOrdered = orderItem.Quantity,
                 QuantityShipped = shipmentItem.Quantity
             };
+            foreach (var unit in units.TryGetValue(shipmentItem.Id, out var shipped) ? shipped : [])
+                shipmentItemModel.Units.Add(new ShipmentDetailsModel.ShippedUnitModel {
+                    Number = unit.Number,
+                    Quantity = unit.Quantity,
+                    IsSerialNumber = unit.IsSerialNumber,
+                    ExpiryDate = unit.ExpiryDateUtc?.Date,
+                    CustomerComment = unit.CustomerComment
+                });
+            if (shipmentItem.WarrantyUntilUtc.HasValue)
+                shipmentItemModel.WarrantyUntil =
+                    _dateTimeService.ConvertToUserTime(shipmentItem.WarrantyUntilUtc.Value, DateTimeKind.Utc);
 
             model.Items.Add(shipmentItemModel);
         }

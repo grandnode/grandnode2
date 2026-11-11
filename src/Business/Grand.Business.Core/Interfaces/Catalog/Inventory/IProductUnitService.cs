@@ -26,6 +26,21 @@ public sealed record BatchAllocation(
 public sealed record ShipmentUnitError(string ShipmentItemId, string ProductName, string ErrorKey);
 
 /// <summary>
+///     A batch or serial number a shipment item shipped, as its customer is told about it
+/// </summary>
+/// <param name="Number">The number as the shipment names it</param>
+/// <param name="IsSerialNumber">A serial number; otherwise a batch</param>
+/// <param name="Quantity">The units of a batch; one for a serial number</param>
+/// <param name="ExpiryDateUtc">The batch's expiry date</param>
+/// <param name="CustomerComment">What the store tells the customer about the unit; empty when its record is gone</param>
+public sealed record ShippedUnitView(
+    string Number,
+    bool IsSerialNumber,
+    int Quantity,
+    DateTime? ExpiryDateUtc,
+    string CustomerComment);
+
+/// <summary>
 ///     The filter of the batch and serial number screens; an empty field filters nothing
 /// </summary>
 public sealed record UnitSearch
@@ -73,7 +88,7 @@ public sealed record ExpiringBatch(
     BatchExpiryStatus Status);
 
 /// <summary>
-///     A shipment that shipped units of a batch: who received them
+///     A shipment that shipped units of a batch: who received them, and the store of their order
 /// </summary>
 public sealed record BatchRecipient(
     string ShipmentId,
@@ -83,7 +98,8 @@ public sealed record BatchRecipient(
     string CustomerId,
     string CustomerEmail,
     int Quantity,
-    DateTime ShippedOnUtc);
+    DateTime ShippedOnUtc,
+    string StoreId = null);
 
 /// <summary>
 ///     One stock bucket of a product tracking units: its stock and the part of it batches or serial numbers hold
@@ -155,6 +171,24 @@ public interface IProductUnitService
     Task<ProductSerialNumber> GetSerialNumber(string id);
 
     Task<ProductBatch> GetBatch(string id);
+
+    /// <summary>
+    ///     Saves what the back office tells about the batch: its location, supplier, dates and comments; never its
+    ///     stock, which only the ledger writes
+    /// </summary>
+    Task UpdateBatchDetails(ProductBatch batch);
+
+    /// <summary>
+    ///     Saves what the back office tells about the unit: its location, supplier, device fields and comments; never
+    ///     its status or warehouse, which only the ledger writes
+    /// </summary>
+    Task UpdateSerialNumberDetails(ProductSerialNumber serialNumber);
+
+    /// <summary>
+    ///     The batches and serial numbers each item of the shipment shipped, by shipment item id, with what the
+    ///     customer is told about them
+    /// </summary>
+    Task<IDictionary<string, IList<ShippedUnitView>>> ShippedUnitViews(Shipment shipment);
 
     /// <summary>
     ///     A page of the journal entries of the batch, in its warehouse, newest first

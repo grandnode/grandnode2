@@ -44,6 +44,37 @@ public class SerialNumberModel : SerialNumberRowModel
     public string ReceiptDocumentId { get; set; }
     public string ShipmentId { get; set; }
     public bool InWarranty { get; set; }
+
+    //what the back office tells about the unit, all optional
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.Location")]
+    public string LocationId { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.ManufacturedOn")]
+    public DateTime? ManufacturedOn { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.Supplier")]
+    public string Supplier { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.SupplierWarrantyUntil")]
+    public DateTime? SupplierWarrantyUntil { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.Imei")]
+    public string Imei { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.MacAddress")]
+    public string MacAddress { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.FirmwareVersion")]
+    public string FirmwareVersion { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.AdminComment")]
+    public string AdminComment { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.CustomerComment")]
+    public string CustomerComment { get; set; }
+
+    public IList<SelectListItem> AvailableLocations { get; set; } = new List<SelectListItem>();
 }
 
 public class BatchListModel : BaseModel
@@ -91,6 +122,31 @@ public class BatchModel : BatchRowModel
     public decimal? UnitCost { get; set; }
     public DateTime ReceivedOn { get; set; }
     public string ReceiptDocumentId { get; set; }
+
+    //what the back office tells about the batch, all optional
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.Location")]
+    public string LocationId { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.ManufacturedOn")]
+    public DateTime? ManufacturedOn { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.Supplier")]
+    public string Supplier { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.SupplierBatchNumber")]
+    public string SupplierBatchNumber { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.CertificateNumber")]
+    public string CertificateNumber { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.AdminComment")]
+    public string AdminComment { get; set; }
+
+    [GrandResourceDisplayName("Admin.Inventory.Units.Fields.CustomerComment")]
+    public string CustomerComment { get; set; }
+
+    public IList<SelectListItem> AvailableLocations { get; set; } = new List<SelectListItem>();
 }
 
 public class BatchRecipientModel
@@ -142,4 +198,11 @@ public class UnitInBucketModel
     public DateTime? ExpiryDate { get; set; }
 
     public BatchExpiryStatus? ExpiryStatus { get; set; }
+
+    /// <summary>
+    ///     The code of the place in the warehouse where it is kept
+    /// </summary>
+    public string Location { get; set; }
+
+    public DateTime? ReceivedOn { get; set; }
 }

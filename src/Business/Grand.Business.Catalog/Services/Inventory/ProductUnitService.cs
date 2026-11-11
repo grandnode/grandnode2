@@ -157,6 +157,105 @@ public class ProductUnitService(
         return batchRepository.GetByIdAsync(id);
     }
 
+    public Task UpdateBatchDetails(ProductBatch batch)
+    {
+        ArgumentNullException.ThrowIfNull(batch);
+
+        //only these fields: the ledger writes the quantity under the product's lock, this does not take it
+        return batchRepository.UpdateOneAsync(x => x.Id == batch.Id, UpdateBuilder<ProductBatch>.Create()
+            .Set(x => x.LocationId, batch.LocationId)
+            .Set(x => x.ManufacturedOnUtc, batch.ManufacturedOnUtc)
+            .Set(x => x.Supplier, batch.Supplier)
+            .Set(x => x.SupplierBatchNumber, batch.SupplierBatchNumber)
+            .Set(x => x.CertificateNumber, batch.CertificateNumber)
+            .Set(x => x.AdminComment, batch.AdminComment)
+            .Set(x => x.CustomerComment, batch.CustomerComment));
+    }
+
+    public Task UpdateSerialNumberDetails(ProductSerialNumber serialNumber)
+    {
+        ArgumentNullException.ThrowIfNull(serialNumber);
+
+        return serialNumberRepository.UpdateOneAsync(x => x.Id == serialNumber.Id,
+            UpdateBuilder<ProductSerialNumber>.Create()
+                .Set(x => x.LocationId, serialNumber.LocationId)
+                .Set(x => x.ManufacturedOnUtc, serialNumber.ManufacturedOnUtc)
+                .Set(x => x.Supplier, serialNumber.Supplier)
+                .Set(x => x.SupplierWarrantyUntilUtc, serialNumber.SupplierWarrantyUntilUtc)
+                .Set(x => x.Imei, serialNumber.Imei)
+                .Set(x => x.MacAddress, serialNumber.MacAddress)
+                .Set(x => x.FirmwareVersion, serialNumber.FirmwareVersion)
+                .Set(x => x.AdminComment, serialNumber.AdminComment)
+                .Set(x => x.CustomerComment, serialNumber.CustomerComment));
+    }
+
+    public async Task<IDictionary<string, IList<ShippedUnitView>>> ShippedUnitViews(Shipment shipment)
+    {
+        ArgumentNullException.ThrowIfNull(shipment);
+
+        var views = new Dictionary<string, IList<ShippedUnitView>>();
+        var items = shipment.ShipmentItems
+            .Where(x => (x.SerialNumbers?.Count ?? 0) > 0 || (x.Batches?.Count ?? 0) > 0).ToList();
+        if (items.Count == 0)
+            return views;
+
+        //a serial number is one record per product, wherever it went since: the shipment it names now may be a later
+        //one, after a return
+        var serialItems = items.Where(x => (x.SerialNumbers?.Count ?? 0) > 0).ToList();
+        var serialProductIds = serialItems.Select(x => x.ProductId).Distinct().ToList();
+        var serialKeys = serialItems.SelectMany(x => x.SerialNumbers).Select(UnitNumbers.Key).Distinct().ToList();
+        var serialNumbers = serialItems.Count == 0
+            ? []
+            : await serialNumberRepository.ToListAsync(serialNumberRepository.Table.Where(x =>
+                serialProductIds.Contains(x.ProductId) && serialKeys.Contains(x.NumberKey)));
+        var batchItems = items.Where(x => (x.Batches?.Count ?? 0) > 0).ToList();
+        var productIds = batchItems.Select(x => x.ProductId).Distinct().ToList();
+        var keys = batchItems.SelectMany(x => x.Batches).Select(x => UnitNumbers.Key(x.Number)).Distinct().ToList();
+        var products = productIds.Count == 0
+            ? new Dictionary<string, Product>()
+            : (await productRepository.ToListAsync(productRepository.Table.Where(x => productIds.Contains(x.Id))))
+            .ToDictionary(x => x.Id);
+        var batches = productIds.Count == 0
+            ? []
+            : await batchRepository.ToListAsync(batchRepository.Table.Where(x =>
+                productIds.Contains(x.ProductId) && keys.Contains(x.NumberKey)));
+
+        foreach (var item in items)
+        {
+            var units = new List<ShippedUnitView>();
+            foreach (var number in item.SerialNumbers ?? [])
+            {
+                var key = UnitNumbers.Key(number);
+                var serialNumber = serialNumbers.FirstOrDefault(x => x.ProductId == item.ProductId && x.NumberKey == key);
+                //the comment is for the order the unit went with last: once sold again, it is the next customer's
+                var comment = serialNumber != null && serialNumber.OrderId == shipment.OrderId
+                    ? serialNumber.CustomerComment
+                    : null;
+                units.Add(new ShippedUnitView(number, true, 1, null, comment));
+            }
+
+            var product = products.GetValueOrDefault(item.ProductId);
+            //the batch of the bucket the item shipped from: the same number in another warehouse is another batch
+            var warehouseId = product == null ? null : StockBuckets.UnitWarehouse(product, item.WarehouseId);
+            var combinationId = product?.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes
+                ? product.FindProductAttributeCombination(item.Attributes)?.Id ?? ""
+                : "";
+            foreach (var shipped in item.Batches ?? [])
+            {
+                var key = UnitNumbers.Key(shipped.Number);
+                var batch = batches.FirstOrDefault(x => x.ProductId == item.ProductId && x.NumberKey == key &&
+                                                        (x.WarehouseId ?? "") == warehouseId &&
+                                                        (x.CombinationId ?? "") == combinationId);
+                units.Add(new ShippedUnitView(shipped.Number, false, shipped.Quantity, batch?.ExpiryDateUtc,
+                    batch?.CustomerComment));
+            }
+
+            views[item.Id] = units;
+        }
+
+        return views;
+    }
+
     public Task<IPagedList<InventoryJournal>> History(ProductBatch batch, int pageIndex, int pageSize)
     {
         ArgumentNullException.ThrowIfNull(batch);
@@ -204,7 +303,7 @@ public class ProductUnitService(
             var order = shipment == null ? null : orders.GetValueOrDefault(shipment.OrderId);
             return new BatchRecipient(entry.ObjectId, shipment?.ShipmentNumber ?? 0, shipment?.OrderId,
                 order?.OrderNumber ?? 0, order?.CustomerId, order?.CustomerEmail, entry.OutQty - entry.InQty,
-                shipment?.CreatedOnUtc ?? entry.CreateDateUtc);
+                shipment?.CreatedOnUtc ?? entry.CreateDateUtc, order?.StoreId);
         }).ToList(), pageIndex, pageSize, entries.TotalCount);
     }
 
