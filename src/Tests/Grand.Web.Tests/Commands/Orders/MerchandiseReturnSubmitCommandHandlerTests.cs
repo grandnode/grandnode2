@@ -61,7 +61,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_QuantityAboveReturnable_TakesOnlyWhatCanBeReturned()
+    public async Task Handle_QuantityAboveReturnable_InsertsNothing()
     {
         //Arrange - another return took 3 of the 5 in the meantime
         SetupReturnable(2);
@@ -69,9 +69,9 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         //Act
         var result = await _handler.Handle(Command(5), CancellationToken.None);
 
-        //Assert
-        Assert.AreEqual(2, result.MerchandiseReturnItems.Single().Quantity);
-        _merchandiseReturnServiceMock.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Once);
+        //Assert - not a smaller return the customer did not ask for
+        Assert.IsNull(result);
+        _merchandiseReturnServiceMock.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
     }
 
     [TestMethod]

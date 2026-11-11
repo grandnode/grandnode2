@@ -1,12 +1,14 @@
 using Grand.Business.Checkout.Events.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Events;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Checkout.Tests.Events.Orders;
 
@@ -16,6 +18,7 @@ public class MerchandiseReturnQuantityEventHandlerTests
     private MerchandiseReturnQuantityEventHandler _handler;
     private Mock<IMediator> _mediatorMock;
     private Order _order;
+    private Mock<IRepository<Order>> _orderRepositoryMock;
     private Mock<IOrderService> _orderServiceMock;
 
     [TestInitialize]
@@ -25,8 +28,19 @@ public class MerchandiseReturnQuantityEventHandlerTests
         _order.OrderItems.Add(new OrderItem { Id = "a", Quantity = 2 });
         _orderServiceMock = new Mock<IOrderService>();
         _orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync(_order);
+        _orderRepositoryMock = new Mock<IRepository<Order>>();
         _mediatorMock = new Mock<IMediator>();
-        _handler = new MerchandiseReturnQuantityEventHandler(_orderServiceMock.Object, _mediatorMock.Object);
+        _handler = new MerchandiseReturnQuantityEventHandler(_orderServiceMock.Object, _orderRepositoryMock.Object,
+            _mediatorMock.Object);
+    }
+
+    //only the order item is written, never the whole order
+    private void VerifyOrderItemWritten(Times times)
+    {
+        _orderRepositoryMock.Verify(x => x.UpdateCollectionFieldItem(It.IsAny<string>(),
+            It.IsAny<Expression<Func<Order, IEnumerable<OrderItem>>>>(),
+            It.IsAny<Expression<Func<OrderItem, bool>>>(), It.Is<OrderItem>(i => i.Id == "a")), times);
+        _orderServiceMock.Verify(x => x.UpdateOrder(It.IsAny<Order>()), Times.Never);
     }
 
     //the returns stored for the order, as the event handler finds them after the write
@@ -56,7 +70,7 @@ public class MerchandiseReturnQuantityEventHandlerTests
 
         //Assert
         Assert.AreEqual(2, _order.OrderItems.Single().ReturnQty);
-        _orderServiceMock.Verify(x => x.UpdateOrder(_order), Times.Once);
+        VerifyOrderItemWritten(Times.Once());
     }
 
     [TestMethod]
@@ -72,7 +86,7 @@ public class MerchandiseReturnQuantityEventHandlerTests
 
         //Assert
         Assert.AreEqual(0, _order.OrderItems.Single().ReturnQty);
-        _orderServiceMock.Verify(x => x.UpdateOrder(_order), Times.Once);
+        VerifyOrderItemWritten(Times.Once());
     }
 
     [TestMethod]
@@ -101,7 +115,7 @@ public class MerchandiseReturnQuantityEventHandlerTests
         await _handler.Handle(new EntityUpdated<MerchandiseReturn>(merchandiseReturn), CancellationToken.None);
 
         //Assert
-        _orderServiceMock.Verify(x => x.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        VerifyOrderItemWritten(Times.Never());
     }
 
     [TestMethod]
@@ -117,7 +131,7 @@ public class MerchandiseReturnQuantityEventHandlerTests
 
         //Assert
         Assert.AreEqual(0, _order.OrderItems.Single().ReturnQty);
-        _orderServiceMock.Verify(x => x.UpdateOrder(_order), Times.Once);
+        VerifyOrderItemWritten(Times.Once());
     }
 
     [TestMethod]
@@ -146,6 +160,6 @@ public class MerchandiseReturnQuantityEventHandlerTests
         await _handler.Handle(new EntityInserted<MerchandiseReturn>(merchandiseReturn), CancellationToken.None);
 
         //Assert
-        _orderServiceMock.Verify(x => x.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        VerifyOrderItemWritten(Times.Never());
     }
 }
