@@ -35,6 +35,9 @@ public class GetReturnableQuantitiesQueryHandler
 
         var delivered = (await _shipmentService.GetShipmentsByOrder(request.Order.Id))
             .Where(x => x.DeliveryDateUtc.HasValue).ToList();
+        //nothing delivered, nothing to return: spares the queries below for every undelivered order of a list
+        if (delivered.Count == 0)
+            return quantities;
 
         //validate allowed number of days
         var days = _orderSettings.NumberOfDaysMerchandiseReturnAvailable;
@@ -54,6 +57,15 @@ public class GetReturnableQuantitiesQueryHandler
 
         foreach (var item in request.Order.OrderItems)
         {
+            //returns do not say which shipment they came from, so the quantity still within its period caps what is
+            //left of everything delivered
+            var qtyDelivery = DeliveredQuantity(delivered, item.Id);
+            var qtyWithinPeriod = DeliveredQuantity(withinPeriod, item.Id);
+            var returnable = Math.Min(qtyWithinPeriod, qtyDelivery - merchandiseReturns.ReturnedQuantity(item.Id));
+            //the product is read only for an item that has something left
+            if (returnable <= 0)
+                continue;
+
             if (!request.ForStaff)
             {
                 var product = await _productService.GetProductByIdIncludeArch(item.ProductId);
@@ -61,12 +73,7 @@ public class GetReturnableQuantitiesQueryHandler
                     continue;
             }
 
-            //returns do not say which shipment they came from, so the quantity still within its period caps what is
-            //left of everything delivered
-            var qtyDelivery = DeliveredQuantity(delivered, item.Id);
-            var qtyWithinPeriod = DeliveredQuantity(withinPeriod, item.Id);
-            quantities[item.Id] = Math.Max(0,
-                Math.Min(qtyWithinPeriod, qtyDelivery - merchandiseReturns.ReturnedQuantity(item.Id)));
+            quantities[item.Id] = returnable;
         }
 
         return quantities;

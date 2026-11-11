@@ -130,6 +130,10 @@ public class GetReturnableQuantitiesQueryHandlerTests
         var quantities = await Handle();
 
         Assert.IsTrue(quantities.Values.All(x => x == 0));
+        //an undelivered order on the customer's order list costs one shipment query, nothing more
+        _productServiceMock.Verify(x => x.GetProductByIdIncludeArch(It.IsAny<string>()), Times.Never);
+        _mediatorMock.Verify(x => x.Send(It.IsAny<GetMerchandiseReturnQuery>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     [TestMethod]
@@ -206,5 +210,20 @@ public class GetReturnableQuantitiesQueryHandlerTests
         //Assert - still never more than was delivered
         Assert.AreEqual(1, quantities["a"]);
         Assert.AreEqual(2, quantities["b"]);
+    }
+
+    [TestMethod]
+    public async Task Handle_ItemFullyReturned_DoesNotReadItsProduct()
+    {
+        //Arrange - both delivered units of b are returned already
+        SetupReturns(Return("b", 2));
+
+        //Act
+        var quantities = await Handle();
+
+        //Assert
+        Assert.AreEqual(0, quantities["b"]);
+        _productServiceMock.Verify(x => x.GetProductByIdIncludeArch("q"), Times.Never);
+        _productServiceMock.Verify(x => x.GetProductByIdIncludeArch("p"), Times.Once);
     }
 }
