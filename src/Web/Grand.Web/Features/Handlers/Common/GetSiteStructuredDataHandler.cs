@@ -53,8 +53,13 @@ public class GetSiteStructuredDataHandler : IRequestHandler<GetSiteStructuredDat
 
         if (_orderSettings.MerchandiseReturnsEnabled)
             model.ReturnPolicy = new SiteStructuredDataModel.ReturnPolicyModel {
-                //IsMerchandiseReturnAllowedQueryHandler applies no age limit when this is 0
+                //GetReturnableQuantitiesQueryHandler applies no age limit when this is 0
                 UnlimitedWindow = _orderSettings.NumberOfDaysMerchandiseReturnAvailable <= 0,
+                //schema.org counts the days from delivery, so they are published only when the store does too
+                ReturnDays = _orderSettings.NumberOfDaysMerchandiseReturnAvailable > 0 &&
+                             _orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered
+                    ? _orderSettings.NumberOfDaysMerchandiseReturnAvailable
+                    : null,
                 //optional declarations from the settings screen; NotSpecified publishes nothing
                 ReturnFees = _orderSettings.MerchandiseReturnFees switch {
                     MerchandiseReturnFees.Free => "https://schema.org/FreeReturn",

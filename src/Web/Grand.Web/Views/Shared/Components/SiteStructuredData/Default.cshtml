@@ -35,6 +35,7 @@
                 ? "https://schema.org/MerchantReturnUnlimitedWindow"
                 : "https://schema.org/MerchantReturnFiniteReturnWindow"
         };
+        if (returns.ReturnDays != null) policy["merchantReturnDays"] = returns.ReturnDays;
         if (returns.CountryCodes.Count > 0) policy["applicableCountry"] = returns.CountryCodes;
         if (returns.ReturnFees != null) policy["returnFees"] = returns.ReturnFees;
         if (returns.ReturnMethod != null) policy["returnMethod"] = returns.ReturnMethod;

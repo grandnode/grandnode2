@@ -23,11 +23,15 @@ public class SiteStructuredDataModel
     public class ReturnPolicyModel
     {
         /// <summary>
-        ///     No day limit is configured. A configured limit is not published as merchantReturnDays:
-        ///     the store counts it from the order date, schema.org from delivery, so the number
-        ///     would promise a longer window than the store gives.
+        ///     No day limit is configured.
         /// </summary>
         public bool UnlimitedWindow { get; set; }
+
+        /// <summary>
+        ///     merchantReturnDays, only when the store counts the days from delivery as schema.org does. Counted from
+        ///     the order date, the number would promise a longer window than the store gives, so it is left out.
+        /// </summary>
+        public int? ReturnDays { get; set; }
 
         /// <summary>
         ///     schema.org ReturnFeesEnumeration member, or null when the store has not declared it
