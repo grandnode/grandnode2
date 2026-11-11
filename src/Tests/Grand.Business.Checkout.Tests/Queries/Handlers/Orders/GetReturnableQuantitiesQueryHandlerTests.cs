@@ -18,6 +18,7 @@ public class GetReturnableQuantitiesQueryHandlerTests
     private GetReturnableQuantitiesQueryHandler _handler;
     private Mock<IMediator> _mediatorMock;
     private Order _order;
+    private OrderSettings _orderSettings;
     private Mock<IProductService> _productServiceMock;
     private List<Shipment> _shipments;
 
@@ -42,9 +43,10 @@ public class GetReturnableQuantitiesQueryHandlerTests
         _productServiceMock.Setup(x => x.GetProductByIdIncludeArch("q")).ReturnsAsync(new Product { Id = "q" });
         _mediatorMock = new Mock<IMediator>();
         SetupReturns();
+        _orderSettings = new OrderSettings();
 
         _handler = new GetReturnableQuantitiesQueryHandler(shipmentServiceMock.Object, _productServiceMock.Object,
-            _mediatorMock.Object, new OrderSettings());
+            _mediatorMock.Object, _orderSettings);
     }
 
     private void SetupReturns(params MerchandiseReturn[] merchandiseReturns)
@@ -52,6 +54,14 @@ public class GetReturnableQuantitiesQueryHandlerTests
         _mediatorMock.Setup(x => x.Send(It.Is<GetMerchandiseReturnQuery>(q => q.OrderId == "o1"),
                 It.IsAny<CancellationToken>()))
             .ReturnsAsync(new PagedList<MerchandiseReturn>(merchandiseReturns, 0, int.MaxValue));
+    }
+
+    private static MerchandiseReturn Return(string orderItemId, int quantity)
+    {
+        var merchandiseReturn = new MerchandiseReturn { MerchandiseReturnStatus = MerchandiseReturnStatus.Pending };
+        merchandiseReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem
+            { OrderItemId = orderItemId, Quantity = quantity });
+        return merchandiseReturn;
     }
 
     private Task<IReadOnlyDictionary<string, int>> Handle()
@@ -119,6 +129,63 @@ public class GetReturnableQuantitiesQueryHandlerTests
 
         var quantities = await Handle();
 
+        Assert.IsTrue(quantities.Values.All(x => x == 0));
+    }
+
+    [TestMethod]
+    public async Task Handle_PeriodFromDelivery_EachShipmentHasItsOwnDays()
+    {
+        //Arrange - 2 units of a delivered 60 days ago, 1 more yesterday, 30 days to return
+        var early = new Shipment { DeliveryDateUtc = DateTime.UtcNow.AddDays(-60) };
+        early.ShipmentItems.Add(new ShipmentItem { OrderItemId = "a", Quantity = 2 });
+        var late = new Shipment { DeliveryDateUtc = DateTime.UtcNow.AddDays(-1) };
+        late.ShipmentItems.Add(new ShipmentItem { OrderItemId = "a", Quantity = 1 });
+        _shipments = [early, late];
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 30;
+        _orderSettings.MerchandiseReturnPeriodStart = MerchandiseReturnPeriodStart.Delivered;
+
+        //Act
+        var quantities = await Handle();
+
+        //Assert - the late delivery does not reopen the early one
+        Assert.AreEqual(1, quantities["a"]);
+        Assert.AreEqual(0, quantities["b"]);
+    }
+
+    [TestMethod]
+    [DataRow(1, 1)]
+    [DataRow(2, 1)]
+    [DataRow(3, 0)]
+    public async Task Handle_PeriodFromDelivery_ReturnsTakeFromWhatWasDelivered(int returned, int expected)
+    {
+        //Arrange - 3 units of a delivered, only 1 of them still within its days
+        var early = new Shipment { DeliveryDateUtc = DateTime.UtcNow.AddDays(-60) };
+        early.ShipmentItems.Add(new ShipmentItem { OrderItemId = "a", Quantity = 2 });
+        var late = new Shipment { DeliveryDateUtc = DateTime.UtcNow.AddDays(-1) };
+        late.ShipmentItems.Add(new ShipmentItem { OrderItemId = "a", Quantity = 1 });
+        _shipments = [early, late];
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 30;
+        _orderSettings.MerchandiseReturnPeriodStart = MerchandiseReturnPeriodStart.Delivered;
+        SetupReturns(Return("a", returned));
+
+        //Act
+        var quantities = await Handle();
+
+        //Assert
+        Assert.AreEqual(expected, quantities["a"]);
+    }
+
+    [TestMethod]
+    public async Task Handle_PeriodFromOrderPlacedElapsed_GivesZero()
+    {
+        //Arrange
+        _order.CreatedOnUtc = DateTime.UtcNow.AddDays(-31);
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 30;
+
+        //Act
+        var quantities = await Handle();
+
+        //Assert
         Assert.IsTrue(quantities.Values.All(x => x == 0));
     }
 }

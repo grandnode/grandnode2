@@ -11,7 +11,7 @@ public enum MerchandiseReturnPeriodStart
     OrderPlaced = 0,
 
     /// <summary>
-    ///     The last shipment of the order was delivered
+    ///     The shipment was delivered: each shipment of the order has its own days
     /// </summary>
     Delivered = 10
 }

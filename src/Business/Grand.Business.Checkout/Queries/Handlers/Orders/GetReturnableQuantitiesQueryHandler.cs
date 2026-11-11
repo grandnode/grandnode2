@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
+using Grand.Domain.Shipping;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
@@ -36,13 +37,15 @@ public class GetReturnableQuantitiesQueryHandler
             .Where(x => x.DeliveryDateUtc.HasValue).ToList();
 
         //validate allowed number of days
-        if (_orderSettings.NumberOfDaysMerchandiseReturnAvailable > 0)
+        var days = _orderSettings.NumberOfDaysMerchandiseReturnAvailable;
+        var withinPeriod = delivered;
+        if (days > 0)
         {
-            var periodStart = _orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered
-                ? delivered.Max(x => x.DeliveryDateUtc)
-                : request.Order.CreatedOnUtc;
-            if (periodStart.HasValue && (DateTime.UtcNow - periodStart.Value).TotalDays >=
-                _orderSettings.NumberOfDaysMerchandiseReturnAvailable)
+            if (_orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered)
+                //each shipment has its own days, counted from its delivery
+                withinPeriod = delivered.Where(x => (DateTime.UtcNow - x.DeliveryDateUtc!.Value).TotalDays < days)
+                    .ToList();
+            else if ((DateTime.UtcNow - request.Order.CreatedOnUtc).TotalDays >= days)
                 return quantities;
         }
 
@@ -55,11 +58,20 @@ public class GetReturnableQuantitiesQueryHandler
             if (product == null || product.NotReturnable)
                 continue;
 
-            var qtyDelivery = delivered.SelectMany(x => x.ShipmentItems)
-                .Where(x => x.OrderItemId == item.Id).Sum(x => x.Quantity);
-            quantities[item.Id] = Math.Max(0, qtyDelivery - merchandiseReturns.ReturnedQuantity(item.Id));
+            //returns do not say which shipment they came from, so the quantity still within its period caps what is
+            //left of everything delivered
+            var qtyDelivery = DeliveredQuantity(delivered, item.Id);
+            var qtyWithinPeriod = DeliveredQuantity(withinPeriod, item.Id);
+            quantities[item.Id] = Math.Max(0,
+                Math.Min(qtyWithinPeriod, qtyDelivery - merchandiseReturns.ReturnedQuantity(item.Id)));
         }
 
         return quantities;
+    }
+
+    private static int DeliveredQuantity(IEnumerable<Shipment> shipments, string orderItemId)
+    {
+        return shipments.SelectMany(x => x.ShipmentItems).Where(x => x.OrderItemId == orderItemId)
+            .Sum(x => x.Quantity);
     }
 }

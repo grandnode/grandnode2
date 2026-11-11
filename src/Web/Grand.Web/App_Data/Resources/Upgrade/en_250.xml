@@ -1618,13 +1618,13 @@
 		<Value>Days to return counted from</Value>
 	</Resource>
 	<Resource Name="Admin.Settings.Order.MerchandiseReturnPeriodStart.Hint" Area="Admin">
-		<Value>The moment the number of days that the merchandise return is available is counted from: the order was placed, or the last shipment of the order was delivered.</Value>
+		<Value>The moment the number of days that the merchandise return is available is counted from: the order was placed, or the shipment was delivered - then each shipment of the order has its own days.</Value>
 	</Resource>
 	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnPeriodStart.OrderPlaced" Area="Common">
 		<Value>Order placed</Value>
 	</Resource>
 	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnPeriodStart.Delivered" Area="Common">
-		<Value>Order delivered</Value>
+		<Value>Shipment delivered</Value>
 	</Resource>
 	<Resource Name="MerchandiseReturns.QuantityExceeded" Area="Front">
 		<Value>Your merchandise return has not been submitted because the quantity is more than you can still return.</Value>
