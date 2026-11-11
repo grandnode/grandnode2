@@ -28,4 +28,9 @@ public static class UnitErrors
     public const string TrackedStockDocumentsOnly = "Admin.Inventory.Units.Errors.TrackedStockDocumentsOnly";
     public const string TrackedBundleChild = "Admin.Inventory.Units.Errors.TrackedBundleChild";
     public const string TrackingNotSupported = "Admin.Inventory.Units.Errors.TrackingNotSupported";
+
+    /// <summary>
+    ///     Units are kept in a warehouse: a tracked product kept in one must name it
+    /// </summary>
+    public const string WarehouseRequired = "Admin.Inventory.Units.Errors.WarehouseRequired";
 }

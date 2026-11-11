@@ -125,6 +125,46 @@ public class ProductUnitServiceTests
     }
 
     [TestMethod]
+    public async Task TrackingChangeRefused_TrackingOnWithoutWarehouse_WarehouseRequired()
+    {
+        var stored = Tracked(InventoryTrackingMode.None);
+        stored.WarehouseId = "";
+
+        Assert.AreEqual(UnitErrors.WarehouseRequired, await _service.TrackingChangeRefused(stored,
+            Changed(stored, x => x.InventoryTrackingModeId = InventoryTrackingMode.Batch)));
+    }
+
+    [TestMethod]
+    public async Task TrackingChangeRefused_WarehouseRemovedFromTracked_WarehouseRequired()
+    {
+        var stored = Tracked(InventoryTrackingMode.SerialNumber);
+
+        Assert.AreEqual(UnitErrors.WarehouseRequired, await _service.TrackingChangeRefused(stored,
+            Changed(stored, x => x.WarehouseId = "")));
+    }
+
+    [TestMethod]
+    public async Task TrackingChangeRefused_TrackedInMultipleWarehouses_Allowed()
+    {
+        var stored = Tracked(InventoryTrackingMode.None);
+        stored.WarehouseId = "";
+
+        Assert.IsNull(await _service.TrackingChangeRefused(stored, Changed(stored, x => {
+            x.InventoryTrackingModeId = InventoryTrackingMode.Batch;
+            x.UseMultipleWarehouses = true;
+        })));
+    }
+
+    [TestMethod]
+    public async Task TrackingChangeRefused_StoredWithoutWarehouse_SameSettings_Allowed()
+    {
+        var stored = Tracked(InventoryTrackingMode.Batch);
+        stored.WarehouseId = "";
+
+        Assert.IsNull(await _service.TrackingChangeRefused(stored, Changed(stored, _ => { })));
+    }
+
+    [TestMethod]
     public async Task TrackingChangeRefused_BundleProduct_TrackingNotSupported()
     {
         var stored = Tracked(InventoryTrackingMode.None, ManageInventoryMethod.ManageStockByBundleProducts);
