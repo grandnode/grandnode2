@@ -36,6 +36,8 @@ public class MerchandiseReturnWorkflowServiceTests
 
         _merchandiseReturnService = new Mock<IMerchandiseReturnService>();
         _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById("r1")).ReturnsAsync(() => _stored);
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnReasons(It.IsAny<string>())).ReturnsAsync([]);
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnActions(It.IsAny<string>())).ReturnsAsync([]);
         _orderService = new Mock<IOrderService>();
         _orderService.Setup(x => x.GetOrderById("o1")).ReturnsAsync(_order);
         _mediator = new Mock<IMediator>();
@@ -374,13 +376,15 @@ public class MerchandiseReturnWorkflowServiceTests
     [TestMethod]
     public async Task Submit_StoresReasonIdAndActionId_AndTheNamesInTheRequestLanguage()
     {
-        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnReasonById("rr1"))
-            .ReturnsAsync(new MerchandiseReturnReason {
-                Id = "rr1", Name = "Broken",
-                Locales = [new TranslationEntity { LanguageId = "l1", LocaleKey = "Name", LocaleValue = "Zepsuty" }]
-            });
-        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnActionById("ra1"))
-            .ReturnsAsync(new MerchandiseReturnAction { Id = "ra1", Name = "Refund" });
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnReasons("s1"))
+            .ReturnsAsync([
+                new MerchandiseReturnReason {
+                    Id = "rr1", Name = "Broken",
+                    Locales = [new TranslationEntity { LanguageId = "l1", LocaleKey = "Name", LocaleValue = "Zepsuty" }]
+                }
+            ]);
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnActions("s1"))
+            .ReturnsAsync([new MerchandiseReturnAction { Id = "ra1", Name = "Refund" }]);
 
         var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 1, "rr1", "ra1")));
 
@@ -390,6 +394,24 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.AreEqual("Zepsuty", item.ReasonForReturn);
         Assert.AreEqual("ra1", item.ActionId);
         Assert.AreEqual("Refund", item.RequestedAction);
+    }
+
+    [TestMethod]
+    public async Task Submit_ReasonOrActionTheStoreDoesNotOffer_CountsAsNoneChosen()
+    {
+        //the ids of another store's reason and action, posted by hand: the store offers neither
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnReasons("s1")).ReturnsAsync([]);
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnActions("s1")).ReturnsAsync([]);
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnReasonById("other-store-reason"))
+            .ReturnsAsync(new MerchandiseReturnReason { Id = "other-store-reason", Name = "Secret" });
+
+        var result = await _service.Submit(SubmitRequest(
+            new MerchandiseReturnSubmitItem("a", 1, "other-store-reason", "other-store-action")));
+
+        var item = result.MerchandiseReturns.Single().MerchandiseReturnItems.Single();
+        Assert.IsNull(item.ReasonId);
+        Assert.AreEqual("not available", item.ReasonForReturn);
+        Assert.IsNull(item.ActionId);
     }
 
     [TestMethod]

@@ -120,10 +120,13 @@ public class MerchandiseReturnWorkflowService(
         if (request.PickupDate.HasValue)
             merchandiseReturn.PickupDate = request.PickupDate.Value;
 
+        //only the reasons and actions the store offers: an id of another store's counts as none chosen
+        var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons(request.StoreId);
+        var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions(request.StoreId);
         foreach (var item in items)
         {
-            var reason = await merchandiseReturnService.GetMerchandiseReturnReasonById(item.ReasonId);
-            var action = await merchandiseReturnService.GetMerchandiseReturnActionById(item.ActionId);
+            var reason = reasons.FirstOrDefault(x => x.Id == item.ReasonId);
+            var action = actions.FirstOrDefault(x => x.Id == item.ActionId);
             merchandiseReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem {
                 OrderItemId = item.OrderItemId,
                 Quantity = item.Quantity,
