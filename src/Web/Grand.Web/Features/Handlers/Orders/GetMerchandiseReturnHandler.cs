@@ -2,10 +2,10 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
@@ -27,14 +27,12 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     private readonly OrderSettings _orderSettings;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IProductService _productService;
-    private readonly IShipmentService _shipmentService;
     private readonly IVendorService _vendorService;
     private readonly IContextAccessor _contextAccessor;
 
     public GetMerchandiseReturnHandler(
         IContextAccessor contextAccessor,
         IMerchandiseReturnService merchandiseReturnService,
-        IShipmentService shipmentService,
         IProductService productService,
         IPriceFormatter priceFormatter,
         ICountryService countryService,
@@ -46,7 +44,6 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     {
         _contextAccessor = contextAccessor;
         _merchandiseReturnService = merchandiseReturnService;
-        _shipmentService = shipmentService;
         _productService = productService;
         _priceFormatter = priceFormatter;
         _countryService = countryService;
@@ -105,21 +102,15 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
 
     private async Task PrepareItems(GetMerchandiseReturn request, MerchandiseReturnModel model)
     {
-        var shipments = await _shipmentService.GetShipmentsByOrder(request.Order.Id);
+        var returnable = await _mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order });
         var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
         foreach (var orderItem in request.Order.OrderItems)
         {
-            var qtyDelivery = shipments.Where(x => x.DeliveryDateUtc.HasValue).SelectMany(x => x.ShipmentItems)
-                .Where(x => x.OrderItemId == orderItem.Id).Sum(x => x.Quantity);
-
-            var merchandiseReturns =
-                await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id);
-            var qtyReturn = merchandiseReturns.SelectMany(rr => rr.MerchandiseReturnItems)
-                .Where(rrItem => rrItem.OrderItemId == orderItem.Id).Sum(rrItem => rrItem.Quantity);
+            var quantity = returnable.GetValueOrDefault(orderItem.Id);
+            if (quantity <= 0) continue;
 
             var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
-            if (product.NotReturnable) continue;
-
+            if (product == null) continue;
 
             var orderItemModel = new MerchandiseReturnModel.OrderItemModel {
                 Id = orderItem.Id,
@@ -131,10 +122,9 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
                 VendorName = string.IsNullOrEmpty(orderItem.VendorId)
                     ? ""
                     : (await _vendorService.GetVendorById(orderItem.VendorId))?.Name,
-                Quantity = qtyDelivery - qtyReturn
+                Quantity = quantity
             };
-            if (orderItemModel.Quantity > 0)
-                model.Items.Add(orderItemModel);
+            model.Items.Add(orderItemModel);
 
             orderItemModel.IncludingTax = request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax;
             orderItemModel.UnitPrice = _priceFormatter.FormatPrice(
