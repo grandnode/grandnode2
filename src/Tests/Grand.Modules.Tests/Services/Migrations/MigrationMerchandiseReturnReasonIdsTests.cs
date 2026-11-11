@@ -98,6 +98,19 @@ public class MigrationMerchandiseReturnReasonIdsTests
     }
 
     [TestMethod]
+    public async Task Backfill_MoreReturnsThanAPage_FillsEvery()
+    {
+        //read a page at a time; a return filled in leaves the filter without the next page skipping any
+        var returns = Enumerable.Range(0, 501)
+            .Select(_ => Insert(new MerchandiseReturnItem { ReasonForReturn = "Broken", RequestedAction = "Refund" }))
+            .ToList();
+
+        Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
+
+        Assert.IsTrue(returns.All(x => Items(x).Single().ReasonId == "broken"));
+    }
+
+    [TestMethod]
     public async Task Backfill_ItemWithIdAlready_IsNotTouched()
     {
         var merchandiseReturn = Insert(

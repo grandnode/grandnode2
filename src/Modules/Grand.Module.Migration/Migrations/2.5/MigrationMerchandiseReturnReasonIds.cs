@@ -14,6 +14,8 @@ namespace Grand.Module.Migration.Migrations._2._5;
 /// </summary>
 public class MigrationMerchandiseReturnReasonIds : IMigration
 {
+    private const int PageSize = 500;
+
     public int Priority => 1;
     public DbVersion Version => new(2, 5);
     public Guid Identity => new("b3e7a2d4-5c91-4f68-8e0b-7d2c4a9f1e36");
@@ -31,7 +33,15 @@ public class MigrationMerchandiseReturnReasonIds : IMigration
             var reasonIds = IdsByName(reasonRepository.Table.ToList().Select(x => (x.Id, x.Name, x.Locales)));
             var actionIds = IdsByName(actionRepository.Table.ToList().Select(x => (x.Id, x.Name, x.Locales)));
 
-            foreach (var merchandiseReturn in returnRepository.Table.ToList())
+            //only the returns with an item to fill in, a page at a time; their ids are read first, because a return
+            //filled in leaves the filter and paging the filter itself would skip others
+            var ids = await returnRepository.ToListAsync(returnRepository.Table
+                .Where(x => x.MerchandiseReturnItems.Any(item => item.ReasonId == null || item.ActionId == null))
+                .Select(x => x.Id));
+            //a list, not the chunk's array: C# 14 binds array.Contains to a span method no query provider translates
+            foreach (var page in ids.Chunk(PageSize).Select(x => x.ToList()))
+            foreach (var merchandiseReturn in await returnRepository.ToListAsync(
+                         returnRepository.Table.Where(x => page.Contains(x.Id))))
             {
                 var changed = false;
                 foreach (var item in merchandiseReturn.MerchandiseReturnItems)
