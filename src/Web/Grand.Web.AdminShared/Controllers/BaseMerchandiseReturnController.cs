@@ -132,14 +132,11 @@ public abstract class BaseMerchandiseReturnController(
             var (updated, error) = await MerchandiseReturnViewModelService.UpdateMerchandiseReturnModel(
                 merchandiseReturn, model, customAddressAttributes);
 
-            //a status button comes back to the return, whether the change was made or refused
-            if (model.ChangeStatusTo.HasValue)
+            //a status changed comes back to the return; a refused one shows the form again, with the reason typed
+            if (model.ChangeStatusTo.HasValue && error == null)
             {
-                if (error == null)
-                    Success(TranslationService.GetResource(
-                        $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.StatusChanged"));
-                else
-                    Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
+                Success(TranslationService.GetResource(
+                    $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.StatusChanged"));
                 return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
             }
 
@@ -153,6 +150,8 @@ public abstract class BaseMerchandiseReturnController(
             }
 
             Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
+            //the status buttons follow the return as stored now: another change may be why this one was refused
+            merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(model.Id) ?? merchandiseReturn;
         }
 
         await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);

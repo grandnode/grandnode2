@@ -353,7 +353,7 @@ public class BaseMerchandiseReturnControllerTests
     }
 
     [TestMethod]
-    public async Task EditPost_StatusChangeRefused_ShowsPrefixedErrorAndRedirectsToEdit()
+    public async Task EditPost_StatusChangeRefused_ShowsPrefixedErrorAndTheFormWithTheReasonTyped()
     {
         var entity = new MerchandiseReturn { Id = "mr1" };
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
@@ -362,19 +362,21 @@ public class BaseMerchandiseReturnControllerTests
         _merchandiseReturnViewModelServiceMock
             .Setup(v => v.UpdateMerchandiseReturnModel(entity, It.IsAny<MerchandiseReturnModel>(),
                 It.IsAny<List<Grand.Domain.Common.CustomAttribute>>()))
-            .ReturnsAsync((entity, MerchandiseReturnErrors.StatusChangeNotAllowed));
+            .ReturnsAsync((entity, MerchandiseReturnErrors.AlreadyReceived));
+        var model = new MerchandiseReturnModel {
+            Id = "mr1", ChangeStatusTo = (int)MerchandiseReturnStatus.Rejected, ChangeStatusNote = "Used item"
+        };
 
-        var result = await _controller.Edit(
-            new MerchandiseReturnModel { Id = "mr1", ChangeStatusTo = (int)MerchandiseReturnStatus.Completed },
-            false,
+        var result = await _controller.Edit(model, false,
             new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
             new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
             new Grand.Domain.Orders.OrderSettings());
 
-        var redirect = result as RedirectToActionResult;
-        Assert.IsNotNull(redirect);
-        Assert.AreEqual("Edit", redirect.ActionName);
-        _translationServiceMock.Verify(t => t.GetResource("Vendor.Orders.MerchandiseReturns.StatusChangeNotAllowed"),
+        //not a redirect, which would drop the reason the admin typed
+        var view = result as ViewResult;
+        Assert.IsNotNull(view);
+        Assert.AreEqual("Used item", ((MerchandiseReturnModel)view.Model).ChangeStatusNote);
+        _translationServiceMock.Verify(t => t.GetResource("Vendor.Orders.MerchandiseReturns.AlreadyReceived"),
             Times.Once);
     }
 
