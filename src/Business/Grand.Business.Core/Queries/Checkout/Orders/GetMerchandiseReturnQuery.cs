@@ -9,6 +9,7 @@ public class GetMerchandiseReturnQuery : IRequest<IQueryable<MerchandiseReturn>>
     public string CustomerId { get; set; } = "";
     public string VendorId { get; set; } = "";
     public string OwnerId { get; set; } = "";
+    public string OrderId { get; set; } = "";
     public string OrderItemId { get; set; } = "";
     public MerchandiseReturnStatus? Rs { get; set; } = null;
     public int PageIndex { get; set; } = 0;

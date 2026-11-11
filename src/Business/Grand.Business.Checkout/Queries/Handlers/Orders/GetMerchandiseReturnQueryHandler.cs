@@ -33,6 +33,9 @@ public class
         if (!string.IsNullOrEmpty(request.OwnerId))
             query = query.Where(rr => request.OwnerId == rr.OwnerId);
 
+        if (!string.IsNullOrEmpty(request.OrderId))
+            query = query.Where(rr => request.OrderId == rr.OrderId);
+
         if (request.Rs.HasValue)
         {
             var returnStatusId = (int)request.Rs.Value;
