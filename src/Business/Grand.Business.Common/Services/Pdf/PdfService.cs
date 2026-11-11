@@ -409,13 +409,15 @@ public class PdfService : IPdfService
     private IEnumerable<PdfLine> UnitLines(IEnumerable<string> serialNumbers, IEnumerable<ShipmentItemBatch> batches,
         string lang)
     {
-        var numbers = serialNumbers.ToList();
+        //a unit shipped again after a return, and a batch shipped in parts, are listed once
+        var numbers = serialNumbers.DistinctBy(UnitNumbers.Key).ToList();
         if (numbers.Count > 0)
             yield return new PdfLine(Format("PDFInvoice.SerialNumbers", lang, string.Join(", ", numbers)), Small: true);
-        var shippedBatches = batches.Where(x => x.Quantity > 0).ToList();
+        var shippedBatches = batches.Where(x => x.Quantity > 0).GroupBy(x => UnitNumbers.Key(x.Number))
+            .Select(x => $"{x.First().Number} x {x.Sum(batch => batch.Quantity)}").ToList();
         if (shippedBatches.Count > 0)
-            yield return new PdfLine(Format("PDFInvoice.Batches", lang,
-                string.Join(", ", shippedBatches.Select(x => $"{x.Number} x {x.Quantity}"))), Small: true);
+            yield return new PdfLine(Format("PDFInvoice.Batches", lang, string.Join(", ", shippedBatches)),
+                Small: true);
     }
 
     private static string Money(Order order, double amount)

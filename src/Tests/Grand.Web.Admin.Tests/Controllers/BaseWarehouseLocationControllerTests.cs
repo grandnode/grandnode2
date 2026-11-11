@@ -35,6 +35,8 @@ public class BaseWarehouseLocationControllerTests
     {
         var scope = new Mock<IAdminDataScope<Warehouse>>();
         scope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync(storeId);
+        scope.Setup(x => x.HasAccess(It.IsAny<Warehouse>()))
+            .ReturnsAsync((Warehouse warehouse) => storeId == null || warehouse.StoreId == storeId);
         var translation = new Mock<IRequestTranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns("msg");
         return new WarehouseLocationController(_locations.Object, _warehouses.Object, translation.Object, scope.Object) {

@@ -50,6 +50,11 @@ public sealed class UnitSet
     ///     The serial numbers that came into stock from elsewhere: the place they were kept in is no longer theirs
     /// </summary>
     internal HashSet<ProductSerialNumber> Relocated { get; } = new(ReferenceEqualityComparer.Instance);
+
+    /// <summary>
+    ///     The serial numbers the call gave a store: a warehouse moved to another store writes it without the lock
+    /// </summary>
+    internal HashSet<ProductSerialNumber> StoreChanged { get; } = new(ReferenceEqualityComparer.Instance);
     internal Dictionary<StockChange, List<object>> Touched { get; } = new(ReferenceEqualityComparer.Instance);
 
     /// <summary>
@@ -431,17 +436,19 @@ public sealed class StockUnits(
                     break;
                 case ProductSerialNumber serialNumber:
                     //only what the ledger changes: the location, the device fields and the comments are written by
-                    //the back office without the product's lock; the ledger only takes the location away
+                    //the back office, and the store by a warehouse moved to another store, without the product's
+                    //lock; the ledger only takes the location away and sets the store of a unit it moves
                     var update = UpdateBuilder<ProductSerialNumber>.Create();
                     if (set.Relocated.Contains(serialNumber))
                         update.Set(x => x.LocationId, null);
+                    if (set.StoreChanged.Contains(serialNumber))
+                        update.Set(x => x.StoreId, serialNumber.StoreId);
                     await serialNumberRepository.UpdateOneAsync(x => x.Id == serialNumber.Id,
                         update
                             .Set(x => x.StatusId, serialNumber.StatusId)
                             .Set(x => x.CombinationId, serialNumber.CombinationId)
                             .Set(x => x.Attributes, serialNumber.Attributes)
                             .Set(x => x.WarehouseId, serialNumber.WarehouseId)
-                            .Set(x => x.StoreId, serialNumber.StoreId)
                             .Set(x => x.UnitCost, serialNumber.UnitCost)
                             .Set(x => x.ReceivedOnUtc, serialNumber.ReceivedOnUtc)
                             .Set(x => x.ReceiptDocumentId, serialNumber.ReceiptDocumentId)
@@ -759,7 +766,10 @@ public sealed class StockUnits(
         }
 
         if ((serialNumber.WarehouseId ?? "") != (bucket.WarehouseId ?? "") || serialNumber.StoreId == null)
+        {
             serialNumber.StoreId = await StoreOf(bucket.WarehouseId);
+            set.StoreChanged.Add(serialNumber);
+        }
         serialNumber.StatusId = SerialNumberStatus.InStock;
         serialNumber.CombinationId = bucket.CombinationId ?? "";
         serialNumber.Attributes = bucket.Attributes ?? [];

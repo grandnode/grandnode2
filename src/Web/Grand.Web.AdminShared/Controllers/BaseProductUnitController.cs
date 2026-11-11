@@ -85,9 +85,9 @@ public abstract class BaseProductUnitController(
         model.ShipmentId = serialNumber.ShipmentId;
         model.InWarranty = serialNumber.WarrantyUntilUtc > DateTime.UtcNow;
         model.LocationId = serialNumber.LocationId;
-        model.ManufacturedOn = serialNumber.ManufacturedOnUtc;
+        model.ManufacturedOn = StoredDate(serialNumber.ManufacturedOnUtc);
         model.Supplier = serialNumber.Supplier;
-        model.SupplierWarrantyUntil = serialNumber.SupplierWarrantyUntilUtc;
+        model.SupplierWarrantyUntil = StoredDate(serialNumber.SupplierWarrantyUntilUtc);
         model.Imei = serialNumber.Imei;
         model.MacAddress = serialNumber.MacAddress;
         model.FirmwareVersion = serialNumber.FirmwareVersion;
@@ -107,6 +107,12 @@ public abstract class BaseProductUnitController(
         var serialNumber = await productUnitService.GetSerialNumber(model.Id);
         if (serialNumber == null || !await CanSee(serialNumber.StoreId))
             return Denied("SerialNumbers");
+        //a date not understood would come as none and wipe the one stored
+        if (!ModelState.IsValid)
+        {
+            Error(ModelState);
+            return RedirectToAction("SerialNumber", new { id = serialNumber.Id });
+        }
 
         serialNumber.LocationId = await LocationIn(serialNumber.WarehouseId, model.LocationId);
         serialNumber.ManufacturedOnUtc = Date(model.ManufacturedOn);
@@ -187,7 +193,7 @@ public abstract class BaseProductUnitController(
         model.ReceivedOn = dateTimeService.ConvertToUserTime(batch.ReceivedOnUtc, DateTimeKind.Utc);
         model.ReceiptDocumentId = batch.ReceiptDocumentId;
         model.LocationId = batch.LocationId;
-        model.ManufacturedOn = batch.ManufacturedOnUtc;
+        model.ManufacturedOn = StoredDate(batch.ManufacturedOnUtc);
         model.Supplier = batch.Supplier;
         model.SupplierBatchNumber = batch.SupplierBatchNumber;
         model.CertificateNumber = batch.CertificateNumber;
@@ -207,6 +213,11 @@ public abstract class BaseProductUnitController(
         var batch = await productUnitService.GetBatch(model.Id);
         if (batch == null || !await CanSee(batch.StoreId))
             return Denied("Batches");
+        if (!ModelState.IsValid)
+        {
+            Error(ModelState);
+            return RedirectToAction("Batch", new { id = batch.Id });
+        }
 
         batch.LocationId = await LocationIn(batch.WarehouseId, model.LocationId);
         batch.ManufacturedOnUtc = Date(model.ManufacturedOn);
@@ -249,6 +260,14 @@ public abstract class BaseProductUnitController(
     private static DateTime? Date(DateTime? value)
     {
         return value.HasValue ? DateTime.SpecifyKind(value.Value.Date, DateTimeKind.Utc) : null;
+    }
+
+    /// <summary>
+    ///     A date as stored, for the date input: LiteDB reads it back in local time, a day early west of UTC
+    /// </summary>
+    private static DateTime? StoredDate(DateTime? value)
+    {
+        return value is { Kind: DateTimeKind.Local } ? value.Value.ToUniversalTime() : value;
     }
 
     private static string Text(string value)
@@ -389,7 +408,7 @@ public abstract class BaseProductUnitController(
         row.ProductId = batch.ProductId;
         row.ProductName = product?.Name;
         row.Warehouse = await WarehouseName(batch.WarehouseId);
-        row.ExpiryDate = batch.ExpiryDateUtc;
+        row.ExpiryDate = StoredDate(batch.ExpiryDateUtc);
         row.Quantity = batch.Quantity;
         //the warning days the expiry e-mail and the dashboard count with
         _inventorySettings ??= await settingService.LoadSetting<InventorySettings>();

@@ -1,6 +1,8 @@
 using Grand.Business.Catalog.Events.Handlers;
 using Grand.Business.Catalog.Services.Inventory;
 using Grand.Business.Core.Utilities.Catalog;
+using Grand.Data;
+using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Events;
@@ -115,6 +117,44 @@ public class ProductUnitDetailsTests
     }
 
     [TestMethod]
+    public async Task WarehouseMovedToAnotherStoreWhileLedgerWrites_StoreKept()
+    {
+        var serials = new RacingSerialNumbers();
+        var ledger = StockTestFixture.Ledger(_fixture.Products, _fixture.Journal, batches: _fixture.Batches,
+            serials: serials, shipments: _fixture.Shipments);
+        var product = await _fixture.Stocked(Multiple(), InventoryTrackingMode.SerialNumber);
+        await ledger.Apply(_fixture.Stored(product), [Serials(1, InventoryMovementType.Receipt, "w1", "A1")]);
+        Assert.AreEqual("store1", serials.Table.Single().StoreId);
+        //the warehouse goes to store2 after the ledger read the unit and before it writes it
+        serials.AfterRead = () => serials.UpdateManyAsync(x => x.WarehouseId == "w1",
+            UpdateBuilder<ProductSerialNumber>.Create().Set(x => x.StoreId, "store2"));
+
+        await ledger.Apply(_fixture.Stored(product), [Serials(-1, InventoryMovementType.Adjustment, "w1", "A1")]);
+
+        var stored = serials.Table.Single();
+        Assert.AreEqual(SerialNumberStatus.Scrapped, stored.StatusId);
+        Assert.AreEqual("store2", stored.StoreId);
+    }
+
+    private sealed class RacingSerialNumbers : MongoDBRepositoryTest<ProductSerialNumber>
+    {
+        public Func<Task> AfterRead { get; set; }
+
+        public override async Task<IList<TResult>> ToListAsync<TResult>(IQueryable<TResult> query,
+            CancellationToken cancellationToken = default)
+        {
+            var list = await base.ToListAsync(query, cancellationToken);
+            if (AfterRead is { } afterRead)
+            {
+                AfterRead = null;
+                await afterRead();
+            }
+
+            return list;
+        }
+    }
+
+    [TestMethod]
     public async Task Transfer_NewTargetBatch_TakesDetailsButNotLocation()
     {
         var product = await _fixture.Stocked(Multiple(), InventoryTrackingMode.Batch);
@@ -141,7 +181,7 @@ public class ProductUnitDetailsTests
     }
 
     [TestMethod]
-    public async Task ShippedUnitViews_BatchOfTheItemsWarehouse_SerialComments()
+    public async Task ShippedUnitViews_BatchOfTheItemsWarehouse_SerialCommentsOfTheOrder()
     {
         await _fixture.Products.InsertAsync(new Product {
             Id = "p1", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true
@@ -155,18 +195,25 @@ public class ProductUnitDetailsTests
             ProductId = "p1", WarehouseId = "w2", CombinationId = "", Number = "L1", NumberKey = "L1",
             CustomerComment = "from w2"
         });
-        var shipment = new Shipment { Id = "s1" };
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
         shipment.ShipmentItems.Add(new ShipmentItem {
             Id = "i1", ProductId = "p1", WarehouseId = "w2", Batches = { new ShipmentItemBatch { Number = "l1", Quantity = 3 } }
         });
-        shipment.ShipmentItems.Add(new ShipmentItem { Id = "i2", ProductId = "p2", SerialNumbers = { "A1", "A2" } });
+        shipment.ShipmentItems.Add(new ShipmentItem { Id = "i2", ProductId = "p2", SerialNumbers = { "A1", "A2", "A3" } });
         shipment.ShipmentItems.Add(new ShipmentItem { Id = "i3", ProductId = "p3" });
         await _fixture.Serials.InsertAsync(new ProductSerialNumber {
-            ProductId = "p2", Number = "A1", NumberKey = "A1", ShipmentId = "s1", CustomerComment = "Registered"
+            ProductId = "p2", Number = "A1", NumberKey = "A1", OrderId = "o1", ShipmentId = "s1",
+            CustomerComment = "Registered"
         });
-        //returned and shipped again: it names the later shipment, its comment is still its own
+        //returned and shipped again for the same order: it names the later shipment, its comment is still its own
         await _fixture.Serials.InsertAsync(new ProductSerialNumber {
-            ProductId = "p2", Number = "A2", NumberKey = "A2", ShipmentId = "s9", CustomerComment = "Refurbished"
+            ProductId = "p2", Number = "A2", NumberKey = "A2", OrderId = "o1", ShipmentId = "s9",
+            CustomerComment = "Refurbished"
+        });
+        //returned and sold to another customer: the comment is theirs
+        await _fixture.Serials.InsertAsync(new ProductSerialNumber {
+            ProductId = "p2", Number = "A3", NumberKey = "A3", OrderId = "o2", ShipmentId = "s8",
+            CustomerComment = "For the next customer"
         });
         //the same number of another product is another unit
         await _fixture.Serials.InsertAsync(new ProductSerialNumber {
@@ -181,7 +228,7 @@ public class ProductUnitDetailsTests
         Assert.AreEqual(3, batch.Quantity);
         Assert.AreEqual("from w2", batch.CustomerComment);
         Assert.IsFalse(batch.IsSerialNumber);
-        CollectionAssert.AreEqual(new[] { "Registered", "Refurbished" },
+        CollectionAssert.AreEqual(new[] { "Registered", "Refurbished", null },
             views["i2"].Select(x => x.CustomerComment).ToArray());
         Assert.IsTrue(views["i2"].All(x => x.IsSerialNumber));
     }

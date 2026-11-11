@@ -227,7 +227,11 @@ public class ProductUnitService(
             {
                 var key = UnitNumbers.Key(number);
                 var serialNumber = serialNumbers.FirstOrDefault(x => x.ProductId == item.ProductId && x.NumberKey == key);
-                units.Add(new ShippedUnitView(number, true, 1, null, serialNumber?.CustomerComment));
+                //the comment is for the order the unit went with last: once sold again, it is the next customer's
+                var comment = serialNumber != null && serialNumber.OrderId == shipment.OrderId
+                    ? serialNumber.CustomerComment
+                    : null;
+                units.Add(new ShippedUnitView(number, true, 1, null, comment));
             }
 
             var product = products.GetValueOrDefault(item.ProductId);

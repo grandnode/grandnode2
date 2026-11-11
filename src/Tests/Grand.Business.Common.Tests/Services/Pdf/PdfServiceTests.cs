@@ -299,6 +299,35 @@ public class PdfServiceTests
     }
 
     [TestMethod]
+    public async Task PrintOrdersToPdf_UnitsShippedInParts_ListedOnce()
+    {
+        //Arrange
+        _pdfSettings.ShowUnitNumbersOnInvoices = true;
+        var order = CreateOrder();
+        order.OrderItems.First().ShipQty = 2;
+        var first = new Shipment { Id = "s1", OrderId = order.Id, ShippedDateUtc = DateTime.UtcNow.AddDays(-2) };
+        first.ShipmentItems.Add(new ShipmentItem {
+            OrderItemId = "i1", SerialNumbers = { "SN-A1" }, Batches = { new ShipmentItemBatch { Number = "LOT-7", Quantity = 2 } }
+        });
+        //SN-A1 came back and was shipped again; the rest of the batch went later
+        var second = new Shipment { Id = "s2", OrderId = order.Id, ShippedDateUtc = DateTime.UtcNow };
+        second.ShipmentItems.Add(new ShipmentItem {
+            OrderItemId = "i1", SerialNumbers = { "sn-a1" }, Batches = { new ShipmentItemBatch { Number = "LOT-7", Quantity = 1 } }
+        });
+        _shipmentServiceMock.Setup(s => s.GetShipmentsByOrder(order.Id))
+            .ReturnsAsync(new List<Shipment> { first, second });
+        //Act
+        using var stream = new MemoryStream();
+        await _service.PrintOrdersToPdf(stream, [order], "lang-1");
+        //Assert
+        using var pdf = PdfDocument.Open(stream.ToArray());
+        var text = pdf.GetPage(1).Text;
+        Assert.AreEqual(1, text.Split("SN-A1", StringSplitOptions.None).Length - 1);
+        Assert.DoesNotContain("sn-a1", text);
+        StringAssert.Contains(text, "LOT-7 x 3");
+    }
+
+    [TestMethod]
     public async Task PrintPackagingSlipsToPdf_ForVendorShipment_PrintsOnlyVendorLines()
     {
         //Arrange

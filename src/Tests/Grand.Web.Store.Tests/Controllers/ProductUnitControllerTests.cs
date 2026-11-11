@@ -101,6 +101,48 @@ public class ProductUnitControllerTests
     }
 
     [TestMethod]
+    public async Task SaveSerialNumber_DateNotUnderstood_NotWritten()
+    {
+        _units.Setup(x => x.GetSerialNumber("sn1"))
+            .ReturnsAsync(new ProductSerialNumber { Id = "sn1", StoreId = StoreId });
+        _controller.ModelState.AddModelError(nameof(SerialNumberModel.ManufacturedOn), "not a date");
+
+        var result = await _controller.SerialNumber(new SerialNumberModel { Id = "sn1" });
+
+        Assert.AreEqual("SerialNumber", (result as RedirectToActionResult)?.ActionName);
+        _units.Verify(x => x.UpdateSerialNumberDetails(It.IsAny<ProductSerialNumber>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SaveBatch_DateNotUnderstood_NotWritten()
+    {
+        _units.Setup(x => x.GetBatch("b1")).ReturnsAsync(new ProductBatch { Id = "b1", StoreId = StoreId });
+        _controller.ModelState.AddModelError(nameof(BatchModel.ManufacturedOn), "not a date");
+
+        var result = await _controller.Batch(new BatchModel { Id = "b1" });
+
+        Assert.AreEqual("Batch", (result as RedirectToActionResult)?.ActionName);
+        _units.Verify(x => x.UpdateBatchDetails(It.IsAny<ProductBatch>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SerialNumber_DateReadBackInLocalTime_ShownAsStored()
+    {
+        //LiteDB reads the midnight UTC stored back in local time
+        var stored = new DateTime(2026, 11, 10, 0, 0, 0, DateTimeKind.Utc);
+        _units.Setup(x => x.GetSerialNumber("sn1")).ReturnsAsync(new ProductSerialNumber {
+            Id = "sn1", StoreId = StoreId, ManufacturedOnUtc = stored.ToLocalTime(),
+            SupplierWarrantyUntilUtc = stored.AddYears(2).ToLocalTime()
+        });
+
+        var model = (await _controller.SerialNumber("sn1") as ViewResult)?.Model as SerialNumberModel;
+
+        Assert.AreEqual(stored, model?.ManufacturedOn);
+        Assert.AreEqual(DateTimeKind.Utc, model?.ManufacturedOn?.Kind);
+        Assert.AreEqual(stored.AddYears(2), model?.SupplierWarrantyUntil);
+    }
+
+    [TestMethod]
     public async Task Store_BatchHistoryOfOtherStore_NotRead()
     {
         _units.Setup(x => x.GetBatch("b1")).ReturnsAsync(new ProductBatch { Id = "b1", StoreId = "store2" });

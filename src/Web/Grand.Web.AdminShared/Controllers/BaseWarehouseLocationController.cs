@@ -169,8 +169,7 @@ public abstract class BaseWarehouseLocationController(
     private async Task<bool> CanUse(string warehouseId)
     {
         var warehouse = string.IsNullOrEmpty(warehouseId) ? null : await warehouseService.GetWarehouseById(warehouseId);
-        return warehouse != null && (await warehouseScope.GetDefaultStoreIdAsync() is not { } storeId ||
-                                     warehouse.StoreId == storeId);
+        return warehouse != null && await warehouseScope.HasAccess(warehouse);
     }
 
     private async Task PrepareModel(WarehouseLocationModel model)
