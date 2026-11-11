@@ -402,6 +402,8 @@ public partial class InstallationService
             MerchandiseReturns_AllowToSpecifyPickupDate = false,
             MerchandiseReturns_PickupDateRequired = false,
             NumberOfDaysMerchandiseReturnAvailable = 365,
+            //new stores count the days from the delivery; existing ones keep the order date (the setting's default)
+            MerchandiseReturnPeriodStart = MerchandiseReturnPeriodStart.Delivered,
             MinimumOrderPlacementInterval = 30,
             DeactivateGiftVouchersAfterDeletingOrder = true,
             DeactivateGiftVouchersAfterCancelOrder = true,
