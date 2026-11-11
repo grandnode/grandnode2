@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Catalog.Services.Inventory;
+using Grand.Business.Core.Extensions;
 using Grand.Data;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -209,6 +210,86 @@ public class InventoryDocumentServiceTests
 
         CollectionAssert.Contains((await _service.Validate(document)).ToList(),
             InventoryDocumentErrors.ReturnNotReceivable);
+    }
+
+    [TestMethod]
+    public async Task Post_ReturnReceipt_ReturnRejectedWhilePosting_StopsBeforeBooking()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        var resourceLock = new Mock<IResourceLock>();
+        resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Returns((IEnumerable<string> keys, CancellationToken _) =>
+            {
+                //staff reject the return just after the receipt was checked, before its stock is booked
+                if (keys.Contains(ProductStockLock.Key(product.Id)))
+                    merchandiseReturn.MerchandiseReturnStatus = MerchandiseReturnStatus.Rejected;
+                return Task.FromResult(new Mock<IAsyncDisposable>().Object);
+            });
+
+        var errors = await Service(resourceLock.Object).Post(document.Id, "staff");
+
+        CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.ReturnNotReceivable }, errors.ToArray());
+        Assert.IsFalse(_journal.Table.Any(x => x.ObjectId == document.Id));
+        Assert.AreEqual(InventoryDocumentStatus.Draft, _documents.Table.Single().StatusId);
+    }
+
+    [TestMethod]
+    public async Task Post_ReturnReceipt_BooksAndPostsUnderTheLockOfTheReturnsOrder()
+    {
+        //the lock the return's status changes hold: no rejection between the check and the booking
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        var acquired = new List<string[]>();
+        var resourceLock = new Mock<IResourceLock>();
+        resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Callback((IEnumerable<string> keys, CancellationToken _) => acquired.Add(keys.ToArray()))
+            .ReturnsAsync(new Mock<IAsyncDisposable>().Object);
+
+        await Service(resourceLock.Object).Post(document.Id, "staff");
+
+        var orderKey = MerchandiseReturnExtensions.QuantityLockKey(merchandiseReturn.OrderId);
+        Assert.IsTrue(acquired.Single(x => x.Contains(ProductStockLock.Key(product.Id))).Contains(orderKey));
+        Assert.IsTrue(acquired.Last().Contains(orderKey));
+        Assert.AreEqual(InventoryDocumentStatus.Posted, _documents.Table.Single().StatusId);
+    }
+
+    [TestMethod]
+    public async Task IsReturnReceived_DraftOnly_False()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+
+        Assert.IsFalse(await _service.IsReturnReceived(merchandiseReturn.Id));
+    }
+
+    [TestMethod]
+    public async Task IsReturnReceived_Posted_True()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        await _service.Post(document.Id, "staff");
+
+        Assert.IsTrue(await _service.IsReturnReceived(merchandiseReturn.Id));
+    }
+
+    [TestMethod]
+    public async Task IsReturnReceived_DraftWithALineBooked_True()
+    {
+        //a posting that stopped part way: stock is in, the receipt is still a draft
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        await _journal.InsertAsync(new InventoryJournal {
+            ObjectType = nameof(InventoryDocument), ObjectId = document.Id, PositionId = document.Lines[0].Id,
+            ProductId = product.Id
+        });
+
+        Assert.IsTrue(await _service.IsReturnReceived(merchandiseReturn.Id));
     }
 
     private Product Stored(Product product) => _products.Table.First(x => x.Id == product.Id);

@@ -5,8 +5,6 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
-using Grand.Domain;
-using Grand.Domain.Catalog;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
@@ -24,6 +22,7 @@ public class MerchandiseReturnWorkflowServiceTests
     private Mock<IMerchandiseReturnMessageProviderService> _messageProvider;
     private Mock<IMerchandiseReturnService> _merchandiseReturnService;
     private Order _order;
+    private Mock<IOrderService> _orderService;
     private Mock<IResourceLock> _resourceLock;
     private MerchandiseReturnWorkflowService _service;
     private MerchandiseReturn _stored;
@@ -37,18 +36,18 @@ public class MerchandiseReturnWorkflowServiceTests
 
         _merchandiseReturnService = new Mock<IMerchandiseReturnService>();
         _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById("r1")).ReturnsAsync(() => _stored);
-        var orderService = new Mock<IOrderService>();
-        orderService.Setup(x => x.GetOrderById("o1")).ReturnsAsync(_order);
+        _orderService = new Mock<IOrderService>();
+        _orderService.Setup(x => x.GetOrderById("o1")).ReturnsAsync(_order);
         _mediator = new Mock<IMediator>();
         SetupReturnable(5);
         _resourceLock = new Mock<IResourceLock>();
         _resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(Mock.Of<IAsyncDisposable>());
         _inventoryDocumentService = new Mock<IInventoryDocumentService>();
-        SetupPostedReceipts(0);
+        SetupReceived(false);
         _messageProvider = new Mock<IMerchandiseReturnMessageProviderService>();
 
-        _service = new MerchandiseReturnWorkflowService(_merchandiseReturnService.Object, orderService.Object,
+        _service = new MerchandiseReturnWorkflowService(_merchandiseReturnService.Object, _orderService.Object,
             _mediator.Object, _resourceLock.Object, _inventoryDocumentService.Object, _messageProvider.Object,
             NullLogger<MerchandiseReturnWorkflowService>.Instance);
     }
@@ -67,13 +66,9 @@ public class MerchandiseReturnWorkflowServiceTests
             .ReturnsAsync(new Dictionary<string, int> { { "a", quantity } });
     }
 
-    private void SetupPostedReceipts(int count)
+    private void SetupReceived(bool received)
     {
-        _inventoryDocumentService.Setup(x => x.Search(It.Is<InventoryDocumentSearch>(s =>
-                    s.MerchandiseReturnId == "r1" && s.Type == InventoryDocumentType.ReturnReceipt &&
-                    s.Status == InventoryDocumentStatus.Posted), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(new PagedList<InventoryDocument>(
-                Enumerable.Range(0, count).Select(_ => new InventoryDocument()), 0, 1));
+        _inventoryDocumentService.Setup(x => x.IsReturnReceived("r1")).ReturnsAsync(received);
     }
 
     [TestMethod]
@@ -125,10 +120,10 @@ public class MerchandiseReturnWorkflowServiceTests
     [TestMethod]
     [DataRow(MerchandiseReturnStatus.Rejected)]
     [DataRow(MerchandiseReturnStatus.Cancelled)]
-    public async Task ChangeStatus_RejectWithPostedReceipt_ReturnsAlreadyReceived(MerchandiseReturnStatus status)
+    public async Task ChangeStatus_RejectWithReceivedGoods_ReturnsAlreadyReceived(MerchandiseReturnStatus status)
     {
         _stored = Return(MerchandiseReturnStatus.Accepted);
-        SetupPostedReceipts(1);
+        SetupReceived(true);
 
         var error = await _service.ChangeStatus("r1", status);
 
@@ -258,6 +253,45 @@ public class MerchandiseReturnWorkflowServiceTests
 
         Assert.AreEqual(status, _stored.MerchandiseReturnStatus);
         _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task MarkReceived_LockTimeout_DoesNotThrow_AndLeavesTheReturn()
+    {
+        //the receipt is posted already: a refusal is logged, not reported as a failed posting
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+        _resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ResourceLockTimeoutException("MerchandiseReturn:o1"));
+
+        await _service.MarkReceived("r1");
+
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.MerchandiseReturnStatus);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_MessageFails_StatusStaysSaved_AndNoErrorReturned()
+    {
+        _messageProvider.Setup(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
+                It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>()))
+            .ThrowsAsync(new InvalidOperationException("smtp"));
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.MerchandiseReturnStatus);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_OrderMissing_SavesStatus_AndSendsNoMessage()
+    {
+        _orderService.Setup(x => x.GetOrderById("o1")).ReturnsAsync((Order)null);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.MerchandiseReturnStatus);
+        _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
+            It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -425,11 +459,28 @@ public class MerchandiseReturnWorkflowServiceTests
     }
 
     [TestMethod]
-    public async Task Delete_WithPostedReceipt_ReturnsAlreadyReceived()
+    public async Task Submit_SecondInsertFails_DeletesTheFirst_AndThrows()
+    {
+        //no return is left saved that no message told anyone about
+        TwoVendorOrder();
+        var inserts = 0;
+        _merchandiseReturnService.Setup(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()))
+            .Returns(() => ++inserts == 2 ? Task.FromException(new TimeoutException()) : Task.CompletedTask);
+
+        await Assert.ThrowsExactlyAsync<TimeoutException>(() => _service.Submit(SubmitRequest(
+            new MerchandiseReturnSubmitItem("store-item", 1, null, null),
+            new MerchandiseReturnSubmitItem("vendor-item", 1, null, null))));
+
+        _merchandiseReturnService.Verify(x => x.DeleteMerchandiseReturn(It.IsAny<MerchandiseReturn>()),
+            Times.Exactly(2));
+    }
+
+    [TestMethod]
+    public async Task Delete_WithReceivedGoods_ReturnsAlreadyReceived()
     {
         //deleting gives the quantity back to the customer, like rejecting does: not once the goods are in stock
         _stored = Return(MerchandiseReturnStatus.Accepted);
-        SetupPostedReceipts(1);
+        SetupReceived(true);
 
         var error = await _service.Delete("r1");
 

@@ -48,6 +48,7 @@ public class MerchandiseReturnWorkflowResourceKeysTests
         }
 
         yield return MerchandiseReturnErrors.SubmitBusy;
+        //Received is not added: every installation has had its name since the first release of the old statuses
         yield return "Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Accepted";
         yield return "Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Rejected";
         yield return "Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Completed";

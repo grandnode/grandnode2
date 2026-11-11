@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
-using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
@@ -49,15 +48,16 @@ public class MerchandiseReturnWorkflowService(
                 }
 
                 //each vendor handles the return of its own items
+                var merchandiseReturns = new List<MerchandiseReturn>();
                 foreach (var vendorItems in request.Order.OrderItems
                              .Where(orderItem => items.Any(x => x.OrderItemId == orderItem.Id))
                              .GroupBy(orderItem => orderItem.VendorId ?? ""))
-                {
-                    var merchandiseReturn = await NewMerchandiseReturn(request, vendorItems.Key,
-                        items.Where(x => vendorItems.Any(orderItem => orderItem.Id == x.OrderItemId)));
-                    await merchandiseReturnService.InsertMerchandiseReturn(merchandiseReturn);
+                    merchandiseReturns.Add(await NewMerchandiseReturn(request, vendorItems.Key,
+                        items.Where(x => vendorItems.Any(orderItem => orderItem.Id == x.OrderItemId))));
+
+                await InsertAllOrNone(merchandiseReturns);
+                foreach (var merchandiseReturn in merchandiseReturns)
                     result.MerchandiseReturns.Add(merchandiseReturn);
-                }
             }
         }
         catch (ResourceLockTimeoutException ex)
@@ -67,6 +67,39 @@ public class MerchandiseReturnWorkflowService(
         }
 
         return result;
+    }
+
+    /// <summary>
+    ///     Saves the returns of one submit, or none of them: the messages are sent once all are saved, so a return
+    ///     left over from a submit that failed would take the customer's quantity with no one told about it
+    /// </summary>
+    private async Task InsertAllOrNone(IList<MerchandiseReturn> merchandiseReturns)
+    {
+        var inserted = new List<MerchandiseReturn>();
+        try
+        {
+            foreach (var merchandiseReturn in merchandiseReturns)
+            {
+                //counted before the insert: one saved before its handlers failed is deleted as well
+                inserted.Add(merchandiseReturn);
+                await merchandiseReturnService.InsertMerchandiseReturn(merchandiseReturn);
+            }
+        }
+        catch
+        {
+            foreach (var merchandiseReturn in inserted)
+                try
+                {
+                    await merchandiseReturnService.DeleteMerchandiseReturn(merchandiseReturn);
+                }
+                catch (Exception ex)
+                {
+                    logger.LogError(ex, "Merchandise return {MerchandiseReturnId} of a submit that failed stayed saved",
+                        merchandiseReturn.Id);
+                }
+
+            throw;
+        }
     }
 
     private async Task<MerchandiseReturn> NewMerchandiseReturn(MerchandiseReturnSubmitRequest request,
@@ -133,9 +166,23 @@ public class MerchandiseReturnWorkflowService(
         if (error != null)
             return error;
 
-        var order = await orderService.GetOrderById(changed.OrderId);
-        await merchandiseReturnMessageProviderService.SendMerchandiseReturnStatusChangedCustomerMessage(changed,
-            order, order.CustomerLanguageId);
+        //the status is saved: a message that could not be sent is logged, the change itself did not fail
+        try
+        {
+            var order = await orderService.GetOrderById(changed.OrderId);
+            if (order == null)
+                logger.LogWarning("Merchandise return {MerchandiseReturnId} changed status, but its order {OrderId} " +
+                                  "was not found to tell the customer", changed.Id, changed.OrderId);
+            else
+                await merchandiseReturnMessageProviderService.SendMerchandiseReturnStatusChangedCustomerMessage(
+                    changed, order, order.CustomerLanguageId);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "The status changed message of merchandise return {MerchandiseReturnId} was not sent",
+                changed.Id);
+        }
+
         return null;
     }
 
@@ -172,9 +219,16 @@ public class MerchandiseReturnWorkflowService(
         //read without the lock, which ChangeStatus takes and which is not reentrant; a status changed in between is
         //checked again under it, and such a refusal leaves the return as it is
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (merchandiseReturn?.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
-            or MerchandiseReturnStatus.Accepted)
-            await ChangeStatus(merchandiseReturnId, MerchandiseReturnStatus.Received);
+        if (merchandiseReturn?.MerchandiseReturnStatus is not (MerchandiseReturnStatus.Pending
+            or MerchandiseReturnStatus.Accepted))
+            return;
+
+        //the receipt is posted already, so a refusal is not the poster's error; the return, received by its stock,
+        //can no longer be rejected and is marked received by hand
+        var error = await ChangeStatus(merchandiseReturnId, MerchandiseReturnStatus.Received);
+        if (error != null)
+            logger.LogWarning("A return receipt of merchandise return {MerchandiseReturnId} was posted, but the " +
+                              "return was not marked received: {Error}", merchandiseReturnId, error);
     }
 
     /// <summary>
@@ -225,14 +279,13 @@ public class MerchandiseReturnWorkflowService(
         return null;
     }
 
-    private async Task<bool> IsReceived(MerchandiseReturn merchandiseReturn)
+    /// <summary>
+    ///     Whether goods of the return are in stock: a receipt posted, or one whose posting booked some lines. A
+    ///     receipt books under the lock held here, so none starts booking while the status is changed
+    /// </summary>
+    private Task<bool> IsReceived(MerchandiseReturn merchandiseReturn)
     {
-        var receipts = await inventoryDocumentService.Search(new InventoryDocumentSearch {
-            Type = InventoryDocumentType.ReturnReceipt,
-            Status = InventoryDocumentStatus.Posted,
-            MerchandiseReturnId = merchandiseReturn.Id
-        }, 0, 1);
-        return receipts.Count > 0;
+        return inventoryDocumentService.IsReturnReceived(merchandiseReturn.Id);
     }
 
     private async Task<bool> IsQuantityLeft(MerchandiseReturn merchandiseReturn)
