@@ -188,4 +188,23 @@ public class GetReturnableQuantitiesQueryHandlerTests
         //Assert
         Assert.IsTrue(quantities.Values.All(x => x == 0));
     }
+
+    [TestMethod]
+    public async Task Handle_ForStaff_IgnoresThePeriodAndNotReturnableProducts()
+    {
+        //Arrange - the period is over and q is not returnable; a returns 1 of its 2 delivered
+        _order.CreatedOnUtc = DateTime.UtcNow.AddDays(-31);
+        _orderSettings.NumberOfDaysMerchandiseReturnAvailable = 30;
+        _productServiceMock.Setup(x => x.GetProductByIdIncludeArch("q"))
+            .ReturnsAsync(new Product { Id = "q", NotReturnable = true });
+        SetupReturns(Return("a", 1));
+
+        //Act
+        var quantities = await _handler.Handle(new GetReturnableQuantitiesQuery { Order = _order, ForStaff = true },
+            CancellationToken.None);
+
+        //Assert - still never more than was delivered
+        Assert.AreEqual(1, quantities["a"]);
+        Assert.AreEqual(2, quantities["b"]);
+    }
 }

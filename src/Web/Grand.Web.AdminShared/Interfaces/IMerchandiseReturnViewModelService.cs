@@ -20,6 +20,10 @@ public interface IMerchandiseReturnViewModelService
     Task<IList<MerchandiseReturnModel.MerchandiseReturnItemModel>> PrepareMerchandiseReturnItemModel(
         string merchandiseReturnId);
 
+    /// <summary>
+    ///     Saves the edit form; null when nothing was saved because setting a rejected or cancelled return back would
+    ///     take more than is left to return of the order
+    /// </summary>
     Task<MerchandiseReturn> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
         MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes);
 

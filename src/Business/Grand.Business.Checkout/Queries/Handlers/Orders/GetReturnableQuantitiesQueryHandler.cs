@@ -39,7 +39,7 @@ public class GetReturnableQuantitiesQueryHandler
         //validate allowed number of days
         var days = _orderSettings.NumberOfDaysMerchandiseReturnAvailable;
         var withinPeriod = delivered;
-        if (days > 0)
+        if (days > 0 && !request.ForStaff)
         {
             if (_orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered)
                 //each shipment has its own days, counted from its delivery
@@ -54,9 +54,12 @@ public class GetReturnableQuantitiesQueryHandler
 
         foreach (var item in request.Order.OrderItems)
         {
-            var product = await _productService.GetProductByIdIncludeArch(item.ProductId);
-            if (product == null || product.NotReturnable)
-                continue;
+            if (!request.ForStaff)
+            {
+                var product = await _productService.GetProductByIdIncludeArch(item.ProductId);
+                if (product == null || product.NotReturnable)
+                    continue;
+            }
 
             //returns do not say which shipment they came from, so the quantity still within its period caps what is
             //left of everything delivered

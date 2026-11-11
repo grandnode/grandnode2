@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
@@ -6,12 +7,15 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
+using Grand.Mediator;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
@@ -40,7 +44,9 @@ public class MerchandiseReturnViewModelService(
     IEnumTranslationService enumTranslationService,
     IContextAccessor contextAccessor,
     CustomerConfig customerConfig,
-    IAdminDataScope<MerchandiseReturn> scope)
+    IAdminDataScope<MerchandiseReturn> scope,
+    IMediator mediator,
+    IResourceLock resourceLock)
     : IMerchandiseReturnViewModelService
 {
     public virtual async Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
@@ -241,26 +247,49 @@ public class MerchandiseReturnViewModelService(
     public virtual async Task<MerchandiseReturn> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
         MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes)
     {
-        merchandiseReturn.CustomerComments = model.CustomerComments;
-        merchandiseReturn.StaffNotes = model.StaffNotes;
-        merchandiseReturn.MerchandiseReturnStatusId = model.MerchandiseReturnStatusId;
-        merchandiseReturn.ExternalId = model.ExternalId;
-        merchandiseReturn.UserFields = model.UserFields;
-
-        if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate)
-            merchandiseReturn.PickupDate = model.PickupDate;
-        if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
+        //the lock the storefront holds to submit a return for the order
+        await using (await resourceLock.Acquire(
+                         [MerchandiseReturnExtensions.QuantityLockKey(merchandiseReturn.OrderId)]))
         {
-            merchandiseReturn.PickupAddress = model.PickupAddress.ToEntity();
-            if (merchandiseReturn.PickupAddress != null)
-                merchandiseReturn.PickupAddress.Attributes = customAddressAttributes;
+            //a rejected or cancelled return set back takes its quantity again, so that quantity must still be left
+            if (!merchandiseReturn.MerchandiseReturnStatus.TakesQuantity() &&
+                ((MerchandiseReturnStatus)model.MerchandiseReturnStatusId).TakesQuantity() &&
+                !await IsQuantityLeft(merchandiseReturn))
+                return null;
+
+            merchandiseReturn.CustomerComments = model.CustomerComments;
+            merchandiseReturn.StaffNotes = model.StaffNotes;
+            merchandiseReturn.MerchandiseReturnStatusId = model.MerchandiseReturnStatusId;
+            merchandiseReturn.ExternalId = model.ExternalId;
+            merchandiseReturn.UserFields = model.UserFields;
+
+            if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupDate)
+                merchandiseReturn.PickupDate = model.PickupDate;
+            if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
+            {
+                merchandiseReturn.PickupAddress = model.PickupAddress.ToEntity();
+                if (merchandiseReturn.PickupAddress != null)
+                    merchandiseReturn.PickupAddress.Attributes = customAddressAttributes;
+            }
+
+            merchandiseReturn.NotifyCustomer = model.NotifyCustomer;
+            await merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
         }
 
-        merchandiseReturn.NotifyCustomer = model.NotifyCustomer;
-        await merchandiseReturnService.UpdateMerchandiseReturn(merchandiseReturn);
         if (model.NotifyCustomer)
             await NotifyCustomer(merchandiseReturn);
         return merchandiseReturn;
+    }
+
+    private async Task<bool> IsQuantityLeft(MerchandiseReturn merchandiseReturn)
+    {
+        var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        if (order == null)
+            return false;
+
+        var returnable = await mediator.Send(new GetReturnableQuantitiesQuery { Order = order, ForStaff = true });
+        return merchandiseReturn.MerchandiseReturnItems.GroupBy(x => x.OrderItemId)
+            .All(x => x.Sum(item => item.Quantity) <= returnable.GetValueOrDefault(x.Key));
     }
 
     public virtual async Task DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn)

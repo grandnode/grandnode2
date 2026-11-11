@@ -129,13 +129,19 @@ public abstract class BaseMerchandiseReturnController(
                 customAddressAttributes = await model.PickupAddress.ParseCustomAddressAttributes(
                     addressAttributeParser, addressAttributeService);
 
-            merchandiseReturn = await MerchandiseReturnViewModelService.UpdateMerchandiseReturnModel(
+            var updated = await MerchandiseReturnViewModelService.UpdateMerchandiseReturnModel(
                 merchandiseReturn, model, customAddressAttributes);
+            if (updated != null)
+            {
+                Success(TranslationService.GetResource(
+                    $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Updated"));
+                return continueEditing
+                    ? RedirectToAction("Edit", new { id = updated.Id })
+                    : RedirectToAction("List");
+            }
 
-            Success(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Updated"));
-            return continueEditing
-                ? RedirectToAction("Edit", new { id = merchandiseReturn.Id })
-                : RedirectToAction("List");
+            Error(TranslationService.GetResource(
+                $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.QuantityExceeded"));
         }
 
         await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);

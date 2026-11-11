@@ -45,7 +45,7 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     {
         //two returns submitted at the same time for one order are checked and inserted one after the other
         MerchandiseReturn rr;
-        await using (await _resourceLock.Acquire([$"{nameof(MerchandiseReturn)}:{request.Order.Id}"],
+        await using (await _resourceLock.Acquire([MerchandiseReturnExtensions.QuantityLockKey(request.Order.Id)],
                          cancellationToken))
         {
             rr = await InsertMerchandiseReturn(request, cancellationToken);
