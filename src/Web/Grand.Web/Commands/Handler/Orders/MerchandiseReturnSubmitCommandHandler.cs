@@ -39,6 +39,13 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     public async Task<MerchandiseReturn> Handle(
         MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
     {
+        //never more than can still be returned: the customer gets the quantity they asked for or nothing, never a
+        //smaller return
+        var returnable = await _mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order },
+            cancellationToken);
+        if (request.Model.Items.Any(x => x.Quantity > (returnable.TryGetValue(x.Id, out var left) ? left : 0)))
+            return null;
+
         var rr = new MerchandiseReturn {
             StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
             OrderId = request.Order.Id,
@@ -56,13 +63,9 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
         if (request.Model.PickupDate.HasValue)
             rr.PickupDate = request.Model.PickupDate.Value;
 
-        //never more than can still be returned, also when another return was submitted in the meantime
-        var returnable = await _mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order },
-            cancellationToken);
         foreach (var orderItem in request.Order.OrderItems)
         {
-            var quantity = Math.Min(request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity ?? 0,
-                returnable.TryGetValue(orderItem.Id, out var left) ? left : 0);
+            var quantity = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity ?? 0;
             var rrrId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnReasonId;
             var rraId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnActionId;
 
