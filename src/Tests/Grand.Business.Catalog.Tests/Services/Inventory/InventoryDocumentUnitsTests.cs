@@ -257,6 +257,44 @@ public class InventoryDocumentUnitsTests
             UseMultipleWarehouses = multipleWarehouses
         }, InventoryTrackingMode.SerialNumber, (multipleWarehouses ? "w1" : "", null, pool));
 
+    /// <summary>
+    ///     A batch-tracked product kept in one warehouse that names none, as saved before a warehouse was required
+    /// </summary>
+    private Task<Product> BatchedWithoutWarehouse(int pool) => _fixture.Stocked(
+        new Product { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, WarehouseId = "" },
+        InventoryTrackingMode.Batch, ("", null, pool));
+
+    [TestMethod]
+    public async Task Validate_ReceiptOfTrackedProductWithoutWarehouse_WarehouseRequired()
+    {
+        var product = await BatchedWithoutWarehouse(0);
+
+        var errors = await _service.Validate(await Draft(InventoryDocumentType.Receipt, Line(product, 2, "L1")));
+
+        CollectionAssert.Contains(errors.ToList(), UnitErrors.WarehouseRequired);
+    }
+
+    [TestMethod]
+    public async Task Validate_PositiveAdjustmentOfTrackedProductWithoutWarehouse_WarehouseRequired()
+    {
+        var product = await BatchedWithoutWarehouse(0);
+
+        var errors = await _service.Validate(await Draft(InventoryDocumentType.Adjustment, Line(product, 2, "L1")));
+
+        CollectionAssert.Contains(errors.ToList(), UnitErrors.WarehouseRequired);
+    }
+
+    [TestMethod]
+    public async Task Validate_NegativeAdjustmentOfTrackedProductWithoutWarehouse_Allowed()
+    {
+        //what it already holds can still be taken out, before a warehouse is set
+        var product = await BatchedWithoutWarehouse(2);
+
+        var errors = await _service.Validate(await Draft(InventoryDocumentType.Adjustment, Line(product, -2)));
+
+        Assert.AreEqual(0, errors.Count);
+    }
+
     private Task<InventoryDocument> Draft(InventoryDocumentType type, params InventoryDocumentLine[] lines)
     {
         var document = new InventoryDocument {
