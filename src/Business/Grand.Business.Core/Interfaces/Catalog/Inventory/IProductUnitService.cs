@@ -88,7 +88,7 @@ public sealed record ExpiringBatch(
     BatchExpiryStatus Status);
 
 /// <summary>
-///     A shipment that shipped units of a batch: who received them
+///     A shipment that shipped units of a batch: who received them, and the store of their order
 /// </summary>
 public sealed record BatchRecipient(
     string ShipmentId,
@@ -98,7 +98,8 @@ public sealed record BatchRecipient(
     string CustomerId,
     string CustomerEmail,
     int Quantity,
-    DateTime ShippedOnUtc);
+    DateTime ShippedOnUtc,
+    string StoreId = null);
 
 /// <summary>
 ///     One stock bucket of a product tracking units: its stock and the part of it batches or serial numbers hold

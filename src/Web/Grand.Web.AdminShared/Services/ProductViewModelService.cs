@@ -147,15 +147,23 @@ public class ProductViewModelService(
         var batches = product.InventoryTrackingModeId == InventoryTrackingMode.Batch;
         var today = dateTimeService.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).Date;
         var warningDays = BatchExpiry.WarningDays(product, inventorySettings);
+        //a store sees the units kept in its own warehouses, as on the unit screens; a product it shares with another
+        //store keeps that store's units to it
+        var storeId = scope.DefaultStoreId;
+        var ownWarehouseIds = storeId == null
+            ? null
+            : (await warehouseService.GetAllWarehouses()).Where(x => (x.StoreId ?? "") == storeId).Select(x => x.Id)
+            .ToHashSet();
         IList<ProductSerialNumber> serialNumbers = batches
             ? []
             : await productUnitService.SearchSerialNumbers(new UnitSearch
-                { ProductId = product.Id, Status = SerialNumberStatus.InStock });
+                { ProductId = product.Id, Status = SerialNumberStatus.InStock, StoreId = storeId });
 
         //the units shown that are kept in a location, named once all of them are known
         var located = new List<(UnitInBucketModel Unit, string LocationId, string WarehouseId)>();
 
-        foreach (var bucket in await productUnitService.Buckets(product))
+        foreach (var bucket in (await productUnitService.Buckets(product))
+                 .Where(x => ownWarehouseIds == null || ownWarehouseIds.Contains(x.WarehouseId ?? "")))
         {
             var row = new UnitBucketRowModel {
                 Warehouse = string.IsNullOrEmpty(bucket.WarehouseId)

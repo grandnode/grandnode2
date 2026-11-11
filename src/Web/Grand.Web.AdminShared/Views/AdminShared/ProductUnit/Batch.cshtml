@@ -79,7 +79,7 @@
                                     </grid-column>
                                     <grid-column field="OrderNumber" title="@Loc["Admin.Inventory.Units.Order"]" width="110">
                                         <cell-template>
-                                            <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area })/{{ OrderId }}">#{{ OrderNumber }}</a>
+                                            <a data-if="OrderId" class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area })/{{ OrderId }}">#{{ OrderNumber }}</a>
                                         </cell-template>
                                     </grid-column>
                                     <grid-column field="CustomerEmail" title="@Loc["Admin.Inventory.Units.Customer"]"/>

@@ -303,7 +303,7 @@ public class ProductUnitService(
             var order = shipment == null ? null : orders.GetValueOrDefault(shipment.OrderId);
             return new BatchRecipient(entry.ObjectId, shipment?.ShipmentNumber ?? 0, shipment?.OrderId,
                 order?.OrderNumber ?? 0, order?.CustomerId, order?.CustomerEmail, entry.OutQty - entry.InQty,
-                shipment?.CreatedOnUtc ?? entry.CreateDateUtc);
+                shipment?.CreatedOnUtc ?? entry.CreateDateUtc, order?.StoreId);
         }).ToList(), pageIndex, pageSize, entries.TotalCount);
     }
 

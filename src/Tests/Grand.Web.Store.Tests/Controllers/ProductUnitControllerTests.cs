@@ -165,6 +165,50 @@ public class ProductUnitControllerTests
         _units.Verify(x => x.BatchRecipients(It.IsAny<ProductBatch>(), It.IsAny<int>(), It.IsAny<int>()), Times.Never);
     }
 
+    private ProductBatch BatchShippedToTwoStores(int pageSize)
+    {
+        var batch = new ProductBatch { Id = "b1", StoreId = StoreId, Number = "L1" };
+        _units.Setup(x => x.GetBatch("b1")).ReturnsAsync(batch);
+        _units.Setup(x => x.BatchRecipients(batch, 0, pageSize)).ReturnsAsync(new PagedList<BatchRecipient>(
+            new List<BatchRecipient> {
+                new("s1", 1, "o1", 11, "c1", "own@example.com", 2, DateTime.UtcNow, StoreId),
+                //the store's warehouse shipped an order of another store
+                new("s2", 2, "o2", 12, "c2", "other@example.com", 1, DateTime.UtcNow, "store2")
+            }, 0, pageSize, 2));
+        return batch;
+    }
+
+    [TestMethod]
+    public async Task Store_BatchRecipientsOfAnotherStoresOrder_CustomerHidden()
+    {
+        BatchShippedToTwoStores(10);
+
+        var result = (await _controller.BatchRecipientList(new DataSourceRequest { Page = 1, PageSize = 10 }, "b1")
+            as JsonResult)?.Value as DataSourceResult;
+
+        var rows = ((IEnumerable<BatchRecipientModel>)result!.Data).ToList();
+        Assert.AreEqual(2, result.Total);
+        Assert.AreEqual("own@example.com", rows[0].CustomerEmail);
+        Assert.AreEqual("o1", rows[0].OrderId);
+        Assert.IsNull(rows[1].CustomerEmail);
+        Assert.IsNull(rows[1].CustomerId);
+        Assert.IsNull(rows[1].OrderId);
+        Assert.AreEqual(1, rows[1].Quantity);
+    }
+
+    [TestMethod]
+    public async Task Store_BatchRecipientsCsv_AnotherStoresCustomerNotExported()
+    {
+        BatchShippedToTwoStores(1000);
+
+        var file = await _controller.BatchRecipientsCsv("b1") as FileContentResult;
+
+        var csv = System.Text.Encoding.UTF8.GetString(file!.FileContents);
+        StringAssert.Contains(csv, "own@example.com");
+        Assert.DoesNotContain("other@example.com", csv);
+        Assert.DoesNotContain(";12;", csv);
+    }
+
     [TestMethod]
     public async Task Store_Batches_OnlyOwnWarehouses()
     {

@@ -130,7 +130,7 @@ public class ProductViewModelServiceTests
         _productViewModelService = new ProductViewModelService(
             _productServiceMock.Object,
             new Mock<IPictureService>().Object,
-            new Mock<IProductAttributeService>().Object,
+            new Mock<IProductAttributeService> { DefaultValue = DefaultValue.Mock }.Object,
             new Mock<IProductTagService>().Object,
             currencyServiceMock.Object,
             _measureServiceMock.Object,
@@ -159,10 +159,47 @@ public class ProductViewModelServiceTests
             _stockMovementServiceMock.Object,
             _settingServiceMock.Object,
             _productUnitServiceMock.Object,
-            new Mock<IWarehouseLocationService>().Object);
+            _locationServiceMock.Object);
+        _locationServiceMock.Setup(x => x.GetLocationsByIds(It.IsAny<IList<string>>()))
+            .ReturnsAsync(new List<WarehouseLocation>());
     }
 
     private readonly Mock<IProductUnitService> _productUnitServiceMock = new();
+    private readonly Mock<IWarehouseLocationService> _locationServiceMock = new();
+
+    [TestMethod]
+    public async Task PrepareProductModel_StoreScope_UnitsOfOwnWarehousesOnly()
+    {
+        //a product the store shares with another store
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("store1");
+        _warehouseServiceMock
+            .Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>(new List<Warehouse> {
+                new() { Id = "w1", StoreId = "store1", Name = "Own" },
+                new() { Id = "w2", StoreId = "store2", Name = "Other" }
+            }, 0, 10));
+        _warehouseServiceMock.Setup(w => w.GetWarehouseById("w1"))
+            .ReturnsAsync(new Warehouse { Id = "w1", StoreId = "store1", Name = "Own" });
+        var product = new Product {
+            ManageInventoryMethodId = ManageInventoryMethod.ManageStock, UseMultipleWarehouses = true,
+            InventoryTrackingModeId = InventoryTrackingMode.SerialNumber
+        };
+        _productUnitServiceMock.Setup(x => x.Buckets(product)).ReturnsAsync(new List<UnitBucketView> {
+            new("", [], "w1", 1, 0), new("", [], "w2", 1, 0)
+        });
+        _productUnitServiceMock.Setup(x => x.SearchSerialNumbers(It.Is<UnitSearch>(s => s.StoreId == "store1"),
+                It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<ProductSerialNumber>(new List<ProductSerialNumber> {
+                new() { Id = "sn1", Number = "A1", WarehouseId = "w1", CombinationId = "" }
+            }, 0, 10));
+
+        var model = new ProductModel();
+        await _productViewModelService.PrepareProductModel(model, product, false, true);
+
+        var bucket = model.UnitBuckets.Single();
+        Assert.AreEqual("Own", bucket.Warehouse);
+        CollectionAssert.AreEqual(new[] { "A1" }, bucket.Units.Select(x => x.Number).ToArray());
+    }
 
     [TestMethod]
     public async Task TrackingChangeRefused_UnitsAssigned_MessageWithQuantity()

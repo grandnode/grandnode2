@@ -298,7 +298,7 @@ public abstract class BaseProductUnitController(
         if (batch == null || !await CanSee(batch.StoreId))
             return ErrorForKendoGridJson(translationService.GetResource("Admin.Inventory.Documents.AccessDenied"));
 
-        var recipients = await productUnitService.BatchRecipients(batch, command.Page - 1, command.PageSize);
+        var recipients = await Recipients(batch, command.Page - 1, command.PageSize);
         return Json(new DataSourceResult {
             Data = recipients.Select(recipient => new BatchRecipientModel {
                 ShipmentId = recipient.ShipmentId, ShipmentNumber = recipient.ShipmentNumber,
@@ -327,9 +327,10 @@ public abstract class BaseProductUnitController(
         var pageIndex = 0;
         do
         {
-            page = await productUnitService.BatchRecipients(batch, pageIndex++, CsvPageSize);
+            page = await Recipients(batch, pageIndex++, CsvPageSize);
             foreach (var recipient in page)
-                csv.Append(string.Join(";", Csv(batch.Number), recipient.ShipmentNumber, recipient.OrderNumber,
+                csv.Append(string.Join(";", Csv(batch.Number), recipient.ShipmentNumber,
+                        recipient.OrderId == null ? "" : recipient.OrderNumber.ToString(),
                         Csv(recipient.CustomerId), Csv(recipient.CustomerEmail), recipient.Quantity,
                         recipient.ShippedOnUtc.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture)))
                     .Append("\r\n");
@@ -339,6 +340,23 @@ public abstract class BaseProductUnitController(
     }
 
     private const int CsvPageSize = 1000;
+
+    /// <summary>
+    ///     A page of who received the batch. A warehouse may ship the orders of another store: a store sees what
+    ///     went out of its warehouse, but the order and the customer only of its own orders
+    /// </summary>
+    private async Task<IPagedList<BatchRecipient>> Recipients(ProductBatch batch, int pageIndex, int pageSize)
+    {
+        var storeId = await productScope.GetDefaultStoreIdAsync();
+        var recipients = await productUnitService.BatchRecipients(batch, pageIndex, pageSize);
+        if (storeId == null)
+            return recipients;
+
+        return new PagedList<BatchRecipient>(recipients.Select(x => (x.StoreId ?? "") == storeId
+                ? x
+                : x with { OrderId = null, OrderNumber = 0, CustomerId = null, CustomerEmail = null }).ToList(),
+            pageIndex, pageSize, recipients.TotalCount);
+    }
 
     /// <summary>
     ///     A CSV field, quoted, and never read as a formula by a spreadsheet
