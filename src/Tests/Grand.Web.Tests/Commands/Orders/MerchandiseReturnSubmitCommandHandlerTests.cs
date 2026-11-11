@@ -27,7 +27,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
     [TestInitialize]
     public void Init()
     {
-        _order = new Order { Id = "o1" };
+        _order = new Order { Id = "o1", StoreId = "order-store" };
         _order.OrderItems.Add(new OrderItem { Id = "a", ProductId = "p", Quantity = 5 });
 
         var workContext = new Mock<IWorkContext>();
@@ -41,6 +41,10 @@ public class MerchandiseReturnSubmitCommandHandlerTests
 
         _mediatorMock = new Mock<IMediator>();
         _merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
+        _merchandiseReturnServiceMock.Setup(x => x.GetAllMerchandiseReturnReasons(It.IsAny<string>()))
+            .ReturnsAsync([]);
+        _merchandiseReturnServiceMock.Setup(x => x.GetAllMerchandiseReturnActions(It.IsAny<string>()))
+            .ReturnsAsync([]);
 
         _handler = new MerchandiseReturnSubmitCommandHandler(contextAccessor.Object, _mediatorMock.Object,
             _merchandiseReturnServiceMock.Object, new Mock<IMessageProviderService>().Object,
@@ -99,5 +103,38 @@ public class MerchandiseReturnSubmitCommandHandlerTests
 
         //Assert
         Assert.AreEqual(3, result.MerchandiseReturnItems.Single().Quantity);
+    }
+
+    [TestMethod]
+    public async Task Handle_KeepsTheReturnInTheStoreOfTheOrder()
+    {
+        //Arrange
+        SetupReturnable(5);
+
+        //Act
+        var result = await _handler.Handle(Command(1), CancellationToken.None);
+
+        //Assert - the order's store, whose staff handle the return, not the store the request came through
+        Assert.AreEqual("order-store", result.StoreId);
+    }
+
+    [TestMethod]
+    public async Task Handle_ReasonOrActionTheStoreDoesNotOffer_CountsAsNoneChosen()
+    {
+        //Arrange - the ids of another store's reason and action, posted by hand
+        SetupReturnable(5);
+        _merchandiseReturnServiceMock.Setup(x => x.GetMerchandiseReturnReasonById("other-store-reason"))
+            .ReturnsAsync(new MerchandiseReturnReason { Id = "other-store-reason", Name = "Secret" });
+        var command = Command(1);
+        command.Model.Items.Single().MerchandiseReturnReasonId = "other-store-reason";
+        command.Model.Items.Single().MerchandiseReturnActionId = "other-store-action";
+
+        //Act
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        var item = result.MerchandiseReturnItems.Single();
+        Assert.AreEqual("not available", item.ReasonForReturn);
+        Assert.AreEqual("not available", item.RequestedAction);
     }
 }
