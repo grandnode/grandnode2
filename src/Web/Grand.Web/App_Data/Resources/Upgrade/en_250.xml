@@ -1650,4 +1650,22 @@
 	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Completed" Area="Common">
 		<Value>Completed</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.StatusChangeNotAllowed" Area="Admin">
+		<Value>This status change is not allowed.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.StatusChangeNotAllowed" Area="Vendor">
+		<Value>This status change is not allowed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Busy" Area="Admin">
+		<Value>The return is being changed by someone else. Try again in a moment.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Busy" Area="Vendor">
+		<Value>The return is being changed by someone else. Try again in a moment.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.NotFound" Area="Admin">
+		<Value>The merchandise return was not found.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.NotFound" Area="Vendor">
+		<Value>The merchandise return was not found.</Value>
+	</Resource>
 </Language>
