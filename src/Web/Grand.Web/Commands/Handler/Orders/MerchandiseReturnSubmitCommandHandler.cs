@@ -47,7 +47,8 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
             return null;
 
         var rr = new MerchandiseReturn {
-            StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
+            //the store the order was placed in, whose staff handle its returns
+            StoreId = request.Order.StoreId,
             OrderId = request.Order.Id,
             CustomerId = _contextAccessor.WorkContext.CurrentCustomer.Id,
             OwnerId = await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer)
@@ -63,6 +64,9 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
         if (request.Model.PickupDate.HasValue)
             rr.PickupDate = request.Model.PickupDate.Value;
 
+        //only the reasons and actions the store offers: an id of another store's counts as none chosen
+        var reasons = await _merchandiseReturnService.GetAllMerchandiseReturnReasons(request.Order.StoreId);
+        var actions = await _merchandiseReturnService.GetAllMerchandiseReturnActions(request.Order.StoreId);
         foreach (var orderItem in request.Order.OrderItems)
         {
             var quantity = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity ?? 0;
@@ -71,8 +75,8 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
 
             if (quantity <= 0) continue;
 
-            var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(rrrId);
-            var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(rraId);
+            var rrr = reasons.FirstOrDefault(x => x.Id == rrrId);
+            var rra = actions.FirstOrDefault(x => x.Id == rraId);
             rr.MerchandiseReturnItems.Add(new MerchandiseReturnItem {
                 RequestedAction = rra != null
                     ? rra.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
