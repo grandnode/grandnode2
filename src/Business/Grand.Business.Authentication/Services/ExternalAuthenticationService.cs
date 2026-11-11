@@ -98,6 +98,13 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         //associate external account with logged-in user
         if (currentLoggedInUser != null)
         {
+            //one account per provider: a second one of the same provider is refused
+            var providerSystemName = parameters.ProviderSystemName.ToLowerInvariant();
+            if (_externalAuthenticationRecordRepository.Table.Any(q =>
+                    q.CustomerId == currentLoggedInUser.Id
+                    && q.ProviderSystemName.ToLowerInvariant() == providerSystemName))
+                return ExternalAuthResult.ProviderAlreadyConnected();
+
             await AssociateCustomer(currentLoggedInUser, parameters);
             return ExternalAuthResult.Associated(currentLoggedInUser);
         }

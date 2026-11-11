@@ -66,6 +66,9 @@
 	<Resource Name="Account.AssociatedExternalAuth.RegistrationDisabled" Area="Front">
 		<Value>Registration of new customers is disabled, so this external account cannot be used to create one.</Value>
 	</Resource>
+	<Resource Name="Account.AssociatedExternalAuth.ProviderAlreadyConnected" Area="Front">
+		<Value>You already have an external account of this provider connected. Remove it on the My account page before you connect another one.</Value>
+	</Resource>
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.Authority" Area="Admin">
 		<Value>Identity provider (Authority)</Value>
 	</Resource>

@@ -23,7 +23,12 @@ public enum ExternalAuthStatus
     RegistrationDisabled,
 
     /// <summary>The authentication failed; <see cref="ExternalAuthResult.Errors" /> says why</summary>
-    Error
+    Error,
+
+    /// <summary>
+    ///     The external account is unknown, and the customer signed in already has an account of the same provider
+    /// </summary>
+    ProviderAlreadyConnected
 }
 
 /// <summary>
@@ -59,6 +64,9 @@ public class ExternalAuthResult
 
     public static ExternalAuthResult RegistrationDisabled() =>
         new(ExternalAuthStatus.RegistrationDisabled, null, []);
+
+    public static ExternalAuthResult ProviderAlreadyConnected() =>
+        new(ExternalAuthStatus.ProviderAlreadyConnected, null, []);
 
     public static ExternalAuthResult Error(string error) => new(ExternalAuthStatus.Error, null, [error]);
 }

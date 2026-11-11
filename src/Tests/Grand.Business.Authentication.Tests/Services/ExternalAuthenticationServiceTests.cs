@@ -211,6 +211,37 @@ public class ExternalAuthenticationServiceTests
     }
 
     [TestMethod]
+    public async Task Authenticate_SecondAccountOfSameProviderWhileLoggedIn_IsRefused()
+    {
+        var customer = new Customer { Id = "registered" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        await _externalAuthenticationService.AssociateCustomer(customer,
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "A" });
+        var parameters = new ExternalAuthParam { ProviderSystemName = "externalauthenticationprovidertest", Identifier = "B" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.ProviderAlreadyConnected, result.Status);
+        Assert.IsEmpty(result.Errors);
+        Assert.AreEqual("A", _externalAuthenticationRecordRepository.Table.Single().ExternalIdentifier);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_AccountOfAnotherProviderWhileLoggedIn_IsAssociated()
+    {
+        var customer = new Customer { Id = "registered" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        await _externalAuthenticationService.AssociateCustomer(customer,
+            new ExternalAuthParam { ProviderSystemName = "OtherProvider", Identifier = "A" });
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "B" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.Associated, result.Status);
+        Assert.AreEqual(2, _externalAuthenticationRecordRepository.Table.Count(r => r.CustomerId == "registered"));
+    }
+
+    [TestMethod]
     public async Task Authenticate_IdentityOfAnotherCustomerWhileLoggedIn_IsAlreadyAssigned()
     {
         var owner = new Customer { Id = "owner" };
