@@ -154,13 +154,18 @@ public class MerchandiseReturnController : BasePublicController
         {
             var result = await _mediator.Send(new MerchandiseReturnSubmitCommand
                 { Address = address, Model = model, Order = order });
+            if (result != null)
+            {
+                model.Result = string.Format(_translationService.GetResource("MerchandiseReturns.Submitted"),
+                    result.ReturnNumber,
+                    Url.Link("MerchandiseReturnDetails", new { merchandiseReturnId = result.Id }));
+                model.OrderNumber = order.OrderNumber;
+                model.OrderCode = order.Code;
+                return View(model);
+            }
 
-            model.Result = string.Format(_translationService.GetResource("MerchandiseReturns.Submitted"),
-                result.ReturnNumber,
-                Url.Link("MerchandiseReturnDetails", new { merchandiseReturnId = result.Id }));
-            model.OrderNumber = order.OrderNumber;
-            model.OrderCode = order.Code;
-            return View(model);
+            //everything was returned in the meantime
+            ModelState.AddModelError("", _translationService.GetResource("MerchandiseReturns.NoItemsSubmitted"));
         }
 
         var returnModel = await _mediator.Send(new GetMerchandiseReturn {

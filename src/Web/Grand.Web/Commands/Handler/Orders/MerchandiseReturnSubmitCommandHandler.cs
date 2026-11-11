@@ -1,8 +1,8 @@
 ﻿using Grand.Business.Core.Extensions;
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -17,19 +17,19 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
     private readonly LanguageSettings _languageSettings;
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IMerchandiseReturnMessageProviderService _merchandiseReturnMessageProviderService;
-    private readonly IProductService _productService;
+    private readonly IMediator _mediator;
     private readonly IContextAccessor _contextAccessor;
 
 
     public MerchandiseReturnSubmitCommandHandler(IContextAccessor contextAccessor,
-        IProductService productService,
+        IMediator mediator,
         IMerchandiseReturnService merchandiseReturnService,
         IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
         IGroupService groupService,
         LanguageSettings languageSettings)
     {
         _contextAccessor = contextAccessor;
-        _productService = productService;
+        _mediator = mediator;
         _merchandiseReturnService = merchandiseReturnService;
         _merchandiseReturnMessageProviderService = merchandiseReturnMessageProviderService;
         _groupService = groupService;
@@ -56,16 +56,17 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
         if (request.Model.PickupDate.HasValue)
             rr.PickupDate = request.Model.PickupDate.Value;
 
+        //never more than can still be returned, also when another return was submitted in the meantime
+        var returnable = await _mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order },
+            cancellationToken);
         foreach (var orderItem in request.Order.OrderItems)
         {
-            var product = await _productService.GetProductById(orderItem.ProductId);
-            if (product.NotReturnable) continue;
-
-            var quantity = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity;
+            var quantity = Math.Min(request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.Quantity ?? 0,
+                returnable.GetValueOrDefault(orderItem.Id));
             var rrrId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnReasonId;
             var rraId = request.Model.Items.FirstOrDefault(x => x.Id == orderItem.Id)?.MerchandiseReturnActionId;
 
-            if (quantity is not > 0) continue;
+            if (quantity <= 0) continue;
 
             var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(rrrId);
             var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(rraId);
@@ -76,11 +77,14 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
                 ReasonForReturn = rrr != null
                     ? rrr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
                     : "not available",
-                Quantity = quantity.Value,
+                Quantity = quantity,
                 OrderItemId = orderItem.Id
             });
             rr.VendorId = orderItem.VendorId;
         }
+
+        if (rr.MerchandiseReturnItems.Count == 0)
+            return null;
 
         await _merchandiseReturnService.InsertMerchandiseReturn(rr);
 
