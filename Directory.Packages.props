@@ -60,9 +60,9 @@
     <PackageVersion Include="coverlet.collector" Version="10.1.0" />
     <PackageVersion Include="NUnit" Version="5.0.0" />
     <PackageVersion Include="Verify.MSTest" Version="32.0.0" />
-    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.6.0" />
-    <PackageVersion Include="Aspire.Hosting.MongoDB" Version="13.6.0" />
-    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.6.0" />
+    <PackageVersion Include="Aspire.Hosting.AppHost" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.MongoDB" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.Redis" Version="13.6.5" />
     <PackageVersion Include="Microsoft.Extensions.Http.Resilience" Version="10.10.0" />
     <PackageVersion Include="Microsoft.Extensions.ServiceDiscovery" Version="10.10.0" />
     <PackageVersion Include="OpenTelemetry.Exporter.Console" Version="1.19.1" />
@@ -71,11 +71,11 @@
     <PackageVersion Include="OpenTelemetry.Instrumentation.AspNetCore" Version="1.19.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Http" Version="1.19.0" />
     <PackageVersion Include="OpenTelemetry.Instrumentation.Runtime" Version="1.19.0" />
-    <PackageVersion Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" Version="13.6.0" />
-    <PackageVersion Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" Version="13.6.0" />
+    <PackageVersion Include="Aspire.Dashboard.Sdk.$(NETCoreSdkRuntimeIdentifier)" Version="13.6.5" />
+    <PackageVersion Include="Aspire.Hosting.Orchestration.$(NETCoreSdkRuntimeIdentifier)" Version="13.6.5" />
   </ItemGroup>
   <ItemGroup>
-    <PackageVersion Update="Aspire.Dashboard.Sdk.win-x64" Version="13.6.0" />
-    <PackageVersion Update="Aspire.Hosting.Orchestration.win-x64" Version="13.6.0" />
+    <PackageVersion Update="Aspire.Dashboard.Sdk.win-x64" Version="13.6.5" />
+    <PackageVersion Update="Aspire.Hosting.Orchestration.win-x64" Version="13.6.5" />
   </ItemGroup>
 </Project>
