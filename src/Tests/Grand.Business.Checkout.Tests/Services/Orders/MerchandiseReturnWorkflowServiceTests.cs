@@ -425,6 +425,33 @@ public class MerchandiseReturnWorkflowServiceTests
     }
 
     [TestMethod]
+    public async Task Delete_WithPostedReceipt_ReturnsAlreadyReceived()
+    {
+        //deleting gives the quantity back to the customer, like rejecting does: not once the goods are in stock
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+        SetupPostedReceipts(1);
+
+        var error = await _service.Delete("r1");
+
+        Assert.AreEqual(MerchandiseReturnErrors.AlreadyReceived, error);
+        _merchandiseReturnService.Verify(x => x.DeleteMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Received)]
+    [DataRow(MerchandiseReturnStatus.Completed)]
+    public async Task Delete_ReceivedOrCompleted_ReturnsAlreadyReceived(MerchandiseReturnStatus status)
+    {
+        //marked received by hand, without a receipt: the goods are back all the same
+        _stored = Return(status);
+
+        var error = await _service.Delete("r1");
+
+        Assert.AreEqual(MerchandiseReturnErrors.AlreadyReceived, error);
+        _merchandiseReturnService.Verify(x => x.DeleteMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Delete_HoldsQuantityLock_AndDeletes()
     {
         var error = await _service.Delete("r1");

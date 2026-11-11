@@ -265,19 +265,35 @@ public class MerchandiseReturnViewModelServiceTests
         var sequence = new MockSequence();
         workflow.InSequence(sequence).Setup(x => x.Update("r1", It.IsAny<Action<MerchandiseReturn>>()))
             .ReturnsAsync((string)null);
-        workflow.InSequence(sequence).Setup(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, "why"))
+        workflow.InSequence(sequence).Setup(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "why"))
             .ReturnsAsync((string)null);
 
         //Act
         var result = await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Pending),
             new MerchandiseReturnModel {
-                Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Accepted, ChangeStatusNote = "why"
+                Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Rejected, ChangeStatusNote = "why"
             }, []);
 
         //Assert
         Assert.IsNull(result.Error);
         workflow.Verify(x => x.Update("r1", It.IsAny<Action<MerchandiseReturn>>()), Times.Once);
-        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, "why"), Times.Once);
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "why"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_ReasonTypedThenOtherButton_SendsNoNote()
+    {
+        //Arrange - the reason box was opened and typed in, then Accept was pressed: the reason is not the customer's
+        var (service, workflow) = BuildForUpdate();
+
+        //Act
+        await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Pending),
+            new MerchandiseReturnModel {
+                Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Accepted, ChangeStatusNote = "damaged by you"
+            }, []);
+
+        //Assert
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, null), Times.Once);
     }
 
     [TestMethod]

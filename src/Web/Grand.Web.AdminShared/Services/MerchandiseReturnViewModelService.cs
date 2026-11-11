@@ -255,10 +255,14 @@ public class MerchandiseReturnViewModelService(
         if (error != null)
             return (null, error);
 
-        //a status button saved what was typed above and changes the status now
+        //a status button saved what was typed above and changes the status now; the reason box is posted by every
+        //button, but only a rejection sends what was typed in it to the customer
         if (model.ChangeStatusTo.HasValue)
-            error = await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id,
-                (MerchandiseReturnStatus)model.ChangeStatusTo.Value, model.ChangeStatusNote);
+        {
+            var status = (MerchandiseReturnStatus)model.ChangeStatusTo.Value;
+            error = await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id, status,
+                status == MerchandiseReturnStatus.Rejected ? model.ChangeStatusNote : null);
+        }
 
         return (merchandiseReturn, error);
     }

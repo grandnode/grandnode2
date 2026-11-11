@@ -6,6 +6,8 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 <form asp-area="@area" asp-controller="MerchandiseReturn" asp-action="Edit" method="post">
+    @* Enter in a field submits through the form's first button: it saves, it never changes the status *@
+    <button type="submit" name="save-continue" hidden aria-hidden="true" tabindex="-1"></button>
 
     @* the product edit screen's shell: Save as the one primary action, Delete in the overflow
        menu rather than beside Save *@

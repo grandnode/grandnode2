@@ -157,6 +157,11 @@ public class MerchandiseReturnWorkflowService(
         //the order's returned quantities are counted again under the lock its returns are saved with
         return UnderOrderLock(merchandiseReturnId, async stored =>
         {
+            //deleting gives the quantity back to the customer, like rejecting does: not once the goods are back
+            if (stored.MerchandiseReturnStatus is MerchandiseReturnStatus.Received or MerchandiseReturnStatus.Completed
+                || await IsReceived(stored))
+                return MerchandiseReturnErrors.AlreadyReceived;
+
             await merchandiseReturnService.DeleteMerchandiseReturn(stored);
             return null;
         });

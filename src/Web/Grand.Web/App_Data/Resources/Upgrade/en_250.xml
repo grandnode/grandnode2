@@ -1635,12 +1635,6 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.QuantityExceeded" Area="Vendor">
 		<Value>The merchandise return has not been saved: set back to this status, it would take more than is left to return of the order.</Value>
 	</Resource>
-	<Resource Name="Admin.Orders.MerchandiseReturns.AlreadyReceived" Area="Admin">
-		<Value>The merchandise return has not been saved: its goods were already received to stock, so it cannot be rejected or cancelled.</Value>
-	</Resource>
-	<Resource Name="Vendor.Orders.MerchandiseReturns.AlreadyReceived" Area="Vendor">
-		<Value>The merchandise return has not been saved: its goods were already received to stock, so it cannot be rejected or cancelled.</Value>
-	</Resource>
 	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Accepted" Area="Common">
 		<Value>Accepted</Value>
 	</Resource>
@@ -1724,5 +1718,11 @@
 	</Resource>
 	<Resource Name="MerchandiseReturns.Busy" Area="Front">
 		<Value>Your return is being saved by another request. Try again in a moment.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.AlreadyReceived" Area="Admin">
+		<Value>The merchandise return has not been changed: its goods were already received, so it cannot be rejected, cancelled or deleted.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.AlreadyReceived" Area="Vendor">
+		<Value>The merchandise return has not been changed: its goods were already received, so it cannot be rejected, cancelled or deleted.</Value>
 	</Resource>
 </Language>
