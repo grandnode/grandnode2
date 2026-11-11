@@ -163,8 +163,8 @@ public class MerchandiseReturnController : BasePublicController
                 return View(model);
             }
 
-            //everything was returned in the meantime
-            ModelState.AddModelError("", _translationService.GetResource("MerchandiseReturns.NoItemsSubmitted"));
+            //another return took the quantity in the meantime
+            ModelState.AddModelError("", _translationService.GetResource("MerchandiseReturns.QuantityExceeded"));
         }
 
         var returnModel = await _mediator.Send(new GetMerchandiseReturn {
