@@ -591,6 +591,14 @@ public class ProductUnitService(
                              changed.UseMultipleWarehouses != stored.UseMultipleWarehouses ||
                              (!changed.UseMultipleWarehouses &&
                               (changed.WarehouseId ?? "") != (stored.WarehouseId ?? ""));
+
+        //units are kept in a warehouse: a tracked product kept in one names it. One stored without it still saves
+        //while its tracking and warehouses stay as they are
+        if ((changed.InventoryTrackingModeId != stored.InventoryTrackingModeId || bucketsChanged) &&
+            InventoryTracking.Tracked(changed) && !changed.UseMultipleWarehouses &&
+            string.IsNullOrEmpty(changed.WarehouseId))
+            return UnitErrors.WarehouseRequired;
+
         if (stored.InventoryTrackingModeId == InventoryTrackingMode.None || (!modeChanged && !bucketsChanged))
             return null;
 

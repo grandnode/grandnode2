@@ -1431,6 +1431,9 @@
 	<Resource Name="Admin.Inventory.Units.Errors.TrackingNotSupported" Area="Admin">
 		<Value>Batches and serial numbers need a product whose stock is tracked.</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Units.Errors.WarehouseRequired" Area="Admin">
+		<Value>A product tracking batches or serial numbers keeps them in a warehouse: select the product's warehouse or use multiple warehouses.</Value>
+	</Resource>
 	<Resource Name="Enums.Grand.Domain.Catalog.InventoryTrackingMode.None" Area="Admin">
 		<Value>None</Value>
 	</Resource>

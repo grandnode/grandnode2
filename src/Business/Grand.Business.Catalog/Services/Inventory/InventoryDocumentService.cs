@@ -558,6 +558,12 @@ public class InventoryDocumentService(
                 product.WarehouseId != document.WarehouseId)
                 Add(InventoryDocumentErrors.ProductInOtherWarehouse);
 
+            //units are kept in a warehouse: nothing comes in to a tracked product that names none, what it holds
+            //may still go out
+            if (InventoryTracking.Tracked(product) && !product.UseMultipleWarehouses &&
+                string.IsNullOrEmpty(product.WarehouseId) && Incoming(document.DocumentTypeId, line))
+                Add(UnitErrors.WarehouseRequired);
+
             if (transfer && !product.UseMultipleWarehouses)
                 Add(InventoryDocumentErrors.TransferNeedsMultipleWarehouses);
 
@@ -731,6 +737,18 @@ public class InventoryDocumentService(
     private static string DocumentLockKey(string documentId)
     {
         return $"InventoryDocument:{documentId}";
+    }
+
+    /// <summary>
+    ///     The line brings stock in; a stock count only when it found more than expected
+    /// </summary>
+    private static bool Incoming(InventoryDocumentType type, InventoryDocumentLine line)
+    {
+        return type switch {
+            InventoryDocumentType.Adjustment => line.Quantity > 0,
+            InventoryDocumentType.StockCount => line.CountedQuantity > (line.ExpectedQuantity ?? 0),
+            _ => true
+        };
     }
 
     private static string AttributesKey(IList<CustomAttribute> attributes)
