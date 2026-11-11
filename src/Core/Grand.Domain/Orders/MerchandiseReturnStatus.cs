@@ -16,6 +16,11 @@ public enum MerchandiseReturnStatus
     Accepted = 10,
 
     /// <summary>
+    ///     Received: the items came back to the store
+    /// </summary>
+    Received = 15,
+
+    /// <summary>
     ///     Rejected
     /// </summary>
     Rejected = 20,

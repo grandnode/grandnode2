@@ -1641,4 +1641,13 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.AlreadyReceived" Area="Vendor">
 		<Value>The merchandise return has not been saved: its goods were already received to stock, so it cannot be rejected or cancelled.</Value>
 	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Accepted" Area="Common">
+		<Value>Accepted</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Rejected" Area="Common">
+		<Value>Rejected</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Completed" Area="Common">
+		<Value>Completed</Value>
+	</Resource>
 </Language>
