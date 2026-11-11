@@ -102,6 +102,8 @@ public class MerchandiseReturnSubmitCommandHandler : IRequestHandler<Merchandise
             var rrr = await _merchandiseReturnService.GetMerchandiseReturnReasonById(rrrId);
             var rra = await _merchandiseReturnService.GetMerchandiseReturnActionById(rraId);
             rr.MerchandiseReturnItems.Add(new MerchandiseReturnItem {
+                ReasonId = rrr?.Id,
+                ActionId = rra?.Id,
                 RequestedAction = rra != null
                     ? rra.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
                     : "not available",

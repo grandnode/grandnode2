@@ -127,4 +127,31 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         //Assert
         CollectionAssert.AreEqual(new[] { "acquire", "check", "insert", "release" }, steps);
     }
+
+    [TestMethod]
+    public async Task Handle_StoresReasonIdAndActionId_AndTheNamesInTheWorkingLanguage()
+    {
+        //Arrange
+        SetupReturnable(5);
+        _merchandiseReturnServiceMock.Setup(x => x.GetMerchandiseReturnReasonById("rr1"))
+            .ReturnsAsync(new MerchandiseReturnReason {
+                Id = "rr1", Name = "Broken",
+                Locales = [new TranslationEntity { LanguageId = "l1", LocaleKey = "Name", LocaleValue = "Zepsuty" }]
+            });
+        _merchandiseReturnServiceMock.Setup(x => x.GetMerchandiseReturnActionById("ra1"))
+            .ReturnsAsync(new MerchandiseReturnAction { Id = "ra1", Name = "Refund" });
+        var command = Command(1);
+        command.Model.Items[0].MerchandiseReturnReasonId = "rr1";
+        command.Model.Items[0].MerchandiseReturnActionId = "ra1";
+
+        //Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        //Assert - the Ids say what was chosen, the names what the customer read
+        _merchandiseReturnServiceMock.Verify(x => x.InsertMerchandiseReturn(It.Is<MerchandiseReturn>(r =>
+            r.MerchandiseReturnItems.Single().ReasonId == "rr1" &&
+            r.MerchandiseReturnItems.Single().ReasonForReturn == "Zepsuty" &&
+            r.MerchandiseReturnItems.Single().ActionId == "ra1" &&
+            r.MerchandiseReturnItems.Single().RequestedAction == "Refund")), Times.Once);
+    }
 }
