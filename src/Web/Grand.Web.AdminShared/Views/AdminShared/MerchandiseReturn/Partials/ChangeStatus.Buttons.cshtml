@@ -1,0 +1,33 @@
+@using Grand.Domain.Orders
+@model MerchandiseReturnModel
+@{
+    var prefix = Scope.ResourceKeyPrefix;
+    //a rejection refused comes back with its reason box open
+    var rejectOpen = Model.ChangeStatusTo == (int)MerchandiseReturnStatus.Rejected;
+}
+@* one button per status the return may change to; each saves the form first and tells the customer *@
+@foreach (var status in Model.NextStatuses)
+{
+    if (status == (int)MerchandiseReturnStatus.Rejected)
+    {
+        <button class="btn btn-outline-secondary" type="button" data-bs-toggle="collapse"
+                data-bs-target="#merchandisereturn-reject" aria-expanded="@(rejectOpen ? "true" : "false")"
+                aria-controls="merchandisereturn-reject">
+            <i class="bi bi-x-circle"></i> @Loc[$"{prefix}.Orders.MerchandiseReturns.ChangeStatus.Rejected"]
+        </button>
+        continue;
+    }
+    @* Razor writes a data- attribute even when its value is null, and an empty
+       data-grand-confirm still asks: only cancelling asks *@
+    if (status == (int)MerchandiseReturnStatus.Cancelled)
+    {
+        <button class="btn btn-outline-secondary" type="submit" name="ChangeStatusTo" value="@status"
+                data-grand-confirm="@Loc[$"{prefix}.Orders.MerchandiseReturns.ConfirmCancel"]">
+            @Loc[$"{prefix}.Orders.MerchandiseReturns.ChangeStatus.Cancelled"]
+        </button>
+        continue;
+    }
+    <button class="btn btn-outline-secondary" type="submit" name="ChangeStatusTo" value="@status">
+        @Loc[$"{prefix}.Orders.MerchandiseReturns.ChangeStatus.{(MerchandiseReturnStatus)status}"]
+    </button>
+}

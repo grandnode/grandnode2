@@ -1,14 +1,12 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
-using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Data;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
-using Grand.Mediator;
 using Grand.Web.Commands.Handler.Orders;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -21,110 +19,100 @@ namespace Grand.Web.Tests.Commands.Orders;
 public class MerchandiseReturnSubmitCommandHandlerTests
 {
     private MerchandiseReturnSubmitCommandHandler _handler;
-    private Mock<IMediator> _mediatorMock;
-    private Mock<IMerchandiseReturnService> _merchandiseReturnServiceMock;
-    private Mock<IResourceLock> _resourceLockMock;
+    private Mock<IMerchandiseReturnMessageProviderService> _messageProviderMock;
     private Order _order;
+    private MerchandiseReturnSubmitRequest _request;
+    private MerchandiseReturnSubmitResult _result;
+    private Mock<IMerchandiseReturnWorkflowService> _workflowMock;
 
     [TestInitialize]
     public void Init()
     {
-        _order = new Order { Id = "o1" };
+        _order = new Order { Id = "o1", StoreId = "order-store", CustomerLanguageId = "customer-language" };
         _order.OrderItems.Add(new OrderItem { Id = "a", ProductId = "p", Quantity = 5 });
 
         var workContext = new Mock<IWorkContext>();
-        workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "c1" });
+        workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "c1", OwnerId = "owner" });
         workContext.Setup(x => x.WorkingLanguage).Returns(new Language { Id = "l1" });
         var storeContext = new Mock<IStoreContext>();
         storeContext.Setup(x => x.CurrentStore).Returns(new Domain.Stores.Store { Id = "s1" });
+        storeContext.Setup(x => x.CurrentHost).Returns(new Domain.Stores.DomainHost { HostName = "host" });
         var contextAccessor = new Mock<IContextAccessor>();
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         contextAccessor.Setup(x => x.StoreContext).Returns(storeContext.Object);
 
-        _mediatorMock = new Mock<IMediator>();
-        _merchandiseReturnServiceMock = new Mock<IMerchandiseReturnService>();
-        _resourceLockMock = new Mock<IResourceLock>();
-        _resourceLockMock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        _result = new MerchandiseReturnSubmitResult();
+        _workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
+        _workflowMock.Setup(x => x.Submit(It.IsAny<MerchandiseReturnSubmitRequest>()))
+            .Callback<MerchandiseReturnSubmitRequest>(r => _request = r)
+            .ReturnsAsync(() => _result);
+        _messageProviderMock = new Mock<IMerchandiseReturnMessageProviderService>();
 
-        _handler = new MerchandiseReturnSubmitCommandHandler(contextAccessor.Object, _mediatorMock.Object,
-            _merchandiseReturnServiceMock.Object, new Mock<IMerchandiseReturnMessageProviderService>().Object,
-            new Mock<IGroupService>().Object, new LanguageSettings(), _resourceLockMock.Object);
-    }
-
-    private void SetupReturnable(int quantity)
-    {
-        _mediatorMock.Setup(x => x.Send(It.IsAny<GetReturnableQuantitiesQuery>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(new Dictionary<string, int> { { "a", quantity } });
+        _handler = new MerchandiseReturnSubmitCommandHandler(contextAccessor.Object, _workflowMock.Object,
+            _messageProviderMock.Object, new Mock<IGroupService>().Object,
+            new LanguageSettings { DefaultAdminLanguageId = "admin-language" });
     }
 
     private MerchandiseReturnSubmitCommand Command(int quantity)
     {
-        var model = new MerchandiseReturnModel { OrderId = _order.Id };
-        model.Items.Add(new MerchandiseReturnModel.OrderItemModel { Id = "a", Quantity = quantity });
+        var model = new MerchandiseReturnModel { OrderId = _order.Id, Comments = "comments" };
+        model.Items.Add(new MerchandiseReturnModel.OrderItemModel {
+            Id = "a", Quantity = quantity, MerchandiseReturnReasonId = "rr1", MerchandiseReturnActionId = "ra1"
+        });
         return new MerchandiseReturnSubmitCommand { Model = model, Order = _order, Address = new Address() };
     }
 
     [TestMethod]
-    public async Task Handle_QuantityAboveReturnable_InsertsNothing()
+    public async Task Handle_PassesTheOrderCustomerStoreAndLanguage()
     {
-        //Arrange - another return took 3 of the 5 in the meantime
-        SetupReturnable(2);
-
         //Act
-        var result = await _handler.Handle(Command(5), CancellationToken.None);
-
-        //Assert - not a smaller return the customer did not ask for
-        Assert.IsNull(result);
-        _merchandiseReturnServiceMock.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task Handle_NothingLeftToReturn_InsertsNothing()
-    {
-        //Arrange
-        SetupReturnable(0);
-
-        //Act
-        var result = await _handler.Handle(Command(1), CancellationToken.None);
+        await _handler.Handle(Command(3), CancellationToken.None);
 
         //Assert
-        Assert.IsNull(result);
-        _merchandiseReturnServiceMock.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+        Assert.AreSame(_order, _request.Order);
+        //the order's store, whose staff handle the return, not the store the request came through
+        Assert.AreEqual("order-store", _request.StoreId);
+        Assert.AreEqual("c1", _request.CustomerId);
+        Assert.AreEqual("owner", _request.OwnerId);
+        Assert.AreEqual("l1", _request.LanguageId);
+        Assert.AreEqual("comments", _request.Comments);
+        Assert.AreEqual(new MerchandiseReturnSubmitItem("a", 3, "rr1", "ra1"), _request.Items.Single());
     }
 
     [TestMethod]
-    public async Task Handle_QuantityWithinReturnable_TakesTheQuantity()
+    public async Task Handle_TwoReturns_SendsBothMessagesForEach()
     {
-        //Arrange
-        SetupReturnable(5);
+        //Arrange - the store's items and a vendor's items became two returns
+        var storeReturn = new MerchandiseReturn { Id = "r1" };
+        var vendorReturn = new MerchandiseReturn { Id = "r2", VendorId = "v1" };
+        _result.MerchandiseReturns.Add(storeReturn);
+        _result.MerchandiseReturns.Add(vendorReturn);
 
         //Act
         var result = await _handler.Handle(Command(3), CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(3, result.MerchandiseReturnItems.Single().Quantity);
+        Assert.AreSame(_result, result);
+        foreach (var merchandiseReturn in new[] { storeReturn, vendorReturn })
+        {
+            _messageProviderMock.Verify(x => x.SendNewMerchandiseReturnStoreOwnerMessage(merchandiseReturn, _order,
+                "admin-language", It.IsAny<Domain.Stores.DomainHost>()), Times.Once);
+            _messageProviderMock.Verify(x => x.SendNewMerchandiseReturnCustomerMessage(merchandiseReturn, _order,
+                "customer-language", It.IsAny<Domain.Stores.DomainHost>()), Times.Once);
+        }
     }
 
     [TestMethod]
-    public async Task Handle_ChecksAndInsertsWhileHoldingTheOrderLock()
+    public async Task Handle_Refused_SendsNothing()
     {
-        //Arrange - record when the lock is taken and let go, against the check and the insert
-        var steps = new List<string>();
-        var held = new Mock<IAsyncDisposable>();
-        held.Setup(x => x.DisposeAsync()).Callback(() => steps.Add("release")).Returns(ValueTask.CompletedTask);
-        _resourceLockMock.Setup(x => x.Acquire(It.Is<IEnumerable<string>>(k => k.Single() == "MerchandiseReturn:o1"),
-                It.IsAny<CancellationToken>()))
-            .Callback(() => steps.Add("acquire")).ReturnsAsync(held.Object);
-        _mediatorMock.Setup(x => x.Send(It.IsAny<GetReturnableQuantitiesQuery>(), It.IsAny<CancellationToken>()))
-            .Callback(() => steps.Add("check")).ReturnsAsync(new Dictionary<string, int> { { "a", 5 } });
-        _merchandiseReturnServiceMock.Setup(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()))
-            .Callback(() => steps.Add("insert")).Returns(Task.CompletedTask);
+        //Arrange
+        _result.Error = MerchandiseReturnErrors.SubmitQuantityExceeded;
 
         //Act
-        await _handler.Handle(Command(3), CancellationToken.None);
+        var result = await _handler.Handle(Command(9), CancellationToken.None);
 
         //Assert
-        CollectionAssert.AreEqual(new[] { "acquire", "check", "insert", "release" }, steps);
+        Assert.AreEqual(MerchandiseReturnErrors.SubmitQuantityExceeded, result.Error);
+        _messageProviderMock.VerifyNoOtherCalls();
     }
 }

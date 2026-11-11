@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
-using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Validators;
@@ -16,7 +14,7 @@ public class MerchandiseReturnValidator : BaseGrandValidator<MerchandiseReturnMo
 {
     public MerchandiseReturnValidator(
         IEnumerable<IValidatorConsumer<MerchandiseReturnModel>> validators,
-        OrderSettings orderSettings, IOrderService orderService,
+        OrderSettings orderSettings,
         IMediator mediator, IAddressAttributeParser addressAttributeParser,
         IRequestTranslationService translationService,
         IContextAccessor contextAccessor)
@@ -35,28 +33,9 @@ public class MerchandiseReturnValidator : BaseGrandValidator<MerchandiseReturnMo
                 contextAccessor.StoreContext.CurrentStore.Id);
             foreach (var error in customAttributeWarnings) context.AddFailure(error);
 
-            var submitted = x.Items.Where(item => item.Quantity > 0).ToList();
-            if (submitted.Count == 0)
-            {
+            //what is left to return, and for which vendor, is worked out once when the return is saved
+            if (!x.Items.Any(item => item.Quantity > 0))
                 context.AddFailure(translationService.GetResource("MerchandiseReturns.NoItemsSubmitted"));
-                return;
-            }
-
-            //an unknown order or order item leaves nothing to return
-            var order = await orderService.GetOrderById(x.OrderId);
-            var returnable = order != null
-                ? await mediator.Send(new GetReturnableQuantitiesQuery { Order = order }, _)
-                : new Dictionary<string, int>();
-            if (submitted.Any(item => item.Quantity > returnable.GetValueOrDefault(item.Id)))
-            {
-                context.AddFailure(translationService.GetResource("MerchandiseReturns.QuantityExceeded"));
-                return;
-            }
-
-            var vendors = order!.OrderItems.Where(orderItem => submitted.Any(item => item.Id == orderItem.Id))
-                .Select(orderItem => orderItem.VendorId);
-            if (vendors.Distinct().Count() > 1)
-                context.AddFailure(translationService.GetResource("MerchandiseReturns.MultiVendorsItems"));
         });
     }
 }

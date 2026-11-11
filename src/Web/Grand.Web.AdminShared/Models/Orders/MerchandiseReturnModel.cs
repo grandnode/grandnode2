@@ -58,8 +58,15 @@ public class MerchandiseReturnModel : BaseEntityModel
 
     public List<MerchandiseReturnItemModel> Items { get; set; } = new();
 
-    [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.NotifyCustomer")]
-    public bool NotifyCustomer { get; set; }
+    //the statuses the return may change to, each a button on the edit page
+    public IList<int> NextStatuses { get; set; } = new List<int>();
+
+    //posted by a status button: the form is saved first, then the status changes
+    public int? ChangeStatusTo { get; set; }
+
+    [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.ChangeStatusNote")]
+    [NoHtml]
+    public string ChangeStatusNote { get; set; }
 
     //merchandise return notes
     [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.Fields.DisplayToCustomer")]

@@ -78,4 +78,10 @@ public interface IInventoryDocumentService
     /// <returns>The draft, or null and the keys of the errors</returns>
     Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(string merchandiseReturnId,
         string customerId);
+
+    /// <summary>
+    ///     Whether goods of the merchandise return came in: a return receipt of it is posted, or a posting of one
+    ///     stopped part way after booking some of its lines
+    /// </summary>
+    Task<bool> IsReturnReceived(string merchandiseReturnId);
 }

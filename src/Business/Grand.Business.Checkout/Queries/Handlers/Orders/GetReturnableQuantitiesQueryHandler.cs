@@ -1,9 +1,7 @@
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Orders;
-using Grand.Domain.Shipping;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
@@ -36,7 +34,7 @@ public class GetReturnableQuantitiesQueryHandler
         //validate allowed number of days
         var days = request.ForStaff ? 0 : _orderSettings.NumberOfDaysMerchandiseReturnAvailable;
         var fromDelivery = _orderSettings.MerchandiseReturnPeriodStart == MerchandiseReturnPeriodStart.Delivered;
-        if (days > 0 && !fromDelivery && (DateTime.UtcNow - request.Order.CreatedOnUtc).TotalDays >= days)
+        if (ReturnableQuantities.PeriodEnded(request.Order, days, fromDelivery, DateTime.UtcNow))
             return quantities;
 
         var delivered = (await _shipmentService.GetShipmentsByOrder(request.Order.Id))
@@ -45,41 +43,24 @@ public class GetReturnableQuantitiesQueryHandler
         if (delivered.Count == 0)
             return quantities;
 
-        //each shipment has its own days, counted from its delivery
-        var withinPeriod = days > 0 && fromDelivery
-            ? delivered.Where(x => (DateTime.UtcNow - x.DeliveryDateUtc!.Value).TotalDays < days).ToList()
-            : delivered;
-
         var merchandiseReturns =
             await _mediator.Send(new GetMerchandiseReturnQuery { OrderId = request.Order.Id }, cancellationToken);
 
+        var computed = ReturnableQuantities.Compute(request.Order, delivered, merchandiseReturns, days, fromDelivery,
+            DateTime.UtcNow);
         foreach (var item in request.Order.OrderItems)
         {
-            //returns do not say which shipment they came from, so the quantity still within its period caps what is
-            //left of everything delivered
-            var qtyDelivery = DeliveredQuantity(delivered, item.Id);
-            var qtyWithinPeriod = DeliveredQuantity(withinPeriod, item.Id);
-            var returnable = Math.Min(qtyWithinPeriod, qtyDelivery - merchandiseReturns.ReturnedQuantity(item.Id));
             //the product is read only for an item that has something left
-            if (returnable <= 0)
+            if (computed[item.Id] <= 0)
                 continue;
 
-            if (!request.ForStaff)
-            {
-                var product = await _productService.GetProductByIdIncludeArch(item.ProductId);
-                if (product == null || product.NotReturnable)
-                    continue;
-            }
+            if (!request.ForStaff &&
+                !ReturnableQuantities.MayBeReturned(await _productService.GetProductByIdIncludeArch(item.ProductId)))
+                continue;
 
-            quantities[item.Id] = returnable;
+            quantities[item.Id] = computed[item.Id];
         }
 
         return quantities;
-    }
-
-    private static int DeliveredQuantity(IEnumerable<Shipment> shipments, string orderItemId)
-    {
-        return shipments.SelectMany(x => x.ShipmentItems).Where(x => x.OrderItemId == orderItemId)
-            .Sum(x => x.Quantity);
     }
 }

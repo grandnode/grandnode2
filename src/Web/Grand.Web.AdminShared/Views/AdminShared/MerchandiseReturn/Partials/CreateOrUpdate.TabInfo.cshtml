@@ -5,8 +5,8 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 
-@* who and what the return is about reads as facts; the status, the comments and the pickup
-   date are the fields *@
+@* who and what the return is about reads as facts, the status too: it changes only through the
+   status buttons; the comments and the pickup date are the fields *@
 <partial name="Partials/WidgetZone.TabInfo.Top" model="Model"/>
 <admin-card>
     <div class="grand-facts">
@@ -26,11 +26,14 @@
             <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">@Html.DisplayFor(model => model.CreatedOn)</div>
         </div>
+        <div>
+            <admin-label asp-for="MerchandiseReturnStatusId" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.MerchandiseReturnStatusStr</div>
+        </div>
     </div>
 </admin-card>
 <admin-card>
     <div class="grand-fields grand-fields--2col">
-        <admin-field asp-for="MerchandiseReturnStatusId" asp-items="EnumTranslationService.ToSelectList((MerchandiseReturnStatus)Model.MerchandiseReturnStatusId)"/>
         <admin-field asp-for="ExternalId"/>
         <admin-field asp-for="CustomerComments">
             <admin-textarea asp-for="CustomerComments"></admin-textarea>
@@ -42,7 +45,6 @@
         {
             <admin-field asp-for="PickupDate"/>
         }
-        <admin-field asp-for="NotifyCustomer"/>
     </div>
 </admin-card>
 <admin-card flush>

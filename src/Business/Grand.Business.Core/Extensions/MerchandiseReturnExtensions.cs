@@ -24,6 +24,38 @@ public static class MerchandiseReturnExtensions
         return status is not (MerchandiseReturnStatus.Rejected or MerchandiseReturnStatus.Cancelled);
     }
 
+    //the status flow: a rejected or cancelled return may be opened again, a completed one is final
+    private static readonly Dictionary<MerchandiseReturnStatus, MerchandiseReturnStatus[]> Transitions = new() {
+        [MerchandiseReturnStatus.Pending] = [
+            MerchandiseReturnStatus.Accepted, MerchandiseReturnStatus.Received, MerchandiseReturnStatus.Rejected,
+            MerchandiseReturnStatus.Cancelled
+        ],
+        [MerchandiseReturnStatus.Accepted] = [
+            MerchandiseReturnStatus.Received, MerchandiseReturnStatus.Completed, MerchandiseReturnStatus.Rejected,
+            MerchandiseReturnStatus.Cancelled
+        ],
+        [MerchandiseReturnStatus.Received] = [MerchandiseReturnStatus.Completed],
+        [MerchandiseReturnStatus.Rejected] = [MerchandiseReturnStatus.Pending],
+        [MerchandiseReturnStatus.Cancelled] = [MerchandiseReturnStatus.Pending],
+        [MerchandiseReturnStatus.Completed] = []
+    };
+
+    /// <summary>
+    ///     The statuses a merchandise return in this status may change to
+    /// </summary>
+    public static IReadOnlyList<MerchandiseReturnStatus> NextStatuses(this MerchandiseReturnStatus status)
+    {
+        return Transitions.GetValueOrDefault(status, []);
+    }
+
+    /// <summary>
+    ///     Whether a merchandise return in this status may change to the other one
+    /// </summary>
+    public static bool CanChangeTo(this MerchandiseReturnStatus from, MerchandiseReturnStatus to)
+    {
+        return from.NextStatuses().Contains(to);
+    }
+
     /// <summary>
     ///     The IResourceLock key held while a merchandise return of the order is checked against the quantity left to
     ///     return and saved

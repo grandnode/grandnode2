@@ -79,6 +79,15 @@ public class MerchandiseReturnController : BasePublicController
         });
     }
 
+    /// <summary>
+    ///     An order is returned through the store it was placed in: a customer whose account every store shares
+    ///     would otherwise show the order to the staff of another store
+    /// </summary>
+    private bool OfCurrentStore(Order order)
+    {
+        return order.StoreId == _contextAccessor.StoreContext.CurrentStore.Id;
+    }
+
     private async Task<Address> PrepareAddress(MerchandiseReturnModel model)
     {
         var address = new Address();
@@ -124,7 +133,8 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturn(string orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) ||
+            !OfCurrentStore(order))
             return Challenge();
 
         if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
@@ -142,10 +152,12 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
     {
         var order = await _orderService.GetOrderById(model.OrderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) ||
+            !OfCurrentStore(order))
             return Challenge();
 
-        if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
+        //what is left to return is checked once, when the return is saved
+        if (!_orderSettings.MerchandiseReturnsEnabled || order.Deleted)
             return RedirectToRoute("HomePage");
 
         var address = await PrepareAddress(model);
@@ -154,18 +166,19 @@ public class MerchandiseReturnController : BasePublicController
         {
             var result = await _mediator.Send(new MerchandiseReturnSubmitCommand
                 { Address = address, Model = model, Order = order });
-            if (result != null)
+            if (result.Error == null)
             {
-                model.Result = string.Format(_translationService.GetResource("MerchandiseReturns.Submitted"),
-                    result.ReturnNumber,
-                    Url.Link("MerchandiseReturnDetails", new { merchandiseReturnId = result.Id }));
+                //one return for each vendor of the items
+                model.Result = string.Join("<br />", result.MerchandiseReturns.Select(x => string.Format(
+                    _translationService.GetResource("MerchandiseReturns.Submitted"), x.ReturnNumber,
+                    Url.Link("MerchandiseReturnDetails", new { merchandiseReturnId = x.Id }))));
                 model.OrderNumber = order.OrderNumber;
                 model.OrderCode = order.Code;
                 return View(model);
             }
 
-            //another return took the quantity in the meantime
-            ModelState.AddModelError("", _translationService.GetResource("MerchandiseReturns.QuantityExceeded"));
+            //e.g. another return took the quantity in the meantime
+            ModelState.AddModelError("", _translationService.GetResource(result.Error));
         }
 
         var returnModel = await _mediator.Send(new GetMerchandiseReturn {

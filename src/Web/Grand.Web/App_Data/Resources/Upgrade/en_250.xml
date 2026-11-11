@@ -1638,10 +1638,94 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.QuantityExceeded" Area="Vendor">
 		<Value>The merchandise return has not been saved: set back to this status, it would take more than is left to return of the order.</Value>
 	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Accepted" Area="Common">
+		<Value>Accepted</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Rejected" Area="Common">
+		<Value>Rejected</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.MerchandiseReturnStatus.Completed" Area="Common">
+		<Value>Completed</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.StatusChangeNotAllowed" Area="Admin">
+		<Value>This status change is not allowed.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.StatusChangeNotAllowed" Area="Vendor">
+		<Value>This status change is not allowed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Busy" Area="Admin">
+		<Value>The return is being changed by someone else. Try again in a moment.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Busy" Area="Vendor">
+		<Value>The return is being changed by someone else. Try again in a moment.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.NotFound" Area="Admin">
+		<Value>The merchandise return was not found.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.NotFound" Area="Vendor">
+		<Value>The merchandise return was not found.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Pending" Area="Admin">
+		<Value>Reopen</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Accepted" Area="Admin">
+		<Value>Accept</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Received" Area="Admin">
+		<Value>Mark as received</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Rejected" Area="Admin">
+		<Value>Reject</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Cancelled" Area="Admin">
+		<Value>Cancel return</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Completed" Area="Admin">
+		<Value>Complete</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatusNote" Area="Admin">
+		<Value>Reason shown to the customer</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.StatusChanged" Area="Admin">
+		<Value>The status has been changed and the customer notified.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ConfirmCancel" Area="Admin">
+		<Value>Cancel this return? The customer gets the quantity back to return again.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Pending" Area="Vendor">
+		<Value>Reopen</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Accepted" Area="Vendor">
+		<Value>Accept</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Received" Area="Vendor">
+		<Value>Mark as received</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Rejected" Area="Vendor">
+		<Value>Reject</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Cancelled" Area="Vendor">
+		<Value>Cancel return</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatus.Completed" Area="Vendor">
+		<Value>Complete</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ChangeStatusNote" Area="Vendor">
+		<Value>Reason shown to the customer</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.StatusChanged" Area="Vendor">
+		<Value>The status has been changed and the customer notified.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ConfirmCancel" Area="Vendor">
+		<Value>Cancel this return? The customer gets the quantity back to return again.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Busy" Area="Front">
+		<Value>Your return is being saved by another request. Try again in a moment.</Value>
+	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.AlreadyReceived" Area="Admin">
-		<Value>The merchandise return has not been saved: its goods were already received to stock, so it cannot be rejected or cancelled.</Value>
+		<Value>The merchandise return has not been changed: its goods were already received, so it cannot be rejected, cancelled or deleted.</Value>
 	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.AlreadyReceived" Area="Vendor">
-		<Value>The merchandise return has not been saved: its goods were already received to stock, so it cannot be rejected or cancelled.</Value>
+		<Value>The merchandise return has not been changed: its goods were already received, so it cannot be rejected, cancelled or deleted.</Value>
 	</Resource>
 </Language>

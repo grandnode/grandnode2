@@ -101,6 +101,8 @@ public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList,
 
         model.PagingContext.LoadPagedList(orders);
 
+        //one query for the page, not one for every order
+        var returnable = await _mediator.Send(new GetReturnableOrdersQuery { Orders = orders });
 
         foreach (var order in orders)
         {
@@ -115,8 +117,7 @@ public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList,
                 OrderStatus = status?.Name,
                 PaymentStatus = _enumTranslationService.GetTranslationEnum(order.PaymentStatusId),
                 ShippingStatus = _enumTranslationService.GetTranslationEnum(order.ShippingStatusId),
-                IsMerchandiseReturnAllowed =
-                    await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }),
+                IsMerchandiseReturnAllowed = returnable.Contains(order.Id),
                 OrderTotal = _priceFormatter.FormatPrice(order.OrderTotal,
                     await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode))
             };

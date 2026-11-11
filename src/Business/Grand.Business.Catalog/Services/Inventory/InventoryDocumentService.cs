@@ -244,14 +244,22 @@ public class InventoryDocumentService(
                 return invalid;
         }
 
+        //a receipt of a merchandise return books under the lock the return's status changes hold: a return
+        //rejected, cancelled or deleted meanwhile stops the posting, and one with a line booked is received
+        var returnLockKey = await ReturnLockKey(document);
+        string[] Keys(params string[] keys) => returnLockKey == null ? keys : [..keys, returnLockKey];
+
         //one product at a time, with the document's key: no lease has to outlast a large stock count, and a draft
         //saved meanwhile stops the posting instead of being booked half as it was; a product that fails stops it
         //too, and posting again continues after the products booked
         foreach (var productLines in document.Lines.GroupBy(x => x.ProductId))
         {
-            await using var _ = await resourceLock.Acquire([DocumentLockKey(id), ProductStockLock.Key(productLines.Key)]);
+            await using var _ = await resourceLock.Acquire(Keys(DocumentLockKey(id),
+                ProductStockLock.Key(productLines.Key)));
             if (await Changed(document))
                 return [InventoryDocumentErrors.ChangedWhilePosting];
+            if (!await ReturnReceivable(document))
+                return [InventoryDocumentErrors.ReturnNotReceivable];
 
             var product = await productRepository.GetByIdAsync(productLines.Key);
             var booked = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
@@ -275,10 +283,13 @@ public class InventoryDocumentService(
                 return errors;
         }
 
-        await using (await resourceLock.Acquire([DocumentLockKey(id)]))
+        await using (await resourceLock.Acquire(Keys(DocumentLockKey(id))))
         {
             if (await Changed(document))
                 return [InventoryDocumentErrors.ChangedWhilePosting];
+            //a receipt of scrapped items only books nothing, so the return is checked once more before it is posted
+            if (!await ReturnReceivable(document))
+                return [InventoryDocumentErrors.ReturnNotReceivable];
 
             document.StatusId = InventoryDocumentStatus.Posted;
             document.PostedOnUtc = DateTime.UtcNow;
@@ -292,6 +303,49 @@ public class InventoryDocumentService(
 
         await mediator.EntityUpdated(document);
         return [];
+    }
+
+    /// <summary>
+    ///     The lock key of the merchandise return's order for a receipt of one; null for any other document
+    /// </summary>
+    private async Task<string> ReturnLockKey(InventoryDocument document)
+    {
+        if (!OfMerchandiseReturn(document))
+            return null;
+
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(document.MerchandiseReturnId);
+        return merchandiseReturn == null ? null : MerchandiseReturnExtensions.QuantityLockKey(merchandiseReturn.OrderId);
+    }
+
+    /// <summary>
+    ///     Whether the merchandise return of a receipt still takes its quantity, as stored now; true for any other
+    ///     document
+    /// </summary>
+    private async Task<bool> ReturnReceivable(InventoryDocument document)
+    {
+        return !OfMerchandiseReturn(document) ||
+               (await merchandiseReturnService.GetMerchandiseReturnById(document.MerchandiseReturnId))
+               ?.MerchandiseReturnStatus.TakesQuantity() == true;
+    }
+
+    private static bool OfMerchandiseReturn(InventoryDocument document)
+    {
+        return document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
+               !string.IsNullOrEmpty(document.MerchandiseReturnId);
+    }
+
+    public async Task<bool> IsReturnReceived(string merchandiseReturnId)
+    {
+        var receipts = await inventoryDocumentRepository.ToListAsync(inventoryDocumentRepository.Table
+            .Where(x => x.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
+                        x.MerchandiseReturnId == merchandiseReturnId)
+            .Select(x => new { x.Id, x.StatusId }));
+        if (receipts.Any(x => x.StatusId == InventoryDocumentStatus.Posted))
+            return true;
+
+        var ids = receipts.Select(x => x.Id).ToList();
+        return ids.Count > 0 && await inventoryJournalRepository.AnyAsync(inventoryJournalRepository.Table
+            .Where(x => x.ObjectType == nameof(InventoryDocument) && ids.Contains(x.ObjectId)));
     }
 
     /// <summary>
@@ -517,9 +571,14 @@ public class InventoryDocumentService(
                 Batch: UnitNumbers.Key(x.BatchNumber))).Any(x => x.Count() > 1))
             Add(InventoryDocumentErrors.DuplicateLine);
 
-        if (document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
-            !string.IsNullOrEmpty(document.MerchandiseReturnId) &&
-            await ReturnQuantityExceeded(document))
+        var merchandiseReturn = OfMerchandiseReturn(document)
+            ? await merchandiseReturnService.GetMerchandiseReturnById(document.MerchandiseReturnId)
+            : null;
+        //a return rejected, cancelled or deleted since the receipt was drafted gave its quantity back to the customer
+        if (OfMerchandiseReturn(document) && merchandiseReturn?.MerchandiseReturnStatus.TakesQuantity() != true)
+            Add(InventoryDocumentErrors.ReturnNotReceivable);
+
+        if (merchandiseReturn != null && await ReturnQuantityExceeded(document, merchandiseReturn))
             Add(InventoryDocumentErrors.ReturnQuantityExceeded);
 
         var products = new Dictionary<string, Product>();
@@ -590,9 +649,8 @@ public class InventoryDocumentService(
             }
         }
 
-        if (document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
-            !string.IsNullOrEmpty(document.MerchandiseReturnId))
-            foreach (var error in await ReturnedUnitErrors(document, products))
+        if (merchandiseReturn != null)
+            foreach (var error in await ReturnedUnitErrors(document, merchandiseReturn, products))
                 Add(error);
 
         //a serial number is one unit: it is named once a document
@@ -610,16 +668,12 @@ public class InventoryDocumentService(
     ///     and only units shipped without a number may come back without one
     /// </summary>
     private async Task<IList<string>> ReturnedUnitErrors(InventoryDocument document,
-        Dictionary<string, Product> products)
+        MerchandiseReturn merchandiseReturn, Dictionary<string, Product> products)
     {
         var errors = new List<string>();
         if (!document.Lines.Any(x => products.GetValueOrDefault(x.ProductId ?? "") is { } product &&
                                      InventoryTracking.Tracked(product) &&
                                      product.InventoryTrackingModeId == InventoryTrackingMode.SerialNumber))
-            return errors;
-
-        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(document.MerchandiseReturnId);
-        if (merchandiseReturn == null)
             return errors;
 
         var shipped = await Shipped(merchandiseReturn.OrderId);
@@ -678,12 +732,8 @@ public class InventoryDocumentService(
     ///     Whether the return receipts of the merchandise return, this one with its lines as they are now, take in more
     ///     of an item than was returned
     /// </summary>
-    private async Task<bool> ReturnQuantityExceeded(InventoryDocument document)
+    private async Task<bool> ReturnQuantityExceeded(InventoryDocument document, MerchandiseReturn merchandiseReturn)
     {
-        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(document.MerchandiseReturnId);
-        if (merchandiseReturn == null)
-            return false;
-
         var returned = (await Returned(merchandiseReturn))
             .GroupBy(x => (x.ReturnItemId, x.ProductId))
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));

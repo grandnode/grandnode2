@@ -991,6 +991,9 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<MerchandiseReturn>.Create().Ascending(x => x.ReturnNumber), "ReturnNumber", true);
         await dbContext.CreateIndex(_merchandiseReturnRepository,
             OrderBuilder<MerchandiseReturn>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
+        //an order's returns are read to work out what is left to return
+        await dbContext.CreateIndex(_merchandiseReturnRepository,
+            OrderBuilder<MerchandiseReturn>.Create().Ascending(x => x.OrderId), "OrderId_1");
         await dbContext.CreateIndex(_merchandiseReturnActionRepository,
             OrderBuilder<MerchandiseReturnAction>.Create().Ascending(x => x.DisplayOrder), "DisplayOrder");
         await dbContext.CreateIndex(_merchandiseReturnReasonRepository,
