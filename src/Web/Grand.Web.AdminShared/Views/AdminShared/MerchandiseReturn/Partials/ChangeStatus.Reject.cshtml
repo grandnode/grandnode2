@@ -1,0 +1,22 @@
+@using Grand.Domain.Orders
+@model MerchandiseReturnModel
+@if (Model.NextStatuses.Contains((int)MerchandiseReturnStatus.Rejected))
+{
+    var prefix = Scope.ResourceKeyPrefix;
+    //a rejection refused comes back with its reason box open, the reason as typed
+    var rejectOpen = Model.ChangeStatusTo == (int)MerchandiseReturnStatus.Rejected;
+    @* rejecting asks why: the reason is shown to the customer with the return *@
+    <div class="collapse @(rejectOpen ? "show" : "")" id="merchandisereturn-reject">
+        <admin-card>
+            <div class="grand-fields">
+                <admin-field asp-for="ChangeStatusNote">
+                    <admin-textarea asp-for="ChangeStatusNote"></admin-textarea>
+                </admin-field>
+            </div>
+            <button class="btn btn-outline-danger" type="submit" name="ChangeStatusTo"
+                    value="@((int)MerchandiseReturnStatus.Rejected)">
+                <i class="bi bi-x-circle"></i> @Loc[$"{prefix}.Orders.MerchandiseReturns.ChangeStatus.Rejected"]
+            </button>
+        </admin-card>
+    </div>
+}
