@@ -231,6 +231,45 @@ public class MerchandiseReturnWorkflowServiceTests
     }
 
     [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Pending)]
+    [DataRow(MerchandiseReturnStatus.Accepted)]
+    public async Task MarkReceived_PendingOrAccepted_ChangesToReceived(MerchandiseReturnStatus status)
+    {
+        _stored = Return(status);
+
+        await _service.MarkReceived("r1");
+
+        Assert.AreEqual(MerchandiseReturnStatus.Received, _stored.MerchandiseReturnStatus);
+        _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
+            _stored, _order, "customer-language"), Times.Once);
+    }
+
+    [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Received)]
+    [DataRow(MerchandiseReturnStatus.Completed)]
+    [DataRow(MerchandiseReturnStatus.Rejected)]
+    public async Task MarkReceived_OtherStatus_DoesNothing(MerchandiseReturnStatus status)
+    {
+        //a second receipt of the same return, or a return closed already
+        _stored = Return(status);
+
+        await _service.MarkReceived("r1");
+
+        Assert.AreEqual(status, _stored.MerchandiseReturnStatus);
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task MarkReceived_UnknownReturn_DoesNothing()
+    {
+        _stored = null;
+
+        await _service.MarkReceived("r1");
+
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Delete_HoldsQuantityLock_AndDeletes()
     {
         var error = await _service.Delete("r1");

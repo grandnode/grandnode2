@@ -185,6 +185,32 @@ public class InventoryDocumentServiceTests
             InventoryDocumentErrors.ReturnQuantityExceeded);
     }
 
+    [TestMethod]
+    public async Task Validate_ReturnReceiptForRejectedReturn_ReturnNotReceivable()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        //rejected after the receipt was drafted: the customer got the quantity back, so it is not received to stock
+        merchandiseReturn.MerchandiseReturnStatus = MerchandiseReturnStatus.Rejected;
+
+        CollectionAssert.Contains((await _service.Validate(document)).ToList(),
+            InventoryDocumentErrors.ReturnNotReceivable);
+    }
+
+    [TestMethod]
+    public async Task Validate_ReturnReceiptForDeletedReturn_ReturnNotReceivable()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById(merchandiseReturn.Id))
+            .ReturnsAsync((MerchandiseReturn)null);
+
+        CollectionAssert.Contains((await _service.Validate(document)).ToList(),
+            InventoryDocumentErrors.ReturnNotReceivable);
+    }
+
     private Product Stored(Product product) => _products.Table.First(x => x.Id == product.Id);
 
     private async Task<InventoryDocument> Draft(InventoryDocument document)

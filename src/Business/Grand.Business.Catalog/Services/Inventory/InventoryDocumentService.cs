@@ -517,6 +517,13 @@ public class InventoryDocumentService(
                 Batch: UnitNumbers.Key(x.BatchNumber))).Any(x => x.Count() > 1))
             Add(InventoryDocumentErrors.DuplicateLine);
 
+        //a return rejected, cancelled or deleted since the receipt was drafted gave its quantity back to the customer
+        if (document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
+            !string.IsNullOrEmpty(document.MerchandiseReturnId) &&
+            (await merchandiseReturnService.GetMerchandiseReturnById(document.MerchandiseReturnId))
+            ?.MerchandiseReturnStatus.TakesQuantity() != true)
+            Add(InventoryDocumentErrors.ReturnNotReceivable);
+
         if (document.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
             !string.IsNullOrEmpty(document.MerchandiseReturnId) &&
             await ReturnQuantityExceeded(document))

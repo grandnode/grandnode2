@@ -26,4 +26,10 @@ public interface IMerchandiseReturnWorkflowService
     ///     Deletes the merchandise return
     /// </summary>
     Task<string> Delete(string merchandiseReturnId);
+
+    /// <summary>
+    ///     A return receipt of the return was posted: a pending or accepted return becomes received, any other one
+    ///     stays as it is
+    /// </summary>
+    Task MarkReceived(string merchandiseReturnId);
 }

@@ -75,6 +75,16 @@ public class MerchandiseReturnWorkflowService(
         });
     }
 
+    public async Task MarkReceived(string merchandiseReturnId)
+    {
+        //read without the lock, which ChangeStatus takes and which is not reentrant; a status changed in between is
+        //checked again under it, and such a refusal leaves the return as it is
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        if (merchandiseReturn?.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
+            or MerchandiseReturnStatus.Accepted)
+            await ChangeStatus(merchandiseReturnId, MerchandiseReturnStatus.Received);
+    }
+
     /// <summary>
     ///     Runs the change on the return as stored once the lock of its order is held: another change that held the
     ///     lock before has been saved by then
