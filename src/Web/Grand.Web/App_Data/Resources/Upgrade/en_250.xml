@@ -1731,4 +1731,19 @@
 	<Resource Name="MerchandiseReturns.ReturnShipping.Choose" Area="Front">
 		<Value>Choose how you send the items back.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.InStore" Area="Front">
+		<Value>Return in store</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.InStore.ChoosePoint" Area="Front">
+		<Value>Choose the pickup point where you leave the items.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.InStore.Instructions" Area="Front">
+		<Value>Bring the items with return number {1} to {0}.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.SendYourself" Area="Front">
+		<Value>Send it yourself</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.SendYourself.Instructions" Area="Front">
+		<Value>Send the parcel to: {0}. Write return number {1} on it.</Value>
+	</Resource>
 </Language>

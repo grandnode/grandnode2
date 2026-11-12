@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
@@ -27,6 +28,7 @@ public class MerchandiseReturnController : BasePublicController
 
     public MerchandiseReturnController(
         IMerchandiseReturnService merchandiseReturnService,
+        IPickupPointService pickupPointService,
         IOrderService orderService,
         IContextAccessor contextAccessor,
         IGroupService groupService,
@@ -36,6 +38,7 @@ public class MerchandiseReturnController : BasePublicController
         OrderSettings orderSettings)
     {
         _merchandiseReturnService = merchandiseReturnService;
+        _pickupPointService = pickupPointService;
         _orderService = orderService;
         _contextAccessor = contextAccessor;
         _groupService = groupService;
@@ -50,6 +53,7 @@ public class MerchandiseReturnController : BasePublicController
     #region Fields
 
     private readonly IMerchandiseReturnService _merchandiseReturnService;
+    private readonly IPickupPointService _pickupPointService;
     private readonly IOrderService _orderService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
@@ -216,6 +220,21 @@ public class MerchandiseReturnController : BasePublicController
         });
 
         return View(model);
+    }
+
+    /// <summary>
+    ///     The form of the "return in store" option: the pickup points of the current store to leave the items at
+    /// </summary>
+    [HttpGet]
+    public virtual async Task<IActionResult> InStoreReturnPoints()
+    {
+        var points = await _pickupPointService.LoadActivePickupPoints(_contextAccessor.StoreContext.CurrentStore.Id);
+        return PartialView("Partials/InStorePoints", points.Select(x => new MerchandiseReturnInStorePointModel {
+            Id = x.Id,
+            Name = x.Name,
+            Address = string.Join(", ", new[] { x.Address?.Address1, x.Address?.ZipPostalCode, x.Address?.City }
+                .Where(part => !string.IsNullOrEmpty(part)))
+        }).ToList());
     }
 
     #endregion
