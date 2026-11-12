@@ -346,7 +346,7 @@ public class MerchandiseReturnWorkflowService(
             return;
 
         //the receipt is posted already, so a refusal is not the poster's error; the return, received by its stock,
-        //can no longer be rejected and is marked received by hand
+        //can no longer be rejected, and the panel offers Received while a posted receipt of it exists
         var error = await ChangeStatus(merchandiseReturnId, MerchandiseReturnStatus.Received, changedBy: changedBy);
         if (error != null)
             logger.LogWarning("A return receipt of merchandise return {MerchandiseReturnId} was posted, but the " +

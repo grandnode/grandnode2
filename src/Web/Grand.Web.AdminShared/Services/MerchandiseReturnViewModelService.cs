@@ -88,7 +88,13 @@ public class MerchandiseReturnViewModelService(
         model.MerchandiseReturnStatusId = merchandiseReturn.MerchandiseReturnStatusId;
         model.MerchandiseReturnStatusStr =
             enumTranslationService.GetTranslationEnum(merchandiseReturn.MerchandiseReturnStatus);
-        model.NextStatuses = merchandiseReturn.MerchandiseReturnStatus.NextStatuses().Where(IsChangedByStaff)
+        //the edit page offers Received only to recover a posted receipt the return was not marked received by
+        //(e.g. busy at the time); the list asks no one
+        var receivedByHand = !excludeProperties &&
+                             merchandiseReturn.MerchandiseReturnStatus.CanChangeTo(MerchandiseReturnStatus.Received) &&
+                             await CanMarkReceived(merchandiseReturn.Id);
+        model.NextStatuses = merchandiseReturn.MerchandiseReturnStatus.NextStatuses()
+            .Where(x => x != MerchandiseReturnStatus.Received || receivedByHand)
             .Select(x => (int)x).ToList();
         model.CreatedOn = dateTimeService.ConvertToUserTime(merchandiseReturn.CreatedOnUtc, DateTimeKind.Utc);
         model.PickupDate = merchandiseReturn.PickupDate;
@@ -111,12 +117,12 @@ public class MerchandiseReturnViewModelService(
     private const int MaxTrackingNumberLength = 100;
 
     /// <summary>
-    ///     Whether the staff changes the return to this status with a button: a return is received only by posting a
-    ///     return receipt, which puts its goods on stock
+    ///     Whether the staff may mark the return received: its goods came back to stock through a posted return
+    ///     receipt, which marks it received itself unless that failed
     /// </summary>
-    private static bool IsChangedByStaff(MerchandiseReturnStatus status)
+    private Task<bool> CanMarkReceived(string merchandiseReturnId)
     {
-        return status != MerchandiseReturnStatus.Received;
+        return inventoryDocumentService.IsReturnReceived(merchandiseReturnId);
     }
 
     private async Task<MerchandiseReturnModel.ReturnShippingModel> PrepareReturnShipping(
@@ -369,8 +375,9 @@ public class MerchandiseReturnViewModelService(
     public virtual async Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(
         MerchandiseReturn merchandiseReturn, MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes)
     {
-        //no button offers it: a status posted that the staff does not set by hand is refused before anything is saved
-        if (model.ChangeStatusTo.HasValue && !IsChangedByStaff((MerchandiseReturnStatus)model.ChangeStatusTo.Value))
+        //received without a posted return receipt is refused before anything is saved: no button offers it
+        if (model.ChangeStatusTo == (int)MerchandiseReturnStatus.Received &&
+            !await CanMarkReceived(merchandiseReturn.Id))
             return (null, MerchandiseReturnErrors.StatusChangeNotAllowed);
 
         //the fields go onto the return as stored: a status changed since the page was loaded is kept

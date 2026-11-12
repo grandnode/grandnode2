@@ -233,8 +233,16 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static (MerchandiseReturnViewModelService service, Mock<IMerchandiseReturnWorkflowService> workflow)
-        BuildForUpdate()
+        BuildForUpdate(Mock<IInventoryDocumentService> documents = null)
     {
+        //the edit form's pickup address lists the countries and the address attributes
+        var countryServiceMock = new Mock<ICountryService>();
+        countryServiceMock.Setup(x => x.GetAllCountries(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Country>());
+        var addressAttributeServiceMock = new Mock<IAddressAttributeService>();
+        addressAttributeServiceMock.Setup(x => x.GetAllAddressAttributes()).ReturnsAsync(new List<AddressAttribute>());
+        addressAttributeServiceMock.Setup(x => x.GetAllAddressAttributes(It.IsAny<string>()))
+            .ReturnsAsync(new List<AddressAttribute>());
         var orderServiceMock = new Mock<IOrderService>();
         orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync(new Order { Id = "o1" });
         var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
@@ -262,8 +270,8 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IMerchandiseReturnService>().Object,
             new Mock<IPriceFormatter>().Object,
             new AddressSettings(),
-            new Mock<ICountryService>().Object,
-            new Mock<IAddressAttributeService>().Object,
+            countryServiceMock.Object,
+            addressAttributeServiceMock.Object,
             new Mock<IAddressAttributeParser>().Object,
             new Mock<IDownloadService>().Object,
             new OrderSettings(),
@@ -275,7 +283,7 @@ public class MerchandiseReturnViewModelServiceTests
             labelServiceMock.Object,
             returnShippingServiceMock.Object,
             currencyServiceMock.Object,
-            new Mock<IInventoryDocumentService>().Object,
+            (documents ?? new Mock<IInventoryDocumentService>()).Object,
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
@@ -440,6 +448,46 @@ public class MerchandiseReturnViewModelServiceTests
         workflow.Verify(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()), Times.Never);
         workflow.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
             It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_EditPage_NoPostedReceipt_DoesNotOfferReceived()
+    {
+        var (service, _) = BuildForUpdate();
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            StoredReturn(MerchandiseReturnStatus.Accepted), false);
+
+        CollectionAssert.AreEqual(new[] { 40, 20, 30 }, model.NextStatuses.ToArray());
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_EditPage_ReceiptPostedButNotMarked_OffersReceived()
+    {
+        //the receipt was posted while the return was busy: MarkReceived refused, the staff finishes it by hand
+        var documents = new Mock<IInventoryDocumentService>();
+        documents.Setup(x => x.IsReturnReceived("r1")).ReturnsAsync(true);
+        var (service, _) = BuildForUpdate(documents);
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            StoredReturn(MerchandiseReturnStatus.Accepted), false);
+
+        CollectionAssert.AreEqual(new[] { 15, 40, 20, 30 }, model.NextStatuses.ToArray());
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_PostedReceived_ReceiptPosted_ChangesStatus()
+    {
+        var documents = new Mock<IInventoryDocumentService>();
+        documents.Setup(x => x.IsReturnReceived("r1")).ReturnsAsync(true);
+        var (service, workflow) = BuildForUpdate(documents);
+
+        var result = await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Accepted),
+            new MerchandiseReturnModel { Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received }, []);
+
+        Assert.IsNull(result.Error);
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Received, null, "john@shop.com"),
+            Times.Once);
     }
 
     // --- Return receipts -------------------------------------------------------------------------
