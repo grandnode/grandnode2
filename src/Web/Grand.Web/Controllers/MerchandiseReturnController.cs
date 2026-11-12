@@ -1,7 +1,10 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -34,6 +37,8 @@ public class MerchandiseReturnController : BasePublicController
         IGroupService groupService,
         IRequestTranslationService translationService,
         IMediator mediator,
+        IMerchandiseReturnLabelService merchandiseReturnLabelService,
+        IDownloadService downloadService,
         AddressSettings addressSettings,
         OrderSettings orderSettings)
     {
@@ -44,6 +49,8 @@ public class MerchandiseReturnController : BasePublicController
         _groupService = groupService;
         _translationService = translationService;
         _mediator = mediator;
+        _merchandiseReturnLabelService = merchandiseReturnLabelService;
+        _downloadService = downloadService;
         _addressSettings = addressSettings;
         _orderSettings = orderSettings;
     }
@@ -52,6 +59,8 @@ public class MerchandiseReturnController : BasePublicController
 
     #region Fields
 
+    private const int MaxTrackingNumberLength = 100;
+
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IPickupPointService _pickupPointService;
     private readonly IOrderService _orderService;
@@ -59,6 +68,8 @@ public class MerchandiseReturnController : BasePublicController
     private readonly IGroupService _groupService;
     private readonly IRequestTranslationService _translationService;
     private readonly IMediator _mediator;
+    private readonly IMerchandiseReturnLabelService _merchandiseReturnLabelService;
+    private readonly IDownloadService _downloadService;
     private readonly AddressSettings _addressSettings;
     private readonly OrderSettings _orderSettings;
 
@@ -111,6 +122,44 @@ public class MerchandiseReturnController : BasePublicController
         }
 
         return address;
+    }
+
+    /// <summary>
+    ///     The return of the current customer, as the details page finds it; null when it is not theirs
+    /// </summary>
+    private async Task<MerchandiseReturn> CustomerMerchandiseReturn(string merchandiseReturnId)
+    {
+        var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        if (!await merchandiseReturn.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+            return null;
+
+        var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+            return null;
+
+        return merchandiseReturn;
+    }
+
+    /// <summary>
+    ///     The text of an error of a label or tracking number change: a key of MerchandiseReturnErrors, whose
+    ///     storefront resource goes without the "Orders." prefix of the panels' keys
+    /// </summary>
+    private string LabelErrorText(string error)
+    {
+        const string panelPrefix = "Orders.";
+        return _translationService.GetResource(error.StartsWith(panelPrefix, StringComparison.Ordinal)
+            ? error[panelPrefix.Length..]
+            : error);
+    }
+
+    /// <summary>
+    ///     The fields posted with the form, of which the chosen return method's form is read
+    /// </summary>
+    private IDictionary<string, string> PostedForm()
+    {
+        return Request.HasFormContentType
+            ? Request.Form.ToDictionary(x => x.Key, x => x.Value.ToString())
+            : new Dictionary<string, string>();
     }
 
     #endregion
@@ -169,8 +218,8 @@ public class MerchandiseReturnController : BasePublicController
         if (ModelState.IsValid)
         {
             var result = await _mediator.Send(new MerchandiseReturnSubmitCommand
-                { Address = address, Model = model, Order = order });
-            if (result.Error == null)
+                { Address = address, Model = model, Order = order, Form = PostedForm() });
+            if (result.Error == null && result.ShippingErrors.Count == 0)
             {
                 //one return for each vendor of the items
                 model.Result = string.Join("<br />", result.MerchandiseReturns.Select(x => string.Format(
@@ -182,7 +231,12 @@ public class MerchandiseReturnController : BasePublicController
             }
 
             //e.g. another return took the quantity in the meantime
-            ModelState.AddModelError("", _translationService.GetResource(result.Error));
+            if (result.Error != null)
+                ModelState.AddModelError("", _translationService.GetResource(result.Error));
+            //resource keys, or texts the provider translated already, which are shown as they are
+            foreach (var error in result.ShippingErrors)
+                ModelState.AddModelError("", _translationService.GetResource(error,
+                    _contextAccessor.WorkContext.WorkingLanguage.Id, error));
         }
 
         var returnModel = await _mediator.Send(new GetMerchandiseReturn {
@@ -220,6 +274,97 @@ public class MerchandiseReturnController : BasePublicController
         });
 
         return View(model);
+    }
+
+    /// <summary>
+    ///     The return methods the customer can choose for the quantities, reasons and actions chosen in the form
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnShippingOffers(string orderId,
+        MerchandiseReturnModel model)
+    {
+        var order = await _orderService.GetOrderById(orderId);
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) ||
+            !OfCurrentStore(order))
+            return NotFound("The order was not found.");
+
+        if (!_orderSettings.MerchandiseReturnsEnabled)
+            return Json(Array.Empty<ReturnShippingOfferModel>());
+
+        var offers = await _mediator.Send(new GetMerchandiseReturnShippingOffers {
+            Order = order,
+            Model = model,
+            PickupAddress = await PrepareAddress(model),
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Currency = _contextAccessor.WorkContext.WorkingCurrency,
+            FormUrl = routeName => Url.RouteUrl(routeName)
+        });
+        return Json(offers);
+    }
+
+    /// <summary>
+    ///     The label of a return, to print and stick on the parcel
+    /// </summary>
+    [HttpGet]
+    public virtual async Task<IActionResult> MerchandiseReturnLabel(string merchandiseReturnId)
+    {
+        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        var shipping = merchandiseReturn?.ReturnShipping;
+        if (shipping?.LabelStatus != ReturnLabelStatus.Created || string.IsNullOrEmpty(shipping.LabelDownloadId))
+            return NotFound("The label was not found.");
+
+        var download = await _downloadService.GetDownloadById(shipping.LabelDownloadId);
+        if (download?.DownloadBinary == null)
+            return NotFound("The label was not found.");
+
+        return File(download.DownloadBinary, download.ContentType, download.Filename + download.Extension);
+    }
+
+    /// <summary>
+    ///     The tracking number of a parcel the customer sends themselves
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnTrackingNumber(string merchandiseReturnId,
+        string trackingNumber)
+    {
+        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (!merchandiseReturn.CustomerEntersTrackingNumber())
+            return NotFound("The return was not found.");
+
+        trackingNumber = trackingNumber?.Trim();
+        if (trackingNumber?.Length > MaxTrackingNumberLength)
+            trackingNumber = trackingNumber[..MaxTrackingNumberLength];
+
+        var error = await _merchandiseReturnLabelService.UpdateShipping(merchandiseReturn.Id,
+            shipping => shipping.TrackingNumber = string.IsNullOrEmpty(trackingNumber) ? null : trackingNumber);
+        if (error != null)
+            Error(LabelErrorText(error));
+
+        return RedirectToRoute("MerchandiseReturnDetails", new { merchandiseReturnId = merchandiseReturn.Id });
+    }
+
+    /// <summary>
+    ///     Asks the provider again for a label it failed to create
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnRetryLabel(string merchandiseReturnId)
+    {
+        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (merchandiseReturn?.ReturnShipping == null)
+            return NotFound("The return was not found.");
+
+        //a click that came after the label was created has nothing left to do
+        if (merchandiseReturn.ReturnShipping.LabelStatus != ReturnLabelStatus.Created)
+        {
+            var error = merchandiseReturn.CustomerRetriesLabel()
+                ? await _merchandiseReturnLabelService.CreateLabel(merchandiseReturn.Id)
+                : MerchandiseReturnErrors.LabelNotAllowed;
+            if (error != null)
+                Error(LabelErrorText(error));
+        }
+
+        return RedirectToRoute("MerchandiseReturnDetails", new { merchandiseReturnId = merchandiseReturn.Id });
     }
 
     /// <summary>

@@ -1,3 +1,4 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Configuration;
@@ -16,7 +17,7 @@ namespace Grand.Business.Checkout.Services.Shipping.ReturnProviders;
 /// </summary>
 public class SendYourselfReturnProvider : IReturnShippingProvider
 {
-    public const string SystemName = "ReturnShipping.SendYourself";
+    public const string SystemName = MerchandiseReturnShippingExtensions.SendYourselfSystemName;
     public const string OptionCode = "send";
     private const string OptionName = "MerchandiseReturns.ReturnShipping.SendYourself";
     private const string InstructionsKey = "MerchandiseReturns.ReturnShipping.SendYourself.Instructions";

@@ -12,6 +12,11 @@ namespace Grand.Web.Commands.Handler.Orders;
 public class MerchandiseReturnSubmitCommandHandler
     : IRequestHandler<MerchandiseReturnSubmitCommand, MerchandiseReturnSubmitResult>
 {
+    /// <summary>
+    ///     The prefix of the fields of a return method's form
+    /// </summary>
+    public const string FormPrefix = "returnshipping.";
+
     private readonly IGroupService _groupService;
     private readonly LanguageSettings _languageSettings;
     private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
@@ -46,7 +51,8 @@ public class MerchandiseReturnSubmitCommandHandler
             PickupAddress = request.Address,
             PickupDate = request.Model.PickupDate,
             Items = request.Model.Items.Select(x => new MerchandiseReturnSubmitItem(x.Id, x.Quantity,
-                x.MerchandiseReturnReasonId, x.MerchandiseReturnActionId)).ToList()
+                x.MerchandiseReturnReasonId, x.MerchandiseReturnActionId)).ToList(),
+            ReturnShipping = ReturnShippingChoice(request)
         });
 
         //each vendor's return is a return of its own, with its own messages
@@ -62,5 +68,25 @@ public class MerchandiseReturnSubmitCommandHandler
         }
 
         return result;
+    }
+
+    /// <summary>
+    ///     The return method chosen, with the fields of its form, prefix stripped; null when none was chosen
+    /// </summary>
+    private static ReturnShippingChoice ReturnShippingChoice(MerchandiseReturnSubmitCommand request)
+    {
+        if (string.IsNullOrEmpty(request.Model.ReturnShippingProvider))
+            return null;
+
+        var form = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
+        foreach (var (key, value) in request.Form ?? new Dictionary<string, string>())
+            if (key.StartsWith(FormPrefix, StringComparison.OrdinalIgnoreCase) && key.Length > FormPrefix.Length)
+                form[key[FormPrefix.Length..]] = value;
+
+        return new ReturnShippingChoice {
+            ProviderSystemName = request.Model.ReturnShippingProvider,
+            OptionCode = request.Model.ReturnShippingOption,
+            Form = form
+        };
     }
 }

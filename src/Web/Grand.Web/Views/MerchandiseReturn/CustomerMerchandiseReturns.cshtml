@@ -38,6 +38,10 @@
                         </td>
                         <td>
                             <span class="@item.MerchandiseReturnStatus.ToLower() badge status">@item.MerchandiseReturnStatus</span>
+                            @if (!string.IsNullOrEmpty(item.ReturnShippingMethod))
+                            {
+                                <small class="return-shipping-method d-block text-muted">@item.ReturnShippingMethod</small>
+                            }
                         </td>
                         <td>
                             <div class="d-inline-flex align-items-center flex-nowrap">

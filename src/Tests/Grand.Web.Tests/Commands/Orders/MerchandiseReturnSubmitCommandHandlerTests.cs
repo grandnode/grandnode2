@@ -80,6 +80,43 @@ public class MerchandiseReturnSubmitCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task SubmitCommand_PassesChoiceWithStrippedPrefix()
+    {
+        //Arrange - the in-store option with the pickup point picked in its form, among the other posted fields
+        var command = Command(3);
+        command.Model.ReturnShippingProvider = "ReturnShipping.InStore";
+        command.Model.ReturnShippingOption = "instore";
+        command.Form = new Dictionary<string, string> {
+            ["returnshipping.pickupPointId"] = "point1",
+            ["Comments"] = "comments",
+            ["ReturnShippingProvider"] = "ReturnShipping.InStore"
+        };
+
+        //Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual("ReturnShipping.InStore", _request.ReturnShipping.ProviderSystemName);
+        Assert.AreEqual("instore", _request.ReturnShipping.OptionCode);
+        Assert.AreEqual(1, _request.ReturnShipping.Form.Count);
+        Assert.AreEqual("point1", _request.ReturnShipping.Form["pickupPointId"]);
+    }
+
+    [TestMethod]
+    public async Task SubmitCommand_NoMethodChosen_PassesNoChoice()
+    {
+        //Arrange - no return method in the store: the form posts none
+        var command = Command(3);
+        command.Form = new Dictionary<string, string> { ["Comments"] = "comments" };
+
+        //Act
+        await _handler.Handle(command, CancellationToken.None);
+
+        //Assert
+        Assert.IsNull(_request.ReturnShipping);
+    }
+
+    [TestMethod]
     public async Task Handle_TwoReturns_SendsBothMessagesForEach()
     {
         //Arrange - the store's items and a vendor's items became two returns

@@ -1752,4 +1752,43 @@
 	<Resource Name="MerchandiseReturns.ReturnShipping.SendYourself.Instructions" Area="Front">
 		<Value>Send the parcel to: {0}. Write return number {1} on it.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Title" Area="Front">
+		<Value>How will you send the items back?</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Free" Area="Front">
+		<Value>Free</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Parcels" Area="Front">
+		<Value>× {0} parcels</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Cost" Area="Front">
+		<Value>Return cost</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.DownloadLabel" Area="Front">
+		<Value>Download label</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.ReturnCode" Area="Front">
+		<Value>Return code</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.TrackingNumber" Area="Front">
+		<Value>Tracking number</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.SaveTrackingNumber" Area="Front">
+		<Value>Save</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.LabelPending" Area="Front">
+		<Value>Your label is being prepared.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.RetryLabel" Area="Front">
+		<Value>Try again</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.DropOffPoint" Area="Front">
+		<Value>Drop-off point</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.LabelNotAllowed" Area="Front">
+		<Value>A label cannot be created for this return.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.NotFound" Area="Front">
+		<Value>The merchandise return was not found.</Value>
+	</Resource>
 </Language>

@@ -5,6 +5,34 @@ namespace Grand.Business.Core.Extensions;
 public static class MerchandiseReturnShippingExtensions
 {
     /// <summary>
+    ///     The system name of the built-in method where the customer sends the parcel with a carrier of their own
+    /// </summary>
+    public const string SendYourselfSystemName = "ReturnShipping.SendYourself";
+
+    /// <summary>
+    ///     Whether the customer types in the tracking number: they chose to send the parcel themselves, and the
+    ///     return is not received, rejected or cancelled yet
+    /// </summary>
+    public static bool CustomerEntersTrackingNumber(this MerchandiseReturn merchandiseReturn)
+    {
+        return string.Equals(merchandiseReturn?.ReturnShipping?.ProviderSystemName, SendYourselfSystemName,
+                   StringComparison.OrdinalIgnoreCase)
+               && merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
+                   or MerchandiseReturnStatus.Accepted;
+    }
+
+    /// <summary>
+    ///     Whether the customer can ask for the label again: it failed, and the return is not received, rejected or
+    ///     cancelled yet
+    /// </summary>
+    public static bool CustomerRetriesLabel(this MerchandiseReturn merchandiseReturn)
+    {
+        return merchandiseReturn?.ReturnShipping?.LabelStatus == ReturnLabelStatus.Failed
+               && merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
+                   or MerchandiseReturnStatus.Accepted;
+    }
+
+    /// <summary>
     ///     What the customer pays to ship a merchandise return: nothing when the store's fees are free, when any
     ///     reason ships free, or when every action gives no refund; otherwise the cost of the chosen option
     /// </summary>

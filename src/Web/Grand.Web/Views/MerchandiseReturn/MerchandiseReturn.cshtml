@@ -80,7 +80,7 @@
                                             <validation-provider tag="div" rules="required" v-slot="{ errors, classes }">
                                                 <select data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.Products.Quantity"]))"
                                                         v-bind:class="[classes , 'form-select form-control']" v-model="merchandisereturns.quantity_@(item.Id)"
-                                                        ref="quantity@(item.Id)"
+                                                        ref="quantity@(item.Id)" v-on:change="merchandisereturns.loadOffers($event)"
                                                         asp-for="@Model.Items[j].Quantity">
                                                     @for (var i = 0; i <= item.Quantity; i++)
                                                     {
@@ -99,7 +99,8 @@
                                                 }).ToList();
                                             }
                                             <select asp-for="@Model.Items[j].MerchandiseReturnReasonId"
-                                                    asp-items="@reasonsSelectList" class="form-control form-select return-reasons">
+                                                    asp-items="@reasonsSelectList" class="form-control form-select return-reasons"
+                                                    v-on:change="merchandisereturns.loadOffers($event)">
                                             </select>
                                         </div>
                                         <div>
@@ -111,7 +112,8 @@
                                                 }).ToList();
                                             }
                                             <select asp-for="@Model.Items[j].MerchandiseReturnActionId"
-                                                    asp-items="@actionsSelectList" class="form-control form-select return-actions">
+                                                    asp-items="@actionsSelectList" class="form-control form-select return-actions"
+                                                    v-on:change="merchandisereturns.loadOffers($event)">
                                             </select>
                                         </div>
                                     </td>
@@ -216,6 +218,44 @@
                         }
                     }
                 </div>
+                @if (Model.ReturnShippingEnabled)
+                {
+                    @*
+                        The options depend on the items, reasons and actions chosen, so they are loaded once a
+                        quantity is chosen. Their names and descriptions are text bindings: they come from
+                        resources the admin edits and must never be compiled as a template. The form of an option
+                        comes from the server as HTML and is inserted, not compiled, under the option.
+                    *@
+                    <div class="return-shipping mt-3" v-if="merchandisereturns.offers.length">
+                        <h2 class="h5 mt-3">
+                            <strong>@Loc["MerchandiseReturns.ReturnShipping.Title"]</strong>
+                        </h2>
+                        <validation-provider tag="div" rules="required" v-slot="{ errors }">
+                            <div class="form-check return-shipping-option" v-for="offer in merchandisereturns.offers" v-bind:key="merchandisereturns.offerKey(offer)">
+                                <input type="radio" class="form-check-input" name="ReturnShippingOffer"
+                                       v-bind:id="'returnshipping-offer-' + merchandisereturns.offerKey(offer)"
+                                       v-bind:value="merchandisereturns.offerKey(offer)"
+                                       v-model="merchandisereturns.selectedKey"
+                                       v-on:change="merchandisereturns.selectOffer(offer)"
+                                       data-val-required="@Loc["MerchandiseReturns.ReturnShipping.Choose"]"/>
+                                <label class="form-check-label" v-bind:for="'returnshipping-offer-' + merchandisereturns.offerKey(offer)">
+                                    <span class="name fw-bold">{{ offer.Name }}</span>
+                                    <span class="cost ms-2">{{ offer.Cost }}</span>
+                                    <span class="parcels ms-1 text-muted" v-if="offer.ParcelsText">{{ offer.ParcelsText }}</span>
+                                    <span class="description d-block text-muted" v-if="offer.Description">{{ offer.Description }}</span>
+                                </label>
+                                <div class="return-shipping-form mt-2"
+                                     v-if="merchandisereturns.selectedKey === merchandisereturns.offerKey(offer) && merchandisereturns.formHtml"
+                                     v-html="merchandisereturns.formHtml"></div>
+                            </div>
+                            <span class="field-validation-error">{{ errors[0] }}</span>
+                        </validation-provider>
+                        <template v-if="merchandisereturns.selectedOffer">
+                            <input type="hidden" name="ReturnShippingProvider" v-bind:value="merchandisereturns.selectedOffer.ProviderSystemName"/>
+                            <input type="hidden" name="ReturnShippingOption" v-bind:value="merchandisereturns.selectedOffer.OptionCode"/>
+                        </template>
+                    </div>
+                }
                 <div class="row">
                     <div class="col-12 btn-group mt-1 mb-1">
                         <input type="submit" name="submit-return-request" class="btn btn-secondary submit-return-request-button" value="@Loc["MerchandiseReturns.Submit"]"/>
@@ -233,5 +273,9 @@
 <script type="application/json" data-grand-vm="merchandiseReturn">@Json.Serialize(new {
                                                                     showPickupDate = Model.ShowPickupDate,
                                                                     pickupDate = Model.PickupDate?.ToString("yyyy-MM-dd"),
-                                                                    itemIds = Model.Items.Select(item => item.Id)
+                                                                    itemIds = Model.Items.Select(item => item.Id),
+                                                                    returnShipping = Model.ReturnShippingEnabled,
+                                                                    offersUrl = Model.ReturnShippingEnabled
+                                                                        ? Url.RouteUrl("MerchandiseReturnShippingOffers", new { orderId = Model.OrderId })
+                                                                        : null
                                                                 })</script>

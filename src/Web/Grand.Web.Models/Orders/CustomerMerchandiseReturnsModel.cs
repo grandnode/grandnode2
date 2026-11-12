@@ -15,6 +15,11 @@ public class CustomerMerchandiseReturnsModel : BaseModel
         public DateTime CreatedOn { get; set; }
         public int ProductsCount { get; set; }
         public string ReturnTotal { get; set; }
+
+        /// <summary>
+        ///     The name of the return method; empty when the return has none
+        /// </summary>
+        public string ReturnShippingMethod { get; set; }
     }
 
     #endregion
