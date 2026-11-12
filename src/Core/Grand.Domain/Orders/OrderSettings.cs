@@ -91,8 +91,8 @@ public class OrderSettings : ISettings
     public MerchandiseReturnPeriodStart MerchandiseReturnPeriodStart { get; set; }
 
     /// <summary>
-    ///     Gets or sets who pays for a merchandise return. Optional - informational only, published in the
-    ///     store's structured data (MerchantReturnPolicy.returnFees); nothing in checkout enforces it
+    ///     Gets or sets who pays for a merchandise return. Optional - published in the store's structured data
+    ///     (MerchantReturnPolicy.returnFees). Free makes every return method cost the customer nothing
     /// </summary>
     public MerchandiseReturnFees MerchandiseReturnFees { get; set; }
 

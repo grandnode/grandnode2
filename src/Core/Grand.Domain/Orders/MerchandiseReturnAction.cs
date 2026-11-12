@@ -34,4 +34,9 @@ public class MerchandiseReturnAction : BaseEntity, ITranslationEntity, IStoreLin
     /// </summary>
     [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether this action gives no refund, so the customer does not pay to ship it
+    /// </summary>
+    public bool WithoutRefund { get; set; }
 }

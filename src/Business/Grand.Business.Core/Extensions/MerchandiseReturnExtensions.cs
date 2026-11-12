@@ -64,4 +64,12 @@ public static class MerchandiseReturnExtensions
     {
         return $"{nameof(MerchandiseReturn)}:{orderId}";
     }
+
+    /// <summary>
+    ///     The IResourceLock key held while the return label of a merchandise return is requested from the provider
+    /// </summary>
+    public static string LabelLockKey(string merchandiseReturnId)
+    {
+        return $"{nameof(MerchandiseReturn)}:label:{merchandiseReturnId}";
+    }
 }
