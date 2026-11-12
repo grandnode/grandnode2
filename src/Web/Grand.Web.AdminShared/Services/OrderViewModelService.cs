@@ -70,6 +70,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IAdminDataScope<Order> _scope;
     private readonly IOrderApprovalService _orderApprovalService;
     private readonly IShipmentService _shipmentService;
+    private readonly IAdminDataScope<MerchandiseReturn> _merchandiseReturnScope;
 
     #endregion
 
@@ -106,7 +107,8 @@ public class OrderViewModelService : IOrderViewModelService
         IEnumTranslationService enumTranslationService,
         IAdminDataScope<Order> scope,
         IOrderApprovalService orderApprovalService,
-        IShipmentService shipmentService)
+        IShipmentService shipmentService,
+        IAdminDataScope<MerchandiseReturn> merchandiseReturnScope)
     {
         _orderApprovalService = orderApprovalService;
         _shipmentService = shipmentService;
@@ -130,6 +132,7 @@ public class OrderViewModelService : IOrderViewModelService
         _affiliateService = affiliateService;
         _pictureService = pictureService;
         _merchandiseReturnService = merchandiseReturnService;
+        _merchandiseReturnScope = merchandiseReturnScope;
         _warehouseService = warehouseService;
         _currencySettings = currencySettings;
         _taxSettings = taxSettings;
@@ -365,6 +368,30 @@ public class OrderViewModelService : IOrderViewModelService
                approval.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id;
     }
 
+    /// <summary>
+    ///     The order's merchandise returns, as the panel's return list scopes them: a vendor sees its own, the store
+    ///     panel its store's
+    /// </summary>
+    public virtual async Task PrepareOrderMerchandiseReturns(OrderModel model, Order order)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(order);
+
+        var merchandiseReturns = await _mediator.Send(new GetMerchandiseReturnQuery {
+            OrderId = order.Id,
+            StoreId = await _merchandiseReturnScope.GetDefaultStoreIdAsync() ?? "",
+            VendorId = _merchandiseReturnScope.DefaultVendorId ?? ""
+        });
+        model.MerchandiseReturns = merchandiseReturns.Select(x => new OrderModel.MerchandiseReturnRowModel {
+            Id = x.Id,
+            ReturnNumber = x.ReturnNumber,
+            CreatedOn = _dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+            Status = _enumTranslationService.GetTranslationEnum(x.MerchandiseReturnStatus),
+            ReturnMethod = x.ReturnShipping?.OptionName ?? "",
+            Quantity = x.MerchandiseReturnItems.Sum(item => item.Quantity)
+        }).ToList();
+    }
+
     public virtual async Task PrepareOrderDetailsModel(OrderModel model, Order order)
     {
         ArgumentNullException.ThrowIfNull(order);
@@ -392,6 +419,7 @@ public class OrderViewModelService : IOrderViewModelService
         if (_scope.DefaultVendorId is null)
             model.CanCancelOrder = await _mediator.Send(new CanCancelOrderQuery { Order = order });
         await PrepareOrderApprovalDetails(model, order);
+        await PrepareOrderMerchandiseReturns(model, order);
 
         var store = await _storeService.GetStoreById(order.StoreId);
         model.StoreName = store != null ? store.Shortcut : "Unknown";

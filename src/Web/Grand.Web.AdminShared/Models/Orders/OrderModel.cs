@@ -244,6 +244,9 @@ public class OrderModel : BaseEntityModel
     public bool HasDownloadableProducts { get; set; }
     public IList<OrderItemModel> Items { get; set; } = new List<OrderItemModel>();
 
+    //the order's merchandise returns the panel may see, under its shipments
+    public IList<MerchandiseReturnRowModel> MerchandiseReturns { get; set; } = new List<MerchandiseReturnRowModel>();
+
     //creation date
     [GrandResourceDisplayName("Admin.Orders.Fields.CreatedOn")]
     public DateTime CreatedOn { get; set; }
@@ -337,6 +340,18 @@ public class OrderModel : BaseEntityModel
 
         public string Commission { get; set; }
         public double CommissionValue { get; set; }
+    }
+
+    public class MerchandiseReturnRowModel : BaseEntityModel
+    {
+        public int ReturnNumber { get; set; }
+        public DateTime CreatedOn { get; set; }
+        public string Status { get; set; }
+
+        //the option the customer chose to send the items back; empty for a return without a return method
+        public string ReturnMethod { get; set; }
+
+        public int Quantity { get; set; }
     }
 
     public class TaxRate : BaseModel
