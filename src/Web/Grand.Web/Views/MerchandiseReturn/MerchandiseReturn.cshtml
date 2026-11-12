@@ -25,7 +25,8 @@
         }
 
         <validation-observer v-slot="{ handleSubmit }">
-            <form asp-route="MerchandiseReturn" method="post" ref="form" v-on:submit.prevent="handleSubmit(formSubmit)">
+            @* with a return method, the form of the chosen one is checked before the submit *@
+            <form asp-route="MerchandiseReturn" method="post" ref="form" v-on:submit.prevent="handleSubmit(@(Model.ReturnShippingEnabled ? "merchandisereturns.submit" : "formSubmit"))">
                 <div class="mt-2">
                     <h2 class="h5 mt-3">
                         <strong>@Loc["MerchandiseReturns.SelectProduct(s)"]</strong>
@@ -247,9 +248,11 @@
                                 </label>
                                 <div class="return-shipping-form mt-2"
                                      v-if="merchandisereturns.selectedKey === merchandisereturns.offerKey(offer) && merchandisereturns.formHtml"
+                                     v-on:change="merchandisereturns.formError = ''"
                                      v-html="merchandisereturns.formHtml"></div>
                             </div>
                             <span class="field-validation-error">{{ errors[0] }}</span>
+                            <span class="field-validation-error d-block" v-if="merchandisereturns.formError">{{ merchandisereturns.formError }}</span>
                         </validation-provider>
                         <template v-if="merchandisereturns.selectedOffer">
                             <input type="hidden" name="ReturnShippingProvider" v-bind:value="merchandisereturns.selectedOffer.ProviderSystemName"/>
@@ -276,6 +279,9 @@
                                                                     pickupDate = Model.PickupDate?.ToString("yyyy-MM-dd"),
                                                                     itemIds = Model.Items.Select(item => item.Id),
                                                                     returnShipping = Model.ReturnShippingEnabled,
+                                                                    choosePoint = Model.ReturnShippingEnabled
+                                                                        ? Loc["MerchandiseReturns.ReturnShipping.InStore.ChoosePoint"].Value
+                                                                        : null,
                                                                     offersUrl = Model.ReturnShippingEnabled
                                                                         ? Url.RouteUrl("MerchandiseReturnShippingOffers", new { orderId = Model.OrderId })
                                                                         : null

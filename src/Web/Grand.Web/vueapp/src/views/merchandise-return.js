@@ -9,15 +9,18 @@
  * whenever one of those changes. The form of an option (e.g. the pickup point to
  * leave the items at) is server-rendered HTML, loaded once the option is chosen;
  * its fields go under the "returnshipping." prefix and are posted with the form.
+ *
+ * A point left unchosen in that form is caught before the submit: the page the
+ * server sends back after refusing it starts again with every quantity at 0.
  */
 import { createViewModel } from '../compat/view-model'
-import { registerViewModel } from '../runtime/islands'
+import { getRootVm, registerViewModel } from '../runtime/islands'
 import { registerView } from './index'
 import { axios, notifyRequestError } from './shared'
 
 const QUANTITY_FIELD = /^Items\[\d+\]\.Quantity$/
 
-registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, returnShipping, offersUrl }) => {
+registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, returnShipping, offersUrl, choosePoint }) => {
     const quantities = {}
     itemIds.forEach(id => { quantities['quantity_' + id] = '0' })
 
@@ -33,7 +36,8 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
             checkboxes: [],
             offers: [],
             selectedKey: '',
-            formHtml: ''
+            formHtml: '',
+            formError: ''
         }),
         computed: {
             selectedOffer() {
@@ -88,11 +92,13 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
                 if (!offers.some(offer => this.offerKey(offer) === this.selectedKey)) {
                     this.selectedKey = ''
                     this.formHtml = ''
+                    this.formError = ''
                 }
             },
             selectOffer(offer) {
                 const request = ++formRequest
                 this.formHtml = ''
+                this.formError = ''
                 if (!offer.FormUrl) return
 
                 axios.get(offer.FormUrl)
@@ -103,6 +109,19 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
                     .catch(error => {
                         if (request === formRequest) notifyRequestError(error)
                     })
+            },
+            // the chosen option's form, when it asks to pick one of its radios, has one picked
+            formAnswered() {
+                if (!this.selectedOffer?.FormUrl) return true
+                const radios = [...document.querySelectorAll('.return-shipping-form input[type=radio]')]
+                return radios.length === 0 || radios.some(radio => radio.checked)
+            },
+            submit() {
+                if (!this.formAnswered()) {
+                    this.formError = choosePoint ?? ''
+                    return
+                }
+                getRootVm().$refs.form.submit()
             }
         }
     }))
