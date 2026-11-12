@@ -122,12 +122,28 @@ public class SendYourselfReturnProviderTests
     public async Task SendYourself_CreateLabel_VendorAddressWithoutNames_StartsWithTheVendorName()
     {
         _vendorService.Setup(x => x.GetVendorById("v1")).ReturnsAsync(new Vendor {
-            Id = "v1", Name = "Vendor One", Address = new Address { Address1 = "Main 1", CountryId = "pl" }
+            Id = "v1", Name = "Vendor One",
+            Address = new Address { Address1 = "Main 1", ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl" }
         });
 
         var result = await _provider.CreateLabel(VendorReturn());
 
         Assert.AreEqual("Send the parcel to: Vendor One, Main 1, 00-001 Warsaw, Poland. Write return number 17 on it.",
+            result.Instructions);
+    }
+
+    [TestMethod]
+    public async Task SendYourself_CreateLabel_ReturnKeptTheStoreAddress_NotNamedForTheVendor()
+    {
+        //the vendor has an address now, but the return was submitted while it had none: the parcel goes to the store
+        _vendorService.Setup(x => x.GetVendorById("v1")).ReturnsAsync(new Vendor {
+            Id = "v1", Name = "Vendor One",
+            Address = new Address { Address1 = "Vendor street 9", ZipPostalCode = "11-111", CountryId = "pl" }
+        });
+
+        var result = await _provider.CreateLabel(VendorReturn());
+
+        Assert.AreEqual("Send the parcel to: Main 1, 00-001 Warsaw, Poland. Write return number 17 on it.",
             result.Instructions);
     }
 

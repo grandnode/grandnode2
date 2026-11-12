@@ -143,22 +143,13 @@ public class ReturnShippingService(
         return resolution;
     }
 
-    /// <summary>
-    ///     Whether the vendor's address is complete enough to be the return address of its returns; otherwise the
-    ///     store's is used
-    /// </summary>
-    internal static bool IsVendorReturnAddress(Address address)
-    {
-        return !string.IsNullOrEmpty(address?.CountryId) && !string.IsNullOrEmpty(address.Address1);
-    }
-
     public async Task<Address> GetReturnAddress(string storeId, string vendorId)
     {
         //a copy: the address is kept with each return, and a change of the vendor or the settings must not reach it
         if (!string.IsNullOrEmpty(vendorId))
         {
             var vendor = await vendorService.GetVendorById(vendorId);
-            if (IsVendorReturnAddress(vendor?.Address))
+            if (!string.IsNullOrEmpty(vendor?.Address?.CountryId) && !string.IsNullOrEmpty(vendor.Address.Address1))
                 return Copy(vendor.Address);
         }
 

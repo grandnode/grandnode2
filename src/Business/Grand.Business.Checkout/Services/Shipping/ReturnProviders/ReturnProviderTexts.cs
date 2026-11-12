@@ -59,9 +59,22 @@ internal class ReturnProviderTexts(
         if (!string.IsNullOrEmpty(name) || string.IsNullOrEmpty(merchandiseReturn.VendorId) || vendorService == null)
             return name;
 
-        //a vendor's address often names no one: the parcel goes to the vendor, while the address is the vendor's and
-        //not the store's it falls back to
+        //a vendor's address often names no one: the parcel goes to the vendor when the address kept with the return
+        //is the vendor's, not the store's it fell back to
         var vendor = await vendorService.GetVendorById(merchandiseReturn.VendorId);
-        return ReturnShippingService.IsVendorReturnAddress(vendor?.Address) ? vendor.Name?.Trim() : name;
+        return IsAddressOf(vendor?.Address, address) ? vendor.Name?.Trim() : name;
+    }
+
+    private static bool IsAddressOf(Address vendorAddress, Address address)
+    {
+        return vendorAddress != null && !string.IsNullOrEmpty(address.Address1)
+                                     && Same(vendorAddress.Address1, address.Address1)
+                                     && Same(vendorAddress.CountryId, address.CountryId)
+                                     && Same(vendorAddress.ZipPostalCode, address.ZipPostalCode);
+
+        static bool Same(string a, string b)
+        {
+            return string.Equals(a?.Trim() ?? "", b?.Trim() ?? "", StringComparison.OrdinalIgnoreCase);
+        }
     }
 }
