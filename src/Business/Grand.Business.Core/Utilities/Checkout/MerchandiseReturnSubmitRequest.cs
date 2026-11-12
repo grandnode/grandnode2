@@ -35,10 +35,17 @@ public class MerchandiseReturnSubmitRequest
 public record MerchandiseReturnSubmitItem(string OrderItemId, int Quantity, string ReasonId, string ActionId);
 
 /// <summary>
-///     The merchandise returns created, one for each vendor of the items; none, and why, when Error is set
+///     The merchandise returns created, one for each vendor of the items; none, and why, when Error is set or
+///     ShippingErrors has any
 /// </summary>
 public class MerchandiseReturnSubmitResult
 {
     public IList<MerchandiseReturn> MerchandiseReturns { get; } = [];
     public string Error { get; set; }
+
+    /// <summary>
+    ///     Why the return shipping option picked cannot be used: keys of MerchandiseReturnErrors, or texts a provider
+    ///     translated already
+    /// </summary>
+    public IList<string> ShippingErrors { get; } = [];
 }

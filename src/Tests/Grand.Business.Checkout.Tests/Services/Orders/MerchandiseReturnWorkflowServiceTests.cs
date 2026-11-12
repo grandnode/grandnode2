@@ -1,6 +1,7 @@
 using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
@@ -18,12 +19,14 @@ namespace Grand.Business.Checkout.Tests.Services.Orders;
 public class MerchandiseReturnWorkflowServiceTests
 {
     private Mock<IInventoryDocumentService> _inventoryDocumentService;
+    private Mock<IMerchandiseReturnLabelService> _labelService;
     private Mock<IMediator> _mediator;
     private Mock<IMerchandiseReturnMessageProviderService> _messageProvider;
     private Mock<IMerchandiseReturnService> _merchandiseReturnService;
     private Order _order;
     private Mock<IOrderService> _orderService;
     private Mock<IResourceLock> _resourceLock;
+    private Mock<IReturnShippingService> _returnShippingService;
     private MerchandiseReturnWorkflowService _service;
     private MerchandiseReturn _stored;
 
@@ -48,10 +51,14 @@ public class MerchandiseReturnWorkflowServiceTests
         _inventoryDocumentService = new Mock<IInventoryDocumentService>();
         SetupReceived(false);
         _messageProvider = new Mock<IMerchandiseReturnMessageProviderService>();
+        //no return method in the store: the return is sent back as it always was
+        _returnShippingService = new Mock<IReturnShippingService>();
+        SetupResolution(new ReturnShippingResolution());
+        _labelService = new Mock<IMerchandiseReturnLabelService>();
 
         _service = new MerchandiseReturnWorkflowService(_merchandiseReturnService.Object, _orderService.Object,
             _mediator.Object, _resourceLock.Object, _inventoryDocumentService.Object, _messageProvider.Object,
-            NullLogger<MerchandiseReturnWorkflowService>.Instance);
+            _returnShippingService.Object, _labelService.Object, NullLogger<MerchandiseReturnWorkflowService>.Instance);
     }
 
     private static MerchandiseReturn Return(MerchandiseReturnStatus status)
@@ -71,6 +78,47 @@ public class MerchandiseReturnWorkflowServiceTests
     private void SetupReceived(bool received)
     {
         _inventoryDocumentService.Setup(x => x.IsReturnReceived("r1")).ReturnsAsync(received);
+    }
+
+    private void SetupResolution(ReturnShippingResolution resolution)
+    {
+        _returnShippingService.Setup(x =>
+                x.Resolve(It.IsAny<MerchandiseReturnSubmitRequest>(), It.IsAny<ReturnShippingChoice>()))
+            .ReturnsAsync(resolution);
+    }
+
+    private void SetupShipping(string optionCode)
+    {
+        SetupResolution(new ReturnShippingResolution {
+            ByVendor = new Dictionary<string, MerchandiseReturnShipping> { { "", Shipping(optionCode) } }
+        });
+    }
+
+    private static MerchandiseReturnShipping Shipping(string optionCode)
+    {
+        return new MerchandiseReturnShipping {
+            ProviderSystemName = "Carrier", OptionCode = optionCode, OptionName = "Parcel", Cost = 5,
+            LabelStatus = ReturnLabelStatus.Pending,
+            ProviderData = new Dictionary<string, string> { { "k", optionCode } }
+        };
+    }
+
+    private List<MerchandiseReturn> RecordInserts()
+    {
+        var inserted = new List<MerchandiseReturn>();
+        _merchandiseReturnService.Setup(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()))
+            .Callback<MerchandiseReturn>(inserted.Add).Returns(Task.CompletedTask);
+        return inserted;
+    }
+
+    private List<string> RecordLockRelease()
+    {
+        var steps = new List<string>();
+        var held = new Mock<IAsyncDisposable>();
+        held.Setup(x => x.DisposeAsync()).Callback(() => steps.Add("release")).Returns(ValueTask.CompletedTask);
+        _resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(held.Object);
+        return steps;
     }
 
     [TestMethod]
@@ -534,5 +582,195 @@ public class MerchandiseReturnWorkflowServiceTests
             It.Is<IEnumerable<string>>(k => k.Single() == "MerchandiseReturn:o1"), It.IsAny<CancellationToken>()),
             Times.Once);
         _merchandiseReturnService.Verify(x => x.DeleteMerchandiseReturn(_stored), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Submit_WithChoice_SetsSnapshotPerVendor()
+    {
+        TwoVendorOrder();
+        var storeShipping = Shipping("store-option");
+        var vendorShipping = Shipping("vendor-option");
+        SetupResolution(new ReturnShippingResolution {
+            ByVendor = new Dictionary<string, MerchandiseReturnShipping>
+                { { "", storeShipping }, { "v1", vendorShipping } }
+        });
+        var inserted = RecordInserts();
+        var request = SubmitRequest(new MerchandiseReturnSubmitItem("store-item", 1, null, null),
+            new MerchandiseReturnSubmitItem("vendor-item", 1, null, null));
+        request.ReturnShipping = new ReturnShippingChoice { ProviderSystemName = "Carrier", OptionCode = "parcel" };
+
+        var result = await _service.Submit(request);
+
+        Assert.IsNull(result.Error);
+        Assert.AreEqual(2, result.MerchandiseReturns.Count);
+        _returnShippingService.Verify(x => x.Resolve(request, request.ReturnShipping), Times.Once);
+        //each return keeps a copy of its own: a change of one return's shipping is no change of another's
+        var storeReturn = inserted.Single(x => x.VendorId == "");
+        var vendorReturn = inserted.Single(x => x.VendorId == "v1");
+        Assert.AreEqual("store-option", storeReturn.ReturnShipping.OptionCode);
+        Assert.AreEqual("vendor-option", vendorReturn.ReturnShipping.OptionCode);
+        Assert.AreEqual("Carrier", vendorReturn.ReturnShipping.ProviderSystemName);
+        Assert.AreEqual(ReturnLabelStatus.Pending, vendorReturn.ReturnShipping.LabelStatus);
+        Assert.AreEqual(5, vendorReturn.ReturnShipping.Cost);
+        Assert.AreNotSame(storeShipping, storeReturn.ReturnShipping);
+        Assert.AreNotSame(vendorShipping, vendorReturn.ReturnShipping);
+        Assert.AreNotSame(vendorShipping.ProviderData, vendorReturn.ReturnShipping.ProviderData);
+        Assert.AreEqual("vendor-option", vendorReturn.ReturnShipping.ProviderData["k"]);
+        _labelService.Verify(x => x.CreateLabel(storeReturn.Id), Times.Once);
+        _labelService.Verify(x => x.CreateLabel(vendorReturn.Id), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Submit_ShippingErrors_NothingSaved()
+    {
+        SetupResolution(new ReturnShippingResolution
+            { Errors = [MerchandiseReturnErrors.SubmitReturnShippingChoose, "Pick a point"] });
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 1, null, null)));
+
+        //passed on as they are: a key is translated by the storefront, a provider's text is translated already
+        CollectionAssert.AreEqual(new[] { MerchandiseReturnErrors.SubmitReturnShippingChoose, "Pick a point" },
+            result.ShippingErrors.ToArray());
+        Assert.AreEqual(0, result.MerchandiseReturns.Count);
+        _resourceLock.Verify(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+        _labelService.Verify(x => x.CreateLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_LabelCreatedAfterLockReleased()
+    {
+        //the label service takes the order's lock to save the label: called under it, it would wait for itself
+        SetupShipping("parcel");
+        var steps = RecordLockRelease();
+        _merchandiseReturnService.Setup(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => steps.Add("insert")).Returns(Task.CompletedTask);
+        _labelService.Setup(x => x.CreateLabel(It.IsAny<string>())).Callback(() => steps.Add("label"))
+            .ReturnsAsync((string)null);
+
+        await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 1, null, null)));
+
+        CollectionAssert.AreEqual(new[] { "insert", "release", "label" }, steps);
+    }
+
+    [TestMethod]
+    public async Task Submit_LabelFails_ReturnsStillCreated()
+    {
+        //the return is saved and its messages are sent; the label is created again later
+        SetupShipping("parcel");
+        _labelService.Setup(x => x.CreateLabel(It.IsAny<string>())).ThrowsAsync(new TimeoutException());
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 1, null, null)));
+
+        Assert.IsNull(result.Error);
+        Assert.AreEqual(0, result.ShippingErrors.Count);
+        Assert.AreEqual("parcel", result.MerchandiseReturns.Single().ReturnShipping.OptionCode);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Once);
+        _merchandiseReturnService.Verify(x => x.DeleteMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Submit_LabelCreated_ResultHoldsTheReturnAsSavedWithItsLabel()
+    {
+        //the messages the caller sends show the label the label service saved
+        SetupShipping("parcel");
+        var inserted = RecordInserts();
+        var saved = new MerchandiseReturn {
+            ReturnShipping = new MerchandiseReturnShipping
+                { OptionCode = "parcel", LabelStatus = ReturnLabelStatus.Created, TrackingNumber = "T1" }
+        };
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById(It.Is<string>(id => id != "r1")))
+            .ReturnsAsync(saved);
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 1, null, null)));
+
+        Assert.AreSame(saved, result.MerchandiseReturns.Single());
+        _merchandiseReturnService.Verify(x => x.GetMerchandiseReturnById(inserted.Single().Id), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Submit_NoProviders_UnchangedFlow()
+    {
+        var inserted = RecordInserts();
+
+        var result = await _service.Submit(SubmitRequest(new MerchandiseReturnSubmitItem("a", 1, null, null)));
+
+        Assert.IsNull(result.Error);
+        Assert.AreEqual(0, result.ShippingErrors.Count);
+        Assert.IsNull(inserted.Single().ReturnShipping);
+        Assert.AreSame(inserted.Single(), result.MerchandiseReturns.Single());
+        _labelService.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Rejected)]
+    [DataRow(MerchandiseReturnStatus.Cancelled)]
+    public async Task ChangeStatus_Reject_CancelsCreatedLabel(MerchandiseReturnStatus status)
+    {
+        //cancelled with the carrier once the order's lock is let go, before the customer is told
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
+        var steps = RecordLockRelease();
+        _labelService.Setup(x => x.CancelLabel("r1")).Callback(() => steps.Add("cancel")).Returns(Task.CompletedTask);
+        _messageProvider.Setup(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
+                It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>()))
+            .Callback(() => steps.Add("message")).ReturnsAsync(1);
+
+        var error = await _service.ChangeStatus("r1", status);
+
+        Assert.IsNull(error);
+        CollectionAssert.AreEqual(new[] { "release", "cancel", "message" }, steps);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Reject_CancelFails_StatusStaysChanged_AndMessageSent()
+    {
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
+        _labelService.Setup(x => x.CancelLabel("r1")).ThrowsAsync(new TimeoutException());
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Rejected);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(MerchandiseReturnStatus.Rejected, _stored.MerchandiseReturnStatus);
+        _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
+            _stored, _order, "customer-language"), Times.Once);
+    }
+
+    [TestMethod]
+    [DataRow(ReturnLabelStatus.NotRequired)]
+    [DataRow(ReturnLabelStatus.Pending)]
+    [DataRow(ReturnLabelStatus.Failed)]
+    public async Task ChangeStatus_Reject_NoCreatedLabel_DoesNotCancel(ReturnLabelStatus labelStatus)
+    {
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = labelStatus };
+
+        await _service.ChangeStatus("r1", MerchandiseReturnStatus.Rejected);
+
+        _labelService.Verify(x => x.CancelLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Accept_DoesNotCancel()
+    {
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted);
+
+        Assert.IsNull(error);
+        _labelService.Verify(x => x.CancelLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_RejectRefused_DoesNotCancel()
+    {
+        //the goods are back already: the return stays as it is, and so does its label
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
+        SetupReceived(true);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Rejected);
+
+        Assert.AreEqual(MerchandiseReturnErrors.AlreadyReceived, error);
+        _labelService.Verify(x => x.CancelLabel(It.IsAny<string>()), Times.Never);
     }
 }
