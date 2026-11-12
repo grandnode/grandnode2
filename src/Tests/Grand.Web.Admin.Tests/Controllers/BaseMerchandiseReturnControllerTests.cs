@@ -876,7 +876,9 @@ public class BaseMerchandiseReturnControllerTests
 
         var result = await controller.Edit(new MerchandiseReturnModel {
                 Id = "mr1",
-                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel { TrackingNumber = " NEW-123 " }
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel {
+                    TrackingNumber = " NEW-123 ", ShownTrackingNumber = "OLD"
+                }
             }, false,
             new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
             new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
@@ -906,7 +908,10 @@ public class BaseMerchandiseReturnControllerTests
         var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
 
         await controller.Edit(new MerchandiseReturnModel {
-                Id = "mr1", ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel { TrackingNumber = "OLD" }
+                Id = "mr1",
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel {
+                    TrackingNumber = "OLD", ShownTrackingNumber = "OLD"
+                }
             }, false,
             new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
             new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
@@ -914,6 +919,121 @@ public class BaseMerchandiseReturnControllerTests
 
         labelServiceMock.Verify(l => l.UpdateShipping(It.IsAny<string>(),
             It.IsAny<Action<MerchandiseReturnShipping>>(), It.IsAny<Func<MerchandiseReturn, bool>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Edit_TrackingNumberWrittenMeanwhile_ShownValuePostedBack_NotWritten()
+    {
+        //the page showed OLD; the label service wrote B since; Save posts OLD back untouched: B stays
+        var entity = ReturnWithLabel();
+        entity.ReturnShipping.TrackingNumber = "B";
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string)null);
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+        var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
+
+        await controller.Edit(new MerchandiseReturnModel {
+                Id = "mr1",
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel {
+                    TrackingNumber = "OLD", ShownTrackingNumber = "OLD"
+                }
+            }, false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            new Grand.Domain.Orders.OrderSettings());
+
+        labelServiceMock.Verify(l => l.UpdateShipping(It.IsAny<string>(),
+            It.IsAny<Action<MerchandiseReturnShipping>>(), It.IsAny<Func<MerchandiseReturn, bool>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Edit_TrackingNumberWrittenMeanwhile_NewValuePosted_RefusedUnderLock()
+    {
+        //the page showed OLD; B was written since; the staff typed NEW: the check under the lock sees B and
+        //refuses, so B is not overwritten with a number typed over a value no longer there
+        var entity = ReturnWithLabel();
+        entity.ReturnShipping.TrackingNumber = "B";
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string)null);
+        Func<MerchandiseReturn, bool> allowed = null;
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+        labelServiceMock.Setup(l => l.UpdateShipping("mr1", It.IsAny<Action<MerchandiseReturnShipping>>(),
+                It.IsAny<Func<MerchandiseReturn, bool>>()))
+            .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, _, a) => allowed = a)
+            .ReturnsAsync((string)null);
+        var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
+
+        await controller.Edit(new MerchandiseReturnModel {
+                Id = "mr1",
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel {
+                    TrackingNumber = "NEW", ShownTrackingNumber = "OLD"
+                }
+            }, false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            new Grand.Domain.Orders.OrderSettings());
+
+        Assert.IsNotNull(allowed);
+        var storedNow = ReturnWithLabel();
+        storedNow.ReturnShipping.TrackingNumber = "B";
+        Assert.IsFalse(allowed(storedNow));
+        //still the number the page showed: the staff's number is written
+        Assert.IsTrue(allowed(ReturnWithLabel()));
+    }
+
+    [TestMethod]
+    public async Task Edit_TrackingNumberShownEmpty_EmptyAndNullAreTheSame()
+    {
+        //an empty number shown and none stored, or an empty one stored, is not a change made meanwhile
+        var entity = ReturnWithLabel();
+        entity.ReturnShipping.TrackingNumber = null;
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string)null);
+        Func<MerchandiseReturn, bool> allowed = null;
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+        labelServiceMock.Setup(l => l.UpdateShipping("mr1", It.IsAny<Action<MerchandiseReturnShipping>>(),
+                It.IsAny<Func<MerchandiseReturn, bool>>()))
+            .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, _, a) => allowed = a)
+            .ReturnsAsync((string)null);
+        var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
+
+        await controller.Edit(new MerchandiseReturnModel {
+                Id = "mr1",
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel {
+                    TrackingNumber = "NEW", ShownTrackingNumber = ""
+                }
+            }, false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            new Grand.Domain.Orders.OrderSettings());
+
+        var storedNow = ReturnWithLabel();
+        storedNow.ReturnShipping.TrackingNumber = null;
+        Assert.IsTrue(allowed(storedNow));
+        storedNow.ReturnShipping.TrackingNumber = "";
+        Assert.IsTrue(allowed(storedNow));
+    }
+
+    [TestMethod]
+    public async Task Label_EmptyContentType_SentAsOctetStream()
+    {
+        var entity = ReturnWithLabel();
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.CanView(entity)).ReturnsAsync(true);
+        var downloadServiceMock = new Mock<IDownloadService>();
+        downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(new Download {
+            DownloadBinary = [1], ContentType = "", Filename = "label", Extension = ".pdf"
+        });
+
+        var result = await _controller.Label("mr1", downloadServiceMock.Object);
+
+        Assert.AreEqual("application/octet-stream", ((FileContentResult)result).ContentType);
     }
 
     private TestMerchandiseReturnController ControllerWithRealViewModelService(

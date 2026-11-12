@@ -52,7 +52,11 @@
         </div>
     }
     <div class="grand-fields grand-fields--2col mt-3">
-        <admin-field asp-for="ReturnShipping.TrackingNumber"/>
+        <admin-field asp-for="ReturnShipping.TrackingNumber">
+            @* cut to the same length on the server *@
+            <input asp-for="ReturnShipping.TrackingNumber" class="form-control" maxlength="100"/>
+        </admin-field>
+        <input asp-for="ReturnShipping.ShownTrackingNumber" type="hidden"/>
     </div>
     @if (shipping.HasLabel || shipping.CanRetryLabel)
     {

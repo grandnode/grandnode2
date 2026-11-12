@@ -139,6 +139,19 @@ public class MerchandiseReturnControllerTests
     }
 
     [TestMethod]
+    public async Task MerchandiseReturnLabel_NoContentType_SentAsOctetStream()
+    {
+        Return("buyer");
+        _downloads.Setup(x => x.GetDownloadById("d1")).ReturnsAsync(new Download {
+            Id = "d1", DownloadBinary = [1], ContentType = null, Filename = "label-1", Extension = ".pdf"
+        });
+
+        var result = await _controller.MerchandiseReturnLabel("r1");
+
+        Assert.AreEqual("application/octet-stream", ((FileContentResult)result).ContentType);
+    }
+
+    [TestMethod]
     public async Task MerchandiseReturnLabel_NoLabel_NotFound()
     {
         Return("buyer").ReturnShipping.LabelDownloadId = null;

@@ -96,10 +96,14 @@ public class MerchandiseReturnModel : BaseEntityModel
 
         public string DropOffPoint { get; set; }
 
-        //the one field posted back: saved through the label service, never with the rest of the form
+        //the one field the staff edit: saved through the label service, never with the rest of the form
         [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.ReturnShipping.TrackingNumber")]
         [NoHtml]
         public string TrackingNumber { get; set; }
+
+        //the tracking number the page was shown with, posted back: a number written since (the label, the
+        //customer) is kept unless the staff typed another one, and even then only while it is still this one
+        public string ShownTrackingNumber { get; set; }
 
         public string ReturnCode { get; set; }
         public string Instructions { get; set; }

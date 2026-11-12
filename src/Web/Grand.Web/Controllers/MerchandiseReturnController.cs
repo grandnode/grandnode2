@@ -317,7 +317,9 @@ public class MerchandiseReturnController : BasePublicController
         if (download?.DownloadBinary == null)
             return NotFound("The label was not found.");
 
-        return File(download.DownloadBinary, download.ContentType, download.Filename + download.Extension);
+        return File(download.DownloadBinary,
+            string.IsNullOrEmpty(download.ContentType) ? "application/octet-stream" : download.ContentType,
+            download.Filename + download.Extension);
     }
 
     /// <summary>

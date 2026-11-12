@@ -509,6 +509,7 @@ public class MerchandiseReturnViewModelServiceTests
         Assert.AreEqual("45,00 EUR", card.Cost);
         Assert.AreEqual("Locker 7, Main 1, 00-001, Town", card.DropOffPoint);
         Assert.AreEqual("T1", card.TrackingNumber);
+        Assert.AreEqual("T1", card.ShownTrackingNumber);
         Assert.IsTrue(card.HasLabel);
         Assert.IsFalse(card.CanRetryLabel);
         Assert.AreEqual("Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Created", card.LabelStatus);
@@ -575,7 +576,9 @@ public class MerchandiseReturnViewModelServiceTests
         var result = await service.UpdateMerchandiseReturnModel(ReturnWithShipping(ReturnLabelStatus.Created),
             new MerchandiseReturnModel {
                 Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received,
-                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel { TrackingNumber = "T2" }
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel {
+                    TrackingNumber = "T2", ShownTrackingNumber = "T1"
+                }
             }, []);
 
         Assert.AreEqual(MerchandiseReturnErrors.Busy, result.Error);
@@ -595,7 +598,10 @@ public class MerchandiseReturnViewModelServiceTests
 
         await service.UpdateMerchandiseReturnModel(ReturnWithShipping(ReturnLabelStatus.Created),
             new MerchandiseReturnModel {
-                Id = "r1", ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel { TrackingNumber = "  " }
+                Id = "r1",
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel {
+                    TrackingNumber = "  ", ShownTrackingNumber = "T1"
+                }
             }, []);
 
         var shipping = new MerchandiseReturnShipping { TrackingNumber = "T1" };

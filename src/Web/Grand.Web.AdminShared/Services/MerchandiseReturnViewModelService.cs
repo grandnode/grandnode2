@@ -120,6 +120,7 @@ public class MerchandiseReturnViewModelService(
             Cost = priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, orderCurrency),
             DropOffPoint = FormatDropOffPoint(shipping.DropOffPoint),
             TrackingNumber = shipping.TrackingNumber,
+            ShownTrackingNumber = shipping.TrackingNumber,
             ReturnCode = shipping.ReturnCode,
             Instructions = shipping.Instructions,
             HasLabel = shipping.LabelStatus == ReturnLabelStatus.Created &&
@@ -339,14 +340,18 @@ public class MerchandiseReturnViewModelService(
             return (null, error);
 
         //the tracking number goes through the label service, under the label's lock: after the save above, never
-        //inside it, which holds the order's lock the label service takes second
+        //inside it, which holds the order's lock the label service takes second. Only a number the staff changed
+        //on the page is written, and only over the number the page was shown with: one the label or the customer
+        //wrote since the page was loaded is kept
         if (model.ReturnShipping != null && merchandiseReturn.ReturnShipping != null)
         {
             var trackingNumber = NormalizeTrackingNumber(model.ReturnShipping.TrackingNumber);
-            if (trackingNumber != merchandiseReturn.ReturnShipping.TrackingNumber)
+            var shown = NormalizeTrackingNumber(model.ReturnShipping.ShownTrackingNumber);
+            if (trackingNumber != shown)
             {
                 error = await merchandiseReturnLabelService.UpdateShipping(merchandiseReturn.Id,
-                    shipping => shipping.TrackingNumber = trackingNumber);
+                    shipping => shipping.TrackingNumber = trackingNumber,
+                    current => NormalizeTrackingNumber(current.ReturnShipping?.TrackingNumber) == shown);
                 if (error != null)
                     return (null, error);
             }
