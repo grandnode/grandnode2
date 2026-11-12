@@ -32,8 +32,19 @@ internal class ReturnProviderTexts(
         var store = await storeService.GetStoreById(merchandiseReturn.StoreId);
         var language = await languageService.GetLanguageOrStoreDefault(order?.CustomerLanguageId, store);
         var format = translationService.GetResource(resourceKey, language?.Id ?? "");
-        var recipient = withRecipient && address != null ? await Recipient(merchandiseReturn, address) : null;
+        var recipient = withRecipient && address != null
+            ? await Recipient(merchandiseReturn.VendorId, address)
+            : null;
         return string.Format(format, await OneLine(address, recipient), merchandiseReturn.ReturnNumber);
+    }
+
+    /// <summary>
+    ///     The address on one line, starting with who receives the parcel, as the instructions write it
+    /// </summary>
+    /// <param name="vendorId">The vendor the items go back to; empty for the store</param>
+    public async Task<string> AddressWithRecipient(Address address, string vendorId)
+    {
+        return address == null ? "" : await OneLine(address, await Recipient(vendorId, address));
     }
 
     private async Task<string> OneLine(Address address, string recipient)
@@ -49,19 +60,19 @@ internal class ReturnProviderTexts(
             new[] { recipient, address.Address1, city, country?.Name }.Where(x => !string.IsNullOrEmpty(x)));
     }
 
-    private async Task<string> Recipient(MerchandiseReturn merchandiseReturn, Address address)
+    private async Task<string> Recipient(string vendorId, Address address)
     {
         if (!string.IsNullOrWhiteSpace(address.Company))
             return address.Company.Trim();
 
         var name = string.Join(" ",
             new[] { address.FirstName, address.LastName }.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()));
-        if (!string.IsNullOrEmpty(name) || string.IsNullOrEmpty(merchandiseReturn.VendorId) || vendorService == null)
+        if (!string.IsNullOrEmpty(name) || string.IsNullOrEmpty(vendorId) || vendorService == null)
             return name;
 
         //a vendor's address often names no one: the parcel goes to the vendor when the address kept with the return
         //is the vendor's, not the store's it fell back to
-        var vendor = await vendorService.GetVendorById(merchandiseReturn.VendorId);
+        var vendor = await vendorService.GetVendorById(vendorId);
         return IsAddressOf(vendor?.Address, address) ? vendor.Name?.Trim() : name;
     }
 

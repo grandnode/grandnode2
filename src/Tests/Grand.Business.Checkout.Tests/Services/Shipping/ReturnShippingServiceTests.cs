@@ -176,6 +176,49 @@ public class ReturnShippingServiceTests
     }
 
     [TestMethod]
+    public async Task GetOffers_TwoVendors_DescribesEachParcel()
+    {
+        //each vendor's parcel goes to its own address; one description shared by both is given once
+        var store = Option("a", 5);
+        store.Description = "Shop, Origin";
+        var vendor = Option("a", 5);
+        vendor.Description = "Vendor One, Main 1";
+        SetupOptions("", store);
+        SetupOptions("v1", vendor);
+
+        var offers = await _service.GetOffers(Request(Item("a"), Item("b")));
+
+        Assert.AreEqual("Shop, Origin; Vendor One, Main 1", offers[0].Description);
+    }
+
+    [TestMethod]
+    public async Task GetOffers_TwoVendorsSameDescription_GivenOnce()
+    {
+        var store = Option("a", 5);
+        store.Description = "Bring it to a point";
+        var vendor = Option("a", 5);
+        vendor.Description = "Bring it to a point";
+        SetupOptions("", store);
+        SetupOptions("v1", vendor);
+
+        var offers = await _service.GetOffers(Request(Item("a"), Item("b")));
+
+        Assert.AreEqual("Bring it to a point", offers[0].Description);
+    }
+
+    [TestMethod]
+    public async Task GetOffers_PassesTheReturnAddressToTheProvider()
+    {
+        //the provider describes where the parcel goes while the customer chooses
+        SetupOptions("", Option("a", 5));
+
+        await _service.GetOffers(Request(Item("a")));
+
+        _provider.Verify(x => x.GetReturnOptions(It.Is<ReturnShippingRequest>(r =>
+            r.ReturnAddress != null && r.ReturnAddress.Address1 == "Origin")), Times.Once);
+    }
+
+    [TestMethod]
     public async Task GetOffers_FreeReason_CostZero()
     {
         _reasons.Add(new MerchandiseReturnReason { Id = "damaged", FreeReturnShipping = true });

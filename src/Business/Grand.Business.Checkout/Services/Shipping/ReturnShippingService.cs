@@ -243,7 +243,9 @@ public class ReturnShippingService(
                     ProviderSystemName = provider.SystemName,
                     OptionCode = first.Code,
                     Name = first.Name,
-                    Description = first.Description,
+                    //each parcel's own, e.g. the address of every vendor the items go back to
+                    Description = string.Join("; ", options.Select(x => x.Description)
+                        .Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()),
                     Cost = groups.Select((group, i) => MerchandiseReturnShippingExtensions.CustomerCost(
                         options[i].Cost, fees, group.AnyFreeReason, group.AllWithoutRefund)).Sum(),
                     //a cost the rules zero whatever it is does not vary for the customer

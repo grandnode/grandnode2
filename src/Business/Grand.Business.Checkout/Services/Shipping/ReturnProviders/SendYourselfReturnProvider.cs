@@ -57,6 +57,8 @@ public class SendYourselfReturnProvider : IReturnShippingProvider
             new ReturnShippingOption {
                 Code = OptionCode,
                 Name = _translationService.GetResource(OptionName, request.LanguageId ?? ""),
+                //where the parcel goes, read before the option is chosen
+                Description = await _texts.AddressWithRecipient(request.ReturnAddress, request.VendorId),
                 Cost = settings.SendYourselfCost,
                 HasForm = false,
                 CreatesLabel = false

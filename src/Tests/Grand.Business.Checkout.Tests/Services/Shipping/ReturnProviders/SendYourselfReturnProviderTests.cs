@@ -160,6 +160,44 @@ public class SendYourselfReturnProviderTests
     }
 
     [TestMethod]
+    public async Task SendYourself_Option_DescribesTheReturnAddressWithRecipient()
+    {
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest {
+            StoreId = "s1", LanguageId = "l1",
+            ReturnAddress = new Address {
+                Company = "Shop Ltd", Address1 = "Main 1", ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl"
+            }
+        });
+
+        Assert.AreEqual("Shop Ltd, Main 1, 00-001 Warsaw, Poland", options[0].Description);
+    }
+
+    [TestMethod]
+    public async Task SendYourself_Option_VendorAddressWithoutNames_DescribedWithTheVendorName()
+    {
+        _vendorService.Setup(x => x.GetVendorById("v1")).ReturnsAsync(new Vendor {
+            Id = "v1", Name = "Vendor One",
+            Address = new Address { Address1 = "Main 1", ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl" }
+        });
+
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest {
+            StoreId = "s1", LanguageId = "l1", VendorId = "v1",
+            ReturnAddress = new Address
+                { Address1 = "Main 1", ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl" }
+        });
+
+        Assert.AreEqual("Vendor One, Main 1, 00-001 Warsaw, Poland", options[0].Description);
+    }
+
+    [TestMethod]
+    public async Task SendYourself_Option_NoReturnAddress_NoDescription()
+    {
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { StoreId = "s1", LanguageId = "l1" });
+
+        Assert.AreEqual("", options[0].Description);
+    }
+
+    [TestMethod]
     public void SendYourself_Identity()
     {
         Assert.AreEqual("ReturnShipping.SendYourself", _provider.SystemName);
