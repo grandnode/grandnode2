@@ -124,6 +124,8 @@ public class
 
         var open = merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
             or MerchandiseReturnStatus.Accepted;
+        //how to send the parcel back, only while it is still to be sent with a label that was not cancelled
+        var sendBack = open && shipping.LabelStatus != ReturnLabelStatus.Cancelled;
         //the cost is kept in the primary store currency, with the rate of the order's currency
         var orderCurrency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
         //what only the staff or the provider read (the label error, the provider's data) stays out of the model
@@ -135,8 +137,8 @@ public class
             DropOffPointName = shipping.DropOffPoint?.Name,
             DropOffPointAddress = FormatAddress(shipping.DropOffPoint?.Address),
             DropOffPointOpeningHours = shipping.DropOffPoint?.OpeningHours,
-            Instructions = shipping.Instructions,
-            ReturnCode = shipping.ReturnCode,
+            Instructions = sendBack ? shipping.Instructions : null,
+            ReturnCode = sendBack ? shipping.ReturnCode : null,
             HasLabel = shipping.LabelStatus == ReturnLabelStatus.Created &&
                        !string.IsNullOrEmpty(shipping.LabelDownloadId),
             LabelPending = open && shipping.LabelStatus is ReturnLabelStatus.Pending or ReturnLabelStatus.Failed,
