@@ -2,8 +2,10 @@ extern alias StoreHost;
 extern alias VendorHost;
 
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Customers;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
@@ -719,6 +721,234 @@ public class BaseMerchandiseReturnControllerTests
 
         var redirect = result as RedirectToActionResult;
         Assert.AreEqual("Edit", redirect.ActionName);
+    }
+
+    // --- Return method: label, retry, tracking number --------------------------------------------
+
+    private static MerchandiseReturn ReturnWithLabel(ReturnLabelStatus labelStatus = ReturnLabelStatus.Created)
+    {
+        return new MerchandiseReturn {
+            Id = "mr1", OrderId = "o1", VendorId = "vendor-B",
+            ReturnShipping = new MerchandiseReturnShipping {
+                ProviderSystemName = "ReturnShipping.Carrier", LabelStatus = labelStatus,
+                LabelDownloadId = "d1", TrackingNumber = "OLD"
+            }
+        };
+    }
+
+    [TestMethod]
+    public async Task Label_OutOfScope_AccessDenied()
+    {
+        //another vendor's return: the label is not handed out, the same answer as every other action out of scope
+        var entity = ReturnWithLabel();
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+        _scopeMock.Setup(s => s.CanView(entity)).ReturnsAsync(false);
+        var downloadServiceMock = new Mock<IDownloadService>();
+
+        var result = await _controller.Label("mr1", downloadServiceMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("List", redirect.ActionName);
+        downloadServiceMock.Verify(d => d.GetDownloadById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Label_InScopeCreated_ReturnsTheFile()
+    {
+        var entity = ReturnWithLabel();
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.CanView(entity)).ReturnsAsync(true);
+        var downloadServiceMock = new Mock<IDownloadService>();
+        downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(new Download {
+            DownloadBinary = [1, 2, 3], ContentType = "application/pdf", Filename = "label", Extension = ".pdf"
+        });
+
+        var result = await _controller.Label("mr1", downloadServiceMock.Object);
+
+        var file = result as FileContentResult;
+        Assert.IsNotNull(file);
+        Assert.AreEqual("application/pdf", file.ContentType);
+        Assert.AreEqual("label.pdf", file.FileDownloadName);
+    }
+
+    [TestMethod]
+    public async Task Label_NotCreated_GivesNoFile()
+    {
+        //a failed label keeps the download of no label: nothing is read
+        var entity = ReturnWithLabel(ReturnLabelStatus.Failed);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.CanView(entity)).ReturnsAsync(true);
+        var downloadServiceMock = new Mock<IDownloadService>();
+
+        var result = await _controller.Label("mr1", downloadServiceMock.Object);
+
+        Assert.IsNotInstanceOfType(result, typeof(FileContentResult));
+        downloadServiceMock.Verify(d => d.GetDownloadById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RetryLabel_InScope_CallsLabelService()
+    {
+        var entity = ReturnWithLabel(ReturnLabelStatus.Failed);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+        labelServiceMock.Setup(l => l.CreateLabel("mr1")).ReturnsAsync((string)null);
+
+        var result = await _controller.RetryLabel("mr1", labelServiceMock.Object);
+
+        var redirect = result as RedirectToActionResult;
+        Assert.IsNotNull(redirect);
+        Assert.AreEqual("Edit", redirect.ActionName);
+        Assert.AreEqual("mr1", redirect.RouteValues["id"]);
+        labelServiceMock.Verify(l => l.CreateLabel("mr1"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task RetryLabel_OutOfScope_DoesNotCallLabelService()
+    {
+        var entity = ReturnWithLabel(ReturnLabelStatus.Failed);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+
+        var result = await _controller.RetryLabel("mr1", labelServiceMock.Object);
+
+        Assert.AreEqual("List", ((RedirectToActionResult)result).ActionName);
+        labelServiceMock.Verify(l => l.CreateLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RetryLabel_Refused_ShowsPrefixedError()
+    {
+        var entity = ReturnWithLabel(ReturnLabelStatus.Cancelled);
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+        labelServiceMock.Setup(l => l.CreateLabel("mr1")).ReturnsAsync(MerchandiseReturnErrors.LabelNotAllowed);
+
+        await _controller.RetryLabel("mr1", labelServiceMock.Object);
+
+        _translationServiceMock.Verify(t => t.GetResource("Vendor.Orders.MerchandiseReturns.LabelNotAllowed"),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public void RetryLabel_NeedsTheEditPermissionAndAPost()
+    {
+        var method = typeof(BaseMerchandiseReturnController).GetMethod(nameof(BaseMerchandiseReturnController.RetryLabel));
+        var permission = (Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute)Attribute
+            .GetCustomAttribute(method!, typeof(Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute));
+        Assert.IsNotNull(permission);
+        Assert.AreEqual(Grand.Domain.Permissions.PermissionActionName.Edit, permission.PermissionAction);
+        Assert.IsTrue(method.IsDefined(typeof(HttpPostAttribute), false));
+    }
+
+    [TestMethod]
+    public async Task Edit_TrackingNumberChanged_SavedThroughLabelService()
+    {
+        //the tracking number is saved under the label's lock, after - never inside - the workflow's save of the form
+        var entity = ReturnWithLabel();
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
+
+        var calls = new List<string>();
+        Action<MerchandiseReturn> formApply = null;
+        var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>()))
+            .Callback<string, Action<MerchandiseReturn>>((_, a) => { formApply = a; calls.Add("Update"); })
+            .ReturnsAsync((string)null);
+        Action<MerchandiseReturnShipping> shippingApply = null;
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+        labelServiceMock.Setup(l => l.UpdateShipping("mr1", It.IsAny<Action<MerchandiseReturnShipping>>(),
+                It.IsAny<Func<MerchandiseReturn, bool>>()))
+            .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, a, _) =>
+            {
+                shippingApply = a;
+                calls.Add("UpdateShipping");
+            })
+            .ReturnsAsync((string)null);
+        var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
+
+        var result = await controller.Edit(new MerchandiseReturnModel {
+                Id = "mr1",
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel { TrackingNumber = " NEW-123 " }
+            }, false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            new Grand.Domain.Orders.OrderSettings());
+
+        Assert.AreEqual("List", ((RedirectToActionResult)result).ActionName);
+        CollectionAssert.AreEqual(new[] { "Update", "UpdateShipping" }, calls);
+        //the workflow's save leaves the return shipping alone
+        var stored = ReturnWithLabel();
+        formApply(stored);
+        Assert.AreEqual("OLD", stored.ReturnShipping.TrackingNumber);
+        //the label service writes the number, trimmed
+        var shipping = new MerchandiseReturnShipping { TrackingNumber = "OLD" };
+        shippingApply(shipping);
+        Assert.AreEqual("NEW-123", shipping.TrackingNumber);
+    }
+
+    [TestMethod]
+    public async Task Edit_TrackingNumberUnchanged_NotSavedAgain()
+    {
+        var entity = ReturnWithLabel();
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
+        workflowMock.Setup(w => w.Update("mr1", It.IsAny<Action<MerchandiseReturn>>())).ReturnsAsync((string)null);
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+        var controller = ControllerWithRealViewModelService(workflowMock.Object, labelServiceMock.Object);
+
+        await controller.Edit(new MerchandiseReturnModel {
+                Id = "mr1", ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel { TrackingNumber = "OLD" }
+            }, false,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            new Grand.Domain.Orders.OrderSettings());
+
+        labelServiceMock.Verify(l => l.UpdateShipping(It.IsAny<string>(),
+            It.IsAny<Action<MerchandiseReturnShipping>>(), It.IsAny<Func<MerchandiseReturn, bool>>()), Times.Never);
+    }
+
+    private TestMerchandiseReturnController ControllerWithRealViewModelService(
+        IMerchandiseReturnWorkflowService workflow, IMerchandiseReturnLabelService labelService)
+    {
+        var viewModelService = new MerchandiseReturnViewModelService(
+            _orderServiceMock.Object,
+            new Mock<Grand.Business.Core.Interfaces.Catalog.Products.IProductService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Customers.ICustomerService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Directory.IDateTimeService>().Object,
+            _translationServiceMock.Object,
+            new Mock<Grand.Business.Core.Interfaces.Messages.IMerchandiseReturnMessageProviderService>().Object,
+            _merchandiseReturnServiceMock.Object,
+            new Mock<Grand.Business.Core.Interfaces.Catalog.Prices.IPriceFormatter>().Object,
+            new Grand.Domain.Common.AddressSettings(),
+            new Mock<Grand.Business.Core.Interfaces.Common.Directory.ICountryService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser>().Object,
+            new Mock<IDownloadService>().Object,
+            new Grand.Domain.Orders.OrderSettings(),
+            new Mock<Grand.Web.Common.Localization.IEnumTranslationService>().Object,
+            new Mock<IContextAccessor>().Object,
+            new Grand.Infrastructure.Configuration.CustomerConfig(),
+            _scopeMock.Object,
+            workflow,
+            labelService,
+            new Mock<Grand.Business.Core.Interfaces.Checkout.Shipping.IReturnShippingService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Directory.ICurrencyService>().Object,
+            new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
+        var controller = new TestMerchandiseReturnController(viewModelService, _translationServiceMock.Object,
+            _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, _scopeMock.Object) {
+            ControllerContext = _controller.ControllerContext,
+            TempData = _controller.TempData
+        };
+        return controller;
     }
 
     [TestMethod]

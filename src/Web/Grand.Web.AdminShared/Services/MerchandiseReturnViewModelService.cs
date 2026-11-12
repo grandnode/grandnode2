@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
@@ -18,6 +19,7 @@ using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Localization;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -40,7 +42,11 @@ public class MerchandiseReturnViewModelService(
     IContextAccessor contextAccessor,
     CustomerConfig customerConfig,
     IAdminDataScope<MerchandiseReturn> scope,
-    IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService)
+    IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService,
+    IMerchandiseReturnLabelService merchandiseReturnLabelService,
+    IReturnShippingService returnShippingService,
+    ICurrencyService currencyService,
+    ILogger<MerchandiseReturnViewModelService> logger)
     : IMerchandiseReturnViewModelService
 {
     public virtual async Task<MerchandiseReturnModel> PrepareMerchandiseReturnModel(MerchandiseReturnModel model,
@@ -88,9 +94,86 @@ public class MerchandiseReturnViewModelService(
             model.CustomerComments = merchandiseReturn.CustomerComments;
             model.ExternalId = merchandiseReturn.ExternalId;
             model.StaffNotes = merchandiseReturn.StaffNotes;
+            //the list leaves it out: no carrier is asked for the tracking events of every row
+            model.ReturnShipping = await PrepareReturnShipping(merchandiseReturn, order);
         }
 
         return model;
+    }
+
+    private const int MaxTrackingNumberLength = 100;
+
+    private async Task<MerchandiseReturnModel.ReturnShippingModel> PrepareReturnShipping(
+        MerchandiseReturn merchandiseReturn, Order order)
+    {
+        var shipping = merchandiseReturn.ReturnShipping;
+        if (string.IsNullOrEmpty(shipping?.ProviderSystemName))
+            return null;
+
+        var provider = returnShippingService.LoadProviderBySystemName(shipping.ProviderSystemName);
+        //the cost is kept in the primary store currency, with the rate of the order's currency
+        var orderCurrency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode)
+                            ?? contextAccessor.WorkContext.WorkingCurrency;
+        var model = new MerchandiseReturnModel.ReturnShippingModel {
+            MethodName = provider?.FriendlyName ?? shipping.ProviderSystemName,
+            OptionName = shipping.OptionName,
+            Cost = priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, orderCurrency),
+            DropOffPoint = FormatDropOffPoint(shipping.DropOffPoint),
+            TrackingNumber = shipping.TrackingNumber,
+            ReturnCode = shipping.ReturnCode,
+            Instructions = shipping.Instructions,
+            HasLabel = shipping.LabelStatus == ReturnLabelStatus.Created &&
+                       !string.IsNullOrEmpty(shipping.LabelDownloadId),
+            LabelStatus = translationService.GetResource(
+                $"{scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.{shipping.LabelStatus}"),
+            LabelError = shipping.LabelError,
+            //the label service's own rule: a label not created yet, of a return neither rejected nor cancelled
+            CanRetryLabel = (shipping.LabelStatus is ReturnLabelStatus.Pending or ReturnLabelStatus.Failed) &&
+                            merchandiseReturn.MerchandiseReturnStatus is not (MerchandiseReturnStatus.Rejected
+                                or MerchandiseReturnStatus.Cancelled)
+        };
+
+        if (!string.IsNullOrEmpty(shipping.TrackingNumber) && provider?.ShipmentTracker != null)
+            try
+            {
+                var events = await provider.ShipmentTracker.GetShipmentEvents(shipping.TrackingNumber);
+                foreach (var shipmentEvent in events ?? [])
+                    model.TrackingEvents.Add(new MerchandiseReturnModel.TrackingEventModel {
+                        EventName = shipmentEvent.EventName,
+                        Location = shipmentEvent.Location,
+                        Date = shipmentEvent.Date
+                    });
+            }
+            catch (Exception ex)
+            {
+                //a carrier that is down leaves the page without the events, not without the page
+                logger.LogWarning(ex, "Return shipping provider {SystemName} failed to give the tracking events of " +
+                                      "{TrackingNumber}", shipping.ProviderSystemName, shipping.TrackingNumber);
+            }
+
+        return model;
+    }
+
+    private static string FormatDropOffPoint(ReturnDropOffPoint point)
+    {
+        if (point == null)
+            return null;
+
+        var address = point.Address == null
+            ? null
+            : string.Join(", ", new[] { point.Address.Address1, point.Address.ZipPostalCode, point.Address.City }
+                .Where(part => !string.IsNullOrEmpty(part)));
+        return string.Join(", ", new[] { point.Name, address }.Where(part => !string.IsNullOrEmpty(part)));
+    }
+
+    private static string NormalizeTrackingNumber(string trackingNumber)
+    {
+        trackingNumber = trackingNumber?.Trim();
+        if (string.IsNullOrEmpty(trackingNumber))
+            return null;
+        return trackingNumber.Length > MaxTrackingNumberLength
+            ? trackingNumber[..MaxTrackingNumberLength]
+            : trackingNumber;
     }
 
     public virtual async Task<(IList<MerchandiseReturnModel> merchandiseReturnModels, int totalCount)>
@@ -254,6 +337,20 @@ public class MerchandiseReturnViewModelService(
         });
         if (error != null)
             return (null, error);
+
+        //the tracking number goes through the label service, under the label's lock: after the save above, never
+        //inside it, which holds the order's lock the label service takes second
+        if (model.ReturnShipping != null && merchandiseReturn.ReturnShipping != null)
+        {
+            var trackingNumber = NormalizeTrackingNumber(model.ReturnShipping.TrackingNumber);
+            if (trackingNumber != merchandiseReturn.ReturnShipping.TrackingNumber)
+            {
+                error = await merchandiseReturnLabelService.UpdateShipping(merchandiseReturn.Id,
+                    shipping => shipping.TrackingNumber = trackingNumber);
+                if (error != null)
+                    return (null, error);
+            }
+        }
 
         //a status button saved what was typed above and changes the status now; the reason box is posted by every
         //button, but only a rejection sends what was typed in it to the customer

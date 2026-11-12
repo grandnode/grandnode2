@@ -82,6 +82,44 @@ public class MerchandiseReturnModel : BaseEntityModel
     [UIHint("Download")]
     public string AddMerchandiseReturnNoteDownloadId { get; set; }
 
+    //how the items are sent back; null when the return has no return method, and the card is not shown
+    public ReturnShippingModel ReturnShipping { get; set; }
+
+    public class ReturnShippingModel : BaseModel
+    {
+        //the provider's name and the option the customer chose
+        public string MethodName { get; set; }
+        public string OptionName { get; set; }
+
+        //formatted in the order's currency
+        public string Cost { get; set; }
+
+        public string DropOffPoint { get; set; }
+
+        //the one field posted back: saved through the label service, never with the rest of the form
+        [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.ReturnShipping.TrackingNumber")]
+        [NoHtml]
+        public string TrackingNumber { get; set; }
+
+        public string ReturnCode { get; set; }
+        public string Instructions { get; set; }
+        public bool HasLabel { get; set; }
+        public string LabelStatus { get; set; }
+
+        //the provider's error, for the staff only
+        public string LabelError { get; set; }
+
+        public bool CanRetryLabel { get; set; }
+        public IList<TrackingEventModel> TrackingEvents { get; set; } = new List<TrackingEventModel>();
+    }
+
+    public class TrackingEventModel : BaseModel
+    {
+        public string EventName { get; set; }
+        public string Location { get; set; }
+        public DateTime? Date { get; set; }
+    }
+
     public class MerchandiseReturnItemModel : BaseEntityModel
     {
         public string ProductId { get; set; }

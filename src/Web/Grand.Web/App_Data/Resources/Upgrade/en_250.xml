@@ -1791,4 +1791,91 @@
 	<Resource Name="MerchandiseReturns.NotFound" Area="Front">
 		<Value>The merchandise return was not found.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Title" Area="Admin">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Cost" Area="Admin">
+		<Value>Cost</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.DropOffPoint" Area="Admin">
+		<Value>Drop-off point</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.TrackingNumber" Area="Admin">
+		<Value>Tracking number</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.ReturnCode" Area="Admin">
+		<Value>Return code</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Instructions" Area="Admin">
+		<Value>Instructions</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Label" Area="Admin">
+		<Value>Download label</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus" Area="Admin">
+		<Value>Label</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelError" Area="Admin">
+		<Value>Label error</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.RetryLabel" Area="Admin">
+		<Value>Create label again</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.NotRequired" Area="Admin">
+		<Value>Not required</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Pending" Area="Admin">
+		<Value>Pending</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Created" Area="Admin">
+		<Value>Created</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Failed" Area="Admin">
+		<Value>Failed</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Cancelled" Area="Admin">
+		<Value>Cancelled</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Title" Area="Vendor">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Cost" Area="Vendor">
+		<Value>Cost</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.DropOffPoint" Area="Vendor">
+		<Value>Drop-off point</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.ReturnCode" Area="Vendor">
+		<Value>Return code</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Instructions" Area="Vendor">
+		<Value>Instructions</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Label" Area="Vendor">
+		<Value>Download label</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus" Area="Vendor">
+		<Value>Label</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelError" Area="Vendor">
+		<Value>Label error</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.RetryLabel" Area="Vendor">
+		<Value>Create label again</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.NotRequired" Area="Vendor">
+		<Value>Not required</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Pending" Area="Vendor">
+		<Value>Pending</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Created" Area="Vendor">
+		<Value>Created</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Failed" Area="Vendor">
+		<Value>Failed</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Cancelled" Area="Vendor">
+		<Value>Cancelled</Value>
+	</Resource>
 </Language>

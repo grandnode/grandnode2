@@ -2,6 +2,8 @@ using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
@@ -24,6 +26,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.Localization;
+using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -167,7 +170,11 @@ public class MerchandiseReturnViewModelServiceTests
             contextAccessor,
             customerConfig,
             scopeMock.Object,
-            new Mock<IMerchandiseReturnWorkflowService>().Object);
+            new Mock<IMerchandiseReturnWorkflowService>().Object,
+            new Mock<IMerchandiseReturnLabelService>().Object,
+            new Mock<IReturnShippingService>().Object,
+            new Mock<ICurrencyService>().Object,
+            new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
     }
 
     private static MerchandiseReturnViewModelService BuildWithCustomMocks(
@@ -211,7 +218,11 @@ public class MerchandiseReturnViewModelServiceTests
             contextAccessor,
             customerConfig,
             scope,
-            new Mock<IMerchandiseReturnWorkflowService>().Object);
+            new Mock<IMerchandiseReturnWorkflowService>().Object,
+            new Mock<IMerchandiseReturnLabelService>().Object,
+            new Mock<IReturnShippingService>().Object,
+            new Mock<ICurrencyService>().Object,
+            new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
     }
 
     private static (MerchandiseReturnViewModelService service, Mock<IMerchandiseReturnWorkflowService> workflow)
@@ -228,6 +239,9 @@ public class MerchandiseReturnViewModelServiceTests
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
         workflowMock.Setup(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()))
             .ReturnsAsync((string)null);
+        var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
+        var returnShippingServiceMock = new Mock<IReturnShippingService>();
+        var currencyServiceMock = new Mock<ICurrencyService>();
 
         var service = new MerchandiseReturnViewModelService(
             orderServiceMock.Object,
@@ -248,7 +262,11 @@ public class MerchandiseReturnViewModelServiceTests
             contextAccessor.Object,
             new CustomerConfig(),
             new Mock<IAdminDataScope<MerchandiseReturn>>().Object,
-            workflowMock.Object);
+            workflowMock.Object,
+            labelServiceMock.Object,
+            returnShippingServiceMock.Object,
+            currencyServiceMock.Object,
+            new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, workflowMock);
     }
 
@@ -383,5 +401,205 @@ public class MerchandiseReturnViewModelServiceTests
 
         Assert.AreEqual(MerchandiseReturnErrors.Busy, error);
         workflow.Verify(x => x.Delete("r1"), Times.Once);
+    }
+
+    // --- Return method card ----------------------------------------------------------------------
+
+    private sealed class ReturnShippingMocks
+    {
+        public Mock<IPriceFormatter> PriceFormatter { get; } = new();
+        public Mock<IRequestTranslationService> Translation { get; } = new();
+        public Mock<IReturnShippingService> ReturnShipping { get; } = new();
+        public Mock<ICurrencyService> Currency { get; } = new();
+        public Mock<IMerchandiseReturnLabelService> LabelService { get; } = new();
+        public Mock<IMerchandiseReturnWorkflowService> Workflow { get; } = new();
+        public Mock<IShipmentTracker> Tracker { get; } = new();
+        public Currency OrderCurrency { get; } = new() { CurrencyCode = "EUR" };
+    }
+
+    private static (MerchandiseReturnViewModelService service, ReturnShippingMocks mocks) BuildForReturnShipping()
+    {
+        var mocks = new ReturnShippingMocks();
+        var orderServiceMock = new Mock<IOrderService>();
+        orderServiceMock.Setup(x => x.GetOrderById("o1"))
+            .ReturnsAsync(new Order { Id = "o1", CustomerCurrencyCode = "EUR" });
+        var workContext = new Mock<IWorkContext>();
+        var contextAccessor = new Mock<IContextAccessor>();
+        contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
+        var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
+        scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
+        mocks.Currency.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(mocks.OrderCurrency);
+        mocks.Translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns<string>(key => key);
+        var provider = new Mock<IReturnShippingProvider>();
+        provider.Setup(x => x.FriendlyName).Returns("Carrier");
+        provider.Setup(x => x.ShipmentTracker).Returns(mocks.Tracker.Object);
+        mocks.ReturnShipping.Setup(x => x.LoadProviderBySystemName("ReturnShipping.Carrier")).Returns(provider.Object);
+        mocks.Workflow.Setup(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()))
+            .ReturnsAsync((string)null);
+
+        //the edit form's pickup address lists the countries and the address attributes
+        var countryServiceMock = new Mock<ICountryService>();
+        countryServiceMock.Setup(x => x.GetAllCountries(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+            .ReturnsAsync(new List<Country>());
+        var addressAttributeServiceMock = new Mock<IAddressAttributeService>();
+        addressAttributeServiceMock.Setup(x => x.GetAllAddressAttributes()).ReturnsAsync(new List<AddressAttribute>());
+        addressAttributeServiceMock.Setup(x => x.GetAllAddressAttributes(It.IsAny<string>()))
+            .ReturnsAsync(new List<AddressAttribute>());
+
+        var service = new MerchandiseReturnViewModelService(
+            orderServiceMock.Object,
+            new Mock<IProductService>().Object,
+            new Mock<ICustomerService>().Object,
+            new Mock<IDateTimeService>().Object,
+            mocks.Translation.Object,
+            new Mock<IMerchandiseReturnMessageProviderService>().Object,
+            new Mock<IMerchandiseReturnService>().Object,
+            mocks.PriceFormatter.Object,
+            new AddressSettings(),
+            countryServiceMock.Object,
+            addressAttributeServiceMock.Object,
+            new Mock<IAddressAttributeParser>().Object,
+            new Mock<IDownloadService>().Object,
+            new OrderSettings(),
+            new Mock<IEnumTranslationService>().Object,
+            contextAccessor.Object,
+            new CustomerConfig(),
+            scopeMock.Object,
+            mocks.Workflow.Object,
+            mocks.LabelService.Object,
+            mocks.ReturnShipping.Object,
+            mocks.Currency.Object,
+            new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
+        return (service, mocks);
+    }
+
+    private static MerchandiseReturn ReturnWithShipping(ReturnLabelStatus labelStatus,
+        MerchandiseReturnStatus status = MerchandiseReturnStatus.Pending)
+    {
+        return new MerchandiseReturn {
+            Id = "r1", OrderId = "o1", MerchandiseReturnStatus = status,
+            ReturnShipping = new MerchandiseReturnShipping {
+                ProviderSystemName = "ReturnShipping.Carrier", OptionName = "Parcel locker",
+                Cost = 10, CurrencyRate = 4.5, LabelStatus = labelStatus, LabelDownloadId = "d1",
+                LabelError = "carrier down", TrackingNumber = "T1", ReturnCode = "RC",
+                DropOffPoint = new ReturnDropOffPoint {
+                    Name = "Locker 7",
+                    Address = new Address { Address1 = "Main 1", ZipPostalCode = "00-001", City = "Town" }
+                }
+            }
+        };
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_ReturnShipping_FillsTheCard()
+    {
+        var (service, mocks) = BuildForReturnShipping();
+        mocks.PriceFormatter.Setup(x => x.FormatPrice(45, mocks.OrderCurrency)).Returns("45,00 EUR");
+        mocks.Tracker.Setup(x => x.GetShipmentEvents("T1"))
+            .ReturnsAsync(new List<ShipmentStatusEvent> { new() { EventName = "Posted", Location = "Town" } });
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            ReturnWithShipping(ReturnLabelStatus.Created), false);
+
+        var card = model.ReturnShipping;
+        Assert.IsNotNull(card);
+        Assert.AreEqual("Carrier", card.MethodName);
+        Assert.AreEqual("Parcel locker", card.OptionName);
+        //the cost in the order's currency, at the order's rate
+        Assert.AreEqual("45,00 EUR", card.Cost);
+        Assert.AreEqual("Locker 7, Main 1, 00-001, Town", card.DropOffPoint);
+        Assert.AreEqual("T1", card.TrackingNumber);
+        Assert.IsTrue(card.HasLabel);
+        Assert.IsFalse(card.CanRetryLabel);
+        Assert.AreEqual("Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Created", card.LabelStatus);
+        Assert.AreEqual("carrier down", card.LabelError);
+        Assert.AreEqual("Posted", card.TrackingEvents.Single().EventName);
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_NoReturnMethod_NoCard()
+    {
+        var (service, _) = BuildForReturnShipping();
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            new MerchandiseReturn { Id = "r1", OrderId = "o1" }, false);
+
+        Assert.IsNull(model.ReturnShipping);
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_ListRow_AsksNoCarrier()
+    {
+        var (service, mocks) = BuildForReturnShipping();
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            ReturnWithShipping(ReturnLabelStatus.Created), true);
+
+        Assert.IsNull(model.ReturnShipping);
+        mocks.Tracker.Verify(x => x.GetShipmentEvents(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_TrackerThrows_KeepsThePageWithoutEvents()
+    {
+        var (service, mocks) = BuildForReturnShipping();
+        mocks.Tracker.Setup(x => x.GetShipmentEvents("T1")).ThrowsAsync(new HttpRequestException("down"));
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            ReturnWithShipping(ReturnLabelStatus.Failed), false);
+
+        Assert.IsNotNull(model.ReturnShipping);
+        Assert.AreEqual(0, model.ReturnShipping.TrackingEvents.Count);
+        Assert.IsTrue(model.ReturnShipping.CanRetryLabel);
+        Assert.IsFalse(model.ReturnShipping.HasLabel);
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_FailedLabelOfRejectedReturn_CannotRetry()
+    {
+        var (service, _) = BuildForReturnShipping();
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            ReturnWithShipping(ReturnLabelStatus.Failed, MerchandiseReturnStatus.Rejected), false);
+
+        Assert.IsFalse(model.ReturnShipping.CanRetryLabel);
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_TrackingNumberSaveRefused_DoesNotChangeStatus()
+    {
+        var (service, mocks) = BuildForReturnShipping();
+        mocks.LabelService.Setup(x => x.UpdateShipping("r1", It.IsAny<Action<MerchandiseReturnShipping>>(),
+            It.IsAny<Func<MerchandiseReturn, bool>>())).ReturnsAsync(MerchandiseReturnErrors.Busy);
+
+        var result = await service.UpdateMerchandiseReturnModel(ReturnWithShipping(ReturnLabelStatus.Created),
+            new MerchandiseReturnModel {
+                Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received,
+                ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel { TrackingNumber = "T2" }
+            }, []);
+
+        Assert.AreEqual(MerchandiseReturnErrors.Busy, result.Error);
+        mocks.Workflow.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
+            It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_TrackingNumberCleared_SavedAsNone()
+    {
+        var (service, mocks) = BuildForReturnShipping();
+        Action<MerchandiseReturnShipping> apply = null;
+        mocks.LabelService.Setup(x => x.UpdateShipping("r1", It.IsAny<Action<MerchandiseReturnShipping>>(),
+                It.IsAny<Func<MerchandiseReturn, bool>>()))
+            .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, a, _) => apply = a)
+            .ReturnsAsync((string)null);
+
+        await service.UpdateMerchandiseReturnModel(ReturnWithShipping(ReturnLabelStatus.Created),
+            new MerchandiseReturnModel {
+                Id = "r1", ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel { TrackingNumber = "  " }
+            }, []);
+
+        var shipping = new MerchandiseReturnShipping { TrackingNumber = "T1" };
+        apply(shipping);
+        Assert.IsNull(shipping.TrackingNumber);
     }
 }
