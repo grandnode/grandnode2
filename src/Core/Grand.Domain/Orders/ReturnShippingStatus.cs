@@ -11,9 +11,9 @@ public enum ReturnShippingStatus
     NotShipped = 0,
 
     /// <summary>
-    ///     Handed to the carrier
+    ///     In transit with the carrier
     /// </summary>
-    Shipped = 10,
+    InTransit = 10,
 
     /// <summary>
     ///     Delivered to the store

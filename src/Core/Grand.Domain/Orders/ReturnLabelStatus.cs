@@ -6,9 +6,9 @@ namespace Grand.Domain.Orders;
 public enum ReturnLabelStatus
 {
     /// <summary>
-    ///     No label was requested
+    ///     No label is needed
     /// </summary>
-    None = 0,
+    NotRequired = 0,
 
     /// <summary>
     ///     The label is being requested from the provider
@@ -23,5 +23,10 @@ public enum ReturnLabelStatus
     /// <summary>
     ///     The provider failed to create the label
     /// </summary>
-    Failed = 30
+    Failed = 30,
+
+    /// <summary>
+    ///     The label was cancelled
+    /// </summary>
+    Cancelled = 40
 }
