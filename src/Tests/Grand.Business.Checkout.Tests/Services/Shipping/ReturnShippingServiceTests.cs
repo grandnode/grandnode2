@@ -255,6 +255,29 @@ public class ReturnShippingServiceTests
     }
 
     [TestMethod]
+    public async Task GetOffers_OptionCostVaries_OfferCostVaries()
+    {
+        SetupOptions("", new ReturnShippingOption { Code = "point", Name = "Point", Cost = 2, CostVaries = true });
+
+        var offers = await _service.GetOffers(Request(Item("a")));
+
+        Assert.IsTrue(offers[0].CostVaries);
+        Assert.AreEqual(2, offers[0].Cost);
+    }
+
+    [TestMethod]
+    public async Task GetOffers_OptionCostVariesButFeesFree_OfferCostDoesNotVary()
+    {
+        _orderSettings.MerchandiseReturnFees = MerchandiseReturnFees.Free;
+        SetupOptions("", new ReturnShippingOption { Code = "point", Name = "Point", Cost = 2, CostVaries = true });
+
+        var offers = await _service.GetOffers(Request(Item("a")));
+
+        Assert.IsFalse(offers[0].CostVaries);
+        Assert.AreEqual(0, offers[0].Cost);
+    }
+
+    [TestMethod]
     public async Task GetOffers_GetFormRouteNameThrows_ProviderSkippedOthersOffered()
     {
         var failing = Provider("Return.Failing");

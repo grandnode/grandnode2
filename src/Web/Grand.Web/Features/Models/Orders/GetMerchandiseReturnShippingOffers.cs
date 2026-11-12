@@ -19,7 +19,7 @@ public class GetMerchandiseReturnShippingOffers : IRequest<IList<ReturnShippingO
     public Language Language { get; set; }
 
     /// <summary>
-    ///     Turns the route name of an option's form into its address
+    ///     Turns the route name of an option's form and the values it is shown for into its address
     /// </summary>
-    public Func<string, string> FormUrl { get; set; }
+    public Func<string, IDictionary<string, object>, string> FormUrl { get; set; }
 }

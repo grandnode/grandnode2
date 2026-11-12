@@ -59,6 +59,7 @@ public class ShippingPointReturnProvider(
                 Name = translationService.GetResource(OptionNameKey, request.LanguageId ?? ""),
                 //the cost is final once the customer has chosen a point
                 Cost = points.Min(x => x.ReturnFee),
+                CostVaries = points.Select(x => x.ReturnFee).Distinct().Count() > 1,
                 HasForm = true,
                 CreatesLabel = true
             }

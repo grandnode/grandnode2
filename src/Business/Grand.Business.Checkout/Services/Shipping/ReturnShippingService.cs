@@ -246,6 +246,8 @@ public class ReturnShippingService(
                     Description = first.Description,
                     Cost = groups.Select((group, i) => MerchandiseReturnShippingExtensions.CustomerCost(
                         options[i].Cost, fees, group.AnyFreeReason, group.AllWithoutRefund)).Sum(),
+                    //a cost the rules zero whatever it is does not vary for the customer
+                    CostVaries = groups.Where((group, i) => options[i].CostVaries && CustomerPays(group, fees)).Any(),
                     Parcels = groups.Count,
                     HasForm = first.HasForm,
                     FormRouteName = first.HasForm ? formRoutes.GetValueOrDefault(first.Code) : null
@@ -258,6 +260,15 @@ public class ReturnShippingService(
             offers.RemoveAll(x => x.OptionCost > 0);
 
         return offers;
+    }
+
+    /// <summary>
+    ///     Whether the customer pays the cost of the group's option, or the store's return fee rules make it free
+    /// </summary>
+    private static bool CustomerPays(VendorGroup group, MerchandiseReturnFees fees)
+    {
+        return MerchandiseReturnShippingExtensions.CustomerCost(1, fees, group.AnyFreeReason,
+            group.AllWithoutRefund) > 0;
     }
 
     private static Address Copy(Address address)

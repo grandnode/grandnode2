@@ -44,6 +44,12 @@ public class ReturnShippingOption
     public double Cost { get; set; }
 
     /// <summary>
+    ///     Whether the cost depends on what is chosen in the option's form (e.g. the drop-off point); Cost is then
+    ///     the lowest one
+    /// </summary>
+    public bool CostVaries { get; set; }
+
+    /// <summary>
     ///     Whether the customer fills in a form of the provider, e.g. to pick a drop-off point
     /// </summary>
     public bool HasForm { get; set; }
@@ -121,6 +127,12 @@ public class ReturnShippingOffer
     ///     What the customer pays for all parcels, in the primary store currency
     /// </summary>
     public double Cost { get; set; }
+
+    /// <summary>
+    ///     Whether what the customer pays depends on what is chosen in the option's form; Cost is then the lowest.
+    ///     False when the store's return fee rules make the return free whatever is chosen
+    /// </summary>
+    public bool CostVaries { get; set; }
 
     /// <summary>
     ///     The number of parcels: one for each vendor of the items

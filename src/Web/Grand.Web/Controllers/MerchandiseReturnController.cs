@@ -19,6 +19,7 @@ using Grand.Web.Models.Common;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Routing;
 using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
@@ -297,7 +298,7 @@ public class MerchandiseReturnController : BasePublicController
             PickupAddress = await PrepareAddress(model),
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
-            FormUrl = routeName => Url.RouteUrl(routeName)
+            FormUrl = (routeName, values) => Url.RouteUrl(routeName, new RouteValueDictionary(values))
         });
         return Json(offers);
     }

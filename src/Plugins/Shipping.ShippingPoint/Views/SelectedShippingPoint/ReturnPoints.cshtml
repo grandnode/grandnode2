@@ -15,7 +15,10 @@
                 {
                     <span class="opening-hours d-block text-muted">@point.OpeningHours</span>
                 }
-                <span class="fee d-block">@point.ReturnFee</span>
+                @if (!string.IsNullOrEmpty(point.ReturnFee))
+                {
+                    <span class="fee d-block">@point.ReturnFee</span>
+                }
             </label>
         </div>
     }

@@ -1758,6 +1758,9 @@
 	<Resource Name="MerchandiseReturns.ReturnShipping.Free" Area="Front">
 		<Value>Free</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.From" Area="Front">
+		<Value>from {0}</Value>
+	</Resource>
 	<Resource Name="MerchandiseReturns.ReturnShipping.Parcels" Area="Front">
 		<Value>× {0} parcels</Value>
 	</Resource>

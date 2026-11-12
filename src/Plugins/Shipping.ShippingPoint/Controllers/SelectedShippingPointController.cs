@@ -1,5 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -17,6 +19,8 @@ public class SelectedShippingPointController : Controller
     private readonly IShippingPointService _shippingPointService;
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly IOrderService _orderService;
+    private readonly IGroupService _groupService;
 
     public SelectedShippingPointController(
         IShippingPointService shippingPointService,
@@ -24,8 +28,12 @@ public class SelectedShippingPointController : Controller
         IPriceFormatter priceFormatter,
         IContextAccessor contextAccessor,
         ICurrencyService currencyService,
-        IRequestTranslationService translationService)
+        IRequestTranslationService translationService,
+        IOrderService orderService,
+        IGroupService groupService)
     {
+        _orderService = orderService;
+        _groupService = groupService;
         _shippingPointService = shippingPointService;
         _countryService = countryService;
         _priceFormatter = priceFormatter;
@@ -73,14 +81,26 @@ public class SelectedShippingPointController : Controller
         return View(shippingPointsModel);
     }
 
-    public async Task<IActionResult> ReturnPoints()
+    /// <summary>
+    ///     The form of the Shipping Point return option: the points of the order's store that accept returns
+    /// </summary>
+    /// <param name="orderId">The order the items are returned from, whose currency and rate the fees are shown in</param>
+    /// <param name="free">
+    ///     Whether the return is free whatever point is chosen, so no fee is shown. It only changes what is shown: the
+    ///     cost saved with the return is worked out again on submit from the point chosen and the store's rules
+    /// </param>
+    public async Task<IActionResult> ReturnPoints(string orderId, bool free = false)
     {
-        var points = await _shippingPointService.GetReturnShippingPoints(_contextAccessor.StoreContext.CurrentStore.Id);
-        var currency = _contextAccessor.WorkContext.WorkingCurrency;
+        var order = string.IsNullOrEmpty(orderId) ? null : await _orderService.GetOrderById(orderId);
+        if (!await CustomerOrder(order))
+            return NotFound("The order was not found.");
+
+        var points = await _shippingPointService.GetReturnShippingPoints(order.StoreId);
+        //shown as the return shows its saved cost: in the order's currency, at the order's rate
+        var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
         var model = new List<ReturnPointModel>();
         foreach (var point in points)
         {
-            var fee = await _currencyService.ConvertFromPrimaryStoreCurrency(point.ReturnFee, currency);
             var country = string.IsNullOrEmpty(point.CountryId)
                 ? null
                 : await _countryService.GetCountryById(point.CountryId);
@@ -91,10 +111,28 @@ public class SelectedShippingPointController : Controller
                 Address = string.Join(", ",
                     new[] { point.Address1, city, country?.Name }.Where(x => !string.IsNullOrEmpty(x))),
                 OpeningHours = point.OpeningHours,
-                ReturnFee = _priceFormatter.FormatPrice(fee, currency)
+                ReturnFee = free
+                    ? null
+                    : _priceFormatter.FormatPrice(Math.Max(0, point.ReturnFee) * order.CurrencyRate, currency)
             });
         }
 
         return View(model);
+    }
+
+    /// <summary>
+    ///     Whether the order is one the current customer returns items from, in the current store: the rule of the
+    ///     storefront's return pages, which a plugin cannot reference
+    /// </summary>
+    private async Task<bool> CustomerOrder(Order order)
+    {
+        if (order == null || order.Deleted || order.StoreId != _contextAccessor.StoreContext.CurrentStore.Id)
+            return false;
+
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        //an owner sees the orders of their sub-accounts, a sub-account only its own
+        if (await _groupService.IsOwner(customer))
+            return customer.Id == order.CustomerId || customer.Id == order.OwnerId;
+        return customer.Id == order.CustomerId;
     }
 }
