@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
@@ -82,7 +83,8 @@ public class MerchandiseReturnViewModelService(
         model.MerchandiseReturnStatusId = merchandiseReturn.MerchandiseReturnStatusId;
         model.MerchandiseReturnStatusStr =
             enumTranslationService.GetTranslationEnum(merchandiseReturn.MerchandiseReturnStatus);
-        model.NextStatuses = merchandiseReturn.MerchandiseReturnStatus.NextStatuses().Select(x => (int)x).ToList();
+        model.NextStatuses = merchandiseReturn.MerchandiseReturnStatus.NextStatuses().Where(IsChangedByStaff)
+            .Select(x => (int)x).ToList();
         model.CreatedOn = dateTimeService.ConvertToUserTime(merchandiseReturn.CreatedOnUtc, DateTimeKind.Utc);
         model.PickupDate = merchandiseReturn.PickupDate;
         model.UserFields = merchandiseReturn.UserFields;
@@ -102,6 +104,15 @@ public class MerchandiseReturnViewModelService(
     }
 
     private const int MaxTrackingNumberLength = 100;
+
+    /// <summary>
+    ///     Whether the staff changes the return to this status with a button: a return is received only by posting a
+    ///     return receipt, which puts its goods on stock
+    /// </summary>
+    private static bool IsChangedByStaff(MerchandiseReturnStatus status)
+    {
+        return status != MerchandiseReturnStatus.Received;
+    }
 
     private async Task<MerchandiseReturnModel.ReturnShippingModel> PrepareReturnShipping(
         MerchandiseReturn merchandiseReturn, Order order)
@@ -323,6 +334,10 @@ public class MerchandiseReturnViewModelService(
     public virtual async Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(
         MerchandiseReturn merchandiseReturn, MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes)
     {
+        //no button offers it: a status posted that the staff does not set by hand is refused before anything is saved
+        if (model.ChangeStatusTo.HasValue && !IsChangedByStaff((MerchandiseReturnStatus)model.ChangeStatusTo.Value))
+            return (null, MerchandiseReturnErrors.StatusChangeNotAllowed);
+
         //the fields go onto the return as stored: a status changed since the page was loaded is kept
         var error = await merchandiseReturnWorkflowService.Update(merchandiseReturn.Id, stored =>
         {

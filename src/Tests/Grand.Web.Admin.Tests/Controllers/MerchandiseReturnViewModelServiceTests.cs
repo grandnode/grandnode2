@@ -387,8 +387,35 @@ public class MerchandiseReturnViewModelServiceTests
         var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
             StoredReturn(MerchandiseReturnStatus.Accepted), true);
 
-        CollectionAssert.AreEqual(new[] { 15, 40, 20, 30 }, model.NextStatuses.ToArray());
+        //received comes only from a posted return receipt: no button offers it
+        CollectionAssert.AreEqual(new[] { 40, 20, 30 }, model.NextStatuses.ToArray());
         Assert.AreEqual("Accepted (translated)", model.MerchandiseReturnStatusStr);
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_Pending_DoesNotOfferReceived()
+    {
+        var (service, _) = BuildForUpdate();
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            StoredReturn(MerchandiseReturnStatus.Pending), true);
+
+        CollectionAssert.AreEqual(new[] { 10, 20, 30 }, model.NextStatuses.ToArray());
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_PostedReceived_RefusedAndNothingSaved()
+    {
+        //a crafted post: the panel never offers it, the goods come back through a return receipt
+        var (service, workflow) = BuildForUpdate();
+
+        var result = await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Accepted),
+            new MerchandiseReturnModel { Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received }, []);
+
+        Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, result.Error);
+        workflow.Verify(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()), Times.Never);
+        workflow.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -588,7 +615,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         var result = await service.UpdateMerchandiseReturnModel(ReturnWithShipping(ReturnLabelStatus.Created),
             new MerchandiseReturnModel {
-                Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received,
+                Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Completed,
                 ReturnShipping = new MerchandiseReturnModel.ReturnShippingModel {
                     TrackingNumber = "T2", ShownTrackingNumber = "T1"
                 }
