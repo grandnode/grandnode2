@@ -9,6 +9,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Vendors;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -65,7 +66,8 @@ public class ReturnShippingServiceTests
     private ReturnShippingService Service(params Mock<IReturnShippingProvider>[] providers)
     {
         return new ReturnShippingService(providers.Select(x => x.Object), _settingService.Object,
-            _merchandiseReturnService.Object, _vendorService.Object, _customerService.Object);
+            _merchandiseReturnService.Object, _vendorService.Object, _customerService.Object,
+            NullLogger<ReturnShippingService>.Instance);
     }
 
     private static Mock<IReturnShippingProvider> Provider(string systemName, IList<string> limitedToStores = null)
@@ -236,6 +238,40 @@ public class ReturnShippingServiceTests
     }
 
     [TestMethod]
+    public async Task GetOffers_ProviderThrows_OtherProvidersStillOffered()
+    {
+        var failing = Provider("Return.Failing");
+        failing.Setup(x => x.Priority).Returns(-1);
+        failing.Setup(x => x.GetReturnOptions(It.IsAny<ReturnShippingRequest>()))
+            .ThrowsAsync(new HttpRequestException("carrier down"));
+        _providerSettings.ActiveSystemNames = ["Return.Failing", "Return.Test"];
+        SetupOptions("", Option("a", 5));
+        var service = Service(failing, _provider);
+
+        var offers = await service.GetOffers(Request(Item("a")));
+
+        Assert.HasCount(1, offers);
+        Assert.AreEqual("Return.Test", offers[0].ProviderSystemName);
+    }
+
+    [TestMethod]
+    public async Task Resolve_ProviderThrows_OtherProviderCanBeChosen()
+    {
+        var failing = Provider("Return.Failing");
+        failing.Setup(x => x.GetReturnOptions(It.IsAny<ReturnShippingRequest>()))
+            .ThrowsAsync(new HttpRequestException("carrier down"));
+        _providerSettings.ActiveSystemNames = ["Return.Failing", "Return.Test"];
+        SetupOptions("", Option("a", 5));
+        var service = Service(failing, _provider);
+
+        var resolution = await service.Resolve(Request(Item("a")),
+            new ReturnShippingChoice { ProviderSystemName = "Return.Test", OptionCode = "a" });
+
+        Assert.IsEmpty(resolution.Errors);
+        Assert.AreEqual("Return.Test", resolution.ByVendor[""].ProviderSystemName);
+    }
+
+    [TestMethod]
     public async Task Resolve_ProvidersActiveAndNoChoice_Error()
     {
         SetupOptions("", Option("a", 5));
@@ -291,6 +327,51 @@ public class ReturnShippingServiceTests
         Assert.AreEqual("Option point", shipping.OptionName);
         Assert.AreEqual(ReturnLabelStatus.NotRequired, shipping.LabelStatus);
         Assert.AreEqual("Origin", shipping.ReturnAddress.Address1);
+        _provider.Verify(x => x.GetFormRouteName(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Resolve_ValidationCost_OverridesOptionCost()
+    {
+        SetupOptions("", Option("point", 9, true));
+        _provider.Setup(x => x.ValidateForm(It.IsAny<ReturnShippingRequest>(), "point",
+                It.IsAny<IDictionary<string, string>>()))
+            .ReturnsAsync(new ReturnShippingValidationResult { Cost = 3 });
+
+        var resolution = await _service.Resolve(Request(Item("a")),
+            new ReturnShippingChoice { ProviderSystemName = "Return.Test", OptionCode = "point" });
+
+        Assert.AreEqual(3, resolution.ByVendor[""].Cost);
+    }
+
+    [TestMethod]
+    public async Task Resolve_ValidationCost_StillZeroForFreeReason()
+    {
+        _reasons.Add(new MerchandiseReturnReason { Id = "damaged", FreeReturnShipping = true });
+        SetupOptions("", Option("point", 9, true));
+        _provider.Setup(x => x.ValidateForm(It.IsAny<ReturnShippingRequest>(), "point",
+                It.IsAny<IDictionary<string, string>>()))
+            .ReturnsAsync(new ReturnShippingValidationResult { Cost = 3 });
+
+        var resolution = await _service.Resolve(Request(Item("a", "damaged")),
+            new ReturnShippingChoice { ProviderSystemName = "Return.Test", OptionCode = "point" });
+
+        Assert.AreEqual(0, resolution.ByVendor[""].Cost);
+    }
+
+    [TestMethod]
+    public async Task Resolve_ValidateFormThrows_ReturnsChooseError()
+    {
+        SetupOptions("", Option("point", 9, true));
+        _provider.Setup(x => x.ValidateForm(It.IsAny<ReturnShippingRequest>(), "point",
+                It.IsAny<IDictionary<string, string>>()))
+            .ThrowsAsync(new HttpRequestException("carrier down"));
+
+        var resolution = await _service.Resolve(Request(Item("a")),
+            new ReturnShippingChoice { ProviderSystemName = "Return.Test", OptionCode = "point" });
+
+        CollectionAssert.AreEqual(new[] { "MerchandiseReturns.ReturnShipping.Choose" }, resolution.Errors.ToArray());
+        Assert.IsEmpty(resolution.ByVendor);
     }
 
     [TestMethod]
@@ -337,6 +418,22 @@ public class ReturnShippingServiceTests
         var address = await _service.GetReturnAddress(StoreId, "v1");
 
         Assert.AreEqual("Vendor street", address.Address1);
+        Assert.AreEqual("pl", address.CountryId);
+    }
+
+    [TestMethod]
+    public async Task GetReturnAddress_ReturnsCopy()
+    {
+        var vendorAddress = new Address { CountryId = "pl", Address1 = "Vendor street" };
+        _vendorService.Setup(x => x.GetVendorById("v1")).ReturnsAsync(new Vendor { Id = "v1", Address = vendorAddress });
+        _providerSettings.ReturnAddress = new Address { Address1 = "Returns street" };
+
+        Assert.AreNotSame(vendorAddress, await _service.GetReturnAddress(StoreId, "v1"));
+        Assert.AreNotSame(_providerSettings.ReturnAddress, await _service.GetReturnAddress(StoreId, ""));
+        _providerSettings.ReturnAddress = new Address();
+        var origin = await _service.GetReturnAddress(StoreId, "");
+        Assert.AreNotSame(_shippingSettings.ShippingOriginAddress, origin);
+        Assert.AreEqual("Origin", origin.Address1);
     }
 
     [TestMethod]

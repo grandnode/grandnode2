@@ -9,6 +9,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Services.Shipping;
 
@@ -17,7 +18,8 @@ public class ReturnShippingService(
     ISettingService settingService,
     IMerchandiseReturnService merchandiseReturnService,
     IVendorService vendorService,
-    ICustomerService customerService) : IReturnShippingService
+    ICustomerService customerService,
+    ILogger<ReturnShippingService> logger) : IReturnShippingService
 {
     public async Task<IList<IReturnShippingProvider>> LoadActiveProviders(Customer customer, string storeId)
     {
@@ -55,7 +57,7 @@ public class ReturnShippingService(
         if (groups.Count == 0)
             return [];
 
-        return (await Offers(request.StoreId, groups, providers)).Select(x => x.Offer).ToList();
+        return (await Offers(request.StoreId, groups, providers, true)).Select(x => x.Offer).ToList();
     }
 
     public async Task<ReturnShippingResolution> Resolve(MerchandiseReturnSubmitRequest request,
@@ -78,7 +80,7 @@ public class ReturnShippingService(
         //only what is offered now can be chosen: a posted choice of an option hidden or gone is refused
         var chosen = choice == null
             ? null
-            : (await Offers(request.StoreId, groups, providers)).FirstOrDefault(x =>
+            : (await Offers(request.StoreId, groups, providers, false)).FirstOrDefault(x =>
                 string.Equals(x.Offer.ProviderSystemName, choice.ProviderSystemName,
                     StringComparison.OrdinalIgnoreCase) && x.Offer.OptionCode == choice.OptionCode);
         if (chosen == null)
@@ -93,10 +95,24 @@ public class ReturnShippingService(
         {
             var group = groups[i];
             var option = chosen.Options[i];
-            var validation = (option.HasForm
-                ? await chosen.Provider.ValidateForm(group.Request, option.Code,
-                    choice.Form ?? new Dictionary<string, string>())
-                : null) ?? new ReturnShippingValidationResult();
+            ReturnShippingValidationResult validation = null;
+            if (option.HasForm)
+                try
+                {
+                    validation = await chosen.Provider.ValidateForm(group.Request, option.Code,
+                        choice.Form ?? new Dictionary<string, string>());
+                }
+                catch (Exception ex)
+                {
+                    //the form could not be checked: the customer picks again rather than the submit failing
+                    logger.LogError(ex, "Return shipping provider {SystemName} failed to validate the form of " +
+                                        "option {OptionCode} for order {OrderId}", chosen.Provider.SystemName,
+                        option.Code, request.Order.Id);
+                    resolution.Errors = [MerchandiseReturnErrors.SubmitReturnShippingChoose];
+                    return resolution;
+                }
+
+            validation ??= new ReturnShippingValidationResult();
             //one form for all parcels: an error of it is shown once
             foreach (var error in validation.Errors.Where(error => !resolution.Errors.Contains(error)))
                 resolution.Errors.Add(error);
@@ -123,18 +139,19 @@ public class ReturnShippingService(
 
     public async Task<Address> GetReturnAddress(string storeId, string vendorId)
     {
+        //a copy: the address is kept with each return, and a change of the vendor or the settings must not reach it
         if (!string.IsNullOrEmpty(vendorId))
         {
             var vendor = await vendorService.GetVendorById(vendorId);
             if (!string.IsNullOrEmpty(vendor?.Address?.CountryId) && !string.IsNullOrEmpty(vendor.Address.Address1))
-                return vendor.Address;
+                return Copy(vendor.Address);
         }
 
         var settings = await settingService.LoadSetting<ReturnShippingProviderSettings>(storeId);
         if (!string.IsNullOrEmpty(settings.ReturnAddress?.Address1))
-            return settings.ReturnAddress;
+            return Copy(settings.ReturnAddress);
 
-        return (await settingService.LoadSetting<ShippingSettings>(storeId)).ShippingOriginAddress;
+        return Copy((await settingService.LoadSetting<ShippingSettings>(storeId)).ShippingOriginAddress);
     }
 
     /// <summary>
@@ -180,7 +197,7 @@ public class ReturnShippingService(
     ///     The options every vendor group is offered, with the option of each group in the order of the groups
     /// </summary>
     private async Task<IList<ProviderOffer>> Offers(string storeId, IList<VendorGroup> groups,
-        IList<IReturnShippingProvider> providers)
+        IList<IReturnShippingProvider> providers, bool withFormRoute)
     {
         if (providers.Count == 0)
             return [];
@@ -190,8 +207,18 @@ public class ReturnShippingService(
         foreach (var provider in providers)
         {
             var groupOptions = new List<IList<ReturnShippingOption>>();
-            foreach (var group in groups)
-                groupOptions.Add(await provider.GetReturnOptions(group.Request) ?? []);
+            try
+            {
+                foreach (var group in groups)
+                    groupOptions.Add(await provider.GetReturnOptions(group.Request) ?? []);
+            }
+            catch (Exception ex)
+            {
+                //e.g. a carrier that is down: its options are not offered, the other providers' still are
+                logger.LogError(ex, "Return shipping provider {SystemName} failed to give its options for order " +
+                                    "{OrderId}", provider.SystemName, groups[0].Request.Order.Id);
+                continue;
+            }
 
             //one option for all parcels: an option a vendor does not offer cannot be picked for the return
             foreach (var first in groupOptions[0])
@@ -210,7 +237,9 @@ public class ReturnShippingService(
                         options[i].Cost, fees, group.AnyFreeReason, group.AllWithoutRefund)).Sum(),
                     Parcels = groups.Count,
                     HasForm = first.HasForm,
-                    FormRouteName = first.HasForm ? await provider.GetFormRouteName(first.Code) : null
+                    FormRouteName = withFormRoute && first.HasForm
+                        ? await provider.GetFormRouteName(first.Code)
+                        : null
                 }));
             }
         }
@@ -220,6 +249,33 @@ public class ReturnShippingService(
             offers.RemoveAll(x => x.OptionCost > 0);
 
         return offers;
+    }
+
+    private static Address Copy(Address address)
+    {
+        if (address == null)
+            return null;
+
+        return new Address {
+            Name = address.Name,
+            FirstName = address.FirstName,
+            LastName = address.LastName,
+            Email = address.Email,
+            Company = address.Company,
+            VatNumber = address.VatNumber,
+            CountryId = address.CountryId,
+            StateProvinceId = address.StateProvinceId,
+            City = address.City,
+            Address1 = address.Address1,
+            Address2 = address.Address2,
+            ZipPostalCode = address.ZipPostalCode,
+            PhoneNumber = address.PhoneNumber,
+            FaxNumber = address.FaxNumber,
+            Note = address.Note,
+            Attributes = address.Attributes?.Select(x => new CustomAttribute { Key = x.Key, Value = x.Value })
+                .ToList() ?? [],
+            AddressType = address.AddressType
+        };
     }
 
     private record VendorGroup(ReturnShippingRequest Request, bool AnyFreeReason, bool AllWithoutRefund);
