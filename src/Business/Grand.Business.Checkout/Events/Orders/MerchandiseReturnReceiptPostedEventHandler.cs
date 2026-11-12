@@ -1,3 +1,4 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
@@ -30,10 +31,11 @@ public class MerchandiseReturnReceiptPostedEventHandler : INotificationHandler<E
             string.IsNullOrEmpty(document.MerchandiseReturnId))
             return;
 
-        //the staff note names who posted the receipt
-        var poster = string.IsNullOrEmpty(document.PostedBy)
-            ? null
-            : await _customerService.GetCustomerById(document.PostedBy);
-        await _merchandiseReturnWorkflowService.MarkReceived(document.MerchandiseReturnId, poster?.Email);
+        //the staff note names who posted the receipt; one whose account is gone by the id it had
+        string postedBy = null;
+        if (!string.IsNullOrEmpty(document.PostedBy))
+            postedBy = (await _customerService.GetCustomerById(document.PostedBy))?.StatusChangedBy()
+                       ?? $"staff ({document.PostedBy})";
+        await _merchandiseReturnWorkflowService.MarkReceived(document.MerchandiseReturnId, postedBy);
     }
 }

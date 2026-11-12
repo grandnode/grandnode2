@@ -1,3 +1,4 @@
+using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Extensions;
@@ -54,6 +55,21 @@ public static class MerchandiseReturnExtensions
     public static bool CanChangeTo(this MerchandiseReturnStatus from, MerchandiseReturnStatus to)
     {
         return from.NextStatuses().Contains(to);
+    }
+
+    /// <summary>
+    ///     How the staff note of a status change names the staff member who made it: the e-mail, else the full name,
+    ///     else the customer id; null when no one did, and the note says the system
+    /// </summary>
+    public static string StatusChangedBy(this Customer staff)
+    {
+        if (staff == null)
+            return null;
+        if (!string.IsNullOrWhiteSpace(staff.Email))
+            return staff.Email;
+
+        var fullName = staff.GetFullName();
+        return !string.IsNullOrWhiteSpace(fullName) ? fullName : $"staff ({staff.Id})";
     }
 
     /// <summary>

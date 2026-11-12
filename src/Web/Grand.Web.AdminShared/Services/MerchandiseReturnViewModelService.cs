@@ -425,7 +425,7 @@ public class MerchandiseReturnViewModelService(
             var status = (MerchandiseReturnStatus)model.ChangeStatusTo.Value;
             error = await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id, status,
                 status == MerchandiseReturnStatus.Rejected ? model.ChangeStatusNote : null,
-                contextAccessor.WorkContext.CurrentCustomer?.Email);
+                contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy());
         }
 
         return (merchandiseReturn, error);

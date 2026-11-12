@@ -45,9 +45,18 @@ public class MerchandiseReturnReceiptPostedEventHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_PosterUnknown_MarksReceivedByNoOne()
+    public async Task Handle_PosterAccountGone_NamedByTheirId()
     {
         await _handler.Handle(Updated(InventoryDocumentType.ReturnReceipt, InventoryDocumentStatus.Posted, "r1", "gone"),
+            CancellationToken.None);
+
+        _workflow.Verify(x => x.MarkReceived("r1", "staff (gone)"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_NoPoster_MarksReceivedBySystem()
+    {
+        await _handler.Handle(Updated(InventoryDocumentType.ReturnReceipt, InventoryDocumentStatus.Posted, "r1", null),
             CancellationToken.None);
 
         _workflow.Verify(x => x.MarkReceived("r1", null), Times.Once);
