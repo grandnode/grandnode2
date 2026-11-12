@@ -53,13 +53,14 @@ public class ShippingPointReturnProvider(
         if (points.Count == 0)
             return [];
 
+        var fees = points.Select(x => Fee(x.ReturnFee)).ToList();
         return [
             new ReturnShippingOption {
                 Code = OptionCode,
                 Name = translationService.GetResource(OptionNameKey, request.LanguageId ?? ""),
                 //the cost is final once the customer has chosen a point
-                Cost = points.Min(x => x.ReturnFee),
-                CostVaries = points.Select(x => x.ReturnFee).Distinct().Count() > 1,
+                Cost = fees.Min(),
+                CostVaries = fees.Distinct().Count() > 1,
                 HasForm = true,
                 CreatesLabel = true
             }
@@ -87,7 +88,7 @@ public class ShippingPointReturnProvider(
             return result;
         }
 
-        result.Cost = point.ReturnFee;
+        result.Cost = Fee(point.ReturnFee);
         result.DropOffPoint = new ReturnDropOffPoint {
             Id = point.Id,
             Name = point.ShippingPointName,
@@ -122,6 +123,14 @@ public class ShippingPointReturnProvider(
     public Task<bool> CancelLabel(MerchandiseReturn merchandiseReturn)
     {
         return Task.FromResult(true);
+    }
+
+    /// <summary>
+    ///     A negative fee typed in by mistake is no fee: the customer is never paid for a return
+    /// </summary>
+    private static double Fee(double returnFee)
+    {
+        return Math.Max(0, returnFee);
     }
 
     private async Task<string> Place(ReturnDropOffPoint point)
