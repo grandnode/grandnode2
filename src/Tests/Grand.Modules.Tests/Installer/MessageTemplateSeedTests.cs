@@ -53,6 +53,23 @@ public class MessageTemplateSeedTests
     }
 
     [TestMethod]
+    [DataRow("NewMerchandiseReturn.CustomerNotification")]
+    [DataRow("NewMerchandiseReturn.StoreOwnerNotification")]
+    public void MerchandiseReturnTemplates_PickupDateRowOnlyWithADate(string name)
+    {
+        Template.NamingConvention = new CSharpNamingConvention();
+        var template = Template.Parse(MessageTemplateSeed.Build("ea").Single(t => t.Name == name).Body);
+
+        string Render(string pickupDate) => template.Render(Hash.FromDictionary(new Dictionary<string, object> {
+            ["MerchandiseReturn"] = Hash.FromDictionary(new Dictionary<string, object> { ["PickupDate"] = pickupDate })
+        }));
+
+        Assert.IsFalse(Render("").Contains("Pickup date"));
+        StringAssert.Contains(Render("11/20/2026"), "11/20/2026");
+        StringAssert.Contains(Render("11/20/2026"), "Pickup date");
+    }
+
+    [TestMethod]
     public void IsActiveFlagsUnchanged()
     {
         var inactive = MessageTemplateSeed.Build("ea").Where(t => !t.IsActive).Select(t => t.Name).OrderBy(n => n).ToList();

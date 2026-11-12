@@ -53,7 +53,10 @@ public class LiquidMerchandiseReturn : Drop
 
     public DateTime CreatedOnUtc => _merchandiseReturn.CreatedOnUtc;
 
-    public string PickupDate => _merchandiseReturn.PickupDate.ToShortDateString();
+    //a return without a pickup date has none, not 01/01/0001
+    public string PickupDate => _merchandiseReturn.PickupDate == default
+        ? ""
+        : _merchandiseReturn.PickupDate.ToShortDateString();
 
     public DateTime PickupDateUtc => _merchandiseReturn.PickupDate;
 

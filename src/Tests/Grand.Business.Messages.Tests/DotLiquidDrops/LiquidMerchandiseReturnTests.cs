@@ -52,6 +52,27 @@ public class LiquidMerchandiseReturnTests
     }
 
     [TestMethod]
+    public async Task NoPickupDate_PickupDateEmpty()
+    {
+        var drop = await Build(null);
+
+        Assert.AreEqual("", drop.PickupDate);
+    }
+
+    [TestMethod]
+    public void PickupDate_Set_Formatted()
+    {
+        var merchandiseReturn = new MerchandiseReturn {
+            Id = "r1", PickupAddress = new Address(), PickupDate = new DateTime(2026, 11, 20)
+        };
+
+        var drop = new Grand.Business.Messages.DotLiquidDrops.LiquidMerchandiseReturn(merchandiseReturn,
+            new Store { Url = "https://shop.test/" }, null, new Order(), null);
+
+        Assert.AreEqual(new DateTime(2026, 11, 20).ToShortDateString(), drop.PickupDate);
+    }
+
+    [TestMethod]
     public async Task ReturnShippingNull_TokensEmpty()
     {
         var drop = await Build(null);
