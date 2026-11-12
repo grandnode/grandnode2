@@ -41,7 +41,7 @@ public class GetMerchandiseReturnDetailsHandlerTests
             Id = "r1", MerchandiseReturnStatus = status,
             ReturnShipping = new MerchandiseReturnShipping {
                 ProviderSystemName = "Return.Point", OptionName = "Point", Instructions = "Bring code C1",
-                ReturnCode = "C1", LabelStatus = labelStatus
+                ReturnCode = "C1", LabelStatus = labelStatus, LabelDownloadId = "d1"
             }
         };
         var model = await _handler.Handle(new GetMerchandiseReturnDetails {
@@ -57,6 +57,17 @@ public class GetMerchandiseReturnDetailsHandlerTests
 
         Assert.AreEqual("Bring code C1", shipping.Instructions);
         Assert.AreEqual("C1", shipping.ReturnCode);
+        Assert.IsTrue(shipping.HasLabel);
+    }
+
+    [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Rejected)]
+    [DataRow(MerchandiseReturnStatus.Cancelled)]
+    public async Task ClosedReturn_LabelTheCarrierDidNotCancel_NotOffered(MerchandiseReturnStatus status)
+    {
+        var shipping = await Shipping(status, ReturnLabelStatus.Created);
+
+        Assert.IsFalse(shipping.HasLabel);
     }
 
     [TestMethod]

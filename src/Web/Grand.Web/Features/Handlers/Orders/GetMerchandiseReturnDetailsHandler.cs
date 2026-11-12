@@ -139,7 +139,8 @@ public class
             DropOffPointOpeningHours = shipping.DropOffPoint?.OpeningHours,
             Instructions = sendBack ? shipping.Instructions : null,
             ReturnCode = sendBack ? shipping.ReturnCode : null,
-            HasLabel = shipping.LabelStatus == ReturnLabelStatus.Created &&
+            //a label the carrier did not cancel is not offered once the parcel is no longer to be sent
+            HasLabel = sendBack && shipping.LabelStatus == ReturnLabelStatus.Created &&
                        !string.IsNullOrEmpty(shipping.LabelDownloadId),
             LabelPending = open && shipping.LabelStatus is ReturnLabelStatus.Pending or ReturnLabelStatus.Failed,
             CanRetryLabel = merchandiseReturn.CustomerRetriesLabel(),

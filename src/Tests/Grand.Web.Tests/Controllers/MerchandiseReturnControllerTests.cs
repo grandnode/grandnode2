@@ -152,6 +152,21 @@ public class MerchandiseReturnControllerTests
     }
 
     [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Rejected)]
+    [DataRow(MerchandiseReturnStatus.Cancelled)]
+    public async Task MerchandiseReturnLabel_ClosedReturnWithLabelStillCreated_NotFound(
+        MerchandiseReturnStatus status)
+    {
+        //the carrier did not cancel the label: it stays created, but the parcel is not to be sent any more
+        Return("buyer", status: status);
+
+        var result = await _controller.MerchandiseReturnLabel("r1");
+
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
+        _downloads.Verify(x => x.GetDownloadById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task MerchandiseReturnLabel_NoLabel_NotFound()
     {
         Return("buyer").ReturnShipping.LabelDownloadId = null;

@@ -311,7 +311,10 @@ public class MerchandiseReturnController : BasePublicController
     {
         var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
         var shipping = merchandiseReturn?.ReturnShipping;
-        if (shipping?.LabelStatus != ReturnLabelStatus.Created || string.IsNullOrEmpty(shipping.LabelDownloadId))
+        //only while the parcel is still to be sent: a rejected or cancelled return's label may stay created when
+        //the carrier did not cancel it
+        if (!merchandiseReturn.CustomerSendsBack() || shipping.LabelStatus != ReturnLabelStatus.Created ||
+            string.IsNullOrEmpty(shipping.LabelDownloadId))
             return NotFound("The label was not found.");
 
         var download = await _downloadService.GetDownloadById(shipping.LabelDownloadId);
