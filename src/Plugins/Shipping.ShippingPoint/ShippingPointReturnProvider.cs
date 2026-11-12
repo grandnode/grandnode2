@@ -45,6 +45,10 @@ public class ShippingPointReturnProvider(
 
     public async Task<IList<ReturnShippingOption>> GetReturnOptions(ReturnShippingRequest request)
     {
+        //the points are the store's own places, so the items of a vendor are not sent back to them
+        if (!string.IsNullOrEmpty(request.VendorId))
+            return [];
+
         var points = await shippingPointService.GetReturnShippingPoints(request.StoreId);
         if (points.Count == 0)
             return [];
