@@ -125,7 +125,7 @@ public class
         var open = merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
             or MerchandiseReturnStatus.Accepted;
         //how to send the parcel back, only while it is still to be sent with a label that was not cancelled
-        var sendBack = open && shipping.LabelStatus != ReturnLabelStatus.Cancelled;
+        var sendBack = merchandiseReturn.CustomerSendsBack();
         //the cost is kept in the primary store currency, with the rate of the order's currency
         var orderCurrency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
         //what only the staff or the provider read (the label error, the provider's data) stays out of the model

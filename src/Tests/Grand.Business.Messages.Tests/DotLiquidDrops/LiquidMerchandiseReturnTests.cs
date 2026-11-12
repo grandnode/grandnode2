@@ -37,9 +37,11 @@ public class LiquidMerchandiseReturnTests
 
 
     private async Task<Grand.Business.Messages.DotLiquidDrops.LiquidMerchandiseReturn> Build(
-        MerchandiseReturnShipping shipping)
+        MerchandiseReturnShipping shipping, MerchandiseReturnStatus status = MerchandiseReturnStatus.Pending)
     {
-        var merchandiseReturn = new MerchandiseReturn { Id = "r1", PickupAddress = new Address(), ReturnShipping = shipping };
+        var merchandiseReturn = new MerchandiseReturn {
+            Id = "r1", PickupAddress = new Address(), ReturnShipping = shipping, MerchandiseReturnStatus = status
+        };
         return await _handler.Handle(new GetMerchandiseReturnTokensCommand {
             MerchandiseReturn = merchandiseReturn,
             Order = new Order { CustomerCurrencyCode = "EUR" },
@@ -76,6 +78,54 @@ public class LiquidMerchandiseReturnTests
         Assert.AreEqual("C42", drop.ReturnCode);
         Assert.AreEqual("Leave it at the locker", drop.ReturnInstructions);
         Assert.AreEqual("https://shop.test/merchandisereturndetails/r1", drop.ReturnLabelUrl);
+    }
+
+    private static MerchandiseReturnShipping WithLabel(ReturnLabelStatus labelStatus = ReturnLabelStatus.Created)
+    {
+        return new MerchandiseReturnShipping {
+            OptionName = "Parcel locker", TrackingNumber = "TRK1", ReturnCode = "C42",
+            Instructions = "Leave it at the locker", LabelStatus = labelStatus, LabelDownloadId = "d1"
+        };
+    }
+
+    [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Pending)]
+    [DataRow(MerchandiseReturnStatus.Accepted)]
+    public async Task ReturnShipping_StillToBeSent_HowToSendItBackFilled(MerchandiseReturnStatus status)
+    {
+        var drop = await Build(WithLabel(), status);
+
+        Assert.AreEqual("C42", drop.ReturnCode);
+        Assert.AreEqual("Leave it at the locker", drop.ReturnInstructions);
+        Assert.AreEqual("https://shop.test/merchandisereturndetails/r1", drop.ReturnLabelUrl);
+    }
+
+    [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Rejected)]
+    [DataRow(MerchandiseReturnStatus.Cancelled)]
+    [DataRow(MerchandiseReturnStatus.Received)]
+    [DataRow(MerchandiseReturnStatus.Completed)]
+    public async Task ReturnShipping_NotToBeSentAnyMore_HowToSendItBackEmpty(MerchandiseReturnStatus status)
+    {
+        //the label of a rejected return whose cancellation failed is still Created: no link to it either
+        var drop = await Build(WithLabel(), status);
+
+        Assert.AreEqual("", drop.ReturnCode);
+        Assert.AreEqual("", drop.ReturnInstructions);
+        Assert.AreEqual("", drop.ReturnLabelUrl);
+        //what the return was sent with stays
+        Assert.AreEqual("Parcel locker", drop.ReturnMethod);
+        Assert.AreEqual("TRK1", drop.ReturnTrackingNumber);
+    }
+
+    [TestMethod]
+    public async Task ReturnShipping_LabelCancelled_HowToSendItBackEmpty()
+    {
+        var drop = await Build(WithLabel(ReturnLabelStatus.Cancelled), MerchandiseReturnStatus.Accepted);
+
+        Assert.AreEqual("", drop.ReturnCode);
+        Assert.AreEqual("", drop.ReturnInstructions);
+        Assert.AreEqual("", drop.ReturnLabelUrl);
     }
 
     [TestMethod]

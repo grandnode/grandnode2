@@ -69,9 +69,14 @@ public class
                 ? _priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, currency)
                 : _translationService.GetResource("MerchandiseReturns.ReturnShipping.Free", request.Language.Id);
             liquidMerchandiseReturn.ReturnTrackingNumber = FormatText.ConvertText(shipping.TrackingNumber);
-            liquidMerchandiseReturn.ReturnCode = FormatText.ConvertText(shipping.ReturnCode);
-            liquidMerchandiseReturn.ReturnInstructions = FormatText.ConvertText(shipping.Instructions);
-            liquidMerchandiseReturn.HasReturnLabel = shipping.LabelStatus == ReturnLabelStatus.Created;
+            //how to send the parcel back, as the storefront shows it: not once the return is rejected, cancelled or
+            //received, nor with a label that was cancelled
+            if (request.MerchandiseReturn.CustomerSendsBack())
+            {
+                liquidMerchandiseReturn.ReturnCode = FormatText.ConvertText(shipping.ReturnCode);
+                liquidMerchandiseReturn.ReturnInstructions = FormatText.ConvertText(shipping.Instructions);
+                liquidMerchandiseReturn.HasReturnLabel = shipping.LabelStatus == ReturnLabelStatus.Created;
+            }
         }
 
         foreach (var merchandiseReturnItem in request.MerchandiseReturn.MerchandiseReturnItems)

@@ -22,6 +22,18 @@ public static class MerchandiseReturnShippingExtensions
     }
 
     /// <summary>
+    ///     Whether the customer is told how to send the parcel back (the instructions, the return code, the label):
+    ///     the return is not received, rejected or cancelled yet, and its label was not cancelled
+    /// </summary>
+    public static bool CustomerSendsBack(this MerchandiseReturn merchandiseReturn)
+    {
+        return merchandiseReturn?.ReturnShipping != null
+               && merchandiseReturn.ReturnShipping.LabelStatus != ReturnLabelStatus.Cancelled
+               && merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
+                   or MerchandiseReturnStatus.Accepted;
+    }
+
+    /// <summary>
     ///     Whether the customer can ask for the label again: it failed, and the return is not received, rejected or
     ///     cancelled yet
     /// </summary>
