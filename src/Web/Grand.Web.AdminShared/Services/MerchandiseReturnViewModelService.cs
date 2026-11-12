@@ -25,6 +25,7 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -118,6 +119,9 @@ public class MerchandiseReturnViewModelService(
     }
 
     private const int MaxTrackingNumberLength = 100;
+
+    //the status filter's value for every status
+    private const int AllStatuses = -1;
 
     /// <summary>
     ///     Whether the staff may mark the return received: its goods came back to stock through a posted return
@@ -311,11 +315,16 @@ public class MerchandiseReturnViewModelService(
     public virtual MerchandiseReturnListModel PrepareReturnRequestListModel()
     {
         var model = new MerchandiseReturnListModel {
-            //Merchandise return status
+            //every return is listed at first, not only the pending ones
+            SearchMerchandiseReturnStatusId = AllStatuses,
             MerchandiseReturnStatus = enumTranslationService.ToSelectList(MerchandiseReturnStatus.Pending, false).ToList()
         };
         model.MerchandiseReturnStatus.Insert(0,
-            new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "-1" });
+            new SelectListItem {
+                Text = translationService.GetResource("Admin.Common.All"),
+                Value = AllStatuses.ToString(CultureInfo.InvariantCulture),
+                Selected = true
+            });
 
         return model;
     }

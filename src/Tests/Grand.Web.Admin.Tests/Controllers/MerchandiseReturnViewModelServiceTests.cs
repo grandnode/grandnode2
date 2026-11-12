@@ -48,6 +48,18 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     [TestMethod]
+    public void PrepareReturnRequestListModel_FiltersAllStatusesAtFirst()
+    {
+        var (service, _) = BuildForUpdate();
+
+        var model = service.PrepareReturnRequestListModel();
+
+        Assert.AreEqual(-1, model.SearchMerchandiseReturnStatusId);
+        Assert.AreEqual("-1", model.MerchandiseReturnStatus[0].Value);
+        Assert.AreEqual("-1", model.MerchandiseReturnStatus.Single(x => x.Selected).Value);
+    }
+
+    [TestMethod]
     public async Task PrepareMerchandiseReturnModel_RegisterCustomersPerStore_ScopesEmailLookupToCurrentStore()
     {
         var customerServiceMock = new Mock<ICustomerService>();
@@ -252,6 +264,10 @@ public class MerchandiseReturnViewModelServiceTests
         var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
         enumTranslationServiceMock.Setup(x => x.GetTranslationEnum(MerchandiseReturnStatus.Accepted))
             .Returns("Accepted (translated)");
+        enumTranslationServiceMock.Setup(x => x.ToSelectList(MerchandiseReturnStatus.Pending, false, null))
+            .Returns(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(
+                new[] { new Microsoft.AspNetCore.Mvc.Rendering.SelectListItem { Text = "Pending", Value = "0" } },
+                "Value", "Text"));
         var workContext = new Mock<IWorkContext>();
         //the staff member the status change is noted for
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "staff", Email = "john@shop.com" });
