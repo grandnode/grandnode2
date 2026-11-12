@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
@@ -12,6 +13,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
+using Grand.Domain.Vendors;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -22,6 +24,7 @@ public class SendYourselfReturnProviderTests
 {
     private IReturnShippingProvider _provider;
     private Mock<ISettingService> _settingService;
+    private Mock<IVendorService> _vendorService;
 
     [TestInitialize]
     public void Init()
@@ -44,8 +47,10 @@ public class SendYourselfReturnProviderTests
         var countryService = new Mock<ICountryService>();
         countryService.Setup(x => x.GetCountryById("pl")).ReturnsAsync(new Country { Id = "pl", Name = "Poland" });
 
+        _vendorService = new Mock<IVendorService>();
         _provider = new SendYourselfReturnProvider(_settingService.Object, translationService.Object,
-            orderService.Object, storeService.Object, languageService.Object, countryService.Object);
+            orderService.Object, storeService.Object, languageService.Object, countryService.Object,
+            _vendorService.Object);
     }
 
     [TestMethod]
@@ -98,6 +103,43 @@ public class SendYourselfReturnProviderTests
         var result = await _provider.CreateLabel(merchandiseReturn);
 
         Assert.AreEqual($"Send the parcel to: {recipient}, Main 1, 00-001 Warsaw, Poland. Write return number 17 on it.",
+            result.Instructions);
+    }
+
+    private static MerchandiseReturn VendorReturn()
+    {
+        //the vendor's address, copied without a company or a name
+        return new MerchandiseReturn {
+            OrderId = "o1", StoreId = "s1", ReturnNumber = 17, VendorId = "v1",
+            ReturnShipping = new MerchandiseReturnShipping {
+                ReturnAddress = new Address
+                    { Address1 = "Main 1", ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl" }
+            }
+        };
+    }
+
+    [TestMethod]
+    public async Task SendYourself_CreateLabel_VendorAddressWithoutNames_StartsWithTheVendorName()
+    {
+        _vendorService.Setup(x => x.GetVendorById("v1")).ReturnsAsync(new Vendor {
+            Id = "v1", Name = "Vendor One", Address = new Address { Address1 = "Main 1", CountryId = "pl" }
+        });
+
+        var result = await _provider.CreateLabel(VendorReturn());
+
+        Assert.AreEqual("Send the parcel to: Vendor One, Main 1, 00-001 Warsaw, Poland. Write return number 17 on it.",
+            result.Instructions);
+    }
+
+    [TestMethod]
+    public async Task SendYourself_CreateLabel_VendorWithoutAddress_StoreAddressNotNamedForTheVendor()
+    {
+        //the vendor has no return address of its own: the parcel goes to the store's, not to the vendor
+        _vendorService.Setup(x => x.GetVendorById("v1")).ReturnsAsync(new Vendor { Id = "v1", Name = "Vendor One" });
+
+        var result = await _provider.CreateLabel(VendorReturn());
+
+        Assert.AreEqual("Send the parcel to: Main 1, 00-001 Warsaw, Poland. Write return number 17 on it.",
             result.Instructions);
     }
 

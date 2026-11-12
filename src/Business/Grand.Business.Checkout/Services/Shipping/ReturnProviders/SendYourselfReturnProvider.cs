@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
@@ -32,12 +33,13 @@ public class SendYourselfReturnProvider : IReturnShippingProvider
         IOrderService orderService,
         IStoreService storeService,
         ILanguageService languageService,
-        ICountryService countryService)
+        ICountryService countryService,
+        IVendorService vendorService)
     {
         _settingService = settingService;
         _translationService = translationService;
         _texts = new ReturnProviderTexts(translationService, orderService, storeService, languageService,
-            countryService);
+            countryService, vendorService);
     }
 
     string IProvider.SystemName => SystemName;
