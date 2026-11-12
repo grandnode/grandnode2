@@ -31,6 +31,19 @@ public abstract class BaseMerchandiseReturnController(
     protected IOrderService OrderService => orderService;
     protected IAdminDataScope<MerchandiseReturn> Scope => scope;
 
+    /// <summary>
+    ///     Whether the panel has inventory documents: the return's receipts are listed and "Receive to stock" is
+    ///     offered while something is left to receive
+    /// </summary>
+    protected virtual bool HasInventoryDocuments => true;
+
+    private async Task PrepareEditModel(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn)
+    {
+        await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
+        if (HasInventoryDocuments)
+            await MerchandiseReturnViewModelService.PrepareReturnReceipts(model);
+    }
+
     #region List
 
     public IActionResult Index() => RedirectToAction("List");
@@ -107,7 +120,7 @@ public abstract class BaseMerchandiseReturnController(
         if (!await Scope.CanView(merchandiseReturn)) return RedirectToAction("List");
 
         var model = new MerchandiseReturnModel();
-        await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
+        await PrepareEditModel(model, merchandiseReturn);
         return View(model);
     }
 
@@ -155,7 +168,7 @@ public abstract class BaseMerchandiseReturnController(
             merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(model.Id) ?? merchandiseReturn;
         }
 
-        await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
+        await PrepareEditModel(model, merchandiseReturn);
         return View(model);
     }
 

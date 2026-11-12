@@ -19,11 +19,15 @@
         <page-actions>
             <audit-history entity-type="MerchandiseReturn" entity-id="@Model.Id"/>
             <partial name="Partials/ChangeStatus.Buttons" model="Model"/>
-            @* what the customer sent back goes on stock through a return receipt *@
-            <button class="btn btn-outline-secondary" type="submit"
-                    formaction="@Url.Action("CreateReturnReceipt", "InventoryDocument", new { area, merchandiseReturnId = Model.Id })">
-                <i class="bi bi-box-arrow-in-down"></i> @Loc["Admin.Inventory.Documents.ReceiveToStock"]
-            </button>
+            @* what the customer sent back goes on stock through a return receipt; once every item is on one,
+               posted or draft, the receipts are opened from the Info tab *@
+            @if (Model.CanReceiveToStock)
+            {
+                <button class="btn btn-outline-secondary" type="submit"
+                        formaction="@Url.Action("CreateReturnReceipt", "InventoryDocument", new { area, merchandiseReturnId = Model.Id })">
+                    <i class="bi bi-box-arrow-in-down"></i> @Loc["Admin.Inventory.Documents.ReceiveToStock"]
+                </button>
+            }
             <button class="btn btn-outline-secondary" type="submit" name="save-continue">
                 <i class="bi bi-check-circle"></i> @Loc["Admin.Common.SaveContinue"]
             </button>

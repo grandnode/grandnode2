@@ -85,6 +85,22 @@ public class MerchandiseReturnModel : BaseEntityModel
     //how the items are sent back; null when the return has no return method, and the card is not shown
     public ReturnShippingModel ReturnShipping { get; set; }
 
+    //"Receive to stock" is offered while some of what the return gives back is on no return receipt yet
+    public bool CanReceiveToStock { get; set; }
+
+    //the return's receipts, posted or draft; a panel without inventory documents lists none
+    public IList<ReturnReceiptModel> ReturnReceipts { get; set; } = new List<ReturnReceiptModel>();
+
+    public class ReturnReceiptModel : BaseModel
+    {
+        public string Id { get; set; }
+        public string Number { get; set; }
+        public string Status { get; set; }
+
+        //whether the panel opens the receipt: one of another store's or of a shared warehouse is only named
+        public bool CanOpen { get; set; }
+    }
+
     public class ReturnShippingModel : BaseModel
     {
         //the provider's name and the option the customer chose

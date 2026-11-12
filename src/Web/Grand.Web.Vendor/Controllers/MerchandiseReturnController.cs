@@ -20,4 +20,8 @@ public class MerchandiseReturnController(
     IOrderService orderService,
     IAdminDataScope<MerchandiseReturn> scope)
     : BaseMerchandiseReturnController(merchandiseReturnViewModelService, translationService,
-        merchandiseReturnService, orderService, scope);
+        merchandiseReturnService, orderService, scope)
+{
+    //a vendor books no stock: the panel has no inventory documents
+    protected override bool HasInventoryDocuments => false;
+}

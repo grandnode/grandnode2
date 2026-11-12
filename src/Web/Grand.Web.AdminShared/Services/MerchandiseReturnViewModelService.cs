@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -12,6 +13,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
+using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.AdminShared.Extensions.Mapping;
@@ -47,6 +49,9 @@ public class MerchandiseReturnViewModelService(
     IMerchandiseReturnLabelService merchandiseReturnLabelService,
     IReturnShippingService returnShippingService,
     ICurrencyService currencyService,
+    IInventoryDocumentService inventoryDocumentService,
+    IWarehouseService warehouseService,
+    IAdminDataScope<Warehouse> warehouseScope,
     ILogger<MerchandiseReturnViewModelService> logger)
     : IMerchandiseReturnViewModelService
 {
@@ -329,6 +334,36 @@ public class MerchandiseReturnViewModelService(
         }
 
         return items;
+    }
+
+    public virtual async Task PrepareReturnReceipts(MerchandiseReturnModel model)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+
+        var receipts = await inventoryDocumentService.GetReturnReceipts(model.Id);
+        model.CanReceiveToStock = receipts.QuantityLeft;
+        model.ReturnReceipts = new List<MerchandiseReturnModel.ReturnReceiptModel>();
+        var storeId = await warehouseScope.GetDefaultStoreIdAsync();
+        foreach (var receipt in receipts.Receipts)
+            model.ReturnReceipts.Add(new MerchandiseReturnModel.ReturnReceiptModel {
+                Id = receipt.Id,
+                Number = receipt.Number,
+                Status = enumTranslationService.GetTranslationEnum(receipt.Status),
+                //the inventory document panel's own check: the panel's store, and a warehouse it books
+                CanOpen = (storeId == null || receipt.StoreId == storeId) && await CanUse(receipt.WarehouseId)
+            });
+    }
+
+    /// <summary>
+    ///     Whether the panel books the warehouse; none chosen yet on a draft is allowed
+    /// </summary>
+    private async Task<bool> CanUse(string warehouseId)
+    {
+        if (string.IsNullOrEmpty(warehouseId))
+            return true;
+
+        var warehouse = await warehouseService.GetWarehouseById(warehouseId);
+        return warehouse != null && await warehouseScope.HasAccess(warehouse);
     }
 
     public virtual async Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(

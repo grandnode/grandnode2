@@ -125,21 +125,16 @@ public class InventoryDocumentService(
             return (null, [InventoryDocumentErrors.ReturnNotReceivable]);
 
         var returned = await Returned(merchandiseReturn);
-        var received = await Received(merchandiseReturn.Id, null);
         var document = new InventoryDocument {
             DocumentTypeId = InventoryDocumentType.ReturnReceipt,
             MerchandiseReturnId = merchandiseReturn.Id,
             CreatedBy = customerId
         };
         Dictionary<string, (int Quantity, List<string> SerialNumbers, List<ShipmentItemBatch> Batches)> shipped = null;
-        foreach (var item in returned)
+        foreach (var item in await LeftToReceive(merchandiseReturn.Id, returned))
         {
-            var quantity = item.Quantity - received.GetValueOrDefault((item.ReturnItemId, item.ProductId));
-            if (quantity <= 0)
-                continue;
-
             var line = new InventoryDocumentLine {
-                ProductId = item.ProductId, Attributes = item.Attributes, Quantity = quantity,
+                ProductId = item.ProductId, Attributes = item.Attributes, Quantity = item.Quantity,
                 MerchandiseReturnItemId = item.ReturnItemId
             };
             //the units shipped for the order item come back: the serial numbers to untick, or the batches
@@ -225,6 +220,46 @@ public class InventoryDocumentService(
         return receipts.SelectMany(x => x.Lines)
             .GroupBy(x => (x.MerchandiseReturnItemId, x.ProductId))
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
+    }
+
+    /// <summary>
+    ///     What a merchandise return gives back and no return receipt of it takes in yet, posted or draft, with the
+    ///     quantity left of each
+    /// </summary>
+    private async Task<IList<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
+            string WarehouseId)>>
+        LeftToReceive(string merchandiseReturnId,
+            IEnumerable<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
+                string WarehouseId)> returned)
+    {
+        var received = await Received(merchandiseReturnId, null);
+        return returned
+            .Select(item => item with {
+                Quantity = item.Quantity - received.GetValueOrDefault((item.ReturnItemId, item.ProductId))
+            })
+            .Where(item => item.Quantity > 0)
+            .ToList();
+    }
+
+    public async Task<MerchandiseReturnReceipts> GetReturnReceipts(string merchandiseReturnId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(merchandiseReturnId);
+
+        var receipts = await inventoryDocumentRepository.ToListAsync(inventoryDocumentRepository.Table
+            .Where(x => x.DocumentTypeId == InventoryDocumentType.ReturnReceipt &&
+                        x.MerchandiseReturnId == merchandiseReturnId)
+            .Select(x => new { x.Id, x.Number, x.StatusId, x.StoreId, x.WarehouseId, x.CreatedOnUtc }));
+
+        //a return that no longer takes its quantity is not received to stock, as CreateReturnReceipt refuses it
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        var quantityLeft = merchandiseReturn != null && merchandiseReturn.MerchandiseReturnStatus.TakesQuantity() &&
+                           (await LeftToReceive(merchandiseReturn.Id, await Returned(merchandiseReturn))).Count > 0;
+
+        return new MerchandiseReturnReceipts(
+            receipts.OrderBy(x => x.CreatedOnUtc)
+                .Select(x => new ReturnReceiptSummary(x.Id, x.Number, x.StatusId, x.StoreId, x.WarehouseId))
+                .ToList(),
+            quantityLeft);
     }
 
     public async Task<IList<string>> Post(string id, string customerId)

@@ -1650,6 +1650,9 @@
 	<Resource Name="Admin.Orders.MerchandiseReturns.StatusChangeNotAllowed" Area="Admin">
 		<Value>This status change is not allowed.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnReceipts" Area="Admin">
+		<Value>Return receipts</Value>
+	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.StatusChangeNotAllowed" Area="Vendor">
 		<Value>This status change is not allowed.</Value>
 	</Resource>

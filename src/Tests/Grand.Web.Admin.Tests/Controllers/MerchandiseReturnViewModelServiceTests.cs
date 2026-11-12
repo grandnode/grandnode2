@@ -19,6 +19,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
@@ -174,6 +175,9 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IMerchandiseReturnLabelService>().Object,
             new Mock<IReturnShippingService>().Object,
             new Mock<ICurrencyService>().Object,
+            new Mock<IInventoryDocumentService>().Object,
+            new Mock<IWarehouseService>().Object,
+            new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
     }
 
@@ -222,6 +226,9 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IMerchandiseReturnLabelService>().Object,
             new Mock<IReturnShippingService>().Object,
             new Mock<ICurrencyService>().Object,
+            new Mock<IInventoryDocumentService>().Object,
+            new Mock<IWarehouseService>().Object,
+            new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
     }
 
@@ -266,6 +273,9 @@ public class MerchandiseReturnViewModelServiceTests
             labelServiceMock.Object,
             returnShippingServiceMock.Object,
             currencyServiceMock.Object,
+            new Mock<IInventoryDocumentService>().Object,
+            new Mock<IWarehouseService>().Object,
+            new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, workflowMock);
     }
@@ -418,6 +428,115 @@ public class MerchandiseReturnViewModelServiceTests
             It.IsAny<string>()), Times.Never);
     }
 
+    // --- Return receipts -------------------------------------------------------------------------
+
+    private sealed class ReturnReceiptMocks
+    {
+        public Mock<IInventoryDocumentService> Documents { get; } = new();
+        public Mock<IWarehouseService> Warehouses { get; } = new();
+        public Mock<IAdminDataScope<Warehouse>> WarehouseScope { get; } = new();
+    }
+
+    private static (MerchandiseReturnViewModelService service, ReturnReceiptMocks mocks) BuildForReturnReceipts(
+        MerchandiseReturnReceipts receipts)
+    {
+        var mocks = new ReturnReceiptMocks();
+        mocks.Documents.Setup(x => x.GetReturnReceipts("r1")).ReturnsAsync(receipts);
+        var enumTranslation = new Mock<IEnumTranslationService>();
+        enumTranslation.Setup(x => x.GetTranslationEnum(It.IsAny<InventoryDocumentStatus>()))
+            .Returns<InventoryDocumentStatus>(status => status.ToString());
+
+        var service = new MerchandiseReturnViewModelService(
+            new Mock<IOrderService>().Object,
+            new Mock<IProductService>().Object,
+            new Mock<ICustomerService>().Object,
+            new Mock<IDateTimeService>().Object,
+            new Mock<IRequestTranslationService>().Object,
+            new Mock<IMerchandiseReturnMessageProviderService>().Object,
+            new Mock<IMerchandiseReturnService>().Object,
+            new Mock<IPriceFormatter>().Object,
+            new AddressSettings(),
+            new Mock<ICountryService>().Object,
+            new Mock<IAddressAttributeService>().Object,
+            new Mock<IAddressAttributeParser>().Object,
+            new Mock<IDownloadService>().Object,
+            new OrderSettings(),
+            enumTranslation.Object,
+            new Mock<IContextAccessor>().Object,
+            new CustomerConfig(),
+            new Mock<IAdminDataScope<MerchandiseReturn>>().Object,
+            new Mock<IMerchandiseReturnWorkflowService>().Object,
+            new Mock<IMerchandiseReturnLabelService>().Object,
+            new Mock<IReturnShippingService>().Object,
+            new Mock<ICurrencyService>().Object,
+            mocks.Documents.Object,
+            mocks.Warehouses.Object,
+            mocks.WarehouseScope.Object,
+            new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
+        return (service, mocks);
+    }
+
+    [TestMethod]
+    public async Task PrepareReturnReceipts_QuantityLeft_OffersReceiveToStock()
+    {
+        var (service, _) = BuildForReturnReceipts(new MerchandiseReturnReceipts([], true));
+        var model = new MerchandiseReturnModel { Id = "r1" };
+
+        await service.PrepareReturnReceipts(model);
+
+        Assert.IsTrue(model.CanReceiveToStock);
+        Assert.AreEqual(0, model.ReturnReceipts.Count);
+    }
+
+    [TestMethod]
+    public async Task PrepareReturnReceipts_AllOnReceipts_ListsThemWithoutReceiveToStock()
+    {
+        var (service, mocks) = BuildForReturnReceipts(new MerchandiseReturnReceipts([
+            new ReturnReceiptSummary("d1", "PZZ/2026/0001", InventoryDocumentStatus.Posted, "", "w1"),
+            new ReturnReceiptSummary("d2", "PZZ/2026/0002", InventoryDocumentStatus.Draft, "", "")
+        ], false));
+        var warehouse = new Warehouse { Id = "w1" };
+        mocks.Warehouses.Setup(x => x.GetWarehouseById("w1")).ReturnsAsync(warehouse);
+        mocks.WarehouseScope.Setup(x => x.HasAccess(warehouse)).ReturnsAsync(true);
+        var model = new MerchandiseReturnModel { Id = "r1" };
+
+        await service.PrepareReturnReceipts(model);
+
+        Assert.IsFalse(model.CanReceiveToStock);
+        Assert.AreEqual(2, model.ReturnReceipts.Count);
+        Assert.AreEqual("d1", model.ReturnReceipts[0].Id);
+        Assert.AreEqual("PZZ/2026/0001", model.ReturnReceipts[0].Number);
+        Assert.AreEqual("Posted", model.ReturnReceipts[0].Status);
+        Assert.IsTrue(model.ReturnReceipts[0].CanOpen);
+        //a draft naming no warehouse yet opens, as the inventory document panel allows it
+        Assert.AreEqual("Draft", model.ReturnReceipts[1].Status);
+        Assert.IsTrue(model.ReturnReceipts[1].CanOpen);
+    }
+
+    [TestMethod]
+    public async Task PrepareReturnReceipts_StorePanel_ReceiptOfAnotherStoreOrWarehouse_NotOpened()
+    {
+        var (service, mocks) = BuildForReturnReceipts(new MerchandiseReturnReceipts([
+            new ReturnReceiptSummary("d1", "PZZ/2026/0001", InventoryDocumentStatus.Posted, "s2", "w2"),
+            new ReturnReceiptSummary("d2", "PZZ/2026/0002", InventoryDocumentStatus.Posted, "s1", "shared"),
+            new ReturnReceiptSummary("d3", "PZZ/2026/0003", InventoryDocumentStatus.Posted, "s1", "w1")
+        ], false));
+        mocks.WarehouseScope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("s1");
+        var own = new Warehouse { Id = "w1", StoreId = "s1" };
+        var shared = new Warehouse { Id = "shared", StoreId = "" };
+        mocks.Warehouses.Setup(x => x.GetWarehouseById("w1")).ReturnsAsync(own);
+        mocks.Warehouses.Setup(x => x.GetWarehouseById("shared")).ReturnsAsync(shared);
+        mocks.WarehouseScope.Setup(x => x.HasAccess(own)).ReturnsAsync(true);
+        mocks.WarehouseScope.Setup(x => x.HasAccess(shared)).ReturnsAsync(false);
+        var model = new MerchandiseReturnModel { Id = "r1" };
+
+        await service.PrepareReturnReceipts(model);
+
+        //every receipt is named, only the panel's own is a link
+        CollectionAssert.AreEqual(new[] { false, false, true },
+            model.ReturnReceipts.Select(x => x.CanOpen).ToArray());
+    }
+
     [TestMethod]
     public async Task DeleteMerchandiseReturn_DeletesThroughTheWorkflow()
     {
@@ -496,6 +615,9 @@ public class MerchandiseReturnViewModelServiceTests
             mocks.LabelService.Object,
             mocks.ReturnShipping.Object,
             mocks.Currency.Object,
+            new Mock<IInventoryDocumentService>().Object,
+            new Mock<IWarehouseService>().Object,
+            new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, mocks);
     }
