@@ -283,6 +283,35 @@ public class ReturnShippingServiceTests
     }
 
     [TestMethod]
+    public async Task Resolve_ProvidersActiveButNoOffers_NoChoice_NoErrors()
+    {
+        //Arrange - an option for the store's items only, and the items are a vendor's: nothing is offered
+        SetupOptions("", Option("a", 5));
+
+        //Act
+        var resolution = await _service.Resolve(Request(Item("b")), null);
+
+        //Assert - the return goes through without a method, as it did before return methods
+        Assert.IsEmpty(resolution.Errors);
+        Assert.IsEmpty(resolution.ByVendor);
+    }
+
+    [TestMethod]
+    public async Task Resolve_ProvidersActiveButNoOffers_ChoicePosted_Error()
+    {
+        //Arrange - nothing is offered for the vendor's items, yet a choice is posted
+        SetupOptions("", Option("a", 5));
+
+        //Act
+        var resolution = await _service.Resolve(Request(Item("b")),
+            new ReturnShippingChoice { ProviderSystemName = "Return.Test", OptionCode = "a" });
+
+        //Assert
+        CollectionAssert.AreEqual(new[] { "MerchandiseReturns.ReturnShipping.Choose" }, resolution.Errors.ToArray());
+        Assert.IsEmpty(resolution.ByVendor);
+    }
+
+    [TestMethod]
     public async Task Resolve_NoProvidersAndNoChoice_NoErrors()
     {
         _providerSettings.ActiveSystemNames = [];

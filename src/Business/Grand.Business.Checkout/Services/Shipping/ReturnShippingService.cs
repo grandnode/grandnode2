@@ -77,10 +77,16 @@ public class ReturnShippingService(
         if (groups.Count == 0)
             return resolution;
 
+        var offers = await Offers(request.StoreId, groups, providers, false);
+        //no method fits these items (e.g. a vendor's items with only the in-store return active): the form showed
+        //none, and the return is sent back as it always was
+        if (offers.Count == 0 && string.IsNullOrEmpty(choice?.ProviderSystemName))
+            return resolution;
+
         //only what is offered now can be chosen: a posted choice of an option hidden or gone is refused
         var chosen = choice == null
             ? null
-            : (await Offers(request.StoreId, groups, providers, false)).FirstOrDefault(x =>
+            : offers.FirstOrDefault(x =>
                 string.Equals(x.Offer.ProviderSystemName, choice.ProviderSystemName,
                     StringComparison.OrdinalIgnoreCase) && x.Offer.OptionCode == choice.OptionCode);
         if (chosen == null)

@@ -11,7 +11,11 @@ using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.Common.Localization;
+using Grand.Business.Core.Utilities.Checkout;
+using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Controllers;
+using Grand.Web.Features.Models.Orders;
+using Grand.Web.Models.Orders;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
@@ -27,6 +31,7 @@ public class MerchandiseReturnControllerTests
     private MerchandiseReturnController _controller;
     private Mock<IDownloadService> _downloads;
     private Mock<IMerchandiseReturnLabelService> _labels;
+    private Mock<IMediator> _mediator;
     private Mock<IOrderService> _orders;
     private Mock<IMerchandiseReturnService> _returns;
 
@@ -48,16 +53,21 @@ public class MerchandiseReturnControllerTests
         _returns = new Mock<IMerchandiseReturnService>();
         _labels = new Mock<IMerchandiseReturnLabelService>();
         _downloads = new Mock<IDownloadService>();
+        _mediator = new Mock<IMediator>();
         var translation = new Mock<IRequestTranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns("text");
+        //a resource is found for the key, a provider's text is not: it comes back as the default value
+        translation.Setup(x => x.GetResource(It.IsAny<string>(), "l1", It.IsAny<string>(), It.IsAny<bool>()))
+            .Returns<string, string, string, bool>((name, _, defaultValue, _) =>
+                name == "MerchandiseReturns.ReturnShipping.Choose" ? "Choose a method." : defaultValue);
 
         //a customer without sub-accounts counts as an owner, as GroupService answers it
         var groupService = new Mock<IGroupService>();
         groupService.Setup(x => x.IsOwner(_buyer)).ReturnsAsync(true);
 
         _controller = new MerchandiseReturnController(_returns.Object, new Mock<IPickupPointService>().Object,
-            _orders.Object, context.Object, groupService.Object, translation.Object, new Mock<IMediator>().Object,
-            _labels.Object, _downloads.Object, new AddressSettings(), new OrderSettings());
+            _orders.Object, context.Object, groupService.Object, translation.Object, _mediator.Object,
+            _labels.Object, _downloads.Object, new AddressSettings(), new OrderSettings { MerchandiseReturnsEnabled = true });
 
         var httpContext = new DefaultHttpContext();
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
@@ -77,6 +87,26 @@ public class MerchandiseReturnControllerTests
         };
         _returns.Setup(x => x.GetMerchandiseReturnById("r1")).ReturnsAsync(merchandiseReturn);
         return merchandiseReturn;
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturn_ShippingErrors_KeyTranslatedProviderTextAsItIs()
+    {
+        //Arrange - a key of the return service and a text the provider translated already
+        var submitResult = new MerchandiseReturnSubmitResult();
+        submitResult.ShippingErrors.Add("MerchandiseReturns.ReturnShipping.Choose");
+        submitResult.ShippingErrors.Add("Pick a Parcel Locker near you.");
+        _mediator.Setup(x => x.Send(It.IsAny<MerchandiseReturnSubmitCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(submitResult);
+        _mediator.Setup(x => x.Send(It.IsAny<GetMerchandiseReturn>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new MerchandiseReturnModel());
+
+        //Act
+        var result = await _controller.MerchandiseReturn(new MerchandiseReturnModel { OrderId = "o1" });
+
+        //Assert
+        var model = (MerchandiseReturnModel)((ViewResult)result).Model;
+        Assert.AreEqual("Choose a method., Pick a Parcel Locker near you.", model.Error);
     }
 
     [TestMethod]
@@ -126,8 +156,8 @@ public class MerchandiseReturnControllerTests
         var result = await _controller.MerchandiseReturnTrackingNumber("r1", "TN1");
 
         Assert.IsInstanceOfType<NotFoundObjectResult>(result);
-        _labels.Verify(x => x.UpdateShipping(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturnShipping>>()),
-            Times.Never);
+        _labels.Verify(x => x.UpdateShipping(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturnShipping>>(),
+            It.IsAny<Func<MerchandiseReturn, bool>>()), Times.Never);
     }
 
     [TestMethod]
@@ -146,14 +176,23 @@ public class MerchandiseReturnControllerTests
     {
         Return("buyer");
         var shipping = new MerchandiseReturnShipping();
-        _labels.Setup(x => x.UpdateShipping("r1", It.IsAny<Action<MerchandiseReturnShipping>>()))
-            .Callback<string, Action<MerchandiseReturnShipping>>((_, apply) => apply(shipping))
+        Func<MerchandiseReturn, bool> allowed = null;
+        _labels.Setup(x => x.UpdateShipping("r1", It.IsAny<Action<MerchandiseReturnShipping>>(),
+                It.IsAny<Func<MerchandiseReturn, bool>>()))
+            .Callback<string, Action<MerchandiseReturnShipping>, Func<MerchandiseReturn, bool>>((_, apply, check) =>
+            {
+                apply(shipping);
+                allowed = check;
+            })
             .ReturnsAsync((string)null);
 
         var result = await _controller.MerchandiseReturnTrackingNumber("r1", " TN1 ");
 
         Assert.AreEqual("MerchandiseReturnDetails", ((RedirectToRouteResult)result).RouteName);
         Assert.AreEqual("TN1", shipping.TrackingNumber);
+        //checked again on the return as stored: a return received in the meantime takes no number
+        Assert.IsTrue(allowed(Return("buyer")));
+        Assert.IsFalse(allowed(Return("buyer", status: MerchandiseReturnStatus.Received)));
     }
 
     [TestMethod]

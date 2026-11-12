@@ -63,7 +63,8 @@ public class MerchandiseReturnLabelService(
                 merchandiseReturnId, error);
     }
 
-    public Task<string> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply)
+    public Task<string> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply,
+        Func<MerchandiseReturn, bool> allowed = null)
     {
         ArgumentNullException.ThrowIfNull(apply);
         return UnderLabelLock(merchandiseReturnId, stored =>
@@ -71,7 +72,9 @@ public class MerchandiseReturnLabelService(
                 ? Task.FromResult(MerchandiseReturnErrors.NotFound)
                 : SaveUnderOrderLock(stored, current =>
                 {
-                    apply(current.ReturnShipping);
+                    //the stored return is written back unchanged when the change is no longer allowed
+                    if (allowed == null || allowed(current))
+                        apply(current.ReturnShipping);
                     return Task.CompletedTask;
                 }));
     }

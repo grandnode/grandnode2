@@ -10,7 +10,8 @@
     <h1 class="text-center generalTitle h2">@string.Format(Loc["MerchandiseReturns.Title"], Model.OrderNumber)</h1>
     @if (!string.IsNullOrEmpty(Model.Result))
     {
-        <div class="result alert alert-info">
+        @* v-pre: texts from the database and providers are shown, never compiled as a template *@
+        <div class="result alert alert-info" v-pre>
             @Html.Raw(Model.Result)
         </div>
     }
@@ -18,7 +19,7 @@
     {
         @if (!string.IsNullOrEmpty(Model.Error))
         {
-            <div class="result alert alert-danger">
+            <div class="result alert alert-danger" v-pre>
                 @Model.Error
             </div>
         }
@@ -58,7 +59,7 @@
                                 {
                                     var item = Model.Items[j];
                                     <td>
-                                        <div class="product">
+                                        <div class="product" v-pre>
                                             <a href="@Url.RouteUrl("Product", new { SeName = item.ProductSeName })">@item.ProductName</a>
                                             @if (!string.IsNullOrEmpty(item.AttributeInfo))
                                             {
@@ -71,7 +72,7 @@
                                                 </div>
                                             }
                                         </div>
-                                        <div class="unit-price">
+                                        <div class="unit-price" v-pre>
                                             @item.UnitPrice
                                         </div>
                                         <div class="quantity">

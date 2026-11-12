@@ -11,7 +11,7 @@ public class ReturnShippingOfferModel
     public string Description { get; set; }
 
     /// <summary>
-    ///     What the customer pays for all parcels, formatted in the working currency; "Free" when nothing
+    ///     What the customer pays for all parcels, formatted in the order's currency; "Free" when nothing
     /// </summary>
     public string Cost { get; set; }
 

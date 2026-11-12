@@ -297,7 +297,6 @@ public class MerchandiseReturnController : BasePublicController
             PickupAddress = await PrepareAddress(model),
             Customer = _contextAccessor.WorkContext.CurrentCustomer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
-            Currency = _contextAccessor.WorkContext.WorkingCurrency,
             FormUrl = routeName => Url.RouteUrl(routeName)
         });
         return Json(offers);
@@ -337,7 +336,9 @@ public class MerchandiseReturnController : BasePublicController
             trackingNumber = trackingNumber[..MaxTrackingNumberLength];
 
         var error = await _merchandiseReturnLabelService.UpdateShipping(merchandiseReturn.Id,
-            shipping => shipping.TrackingNumber = string.IsNullOrEmpty(trackingNumber) ? null : trackingNumber);
+            shipping => shipping.TrackingNumber = string.IsNullOrEmpty(trackingNumber) ? null : trackingNumber,
+            //checked again on the return as stored: the staff may have received it since
+            stored => stored.CustomerEntersTrackingNumber());
         if (error != null)
             Error(LabelErrorText(error));
 

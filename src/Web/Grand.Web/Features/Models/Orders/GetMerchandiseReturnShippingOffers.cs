@@ -1,6 +1,5 @@
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
-using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Mediator;
@@ -18,7 +17,6 @@ public class GetMerchandiseReturnShippingOffers : IRequest<IList<ReturnShippingO
     public Address PickupAddress { get; set; }
     public Customer Customer { get; set; }
     public Language Language { get; set; }
-    public Currency Currency { get; set; }
 
     /// <summary>
     ///     Turns the route name of an option's form into its address

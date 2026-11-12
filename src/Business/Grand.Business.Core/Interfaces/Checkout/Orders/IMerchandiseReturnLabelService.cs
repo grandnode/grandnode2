@@ -27,6 +27,13 @@ public interface IMerchandiseReturnLabelService
     ///     Saves the changes apply makes to the return shipping: the staff's edits, the tracking number the customer
     ///     types in, a carrier's updates. The status of the return is never changed here
     /// </summary>
-    /// <returns>null when saved, else a key of MerchandiseReturnErrors</returns>
-    Task<string> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply);
+    /// <param name="merchandiseReturnId">The return</param>
+    /// <param name="apply">The changes</param>
+    /// <param name="allowed">
+    ///     Checked on the return as stored, under the locks: when it says no, nothing is changed, e.g. a tracking
+    ///     number typed in while the staff marked the return received
+    /// </param>
+    /// <returns>null when saved or not allowed, else a key of MerchandiseReturnErrors</returns>
+    Task<string> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply,
+        Func<MerchandiseReturn, bool> allowed = null);
 }

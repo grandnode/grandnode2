@@ -30,6 +30,10 @@ public class GetMerchandiseReturnShippingOffersHandler(
                 x.MerchandiseReturnReasonId, x.MerchandiseReturnActionId)).ToList()
         });
 
+        //shown as the details page shows the saved cost: in the order's currency, at the order's rate
+        var orderCurrency = offers.Count > 0
+            ? await currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode)
+            : null;
         var models = new List<ReturnShippingOfferModel>();
         foreach (var offer in offers)
             models.Add(new ReturnShippingOfferModel {
@@ -38,9 +42,7 @@ public class GetMerchandiseReturnShippingOffersHandler(
                 Name = offer.Name,
                 Description = offer.Description,
                 Cost = offer.Cost > 0
-                    ? priceFormatter.FormatPrice(
-                        await currencyService.ConvertFromPrimaryStoreCurrency(offer.Cost, request.Currency),
-                        request.Currency)
+                    ? priceFormatter.FormatPrice(offer.Cost * request.Order.CurrencyRate, orderCurrency)
                     : translationService.GetResource("MerchandiseReturns.ReturnShipping.Free", request.Language.Id),
                 Parcels = offer.Parcels,
                 ParcelsText = offer.Parcels > 1
