@@ -225,8 +225,68 @@ public class MerchandiseReturnWorkflowServiceTests
     {
         await _service.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "  ");
 
+        //only the staff note of the change: nothing for the customer
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
+            n.DisplayToCustomer)), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Accept_InsertsStaffNoteNamingWhoChangedIt()
+    {
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, changedBy: "john@shop.com");
+
+        Assert.IsNull(error);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
+            n.MerchandiseReturnId == "r1" && !n.DisplayToCustomer && !n.CreatedByCustomer &&
+            n.Note == "Merchandise return status has been changed to Accepted by john@shop.com")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_NoActor_StaffNoteNamesSystem()
+    {
+        await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted);
+
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
+            !n.DisplayToCustomer && n.Note == "Merchandise return status has been changed to Accepted by system")),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_StaffNote_WrittenUnderTheLockAfterTheStatus()
+    {
+        var steps = RecordLockRelease();
+        _merchandiseReturnService.Setup(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => steps.Add("status")).Returns(Task.CompletedTask);
+        _merchandiseReturnService.Setup(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()))
+            .Callback(() => steps.Add("note")).Returns(Task.CompletedTask);
+
+        await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, changedBy: "john@shop.com");
+
+        CollectionAssert.AreEqual(new[] { "status", "note", "release" }, steps);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Refused_InsertsNoNote()
+    {
+        _stored = Return(MerchandiseReturnStatus.Completed);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Pending, changedBy: "john@shop.com");
+
+        Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, error);
         _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()),
             Times.Never);
+    }
+
+    [TestMethod]
+    public async Task MarkReceived_StaffNoteNamesThePoster()
+    {
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+
+        await _service.MarkReceived("r1", "poster@shop.com");
+
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
+            !n.DisplayToCustomer &&
+            n.Note == "Merchandise return status has been changed to Received by poster@shop.com")), Times.Once);
     }
 
     [TestMethod]

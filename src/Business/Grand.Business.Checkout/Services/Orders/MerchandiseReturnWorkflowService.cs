@@ -238,7 +238,7 @@ public class MerchandiseReturnWorkflowService(
     }
 
     public async Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
-        string customerNote = null)
+        string customerNote = null, string changedBy = null)
     {
         MerchandiseReturn changed = null;
         var error = await UnderOrderLock(merchandiseReturnId, async stored =>
@@ -249,6 +249,13 @@ public class MerchandiseReturnWorkflowService(
 
             stored.MerchandiseReturnStatus = status;
             await merchandiseReturnService.UpdateMerchandiseReturn(stored);
+            //for the staff: who changed the status; the note's date says when
+            await merchandiseReturnService.InsertMerchandiseReturnNote(new MerchandiseReturnNote {
+                MerchandiseReturnId = stored.Id,
+                Note = $"Merchandise return status has been changed to {status} by " +
+                       (string.IsNullOrWhiteSpace(changedBy) ? "system" : changedBy.Trim()),
+                DisplayToCustomer = false
+            });
             if (!string.IsNullOrWhiteSpace(customerNote))
                 //the status message tells the customer about the change, so the note sends none of its own
                 await merchandiseReturnService.InsertMerchandiseReturnNote(new MerchandiseReturnNote {
@@ -329,7 +336,7 @@ public class MerchandiseReturnWorkflowService(
         });
     }
 
-    public async Task MarkReceived(string merchandiseReturnId)
+    public async Task MarkReceived(string merchandiseReturnId, string changedBy = null)
     {
         //read without the lock, which ChangeStatus takes and which is not reentrant; a status changed in between is
         //checked again under it, and such a refusal leaves the return as it is
@@ -340,7 +347,7 @@ public class MerchandiseReturnWorkflowService(
 
         //the receipt is posted already, so a refusal is not the poster's error; the return, received by its stock,
         //can no longer be rejected and is marked received by hand
-        var error = await ChangeStatus(merchandiseReturnId, MerchandiseReturnStatus.Received);
+        var error = await ChangeStatus(merchandiseReturnId, MerchandiseReturnStatus.Received, changedBy: changedBy);
         if (error != null)
             logger.LogWarning("A return receipt of merchandise return {MerchandiseReturnId} was posted, but the " +
                               "return was not marked received: {Error}", merchandiseReturnId, error);

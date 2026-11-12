@@ -241,6 +241,8 @@ public class MerchandiseReturnViewModelServiceTests
         enumTranslationServiceMock.Setup(x => x.GetTranslationEnum(MerchandiseReturnStatus.Accepted))
             .Returns("Accepted (translated)");
         var workContext = new Mock<IWorkContext>();
+        //the staff member the status change is noted for
+        workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "staff", Email = "john@shop.com" });
         var contextAccessor = new Mock<IContextAccessor>();
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
@@ -293,7 +295,7 @@ public class MerchandiseReturnViewModelServiceTests
         var sequence = new MockSequence();
         workflow.InSequence(sequence).Setup(x => x.Update("r1", It.IsAny<Action<MerchandiseReturn>>()))
             .ReturnsAsync((string)null);
-        workflow.InSequence(sequence).Setup(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "why"))
+        workflow.InSequence(sequence).Setup(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "why", It.IsAny<string>()))
             .ReturnsAsync((string)null);
 
         //Act
@@ -305,7 +307,7 @@ public class MerchandiseReturnViewModelServiceTests
         //Assert
         Assert.IsNull(result.Error);
         workflow.Verify(x => x.Update("r1", It.IsAny<Action<MerchandiseReturn>>()), Times.Once);
-        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "why"), Times.Once);
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "why", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -321,7 +323,19 @@ public class MerchandiseReturnViewModelServiceTests
             }, []);
 
         //Assert
-        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, null), Times.Once);
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, null, It.IsAny<string>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_StatusChange_NamesTheStaffMember()
+    {
+        var (service, workflow) = BuildForUpdate();
+
+        await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Pending),
+            new MerchandiseReturnModel { Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Accepted }, []);
+
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Accepted, null, "john@shop.com"),
+            Times.Once);
     }
 
     [TestMethod]
@@ -358,14 +372,14 @@ public class MerchandiseReturnViewModelServiceTests
 
         Assert.IsNull(result.Error);
         workflow.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
-            It.IsAny<string>()), Times.Never);
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
     public async Task UpdateMerchandiseReturnModel_StatusChangeRefused_ReturnsItsError()
     {
         var (service, workflow) = BuildForUpdate();
-        workflow.Setup(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Completed, null))
+        workflow.Setup(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Completed, null, It.IsAny<string>()))
             .ReturnsAsync(MerchandiseReturnErrors.StatusChangeNotAllowed);
 
         var result = await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Pending),
@@ -386,7 +400,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         Assert.AreEqual(MerchandiseReturnErrors.Busy, result.Error);
         workflow.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
-            It.IsAny<string>()), Times.Never);
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -425,7 +439,7 @@ public class MerchandiseReturnViewModelServiceTests
         Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, result.Error);
         workflow.Verify(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()), Times.Never);
         workflow.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
-            It.IsAny<string>()), Times.Never);
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     // --- Return receipts -------------------------------------------------------------------------
@@ -745,7 +759,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         Assert.AreEqual(MerchandiseReturnErrors.Busy, result.Error);
         mocks.Workflow.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
-            It.IsAny<string>()), Times.Never);
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
