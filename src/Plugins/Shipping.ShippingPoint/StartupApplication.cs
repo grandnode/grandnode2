@@ -13,6 +13,7 @@ public class StartupApplication : IStartupApplication
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
         services.AddScoped<IShippingRateCalculationProvider, ShippingPointRateProvider>();
+        services.AddScoped<IReturnShippingProvider, ShippingPointReturnProvider>();
         services.AddScoped<IShippingPointService, ShippingPointService>();
     }
 

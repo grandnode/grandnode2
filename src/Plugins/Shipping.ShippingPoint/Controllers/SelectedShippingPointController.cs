@@ -72,4 +72,29 @@ public class SelectedShippingPointController : Controller
 
         return View(shippingPointsModel);
     }
+
+    public async Task<IActionResult> ReturnPoints()
+    {
+        var points = await _shippingPointService.GetReturnShippingPoints(_contextAccessor.StoreContext.CurrentStore.Id);
+        var currency = _contextAccessor.WorkContext.WorkingCurrency;
+        var model = new List<ReturnPointModel>();
+        foreach (var point in points)
+        {
+            var fee = await _currencyService.ConvertFromPrimaryStoreCurrency(point.ReturnFee, currency);
+            var country = string.IsNullOrEmpty(point.CountryId)
+                ? null
+                : await _countryService.GetCountryById(point.CountryId);
+            var city = string.Join(" ", new[] { point.ZipPostalCode, point.City }.Where(x => !string.IsNullOrEmpty(x)));
+            model.Add(new ReturnPointModel {
+                Id = point.Id,
+                Name = point.ShippingPointName,
+                Address = string.Join(", ",
+                    new[] { point.Address1, city, country?.Name }.Where(x => !string.IsNullOrEmpty(x))),
+                OpeningHours = point.OpeningHours,
+                ReturnFee = _priceFormatter.FormatPrice(fee, currency)
+            });
+        }
+
+        return View(model);
+    }
 }

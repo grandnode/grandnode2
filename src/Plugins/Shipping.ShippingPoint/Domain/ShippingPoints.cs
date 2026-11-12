@@ -40,6 +40,16 @@ public class ShippingPoints : BaseEntity
     public double PickupFee { get; set; }
 
     /// <summary>
+    ///     Gets or sets whether customers can drop a merchandise return off at the point
+    /// </summary>
+    public bool AcceptsReturns { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a fee for dropping a return off, in the primary store currency
+    /// </summary>
+    public double ReturnFee { get; set; }
+
+    /// <summary>
     ///     Gets or sets an opening hours
     /// </summary>
     public string OpeningHours { get; set; }

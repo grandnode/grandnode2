@@ -19,6 +19,12 @@ public interface IShippingPointService
         int pageSize = int.MaxValue);
 
     /// <summary>
+    ///     Gets the pickup points of a store where customers can drop a merchandise return off
+    /// </summary>
+    /// <param name="storeId">The store identifier; points of all stores are included</param>
+    Task<IList<ShippingPoints>> GetReturnShippingPoints(string storeId);
+
+    /// <summary>
     ///     Gets a pickup point
     /// </summary>
     /// <param name="shippingPointId">Pickup point identifier</param>

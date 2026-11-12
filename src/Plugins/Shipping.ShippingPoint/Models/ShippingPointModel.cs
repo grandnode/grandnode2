@@ -18,6 +18,12 @@ public class ShippingPointModel : BaseEntityModel
     [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.PickupFee")]
     public double PickupFee { get; set; }
 
+    [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.AcceptsReturns")]
+    public bool AcceptsReturns { get; set; }
+
+    [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.ReturnFee")]
+    public double ReturnFee { get; set; }
+
     public List<SelectListItem> AvailableStores { get; set; } = new();
 
     [GrandResourceDisplayName("Shipping.ShippingPoint.Fields.Store")]

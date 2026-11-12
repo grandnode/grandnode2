@@ -1,0 +1,22 @@
+@model IList<Shipping.ShippingPoint.Models.ReturnPointModel>
+@{
+    Layout = "";
+}
+<div class="return-shipping-points">
+    @foreach (var point in Model)
+    {
+        var id = $"returnshipping-shippingPointId-{point.Id}";
+        <div class="form-check">
+            <input type="radio" class="form-check-input" id="@id" name="returnshipping.shippingPointId" value="@point.Id" checked="@(Model.Count == 1)"/>
+            <label class="form-check-label" for="@id">
+                <span class="name">@point.Name</span>
+                <span class="address d-block text-muted">@point.Address</span>
+                @if (!string.IsNullOrEmpty(point.OpeningHours))
+                {
+                    <span class="opening-hours d-block text-muted">@point.OpeningHours</span>
+                }
+                <span class="fee d-block">@point.ReturnFee</span>
+            </label>
+        </div>
+    }
+</div>
