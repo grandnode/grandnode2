@@ -429,6 +429,8 @@ public partial class InstallationService
             ActiveSystemNames = ["Shipping.FixedRate"]
         });
 
+        await _settingRepository.SaveSetting(new ReturnShippingProviderSettings());
+
         await _settingRepository.SaveSetting(new PaymentSettings {
             ActivePaymentProviderSystemNames = [
                 "Payments.CashOnDelivery",
