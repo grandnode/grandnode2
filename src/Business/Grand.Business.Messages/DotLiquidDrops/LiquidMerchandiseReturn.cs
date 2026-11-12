@@ -88,5 +88,19 @@ public class LiquidMerchandiseReturn : Drop
     public string MerchandiseReturnNoteAttachmentUrl =>
         $"{url}/download/merchandisereturnnotefile/{_merchandiseReturnNote?.Id}";
 
+    public string ReturnMethod { get; set; } = "";
+
+    public string ReturnCost { get; set; } = "";
+
+    public string ReturnTrackingNumber { get; set; } = "";
+
+    public string ReturnCode { get; set; } = "";
+
+    public string ReturnInstructions { get; set; } = "";
+
+    internal bool HasReturnLabel { get; set; }
+
+    public string ReturnLabelUrl => HasReturnLabel ? $"{url}/merchandisereturndetails/{_merchandiseReturn.Id}" : "";
+
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

@@ -1,8 +1,10 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
+using Grand.Domain.Orders;
 using Grand.Mediator;
 
 namespace Grand.Business.Messages.Commands.Handlers.Messages;
@@ -12,12 +14,18 @@ public class
     LiquidMerchandiseReturn>
 {
     private readonly ICountryService _countryService;
+    private readonly ICurrencyService _currencyService;
+    private readonly IPriceFormatter _priceFormatter;
     private readonly IProductService _productService;
 
     public GetMerchandiseReturnTokensCommandHandler(
         ICountryService countryService,
-        IProductService productService)
+        IProductService productService,
+        ICurrencyService currencyService,
+        IPriceFormatter priceFormatter)
     {
+        _currencyService = currencyService;
+        _priceFormatter = priceFormatter;
         _countryService = countryService;
         _productService = productService;
     }
@@ -43,6 +51,18 @@ public class
             !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress.CountryId)
                 ? country?.GetTranslation(x => x.Name, request.Language.Id)
                 : "";
+
+        var shipping = request.MerchandiseReturn.ReturnShipping;
+        if (shipping != null)
+        {
+            var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
+            liquidMerchandiseReturn.ReturnMethod = shipping.OptionName ?? "";
+            liquidMerchandiseReturn.ReturnCost = _priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, currency);
+            liquidMerchandiseReturn.ReturnTrackingNumber = shipping.TrackingNumber ?? "";
+            liquidMerchandiseReturn.ReturnCode = shipping.ReturnCode ?? "";
+            liquidMerchandiseReturn.ReturnInstructions = shipping.Instructions ?? "";
+            liquidMerchandiseReturn.HasReturnLabel = shipping.LabelStatus == ReturnLabelStatus.Created;
+        }
 
         foreach (var merchandiseReturnItem in request.MerchandiseReturn.MerchandiseReturnItems)
         {
