@@ -13,6 +13,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
+using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -21,6 +22,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using Microsoft.Extensions.Logging;
 
@@ -52,6 +54,7 @@ public class MerchandiseReturnViewModelService(
     IInventoryDocumentService inventoryDocumentService,
     IWarehouseService warehouseService,
     IAdminDataScope<Warehouse> warehouseScope,
+    IRequestPermissionService permissionService,
     ILogger<MerchandiseReturnViewModelService> logger)
     : IMerchandiseReturnViewModelService
 {
@@ -347,7 +350,9 @@ public class MerchandiseReturnViewModelService(
         ArgumentNullException.ThrowIfNull(model);
 
         var receipts = await inventoryDocumentService.GetReturnReceipts(model.Id);
-        model.CanReceiveToStock = receipts.QuantityLeft;
+        //a staff member without inventory documents sees the receipts named, and creates or opens none
+        var managesDocuments = await permissionService.Authorize(PermissionSystemName.InventoryDocuments);
+        model.CanReceiveToStock = managesDocuments && receipts.QuantityLeft;
         model.ReturnReceipts = new List<MerchandiseReturnModel.ReturnReceiptModel>();
         var storeId = await warehouseScope.GetDefaultStoreIdAsync();
         foreach (var receipt in receipts.Receipts)
@@ -356,7 +361,8 @@ public class MerchandiseReturnViewModelService(
                 Number = receipt.Number,
                 Status = enumTranslationService.GetTranslationEnum(receipt.Status),
                 //the inventory document panel's own check: the panel's store, and a warehouse it books
-                CanOpen = (storeId == null || receipt.StoreId == storeId) && await CanUse(receipt.WarehouseId)
+                CanOpen = managesDocuments && (storeId == null || receipt.StoreId == storeId) &&
+                          await CanUse(receipt.WarehouseId)
             });
     }
 

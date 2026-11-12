@@ -1101,6 +1101,7 @@ public class BaseMerchandiseReturnControllerTests
             ReturnReceiptsService(),
             new Mock<Grand.Business.Core.Interfaces.Checkout.Shipping.IWarehouseService>().Object,
             new Mock<IAdminDataScope<Grand.Domain.Shipping.Warehouse>>().Object,
+            new Mock<Grand.Web.Common.Security.Authorization.IRequestPermissionService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         var controller = new TestMerchandiseReturnController(viewModelService, _translationServiceMock.Object,
             _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, _scopeMock.Object) {

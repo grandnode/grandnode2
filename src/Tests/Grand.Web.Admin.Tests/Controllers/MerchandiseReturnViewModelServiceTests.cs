@@ -19,6 +19,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -27,6 +28,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -178,6 +180,7 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IInventoryDocumentService>().Object,
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
+            new Mock<IRequestPermissionService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
     }
 
@@ -229,6 +232,7 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IInventoryDocumentService>().Object,
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
+            new Mock<IRequestPermissionService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
     }
 
@@ -286,6 +290,7 @@ public class MerchandiseReturnViewModelServiceTests
             (documents ?? new Mock<IInventoryDocumentService>()).Object,
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
+            new Mock<IRequestPermissionService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, workflowMock);
     }
@@ -497,6 +502,7 @@ public class MerchandiseReturnViewModelServiceTests
         public Mock<IInventoryDocumentService> Documents { get; } = new();
         public Mock<IWarehouseService> Warehouses { get; } = new();
         public Mock<IAdminDataScope<Warehouse>> WarehouseScope { get; } = new();
+        public Mock<IRequestPermissionService> Permissions { get; } = new();
     }
 
     private static (MerchandiseReturnViewModelService service, ReturnReceiptMocks mocks) BuildForReturnReceipts(
@@ -504,6 +510,7 @@ public class MerchandiseReturnViewModelServiceTests
     {
         var mocks = new ReturnReceiptMocks();
         mocks.Documents.Setup(x => x.GetReturnReceipts("r1")).ReturnsAsync(receipts);
+        mocks.Permissions.Setup(x => x.Authorize(PermissionSystemName.InventoryDocuments)).ReturnsAsync(true);
         var enumTranslation = new Mock<IEnumTranslationService>();
         enumTranslation.Setup(x => x.GetTranslationEnum(It.IsAny<InventoryDocumentStatus>()))
             .Returns<InventoryDocumentStatus>(status => status.ToString());
@@ -534,6 +541,7 @@ public class MerchandiseReturnViewModelServiceTests
             mocks.Documents.Object,
             mocks.Warehouses.Object,
             mocks.WarehouseScope.Object,
+            mocks.Permissions.Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, mocks);
     }
@@ -597,6 +605,23 @@ public class MerchandiseReturnViewModelServiceTests
         //every receipt is named, only the panel's own is a link
         CollectionAssert.AreEqual(new[] { false, false, true },
             model.ReturnReceipts.Select(x => x.CanOpen).ToArray());
+    }
+
+    [TestMethod]
+    public async Task PrepareReturnReceipts_NoInventoryDocumentsPermission_NoButtonAndNoLinks()
+    {
+        var (service, mocks) = BuildForReturnReceipts(new MerchandiseReturnReceipts([
+            new ReturnReceiptSummary("d1", "PZZ/2026/0001", InventoryDocumentStatus.Draft, "", "")
+        ], true));
+        mocks.Permissions.Setup(x => x.Authorize(PermissionSystemName.InventoryDocuments)).ReturnsAsync(false);
+        var model = new MerchandiseReturnModel { Id = "r1" };
+
+        await service.PrepareReturnReceipts(model);
+
+        Assert.IsFalse(model.CanReceiveToStock);
+        //the receipt is still named, as plain text
+        Assert.AreEqual("PZZ/2026/0001", model.ReturnReceipts.Single().Number);
+        Assert.IsFalse(model.ReturnReceipts.Single().CanOpen);
     }
 
     [TestMethod]
@@ -680,6 +705,7 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IInventoryDocumentService>().Object,
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
+            new Mock<IRequestPermissionService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, mocks);
     }
