@@ -77,8 +77,9 @@ public class SendYourselfReturnProvider : IReturnShippingProvider
     {
         return new ReturnLabelResult {
             Success = true,
+            //the parcel is addressed by the customer, so the address says who receives it
             Instructions = await _texts.Instructions(merchandiseReturn, InstructionsKey,
-                merchandiseReturn.ReturnShipping?.ReturnAddress)
+                merchandiseReturn.ReturnShipping?.ReturnAddress, true)
         };
     }
 

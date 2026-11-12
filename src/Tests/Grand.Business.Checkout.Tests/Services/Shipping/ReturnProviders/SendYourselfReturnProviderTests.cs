@@ -79,6 +79,29 @@ public class SendYourselfReturnProviderTests
     }
 
     [TestMethod]
+    [DataRow("Shop Ltd", "Jan", "Kowalski", "Shop Ltd")]
+    [DataRow("", "Jan", "Kowalski", "Jan Kowalski")]
+    [DataRow(null, null, "Kowalski", "Kowalski")]
+    public async Task SendYourself_CreateLabel_InstructionsStartWithTheRecipient(string company, string firstName,
+        string lastName, string recipient)
+    {
+        var merchandiseReturn = new MerchandiseReturn {
+            OrderId = "o1", StoreId = "s1", ReturnNumber = 17,
+            ReturnShipping = new MerchandiseReturnShipping {
+                ReturnAddress = new Address {
+                    Company = company, FirstName = firstName, LastName = lastName, Address1 = "Main 1",
+                    ZipPostalCode = "00-001", City = "Warsaw", CountryId = "pl"
+                }
+            }
+        };
+
+        var result = await _provider.CreateLabel(merchandiseReturn);
+
+        Assert.AreEqual($"Send the parcel to: {recipient}, Main 1, 00-001 Warsaw, Poland. Write return number 17 on it.",
+            result.Instructions);
+    }
+
+    [TestMethod]
     public void SendYourself_Identity()
     {
         Assert.AreEqual("ReturnShipping.SendYourself", _provider.SystemName);
