@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Handlers.Messages;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Domain.Common;
@@ -26,8 +27,12 @@ public class LiquidMerchandiseReturnTests
         var priceFormatter = new Mock<IPriceFormatter>();
         priceFormatter.Setup(x => x.FormatPrice(It.IsAny<double>(), It.IsAny<Currency>()))
             .Returns((double price, Currency currency) => $"{currency?.CurrencyCode}{price}");
+        var translationService = new Mock<ITranslationService>();
+        translationService.Setup(x => x.GetResource("MerchandiseReturns.ReturnShipping.Free", "1",
+            It.IsAny<string>(), It.IsAny<bool>())).Returns("Gratis");
         _handler = new GetMerchandiseReturnTokensCommandHandler(new Mock<ICountryService>().Object,
-            new Mock<IProductService>().Object, currencyService.Object, priceFormatter.Object);
+            new Mock<IProductService>().Object, currencyService.Object, priceFormatter.Object,
+            translationService.Object);
     }
 
 
@@ -71,6 +76,14 @@ public class LiquidMerchandiseReturnTests
         Assert.AreEqual("C42", drop.ReturnCode);
         Assert.AreEqual("Leave it at the locker", drop.ReturnInstructions);
         Assert.AreEqual("https://shop.test/merchandisereturndetails/r1", drop.ReturnLabelUrl);
+    }
+
+    [TestMethod]
+    public async Task ReturnShipping_NoCost_FreeInTheMessageLanguage()
+    {
+        var drop = await Build(new MerchandiseReturnShipping { OptionName = "Post", Cost = 0, CurrencyRate = 2 });
+
+        Assert.AreEqual("Gratis", drop.ReturnCost);
     }
 
     [TestMethod]

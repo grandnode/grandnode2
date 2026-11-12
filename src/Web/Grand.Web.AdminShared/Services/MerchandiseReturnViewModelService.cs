@@ -117,7 +117,11 @@ public class MerchandiseReturnViewModelService(
         var model = new MerchandiseReturnModel.ReturnShippingModel {
             MethodName = provider?.FriendlyName ?? shipping.ProviderSystemName,
             OptionName = shipping.OptionName,
-            Cost = priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, orderCurrency),
+            //"Free" as the customer reads it on the storefront
+            Cost = shipping.Cost > 0
+                ? priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, orderCurrency)
+                : translationService.GetResource(
+                    $"{scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.ReturnShipping.Free"),
             DropOffPoint = FormatDropOffPoint(shipping.DropOffPoint),
             TrackingNumber = shipping.TrackingNumber,
             ShownTrackingNumber = shipping.TrackingNumber,

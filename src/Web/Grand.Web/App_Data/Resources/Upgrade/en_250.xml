@@ -1800,6 +1800,9 @@
 	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Cost" Area="Admin">
 		<Value>Cost</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Free" Area="Admin">
+		<Value>Free</Value>
+	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.DropOffPoint" Area="Admin">
 		<Value>Drop-off point</Value>
 	</Resource>
@@ -1844,6 +1847,9 @@
 	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Cost" Area="Vendor">
 		<Value>Cost</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Free" Area="Vendor">
+		<Value>Free</Value>
 	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.DropOffPoint" Area="Vendor">
 		<Value>Drop-off point</Value>

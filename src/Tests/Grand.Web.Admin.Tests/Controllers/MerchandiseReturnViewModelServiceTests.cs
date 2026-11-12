@@ -518,6 +518,19 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_ReturnShippingFree_CostShownFree()
+    {
+        var (service, _) = BuildForReturnShipping();
+        var merchandiseReturn = ReturnWithShipping(ReturnLabelStatus.Created);
+        merchandiseReturn.ReturnShipping.Cost = 0;
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(), merchandiseReturn,
+            false);
+
+        Assert.AreEqual("Vendor.Orders.MerchandiseReturns.ReturnShipping.Free", model.ReturnShipping.Cost);
+    }
+
+    [TestMethod]
     public async Task PrepareMerchandiseReturnModel_NoReturnMethod_NoCard()
     {
         var (service, _) = BuildForReturnShipping();

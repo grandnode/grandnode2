@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Orders;
@@ -18,13 +19,16 @@ public class
     private readonly ICurrencyService _currencyService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IProductService _productService;
+    private readonly ITranslationService _translationService;
 
     public GetMerchandiseReturnTokensCommandHandler(
         ICountryService countryService,
         IProductService productService,
         ICurrencyService currencyService,
-        IPriceFormatter priceFormatter)
+        IPriceFormatter priceFormatter,
+        ITranslationService translationService)
     {
+        _translationService = translationService;
         _currencyService = currencyService;
         _priceFormatter = priceFormatter;
         _countryService = countryService;
@@ -60,7 +64,10 @@ public class
             //texts the customer, the staff or a provider wrote go into the HTML of the message encoded, as the
             //customer's comment does
             liquidMerchandiseReturn.ReturnMethod = FormatText.ConvertText(shipping.OptionName);
-            liquidMerchandiseReturn.ReturnCost = _priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, currency);
+            //"Free" as the customer reads it on the storefront, in the language of the message
+            liquidMerchandiseReturn.ReturnCost = shipping.Cost > 0
+                ? _priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, currency)
+                : _translationService.GetResource("MerchandiseReturns.ReturnShipping.Free", request.Language.Id);
             liquidMerchandiseReturn.ReturnTrackingNumber = FormatText.ConvertText(shipping.TrackingNumber);
             liquidMerchandiseReturn.ReturnCode = FormatText.ConvertText(shipping.ReturnCode);
             liquidMerchandiseReturn.ReturnInstructions = FormatText.ConvertText(shipping.Instructions);
