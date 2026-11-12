@@ -57,7 +57,7 @@ public class ReturnShippingService(
         if (groups.Count == 0)
             return [];
 
-        return (await Offers(request.StoreId, groups, providers, true)).Select(x => x.Offer).ToList();
+        return (await Offers(request.StoreId, groups, providers)).Select(x => x.Offer).ToList();
     }
 
     public async Task<ReturnShippingResolution> Resolve(MerchandiseReturnSubmitRequest request,
@@ -77,7 +77,7 @@ public class ReturnShippingService(
         if (groups.Count == 0)
             return resolution;
 
-        var offers = await Offers(request.StoreId, groups, providers, false);
+        var offers = await Offers(request.StoreId, groups, providers);
         //no method fits these items (e.g. a vendor's items with only the in-store return active): the form showed
         //none, and the return is sent back as it always was
         if (offers.Count == 0 && string.IsNullOrEmpty(choice?.ProviderSystemName))
@@ -203,7 +203,7 @@ public class ReturnShippingService(
     ///     The options every vendor group is offered, with the option of each group in the order of the groups
     /// </summary>
     private async Task<IList<ProviderOffer>> Offers(string storeId, IList<VendorGroup> groups,
-        IList<IReturnShippingProvider> providers, bool withFormRoute)
+        IList<IReturnShippingProvider> providers)
     {
         if (providers.Count == 0)
             return [];
@@ -213,16 +213,21 @@ public class ReturnShippingService(
         foreach (var provider in providers)
         {
             var groupOptions = new List<IList<ReturnShippingOption>>();
+            var formRoutes = new Dictionary<string, string>();
             try
             {
                 foreach (var group in groups)
                     groupOptions.Add(await provider.GetReturnOptions(group.Request) ?? []);
+                //asked for the submit too: an option whose form cannot be shown is neither offered nor accepted, so
+                //the form and the submit always agree on what can be chosen
+                foreach (var option in groupOptions[0].Where(x => x.HasForm))
+                    formRoutes[option.Code] = await provider.GetFormRouteName(option.Code);
             }
             catch (Exception ex)
             {
                 //e.g. a carrier that is down: its options are not offered, the other providers' still are
-                logger.LogError(ex, "Return shipping provider {SystemName} failed to give its options for order " +
-                                    "{OrderId}", provider.SystemName, groups[0].Request.Order.Id);
+                logger.LogError(ex, "Return shipping provider {SystemName} failed to give its options or their " +
+                                    "forms for order {OrderId}", provider.SystemName, groups[0].Request.Order.Id);
                 continue;
             }
 
@@ -243,9 +248,7 @@ public class ReturnShippingService(
                         options[i].Cost, fees, group.AnyFreeReason, group.AllWithoutRefund)).Sum(),
                     Parcels = groups.Count,
                     HasForm = first.HasForm,
-                    FormRouteName = withFormRoute && first.HasForm
-                        ? await provider.GetFormRouteName(first.Code)
-                        : null
+                    FormRouteName = first.HasForm ? formRoutes.GetValueOrDefault(first.Code) : null
                 }));
             }
         }

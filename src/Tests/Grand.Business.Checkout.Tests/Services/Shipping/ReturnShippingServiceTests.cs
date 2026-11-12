@@ -255,6 +255,37 @@ public class ReturnShippingServiceTests
     }
 
     [TestMethod]
+    public async Task GetOffers_GetFormRouteNameThrows_ProviderSkippedOthersOffered()
+    {
+        var failing = Provider("Return.Failing");
+        failing.Setup(x => x.Priority).Returns(-1);
+        failing.Setup(x => x.GetReturnOptions(It.IsAny<ReturnShippingRequest>()))
+            .ReturnsAsync([Option("point", 3, true)]);
+        failing.Setup(x => x.GetFormRouteName("point")).ThrowsAsync(new InvalidOperationException("no route"));
+        _providerSettings.ActiveSystemNames = ["Return.Failing", "Return.Test"];
+        SetupOptions("", Option("a", 5));
+        var service = Service(failing, _provider);
+
+        var offers = await service.GetOffers(Request(Item("a")));
+
+        Assert.HasCount(1, offers);
+        Assert.AreEqual("Return.Test", offers[0].ProviderSystemName);
+    }
+
+    [TestMethod]
+    public async Task Resolve_GetFormRouteNameThrows_OnlyProvider_NoChoiceNeeded()
+    {
+        //the form showed no method, so the submit does not ask for one
+        SetupOptions("", Option("point", 3, true));
+        _provider.Setup(x => x.GetFormRouteName("point")).ThrowsAsync(new InvalidOperationException("no route"));
+
+        var resolution = await _service.Resolve(Request(Item("a")), null);
+
+        Assert.IsEmpty(resolution.Errors);
+        Assert.IsEmpty(resolution.ByVendor);
+    }
+
+    [TestMethod]
     public async Task Resolve_ProviderThrows_OtherProviderCanBeChosen()
     {
         var failing = Provider("Return.Failing");
@@ -356,7 +387,6 @@ public class ReturnShippingServiceTests
         Assert.AreEqual("Option point", shipping.OptionName);
         Assert.AreEqual(ReturnLabelStatus.NotRequired, shipping.LabelStatus);
         Assert.AreEqual("Origin", shipping.ReturnAddress.Address1);
-        _provider.Verify(x => x.GetFormRouteName(It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
