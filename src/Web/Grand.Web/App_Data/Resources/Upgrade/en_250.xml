@@ -1728,4 +1728,7 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.AlreadyReceived" Area="Vendor">
 		<Value>The merchandise return has not been changed: its goods were already received, so it cannot be rejected, cancelled or deleted.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Choose" Area="Front">
+		<Value>Choose how you send the items back.</Value>
+	</Resource>
 </Language>

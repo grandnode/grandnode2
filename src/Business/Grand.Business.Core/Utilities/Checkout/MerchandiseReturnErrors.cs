@@ -16,4 +16,5 @@ public static class MerchandiseReturnErrors
     public const string SubmitNothingToReturn = "MerchandiseReturns.NoItemsSubmitted";
     public const string SubmitQuantityExceeded = "MerchandiseReturns.QuantityExceeded";
     public const string SubmitBusy = "MerchandiseReturns.Busy";
+    public const string SubmitReturnShippingChoose = "MerchandiseReturns.ReturnShipping.Choose";
 }

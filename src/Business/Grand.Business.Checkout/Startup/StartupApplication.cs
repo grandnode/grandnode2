@@ -70,6 +70,7 @@ public class StartupApplication : IStartupApplication
     {
         serviceCollection.AddScoped<IShipmentService, ShipmentService>();
         serviceCollection.AddScoped<IShippingService, ShippingService>();
+        serviceCollection.AddScoped<IReturnShippingService, ReturnShippingService>();
         serviceCollection.AddScoped<IPickupPointService, PickupPointService>();
         serviceCollection.AddScoped<IDeliveryDateService, DeliveryDateService>();
         serviceCollection.AddScoped<IWarehouseService, WarehouseService>();

@@ -22,6 +22,11 @@ public class MerchandiseReturnSubmitRequest
     public Address PickupAddress { get; set; }
     public DateTime? PickupDate { get; set; }
     public IList<MerchandiseReturnSubmitItem> Items { get; set; } = [];
+
+    /// <summary>
+    ///     How the customer sends the items back; null when no return shipping option was picked
+    /// </summary>
+    public ReturnShippingChoice ReturnShipping { get; set; }
 }
 
 /// <summary>
