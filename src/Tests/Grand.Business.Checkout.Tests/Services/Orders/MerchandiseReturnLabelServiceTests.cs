@@ -17,6 +17,11 @@ namespace Grand.Business.Checkout.Tests.Services.Orders;
 public class MerchandiseReturnLabelServiceTests
 {
     private const string Carrier = "Carrier";
+    private static readonly string LabelKey = MerchandiseReturnExtensions.LabelLockKey("r1");
+    private static readonly string OrderKey = MerchandiseReturnExtensions.QuantityLockKey("o1");
+
+    private readonly List<string> _acquired = [];
+    private readonly HashSet<string> _held = [];
 
     private Mock<IDownloadService> _downloadService;
     private Mock<IMerchandiseReturnService> _merchandiseReturnService;
@@ -41,12 +46,44 @@ public class MerchandiseReturnLabelServiceTests
             .Callback<Download>(x => x.Id = "d1")
             .Returns(Task.CompletedTask);
         _resourceLock = new Mock<IResourceLock>();
+        //records the keys in the order they are taken, and which are held at any time
         _resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+            .Returns((IEnumerable<string> keys, CancellationToken _) =>
+            {
+                var taken = keys.ToList();
+                _acquired.AddRange(taken);
+                _held.UnionWith(taken);
+                return Task.FromResult<IAsyncDisposable>(new Handle(() => _held.ExceptWith(taken)));
+            });
 
         _service = new MerchandiseReturnLabelService(_merchandiseReturnService.Object,
             _returnShippingService.Object, _downloadService.Object, _resourceLock.Object,
             NullLogger<MerchandiseReturnLabelService>.Instance);
+    }
+
+    private sealed class Handle(Action release) : IAsyncDisposable
+    {
+        public ValueTask DisposeAsync()
+        {
+            release();
+            return ValueTask.CompletedTask;
+        }
+    }
+
+    private sealed class ShortTimeoutLabelService(
+        IMerchandiseReturnService merchandiseReturnService,
+        IReturnShippingService returnShippingService,
+        IDownloadService downloadService,
+        IResourceLock resourceLock) : MerchandiseReturnLabelService(merchandiseReturnService, returnShippingService,
+        downloadService, resourceLock, NullLogger<MerchandiseReturnLabelService>.Instance)
+    {
+        protected override TimeSpan ProviderTimeout => TimeSpan.FromMilliseconds(50);
+    }
+
+    private ShortTimeoutLabelService ShortTimeoutService()
+    {
+        return new ShortTimeoutLabelService(_merchandiseReturnService.Object, _returnShippingService.Object,
+            _downloadService.Object, _resourceLock.Object);
     }
 
     private static MerchandiseReturn Return(ReturnLabelStatus labelStatus,
@@ -213,10 +250,10 @@ public class MerchandiseReturnLabelServiceTests
     [TestMethod]
     public async Task CreateLabel_AlreadyCreatedUnderLock_DoesNotCallProvider()
     {
-        //the second click read the return before the first one's label was saved
-        _merchandiseReturnService.SetupSequence(x => x.GetMerchandiseReturnById("r1"))
-            .ReturnsAsync(Return(ReturnLabelStatus.Pending))
-            .ReturnsAsync(Return(ReturnLabelStatus.Created));
+        //the page showed the label pending; the first click saved its label while the second waited for the lock
+        _resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .Callback(() => _stored = Return(ReturnLabelStatus.Created))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
 
         var error = await _service.CreateLabel("r1");
 
@@ -273,7 +310,7 @@ public class MerchandiseReturnLabelServiceTests
     public async Task CreateLabel_LockTimeout_Busy()
     {
         _resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new ResourceLockTimeoutException(MerchandiseReturnExtensions.LabelLockKey("r1")));
+            .ThrowsAsync(new ResourceLockTimeoutException(LabelKey));
 
         var error = await _service.CreateLabel("r1");
 
@@ -351,16 +388,93 @@ public class MerchandiseReturnLabelServiceTests
     [TestMethod]
     public async Task CreateLabel_TakesLabelLockNotQuantityLock()
     {
-        SetupLabel(Created());
-        var keys = new List<IEnumerable<string>>();
-        _resourceLock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
-            .Callback<IEnumerable<string>, CancellationToken>((k, _) => keys.Add(k.ToList()))
-            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
+        //the provider is called under the label lock only; the result is saved under the order's lock as well
+        List<string> heldDuringCall = null;
+        _provider.Setup(x => x.CreateLabel(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => heldDuringCall = _held.ToList())
+            .ReturnsAsync(Created());
+        List<string> heldDuringSave = null;
+        _merchandiseReturnService.Setup(x => x.UpdateMerchandiseReturnShipping(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => heldDuringSave = _held.ToList())
+            .Returns(Task.CompletedTask);
 
         await _service.CreateLabel("r1");
 
-        Assert.HasCount(1, keys);
-        CollectionAssert.AreEqual(new[] { MerchandiseReturnExtensions.LabelLockKey("r1") }, keys[0].ToList());
+        CollectionAssert.AreEquivalent(new[] { LabelKey }, heldDuringCall);
+        CollectionAssert.AreEquivalent(new[] { LabelKey, OrderKey }, heldDuringSave);
+        CollectionAssert.AreEqual(new[] { LabelKey, OrderKey }, _acquired);
+        Assert.IsEmpty(_held);
+    }
+
+    [TestMethod]
+    public async Task CreateLabel_OrderLockTimeout_BusyAndNotSaved()
+    {
+        SetupLabel(Created());
+        _resourceLock.Setup(x => x.Acquire(It.Is<IEnumerable<string>>(k => k.Contains(OrderKey)),
+                It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new ResourceLockTimeoutException(OrderKey));
+
+        var error = await _service.CreateLabel("r1");
+
+        Assert.AreEqual(MerchandiseReturnErrors.Busy, error);
+        VerifyShippingSaved(Times.Never());
+        _downloadService.Verify(x => x.InsertDownload(It.IsAny<Download>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CreateLabel_ReturnDeletedDuringCall_NoSave()
+    {
+        _provider.Setup(x => x.CreateLabel(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => _stored = null)
+            .ReturnsAsync(Created());
+
+        var error = await _service.CreateLabel("r1");
+
+        Assert.AreEqual(MerchandiseReturnErrors.NotFound, error);
+        VerifyShippingSaved(Times.Never());
+        _downloadService.Verify(x => x.InsertDownload(It.IsAny<Download>()), Times.Never);
+        VerifyStaffNote(Times.Never());
+    }
+
+    [TestMethod]
+    public async Task CreateLabel_ReturnRejectedDuringCall_CancelsNewLabel()
+    {
+        //staff rejected the return, under the order's lock, while the provider was creating its label
+        _provider.Setup(x => x.CreateLabel(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => _stored = Return(ReturnLabelStatus.Pending, MerchandiseReturnStatus.Rejected))
+            .ReturnsAsync(Created());
+        List<string> heldDuringCancel = null;
+        _provider.Setup(x => x.CancelLabel(It.IsAny<MerchandiseReturn>()))
+            .Callback(() => heldDuringCancel = _held.ToList())
+            .ReturnsAsync(true);
+
+        var error = await _service.CreateLabel("r1");
+
+        Assert.IsNull(error);
+        Assert.AreEqual(MerchandiseReturnStatus.Rejected, _stored.MerchandiseReturnStatus);
+        Assert.AreEqual(ReturnLabelStatus.Cancelled, _stored.ReturnShipping.LabelStatus);
+        Assert.AreEqual("d1", _stored.ReturnShipping.LabelDownloadId);
+        _provider.Verify(x => x.CancelLabel(It.Is<MerchandiseReturn>(r => r.Id == "r1")), Times.Once);
+        CollectionAssert.AreEquivalent(new[] { LabelKey }, heldDuringCancel);
+        //the label lock once, the order's lock for the Created save and again for the Cancelled save
+        CollectionAssert.AreEqual(new[] { LabelKey, OrderKey, OrderKey }, _acquired);
+        VerifyShippingSaved(Times.Exactly(2));
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CreateLabel_ProviderTimesOut_MarksFailed()
+    {
+        _provider.Setup(x => x.CreateLabel(It.IsAny<MerchandiseReturn>()))
+            .Returns(new TaskCompletionSource<ReturnLabelResult>().Task);
+
+        var error = await ShortTimeoutService().CreateLabel("r1");
+
+        Assert.IsNull(error);
+        Assert.AreEqual(ReturnLabelStatus.Failed, _stored.ReturnShipping.LabelStatus);
+        Assert.AreEqual("timed out", _stored.ReturnShipping.LabelError);
+        VerifyShippingSaved(Times.Once());
+        VerifyStaffNote(Times.Once());
     }
 
     [TestMethod]
@@ -375,9 +489,7 @@ public class MerchandiseReturnLabelServiceTests
         Assert.AreEqual(MerchandiseReturnStatus.Rejected, _stored.MerchandiseReturnStatus);
         VerifyShippingSaved(Times.Once());
         VerifyStaffNote(Times.Never());
-        _resourceLock.Verify(x => x.Acquire(
-            It.Is<IEnumerable<string>>(k => k.SequenceEqual(new[] { MerchandiseReturnExtensions.LabelLockKey("r1") })),
-            It.IsAny<CancellationToken>()), Times.Once);
+        CollectionAssert.AreEqual(new[] { LabelKey, OrderKey }, _acquired);
     }
 
     [TestMethod]
@@ -408,6 +520,20 @@ public class MerchandiseReturnLabelServiceTests
     }
 
     [TestMethod]
+    public async Task CancelLabel_ProviderTimesOut_StaysCreatedWithNote()
+    {
+        _stored = Return(ReturnLabelStatus.Created, MerchandiseReturnStatus.Cancelled);
+        _provider.Setup(x => x.CancelLabel(It.IsAny<MerchandiseReturn>()))
+            .Returns(new TaskCompletionSource<bool>().Task);
+
+        await ShortTimeoutService().CancelLabel("r1");
+
+        Assert.AreEqual(ReturnLabelStatus.Created, _stored.ReturnShipping.LabelStatus);
+        VerifyShippingSaved(Times.Never());
+        VerifyStaffNote(Times.Once());
+    }
+
+    [TestMethod]
     public async Task CancelLabel_NotCreated_DoesNotCallProvider()
     {
         _stored = Return(ReturnLabelStatus.Failed, MerchandiseReturnStatus.Rejected);
@@ -428,9 +554,7 @@ public class MerchandiseReturnLabelServiceTests
         Assert.AreEqual(MerchandiseReturnStatus.Pending, _stored.MerchandiseReturnStatus);
         VerifyShippingSaved(Times.Once());
         _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
-        _resourceLock.Verify(x => x.Acquire(
-            It.Is<IEnumerable<string>>(k => k.SequenceEqual(new[] { MerchandiseReturnExtensions.LabelLockKey("r1") })),
-            It.IsAny<CancellationToken>()), Times.Once);
+        CollectionAssert.AreEqual(new[] { LabelKey, OrderKey }, _acquired);
     }
 
     [TestMethod]

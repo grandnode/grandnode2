@@ -26,12 +26,20 @@ public interface IReturnShippingProvider : IProvider
         IDictionary<string, string> form);
 
     /// <summary>
-    ///     Creates the label, or only the instructions, of a saved merchandise return
+    ///     The seconds CreateLabel and CancelLabel have to finish in; a call still running after them counts as
+    ///     failed, because the lock of the return's label is held while it runs
+    /// </summary>
+    const int LabelCallTimeoutSeconds = 20;
+
+    /// <summary>
+    ///     Creates the label, or only the instructions, of a saved merchandise return. It must finish within
+    ///     LabelCallTimeoutSeconds (20 seconds); a later result is dropped and the label is saved as failed
     /// </summary>
     Task<ReturnLabelResult> CreateLabel(MerchandiseReturn merchandiseReturn);
 
     /// <summary>
-    ///     Cancels the label of a merchandise return
+    ///     Cancels the label of a merchandise return. It must finish within LabelCallTimeoutSeconds (20 seconds); a
+    ///     later result is dropped and the label stays created
     /// </summary>
     Task<bool> CancelLabel(MerchandiseReturn merchandiseReturn);
 
