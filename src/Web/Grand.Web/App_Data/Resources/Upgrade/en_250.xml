@@ -1878,4 +1878,46 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Cancelled" Area="Vendor">
 		<Value>Cancelled</Value>
 	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods" Area="Admin">
+		<Value>Return methods</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.Fields.FriendlyName" Area="Admin">
+		<Value>Friendly name</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.Fields.SystemName" Area="Admin">
+		<Value>System name</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.Fields.DisplayOrder" Area="Admin">
+		<Value>Display order</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.Fields.IsActive" Area="Admin">
+		<Value>Is active</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.ReturnAddress" Area="Admin">
+		<Value>Return address</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.ReturnAddress.Hint" Area="Admin">
+		<Value>Where customers send returned parcels. Without a street address the shipping origin is used; the items of a vendor with an address of their own go to that vendor.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.SendYourselfCost" Area="Admin">
+		<Value>Send it yourself cost</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.SendYourselfCost.Hint" Area="Admin">
+		<Value>What a customer pays for a return they send back with a carrier of their own, in the primary store currency. It is not charged when the return fees in the order settings are &quot;Free return&quot;, for a reason with free return shipping, or when every item is returned without refund.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.SendYourselfCost.Negative" Area="Admin">
+		<Value>The cost cannot be negative.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.FreeReturnShipping" Area="Admin">
+		<Value>Free return shipping</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.FreeReturnShipping.Hint" Area="Admin">
+		<Value>The store pays for sending back the items returned for this reason, e.g. a wrong or faulty product.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnActions.WithoutRefund" Area="Admin">
+		<Value>Without refund</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnActions.WithoutRefund.Hint" Area="Admin">
+		<Value>The customer asks for no money back, e.g. a repair or a replacement, so a return with only such items is sent back at no cost to them.</Value>
+	</Resource>
 </Language>

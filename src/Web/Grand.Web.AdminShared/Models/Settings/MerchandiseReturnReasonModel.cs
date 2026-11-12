@@ -16,6 +16,9 @@ public class MerchandiseReturnReasonModel : BaseEntityModel, ILocalizedModel<Mer
     [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnReasons.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
+    [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnReasons.FreeReturnShipping")]
+    public bool FreeReturnShipping { get; set; }
+
     public IList<MerchandiseReturnReasonLocalizedModel> Locales { get; set; } =
         new List<MerchandiseReturnReasonLocalizedModel>();
 
