@@ -181,6 +181,21 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     }
 
     /// <summary>
+    ///     Saves only the return shipping of the merchandise return
+    /// </summary>
+    /// <param name="merchandiseReturn">Merchandise return</param>
+    public virtual async Task UpdateMerchandiseReturnShipping(MerchandiseReturn merchandiseReturn)
+    {
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
+
+        await _merchandiseReturnRepository.UpdateField(merchandiseReturn.Id, x => x.ReturnShipping,
+            merchandiseReturn.ReturnShipping);
+
+        //event notification
+        await _mediator.EntityUpdated(merchandiseReturn);
+    }
+
+    /// <summary>
     ///     Deletes a merchandise return
     /// </summary>
     /// <param name="merchandiseReturn">Merchandise return</param>

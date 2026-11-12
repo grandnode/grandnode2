@@ -11,6 +11,7 @@ public static class MerchandiseReturnErrors
     public const string QuantityExceeded = "Orders.MerchandiseReturns.QuantityExceeded";
     public const string AlreadyReceived = "Orders.MerchandiseReturns.AlreadyReceived";
     public const string Busy = "Orders.MerchandiseReturns.Busy";
+    public const string LabelNotAllowed = "Orders.MerchandiseReturns.LabelNotAllowed";
 
     //the storefront's keys, as they are
     public const string SubmitNothingToReturn = "MerchandiseReturns.NoItemsSubmitted";

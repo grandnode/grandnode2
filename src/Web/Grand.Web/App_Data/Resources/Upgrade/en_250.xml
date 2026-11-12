@@ -1665,6 +1665,12 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.NotFound" Area="Vendor">
 		<Value>The merchandise return was not found.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.LabelNotAllowed" Area="Admin">
+		<Value>A label cannot be created for this return.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.LabelNotAllowed" Area="Vendor">
+		<Value>A label cannot be created for this return.</Value>
+	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Pending" Area="Admin">
 		<Value>Reopen</Value>
 	</Resource>
