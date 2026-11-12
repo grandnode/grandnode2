@@ -74,6 +74,20 @@ public class LiquidMerchandiseReturnTests
     }
 
     [TestMethod]
+    public async Task ReturnShipping_TextsHtmlEncoded()
+    {
+        var drop = await Build(new MerchandiseReturnShipping {
+            OptionName = "<b>Post</b>", TrackingNumber = "<script>x</script>", ReturnCode = "A&B",
+            Instructions = "Bring it to \"Shop\"\r\n<i>today</i>"
+        });
+
+        Assert.AreEqual("&lt;b&gt;Post&lt;/b&gt;", drop.ReturnMethod);
+        Assert.AreEqual("&lt;script&gt;x&lt;/script&gt;", drop.ReturnTrackingNumber);
+        Assert.AreEqual("A&amp;B", drop.ReturnCode);
+        Assert.AreEqual("Bring it to &quot;Shop&quot;<br />&lt;i&gt;today&lt;/i&gt;", drop.ReturnInstructions);
+    }
+
+    [TestMethod]
     public async Task ReturnShipping_LabelNotCreated_LabelUrlEmpty()
     {
         var drop = await Build(new MerchandiseReturnShipping {

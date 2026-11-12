@@ -6,6 +6,7 @@ using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Orders;
 using Grand.Mediator;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
@@ -56,11 +57,13 @@ public class
         if (shipping != null)
         {
             var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
-            liquidMerchandiseReturn.ReturnMethod = shipping.OptionName ?? "";
+            //texts the customer, the staff or a provider wrote go into the HTML of the message encoded, as the
+            //customer's comment does
+            liquidMerchandiseReturn.ReturnMethod = FormatText.ConvertText(shipping.OptionName);
             liquidMerchandiseReturn.ReturnCost = _priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, currency);
-            liquidMerchandiseReturn.ReturnTrackingNumber = shipping.TrackingNumber ?? "";
-            liquidMerchandiseReturn.ReturnCode = shipping.ReturnCode ?? "";
-            liquidMerchandiseReturn.ReturnInstructions = shipping.Instructions ?? "";
+            liquidMerchandiseReturn.ReturnTrackingNumber = FormatText.ConvertText(shipping.TrackingNumber);
+            liquidMerchandiseReturn.ReturnCode = FormatText.ConvertText(shipping.ReturnCode);
+            liquidMerchandiseReturn.ReturnInstructions = FormatText.ConvertText(shipping.Instructions);
             liquidMerchandiseReturn.HasReturnLabel = shipping.LabelStatus == ReturnLabelStatus.Created;
         }
 
