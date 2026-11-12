@@ -2,5 +2,6 @@
   Name: Defective,
   DisplayOrder: 1,
   LimitedToStores: false,
+  FreeReturnShipping: false,
   Id: ObjectId_1
 }

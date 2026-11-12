@@ -2,5 +2,6 @@
   Name: Refund,
   DisplayOrder: 1,
   LimitedToStores: false,
+  WithoutRefund: false,
   Id: ObjectId_1
 }
