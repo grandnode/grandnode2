@@ -112,13 +112,21 @@ public class MerchandiseReturnWorkflowService(
                 merchandiseReturn.Id);
         }
 
+        return await ReadAgain(merchandiseReturn);
+    }
+
+    /// <summary>
+    ///     The return as the label service saved it, for the messages; the one in memory when it cannot be read
+    /// </summary>
+    private async Task<MerchandiseReturn> ReadAgain(MerchandiseReturn merchandiseReturn)
+    {
         try
         {
             return await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturn.Id) ?? merchandiseReturn;
         }
         catch (Exception ex)
         {
-            //the return is saved: its messages go out without the label rather than not at all
+            //the return is saved: its messages go out without the label's change rather than not at all
             logger.LogError(ex, "Merchandise return {MerchandiseReturnId} was not read again after its label",
                 merchandiseReturn.Id);
             return merchandiseReturn;
@@ -258,6 +266,7 @@ public class MerchandiseReturnWorkflowService(
         //the label service takes it again to save; a label not cancelled leaves the status change as it is
         if (status is MerchandiseReturnStatus.Rejected or MerchandiseReturnStatus.Cancelled
             && changed.ReturnShipping?.LabelStatus == ReturnLabelStatus.Created)
+        {
             try
             {
                 await labelService.CancelLabel(changed.Id);
@@ -267,6 +276,10 @@ public class MerchandiseReturnWorkflowService(
                 logger.LogError(ex, "The label of merchandise return {MerchandiseReturnId} was not cancelled",
                     changed.Id);
             }
+
+            //the message gives no link to a label that was cancelled
+            changed = await ReadAgain(changed);
+        }
 
         //the status is saved: a message that could not be sent is logged, the change itself did not fail
         try

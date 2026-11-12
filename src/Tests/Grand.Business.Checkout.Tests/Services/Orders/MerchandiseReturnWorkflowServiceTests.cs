@@ -723,6 +723,41 @@ public class MerchandiseReturnWorkflowServiceTests
     }
 
     [TestMethod]
+    public async Task ChangeStatus_Reject_MessageSentWithTheReturnAsCancelled()
+    {
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
+        var afterCancel = Return(MerchandiseReturnStatus.Rejected);
+        afterCancel.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Cancelled };
+        //the label service saves the cancelled label: the return is read again as stored then
+        _labelService.Setup(x => x.CancelLabel("r1")).Callback(() => _stored = afterCancel)
+            .Returns(Task.CompletedTask);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Rejected);
+
+        Assert.IsNull(error);
+        _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
+            It.Is<MerchandiseReturn>(r => r.ReturnShipping.LabelStatus == ReturnLabelStatus.Cancelled), _order,
+            "customer-language"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Reject_ReadAgainFails_MessageSentWithTheReturnInMemory()
+    {
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
+        var inMemory = _stored;
+        _labelService.Setup(x => x.CancelLabel("r1")).Callback(() =>
+                _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById("r1"))
+                    .ThrowsAsync(new TimeoutException()))
+            .Returns(Task.CompletedTask);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Rejected);
+
+        Assert.IsNull(error);
+        _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
+            inMemory, _order, "customer-language"), Times.Once);
+    }
+
+    [TestMethod]
     public async Task ChangeStatus_Reject_CancelFails_StatusStaysChanged_AndMessageSent()
     {
         _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
