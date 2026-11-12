@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
@@ -18,10 +19,17 @@ namespace Grand.Web.Tests.Validators.Orders;
 public class MerchandiseReturnValidatorTests
 {
     private Mock<IMediator> _mediatorMock;
+    private Mock<IMerchandiseReturnService> _merchandiseReturnService;
 
     [TestInitialize]
     public void Init()
     {
+        //the store offers no reasons or actions unless a test gives it some
+        _merchandiseReturnService = new Mock<IMerchandiseReturnService>();
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnReasons("s1"))
+            .ReturnsAsync(new List<MerchandiseReturnReason>());
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnActions("s1"))
+            .ReturnsAsync(new List<MerchandiseReturnAction>());
         _mediatorMock = new Mock<IMediator>();
         _mediatorMock.Setup(x => x.Send(It.IsAny<GetParseCustomAddressAttributes>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<CustomAttribute>());
@@ -34,6 +42,7 @@ public class MerchandiseReturnValidatorTests
             .ReturnsAsync(new List<string>());
         var translationService = new Mock<IRequestTranslationService>();
         translationService.Setup(x => x.GetResource(It.IsAny<string>())).Returns((string key) => key);
+        translationService.Setup(x => x.GetResource("Fields.IsRequired")).Returns("{0} is required");
         var storeContext = new Mock<IStoreContext>();
         storeContext.Setup(x => x.CurrentStore).Returns(new Domain.Stores.Store { Id = "s1" });
         var contextAccessor = new Mock<IContextAccessor>();
@@ -41,7 +50,7 @@ public class MerchandiseReturnValidatorTests
 
         return new MerchandiseReturnValidator(new List<IValidatorConsumer<MerchandiseReturnModel>>(),
             orderSettings ?? new OrderSettings(), _mediatorMock.Object, addressAttributeParser.Object,
-            translationService.Object, contextAccessor.Object);
+            translationService.Object, contextAccessor.Object, _merchandiseReturnService.Object);
     }
 
     private static MerchandiseReturnModel Model(params (string Id, int Quantity)[] items)
@@ -77,6 +86,61 @@ public class MerchandiseReturnValidatorTests
 
         _mediatorMock.Verify(x => x.Send(It.IsAny<GetReturnableQuantitiesQuery>(), It.IsAny<CancellationToken>()),
             Times.Never);
+    }
+
+    private void StoreOffersReasonsAndActions()
+    {
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnReasons("s1"))
+            .ReturnsAsync(new List<MerchandiseReturnReason> { new() { Id = "wrong-product", FreeReturnShipping = true } });
+        _merchandiseReturnService.Setup(x => x.GetAllMerchandiseReturnActions("s1"))
+            .ReturnsAsync(new List<MerchandiseReturnAction> { new() { Id = "refund" } });
+    }
+
+    [TestMethod]
+    public async Task Validate_ReasonAndActionNotChosen_IsRejected()
+    {
+        StoreOffersReasonsAndActions();
+
+        var result = await Validator().ValidateAsync(Model(("a", 1)));
+
+        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.ReturnReason is required"));
+        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.ReturnAction is required"));
+    }
+
+    [TestMethod]
+    public async Task Validate_ReasonAndActionChosen_IsValid()
+    {
+        StoreOffersReasonsAndActions();
+        var model = Model(("a", 1), ("b", 0));
+        model.Items[0].MerchandiseReturnReasonId = "wrong-product";
+        model.Items[0].MerchandiseReturnActionId = "refund";
+
+        //the item not returned needs no reason or action
+        var result = await Validator().ValidateAsync(model);
+
+        Assert.IsTrue(result.IsValid);
+    }
+
+    [TestMethod]
+    public async Task Validate_ReasonOfAnotherStore_IsRejected()
+    {
+        StoreOffersReasonsAndActions();
+        var model = Model(("a", 1));
+        model.Items[0].MerchandiseReturnReasonId = "other-store-reason";
+        model.Items[0].MerchandiseReturnActionId = "refund";
+
+        var result = await Validator().ValidateAsync(model);
+
+        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.ReturnReason is required"));
+        Assert.IsFalse(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.ReturnAction is required"));
+    }
+
+    [TestMethod]
+    public async Task Validate_StoreOffersNoReasonsOrActions_NoneRequired()
+    {
+        var result = await Validator().ValidateAsync(Model(("a", 1)));
+
+        Assert.IsTrue(result.IsValid);
     }
 
     [TestMethod]

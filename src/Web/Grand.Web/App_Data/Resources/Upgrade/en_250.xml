@@ -1950,4 +1950,10 @@
 	<Resource Name="Shipping.ShippingPoint.Fields.ReturnFee" Area="Admin">
 		<Value>Return fee</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnReason.Select" Area="Front">
+		<Value>Select a reason</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnAction.Select" Area="Front">
+		<Value>Select an action</Value>
+	</Resource>
 </Language>

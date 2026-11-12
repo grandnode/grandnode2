@@ -100,10 +100,19 @@
                                                     Value = x.Id.ToString()
                                                 }).ToList();
                                             }
-                                            <select asp-for="@Model.Items[j].MerchandiseReturnReasonId"
-                                                    asp-items="@reasonsSelectList" class="form-control form-select return-reasons"
-                                                    v-on:change="merchandisereturns.loadOffers($event)">
-                                            </select>
+                                            @* nothing chosen at first: the first reason may ship free, and taken
+                                               for granted it made every return free *@
+                                            <validation-provider tag="div" v-slot="{ errors, classes }"
+                                                                 v-bind:rules="@(Model.AvailableReturnReasons.Any() ? $"Number(merchandisereturns.quantity_{item.Id}) > 0 ? 'required' : ''" : "''")">
+                                                <select asp-for="@Model.Items[j].MerchandiseReturnReasonId"
+                                                        asp-items="@reasonsSelectList" class="form-control form-select return-reasons"
+                                                        v-bind:class="classes"
+                                                        data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.ReturnReason"]))"
+                                                        v-on:change="merchandisereturns.loadOffers($event)">
+                                                    <option value="">@Loc["MerchandiseReturns.ReturnReason.Select"]</option>
+                                                </select>
+                                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                            </validation-provider>
                                         </div>
                                         <div>
                                             @{
@@ -113,10 +122,18 @@
                                                     Value = x.Id.ToString()
                                                 }).ToList();
                                             }
-                                            <select asp-for="@Model.Items[j].MerchandiseReturnActionId"
-                                                    asp-items="@actionsSelectList" class="form-control form-select return-actions"
-                                                    v-on:change="merchandisereturns.loadOffers($event)">
-                                            </select>
+                                            @* nothing chosen at first: the first action may give no refund *@
+                                            <validation-provider tag="div" v-slot="{ errors, classes }"
+                                                                 v-bind:rules="@(Model.AvailableReturnActions.Any() ? $"Number(merchandisereturns.quantity_{item.Id}) > 0 ? 'required' : ''" : "''")">
+                                                <select asp-for="@Model.Items[j].MerchandiseReturnActionId"
+                                                        asp-items="@actionsSelectList" class="form-control form-select return-actions"
+                                                        v-bind:class="classes"
+                                                        data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.ReturnAction"]))"
+                                                        v-on:change="merchandisereturns.loadOffers($event)">
+                                                    <option value="">@Loc["MerchandiseReturns.ReturnAction.Select"]</option>
+                                                </select>
+                                                <span class="field-validation-error">{{ errors[0] }}</span>
+                                            </validation-provider>
                                         </div>
                                     </td>
                                 }
