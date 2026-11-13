@@ -1950,4 +1950,10 @@
 	<Resource Name="MerchandiseReturns.ReturnAction.Select" Area="Front">
 		<Value>Select an action</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_HideRequestedAction" Area="Admin">
+		<Value>Hide the requested action</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_HideRequestedAction.Hint" Area="Admin">
+		<Value>The return form does not ask the customer what they want instead (a refund, a repair, a replacement), and no action is saved with the return.</Value>
+	</Resource>
 </Language>

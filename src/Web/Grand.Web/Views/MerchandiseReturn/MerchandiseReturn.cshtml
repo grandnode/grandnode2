@@ -47,9 +47,12 @@
                                 <th>
                                     @Loc["MerchandiseReturns.ReturnReason"]
                                 </th>
-                                <th>
-                                    @Loc["MerchandiseReturns.ReturnAction"]
-                                </th>
+                                @if (!Model.HideRequestedAction)
+                                {
+                                    <th>
+                                        @Loc["MerchandiseReturns.ReturnAction"]
+                                    </th>
+                                }
                             </tr>
                             </thead>
                             <tbody>
@@ -114,27 +117,23 @@
                                                 <span class="field-validation-error">{{ errors[0] }}</span>
                                             </validation-provider>
                                         </div>
-                                        <div>
-                                            @{
-                                                var actionsSelectList = Model.AvailableReturnActions.Select(x => new SelectListItem
-                                                {
-                                                    Text = x.Name,
-                                                    Value = x.Id.ToString()
-                                                }).ToList();
-                                            }
-                                            @* nothing chosen at first: the first action may give no refund *@
-                                            <validation-provider tag="div" v-slot="{ errors, classes }"
-                                                                 v-bind:rules="@(Model.AvailableReturnActions.Any() ? $"Number(merchandisereturns.quantity_{item.Id}) > 0 ? 'required' : ''" : "''")">
+                                        @if (!Model.HideRequestedAction)
+                                        {
+                                            <div>
+                                                @{
+                                                    var actionsSelectList = Model.AvailableReturnActions.Select(x => new SelectListItem
+                                                    {
+                                                        Text = x.Name,
+                                                        Value = x.Id.ToString()
+                                                    }).ToList();
+                                                }
+                                                @* optional: left empty, the return names no action; it never changes the cost *@
                                                 <select asp-for="@Model.Items[j].MerchandiseReturnActionId"
-                                                        asp-items="@actionsSelectList" class="form-control form-select return-actions"
-                                                        v-bind:class="classes"
-                                                        data-val-required="@(string.Format(Loc["Fields.IsRequired"], Loc["MerchandiseReturns.ReturnAction"]))"
-                                                        v-on:change="merchandisereturns.loadOffers($event)">
+                                                        asp-items="@actionsSelectList" class="form-control form-select return-actions">
                                                     <option value="">@Loc["MerchandiseReturns.ReturnAction.Select"]</option>
                                                 </select>
-                                                <span class="field-validation-error">{{ errors[0] }}</span>
-                                            </validation-provider>
-                                        </div>
+                                            </div>
+                                        }
                                     </td>
                                 }
                             </tr>

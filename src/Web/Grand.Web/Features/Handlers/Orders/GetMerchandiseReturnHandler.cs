@@ -70,8 +70,11 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
             PickupDateRequired = _orderSettings.MerchandiseReturns_PickupDateRequired,
             //return reasons
             AvailableReturnReasons = await PrepareAvailableReturnReasons(),
-            //return actions
-            AvailableReturnActions = await PrepareAvailableReturnActions(),
+            //return actions, unless the store does not ask for one
+            HideRequestedAction = _orderSettings.MerchandiseReturns_HideRequestedAction,
+            AvailableReturnActions = _orderSettings.MerchandiseReturns_HideRequestedAction
+                ? []
+                : await PrepareAvailableReturnActions(),
             //the options themselves depend on the items chosen, so the form loads them once a quantity is chosen
             ReturnShippingEnabled = (await _returnShippingService.LoadActiveProviders(
                 _contextAccessor.WorkContext.CurrentCustomer, request.Order.StoreId)).Any()

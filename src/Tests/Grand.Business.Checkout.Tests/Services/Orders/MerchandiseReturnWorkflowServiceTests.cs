@@ -520,6 +520,8 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.IsNull(item.ReasonId);
         Assert.AreEqual("not available", item.ReasonForReturn);
         Assert.IsNull(item.ActionId);
+        //no action asked for: nothing to show
+        Assert.AreEqual("", item.RequestedAction);
     }
 
     [TestMethod]

@@ -81,6 +81,12 @@ public class OrderSettings : ISettings
     public bool MerchandiseReturns_PickupDateRequired { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether the merchandise return form leaves out the requested action; the
+    ///     default shows it, also for a stored settings row without the field
+    /// </summary>
+    public bool MerchandiseReturns_HideRequestedAction { get; set; }
+
+    /// <summary>
     ///     Gets or sets a number of days that the Merchandise Return Link will be available for customers after order placing.
     /// </summary>
     public int NumberOfDaysMerchandiseReturnAvailable { get; set; }

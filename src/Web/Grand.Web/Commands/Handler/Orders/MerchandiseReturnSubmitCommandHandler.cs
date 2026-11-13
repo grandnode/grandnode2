@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Orders;
 using Grand.Domain.Localization;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
@@ -22,13 +23,16 @@ public class MerchandiseReturnSubmitCommandHandler
     private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
     private readonly IMerchandiseReturnMessageProviderService _merchandiseReturnMessageProviderService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly OrderSettings _orderSettings;
 
     public MerchandiseReturnSubmitCommandHandler(IContextAccessor contextAccessor,
         IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService,
         IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
         IGroupService groupService,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        OrderSettings orderSettings)
     {
+        _orderSettings = orderSettings;
         _contextAccessor = contextAccessor;
         _merchandiseReturnWorkflowService = merchandiseReturnWorkflowService;
         _merchandiseReturnMessageProviderService = merchandiseReturnMessageProviderService;
@@ -50,8 +54,10 @@ public class MerchandiseReturnSubmitCommandHandler
             Comments = request.Model.Comments,
             PickupAddress = request.Address,
             PickupDate = request.Model.PickupDate,
+            //a store that does not ask for the requested action saves none, whatever was posted
             Items = request.Model.Items.Select(x => new MerchandiseReturnSubmitItem(x.Id, x.Quantity,
-                x.MerchandiseReturnReasonId, x.MerchandiseReturnActionId)).ToList(),
+                x.MerchandiseReturnReasonId,
+                _orderSettings.MerchandiseReturns_HideRequestedAction ? null : x.MerchandiseReturnActionId)).ToList(),
             ReturnShipping = ReturnShippingChoice(request)
         });
 

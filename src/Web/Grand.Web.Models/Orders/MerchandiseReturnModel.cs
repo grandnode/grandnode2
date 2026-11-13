@@ -39,6 +39,11 @@ public class MerchandiseReturnModel : BaseModel
     public bool PickupDateRequired { get; set; }
 
     /// <summary>
+    ///     Whether the form leaves out the requested action; it is optional when shown
+    /// </summary>
+    public bool HideRequestedAction { get; set; }
+
+    /// <summary>
     ///     Whether a return method is active for the store and the customer; the options are loaded once a quantity
     ///     is chosen
     /// </summary>

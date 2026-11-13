@@ -24,6 +24,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
     private MerchandiseReturnSubmitRequest _request;
     private MerchandiseReturnSubmitResult _result;
     private Mock<IMerchandiseReturnWorkflowService> _workflowMock;
+    private OrderSettings _orderSettings;
 
     [TestInitialize]
     public void Init()
@@ -48,9 +49,10 @@ public class MerchandiseReturnSubmitCommandHandlerTests
             .ReturnsAsync(() => _result);
         _messageProviderMock = new Mock<IMerchandiseReturnMessageProviderService>();
 
+        _orderSettings = new OrderSettings();
         _handler = new MerchandiseReturnSubmitCommandHandler(contextAccessor.Object, _workflowMock.Object,
             _messageProviderMock.Object, new Mock<IGroupService>().Object,
-            new LanguageSettings { DefaultAdminLanguageId = "admin-language" });
+            new LanguageSettings { DefaultAdminLanguageId = "admin-language" }, _orderSettings);
     }
 
     private MerchandiseReturnSubmitCommand Command(int quantity)
@@ -77,6 +79,17 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         Assert.AreEqual("l1", _request.LanguageId);
         Assert.AreEqual("comments", _request.Comments);
         Assert.AreEqual(new MerchandiseReturnSubmitItem("a", 3, "rr1", "ra1"), _request.Items.Single());
+    }
+
+    [TestMethod]
+    public async Task Handle_RequestedActionHidden_SavesNoAction()
+    {
+        //a crafted post names one anyway
+        _orderSettings.MerchandiseReturns_HideRequestedAction = true;
+
+        await _handler.Handle(Command(3), CancellationToken.None);
+
+        Assert.AreEqual(new MerchandiseReturnSubmitItem("a", 3, "rr1", null), _request.Items.Single());
     }
 
     [TestMethod]

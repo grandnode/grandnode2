@@ -97,14 +97,29 @@ public class MerchandiseReturnValidatorTests
     }
 
     [TestMethod]
-    public async Task Validate_ReasonAndActionNotChosen_IsRejected()
+    public async Task Validate_ReasonNotChosen_IsRejected()
     {
         StoreOffersReasonsAndActions();
 
         var result = await Validator().ValidateAsync(Model(("a", 1)));
 
         Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.ReturnReason is required"));
-        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.ReturnAction is required"));
+    }
+
+    [TestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task Validate_ActionNotChosen_IsValid(bool hideRequestedAction)
+    {
+        //the requested action is optional, shown or hidden
+        StoreOffersReasonsAndActions();
+        var model = Model(("a", 1));
+        model.Items[0].MerchandiseReturnReasonId = "wrong-product";
+
+        var result = await Validator(new OrderSettings { MerchandiseReturns_HideRequestedAction = hideRequestedAction })
+            .ValidateAsync(model);
+
+        Assert.IsTrue(result.IsValid);
     }
 
     [TestMethod]
@@ -132,7 +147,6 @@ public class MerchandiseReturnValidatorTests
         var result = await Validator().ValidateAsync(model);
 
         Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.ReturnReason is required"));
-        Assert.IsFalse(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.ReturnAction is required"));
     }
 
     [TestMethod]

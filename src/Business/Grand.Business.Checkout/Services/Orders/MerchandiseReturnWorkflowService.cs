@@ -200,9 +200,8 @@ public class MerchandiseReturnWorkflowService(
                     ? reason.GetTranslation(x => x.Name, request.LanguageId)
                     : "not available",
                 ActionId = action?.Id,
-                RequestedAction = action != null
-                    ? action.GetTranslation(x => x.Name, request.LanguageId)
-                    : "not available"
+                //the action is optional: none asked for leaves it empty
+                RequestedAction = action != null ? action.GetTranslation(x => x.Name, request.LanguageId) : ""
             });
         }
 

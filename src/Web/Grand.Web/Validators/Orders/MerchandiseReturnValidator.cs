@@ -43,19 +43,14 @@ public class MerchandiseReturnValidator : BaseGrandValidator<MerchandiseReturnMo
                 return;
             }
 
-            //every item returned names one of the store's reasons and actions, when the store offers any: none is
-            //taken for granted, as one may ship free or give no refund
-            var storeId = contextAccessor.StoreContext.CurrentStore.Id;
-            var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons(storeId);
+            //every item returned names one of the store's reasons, when the store offers any: none is taken for
+            //granted, as one may ship free. The requested action is optional
+            var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons(
+                contextAccessor.StoreContext.CurrentStore.Id);
             if (reasons.Count > 0 &&
                 returned.Any(item => reasons.All(reason => reason.Id != item.MerchandiseReturnReasonId)))
                 context.AddFailure(string.Format(translationService.GetResource("Fields.IsRequired"),
                     translationService.GetResource("MerchandiseReturns.ReturnReason")));
-            var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions(storeId);
-            if (actions.Count > 0 &&
-                returned.Any(item => actions.All(action => action.Id != item.MerchandiseReturnActionId)))
-                context.AddFailure(string.Format(translationService.GetResource("Fields.IsRequired"),
-                    translationService.GetResource("MerchandiseReturns.ReturnAction")));
         });
     }
 }
