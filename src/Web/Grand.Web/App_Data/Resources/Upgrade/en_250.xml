@@ -1965,4 +1965,124 @@
 	<Resource Name="Admin.Settings.Order.MerchandiseReturns_HideRequestedAction.Hint" Area="Admin">
 		<Value>The return form does not ask the customer what they want instead (a refund, a repair, a replacement), and no action is saved with the return.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Title" Area="Admin">
+		<Value>Refund</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ItemsAmount" Area="Admin">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ReturnShippingCost" Area="Admin">
+		<Value>Return shipping deducted</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Amount" Area="Admin">
+		<Value>Amount</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Method" Area="Admin">
+		<Value>Refunded</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Online" Area="Admin">
+		<Value>Through the payment provider</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Offline" Area="Admin">
+		<Value>Offline</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundedOn" Area="Admin">
+		<Value>Refunded on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.UnderWay" Area="Admin">
+		<Value>Under way</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundedBy" Area="Admin">
+		<Value>Refunded by</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.InProgress" Area="Admin">
+		<Value>A refund of this return is under way, or waits for its payment to be checked.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Title" Area="Vendor">
+		<Value>Refund</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.ItemsAmount" Area="Vendor">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.ReturnShippingCost" Area="Vendor">
+		<Value>Return shipping deducted</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Amount" Area="Vendor">
+		<Value>Amount</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Method" Area="Vendor">
+		<Value>Refunded</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Online" Area="Vendor">
+		<Value>Through the payment provider</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Offline" Area="Vendor">
+		<Value>Offline</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.RefundedOn" Area="Vendor">
+		<Value>Refunded on</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.UnderWay" Area="Vendor">
+		<Value>Under way</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.RefundedBy" Area="Vendor">
+		<Value>Refunded by</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.InProgress" Area="Vendor">
+		<Value>A refund of this return is under way, or waits for its payment to be checked.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AmountToRefund" Area="Admin">
+		<Value>Amount to refund</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AmountToRefund.Hint" Area="Admin">
+		<Value>At most {0}. Lower it to deduct something, e.g. for damage.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundOnline" Area="Admin">
+		<Value>Refund</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundOffline" Area="Admin">
+		<Value>Refund offline</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ConfirmOnline" Area="Admin">
+		<Value>Give the money back through the payment provider of the order? The return is completed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ConfirmOffline" Area="Admin">
+		<Value>Record the money as given back outside the payment provider, e.g. by a bank transfer? The return is completed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Refunded" Area="Admin">
+		<Value>The money has been given back and the return completed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.NotAllowed" Area="Admin">
+		<Value>This return cannot be refunded through the payment of its order.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AmountNotAllowed" Area="Admin">
+		<Value>The amount to refund must be above zero and at most what the return comes to.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.NothingToRefund" Area="Admin">
+		<Value>Nothing is left to refund: the return shipping cost takes the whole amount, or the payment of the order has been refunded already.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AlreadyRefunded" Area="Admin">
+		<Value>This return has been refunded already.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Unconfirmed" Area="Admin">
+		<Value>The payment answered with an error, so it is not known whether the money went back. Check the payment, then say on the return whether it did; the error is in the notes of the return.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Check" Area="Admin">
+		<Value>Whether the money of this refund went back is not known: the payment answered with an error, or the refund stopped before its result was saved. Check the payment with the provider and on the payment transaction of the order, then say whether the money went back. When the payment transaction does not count it, record it there as well.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.WentBack" Area="Admin">
+		<Value>The money went back</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.DidNotGoBack" Area="Admin">
+		<Value>The money did not go back</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ConfirmWentBack" Area="Admin">
+		<Value>Record the refund as made? The return is completed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ConfirmDidNotGoBack" Area="Admin">
+		<Value>Record that the money did not go back? The return can be refunded again.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Cleared" Area="Admin">
+		<Value>The refund has been cleared; the return can be refunded again.</Value>
+	</Resource>
 </Language>

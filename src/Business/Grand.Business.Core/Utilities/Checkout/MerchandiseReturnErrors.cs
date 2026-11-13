@@ -13,6 +13,12 @@ public static class MerchandiseReturnErrors
     public const string Busy = "Orders.MerchandiseReturns.Busy";
     public const string LabelNotAllowed = "Orders.MerchandiseReturns.LabelNotAllowed";
     public const string ShippingChangeNotAllowed = "Orders.MerchandiseReturns.ShippingChangeNotAllowed";
+    public const string RefundNotAllowed = "Orders.MerchandiseReturns.Refund.NotAllowed";
+    public const string RefundAmountNotAllowed = "Orders.MerchandiseReturns.Refund.AmountNotAllowed";
+    public const string NothingToRefund = "Orders.MerchandiseReturns.Refund.NothingToRefund";
+    public const string AlreadyRefunded = "Orders.MerchandiseReturns.Refund.AlreadyRefunded";
+    public const string RefundInProgress = "Orders.MerchandiseReturns.Refund.InProgress";
+    public const string RefundUnconfirmed = "Orders.MerchandiseReturns.Refund.Unconfirmed";
 
     //the storefront's keys, as they are
     public const string SubmitNothingToReturn = "MerchandiseReturns.NoItemsSubmitted";

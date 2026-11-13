@@ -37,11 +37,18 @@ public abstract class BaseMerchandiseReturnController(
     /// </summary>
     protected virtual bool HasInventoryDocuments => true;
 
+    /// <summary>
+    ///     Whether the panel gives back the money for a received return through the payment of its order; a panel
+    ///     that does not shows the refund once made
+    /// </summary>
+    protected virtual bool RefundsPayments => true;
+
     private async Task PrepareEditModel(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn)
     {
         await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
         if (HasInventoryDocuments)
             await MerchandiseReturnViewModelService.PrepareReturnReceipts(model);
+        await MerchandiseReturnViewModelService.PrepareRefund(model, merchandiseReturn, RefundsPayments);
     }
 
     #region List
@@ -217,6 +224,56 @@ public abstract class BaseMerchandiseReturnController(
             Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
 
         //a label the provider failed again is shown on the return, with the provider's error
+        return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
+    }
+
+    #endregion
+
+    #region Refund
+
+    /// <summary>
+    ///     Gives back the money for the received return, through the payment provider or offline, and completes it.
+    ///     Posts the edit form to its own action: what was typed and not saved yet is not saved by it
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> Refund(string id, double refundAmount, bool offline)
+    {
+        var merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(id);
+        if (merchandiseReturn == null) return RedirectToAction("List");
+        if (!RefundsPayments || !await Scope.HasAccess(merchandiseReturn)) return RedirectToAction("List");
+
+        var error = await MerchandiseReturnViewModelService.RefundMerchandiseReturn(merchandiseReturn, refundAmount,
+            offline);
+        if (error == null)
+            Success(TranslationService.GetResource(
+                $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Refund.Refunded"));
+        else
+            Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
+
+        return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
+    }
+
+    /// <summary>
+    ///     Records whether the money of a refund that waits for its check went back: the return is refunded and
+    ///     completed, or it can be refunded again. Posts the edit form to its own action, as the refund does
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> ResolveRefund(string id, bool wentBack)
+    {
+        var merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(id);
+        if (merchandiseReturn == null) return RedirectToAction("List");
+        if (!RefundsPayments || !await Scope.HasAccess(merchandiseReturn)) return RedirectToAction("List");
+
+        var error = await MerchandiseReturnViewModelService.ResolveRefund(merchandiseReturn, wentBack);
+        if (error == null)
+            Success(TranslationService.GetResource(wentBack
+                ? $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Refund.Refunded"
+                : $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Refund.Cleared"));
+        else
+            Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
+
         return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
     }
 

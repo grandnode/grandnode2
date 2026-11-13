@@ -91,6 +91,40 @@ public class MerchandiseReturnModel : BaseEntityModel
     //the return's receipts, posted or draft; a panel without inventory documents lists none
     public IList<ReturnReceiptModel> ReturnReceipts { get; set; } = new List<ReturnReceiptModel>();
 
+    //the money given back for the return, or what it comes to; null when the page shows no refund
+    public RefundModel Refund { get; set; }
+
+    //posted by the refund buttons: at most RefundModel.MaxAmount, lower when the staff deduct something
+    [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.Refund.AmountToRefund")]
+    public double RefundAmount { get; set; }
+
+    public class RefundModel : BaseModel
+    {
+        //the amounts of the refund made, or of the refund as it comes to now; formatted in the order's currency
+        public string ItemsAmount { get; set; }
+        public string ReturnShippingCost { get; set; }
+        public string Amount { get; set; }
+
+        //a refund was made or is under way: the facts are shown, nothing is offered
+        public bool Started { get; set; }
+        public DateTime? RefundedOn { get; set; }
+        public string RefundedBy { get; set; }
+        public bool Offline { get; set; }
+
+        //a refund under way whose result is not known: the staff who refund payments check the payment and say
+        //whether the money went back
+        public bool AwaitsCheck { get; set; }
+
+        //why the return cannot be refunded now, translated; null when it can
+        public string Error { get; set; }
+
+        //the most that can be refunded, formatted in the order's currency
+        public string MaxAmount { get; set; }
+        public string CurrencyCode { get; set; }
+        public bool CanRefundOnline { get; set; }
+        public bool CanRefundOffline { get; set; }
+    }
+
     public class ReturnReceiptModel : BaseModel
     {
         public string Id { get; set; }

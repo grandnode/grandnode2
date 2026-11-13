@@ -88,4 +88,66 @@ public static class MerchandiseReturnExtensions
     {
         return $"{nameof(MerchandiseReturn)}:label:{merchandiseReturnId}";
     }
+
+    /// <summary>
+    ///     The IResourceLock key held while a merchandise return of the order is refunded: one refund of the order's
+    ///     payment at a time. Always taken before the order's quantity lock, never the other way round
+    /// </summary>
+    public static string RefundLockKey(string orderId)
+    {
+        return $"{nameof(MerchandiseReturn)}:refund:{orderId}";
+    }
+
+    /// <summary>
+    ///     How long a refund under way may still be running: far longer than any payment provider call. One older than
+    ///     that was left by a call that ended without saving its result
+    /// </summary>
+    public static readonly TimeSpan RefundRunsAtMost = TimeSpan.FromMinutes(15);
+
+    /// <summary>
+    ///     Whether the refund waits for the staff to say whether the money went back: the payment answered it with
+    ///     errors, or the call that started it ended without saving its result. Nothing reads that from the payment
+    ///     transaction: its refunded amount counts every refund of the order, not this one
+    /// </summary>
+    public static bool AwaitsCheck(this MerchandiseReturnRefund refund, DateTime utcNow)
+    {
+        return refund is { RefundedOnUtc: null } &&
+               (refund.OutcomeUnknown || refund.CreatedOnUtc <= utcNow - RefundRunsAtMost);
+    }
+
+    /// <summary>
+    ///     What was paid for the items of the return, in the order's currency: the price of each order item, with its
+    ///     item discount and tax, shared out over its quantity. The returns of the item refunded before took the first
+    ///     shares, so all the returns of an item together come to its price exactly, never a cent more or less. The
+    ///     discounts of the whole order are not shared out over the items
+    /// </summary>
+    /// <param name="merchandiseReturn">The return</param>
+    /// <param name="order">The order of the return</param>
+    /// <param name="refundedBefore">The other returns of the order with a refund, done or under way</param>
+    /// <param name="decimals">The decimals of the order's currency</param>
+    /// <param name="midpointRounding">The midpoint rounding of the order's currency</param>
+    public static double RefundItemsAmount(this MerchandiseReturn merchandiseReturn, Order order,
+        IEnumerable<MerchandiseReturn> refundedBefore, int decimals, MidpointRounding midpointRounding)
+    {
+        var itemsBefore = refundedBefore.SelectMany(x => x.MerchandiseReturnItems).ToList();
+        decimal amount = 0;
+        foreach (var items in merchandiseReturn.MerchandiseReturnItems.GroupBy(x => x.OrderItemId))
+        {
+            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == items.Key);
+            if (orderItem == null || orderItem.Quantity <= 0)
+                continue;
+
+            var quantityBefore = itemsBefore.Where(x => x.OrderItemId == items.Key).Sum(x => x.Quantity);
+            amount += Share(orderItem, quantityBefore + items.Sum(x => x.Quantity)) - Share(orderItem, quantityBefore);
+        }
+
+        return (double)amount;
+
+        //the price of the item's first units, never more than its whole price
+        decimal Share(OrderItem orderItem, int quantity)
+        {
+            return Math.Round((decimal)orderItem.PriceInclTax * Math.Min(quantity, orderItem.Quantity) /
+                              orderItem.Quantity, decimals, midpointRounding);
+        }
+    }
 }

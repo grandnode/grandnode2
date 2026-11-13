@@ -68,34 +68,36 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
             if (result.Success)
             {
                 paymentTransaction = await _paymentTransactionService.GetById(paymentTransaction.Id);
-                paymentTransaction.TransactionStatus = result.NewTransactionStatus;
                 paymentTransaction.RefundedAmount += amountToRefund;
+                //a provider that gives no status leaves the one the refunded amount comes to, as the offline partial
+                //refund sets it: a transaction left pending could not be refunded again
+                paymentTransaction.TransactionStatus = result.NewTransactionStatus != TransactionStatus.Pending
+                    ? result.NewTransactionStatus
+                    : paymentTransaction.RefundedAmount >= paymentTransaction.TransactionAmount
+                        ? TransactionStatus.Refunded
+                        : TransactionStatus.PartiallyRefunded;
                 await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
                 var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
                 ArgumentNullException.ThrowIfNull(order);
 
-                //total amount refunded
-                if (paymentTransaction.TransactionStatus == TransactionStatus.Refunded)
-                {
-                    var totalAmountRefunded = order.RefundedAmount + amountToRefund;
+                //total amount refunded: every partial refund counts, whatever status the provider gave the
+                //transaction, as the offline partial refund counts it
+                order.RefundedAmount += amountToRefund;
+                order.PaymentStatusId = order.RefundedAmount >= order.OrderTotal
+                    ? PaymentStatus.Refunded
+                    : PaymentStatus.PartiallyRefunded;
+                await _orderService.UpdateOrder(order);
 
-                    order.RefundedAmount = totalAmountRefunded;
-                    order.PaymentStatusId = order.RefundedAmount == order.OrderTotal
-                        ? PaymentStatus.Refunded
-                        : PaymentStatus.PartiallyRefunded;
-                    await _orderService.UpdateOrder(order);
+                //check order status
+                await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
 
-                    //check order status
-                    await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
+                //notifications
+                await _orderMessageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund,
+                    _languageSettings.DefaultAdminLanguageId);
 
-                    //notifications
-                    await _orderMessageProviderService.SendOrderRefundedStoreOwnerMessage(order, amountToRefund,
-                        _languageSettings.DefaultAdminLanguageId);
-
-                    await _orderMessageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund,
-                        order.CustomerLanguageId);
-                }
+                await _orderMessageProviderService.SendOrderRefundedCustomerMessage(order, amountToRefund,
+                    order.CustomerLanguageId);
 
                 //raise event       
                 await _mediator.Publish(new PaymentTransactionRefundedEvent(paymentTransaction, amountToRefund),

@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
@@ -193,6 +194,8 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<IRequestPermissionService>().Object,
+            new Mock<IPermissionService>().Object,
+            new Mock<IMerchandiseReturnRefundService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
     }
 
@@ -245,6 +248,8 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<IRequestPermissionService>().Object,
+            new Mock<IPermissionService>().Object,
+            new Mock<IMerchandiseReturnRefundService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
     }
 
@@ -316,6 +321,8 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<IRequestPermissionService>().Object,
+            new Mock<IPermissionService>().Object,
+            new Mock<IMerchandiseReturnRefundService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, workflowMock);
     }
@@ -596,6 +603,8 @@ public class MerchandiseReturnViewModelServiceTests
             mocks.Warehouses.Object,
             mocks.WarehouseScope.Object,
             mocks.Permissions.Object,
+            new Mock<IPermissionService>().Object,
+            new Mock<IMerchandiseReturnRefundService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, mocks);
     }
@@ -760,6 +769,8 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<IRequestPermissionService>().Object,
+            new Mock<IPermissionService>().Object,
+            new Mock<IMerchandiseReturnRefundService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         return (service, mocks);
     }
@@ -916,5 +927,264 @@ public class MerchandiseReturnViewModelServiceTests
         var shipping = new MerchandiseReturnShipping { TrackingNumber = "T1" };
         apply(shipping);
         Assert.IsNull(shipping.TrackingNumber);
+    }
+
+    // --- Refund ----------------------------------------------------------------------------------
+
+    private sealed class RefundMocks
+    {
+        public Mock<IMerchandiseReturnRefundService> Refunds { get; } = new();
+        public Mock<IPermissionService> Permissions { get; } = new();
+        public Mock<IPriceFormatter> PriceFormatter { get; } = new();
+        public Mock<IRequestTranslationService> Translation { get; } = new();
+    }
+
+    private static (MerchandiseReturnViewModelService service, RefundMocks mocks) BuildForRefund()
+    {
+        var mocks = new RefundMocks();
+        var orderServiceMock = new Mock<IOrderService>();
+        orderServiceMock.Setup(x => x.GetOrderById("o1"))
+            .ReturnsAsync(new Order { Id = "o1", CustomerCurrencyCode = "EUR" });
+        var currencyMock = new Mock<ICurrencyService>();
+        currencyMock.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(new Currency { CurrencyCode = "EUR" });
+        var workContext = new Mock<IWorkContext>();
+        workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Email = "john@shop.com" });
+        var contextAccessor = new Mock<IContextAccessor>();
+        contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
+        var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
+        scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
+        mocks.Permissions.Setup(x => x.AuthorizeAction(PermissionSystemName.PaymentTransactions,
+            PermissionActionName.Edit, It.IsAny<Customer>())).ReturnsAsync(true);
+        mocks.PriceFormatter.Setup(x => x.FormatPrice(It.IsAny<double>(), It.IsAny<Currency>()))
+            .Returns<double, Currency>((value, currency) => $"{value:0.00} {currency.CurrencyCode}");
+        mocks.Translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns<string>(key => key);
+
+        var service = new MerchandiseReturnViewModelService(
+            orderServiceMock.Object,
+            new Mock<IProductService>().Object,
+            new Mock<ICustomerService>().Object,
+            new Mock<IDateTimeService>().Object,
+            mocks.Translation.Object,
+            new Mock<IMerchandiseReturnMessageProviderService>().Object,
+            new Mock<IMerchandiseReturnService>().Object,
+            mocks.PriceFormatter.Object,
+            new AddressSettings(),
+            new Mock<ICountryService>().Object,
+            new Mock<IAddressAttributeService>().Object,
+            new Mock<IAddressAttributeParser>().Object,
+            new Mock<IDownloadService>().Object,
+            new OrderSettings(),
+            new Mock<IEnumTranslationService>().Object,
+            contextAccessor.Object,
+            new CustomerConfig(),
+            scopeMock.Object,
+            new Mock<IMerchandiseReturnWorkflowService>().Object,
+            new Mock<IMerchandiseReturnLabelService>().Object,
+            new Mock<IReturnShippingService>().Object,
+            currencyMock.Object,
+            new Mock<IInventoryDocumentService>().Object,
+            new Mock<IWarehouseService>().Object,
+            new Mock<IAdminDataScope<Warehouse>>().Object,
+            new Mock<IRequestPermissionService>().Object,
+            mocks.Permissions.Object,
+            mocks.Refunds.Object,
+            new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
+        return (service, mocks);
+    }
+
+    private static MerchandiseReturn ReceivedReturn()
+    {
+        return new MerchandiseReturn
+            { Id = "r1", OrderId = "o1", MerchandiseReturnStatus = MerchandiseReturnStatus.Received };
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_Received_ShowsTheQuote_WithTheFullAmountToRefund()
+    {
+        var (service, mocks) = BuildForRefund();
+        mocks.Refunds.Setup(x => x.GetQuote(It.Is<MerchandiseReturn>(r => r.Id == "r1"), It.IsAny<Order>()))
+            .ReturnsAsync(new MerchandiseReturnRefundQuote {
+                ItemsAmount = 200, ReturnShippingCost = 5, Amount = 195, MaxAmount = 195, CurrencyCode = "EUR",
+                CanRefundOnline = false, CanRefundOffline = true
+            });
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, ReceivedReturn(), true);
+
+        Assert.IsFalse(model.Refund.Started);
+        Assert.AreEqual("200.00 EUR", model.Refund.ItemsAmount);
+        Assert.AreEqual("5.00 EUR", model.Refund.ReturnShippingCost);
+        Assert.AreEqual("195.00 EUR", model.Refund.Amount);
+        Assert.AreEqual("195.00 EUR", model.Refund.MaxAmount);
+        Assert.AreEqual(195, model.RefundAmount);
+        Assert.IsFalse(model.Refund.CanRefundOnline);
+        Assert.IsTrue(model.Refund.CanRefundOffline);
+        Assert.IsNull(model.Refund.Error);
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_QuoteWithError_ShowsItTranslated_OffersNoButton()
+    {
+        var (service, mocks) = BuildForRefund();
+        mocks.Refunds.Setup(x => x.GetQuote(It.Is<MerchandiseReturn>(r => r.Id == "r1"), It.IsAny<Order>()))
+            .ReturnsAsync(new MerchandiseReturnRefundQuote {
+                Error = MerchandiseReturnErrors.NothingToRefund, CanRefundOnline = true, CanRefundOffline = true
+            });
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, ReceivedReturn(), true);
+
+        Assert.AreEqual("Admin." + MerchandiseReturnErrors.NothingToRefund, model.Refund.Error);
+        Assert.IsFalse(model.Refund.CanRefundOnline);
+        Assert.IsFalse(model.Refund.CanRefundOffline);
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_WithoutTheEditActionOnPaymentTransactions_ShowsNothing()
+    {
+        var (service, mocks) = BuildForRefund();
+        mocks.Permissions.Setup(x => x.AuthorizeAction(PermissionSystemName.PaymentTransactions,
+            PermissionActionName.Edit, It.IsAny<Customer>())).ReturnsAsync(false);
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, ReceivedReturn(), true);
+
+        Assert.IsNull(model.Refund);
+        mocks.Refunds.Verify(x => x.GetQuote(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_RefundMade_ShownInAPanelThatRefunds_WithWhoMadeIt()
+    {
+        var (service, _) = BuildForRefund();
+        var merchandiseReturn = ReceivedReturn();
+        merchandiseReturn.MerchandiseReturnStatus = MerchandiseReturnStatus.Completed;
+        merchandiseReturn.Refund = new MerchandiseReturnRefund {
+            Amount = 150, RefundedBy = "john@shop.com", RefundedOnUtc = DateTime.UtcNow
+        };
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, merchandiseReturn, true);
+
+        Assert.AreEqual("john@shop.com", model.Refund.RefundedBy);
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_RefundMade_ShownInAPanelThatDoesNotRefund_WithoutWhoMadeIt()
+    {
+        var (service, mocks) = BuildForRefund();
+        var merchandiseReturn = ReceivedReturn();
+        merchandiseReturn.MerchandiseReturnStatus = MerchandiseReturnStatus.Completed;
+        merchandiseReturn.Refund = new MerchandiseReturnRefund {
+            ItemsAmount = 200, ReturnShippingCost = 5, Amount = 150, Offline = true, RefundedBy = "john@shop.com",
+            RefundedOnUtc = DateTime.UtcNow
+        };
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, merchandiseReturn, false);
+
+        Assert.IsTrue(model.Refund.Started);
+        Assert.AreEqual("150.00 EUR", model.Refund.Amount);
+        Assert.IsTrue(model.Refund.Offline);
+        Assert.IsNull(model.Refund.RefundedBy);
+        mocks.Refunds.Verify(x => x.GetQuote(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RefundMerchandiseReturn_WithoutTheEditActionOnPaymentTransactions_RefundsNothing()
+    {
+        var (service, mocks) = BuildForRefund();
+        mocks.Permissions.Setup(x => x.AuthorizeAction(PermissionSystemName.PaymentTransactions,
+            PermissionActionName.Edit, It.IsAny<Customer>())).ReturnsAsync(false);
+
+        var error = await service.RefundMerchandiseReturn(ReceivedReturn(), 100, true);
+
+        Assert.AreEqual(MerchandiseReturnErrors.RefundNotAllowed, error);
+        mocks.Refunds.Verify(x => x.Refund(It.IsAny<string>(), It.IsAny<double>(), It.IsAny<bool>(),
+            It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RefundMerchandiseReturn_NamesTheStaffMember()
+    {
+        var (service, mocks) = BuildForRefund();
+
+        await service.RefundMerchandiseReturn(ReceivedReturn(), 100, true);
+
+        mocks.Refunds.Verify(x => x.Refund("r1", 100, true, "john@shop.com"), Times.Once);
+    }
+
+    private static MerchandiseReturn AwaitingCheck()
+    {
+        var merchandiseReturn = ReceivedReturn();
+        merchandiseReturn.Refund = new MerchandiseReturnRefund
+            { Amount = 150, OutcomeUnknown = true, CreatedOnUtc = DateTime.UtcNow };
+        return merchandiseReturn;
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_AwaitingCheck_OffersTheCheck_InAPanelThatRefunds()
+    {
+        var (service, _) = BuildForRefund();
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, AwaitingCheck(), true);
+
+        Assert.IsTrue(model.Refund.Started);
+        Assert.IsTrue(model.Refund.AwaitsCheck);
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_AwaitingCheck_NotOffered_InAPanelThatDoesNotRefund_OrWithoutTheEditAction()
+    {
+        var (service, mocks) = BuildForRefund();
+        var vendorModel = new MerchandiseReturnModel();
+        await service.PrepareRefund(vendorModel, AwaitingCheck(), false);
+        mocks.Permissions.Setup(x => x.AuthorizeAction(PermissionSystemName.PaymentTransactions,
+            PermissionActionName.Edit, It.IsAny<Customer>())).ReturnsAsync(false);
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, AwaitingCheck(), true);
+
+        Assert.IsFalse(vendorModel.Refund.AwaitsCheck);
+        Assert.IsTrue(model.Refund.Started);
+        Assert.IsFalse(model.Refund.AwaitsCheck);
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_UnderWayAndStillRunning_OffersNoCheck()
+    {
+        var (service, _) = BuildForRefund();
+        var merchandiseReturn = ReceivedReturn();
+        merchandiseReturn.Refund = new MerchandiseReturnRefund { Amount = 150, CreatedOnUtc = DateTime.UtcNow };
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, merchandiseReturn, true);
+
+        Assert.IsFalse(model.Refund.AwaitsCheck);
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_WithoutTheEditActionOnPaymentTransactions_RecordsNothing()
+    {
+        var (service, mocks) = BuildForRefund();
+        mocks.Permissions.Setup(x => x.AuthorizeAction(PermissionSystemName.PaymentTransactions,
+            PermissionActionName.Edit, It.IsAny<Customer>())).ReturnsAsync(false);
+
+        var error = await service.ResolveRefund(AwaitingCheck(), true);
+
+        Assert.AreEqual(MerchandiseReturnErrors.RefundNotAllowed, error);
+        mocks.Refunds.Verify(x => x.ResolveRefund(It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_NamesTheStaffMember()
+    {
+        var (service, mocks) = BuildForRefund();
+
+        await service.ResolveRefund(AwaitingCheck(), false);
+
+        mocks.Refunds.Verify(x => x.ResolveRefund("r1", false, "john@shop.com"), Times.Once);
     }
 }
