@@ -1924,7 +1924,7 @@
 		<Value>Send it yourself cost</Value>
 	</Resource>
 	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.SendYourselfCost.Hint" Area="Admin">
-		<Value>What a customer pays for a return they send back with a carrier of their own, in the primary store currency. It is not charged when the return fees in the order settings are &quot;Free return&quot;, for a reason with free return shipping, or when every item is returned without refund.</Value>
+		<Value>What a customer pays for a return they send back with a carrier of their own, in the primary store currency. It is not charged when the return fees in the order settings are &quot;Free return&quot;, or when a returned item has a reason with free return shipping.</Value>
 	</Resource>
 	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.SendYourselfCost.Negative" Area="Admin">
 		<Value>The cost cannot be negative.</Value>
