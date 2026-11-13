@@ -411,7 +411,8 @@ public class MerchandiseReturnViewModelService(
                 ReturnShippingCost = priceFormatter.FormatPrice(refund.ReturnShippingCost, orderCurrency),
                 Amount = priceFormatter.FormatPrice(refund.Amount, orderCurrency),
                 Offline = refund.Offline,
-                RefundedBy = refund.RefundedBy,
+                //who of the store's staff refunded is not for a panel that does not refund, such as the vendor's
+                RefundedBy = canRefund ? refund.RefundedBy : null,
                 RefundedOn = refund.RefundedOnUtc.HasValue
                     ? dateTimeService.ConvertToUserTime(refund.RefundedOnUtc.Value, DateTimeKind.Utc)
                     : null,

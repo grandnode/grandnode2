@@ -1054,7 +1054,23 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task PrepareRefund_RefundMade_ShownInAPanelThatDoesNotRefund()
+    public async Task PrepareRefund_RefundMade_ShownInAPanelThatRefunds_WithWhoMadeIt()
+    {
+        var (service, _) = BuildForRefund();
+        var merchandiseReturn = ReceivedReturn();
+        merchandiseReturn.MerchandiseReturnStatus = MerchandiseReturnStatus.Completed;
+        merchandiseReturn.Refund = new MerchandiseReturnRefund {
+            Amount = 150, RefundedBy = "john@shop.com", RefundedOnUtc = DateTime.UtcNow
+        };
+        var model = new MerchandiseReturnModel();
+
+        await service.PrepareRefund(model, merchandiseReturn, true);
+
+        Assert.AreEqual("john@shop.com", model.Refund.RefundedBy);
+    }
+
+    [TestMethod]
+    public async Task PrepareRefund_RefundMade_ShownInAPanelThatDoesNotRefund_WithoutWhoMadeIt()
     {
         var (service, mocks) = BuildForRefund();
         var merchandiseReturn = ReceivedReturn();
@@ -1070,7 +1086,7 @@ public class MerchandiseReturnViewModelServiceTests
         Assert.IsTrue(model.Refund.Started);
         Assert.AreEqual("150.00 EUR", model.Refund.Amount);
         Assert.IsTrue(model.Refund.Offline);
-        Assert.AreEqual("john@shop.com", model.Refund.RefundedBy);
+        Assert.IsNull(model.Refund.RefundedBy);
         mocks.Refunds.Verify(x => x.GetQuote(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>()), Times.Never);
     }
 
