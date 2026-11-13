@@ -134,6 +134,57 @@ public class MerchandiseReturnWorkflowServiceTests
     }
 
     [TestMethod]
+    public async Task ChangeStatus_AppendsHistoryEntry()
+    {
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(1, _stored.StatusHistory.Count);
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.StatusHistory[0].Status);
+        Assert.IsTrue(DateTime.UtcNow - _stored.StatusHistory[0].CreatedOnUtc < TimeSpan.FromMinutes(1));
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Refused_NoHistoryEntry()
+    {
+        _stored = Return(MerchandiseReturnStatus.Received);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Pending);
+
+        Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, error);
+        Assert.AreEqual(0, _stored.StatusHistory.Count);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_AllowedRefusesStoredStatus_NothingSaved()
+    {
+        //the customer saw it pending, but the staff accepted it in the meantime
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Cancelled, null, null,
+            r => r.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
+
+        Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, error);
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.MerchandiseReturnStatus);
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()),
+            Times.Never);
+        _labelService.Verify(x => x.CancelLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_AllowedTrue_Changes()
+    {
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Cancelled, null, null,
+            r => r.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(MerchandiseReturnStatus.Cancelled, _stored.MerchandiseReturnStatus);
+    }
+
+    [TestMethod]
     public async Task ChangeStatus_NotInTable_ReturnsStatusChangeNotAllowed_AndSavesNothing()
     {
         _stored = Return(MerchandiseReturnStatus.Completed);

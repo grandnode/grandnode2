@@ -28,6 +28,20 @@ public interface IMerchandiseReturnWorkflowService
         string changedBy = null);
 
     /// <summary>
+    ///     Changes the status as the other overload does, when allowed says yes to the return as stored
+    /// </summary>
+    /// <param name="merchandiseReturnId">Merchandise return identifier</param>
+    /// <param name="status">The new status</param>
+    /// <param name="customerNote">A note shown to the customer with the change</param>
+    /// <param name="changedBy">Who changed it, as the staff note names them; null for the system</param>
+    /// <param name="allowed">
+    ///     Checked on the return as stored, under the lock: when it says no, nothing is saved, e.g. a customer's cancel
+    ///     of a return the staff accepted since the page was loaded (StatusChangeNotAllowed)
+    /// </param>
+    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string customerNote,
+        string changedBy, Func<MerchandiseReturn, bool> allowed);
+
+    /// <summary>
     ///     Saves the fields set by apply; the status stays as stored, it changes only through ChangeStatus
     /// </summary>
     Task<string> Update(string merchandiseReturnId, Action<MerchandiseReturn> apply);

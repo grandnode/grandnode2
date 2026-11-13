@@ -272,17 +272,28 @@ public class MerchandiseReturnWorkflowService(
         };
     }
 
-    public async Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
+    public Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
         string customerNote = null, string changedBy = null)
+    {
+        return ChangeStatus(merchandiseReturnId, status, customerNote, changedBy, null);
+    }
+
+    public async Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
+        string customerNote, string changedBy, Func<MerchandiseReturn, bool> allowed)
     {
         MerchandiseReturn changed = null;
         var error = await UnderOrderLock(merchandiseReturnId, async stored =>
         {
+            if (allowed != null && !allowed(stored))
+                return MerchandiseReturnErrors.StatusChangeNotAllowed;
+
             var statusError = await StatusChangeError(stored, status);
             if (statusError != null)
                 return statusError;
 
             stored.MerchandiseReturnStatus = status;
+            //saved with the status, so the customer's timeline says when each one was reached
+            stored.StatusHistory.Add(new MerchandiseReturnStatusChange { Status = status, CreatedOnUtc = DateTime.UtcNow });
             await merchandiseReturnService.UpdateMerchandiseReturn(stored);
             //for the staff: who changed the status; the note's date says when
             await merchandiseReturnService.InsertMerchandiseReturnNote(new MerchandiseReturnNote {

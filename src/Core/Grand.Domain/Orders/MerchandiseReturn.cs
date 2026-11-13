@@ -101,4 +101,10 @@ public class MerchandiseReturn : BaseEntity
     ///     Gets or sets the money given back for the return; null until a refund is started
     /// </summary>
     public MerchandiseReturnRefund Refund { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the statuses the return reached after it was submitted, oldest first; empty for a return
+    ///     changed before they were recorded
+    /// </summary>
+    public IList<MerchandiseReturnStatusChange> StatusHistory { get; set; } = new List<MerchandiseReturnStatusChange>();
 }
