@@ -114,8 +114,51 @@ public class
         await PrepareMerchandiseReturnNotes(request, model);
 
         model.ReturnShipping = await PrepareReturnShipping(request);
+        await PrepareTimeline(request, model);
+
+        var status = request.MerchandiseReturn.MerchandiseReturnStatus;
+        model.CanCancel = status == MerchandiseReturnStatus.Pending;
+        model.CanAddNote = status is MerchandiseReturnStatus.Pending or MerchandiseReturnStatus.Accepted
+            or MerchandiseReturnStatus.Received;
 
         return model;
+    }
+
+    /// <summary>
+    ///     Submitted, each status reached since, and the refund: the dates are those the return records
+    /// </summary>
+    private async Task PrepareTimeline(GetMerchandiseReturnDetails request, MerchandiseReturnDetailsModel model)
+    {
+        var merchandiseReturn = request.MerchandiseReturn;
+        var languageId = request.Language.Id;
+        model.Timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
+            Name = _translationService.GetResource("MerchandiseReturns.Timeline.Submitted", languageId),
+            Date = _dateTimeService.ConvertToUserTime(merchandiseReturn.CreatedOnUtc, DateTimeKind.Utc)
+        });
+
+        foreach (var change in merchandiseReturn.StatusHistory)
+            model.Timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
+                Name = change.Status.GetTranslationEnum(_translationService, languageId),
+                Date = _dateTimeService.ConvertToUserTime(change.CreatedOnUtc, DateTimeKind.Utc)
+            });
+
+        //changed before the statuses were recorded: where it stands is known, not since when
+        if (merchandiseReturn.StatusHistory.Count == 0 &&
+            merchandiseReturn.MerchandiseReturnStatus != MerchandiseReturnStatus.Pending)
+            model.Timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
+                Name = merchandiseReturn.MerchandiseReturnStatus.GetTranslationEnum(_translationService, languageId)
+            });
+
+        var refund = merchandiseReturn.Refund;
+        if (refund?.RefundedOnUtc != null)
+        {
+            var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
+            model.Timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
+                Name = string.Format(_translationService.GetResource("MerchandiseReturns.Timeline.Refunded", languageId),
+                    _priceFormatter.FormatPrice(refund.Amount, currency)),
+                Date = _dateTimeService.ConvertToUserTime(refund.RefundedOnUtc.Value, DateTimeKind.Utc)
+            });
+        }
     }
 
     private async Task<MerchandiseReturnDetailsModel.ReturnShippingModel> PrepareReturnShipping(

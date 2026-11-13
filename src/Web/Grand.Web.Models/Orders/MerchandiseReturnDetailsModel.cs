@@ -38,7 +38,32 @@ public class MerchandiseReturnDetailsModel : BaseModel
     /// </summary>
     public ReturnShippingModel ReturnShipping { get; set; }
 
+    /// <summary>
+    ///     What happened to the return, oldest first
+    /// </summary>
+    public IList<TimelineEntryModel> Timeline { get; set; } = new List<TimelineEntryModel>();
+
+    /// <summary>
+    ///     Whether the customer may still cancel the return: the store has not answered it yet
+    /// </summary>
+    public bool CanCancel { get; set; }
+
+    /// <summary>
+    ///     Whether the customer may still write to the store about the return: it is not closed
+    /// </summary>
+    public bool CanAddNote { get; set; }
+
     #region Nested Classes
+
+    public class TimelineEntryModel
+    {
+        public string Name { get; set; }
+
+        /// <summary>
+        ///     When, in the customer's time; null for a status reached before the dates were recorded
+        /// </summary>
+        public DateTime? Date { get; set; }
+    }
 
     public class MerchandiseReturnNote : BaseEntityModel
     {

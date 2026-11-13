@@ -2160,4 +2160,13 @@
 	<Resource Name="MerchandiseReturns.Notes.TooLong" Area="Front">
 		<Value>A message has at most 2000 characters.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Timeline" Area="Front">
+		<Value>Status history</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Timeline.Submitted" Area="Front">
+		<Value>Submitted</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Timeline.Refunded" Area="Front">
+		<Value>Refunded {0}</Value>
+	</Resource>
 </Language>

@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
+using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
@@ -29,12 +30,105 @@ public class GetMerchandiseReturnDetailsHandlerTests
         var merchandiseReturnService = new Mock<IMerchandiseReturnService>();
         merchandiseReturnService.Setup(x => x.GetMerchandiseReturnNotes(It.IsAny<string>()))
             .ReturnsAsync(() => _notes);
+        //the user's time is an hour ahead of UTC, and amounts are shown with their currency
+        var dateTimeService = new Mock<IDateTimeService>();
+        dateTimeService.Setup(x => x.ConvertToUserTime(It.IsAny<DateTime>(), DateTimeKind.Utc))
+            .Returns((DateTime date, DateTimeKind _) => date.AddHours(1));
+        var currencyService = new Mock<ICurrencyService>();
+        currencyService.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(new Currency { CurrencyCode = "EUR" });
+        var priceFormatter = new Mock<IPriceFormatter>();
+        priceFormatter.Setup(x => x.FormatPrice(It.IsAny<double>(), It.IsAny<Currency>()))
+            .Returns((double price, Currency currency) => $"{currency?.CurrencyCode}{price}");
+        var translationService = new Mock<ITranslationService>();
+        translationService.Setup(x => x.GetResource("MerchandiseReturns.Timeline.Submitted", "l1",
+            It.IsAny<string>(), It.IsAny<bool>())).Returns("Submitted");
+        translationService.Setup(x => x.GetResource("MerchandiseReturns.Timeline.Refunded", "l1",
+            It.IsAny<string>(), It.IsAny<bool>())).Returns("Refunded {0}");
         _handler = new GetMerchandiseReturnDetailsHandler(new Mock<IProductService>().Object,
-            merchandiseReturnService.Object, new Mock<IPriceFormatter>().Object, new Mock<IContextAccessor>().Object,
-            new Mock<IMediator>().Object, new Mock<IDateTimeService>().Object, new OrderSettings(),
-            new Mock<IReturnShippingService>().Object, new Mock<ICurrencyService>().Object,
-            new Mock<ITranslationService>().Object, new Mock<ICountryService>().Object,
+            merchandiseReturnService.Object, priceFormatter.Object, new Mock<IContextAccessor>().Object,
+            new Mock<IMediator>().Object, dateTimeService.Object, new OrderSettings(),
+            new Mock<IReturnShippingService>().Object, currencyService.Object,
+            translationService.Object, new Mock<ICountryService>().Object,
             NullLogger<GetMerchandiseReturnDetailsHandler>.Instance);
+    }
+
+    private Task<Grand.Web.Models.Orders.MerchandiseReturnDetailsModel> Details(MerchandiseReturn merchandiseReturn)
+    {
+        return _handler.Handle(new GetMerchandiseReturnDetails {
+            MerchandiseReturn = merchandiseReturn, Order = new Order { Id = "o1", CustomerCurrencyCode = "EUR" },
+            Language = new Language { Id = "l1" }
+        }, CancellationToken.None);
+    }
+
+    private static readonly DateTime Submitted = new(2026, 11, 1, 8, 0, 0, DateTimeKind.Utc);
+
+    [TestMethod]
+    public async Task Timeline_HistoryInOrder()
+    {
+        var merchandiseReturn = new MerchandiseReturn
+            { Id = "r1", CreatedOnUtc = Submitted, MerchandiseReturnStatus = MerchandiseReturnStatus.Received };
+        merchandiseReturn.StatusHistory.Add(new MerchandiseReturnStatusChange
+            { Status = MerchandiseReturnStatus.Accepted, CreatedOnUtc = Submitted.AddDays(1) });
+        merchandiseReturn.StatusHistory.Add(new MerchandiseReturnStatusChange
+            { Status = MerchandiseReturnStatus.Received, CreatedOnUtc = Submitted.AddDays(3) });
+
+        var model = await Details(merchandiseReturn);
+
+        CollectionAssert.AreEqual(new[] { "Submitted", "Accepted", "Received" },
+            model.Timeline.Select(x => x.Name).ToArray());
+        CollectionAssert.AreEqual(new DateTime?[] { Submitted.AddHours(1), Submitted.AddDays(1).AddHours(1),
+            Submitted.AddDays(3).AddHours(1) }, model.Timeline.Select(x => x.Date).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Timeline_OldReturnWithoutHistory_CurrentStatusUndated()
+    {
+        //changed before the history was recorded: its status is known, not when it was reached
+        var model = await Details(new MerchandiseReturn
+            { Id = "r1", CreatedOnUtc = Submitted, MerchandiseReturnStatus = MerchandiseReturnStatus.Accepted });
+
+        Assert.AreEqual(2, model.Timeline.Count);
+        Assert.AreEqual("Accepted", model.Timeline[1].Name);
+        Assert.IsNull(model.Timeline[1].Date);
+    }
+
+    [TestMethod]
+    public async Task Timeline_PendingWithoutHistory_SubmittedOnly()
+    {
+        var model = await Details(new MerchandiseReturn { Id = "r1", CreatedOnUtc = Submitted });
+
+        Assert.AreEqual("Submitted", model.Timeline.Single().Name);
+    }
+
+    [TestMethod]
+    public async Task Timeline_Refunded_LastEntryWithAmount()
+    {
+        var merchandiseReturn = new MerchandiseReturn {
+            Id = "r1", CreatedOnUtc = Submitted, MerchandiseReturnStatus = MerchandiseReturnStatus.Completed,
+            Refund = new MerchandiseReturnRefund { Amount = 17, RefundedOnUtc = Submitted.AddDays(5) }
+        };
+        merchandiseReturn.StatusHistory.Add(new MerchandiseReturnStatusChange
+            { Status = MerchandiseReturnStatus.Completed, CreatedOnUtc = Submitted.AddDays(5) });
+
+        var model = await Details(merchandiseReturn);
+
+        Assert.AreEqual("Refunded EUR17", model.Timeline.Last().Name);
+        Assert.AreEqual(Submitted.AddDays(5).AddHours(1), model.Timeline.Last().Date);
+    }
+
+    [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Pending, true, true)]
+    [DataRow(MerchandiseReturnStatus.Accepted, false, true)]
+    [DataRow(MerchandiseReturnStatus.Received, false, true)]
+    [DataRow(MerchandiseReturnStatus.Rejected, false, false)]
+    [DataRow(MerchandiseReturnStatus.Cancelled, false, false)]
+    [DataRow(MerchandiseReturnStatus.Completed, false, false)]
+    public async Task Flags_ByStatus(MerchandiseReturnStatus status, bool canCancel, bool canAddNote)
+    {
+        var model = await Details(new MerchandiseReturn { Id = "r1", MerchandiseReturnStatus = status });
+
+        Assert.AreEqual(canCancel, model.CanCancel);
+        Assert.AreEqual(canAddNote, model.CanAddNote);
     }
 
     private async Task<Grand.Web.Models.Orders.MerchandiseReturnDetailsModel.ReturnShippingModel> Shipping(
