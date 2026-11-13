@@ -569,6 +569,63 @@ public class PdfServiceTests
         return ~crc;
     }
 
+    private static MerchandiseReturn ReturnOf(Order order)
+    {
+        var merchandiseReturn = new MerchandiseReturn {
+            Id = "r1", ReturnNumber = 31, OrderId = order.Id, CreatedOnUtc = new DateTime(2026, 11, 13),
+            ReturnShipping = new MerchandiseReturnShipping {
+                OptionName = "Parcel locker", ReturnCode = "RC-4711", Instructions = "Pack it <b>well</b>",
+                ReturnAddress = new Address { FirstName = "Returns", LastName = "Desk", City = "Kraków" }
+            }
+        };
+        merchandiseReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem
+            { OrderItemId = "i1", Quantity = 1, ReasonForReturn = "Received Wrong Product" });
+        return merchandiseReturn;
+    }
+
+    private async Task<string> PrintReturn(MerchandiseReturn merchandiseReturn, Order order)
+    {
+        using var stream = new MemoryStream();
+        await _service.PrintMerchandiseReturnToPdf(stream, merchandiseReturn, order, "lang-1");
+        using var pdf = PdfDocument.Open(stream.ToArray());
+        return string.Join("\n", pdf.GetPages().Select(p => p.Text));
+    }
+
+    [TestMethod]
+    public async Task PrintMerchandiseReturnToPdf_ContainsNumberItemsReasonAndCode()
+    {
+        var order = CreateOrder();
+
+        var text = await PrintReturn(ReturnOf(order), order);
+
+        StringAssert.Contains(text, "PDFMerchandiseReturn.Title 31");
+        StringAssert.Contains(text, "PDFMerchandiseReturn.Order 1001");
+        StringAssert.Contains(text, "Product p1");
+        StringAssert.Contains(text, "Received Wrong Product");
+        StringAssert.Contains(text, "RC-4711");
+        StringAssert.Contains(text, "Parcel locker");
+        StringAssert.Contains(text, "Kraków");
+        StringAssert.Contains(text, "Pack it well");
+        //only the item returned
+        Assert.DoesNotContain("Product p2", text);
+    }
+
+    [TestMethod]
+    public async Task PrintMerchandiseReturnToPdf_DropOffPoint_NamedInsteadOfAddress()
+    {
+        var order = CreateOrder();
+        var merchandiseReturn = ReturnOf(order);
+        merchandiseReturn.ReturnShipping.ReturnAddress = null;
+        merchandiseReturn.ReturnShipping.DropOffPoint = new ReturnDropOffPoint
+            { Name = "Shop Piotrkowska", OpeningHours = "Mon-Fri 9-17" };
+
+        var text = await PrintReturn(merchandiseReturn, order);
+
+        StringAssert.Contains(text, "Shop Piotrkowska");
+        StringAssert.Contains(text, "Mon-Fri 9-17");
+        Assert.DoesNotContain("PDFMerchandiseReturn.SendTo", text);
+    }
+
     private async Task<string> PrintOrders(IList<Order> orders, string vendorId = "")
     {
         using var stream = new MemoryStream();

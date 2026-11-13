@@ -2,6 +2,7 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -366,6 +367,39 @@ public class MerchandiseReturnControllerTests
         _mediator.Verify(x => x.Send(It.Is<InsertMerchandiseReturnNoteCommand>(c =>
                 c.MerchandiseReturn.Id == "r1" && c.Order.Id == "o1" && c.Note == "Hello" && c.Customer == _buyer),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Pdf_OtherStore_NotFound()
+    {
+        Return("buyer");
+        OrderOfOtherStore();
+        var pdfService = new Mock<IPdfService>();
+
+        var result = await _controller.MerchandiseReturnPdf("r1", pdfService.Object);
+
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
+        pdfService.Verify(x => x.PrintMerchandiseReturnToPdf(It.IsAny<Stream>(), It.IsAny<MerchandiseReturn>(),
+            It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Pdf_Owner_Pdf()
+    {
+        var merchandiseReturn = Return("buyer");
+        merchandiseReturn.ReturnNumber = 31;
+        var pdfService = new Mock<IPdfService>();
+        pdfService.Setup(x => x.PrintMerchandiseReturnToPdf(It.IsAny<Stream>(), merchandiseReturn,
+                It.Is<Order>(o => o.Id == "o1"), "l1", It.IsAny<CancellationToken>()))
+            .Callback<Stream, MerchandiseReturn, Order, string, CancellationToken>((s, _, _, _, _) => s.WriteByte(1))
+            .Returns(Task.CompletedTask);
+
+        var result = await _controller.MerchandiseReturnPdf("r1", pdfService.Object);
+
+        var file = (FileContentResult)result;
+        Assert.AreEqual("application/pdf", file.ContentType);
+        Assert.AreEqual("return_31.pdf", file.FileDownloadName);
+        Assert.AreEqual(1, file.FileContents.Length);
     }
 
     [TestMethod]

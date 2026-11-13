@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
@@ -366,6 +367,23 @@ public class MerchandiseReturnController : BasePublicController
         return File(download.DownloadBinary,
             string.IsNullOrEmpty(download.ContentType) ? "application/octet-stream" : download.ContentType,
             download.Filename + download.Extension);
+    }
+
+    /// <summary>
+    ///     The document to put in the parcel with the items, in the working language
+    /// </summary>
+    [HttpGet]
+    public virtual async Task<IActionResult> MerchandiseReturnPdf(string merchandiseReturnId,
+        [FromServices] IPdfService pdfService)
+    {
+        var (merchandiseReturn, order) = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (merchandiseReturn == null)
+            return NotFound("The return was not found.");
+
+        using var stream = new MemoryStream();
+        await pdfService.PrintMerchandiseReturnToPdf(stream, merchandiseReturn, order,
+            _contextAccessor.WorkContext.WorkingLanguage.Id, HttpContext.RequestAborted);
+        return File(stream.ToArray(), "application/pdf", $"return_{merchandiseReturn.ReturnNumber}.pdf");
     }
 
     /// <summary>

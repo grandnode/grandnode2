@@ -2169,4 +2169,49 @@
 	<Resource Name="MerchandiseReturns.Timeline.Refunded" Area="Front">
 		<Value>Refunded {0}</Value>
 	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Title" Area="Front">
+		<Value>Merchandise return #{0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Order" Area="Front">
+		<Value>Order #{0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Date" Area="Front">
+		<Value>Date: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.ProductName" Area="Front">
+		<Value>Product</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Quantity" Area="Front">
+		<Value>Qty</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Reason" Area="Front">
+		<Value>Reason</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Method" Area="Front">
+		<Value>Return method: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.SendTo" Area="Front">
+		<Value>Send to</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.DropOffPoint" Area="Front">
+		<Value>Drop-off point</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.ReturnCode" Area="Front">
+		<Value>Return code: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Company" Area="Front">
+		<Value>Company: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Name" Area="Front">
+		<Value>Name: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Phone" Area="Front">
+		<Value>Phone: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Address" Area="Front">
+		<Value>Address: {0}</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Pdf" Area="Front">
+		<Value>Return document</Value>
+	</Resource>
 </Language>
