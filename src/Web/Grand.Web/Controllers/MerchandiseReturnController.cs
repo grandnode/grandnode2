@@ -443,6 +443,33 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
+    ///     A message of the customer to the store about the return, with an image when they add one
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnAddNote(string merchandiseReturnId, string note,
+        IFormFile file)
+    {
+        var (merchandiseReturn, order) = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (merchandiseReturn == null)
+            return NotFound("The return was not found.");
+
+        var error = await _mediator.Send(new InsertMerchandiseReturnNoteCommand {
+            MerchandiseReturn = merchandiseReturn,
+            Order = order,
+            Note = note,
+            File = file,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Host = _contextAccessor.StoreContext.CurrentHost
+        });
+        if (error == null)
+            Success(_translationService.GetResource("MerchandiseReturns.Notes.Added"));
+        else
+            Error(_translationService.GetResource(error));
+
+        return RedirectToRoute("MerchandiseReturnDetails", new { merchandiseReturnId = merchandiseReturn.Id });
+    }
+
+    /// <summary>
     ///     The form of the "return in store" option: the pickup points of the current store to leave the items at
     /// </summary>
     [HttpGet]

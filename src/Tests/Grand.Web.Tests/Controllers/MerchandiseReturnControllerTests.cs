@@ -339,6 +339,36 @@ public class MerchandiseReturnControllerTests
     }
 
     [TestMethod]
+    public async Task AddNote_OtherStore_NotFound()
+    {
+        Return("buyer");
+        OrderOfOtherStore();
+
+        var result = await _controller.MerchandiseReturnAddNote("r1", "Hello", null);
+
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
+        _mediator.Verify(x => x.Send(It.IsAny<InsertMerchandiseReturnNoteCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddNote_Added_RedirectsWithNotification()
+    {
+        Return("buyer");
+        _translation.Setup(x => x.GetResource("MerchandiseReturns.Notes.Added")).Returns("Sent.");
+        _mediator.Setup(x => x.Send(It.IsAny<InsertMerchandiseReturnNoteCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((string)null);
+
+        var result = await _controller.MerchandiseReturnAddNote("r1", "Hello", null);
+
+        Assert.AreEqual("MerchandiseReturnDetails", ((RedirectToRouteResult)result).RouteName);
+        Assert.IsTrue(((IList<string>)_controller.TempData["grand.notifications.Success"]).Contains("Sent."));
+        _mediator.Verify(x => x.Send(It.Is<InsertMerchandiseReturnNoteCommand>(c =>
+                c.MerchandiseReturn.Id == "r1" && c.Order.Id == "o1" && c.Note == "Hello" && c.Customer == _buyer),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Estimate_OtherStore_NotFound()
     {
         OrderOfOtherStore();

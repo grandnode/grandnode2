@@ -2136,4 +2136,28 @@
 	<Resource Name="MerchandiseReturns.Cancel.NotAllowed" Area="Front">
 		<Value>This return can no longer be cancelled.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Add" Area="Front">
+		<Value>Send a message</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Message" Area="Front">
+		<Value>Message</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Attachment" Area="Front">
+		<Value>Image (optional)</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Send" Area="Front">
+		<Value>Send</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Added" Area="Front">
+		<Value>Your message was sent.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Closed" Area="Front">
+		<Value>This return is closed. Messages can no longer be sent.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Required" Area="Front">
+		<Value>Write a message.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.TooLong" Area="Front">
+		<Value>A message has at most 2000 characters.</Value>
+	</Resource>
 </Language>

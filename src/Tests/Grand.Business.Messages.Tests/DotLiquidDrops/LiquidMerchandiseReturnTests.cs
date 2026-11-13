@@ -158,6 +158,18 @@ public class LiquidMerchandiseReturnTests
     }
 
     [TestMethod]
+    public void NewNoteText_CustomerTextEncoded()
+    {
+        //what a customer writes reaches the store's mailbox as text
+        var drop = new Grand.Business.Messages.DotLiquidDrops.LiquidMerchandiseReturn(
+            new MerchandiseReturn { Id = "r1", PickupAddress = new Address() },
+            new Store { Url = "https://shop.test/" }, null, new Order(),
+            new MerchandiseReturnNote { Note = "<img src=x onerror=alert(1)>\r\n{{ Store.Name }}" });
+
+        Assert.AreEqual("&lt;img src=x onerror=alert(1)&gt;<br />{{ Store.Name }}", drop.NewNoteText);
+    }
+
+    [TestMethod]
     public async Task ReturnShipping_TextsHtmlEncoded()
     {
         var drop = await Build(new MerchandiseReturnShipping {

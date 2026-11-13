@@ -230,5 +230,62 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
             reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
     }
 
+    /// <summary>
+    ///     Sends the store, and the vendor of a vendor's return, the message a customer wrote on a merchandise return
+    /// </summary>
+    /// <param name="merchandiseReturn">Merchandise return</param>
+    /// <param name="merchandiseReturnNote">The customer's note</param>
+    /// <param name="order">Order</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    public virtual async Task<int> SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(
+        MerchandiseReturn merchandiseReturn, MerchandiseReturnNote merchandiseReturnNote, Order order,
+        string languageId, DomainHost host = null)
+    {
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
+        ArgumentNullException.ThrowIfNull(merchandiseReturnNote);
+
+        var store = await _messageLookupService.GetStore(order.StoreId);
+        var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
+
+        var messageTemplate = await _messageLookupService.GetMessageTemplate(
+            MessageTemplateNames.SendNewMerchandiseReturnNoteAddedStoreOwnerMessage, store.Id);
+        if (messageTemplate == null)
+            return 0;
+
+        //email account
+        var emailAccount = await _messageLookupService.GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
+
+        var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = merchandiseReturn.CustomerId });
+
+        host = store.LinkHost(host);
+        var builder = new LiquidObjectBuilder(_mediator);
+        builder.AddStoreTokens(store, language, emailAccount);
+        builder.AddCustomerTokensIfNotNull(customer, store, host, language);
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, host, order, language, merchandiseReturnNote);
+        var liquidObject = await builder.BuildAsync();
+
+        //event notification
+        await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
+
+        //a vendor's return is answered by the vendor as well
+        if (!string.IsNullOrEmpty(merchandiseReturn.VendorId))
+        {
+            var vendor = await _mediator.Send(new GetVendorByIdQuery { Id = merchandiseReturn.VendorId });
+            if (vendor != null)
+                await _messageProviderService.SendNotification(messageTemplate, emailAccount,
+                    language.Id, liquidObject,
+                    vendor.Email, vendor.Name,
+                    reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
+        }
+
+        return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
+            language.Id, liquidObject,
+            emailAccount.Email, emailAccount.DisplayName,
+            reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
+    }
+
     #endregion
 }

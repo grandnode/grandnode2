@@ -50,4 +50,18 @@ public interface IMerchandiseReturnMessageProviderService
     /// <returns>Queued email identifier</returns>
     Task<int> SendNewMerchandiseReturnNoteAddedCustomerMessage(MerchandiseReturn merchandiseReturn,
         MerchandiseReturnNote merchandiseReturnNote, Order order);
+
+    /// <summary>
+    ///     Sends the store, and the vendor of a vendor's return, the message a customer wrote on a merchandise return
+    /// </summary>
+    /// <param name="merchandiseReturn">Merchandise return</param>
+    /// <param name="merchandiseReturnNote">The customer's note</param>
+    /// <param name="order">Order</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(MerchandiseReturn merchandiseReturn,
+        MerchandiseReturnNote merchandiseReturnNote, Order order, string languageId, DomainHost host = null);
 }

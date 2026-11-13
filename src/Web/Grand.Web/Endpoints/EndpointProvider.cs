@@ -731,6 +731,10 @@ public class EndpointProvider : IEndpointProvider
             pattern + "merchandisereturncancel/{merchandiseReturnId}",
             new { controller = "MerchandiseReturn", action = "MerchandiseReturnCancel" });
 
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnAddNote",
+            pattern + "merchandisereturnaddnote/{merchandiseReturnId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnAddNote" });
+
         endpointRouteBuilder.MapControllerRoute("MerchandiseReturnInStorePoints",
             pattern + "merchandisereturninstorepoints",
             new { controller = "MerchandiseReturn", action = "InStoreReturnPoints" });

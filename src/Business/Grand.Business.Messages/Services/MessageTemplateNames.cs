@@ -47,4 +47,7 @@ public static class MessageTemplateNames
 
     public const string SendNewMerchandiseReturnCustomerMessage = "NewMerchandiseReturn.CustomerNotification";
     public const string SendNewMerchandiseReturnNoteAddedCustomerMessage = "Customer.NewMerchandiseReturnNote";
+
+    public const string SendNewMerchandiseReturnNoteAddedStoreOwnerMessage =
+        "NewMerchandiseReturnNote.StoreOwnerNotification";
 }
