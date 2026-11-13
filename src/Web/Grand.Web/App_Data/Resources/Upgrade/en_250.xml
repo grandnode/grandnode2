@@ -2085,4 +2085,10 @@
 	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Cleared" Area="Admin">
 		<Value>The refund has been cleared; the return can be refunded again.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.PhotoRequired" Area="Admin">
+		<Value>Photo required</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.PhotoRequired.Hint" Area="Admin">
+		<Value>The customer adds at least one photo of each item returned for this reason.</Value>
+	</Resource>
 </Language>

@@ -2,5 +2,6 @@
   Name: Defective,
   DisplayOrder: 1,
   FreeReturnShipping: false,
+  PhotoRequired: false,
   Id: mrr-001
 }
