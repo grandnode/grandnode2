@@ -12,7 +12,6 @@ namespace Grand.Modules.Tests.Services.Migrations;
 [TestClass]
 public class MigrationMerchandiseReturnShippingFlagsTests
 {
-    private readonly LiteDBRepositoryMock<MerchandiseReturnAction> _actions = new();
     private readonly MigrationMerchandiseReturnShippingFlags _migration = new();
     private readonly LiteDBRepositoryMock<MerchandiseReturnReason> _reasons = new();
     private IServiceProvider _serviceProvider;
@@ -22,7 +21,6 @@ public class MigrationMerchandiseReturnShippingFlagsTests
     {
         var services = new ServiceCollection();
         services.AddSingleton<IRepository<MerchandiseReturnReason>>(_reasons);
-        services.AddSingleton<IRepository<MerchandiseReturnAction>>(_actions);
         services.AddSingleton<ILogger<MigrationMerchandiseReturnShippingFlags>>(
             NullLogger<MigrationMerchandiseReturnShippingFlags>.Instance);
         _serviceProvider = services.BuildServiceProvider();
@@ -33,19 +31,11 @@ public class MigrationMerchandiseReturnShippingFlagsTests
         return _reasons.Table.First(x => x.Id == id).FreeReturnShipping;
     }
 
-    private bool WithoutRefund(string id)
-    {
-        return _actions.Table.First(x => x.Id == id).WithoutRefund;
-    }
-
     private void SeedAll()
     {
         _reasons.Insert(new MerchandiseReturnReason { Id = "wrong", Name = "Received Wrong Product" });
         _reasons.Insert(new MerchandiseReturnReason { Id = "ordered", Name = "Wrong Product Ordered" });
         _reasons.Insert(new MerchandiseReturnReason { Id = "problem", Name = "There Was A Problem With The Product" });
-        _actions.Insert(new MerchandiseReturnAction { Id = "repair", Name = "Repair" });
-        _actions.Insert(new MerchandiseReturnAction { Id = "replace", Name = "Replacement" });
-        _actions.Insert(new MerchandiseReturnAction { Id = "credit", Name = "Store Credit" });
     }
 
     [TestMethod]
@@ -58,9 +48,6 @@ public class MigrationMerchandiseReturnShippingFlagsTests
         Assert.IsTrue(Free("wrong"));
         Assert.IsTrue(Free("problem"));
         Assert.IsFalse(Free("ordered"));
-        Assert.IsTrue(WithoutRefund("repair"));
-        Assert.IsTrue(WithoutRefund("replace"));
-        Assert.IsFalse(WithoutRefund("credit"));
     }
 
     [TestMethod]
@@ -68,13 +55,11 @@ public class MigrationMerchandiseReturnShippingFlagsTests
     {
         _reasons.Insert(new MerchandiseReturnReason { Id = "renamed", Name = "Wrong item delivered" });
         _reasons.Insert(new MerchandiseReturnReason { Id = "case", Name = "received wrong product" });
-        _actions.Insert(new MerchandiseReturnAction { Id = "renamed", Name = "Fix it" });
 
         Assert.IsTrue(await _migration.UpgradeProcess(_serviceProvider));
 
         Assert.IsFalse(Free("renamed"));
         Assert.IsFalse(Free("case"));
-        Assert.IsFalse(WithoutRefund("renamed"));
     }
 
     [TestMethod]
@@ -88,8 +73,5 @@ public class MigrationMerchandiseReturnShippingFlagsTests
         Assert.IsTrue(Free("wrong"));
         Assert.IsTrue(Free("problem"));
         Assert.IsFalse(Free("ordered"));
-        Assert.IsTrue(WithoutRefund("repair"));
-        Assert.IsTrue(WithoutRefund("replace"));
-        Assert.IsFalse(WithoutRefund("credit"));
     }
 }

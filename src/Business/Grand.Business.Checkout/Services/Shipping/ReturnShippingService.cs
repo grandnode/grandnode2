@@ -129,7 +129,7 @@ public class ReturnShippingService(
                 OptionCode = option.Code,
                 OptionName = option.Name,
                 Cost = MerchandiseReturnShippingExtensions.CustomerCost(validation.Cost ?? option.Cost, fees,
-                    group.AnyFreeReason, group.AllWithoutRefund),
+                    group.AnyFreeReason),
                 CurrencyRate = request.Order.CurrencyRate,
                 DropOffPoint = validation.DropOffPoint,
                 ProviderData = validation.ProviderData ?? new Dictionary<string, string>(),
@@ -174,7 +174,6 @@ public class ReturnShippingService(
             return [];
 
         var reasons = await merchandiseReturnService.GetAllMerchandiseReturnReasons(request.StoreId);
-        var actions = await merchandiseReturnService.GetAllMerchandiseReturnActions(request.StoreId);
         var groups = new List<VendorGroup>();
         foreach (var orderItems in vendorItems)
         {
@@ -191,9 +190,7 @@ public class ReturnShippingService(
                     PickupAddress = request.PickupAddress,
                     LanguageId = request.LanguageId
                 },
-                groupItems.Any(item => reasons.Any(x => x.Id == item.ReasonId && x.FreeReturnShipping)),
-                //an item with no action, or one the store does not offer, is returned for its money
-                groupItems.All(item => actions.Any(x => x.Id == item.ActionId && x.WithoutRefund))));
+                groupItems.Any(item => reasons.Any(x => x.Id == item.ReasonId && x.FreeReturnShipping))));
         }
 
         return groups;
@@ -247,7 +244,7 @@ public class ReturnShippingService(
                     Description = string.Join("; ", options.Select(x => x.Description)
                         .Where(x => !string.IsNullOrWhiteSpace(x)).Distinct()),
                     Cost = groups.Select((group, i) => MerchandiseReturnShippingExtensions.CustomerCost(
-                        options[i].Cost, fees, group.AnyFreeReason, group.AllWithoutRefund)).Sum(),
+                        options[i].Cost, fees, group.AnyFreeReason)).Sum(),
                     //a cost the rules zero whatever it is does not vary for the customer
                     CostVaries = groups.Where((group, i) => options[i].CostVaries && CustomerPays(group, fees)).Any(),
                     Parcels = groups.Count,
@@ -257,10 +254,6 @@ public class ReturnShippingService(
             }
         }
 
-        //nothing is refunded, so the store pays the shipping: no paid option while a free one is offered
-        if (groups.All(x => x.AllWithoutRefund) && offers.Any(x => x.OptionCost == 0))
-            offers.RemoveAll(x => x.OptionCost > 0);
-
         return offers;
     }
 
@@ -269,8 +262,7 @@ public class ReturnShippingService(
     /// </summary>
     private static bool CustomerPays(VendorGroup group, MerchandiseReturnFees fees)
     {
-        return MerchandiseReturnShippingExtensions.CustomerCost(1, fees, group.AnyFreeReason,
-            group.AllWithoutRefund) > 0;
+        return MerchandiseReturnShippingExtensions.CustomerCost(1, fees, group.AnyFreeReason) > 0;
     }
 
     private static Address Copy(Address address)
@@ -300,7 +292,7 @@ public class ReturnShippingService(
         };
     }
 
-    private record VendorGroup(ReturnShippingRequest Request, bool AnyFreeReason, bool AllWithoutRefund);
+    private record VendorGroup(ReturnShippingRequest Request, bool AnyFreeReason);
 
     /// <summary>
     ///     An offer with what it costs before the store's return fee rules

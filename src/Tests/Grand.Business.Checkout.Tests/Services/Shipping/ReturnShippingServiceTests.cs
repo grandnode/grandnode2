@@ -231,38 +231,13 @@ public class ReturnShippingServiceTests
     }
 
     [TestMethod]
-    public async Task GetOffers_AllWithoutRefund_HidesPaidWhenFreeExists()
+    public async Task GetOffers_ActionNeverChangesTheCostOrTheOptions()
     {
-        _actions.Add(new MerchandiseReturnAction { Id = "repair", WithoutRefund = true });
+        //whatever the customer asks for - a repair, a replacement - the option costs what it costs
+        _actions.Add(new MerchandiseReturnAction { Id = "repair", Name = "Repair" });
         SetupOptions("", Option("free", 0), Option("paid", 7));
 
         var offers = await _service.GetOffers(Request(Item("a", actionId: "repair")));
-
-        Assert.HasCount(1, offers);
-        Assert.AreEqual("free", offers[0].OptionCode);
-        Assert.AreEqual(0, offers[0].Cost);
-    }
-
-    [TestMethod]
-    public async Task GetOffers_AllWithoutRefund_NoFreeOption_PaidStaysAtZero()
-    {
-        _actions.Add(new MerchandiseReturnAction { Id = "repair", WithoutRefund = true });
-        SetupOptions("", Option("paid", 7));
-
-        var offers = await _service.GetOffers(Request(Item("a", actionId: "repair")));
-
-        Assert.HasCount(1, offers);
-        Assert.AreEqual("paid", offers[0].OptionCode);
-        Assert.AreEqual(0, offers[0].Cost);
-    }
-
-    [TestMethod]
-    public async Task GetOffers_OneItemWithRefund_KeepsPaidOptionsAndCost()
-    {
-        _actions.Add(new MerchandiseReturnAction { Id = "repair", WithoutRefund = true });
-        SetupOptions("", Option("free", 0), Option("paid", 7));
-
-        var offers = await _service.GetOffers(Request(Item("a", actionId: "repair"), Item("a", actionId: "unknown")));
 
         Assert.HasCount(2, offers);
         Assert.AreEqual(7, offers.Single(x => x.OptionCode == "paid").Cost);

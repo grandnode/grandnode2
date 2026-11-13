@@ -16,9 +16,6 @@ public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<Mer
     [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
-    [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.WithoutRefund")]
-    public bool WithoutRefund { get; set; }
-
     public IList<MerchandiseReturnActionLocalizedModel> Locales { get; set; } =
         new List<MerchandiseReturnActionLocalizedModel>();
 

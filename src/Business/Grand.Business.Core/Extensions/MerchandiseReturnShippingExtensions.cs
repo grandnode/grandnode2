@@ -45,15 +45,13 @@ public static class MerchandiseReturnShippingExtensions
     }
 
     /// <summary>
-    ///     What the customer pays to ship a merchandise return: nothing when the store's fees are free, when any
-    ///     reason ships free, or when every action gives no refund; otherwise the cost of the chosen option
+    ///     What the customer pays to ship a merchandise return: nothing when the store's fees are free or when any
+    ///     reason ships free; otherwise the cost of the chosen option. The requested action never changes it
     /// </summary>
-    public static double CustomerCost(double optionCost, MerchandiseReturnFees fees, bool anyFreeReason,
-        bool allWithoutRefund)
+    public static double CustomerCost(double optionCost, MerchandiseReturnFees fees, bool anyFreeReason)
     {
         if (fees == MerchandiseReturnFees.Free) return 0;
         if (anyFreeReason) return 0;
-        if (allWithoutRefund) return 0;
         return optionCost;
     }
 }

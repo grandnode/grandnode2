@@ -1,6 +1,5 @@
 ﻿{
   Name: Refund,
   DisplayOrder: 1,
-  WithoutRefund: false,
   Id: mra-001
 }

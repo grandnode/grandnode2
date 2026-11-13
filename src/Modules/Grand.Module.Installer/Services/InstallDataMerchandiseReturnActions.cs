@@ -9,13 +9,11 @@ public partial class InstallationService
         var merchandiseReturnActions = new List<MerchandiseReturnAction> {
             new() {
                 Name = "Repair",
-                DisplayOrder = 1,
-                WithoutRefund = true
+                DisplayOrder = 1
             },
             new() {
                 Name = "Replacement",
-                DisplayOrder = 2,
-                WithoutRefund = true
+                DisplayOrder = 2
             },
             new() {
                 Name = "Store Credit",

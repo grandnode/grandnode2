@@ -1926,12 +1926,6 @@
 	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.FreeReturnShipping.Hint" Area="Admin">
 		<Value>The store pays for sending back the items returned for this reason, e.g. a wrong or faulty product.</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.Order.MerchandiseReturnActions.WithoutRefund" Area="Admin">
-		<Value>Without refund</Value>
-	</Resource>
-	<Resource Name="Admin.Settings.Order.MerchandiseReturnActions.WithoutRefund.Hint" Area="Admin">
-		<Value>The customer asks for no money back, e.g. a repair or a replacement, so a return with only such items is sent back at no cost to them.</Value>
-	</Resource>
 	<Resource Name="Shipping.ShippingPoint.Return.FriendlyName" Area="Front">
 		<Value>Shipping Point returns</Value>
 	</Resource>

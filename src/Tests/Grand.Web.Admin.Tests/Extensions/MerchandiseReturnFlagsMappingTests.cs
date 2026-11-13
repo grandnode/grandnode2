@@ -10,7 +10,7 @@ using Assert = Microsoft.VisualStudio.TestTools.UnitTesting.Assert;
 namespace Grand.Web.Admin.Tests.Extensions;
 
 /// <summary>
-///     The return shipping flags of the reasons and actions reach the forms and come back, mapped by name
+///     The return shipping flag of the reasons reaches the form and comes back, mapped by name
 /// </summary>
 [TestClass]
 public class MerchandiseReturnFlagsMappingTests
@@ -21,7 +21,6 @@ public class MerchandiseReturnFlagsMappingTests
         AutoMapperConfig.Init(new MapperConfiguration(cfg =>
         {
             cfg.AddProfile<MerchandiseReturnReasonProfile>();
-            cfg.AddProfile<MerchandiseReturnActionProfile>();
         }));
     }
 
@@ -33,15 +32,5 @@ public class MerchandiseReturnFlagsMappingTests
             .ToEntity(new MerchandiseReturnReason()).FreeReturnShipping);
         Assert.IsFalse(new MerchandiseReturnReasonModel()
             .ToEntity(new MerchandiseReturnReason { FreeReturnShipping = true }).FreeReturnShipping);
-    }
-
-    [TestMethod]
-    public void Action_WithoutRefund_MappedBothWays()
-    {
-        Assert.IsTrue(new MerchandiseReturnAction { WithoutRefund = true }.ToModel().WithoutRefund);
-        Assert.IsTrue(new MerchandiseReturnActionModel { WithoutRefund = true }
-            .ToEntity(new MerchandiseReturnAction()).WithoutRefund);
-        Assert.IsFalse(new MerchandiseReturnActionModel()
-            .ToEntity(new MerchandiseReturnAction { WithoutRefund = true }).WithoutRefund);
     }
 }
