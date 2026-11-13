@@ -236,7 +236,7 @@ public class ReturnShippingService(
                 if (options.Any(x => x == null))
                     continue;
 
-                offers.Add(new ProviderOffer(provider, options, options.Sum(x => x.Cost), new ReturnShippingOffer {
+                offers.Add(new ProviderOffer(provider, options, new ReturnShippingOffer {
                     ProviderSystemName = provider.SystemName,
                     OptionCode = first.Code,
                     Name = first.Name,
@@ -295,11 +295,10 @@ public class ReturnShippingService(
     private record VendorGroup(ReturnShippingRequest Request, bool AnyFreeReason);
 
     /// <summary>
-    ///     An offer with what it costs before the store's return fee rules
+    ///     An offer with the provider's options it is made of, one per parcel
     /// </summary>
     private record ProviderOffer(
         IReturnShippingProvider Provider,
         IList<ReturnShippingOption> Options,
-        double OptionCost,
         ReturnShippingOffer Offer);
 }

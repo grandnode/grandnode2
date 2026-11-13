@@ -81,19 +81,6 @@ public class MerchandiseReturnShipping
     public string LabelError { get; set; }
 
     /// <summary>
-    ///     Gets or sets the shipping status identifier
-    /// </summary>
-    public int ShippingStatusId { get; set; }
-
-    /// <summary>
-    ///     Gets or sets the shipping status
-    /// </summary>
-    public ReturnShippingStatus ShippingStatus {
-        get => (ReturnShippingStatus)ShippingStatusId;
-        set => ShippingStatusId = (int)value;
-    }
-
-    /// <summary>
     ///     Gets or sets the data only the provider understands
     /// </summary>
     public Dictionary<string, string> ProviderData { get; set; } = new();

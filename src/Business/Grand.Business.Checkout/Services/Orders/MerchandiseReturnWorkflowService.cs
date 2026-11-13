@@ -268,7 +268,6 @@ public class MerchandiseReturnWorkflowService(
             Instructions = shipping.Instructions,
             LabelStatusId = shipping.LabelStatusId,
             LabelError = shipping.LabelError,
-            ShippingStatusId = shipping.ShippingStatusId,
             ProviderData = new Dictionary<string, string>(shipping.ProviderData ?? new Dictionary<string, string>())
         };
     }
@@ -323,11 +322,11 @@ public class MerchandiseReturnWorkflowService(
             //the message gives no link to a label that was cancelled
             changed = await ReadAgain(changed);
         }
+
         //opened again after its label was cancelled: the customer gets a new one to send the goods back with
         if (status == MerchandiseReturnStatus.Pending
             && changed.ReturnShipping?.LabelStatus == ReturnLabelStatus.Cancelled)
             changed = await WithNewLabel(changed);
-
 
         //the status is saved: a message that could not be sent is logged, the change itself did not fail
         try
