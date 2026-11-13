@@ -170,7 +170,8 @@ public class MerchandiseReturnViewModelService(
         if (!string.IsNullOrEmpty(shipping.TrackingNumber) && provider?.ShipmentTracker != null)
             try
             {
-                var events = await provider.ShipmentTracker.GetShipmentEvents(shipping.TrackingNumber);
+                var events = await provider.ShipmentTracker.GetShipmentEvents(shipping.TrackingNumber)
+                    .WaitAsync(TimeSpan.FromSeconds(IReturnShippingProvider.TrackingCallTimeoutSeconds));
                 foreach (var shipmentEvent in events ?? [])
                     model.TrackingEvents.Add(new MerchandiseReturnModel.TrackingEventModel {
                         EventName = shipmentEvent.EventName,
@@ -180,7 +181,7 @@ public class MerchandiseReturnViewModelService(
             }
             catch (Exception ex)
             {
-                //a carrier that is down leaves the page without the events, not without the page
+                //a carrier that is down or slow leaves the page without the events, not without the page
                 logger.LogWarning(ex, "Return shipping provider {SystemName} failed to give the tracking events of " +
                                       "{TrackingNumber}", shipping.ProviderSystemName, shipping.TrackingNumber);
             }

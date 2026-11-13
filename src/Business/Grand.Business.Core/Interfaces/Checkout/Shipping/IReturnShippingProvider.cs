@@ -32,6 +32,12 @@ public interface IReturnShippingProvider : IProvider
     const int LabelCallTimeoutSeconds = 20;
 
     /// <summary>
+    ///     The seconds the shipment tracker has to give the tracking events while a page of the return is shown; a
+    ///     page that waits longer is shown without them
+    /// </summary>
+    const int TrackingCallTimeoutSeconds = 5;
+
+    /// <summary>
     ///     Creates the label, or only the instructions, of a saved merchandise return. It must finish within
     ///     LabelCallTimeoutSeconds (20 seconds); a later result is dropped and the label is saved as failed
     /// </summary>
