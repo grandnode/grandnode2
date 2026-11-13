@@ -249,7 +249,8 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static (MerchandiseReturnViewModelService service, Mock<IMerchandiseReturnWorkflowService> workflow)
-        BuildForUpdate(Mock<IInventoryDocumentService> documents = null)
+        BuildForUpdate(Mock<IInventoryDocumentService> documents = null,
+            ManageInventoryMethod manageInventory = ManageInventoryMethod.ManageStock, string vendorId = null)
     {
         //the edit form's pickup address lists the countries and the address attributes
         var countryServiceMock = new Mock<ICountryService>();
@@ -260,7 +261,15 @@ public class MerchandiseReturnViewModelServiceTests
         addressAttributeServiceMock.Setup(x => x.GetAllAddressAttributes(It.IsAny<string>()))
             .ReturnsAsync(new List<AddressAttribute>());
         var orderServiceMock = new Mock<IOrderService>();
-        orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync(new Order { Id = "o1" });
+        var order = new Order { Id = "o1" };
+        order.OrderItems.Add(new OrderItem { Id = "oi1", ProductId = "p1" });
+        orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync(order);
+        //the returned product, which a return receipt books unless it does not track stock
+        var productServiceMock = new Mock<IProductService>();
+        productServiceMock.Setup(x => x.GetProductByIdIncludeArch("p1"))
+            .ReturnsAsync(new Product { Id = "p1", ManageInventoryMethodId = manageInventory });
+        var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
+        scopeMock.Setup(x => x.DefaultVendorId).Returns(vendorId);
         var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
         enumTranslationServiceMock.Setup(x => x.GetTranslationEnum(MerchandiseReturnStatus.Accepted))
             .Returns("Accepted (translated)");
@@ -282,7 +291,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         var service = new MerchandiseReturnViewModelService(
             orderServiceMock.Object,
-            new Mock<IProductService>().Object,
+            productServiceMock.Object,
             new Mock<ICustomerService>().Object,
             new Mock<IDateTimeService>().Object,
             new Mock<IRequestTranslationService>().Object,
@@ -298,7 +307,7 @@ public class MerchandiseReturnViewModelServiceTests
             enumTranslationServiceMock.Object,
             contextAccessor.Object,
             new CustomerConfig(),
-            new Mock<IAdminDataScope<MerchandiseReturn>>().Object,
+            scopeMock.Object,
             workflowMock.Object,
             labelServiceMock.Object,
             returnShippingServiceMock.Object,
@@ -313,7 +322,9 @@ public class MerchandiseReturnViewModelServiceTests
 
     private static MerchandiseReturn StoredReturn(MerchandiseReturnStatus status)
     {
-        return new MerchandiseReturn { Id = "r1", OrderId = "o1", MerchandiseReturnStatus = status };
+        var merchandiseReturn = new MerchandiseReturn { Id = "r1", OrderId = "o1", MerchandiseReturnStatus = status };
+        merchandiseReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem { OrderItemId = "oi1", Quantity = 1 });
+        return merchandiseReturn;
     }
 
     [TestMethod]
@@ -459,7 +470,8 @@ public class MerchandiseReturnViewModelServiceTests
     [TestMethod]
     public async Task UpdateMerchandiseReturnModel_PostedReceived_RefusedAndNothingSaved()
     {
-        //a crafted post: the panel never offers it, the goods come back through a return receipt
+        //a crafted post: the panel does not offer it, the goods of a product tracking stock come back through a
+        //return receipt
         var (service, workflow) = BuildForUpdate();
 
         var result = await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Accepted),
@@ -494,6 +506,32 @@ public class MerchandiseReturnViewModelServiceTests
             StoredReturn(MerchandiseReturnStatus.Accepted), false);
 
         CollectionAssert.AreEqual(new[] { 15, 40, 20, 30 }, model.NextStatuses.ToArray());
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_EditPage_ProductDoesNotTrackStock_OffersReceived()
+    {
+        //no receipt can book a product that does not track stock: the staff marks the return received by hand
+        var (service, _) = BuildForUpdate(manageInventory: ManageInventoryMethod.DontManageStock);
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            StoredReturn(MerchandiseReturnStatus.Accepted), false);
+
+        CollectionAssert.AreEqual(new[] { 15, 40, 20, 30 }, model.NextStatuses.ToArray());
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnModel_PostedReceived_VendorPanel_ChangesStatus()
+    {
+        //the vendor panel has no inventory documents to post a receipt with
+        var (service, workflow) = BuildForUpdate(vendorId: "v1");
+
+        var result = await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Accepted),
+            new MerchandiseReturnModel { Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received }, []);
+
+        Assert.IsNull(result.Error);
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Received, null, "john@shop.com"),
+            Times.Once);
     }
 
     [TestMethod]

@@ -10,6 +10,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
@@ -92,11 +93,11 @@ public class MerchandiseReturnViewModelService(
         model.MerchandiseReturnStatusId = merchandiseReturn.MerchandiseReturnStatusId;
         model.MerchandiseReturnStatusStr =
             enumTranslationService.GetTranslationEnum(merchandiseReturn.MerchandiseReturnStatus);
-        //the edit page offers Received only to recover a posted receipt the return was not marked received by
-        //(e.g. busy at the time); the list asks no one
+        //the edit page offers Received to recover a posted receipt the return was not marked received by (e.g.
+        //busy at the time), or for a return no receipt can take in; the list asks no one
         var receivedByHand = !excludeProperties &&
                              merchandiseReturn.MerchandiseReturnStatus.CanChangeTo(MerchandiseReturnStatus.Received) &&
-                             await CanMarkReceived(merchandiseReturn.Id);
+                             await CanMarkReceived(merchandiseReturn, order);
         model.NextStatuses = merchandiseReturn.MerchandiseReturnStatus.NextStatuses()
             .Where(x => x != MerchandiseReturnStatus.Received || receivedByHand)
             .Select(x => (int)x).ToList();
@@ -125,11 +126,24 @@ public class MerchandiseReturnViewModelService(
 
     /// <summary>
     ///     Whether the staff may mark the return received: its goods came back to stock through a posted return
-    ///     receipt, which marks it received itself unless that failed
+    ///     receipt, which marks it received itself unless that failed; or no receipt can take the goods in, as the
+    ///     vendor panel has no inventory documents and a product that does not track stock is not booked
     /// </summary>
-    private Task<bool> CanMarkReceived(string merchandiseReturnId)
+    private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order)
     {
-        return inventoryDocumentService.IsReturnReceived(merchandiseReturnId);
+        if (scope.DefaultVendorId != null || await inventoryDocumentService.IsReturnReceived(merchandiseReturn.Id))
+            return true;
+
+        foreach (var item in merchandiseReturn.MerchandiseReturnItems)
+        {
+            var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+            var product = orderItem == null ? null : await productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            if (product?.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
+                or ManageInventoryMethod.ManageStockByAttributes)
+                return false;
+        }
+
+        return true;
     }
 
     private async Task<MerchandiseReturnModel.ReturnShippingModel> PrepareReturnShipping(
@@ -391,9 +405,9 @@ public class MerchandiseReturnViewModelService(
     public virtual async Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(
         MerchandiseReturn merchandiseReturn, MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes)
     {
-        //received without a posted return receipt is refused before anything is saved: no button offers it
+        //received by hand where a receipt takes the goods in is refused before anything is saved: no button offers it
         if (model.ChangeStatusTo == (int)MerchandiseReturnStatus.Received &&
-            !await CanMarkReceived(merchandiseReturn.Id))
+            !await CanMarkReceived(merchandiseReturn, await orderService.GetOrderById(merchandiseReturn.OrderId)))
             return (null, MerchandiseReturnErrors.StatusChangeNotAllowed);
 
         //the fields go onto the return as stored: a status changed since the page was loaded is kept
