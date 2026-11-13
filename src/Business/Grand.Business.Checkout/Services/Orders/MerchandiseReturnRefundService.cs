@@ -175,13 +175,6 @@ public class MerchandiseReturnRefundService(
             return (quote, null, rounding);
         }
 
-        //the money goes back for goods that came back
-        if (merchandiseReturn.MerchandiseReturnStatus != MerchandiseReturnStatus.Received)
-        {
-            quote.Error = MerchandiseReturnErrors.RefundNotAllowed;
-            return (quote, null, rounding);
-        }
-
         var refunded = (await mediator.Send(new GetMerchandiseReturnQuery { OrderId = order.Id }))
             .Where(x => x.Id != merchandiseReturn.Id && x.Refund != null)
             .ToList();
@@ -191,6 +184,13 @@ public class MerchandiseReturnRefundService(
         var shipping = merchandiseReturn.ReturnShipping;
         quote.ReturnShippingCost = shipping == null ? 0 : rounding.Round(shipping.Cost * shipping.CurrencyRate);
         quote.Amount = Math.Max(0, rounding.Round(quote.ItemsAmount - quote.ReturnShippingCost));
+
+        //the money goes back for goods that came back; the amounts above are what the customer is shown before
+        if (merchandiseReturn.MerchandiseReturnStatus != MerchandiseReturnStatus.Received)
+        {
+            quote.Error = MerchandiseReturnErrors.RefundNotAllowed;
+            return (quote, null, rounding);
+        }
 
         var transaction = await paymentTransactionService.GetOrderByGuid(order.OrderGuid);
         if (transaction == null)

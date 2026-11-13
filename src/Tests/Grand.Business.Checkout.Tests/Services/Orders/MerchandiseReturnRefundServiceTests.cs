@@ -287,6 +287,39 @@ public class MerchandiseReturnRefundServiceTests
     }
 
     [TestMethod]
+    public async Task GetQuote_Pending_AmountsFilledWithError()
+    {
+        //a return not saved yet, as the storefront previews it: 1 of the 2 of a, 3 to ship it back
+        var preview = Return(null, MerchandiseReturnStatus.Pending, ("a", 1));
+        preview.ReturnShipping = new MerchandiseReturnShipping { Cost = 3, CurrencyRate = 1 };
+
+        var quote = await _service.GetQuote(preview, _order);
+
+        Assert.AreEqual(MerchandiseReturnErrors.RefundNotAllowed, quote.Error);
+        Assert.AreEqual(100, quote.ItemsAmount);
+        Assert.AreEqual(3, quote.ReturnShippingCost);
+        Assert.AreEqual(97, quote.Amount);
+        Assert.AreEqual(0, quote.MaxAmount);
+    }
+
+    [TestMethod]
+    public async Task Estimate_EqualsQuoteOnceReceived()
+    {
+        //one of b refunded before: the estimate takes the share left, as the refund will
+        _orderReturns.Add(Refunded("r0", ("b", 1)));
+        var merchandiseReturn = Return("r2", MerchandiseReturnStatus.Pending, ("a", 1), ("b", 2));
+        merchandiseReturn.ReturnShipping = new MerchandiseReturnShipping { Cost = 2, CurrencyRate = 1.5 };
+
+        var estimate = await _service.GetQuote(merchandiseReturn, _order);
+        merchandiseReturn.MerchandiseReturnStatus = MerchandiseReturnStatus.Received;
+        var settlement = await _service.GetQuote(merchandiseReturn, _order);
+
+        Assert.IsNull(settlement.Error);
+        Assert.AreEqual(settlement.Amount, estimate.Amount);
+        Assert.AreEqual(103.67, estimate.Amount);
+    }
+
+    [TestMethod]
     public async Task GetQuote_PaymentCannotBeRefundedAtAll_RefundNotAllowed()
     {
         SetupCanRefund(false, false);

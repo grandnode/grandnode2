@@ -17,6 +17,13 @@ public interface IMerchandiseReturnWorkflowService
     Task<MerchandiseReturnSubmitResult> Submit(MerchandiseReturnSubmitRequest request);
 
     /// <summary>
+    ///     The returns Submit would save for the request, one for each vendor with its return shipping, or the reason
+    ///     it would save none; nothing is saved, no lock is held and no label is created. The quantity left is read as
+    ///     it is now: Submit checks it again under the lock
+    /// </summary>
+    Task<MerchandiseReturnSubmitResult> Preview(MerchandiseReturnSubmitRequest request);
+
+    /// <summary>
     ///     Changes the status along the allowed flow, notes for the staff who changed it, and sends the customer the
     ///     status changed message
     /// </summary>

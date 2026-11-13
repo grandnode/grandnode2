@@ -45,7 +45,7 @@ public class MerchandiseReturnWorkflowService(
             return result;
         }
 
-        var merchandiseReturns = new List<MerchandiseReturn>();
+        IList<MerchandiseReturn> merchandiseReturns;
         try
         {
             //two returns submitted at the same time for one order are checked and inserted one after the other
@@ -53,24 +53,13 @@ public class MerchandiseReturnWorkflowService(
             {
                 //never more than can still be returned, also when another return was submitted in the meantime: the
                 //customer gets what they asked for or nothing, never a smaller return
-                var returnable = await mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order });
-                if (items.GroupBy(x => x.OrderItemId)
-                    .Any(x => x.Sum(item => item.Quantity) > returnable.GetValueOrDefault(x.Key)))
+                if (await IsQuantityExceeded(request, items))
                 {
                     result.Error = MerchandiseReturnErrors.SubmitQuantityExceeded;
                     return result;
                 }
 
-                //each vendor handles the return of its own items
-                foreach (var vendorItems in request.Order.OrderItems
-                             .Where(orderItem => items.Any(x => x.OrderItemId == orderItem.Id))
-                             .GroupBy(orderItem => orderItem.VendorId ?? ""))
-                    merchandiseReturns.Add(await NewMerchandiseReturn(request, vendorItems.Key,
-                        items.Where(x => vendorItems.Any(orderItem => orderItem.Id == x.OrderItemId)),
-                        shipping.ByVendor.TryGetValue(vendorItems.Key, out var vendorShipping)
-                            ? vendorShipping
-                            : null));
-
+                merchandiseReturns = await Build(request, items, shipping);
                 await InsertAllOrNone(merchandiseReturns);
             }
         }
@@ -87,6 +76,63 @@ public class MerchandiseReturnWorkflowService(
             result.MerchandiseReturns.Add(await WithLabel(merchandiseReturn));
 
         return result;
+    }
+
+    public async Task<MerchandiseReturnSubmitResult> Preview(MerchandiseReturnSubmitRequest request)
+    {
+        ArgumentNullException.ThrowIfNull(request);
+
+        var result = new MerchandiseReturnSubmitResult();
+        var items = request.Items.Where(x => x.Quantity > 0).ToList();
+        if (items.Count == 0)
+        {
+            result.Error = MerchandiseReturnErrors.SubmitNothingToReturn;
+            return result;
+        }
+
+        var shipping = await returnShippingService.Resolve(request, request.ReturnShipping);
+        if (shipping.Errors.Count > 0)
+        {
+            foreach (var error in shipping.Errors)
+                result.ShippingErrors.Add(error);
+            return result;
+        }
+
+        if (await IsQuantityExceeded(request, items))
+        {
+            result.Error = MerchandiseReturnErrors.SubmitQuantityExceeded;
+            return result;
+        }
+
+        foreach (var merchandiseReturn in await Build(request, items, shipping))
+            result.MerchandiseReturns.Add(merchandiseReturn);
+        return result;
+    }
+
+    private async Task<bool> IsQuantityExceeded(MerchandiseReturnSubmitRequest request,
+        IList<MerchandiseReturnSubmitItem> items)
+    {
+        var returnable = await mediator.Send(new GetReturnableQuantitiesQuery { Order = request.Order });
+        return items.GroupBy(x => x.OrderItemId)
+            .Any(x => x.Sum(item => item.Quantity) > returnable.GetValueOrDefault(x.Key));
+    }
+
+    /// <summary>
+    ///     The returns of a submit, one for each vendor of the items: each vendor handles the return of its own items
+    /// </summary>
+    private async Task<IList<MerchandiseReturn>> Build(MerchandiseReturnSubmitRequest request,
+        IList<MerchandiseReturnSubmitItem> items, ReturnShippingResolution shipping)
+    {
+        var merchandiseReturns = new List<MerchandiseReturn>();
+        foreach (var vendorItems in request.Order.OrderItems
+                     .Where(orderItem => items.Any(x => x.OrderItemId == orderItem.Id))
+                     .GroupBy(orderItem => orderItem.VendorId ?? ""))
+            merchandiseReturns.Add(await NewMerchandiseReturn(request, vendorItems.Key,
+                items.Where(x => vendorItems.Any(orderItem => orderItem.Id == x.OrderItemId)),
+                shipping.ByVendor.TryGetValue(vendorItems.Key, out var vendorShipping)
+                    ? vendorShipping
+                    : null));
+        return merchandiseReturns;
     }
 
     /// <summary>

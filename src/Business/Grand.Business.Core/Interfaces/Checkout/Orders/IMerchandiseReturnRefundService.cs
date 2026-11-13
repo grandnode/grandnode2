@@ -13,7 +13,9 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders;
 public interface IMerchandiseReturnRefundService
 {
     /// <summary>
-    ///     What the refund of the return comes to now, shown to the staff before they refund
+    ///     What the refund of the return comes to now, shown to the staff before they refund. The amounts are filled for
+    ///     a return not received yet as well, with the error RefundNotAllowed: the customer is shown them as an estimate
+    ///     before the return is submitted. A return refunded or being refunded gets its error alone
     /// </summary>
     /// <param name="merchandiseReturn">The return</param>
     /// <param name="order">The order of the return</param>

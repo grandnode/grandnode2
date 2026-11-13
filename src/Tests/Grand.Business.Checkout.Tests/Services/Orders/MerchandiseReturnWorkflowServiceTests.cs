@@ -722,6 +722,71 @@ public class MerchandiseReturnWorkflowServiceTests
         _merchandiseReturnService.Verify(x => x.DeleteMerchandiseReturn(_stored), Times.Once);
     }
 
+    private MerchandiseReturnSubmitRequest TwoVendorPreview()
+    {
+        TwoVendorOrder();
+        var vendorShipping = Shipping("vendor-option");
+        vendorShipping.Cost = 7;
+        SetupResolution(new ReturnShippingResolution {
+            ByVendor = new Dictionary<string, MerchandiseReturnShipping>
+                { { "", Shipping("store-option") }, { "v1", vendorShipping } }
+        });
+        var request = SubmitRequest(new MerchandiseReturnSubmitItem("store-item", 1, null, null),
+            new MerchandiseReturnSubmitItem("vendor-item", 2, null, null));
+        request.ReturnShipping = new ReturnShippingChoice { ProviderSystemName = "Carrier", OptionCode = "parcel" };
+        return request;
+    }
+
+    [TestMethod]
+    public async Task Preview_TwoVendors_TwoUnsavedReturnsWithTheirShipping()
+    {
+        var result = await _service.Preview(TwoVendorPreview());
+
+        Assert.IsNull(result.Error);
+        Assert.AreEqual(2, result.MerchandiseReturns.Count);
+        var storeReturn = result.MerchandiseReturns.Single(x => x.VendorId == "");
+        var vendorReturn = result.MerchandiseReturns.Single(x => x.VendorId == "v1");
+        Assert.AreEqual("store-item", storeReturn.MerchandiseReturnItems.Single().OrderItemId);
+        Assert.AreEqual(2, vendorReturn.MerchandiseReturnItems.Single().Quantity);
+        Assert.AreEqual(5, storeReturn.ReturnShipping.Cost);
+        Assert.AreEqual(7, vendorReturn.ReturnShipping.Cost);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+        _resourceLock.Verify(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _labelService.Verify(x => x.CreateLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Preview_QuantityExceeded_Error()
+    {
+        SetupReturnable(1);
+
+        var result = await _service.Preview(SubmitRequest(new MerchandiseReturnSubmitItem("a", 2, null, null)));
+
+        Assert.AreEqual(MerchandiseReturnErrors.SubmitQuantityExceeded, result.Error);
+        Assert.AreEqual(0, result.MerchandiseReturns.Count);
+    }
+
+    [TestMethod]
+    public async Task Submit_SavesWhatPreviewBuilds()
+    {
+        var request = TwoVendorPreview();
+        var preview = await _service.Preview(request);
+        var inserted = RecordInserts();
+
+        await _service.Submit(request);
+
+        Assert.AreEqual(preview.MerchandiseReturns.Count, inserted.Count);
+        foreach (var built in preview.MerchandiseReturns)
+        {
+            var saved = inserted.Single(x => x.VendorId == built.VendorId);
+            Assert.AreEqual(built.ReturnShipping.Cost, saved.ReturnShipping.Cost);
+            CollectionAssert.AreEqual(
+                built.MerchandiseReturnItems.Select(x => (x.OrderItemId, x.Quantity)).ToList(),
+                saved.MerchandiseReturnItems.Select(x => (x.OrderItemId, x.Quantity)).ToList());
+        }
+    }
+
     [TestMethod]
     public async Task Submit_WithChoice_SetsSnapshotPerVendor()
     {
