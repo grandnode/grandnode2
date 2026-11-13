@@ -56,7 +56,6 @@ table .status.cancelled {
 .merchandise-table {
     display: flex;
     flex-direction: column;
-    padding: 0 0 25px 0;
     position: relative;
 }
 .merchandise-table thead {
@@ -117,7 +116,7 @@ table .status.cancelled {
     display: inline-flex;
     width: 100%;
     padding: .75rem 0;
-    height: 110px;
+    min-height: 110px;
 }
 .merchandise-table tbody tr:nth-child(2) td > div {
     flex-basis: 0;
@@ -134,12 +133,14 @@ table .status.cancelled {
     text-overflow: ellipsis;
     overflow: hidden;
 }
+/* each field's message sits under its own field and wraps there: placed at the bottom of the table, every
+   item's quantity, reason and action messages were drawn over each other */
 .merchandise-table .field-validation-error {
-    position: absolute;
-    bottom: 0;
-    left: 0;
-    right: 0;
-    margin: 0;
+    display: block;
+    margin: .25rem 0 0 0;
+    font-size: .875rem;
+    white-space: normal;
+    overflow-wrap: anywhere;
 }
 
 /* pagination */
@@ -153,12 +154,6 @@ table .status.cancelled {
 @media (max-width: 768px) {
     .merchandise-table tbody tr:nth-child(2) td > div {
         max-width: 125px;
-    }
-    .merchandise-table {
-        padding: 0 0 45px 0;
-    }
-    .merchandise-table .field-validation-error {
-        font-size: 14px;
     }
 }
 
