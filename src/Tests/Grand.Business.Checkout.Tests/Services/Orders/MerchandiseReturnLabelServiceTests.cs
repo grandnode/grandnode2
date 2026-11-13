@@ -563,7 +563,7 @@ public class MerchandiseReturnLabelServiceTests
     }
 
     [TestMethod]
-    public async Task UpdateShipping_NotAllowedOnStoredCopy_ChangesNothing()
+    public async Task UpdateShipping_NotAllowedOnStoredCopy_SavesNothingAndSaysSo()
     {
         //the staff marked the return received after the customer opened the page
         _stored.MerchandiseReturnStatus = MerchandiseReturnStatus.Received;
@@ -571,8 +571,9 @@ public class MerchandiseReturnLabelServiceTests
         var error = await _service.UpdateShipping("r1", shipping => shipping.TrackingNumber = "TRACK-9",
             stored => stored.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
 
-        Assert.IsNull(error);
+        Assert.AreEqual(MerchandiseReturnErrors.ShippingChangeNotAllowed, error);
         Assert.IsNull(_stored.ReturnShipping.TrackingNumber);
+        VerifyShippingSaved(Times.Never());
     }
 
     [TestMethod]

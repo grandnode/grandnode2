@@ -30,10 +30,10 @@ public interface IMerchandiseReturnLabelService
     /// <param name="merchandiseReturnId">The return</param>
     /// <param name="apply">The changes</param>
     /// <param name="allowed">
-    ///     Checked on the return as stored, under the locks: when it says no, nothing is changed, e.g. a tracking
+    ///     Checked on the return as stored, under the locks: when it says no, nothing is saved, e.g. a tracking
     ///     number typed in while the staff marked the return received
     /// </param>
-    /// <returns>null when saved or not allowed, else a key of MerchandiseReturnErrors</returns>
+    /// <returns>null when saved, else a key of MerchandiseReturnErrors (ShippingChangeNotAllowed when not allowed)</returns>
     Task<string> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply,
         Func<MerchandiseReturn, bool> allowed = null);
 }

@@ -72,10 +72,11 @@ public class MerchandiseReturnLabelService(
                 ? Task.FromResult(MerchandiseReturnErrors.NotFound)
                 : SaveUnderOrderLock(stored, current =>
                 {
-                    //the stored return is written back unchanged when the change is no longer allowed
-                    if (allowed == null || allowed(current))
-                        apply(current.ReturnShipping);
-                    return Task.CompletedTask;
+                    //nothing is saved when the change is no longer allowed, and the caller is told
+                    if (allowed != null && !allowed(current))
+                        return Task.FromResult(MerchandiseReturnErrors.ShippingChangeNotAllowed);
+                    apply(current.ReturnShipping);
+                    return Task.FromResult<string>(null);
                 }));
     }
 
@@ -92,7 +93,7 @@ public class MerchandiseReturnLabelService(
         {
             current.ReturnShipping.Instructions = result.Instructions;
             current.ReturnShipping.ReturnCode = result.ReturnCode ?? current.ReturnShipping.ReturnCode;
-            return Task.CompletedTask;
+            return Task.FromResult<string>(null);
         });
     }
 
@@ -110,7 +111,7 @@ public class MerchandiseReturnLabelService(
                 //the return stays as it is; the label is retried from the panel or by the customer
                 shipping.LabelStatus = ReturnLabelStatus.Failed;
                 shipping.LabelError = error;
-                return;
+                return null;
             }
 
             if (result.LabelFile?.Content is { Length: > 0 })
@@ -123,6 +124,7 @@ public class MerchandiseReturnLabelService(
                 shipping.ProviderData[key] = value;
             shipping.LabelStatus = ReturnLabelStatus.Created;
             shipping.LabelError = null;
+            return null;
         });
         if (saveError != null)
             return saveError;
@@ -167,7 +169,7 @@ public class MerchandiseReturnLabelService(
                     return await SaveUnderOrderLock(stored, current =>
                     {
                         current.ReturnShipping.LabelStatus = ReturnLabelStatus.Cancelled;
-                        return Task.CompletedTask;
+                        return Task.FromResult<string>(null);
                     });
 
                 logger.LogWarning("Return shipping provider {SystemName} did not cancel the label of merchandise " +
@@ -291,9 +293,10 @@ public class MerchandiseReturnLabelService(
     ///     Saves the return shipping under the lock of the order as well, which every writer of the order's returns
     ///     holds, on the return as stored now: a status changed during the provider call is kept, and a full save of
     ///     the return never writes back the shipping it read before. Always taken inside the label lock, never the
-    ///     other way round
+    ///     other way round. An error apply gives leaves the return unsaved
     /// </summary>
-    private async Task<string> SaveUnderOrderLock(MerchandiseReturn stored, Func<MerchandiseReturn, Task> apply)
+    private async Task<string> SaveUnderOrderLock(MerchandiseReturn stored,
+        Func<MerchandiseReturn, Task<string>> apply)
     {
         try
         {
@@ -308,7 +311,10 @@ public class MerchandiseReturnLabelService(
                     return MerchandiseReturnErrors.NotFound;
                 }
 
-                await apply(current);
+                var error = await apply(current);
+                if (error != null)
+                    return error;
+
                 await merchandiseReturnService.UpdateMerchandiseReturnShipping(current);
                 return null;
             }

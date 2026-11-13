@@ -1671,8 +1671,14 @@
 	<Resource Name="Admin.Orders.MerchandiseReturns.LabelNotAllowed" Area="Admin">
 		<Value>A label cannot be created for this return.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ShippingChangeNotAllowed" Area="Admin">
+		<Value>The return was changed in the meantime, so this change was not saved.</Value>
+	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.LabelNotAllowed" Area="Vendor">
 		<Value>A label cannot be created for this return.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ShippingChangeNotAllowed" Area="Vendor">
+		<Value>The return was changed in the meantime, so this change was not saved.</Value>
 	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Pending" Area="Admin">
 		<Value>Reopen</Value>
@@ -1793,6 +1799,9 @@
 	</Resource>
 	<Resource Name="MerchandiseReturns.LabelNotAllowed" Area="Front">
 		<Value>A label cannot be created for this return.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ShippingChangeNotAllowed" Area="Front">
+		<Value>The return was changed in the meantime, so this change was not saved.</Value>
 	</Resource>
 	<Resource Name="MerchandiseReturns.NotFound" Area="Front">
 		<Value>The merchandise return was not found.</Value>
