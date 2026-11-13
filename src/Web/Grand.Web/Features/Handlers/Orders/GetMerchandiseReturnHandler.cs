@@ -94,7 +94,8 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         foreach (var rrr in await _merchandiseReturnService.GetAllMerchandiseReturnReasons(_contextAccessor.StoreContext.CurrentStore.Id))
             reasons.Add(new MerchandiseReturnModel.MerchandiseReturnReasonModel {
                 Id = rrr.Id,
-                Name = rrr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
+                Name = rrr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
+                PhotoRequired = rrr.PhotoRequired
             });
         return reasons;
     }

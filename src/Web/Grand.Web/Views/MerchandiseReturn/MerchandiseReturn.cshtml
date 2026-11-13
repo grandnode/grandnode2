@@ -24,9 +24,19 @@
             </div>
         }
 
-        <validation-observer v-slot="{ handleSubmit }">
+        <validation-observer v-slot="{ handleSubmit, validate }">
             @* with a return method, the form of the chosen one is checked before the submit *@
-            <form asp-route="MerchandiseReturn" method="post" ref="form" v-on:submit.prevent="handleSubmit(@(Model.ReturnShippingEnabled ? "merchandisereturns.submit" : "formSubmit"))">
+            <form asp-route="MerchandiseReturn" method="post" enctype="multipart/form-data" ref="form" v-on:submit.prevent="handleSubmit(@(Model.ReturnShippingEnabled ? "merchandisereturns.submit" : "formSubmit"))">
+                @*
+                    Three steps of one form, posted once at the end. Without scripts every step is shown, as one
+                    long form, and the step buttons stay hidden.
+                *@
+                <ol class="return-steps list-inline d-flex gap-3 mt-2" style="display: none" v-show="true">
+                    <li class="list-inline-item" v-bind:class="{ 'fw-bold': merchandisereturns.step === 1 }">1. @Loc["MerchandiseReturns.Wizard.Items"]</li>
+                    <li class="list-inline-item" v-bind:class="{ 'fw-bold': merchandisereturns.step === 2 }">2. @Loc["MerchandiseReturns.Wizard.Method"]</li>
+                    <li class="list-inline-item" v-bind:class="{ 'fw-bold': merchandisereturns.step === 3 }">3. @Loc["MerchandiseReturns.Wizard.Summary"]</li>
+                </ol>
+                <section class="return-step return-step-items" v-show="merchandisereturns.step === 1">
                 <div class="mt-2">
                     <h2 class="h5 mt-3">
                         <strong>@Loc["MerchandiseReturns.SelectProduct(s)"]</strong>
@@ -134,6 +144,13 @@
                                                 </select>
                                             </div>
                                         }
+                                        @* checked on the server with the rest of the return: type, size, count, and
+                                           whether the reason chosen asks for one *@
+                                        <div class="return-photos mt-1">
+                                            <label class="form-label small mb-0" for="photos-@(item.Id)">@Loc["MerchandiseReturns.Photos"]</label>
+                                            <input type="file" class="form-control form-control-sm" id="photos-@(item.Id)" name="photos.@(item.Id)" multiple accept="image/*"/>
+                                            <small class="text-muted">@Loc["MerchandiseReturns.Photos.Hint"]</small>
+                                        </div>
                                     </td>
                                 }
                             </tr>
@@ -236,6 +253,12 @@
                         }
                     }
                 </div>
+                <span class="field-validation-error d-block" v-if="merchandisereturns.photoError">{{ merchandisereturns.photoError }}</span>
+                <div class="mt-2" style="display: none" v-show="true">
+                    <button type="button" class="btn btn-secondary" v-on:click="validate().then(ok => ok && merchandisereturns.toMethod())">@Loc["MerchandiseReturns.Wizard.Next"]</button>
+                </div>
+                </section>
+                <section class="return-step return-step-method" v-show="merchandisereturns.step === 2">
                 @if (Model.ReturnShippingEnabled)
                 {
                     @*
@@ -248,7 +271,8 @@
                         <h2 class="h5 mt-3">
                             <strong>@Loc["MerchandiseReturns.ReturnShipping.Title"]</strong>
                         </h2>
-                        <validation-provider tag="div" rules="required" v-slot="{ errors }">
+                        @* asked for once the customer is at this step: the items step goes on without it *@
+                        <validation-provider tag="div" v-bind:rules="merchandisereturns.step >= 2 ? 'required' : ''" v-slot="{ errors }">
                             <div class="form-check return-shipping-option" v-for="offer in merchandisereturns.offers" v-bind:key="merchandisereturns.offerKey(offer)">
                                 <input type="radio" class="form-check-input" name="ReturnShippingOffer"
                                        v-bind:id="'returnshipping-offer-' + merchandisereturns.offerKey(offer)"
@@ -276,11 +300,39 @@
                         </template>
                     </div>
                 }
-                <div class="row">
-                    <div class="col-12 btn-group mt-1 mb-1">
-                        <input type="submit" name="submit-return-request" class="btn btn-secondary submit-return-request-button" value="@Loc["MerchandiseReturns.Submit"]"/>
-                    </div>
+                <p class="return-refund-destination mt-3 mb-0">@Loc["MerchandiseReturns.Estimate.Destination"]</p>
+                <div class="mt-2 d-flex gap-2" style="display: none" v-show="true">
+                    <button type="button" class="btn btn-outline-secondary" v-on:click="merchandisereturns.back()">@Loc["MerchandiseReturns.Wizard.Back"]</button>
+                    <button type="button" class="btn btn-secondary" v-on:click="validate().then(ok => ok && merchandisereturns.toSummary())">@Loc["MerchandiseReturns.Wizard.Next"]</button>
                 </div>
+                </section>
+                <section class="return-step return-step-summary" v-show="merchandisereturns.step === 3">
+                    @*
+                        Text bindings only: the product and method names come from the database and the providers.
+                        The amounts are worked out on the server as the refund will be.
+                    *@
+                    <div class="return-summary mt-3" style="display: none" v-show="true">
+                        <ul class="list-unstyled mb-2">
+                            <li v-for="line in merchandisereturns.summaryItems" v-bind:key="line.id">{{ line.quantity }} × {{ line.name }}</li>
+                        </ul>
+                        <p class="mb-2" v-if="merchandisereturns.selectedOffer">@Loc["MerchandiseReturns.ReturnShipping.Title"]: {{ merchandisereturns.selectedOffer.Name }}</p>
+                        <div class="return-estimate card" v-if="merchandisereturns.estimate">
+                            <div class="card-body">
+                                <h2 class="h6">@Loc["MerchandiseReturns.Estimate.Title"]</h2>
+                                <div>@Loc["MerchandiseReturns.Estimate.ItemsAmount"]: {{ merchandisereturns.estimate.ItemsAmount }}</div>
+                                <div>@Loc["MerchandiseReturns.Estimate.ReturnShippingCost"]: {{ merchandisereturns.estimate.ReturnShippingCost }}</div>
+                                <div class="fw-bold">@Loc["MerchandiseReturns.Estimate.Title"]: {{ merchandisereturns.estimate.Amount }}</div>
+                                <small class="text-muted d-block">@Loc["MerchandiseReturns.Estimate.Note"]</small>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="row">
+                        <div class="col-12 d-flex gap-2 mt-2 mb-1">
+                            <button type="button" class="btn btn-outline-secondary" style="display: none" v-show="true" v-on:click="merchandisereturns.back()">@Loc["MerchandiseReturns.Wizard.Back"]</button>
+                            <input type="submit" name="submit-return-request" class="btn btn-secondary submit-return-request-button" value="@Loc["MerchandiseReturns.Submit"]"/>
+                        </div>
+                    </div>
+                </section>
             </form>
         </validation-observer>
     }
@@ -294,6 +346,10 @@
                                                                     showPickupDate = Model.ShowPickupDate,
                                                                     pickupDate = Model.PickupDate?.ToString("yyyy-MM-dd"),
                                                                     itemIds = Model.Items.Select(item => item.Id),
+                                                                    items = Model.Items.Select(item => new { id = item.Id, name = item.ProductName }),
+                                                                    photoReasonIds = Model.AvailableReturnReasons.Where(x => x.PhotoRequired).Select(x => x.Id),
+                                                                    photosRequired = Loc["MerchandiseReturns.Photos.Required"].Value,
+                                                                    estimateUrl = Url.RouteUrl("MerchandiseReturnEstimate", new { orderId = Model.OrderId }),
                                                                     returnShipping = Model.ReturnShippingEnabled,
                                                                     choosePoint = Model.ReturnShippingEnabled
                                                                         ? Loc["MerchandiseReturns.ReturnShipping.InStore.ChoosePoint"].Value

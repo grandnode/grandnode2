@@ -2214,4 +2214,19 @@
 	<Resource Name="MerchandiseReturns.Pdf" Area="Front">
 		<Value>Return document</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Items" Area="Front">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Method" Area="Front">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Summary" Area="Front">
+		<Value>Summary</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Next" Area="Front">
+		<Value>Next</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Back" Area="Front">
+		<Value>Back</Value>
+	</Resource>
 </Language>

@@ -88,6 +88,11 @@ public class MerchandiseReturnModel : BaseModel
     public class MerchandiseReturnReasonModel : BaseEntityModel
     {
         public string Name { get; set; }
+
+        /// <summary>
+        ///     Whether an item returned for the reason needs a photo
+        /// </summary>
+        public bool PhotoRequired { get; set; }
     }
 
     public class MerchandiseReturnActionModel : BaseEntityModel

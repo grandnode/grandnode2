@@ -22,7 +22,8 @@ import { axios, notifyRequestError } from './shared'
 
 const QUANTITY_FIELD = /^Items\[\d+\]\.Quantity$/
 
-registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, returnShipping, offersUrl, choosePoint }) => {
+registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items, photoReasonIds, photosRequired,
+    estimateUrl, returnShipping, offersUrl, choosePoint }) => {
     const quantities = {}
     itemIds.forEach(id => { quantities['quantity_' + id] = '0' })
 
@@ -39,7 +40,11 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
             offers: [],
             selectedKey: '',
             formHtml: '',
-            formError: ''
+            formError: '',
+            step: 1,
+            photoError: '',
+            estimate: null,
+            summaryItems: []
         }),
         computed: {
             selectedOffer() {
@@ -127,6 +132,51 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
                     return
                 }
                 getRootVm().$refs.form.submit()
+            },
+            returned() {
+                return itemIds.filter(id => Number(this['quantity_' + id]) > 0)
+            },
+            // an item returned for a reason that asks for a photo has one chosen; the server checks it again
+            photosMissing() {
+                return this.returned().some(id => {
+                    const input = document.getElementById('photos-' + id)
+                    const reason = input?.closest('td')?.querySelector('select.return-reasons')?.value
+                    return photoReasonIds.includes(reason) && input.files.length === 0
+                })
+            },
+            toMethod() {
+                this.photoError = this.photosMissing() ? photosRequired : ''
+                if (!this.photoError) this.step = 2
+            },
+            // the refund the form comes to, worked out on the server as the refund will be; the photos stay out of it
+            toSummary() {
+                if (!this.formAnswered()) {
+                    this.formError = choosePoint ?? ''
+                    return
+                }
+                const data = new FormData(getRootVm().$refs.form)
+                for (const name of [...data.keys()]) {
+                    if (name.startsWith('photos.')) data.delete(name)
+                }
+                axios.post(estimateUrl, data)
+                    .then(response => {
+                        const estimate = response.data ?? {}
+                        if (estimate.Errors?.length) {
+                            this.formError = estimate.Errors.join(' ')
+                            return
+                        }
+                        this.estimate = estimate
+                        this.summaryItems = this.returned().map(id => ({
+                            id,
+                            name: items.find(item => item.id === id)?.name ?? '',
+                            quantity: this['quantity_' + id]
+                        }))
+                        this.step = 3
+                    })
+                    .catch(notifyRequestError)
+            },
+            back() {
+                this.step = Math.max(1, this.step - 1)
             }
         }
     }))
