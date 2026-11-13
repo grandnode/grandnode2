@@ -57,7 +57,6 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IAddressAttributeParser _addressAttributeParser;
     private readonly IAffiliateService _affiliateService;
     private readonly IPictureService _pictureService;
-    private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly ICustomerService _customerService;
     private readonly IWarehouseService _warehouseService;
     private readonly CurrencySettings _currencySettings;
@@ -95,7 +94,6 @@ public class OrderViewModelService : IOrderViewModelService
         IAddressAttributeParser addressAttributeParser,
         IAffiliateService affiliateService,
         IPictureService pictureService,
-        IMerchandiseReturnService merchandiseReturnService,
         ICustomerService customerService,
         IWarehouseService warehouseService,
         CurrencySettings currencySettings,
@@ -131,7 +129,6 @@ public class OrderViewModelService : IOrderViewModelService
         _addressAttributeParser = addressAttributeParser;
         _affiliateService = affiliateService;
         _pictureService = pictureService;
-        _merchandiseReturnService = merchandiseReturnService;
         _merchandiseReturnScope = merchandiseReturnScope;
         _warehouseService = warehouseService;
         _currencySettings = currencySettings;
@@ -899,10 +896,6 @@ public class OrderViewModelService : IOrderViewModelService
                     _enumTranslationService.GetTranslationEnum(product.RecurringCyclePeriodId),
                     product.RecurringTotalCycles);
 
-            //merchandise returns
-            orderItemModel.MerchandiseReturnIds =
-                (await _merchandiseReturnService.SearchMerchandiseReturns(orderItemId: orderItem.Id))
-                .Select(rr => rr.Id).ToList();
             //gift vouchers
             orderItemModel.PurchasedGiftVoucherIds =
                 (await _giftVoucherService.GetGiftVouchersByPurchasedWithOrderItemId(orderItem.Id))

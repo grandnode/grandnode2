@@ -60,7 +60,7 @@ public class OrderViewModelServiceMerchandiseReturnsTests
             new Mock<IStoreService>().Object, new Mock<IVendorService>().Object,
             new Mock<ISalesEmployeeService>().Object, new Mock<IAddressAttributeParser>().Object,
             new Mock<IAffiliateService>().Object, new Mock<IPictureService>().Object,
-            new Mock<IMerchandiseReturnService>().Object, new Mock<ICustomerService>().Object,
+            new Mock<ICustomerService>().Object,
             new Mock<IWarehouseService>().Object, new CurrencySettings(), new TaxSettings(), new AddressSettings(),
             new Mock<IOrderTagService>().Object, new Mock<IOrderStatusService>().Object, _mediator.Object,
             enums.Object, new Mock<IAdminDataScope<Order>>().Object, new Mock<IOrderApprovalService>().Object,

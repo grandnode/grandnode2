@@ -83,20 +83,6 @@
                                         @item.Sku
                                     </p>
                                 }
-                                @if (item.MerchandiseReturnIds.Count > 0)
-                                {
-                                    <p>
-                                        @Loc["Vendor.Orders.Products.MerchandiseReturns"]<text>:</text>
-                                        @for (var i = 0; i < item.MerchandiseReturnIds.Count; i++)
-                                        {
-                                            <a href="@Url.Action("Edit", "MerchandiseReturn", new { id = item.MerchandiseReturnIds[i], area = Constants.AreaVendor })" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eye"></i> @Loc["Vendor.Orders.MerchandiseReturns.View"]</a>
-                                            if (i != item.MerchandiseReturnIds.Count - 1)
-                                            {
-                                                <text>,</text>
-                                            }
-                                        }
-                                    </p>
-                                }
 
                             </div>
                         </td>

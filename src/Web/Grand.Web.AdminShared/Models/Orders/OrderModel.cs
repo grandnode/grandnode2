@@ -329,7 +329,6 @@ public class OrderModel : BaseEntityModel
         public string AttributeInfo { get; set; }
         public string RecurringInfo { get; set; }
         public string RentalInfo { get; set; }
-        public IList<string> MerchandiseReturnIds { get; set; } = new List<string>();
         public IList<string> PurchasedGiftVoucherIds { get; set; } = new List<string>();
 
         public bool IsDownload { get; set; }
