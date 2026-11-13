@@ -34,6 +34,8 @@ public class MerchandiseReturnControllerTests
     private Mock<IMediator> _mediator;
     private Mock<IOrderService> _orders;
     private Mock<IMerchandiseReturnService> _returns;
+    private Mock<IRequestTranslationService> _translation;
+    private Mock<IMerchandiseReturnWorkflowService> _workflow;
     private readonly OrderSettings _orderSettings = new() { MerchandiseReturnsEnabled = true };
 
     [TestInitialize]
@@ -53,9 +55,10 @@ public class MerchandiseReturnControllerTests
             .ReturnsAsync(new Order { Id = "o1", CustomerId = "buyer", StoreId = "s1" });
         _returns = new Mock<IMerchandiseReturnService>();
         _labels = new Mock<IMerchandiseReturnLabelService>();
+        _workflow = new Mock<IMerchandiseReturnWorkflowService>();
         _downloads = new Mock<IDownloadService>();
         _mediator = new Mock<IMediator>();
-        var translation = new Mock<IRequestTranslationService>();
+        var translation = _translation = new Mock<IRequestTranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns("text");
         //a resource is found for the key, a provider's text is not: it comes back as the default value
         translation.Setup(x => x.GetResource(It.IsAny<string>(), "l1", It.IsAny<string>(), It.IsAny<bool>()))
@@ -68,7 +71,7 @@ public class MerchandiseReturnControllerTests
 
         _controller = new MerchandiseReturnController(_returns.Object, new Mock<IPickupPointService>().Object,
             _orders.Object, context.Object, groupService.Object, translation.Object, _mediator.Object,
-            _labels.Object, _downloads.Object, new AddressSettings(), _orderSettings);
+            _labels.Object, _downloads.Object, new AddressSettings(), _orderSettings, _workflow.Object);
 
         var httpContext = new DefaultHttpContext();
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
@@ -280,6 +283,59 @@ public class MerchandiseReturnControllerTests
         Assert.AreEqual(1, sent.Photos.Count);
         CollectionAssert.AreEqual(new[] { "front.png", "back.png" },
             sent.Photos["a"].Select(x => x.FileName).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Cancel_Pending_ChangesStatusWithPendingOnly()
+    {
+        Return("buyer");
+        var pending = new MerchandiseReturn { MerchandiseReturnStatus = MerchandiseReturnStatus.Pending };
+        var accepted = new MerchandiseReturn { MerchandiseReturnStatus = MerchandiseReturnStatus.Accepted };
+
+        var result = await _controller.MerchandiseReturnCancel("r1");
+
+        Assert.AreEqual("MerchandiseReturnDetails", ((RedirectToRouteResult)result).RouteName);
+        //checked by the workflow on the return as stored: the staff may have accepted it since the page was loaded
+        _workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Cancelled, null, "customer buyer",
+            It.Is<Func<MerchandiseReturn, bool>>(allowed => allowed(pending) && !allowed(accepted))), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Cancel_Refused_ErrorShown()
+    {
+        Return("buyer");
+        _translation.Setup(x => x.GetResource("MerchandiseReturns.Cancel.NotAllowed")).Returns("Too late.");
+        _workflow.Setup(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Cancelled, null, It.IsAny<string>(),
+                It.IsAny<Func<MerchandiseReturn, bool>>()))
+            .ReturnsAsync(MerchandiseReturnErrors.StatusChangeNotAllowed);
+
+        var result = await _controller.MerchandiseReturnCancel("r1");
+
+        Assert.AreEqual("MerchandiseReturnDetails", ((RedirectToRouteResult)result).RouteName);
+        Assert.IsTrue(((IList<string>)_controller.TempData["grand.notifications.Error"]).Contains("Too late."));
+    }
+
+    [TestMethod]
+    public async Task Cancel_OtherStore_NotFound()
+    {
+        Return("buyer");
+        OrderOfOtherStore();
+
+        var result = await _controller.MerchandiseReturnCancel("r1");
+
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
+        _workflow.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<Func<MerchandiseReturn, bool>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Cancel_OtherCustomer_NotFound()
+    {
+        Return("other");
+
+        var result = await _controller.MerchandiseReturnCancel("r1");
+
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
     }
 
     [TestMethod]

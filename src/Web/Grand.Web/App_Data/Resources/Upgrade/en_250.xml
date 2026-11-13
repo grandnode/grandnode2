@@ -2124,4 +2124,16 @@
 	<Resource Name="MerchandiseReturns.Estimate.Destination" Area="Front">
 		<Value>The money goes back to the payment method of the order.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Cancel" Area="Front">
+		<Value>Cancel return</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Cancel.Confirm" Area="Front">
+		<Value>Cancel this return? You can submit a new one later.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Cancel.Done" Area="Front">
+		<Value>The return was cancelled.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Cancel.NotAllowed" Area="Front">
+		<Value>This return can no longer be cancelled.</Value>
+	</Resource>
 </Language>

@@ -42,7 +42,8 @@ public class MerchandiseReturnController : BasePublicController
         IMerchandiseReturnLabelService merchandiseReturnLabelService,
         IDownloadService downloadService,
         AddressSettings addressSettings,
-        OrderSettings orderSettings)
+        OrderSettings orderSettings,
+        IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService)
     {
         _merchandiseReturnService = merchandiseReturnService;
         _pickupPointService = pickupPointService;
@@ -55,6 +56,7 @@ public class MerchandiseReturnController : BasePublicController
         _downloadService = downloadService;
         _addressSettings = addressSettings;
         _orderSettings = orderSettings;
+        _merchandiseReturnWorkflowService = merchandiseReturnWorkflowService;
     }
 
     #endregion
@@ -74,6 +76,7 @@ public class MerchandiseReturnController : BasePublicController
     private readonly IDownloadService _downloadService;
     private readonly AddressSettings _addressSettings;
     private readonly OrderSettings _orderSettings;
+    private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
 
     #endregion
 
@@ -409,6 +412,32 @@ public class MerchandiseReturnController : BasePublicController
             if (error != null)
                 Error(LabelErrorText(error));
         }
+
+        return RedirectToRoute("MerchandiseReturnDetails", new { merchandiseReturnId = merchandiseReturn.Id });
+    }
+
+    /// <summary>
+    ///     Cancels a return the store has not answered yet: its quantity can be returned again and its label is
+    ///     cancelled with the carrier, as when the staff cancel it
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnCancel(string merchandiseReturnId)
+    {
+        var (merchandiseReturn, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (merchandiseReturn == null)
+            return NotFound("The return was not found.");
+
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        //pending as stored, under the lock: the staff may have accepted it since the page was loaded
+        var error = await _merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id,
+            MerchandiseReturnStatus.Cancelled, null, "customer " + (customer.Email ?? customer.Id),
+            stored => stored.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
+        if (error == null)
+            Success(_translationService.GetResource("MerchandiseReturns.Cancel.Done"));
+        else
+            Error(_translationService.GetResource(error == MerchandiseReturnErrors.Busy
+                ? MerchandiseReturnErrors.SubmitBusy
+                : "MerchandiseReturns.Cancel.NotAllowed"));
 
         return RedirectToRoute("MerchandiseReturnDetails", new { merchandiseReturnId = merchandiseReturn.Id });
     }
