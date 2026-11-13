@@ -376,6 +376,10 @@ public class MerchandiseReturnRefundServiceTests
     [DataRow(0.004)]
     [DataRow(0)]
     [DataRow(-5)]
+    [DataRow(double.NaN)]
+    [DataRow(double.PositiveInfinity)]
+    [DataRow(double.NegativeInfinity)]
+    [DataRow(1e30)]
     public async Task Refund_AmountAboveWhatItComesToOrNotAboveZero_Refused_NothingPaid(double amount)
     {
         _stored.ReturnShipping = new MerchandiseReturnShipping { Cost = 5, CurrencyRate = 1 };

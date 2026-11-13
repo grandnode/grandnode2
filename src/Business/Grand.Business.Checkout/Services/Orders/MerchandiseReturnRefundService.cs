@@ -128,8 +128,11 @@ public class MerchandiseReturnRefundService(
             if (quote.Error != null)
                 return quote.Error;
 
+            //checked before the rounding as well, which cannot take NaN, infinity or amounts beyond a decimal
+            if (double.IsNaN(amount) || amount <= 0 || amount > quote.MaxAmount)
+                return MerchandiseReturnErrors.RefundAmountNotAllowed;
             amount = rounding.Round(amount);
-            if (amount <= 0 || amount > quote.MaxAmount)
+            if (amount <= 0)
                 return MerchandiseReturnErrors.RefundAmountNotAllowed;
             if (offline ? !quote.CanRefundOffline : !quote.CanRefundOnline)
                 return MerchandiseReturnErrors.RefundNotAllowed;
