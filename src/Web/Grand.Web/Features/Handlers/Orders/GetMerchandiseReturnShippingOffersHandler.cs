@@ -46,9 +46,7 @@ public class GetMerchandiseReturnShippingOffersHandler(
                 Cost = CostText(offer, request, orderCurrency),
                 Parcels = offer.Parcels,
                 ParcelsText = offer.Parcels > 1
-                    ? string.Format(
-                        translationService.GetResource("MerchandiseReturns.ReturnShipping.Parcels",
-                            request.Language.Id), offer.Parcels)
+                    ? Translated("MerchandiseReturns.ReturnShipping.Parcels", request.Language.Id, offer.Parcels)
                     : "",
                 FormUrl = offer.HasForm && !string.IsNullOrEmpty(offer.FormRouteName)
                     ? request.FormUrl?.Invoke(offer.FormRouteName, FormValues(offer, request.Order)) ?? ""
@@ -63,12 +61,27 @@ public class GetMerchandiseReturnShippingOffersHandler(
     {
         var cost = priceFormatter.FormatPrice(offer.Cost * request.Order.CurrencyRate, orderCurrency);
         if (offer.CostVaries)
-            return string.Format(
-                translationService.GetResource("MerchandiseReturns.ReturnShipping.From", request.Language.Id), cost);
+            return Translated("MerchandiseReturns.ReturnShipping.From", request.Language.Id, cost);
 
         return offer.Cost > 0
             ? cost
             : translationService.GetResource("MerchandiseReturns.ReturnShipping.Free", request.Language.Id);
+    }
+
+    /// <summary>
+    ///     A translation with one value put in; a translation edited wrong (e.g. a stray brace) gives the value alone,
+    ///     so the return form still lists its methods
+    /// </summary>
+    private string Translated(string resourceKey, string languageId, object value)
+    {
+        try
+        {
+            return string.Format(translationService.GetResource(resourceKey, languageId), value);
+        }
+        catch (FormatException)
+        {
+            return value?.ToString() ?? "";
+        }
     }
 
     /// <summary>

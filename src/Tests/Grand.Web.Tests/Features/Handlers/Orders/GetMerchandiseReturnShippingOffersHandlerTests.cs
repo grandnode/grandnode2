@@ -19,6 +19,7 @@ namespace Grand.Web.Tests.Features.Handlers.Orders;
 public class GetMerchandiseReturnShippingOffersHandlerTests
 {
     private readonly Order _order = new() { Id = "o1", StoreId = "s1", CustomerCurrencyCode = "EUR", CurrencyRate = 2 };
+    private string _fromText;
     private GetMerchandiseReturnShippingOffersHandler _handler;
     private List<ReturnShippingOffer> _offers;
 
@@ -26,6 +27,7 @@ public class GetMerchandiseReturnShippingOffersHandlerTests
     public void Init()
     {
         _offers = [];
+        _fromText = "from {0}";
         var returnShippingService = new Mock<IReturnShippingService>();
         returnShippingService.Setup(x => x.GetOffers(It.IsAny<MerchandiseReturnSubmitRequest>()))
             .ReturnsAsync(() => _offers);
@@ -38,7 +40,7 @@ public class GetMerchandiseReturnShippingOffersHandlerTests
         translationService.Setup(x => x.GetResource(It.IsAny<string>(), "l1", It.IsAny<string>(), It.IsAny<bool>()))
             .Returns((string key, string _, string _, bool _) => key switch {
                 "MerchandiseReturns.ReturnShipping.Free" => "Free",
-                "MerchandiseReturns.ReturnShipping.From" => "from {0}",
+                "MerchandiseReturns.ReturnShipping.From" => _fromText,
                 _ => key
             });
         _handler = new GetMerchandiseReturnShippingOffersHandler(returnShippingService.Object,
@@ -103,5 +105,17 @@ public class GetMerchandiseReturnShippingOffersHandlerTests
 
         Assert.AreEqual("from EUR0", models[0].Cost);
         Assert.IsFalse(formValues.ContainsKey("free"));
+    }
+
+    [TestMethod]
+    public async Task Offer_TranslationEditedWrong_ShowsTheCostAlone()
+    {
+        //a stray brace typed into the translation: the form still lists the method
+        _fromText = "from {0";
+        _offers.Add(Offer(3, true));
+
+        var (models, _) = await Handle();
+
+        Assert.AreEqual("EUR6", models[0].Cost);
     }
 }
