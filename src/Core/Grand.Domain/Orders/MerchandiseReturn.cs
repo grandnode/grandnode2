@@ -96,4 +96,9 @@ public class MerchandiseReturn : BaseEntity
     ///     Gets or sets how the items are sent back; null when no return shipping was chosen
     /// </summary>
     public MerchandiseReturnShipping ReturnShipping { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the money given back for the return; null until a refund is started
+    /// </summary>
+    public MerchandiseReturnRefund Refund { get; set; }
 }

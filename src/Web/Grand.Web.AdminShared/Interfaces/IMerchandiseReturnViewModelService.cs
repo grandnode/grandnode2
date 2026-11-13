@@ -26,6 +26,19 @@ public interface IMerchandiseReturnViewModelService
     Task PrepareReturnReceipts(MerchandiseReturnModel model);
 
     /// <summary>
+    ///     The refund of the return: the refund made or under way, in any panel; or, for a panel that refunds
+    ///     (canRefund) and a staff member who refunds payments, what the refund of a received return comes to, with
+    ///     the amount to refund filled in
+    /// </summary>
+    Task PrepareRefund(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn, bool canRefund);
+
+    /// <summary>
+    ///     Gives back the amount for the return through the payment of its order, online or offline; the reason it
+    ///     was not, as a resource key without the panel's prefix, or null
+    /// </summary>
+    Task<string> RefundMerchandiseReturn(MerchandiseReturn merchandiseReturn, double amount, bool offline);
+
+    /// <summary>
     ///     Saves the edit form, then changes the status when a status button posted it (ChangeStatusTo). Error is
     ///     why the form or the status was not saved, as a resource key without the panel's prefix
     /// </summary>

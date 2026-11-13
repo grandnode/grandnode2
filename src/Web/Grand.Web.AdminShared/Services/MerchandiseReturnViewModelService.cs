@@ -57,6 +57,7 @@ public class MerchandiseReturnViewModelService(
     IWarehouseService warehouseService,
     IAdminDataScope<Warehouse> warehouseScope,
     IRequestPermissionService permissionService,
+    IMerchandiseReturnRefundService merchandiseReturnRefundService,
     ILogger<MerchandiseReturnViewModelService> logger)
     : IMerchandiseReturnViewModelService
 {
@@ -379,6 +380,74 @@ public class MerchandiseReturnViewModelService(
                 CanOpen = managesDocuments && (storeId == null || receipt.StoreId == storeId) &&
                           await CanUse(receipt.WarehouseId)
             });
+    }
+
+    public virtual async Task PrepareRefund(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn,
+        bool canRefund)
+    {
+        ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
+
+        var refund = merchandiseReturn.Refund;
+        //a received return is quoted only for the staff who refund payments
+        if (refund == null && (!canRefund ||
+                               merchandiseReturn.MerchandiseReturnStatus != MerchandiseReturnStatus.Received ||
+                               !await permissionService.Authorize(PermissionSystemName.PaymentTransactions)))
+            return;
+
+        var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        if (order == null)
+            return;
+        var orderCurrency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode)
+                            ?? contextAccessor.WorkContext.WorkingCurrency;
+
+        if (refund != null)
+        {
+            model.Refund = new MerchandiseReturnModel.RefundModel {
+                Started = true,
+                ItemsAmount = priceFormatter.FormatPrice(refund.ItemsAmount, orderCurrency),
+                ReturnShippingCost = priceFormatter.FormatPrice(refund.ReturnShippingCost, orderCurrency),
+                Amount = priceFormatter.FormatPrice(refund.Amount, orderCurrency),
+                Offline = refund.Offline,
+                RefundedBy = refund.RefundedBy,
+                RefundedOn = refund.RefundedOnUtc.HasValue
+                    ? dateTimeService.ConvertToUserTime(refund.RefundedOnUtc.Value, DateTimeKind.Utc)
+                    : null
+            };
+            return;
+        }
+
+        var quote = await merchandiseReturnRefundService.GetQuote(merchandiseReturn.Id);
+        if (quote == null)
+            return;
+
+        model.Refund = new MerchandiseReturnModel.RefundModel {
+            ItemsAmount = priceFormatter.FormatPrice(quote.ItemsAmount, orderCurrency),
+            ReturnShippingCost = priceFormatter.FormatPrice(quote.ReturnShippingCost, orderCurrency),
+            Amount = priceFormatter.FormatPrice(quote.Amount, orderCurrency),
+            Error = quote.Error == null
+                ? null
+                : translationService.GetResource($"{scope.ResourceKeyPrefix}.{quote.Error}"),
+            MaxAmount = quote.MaxAmount,
+            CurrencyCode = quote.CurrencyCode,
+            CanRefundOnline = quote.Error == null && quote.CanRefundOnline,
+            CanRefundOffline = quote.Error == null && quote.CanRefundOffline
+        };
+        //the full amount, for the staff to lower when they deduct something
+        model.RefundAmount = quote.MaxAmount;
+    }
+
+    public virtual async Task<string> RefundMerchandiseReturn(MerchandiseReturn merchandiseReturn, double amount,
+        bool offline)
+    {
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
+
+        //the money goes back through the order's payment: the staff who refund payments may do it
+        if (!await permissionService.Authorize(PermissionSystemName.PaymentTransactions))
+            return MerchandiseReturnErrors.RefundNotAllowed;
+
+        return await merchandiseReturnRefundService.Refund(merchandiseReturn.Id, amount, offline,
+            contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy());
     }
 
     /// <summary>

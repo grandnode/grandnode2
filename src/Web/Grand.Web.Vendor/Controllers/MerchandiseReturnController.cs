@@ -24,4 +24,7 @@ public class MerchandiseReturnController(
 {
     //a vendor books no stock: the panel has no inventory documents
     protected override bool HasInventoryDocuments => false;
+
+    //the money goes back through the order's payment, which is the store's
+    protected override bool RefundsPayments => false;
 }

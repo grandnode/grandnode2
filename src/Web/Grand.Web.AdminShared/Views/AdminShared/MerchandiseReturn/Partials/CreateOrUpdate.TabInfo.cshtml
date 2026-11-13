@@ -51,6 +51,10 @@
 {
     <partial name="Partials/CreateOrUpdate.ReturnShipping" model="Model"/>
 }
+@if (Model.Refund != null)
+{
+    <partial name="Partials/CreateOrUpdate.Refund" model="Model"/>
+}
 @* the receipts the goods come back to stock on; one the panel cannot open is only named *@
 @if (Model.ReturnReceipts.Count > 0)
 {

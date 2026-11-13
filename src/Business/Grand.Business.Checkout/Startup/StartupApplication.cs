@@ -47,6 +47,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IMerchandiseReturnService, MerchandiseReturnService>();
         serviceCollection.AddScoped<IMerchandiseReturnWorkflowService, MerchandiseReturnWorkflowService>();
         serviceCollection.AddScoped<IMerchandiseReturnLabelService, MerchandiseReturnLabelService>();
+        serviceCollection.AddScoped<IMerchandiseReturnRefundService, MerchandiseReturnRefundService>();
         serviceCollection.AddScoped<IOrderApprovalService, OrderApprovalService>();
         serviceCollection.AddScoped<IOrderPlacementService, OrderPlacementService>();
         serviceCollection.AddScoped<ICheckoutClaimService, CheckoutClaimService>();

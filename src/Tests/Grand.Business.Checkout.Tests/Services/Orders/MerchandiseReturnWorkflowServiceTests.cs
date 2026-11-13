@@ -147,6 +147,31 @@ public class MerchandiseReturnWorkflowServiceTests
     }
 
     [TestMethod]
+    public async Task ChangeStatus_RefundUnderWay_ReturnsRefundInProgress_AndSavesNothing()
+    {
+        //the refund completes the return itself once the money went back
+        _stored = Return(MerchandiseReturnStatus.Received);
+        _stored.Refund = new MerchandiseReturnRefund { Amount = 10, CreatedOnUtc = DateTime.UtcNow };
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Completed);
+
+        Assert.AreEqual(MerchandiseReturnErrors.RefundInProgress, error);
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Refunded_CanBeCompleted()
+    {
+        _stored = Return(MerchandiseReturnStatus.Received);
+        _stored.Refund = new MerchandiseReturnRefund { Amount = 10, RefundedOnUtc = DateTime.UtcNow };
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Completed);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(MerchandiseReturnStatus.Completed, _stored.MerchandiseReturnStatus);
+    }
+
+    [TestMethod]
     public async Task ChangeStatus_ReadsStoredStatus_NotTheCallersCopy()
     {
         //the page was loaded while the return was pending; it has been rejected since

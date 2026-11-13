@@ -428,6 +428,10 @@ public class MerchandiseReturnWorkflowService(
         if (!stored.MerchandiseReturnStatus.CanChangeTo(status))
             return MerchandiseReturnErrors.StatusChangeNotAllowed;
 
+        //the refund completes the return once the money went back, or leaves it received when it did not
+        if (stored.Refund is { RefundedOnUtc: null })
+            return MerchandiseReturnErrors.RefundInProgress;
+
         var takesQuantity = stored.MerchandiseReturnStatus.TakesQuantity();
 
         //a rejected or cancelled return opened again takes its quantity again, so that quantity must still be left

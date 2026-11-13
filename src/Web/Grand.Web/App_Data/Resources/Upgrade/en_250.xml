@@ -1965,4 +1965,106 @@
 	<Resource Name="Admin.Settings.Order.MerchandiseReturns_HideRequestedAction.Hint" Area="Admin">
 		<Value>The return form does not ask the customer what they want instead (a refund, a repair, a replacement), and no action is saved with the return.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Title" Area="Admin">
+		<Value>Refund</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ItemsAmount" Area="Admin">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ReturnShippingCost" Area="Admin">
+		<Value>Return shipping deducted</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Amount" Area="Admin">
+		<Value>Amount</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Method" Area="Admin">
+		<Value>Refunded</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Online" Area="Admin">
+		<Value>Through the payment provider</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Offline" Area="Admin">
+		<Value>Offline</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundedOn" Area="Admin">
+		<Value>Refunded on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.UnderWay" Area="Admin">
+		<Value>Under way</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundedBy" Area="Admin">
+		<Value>Refunded by</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.InProgress" Area="Admin">
+		<Value>A refund of this return is under way. Try again in a moment.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Title" Area="Vendor">
+		<Value>Refund</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.ItemsAmount" Area="Vendor">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.ReturnShippingCost" Area="Vendor">
+		<Value>Return shipping deducted</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Amount" Area="Vendor">
+		<Value>Amount</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Method" Area="Vendor">
+		<Value>Refunded</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Online" Area="Vendor">
+		<Value>Through the payment provider</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Offline" Area="Vendor">
+		<Value>Offline</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.RefundedOn" Area="Vendor">
+		<Value>Refunded on</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.UnderWay" Area="Vendor">
+		<Value>Under way</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.RefundedBy" Area="Vendor">
+		<Value>Refunded by</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.InProgress" Area="Vendor">
+		<Value>A refund of this return is under way. Try again in a moment.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AmountToRefund" Area="Admin">
+		<Value>Amount to refund</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AmountToRefund.Hint" Area="Admin">
+		<Value>At most {0} {1}. Lower it to deduct something, e.g. for damage.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundOnline" Area="Admin">
+		<Value>Refund</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundOffline" Area="Admin">
+		<Value>Refund offline</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ConfirmOnline" Area="Admin">
+		<Value>Give the money back through the payment provider of the order? The return is completed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ConfirmOffline" Area="Admin">
+		<Value>Record the money as given back outside the payment provider, e.g. by a bank transfer? The return is completed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Refunded" Area="Admin">
+		<Value>The money has been given back and the return completed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.NotAllowed" Area="Admin">
+		<Value>This return cannot be refunded through the payment of its order.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AmountNotAllowed" Area="Admin">
+		<Value>The amount to refund must be above zero and at most what the return comes to.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.NothingToRefund" Area="Admin">
+		<Value>Nothing is left to refund: the return shipping cost takes the whole amount, or the payment of the order has been refunded already.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AlreadyRefunded" Area="Admin">
+		<Value>This return has been refunded already.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Failed" Area="Admin">
+		<Value>The refund did not go through; the reason is in the notes of the return.</Value>
+	</Resource>
 </Language>
