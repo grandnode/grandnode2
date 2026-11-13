@@ -36,10 +36,10 @@ public class MerchandiseReturnRefund
     public string PaymentTransactionId { get; set; }
 
     /// <summary>
-    ///     Gets or sets the refunded amount of the payment transaction before this refund: whether the refund went
-    ///     through is read from the transaction when its result was not saved
+    ///     Gets or sets whether the payment answered the refund with errors: it may have given the money back before it
+    ///     failed, so the staff check the payment and say whether it did
     /// </summary>
-    public double TransactionRefundedAmount { get; set; }
+    public bool OutcomeUnknown { get; set; }
 
     /// <summary>
     ///     Gets or sets who refunded, as the staff note names them

@@ -111,9 +111,15 @@ public class MerchandiseReturnModel : BaseEntityModel
         public string RefundedBy { get; set; }
         public bool Offline { get; set; }
 
+        //a refund under way whose result is not known: the staff who refund payments check the payment and say
+        //whether the money went back
+        public bool AwaitsCheck { get; set; }
+
         //why the return cannot be refunded now, translated; null when it can
         public string Error { get; set; }
-        public double MaxAmount { get; set; }
+
+        //the most that can be refunded, formatted in the order's currency
+        public string MaxAmount { get; set; }
         public string CurrencyCode { get; set; }
         public bool CanRefundOnline { get; set; }
         public bool CanRefundOffline { get; set; }

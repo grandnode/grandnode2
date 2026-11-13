@@ -142,7 +142,7 @@ public class MerchandiseReturnRefundServiceTests
     [TestMethod]
     public async Task GetQuote_FullReturn_IsWhatWasPaidForTheItems_ItemDiscountAndTaxIncluded()
     {
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         //the price paid incl. tax, not the price before the item discount (2 x 120) nor the one without tax
         Assert.IsNull(quote.Error);
@@ -157,7 +157,7 @@ public class MerchandiseReturnRefundServiceTests
     {
         _stored.MerchandiseReturnItems[0].Quantity = 1;
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         Assert.AreEqual(100, quote.ItemsAmount);
     }
@@ -207,7 +207,7 @@ public class MerchandiseReturnRefundServiceTests
         _stored.MerchandiseReturnItems.Add(new MerchandiseReturnItem { OrderItemId = "b", Quantity = 1 });
         _orderReturns.Add(Refunded("r0", ("b", 2)));
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         //100 for one of a; the last of b's 10.00 after 6.67
         Assert.AreEqual(103.33, quote.ItemsAmount);
@@ -221,7 +221,7 @@ public class MerchandiseReturnRefundServiceTests
         _order.OrderDiscount = 20;
         _transaction.TransactionAmount = 180;
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         Assert.AreEqual(200, quote.ItemsAmount);
         Assert.AreEqual(200, quote.Amount);
@@ -234,7 +234,7 @@ public class MerchandiseReturnRefundServiceTests
         //5 in the primary currency at the order's rate of 4.1234
         _stored.ReturnShipping = new MerchandiseReturnShipping { Cost = 5, CurrencyRate = 4.1234 };
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         Assert.AreEqual(20.62, quote.ReturnShippingCost);
         Assert.AreEqual(179.38, quote.Amount);
@@ -248,7 +248,7 @@ public class MerchandiseReturnRefundServiceTests
         _stored.MerchandiseReturnItems[0].Quantity = 1;
         _stored.ReturnShipping = new MerchandiseReturnShipping { Cost = 5, CurrencyRate = 1 };
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         Assert.AreEqual(0, quote.Amount);
         Assert.AreEqual(MerchandiseReturnErrors.NothingToRefund, quote.Error);
@@ -259,7 +259,7 @@ public class MerchandiseReturnRefundServiceTests
     {
         _transaction.RefundedAmount = 300;
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         Assert.AreEqual(MerchandiseReturnErrors.NothingToRefund, quote.Error);
     }
@@ -271,7 +271,7 @@ public class MerchandiseReturnRefundServiceTests
         other.Refund = new MerchandiseReturnRefund { Amount = 250, PaymentTransactionId = "t1" };
         _orderReturns.Add(other);
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         Assert.AreEqual(50, quote.MaxAmount);
     }
@@ -281,7 +281,7 @@ public class MerchandiseReturnRefundServiceTests
     {
         _stored.MerchandiseReturnStatus = MerchandiseReturnStatus.Accepted;
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         Assert.AreEqual(MerchandiseReturnErrors.RefundNotAllowed, quote.Error);
     }
@@ -291,7 +291,7 @@ public class MerchandiseReturnRefundServiceTests
     {
         SetupCanRefund(false, false);
 
-        var quote = await _service.GetQuote("r1");
+        var quote = await _service.GetQuote(_stored, _order);
 
         Assert.AreEqual(MerchandiseReturnErrors.RefundNotAllowed, quote.Error);
     }
@@ -429,16 +429,19 @@ public class MerchandiseReturnRefundServiceTests
     }
 
     [TestMethod]
-    public async Task Refund_PaymentFails_ClearsTheRefund_LeavesTheReturnReceived_WithANote()
+    public async Task Refund_PaymentFails_WaitsForTheCheck_LeavesTheReturnReceived_WithANote()
     {
+        //a provider's error may come after it gave the money back: the refund is neither cleared nor done
         _mediator.Setup(x => x.Send(It.IsAny<PartiallyRefundCommand>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new List<string> { "card expired" });
 
         var error = await _service.Refund("r1", 200, false, "staff@shop.com");
 
-        Assert.AreEqual(MerchandiseReturnErrors.RefundFailed, error);
-        Assert.IsNull(_stored.Refund);
-        CollectionAssert.AreEqual(new[] { "save:under way", "save:cleared" }, _steps);
+        Assert.AreEqual(MerchandiseReturnErrors.RefundUnconfirmed, error);
+        Assert.IsTrue(_stored.Refund.OutcomeUnknown);
+        Assert.IsNull(_stored.Refund.RefundedOnUtc);
+        Assert.IsTrue(_stored.Refund.AwaitsCheck(DateTime.UtcNow));
+        CollectionAssert.AreEqual(new[] { "save:under way", "save:under way" }, _steps);
         _workflowService.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
             It.IsAny<string>(), It.IsAny<string>()), Times.Never);
         _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
@@ -446,30 +449,29 @@ public class MerchandiseReturnRefundServiceTests
     }
 
     [TestMethod]
-    public async Task Refund_PaymentThrows_ClearsTheRefund_RefundFailed()
+    public async Task Refund_PaymentThrows_WaitsForTheCheck()
     {
         _mediator.Setup(x => x.Send(It.IsAny<PartiallyRefundCommand>(), It.IsAny<CancellationToken>()))
-            .ThrowsAsync(new Exception("Cannot do partial refund for order."));
+            .ThrowsAsync(new Exception("timeout"));
 
         var error = await _service.Refund("r1", 200, false);
 
-        Assert.AreEqual(MerchandiseReturnErrors.RefundFailed, error);
-        Assert.IsNull(_stored.Refund);
+        Assert.AreEqual(MerchandiseReturnErrors.RefundUnconfirmed, error);
+        Assert.IsTrue(_stored.Refund.OutcomeUnknown);
     }
 
     [TestMethod]
-    public async Task Refund_CommandErrsAfterTheMoneyWentBack_IsRefunded_NotLeftToBePaidAgain()
+    public async Task Refund_PaymentFails_IsNotPaidAgain_UntilTheStaffSayTheMoneyDidNotGoBack()
     {
-        //e.g. the order or the e-mails failed once the provider refunded: the transaction counts the money
+        //e.g. the provider refunded, then saving the transaction failed: it does not count the money
         _mediator.Setup(x => x.Send(It.IsAny<PartiallyRefundCommand>(), It.IsAny<CancellationToken>()))
-            .Callback(() => _transaction.RefundedAmount += 200)
-            .ReturnsAsync(new List<string> { "smtp down" });
+            .ReturnsAsync(new List<string> { "database down" });
+        await _service.Refund("r1", 200, false);
 
         var error = await _service.Refund("r1", 200, false);
 
-        Assert.IsNull(error);
-        Assert.IsNotNull(_stored.Refund.RefundedOnUtc);
-        _workflowService.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Completed, null, null),
+        Assert.AreEqual(MerchandiseReturnErrors.RefundInProgress, error);
+        _mediator.Verify(x => x.Send(It.IsAny<PartiallyRefundCommand>(), It.IsAny<CancellationToken>()),
             Times.Once);
     }
 
@@ -488,37 +490,104 @@ public class MerchandiseReturnRefundServiceTests
     }
 
     [TestMethod]
-    public async Task Refund_UnderWayAndCountedByTheTransaction_IsCompleted_NotPaidAgain()
+    public async Task Refund_UnderWay_WhileTheTransactionGrewByAnotherRefund_IsNotTakenAsRefunded()
     {
-        //a call that crashed after the money went back, before its result was saved
-        _transaction.RefundedAmount = 200;
-        _stored.Refund = new MerchandiseReturnRefund {
-            Amount = 200, PaymentTransactionId = "t1", TransactionRefundedAmount = 0,
-            CreatedOnUtc = DateTime.UtcNow.AddMinutes(-1), RefundedBy = "staff@shop.com"
-        };
-
-        var error = await _service.Refund("r1", 200, false);
-
-        Assert.AreEqual(MerchandiseReturnErrors.AlreadyRefunded, error);
-        VerifyNothingPaid();
-        Assert.IsNotNull(_stored.Refund.RefundedOnUtc);
-        _workflowService.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Completed, null,
-            "staff@shop.com"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Refund_UnderWayLongAgoAndNeverCounted_IsGivenUp_AndRefundedNow()
-    {
+        //another return of the order, or a refund by hand, put the money on the transaction: not this refund's
+        _transaction.RefundedAmount = 250;
         _stored.Refund = new MerchandiseReturnRefund {
             Amount = 200, PaymentTransactionId = "t1", CreatedOnUtc = DateTime.UtcNow.AddHours(-1)
         };
 
-        var error = await _service.Refund("r1", 200, true);
+        var error = await _service.Refund("r1", 200, false);
+
+        Assert.AreEqual(MerchandiseReturnErrors.RefundInProgress, error);
+        VerifyNothingPaid();
+        Assert.IsNull(_stored.Refund.RefundedOnUtc);
+        _workflowService.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    #endregion
+
+    #region Resolve
+
+    private void UnderWay(bool outcomeUnknown, DateTime createdOnUtc)
+    {
+        _stored.Refund = new MerchandiseReturnRefund {
+            ItemsAmount = 200, Amount = 200, PaymentTransactionId = "t1", OutcomeUnknown = outcomeUnknown,
+            CreatedOnUtc = createdOnUtc, RefundedBy = "staff@shop.com"
+        };
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_WentBack_RecordsTheRefund_AndCompletesTheReturn()
+    {
+        UnderWay(true, DateTime.UtcNow);
+
+        var error = await _service.ResolveRefund("r1", true, "boss@shop.com");
 
         Assert.IsNull(error);
-        CollectionAssert.AreEqual(new[] { "save:cleared", "save:under way", "pay offline", "save:refunded" },
-            _steps);
+        Assert.IsNotNull(_stored.Refund.RefundedOnUtc);
+        VerifyNothingPaid();
+        _workflowService.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Completed, null,
+            "boss@shop.com"), Times.Once);
+        _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n => n.Note.Contains("#7"))), Times.Once);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
+            n.Note.Contains("went back") && n.Note.Contains("boss@shop.com"))), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_DidNotGoBack_ClearsTheRefund_AndTheReturnCanBeRefundedAgain()
+    {
+        UnderWay(true, DateTime.UtcNow);
+
+        var error = await _service.ResolveRefund("r1", false, "boss@shop.com");
+
+        Assert.IsNull(error);
+        Assert.IsNull(_stored.Refund);
+        _workflowService.Verify(x => x.ChangeStatus(It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus>(),
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        Assert.IsNull(await _service.Refund("r1", 200, true));
         Assert.AreEqual(200, _transaction.RefundedAmount);
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_LeftByACallThatEndedLongAgo_CanBeResolved()
+    {
+        UnderWay(false, DateTime.UtcNow - MerchandiseReturnExtensions.RefundRunsAtMost - TimeSpan.FromMinutes(1));
+
+        var error = await _service.ResolveRefund("r1", true);
+
+        Assert.IsNull(error);
+        Assert.IsNotNull(_stored.Refund.RefundedOnUtc);
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_StillRunning_RefundInProgress_ChangesNothing()
+    {
+        UnderWay(false, DateTime.UtcNow.AddMinutes(-1));
+
+        var error = await _service.ResolveRefund("r1", false);
+
+        Assert.AreEqual(MerchandiseReturnErrors.RefundInProgress, error);
+        Assert.IsNotNull(_stored.Refund);
+        Assert.AreEqual(0, _steps.Count);
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_Refunded_AlreadyRefunded()
+    {
+        _stored.Refund = new MerchandiseReturnRefund { Amount = 200, RefundedOnUtc = DateTime.UtcNow };
+
+        Assert.AreEqual(MerchandiseReturnErrors.AlreadyRefunded, await _service.ResolveRefund("r1", false));
+        Assert.IsNotNull(_stored.Refund);
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_NoRefund_RefundNotAllowed()
+    {
+        Assert.AreEqual(MerchandiseReturnErrors.RefundNotAllowed, await _service.ResolveRefund("r1", true));
+        Assert.AreEqual(MerchandiseReturnErrors.NotFound, await _service.ResolveRefund("nope", true));
     }
 
     #endregion

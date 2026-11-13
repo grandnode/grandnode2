@@ -99,6 +99,23 @@ public static class MerchandiseReturnExtensions
     }
 
     /// <summary>
+    ///     How long a refund under way may still be running: far longer than any payment provider call. One older than
+    ///     that was left by a call that ended without saving its result
+    /// </summary>
+    public static readonly TimeSpan RefundRunsAtMost = TimeSpan.FromMinutes(15);
+
+    /// <summary>
+    ///     Whether the refund waits for the staff to say whether the money went back: the payment answered it with
+    ///     errors, or the call that started it ended without saving its result. Nothing reads that from the payment
+    ///     transaction: its refunded amount counts every refund of the order, not this one
+    /// </summary>
+    public static bool AwaitsCheck(this MerchandiseReturnRefund refund, DateTime utcNow)
+    {
+        return refund is { RefundedOnUtc: null } &&
+               (refund.OutcomeUnknown || refund.CreatedOnUtc <= utcNow - RefundRunsAtMost);
+    }
+
+    /// <summary>
     ///     What was paid for the items of the return, in the order's currency: the price of each order item, with its
     ///     item discount and tax, shared out over its quantity. The returns of the item refunded before took the first
     ///     shares, so all the returns of an item together come to its price exactly, never a cent more or less. The

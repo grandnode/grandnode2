@@ -1996,7 +1996,7 @@
 		<Value>Refunded by</Value>
 	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.InProgress" Area="Admin">
-		<Value>A refund of this return is under way. Try again in a moment.</Value>
+		<Value>A refund of this return is under way, or waits for its payment to be checked.</Value>
 	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.Title" Area="Vendor">
 		<Value>Refund</Value>
@@ -2029,13 +2029,13 @@
 		<Value>Refunded by</Value>
 	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.Refund.InProgress" Area="Vendor">
-		<Value>A refund of this return is under way. Try again in a moment.</Value>
+		<Value>A refund of this return is under way, or waits for its payment to be checked.</Value>
 	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AmountToRefund" Area="Admin">
 		<Value>Amount to refund</Value>
 	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AmountToRefund.Hint" Area="Admin">
-		<Value>At most {0} {1}. Lower it to deduct something, e.g. for damage.</Value>
+		<Value>At most {0}. Lower it to deduct something, e.g. for damage.</Value>
 	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.RefundOnline" Area="Admin">
 		<Value>Refund</Value>
@@ -2064,7 +2064,25 @@
 	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.AlreadyRefunded" Area="Admin">
 		<Value>This return has been refunded already.</Value>
 	</Resource>
-	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Failed" Area="Admin">
-		<Value>The refund did not go through; the reason is in the notes of the return.</Value>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Unconfirmed" Area="Admin">
+		<Value>The payment answered with an error, so it is not known whether the money went back. Check the payment, then say on the return whether it did; the error is in the notes of the return.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Check" Area="Admin">
+		<Value>Whether the money of this refund went back is not known: the payment answered with an error, or the refund stopped before its result was saved. Check the payment with the provider and on the payment transaction of the order, then say whether the money went back. When the payment transaction does not count it, record it there as well.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.WentBack" Area="Admin">
+		<Value>The money went back</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.DidNotGoBack" Area="Admin">
+		<Value>The money did not go back</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ConfirmWentBack" Area="Admin">
+		<Value>Record the refund as made? The return is completed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.ConfirmDidNotGoBack" Area="Admin">
+		<Value>Record that the money did not go back? The return can be refunded again.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Cleared" Area="Admin">
+		<Value>The refund has been cleared; the return can be refunded again.</Value>
 	</Resource>
 </Language>

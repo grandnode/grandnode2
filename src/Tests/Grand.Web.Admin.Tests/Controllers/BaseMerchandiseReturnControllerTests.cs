@@ -944,14 +944,57 @@ public class BaseMerchandiseReturnControllerTests
     }
 
     [TestMethod]
-    public void Refund_NeedsTheEditPermissionAndAPost()
+    [DataRow(nameof(BaseMerchandiseReturnController.Refund))]
+    [DataRow(nameof(BaseMerchandiseReturnController.ResolveRefund))]
+    public void Refund_NeedsTheEditPermissionAndAPost(string action)
     {
-        var method = typeof(BaseMerchandiseReturnController).GetMethod(nameof(BaseMerchandiseReturnController.Refund));
+        var method = typeof(BaseMerchandiseReturnController).GetMethod(action);
         var permission = (Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute)Attribute
             .GetCustomAttribute(method!, typeof(Grand.Web.Common.Security.Authorization.PermissionAuthorizeActionAttribute));
         Assert.IsNotNull(permission);
         Assert.AreEqual(Grand.Domain.Permissions.PermissionActionName.Edit, permission.PermissionAction);
         Assert.IsTrue(method.IsDefined(typeof(HttpPostAttribute), false));
+    }
+
+    [TestMethod]
+    [DataRow(true, "Admin.Orders.MerchandiseReturns.Refund.Refunded")]
+    [DataRow(false, "Admin.Orders.MerchandiseReturns.Refund.Cleared")]
+    public async Task ResolveRefund_InScope_RecordsIt_AndComesBackToTheReturn(bool wentBack, string message)
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
+
+        var result = await _controller.ResolveRefund("mr1", wentBack);
+
+        Assert.AreEqual("Edit", ((RedirectToActionResult)result).ActionName);
+        _merchandiseReturnViewModelServiceMock.Verify(v => v.ResolveRefund(entity, wentBack), Times.Once);
+        _translationServiceMock.Verify(t => t.GetResource(message), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ResolveRefund_OutOfScopeOrVendor_RecordsNothing()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(false);
+        await _controller.ResolveRefund("mr1", true);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        var vendorController = new VendorHost::Grand.Web.Vendor.Controllers.MerchandiseReturnController(
+            _merchandiseReturnViewModelServiceMock.Object,
+            _translationServiceMock.Object,
+            _merchandiseReturnServiceMock.Object,
+            _orderServiceMock.Object,
+            _scopeMock.Object) {
+            ControllerContext = _controller.ControllerContext,
+            TempData = _controller.TempData
+        };
+
+        await vendorController.ResolveRefund("mr1", true);
+
+        _merchandiseReturnViewModelServiceMock.Verify(v => v.ResolveRefund(It.IsAny<MerchandiseReturn>(),
+            It.IsAny<bool>()), Times.Never);
     }
 
     [TestMethod]
@@ -1207,6 +1250,7 @@ public class BaseMerchandiseReturnControllerTests
             new Mock<Grand.Business.Core.Interfaces.Checkout.Shipping.IWarehouseService>().Object,
             new Mock<IAdminDataScope<Grand.Domain.Shipping.Warehouse>>().Object,
             new Mock<Grand.Web.Common.Security.Authorization.IRequestPermissionService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Common.Security.IPermissionService>().Object,
             new Mock<IMerchandiseReturnRefundService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         var controller = new TestMerchandiseReturnController(viewModelService, _translationServiceMock.Object,

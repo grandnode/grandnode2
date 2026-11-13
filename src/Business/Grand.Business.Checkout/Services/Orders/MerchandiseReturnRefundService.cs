@@ -24,20 +24,12 @@ public class MerchandiseReturnRefundService(
     IResourceLock resourceLock,
     ILogger<MerchandiseReturnRefundService> logger) : IMerchandiseReturnRefundService
 {
-    /// <summary>
-    ///     How long a refund under way is waited for before it is taken as one that never went through: far longer
-    ///     than any payment provider call
-    /// </summary>
-    protected virtual TimeSpan RefundAbandonedAfter => TimeSpan.FromMinutes(15);
-
-    public async Task<MerchandiseReturnRefundQuote> GetQuote(string merchandiseReturnId)
+    public async Task<MerchandiseReturnRefundQuote> GetQuote(MerchandiseReturn merchandiseReturn, Order order)
     {
-        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (merchandiseReturn == null)
-            return null;
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
+        ArgumentNullException.ThrowIfNull(order);
 
-        var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
-        return order == null ? null : (await Quote(merchandiseReturn, order)).Quote;
+        return (await Quote(merchandiseReturn, order)).Quote;
     }
 
     public async Task<string> Refund(string merchandiseReturnId, double amount, bool offline,
@@ -47,47 +39,69 @@ public class MerchandiseReturnRefundService(
         if (merchandiseReturn == null)
             return MerchandiseReturnErrors.NotFound;
 
-        try
+        return await UnderRefundLock(merchandiseReturn, async () =>
         {
-            //one refund of the order's payment at a time: the payment transaction counts what is left to refund, and
-            //two refunds of it at once would both count the same amount
-            await using (await resourceLock.Acquire(
-                             [MerchandiseReturnExtensions.RefundLockKey(merchandiseReturn.OrderId)]))
+            var start = await Start(merchandiseReturn, amount, offline, refundedBy);
+            if (start.Error != null)
+                return start.Error;
+
+            var errors = await PayBack(start.Transaction, start.Refund);
+            var saved = await Finish(merchandiseReturn, start.Refund, errors);
+
+            //the payment may have given the money back before it failed: the staff check it and say so
+            if (errors.Count > 0)
+                return MerchandiseReturnErrors.RefundUnconfirmed;
+            //the money went back but the return does not say so yet: it waits for the staff to check it
+            if (!saved)
+                return MerchandiseReturnErrors.RefundInProgress;
+
+            await Complete(merchandiseReturn, start.Refund, start.Refund.RefundedBy);
+            return null;
+        });
+    }
+
+    public async Task<string> ResolveRefund(string merchandiseReturnId, bool wentBack, string checkedBy = null)
+    {
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        if (merchandiseReturn == null)
+            return MerchandiseReturnErrors.NotFound;
+
+        var by = string.IsNullOrWhiteSpace(checkedBy) ? null : checkedBy.Trim();
+        return await UnderRefundLock(merchandiseReturn, async () =>
+        {
+            MerchandiseReturnRefund refunded = null;
+            var error = await UnderOrderLock(merchandiseReturn, async stored =>
             {
-                var start = await Start(merchandiseReturn, amount, offline, refundedBy);
-                if (start.FinishedBefore != null)
-                {
-                    //a refund that went through but whose result was not saved: it is completed now, not paid again
-                    await Complete(merchandiseReturn, start.FinishedBefore);
+                var refund = stored.Refund;
+                if (refund == null)
+                    return MerchandiseReturnErrors.RefundNotAllowed;
+                if (refund.RefundedOnUtc != null)
                     return MerchandiseReturnErrors.AlreadyRefunded;
-                }
-
-                if (start.Error != null)
-                    return start.Error;
-
-                var errors = await PayBack(start.Transaction, start.Refund);
-                //the payment transaction says whether the money went back, whatever the command answered: it reports
-                //an error also when only the order or the messages failed after the provider refunded
-                var transaction = await paymentTransactionService.GetById(start.Transaction.Id);
-                var wentThrough = WentThrough(transaction, start.Refund);
-                var saved = await Finish(merchandiseReturn, start.Refund, wentThrough, errors);
-
-                if (!wentThrough)
-                    return MerchandiseReturnErrors.RefundFailed;
-                //the money went back but the return does not say so yet: the next refund of it completes it
-                if (!saved)
+                //a refund still running is settled by its own call
+                if (!refund.AwaitsCheck(DateTime.UtcNow))
                     return MerchandiseReturnErrors.RefundInProgress;
 
-                await Complete(merchandiseReturn, start.Refund);
+                var started = $"The refund of {Format(refund.Amount)} started on {refund.CreatedOnUtc:u}";
+                if (wentBack)
+                {
+                    refund.RefundedOnUtc = DateTime.UtcNow;
+                    await merchandiseReturnService.UpdateMerchandiseReturn(stored);
+                    await InsertStaffNote(stored, $"{started} went back, as checked by {by ?? "system"}");
+                    refunded = refund;
+                    return null;
+                }
+
+                stored.Refund = null;
+                await merchandiseReturnService.UpdateMerchandiseReturn(stored);
+                await InsertStaffNote(stored, $"{started} did not go back, as checked by {by ?? "system"}; the " +
+                                              "return can be refunded again");
                 return null;
-            }
-        }
-        catch (ResourceLockTimeoutException ex)
-        {
-            logger.LogWarning(ex, "The payment of order {OrderId} stayed in use by another refund",
-                merchandiseReturn.OrderId);
-            return MerchandiseReturnErrors.Busy;
-        }
+            });
+
+            if (refunded != null)
+                await Complete(merchandiseReturn, refunded, by);
+            return error;
+        });
     }
 
     /// <summary>
@@ -100,21 +114,11 @@ public class MerchandiseReturnRefundService(
         var start = new RefundStart();
         start.Error = await UnderOrderLock(merchandiseReturn, async stored =>
         {
+            //a refund made, under way or waiting for its check is not started again
             if (stored.Refund != null)
-            {
-                if (stored.Refund.RefundedOnUtc != null)
-                    return MerchandiseReturnErrors.AlreadyRefunded;
-
-                var underWay = await ResolveUnderWay(stored);
-                if (underWay == UnderWay.WentThrough)
-                {
-                    start.FinishedBefore = stored.Refund;
-                    return null;
-                }
-
-                if (underWay == UnderWay.Running)
-                    return MerchandiseReturnErrors.RefundInProgress;
-            }
+                return stored.Refund.RefundedOnUtc != null
+                    ? MerchandiseReturnErrors.AlreadyRefunded
+                    : MerchandiseReturnErrors.RefundInProgress;
 
             var order = await orderService.GetOrderById(stored.OrderId);
             if (order == null)
@@ -136,7 +140,6 @@ public class MerchandiseReturnRefundService(
                 Amount = amount,
                 Offline = offline,
                 PaymentTransactionId = transaction.Id,
-                TransactionRefundedAmount = transaction.RefundedAmount,
                 RefundedBy = string.IsNullOrWhiteSpace(refundedBy) ? null : refundedBy.Trim(),
                 CreatedOnUtc = DateTime.UtcNow
             };
@@ -146,34 +149,6 @@ public class MerchandiseReturnRefundService(
             return null;
         });
         return start;
-    }
-
-    /// <summary>
-    ///     A refund of the return found under way, by a call that crashed or still runs: it went through when its
-    ///     transaction counts it, and is saved as refunded; it is given up once it is older than any payment call, and
-    ///     cleared so the return can be refunded again
-    /// </summary>
-    private async Task<UnderWay> ResolveUnderWay(MerchandiseReturn stored)
-    {
-        var refund = stored.Refund;
-        var transaction = await paymentTransactionService.GetById(refund.PaymentTransactionId);
-        if (WentThrough(transaction, refund))
-        {
-            refund.RefundedOnUtc = DateTime.UtcNow;
-            await merchandiseReturnService.UpdateMerchandiseReturn(stored);
-            await InsertStaffNote(stored, $"The refund of {Format(refund.Amount)} started on " +
-                                          $"{refund.CreatedOnUtc:u} went through; its result is saved now");
-            return UnderWay.WentThrough;
-        }
-
-        if (refund.CreatedOnUtc > DateTime.UtcNow - RefundAbandonedAfter)
-            return UnderWay.Running;
-
-        stored.Refund = null;
-        await merchandiseReturnService.UpdateMerchandiseReturn(stored);
-        await InsertStaffNote(stored, $"The refund of {Format(refund.Amount)} started on {refund.CreatedOnUtc:u} " +
-                                      "did not go through");
-        return UnderWay.Abandoned;
     }
 
     /// <summary>
@@ -221,7 +196,8 @@ public class MerchandiseReturnRefundService(
             return (quote, null, rounding);
         }
 
-        //the refunds of the order's other returns under way are not counted by the transaction yet
+        //the refunds of the order's other returns not settled yet are kept off what is left, whether the transaction
+        //counts them already or not: what is left is never more than it is
         var underWay = refunded
             .Where(x => x.Refund.RefundedOnUtc == null && x.Refund.PaymentTransactionId == transaction.Id)
             .Sum(x => x.Refund.Amount);
@@ -270,27 +246,29 @@ public class MerchandiseReturnRefundService(
     }
 
     /// <summary>
-    ///     Saves the refund as done, or clears it when the money did not go back so the return can be refunded again
+    ///     Saves the refund as done when the payment gave no errors. With errors it is left waiting for the staff: the
+    ///     command reports an error also when the provider refunded and only what came after failed, and nothing else
+    ///     tells this refund's money from the order's other refunds
     /// </summary>
     /// <returns>false when it could not be saved</returns>
     private async Task<bool> Finish(MerchandiseReturn merchandiseReturn, MerchandiseReturnRefund refund,
-        bool wentThrough, IList<string> errors)
+        IList<string> errors)
     {
-        if (errors.Count > 0)
-            logger.LogWarning("The refund of merchandise return {MerchandiseReturnId} gave errors (went through: " +
-                              "{WentThrough}): {Errors}", merchandiseReturn.Id, wentThrough,
-                string.Join("; ", errors));
+        var wentBack = errors.Count == 0;
+        if (!wentBack)
+            logger.LogWarning("The refund of merchandise return {MerchandiseReturnId} gave errors, it waits for " +
+                              "the payment to be checked: {Errors}", merchandiseReturn.Id, string.Join("; ", errors));
 
         var by = refund.RefundedBy ?? "system";
         try
         {
             var error = await UnderOrderLock(merchandiseReturn, async stored =>
             {
-                //this call's refund: no other call finishes or clears one before it is given up
+                //this call's refund: nothing else settles one before it waits for its check
                 if (stored.Refund is not { RefundedOnUtc: null })
                     return MerchandiseReturnErrors.RefundInProgress;
 
-                if (wentThrough)
+                if (wentBack)
                 {
                     stored.Refund.RefundedOnUtc = DateTime.UtcNow;
                     await merchandiseReturnService.UpdateMerchandiseReturn(stored);
@@ -300,23 +278,24 @@ public class MerchandiseReturnRefundService(
                     return null;
                 }
 
-                stored.Refund = null;
+                stored.Refund.OutcomeUnknown = true;
                 await merchandiseReturnService.UpdateMerchandiseReturn(stored);
-                await InsertStaffNote(stored, $"The refund of {Format(refund.Amount)} by {by} did not go through: " +
-                                              (errors.Count > 0 ? string.Join("; ", errors) : "no reason given"));
+                await InsertStaffNote(stored, $"The refund of {Format(refund.Amount)} by {by} gave errors: " +
+                                              $"{string.Join("; ", errors)}. Whether the money went back is to be " +
+                                              "checked in the payment");
                 return null;
             });
             if (error == null)
                 return true;
 
-            logger.LogError("The refund of merchandise return {MerchandiseReturnId} (went through: {WentThrough}) " +
-                            "was not saved: {Error}", merchandiseReturn.Id, wentThrough, error);
+            logger.LogError("The refund of merchandise return {MerchandiseReturnId} (went back: {WentBack}) was " +
+                            "not saved: {Error}", merchandiseReturn.Id, wentBack, error);
             return false;
         }
         catch (Exception ex)
         {
-            logger.LogError(ex, "The refund of merchandise return {MerchandiseReturnId} (went through: " +
-                                "{WentThrough}) was not saved", merchandiseReturn.Id, wentThrough);
+            logger.LogError(ex, "The refund of merchandise return {MerchandiseReturnId} (went back: {WentBack}) " +
+                                "was not saved", merchandiseReturn.Id, wentBack);
             return false;
         }
     }
@@ -324,7 +303,8 @@ public class MerchandiseReturnRefundService(
     /// <summary>
     ///     A refunded return is done: a note on the order, and the return completed, which tells the customer
     /// </summary>
-    private async Task Complete(MerchandiseReturn merchandiseReturn, MerchandiseReturnRefund refund)
+    private async Task Complete(MerchandiseReturn merchandiseReturn, MerchandiseReturnRefund refund,
+        string changedBy)
     {
         try
         {
@@ -337,7 +317,7 @@ public class MerchandiseReturnRefundService(
             });
 
             var error = await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id,
-                MerchandiseReturnStatus.Completed, changedBy: refund.RefundedBy);
+                MerchandiseReturnStatus.Completed, changedBy: changedBy);
             if (error != null)
                 logger.LogWarning("Merchandise return {MerchandiseReturnId} was refunded, but not completed: {Error}",
                     merchandiseReturn.Id, error);
@@ -348,17 +328,6 @@ public class MerchandiseReturnRefundService(
             logger.LogError(ex, "Merchandise return {MerchandiseReturnId} was refunded, but its order note or its " +
                                 "completion failed", merchandiseReturn.Id);
         }
-    }
-
-    /// <summary>
-    ///     Whether the transaction counts the refund: its refunded amount grew by the refund's amount since the refund
-    ///     was started
-    /// </summary>
-    private static bool WentThrough(PaymentTransaction transaction, MerchandiseReturnRefund refund)
-    {
-        return transaction != null &&
-               (decimal)transaction.RefundedAmount - (decimal)refund.TransactionRefundedAmount >=
-               (decimal)refund.Amount - 0.000001m;
     }
 
     private static string Format(double amount)
@@ -373,6 +342,30 @@ public class MerchandiseReturnRefundService(
             Note = note,
             DisplayToCustomer = false
         });
+    }
+
+    /// <summary>
+    ///     Runs the refund once the refund lock of the order is held: one refund of the order's payment at a time, as
+    ///     the partial refund commands read the transaction's refunded amount and write it back. The lease of the lock
+    ///     is short; a provider slower than it may let a second refund of the order start, which still finds the first
+    ///     under way and keeps its amount off what is left
+    /// </summary>
+    private async Task<string> UnderRefundLock(MerchandiseReturn merchandiseReturn, Func<Task<string>> refund)
+    {
+        try
+        {
+            await using (await resourceLock.Acquire(
+                             [MerchandiseReturnExtensions.RefundLockKey(merchandiseReturn.OrderId)]))
+            {
+                return await refund();
+            }
+        }
+        catch (ResourceLockTimeoutException ex)
+        {
+            logger.LogWarning(ex, "The payment of order {OrderId} stayed in use by another refund",
+                merchandiseReturn.OrderId);
+            return MerchandiseReturnErrors.Busy;
+        }
     }
 
     /// <summary>
@@ -401,23 +394,11 @@ public class MerchandiseReturnRefundService(
         }
     }
 
-    private enum UnderWay
-    {
-        WentThrough,
-        Running,
-        Abandoned
-    }
-
     private sealed class RefundStart
     {
         public string Error { get; set; }
         public MerchandiseReturnRefund Refund { get; set; }
         public PaymentTransaction Transaction { get; set; }
-
-        /// <summary>
-        ///     An earlier refund of the return, found under way, that went through
-        /// </summary>
-        public MerchandiseReturnRefund FinishedBefore { get; set; }
     }
 
     /// <summary>

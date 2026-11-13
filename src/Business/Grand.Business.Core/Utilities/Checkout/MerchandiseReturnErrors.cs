@@ -18,7 +18,7 @@ public static class MerchandiseReturnErrors
     public const string NothingToRefund = "Orders.MerchandiseReturns.Refund.NothingToRefund";
     public const string AlreadyRefunded = "Orders.MerchandiseReturns.Refund.AlreadyRefunded";
     public const string RefundInProgress = "Orders.MerchandiseReturns.Refund.InProgress";
-    public const string RefundFailed = "Orders.MerchandiseReturns.Refund.Failed";
+    public const string RefundUnconfirmed = "Orders.MerchandiseReturns.Refund.Unconfirmed";
 
     //the storefront's keys, as they are
     public const string SubmitNothingToReturn = "MerchandiseReturns.NoItemsSubmitted";

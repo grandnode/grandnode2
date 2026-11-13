@@ -5,8 +5,9 @@
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }
 @* the money given back reads as facts; a received return not refunded yet shows what it comes to, with the
-   amount to refund and one button per way the order's payment can give it back. A refund button posts the
-   form to its own action: what was typed and not saved yet is not saved by it *@
+   amount to refund and one button per way the order's payment can give it back. A refund whose result is not
+   known asks the staff who checked the payment whether the money went back. These buttons post the form to
+   their own action: what was typed and not saved yet is not saved by them *@
 <admin-card title="@Loc[$"{prefix}.Orders.MerchandiseReturns.Refund.Title"]">
     <div class="grand-facts">
         <div>
@@ -48,6 +49,22 @@
             }
         }
     </div>
+    @if (refund.AwaitsCheck)
+    {
+        <div class="mt-3">@Loc[$"{prefix}.Orders.MerchandiseReturns.Refund.Check"]</div>
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            <button class="btn btn-outline-primary" type="submit"
+                    formaction="@Url.Action("ResolveRefund", "MerchandiseReturn", new { id = Model.Id, area, wentBack = true })"
+                    data-grand-confirm="@Loc[$"{prefix}.Orders.MerchandiseReturns.Refund.ConfirmWentBack"]">
+                <i class="bi bi-check2"></i> @Loc[$"{prefix}.Orders.MerchandiseReturns.Refund.WentBack"]
+            </button>
+            <button class="btn btn-outline-secondary" type="submit"
+                    formaction="@Url.Action("ResolveRefund", "MerchandiseReturn", new { id = Model.Id, area, wentBack = false })"
+                    data-grand-confirm="@Loc[$"{prefix}.Orders.MerchandiseReturns.Refund.ConfirmDidNotGoBack"]">
+                <i class="bi bi-x-lg"></i> @Loc[$"{prefix}.Orders.MerchandiseReturns.Refund.DidNotGoBack"]
+            </button>
+        </div>
+    }
     @if (!refund.Started)
     {
         if (!string.IsNullOrEmpty(refund.Error))
@@ -58,7 +75,7 @@
         {
             <div class="grand-fields grand-fields--2col mt-3">
                 <admin-field asp-for="RefundAmount" size="md" suffix="@refund.CurrencyCode"
-                             hint="@string.Format(Loc[$"{prefix}.Orders.MerchandiseReturns.Refund.AmountToRefund.Hint"], refund.MaxAmount.ToString("G29"), refund.CurrencyCode)"/>
+                             hint="@string.Format(Loc[$"{prefix}.Orders.MerchandiseReturns.Refund.AmountToRefund.Hint"], refund.MaxAmount)"/>
             </div>
             <div class="d-flex flex-wrap gap-2 mt-3">
                 @if (refund.CanRefundOnline)

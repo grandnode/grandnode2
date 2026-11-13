@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
@@ -57,6 +58,7 @@ public class MerchandiseReturnViewModelService(
     IWarehouseService warehouseService,
     IAdminDataScope<Warehouse> warehouseScope,
     IRequestPermissionService permissionService,
+    IPermissionService actionPermissionService,
     IMerchandiseReturnRefundService merchandiseReturnRefundService,
     ILogger<MerchandiseReturnViewModelService> logger)
     : IMerchandiseReturnViewModelService
@@ -392,7 +394,7 @@ public class MerchandiseReturnViewModelService(
         //a received return is quoted only for the staff who refund payments
         if (refund == null && (!canRefund ||
                                merchandiseReturn.MerchandiseReturnStatus != MerchandiseReturnStatus.Received ||
-                               !await permissionService.Authorize(PermissionSystemName.PaymentTransactions)))
+                               !await RefundsPayments()))
             return;
 
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
@@ -412,15 +414,13 @@ public class MerchandiseReturnViewModelService(
                 RefundedBy = refund.RefundedBy,
                 RefundedOn = refund.RefundedOnUtc.HasValue
                     ? dateTimeService.ConvertToUserTime(refund.RefundedOnUtc.Value, DateTimeKind.Utc)
-                    : null
+                    : null,
+                AwaitsCheck = canRefund && refund.AwaitsCheck(DateTime.UtcNow) && await RefundsPayments()
             };
             return;
         }
 
-        var quote = await merchandiseReturnRefundService.GetQuote(merchandiseReturn.Id);
-        if (quote == null)
-            return;
-
+        var quote = await merchandiseReturnRefundService.GetQuote(merchandiseReturn, order);
         model.Refund = new MerchandiseReturnModel.RefundModel {
             ItemsAmount = priceFormatter.FormatPrice(quote.ItemsAmount, orderCurrency),
             ReturnShippingCost = priceFormatter.FormatPrice(quote.ReturnShippingCost, orderCurrency),
@@ -428,7 +428,7 @@ public class MerchandiseReturnViewModelService(
             Error = quote.Error == null
                 ? null
                 : translationService.GetResource($"{scope.ResourceKeyPrefix}.{quote.Error}"),
-            MaxAmount = quote.MaxAmount,
+            MaxAmount = priceFormatter.FormatPrice(quote.MaxAmount, orderCurrency),
             CurrencyCode = quote.CurrencyCode,
             CanRefundOnline = quote.Error == null && quote.CanRefundOnline,
             CanRefundOffline = quote.Error == null && quote.CanRefundOffline
@@ -442,12 +442,33 @@ public class MerchandiseReturnViewModelService(
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
-        //the money goes back through the order's payment: the staff who refund payments may do it
-        if (!await permissionService.Authorize(PermissionSystemName.PaymentTransactions))
+        if (!await RefundsPayments())
             return MerchandiseReturnErrors.RefundNotAllowed;
 
         return await merchandiseReturnRefundService.Refund(merchandiseReturn.Id, amount, offline,
             contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy());
+    }
+
+    public virtual async Task<string> ResolveRefund(MerchandiseReturn merchandiseReturn, bool wentBack)
+    {
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
+
+        if (!await RefundsPayments())
+            return MerchandiseReturnErrors.RefundNotAllowed;
+
+        return await merchandiseReturnRefundService.ResolveRefund(merchandiseReturn.Id, wentBack,
+            contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy());
+    }
+
+    /// <summary>
+    ///     The money goes back through the order's payment: the staff who may refund payments, as the payment
+    ///     transaction's own refund buttons ask, may do it
+    /// </summary>
+    private async Task<bool> RefundsPayments()
+    {
+        var customer = contextAccessor.WorkContext?.CurrentCustomer;
+        return customer != null && await actionPermissionService.AuthorizeAction(
+            PermissionSystemName.PaymentTransactions, PermissionActionName.Edit, customer);
     }
 
     /// <summary>

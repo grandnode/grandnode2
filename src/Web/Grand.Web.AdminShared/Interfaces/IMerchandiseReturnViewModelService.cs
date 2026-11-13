@@ -39,6 +39,12 @@ public interface IMerchandiseReturnViewModelService
     Task<string> RefundMerchandiseReturn(MerchandiseReturn merchandiseReturn, double amount, bool offline);
 
     /// <summary>
+    ///     Records whether the money of a refund that waits for its check went back, as the staff who checked the
+    ///     payment say; the reason it was not recorded, as a resource key without the panel's prefix, or null
+    /// </summary>
+    Task<string> ResolveRefund(MerchandiseReturn merchandiseReturn, bool wentBack);
+
+    /// <summary>
     ///     Saves the edit form, then changes the status when a status button posted it (ChangeStatusTo). Error is
     ///     why the form or the status was not saved, as a resource key without the panel's prefix
     /// </summary>
