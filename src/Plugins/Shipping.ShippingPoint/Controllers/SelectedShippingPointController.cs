@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Orders;
@@ -101,15 +102,11 @@ public class SelectedShippingPointController : Controller
         var model = new List<ReturnPointModel>();
         foreach (var point in points)
         {
-            var country = string.IsNullOrEmpty(point.CountryId)
-                ? null
-                : await _countryService.GetCountryById(point.CountryId);
-            var city = string.Join(" ", new[] { point.ZipPostalCode, point.City }.Where(x => !string.IsNullOrEmpty(x)));
             model.Add(new ReturnPointModel {
                 Id = point.Id,
                 Name = point.ShippingPointName,
-                Address = string.Join(", ",
-                    new[] { point.Address1, city, country?.Name }.Where(x => !string.IsNullOrEmpty(x))),
+                Address = await MerchandiseReturnShippingExtensions.AddressLine(_countryService, point.Address1,
+                    point.ZipPostalCode, point.City, point.CountryId),
                 OpeningHours = point.OpeningHours,
                 ReturnFee = free
                     ? null

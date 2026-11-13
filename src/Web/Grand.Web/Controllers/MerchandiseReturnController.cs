@@ -381,12 +381,15 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> InStoreReturnPoints()
     {
         var points = await _pickupPointService.LoadActivePickupPoints(_contextAccessor.StoreContext.CurrentStore.Id);
-        return PartialView("Partials/InStorePoints", points.Select(x => new MerchandiseReturnInStorePointModel {
-            Id = x.Id,
-            Name = x.Name,
-            Address = string.Join(", ", new[] { x.Address?.Address1, x.Address?.ZipPostalCode, x.Address?.City }
-                .Where(part => !string.IsNullOrEmpty(part)))
-        }).ToList());
+        var countryService = HttpContext.RequestServices.GetRequiredService<ICountryService>();
+        var model = new List<MerchandiseReturnInStorePointModel>();
+        foreach (var point in points)
+            model.Add(new MerchandiseReturnInStorePointModel {
+                Id = point.Id,
+                Name = point.Name,
+                Address = await MerchandiseReturnShippingExtensions.AddressLine(countryService, point.Address)
+            });
+        return PartialView("Partials/InStorePoints", model);
     }
 
     #endregion

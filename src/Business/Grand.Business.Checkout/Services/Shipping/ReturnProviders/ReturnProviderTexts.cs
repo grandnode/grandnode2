@@ -47,17 +47,11 @@ internal class ReturnProviderTexts(
         return address == null ? "" : await OneLine(address, await Recipient(vendorId, address));
     }
 
-    private async Task<string> OneLine(Address address, string recipient)
+    private Task<string> OneLine(Address address, string recipient)
     {
-        if (address == null)
-            return "";
-
-        var country = string.IsNullOrEmpty(address.CountryId)
-            ? null
-            : await countryService.GetCountryById(address.CountryId);
-        var city = string.Join(" ", new[] { address.ZipPostalCode, address.City }.Where(x => !string.IsNullOrEmpty(x)));
-        return string.Join(", ",
-            new[] { recipient, address.Address1, city, country?.Name }.Where(x => !string.IsNullOrEmpty(x)));
+        return address == null
+            ? Task.FromResult("")
+            : MerchandiseReturnShippingExtensions.AddressLine(countryService, address, recipient);
     }
 
     private async Task<string> Recipient(string vendorId, Address address)

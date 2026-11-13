@@ -1,3 +1,5 @@
+using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Domain.Common;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Extensions;
@@ -42,6 +44,29 @@ public static class MerchandiseReturnShippingExtensions
         return merchandiseReturn?.ReturnShipping?.LabelStatus == ReturnLabelStatus.Failed
                && merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
                    or MerchandiseReturnStatus.Accepted;
+    }
+
+    /// <summary>
+    ///     An address on one line, as every text and page of a merchandise return writes it: the leading parts (a
+    ///     name, a recipient), the street, the zip code with the city, the country; empty parts are left out
+    /// </summary>
+    public static async Task<string> AddressLine(ICountryService countryService, string address1,
+        string zipPostalCode, string city, string countryId, params string[] leading)
+    {
+        var country = string.IsNullOrEmpty(countryId) ? null : await countryService.GetCountryById(countryId);
+        var zipAndCity = string.Join(" ", new[] { zipPostalCode, city }.Where(x => !string.IsNullOrEmpty(x)));
+        return string.Join(", ", leading.Append(address1).Append(zipAndCity).Append(country?.Name)
+            .Where(x => !string.IsNullOrEmpty(x)));
+    }
+
+    /// <summary>
+    ///     An address on one line, as every text and page of a merchandise return writes it; no address gives the
+    ///     leading parts alone
+    /// </summary>
+    public static Task<string> AddressLine(ICountryService countryService, Address address, params string[] leading)
+    {
+        return AddressLine(countryService, address?.Address1, address?.ZipPostalCode, address?.City,
+            address?.CountryId, leading);
     }
 
     /// <summary>

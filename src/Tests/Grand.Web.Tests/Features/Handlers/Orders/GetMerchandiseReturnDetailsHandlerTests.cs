@@ -31,7 +31,8 @@ public class GetMerchandiseReturnDetailsHandlerTests
             merchandiseReturnService.Object, new Mock<IPriceFormatter>().Object, new Mock<IContextAccessor>().Object,
             new Mock<IMediator>().Object, new Mock<IDateTimeService>().Object, new OrderSettings(),
             new Mock<IReturnShippingService>().Object, new Mock<ICurrencyService>().Object,
-            new Mock<ITranslationService>().Object, NullLogger<GetMerchandiseReturnDetailsHandler>.Instance);
+            new Mock<ITranslationService>().Object, new Mock<ICountryService>().Object,
+            NullLogger<GetMerchandiseReturnDetailsHandler>.Instance);
     }
 
     private async Task<Grand.Web.Models.Orders.MerchandiseReturnDetailsModel.ReturnShippingModel> Shipping(

@@ -798,7 +798,7 @@ public class MerchandiseReturnViewModelServiceTests
         Assert.AreEqual("Parcel locker", card.OptionName);
         //the cost in the order's currency, at the order's rate
         Assert.AreEqual("45,00 EUR", card.Cost);
-        Assert.AreEqual("Locker 7, Main 1, 00-001, Town", card.DropOffPoint);
+        Assert.AreEqual("Locker 7, Main 1, 00-001 Town", card.DropOffPoint);
         Assert.AreEqual("T1", card.TrackingNumber);
         Assert.AreEqual("T1", card.ShownTrackingNumber);
         Assert.IsTrue(card.HasLabel);

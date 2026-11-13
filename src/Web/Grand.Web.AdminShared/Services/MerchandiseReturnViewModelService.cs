@@ -165,7 +165,10 @@ public class MerchandiseReturnViewModelService(
                 ? priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, orderCurrency)
                 : translationService.GetResource(
                     $"{scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.ReturnShipping.Free"),
-            DropOffPoint = FormatDropOffPoint(shipping.DropOffPoint),
+            DropOffPoint = shipping.DropOffPoint == null
+                ? null
+                : await MerchandiseReturnShippingExtensions.AddressLine(countryService, shipping.DropOffPoint.Address,
+                    shipping.DropOffPoint.Name),
             TrackingNumber = shipping.TrackingNumber,
             ShownTrackingNumber = shipping.TrackingNumber,
             ReturnCode = shipping.ReturnCode,
@@ -201,18 +204,6 @@ public class MerchandiseReturnViewModelService(
             }
 
         return model;
-    }
-
-    private static string FormatDropOffPoint(ReturnDropOffPoint point)
-    {
-        if (point == null)
-            return null;
-
-        var address = point.Address == null
-            ? null
-            : string.Join(", ", new[] { point.Address.Address1, point.Address.ZipPostalCode, point.Address.City }
-                .Where(part => !string.IsNullOrEmpty(part)));
-        return string.Join(", ", new[] { point.Name, address }.Where(part => !string.IsNullOrEmpty(part)));
     }
 
     private static string NormalizeTrackingNumber(string trackingNumber)

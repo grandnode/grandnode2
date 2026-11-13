@@ -133,18 +133,10 @@ public class ShippingPointReturnProvider(
         return Math.Max(0, returnFee);
     }
 
-    private async Task<string> Place(ReturnDropOffPoint point)
+    private Task<string> Place(ReturnDropOffPoint point)
     {
-        if (point == null)
-            return "";
-
-        var address = point.Address;
-        var country = string.IsNullOrEmpty(address?.CountryId)
-            ? null
-            : await countryService.GetCountryById(address.CountryId);
-        var city = string.Join(" ",
-            new[] { address?.ZipPostalCode, address?.City }.Where(x => !string.IsNullOrEmpty(x)));
-        return string.Join(", ",
-            new[] { point.Name, address?.Address1, city, country?.Name }.Where(x => !string.IsNullOrEmpty(x)));
+        return point == null
+            ? Task.FromResult("")
+            : MerchandiseReturnShippingExtensions.AddressLine(countryService, point.Address, point.Name);
     }
 }

@@ -19,6 +19,7 @@ namespace Grand.Web.Features.Handlers.Orders;
 public class
     GetMerchandiseReturnDetailsHandler : IRequestHandler<GetMerchandiseReturnDetails, MerchandiseReturnDetailsModel>
 {
+    private readonly ICountryService _countryService;
     private readonly ICurrencyService _currencyService;
     private readonly IDateTimeService _dateTimeService;
     private readonly ILogger<GetMerchandiseReturnDetailsHandler> _logger;
@@ -42,6 +43,7 @@ public class
         IReturnShippingService returnShippingService,
         ICurrencyService currencyService,
         ITranslationService translationService,
+        ICountryService countryService,
         ILogger<GetMerchandiseReturnDetailsHandler> logger)
     {
         _productService = productService;
@@ -54,6 +56,7 @@ public class
         _returnShippingService = returnShippingService;
         _currencyService = currencyService;
         _translationService = translationService;
+        _countryService = countryService;
         _logger = logger;
     }
 
@@ -135,7 +138,10 @@ public class
                 ? _priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, orderCurrency)
                 : _translationService.GetResource("MerchandiseReturns.ReturnShipping.Free", request.Language.Id),
             DropOffPointName = shipping.DropOffPoint?.Name,
-            DropOffPointAddress = FormatAddress(shipping.DropOffPoint?.Address),
+            DropOffPointAddress = shipping.DropOffPoint?.Address == null
+                ? null
+                : await MerchandiseReturnShippingExtensions.AddressLine(_countryService,
+                    shipping.DropOffPoint.Address),
             DropOffPointOpeningHours = shipping.DropOffPoint?.OpeningHours,
             Instructions = sendBack ? shipping.Instructions : null,
             ReturnCode = sendBack ? shipping.ReturnCode : null,
@@ -178,15 +184,6 @@ public class
             _logger.LogWarning(ex, "Return shipping provider {SystemName} failed to give the tracking events of " +
                                    "{TrackingNumber}", shipping.ProviderSystemName, shipping.TrackingNumber);
         }
-    }
-
-    private static string FormatAddress(Domain.Common.Address address)
-    {
-        if (address == null)
-            return null;
-
-        return string.Join(", ", new[] { address.Address1, address.ZipPostalCode, address.City }
-            .Where(part => !string.IsNullOrEmpty(part)));
     }
 
     private async Task PrepareMerchandiseReturnNotes(GetMerchandiseReturnDetails request,
