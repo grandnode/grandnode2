@@ -11,6 +11,7 @@ using Grand.Web.Commands.Models.Orders;
 using Grand.Mediator;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Extensions;
+using Grand.Web.Models.Orders;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Commands.Handler.Orders;
@@ -79,10 +80,8 @@ public class MerchandiseReturnSubmitCommandHandler
             PickupAddress = request.Address,
             PickupDate = request.Model.PickupDate,
             //a store that does not ask for the requested action saves none, whatever was posted
-            Items = request.Model.Items.Select(x => new MerchandiseReturnSubmitItem(x.Id, x.Quantity,
-                x.MerchandiseReturnReasonId,
-                _orderSettings.MerchandiseReturns_HideRequestedAction ? null : x.MerchandiseReturnActionId)).ToList(),
-            ReturnShipping = ReturnShippingChoice(request)
+            Items = SubmitItems(request.Model, _orderSettings),
+            ReturnShipping = ReturnShippingChoice(request.Model, request.Form)
         });
 
         //each vendor's return is a return of its own, with its own photos and messages
@@ -135,21 +134,34 @@ public class MerchandiseReturnSubmitCommandHandler
     }
 
     /// <summary>
+    ///     The items of the form as the return is asked for: a store that does not ask for the requested action saves
+    ///     none, whatever was posted. The estimate of the form asks for the same
+    /// </summary>
+    internal static IList<MerchandiseReturnSubmitItem> SubmitItems(MerchandiseReturnModel model,
+        OrderSettings orderSettings)
+    {
+        return model.Items.Select(x => new MerchandiseReturnSubmitItem(x.Id, x.Quantity,
+            x.MerchandiseReturnReasonId,
+            orderSettings.MerchandiseReturns_HideRequestedAction ? null : x.MerchandiseReturnActionId)).ToList();
+    }
+
+    /// <summary>
     ///     The return method chosen, with the fields of its form, prefix stripped; null when none was chosen
     /// </summary>
-    private static ReturnShippingChoice ReturnShippingChoice(MerchandiseReturnSubmitCommand request)
+    internal static ReturnShippingChoice ReturnShippingChoice(MerchandiseReturnModel model,
+        IDictionary<string, string> postedForm)
     {
-        if (string.IsNullOrEmpty(request.Model.ReturnShippingProvider))
+        if (string.IsNullOrEmpty(model.ReturnShippingProvider))
             return null;
 
         var form = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (key, value) in request.Form ?? new Dictionary<string, string>())
+        foreach (var (key, value) in postedForm ?? new Dictionary<string, string>())
             if (key.StartsWith(FormPrefix, StringComparison.OrdinalIgnoreCase) && key.Length > FormPrefix.Length)
                 form[key[FormPrefix.Length..]] = value;
 
         return new ReturnShippingChoice {
-            ProviderSystemName = request.Model.ReturnShippingProvider,
-            OptionCode = request.Model.ReturnShippingOption,
+            ProviderSystemName = model.ReturnShippingProvider,
+            OptionCode = model.ReturnShippingOption,
             Form = form
         };
     }

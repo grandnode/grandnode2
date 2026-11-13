@@ -34,6 +34,7 @@ public class MerchandiseReturnControllerTests
     private Mock<IMediator> _mediator;
     private Mock<IOrderService> _orders;
     private Mock<IMerchandiseReturnService> _returns;
+    private readonly OrderSettings _orderSettings = new() { MerchandiseReturnsEnabled = true };
 
     [TestInitialize]
     public void Init()
@@ -67,7 +68,7 @@ public class MerchandiseReturnControllerTests
 
         _controller = new MerchandiseReturnController(_returns.Object, new Mock<IPickupPointService>().Object,
             _orders.Object, context.Object, groupService.Object, translation.Object, _mediator.Object,
-            _labels.Object, _downloads.Object, new AddressSettings(), new OrderSettings { MerchandiseReturnsEnabled = true });
+            _labels.Object, _downloads.Object, new AddressSettings(), _orderSettings);
 
         var httpContext = new DefaultHttpContext();
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
@@ -279,6 +280,31 @@ public class MerchandiseReturnControllerTests
         Assert.AreEqual(1, sent.Photos.Count);
         CollectionAssert.AreEqual(new[] { "front.png", "back.png" },
             sent.Photos["a"].Select(x => x.FileName).ToArray());
+    }
+
+    [TestMethod]
+    public async Task Estimate_OtherStore_NotFound()
+    {
+        OrderOfOtherStore();
+
+        var result = await _controller.MerchandiseReturnEstimate("o1", new MerchandiseReturnModel());
+
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
+        _mediator.Verify(x => x.Send(It.IsAny<GetMerchandiseReturnEstimate>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Estimate_ReturnsDisabled_Empty()
+    {
+        _orderSettings.MerchandiseReturnsEnabled = false;
+
+        var result = await _controller.MerchandiseReturnEstimate("o1", new MerchandiseReturnModel());
+
+        var estimate = (MerchandiseReturnEstimateModel)((JsonResult)result).Value;
+        Assert.IsNull(estimate.Amount);
+        _mediator.Verify(x => x.Send(It.IsAny<GetMerchandiseReturnEstimate>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     /// <summary>

@@ -2109,4 +2109,19 @@
 	<Resource Name="MerchandiseReturns.Photos.Invalid" Area="Front">
 		<Value>Photos must be images of at most 4 MB, at most 3 per item and 10 in all.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.Title" Area="Front">
+		<Value>Estimated refund</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.ItemsAmount" Area="Front">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.ReturnShippingCost" Area="Front">
+		<Value>Return shipping</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.Note" Area="Front">
+		<Value>The final amount is set when we receive the items.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.Destination" Area="Front">
+		<Value>The money goes back to the payment method of the order.</Value>
+	</Resource>
 </Language>

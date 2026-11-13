@@ -318,6 +318,31 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
+    ///     The refund the form comes to with the return method chosen in it, before it is submitted
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnEstimate(string orderId, MerchandiseReturnModel model)
+    {
+        var order = await _orderService.GetOrderById(orderId);
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) ||
+            !OfCurrentStore(order))
+            return NotFound("The order was not found.");
+
+        if (!_orderSettings.MerchandiseReturnsEnabled)
+            return Json(new MerchandiseReturnEstimateModel());
+
+        var estimate = await _mediator.Send(new GetMerchandiseReturnEstimate {
+            Order = order,
+            Model = model,
+            PickupAddress = await PrepareAddress(model),
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Form = PostedForm()
+        });
+        return Json(estimate);
+    }
+
+    /// <summary>
     ///     The label of a return, to print and stick on the parcel
     /// </summary>
     [HttpGet]
