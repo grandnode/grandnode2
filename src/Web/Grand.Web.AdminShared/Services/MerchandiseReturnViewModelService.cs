@@ -161,10 +161,10 @@ public class MerchandiseReturnViewModelService(
             LabelStatus = translationService.GetResource(
                 $"{scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.{shipping.LabelStatus}"),
             LabelError = shipping.LabelError,
-            //the label service's own rule: a label not created yet, of a return neither rejected nor cancelled
+            //the label service's own rule: a label not created yet, of a return whose goods are not back yet
             CanRetryLabel = (shipping.LabelStatus is ReturnLabelStatus.Pending or ReturnLabelStatus.Failed) &&
-                            merchandiseReturn.MerchandiseReturnStatus is not (MerchandiseReturnStatus.Rejected
-                                or MerchandiseReturnStatus.Cancelled)
+                            merchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
+                                or MerchandiseReturnStatus.Accepted
         };
 
         if (!string.IsNullOrEmpty(shipping.TrackingNumber) && provider?.ShipmentTracker != null)

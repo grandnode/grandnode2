@@ -263,9 +263,14 @@ public class MerchandiseReturnLabelServiceTests
     }
 
     [TestMethod]
-    public async Task CreateLabel_RejectedReturn_NotAllowed()
+    [DataRow(MerchandiseReturnStatus.Rejected)]
+    [DataRow(MerchandiseReturnStatus.Cancelled)]
+    [DataRow(MerchandiseReturnStatus.Received)]
+    [DataRow(MerchandiseReturnStatus.Completed)]
+    public async Task CreateLabel_ReturnNotWaitingForTheGoods_NotAllowed(MerchandiseReturnStatus status)
     {
-        _stored = Return(ReturnLabelStatus.Failed, MerchandiseReturnStatus.Rejected);
+        //rejected or cancelled: nothing is sent back; received or completed: the goods are back already
+        _stored = Return(ReturnLabelStatus.Failed, status);
         SetupLabel(Created());
 
         var error = await _service.CreateLabel("r1");

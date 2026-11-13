@@ -42,8 +42,8 @@ public class MerchandiseReturnLabelService(
                 return null;
 
             if (shipping.LabelStatus is not (ReturnLabelStatus.Pending or ReturnLabelStatus.Failed)
-                || stored.MerchandiseReturnStatus is MerchandiseReturnStatus.Rejected
-                    or MerchandiseReturnStatus.Cancelled)
+                || stored.MerchandiseReturnStatus is not (MerchandiseReturnStatus.Pending
+                    or MerchandiseReturnStatus.Accepted))
                 return MerchandiseReturnErrors.LabelNotAllowed;
 
             return await CreateProviderLabel(stored);

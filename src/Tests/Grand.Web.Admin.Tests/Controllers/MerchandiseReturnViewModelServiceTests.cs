@@ -822,12 +822,17 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task PrepareMerchandiseReturnModel_FailedLabelOfRejectedReturn_CannotRetry()
+    [DataRow(MerchandiseReturnStatus.Rejected)]
+    [DataRow(MerchandiseReturnStatus.Cancelled)]
+    [DataRow(MerchandiseReturnStatus.Received)]
+    [DataRow(MerchandiseReturnStatus.Completed)]
+    public async Task PrepareMerchandiseReturnModel_FailedLabelOfReturnNotWaitingForTheGoods_CannotRetry(
+        MerchandiseReturnStatus status)
     {
         var (service, _) = BuildForReturnShipping();
 
         var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
-            ReturnWithShipping(ReturnLabelStatus.Failed, MerchandiseReturnStatus.Rejected), false);
+            ReturnWithShipping(ReturnLabelStatus.Failed, status), false);
 
         Assert.IsFalse(model.ReturnShipping.CanRetryLabel);
     }
