@@ -1,12 +1,17 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Localization;
+using Grand.Domain.Media;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Mediator;
+using Grand.SharedKernel.Extensions;
+using Grand.Web.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Commands.Handler.Orders;
 
@@ -24,13 +29,21 @@ public class MerchandiseReturnSubmitCommandHandler
     private readonly IMerchandiseReturnMessageProviderService _merchandiseReturnMessageProviderService;
     private readonly IContextAccessor _contextAccessor;
     private readonly OrderSettings _orderSettings;
+    private readonly IMerchandiseReturnService _merchandiseReturnService;
+    private readonly IDownloadService _downloadService;
+    private readonly MediaSettings _mediaSettings;
+    private readonly ILogger<MerchandiseReturnSubmitCommandHandler> _logger;
 
     public MerchandiseReturnSubmitCommandHandler(IContextAccessor contextAccessor,
         IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService,
         IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
         IGroupService groupService,
         LanguageSettings languageSettings,
-        OrderSettings orderSettings)
+        OrderSettings orderSettings,
+        IMerchandiseReturnService merchandiseReturnService,
+        IDownloadService downloadService,
+        MediaSettings mediaSettings,
+        ILogger<MerchandiseReturnSubmitCommandHandler> logger)
     {
         _orderSettings = orderSettings;
         _contextAccessor = contextAccessor;
@@ -38,11 +51,22 @@ public class MerchandiseReturnSubmitCommandHandler
         _merchandiseReturnMessageProviderService = merchandiseReturnMessageProviderService;
         _groupService = groupService;
         _languageSettings = languageSettings;
+        _merchandiseReturnService = merchandiseReturnService;
+        _downloadService = downloadService;
+        _mediaSettings = mediaSettings;
+        _logger = logger;
     }
 
     public async Task<MerchandiseReturnSubmitResult> Handle(
         MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
     {
+        //the photos are checked before anything is saved: a refused return leaves none behind
+        var photoError = MerchandiseReturnUploads.PhotosError(request.Model.Items, request.Photos,
+            await _merchandiseReturnService.GetAllMerchandiseReturnReasons(request.Order.StoreId),
+            FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes));
+        if (photoError != null)
+            return new MerchandiseReturnSubmitResult { Error = photoError };
+
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var result = await _merchandiseReturnWorkflowService.Submit(new MerchandiseReturnSubmitRequest {
             Order = request.Order,
@@ -61,9 +85,10 @@ public class MerchandiseReturnSubmitCommandHandler
             ReturnShipping = ReturnShippingChoice(request)
         });
 
-        //each vendor's return is a return of its own, with its own messages
+        //each vendor's return is a return of its own, with its own photos and messages
         foreach (var merchandiseReturn in result.MerchandiseReturns)
         {
+            await SavePhotos(request, merchandiseReturn, customer.Id);
             //notify store owner here (email)
             await _merchandiseReturnMessageProviderService.SendNewMerchandiseReturnStoreOwnerMessage(merchandiseReturn,
                 request.Order, _languageSettings.DefaultAdminLanguageId,
@@ -74,6 +99,39 @@ public class MerchandiseReturnSubmitCommandHandler
         }
 
         return result;
+    }
+
+    /// <summary>
+    ///     Saves each photo of the return's items as a note of the customer's with the photo attached, named after the
+    ///     item. The return is saved already: a photo that cannot be saved is logged, and the staff can ask for it again
+    /// </summary>
+    private async Task SavePhotos(MerchandiseReturnSubmitCommand request, MerchandiseReturn merchandiseReturn,
+        string customerId)
+    {
+        foreach (var item in merchandiseReturn.MerchandiseReturnItems)
+        {
+            if (request.Photos == null || !request.Photos.TryGetValue(item.OrderItemId, out var photos))
+                continue;
+
+            foreach (var photo in photos)
+                try
+                {
+                    var download = MerchandiseReturnUploads.ToDownload(photo, customerId, merchandiseReturn.Id);
+                    await _downloadService.InsertDownload(download);
+                    await _merchandiseReturnService.InsertMerchandiseReturnNote(new MerchandiseReturnNote {
+                        MerchandiseReturnId = merchandiseReturn.Id,
+                        Note = request.Model.Items.FirstOrDefault(x => x.Id == item.OrderItemId)?.ProductName ?? "",
+                        DownloadId = download.Id,
+                        DisplayToCustomer = true,
+                        CreatedByCustomer = true
+                    });
+                }
+                catch (Exception ex)
+                {
+                    _logger.LogError(ex, "A photo of merchandise return {MerchandiseReturnId} was not saved",
+                        merchandiseReturn.Id);
+                }
+        }
     }
 
     /// <summary>

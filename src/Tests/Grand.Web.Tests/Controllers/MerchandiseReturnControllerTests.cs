@@ -258,6 +258,29 @@ public class MerchandiseReturnControllerTests
         _labels.Verify(x => x.CreateLabel(It.IsAny<string>()), Times.Never);
     }
 
+    [TestMethod]
+    public async Task MerchandiseReturn_PostedPhotos_PassedByOrderItem()
+    {
+        var files = new FormFileCollection {
+            new FormFile(new MemoryStream([1]), 0, 1, "photos.a", "front.png"),
+            new FormFile(new MemoryStream([1]), 0, 1, "photos.a", "back.png"),
+            new FormFile(new MemoryStream([1]), 0, 1, "other", "x.png")
+        };
+        _controller.ControllerContext.HttpContext.Request.ContentType = "multipart/form-data; boundary=b";
+        _controller.ControllerContext.HttpContext.Request.Form = new FormCollection([], files);
+        MerchandiseReturnSubmitCommand sent = null;
+        _mediator.Setup(x => x.Send(It.IsAny<MerchandiseReturnSubmitCommand>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<MerchandiseReturnSubmitResult>, CancellationToken>((c, _) =>
+                sent = (MerchandiseReturnSubmitCommand)c)
+            .ReturnsAsync(new MerchandiseReturnSubmitResult());
+
+        await _controller.MerchandiseReturn(new MerchandiseReturnModel { OrderId = "o1" });
+
+        Assert.AreEqual(1, sent.Photos.Count);
+        CollectionAssert.AreEqual(new[] { "front.png", "back.png" },
+            sent.Photos["a"].Select(x => x.FileName).ToArray());
+    }
+
     /// <summary>
     ///     The order of the return was placed in another store than the one the customer is in
     /// </summary>

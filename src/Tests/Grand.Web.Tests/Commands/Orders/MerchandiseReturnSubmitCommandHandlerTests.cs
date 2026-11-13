@@ -1,15 +1,19 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Handler.Orders;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Models.Orders;
+using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -49,10 +53,88 @@ public class MerchandiseReturnSubmitCommandHandlerTests
             .ReturnsAsync(() => _result);
         _messageProviderMock = new Mock<IMerchandiseReturnMessageProviderService>();
 
+        _reasons = [new MerchandiseReturnReason { Id = "rr1" }];
+        _returnService = new Mock<IMerchandiseReturnService>();
+        _returnService.Setup(x => x.GetAllMerchandiseReturnReasons("order-store")).ReturnsAsync(() => _reasons);
+        _downloadService = new Mock<IDownloadService>();
+        _downloadService.Setup(x => x.InsertDownload(It.IsAny<Download>()))
+            .Callback<Download>(x => x.Id = "d-" + x.Filename).Returns(Task.CompletedTask);
+
         _orderSettings = new OrderSettings();
         _handler = new MerchandiseReturnSubmitCommandHandler(contextAccessor.Object, _workflowMock.Object,
             _messageProviderMock.Object, new Mock<IGroupService>().Object,
-            new LanguageSettings { DefaultAdminLanguageId = "admin-language" }, _orderSettings);
+            new LanguageSettings { DefaultAdminLanguageId = "admin-language" }, _orderSettings,
+            _returnService.Object, _downloadService.Object, new MediaSettings(),
+            NullLogger<MerchandiseReturnSubmitCommandHandler>.Instance);
+    }
+
+    private List<MerchandiseReturnReason> _reasons;
+    private Mock<IMerchandiseReturnService> _returnService;
+    private Mock<IDownloadService> _downloadService;
+
+    private static IFormFile Photo(string name)
+    {
+        return new FormFile(new MemoryStream(new byte[10]), 0, 10, "photos", name) {
+            Headers = new HeaderDictionary(), ContentType = "image/png"
+        };
+    }
+
+    [TestMethod]
+    public async Task Handle_PhotoError_NotSubmitted()
+    {
+        _reasons[0].PhotoRequired = true;
+
+        var result = await _handler.Handle(Command(3), CancellationToken.None);
+
+        Assert.AreEqual("MerchandiseReturns.Photos.Required", result.Error);
+        _workflowMock.Verify(x => x.Submit(It.IsAny<MerchandiseReturnSubmitRequest>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_Submitted_EachPhotoANoteOfItsReturn()
+    {
+        //item a went to the vendor's return, item b to the store's
+        _order.OrderItems.Add(new OrderItem { Id = "b", ProductId = "p2", Quantity = 1 });
+        var vendorReturn = new MerchandiseReturn { Id = "rv", VendorId = "v1" };
+        vendorReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem { OrderItemId = "a", Quantity = 3 });
+        var storeReturn = new MerchandiseReturn { Id = "rs", VendorId = "" };
+        storeReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem { OrderItemId = "b", Quantity = 1 });
+        _result.MerchandiseReturns.Add(vendorReturn);
+        _result.MerchandiseReturns.Add(storeReturn);
+        var command = Command(3);
+        command.Model.Items[0].ProductName = "Shoe";
+        command.Model.Items.Add(new MerchandiseReturnModel.OrderItemModel
+            { Id = "b", Quantity = 1, MerchandiseReturnReasonId = "rr1" });
+        command.Photos = new Dictionary<string, IList<IFormFile>> { ["a"] = [Photo("front.png")] };
+
+        await _handler.Handle(command, CancellationToken.None);
+
+        _downloadService.Verify(x => x.InsertDownload(It.Is<Download>(d =>
+            d.ReferenceId == "rv" && d.CustomerId == "c1" && d.Extension == ".png")), Times.Once);
+        _returnService.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
+            n.MerchandiseReturnId == "rv" && n.CreatedByCustomer && n.DisplayToCustomer &&
+            n.DownloadId == "d-front" && n.Note == "Shoe")), Times.Once);
+        _returnService.Verify(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()), Times.Once);
+        _messageProviderMock.Verify(x => x.SendNewMerchandiseReturnNoteAddedCustomerMessage(
+            It.IsAny<MerchandiseReturn>(), It.IsAny<MerchandiseReturnNote>(), It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_PhotoStorageFails_ReturnStands()
+    {
+        var saved = new MerchandiseReturn { Id = "r1" };
+        saved.MerchandiseReturnItems.Add(new MerchandiseReturnItem { OrderItemId = "a", Quantity = 3 });
+        _result.MerchandiseReturns.Add(saved);
+        _downloadService.Setup(x => x.InsertDownload(It.IsAny<Download>())).ThrowsAsync(new IOException("disk"));
+        var command = Command(3);
+        command.Photos = new Dictionary<string, IList<IFormFile>> { ["a"] = [Photo("front.png")] };
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.IsNull(result.Error);
+        Assert.AreSame(saved, result.MerchandiseReturns.Single());
+        _messageProviderMock.Verify(x => x.SendNewMerchandiseReturnStoreOwnerMessage(saved, _order,
+            It.IsAny<string>(), It.IsAny<Domain.Stores.DomainHost>()), Times.Once);
     }
 
     private MerchandiseReturnSubmitCommand Command(int quantity)

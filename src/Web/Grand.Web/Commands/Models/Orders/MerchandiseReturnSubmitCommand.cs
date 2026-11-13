@@ -3,6 +3,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
+using Microsoft.AspNetCore.Http;
 
 namespace Grand.Web.Commands.Models.Orders;
 
@@ -17,4 +18,9 @@ public class MerchandiseReturnSubmitCommand : IRequest<MerchandiseReturnSubmitRe
     ///     prefix
     /// </summary>
     public IDictionary<string, string> Form { get; set; } = new Dictionary<string, string>();
+
+    /// <summary>
+    ///     The photos posted with the form, by the id of the order item they show
+    /// </summary>
+    public IDictionary<string, IList<IFormFile>> Photos { get; set; } = new Dictionary<string, IList<IFormFile>>();
 }

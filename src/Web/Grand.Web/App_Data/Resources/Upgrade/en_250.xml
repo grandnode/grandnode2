@@ -2097,4 +2097,16 @@
 	<Resource Name="MerchandiseReturns.Notes.From.Store" Area="Front">
 		<Value>Store</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Photos" Area="Front">
+		<Value>Photos</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Photos.Hint" Area="Front">
+		<Value>Images, at most 4 MB each, up to 3 per item.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Photos.Required" Area="Front">
+		<Value>Add a photo of each item whose reason asks for one.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Photos.Invalid" Area="Front">
+		<Value>Photos must be images of at most 4 MB, at most 3 per item and 10 in all.</Value>
+	</Resource>
 </Language>

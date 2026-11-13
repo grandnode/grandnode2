@@ -18,6 +18,7 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Grand.Web.Common.Localization;
@@ -163,6 +164,21 @@ public class MerchandiseReturnController : BasePublicController
             : new Dictionary<string, string>();
     }
 
+    /// <summary>
+    ///     The photos posted with the form, by the order item each "photos.{orderItemId}" field names
+    /// </summary>
+    private IDictionary<string, IList<IFormFile>> PostedPhotos()
+    {
+        const string prefix = "photos.";
+        if (!Request.HasFormContentType)
+            return new Dictionary<string, IList<IFormFile>>();
+
+        return Request.Form.Files
+            .Where(x => x.Name.StartsWith(prefix, StringComparison.Ordinal) && x.Name.Length > prefix.Length)
+            .GroupBy(x => x.Name[prefix.Length..])
+            .ToDictionary(x => x.Key, x => (IList<IFormFile>)x.ToList());
+    }
+
     #endregion
 
     #region Methods
@@ -203,6 +219,8 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     [HttpPost]
+    [RequestSizeLimit(MerchandiseReturnUploads.MaxSubmitRequestBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = MerchandiseReturnUploads.MaxSubmitRequestBytes)]
     public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
     {
         var order = await _orderService.GetOrderById(model.OrderId);
@@ -219,7 +237,7 @@ public class MerchandiseReturnController : BasePublicController
         if (ModelState.IsValid)
         {
             var result = await _mediator.Send(new MerchandiseReturnSubmitCommand
-                { Address = address, Model = model, Order = order, Form = PostedForm() });
+                { Address = address, Model = model, Order = order, Form = PostedForm(), Photos = PostedPhotos() });
             if (result.Error == null && result.ShippingErrors.Count == 0)
             {
                 //one return for each vendor of the items
