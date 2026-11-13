@@ -23,6 +23,7 @@ import { axios, notifyRequestError } from './shared'
 const QUANTITY_FIELD = /^Items\[\d+\]\.Quantity$/
 
 registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items, photoReasonIds, photosRequired,
+    photosInvalid, nothingChosen, photoTypes, maxPhotoBytes, maxPhotosPerItem, maxPhotosPerSubmit,
     estimateUrl, returnShipping, offersUrl, choosePoint }) => {
     const quantities = {}
     itemIds.forEach(id => { quantities['quantity_' + id] = '0' })
@@ -42,9 +43,11 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items,
             formHtml: '',
             formError: '',
             step: 1,
-            photoError: '',
+            itemsError: '',
+            estimateError: '',
             estimate: null,
-            summaryItems: []
+            summaryItems: [],
+            submitting: false
         }),
         computed: {
             selectedOffer() {
@@ -126,11 +129,14 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items,
                 const radios = [...document.querySelectorAll('.return-shipping-form input[type=radio]')]
                 return radios.length === 0 || radios.some(radio => radio.checked)
             },
+            // posted once, from the summary: Enter in a field of an earlier step, or a second click, posts nothing
             submit() {
-                if (!this.formAnswered()) {
+                if (this.step !== 3 || this.submitting) return
+                if (returnShipping && !this.formAnswered()) {
                     this.formError = choosePoint ?? ''
                     return
                 }
+                this.submitting = true
                 getRootVm().$refs.form.submit()
             },
             returned() {
@@ -144,9 +150,24 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items,
                     return photoReasonIds.includes(reason) && input.files.length === 0
                 })
             },
+            // the photos the server would refuse, checked before they are uploaded: type, size and count
+            photosRefused() {
+                const returned = this.returned()
+                let total = 0
+                return itemIds.some(id => {
+                    const files = [...(document.getElementById('photos-' + id)?.files ?? [])]
+                    total += files.length
+                    return (files.length > 0 && !returned.includes(id)) || files.length > maxPhotosPerItem ||
+                        files.some(file => file.size === 0 || file.size > maxPhotoBytes ||
+                            !photoTypes.includes(('.' + file.name.split('.').pop()).toLowerCase()))
+                }) || total > maxPhotosPerSubmit
+            },
             toMethod() {
-                this.photoError = this.photosMissing() ? photosRequired : ''
-                if (!this.photoError) this.step = 2
+                if (this.returned().length === 0) this.itemsError = nothingChosen
+                else if (this.photosRefused()) this.itemsError = photosInvalid
+                else if (this.photosMissing()) this.itemsError = photosRequired
+                else this.itemsError = ''
+                if (!this.itemsError) this.step = 2
             },
             // the refund the form comes to, worked out on the server as the refund will be; the photos stay out of it
             toSummary() {
@@ -154,6 +175,7 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items,
                     this.formError = choosePoint ?? ''
                     return
                 }
+                this.estimateError = ''
                 const data = new FormData(getRootVm().$refs.form)
                 for (const name of [...data.keys()]) {
                     if (name.startsWith('photos.')) data.delete(name)
@@ -162,7 +184,7 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items,
                     .then(response => {
                         const estimate = response.data ?? {}
                         if (estimate.Errors?.length) {
-                            this.formError = estimate.Errors.join(' ')
+                            this.estimateError = estimate.Errors.join(' ')
                             return
                         }
                         this.estimate = estimate

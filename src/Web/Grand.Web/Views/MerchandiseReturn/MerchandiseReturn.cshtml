@@ -1,7 +1,12 @@
 ﻿@model MerchandiseReturnModel
 @inject IPageHeadBuilder pagebuilder
+@inject Grand.Domain.Media.MediaSettings mediaSettings
 @{
     Layout = "_SingleColumn";
+
+    //the image types the server takes for a photo; the form checks them, and the size and count, before the post
+    var photoTypes = Grand.SharedKernel.Extensions.FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes);
+    var allowedPhotoTypes = string.Join(",", photoTypes);
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.ReturnItems"]);
@@ -26,7 +31,7 @@
 
         <validation-observer v-slot="{ handleSubmit, validate }">
             @* with a return method, the form of the chosen one is checked before the submit *@
-            <form asp-route="MerchandiseReturn" method="post" enctype="multipart/form-data" ref="form" v-on:submit.prevent="handleSubmit(@(Model.ReturnShippingEnabled ? "merchandisereturns.submit" : "formSubmit"))">
+            <form asp-route="MerchandiseReturn" method="post" enctype="multipart/form-data" ref="form" v-on:submit.prevent="handleSubmit(merchandisereturns.submit)">
                 @*
                     Three steps of one form, posted once at the end. Without scripts every step is shown, as one
                     long form, and the step buttons stay hidden.
@@ -148,7 +153,7 @@
                                            whether the reason chosen asks for one *@
                                         <div class="return-photos mt-1">
                                             <label class="form-label small mb-0" for="photos-@(item.Id)">@Loc["MerchandiseReturns.Photos"]</label>
-                                            <input type="file" class="form-control form-control-sm" id="photos-@(item.Id)" name="photos.@(item.Id)" multiple accept="image/*"/>
+                                            <input type="file" class="form-control form-control-sm" id="photos-@(item.Id)" name="photos.@(item.Id)" multiple accept="@allowedPhotoTypes"/>
                                             <small class="text-muted">@Loc["MerchandiseReturns.Photos.Hint"]</small>
                                         </div>
                                     </td>
@@ -253,7 +258,7 @@
                         }
                     }
                 </div>
-                <span class="field-validation-error d-block" v-if="merchandisereturns.photoError">{{ merchandisereturns.photoError }}</span>
+                <span class="field-validation-error d-block" v-if="merchandisereturns.itemsError">{{ merchandisereturns.itemsError }}</span>
                 <div class="mt-2" style="display: none" v-show="true">
                     <button type="button" class="btn btn-secondary" v-on:click="validate().then(ok => ok && merchandisereturns.toMethod())">@Loc["MerchandiseReturns.Wizard.Next"]</button>
                 </div>
@@ -301,6 +306,8 @@
                     </div>
                 }
                 <p class="return-refund-destination mt-3 mb-0">@Loc["MerchandiseReturns.Estimate.Destination"]</p>
+                @* why the return could not be submitted as it is, e.g. a quantity another return took meanwhile *@
+                <span class="field-validation-error d-block" v-if="merchandisereturns.estimateError">{{ merchandisereturns.estimateError }}</span>
                 <div class="mt-2 d-flex gap-2" style="display: none" v-show="true">
                     <button type="button" class="btn btn-outline-secondary" v-on:click="merchandisereturns.back()">@Loc["MerchandiseReturns.Wizard.Back"]</button>
                     <button type="button" class="btn btn-secondary" v-on:click="validate().then(ok => ok && merchandisereturns.toSummary())">@Loc["MerchandiseReturns.Wizard.Next"]</button>
@@ -329,7 +336,7 @@
                     <div class="row">
                         <div class="col-12 d-flex gap-2 mt-2 mb-1">
                             <button type="button" class="btn btn-outline-secondary" style="display: none" v-show="true" v-on:click="merchandisereturns.back()">@Loc["MerchandiseReturns.Wizard.Back"]</button>
-                            <input type="submit" name="submit-return-request" class="btn btn-secondary submit-return-request-button" value="@Loc["MerchandiseReturns.Submit"]"/>
+                            <input type="submit" name="submit-return-request" class="btn btn-secondary submit-return-request-button" value="@Loc["MerchandiseReturns.Submit"]" v-bind:disabled="merchandisereturns.submitting"/>
                         </div>
                     </div>
                 </section>
@@ -349,6 +356,12 @@
                                                                     items = Model.Items.Select(item => new { id = item.Id, name = item.ProductName }),
                                                                     photoReasonIds = Model.AvailableReturnReasons.Where(x => x.PhotoRequired).Select(x => x.Id),
                                                                     photosRequired = Loc["MerchandiseReturns.Photos.Required"].Value,
+                                                                    photosInvalid = Loc["MerchandiseReturns.Photos.Invalid"].Value,
+                                                                    nothingChosen = Loc["MerchandiseReturns.NoItemsSubmitted"].Value,
+                                                                    photoTypes,
+                                                                    maxPhotoBytes = Grand.Web.Extensions.MerchandiseReturnUploads.MaxFileBytes,
+                                                                    maxPhotosPerItem = Grand.Web.Extensions.MerchandiseReturnUploads.MaxPhotosPerItem,
+                                                                    maxPhotosPerSubmit = Grand.Web.Extensions.MerchandiseReturnUploads.MaxPhotosPerSubmit,
                                                                     estimateUrl = Url.RouteUrl("MerchandiseReturnEstimate", new { orderId = Model.OrderId }),
                                                                     returnShipping = Model.ReturnShippingEnabled,
                                                                     choosePoint = Model.ReturnShippingEnabled
