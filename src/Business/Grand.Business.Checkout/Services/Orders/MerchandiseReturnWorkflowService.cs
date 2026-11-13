@@ -116,6 +116,43 @@ public class MerchandiseReturnWorkflowService(
     }
 
     /// <summary>
+    ///     Replaces the cancelled label of a return opened again: the old label, return code and tracking number
+    ///     belong to a parcel that is never sent. The status change stands whatever happens to the new label
+    /// </summary>
+    /// <returns>the return as saved with its new label, for the messages the caller sends</returns>
+    private async Task<MerchandiseReturn> WithNewLabel(MerchandiseReturn merchandiseReturn)
+    {
+        try
+        {
+            var error = await labelService.UpdateShipping(merchandiseReturn.Id, shipping =>
+                {
+                    shipping.LabelStatus = ReturnLabelStatus.Pending;
+                    shipping.LabelError = null;
+                    shipping.LabelDownloadId = null;
+                    shipping.TrackingNumber = null;
+                    shipping.ReturnCode = null;
+                },
+                //checked again on the return as stored: it may have been rejected or cancelled since
+                stored => stored.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending
+                          && stored.ReturnShipping.LabelStatus == ReturnLabelStatus.Cancelled);
+            if (error != null)
+            {
+                logger.LogWarning("The cancelled label of merchandise return {MerchandiseReturnId}, opened again, " +
+                                  "was not replaced: {Error}", merchandiseReturn.Id, error);
+                return await ReadAgain(merchandiseReturn);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "The cancelled label of merchandise return {MerchandiseReturnId}, opened again, " +
+                                "was not replaced", merchandiseReturn.Id);
+            return await ReadAgain(merchandiseReturn);
+        }
+
+        return await WithLabel(merchandiseReturn);
+    }
+
+    /// <summary>
     ///     The return as the label service saved it, for the messages; the one in memory when it cannot be read
     /// </summary>
     private async Task<MerchandiseReturn> ReadAgain(MerchandiseReturn merchandiseReturn)
@@ -286,6 +323,11 @@ public class MerchandiseReturnWorkflowService(
             //the message gives no link to a label that was cancelled
             changed = await ReadAgain(changed);
         }
+        //opened again after its label was cancelled: the customer gets a new one to send the goods back with
+        if (status == MerchandiseReturnStatus.Pending
+            && changed.ReturnShipping?.LabelStatus == ReturnLabelStatus.Cancelled)
+            changed = await WithNewLabel(changed);
+
 
         //the status is saved: a message that could not be sent is logged, the change itself did not fail
         try

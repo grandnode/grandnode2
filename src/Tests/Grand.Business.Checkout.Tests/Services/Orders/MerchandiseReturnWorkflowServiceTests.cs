@@ -870,4 +870,68 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.AreEqual(MerchandiseReturnErrors.AlreadyReceived, error);
         _labelService.Verify(x => x.CancelLabel(It.IsAny<string>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task ChangeStatus_ReopenWithCancelledLabel_ResetsLabelThenCreatesIt()
+    {
+        //the label was cancelled when the return was rejected: reopened, the customer needs a new one
+        _stored = Return(MerchandiseReturnStatus.Rejected);
+        _stored.ReturnShipping = new MerchandiseReturnShipping {
+            LabelStatus = ReturnLabelStatus.Cancelled, LabelDownloadId = "old-label", TrackingNumber = "OLD",
+            ReturnCode = "OLD-CODE"
+        };
+        var steps = new List<string>();
+        Action<MerchandiseReturnShipping> reset = null;
+        Func<MerchandiseReturn, bool> allowed = null;
+        _labelService.Setup(x => x.UpdateShipping("r1", It.IsAny<Action<MerchandiseReturnShipping>>(),
+                It.IsAny<Func<MerchandiseReturn, bool>>()))
+            .Callback((string _, Action<MerchandiseReturnShipping> apply, Func<MerchandiseReturn, bool> check) =>
+            {
+                steps.Add("reset");
+                reset = apply;
+                allowed = check;
+            })
+            .ReturnsAsync((string)null);
+        _labelService.Setup(x => x.CreateLabel("r1")).Callback(() => steps.Add("create")).ReturnsAsync((string)null);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Pending);
+
+        Assert.IsNull(error);
+        CollectionAssert.AreEqual(new[] { "reset", "create" }, steps);
+        Assert.IsTrue(allowed(_stored));
+        reset(_stored.ReturnShipping);
+        Assert.AreEqual(ReturnLabelStatus.Pending, _stored.ReturnShipping.LabelStatus);
+        Assert.IsNull(_stored.ReturnShipping.LabelDownloadId);
+        Assert.IsNull(_stored.ReturnShipping.TrackingNumber);
+        Assert.IsNull(_stored.ReturnShipping.ReturnCode);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_ReopenWithCancelledLabel_RejectedAgainMeanwhile_NoNewLabel()
+    {
+        _stored = Return(MerchandiseReturnStatus.Rejected);
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Cancelled };
+        _labelService.Setup(x => x.UpdateShipping("r1", It.IsAny<Action<MerchandiseReturnShipping>>(),
+                It.IsAny<Func<MerchandiseReturn, bool>>()))
+            .ReturnsAsync(MerchandiseReturnErrors.ShippingChangeNotAllowed);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Pending);
+
+        Assert.IsNull(error);
+        _labelService.Verify(x => x.CreateLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow(ReturnLabelStatus.NotRequired)]
+    [DataRow(ReturnLabelStatus.Created)]
+    public async Task ChangeStatus_ReopenWithoutCancelledLabel_LeavesLabel(ReturnLabelStatus labelStatus)
+    {
+        _stored = Return(MerchandiseReturnStatus.Cancelled);
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = labelStatus };
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Pending);
+
+        Assert.IsNull(error);
+        _labelService.VerifyNoOtherCalls();
+    }
 }
