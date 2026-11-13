@@ -300,7 +300,8 @@
 
             @if (Model.MerchandiseReturnNotes.Any())
             {
-                <div class="merchandisereturn-notes">
+                @* v-pre: what the customer and the staff wrote is shown, never compiled as a template *@
+                <div class="merchandisereturn-notes" v-pre>
                     <h5>
                         @Loc["MerchandiseReturns.Notes"]
                     </h5>
@@ -328,6 +329,8 @@
                                         @item.CreatedOn.ToString(CultureInfo.InvariantCulture)
                                     </td>
                                     <td class="note col-8">
+                                        <span class="author d-block small text-muted">@(item.CreatedByCustomer ? Loc["MerchandiseReturns.Notes.From.You"] : Loc["MerchandiseReturns.Notes.From.Store"])</span>
+                                        @* encoded by the handler: the text with its line breaks *@
                                         @Html.Raw(item.Note)
                                         @if (item.HasDownload)
                                         {

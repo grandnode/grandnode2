@@ -257,4 +257,39 @@ public class MerchandiseReturnControllerTests
         Assert.AreEqual("MerchandiseReturnDetails", ((RedirectToRouteResult)result).RouteName);
         _labels.Verify(x => x.CreateLabel(It.IsAny<string>()), Times.Never);
     }
+
+    /// <summary>
+    ///     The order of the return was placed in another store than the one the customer is in
+    /// </summary>
+    private void OrderOfOtherStore()
+    {
+        _orders.Setup(x => x.GetOrderById("o1"))
+            .ReturnsAsync(new Order { Id = "o1", CustomerId = "buyer", StoreId = "s2" });
+    }
+
+    [TestMethod]
+    public async Task Details_OtherStore_Challenge()
+    {
+        Return("buyer");
+        OrderOfOtherStore();
+
+        var result = await _controller.MerchandiseReturnDetails("r1");
+
+        Assert.IsInstanceOfType<ChallengeResult>(result);
+        _mediator.Verify(x => x.Send(It.IsAny<GetMerchandiseReturnDetails>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturnLabel_OtherStore_NotFound()
+    {
+        Return("buyer");
+        OrderOfOtherStore();
+        _downloads.Setup(x => x.GetDownloadById("d1"))
+            .ReturnsAsync(new Download { Id = "d1", DownloadBinary = [1], Filename = "label", Extension = ".pdf" });
+
+        var result = await _controller.MerchandiseReturnLabel("r1");
+
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
+    }
 }

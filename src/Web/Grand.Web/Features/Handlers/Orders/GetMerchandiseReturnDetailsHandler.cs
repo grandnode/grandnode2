@@ -12,6 +12,7 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
+using Grand.SharedKernel.Extensions;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Features.Handlers.Orders;
@@ -189,16 +190,19 @@ public class
     private async Task PrepareMerchandiseReturnNotes(GetMerchandiseReturnDetails request,
         MerchandiseReturnDetailsModel model)
     {
+        //oldest first, as a conversation reads
         foreach (var merchandiseReturnNote in (await _merchandiseReturnService.GetMerchandiseReturnNotes(
                      request.MerchandiseReturn.Id))
                  .Where(rrn => rrn.DisplayToCustomer)
-                 .OrderByDescending(rrn => rrn.CreatedOnUtc)
+                 .OrderBy(rrn => rrn.CreatedOnUtc)
                  .ToList())
             model.MerchandiseReturnNotes.Add(new MerchandiseReturnDetailsModel.MerchandiseReturnNote {
                 Id = merchandiseReturnNote.Id,
                 MerchandiseReturnId = merchandiseReturnNote.MerchandiseReturnId,
                 HasDownload = !string.IsNullOrEmpty(merchandiseReturnNote.DownloadId),
-                Note = merchandiseReturnNote.Note,
+                //what the customer or the staff typed is text, as the e-mails and the panels show it
+                Note = FormatText.ConvertText(merchandiseReturnNote.Note),
+                CreatedByCustomer = merchandiseReturnNote.CreatedByCustomer,
                 CreatedOn = _dateTimeService.ConvertToUserTime(merchandiseReturnNote.CreatedOnUtc, DateTimeKind.Utc)
             });
     }

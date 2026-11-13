@@ -126,19 +126,19 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
-    ///     The return of the current customer, as the details page finds it; null when it is not theirs
+    ///     The return of the current customer and its order, placed in the current store; nulls when it is not theirs
     /// </summary>
-    private async Task<MerchandiseReturn> CustomerMerchandiseReturn(string merchandiseReturnId)
+    private async Task<(MerchandiseReturn Return, Order Order)> CustomerMerchandiseReturn(string merchandiseReturnId)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (!await merchandiseReturn.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
-            return null;
+            return (null, null);
 
         var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
-            return null;
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) || !OfCurrentStore(order))
+            return (null, null);
 
-        return merchandiseReturn;
+        return (merchandiseReturn, order);
     }
 
     /// <summary>
@@ -260,18 +260,14 @@ public class MerchandiseReturnController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> MerchandiseReturnDetails(string merchandiseReturnId)
     {
-        var rr = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (!await rr.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
-            return Challenge();
-
-        var order = await _orderService.GetOrderById(rr.OrderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (merchandiseReturn, order) = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (merchandiseReturn == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetMerchandiseReturnDetails {
             Order = order,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
-            MerchandiseReturn = rr
+            MerchandiseReturn = merchandiseReturn
         });
 
         return View(model);
@@ -309,7 +305,7 @@ public class MerchandiseReturnController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> MerchandiseReturnLabel(string merchandiseReturnId)
     {
-        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        var (merchandiseReturn, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
         var shipping = merchandiseReturn?.ReturnShipping;
         //only while the parcel is still to be sent: a rejected or cancelled return's label may stay created when
         //the carrier did not cancel it
@@ -333,7 +329,7 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturnTrackingNumber(string merchandiseReturnId,
         string trackingNumber)
     {
-        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        var (merchandiseReturn, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
         if (!merchandiseReturn.CustomerEntersTrackingNumber())
             return NotFound("The return was not found.");
 
@@ -357,7 +353,7 @@ public class MerchandiseReturnController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> MerchandiseReturnRetryLabel(string merchandiseReturnId)
     {
-        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        var (merchandiseReturn, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
         if (merchandiseReturn?.ReturnShipping == null)
             return NotFound("The return was not found.");
 

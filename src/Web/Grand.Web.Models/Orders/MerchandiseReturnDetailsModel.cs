@@ -43,7 +43,13 @@ public class MerchandiseReturnDetailsModel : BaseModel
     public class MerchandiseReturnNote : BaseEntityModel
     {
         public bool HasDownload { get; set; }
+
+        /// <summary>
+        ///     The note's text, encoded already: it is put in the page as it is
+        /// </summary>
         public string Note { get; set; }
+
+        public bool CreatedByCustomer { get; set; }
         public DateTime CreatedOn { get; set; }
         public string MerchandiseReturnId { get; set; }
     }

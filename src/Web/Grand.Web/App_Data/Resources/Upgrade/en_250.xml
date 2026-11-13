@@ -2091,4 +2091,10 @@
 	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.PhotoRequired.Hint" Area="Admin">
 		<Value>The customer adds at least one photo of each item returned for this reason.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.From.You" Area="Front">
+		<Value>You</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.From.Store" Area="Front">
+		<Value>Store</Value>
+	</Resource>
 </Language>
