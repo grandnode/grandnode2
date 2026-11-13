@@ -5,10 +5,12 @@
  * to be built from the payload rather than declared literally.
  *
  * With a return method active in the store, the ways of sending the items back
- * depend on the items, reasons and actions chosen, so they are asked for again
- * whenever one of those changes. The form of an option (e.g. the pickup point to
- * leave the items at) is server-rendered HTML, loaded once the option is chosen;
- * its fields go under the "returnshipping." prefix and are posted with the form.
+ * depend on the items and reasons chosen, so they are asked for again whenever
+ * one of those changes, and the method chosen is let go: its cost may have
+ * changed, so the customer chooses again from the new list. The form of an
+ * option (e.g. the pickup point to leave the items at) is server-rendered HTML,
+ * loaded once the option is chosen; its fields go under the "returnshipping."
+ * prefix and are posted with the form.
  *
  * A point left unchosen in that form is caught before the submit: the page the
  * server sends back after refusing it starts again with every quantity at 0.
@@ -66,6 +68,8 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
                 const form = event?.target?.form
                 if (!form) return
 
+                this.clearChoice()
+
                 const data = new FormData(form)
                 const request = ++offersRequest
                 const anyQuantity = [...data.entries()]
@@ -88,12 +92,13 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
             },
             setOffers(offers) {
                 this.offers = offers
-                // an option still offered stays chosen, with what was filled in its form
-                if (!offers.some(offer => this.offerKey(offer) === this.selectedKey)) {
-                    this.selectedKey = ''
-                    this.formHtml = ''
-                    this.formError = ''
-                }
+            },
+            // no method chosen, and no form of one shown or still loading
+            clearChoice() {
+                formRequest++
+                this.selectedKey = ''
+                this.formHtml = ''
+                this.formError = ''
             },
             selectOffer(offer) {
                 const request = ++formRequest
