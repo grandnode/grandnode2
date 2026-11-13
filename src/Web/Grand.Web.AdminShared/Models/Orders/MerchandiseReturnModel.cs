@@ -82,6 +82,64 @@ public class MerchandiseReturnModel : BaseEntityModel
     [UIHint("Download")]
     public string AddMerchandiseReturnNoteDownloadId { get; set; }
 
+    //how the items are sent back; null when the return has no return method, and the card is not shown
+    public ReturnShippingModel ReturnShipping { get; set; }
+
+    //"Receive to stock" is offered while some of what the return gives back is on no return receipt yet
+    public bool CanReceiveToStock { get; set; }
+
+    //the return's receipts, posted or draft; a panel without inventory documents lists none
+    public IList<ReturnReceiptModel> ReturnReceipts { get; set; } = new List<ReturnReceiptModel>();
+
+    public class ReturnReceiptModel : BaseModel
+    {
+        public string Id { get; set; }
+        public string Number { get; set; }
+        public string Status { get; set; }
+
+        //whether the panel opens the receipt: one of another store's or of a shared warehouse is only named
+        public bool CanOpen { get; set; }
+    }
+
+    public class ReturnShippingModel : BaseModel
+    {
+        //the provider's name and the option the customer chose
+        public string MethodName { get; set; }
+        public string OptionName { get; set; }
+
+        //formatted in the order's currency
+        public string Cost { get; set; }
+
+        public string DropOffPoint { get; set; }
+
+        //the one field the staff edit: saved through the label service, never with the rest of the form
+        [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.ReturnShipping.TrackingNumber")]
+        [NoHtml]
+        public string TrackingNumber { get; set; }
+
+        //the tracking number the page was shown with, posted back: a number written since (the label, the
+        //customer) is kept unless the staff typed another one, and even then only while it is still this one
+        public string ShownTrackingNumber { get; set; }
+
+        public string ReturnCode { get; set; }
+        public string Instructions { get; set; }
+        public bool HasLabel { get; set; }
+        public string LabelStatus { get; set; }
+
+        //the provider's error, for the staff only
+        public string LabelError { get; set; }
+
+        public bool CanRetryLabel { get; set; }
+        public IList<TrackingEventModel> TrackingEvents { get; set; } = new List<TrackingEventModel>();
+    }
+
+    public class TrackingEventModel : BaseModel
+    {
+        public string EventName { get; set; }
+        public string Location { get; set; }
+        public DateTime? Date { get; set; }
+    }
+
     public class MerchandiseReturnItemModel : BaseEntityModel
     {
         public string ProductId { get; set; }

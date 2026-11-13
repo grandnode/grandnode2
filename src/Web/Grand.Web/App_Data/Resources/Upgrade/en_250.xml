@@ -1650,6 +1650,9 @@
 	<Resource Name="Admin.Orders.MerchandiseReturns.StatusChangeNotAllowed" Area="Admin">
 		<Value>This status change is not allowed.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnReceipts" Area="Admin">
+		<Value>Return receipts</Value>
+	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.StatusChangeNotAllowed" Area="Vendor">
 		<Value>This status change is not allowed.</Value>
 	</Resource>
@@ -1664,6 +1667,18 @@
 	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.NotFound" Area="Vendor">
 		<Value>The merchandise return was not found.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.LabelNotAllowed" Area="Admin">
+		<Value>A label cannot be created for this return.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ShippingChangeNotAllowed" Area="Admin">
+		<Value>The return was changed in the meantime, so this change was not saved.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.LabelNotAllowed" Area="Vendor">
+		<Value>A label cannot be created for this return.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ShippingChangeNotAllowed" Area="Vendor">
+		<Value>The return was changed in the meantime, so this change was not saved.</Value>
 	</Resource>
 	<Resource Name="Admin.Orders.MerchandiseReturns.ChangeStatus.Pending" Area="Admin">
 		<Value>Reopen</Value>
@@ -1727,5 +1742,227 @@
 	</Resource>
 	<Resource Name="Vendor.Orders.MerchandiseReturns.AlreadyReceived" Area="Vendor">
 		<Value>The merchandise return has not been changed: its goods were already received, so it cannot be rejected, cancelled or deleted.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Choose" Area="Front">
+		<Value>Choose how you send the items back.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.InStore" Area="Front">
+		<Value>Return in store</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.InStore.ChoosePoint" Area="Front">
+		<Value>Choose the pickup point where you leave the items.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.InStore.Instructions" Area="Front">
+		<Value>Bring the items with return number {1} to {0}.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.SendYourself" Area="Front">
+		<Value>Send it yourself</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.SendYourself.Instructions" Area="Front">
+		<Value>Send the parcel to: {0}. Write return number {1} on it.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Title" Area="Front">
+		<Value>How will you send the items back?</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Free" Area="Front">
+		<Value>Free</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.From" Area="Front">
+		<Value>from {0}</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Parcels" Area="Front">
+		<Value>× {0} parcels</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.Cost" Area="Front">
+		<Value>Return cost</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.DownloadLabel" Area="Front">
+		<Value>Download label</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.ReturnCode" Area="Front">
+		<Value>Return code</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.TrackingNumber" Area="Front">
+		<Value>Tracking number</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.SaveTrackingNumber" Area="Front">
+		<Value>Save</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.LabelPending" Area="Front">
+		<Value>Your label is being prepared.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.RetryLabel" Area="Front">
+		<Value>Try again</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnShipping.DropOffPoint" Area="Front">
+		<Value>Drop-off point</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.LabelNotAllowed" Area="Front">
+		<Value>A label cannot be created for this return.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ShippingChangeNotAllowed" Area="Front">
+		<Value>The return was changed in the meantime, so this change was not saved.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.NotFound" Area="Front">
+		<Value>The merchandise return was not found.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Title" Area="Admin">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Cost" Area="Admin">
+		<Value>Cost</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Free" Area="Admin">
+		<Value>Free</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.DropOffPoint" Area="Admin">
+		<Value>Drop-off point</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.TrackingNumber" Area="Admin">
+		<Value>Tracking number</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.ReturnCode" Area="Admin">
+		<Value>Return code</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Instructions" Area="Admin">
+		<Value>Instructions</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.Label" Area="Admin">
+		<Value>Download label</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus" Area="Admin">
+		<Value>Label</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelError" Area="Admin">
+		<Value>Label error</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.RetryLabel" Area="Admin">
+		<Value>Create label again</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.NotRequired" Area="Admin">
+		<Value>Not required</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Pending" Area="Admin">
+		<Value>Pending</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Created" Area="Admin">
+		<Value>Created</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Failed" Area="Admin">
+		<Value>Failed</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Cancelled" Area="Admin">
+		<Value>Cancelled</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Title" Area="Vendor">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Cost" Area="Vendor">
+		<Value>Cost</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Free" Area="Vendor">
+		<Value>Free</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.DropOffPoint" Area="Vendor">
+		<Value>Drop-off point</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.ReturnCode" Area="Vendor">
+		<Value>Return code</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Instructions" Area="Vendor">
+		<Value>Instructions</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.Label" Area="Vendor">
+		<Value>Download label</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus" Area="Vendor">
+		<Value>Label</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelError" Area="Vendor">
+		<Value>Label error</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.RetryLabel" Area="Vendor">
+		<Value>Create label again</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.NotRequired" Area="Vendor">
+		<Value>Not required</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Pending" Area="Vendor">
+		<Value>Pending</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Created" Area="Vendor">
+		<Value>Created</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Failed" Area="Vendor">
+		<Value>Failed</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.ReturnShipping.LabelStatus.Cancelled" Area="Vendor">
+		<Value>Cancelled</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods" Area="Admin">
+		<Value>Return methods</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.Fields.FriendlyName" Area="Admin">
+		<Value>Friendly name</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.Fields.SystemName" Area="Admin">
+		<Value>System name</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.Fields.DisplayOrder" Area="Admin">
+		<Value>Display order</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.Fields.IsActive" Area="Admin">
+		<Value>Is active</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.ReturnAddress" Area="Admin">
+		<Value>Return address</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.ReturnAddress.Hint" Area="Admin">
+		<Value>Where customers send returned parcels. Without a street address the shipping origin is used; the items of a vendor with an address of their own go to that vendor.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.SendYourselfCost" Area="Admin">
+		<Value>Send it yourself cost</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.SendYourselfCost.Hint" Area="Admin">
+		<Value>What a customer pays for a return they send back with a carrier of their own, in the primary store currency. It is not charged when the return fees in the order settings are &quot;Free return&quot;, or when a returned item has a reason with free return shipping.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.ReturnMethods.SendYourselfCost.Negative" Area="Admin">
+		<Value>The cost cannot be negative.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.FreeReturnShipping" Area="Admin">
+		<Value>Free return shipping</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.FreeReturnShipping.Hint" Area="Admin">
+		<Value>The store pays for sending back the items returned for this reason, e.g. a wrong or faulty product.</Value>
+	</Resource>
+	<Resource Name="Shipping.ShippingPoint.Return.FriendlyName" Area="Front">
+		<Value>Shipping Point returns</Value>
+	</Resource>
+	<Resource Name="Shipping.ShippingPoint.Return.OptionName" Area="Front">
+		<Value>Drop off at a pickup point</Value>
+	</Resource>
+	<Resource Name="Shipping.ShippingPoint.Return.ChoosePoint" Area="Front">
+		<Value>Choose a point.</Value>
+	</Resource>
+	<Resource Name="Shipping.ShippingPoint.Return.Instructions" Area="Front">
+		<Value>Bring the parcel with code {0} to {1}.</Value>
+	</Resource>
+	<Resource Name="Shipping.ShippingPoint.Fields.AcceptsReturns" Area="Admin">
+		<Value>Accepts returns</Value>
+	</Resource>
+	<Resource Name="Shipping.ShippingPoint.Fields.ReturnFee" Area="Admin">
+		<Value>Return fee</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnReason.Select" Area="Front">
+		<Value>Select a reason</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.ReturnAction.Select" Area="Front">
+		<Value>Select an action</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_HideRequestedAction" Area="Admin">
+		<Value>Hide the requested action</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_HideRequestedAction.Hint" Area="Admin">
+		<Value>The return form does not ask the customer what they want instead (a refund, a repair, a replacement), and no action is saved with the return.</Value>
 	</Resource>
 </Language>

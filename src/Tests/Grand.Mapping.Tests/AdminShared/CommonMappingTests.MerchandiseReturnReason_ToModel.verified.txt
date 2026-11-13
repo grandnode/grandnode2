@@ -1,5 +1,6 @@
 ﻿{
   Name: Defective,
   DisplayOrder: 1,
+  FreeReturnShipping: false,
   Id: mrr-001
 }

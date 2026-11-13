@@ -4,6 +4,7 @@ using Grand.Business.Checkout.Services.GiftVouchers;
 using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Checkout.Services.Payments;
 using Grand.Business.Checkout.Services.Shipping;
+using Grand.Business.Checkout.Services.Shipping.ReturnProviders;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -45,6 +46,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<ILoyaltyPointsCalculationService, LoyaltyPointsCalculationService>();
         serviceCollection.AddScoped<IMerchandiseReturnService, MerchandiseReturnService>();
         serviceCollection.AddScoped<IMerchandiseReturnWorkflowService, MerchandiseReturnWorkflowService>();
+        serviceCollection.AddScoped<IMerchandiseReturnLabelService, MerchandiseReturnLabelService>();
         serviceCollection.AddScoped<IOrderApprovalService, OrderApprovalService>();
         serviceCollection.AddScoped<IOrderPlacementService, OrderPlacementService>();
         serviceCollection.AddScoped<ICheckoutClaimService, CheckoutClaimService>();
@@ -70,6 +72,9 @@ public class StartupApplication : IStartupApplication
     {
         serviceCollection.AddScoped<IShipmentService, ShipmentService>();
         serviceCollection.AddScoped<IShippingService, ShippingService>();
+        serviceCollection.AddScoped<IReturnShippingService, ReturnShippingService>();
+        serviceCollection.AddScoped<IReturnShippingProvider, SendYourselfReturnProvider>();
+        serviceCollection.AddScoped<IReturnShippingProvider, InStoreReturnProvider>();
         serviceCollection.AddScoped<IPickupPointService, PickupPointService>();
         serviceCollection.AddScoped<IDeliveryDateService, DeliveryDateService>();
         serviceCollection.AddScoped<IWarehouseService, WarehouseService>();

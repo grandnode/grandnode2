@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
@@ -27,6 +28,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     private readonly OrderSettings _orderSettings;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IProductService _productService;
+    private readonly IReturnShippingService _returnShippingService;
     private readonly IVendorService _vendorService;
     private readonly IContextAccessor _contextAccessor;
 
@@ -40,7 +42,8 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         IVendorService vendorService,
         IMediator mediator,
         OrderSettings orderSettings,
-        ICurrencyService currencyService)
+        ICurrencyService currencyService,
+        IReturnShippingService returnShippingService)
     {
         _contextAccessor = contextAccessor;
         _merchandiseReturnService = merchandiseReturnService;
@@ -52,6 +55,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         _mediator = mediator;
         _orderSettings = orderSettings;
         _currencyService = currencyService;
+        _returnShippingService = returnShippingService;
     }
 
     public async Task<MerchandiseReturnModel> Handle(GetMerchandiseReturn request,
@@ -66,8 +70,14 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
             PickupDateRequired = _orderSettings.MerchandiseReturns_PickupDateRequired,
             //return reasons
             AvailableReturnReasons = await PrepareAvailableReturnReasons(),
-            //return actions
-            AvailableReturnActions = await PrepareAvailableReturnActions()
+            //return actions, unless the store does not ask for one
+            HideRequestedAction = _orderSettings.MerchandiseReturns_HideRequestedAction,
+            AvailableReturnActions = _orderSettings.MerchandiseReturns_HideRequestedAction
+                ? []
+                : await PrepareAvailableReturnActions(),
+            //the options themselves depend on the items chosen, so the form loads them once a quantity is chosen
+            ReturnShippingEnabled = (await _returnShippingService.LoadActiveProviders(
+                _contextAccessor.WorkContext.CurrentCustomer, request.Order.StoreId)).Any()
         };
 
         //products

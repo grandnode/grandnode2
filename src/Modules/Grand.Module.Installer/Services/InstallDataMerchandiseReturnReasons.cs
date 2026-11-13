@@ -9,7 +9,8 @@ public partial class InstallationService
         var merchandiseReturnReasons = new List<MerchandiseReturnReason> {
             new() {
                 Name = "Received Wrong Product",
-                DisplayOrder = 1
+                DisplayOrder = 1,
+                FreeReturnShipping = true
             },
             new() {
                 Name = "Wrong Product Ordered",
@@ -17,7 +18,8 @@ public partial class InstallationService
             },
             new() {
                 Name = "There Was A Problem With The Product",
-                DisplayOrder = 3
+                DisplayOrder = 3,
+                FreeReturnShipping = true
             }
         };
 

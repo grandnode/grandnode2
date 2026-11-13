@@ -5,6 +5,7 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Events;
 using Grand.Infrastructure.Tests.Caching;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -139,6 +140,32 @@ public class MerchandiseReturnServiceTests
 
         //Assert
         Assert.AreEqual("test", _repository.Table.FirstOrDefault(x => x.Id == merchandiseReturn.Id).CustomerComments);
+    }
+
+    [TestMethod]
+    public async Task UpdateMerchandiseReturnShipping_KeepsFieldsChangedInTheMeantime()
+    {
+        //Arange
+        var merchandiseReturn = new MerchandiseReturn {
+            MerchandiseReturnStatus = MerchandiseReturnStatus.Pending,
+            ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Pending }
+        };
+        await _repository.InsertAsync(merchandiseReturn);
+        var rejected = _repository.Table.First(x => x.Id == merchandiseReturn.Id);
+        rejected.MerchandiseReturnStatus = MerchandiseReturnStatus.Rejected;
+        await _repository.UpdateAsync(rejected);
+
+        //Act
+        merchandiseReturn.ReturnShipping.LabelStatus = ReturnLabelStatus.Created;
+        merchandiseReturn.ReturnShipping.TrackingNumber = "T1";
+        await _merchandiseReturnService.UpdateMerchandiseReturnShipping(merchandiseReturn);
+
+        //Assert
+        var stored = _repository.Table.First(x => x.Id == merchandiseReturn.Id);
+        Assert.AreEqual(MerchandiseReturnStatus.Rejected, stored.MerchandiseReturnStatus);
+        Assert.AreEqual(ReturnLabelStatus.Created, stored.ReturnShipping.LabelStatus);
+        Assert.AreEqual("T1", stored.ReturnShipping.TrackingNumber);
+        _mediatorMock.Verify(x => x.Publish(It.IsAny<EntityUpdated<MerchandiseReturn>>(), default), Times.Once);
     }
 
     [TestMethod]

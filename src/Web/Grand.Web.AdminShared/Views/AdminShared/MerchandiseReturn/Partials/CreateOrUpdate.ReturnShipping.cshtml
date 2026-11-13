@@ -1,0 +1,92 @@
+@model MerchandiseReturnModel
+@{
+    var shipping = Model.ReturnShipping;
+    var prefix = Scope.ResourceKeyPrefix;
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@* how the items are sent back reads as facts, as the customer chose it; the tracking number is the one
+   field, saved with the form. "Create label again" posts the form to its own action: what was typed
+   and not saved yet is not saved by it *@
+<admin-card title="@Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.Title"]">
+    <div class="grand-facts">
+        <div>
+            <div class="grand-fact__label">@shipping.MethodName</div>
+            <div class="grand-fact__value">@shipping.OptionName</div>
+        </div>
+        <div>
+            <div class="grand-fact__label">@Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.Cost"]</div>
+            <div class="grand-fact__value">@shipping.Cost</div>
+        </div>
+        @if (!string.IsNullOrEmpty(shipping.DropOffPoint))
+        {
+            <div>
+                <div class="grand-fact__label">@Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.DropOffPoint"]</div>
+                <div class="grand-fact__value">@shipping.DropOffPoint</div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(shipping.ReturnCode))
+        {
+            <div>
+                <div class="grand-fact__label">@Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.ReturnCode"]</div>
+                <div class="grand-fact__value">@shipping.ReturnCode</div>
+            </div>
+        }
+        <div>
+            <div class="grand-fact__label">@Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.LabelStatus"]</div>
+            <div class="grand-fact__value">@shipping.LabelStatus</div>
+        </div>
+    </div>
+    @if (!string.IsNullOrEmpty(shipping.LabelError))
+    {
+        @* the provider's own words: for the staff, never shown to the customer *@
+        <div class="mt-3">
+            <div class="grand-fact__label">@Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.LabelError"]</div>
+            <div class="text-danger">@shipping.LabelError</div>
+        </div>
+    }
+    @if (!string.IsNullOrEmpty(shipping.Instructions))
+    {
+        <div class="mt-3">
+            <div class="grand-fact__label">@Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.Instructions"]</div>
+            <div class="grand-fact__value">@shipping.Instructions</div>
+        </div>
+    }
+    <div class="grand-fields grand-fields--2col mt-3">
+        <admin-field asp-for="ReturnShipping.TrackingNumber">
+            @* cut to the same length on the server *@
+            <input asp-for="ReturnShipping.TrackingNumber" class="form-control" maxlength="100"/>
+        </admin-field>
+        <input asp-for="ReturnShipping.ShownTrackingNumber" type="hidden"/>
+    </div>
+    @if (shipping.HasLabel || shipping.CanRetryLabel)
+    {
+        <div class="d-flex flex-wrap gap-2 mt-3">
+            @if (shipping.HasLabel)
+            {
+                <a class="btn btn-outline-secondary" href="@Url.Action("Label", "MerchandiseReturn", new { id = Model.Id, area })">
+                    <i class="bi bi-download"></i> @Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.Label"]
+                </a>
+            }
+            @if (shipping.CanRetryLabel)
+            {
+                <button class="btn btn-outline-secondary" type="submit"
+                        formaction="@Url.Action("RetryLabel", "MerchandiseReturn", new { id = Model.Id, area })">
+                    <i class="bi bi-arrow-repeat"></i> @Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.RetryLabel"]
+                </button>
+            }
+        </div>
+    }
+</admin-card>
+@if (shipping.TrackingEvents.Count > 0)
+{
+    <admin-card title="@Loc[$"{prefix}.Orders.Shipments.ShipmentStatusEvents"]" flush>
+        @* the carrier's events travel with the page; all rows, no pager *@
+        <admin-grid id="returnshipping-events-grid"
+                    data="@shipping.TrackingEvents.Select(x => new { x.EventName, x.Location, x.Date })"
+                    pager="None">
+            <grid-column field="EventName" title="@Loc[$"{prefix}.Orders.Shipments.ShipmentStatusEvents.Event"]" width="400"/>
+            <grid-column field="Location" title="@Loc[$"{prefix}.Orders.Shipments.ShipmentStatusEvents.Location"]" width="200"/>
+            <grid-column field="Date" title="@Loc[$"{prefix}.Orders.Shipments.ShipmentStatusEvents.Date"]" width="200" format="{0:d}"/>
+        </admin-grid>
+    </admin-card>
+}

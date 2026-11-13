@@ -1,6 +1,7 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
@@ -18,6 +19,8 @@ public class MerchandiseReturnWorkflowService(
     IResourceLock resourceLock,
     IInventoryDocumentService inventoryDocumentService,
     IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
+    IReturnShippingService returnShippingService,
+    IMerchandiseReturnLabelService labelService,
     ILogger<MerchandiseReturnWorkflowService> logger) : IMerchandiseReturnWorkflowService
 {
     public async Task<MerchandiseReturnSubmitResult> Submit(MerchandiseReturnSubmitRequest request)
@@ -32,6 +35,17 @@ public class MerchandiseReturnWorkflowService(
             return result;
         }
 
+        //the return method is checked before the lock: the provider may be asked about the form the customer filled
+        //in, and no provider is called while the order's returns are held
+        var shipping = await returnShippingService.Resolve(request, request.ReturnShipping);
+        if (shipping.Errors.Count > 0)
+        {
+            foreach (var error in shipping.Errors)
+                result.ShippingErrors.Add(error);
+            return result;
+        }
+
+        var merchandiseReturns = new List<MerchandiseReturn>();
         try
         {
             //two returns submitted at the same time for one order are checked and inserted one after the other
@@ -48,25 +62,112 @@ public class MerchandiseReturnWorkflowService(
                 }
 
                 //each vendor handles the return of its own items
-                var merchandiseReturns = new List<MerchandiseReturn>();
                 foreach (var vendorItems in request.Order.OrderItems
                              .Where(orderItem => items.Any(x => x.OrderItemId == orderItem.Id))
                              .GroupBy(orderItem => orderItem.VendorId ?? ""))
                     merchandiseReturns.Add(await NewMerchandiseReturn(request, vendorItems.Key,
-                        items.Where(x => vendorItems.Any(orderItem => orderItem.Id == x.OrderItemId))));
+                        items.Where(x => vendorItems.Any(orderItem => orderItem.Id == x.OrderItemId)),
+                        shipping.ByVendor.TryGetValue(vendorItems.Key, out var vendorShipping)
+                            ? vendorShipping
+                            : null));
 
                 await InsertAllOrNone(merchandiseReturns);
-                foreach (var merchandiseReturn in merchandiseReturns)
-                    result.MerchandiseReturns.Add(merchandiseReturn);
             }
         }
         catch (ResourceLockTimeoutException ex)
         {
             logger.LogWarning(ex, "The returns of order {OrderId} stayed in use by another change", request.Order.Id);
             result.Error = MerchandiseReturnErrors.SubmitBusy;
+            return result;
         }
 
+        //the labels are created once the order's lock is let go: the label service takes it again to save, and the
+        //lock is not reentrant
+        foreach (var merchandiseReturn in merchandiseReturns)
+            result.MerchandiseReturns.Add(await WithLabel(merchandiseReturn));
+
         return result;
+    }
+
+    /// <summary>
+    ///     Creates the label of a saved return, or only its instructions; the return is saved whatever happens to its
+    ///     label, which is created again later
+    /// </summary>
+    /// <returns>the return as saved with its label, for the messages the caller sends</returns>
+    private async Task<MerchandiseReturn> WithLabel(MerchandiseReturn merchandiseReturn)
+    {
+        if (merchandiseReturn.ReturnShipping == null)
+            return merchandiseReturn;
+
+        try
+        {
+            var error = await labelService.CreateLabel(merchandiseReturn.Id);
+            if (error != null)
+                logger.LogWarning("The label of merchandise return {MerchandiseReturnId} was not created: {Error}",
+                    merchandiseReturn.Id, error);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "The label of merchandise return {MerchandiseReturnId} was not created",
+                merchandiseReturn.Id);
+        }
+
+        return await ReadAgain(merchandiseReturn);
+    }
+
+    /// <summary>
+    ///     Replaces the cancelled label of a return opened again: the old label, return code and tracking number
+    ///     belong to a parcel that is never sent. The status change stands whatever happens to the new label
+    /// </summary>
+    /// <returns>the return as saved with its new label, for the messages the caller sends</returns>
+    private async Task<MerchandiseReturn> WithNewLabel(MerchandiseReturn merchandiseReturn)
+    {
+        try
+        {
+            var error = await labelService.UpdateShipping(merchandiseReturn.Id, shipping =>
+                {
+                    shipping.LabelStatus = ReturnLabelStatus.Pending;
+                    shipping.LabelError = null;
+                    shipping.LabelDownloadId = null;
+                    shipping.TrackingNumber = null;
+                    shipping.ReturnCode = null;
+                },
+                //checked again on the return as stored: it may have been rejected or cancelled since
+                stored => stored.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending
+                          && stored.ReturnShipping.LabelStatus == ReturnLabelStatus.Cancelled);
+            if (error != null)
+            {
+                logger.LogWarning("The cancelled label of merchandise return {MerchandiseReturnId}, opened again, " +
+                                  "was not replaced: {Error}", merchandiseReturn.Id, error);
+                return await ReadAgain(merchandiseReturn);
+            }
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "The cancelled label of merchandise return {MerchandiseReturnId}, opened again, " +
+                                "was not replaced", merchandiseReturn.Id);
+            return await ReadAgain(merchandiseReturn);
+        }
+
+        return await WithLabel(merchandiseReturn);
+    }
+
+    /// <summary>
+    ///     The return as the label service saved it, for the messages; the one in memory when it cannot be read
+    /// </summary>
+    private async Task<MerchandiseReturn> ReadAgain(MerchandiseReturn merchandiseReturn)
+    {
+        try
+        {
+            return await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturn.Id) ?? merchandiseReturn;
+        }
+        catch (Exception ex)
+        {
+            //the return is saved: its messages go out without the label's change rather than not at all
+            logger.LogError(ex, "Merchandise return {MerchandiseReturnId} was not read again after its label",
+                merchandiseReturn.Id);
+            return merchandiseReturn;
+        }
     }
 
     /// <summary>
@@ -103,7 +204,7 @@ public class MerchandiseReturnWorkflowService(
     }
 
     private async Task<MerchandiseReturn> NewMerchandiseReturn(MerchandiseReturnSubmitRequest request,
-        string vendorId, IEnumerable<MerchandiseReturnSubmitItem> items)
+        string vendorId, IEnumerable<MerchandiseReturnSubmitItem> items, MerchandiseReturnShipping shipping)
     {
         var merchandiseReturn = new MerchandiseReturn {
             StoreId = request.StoreId,
@@ -115,7 +216,8 @@ public class MerchandiseReturnWorkflowService(
             CustomerComments = request.Comments,
             StaffNotes = string.Empty,
             MerchandiseReturnStatus = MerchandiseReturnStatus.Pending,
-            PickupAddress = request.PickupAddress
+            PickupAddress = request.PickupAddress,
+            ReturnShipping = Copy(shipping)
         };
         if (request.PickupDate.HasValue)
             merchandiseReturn.PickupDate = request.PickupDate.Value;
@@ -135,17 +237,43 @@ public class MerchandiseReturnWorkflowService(
                     ? reason.GetTranslation(x => x.Name, request.LanguageId)
                     : "not available",
                 ActionId = action?.Id,
-                RequestedAction = action != null
-                    ? action.GetTranslation(x => x.Name, request.LanguageId)
-                    : "not available"
+                //the action is optional: none asked for leaves it empty
+                RequestedAction = action != null ? action.GetTranslation(x => x.Name, request.LanguageId) : ""
             });
         }
 
         return merchandiseReturn;
     }
 
+    /// <summary>
+    ///     The return shipping of one return: the label and the provider's data of one vendor's parcel are never
+    ///     those of another's. The addresses and the drop-off point are built for each vendor already
+    /// </summary>
+    private static MerchandiseReturnShipping Copy(MerchandiseReturnShipping shipping)
+    {
+        if (shipping == null)
+            return null;
+
+        return new MerchandiseReturnShipping {
+            ProviderSystemName = shipping.ProviderSystemName,
+            OptionCode = shipping.OptionCode,
+            OptionName = shipping.OptionName,
+            Cost = shipping.Cost,
+            CurrencyRate = shipping.CurrencyRate,
+            DropOffPoint = shipping.DropOffPoint,
+            ReturnAddress = shipping.ReturnAddress,
+            TrackingNumber = shipping.TrackingNumber,
+            ReturnCode = shipping.ReturnCode,
+            LabelDownloadId = shipping.LabelDownloadId,
+            Instructions = shipping.Instructions,
+            LabelStatusId = shipping.LabelStatusId,
+            LabelError = shipping.LabelError,
+            ProviderData = new Dictionary<string, string>(shipping.ProviderData ?? new Dictionary<string, string>())
+        };
+    }
+
     public async Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
-        string customerNote = null)
+        string customerNote = null, string changedBy = null)
     {
         MerchandiseReturn changed = null;
         var error = await UnderOrderLock(merchandiseReturnId, async stored =>
@@ -156,6 +284,13 @@ public class MerchandiseReturnWorkflowService(
 
             stored.MerchandiseReturnStatus = status;
             await merchandiseReturnService.UpdateMerchandiseReturn(stored);
+            //for the staff: who changed the status; the note's date says when
+            await merchandiseReturnService.InsertMerchandiseReturnNote(new MerchandiseReturnNote {
+                MerchandiseReturnId = stored.Id,
+                Note = $"Merchandise return status has been changed to {status} by " +
+                       (string.IsNullOrWhiteSpace(changedBy) ? "system" : changedBy.Trim()),
+                DisplayToCustomer = false
+            });
             if (!string.IsNullOrWhiteSpace(customerNote))
                 //the status message tells the customer about the change, so the note sends none of its own
                 await merchandiseReturnService.InsertMerchandiseReturnNote(new MerchandiseReturnNote {
@@ -168,6 +303,30 @@ public class MerchandiseReturnWorkflowService(
         });
         if (error != null)
             return error;
+
+        //the goods are not sent back: the label is cancelled with the carrier once the order's lock is let go, as
+        //the label service takes it again to save; a label not cancelled leaves the status change as it is
+        if (status is MerchandiseReturnStatus.Rejected or MerchandiseReturnStatus.Cancelled
+            && changed.ReturnShipping?.LabelStatus == ReturnLabelStatus.Created)
+        {
+            try
+            {
+                await labelService.CancelLabel(changed.Id);
+            }
+            catch (Exception ex)
+            {
+                logger.LogError(ex, "The label of merchandise return {MerchandiseReturnId} was not cancelled",
+                    changed.Id);
+            }
+
+            //the message gives no link to a label that was cancelled
+            changed = await ReadAgain(changed);
+        }
+
+        //opened again after its label was cancelled: the customer gets a new one to send the goods back with
+        if (status == MerchandiseReturnStatus.Pending
+            && changed.ReturnShipping?.LabelStatus == ReturnLabelStatus.Cancelled)
+            changed = await WithNewLabel(changed);
 
         //the status is saved: a message that could not be sent is logged, the change itself did not fail
         try
@@ -217,7 +376,7 @@ public class MerchandiseReturnWorkflowService(
         });
     }
 
-    public async Task MarkReceived(string merchandiseReturnId)
+    public async Task MarkReceived(string merchandiseReturnId, string changedBy = null)
     {
         //read without the lock, which ChangeStatus takes and which is not reentrant; a status changed in between is
         //checked again under it, and such a refusal leaves the return as it is
@@ -227,8 +386,8 @@ public class MerchandiseReturnWorkflowService(
             return;
 
         //the receipt is posted already, so a refusal is not the poster's error; the return, received by its stock,
-        //can no longer be rejected and is marked received by hand
-        var error = await ChangeStatus(merchandiseReturnId, MerchandiseReturnStatus.Received);
+        //can no longer be rejected, and the panel offers Received while a posted receipt of it exists
+        var error = await ChangeStatus(merchandiseReturnId, MerchandiseReturnStatus.Received, changedBy: changedBy);
         if (error != null)
             logger.LogWarning("A return receipt of merchandise return {MerchandiseReturnId} was posted, but the " +
                               "return was not marked received: {Error}", merchandiseReturnId, error);

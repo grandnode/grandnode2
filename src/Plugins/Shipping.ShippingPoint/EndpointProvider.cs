@@ -12,6 +12,11 @@ public class EndpointProvider : IEndpointProvider
             "Plugins/SelectedShippingPoint/Points",
             new { controller = "SelectedShippingPoint", action = "Points" }
         );
+
+        endpointRouteBuilder.MapControllerRoute("Plugins.ShippingPoint.ReturnPoints",
+            "Plugins/SelectedShippingPoint/ReturnPoints",
+            new { controller = "SelectedShippingPoint", action = "ReturnPoints" }
+        );
     }
 
     public int Priority => 0;

@@ -47,6 +47,32 @@
         }
     </div>
 </admin-card>
+@if (Model.ReturnShipping != null)
+{
+    <partial name="Partials/CreateOrUpdate.ReturnShipping" model="Model"/>
+}
+@* the receipts the goods come back to stock on; one the panel cannot open is only named *@
+@if (Model.ReturnReceipts.Count > 0)
+{
+    <admin-card title="@Loc["Admin.Orders.MerchandiseReturns.ReturnReceipts"]">
+        <ul class="list-unstyled mb-0">
+            @foreach (var receipt in Model.ReturnReceipts)
+            {
+                <li>
+                    @if (receipt.CanOpen)
+                    {
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "InventoryDocument", new { area, id = receipt.Id })">@receipt.Number</a>
+                    }
+                    else
+                    {
+                        <span>@receipt.Number</span>
+                    }
+                    <span class="text-muted">(@receipt.Status)</span>
+                </li>
+            }
+        </ul>
+    </admin-card>
+}
 <admin-card flush>
     <admin-grid id="products-grid"
                 read-url="@Url.Action("ProductsForMerchandiseReturn", "MerchandiseReturn", new { merchandiseReturnId = Model.Id, area = area })"

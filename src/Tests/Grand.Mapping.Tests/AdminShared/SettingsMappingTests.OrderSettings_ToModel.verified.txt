@@ -19,5 +19,6 @@
   UserCanCancelUnpaidOrder: false,
   AllowCustomerToAddOrderNote: false,
   MerchandiseReturns_PickupDateRequired: false,
+  MerchandiseReturns_HideRequestedAction: false,
   UnpublishAuctionProduct: false
 }

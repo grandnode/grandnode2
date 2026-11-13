@@ -1,3 +1,4 @@
+using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Extensions;
@@ -57,11 +58,34 @@ public static class MerchandiseReturnExtensions
     }
 
     /// <summary>
+    ///     How the staff note of a status change names the staff member who made it: the e-mail, else the full name,
+    ///     else the customer id; null when no one did, and the note says the system
+    /// </summary>
+    public static string StatusChangedBy(this Customer staff)
+    {
+        if (staff == null)
+            return null;
+        if (!string.IsNullOrWhiteSpace(staff.Email))
+            return staff.Email;
+
+        var fullName = staff.GetFullName();
+        return !string.IsNullOrWhiteSpace(fullName) ? fullName : $"staff ({staff.Id})";
+    }
+
+    /// <summary>
     ///     The IResourceLock key held while a merchandise return of the order is checked against the quantity left to
     ///     return and saved
     /// </summary>
     public static string QuantityLockKey(string orderId)
     {
         return $"{nameof(MerchandiseReturn)}:{orderId}";
+    }
+
+    /// <summary>
+    ///     The IResourceLock key held while the return label of a merchandise return is requested from the provider
+    /// </summary>
+    public static string LabelLockKey(string merchandiseReturnId)
+    {
+        return $"{nameof(MerchandiseReturn)}:label:{merchandiseReturnId}";
     }
 }

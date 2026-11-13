@@ -706,6 +706,26 @@ public class EndpointProvider : IEndpointProvider
         endpointRouteBuilder.MapControllerRoute("MerchandiseReturnDetails",
             pattern + "merchandisereturndetails/{merchandiseReturnId}",
             new { controller = "MerchandiseReturn", action = "MerchandiseReturnDetails" });
+
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnShippingOffers",
+            pattern + "merchandisereturnshippingoffers/{orderId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnShippingOffers" });
+
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnLabel",
+            pattern + "merchandisereturnlabel/{merchandiseReturnId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnLabel" });
+
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnTrackingNumber",
+            pattern + "merchandisereturntrackingnumber/{merchandiseReturnId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnTrackingNumber" });
+
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnRetryLabel",
+            pattern + "merchandisereturnretrylabel/{merchandiseReturnId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnRetryLabel" });
+
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnInStorePoints",
+            pattern + "merchandisereturninstorepoints",
+            new { controller = "MerchandiseReturn", action = "InStoreReturnPoints" });
     }
 
     private void RegisterDownloadRoute(IEndpointRouteBuilder endpointRouteBuilder, string pattern)

@@ -43,6 +43,10 @@
         }
     </div>
 </admin-card>
+@if (Model.ReturnShipping != null)
+{
+    <partial name="Partials/CreateOrUpdate.ReturnShipping" model="Model"/>
+}
 <admin-card flush>
     <admin-grid id="products-grid"
                 read-url="@Url.Action("ProductsForMerchandiseReturn", "MerchandiseReturn", new { merchandiseReturnId = Model.Id, area = Constants.AreaVendor })"

@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Extensions;
@@ -29,6 +30,19 @@ public abstract class BaseMerchandiseReturnController(
     protected IMerchandiseReturnService MerchandiseReturnService => merchandiseReturnService;
     protected IOrderService OrderService => orderService;
     protected IAdminDataScope<MerchandiseReturn> Scope => scope;
+
+    /// <summary>
+    ///     Whether the panel has inventory documents: the return's receipts are listed and "Receive to stock" is
+    ///     offered while something is left to receive
+    /// </summary>
+    protected virtual bool HasInventoryDocuments => true;
+
+    private async Task PrepareEditModel(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn)
+    {
+        await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
+        if (HasInventoryDocuments)
+            await MerchandiseReturnViewModelService.PrepareReturnReceipts(model);
+    }
 
     #region List
 
@@ -106,7 +120,7 @@ public abstract class BaseMerchandiseReturnController(
         if (!await Scope.CanView(merchandiseReturn)) return RedirectToAction("List");
 
         var model = new MerchandiseReturnModel();
-        await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
+        await PrepareEditModel(model, merchandiseReturn);
         return View(model);
     }
 
@@ -154,8 +168,56 @@ public abstract class BaseMerchandiseReturnController(
             merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(model.Id) ?? merchandiseReturn;
         }
 
-        await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
+        await PrepareEditModel(model, merchandiseReturn);
         return View(model);
+    }
+
+    #endregion
+
+    #region Return method
+
+    /// <summary>
+    ///     The label of the return, to print and stick on the parcel
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Preview)]
+    public async Task<IActionResult> Label(string id, [FromServices] IDownloadService downloadService)
+    {
+        var merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(id);
+        if (merchandiseReturn == null) return RedirectToAction("List");
+        if (!await Scope.CanView(merchandiseReturn)) return RedirectToAction("List");
+
+        var shipping = merchandiseReturn.ReturnShipping;
+        if (shipping?.LabelStatus != ReturnLabelStatus.Created || string.IsNullOrEmpty(shipping.LabelDownloadId))
+            return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
+
+        var download = await downloadService.GetDownloadById(shipping.LabelDownloadId);
+        if (download?.DownloadBinary == null)
+            return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
+
+        return File(download.DownloadBinary,
+            string.IsNullOrEmpty(download.ContentType) ? "application/octet-stream" : download.ContentType,
+            download.Filename + download.Extension);
+    }
+
+    /// <summary>
+    ///     Asks the provider again for a label it has not created; the label service takes the label's lock, so a
+    ///     double click or the customer's retry at the same time buys one label only
+    /// </summary>
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    [HttpPost]
+    public async Task<IActionResult> RetryLabel(string id,
+        [FromServices] IMerchandiseReturnLabelService merchandiseReturnLabelService)
+    {
+        var merchandiseReturn = await MerchandiseReturnService.GetMerchandiseReturnById(id);
+        if (merchandiseReturn == null) return RedirectToAction("List");
+        if (!await Scope.HasAccess(merchandiseReturn)) return RedirectToAction("List");
+
+        var error = await merchandiseReturnLabelService.CreateLabel(merchandiseReturn.Id);
+        if (error != null)
+            Error(TranslationService.GetResource($"{Scope.ResourceKeyPrefix}.{error}"));
+
+        //a label the provider failed again is shown on the return, with the provider's error
+        return RedirectToAction("Edit", new { id = merchandiseReturn.Id });
     }
 
     #endregion

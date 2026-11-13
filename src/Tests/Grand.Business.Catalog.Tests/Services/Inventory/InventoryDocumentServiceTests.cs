@@ -124,6 +124,61 @@ public class InventoryDocumentServiceTests
     }
 
     [TestMethod]
+    public async Task GetReturnReceipts_NothingReceived_QuantityLeftAndNoReceipts()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var result = await _service.GetReturnReceipts(merchandiseReturn.Id);
+
+        Assert.IsTrue(result.QuantityLeft);
+        Assert.AreEqual(0, result.Receipts.Count);
+    }
+
+    [TestMethod]
+    public async Task GetReturnReceipts_DraftCoversAll_NoQuantityLeftAndDraftListed()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (draft, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+
+        var result = await _service.GetReturnReceipts(merchandiseReturn.Id);
+
+        Assert.IsFalse(result.QuantityLeft);
+        var receipt = result.Receipts.Single();
+        Assert.AreEqual(draft.Id, receipt.Id);
+        Assert.AreEqual(draft.Number, receipt.Number);
+        Assert.AreEqual(InventoryDocumentStatus.Draft, receipt.Status);
+        Assert.AreEqual("w1", receipt.WarehouseId);
+    }
+
+    [TestMethod]
+    public async Task GetReturnReceipts_DraftCoversPart_QuantityLeft()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var (draft, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+        draft.Lines.Single().Quantity = 1;
+        await _service.UpdateDraft(draft);
+
+        var result = await _service.GetReturnReceipts(merchandiseReturn.Id);
+
+        Assert.IsTrue(result.QuantityLeft);
+        Assert.AreEqual(1, result.Receipts.Count);
+    }
+
+    [TestMethod]
+    public async Task GetReturnReceipts_RejectedReturn_NoQuantityLeft()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product, MerchandiseReturnStatus.Rejected);
+
+        var result = await _service.GetReturnReceipts(merchandiseReturn.Id);
+
+        Assert.IsFalse(result.QuantityLeft);
+    }
+
+    [TestMethod]
     public async Task CreateReturnReceipt_PrefillsLinesAndWarehouse()
     {
         var product = await Product();

@@ -54,6 +54,13 @@ public interface IMerchandiseReturnService
     Task UpdateMerchandiseReturn(MerchandiseReturn merchandiseReturn);
 
     /// <summary>
+    ///     Saves only the return shipping of the merchandise return, so a change of its other fields saved in the
+    ///     meantime is kept
+    /// </summary>
+    /// <param name="merchandiseReturn">Merchandise return</param>
+    Task UpdateMerchandiseReturnShipping(MerchandiseReturn merchandiseReturn);
+
+    /// <summary>
     ///     Deletes a merchandise return
     /// </summary>
     /// <param name="merchandiseReturn">Merchandise return</param>

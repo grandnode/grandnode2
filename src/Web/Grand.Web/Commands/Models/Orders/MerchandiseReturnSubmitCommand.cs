@@ -11,4 +11,10 @@ public class MerchandiseReturnSubmitCommand : IRequest<MerchandiseReturnSubmitRe
     public MerchandiseReturnModel Model { get; set; }
     public Order Order { get; set; }
     public Address Address { get; set; }
+
+    /// <summary>
+    ///     The fields posted with the form; those of the chosen return method's form go under the "returnshipping."
+    ///     prefix
+    /// </summary>
+    public IDictionary<string, string> Form { get; set; } = new Dictionary<string, string>();
 }

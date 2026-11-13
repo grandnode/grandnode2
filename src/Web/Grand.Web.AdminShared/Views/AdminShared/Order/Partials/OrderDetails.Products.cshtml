@@ -8,10 +8,10 @@
     var hasCommission = Model.Items.Sum(x => x.CommissionValue) > 0;
     //the server refuses every order item edit of a canceled order (BaseOrderManagementController)
     var orderCanceled = Model.OrderStatusId == (int)OrderStatusSystem.Cancelled;
-    //items whose extra actions need more than one row cell: returns, gift vouchers, downloads
+    //items whose extra actions need more than one row cell: gift vouchers, downloads (the returns are listed
+    //under the shipments)
     var itemsWithExtras = Model.Items
-        .Where(x => x.MerchandiseReturnIds.Count > 0 || x.PurchasedGiftVoucherIds.Count > 0 ||
-                    (Model.HasDownloadableProducts && x.IsDownload))
+        .Where(x => x.PurchasedGiftVoucherIds.Count > 0 || (Model.HasDownloadableProducts && x.IsDownload))
         .ToList();
 
     //the resources below ship with 2.4; an installation that has not imported them yet
@@ -134,20 +134,6 @@
     @foreach (var item in itemsWithExtras)
     {
         <admin-card title="@item.ProductName">
-            @if (item.MerchandiseReturnIds.Count > 0)
-            {
-                <p>
-                    @Loc["Admin.Orders.Products.MerchandiseReturns"]<text>:</text>
-                    @for (var i = 0; i < item.MerchandiseReturnIds.Count; i++)
-                    {
-                        <a href="@Url.Action("Edit", "MerchandiseReturn", new { id = item.MerchandiseReturnIds[i], area = area })" class="btn btn-outline-secondary btn-sm"><i class="bi bi-eye"></i> @Loc["Admin.Orders.MerchandiseReturns.View"]</a>
-                        if (i != item.MerchandiseReturnIds.Count - 1)
-                        {
-                            <text>,</text>
-                        }
-                    }
-                </p>
-            }
             @if (item.PurchasedGiftVoucherIds.Count > 0)
             {
                 <p>

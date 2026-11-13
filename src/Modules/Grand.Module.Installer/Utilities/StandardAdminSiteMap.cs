@@ -812,6 +812,15 @@ public static class StandardAdminSiteMap
                             DisplayOrder = 0,
                             IconClass = "bi bi-record-circle"
                         },
+                        //shares the providers' display order: the menu's ordering is stable, so it follows them
+                        new() {
+                            SystemName = "Return methods",
+                            ResourceName = "Admin.Configuration.Shipping.ReturnMethods",
+                            ControllerName = "ReturnShipping",
+                            ActionName = "Providers",
+                            DisplayOrder = 0,
+                            IconClass = "bi bi-record-circle"
+                        },
                         new() {
                             SystemName = "Shipping methods",
                             ResourceName = "Admin.Configuration.Shipping.Methods",

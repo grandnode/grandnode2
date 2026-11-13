@@ -91,4 +91,9 @@ public class MerchandiseReturn : BaseEntity
     ///     Gets or sets the pickup address
     /// </summary>
     public Address PickupAddress { get; set; }
+
+    /// <summary>
+    ///     Gets or sets how the items are sent back; null when no return shipping was chosen
+    /// </summary>
+    public MerchandiseReturnShipping ReturnShipping { get; set; }
 }

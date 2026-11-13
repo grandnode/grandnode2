@@ -67,10 +67,11 @@ public class OrderViewModelServiceApprovalTests
             new Mock<IStoreService>().Object, new Mock<IVendorService>().Object,
             new Mock<ISalesEmployeeService>().Object, new Mock<IAddressAttributeParser>().Object,
             new Mock<IAffiliateService>().Object, new Mock<IPictureService>().Object,
-            new Mock<IMerchandiseReturnService>().Object, new Mock<ICustomerService>().Object,
+            new Mock<ICustomerService>().Object,
             new Mock<IWarehouseService>().Object, new CurrencySettings(), new TaxSettings(), new AddressSettings(),
             new Mock<IOrderTagService>().Object, new Mock<IOrderStatusService>().Object, new Mock<IMediator>().Object,
-            enums.Object, _scope.Object, approvals.Object, new Mock<IShipmentService>().Object);
+            enums.Object, _scope.Object, approvals.Object, new Mock<IShipmentService>().Object,
+            new Mock<IAdminDataScope<MerchandiseReturn>>().Object);
     }
 
     private async Task<OrderModel> Details()

@@ -34,4 +34,9 @@ public class MerchandiseReturnReason : BaseEntity, ITranslationEntity, IStoreLin
     /// </summary>
     [AuditReference(typeof(Store))]
     public IList<string> Stores { get; set; } = new List<string>();
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether a return for this reason is shipped at no cost to the customer
+    /// </summary>
+    public bool FreeReturnShipping { get; set; }
 }

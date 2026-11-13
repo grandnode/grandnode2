@@ -39,6 +39,13 @@ public class ShippingPointRatePlugin(
         await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.ChooseShippingPoint", "Choose Shipping Point");
         await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.SelectBeforeProceed", "Select Shipping Option Before Proceed");
 
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Return.FriendlyName", "Shipping Point returns");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Return.OptionName", "Drop off at a pickup point");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Return.ChoosePoint", "Choose a point.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Return.Instructions", "Bring the parcel with code {0} to {1}.");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.AcceptsReturns", "Accepts returns");
+        await pluginTranslateResource.AddOrUpdatePluginTranslateResource("Shipping.ShippingPoint.Fields.ReturnFee", "Return fee");
+
         await base.Install();
     }
 
@@ -68,6 +75,13 @@ public class ShippingPointRatePlugin(
         await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.ShippingPointName");
         await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Address");
         await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.MethodAndFee");
+
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Return.FriendlyName");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Return.OptionName");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Return.ChoosePoint");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Return.Instructions");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.AcceptsReturns");
+        await pluginTranslateResource.DeletePluginTranslationResource("Shipping.ShippingPoint.Fields.ReturnFee");
 
         await base.Uninstall();
     }

@@ -17,12 +17,15 @@ public interface IMerchandiseReturnWorkflowService
     Task<MerchandiseReturnSubmitResult> Submit(MerchandiseReturnSubmitRequest request);
 
     /// <summary>
-    ///     Changes the status along the allowed flow and sends the customer the status changed message
+    ///     Changes the status along the allowed flow, notes for the staff who changed it, and sends the customer the
+    ///     status changed message
     /// </summary>
     /// <param name="merchandiseReturnId">Merchandise return identifier</param>
     /// <param name="status">The new status</param>
     /// <param name="customerNote">A note shown to the customer with the change, e.g. why the return was rejected</param>
-    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string customerNote = null);
+    /// <param name="changedBy">Who changed it, as the staff note names them (e.g. the e-mail); null for the system</param>
+    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string customerNote = null,
+        string changedBy = null);
 
     /// <summary>
     ///     Saves the fields set by apply; the status stays as stored, it changes only through ChangeStatus
@@ -38,5 +41,7 @@ public interface IMerchandiseReturnWorkflowService
     ///     A return receipt of the return was posted: a pending or accepted return becomes received, any other one
     ///     stays as it is
     /// </summary>
-    Task MarkReceived(string merchandiseReturnId);
+    /// <param name="merchandiseReturnId">Merchandise return identifier</param>
+    /// <param name="changedBy">Who posted the receipt, as the staff note names them; null for the system</param>
+    Task MarkReceived(string merchandiseReturnId, string changedBy = null);
 }

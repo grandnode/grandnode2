@@ -200,6 +200,104 @@
                 </div>
             }
 
+            @if (Model.ReturnShipping != null)
+            {
+                var shipping = Model.ReturnShipping;
+                <div class="card mt-3 return-shipping">
+                    <div class="card-body">
+                        <h5 class="generalTitle">@Loc["MerchandiseReturns.ReturnShipping.Title"]</h5>
+                        <ul class="list-unstyled mb-0">
+                            <li class="method fw-bold">@shipping.MethodName</li>
+                            <li class="cost">
+                                <label>@Loc["MerchandiseReturns.ReturnShipping.Cost"]:</label>
+                                <span>@shipping.Cost</span>
+                            </li>
+                            @if (!string.IsNullOrEmpty(shipping.DropOffPointName))
+                            {
+                                <li class="drop-off-point mt-2">
+                                    <label>@Loc["MerchandiseReturns.ReturnShipping.DropOffPoint"]:</label>
+                                    <span class="name">@shipping.DropOffPointName</span>
+                                    @if (!string.IsNullOrEmpty(shipping.DropOffPointAddress))
+                                    {
+                                        <span class="address d-block text-muted">@shipping.DropOffPointAddress</span>
+                                    }
+                                    @if (!string.IsNullOrEmpty(shipping.DropOffPointOpeningHours))
+                                    {
+                                        <span class="opening-hours d-block text-muted">@shipping.DropOffPointOpeningHours</span>
+                                    }
+                                </li>
+                            }
+                            @if (!string.IsNullOrEmpty(shipping.Instructions))
+                            {
+                                <li class="instructions mt-2">@shipping.Instructions</li>
+                            }
+                            @if (!string.IsNullOrEmpty(shipping.ReturnCode))
+                            {
+                                <li class="return-code mt-2">
+                                    <label>@Loc["MerchandiseReturns.ReturnShipping.ReturnCode"]:</label>
+                                    <strong>@shipping.ReturnCode</strong>
+                                </li>
+                            }
+                            @if (shipping.HasLabel)
+                            {
+                                <li class="label mt-2">
+                                    <a class="btn btn-sm btn-outline-info" href="@Url.RouteUrl("MerchandiseReturnLabel", new { merchandiseReturnId = Model.MerchandiseReturnId })">
+                                        <i class="bi bi-download" aria-hidden="true"></i>
+                                        @Loc["MerchandiseReturns.ReturnShipping.DownloadLabel"]
+                                    </a>
+                                </li>
+                            }
+                            else if (shipping.LabelPending)
+                            {
+                                <li class="label-pending mt-2">
+                                    <span class="text-muted">@Loc["MerchandiseReturns.ReturnShipping.LabelPending"]</span>
+                                    @if (shipping.CanRetryLabel)
+                                    {
+                                        <form asp-route="MerchandiseReturnRetryLabel" asp-route-merchandiseReturnId="@Model.MerchandiseReturnId" method="post" class="d-inline ms-2">
+                                            <button type="submit" class="btn btn-sm btn-outline-secondary">@Loc["MerchandiseReturns.ReturnShipping.RetryLabel"]</button>
+                                        </form>
+                                    }
+                                </li>
+                            }
+                            @if (shipping.CanEnterTrackingNumber)
+                            {
+                                <li class="tracking-number mt-2">
+                                    <form asp-route="MerchandiseReturnTrackingNumber" asp-route-merchandiseReturnId="@Model.MerchandiseReturnId" method="post" class="d-flex flex-wrap align-items-center gap-2">
+                                        <label for="trackingNumber" class="mb-0">@Loc["MerchandiseReturns.ReturnShipping.TrackingNumber"]:</label>
+                                        <input type="text" id="trackingNumber" name="trackingNumber" maxlength="100" class="form-control form-control-sm w-auto" value="@shipping.TrackingNumber"/>
+                                        <button type="submit" class="btn btn-sm btn-secondary">@Loc["MerchandiseReturns.ReturnShipping.SaveTrackingNumber"]</button>
+                                    </form>
+                                </li>
+                            }
+                            else if (!string.IsNullOrEmpty(shipping.TrackingNumber))
+                            {
+                                <li class="tracking-number mt-2">
+                                    <label>@Loc["MerchandiseReturns.ReturnShipping.TrackingNumber"]:</label>
+                                    <span>@shipping.TrackingNumber</span>
+                                </li>
+                            }
+                        </ul>
+                        @if (shipping.TrackingEvents.Any())
+                        {
+                            <div class="table-responsive mt-2">
+                                <table class="table table-sm tracking-events">
+                                    <tbody>
+                                    @foreach (var trackingEvent in shipping.TrackingEvents)
+                                    {
+                                        <tr>
+                                            <td class="date">@(trackingEvent.Date?.ToString(CultureInfo.InvariantCulture))</td>
+                                            <td class="event">@trackingEvent.EventName</td>
+                                            <td class="location">@trackingEvent.Location</td>
+                                        </tr>
+                                    }
+                                    </tbody>
+                                </table>
+                            </div>
+                        }
+                    </div>
+                </div>
+            }
+
             @if (Model.MerchandiseReturnNotes.Any())
             {
                 <div class="merchandisereturn-notes">

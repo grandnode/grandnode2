@@ -53,7 +53,10 @@ public class LiquidMerchandiseReturn : Drop
 
     public DateTime CreatedOnUtc => _merchandiseReturn.CreatedOnUtc;
 
-    public string PickupDate => _merchandiseReturn.PickupDate.ToShortDateString();
+    //a return without a pickup date has none, not 01/01/0001
+    public string PickupDate => _merchandiseReturn.PickupDate == default
+        ? ""
+        : _merchandiseReturn.PickupDate.ToShortDateString();
 
     public DateTime PickupDateUtc => _merchandiseReturn.PickupDate;
 
@@ -87,6 +90,20 @@ public class LiquidMerchandiseReturn : Drop
 
     public string MerchandiseReturnNoteAttachmentUrl =>
         $"{url}/download/merchandisereturnnotefile/{_merchandiseReturnNote?.Id}";
+
+    public string ReturnMethod { get; set; } = "";
+
+    public string ReturnCost { get; set; } = "";
+
+    public string ReturnTrackingNumber { get; set; } = "";
+
+    public string ReturnCode { get; set; } = "";
+
+    public string ReturnInstructions { get; set; } = "";
+
+    internal bool HasReturnLabel { get; set; }
+
+    public string ReturnLabelUrl => HasReturnLabel ? $"{url}/merchandisereturndetails/{_merchandiseReturn.Id}" : "";
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

@@ -28,6 +28,26 @@ public sealed record InventoryDocumentSearch
 }
 
 /// <summary>
+///     A return receipt of a merchandise return, as the return lists it
+/// </summary>
+/// <param name="StoreId">The store of the receipt's warehouse</param>
+/// <param name="WarehouseId">The warehouse the goods are received to; empty while the draft names none</param>
+public sealed record ReturnReceiptSummary(
+    string Id,
+    string Number,
+    InventoryDocumentStatus Status,
+    string StoreId,
+    string WarehouseId);
+
+/// <summary>
+///     The return receipts of a merchandise return, posted or draft, oldest first
+/// </summary>
+/// <param name="QuantityLeft">
+///     Whether some of what the return gives back is on none of them yet, so another receipt can be created
+/// </param>
+public sealed record MerchandiseReturnReceipts(IList<ReturnReceiptSummary> Receipts, bool QuantityLeft);
+
+/// <summary>
 ///     Inventory documents: drafts that are edited freely, and posting, which books their stock and freezes them
 /// </summary>
 public interface IInventoryDocumentService
@@ -78,6 +98,12 @@ public interface IInventoryDocumentService
     /// <returns>The draft, or null and the keys of the errors</returns>
     Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(string merchandiseReturnId,
         string customerId);
+
+    /// <summary>
+    ///     The return receipts of a merchandise return, and whether CreateReturnReceipt has anything left to put on a
+    ///     new one
+    /// </summary>
+    Task<MerchandiseReturnReceipts> GetReturnReceipts(string merchandiseReturnId);
 
     /// <summary>
     ///     Whether goods of the merchandise return came in: a return receipt of it is posted, or a posting of one

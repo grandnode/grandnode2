@@ -1,9 +1,13 @@
 ﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
+using Grand.Domain.Orders;
 using Grand.Mediator;
+using Grand.SharedKernel.Extensions;
 
 namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
@@ -12,12 +16,21 @@ public class
     LiquidMerchandiseReturn>
 {
     private readonly ICountryService _countryService;
+    private readonly ICurrencyService _currencyService;
+    private readonly IPriceFormatter _priceFormatter;
     private readonly IProductService _productService;
+    private readonly ITranslationService _translationService;
 
     public GetMerchandiseReturnTokensCommandHandler(
         ICountryService countryService,
-        IProductService productService)
+        IProductService productService,
+        ICurrencyService currencyService,
+        IPriceFormatter priceFormatter,
+        ITranslationService translationService)
     {
+        _translationService = translationService;
+        _currencyService = currencyService;
+        _priceFormatter = priceFormatter;
         _countryService = countryService;
         _productService = productService;
     }
@@ -43,6 +56,28 @@ public class
             !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress.CountryId)
                 ? country?.GetTranslation(x => x.Name, request.Language.Id)
                 : "";
+
+        var shipping = request.MerchandiseReturn.ReturnShipping;
+        if (shipping != null)
+        {
+            var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
+            //texts the customer, the staff or a provider wrote go into the HTML of the message encoded, as the
+            //customer's comment does
+            liquidMerchandiseReturn.ReturnMethod = FormatText.ConvertText(shipping.OptionName);
+            //"Free" as the customer reads it on the storefront, in the language of the message
+            liquidMerchandiseReturn.ReturnCost = shipping.Cost > 0
+                ? _priceFormatter.FormatPrice(shipping.Cost * shipping.CurrencyRate, currency)
+                : _translationService.GetResource("MerchandiseReturns.ReturnShipping.Free", request.Language.Id);
+            liquidMerchandiseReturn.ReturnTrackingNumber = FormatText.ConvertText(shipping.TrackingNumber);
+            //how to send the parcel back, as the storefront shows it: not once the return is rejected, cancelled or
+            //received, nor with a label that was cancelled
+            if (request.MerchandiseReturn.CustomerSendsBack())
+            {
+                liquidMerchandiseReturn.ReturnCode = FormatText.ConvertText(shipping.ReturnCode);
+                liquidMerchandiseReturn.ReturnInstructions = FormatText.ConvertText(shipping.Instructions);
+                liquidMerchandiseReturn.HasReturnLabel = shipping.LabelStatus == ReturnLabelStatus.Created;
+            }
+        }
 
         foreach (var merchandiseReturnItem in request.MerchandiseReturn.MerchandiseReturnItems)
         {

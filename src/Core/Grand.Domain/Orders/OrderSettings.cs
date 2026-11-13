@@ -81,6 +81,12 @@ public class OrderSettings : ISettings
     public bool MerchandiseReturns_PickupDateRequired { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether the merchandise return form leaves out the requested action; the
+    ///     default shows it, also for a stored settings row without the field
+    /// </summary>
+    public bool MerchandiseReturns_HideRequestedAction { get; set; }
+
+    /// <summary>
     ///     Gets or sets a number of days that the Merchandise Return Link will be available for customers after order placing.
     /// </summary>
     public int NumberOfDaysMerchandiseReturnAvailable { get; set; }
@@ -91,8 +97,8 @@ public class OrderSettings : ISettings
     public MerchandiseReturnPeriodStart MerchandiseReturnPeriodStart { get; set; }
 
     /// <summary>
-    ///     Gets or sets who pays for a merchandise return. Optional - informational only, published in the
-    ///     store's structured data (MerchantReturnPolicy.returnFees); nothing in checkout enforces it
+    ///     Gets or sets who pays for a merchandise return. Optional - published in the store's structured data
+    ///     (MerchantReturnPolicy.returnFees). Free makes every return method cost the customer nothing
     /// </summary>
     public MerchandiseReturnFees MerchandiseReturnFees { get; set; }
 

@@ -20,6 +20,12 @@ public interface IMerchandiseReturnViewModelService
         string merchandiseReturnId);
 
     /// <summary>
+    ///     The return receipts of the return and whether "Receive to stock" is offered; only for a panel with
+    ///     inventory documents, as it reads the panel's warehouses
+    /// </summary>
+    Task PrepareReturnReceipts(MerchandiseReturnModel model);
+
+    /// <summary>
     ///     Saves the edit form, then changes the status when a status button posted it (ChangeStatusTo). Error is
     ///     why the form or the status was not saved, as a resource key without the panel's prefix
     /// </summary>

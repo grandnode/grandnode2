@@ -65,4 +65,43 @@ else
     <div class="note note-info">@Loc[$"{prefix}.Orders.ShippingInfo.NotRequired"]</div>
 }
 
+@* what came back of the order, in the panel's scope; the number opens the return in this panel *@
+@if (Model.MerchandiseReturns.Count > 0 && await permissionService.Authorize(PermissionSystemName.MerchandiseReturns))
+{
+    <div class="grand-card">
+        <div class="grand-card__header">
+            <h2 class="grand-card__title">@Loc[$"{prefix}.Orders.MerchandiseReturns"]</h2>
+        </div>
+        <div class="grand-card__body grand-card__body--flush">
+            <div class="table-responsive">
+                <table class="table mb-0" id="order-merchandise-returns">
+                    <thead>
+                    <tr>
+                        <th>@Loc[$"{prefix}.Orders.MerchandiseReturns.Fields.ID"]</th>
+                        <th>@Loc[$"{prefix}.Orders.MerchandiseReturns.Fields.CreatedOn"]</th>
+                        <th>@Loc[$"{prefix}.Orders.MerchandiseReturns.Fields.Status"]</th>
+                        <th>@Loc[$"{prefix}.Orders.MerchandiseReturns.ReturnShipping.Title"]</th>
+                        <th>@Loc[$"{prefix}.Orders.MerchandiseReturns.Fields.Quantity"]</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @foreach (var merchandiseReturn in Model.MerchandiseReturns)
+                    {
+                        <tr>
+                            <td>
+                                <a class="text-decoration-none" href="@Url.Action("Edit", "MerchandiseReturn", new { id = merchandiseReturn.Id, area = area })">@merchandiseReturn.ReturnNumber</a>
+                            </td>
+                            <td>@merchandiseReturn.CreatedOn.ToString("G")</td>
+                            <td>@merchandiseReturn.Status</td>
+                            <td>@merchandiseReturn.ReturnMethod</td>
+                            <td>@merchandiseReturn.Quantity</td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+}
+
 <partial name="Partials/WidgetZone.Shipment.AddressBottom" model="Model"/>

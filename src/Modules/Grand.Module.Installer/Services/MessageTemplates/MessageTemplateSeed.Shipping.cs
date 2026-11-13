@@ -81,7 +81,9 @@ public static partial class MessageTemplateSeed
                 <p>We've received your merchandise return request. Here is a summary.</p>
                 <table role='presentation' style='width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0 16px 0;'>
                 <tr><td style='padding: 4px 0; color: #71717a;'>Request ID</td><td style='padding: 4px 0; text-align: right;'><strong>{{MerchandiseReturn.ReturnNumber}}</strong></td></tr>
+                {% if MerchandiseReturn.PickupDate != '' %}
                 <tr><td style='padding: 4px 0; color: #71717a;'>Pickup date</td><td style='padding: 4px 0; text-align: right;'>{{MerchandiseReturn.PickupDate}}</td></tr>
+                {% endif %}
                 </table>
                 {% if MerchandiseReturn.CustomerComment != null and MerchandiseReturn.CustomerComment != '' %}
                 <p><strong>Your comments</strong><br />
@@ -107,7 +109,9 @@ public static partial class MessageTemplateSeed
                         @"<p>{{Customer.FullName}} has just submitted a new merchandise return. Details are below.</p>
                 <table role='presentation' style='width: 100%; border-collapse: collapse; font-size: 14px; margin: 8px 0 16px 0;'>
                 <tr><td style='padding: 4px 0; color: #71717a;'>Request ID</td><td style='padding: 4px 0; text-align: right;'><strong>{{MerchandiseReturn.ReturnNumber}}</strong></td></tr>
+                {% if MerchandiseReturn.PickupDate != '' %}
                 <tr><td style='padding: 4px 0; color: #71717a;'>Pickup date</td><td style='padding: 4px 0; text-align: right;'>{{MerchandiseReturn.PickupDate}}</td></tr>
+                {% endif %}
                 </table>
                 {% if MerchandiseReturn.CustomerComment != null and MerchandiseReturn.CustomerComment != '' %}
                 <p><strong>Customer comments</strong><br />
