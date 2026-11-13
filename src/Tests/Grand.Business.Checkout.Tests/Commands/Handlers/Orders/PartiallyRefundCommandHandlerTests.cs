@@ -85,6 +85,27 @@ public class PartiallyRefundCommandHandlerTests
     }
 
     [TestMethod]
+    [DataRow(30, TransactionStatus.PartiallyRefunded)]
+    [DataRow(90, TransactionStatus.Refunded)]
+    public async Task Handle_ProviderGivesNoStatus_TransactionTakesTheOneItsRefundedAmountComesTo(double amount,
+        TransactionStatus status)
+    {
+        //left pending, the transaction could not be refunded again
+        var transaction = new PaymentTransaction {
+            Id = "t1", TransactionAmount = 100, RefundedAmount = 10, TransactionStatus = TransactionStatus.Paid
+        };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyRefundQuery>(), default)).ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order { OrderTotal = 100 });
+        _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).ReturnsAsync(new RefundPaymentResult());
+        _paymentTransactionMock.Setup(x => x.GetById("t1")).ReturnsAsync(transaction);
+
+        await _handler.Handle(new PartiallyRefundCommand { PaymentTransaction = transaction, AmountToRefund = amount },
+            CancellationToken.None);
+
+        Assert.AreEqual(status, transaction.TransactionStatus);
+    }
+
+    [TestMethod]
     public async Task Handle_LastPartOfTheTotal_OrderRefunded()
     {
         var order = new Order { OrderTotal = 100, RefundedAmount = 70 };

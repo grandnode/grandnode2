@@ -68,8 +68,14 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
             if (result.Success)
             {
                 paymentTransaction = await _paymentTransactionService.GetById(paymentTransaction.Id);
-                paymentTransaction.TransactionStatus = result.NewTransactionStatus;
                 paymentTransaction.RefundedAmount += amountToRefund;
+                //a provider that gives no status leaves the one the refunded amount comes to, as the offline partial
+                //refund sets it: a transaction left pending could not be refunded again
+                paymentTransaction.TransactionStatus = result.NewTransactionStatus != TransactionStatus.Pending
+                    ? result.NewTransactionStatus
+                    : paymentTransaction.RefundedAmount >= paymentTransaction.TransactionAmount
+                        ? TransactionStatus.Refunded
+                        : TransactionStatus.PartiallyRefunded;
                 await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
                 var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
