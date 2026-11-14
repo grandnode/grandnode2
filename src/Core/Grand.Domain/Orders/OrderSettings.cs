@@ -93,6 +93,12 @@ public class OrderSettings : ISettings
     public bool MerchandiseReturns_AllowToUploadFiles { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether a customer who ordered without an account may ask for a link to the
+    ///     order's e-mail address and return items with it. Off by default: the store decides to send such links
+    /// </summary>
+    public bool MerchandiseReturns_AllowGuestReturns { get; set; }
+
+    /// <summary>
     ///     Gets or sets a number of days that the Merchandise Return Link will be available for customers after order placing.
     /// </summary>
     public int NumberOfDaysMerchandiseReturnAvailable { get; set; }

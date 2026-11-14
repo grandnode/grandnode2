@@ -2241,4 +2241,16 @@
 	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowToUploadFiles.Hint" Area="Admin">
 		<Value>Customers add photos of the items they return, and an image to their messages about a return. Off, the store takes no files with returns and no reason asks for a photo.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowGuestReturns" Area="Admin">
+		<Value>Allow guests to return items</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowGuestReturns.Hint" Area="Admin">
+		<Value>Customers who ordered without an account can ask for a link to their order's e-mail address and return items with it.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestMerchandiseReturnPage" Area="Admin">
+		<Value>Show on the guest merchandise return page</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestMerchandiseReturnPage.Hint" Area="Admin">
+		<Value>Check to show CAPTCHA on the page where guests ask for a return link.</Value>
+	</Resource>
 </Language>

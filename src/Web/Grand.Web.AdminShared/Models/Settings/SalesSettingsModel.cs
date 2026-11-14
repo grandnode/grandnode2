@@ -99,6 +99,9 @@ public class SalesSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturns_AllowToUploadFiles")]
         public bool MerchandiseReturns_AllowToUploadFiles { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturns_AllowGuestReturns")]
+        public bool MerchandiseReturns_AllowGuestReturns { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Order.MinOrderTotalAmount")]
         public double MinOrderTotalAmount { get; set; }
 

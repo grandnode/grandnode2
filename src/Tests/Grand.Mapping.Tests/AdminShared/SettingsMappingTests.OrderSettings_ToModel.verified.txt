@@ -21,5 +21,6 @@
   MerchandiseReturns_PickupDateRequired: false,
   MerchandiseReturns_HideRequestedAction: false,
   MerchandiseReturns_AllowToUploadFiles: false,
+  MerchandiseReturns_AllowGuestReturns: false,
   UnpublishAuctionProduct: false
 }

@@ -4,6 +4,7 @@
   CaptchaShowOnRegistrationPage: false,
   CaptchaShowOnPasswordRecoveryPage: false,
   CaptchaShowOnContactUsPage: true,
+  CaptchaShowOnGuestMerchandiseReturnPage: false,
   CaptchaShowOnEmailWishlistToFriendPage: false,
   CaptchaShowOnEmailProductToFriendPage: false,
   CaptchaShowOnAskQuestionPage: false,
