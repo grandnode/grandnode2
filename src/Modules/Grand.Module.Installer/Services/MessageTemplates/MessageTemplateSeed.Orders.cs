@@ -4,6 +4,12 @@ namespace Grand.Module.Installer.Services.MessageTemplates;
 
 public static partial class MessageTemplateSeed
 {
+    /// <summary>
+    ///     The row of the order confirmation with the code a guest asks for the order's link with
+    /// </summary>
+    private const string OrderCodeRow =
+        "<tr><td style='padding: 0.4em 0;'><strong>Order code:</strong></td><td style='padding: 0.4em 0;'>{{Order.OrderCode}}</td></tr>";
+
     private static IEnumerable<MessageTemplate> OrdersTemplates(string ea)
     {
         return new List<MessageTemplate> {
@@ -18,6 +24,7 @@ public static partial class MessageTemplateSeed
                     + Button("{{Order.OrderURLForCustomer}}", "View order details")
                     + @"<table role='presentation' style='width:100%; border-collapse: collapse; font-size: 14px; margin: 16px 0;'>
                 <tr><td style='padding: 0.4em 0;'><strong>Order number:</strong></td><td style='padding: 0.4em 0;'>{{Order.OrderNumber}}</td></tr>
+                " + OrderCodeRow + @"
                 <tr><td style='padding: 0.4em 0;'><strong>Order date:</strong></td><td style='padding: 0.4em 0;'>{{Order.CreatedOn}}</td></tr>
                 <tr><td style='padding: 0.4em 0;'><strong>Shipping method:</strong></td><td style='padding: 0.4em 0;'>{{Order.ShippingMethod}}</td></tr>
                 </table>

@@ -56,11 +56,11 @@ public class MigrationMerchandiseReturnGuestLinkTemplate : IMigration
     {
         return new MessageTemplate {
             Name = TemplateName,
-            Subject = "{{Store.Name}} — Return items from order #{{MerchandiseReturnGuestLink.OrderNumber}}",
+            Subject = "{{Store.Name}} — Return items from order {{MerchandiseReturnGuestLink.OrderCode}}",
             Body = MigrationOrderApproval.Layout(
                 "Your link to return items.",
                 "Return items from your order",
-                @"<p>You asked to return items from order #{{MerchandiseReturnGuestLink.OrderNumber}}.</p>
+                @"<p>You asked to return items from order {{MerchandiseReturnGuestLink.OrderCode}}.</p>
                 " + MigrationOrderApproval.Button("{{MerchandiseReturnGuestLink.Url}}", "Return items") + @"
                 <p>The link is valid for 24 hours. If you did not ask for it, ignore this e-mail.</p>"),
             IsActive = true,

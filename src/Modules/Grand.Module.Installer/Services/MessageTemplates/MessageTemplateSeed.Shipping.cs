@@ -172,12 +172,12 @@ public static partial class MessageTemplateSeed
             },
             new() {
                 Name = "MerchandiseReturnGuestLink.CustomerNotification",
-                Subject = "{{Store.Name}} — Return items from order #{{MerchandiseReturnGuestLink.OrderNumber}}",
+                Subject = "{{Store.Name}} — Return items from order {{MerchandiseReturnGuestLink.OrderCode}}",
                 Body =
                     Layout(
                         "Your link to return items.",
                         "Return items from your order",
-                        @"<p>You asked to return items from order #{{MerchandiseReturnGuestLink.OrderNumber}}.</p>
+                        @"<p>You asked to return items from order {{MerchandiseReturnGuestLink.OrderCode}}.</p>
                 " + Button("{{MerchandiseReturnGuestLink.Url}}", "Return items") + @"
                 <p>The link is valid for 24 hours. If you did not ask for it, ignore this e-mail.</p>"),
                 IsActive = true,

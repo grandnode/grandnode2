@@ -29,14 +29,11 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
 
     public async Task<bool> Handle(SendGuestMerchandiseReturnLinkCommand request, CancellationToken cancellationToken)
     {
-        var order = await orderService.GetOrderByNumber(request.OrderNumber);
-        if (order == null || order.StoreId != request.Store.Id)
-            return false;
-
-        //the address the order was placed with is the proof that it is theirs; a guest's is kept in the billing
-        //address only, where the order's e-mails go
-        var orderEmail = string.IsNullOrEmpty(order.CustomerEmail) ? order.BillingAddress?.Email : order.CustomerEmail;
-        if (!string.Equals(orderEmail?.Trim(), request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
+        //a code is random, so it cannot be guessed as numbers can; it is not unique, so the address the order was
+        //placed with, the proof that it is theirs, picks the order
+        var order = (await orderService.GetOrdersByCode(request.OrderCode?.Trim()))
+            .FirstOrDefault(x => x.StoreId == request.Store.Id && EmailMatches(x, request.Email));
+        if (order == null)
             return false;
 
         if (await MerchandiseReturnGuestGrant.GuestOfOrder(order, request.Store.Id, customerService,
@@ -72,5 +69,16 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
         }
 
         return sent;
+    }
+
+    /// <summary>
+    ///     Whether the address is the one the order was placed with: a guest's is kept in the billing address only,
+    ///     where the order's e-mails go
+    /// </summary>
+    private static bool EmailMatches(Domain.Orders.Order order, string email)
+    {
+        var orderEmail = string.IsNullOrEmpty(order.CustomerEmail) ? order.BillingAddress?.Email : order.CustomerEmail;
+        return !string.IsNullOrEmpty(orderEmail) &&
+               string.Equals(orderEmail.Trim(), email?.Trim(), StringComparison.OrdinalIgnoreCase);
     }
 }

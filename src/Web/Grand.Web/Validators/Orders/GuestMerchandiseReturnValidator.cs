@@ -19,8 +19,8 @@ public class GuestMerchandiseReturnValidator : BaseGrandValidator<GuestMerchandi
         IRequestTranslationService translationService)
         : base(validators)
     {
-        RuleFor(x => x.OrderNumber).Must(x => x > 0)
-            .WithMessage(translationService.GetResource("MerchandiseReturns.Guest.OrderNumber.Required"));
+        RuleFor(x => x.OrderCode).NotEmpty()
+            .WithMessage(translationService.GetResource("MerchandiseReturns.Guest.OrderCode.Required"));
         RuleFor(x => x.Email).NotEmpty()
             .WithMessage(translationService.GetResource("MerchandiseReturns.Guest.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));

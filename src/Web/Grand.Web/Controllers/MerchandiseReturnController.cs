@@ -297,13 +297,13 @@ public class MerchandiseReturnController : BasePublicController
         if (ModelState.IsValid)
         {
             await _mediator.Send(new SendGuestMerchandiseReturnLinkCommand {
-                OrderNumber = model.OrderNumber!.Value,
+                OrderCode = model.OrderCode,
                 Email = model.Email,
                 Store = _contextAccessor.StoreContext.CurrentStore,
                 Host = _contextAccessor.StoreContext.CurrentHost
             });
             model.Result = _translationService.GetResource("MerchandiseReturns.Guest.Sent");
-            model.OrderNumber = null;
+            model.OrderCode = null;
             model.Email = null;
         }
 

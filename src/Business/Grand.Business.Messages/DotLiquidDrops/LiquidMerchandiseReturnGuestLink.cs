@@ -22,7 +22,7 @@ public class LiquidMerchandiseReturnGuestLink : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public int OrderNumber => _order.OrderNumber;
+    public string OrderCode => _order.Code;
 
     public string Url => $"{url}/guestmerchandisereturn/access?token={WebUtility.UrlEncode(_token)}";
 

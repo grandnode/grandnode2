@@ -2253,8 +2253,8 @@
 	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestMerchandiseReturnPage.Hint" Area="Admin">
 		<Value>Check to show CAPTCHA on the page where guests ask for a return link.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.OrderNumber.Required" Area="Front">
-		<Value>Enter the order number.</Value>
+	<Resource Name="MerchandiseReturns.Guest.OrderCode.Required" Area="Front">
+		<Value>Enter the order code.</Value>
 	</Resource>
 	<Resource Name="MerchandiseReturns.Guest.Email.Required" Area="Front">
 		<Value>Enter the e-mail address.</Value>
@@ -2263,10 +2263,10 @@
 		<Value>Return items without an account</Value>
 	</Resource>
 	<Resource Name="MerchandiseReturns.Guest.Intro" Area="Front">
-		<Value>Enter the number of your order and the e-mail address you placed it with. We will send a link to return items from it.</Value>
+		<Value>Enter the code of your order and the e-mail address you placed it with. You will find the code in the e-mail that confirmed the order. We will send a link to return items from it.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.OrderNumber" Area="Front">
-		<Value>Order number</Value>
+	<Resource Name="MerchandiseReturns.Guest.OrderCode" Area="Front">
+		<Value>Order code</Value>
 	</Resource>
 	<Resource Name="MerchandiseReturns.Guest.Email" Area="Front">
 		<Value>E-mail</Value>

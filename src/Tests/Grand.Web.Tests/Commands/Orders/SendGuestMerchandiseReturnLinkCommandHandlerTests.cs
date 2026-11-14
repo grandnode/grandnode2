@@ -29,6 +29,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     private SendGuestMerchandiseReturnLinkCommandHandler _handler;
     private Mock<IMerchandiseReturnMessageProviderService> _messages;
     private Order _order;
+    private List<Order> _otherOrders;
     private IDataProtectionProvider _provider;
     private string _sentToken;
 
@@ -36,10 +37,12 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     public void Init()
     {
         _order = new Order {
-            Id = "o1", OrderNumber = 7, StoreId = "s1", CustomerId = "g1", CustomerEmail = "guest@example.com"
+            Id = "o1", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "guest@example.com"
         };
+        _otherOrders = [];
         var orders = new Mock<IOrderService>();
-        orders.Setup(x => x.GetOrderByNumber(7)).ReturnsAsync(() => _order);
+        orders.Setup(x => x.GetOrdersByCode(It.IsAny<string>())).ReturnsAsync((string code) =>
+            code == "K7Q2M9XA" ? _otherOrders.Append(_order).ToList() : []);
         var customers = new Mock<ICustomerService>();
         customers.Setup(x => x.GetCustomerById("g1")).ReturnsAsync(_guest);
         _groups = new Mock<IGroupService>();
@@ -65,10 +68,10 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
             NullLogger<SendGuestMerchandiseReturnLinkCommandHandler>.Instance);
     }
 
-    private Task<bool> Send(string email = "guest@example.com", int orderNumber = 7, string storeId = "s1")
+    private Task<bool> Send(string email = "guest@example.com", string orderCode = "K7Q2M9XA", string storeId = "s1")
     {
         return _handler.Handle(new SendGuestMerchandiseReturnLinkCommand {
-            OrderNumber = orderNumber, Email = email, Store = new Domain.Stores.Store { Id = storeId }
+            OrderCode = orderCode, Email = email, Store = new Domain.Stores.Store { Id = storeId }
         }, CancellationToken.None);
     }
 
@@ -101,7 +104,36 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     [TestMethod]
     public async Task NoOrder_NothingSent()
     {
-        Assert.IsFalse(await Send(orderNumber: 8));
+        Assert.IsFalse(await Send(orderCode: "K7Q2M9XB"));
+        VerifySent(Times.Never());
+    }
+
+    [TestMethod]
+    public async Task CodeWithSpaces_SendsLink()
+    {
+        Assert.IsTrue(await Send(orderCode: " K7Q2M9XA "));
+        VerifySent(Times.Once());
+    }
+
+    [TestMethod]
+    public async Task CodeShared_OrderOfStoreWithEmailChosen()
+    {
+        //a code is random, not unique: another store's order and one placed with another address share it
+        _otherOrders.Add(new Order
+            { Id = "o2", Code = "K7Q2M9XA", StoreId = "s2", CustomerId = "g1", CustomerEmail = "guest@example.com" });
+        _otherOrders.Add(new Order
+            { Id = "o3", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "other@example.com" });
+
+        Assert.IsTrue(await Send());
+        Assert.AreEqual("o1", MerchandiseReturnGuestGrant.LinkOrderId(_provider, _sentToken, "s1"));
+    }
+
+    [TestMethod]
+    public async Task OrderWithoutEmail_NothingSent()
+    {
+        _order.CustomerEmail = null;
+
+        Assert.IsFalse(await Send(""));
         VerifySent(Times.Never());
     }
 

@@ -20,8 +20,8 @@
         <div asp-validation-summary="All" class="message-error"></div>
         <p>@Loc["MerchandiseReturns.Guest.Intro"]</p>
         <div class="form-group">
-            <label asp-for="OrderNumber" class="col-form-label">@Loc["MerchandiseReturns.Guest.OrderNumber"]:</label>
-            <input asp-for="OrderNumber" class="form-control" inputmode="numeric" autofocus="autofocus"/>
+            <label asp-for="OrderCode" class="col-form-label">@Loc["MerchandiseReturns.Guest.OrderCode"]:</label>
+            <input asp-for="OrderCode" class="form-control" autocapitalize="characters" autocomplete="off" spellcheck="false" autofocus="autofocus"/>
         </div>
         <div class="form-group">
             <label asp-for="Email" class="col-form-label">@Loc["MerchandiseReturns.Guest.Email"]:</label>

@@ -12,6 +12,11 @@
             <h5 class="card-title">@Loc["Checkout.ThankYou"]</h5>
             <h6 class="card-subtitle mb-2 text-muted">@Loc["Checkout.YourOrderHasBeenSuccessfullyProcessed"]</h6>
             <div class="h5 mb-0">@Loc["Checkout.OrderNumber"]: <span class="text-info">@Model.OrderNumber</span></div>
+            @if (!string.IsNullOrEmpty(Model.OrderCode))
+            {
+                @* a guest asks for the order's link with it *@
+                <div class="h6 mt-2 mb-0">@Loc["Order.OrderCode"]: <span class="text-info order-code">@Model.OrderCode</span></div>
+            }
             <hr class="my-4">
             <div class="buttons">
                 <a class="btn btn-secondary mb-1 me-2" href="@Url.RouteUrl("OrderDetails", new { orderId = Model.OrderId })">@Loc["Checkout.PlacedOrderDetails"]</a>
