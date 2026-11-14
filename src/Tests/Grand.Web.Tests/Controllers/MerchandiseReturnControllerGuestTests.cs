@@ -208,6 +208,16 @@ public class MerchandiseReturnControllerGuestTests
     }
 
     [TestMethod]
+    public async Task Details_GrantReturnsDisabled_Challenge()
+    {
+        _orderSettings.MerchandiseReturnsEnabled = false;
+
+        var result = await _controller.MerchandiseReturnDetails("r1");
+
+        Assert.IsInstanceOfType<ChallengeResult>(result);
+    }
+
+    [TestMethod]
     public async Task Details_GrantCustomerRegistered_Challenge()
     {
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(true);
@@ -246,7 +256,8 @@ public class MerchandiseReturnControllerGuestTests
         _orderSettings.MerchandiseReturns_AllowGuestReturns = false;
 
         Assert.IsInstanceOfType<NotFoundResult>(_controller.GuestMerchandiseReturn(new CaptchaSettings()));
-        Assert.IsInstanceOfType<NotFoundResult>(
+        //a POST answered with an empty 404 is re-executed as a POST of the not-found page
+        Assert.IsInstanceOfType<NotFoundObjectResult>(
             await _controller.GuestMerchandiseReturn(new GuestMerchandiseReturnModel(), new CaptchaSettings()));
         Assert.IsInstanceOfType<NotFoundResult>(
             await _controller.GuestMerchandiseReturnAccess("token", _provider, Customers));

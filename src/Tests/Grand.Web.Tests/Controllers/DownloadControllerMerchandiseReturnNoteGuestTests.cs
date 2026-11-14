@@ -31,6 +31,9 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
     private MerchandiseReturnNote _note;
     private Order _order;
 
+    private readonly OrderSettings _orderSettings =
+        new() { MerchandiseReturnsEnabled = true, MerchandiseReturns_AllowGuestReturns = true };
+
     [TestInitialize]
     public void Init()
     {
@@ -68,7 +71,7 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
             RequestServices = new ServiceCollection()
                 .AddSingleton<IDataProtectionProvider>(new EphemeralDataProtectionProvider())
                 .AddSingleton(customers.Object)
-                .AddSingleton(new OrderSettings { MerchandiseReturns_AllowGuestReturns = true })
+                .AddSingleton(_orderSettings)
                 .BuildServiceProvider()
         };
         Grant(_order);
@@ -102,6 +105,14 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
     public async Task NoteFile_GrantOtherOrder_Challenge()
     {
         Grant(new Order { Id = "o2", StoreId = "s1" });
+
+        Assert.IsInstanceOfType<ChallengeResult>(await Download());
+    }
+
+    [TestMethod]
+    public async Task NoteFile_GrantReturnsDisabled_Challenge()
+    {
+        _orderSettings.MerchandiseReturnsEnabled = false;
 
         Assert.IsInstanceOfType<ChallengeResult>(await Download());
     }

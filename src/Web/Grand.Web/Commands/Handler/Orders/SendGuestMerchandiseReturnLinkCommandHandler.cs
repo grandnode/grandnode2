@@ -8,6 +8,7 @@ using Grand.Mediator;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Extensions;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Commands.Handler.Orders;
 
@@ -17,7 +18,8 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
     IGroupService groupService,
     IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
     IDataProtectionProvider dataProtectionProvider,
-    ICacheBase cacheBase)
+    ICacheBase cacheBase,
+    ILogger<SendGuestMerchandiseReturnLinkCommandHandler> logger)
     : IRequestHandler<SendGuestMerchandiseReturnLinkCommand, bool>
 {
     /// <summary>
@@ -48,7 +50,16 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
         if (!first)
             return false;
 
-        return await merchandiseReturnMessageProviderService.SendMerchandiseReturnGuestLinkCustomerMessage(order,
-            MerchandiseReturnGuestGrant.LinkToken(dataProtectionProvider, order), request.Host) > 0;
+        try
+        {
+            return await merchandiseReturnMessageProviderService.SendMerchandiseReturnGuestLinkCustomerMessage(order,
+                MerchandiseReturnGuestGrant.LinkToken(dataProtectionProvider, order), request.Host) > 0;
+        }
+        catch (Exception ex) when (ex is not OperationCanceledException)
+        {
+            //only a matching order gets this far: an error page would tell that it exists
+            logger.LogError(ex, "The return link of order {OrderId} was not sent", order.Id);
+            return false;
+        }
     }
 }

@@ -10,6 +10,7 @@ using Grand.Web.Commands.Handler.Orders;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Extensions;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -56,7 +57,8 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
 
         _provider = new EphemeralDataProtectionProvider();
         _handler = new SendGuestMerchandiseReturnLinkCommandHandler(orders.Object, customers.Object, _groups.Object,
-            _messages.Object, _provider, cache.Object);
+            _messages.Object, _provider, cache.Object,
+            NullLogger<SendGuestMerchandiseReturnLinkCommandHandler>.Instance);
     }
 
     private Task<bool> Send(string email = "guest@example.com", int orderNumber = 7, string storeId = "s1")
@@ -127,6 +129,16 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
         Assert.IsFalse(await Send());
 
         VerifySent(Times.Once());
+    }
+
+    [TestMethod]
+    public async Task SendFails_FalseWithoutException()
+    {
+        //a failure only a matching order can meet must not answer differently from a mismatch
+        _messages.Setup(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+            It.IsAny<DomainHost>())).ThrowsAsync(new InvalidOperationException("no e-mail account"));
+
+        Assert.IsFalse(await Send());
     }
 
     [TestMethod]

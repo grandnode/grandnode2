@@ -410,8 +410,11 @@ public class DownloadController : BasePublicController
     private async Task<bool> GuestGranted(Order order, IGroupService groupService)
     {
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        if (order == null || MerchandiseReturnGuestGrant.GrantedOrderId(HttpContext, storeId) != order.Id ||
-            !HttpContext.RequestServices.GetRequiredService<OrderSettings>().MerchandiseReturns_AllowGuestReturns)
+        if (order == null || MerchandiseReturnGuestGrant.GrantedOrderId(HttpContext, storeId) != order.Id)
+            return false;
+
+        var orderSettings = HttpContext.RequestServices.GetRequiredService<OrderSettings>();
+        if (!orderSettings.MerchandiseReturnsEnabled || !orderSettings.MerchandiseReturns_AllowGuestReturns)
             return false;
 
         return await MerchandiseReturnGuestGrant.GuestOfOrder(order, storeId,

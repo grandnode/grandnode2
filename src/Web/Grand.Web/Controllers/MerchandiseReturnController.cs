@@ -156,7 +156,7 @@ public class MerchandiseReturnController : BasePublicController
     {
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
         if (order == null || MerchandiseReturnGuestGrant.GrantedOrderId(HttpContext, storeId) != order.Id ||
-            !_orderSettings.MerchandiseReturns_AllowGuestReturns)
+            !GuestReturnsAllowed())
             return null;
 
         return await MerchandiseReturnGuestGrant.GuestOfOrder(order, storeId,
@@ -294,7 +294,8 @@ public class MerchandiseReturnController : BasePublicController
         [FromServices] CaptchaSettings captchaSettings)
     {
         if (!GuestReturnsAllowed())
-            return NotFound();
+            //with a body: an empty 404 of a POST is re-executed as a POST of the not-found page
+            return NotFound("The page was not found.");
 
         if (ModelState.IsValid)
         {
