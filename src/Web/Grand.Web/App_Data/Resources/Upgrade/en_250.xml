@@ -2322,4 +2322,25 @@
 	<Resource Name="Admin.Inventory.Documents.Errors.InspectionQuantity" Area="Admin">
 		<Value>The scrap quantity of each item must be between 0 and the quantity left to receive.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.List.SearchOrderNumber" Area="Admin">
+		<Value>Order #</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.List.SearchVendorId" Area="Admin">
+		<Value>Vendor</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.List.SearchReturnShippingProvider" Area="Admin">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.List.SearchReasonId" Area="Admin">
+		<Value>Return reason</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.List.OpenLongerThanDays" Area="Admin">
+		<Value>Open longer than (days)</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Fields.DaysOpen" Area="Admin">
+		<Value>Days open</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Fields.DaysOpen" Area="Vendor">
+		<Value>Days open</Value>
+	</Resource>
 </Language>

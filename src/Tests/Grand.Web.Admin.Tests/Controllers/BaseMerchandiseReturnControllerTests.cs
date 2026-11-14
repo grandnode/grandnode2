@@ -80,12 +80,12 @@ public class BaseMerchandiseReturnControllerTests
     }
 
     [TestMethod]
-    public void ListGet_ReturnsViewWithPrepareReturnRequestListModelResult()
+    public async Task ListGet_ReturnsViewWithPrepareReturnRequestListModelResult()
     {
         var model = new MerchandiseReturnListModel();
-        _merchandiseReturnViewModelServiceMock.Setup(v => v.PrepareReturnRequestListModel()).Returns(model);
+        _merchandiseReturnViewModelServiceMock.Setup(v => v.PrepareReturnRequestListModel()).ReturnsAsync(model);
 
-        var result = _controller.List();
+        var result = await _controller.List();
 
         var view = result as ViewResult;
         Assert.IsNotNull(view);
@@ -1252,6 +1252,7 @@ public class BaseMerchandiseReturnControllerTests
             new Mock<Grand.Web.Common.Security.Authorization.IRequestPermissionService>().Object,
             new Mock<Grand.Business.Core.Interfaces.Common.Security.IPermissionService>().Object,
             new Mock<IMerchandiseReturnRefundService>().Object,
+            new Mock<Grand.Business.Core.Interfaces.Customers.IVendorService>().Object,
             new Mock<ILogger<MerchandiseReturnViewModelService>>().Object);
         var controller = new TestMerchandiseReturnController(viewModelService, _translationServiceMock.Object,
             _merchandiseReturnServiceMock.Object, _orderServiceMock.Object, _scopeMock.Object) {

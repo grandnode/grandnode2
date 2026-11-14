@@ -101,6 +101,9 @@ public class MerchandiseReturnModel : BaseEntityModel
 
     public IList<SelectListItem> AvailableReceiveToStockWarehouses { get; set; } = new List<SelectListItem>();
 
+    //whole days the return has been handled, until now or until it was closed; null when that is not recorded
+    public int? DaysOpen { get; set; }
+
     //the money given back for the return, or what it comes to; null when the page shows no refund
     public RefundModel Refund { get; set; }
 

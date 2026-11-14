@@ -96,7 +96,8 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     public virtual async Task<IPagedList<MerchandiseReturn>> SearchMerchandiseReturns(string storeId = "",
         string customerId = "",
         string orderItemId = "", string vendorId = "", string ownerId = "", MerchandiseReturnStatus? rs = null,
-        int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null)
+        int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
+        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false)
     {
         var model = new GetMerchandiseReturnQuery {
             CreatedFromUtc = createdFromUtc,
@@ -108,7 +109,11 @@ public class MerchandiseReturnService : IMerchandiseReturnService
             OwnerId = ownerId,
             StoreId = storeId,
             OrderItemId = orderItemId,
-            Rs = rs
+            Rs = rs,
+            OrderId = orderId,
+            ReturnShippingProvider = returnShippingProvider,
+            ReasonId = reasonId,
+            OpenOnly = openOnly
         };
 
         return await _mediator.Send(model);

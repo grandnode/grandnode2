@@ -25,6 +25,20 @@ public static class MerchandiseReturnExtensions
         return status is not (MerchandiseReturnStatus.Rejected or MerchandiseReturnStatus.Cancelled);
     }
 
+    /// <summary>
+    ///     The whole days a merchandise return has been handled: an open one until now, a closed one until the change
+    ///     that closed it; null for a closed one changed before its statuses were recorded
+    /// </summary>
+    public static int? DaysOpen(this MerchandiseReturn merchandiseReturn, DateTime nowUtc)
+    {
+        var status = merchandiseReturn.MerchandiseReturnStatus;
+        DateTime? end = status is MerchandiseReturnStatus.Pending or MerchandiseReturnStatus.Accepted
+            or MerchandiseReturnStatus.Received
+            ? nowUtc
+            : merchandiseReturn.StatusHistory.LastOrDefault(x => x.Status == status)?.CreatedOnUtc;
+        return end.HasValue ? (int)Math.Floor((end.Value - merchandiseReturn.CreatedOnUtc).TotalDays) : null;
+    }
+
     //the status flow: a rejected or cancelled return may be opened again, a completed one is final
     private static readonly Dictionary<MerchandiseReturnStatus, MerchandiseReturnStatus[]> Transitions = new() {
         [MerchandiseReturnStatus.Pending] = [

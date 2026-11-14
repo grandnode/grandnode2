@@ -27,6 +27,10 @@
             <admin-field asp-for="SearchMerchandiseReturnStatusId" asp-items="Model.MerchandiseReturnStatus"/>
             <admin-field asp-for="StartDate"/>
             <admin-field asp-for="EndDate"/>
+            <admin-field asp-for="SearchOrderNumber" size="sm"/>
+            <admin-field asp-for="OpenLongerThanDays" size="sm"/>
+            <admin-field asp-for="SearchReturnShippingProvider" asp-items="Model.AvailableReturnShippingProviders" size="md"/>
+            <admin-field asp-for="SearchReasonId" asp-items="Model.AvailableReasons" size="md"/>
         </admin-filters>
 
         <admin-card flush>
@@ -64,6 +68,12 @@
                     </cell-template>
                 </grid-column>
                 <grid-column field="CreatedOn" title="@Loc["Vendor.Orders.MerchandiseReturns.Fields.CreatedOn"]" width="100" format="{0:G}"/>
+                <grid-column field="DaysOpen" title="@Loc["Vendor.Orders.MerchandiseReturns.Fields.DaysOpen"]" width="90">
+                    <cell-template>
+                        <span data-if="DaysOpen != null">{{ DaysOpen }}</span>
+                        <span data-else class="text-muted">—</span>
+                    </cell-template>
+                </grid-column>
             </admin-grid>
         </admin-card>
     </admin-page>
@@ -75,7 +85,11 @@
             SearchMerchandiseReturnStatusId: $('#@Html.IdFor(model => model.SearchMerchandiseReturnStatusId)').val(),
             SearchCustomerEmail: $('#@Html.IdFor(model => model.SearchCustomerEmail)').val(),
             StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
-            EndDate: $('#@Html.IdFor(model => model.EndDate)').val()
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+            SearchOrderNumber: $('#@Html.IdFor(model => model.SearchOrderNumber)').val(),
+            OpenLongerThanDays: $('#@Html.IdFor(model => model.OpenLongerThanDays)').val(),
+            SearchReturnShippingProvider: $('#@Html.IdFor(model => model.SearchReturnShippingProvider)').val(),
+            SearchReasonId: $('#@Html.IdFor(model => model.SearchReasonId)').val()
         };
         addAntiForgeryToken(data);
         return data;

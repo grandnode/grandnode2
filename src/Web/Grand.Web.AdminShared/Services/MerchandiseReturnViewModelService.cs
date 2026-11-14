@@ -60,6 +60,7 @@ public class MerchandiseReturnViewModelService(
     IRequestPermissionService permissionService,
     IPermissionService actionPermissionService,
     IMerchandiseReturnRefundService merchandiseReturnRefundService,
+    IVendorService vendorService,
     ILogger<MerchandiseReturnViewModelService> logger)
     : IMerchandiseReturnViewModelService
 {
@@ -105,6 +106,7 @@ public class MerchandiseReturnViewModelService(
             .Where(x => x != MerchandiseReturnStatus.Received || receivedByHand)
             .Select(x => (int)x).ToList();
         model.CreatedOn = dateTimeService.ConvertToUserTime(merchandiseReturn.CreatedOnUtc, DateTimeKind.Utc);
+        model.DaysOpen = merchandiseReturn.DaysOpen(DateTime.UtcNow);
         model.PickupDate = merchandiseReturn.PickupDate;
         model.UserFields = merchandiseReturn.UserFields;
 
@@ -244,17 +246,40 @@ public class MerchandiseReturnViewModelService(
             ? null
             : dateTimeService.ConvertToUtcTime(model.EndDate.Value, dateTimeService.CurrentTimeZone);
 
+        //open longer than N days: still handled, and created before N days ago
+        var openOnly = model.OpenLongerThanDays > 0;
+        if (openOnly)
+        {
+            var openSince = DateTime.UtcNow.AddDays(-model.OpenLongerThanDays.Value);
+            endDateValue = endDateValue == null || endDateValue > openSince ? openSince : endDateValue;
+        }
+
+        var orderId = "";
+        if (model.SearchOrderNumber.HasValue)
+        {
+            //an order of another store finds nothing: the store of the return is filtered too
+            var order = await orderService.GetOrderByNumber(model.SearchOrderNumber.Value);
+            if (order == null)
+                return ([], 0);
+            orderId = order.Id;
+        }
+
         var merchandiseReturns = await merchandiseReturnService.SearchMerchandiseReturns(
             storeId: scope.DefaultStoreId ?? "",
             customerId: customerId,
-            vendorId: scope.DefaultVendorId ?? "",
+            //the vendor panel's vendor comes from its scope, never from the request
+            vendorId: scope.DefaultVendorId ?? model.SearchVendorId ?? "",
             rs: model.SearchMerchandiseReturnStatusId >= 0
                 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId
                 : null,
             pageIndex: pageIndex - 1,
             pageSize: pageSize,
             createdFromUtc: startDateValue,
-            createdToUtc: endDateValue);
+            createdToUtc: endDateValue,
+            orderId: orderId,
+            returnShippingProvider: model.SearchReturnShippingProvider ?? "",
+            reasonId: model.SearchReasonId ?? "",
+            openOnly: openOnly);
         var merchandiseReturnModels = new List<MerchandiseReturnModel>();
         foreach (var rr in merchandiseReturns)
         {
@@ -321,7 +346,7 @@ public class MerchandiseReturnViewModelService(
         return model;
     }
 
-    public virtual MerchandiseReturnListModel PrepareReturnRequestListModel()
+    public virtual async Task<MerchandiseReturnListModel> PrepareReturnRequestListModel()
     {
         var model = new MerchandiseReturnListModel {
             //every return is listed at first, not only the pending ones
@@ -334,6 +359,26 @@ public class MerchandiseReturnViewModelService(
                 Value = AllStatuses.ToString(CultureInfo.InvariantCulture),
                 Selected = true
             });
+
+        SelectListItem All() => new() { Text = translationService.GetResource("Admin.Common.All"), Value = "" };
+        //a vendor sees its own returns only, so it picks no vendor
+        if (scope.DefaultVendorId == null)
+        {
+            model.AvailableVendors.Add(All());
+            foreach (var vendor in await vendorService.GetAllVendors(showHidden: true))
+                model.AvailableVendors.Add(new SelectListItem { Text = vendor.Name, Value = vendor.Id });
+        }
+
+        model.AvailableReturnShippingProviders.Add(All());
+        foreach (var provider in returnShippingService.LoadAllProviders(storeId: scope.DefaultStoreId ?? ""))
+            model.AvailableReturnShippingProviders.Add(new SelectListItem
+                { Text = provider.FriendlyName, Value = provider.SystemName });
+
+        model.AvailableReasons.Add(All());
+        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        foreach (var reason in await merchandiseReturnService.GetAllMerchandiseReturnReasons(scope.DefaultStoreId ?? ""))
+            model.AvailableReasons.Add(new SelectListItem
+                { Text = reason.GetTranslation(x => x.Name, languageId), Value = reason.Id });
 
         return model;
     }
