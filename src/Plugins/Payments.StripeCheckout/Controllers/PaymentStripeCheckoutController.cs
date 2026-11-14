@@ -1,7 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Domain.Payments;
-using Grand.Infrastructure;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
@@ -19,17 +18,14 @@ public class PaymentStripeCheckoutController : BasePaymentController
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
     private readonly IStripeCheckoutService _stripeCheckoutService;
-    private readonly IContextAccessor _contextAccessor;
 
     public PaymentStripeCheckoutController(
-        IContextAccessor contextAccessor,
         IOrderService orderService,
         ILogger<PaymentStripeCheckoutController> logger,
         IPaymentTransactionService paymentTransactionService,
         PaymentSettings paymentSettings,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings, IStripeCheckoutService stripeCheckoutService)
     {
-        _contextAccessor = contextAccessor;
         _orderService = orderService;
         _logger = logger;
         _paymentTransactionService = paymentTransactionService;
@@ -55,8 +51,9 @@ public class PaymentStripeCheckoutController : BasePaymentController
 
     public async Task<IActionResult> CancelOrder(string orderId)
     {
+        //the order's page checks who may see it: a guest who came with the order's link is not its customer
         var order = await _orderService.GetOrderById(orderId);
-        if (order != null && order.CustomerId == _contextAccessor.WorkContext.CurrentCustomer.Id)
+        if (order != null)
             return RedirectToRoute("OrderDetails", new { orderId = order.Id });
 
         return RedirectToRoute("HomePage");
