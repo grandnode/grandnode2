@@ -1,5 +1,6 @@
 ﻿@model LoginModel
 @inject IPageHeadBuilder pagebuilder
+@inject Grand.Domain.Orders.OrderSettings orderSettings
 @{
     Layout = "_SingleColumn";
 
@@ -159,6 +160,12 @@ else
                                 </div>
                             </div>
                         </div>
+                    </div>
+                }
+                @if (orderSettings.MerchandiseReturnsEnabled && orderSettings.MerchandiseReturns_AllowGuestReturns)
+                {
+                    <div class="col-12 mx-lg-0 mx-auto mt-3 text-center guest-merchandise-return-link">
+                        <a asp-route="GuestMerchandiseReturn">@Loc["Account.Login.GuestMerchandiseReturn"]</a>
                     </div>
                 }
             </div>

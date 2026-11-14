@@ -44,7 +44,10 @@ public class GetMerchandiseReturnsHandler : IRequestHandler<GetMerchandiseReturn
             StoreId = request.Store.Id
         };
 
-        if (await _groupService.IsOwner(request.Customer))
+        //the guest of an order sees the returns of that order only
+        if (!string.IsNullOrEmpty(request.OrderId))
+            query.OrderId = request.OrderId;
+        else if (await _groupService.IsOwner(request.Customer))
             query.OwnerId = request.Customer.Id;
         else
             query.CustomerId = request.Customer.Id;

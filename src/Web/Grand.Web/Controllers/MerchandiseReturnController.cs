@@ -15,14 +15,17 @@ using Grand.SharedKernel.Attributes;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Startup;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.Routing;
 using Grand.Web.Common.Localization;
 
@@ -133,6 +136,19 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
+    ///     Whether the store lets guests ask for return links; the pages of the flow are not found otherwise
+    /// </summary>
+    private bool GuestReturnsAllowed()
+    {
+        return _orderSettings.MerchandiseReturnsEnabled && _orderSettings.MerchandiseReturns_AllowGuestReturns;
+    }
+
+    private static bool DisplayGuestCaptcha(CaptchaSettings captchaSettings)
+    {
+        return captchaSettings.Enabled && captchaSettings.ShowOnGuestMerchandiseReturnPage;
+    }
+
+    /// <summary>
     ///     The guest of an order placed without an account, when the browser holds the grant a link sent to the
     ///     order's e-mail address left for it; null otherwise
     /// </summary>
@@ -227,17 +243,97 @@ public class MerchandiseReturnController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> CustomerMerchandiseReturns()
     {
-        if (!await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
+        if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
+            return View(await _mediator.Send(new GetMerchandiseReturns {
+                Customer = _contextAccessor.WorkContext.CurrentCustomer,
+                Store = _contextAccessor.StoreContext.CurrentStore,
+                Language = _contextAccessor.WorkContext.WorkingLanguage,
+                Currency = _contextAccessor.WorkContext.WorkingCurrency
+            }));
+
+        //a guest who came with a return link sees the returns of that order
+        var grantedOrderId =
+            MerchandiseReturnGuestGrant.GrantedOrderId(HttpContext, _contextAccessor.StoreContext.CurrentStore.Id);
+        var order = grantedOrderId != null ? await _orderService.GetOrderById(grantedOrderId) : null;
+        var guest = await GrantedGuest(order);
+        if (guest == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetMerchandiseReturns {
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Customer = guest,
+            OrderId = order.Id,
             Store = _contextAccessor.StoreContext.CurrentStore,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Currency = _contextAccessor.WorkContext.WorkingCurrency
         });
+        if (await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
+            model.ReturnOrderId = order.Id;
 
         return View(model);
+    }
+
+    /// <summary>
+    ///     The page where a guest who ordered without an account asks for the link to return items
+    /// </summary>
+    [HttpGet]
+    public virtual IActionResult GuestMerchandiseReturn([FromServices] CaptchaSettings captchaSettings)
+    {
+        if (!GuestReturnsAllowed())
+            return NotFound();
+
+        return View(new GuestMerchandiseReturnModel { DisplayCaptcha = DisplayGuestCaptcha(captchaSettings) });
+    }
+
+    /// <summary>
+    ///     Sends the link when the order number and e-mail address match a guest's order. The answer is the same
+    ///     whatever was found: it never tells whether such an order exists
+    /// </summary>
+    [HttpPost]
+    [EnableRateLimiting(GrandCommonStartup.GuestMerchandiseReturnRateLimitPolicy)]
+    public virtual async Task<IActionResult> GuestMerchandiseReturn(GuestMerchandiseReturnModel model,
+        [FromServices] CaptchaSettings captchaSettings)
+    {
+        if (!GuestReturnsAllowed())
+            return NotFound();
+
+        if (ModelState.IsValid)
+        {
+            await _mediator.Send(new SendGuestMerchandiseReturnLinkCommand {
+                OrderNumber = model.OrderNumber!.Value,
+                Email = model.Email,
+                Store = _contextAccessor.StoreContext.CurrentStore,
+                Host = _contextAccessor.StoreContext.CurrentHost
+            });
+            model.Result = _translationService.GetResource("MerchandiseReturns.Guest.Sent");
+            model.OrderNumber = null;
+            model.Email = null;
+        }
+
+        model.DisplayCaptcha = DisplayGuestCaptcha(captchaSettings);
+        return View(model);
+    }
+
+    /// <summary>
+    ///     The link of the e-mail: leaves the grant for the order in the browser and opens its returns
+    /// </summary>
+    [HttpGet]
+    public virtual async Task<IActionResult> GuestMerchandiseReturnAccess(string token,
+        [FromServices] IDataProtectionProvider dataProtectionProvider, [FromServices] ICustomerService customerService)
+    {
+        if (!GuestReturnsAllowed())
+            return NotFound();
+
+        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+        var orderId = MerchandiseReturnGuestGrant.LinkOrderId(dataProtectionProvider, token, storeId);
+        var order = orderId != null ? await _orderService.GetOrderById(orderId) : null;
+        if (await MerchandiseReturnGuestGrant.GuestOfOrder(order, storeId, customerService, _groupService) == null)
+        {
+            Error(_translationService.GetResource("MerchandiseReturns.Guest.InvalidLink"));
+            return RedirectToRoute("GuestMerchandiseReturn");
+        }
+
+        MerchandiseReturnGuestGrant.Grant(HttpContext, order);
+        return RedirectToRoute("CustomerMerchandiseReturns");
     }
 
     [HttpGet]

@@ -6,6 +6,11 @@ public class CustomerMerchandiseReturnsModel : BaseModel
 {
     public IList<MerchandiseReturnModel> Items { get; set; } = new List<MerchandiseReturnModel>();
 
+    /// <summary>
+    ///     The order a guest may still return items of; null shows no button
+    /// </summary>
+    public string ReturnOrderId { get; set; }
+
     #region Nested classes
 
     public class MerchandiseReturnModel : BaseEntityModel

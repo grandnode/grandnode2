@@ -6,10 +6,13 @@ using Grand.Web.Common.Routing;
 using Grand.Web.Common.UserAgent;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.AspNetCore.ResponseCompression;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.FeatureManagement;
+using System.Threading.RateLimiting;
 
 namespace Grand.Web.Common.Startup;
 
@@ -84,7 +87,23 @@ public class GrandCommonStartup : IStartupApplication
 
         //add data protection
         services.AddGrandDataProtection(configuration);
+
+        //limits only the actions that name a policy; per instance, kept in memory
+        services.AddRateLimiter(options =>
+        {
+            options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            //a guest asking for a return link: guessing order numbers and e-mail addresses takes many tries
+            options.AddPolicy(GuestMerchandiseReturnRateLimitPolicy, context =>
+                RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "",
+                    _ => new FixedWindowRateLimiterOptions
+                        { PermitLimit = 5, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
+        });
     }
+
+    /// <summary>
+    ///     The rate limiter policy of the page where guests ask for a merchandise return link
+    /// </summary>
+    public const string GuestMerchandiseReturnRateLimitPolicy = "GuestMerchandiseReturn";
 
     /// <summary>
     ///     Configure the using of added middleware
@@ -129,6 +148,9 @@ public class GrandCommonStartup : IStartupApplication
 
         //use routing
         application.UseRouting();
+
+        //after routing: a policy is named by the endpoint
+        application.UseRateLimiter();
     }
 
     /// <summary>

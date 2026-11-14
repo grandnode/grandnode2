@@ -237,4 +237,145 @@ public class MerchandiseReturnControllerGuestTests
 
         Assert.IsInstanceOfType<ChallengeResult>(result);
     }
+
+    private ICustomerService Customers => _httpContext.RequestServices.GetRequiredService<ICustomerService>();
+
+    [TestMethod]
+    public async Task GuestPage_SettingOff_NotFound()
+    {
+        _orderSettings.MerchandiseReturns_AllowGuestReturns = false;
+
+        Assert.IsInstanceOfType<NotFoundResult>(_controller.GuestMerchandiseReturn(new CaptchaSettings()));
+        Assert.IsInstanceOfType<NotFoundResult>(
+            await _controller.GuestMerchandiseReturn(new GuestMerchandiseReturnModel(), new CaptchaSettings()));
+        Assert.IsInstanceOfType<NotFoundResult>(
+            await _controller.GuestMerchandiseReturnAccess("token", _provider, Customers));
+    }
+
+    [TestMethod]
+    public void GuestPage_ReturnsDisabled_NotFound()
+    {
+        _orderSettings.MerchandiseReturnsEnabled = false;
+
+        Assert.IsInstanceOfType<NotFoundResult>(_controller.GuestMerchandiseReturn(new CaptchaSettings()));
+    }
+
+    [TestMethod]
+    public async Task GuestPost_AnyOutcome_SameView()
+    {
+        //Arrange - an order that matched, then one that did not
+        _mediator.SetupSequence(x =>
+                x.Send(It.IsAny<SendGuestMerchandiseReturnLinkCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(true).ReturnsAsync(false);
+
+        //Act
+        var sent = (ViewResult)await _controller.GuestMerchandiseReturn(
+            new GuestMerchandiseReturnModel { OrderNumber = 7, Email = "guest@example.com" }, new CaptchaSettings());
+        var notSent = (ViewResult)await _controller.GuestMerchandiseReturn(
+            new GuestMerchandiseReturnModel { OrderNumber = 8, Email = "guest@example.com" }, new CaptchaSettings());
+
+        //Assert
+        Assert.AreEqual(sent.ViewName, notSent.ViewName);
+        Assert.AreEqual(((GuestMerchandiseReturnModel)sent.Model).Result,
+            ((GuestMerchandiseReturnModel)notSent.Model).Result);
+        Assert.IsNotNull(((GuestMerchandiseReturnModel)sent.Model).Result);
+        Assert.IsNull(sent.StatusCode);
+        Assert.IsNull(notSent.StatusCode);
+    }
+
+    [TestMethod]
+    public async Task GuestPost_InvalidModel_NoCommand()
+    {
+        _controller.ModelState.AddModelError("Email", "Enter the e-mail address.");
+
+        var result = await _controller.GuestMerchandiseReturn(new GuestMerchandiseReturnModel(),
+            new CaptchaSettings());
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        _mediator.Verify(x => x.Send(It.IsAny<SendGuestMerchandiseReturnLinkCommand>(),
+            It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Access_GoodToken_SetsCookieAndRedirectsToList()
+    {
+        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order1);
+
+        var result = await _controller.GuestMerchandiseReturnAccess(token, _provider, Customers);
+
+        Assert.AreEqual("CustomerMerchandiseReturns", ((RedirectToRouteResult)result).RouteName);
+        StringAssert.Contains(_httpContext.Response.Headers.SetCookie.ToString(),
+            MerchandiseReturnGuestGrant.CookieName);
+    }
+
+    [TestMethod]
+    public async Task Access_BadToken_RedirectsToGuestPageWithoutCookie()
+    {
+        var result = await _controller.GuestMerchandiseReturnAccess("not-a-token", _provider, Customers);
+
+        Assert.AreEqual("GuestMerchandiseReturn", ((RedirectToRouteResult)result).RouteName);
+        Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
+    }
+
+    [TestMethod]
+    public async Task Access_RegisteredCustomer_RedirectsToGuestPageWithoutCookie()
+    {
+        _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(true);
+        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order1);
+
+        var result = await _controller.GuestMerchandiseReturnAccess(token, _provider, Customers);
+
+        Assert.AreEqual("GuestMerchandiseReturn", ((RedirectToRouteResult)result).RouteName);
+        Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
+    }
+
+    [TestMethod]
+    public async Task List_Grant_OrderReturnsOnly()
+    {
+        _mediator.Setup(x => x.Send(It.IsAny<GetMerchandiseReturns>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CustomerMerchandiseReturnsModel());
+
+        await _controller.CustomerMerchandiseReturns();
+
+        _mediator.Verify(x => x.Send(It.Is<GetMerchandiseReturns>(c => c.OrderId == "o1" && c.Customer.Id == "g1"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task List_Grant_ReturnButtonWhenAllowed()
+    {
+        _mediator.Setup(x => x.Send(It.IsAny<GetMerchandiseReturns>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new CustomerMerchandiseReturnsModel());
+
+        var allowed = (CustomerMerchandiseReturnsModel)((ViewResult)await _controller.CustomerMerchandiseReturns())
+            .Model;
+        _mediator.Setup(x => x.Send(It.IsAny<IsMerchandiseReturnAllowedQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(false);
+        var returned = (CustomerMerchandiseReturnsModel)((ViewResult)await _controller.CustomerMerchandiseReturns())
+            .Model;
+
+        Assert.AreEqual("o1", allowed.ReturnOrderId);
+        Assert.IsNull(returned.ReturnOrderId);
+    }
+
+    [TestMethod]
+    public async Task List_RegisteredWithGrant_OwnList()
+    {
+        _groups.Setup(x => x.IsRegistered(_visitor)).ReturnsAsync(true);
+        _mediator.Setup(x => x.Send(It.IsAny<GetMerchandiseReturns>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new CustomerMerchandiseReturnsModel());
+
+        await _controller.CustomerMerchandiseReturns();
+
+        _mediator.Verify(x => x.Send(It.Is<GetMerchandiseReturns>(c => c.OrderId == null && c.Customer == _visitor),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task List_NoGrantGuest_Challenge()
+    {
+        _httpContext.Request.Headers.Cookie = "";
+
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.CustomerMerchandiseReturns());
+    }
 }
