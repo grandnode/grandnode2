@@ -133,20 +133,12 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
-    ///     Whether a guest's link to an order also reaches its returns
-    /// </summary>
-    private bool GuestReturnsAllowed()
-    {
-        return GuestOrderGrant.Allowed(_orderSettings) && _orderSettings.MerchandiseReturnsEnabled;
-    }
-
-    /// <summary>
     ///     The guest of an order placed without an account, when the browser holds the grant a link sent to the
     ///     order's e-mail address left for it; null otherwise
     /// </summary>
     private async Task<Customer> GrantedGuest(Order order)
     {
-        if (!GuestReturnsAllowed())
+        if (!GuestOrderGrant.ReturnsAllowed(_orderSettings))
             return null;
 
         return await GuestOrderGrant.GrantedGuest(HttpContext, order,
@@ -160,13 +152,15 @@ public class MerchandiseReturnController : BasePublicController
     /// </summary>
     private async Task<(Order Order, Customer Customer)> CustomerOrder(string orderId)
     {
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var order = await _orderService.GetOrderById(orderId);
-        if (await order.Access(customer, _groupService) && OfCurrentStore(order))
-            return (order, customer);
+        if (order == null || !OfCurrentStore(order))
+            return (null, null);
 
-        var guest = await GrantedGuest(order);
-        return guest != null ? (order, guest) : (null, null);
+        var (customer, guestLink) = await GuestOrderGrant.OrderCustomer(HttpContext, order,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, _groupService);
+        return customer != null && (!guestLink || GuestOrderGrant.ReturnsAllowed(_orderSettings))
+            ? (order, customer)
+            : (null, null);
     }
 
     /// <summary>

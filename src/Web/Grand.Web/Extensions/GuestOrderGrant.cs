@@ -38,6 +38,14 @@ public static class GuestOrderGrant
     }
 
     /// <summary>
+    ///     Whether a guest's link to an order also reaches its returns: only while the store takes them
+    /// </summary>
+    public static bool ReturnsAllowed(OrderSettings orderSettings)
+    {
+        return Allowed(orderSettings) && orderSettings.MerchandiseReturnsEnabled;
+    }
+
+    /// <summary>
     ///     The token of the link sent to the order's e-mail address
     /// </summary>
     public static string LinkToken(IDataProtectionProvider provider, Order order)
@@ -98,6 +106,20 @@ public static class GuestOrderGrant
 
         return await GuestOfOrder(order, storeId, httpContext.RequestServices.GetRequiredService<ICustomerService>(),
             groupService);
+    }
+
+    /// <summary>
+    ///     The customer acting on the order: the visitor when it is theirs, else the order's guest when the browser
+    ///     holds the grant a link sent to the order's e-mail address left for it; a null customer otherwise
+    /// </summary>
+    public static async Task<(Customer Customer, bool GuestLink)> OrderCustomer(HttpContext httpContext, Order order,
+        Customer visitor, string storeId, IGroupService groupService)
+    {
+        if (visitor != null && await order.Access(visitor, groupService))
+            return (visitor, false);
+
+        var guest = await GrantedGuest(httpContext, order, visitor, storeId, groupService);
+        return (guest, guest != null);
     }
 
     /// <summary>

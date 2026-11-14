@@ -1,5 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Checkout.Payments;
+﻿using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Domain.Payments;
 using Grand.Web.Common.Controllers;
 using Microsoft.AspNetCore.Mvc;
@@ -12,7 +11,6 @@ namespace Payments.StripeCheckout.Controllers;
 public class PaymentStripeCheckoutController : BasePaymentController
 {
     private readonly ILogger<PaymentStripeCheckoutController> _logger;
-    private readonly IOrderService _orderService;
 
     private readonly PaymentSettings _paymentSettings;
     private readonly IPaymentTransactionService _paymentTransactionService;
@@ -20,13 +18,11 @@ public class PaymentStripeCheckoutController : BasePaymentController
     private readonly IStripeCheckoutService _stripeCheckoutService;
 
     public PaymentStripeCheckoutController(
-        IOrderService orderService,
         ILogger<PaymentStripeCheckoutController> logger,
         IPaymentTransactionService paymentTransactionService,
         PaymentSettings paymentSettings,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings, IStripeCheckoutService stripeCheckoutService)
     {
-        _orderService = orderService;
         _logger = logger;
         _paymentTransactionService = paymentTransactionService;
         _paymentSettings = paymentSettings;
@@ -49,14 +45,14 @@ public class PaymentStripeCheckoutController : BasePaymentController
         }
     }
 
-    public async Task<IActionResult> CancelOrder(string orderId)
+    public IActionResult CancelOrder(string orderId)
     {
-        //the order's page checks who may see it: a guest who came with the order's link is not its customer
-        var order = await _orderService.GetOrderById(orderId);
-        if (order != null)
-            return RedirectToRoute("OrderDetails", new { orderId = order.Id });
+        if (string.IsNullOrEmpty(orderId))
+            return RedirectToRoute("HomePage");
 
-        return RedirectToRoute("HomePage");
+        //the order's page checks who may see it, a guest who came with the order's link too, and answers the same
+        //for an order that is not the visitor's and one that does not exist
+        return RedirectToRoute("OrderDetails", new { orderId });
     }
 
     public IActionResult PaymentInfo()

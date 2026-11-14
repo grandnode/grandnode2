@@ -150,6 +150,19 @@ public class SendGuestOrderLinkCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task EarlierMatchNotGuests_GuestOrderChosen()
+    {
+        //a value can match several orders of the address: a deleted one found first does not hide the guest's
+        _otherOrders.Add(new Order {
+            Id = "o2", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "guest@example.com",
+            Deleted = true
+        });
+
+        Assert.IsTrue(await Send());
+        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
+    }
+
+    [TestMethod]
     public async Task OrderWithoutEmail_NothingSent()
     {
         _order.CustomerEmail = null;

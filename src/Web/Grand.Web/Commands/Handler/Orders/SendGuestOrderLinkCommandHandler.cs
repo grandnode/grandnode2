@@ -37,12 +37,16 @@ public class SendGuestOrderLinkCommandHandler(
             await orderService.GetOrderByNumber(number) is { } byNumber)
             candidates.Add(byNumber);
 
-        var order = candidates.FirstOrDefault(x => x.StoreId == request.Store.Id && EmailMatches(x, request.Email));
-        if (order == null)
-            return false;
+        //a value can be one order's code and another's number: the first that is a guest's order of the address
+        Domain.Orders.Order order = null;
+        foreach (var candidate in candidates.Where(x => EmailMatches(x, request.Email)))
+            if (await GuestOrderGrant.GuestOfOrder(candidate, request.Store.Id, customerService, groupService) != null)
+            {
+                order = candidate;
+                break;
+            }
 
-        if (await GuestOrderGrant.GuestOfOrder(order, request.Store.Id, customerService,
-                groupService) == null)
+        if (order == null)
             return false;
 
         var throttleKey = string.Format(CacheKey.GUEST_ORDER_LINK_KEY, order.Id);

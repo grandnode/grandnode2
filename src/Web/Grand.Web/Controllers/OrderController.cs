@@ -79,13 +79,9 @@ public class OrderController : BasePublicController
     /// </summary>
     private async Task<(Order Order, Customer Customer, bool GuestLink)> CustomerOrder(Order order)
     {
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
-        if (await order.Access(customer, _groupService))
-            return (order, customer, false);
-
-        var guest = await GuestOrderGrant.GrantedGuest(HttpContext, order, customer,
-            _contextAccessor.StoreContext.CurrentStore.Id, _groupService);
-        return guest != null ? (order, guest, true) : (null, null, false);
+        var (customer, guestLink) = await GuestOrderGrant.OrderCustomer(HttpContext, order,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, _groupService);
+        return customer != null ? (order, customer, guestLink) : (null, null, false);
     }
 
     #endregion
@@ -130,7 +126,7 @@ public class OrderController : BasePublicController
             model.ShowAddOrderNote = false;
             model.CanWithdrawOrderApproval = false;
             //the order's returns are reached from here only
-            if (_orderSettings.MerchandiseReturnsEnabled)
+            if (GuestOrderGrant.ReturnsAllowed(_orderSettings))
                 model.HasMerchandiseReturns = (await _mediator.Send(new GetMerchandiseReturnQuery {
                     StoreId = _contextAccessor.StoreContext.CurrentStore.Id, OrderId = order.Id, PageSize = 1
                 })).Any();
@@ -320,6 +316,8 @@ public class OrderController : BasePublicController
                 Host = _contextAccessor.StoreContext.CurrentHost
             });
             model.Result = _translationService.GetResource("Order.Guest.Sent");
+            //the fields render what was posted unless the posted values are dropped as well
+            ModelState.Clear();
             model.OrderNumberOrCode = null;
             model.Email = null;
         }

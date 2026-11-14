@@ -80,7 +80,8 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
         Grant(_order);
 
         _controller = new DownloadController(downloads.Object, new Mock<IProductService>().Object, orders.Object,
-            returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings()) {
+            returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings(),
+            _groupService.Object, _orderSettings) {
             ControllerContext = new ControllerContext { HttpContext = _httpContext }
         };
     }
@@ -95,7 +96,7 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
 
     private Task<IActionResult> Download()
     {
-        return _controller.GetMerchandiseReturnNoteFile("n1", _groupService.Object);
+        return _controller.GetMerchandiseReturnNoteFile("n1");
     }
 
     [TestMethod]

@@ -169,6 +169,19 @@ public class OrderControllerGuestTests
     }
 
     [TestMethod]
+    public async Task GuestPost_Valid_FieldsCleared()
+    {
+        //the fields render the posted values kept in the model state, not the model's
+        _controller.ModelState.SetModelValue("Email", "guest@example.com", "guest@example.com");
+        _controller.ModelState.MarkFieldValid("Email");
+
+        await _controller.GuestOrder(
+            new GuestOrderModel { OrderNumberOrCode = "K7Q2M9XA", Email = "guest@example.com" }, new CaptchaSettings());
+
+        Assert.AreEqual(0, _controller.ModelState.Count);
+    }
+
+    [TestMethod]
     public async Task GuestPost_InvalidModel_NoCommand()
     {
         _controller.ModelState.AddModelError("Email", "Enter the e-mail address.");
