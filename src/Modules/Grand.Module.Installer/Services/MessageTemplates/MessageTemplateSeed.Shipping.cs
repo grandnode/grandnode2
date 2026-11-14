@@ -140,6 +140,79 @@ public static partial class MessageTemplateSeed
                 EmailAccountId = ea
             },
             new() {
+                Name = "MerchandiseReturnAccepted.CustomerNotification",
+                Subject = "{{Store.Name}} — Return #{{MerchandiseReturn.ReturnNumber}} accepted",
+                Body =
+                    Layout(
+                        "Your merchandise return was accepted.",
+                        "Your return was accepted",
+                        @"<p>Hello {{Customer.FullName}},</p>
+                <p>We accepted your merchandise return #{{MerchandiseReturn.ReturnNumber}}. Here is how to send the items back.</p>
+                {% if MerchandiseReturn.ReturnMethod != '' %}
+                <p><strong>Return method</strong><br />{{MerchandiseReturn.ReturnMethod}}</p>
+                {% endif %}
+                {% if MerchandiseReturn.ReturnCode != '' %}
+                <p><strong>Return code</strong><br />{{MerchandiseReturn.ReturnCode}}</p>
+                {% endif %}
+                {% if MerchandiseReturn.ReturnInstructions != '' %}
+                <p>{{MerchandiseReturn.ReturnInstructions}}</p>
+                {% endif %}
+                {% if MerchandiseReturn.ReturnLabelUrl != '' %}
+                " + Button("{{MerchandiseReturn.ReturnLabelUrl}}", "Your return label") + @"
+                {% else %}
+                " + Button("{{Store.URL}}merchandisereturndetails/{{MerchandiseReturn.Id}}", "View return") + @"
+                {% endif %}"),
+                IsActive = true,
+                EmailAccountId = ea
+            },
+            new() {
+                Name = "MerchandiseReturnReceived.CustomerNotification",
+                Subject = "{{Store.Name}} — Return #{{MerchandiseReturn.ReturnNumber}} received",
+                Body =
+                    Layout(
+                        "The items of your return arrived.",
+                        "We received your return",
+                        @"<p>Hello {{Customer.FullName}},</p>
+                <p>We received the items of your merchandise return #{{MerchandiseReturn.ReturnNumber}} and are checking them. We will let you know once your return is settled.</p>
+                " + Button("{{Store.URL}}merchandisereturndetails/{{MerchandiseReturn.Id}}", "View return") + @""),
+                IsActive = true,
+                EmailAccountId = ea
+            },
+            new() {
+                Name = "MerchandiseReturnRejected.CustomerNotification",
+                Subject = "{{Store.Name}} — Return #{{MerchandiseReturn.ReturnNumber}} rejected",
+                Body =
+                    Layout(
+                        "Your merchandise return was not accepted.",
+                        "Your return was not accepted",
+                        @"<p>Hello {{Customer.FullName}},</p>
+                <p>We could not accept your merchandise return #{{MerchandiseReturn.ReturnNumber}}.</p>
+                {% if MerchandiseReturn.RejectionReason != '' %}
+                <p><strong>Reason</strong><br />{{MerchandiseReturn.RejectionReason}}</p>
+                {% endif %}
+                " + Button("{{Store.URL}}merchandisereturndetails/{{MerchandiseReturn.Id}}", "View return") + @"
+                <p>If you have any questions about your return, just reply to this email.</p>"),
+                IsActive = true,
+                EmailAccountId = ea
+            },
+            new() {
+                Name = "MerchandiseReturnCompleted.CustomerNotification",
+                Subject = "{{Store.Name}} — Return #{{MerchandiseReturn.ReturnNumber}} completed",
+                Body =
+                    Layout(
+                        "Your merchandise return is complete.",
+                        "Your return is complete",
+                        @"<p>Hello {{Customer.FullName}},</p>
+                {% if MerchandiseReturn.RefundAmount != '' %}
+                <p>We refunded <strong>{{MerchandiseReturn.RefundAmount}}</strong> for your merchandise return #{{MerchandiseReturn.ReturnNumber}}. It may take a few days to reach your account.</p>
+                {% else %}
+                <p>Your merchandise return #{{MerchandiseReturn.ReturnNumber}} is complete.</p>
+                {% endif %}
+                " + Button("{{Store.URL}}merchandisereturndetails/{{MerchandiseReturn.Id}}", "View return") + @""),
+                IsActive = true,
+                EmailAccountId = ea
+            },
+            new() {
                 Name = "Customer.NewMerchandiseReturnNote",
                 Subject = "{{Store.Name}} — New note on return #{{MerchandiseReturn.ReturnNumber}}",
                 Body =

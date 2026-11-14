@@ -1,4 +1,6 @@
-﻿namespace Grand.Business.Messages.Services;
+﻿using Grand.Domain.Orders;
+
+namespace Grand.Business.Messages.Services;
 
 public static class MessageTemplateNames
 {
@@ -51,6 +53,33 @@ public static class MessageTemplateNames
     public const string SendNewMerchandiseReturnNoteAddedStoreOwnerMessage =
         "NewMerchandiseReturnNote.StoreOwnerNotification";
 
+    public const string SendMerchandiseReturnAcceptedCustomerMessage =
+        "MerchandiseReturnAccepted.CustomerNotification";
+
+    public const string SendMerchandiseReturnReceivedCustomerMessage =
+        "MerchandiseReturnReceived.CustomerNotification";
+
+    public const string SendMerchandiseReturnRejectedCustomerMessage =
+        "MerchandiseReturnRejected.CustomerNotification";
+
+    public const string SendMerchandiseReturnCompletedCustomerMessage =
+        "MerchandiseReturnCompleted.CustomerNotification";
+
     public const string SendGuestOrderLinkCustomerMessage =
         "GuestOrderLink.CustomerNotification";
+
+    /// <summary>
+    ///     The customer's message for a merchandise return that reached the status; null for a status told by the
+    ///     generic status changed message (a return opened again, a cancelled one)
+    /// </summary>
+    public static string MerchandiseReturnStatusTemplate(MerchandiseReturnStatus status)
+    {
+        return status switch {
+            MerchandiseReturnStatus.Accepted => SendMerchandiseReturnAcceptedCustomerMessage,
+            MerchandiseReturnStatus.Received => SendMerchandiseReturnReceivedCustomerMessage,
+            MerchandiseReturnStatus.Rejected => SendMerchandiseReturnRejectedCustomerMessage,
+            MerchandiseReturnStatus.Completed => SendMerchandiseReturnCompletedCustomerMessage,
+            _ => null
+        };
+    }
 }

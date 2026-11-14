@@ -19,14 +19,17 @@ public interface IMerchandiseReturnMessageProviderService
         string languageId, DomainHost host = null);
 
     /// <summary>
-    ///     Sends 'Merchandise Return status changed' message to a customer
+    ///     Sends the customer the message of the status the merchandise return reached (accepted, received, rejected,
+    ///     completed), or the generic 'Merchandise Return status changed' one when that status has none, or it is
+    ///     inactive or missing
     /// </summary>
     /// <param name="merchandiseReturn">Merchandise return</param>
     /// <param name="order">Order item</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="statusNote">The note shown to the customer with the change, e.g. why the return was rejected</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendMerchandiseReturnStatusChangedCustomerMessage(MerchandiseReturn merchandiseReturn, Order order,
-        string languageId);
+        string languageId, string statusNote = null);
 
     /// <summary>
     ///     Sends 'New Merchandise Return' message to a customer

@@ -57,10 +57,21 @@ public class
                 ? country?.GetTranslation(x => x.Name, request.Language.Id)
                 : "";
 
+        //why the return was rejected, as the staff wrote it for the customer; encoded as the customer's comment is
+        if (request.MerchandiseReturn.MerchandiseReturnStatus == MerchandiseReturnStatus.Rejected)
+            liquidMerchandiseReturn.RejectionReason = FormatText.ConvertText(request.StatusNote) ?? "";
+
         var shipping = request.MerchandiseReturn.ReturnShipping;
+        var refund = request.MerchandiseReturn.Refund;
+        var currency = shipping != null || refund?.RefundedOnUtc != null
+            ? await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode)
+            : null;
+        //the money given back, once it went back; the refund's amounts are in the order's currency
+        if (refund?.RefundedOnUtc != null)
+            liquidMerchandiseReturn.RefundAmount = _priceFormatter.FormatPrice(refund.Amount, currency);
+
         if (shipping != null)
         {
-            var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
             //texts the customer, the staff or a provider wrote go into the HTML of the message encoded, as the
             //customer's comment does
             liquidMerchandiseReturn.ReturnMethod = FormatText.ConvertText(shipping.OptionName);
