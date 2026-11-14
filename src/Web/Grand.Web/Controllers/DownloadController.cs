@@ -78,6 +78,25 @@ public class DownloadController : BasePublicController
             { FileDownloadName = fileName + download.Extension };
     }
 
+    /// <summary>
+    ///     Whether the order is the current customer's, or one of the accounts they own
+    /// </summary>
+    private bool OwnOrder(Order order)
+    {
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        return customer != null && (order.CustomerId == customer.Id || order.OwnerId == customer.Id);
+    }
+
+    /// <summary>
+    ///     Whether the browser holds the grant the link sent to the order's e-mail left for it
+    /// </summary>
+    private async Task<bool> GuestGranted(Order order)
+    {
+        return await GuestOrderGrant.GrantedGuest(HttpContext, order, _contextAccessor.WorkContext.CurrentCustomer,
+            _contextAccessor.StoreContext.CurrentStore.Id,
+            HttpContext.RequestServices.GetRequiredService<IGroupService>()) != null;
+    }
+
     [HttpGet]
     public virtual async Task<IActionResult> GetDownload(Guid orderItemId, bool agree = false)
     {
@@ -95,7 +114,7 @@ public class DownloadController : BasePublicController
             if (_contextAccessor.WorkContext.CurrentCustomer == null)
                 return Challenge();
 
-            if (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id && order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
+            if (!OwnOrder(order) && !await GuestGranted(order))
                 return Content("This is not your order");
         }
 
@@ -196,7 +215,7 @@ public class DownloadController : BasePublicController
             return Content("Downloads are not allowed");
 
         if (_customerSettings.DownloadableProductsValidateUser)
-            if (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id && order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
+            if (!OwnOrder(order) && !await GuestGranted(order))
                 return Challenge();
 
         var download = await _downloadService.GetDownloadById(!string.IsNullOrEmpty(orderItem.LicenseDownloadId)
@@ -260,9 +279,15 @@ public class DownloadController : BasePublicController
         if (order == null)
             return NotFound();
 
-        if (_contextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id &&
-                                                     order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
-            return Challenge();
+        if (!OwnOrder(order))
+        {
+            if (!await GuestGranted(order))
+                return Challenge();
+
+            //the order's page shows a guest who came with its link only the notes meant for the customer
+            if (!orderNote.DisplayToCustomer)
+                return NotFound();
+        }
 
         var download = await _downloadService.GetDownloadById(orderNote.DownloadId);
         if (download == null)
