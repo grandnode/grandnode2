@@ -100,13 +100,14 @@ public class MerchandiseReturnSubmitCommandHandler
     private async Task SavePhotos(MerchandiseReturnSubmitCommand request, MerchandiseReturn merchandiseReturn,
         string customerId)
     {
-        foreach (var item in merchandiseReturn.MerchandiseReturnItems)
-        {
-            if (request.Photos == null || !request.Photos.TryGetValue(item.OrderItemId, out var photos))
-                continue;
+        if (request.Photos == null)
+            return;
 
+        foreach (var item in merchandiseReturn.MerchandiseReturnItems.Where(x =>
+                     request.Photos.ContainsKey(x.OrderItemId)))
+        {
             string productName = null;
-            foreach (var photo in photos)
+            foreach (var photo in request.Photos[item.OrderItemId])
                 try
                 {
                     productName ??= await ProductName(request.Order, item.OrderItemId);
