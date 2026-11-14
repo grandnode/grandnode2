@@ -181,7 +181,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
             ProductType = product.ProductTypeId,
             Sku = product.Sku,
             Gtin = product.Gtin,
-            Flag = product.Flag,
+            Flag = product.GetTranslation(x => x.Flag, _contextAccessor.WorkContext.WorkingLanguage.Id),
             Mpn = product.Mpn,
             BrandName = string.IsNullOrEmpty(product.BrandId)
                 ? ""
