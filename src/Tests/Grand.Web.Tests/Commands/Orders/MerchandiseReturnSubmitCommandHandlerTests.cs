@@ -149,7 +149,10 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         model.Items.Add(new MerchandiseReturnModel.OrderItemModel {
             Id = "a", Quantity = quantity, MerchandiseReturnReasonId = "rr1", MerchandiseReturnActionId = "ra1"
         });
-        return new MerchandiseReturnSubmitCommand { Model = model, Order = _order, Address = new Address() };
+        return new MerchandiseReturnSubmitCommand {
+            Model = model, Order = _order, Address = new Address(),
+            Customer = new Customer { Id = "c1", OwnerId = "owner" }
+        };
     }
 
     [TestMethod]

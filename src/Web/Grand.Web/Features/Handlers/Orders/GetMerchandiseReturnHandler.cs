@@ -78,7 +78,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
             AllowToUploadFiles = _orderSettings.MerchandiseReturns_AllowToUploadFiles,
             //the options themselves depend on the items chosen, so the form loads them once a quantity is chosen
             ReturnShippingEnabled = (await _returnShippingService.LoadActiveProviders(
-                _contextAccessor.WorkContext.CurrentCustomer, request.Order.StoreId)).Any()
+                request.Customer, request.Order.StoreId)).Any()
         };
 
         //products
@@ -153,7 +153,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
     {
         //existing addresses
         var addresses = new List<Address>();
-        foreach (var item in _contextAccessor.WorkContext.CurrentCustomer.Addresses)
+        foreach (var item in request.Customer.Addresses)
         {
             if (string.IsNullOrEmpty(item.CountryId))
             {
@@ -187,7 +187,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
             ExcludeProperties = false,
             LoadCountries = () => countries,
             PrePopulateWithCustomerFields = true,
-            Customer = _contextAccessor.WorkContext.CurrentCustomer
+            Customer = request.Customer
         });
     }
 }
