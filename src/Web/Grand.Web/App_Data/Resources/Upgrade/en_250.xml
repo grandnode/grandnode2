@@ -2253,4 +2253,10 @@
 	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestMerchandiseReturnPage.Hint" Area="Admin">
 		<Value>Check to show CAPTCHA on the page where guests ask for a return link.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Guest.OrderNumber.Required" Area="Front">
+		<Value>Enter the order number.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Guest.Email.Required" Area="Front">
+		<Value>Enter the e-mail address.</Value>
+	</Resource>
 </Language>
