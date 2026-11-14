@@ -17,6 +17,11 @@ public class MerchandiseReturnDetailsModel : BaseModel
 
     public string ExternalId { get; set; }
 
+    /// <summary>
+    ///     Shown to a visitor without an account, who has no account pages to go to
+    /// </summary>
+    public bool Guest { get; set; }
+
     public MerchandiseReturnStatus MerchandiseReturnStatus { get; set; }
 
     public DateTime CreatedOnUtc { get; set; }

@@ -10,9 +10,11 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Orders;
@@ -89,6 +91,8 @@ public class MerchandiseReturnControllerGuestTests
         _provider = new EphemeralDataProtectionProvider();
         _httpContext = new DefaultHttpContext {
             RequestServices = new ServiceCollection().AddSingleton(_provider).AddSingleton(customers.Object)
+                .AddSingleton(_orderSettings)
+                .AddSingleton<ICookieOptionsFactory>(new CookieOptionsFactory(new SecurityConfig()))
                 .BuildServiceProvider()
         };
         Grant(_order1);
@@ -238,14 +242,32 @@ public class MerchandiseReturnControllerGuestTests
     }
 
     [TestMethod]
-    public async Task Details_NoGrantNoOwner_ChallengeWithoutServices()
+    public async Task Details_NoGrantNoOwner_Challenge()
     {
         _httpContext.Request.Headers.Cookie = "";
-        _httpContext.RequestServices = null;
 
         var result = await _controller.MerchandiseReturnDetails("r1");
 
         Assert.IsInstanceOfType<ChallengeResult>(result);
+    }
+
+    [TestMethod]
+    public async Task Grant_VisitorLoggedIn_NotServed()
+    {
+        //an account logged in on a browser a guest left their grant in acts on its own orders only
+        _groups.Setup(x => x.IsRegistered(_visitor)).ReturnsAsync(true);
+
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.MerchandiseReturnDetails("r1"));
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.MerchandiseReturn("o1"));
+        Assert.IsInstanceOfType<NotFoundObjectResult>(await _controller.MerchandiseReturnCancel("r1"));
+    }
+
+    [TestMethod]
+    public async Task Details_Grant_ShownAsGuest()
+    {
+        var result = (ViewResult)await _controller.MerchandiseReturnDetails("r1");
+
+        Assert.IsTrue(((MerchandiseReturnDetailsModel)result.Model).Guest);
     }
 
     private ICustomerService Customers => _httpContext.RequestServices.GetRequiredService<ICustomerService>();
@@ -316,7 +338,7 @@ public class MerchandiseReturnControllerGuestTests
 
         Assert.AreEqual("CustomerMerchandiseReturns", ((RedirectToRouteResult)result).RouteName);
         StringAssert.Contains(_httpContext.Response.Headers.SetCookie.ToString(),
-            MerchandiseReturnGuestGrant.CookieName);
+            MerchandiseReturnGuestGrant.CookieName(new CookieOptionsFactory(new SecurityConfig())));
     }
 
     [TestMethod]
@@ -325,6 +347,18 @@ public class MerchandiseReturnControllerGuestTests
         var result = await _controller.GuestMerchandiseReturnAccess("not-a-token", _provider, Customers);
 
         Assert.AreEqual("GuestMerchandiseReturn", ((RedirectToRouteResult)result).RouteName);
+        Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
+    }
+
+    [TestMethod]
+    public async Task Access_VisitorLoggedIn_RedirectsToOwnListWithoutCookie()
+    {
+        _groups.Setup(x => x.IsRegistered(_visitor)).ReturnsAsync(true);
+        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order1);
+
+        var result = await _controller.GuestMerchandiseReturnAccess(token, _provider, Customers);
+
+        Assert.AreEqual("CustomerMerchandiseReturns", ((RedirectToRouteResult)result).RouteName);
         Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
     }
 
@@ -367,6 +401,7 @@ public class MerchandiseReturnControllerGuestTests
 
         Assert.AreEqual("o1", allowed.ReturnOrderId);
         Assert.IsNull(returned.ReturnOrderId);
+        Assert.IsTrue(allowed.Guest);
     }
 
     [TestMethod]

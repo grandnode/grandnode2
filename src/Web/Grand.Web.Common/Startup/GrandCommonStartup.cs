@@ -92,6 +92,10 @@ public class GrandCommonStartup : IStartupApplication
         services.AddRateLimiter(options =>
         {
             options.RejectionStatusCode = StatusCodes.Status429TooManyRequests;
+            //with a body: the store shows no page of its own for this status
+            options.OnRejected = (context, cancellationToken) =>
+                new ValueTask(context.HttpContext.Response.WriteAsync(
+                    "Too many requests. Please try again later.", cancellationToken));
             //a guest asking for a return link: guessing order numbers and e-mail addresses takes many tries
             options.AddPolicy(GuestMerchandiseReturnRateLimitPolicy, context =>
                 RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "",

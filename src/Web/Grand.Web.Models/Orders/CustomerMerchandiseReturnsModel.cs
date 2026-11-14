@@ -11,6 +11,11 @@ public class CustomerMerchandiseReturnsModel : BaseModel
     /// </summary>
     public string ReturnOrderId { get; set; }
 
+    /// <summary>
+    ///     Shown to a guest who came with a return link, who has no account pages to go to
+    /// </summary>
+    public bool Guest { get; set; }
+
     #region Nested classes
 
     public class MerchandiseReturnModel : BaseEntityModel

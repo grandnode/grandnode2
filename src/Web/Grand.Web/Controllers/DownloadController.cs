@@ -376,7 +376,8 @@ public class DownloadController : BasePublicController
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
         if ((customer == null || !await merchandiseReturn.Access(customer, groupService)) &&
-            !await GuestGranted(order, groupService))
+            await MerchandiseReturnGuestGrant.GrantedGuest(HttpContext, order, customer,
+                _contextAccessor.StoreContext.CurrentStore.Id, groupService) == null)
             return Challenge();
 
         //in the store of its order, and only a note the customer is shown
@@ -402,23 +403,6 @@ public class DownloadController : BasePublicController
             : "application/octet-stream";
         return new FileContentResult(download.DownloadBinary, contentType)
             { FileDownloadName = fileName + download.Extension };
-    }
-
-    /// <summary>
-    ///     Whether the browser holds the grant a guest's return link left for the order
-    /// </summary>
-    private async Task<bool> GuestGranted(Order order, IGroupService groupService)
-    {
-        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        if (order == null || MerchandiseReturnGuestGrant.GrantedOrderId(HttpContext, storeId) != order.Id)
-            return false;
-
-        var orderSettings = HttpContext.RequestServices.GetRequiredService<OrderSettings>();
-        if (!orderSettings.MerchandiseReturnsEnabled || !orderSettings.MerchandiseReturns_AllowGuestReturns)
-            return false;
-
-        return await MerchandiseReturnGuestGrant.GuestOfOrder(order, storeId,
-            HttpContext.RequestServices.GetRequiredService<ICustomerService>(), groupService) != null;
     }
 
     [HttpGet]

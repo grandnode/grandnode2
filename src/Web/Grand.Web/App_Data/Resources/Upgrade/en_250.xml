@@ -2280,6 +2280,9 @@
 	<Resource Name="MerchandiseReturns.Guest.InvalidLink" Area="Front">
 		<Value>The link has expired or is not valid. Ask for a new one.</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Guest.LoggedIn" Area="Front">
+		<Value>You are logged in to an account. Log out, then open the link again to return items from an order placed without an account.</Value>
+	</Resource>
 	<Resource Name="Account.Login.GuestMerchandiseReturn" Area="Front">
 		<Value>Ordered without an account? Return items</Value>
 	</Resource>

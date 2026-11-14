@@ -7,6 +7,8 @@ using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Localization;
 using Grand.Web.Controllers;
 using Grand.Web.Extensions;
@@ -72,6 +74,7 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
                 .AddSingleton<IDataProtectionProvider>(new EphemeralDataProtectionProvider())
                 .AddSingleton(customers.Object)
                 .AddSingleton(_orderSettings)
+                .AddSingleton<ICookieOptionsFactory>(new CookieOptionsFactory(new SecurityConfig()))
                 .BuildServiceProvider()
         };
         Grant(_order);

@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
@@ -16,10 +17,25 @@ public static class MerchandiseReturnGuestGrant
 {
     public const string LinkPurpose = "Grand.Web.MerchandiseReturn.GuestLink";
     public const string GrantPurpose = "Grand.Web.MerchandiseReturn.GuestGrant";
-    public const string CookieName = ".Grand.MerchandiseReturnGuest";
 
     public static readonly TimeSpan LinkLifetime = TimeSpan.FromHours(24);
     public static readonly TimeSpan GrantLifetime = TimeSpan.FromHours(2);
+
+    /// <summary>
+    ///     The name of the grant cookie, with the prefix of the store's other cookies
+    /// </summary>
+    public static string CookieName(ICookieOptionsFactory cookieOptionsFactory)
+    {
+        return $"{cookieOptionsFactory.CookiePrefix}MerchandiseReturnGuest";
+    }
+
+    /// <summary>
+    ///     Whether the store lets guests return items; the pages of the flow are not found otherwise
+    /// </summary>
+    public static bool Allowed(OrderSettings orderSettings)
+    {
+        return orderSettings.MerchandiseReturnsEnabled && orderSettings.MerchandiseReturns_AllowGuestReturns;
+    }
 
     /// <summary>
     ///     The token of the link sent to the order's e-mail address
@@ -38,19 +54,20 @@ public static class MerchandiseReturnGuestGrant
     }
 
     /// <summary>
-    ///     Leaves the grant for the order in the browser
+    ///     Leaves the grant for the order in the browser, until it is closed and for the grant's lifetime at most
     /// </summary>
     public static void Grant(HttpContext httpContext, Order order)
     {
-        var expiration = DateTimeOffset.UtcNow + GrantLifetime;
         var provider = httpContext.RequestServices.GetRequiredService<IDataProtectionProvider>();
-        httpContext.Response.Cookies.Append(CookieName,
-            Protector(provider, GrantPurpose).Protect(Payload(order), expiration),
-            new CookieOptions {
-                HttpOnly = true, Secure = true, SameSite = SameSiteMode.Lax, Path = "/", Expires = expiration,
-                //the visitor asked for it with the link, as for the session cookie
-                IsEssential = true
-            });
+        var cookieOptionsFactory = httpContext.RequestServices.GetRequiredService<ICookieOptionsFactory>();
+        var options = cookieOptionsFactory.Create();
+        //a cookie of the browser session: a shared computer does not keep it once the guest closes the browser
+        options.Expires = null;
+        //the visitor asked for it with the link, as for the session cookie
+        options.IsEssential = true;
+        httpContext.Response.Cookies.Append(CookieName(cookieOptionsFactory),
+            Protector(provider, GrantPurpose).Protect(Payload(order), DateTimeOffset.UtcNow + GrantLifetime),
+            options);
     }
 
     /// <summary>
@@ -58,12 +75,29 @@ public static class MerchandiseReturnGuestGrant
     /// </summary>
     public static string GrantedOrderId(HttpContext httpContext, string storeId)
     {
-        //nothing is resolved for the requests of everyone else
-        if (!httpContext.Request.Cookies.TryGetValue(CookieName, out var cookie))
+        var name = CookieName(httpContext.RequestServices.GetRequiredService<ICookieOptionsFactory>());
+        if (!httpContext.Request.Cookies.TryGetValue(name, out var cookie))
             return null;
 
         return OrderId(httpContext.RequestServices.GetRequiredService<IDataProtectionProvider>(), GrantPurpose,
             cookie, storeId);
+    }
+
+    /// <summary>
+    ///     The guest of an order placed without an account, when the browser holds the grant a link sent to the
+    ///     order's e-mail address left for it; null otherwise. A visitor logged in acts on the orders of their account
+    ///     only, whatever the browser holds
+    /// </summary>
+    public static async Task<Customer> GrantedGuest(HttpContext httpContext, Order order, Customer visitor,
+        string storeId, IGroupService groupService)
+    {
+        if (order == null || GrantedOrderId(httpContext, storeId) != order.Id ||
+            !Allowed(httpContext.RequestServices.GetRequiredService<OrderSettings>()) ||
+            (visitor != null && await groupService.IsRegistered(visitor)))
+            return null;
+
+        return await GuestOfOrder(order, storeId, httpContext.RequestServices.GetRequiredService<ICustomerService>(),
+            groupService);
     }
 
     /// <summary>

@@ -6,10 +6,13 @@ using Grand.Domain.Customers;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -60,7 +63,13 @@ public class DownloadControllerMerchandiseReturnNoteTests
 
         _controller = new DownloadController(downloads.Object, new Mock<IProductService>().Object, orders.Object,
             returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings()) {
-            ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
+            ControllerContext = new ControllerContext {
+                HttpContext = new DefaultHttpContext {
+                    RequestServices = new ServiceCollection()
+                        .AddSingleton<ICookieOptionsFactory>(new CookieOptionsFactory(new SecurityConfig()))
+                        .BuildServiceProvider()
+                }
+            }
         };
     }
 

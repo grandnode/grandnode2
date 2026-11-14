@@ -55,6 +55,9 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
         var cache = new Mock<ICacheBase>();
         cache.Setup(x => x.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<bool>>>(), It.IsAny<int>()))
             .Returns<string, Func<Task<bool>>, int>(async (key, acquire, _) => !seen.Add(key) || await acquire());
+        cache.Setup(x => x.RemoveAsync(It.IsAny<string>(), It.IsAny<bool>()))
+            .Callback<string, bool>((key, _) => seen.Remove(key))
+            .Returns(Task.CompletedTask);
 
         _provider = new EphemeralDataProtectionProvider();
         _handler = new SendGuestMerchandiseReturnLinkCommandHandler(orders.Object, customers.Object, _groups.Object,
@@ -160,5 +163,27 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
             It.IsAny<DomainHost>())).ReturnsAsync(0);
 
         Assert.IsFalse(await Send());
+    }
+
+    [TestMethod]
+    public async Task LinkNotSent_GuestMayAskAgain()
+    {
+        //Arrange - the first link fails, the second goes out
+        _messages.SetupSequence(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(),
+                It.IsAny<string>(), It.IsAny<DomainHost>()))
+            .ThrowsAsync(new InvalidOperationException("no e-mail account"))
+            .ReturnsAsync(0)
+            .ReturnsAsync(1);
+
+        //Act
+        var thrown = await Send();
+        var inactive = await Send();
+        var sent = await Send();
+
+        //Assert
+        Assert.IsFalse(thrown);
+        Assert.IsFalse(inactive);
+        Assert.IsTrue(sent);
+        VerifySent(Times.Exactly(3));
     }
 }

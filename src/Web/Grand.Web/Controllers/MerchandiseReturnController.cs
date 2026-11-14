@@ -140,7 +140,7 @@ public class MerchandiseReturnController : BasePublicController
     /// </summary>
     private bool GuestReturnsAllowed()
     {
-        return _orderSettings.MerchandiseReturnsEnabled && _orderSettings.MerchandiseReturns_AllowGuestReturns;
+        return MerchandiseReturnGuestGrant.Allowed(_orderSettings);
     }
 
     private static bool DisplayGuestCaptcha(CaptchaSettings captchaSettings)
@@ -152,15 +152,11 @@ public class MerchandiseReturnController : BasePublicController
     ///     The guest of an order placed without an account, when the browser holds the grant a link sent to the
     ///     order's e-mail address left for it; null otherwise
     /// </summary>
-    private async Task<Customer> GrantedGuest(Order order)
+    private Task<Customer> GrantedGuest(Order order)
     {
-        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        if (order == null || MerchandiseReturnGuestGrant.GrantedOrderId(HttpContext, storeId) != order.Id ||
-            !GuestReturnsAllowed())
-            return null;
-
-        return await MerchandiseReturnGuestGrant.GuestOfOrder(order, storeId,
-            HttpContext.RequestServices.GetRequiredService<ICustomerService>(), _groupService);
+        return MerchandiseReturnGuestGrant.GrantedGuest(HttpContext, order,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
+            _groupService);
     }
 
     /// <summary>
@@ -266,6 +262,7 @@ public class MerchandiseReturnController : BasePublicController
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Currency = _contextAccessor.WorkContext.WorkingCurrency
         });
+        model.Guest = true;
         if (await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
             model.ReturnOrderId = order.Id;
 
@@ -323,6 +320,13 @@ public class MerchandiseReturnController : BasePublicController
     {
         if (!GuestReturnsAllowed())
             return NotFound();
+
+        //the grant serves visitors without an account only: one logged in would see their own returns
+        if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
+        {
+            Error(_translationService.GetResource("MerchandiseReturns.Guest.LoggedIn"));
+            return RedirectToRoute("CustomerMerchandiseReturns");
+        }
 
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
         var orderId = MerchandiseReturnGuestGrant.LinkOrderId(dataProtectionProvider, token, storeId);
@@ -427,6 +431,7 @@ public class MerchandiseReturnController : BasePublicController
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             MerchandiseReturn = merchandiseReturn
         });
+        model.Guest = !await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer);
 
         return View(model);
     }

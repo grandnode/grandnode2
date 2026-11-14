@@ -2,6 +2,8 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
+using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Extensions;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -24,6 +26,10 @@ public class MerchandiseReturnGuestGrantTests
     private Mock<IGroupService> _groups;
     private IDataProtectionProvider _provider;
 
+    private readonly SecurityConfig _securityConfig = new() {
+        CookiePrefix = ".Grand.", CookieSecurePolicyAlways = true, CookieSameSite = SameSiteMode.Lax
+    };
+
     [TestInitialize]
     public void Init()
     {
@@ -37,10 +43,12 @@ public class MerchandiseReturnGuestGrantTests
     private DefaultHttpContext Context(string cookie = null)
     {
         var context = new DefaultHttpContext {
-            RequestServices = new ServiceCollection().AddSingleton(_provider).BuildServiceProvider()
+            RequestServices = new ServiceCollection().AddSingleton(_provider)
+                .AddSingleton<ICookieOptionsFactory>(new CookieOptionsFactory(_securityConfig))
+                .BuildServiceProvider()
         };
         if (cookie != null)
-            context.Request.Headers.Cookie = $"{MerchandiseReturnGuestGrant.CookieName}={cookie}";
+            context.Request.Headers.Cookie = $".Grand.MerchandiseReturnGuest={cookie}";
         return context;
     }
 
@@ -102,12 +110,41 @@ public class MerchandiseReturnGuestGrantTests
         MerchandiseReturnGuestGrant.Grant(context, _order);
 
         var header = context.Response.Headers.SetCookie.ToString().ToLowerInvariant();
-        StringAssert.StartsWith(header, MerchandiseReturnGuestGrant.CookieName.ToLowerInvariant() + "=");
+        StringAssert.StartsWith(header, ".grand.merchandisereturnguest=");
         StringAssert.Contains(header, "httponly");
         StringAssert.Contains(header, "secure");
         StringAssert.Contains(header, "samesite=lax");
         StringAssert.Contains(header, "path=/");
         Assert.AreEqual("o1", MerchandiseReturnGuestGrant.GrantedOrderId(Context(CookieValue(context)), "s1"));
+    }
+
+    [TestMethod]
+    public void Grant_BrowserSessionCookie()
+    {
+        //a shared computer does not keep it once the browser is closed; the payload still expires on its own
+        var context = Context();
+
+        MerchandiseReturnGuestGrant.Grant(context, _order);
+
+        Assert.IsFalse(context.Response.Headers.SetCookie.ToString().Contains("expires",
+            StringComparison.OrdinalIgnoreCase));
+    }
+
+    [TestMethod]
+    public void Grant_FollowsStoreCookieSettings()
+    {
+        //a store served over plain http does not ask for the Secure flag, which the browser would refuse there
+        _securityConfig.CookiePrefix = ".Shop.";
+        _securityConfig.CookieSecurePolicyAlways = false;
+        _securityConfig.CookieSameSite = SameSiteMode.Strict;
+        var context = Context();
+
+        MerchandiseReturnGuestGrant.Grant(context, _order);
+
+        var header = context.Response.Headers.SetCookie.ToString().ToLowerInvariant();
+        StringAssert.StartsWith(header, ".shop.merchandisereturnguest=");
+        Assert.IsFalse(header.Contains("secure"));
+        StringAssert.Contains(header, "samesite=strict");
     }
 
     [TestMethod]
@@ -120,9 +157,9 @@ public class MerchandiseReturnGuestGrantTests
     }
 
     [TestMethod]
-    public void GrantedOrderId_NoCookie_NullWithoutServices()
+    public void GrantedOrderId_NoCookie_Null()
     {
-        Assert.IsNull(MerchandiseReturnGuestGrant.GrantedOrderId(new DefaultHttpContext(), "s1"));
+        Assert.IsNull(MerchandiseReturnGuestGrant.GrantedOrderId(Context(), "s1"));
     }
 
     [TestMethod]

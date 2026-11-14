@@ -43,8 +43,9 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
                 groupService) == null)
             return false;
 
+        var throttleKey = string.Format(CacheKey.MERCHANDISE_RETURN_GUEST_LINK_KEY, order.Id);
         var first = false;
-        await cacheBase.GetAsync(string.Format(CacheKey.MERCHANDISE_RETURN_GUEST_LINK_KEY, order.Id), () =>
+        await cacheBase.GetAsync(throttleKey, () =>
         {
             first = true;
             return Task.FromResult(true);
@@ -52,16 +53,24 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
         if (!first)
             return false;
 
+        var sent = false;
         try
         {
-            return await merchandiseReturnMessageProviderService.SendMerchandiseReturnGuestLinkCustomerMessage(order,
+            sent = await merchandiseReturnMessageProviderService.SendMerchandiseReturnGuestLinkCustomerMessage(order,
                 MerchandiseReturnGuestGrant.LinkToken(dataProtectionProvider, order), request.Host) > 0;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             //only a matching order gets this far: an error page would tell that it exists
             logger.LogError(ex, "The return link of order {OrderId} was not sent", order.Id);
-            return false;
         }
+        finally
+        {
+            //a link that was not sent leaves the guest free to ask again
+            if (!sent)
+                await cacheBase.RemoveAsync(throttleKey);
+        }
+
+        return sent;
     }
 }

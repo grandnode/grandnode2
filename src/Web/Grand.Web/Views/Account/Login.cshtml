@@ -162,7 +162,7 @@ else
                         </div>
                     </div>
                 }
-                @if (orderSettings.MerchandiseReturnsEnabled && orderSettings.MerchandiseReturns_AllowGuestReturns)
+                @if (Grand.Web.Extensions.MerchandiseReturnGuestGrant.Allowed(orderSettings))
                 {
                     <div class="col-12 mx-lg-0 mx-auto mt-3 text-center guest-merchandise-return-link">
                         <a asp-route="GuestMerchandiseReturn">@Loc["Account.Login.GuestMerchandiseReturn"]</a>
