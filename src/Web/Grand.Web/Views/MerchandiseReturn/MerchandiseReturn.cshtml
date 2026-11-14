@@ -151,11 +151,14 @@
                                         }
                                         @* checked on the server with the rest of the return: type, size, count, and
                                            whether the reason chosen asks for one *@
-                                        <div class="return-photos mt-1">
-                                            <label class="form-label small mb-0" for="photos-@(item.Id)">@Loc["MerchandiseReturns.Photos"]</label>
-                                            <input type="file" class="form-control form-control-sm" id="photos-@(item.Id)" name="photos.@(item.Id)" multiple accept="@allowedPhotoTypes"/>
-                                            <small class="text-muted">@Loc["MerchandiseReturns.Photos.Hint"]</small>
-                                        </div>
+                                        @if (Model.AllowToUploadFiles)
+                                        {
+                                            <div class="return-photos mt-1">
+                                                <label class="form-label small mb-0" for="photos-@(item.Id)">@Loc["MerchandiseReturns.Photos"]</label>
+                                                <input type="file" class="form-control form-control-sm" id="photos-@(item.Id)" name="photos.@(item.Id)" multiple accept="@allowedPhotoTypes"/>
+                                                <small class="text-muted">@Loc["MerchandiseReturns.Photos.Hint"]</small>
+                                            </div>
+                                        }
                                     </td>
                                 }
                             </tr>

@@ -2235,4 +2235,10 @@
 	<Resource Name="MerchandiseReturns.Notes.TooMany" Area="Front">
 		<Value>This return has reached the most messages it can take. The store will answer those you sent.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowToUploadFiles" Area="Admin">
+		<Value>Allow customers to upload photos</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowToUploadFiles.Hint" Area="Admin">
+		<Value>Customers add photos of the items they return, and an image to their messages about a return. Off, the store takes no files with returns and no reason asks for a photo.</Value>
+	</Resource>
 </Language>

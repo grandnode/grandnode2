@@ -126,6 +126,7 @@ public class
         model.CanPrintDocument = request.MerchandiseReturn.CustomerPrintsDocument();
         model.CanAddNote = status is MerchandiseReturnStatus.Pending or MerchandiseReturnStatus.Accepted
             or MerchandiseReturnStatus.Received;
+        model.CanAttachFile = _orderSettings.MerchandiseReturns_AllowToUploadFiles;
 
         return model;
     }

@@ -13,6 +13,7 @@
   MerchandiseReturns_AllowToSpecifyPickupDate: false,
   MerchandiseReturns_PickupDateRequired: false,
   MerchandiseReturns_HideRequestedAction: false,
+  MerchandiseReturns_AllowToUploadFiles: false,
   MerchandiseReturnPeriodStart: Delivered,
   DeactivateGiftVouchersAfterCancelOrder: false,
   DeactivateGiftVouchersAfterDeletingOrder: false,

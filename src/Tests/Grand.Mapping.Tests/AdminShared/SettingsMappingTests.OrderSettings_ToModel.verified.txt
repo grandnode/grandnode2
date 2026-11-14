@@ -20,5 +20,6 @@
   AllowCustomerToAddOrderNote: false,
   MerchandiseReturns_PickupDateRequired: false,
   MerchandiseReturns_HideRequestedAction: false,
+  MerchandiseReturns_AllowToUploadFiles: false,
   UnpublishAuctionProduct: false
 }

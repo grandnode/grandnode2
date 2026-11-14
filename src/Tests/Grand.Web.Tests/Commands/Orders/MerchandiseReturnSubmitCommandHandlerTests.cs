@@ -65,7 +65,7 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         var productService = new Mock<IProductService>();
         productService.Setup(x => x.GetProductByIdIncludeArch("p")).ReturnsAsync(new Product { Name = "Shoe" });
 
-        _orderSettings = new OrderSettings();
+        _orderSettings = new OrderSettings { MerchandiseReturns_AllowToUploadFiles = true };
         _handler = new MerchandiseReturnSubmitCommandHandler(contextAccessor.Object, _workflowMock.Object,
             _messageProviderMock.Object, new Mock<IGroupService>().Object,
             new LanguageSettings { DefaultAdminLanguageId = "admin-language" }, _orderSettings,
@@ -167,6 +167,26 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         Assert.AreEqual("l1", _request.LanguageId);
         Assert.AreEqual("comments", _request.Comments);
         Assert.AreEqual(new MerchandiseReturnSubmitItem("a", 3, "rr1", "ra1"), _request.Items.Single());
+    }
+
+    [TestMethod]
+    public async Task Handle_UploadsOff_AsksForNoPhotoAndSavesNone()
+    {
+        _orderSettings.MerchandiseReturns_AllowToUploadFiles = false;
+        _reasons[0].PhotoRequired = true;
+        var storeReturn = new MerchandiseReturn { Id = "rs" };
+        storeReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem { OrderItemId = "a", Quantity = 3 });
+        _result.MerchandiseReturns.Add(storeReturn);
+        //a crafted post sends one anyway
+        var command = Command(3);
+        command.Photos = new Dictionary<string, IList<IFormFile>> { ["a"] = [Photo("front.png")] };
+
+        var result = await _handler.Handle(command, CancellationToken.None);
+
+        Assert.IsNull(result.Error);
+        _workflowMock.Verify(x => x.Submit(It.IsAny<MerchandiseReturnSubmitRequest>()), Times.Once);
+        _downloadService.Verify(x => x.InsertDownload(It.IsAny<Download>()), Times.Never);
+        _returnService.Verify(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()), Times.Never);
     }
 
     [TestMethod]

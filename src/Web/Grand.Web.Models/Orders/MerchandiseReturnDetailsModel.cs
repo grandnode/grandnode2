@@ -54,6 +54,11 @@ public class MerchandiseReturnDetailsModel : BaseModel
     public bool CanAddNote { get; set; }
 
     /// <summary>
+    ///     Whether the customer adds an image to a message: the store takes files with returns
+    /// </summary>
+    public bool CanAttachFile { get; set; }
+
+    /// <summary>
     ///     Whether the return document is offered: the items are still to be sent back with it
     /// </summary>
     public bool CanPrintDocument { get; set; }

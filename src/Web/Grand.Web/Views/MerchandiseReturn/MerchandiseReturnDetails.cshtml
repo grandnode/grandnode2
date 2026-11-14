@@ -401,8 +401,11 @@
                         <h5 class="generalTitle">@Loc["MerchandiseReturns.Notes.Add"]</h5>
                         <label for="return-note" class="form-label">@Loc["MerchandiseReturns.Notes.Message"]</label>
                         <textarea id="return-note" name="note" class="form-control" rows="3" maxlength="2000" required></textarea>
-                        <label for="return-note-file" class="form-label mt-2">@Loc["MerchandiseReturns.Notes.Attachment"]</label>
-                        <input type="file" id="return-note-file" name="file" class="form-control" accept="image/*"/>
+                        @if (Model.CanAttachFile)
+                        {
+                            <label for="return-note-file" class="form-label mt-2">@Loc["MerchandiseReturns.Notes.Attachment"]</label>
+                            <input type="file" id="return-note-file" name="file" class="form-control" accept="image/*"/>
+                        }
                         <button type="submit" class="btn btn-secondary mt-2">@Loc["MerchandiseReturns.Notes.Send"]</button>
                     </div>
                 </form>

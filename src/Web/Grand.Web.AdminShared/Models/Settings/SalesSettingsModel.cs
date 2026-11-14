@@ -96,6 +96,9 @@ public class SalesSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturns_HideRequestedAction")]
         public bool MerchandiseReturns_HideRequestedAction { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturns_AllowToUploadFiles")]
+        public bool MerchandiseReturns_AllowToUploadFiles { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Order.MinOrderTotalAmount")]
         public double MinOrderTotalAmount { get; set; }
 

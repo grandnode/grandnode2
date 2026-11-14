@@ -24,6 +24,7 @@ public class InsertMerchandiseReturnNoteCommandHandlerTests
     private InsertMerchandiseReturnNoteCommandHandler _handler;
     private Mock<IMerchandiseReturnMessageProviderService> _messages;
     private List<MerchandiseReturnNote> _notes;
+    private OrderSettings _orderSettings;
     private Mock<IMerchandiseReturnService> _returns;
 
     [TestInitialize]
@@ -36,9 +37,10 @@ public class InsertMerchandiseReturnNoteCommandHandlerTests
         _downloads.Setup(x => x.InsertDownload(It.IsAny<Download>()))
             .Callback<Download>(x => x.Id = "d1").Returns(Task.CompletedTask);
         _messages = new Mock<IMerchandiseReturnMessageProviderService>();
+        _orderSettings = new OrderSettings { MerchandiseReturns_AllowToUploadFiles = true };
         _handler = new InsertMerchandiseReturnNoteCommandHandler(_returns.Object, _downloads.Object,
             _messages.Object, new MediaSettings(), new LanguageSettings { DefaultAdminLanguageId = "admin" },
-            NullLogger<InsertMerchandiseReturnNoteCommandHandler>.Instance);
+            _orderSettings, NullLogger<InsertMerchandiseReturnNoteCommandHandler>.Instance);
     }
 
     private Task<string> Handle(MerchandiseReturnStatus status, string note, IFormFile file = null)
@@ -112,6 +114,20 @@ public class InsertMerchandiseReturnNoteCommandHandlerTests
         _messages.Verify(x => x.SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(
             It.Is<MerchandiseReturn>(r => r.Id == "r1"), It.IsAny<MerchandiseReturnNote>(), _order, "admin",
             It.Is<DomainHost>(h => h.HostName == "host")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddNote_UploadsOff_SavesTheMessageWithoutTheFile()
+    {
+        _orderSettings.MerchandiseReturns_AllowToUploadFiles = false;
+
+        //a crafted post, or a page opened before the store turned uploads off
+        var error = await Handle(MerchandiseReturnStatus.Pending, "Hello", File("crack.jpg"));
+
+        Assert.IsNull(error);
+        _downloads.Verify(x => x.InsertDownload(It.IsAny<Download>()), Times.Never);
+        _returns.Verify(x => x.InsertMerchandiseReturnNote(It.Is<MerchandiseReturnNote>(n =>
+            n.Note == "Hello" && n.DownloadId == null)), Times.Once);
     }
 
     [TestMethod]

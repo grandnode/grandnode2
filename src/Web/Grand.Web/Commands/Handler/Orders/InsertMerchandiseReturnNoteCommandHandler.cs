@@ -18,11 +18,15 @@ public class InsertMerchandiseReturnNoteCommandHandler(
     IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
     MediaSettings mediaSettings,
     LanguageSettings languageSettings,
+    OrderSettings orderSettings,
     ILogger<InsertMerchandiseReturnNoteCommandHandler> logger)
     : IRequestHandler<InsertMerchandiseReturnNoteCommand, string>
 {
     public async Task<string> Handle(InsertMerchandiseReturnNoteCommand request, CancellationToken cancellationToken)
     {
+        //a store that takes no files saves none, whatever was posted
+        var file = orderSettings.MerchandiseReturns_AllowToUploadFiles ? request.File : null;
+
         //a return the store has closed is not written about any more
         if (request.MerchandiseReturn.MerchandiseReturnStatus is MerchandiseReturnStatus.Completed
             or MerchandiseReturnStatus.Cancelled or MerchandiseReturnStatus.Rejected)
@@ -33,7 +37,7 @@ public class InsertMerchandiseReturnNoteCommandHandler(
             return "MerchandiseReturns.Notes.Required";
         if (note.Length > MerchandiseReturnUploads.MaxNoteLength)
             return "MerchandiseReturns.Notes.TooLong";
-        if (request.File != null && !MerchandiseReturnUploads.IsAllowed(request.File,
+        if (file != null && !MerchandiseReturnUploads.IsAllowed(file,
                 FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes)))
             return MerchandiseReturnUploads.PhotosInvalid;
 
@@ -46,9 +50,9 @@ public class InsertMerchandiseReturnNoteCommandHandler(
             return "MerchandiseReturns.Notes.TooSoon";
 
         string downloadId = null;
-        if (request.File != null)
+        if (file != null)
         {
-            var download = MerchandiseReturnUploads.ToDownload(request.File, request.Customer.Id,
+            var download = MerchandiseReturnUploads.ToDownload(file, request.Customer.Id,
                 request.MerchandiseReturn.Id);
             await downloadService.InsertDownload(download);
             downloadId = download.Id;

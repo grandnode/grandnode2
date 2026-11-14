@@ -402,6 +402,7 @@ public partial class InstallationService
             MerchandiseReturns_AllowToSpecifyPickupDate = false,
             MerchandiseReturns_PickupDateRequired = false,
             MerchandiseReturns_HideRequestedAction = false,
+            MerchandiseReturns_AllowToUploadFiles = true,
             NumberOfDaysMerchandiseReturnAvailable = 365,
             //new stores count the days from the delivery; existing ones keep the order date (the setting's default)
             MerchandiseReturnPeriodStart = MerchandiseReturnPeriodStart.Delivered,

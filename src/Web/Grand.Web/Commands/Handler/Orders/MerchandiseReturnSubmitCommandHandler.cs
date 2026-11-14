@@ -65,12 +65,16 @@ public class MerchandiseReturnSubmitCommandHandler
     public async Task<MerchandiseReturnSubmitResult> Handle(
         MerchandiseReturnSubmitCommand request, CancellationToken cancellationToken)
     {
-        //the photos are checked before anything is saved: a refused return leaves none behind
-        var photoError = MerchandiseReturnUploads.PhotosError(request.Model.Items, request.Photos,
-            await _merchandiseReturnService.GetAllMerchandiseReturnReasons(request.Order.StoreId),
-            FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes));
-        if (photoError != null)
-            return new MerchandiseReturnSubmitResult { Error = photoError };
+        //the photos are checked before anything is saved: a refused return leaves none behind. A store that takes no
+        //files asks for no photo, and saves none whatever was posted
+        if (_orderSettings.MerchandiseReturns_AllowToUploadFiles)
+        {
+            var photoError = MerchandiseReturnUploads.PhotosError(request.Model.Items, request.Photos,
+                await _merchandiseReturnService.GetAllMerchandiseReturnReasons(request.Order.StoreId),
+                FileExtensions.GetAllowedMediaFileTypes(_mediaSettings.AllowedFileTypes));
+            if (photoError != null)
+                return new MerchandiseReturnSubmitResult { Error = photoError };
+        }
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var result = await _merchandiseReturnWorkflowService.Submit(await request.Model.ToSubmitRequest(request.Order,
@@ -100,7 +104,7 @@ public class MerchandiseReturnSubmitCommandHandler
     private async Task SavePhotos(MerchandiseReturnSubmitCommand request, MerchandiseReturn merchandiseReturn,
         string customerId)
     {
-        if (request.Photos == null)
+        if (request.Photos == null || !_orderSettings.MerchandiseReturns_AllowToUploadFiles)
             return;
 
         foreach (var item in merchandiseReturn.MerchandiseReturnItems.Where(x =>
