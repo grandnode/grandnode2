@@ -19,8 +19,8 @@ public class GuestOrderValidator : BaseGrandValidator<GuestOrderModel>
         IRequestTranslationService translationService)
         : base(validators)
     {
-        RuleFor(x => x.OrderCode).NotEmpty()
-            .WithMessage(translationService.GetResource("Order.Guest.OrderCode.Required"));
+        RuleFor(x => x.OrderNumberOrCode).NotEmpty()
+            .WithMessage(translationService.GetResource("Order.Guest.OrderNumberOrCode.Required"));
         RuleFor(x => x.Email).NotEmpty()
             .WithMessage(translationService.GetResource("Order.Guest.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));

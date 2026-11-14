@@ -29,10 +29,15 @@ public class SendGuestOrderLinkCommandHandler(
 
     public async Task<bool> Handle(SendGuestOrderLinkCommand request, CancellationToken cancellationToken)
     {
-        //a code is random, so it cannot be guessed as numbers can; it is not unique, so the address the order was
-        //placed with, the proof that it is theirs, picks the order
-        var order = (await orderService.GetOrdersByCode(request.OrderCode?.Trim()))
-            .FirstOrDefault(x => x.StoreId == request.Store.Id && EmailMatches(x, request.Email));
+        //the number every order e-mail shows, or the code the confirmation shows since 2.5; a code is not unique,
+        //so the address the order was placed with, the proof that it is theirs, picks the order
+        var value = request.OrderNumberOrCode?.Trim();
+        var candidates = (await orderService.GetOrdersByCode(value)).ToList();
+        if (int.TryParse(value, out var number) && number > 0 &&
+            await orderService.GetOrderByNumber(number) is { } byNumber)
+            candidates.Add(byNumber);
+
+        var order = candidates.FirstOrDefault(x => x.StoreId == request.Store.Id && EmailMatches(x, request.Email));
         if (order == null)
             return false;
 

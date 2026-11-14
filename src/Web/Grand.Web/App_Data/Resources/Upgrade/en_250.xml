@@ -2253,8 +2253,8 @@
 	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestOrderPage.Hint" Area="Admin">
 		<Value>Check to show CAPTCHA on the page where guests ask for the link to their order.</Value>
 	</Resource>
-	<Resource Name="Order.Guest.OrderCode.Required" Area="Front">
-		<Value>Enter the order code.</Value>
+	<Resource Name="Order.Guest.OrderNumberOrCode.Required" Area="Front">
+		<Value>Enter the order number or code.</Value>
 	</Resource>
 	<Resource Name="Order.Guest.Email.Required" Area="Front">
 		<Value>Enter the e-mail address.</Value>
@@ -2263,10 +2263,10 @@
 		<Value>Your order without an account</Value>
 	</Resource>
 	<Resource Name="Order.Guest.Intro" Area="Front">
-		<Value>Enter the code of your order and the e-mail address you placed it with. You will find the code in the e-mail that confirmed the order. We will send a link to the order.</Value>
+		<Value>Enter the number or the code of your order and the e-mail address you placed it with. You will find them in the e-mail that confirmed the order. We will send a link to the order.</Value>
 	</Resource>
-	<Resource Name="Order.Guest.OrderCode" Area="Front">
-		<Value>Order code</Value>
+	<Resource Name="Order.Guest.OrderNumberOrCode" Area="Front">
+		<Value>Order number or code</Value>
 	</Resource>
 	<Resource Name="Order.Guest.Email" Area="Front">
 		<Value>E-mail</Value>

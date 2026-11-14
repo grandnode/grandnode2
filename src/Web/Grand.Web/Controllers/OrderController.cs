@@ -314,13 +314,13 @@ public class OrderController : BasePublicController
         if (ModelState.IsValid)
         {
             await _mediator.Send(new SendGuestOrderLinkCommand {
-                OrderCode = model.OrderCode,
+                OrderNumberOrCode = model.OrderNumberOrCode,
                 Email = model.Email,
                 Store = _contextAccessor.StoreContext.CurrentStore,
                 Host = _contextAccessor.StoreContext.CurrentHost
             });
             model.Result = _translationService.GetResource("Order.Guest.Sent");
-            model.OrderCode = null;
+            model.OrderNumberOrCode = null;
             model.Email = null;
         }
 

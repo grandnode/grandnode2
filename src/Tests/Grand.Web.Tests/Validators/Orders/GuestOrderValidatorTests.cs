@@ -29,7 +29,7 @@ public class GuestOrderValidatorTests
 
     private static GuestOrderModel Model()
     {
-        return new GuestOrderModel { OrderCode = "K7Q2M9XA", Email = "guest@example.com" };
+        return new GuestOrderModel { OrderNumberOrCode = "K7Q2M9XA", Email = "guest@example.com" };
     }
 
     [TestMethod]
@@ -39,14 +39,14 @@ public class GuestOrderValidatorTests
     }
 
     [TestMethod]
-    public async Task Validator_OrderCodeMissing_Error()
+    public async Task Validator_OrderNumberOrCodeMissing_Error()
     {
         var model = Model();
-        model.OrderCode = "";
+        model.OrderNumberOrCode = "";
 
         var result = await Validator().ValidateAsync(model);
 
-        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "Order.Guest.OrderCode.Required"));
+        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "Order.Guest.OrderNumberOrCode.Required"));
     }
 
     [TestMethod]

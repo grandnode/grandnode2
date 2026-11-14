@@ -8,8 +8,8 @@ namespace Grand.Web.Models.Orders;
 /// </summary>
 public class GuestOrderModel : BaseModel
 {
-    [GrandResourceDisplayName("Order.Guest.OrderCode")]
-    public string OrderCode { get; set; }
+    [GrandResourceDisplayName("Order.Guest.OrderNumberOrCode")]
+    public string OrderNumberOrCode { get; set; }
 
     [GrandResourceDisplayName("Order.Guest.Email")]
     public string Email { get; set; }

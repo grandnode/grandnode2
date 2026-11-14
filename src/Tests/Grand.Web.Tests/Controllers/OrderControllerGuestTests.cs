@@ -156,9 +156,9 @@ public class OrderControllerGuestTests
 
         //Act
         var sent = (ViewResult)await _controller.GuestOrder(
-            new GuestOrderModel { OrderCode = "K7Q2M9XA", Email = "guest@example.com" }, new CaptchaSettings());
+            new GuestOrderModel { OrderNumberOrCode = "K7Q2M9XA", Email = "guest@example.com" }, new CaptchaSettings());
         var notSent = (ViewResult)await _controller.GuestOrder(
-            new GuestOrderModel { OrderCode = "K7Q2M9XB", Email = "guest@example.com" }, new CaptchaSettings());
+            new GuestOrderModel { OrderNumberOrCode = "K7Q2M9XB", Email = "guest@example.com" }, new CaptchaSettings());
 
         //Assert
         Assert.AreEqual(sent.ViewName, notSent.ViewName);

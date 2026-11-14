@@ -42,6 +42,7 @@ public class SendGuestOrderLinkCommandHandlerTests
         };
         _otherOrders = [];
         var orders = new Mock<IOrderService>();
+        orders.Setup(x => x.GetOrderByNumber(7)).ReturnsAsync(() => _order);
         orders.Setup(x => x.GetOrdersByCode(It.IsAny<string>())).ReturnsAsync((string code) =>
             code == "K7Q2M9XA" ? _otherOrders.Append(_order).ToList() : []);
         var customers = new Mock<ICustomerService>();
@@ -69,10 +70,10 @@ public class SendGuestOrderLinkCommandHandlerTests
             NullLogger<SendGuestOrderLinkCommandHandler>.Instance);
     }
 
-    private Task<bool> Send(string email = "guest@example.com", string orderCode = "K7Q2M9XA", string storeId = "s1")
+    private Task<bool> Send(string email = "guest@example.com", string orderNumberOrCode = "K7Q2M9XA", string storeId = "s1")
     {
         return _handler.Handle(new SendGuestOrderLinkCommand {
-            OrderCode = orderCode, Email = email, Store = new Domain.Stores.Store { Id = storeId }
+            OrderNumberOrCode = orderNumberOrCode, Email = email, Store = new Domain.Stores.Store { Id = storeId }
         }, CancellationToken.None);
     }
 
@@ -105,14 +106,33 @@ public class SendGuestOrderLinkCommandHandlerTests
     [TestMethod]
     public async Task NoOrder_NothingSent()
     {
-        Assert.IsFalse(await Send(orderCode: "K7Q2M9XB"));
+        Assert.IsFalse(await Send(orderNumberOrCode: "K7Q2M9XB"));
+        VerifySent(Times.Never());
+    }
+
+    [TestMethod]
+    public async Task OrderNumber_SendsLink()
+    {
+        //orders placed before the code was shown to customers are known by their number
+        _order.OrderNumber = 7;
+
+        Assert.IsTrue(await Send(orderNumberOrCode: " 7 "));
+        VerifySent(Times.Once());
+    }
+
+    [TestMethod]
+    public async Task OrderNumberWrongEmail_NothingSent()
+    {
+        _order.OrderNumber = 7;
+
+        Assert.IsFalse(await Send("someone@example.com", "7"));
         VerifySent(Times.Never());
     }
 
     [TestMethod]
     public async Task CodeWithSpaces_SendsLink()
     {
-        Assert.IsTrue(await Send(orderCode: " K7Q2M9XA "));
+        Assert.IsTrue(await Send(orderNumberOrCode: " K7Q2M9XA "));
         VerifySent(Times.Once());
     }
 
