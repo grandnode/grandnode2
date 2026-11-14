@@ -671,6 +671,15 @@ public static class StandardAdminSiteMap
                     ActionName = "Customer",
                     DisplayOrder = 4,
                     IconClass = "bi bi-record-circle"
+                },
+                new() {
+                    SystemName = "Merchandise returns report",
+                    ResourceName = "Admin.Reports.MerchandiseReturns",
+                    PermissionNames = new List<string> { PermissionSystemName.Reports },
+                    ControllerName = "Reports",
+                    ActionName = "MerchandiseReturnReport",
+                    DisplayOrder = 5,
+                    IconClass = "bi bi-record-circle"
                 }
             }
         },

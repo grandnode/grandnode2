@@ -1,0 +1,62 @@
+@model MerchandiseReturnReportModel
+@inject IReportDataScope Scope
+@{
+    var prefix = Scope.ResourceKeyPrefix;
+    //page title
+    ViewBag.Title = Loc[$"{prefix}.Reports.MerchandiseReturns"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+
+@* The bestsellers report's shape: the period and what to count by in a filter bar opened on load, the
+   grid in a flush card below it; nothing to save, so Search is the only action. The units sold and the
+   rate are filled when the returns are counted by product. *@
+<admin-page title="@Loc[$"{prefix}.Reports.MerchandiseReturns"]" icon="bi-arrow-return-left">
+    <admin-filters id="returnreport-filters" submit-id="search-returnreport" expanded="true">
+        <div class="grand-range">
+            <admin-field asp-for="StartDate"/>
+            <admin-field asp-for="EndDate"/>
+        </div>
+        @if (Scope.ShowStoreSelector)
+        {
+            <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+        }
+        <admin-field asp-for="GroupBy" asp-items="Model.AvailableGroupings" size="md"/>
+    </admin-filters>
+
+    <admin-card flush>
+        <admin-grid id="returnreport-grid"
+                    read-url="@Url.Action("MerchandiseReturnReportList", "Reports", new { area })"
+                    additional-data="additionalData">
+            <grid-column field="Name" title="@Loc[$"{prefix}.Reports.MerchandiseReturns.Fields.Name"]"/>
+            <grid-column field="ReturnCount" title="@Loc[$"{prefix}.Reports.MerchandiseReturns.Fields.ReturnCount"]" width="120"/>
+            <grid-column field="Quantity" title="@Loc[$"{prefix}.Reports.MerchandiseReturns.Fields.Quantity"]" width="140"/>
+            <grid-column field="SoldQuantity" title="@Loc[$"{prefix}.Reports.MerchandiseReturns.Fields.SoldQuantity"]" width="120"/>
+            <grid-column field="ReturnRate" title="@Loc[$"{prefix}.Reports.MerchandiseReturns.Fields.ReturnRate"]" width="120" format="{0:P1}"/>
+        </admin-grid>
+    </admin-card>
+</admin-page>
+
+<script>
+
+    $(document).ready(function () {
+
+        $('#search-returnreport').click(function () {
+            var grid = GrandAdmin.grids.get('#returnreport-grid');
+            grid.dataSource.page(1);
+            return false;
+        });
+
+    });
+
+    function additionalData() {
+        var data = {
+            StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+            StoreId: $('#@Html.IdFor(model => model.StoreId)').val(),
+            GroupBy: $('#@Html.IdFor(model => model.GroupBy)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+
+</script>
