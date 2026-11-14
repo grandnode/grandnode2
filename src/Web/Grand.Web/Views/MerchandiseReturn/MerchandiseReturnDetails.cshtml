@@ -2,7 +2,8 @@
 @model MerchandiseReturnDetailsModel
 @inject IPageHeadBuilder pagebuilder
 @{
-    Layout = "_TwoColumns";
+    //a visitor without an account has no account pages to go to
+    Layout = Model.Guest ? "_SingleColumn" : "_TwoColumns";
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.MerchandiseReturnDetails"]);
@@ -10,9 +11,12 @@
     const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
 }
 
-@section left
+@if (!Model.Guest)
 {
-    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
+    @section left
+    {
+        @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
+    }
 }
 
 <div class="page account-page px-3">

@@ -699,6 +699,15 @@ public class EndpointProvider : IEndpointProvider
             pattern + "merchandisereturn/history",
             new { controller = "MerchandiseReturn", action = "CustomerMerchandiseReturns" });
 
+        //a guest who ordered without an account asks for the return link, then opens it
+        endpointRouteBuilder.MapControllerRoute("GuestMerchandiseReturn",
+            pattern + "guestmerchandisereturn",
+            new { controller = "MerchandiseReturn", action = "GuestMerchandiseReturn" });
+
+        endpointRouteBuilder.MapControllerRoute("GuestMerchandiseReturnAccess",
+            pattern + "guestmerchandisereturn/access",
+            new { controller = "MerchandiseReturn", action = "GuestMerchandiseReturnAccess" });
+
         endpointRouteBuilder.MapControllerRoute("MerchandiseReturn",
             pattern + "merchandisereturn/{orderId}",
             new { controller = "MerchandiseReturn", action = "MerchandiseReturn" });

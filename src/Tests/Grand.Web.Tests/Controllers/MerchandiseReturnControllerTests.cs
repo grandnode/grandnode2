@@ -10,8 +10,10 @@ using Grand.Domain.Localization;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Controllers;
@@ -19,6 +21,7 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -74,9 +77,15 @@ public class MerchandiseReturnControllerTests
             _orders.Object, context.Object, groupService.Object, translation.Object, _mediator.Object,
             _labels.Object, _downloads.Object, new AddressSettings(), _orderSettings, _workflow.Object);
 
-        var httpContext = new DefaultHttpContext();
+        var httpContext = new DefaultHttpContext {
+            RequestServices = new ServiceCollection()
+                .AddSingleton<ICookieOptionsFactory>(new CookieOptionsFactory(new SecurityConfig()))
+                .BuildServiceProvider()
+        };
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         _controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
+        //the services hold no routing: redirects get their URLs from a helper of their own
+        _controller.Url = new Mock<IUrlHelper>().Object;
     }
 
     private MerchandiseReturn Return(string customerId, string providerSystemName = null,

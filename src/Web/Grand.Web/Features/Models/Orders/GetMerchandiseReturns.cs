@@ -13,4 +13,9 @@ public class GetMerchandiseReturns : IRequest<CustomerMerchandiseReturnsModel>
     public Domain.Stores.Store Store { get; set; }
     public Language Language { get; set; }
     public Currency Currency { get; set; }
+
+    /// <summary>
+    ///     The order whose returns are listed, for the guest a grant opened it to; null lists the customer's returns
+    /// </summary>
+    public string OrderId { get; set; }
 }

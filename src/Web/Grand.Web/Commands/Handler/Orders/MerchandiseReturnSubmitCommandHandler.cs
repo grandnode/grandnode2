@@ -76,7 +76,7 @@ public class MerchandiseReturnSubmitCommandHandler
                 return new MerchandiseReturnSubmitResult { Error = photoError };
         }
 
-        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        var customer = request.Customer;
         var result = await _merchandiseReturnWorkflowService.Submit(await request.Model.ToSubmitRequest(request.Order,
             customer, _groupService, _contextAccessor.WorkContext.WorkingLanguage.Id, request.Address, request.Form,
             _orderSettings));

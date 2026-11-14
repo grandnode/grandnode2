@@ -64,4 +64,15 @@ public interface IMerchandiseReturnMessageProviderService
     /// <returns>Queued email identifier</returns>
     Task<int> SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(MerchandiseReturn merchandiseReturn,
         MerchandiseReturnNote merchandiseReturnNote, Order order, string languageId, DomainHost host = null);
+
+    /// <summary>
+    ///     Sends the e-mail address of an order placed without an account the link to return items from it
+    /// </summary>
+    /// <param name="order">Order</param>
+    /// <param name="token">The protected token the link carries</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendMerchandiseReturnGuestLinkCustomerMessage(Order order, string token, DomainHost host = null);
 }

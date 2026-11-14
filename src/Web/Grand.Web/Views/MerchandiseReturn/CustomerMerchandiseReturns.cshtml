@@ -2,19 +2,30 @@
 @model CustomerMerchandiseReturnsModel
 @inject IPageHeadBuilder pagebuilder
 @{
-    Layout = "_TwoColumns";
+    //a visitor without an account has no account pages to go to
+    Layout = Model.Guest ? "_SingleColumn" : "_TwoColumns";
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Account"]);
 }
 
-@section left
+@if (!Model.Guest)
 {
-    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
+    @section left
+    {
+        @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.MerchandiseReturns })
+    }
 }
 
 <div class="page account-page return-request-list-page ps-lg-3 pt-3 pt-lg-0">
     <h1 class="h2 generalTitle">@Loc["Account.CustomerMerchandiseReturns"]</h1>
+    @if (Model.ReturnOrderId != null)
+    {
+        @* a guest who came with a return link: the order has items left to return *@
+        <div class="my-3">
+            <a class="btn btn-outline-info return-items-button" href="@Url.RouteUrl("MerchandiseReturn", new { orderId = Model.ReturnOrderId })">@Loc["Order.ReturnItems"]</a>
+        </div>
+    }
     @if (Model.Items.Any())
     {
         <div class="table-responsive">

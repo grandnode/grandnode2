@@ -18,11 +18,11 @@ public class MessageTemplateSeedTests
             .Concat(TagVar.Matches(text).Select(m => m.Groups[1].Value)));
 
     [TestMethod]
-    public void Build_Returns56UniqueTemplates()
+    public void Build_Returns57UniqueTemplates()
     {
         var templates = MessageTemplateSeed.Build("ea");
-        Assert.AreEqual(56, templates.Count);
-        Assert.AreEqual(56, templates.Select(t => t.Name).Distinct().Count());
+        Assert.AreEqual(57, templates.Count);
+        Assert.AreEqual(57, templates.Select(t => t.Name).Distinct().Count());
         Assert.IsTrue(templates.All(t => t.EmailAccountId == "ea"));
     }
 
