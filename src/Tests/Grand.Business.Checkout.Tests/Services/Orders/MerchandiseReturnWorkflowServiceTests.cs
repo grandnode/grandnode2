@@ -134,6 +134,57 @@ public class MerchandiseReturnWorkflowServiceTests
     }
 
     [TestMethod]
+    public async Task ChangeStatus_AppendsHistoryEntry()
+    {
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(1, _stored.StatusHistory.Count);
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.StatusHistory[0].Status);
+        Assert.IsTrue(DateTime.UtcNow - _stored.StatusHistory[0].CreatedOnUtc < TimeSpan.FromMinutes(1));
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Refused_NoHistoryEntry()
+    {
+        _stored = Return(MerchandiseReturnStatus.Received);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Pending);
+
+        Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, error);
+        Assert.AreEqual(0, _stored.StatusHistory.Count);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_AllowedRefusesStoredStatus_NothingSaved()
+    {
+        //the customer saw it pending, but the staff accepted it in the meantime
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+        _stored.ReturnShipping = new MerchandiseReturnShipping { LabelStatus = ReturnLabelStatus.Created };
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Cancelled, null, null,
+            r => r.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
+
+        Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, error);
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.MerchandiseReturnStatus);
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()),
+            Times.Never);
+        _labelService.Verify(x => x.CancelLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_AllowedTrue_Changes()
+    {
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Cancelled, null, null,
+            r => r.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
+
+        Assert.IsNull(error);
+        Assert.AreEqual(MerchandiseReturnStatus.Cancelled, _stored.MerchandiseReturnStatus);
+    }
+
+    [TestMethod]
     public async Task ChangeStatus_NotInTable_ReturnsStatusChangeNotAllowed_AndSavesNothing()
     {
         _stored = Return(MerchandiseReturnStatus.Completed);
@@ -669,6 +720,71 @@ public class MerchandiseReturnWorkflowServiceTests
             It.Is<IEnumerable<string>>(k => k.Single() == "MerchandiseReturn:o1"), It.IsAny<CancellationToken>()),
             Times.Once);
         _merchandiseReturnService.Verify(x => x.DeleteMerchandiseReturn(_stored), Times.Once);
+    }
+
+    private MerchandiseReturnSubmitRequest TwoVendorPreview()
+    {
+        TwoVendorOrder();
+        var vendorShipping = Shipping("vendor-option");
+        vendorShipping.Cost = 7;
+        SetupResolution(new ReturnShippingResolution {
+            ByVendor = new Dictionary<string, MerchandiseReturnShipping>
+                { { "", Shipping("store-option") }, { "v1", vendorShipping } }
+        });
+        var request = SubmitRequest(new MerchandiseReturnSubmitItem("store-item", 1, null, null),
+            new MerchandiseReturnSubmitItem("vendor-item", 2, null, null));
+        request.ReturnShipping = new ReturnShippingChoice { ProviderSystemName = "Carrier", OptionCode = "parcel" };
+        return request;
+    }
+
+    [TestMethod]
+    public async Task Preview_TwoVendors_TwoUnsavedReturnsWithTheirShipping()
+    {
+        var result = await _service.Preview(TwoVendorPreview());
+
+        Assert.IsNull(result.Error);
+        Assert.AreEqual(2, result.MerchandiseReturns.Count);
+        var storeReturn = result.MerchandiseReturns.Single(x => x.VendorId == "");
+        var vendorReturn = result.MerchandiseReturns.Single(x => x.VendorId == "v1");
+        Assert.AreEqual("store-item", storeReturn.MerchandiseReturnItems.Single().OrderItemId);
+        Assert.AreEqual(2, vendorReturn.MerchandiseReturnItems.Single().Quantity);
+        Assert.AreEqual(5, storeReturn.ReturnShipping.Cost);
+        Assert.AreEqual(7, vendorReturn.ReturnShipping.Cost);
+        _merchandiseReturnService.Verify(x => x.InsertMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+        _resourceLock.Verify(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _labelService.Verify(x => x.CreateLabel(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Preview_QuantityExceeded_Error()
+    {
+        SetupReturnable(1);
+
+        var result = await _service.Preview(SubmitRequest(new MerchandiseReturnSubmitItem("a", 2, null, null)));
+
+        Assert.AreEqual(MerchandiseReturnErrors.SubmitQuantityExceeded, result.Error);
+        Assert.AreEqual(0, result.MerchandiseReturns.Count);
+    }
+
+    [TestMethod]
+    public async Task Submit_SavesWhatPreviewBuilds()
+    {
+        var request = TwoVendorPreview();
+        var preview = await _service.Preview(request);
+        var inserted = RecordInserts();
+
+        await _service.Submit(request);
+
+        Assert.AreEqual(preview.MerchandiseReturns.Count, inserted.Count);
+        foreach (var built in preview.MerchandiseReturns)
+        {
+            var saved = inserted.Single(x => x.VendorId == built.VendorId);
+            Assert.AreEqual(built.ReturnShipping.Cost, saved.ReturnShipping.Cost);
+            CollectionAssert.AreEqual(
+                built.MerchandiseReturnItems.Select(x => (x.OrderItemId, x.Quantity)).ToList(),
+                saved.MerchandiseReturnItems.Select(x => (x.OrderItemId, x.Quantity)).ToList());
+        }
     }
 
     [TestMethod]

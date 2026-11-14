@@ -10,7 +10,8 @@ public partial class InstallationService
             new() {
                 Name = "Received Wrong Product",
                 DisplayOrder = 1,
-                FreeReturnShipping = true
+                FreeReturnShipping = true,
+                PhotoRequired = true
             },
             new() {
                 Name = "Wrong Product Ordered",
@@ -19,7 +20,8 @@ public partial class InstallationService
             new() {
                 Name = "There Was A Problem With The Product",
                 DisplayOrder = 3,
-                FreeReturnShipping = true
+                FreeReturnShipping = true,
+                PhotoRequired = true
             }
         };
 

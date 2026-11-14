@@ -333,6 +333,99 @@ public class PdfService : IPdfService
             rows);
     }
 
+    public async Task PrintMerchandiseReturnToPdf(Stream stream, MerchandiseReturn merchandiseReturn, Order order,
+        string languageId = "", CancellationToken cancellationToken = default)
+    {
+        ArgumentNullException.ThrowIfNull(stream);
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
+        ArgumentNullException.ThrowIfNull(order);
+
+        using var pdf = new PdfComposer();
+        await ComposeMerchandiseReturn(pdf, merchandiseReturn, order,
+            string.IsNullOrEmpty(languageId) ? order.CustomerLanguageId : languageId);
+
+        //nothing is written until the whole document is laid out, so a cancelled request leaves the stream empty
+        cancellationToken.ThrowIfCancellationRequested();
+        await stream.WriteAsync(pdf.Build(), cancellationToken);
+    }
+
+    /// <summary>
+    ///     The return, the order it came from, the items with their reasons, and how and where they are sent back
+    /// </summary>
+    private async Task ComposeMerchandiseReturn(PdfComposer pdf, MerchandiseReturn merchandiseReturn, Order order,
+        string lang)
+    {
+        var store = await _storeService.GetStoreById(order.StoreId);
+
+        pdf.NewPage();
+        pdf.Text(Format("PDFMerchandiseReturn.Title", lang, merchandiseReturn.ReturnNumber), 14, true);
+        pdf.Text(store?.CompanyName);
+        pdf.Text(Format("PDFMerchandiseReturn.Order", lang, order.OrderNumber));
+        pdf.Text(Format("PDFMerchandiseReturn.Date", lang, merchandiseReturn.CreatedOnUtc.ToShortDateString()));
+        pdf.Space(14);
+
+        var rows = new List<IReadOnlyList<PdfCell>>();
+        foreach (var item in merchandiseReturn.MerchandiseReturnItems)
+        {
+            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+            if (orderItem == null)
+                continue;
+
+            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            var name = new List<PdfLine> { new(product?.GetTranslation(x => x.Name, lang) ?? orderItem.ProductId) };
+            var attributes = PdfHtmlText.ToPlainText(orderItem.AttributeDescription);
+            if (attributes.Length > 0) name.Add(new PdfLine(attributes, Small: true));
+
+            rows.Add([new PdfCell(name), PdfCell.Of(item.Quantity.ToString()), PdfCell.Of(item.ReasonForReturn)]);
+        }
+
+        pdf.Table(
+            [new PdfColumn(6), new PdfColumn(1.2, PdfAlign.Right), new PdfColumn(3.5)],
+            [
+                _translationService.GetResource("PDFMerchandiseReturn.ProductName", lang),
+                _translationService.GetResource("PDFMerchandiseReturn.Quantity", lang),
+                _translationService.GetResource("PDFMerchandiseReturn.Reason", lang)
+            ],
+            rows);
+
+        var shipping = merchandiseReturn.ReturnShipping;
+        if (shipping == null)
+            return;
+
+        pdf.Space(14);
+        pdf.Text(Format("PDFMerchandiseReturn.Method", lang, shipping.OptionName), bold: true);
+        if (shipping.ReturnAddress != null)
+        {
+            pdf.Space(6);
+            var address = await AddressCell(shipping.ReturnAddress, "PDFMerchandiseReturn",
+                "PDFMerchandiseReturn.SendTo", lang, null);
+            foreach (var line in address.Lines) pdf.Text(line.Text, bold: line.Bold);
+        }
+        else if (shipping.DropOffPoint != null)
+        {
+            pdf.Space(6);
+            pdf.Text(_translationService.GetResource("PDFMerchandiseReturn.DropOffPoint", lang), bold: true);
+            pdf.Text(shipping.DropOffPoint.Name);
+            if (shipping.DropOffPoint.Address != null)
+                pdf.Text($"{shipping.DropOffPoint.Address.Address1}, {shipping.DropOffPoint.Address.City}");
+            if (!string.IsNullOrEmpty(shipping.DropOffPoint.OpeningHours))
+                pdf.Text(shipping.DropOffPoint.OpeningHours);
+        }
+
+        if (!string.IsNullOrEmpty(shipping.ReturnCode))
+        {
+            pdf.Space(6);
+            pdf.Text(Format("PDFMerchandiseReturn.ReturnCode", lang, shipping.ReturnCode), bold: true);
+        }
+
+        var instructions = PdfHtmlText.ToPlainText(shipping.Instructions);
+        if (instructions.Length > 0)
+        {
+            pdf.Space(6);
+            pdf.Text(instructions);
+        }
+    }
+
     private async Task<PdfCell> AddressCell(Address address, string resourcePrefix, string titleKey, string lang,
         string closingLine, IEnumerable<string> extraLines = null)
     {

@@ -711,6 +711,10 @@ public class EndpointProvider : IEndpointProvider
             pattern + "merchandisereturnshippingoffers/{orderId}",
             new { controller = "MerchandiseReturn", action = "MerchandiseReturnShippingOffers" });
 
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnEstimate",
+            pattern + "merchandisereturnestimate/{orderId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnEstimate" });
+
         endpointRouteBuilder.MapControllerRoute("MerchandiseReturnLabel",
             pattern + "merchandisereturnlabel/{merchandiseReturnId}",
             new { controller = "MerchandiseReturn", action = "MerchandiseReturnLabel" });
@@ -722,6 +726,18 @@ public class EndpointProvider : IEndpointProvider
         endpointRouteBuilder.MapControllerRoute("MerchandiseReturnRetryLabel",
             pattern + "merchandisereturnretrylabel/{merchandiseReturnId}",
             new { controller = "MerchandiseReturn", action = "MerchandiseReturnRetryLabel" });
+
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnCancel",
+            pattern + "merchandisereturncancel/{merchandiseReturnId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnCancel" });
+
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnAddNote",
+            pattern + "merchandisereturnaddnote/{merchandiseReturnId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnAddNote" });
+
+        endpointRouteBuilder.MapControllerRoute("MerchandiseReturnPdf",
+            pattern + "merchandisereturnpdf/{merchandiseReturnId}",
+            new { controller = "MerchandiseReturn", action = "MerchandiseReturnPdf" });
 
         endpointRouteBuilder.MapControllerRoute("MerchandiseReturnInStorePoints",
             pattern + "merchandisereturninstorepoints",

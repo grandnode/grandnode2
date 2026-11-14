@@ -2085,4 +2085,160 @@
 	<Resource Name="Admin.Orders.MerchandiseReturns.Refund.Cleared" Area="Admin">
 		<Value>The refund has been cleared; the return can be refunded again.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.PhotoRequired" Area="Admin">
+		<Value>Photo required</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturnReasons.PhotoRequired.Hint" Area="Admin">
+		<Value>The customer adds at least one photo of each item returned for this reason.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.From.You" Area="Front">
+		<Value>You</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.From.Store" Area="Front">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Photos" Area="Front">
+		<Value>Photos</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Photos.Hint" Area="Front">
+		<Value>Images, at most 4 MB each, up to 3 per item.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Photos.Required" Area="Front">
+		<Value>Add a photo of each item whose reason asks for one.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Photos.Invalid" Area="Front">
+		<Value>Photos must be images of at most 4 MB, at most 3 per item and 10 in all.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.Title" Area="Front">
+		<Value>Estimated refund</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.ItemsAmount" Area="Front">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.ReturnShippingCost" Area="Front">
+		<Value>Return shipping</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.Note" Area="Front">
+		<Value>The final amount is set when we receive the items.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Estimate.Destination" Area="Front">
+		<Value>The money goes back to the payment method of the order.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Cancel" Area="Front">
+		<Value>Cancel return</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Cancel.Confirm" Area="Front">
+		<Value>Cancel this return? You can submit a new one later.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Cancel.Done" Area="Front">
+		<Value>The return was cancelled.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Cancel.NotAllowed" Area="Front">
+		<Value>This return can no longer be cancelled.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Add" Area="Front">
+		<Value>Send a message</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Message" Area="Front">
+		<Value>Message</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Attachment" Area="Front">
+		<Value>Image (optional)</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Send" Area="Front">
+		<Value>Send</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Added" Area="Front">
+		<Value>Your message was sent.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Closed" Area="Front">
+		<Value>This return is closed. Messages can no longer be sent.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.Required" Area="Front">
+		<Value>Write a message.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.TooLong" Area="Front">
+		<Value>A message has at most 2000 characters.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Timeline" Area="Front">
+		<Value>Status history</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Timeline.Submitted" Area="Front">
+		<Value>Submitted</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Timeline.Refunded" Area="Front">
+		<Value>Refunded {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Title" Area="Front">
+		<Value>Merchandise return #{0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Order" Area="Front">
+		<Value>Order #{0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Date" Area="Front">
+		<Value>Date: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.ProductName" Area="Front">
+		<Value>Product</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Quantity" Area="Front">
+		<Value>Qty</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Reason" Area="Front">
+		<Value>Reason</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Method" Area="Front">
+		<Value>Return method: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.SendTo" Area="Front">
+		<Value>Send to</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.DropOffPoint" Area="Front">
+		<Value>Drop-off point</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.ReturnCode" Area="Front">
+		<Value>Return code: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Company" Area="Front">
+		<Value>Company: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Name" Area="Front">
+		<Value>Name: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Phone" Area="Front">
+		<Value>Phone: {0}</Value>
+	</Resource>
+	<Resource Name="PDFMerchandiseReturn.Address" Area="Front">
+		<Value>Address: {0}</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Pdf" Area="Front">
+		<Value>Return document</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Items" Area="Front">
+		<Value>Items</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Method" Area="Front">
+		<Value>Return method</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Summary" Area="Front">
+		<Value>Summary</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Next" Area="Front">
+		<Value>Next</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Wizard.Back" Area="Front">
+		<Value>Back</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.TooSoon" Area="Front">
+		<Value>Your previous message was sent a moment ago. Wait a little before you send another.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.TooMany" Area="Front">
+		<Value>This return has reached the most messages it can take. The store will answer those you sent.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowToUploadFiles" Area="Admin">
+		<Value>Allow customers to upload photos</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowToUploadFiles.Hint" Area="Admin">
+		<Value>Customers add photos of the items they return, and an image to their messages about a return. Off, the store takes no files with returns and no reason asks for a photo.</Value>
+	</Resource>
 </Language>

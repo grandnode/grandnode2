@@ -287,6 +287,88 @@ public class MerchandiseReturnRefundServiceTests
     }
 
     [TestMethod]
+    public async Task GetQuote_NotReceived_NoAmounts()
+    {
+        _stored.MerchandiseReturnStatus = MerchandiseReturnStatus.Pending;
+
+        var quote = await _service.GetQuote(_stored, _order);
+
+        Assert.AreEqual(0, quote.ItemsAmount);
+        Assert.AreEqual(0, quote.Amount);
+    }
+
+    [TestMethod]
+    public async Task GetEstimate_SumsTheReturns_EachLessItsOwnShipping()
+    {
+        //returns not saved yet, as the storefront previews them: 1 of a with 3 to ship it back, and 3 of b whose
+        //shipping costs more than they do
+        var store = Return(null, MerchandiseReturnStatus.Pending, ("a", 1));
+        store.ReturnShipping = new MerchandiseReturnShipping { Cost = 3, CurrencyRate = 1 };
+        var vendor = Return(null, MerchandiseReturnStatus.Pending, ("b", 3));
+        vendor.ReturnShipping = new MerchandiseReturnShipping { Cost = 15, CurrencyRate = 1 };
+
+        var estimate = await _service.GetEstimate([store, vendor], _order);
+
+        Assert.IsNull(estimate.Error);
+        Assert.AreEqual(110, estimate.ItemsAmount);
+        Assert.AreEqual(18, estimate.ReturnShippingCost);
+        Assert.AreEqual(97, estimate.Amount);
+        Assert.AreEqual(97, estimate.MaxAmount);
+        Assert.IsTrue(estimate.CanRefundOnline);
+    }
+
+    [TestMethod]
+    public async Task GetEstimate_PaymentPartlyRefunded_AtMostWhatIsLeft()
+    {
+        _transaction.RefundedAmount = 250;
+
+        var estimate = await _service.GetEstimate([Return(null, MerchandiseReturnStatus.Pending, ("a", 2))], _order);
+
+        Assert.AreEqual(200, estimate.Amount);
+        Assert.AreEqual(50, estimate.MaxAmount);
+    }
+
+    [TestMethod]
+    public async Task GetEstimate_NoPayment_NothingGoesBack()
+    {
+        _transaction = null;
+
+        var estimate = await _service.GetEstimate([Return(null, MerchandiseReturnStatus.Pending, ("a", 2))], _order);
+
+        Assert.AreEqual(200, estimate.Amount);
+        Assert.AreEqual(0, estimate.MaxAmount);
+        Assert.IsFalse(estimate.CanRefundOnline);
+    }
+
+    [TestMethod]
+    public async Task GetEstimate_ProviderCannotRefund_NotToThePayment()
+    {
+        SetupCanRefund(false, true);
+
+        var estimate = await _service.GetEstimate([Return(null, MerchandiseReturnStatus.Pending, ("a", 2))], _order);
+
+        Assert.AreEqual(200, estimate.MaxAmount);
+        Assert.IsFalse(estimate.CanRefundOnline);
+    }
+
+    [TestMethod]
+    public async Task Estimate_EqualsQuoteOnceReceived()
+    {
+        //one of b refunded before: the estimate takes the share left, as the refund will
+        _orderReturns.Add(Refunded("r0", ("b", 1)));
+        var merchandiseReturn = Return("r2", MerchandiseReturnStatus.Pending, ("a", 1), ("b", 2));
+        merchandiseReturn.ReturnShipping = new MerchandiseReturnShipping { Cost = 2, CurrencyRate = 1.5 };
+
+        var estimate = await _service.GetEstimate([merchandiseReturn], _order);
+        merchandiseReturn.MerchandiseReturnStatus = MerchandiseReturnStatus.Received;
+        var settlement = await _service.GetQuote(merchandiseReturn, _order);
+
+        Assert.IsNull(settlement.Error);
+        Assert.AreEqual(settlement.MaxAmount, estimate.MaxAmount);
+        Assert.AreEqual(103.67, estimate.MaxAmount);
+    }
+
+    [TestMethod]
     public async Task GetQuote_PaymentCannotBeRefundedAtAll_RefundNotAllowed()
     {
         SetupCanRefund(false, false);

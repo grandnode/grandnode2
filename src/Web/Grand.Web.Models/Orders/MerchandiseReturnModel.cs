@@ -44,6 +44,11 @@ public class MerchandiseReturnModel : BaseModel
     public bool HideRequestedAction { get; set; }
 
     /// <summary>
+    ///     Whether the customer adds photos of the items; without it, no reason asks for one
+    /// </summary>
+    public bool AllowToUploadFiles { get; set; }
+
+    /// <summary>
     ///     Whether a return method is active for the store and the customer; the options are loaded once a quantity
     ///     is chosen
     /// </summary>
@@ -88,6 +93,11 @@ public class MerchandiseReturnModel : BaseModel
     public class MerchandiseReturnReasonModel : BaseEntityModel
     {
         public string Name { get; set; }
+
+        /// <summary>
+        ///     Whether an item returned for the reason needs a photo
+        /// </summary>
+        public bool PhotoRequired { get; set; }
     }
 
     public class MerchandiseReturnActionModel : BaseEntityModel

@@ -12,6 +12,7 @@ using Grand.Infrastructure;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Extensions;
 using Microsoft.AspNetCore.Mvc;
 using System.IO.Compression;
 using System.Text.RegularExpressions;
@@ -358,7 +359,8 @@ public class DownloadController : BasePublicController
     }
 
     [HttpGet]
-    public virtual async Task<IActionResult> GetMerchandiseReturnNoteFile(string merchandiseReturnNoteId)
+    public virtual async Task<IActionResult> GetMerchandiseReturnNoteFile(string merchandiseReturnNoteId,
+        [FromServices] IGroupService groupService)
     {
         var merchandiseReturnNote = await _merchandiseReturnService.GetMerchandiseReturnNote(merchandiseReturnNoteId);
         if (merchandiseReturnNote == null)
@@ -369,8 +371,16 @@ public class DownloadController : BasePublicController
         if (merchandiseReturn == null)
             return NotFound();
 
-        if (_contextAccessor.WorkContext.CurrentCustomer == null || merchandiseReturn.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
+        //whoever may see the return on its page: the customer, or the account that owns theirs
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        if (customer == null || !await merchandiseReturn.Access(customer, groupService))
             return Challenge();
+
+        //in the store of its order, and only a note the customer is shown
+        var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
+        if (order == null || order.StoreId != _contextAccessor.StoreContext.CurrentStore.Id ||
+            !merchandiseReturnNote.DisplayToCustomer)
+            return NotFound();
 
         var download = await _downloadService.GetDownloadById(merchandiseReturnNote.DownloadId);
         if (download == null)

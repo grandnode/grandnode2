@@ -20,6 +20,16 @@ public interface IMerchandiseReturnRefundService
     Task<MerchandiseReturnRefundQuote> GetQuote(MerchandiseReturn merchandiseReturn, Order order);
 
     /// <summary>
+    ///     What the refund of returns not submitted yet comes to once they are received, shown to the customer before
+    ///     they submit: the amounts of all of them together, MaxAmount at most what is left to refund of the order's
+    ///     payment (0 without a payment), and CanRefundOnline whether the payment provider gives that back itself. The
+    ///     quote has no error: the staff decide when they refund
+    /// </summary>
+    /// <param name="merchandiseReturns">The returns the submit would save, one for each vendor of the items</param>
+    /// <param name="order">The order of the returns</param>
+    Task<MerchandiseReturnRefundQuote> GetEstimate(IList<MerchandiseReturn> merchandiseReturns, Order order);
+
+    /// <summary>
     ///     Refunds the amount and completes the return: through the payment provider, or offline when the money was
     ///     given back otherwise, e.g. by a bank transfer. The return records what was refunded and when, and the order
     ///     gets a note

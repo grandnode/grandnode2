@@ -155,6 +155,21 @@ public static partial class MessageTemplateSeed
                 IsActive = true,
                 EmailAccountId = ea
             },
+            new() {
+                Name = "NewMerchandiseReturnNote.StoreOwnerNotification",
+                Subject = "{{Store.Name}} — New message on return #{{MerchandiseReturn.ReturnNumber}}",
+                Body =
+                    Layout(
+                        "A customer wrote about a merchandise return.",
+                        "New message on a return",
+                        @"<p>The customer wrote about merchandise return #{{MerchandiseReturn.ReturnNumber}}.</p>
+                {% if MerchandiseReturn.NewNoteText != null and MerchandiseReturn.NewNoteText != '' %}
+                <p style='padding: 12px 16px; background-color: #f4f4f5; border-radius: 6px;'>{{MerchandiseReturn.NewNoteText}}</p>
+                {% endif %}
+                <p>Answer with a note shown to the customer on the return in the panel.</p>"),
+                IsActive = true,
+                EmailAccountId = ea
+            },
         };
     }
 }

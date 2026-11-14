@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
@@ -18,6 +19,7 @@ using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Routing;
 using Grand.Web.Common.Localization;
@@ -41,7 +43,8 @@ public class MerchandiseReturnController : BasePublicController
         IMerchandiseReturnLabelService merchandiseReturnLabelService,
         IDownloadService downloadService,
         AddressSettings addressSettings,
-        OrderSettings orderSettings)
+        OrderSettings orderSettings,
+        IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService)
     {
         _merchandiseReturnService = merchandiseReturnService;
         _pickupPointService = pickupPointService;
@@ -54,6 +57,7 @@ public class MerchandiseReturnController : BasePublicController
         _downloadService = downloadService;
         _addressSettings = addressSettings;
         _orderSettings = orderSettings;
+        _merchandiseReturnWorkflowService = merchandiseReturnWorkflowService;
     }
 
     #endregion
@@ -73,6 +77,7 @@ public class MerchandiseReturnController : BasePublicController
     private readonly IDownloadService _downloadService;
     private readonly AddressSettings _addressSettings;
     private readonly OrderSettings _orderSettings;
+    private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
 
     #endregion
 
@@ -126,19 +131,19 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
-    ///     The return of the current customer, as the details page finds it; null when it is not theirs
+    ///     The return of the current customer and its order, placed in the current store; nulls when it is not theirs
     /// </summary>
-    private async Task<MerchandiseReturn> CustomerMerchandiseReturn(string merchandiseReturnId)
+    private async Task<(MerchandiseReturn Return, Order Order)> CustomerMerchandiseReturn(string merchandiseReturnId)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (!await merchandiseReturn.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
-            return null;
+            return (null, null);
 
         var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
-            return null;
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) || !OfCurrentStore(order))
+            return (null, null);
 
-        return merchandiseReturn;
+        return (merchandiseReturn, order);
     }
 
     /// <summary>
@@ -161,6 +166,21 @@ public class MerchandiseReturnController : BasePublicController
         return Request.HasFormContentType
             ? Request.Form.ToDictionary(x => x.Key, x => x.Value.ToString())
             : new Dictionary<string, string>();
+    }
+
+    /// <summary>
+    ///     The photos posted with the form, by the order item each "photos.{orderItemId}" field names
+    /// </summary>
+    private IDictionary<string, IList<IFormFile>> PostedPhotos()
+    {
+        const string prefix = "photos.";
+        if (!Request.HasFormContentType)
+            return new Dictionary<string, IList<IFormFile>>();
+
+        return Request.Form.Files
+            .Where(x => x.Name.StartsWith(prefix, StringComparison.Ordinal) && x.Name.Length > prefix.Length)
+            .GroupBy(x => x.Name[prefix.Length..])
+            .ToDictionary(x => x.Key, x => (IList<IFormFile>)x.ToList());
     }
 
     #endregion
@@ -203,6 +223,8 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     [HttpPost]
+    [RequestSizeLimit(MerchandiseReturnUploads.MaxSubmitRequestBytes)]
+    [RequestFormLimits(MultipartBodyLengthLimit = MerchandiseReturnUploads.MaxSubmitRequestBytes)]
     public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
     {
         var order = await _orderService.GetOrderById(model.OrderId);
@@ -219,7 +241,7 @@ public class MerchandiseReturnController : BasePublicController
         if (ModelState.IsValid)
         {
             var result = await _mediator.Send(new MerchandiseReturnSubmitCommand
-                { Address = address, Model = model, Order = order, Form = PostedForm() });
+                { Address = address, Model = model, Order = order, Form = PostedForm(), Photos = PostedPhotos() });
             if (result.Error == null && result.ShippingErrors.Count == 0)
             {
                 //one return for each vendor of the items
@@ -260,18 +282,14 @@ public class MerchandiseReturnController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> MerchandiseReturnDetails(string merchandiseReturnId)
     {
-        var rr = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        if (!await rr.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
-            return Challenge();
-
-        var order = await _orderService.GetOrderById(rr.OrderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (merchandiseReturn, order) = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (merchandiseReturn == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetMerchandiseReturnDetails {
             Order = order,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
-            MerchandiseReturn = rr
+            MerchandiseReturn = merchandiseReturn
         });
 
         return View(model);
@@ -304,12 +322,37 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
+    ///     The refund the form comes to with the return method chosen in it, before it is submitted
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnEstimate(string orderId, MerchandiseReturnModel model)
+    {
+        var order = await _orderService.GetOrderById(orderId);
+        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService) ||
+            !OfCurrentStore(order))
+            return NotFound("The order was not found.");
+
+        if (!_orderSettings.MerchandiseReturnsEnabled)
+            return Json(new MerchandiseReturnEstimateModel());
+
+        var estimate = await _mediator.Send(new GetMerchandiseReturnEstimate {
+            Order = order,
+            Model = model,
+            PickupAddress = await PrepareAddress(model),
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Language = _contextAccessor.WorkContext.WorkingLanguage,
+            Form = PostedForm()
+        });
+        return Json(estimate);
+    }
+
+    /// <summary>
     ///     The label of a return, to print and stick on the parcel
     /// </summary>
     [HttpGet]
     public virtual async Task<IActionResult> MerchandiseReturnLabel(string merchandiseReturnId)
     {
-        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        var (merchandiseReturn, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
         var shipping = merchandiseReturn?.ReturnShipping;
         //only while the parcel is still to be sent: a rejected or cancelled return's label may stay created when
         //the carrier did not cancel it
@@ -327,13 +370,30 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
+    ///     The document to put in the parcel with the items, in the working language, while they are still to be sent
+    /// </summary>
+    [HttpGet]
+    public virtual async Task<IActionResult> MerchandiseReturnPdf(string merchandiseReturnId,
+        [FromServices] IPdfService pdfService)
+    {
+        var (merchandiseReturn, order) = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (!merchandiseReturn.CustomerPrintsDocument())
+            return NotFound("The return was not found.");
+
+        using var stream = new MemoryStream();
+        await pdfService.PrintMerchandiseReturnToPdf(stream, merchandiseReturn, order,
+            _contextAccessor.WorkContext.WorkingLanguage.Id, HttpContext.RequestAborted);
+        return File(stream.ToArray(), "application/pdf", $"return_{merchandiseReturn.ReturnNumber}.pdf");
+    }
+
+    /// <summary>
     ///     The tracking number of a parcel the customer sends themselves
     /// </summary>
     [HttpPost]
     public virtual async Task<IActionResult> MerchandiseReturnTrackingNumber(string merchandiseReturnId,
         string trackingNumber)
     {
-        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        var (merchandiseReturn, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
         if (!merchandiseReturn.CustomerEntersTrackingNumber())
             return NotFound("The return was not found.");
 
@@ -357,7 +417,7 @@ public class MerchandiseReturnController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> MerchandiseReturnRetryLabel(string merchandiseReturnId)
     {
-        var merchandiseReturn = await CustomerMerchandiseReturn(merchandiseReturnId);
+        var (merchandiseReturn, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
         if (merchandiseReturn?.ReturnShipping == null)
             return NotFound("The return was not found.");
 
@@ -370,6 +430,59 @@ public class MerchandiseReturnController : BasePublicController
             if (error != null)
                 Error(LabelErrorText(error));
         }
+
+        return RedirectToRoute("MerchandiseReturnDetails", new { merchandiseReturnId = merchandiseReturn.Id });
+    }
+
+    /// <summary>
+    ///     Cancels a return the store has not answered yet: its quantity can be returned again and its label is
+    ///     cancelled with the carrier, as when the staff cancel it
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnCancel(string merchandiseReturnId)
+    {
+        var (merchandiseReturn, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (merchandiseReturn == null)
+            return NotFound("The return was not found.");
+
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        //pending as stored, under the lock: the staff may have accepted it since the page was loaded
+        var error = await _merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id,
+            MerchandiseReturnStatus.Cancelled, null, "customer " + (customer.Email ?? customer.Id),
+            stored => stored.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
+        if (error == null)
+            Success(_translationService.GetResource("MerchandiseReturns.Cancel.Done"));
+        else
+            Error(_translationService.GetResource(error == MerchandiseReturnErrors.Busy
+                ? MerchandiseReturnErrors.SubmitBusy
+                : "MerchandiseReturns.Cancel.NotAllowed"));
+
+        return RedirectToRoute("MerchandiseReturnDetails", new { merchandiseReturnId = merchandiseReturn.Id });
+    }
+
+    /// <summary>
+    ///     A message of the customer to the store about the return, with an image when they add one
+    /// </summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnAddNote(string merchandiseReturnId, string note,
+        IFormFile file)
+    {
+        var (merchandiseReturn, order) = await CustomerMerchandiseReturn(merchandiseReturnId);
+        if (merchandiseReturn == null)
+            return NotFound("The return was not found.");
+
+        var error = await _mediator.Send(new InsertMerchandiseReturnNoteCommand {
+            MerchandiseReturn = merchandiseReturn,
+            Order = order,
+            Note = note,
+            File = file,
+            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Host = _contextAccessor.StoreContext.CurrentHost
+        });
+        if (error == null)
+            Success(_translationService.GetResource("MerchandiseReturns.Notes.Added"));
+        else
+            Error(_translationService.GetResource(error));
 
         return RedirectToRoute("MerchandiseReturnDetails", new { merchandiseReturnId = merchandiseReturn.Id });
     }

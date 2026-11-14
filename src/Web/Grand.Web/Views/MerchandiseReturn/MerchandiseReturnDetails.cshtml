@@ -6,6 +6,8 @@
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.MerchandiseReturnDetails"]);
+
+    const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
 }
 
 @section left
@@ -21,6 +23,51 @@
                 <label>@Loc["Account.CustomerMerchandiseReturns.Date"]</label>
                 <span>@Model.CreatedOnUtc.ToString(CultureInfo.InvariantCulture)</span>
             </div>
+            <div class="return-actions d-flex flex-wrap gap-2 mb-3">
+                @if (Model.CanPrintDocument)
+                {
+                    <a class="btn btn-sm btn-outline-info" href="@Url.RouteUrl("MerchandiseReturnPdf", new { merchandiseReturnId = Model.MerchandiseReturnId })">
+                        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
+                        @Loc["MerchandiseReturns.Pdf"]
+                    </a>
+                }
+                @if (Model.CanCancel)
+                {
+                    <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#ModalCancelReturn">@Loc["MerchandiseReturns.Cancel"]</button>
+                }
+            </div>
+            @if (Model.CanCancel)
+            {
+                <div class="modal fade" id="ModalCancelReturn" tabindex="-1" aria-hidden="true">
+                    <div class="modal-dialog">
+                        <form class="modal-content" asp-route="MerchandiseReturnCancel" asp-route-merchandiseReturnId="@Model.MerchandiseReturnId" method="post">
+                            <div class="modal-body">@Loc["MerchandiseReturns.Cancel.Confirm"]</div>
+                            <div class="modal-footer">
+                                <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">@Loc["MerchandiseReturns.Wizard.Back"]</button>
+                                <button type="submit" class="btn btn-danger">@Loc["MerchandiseReturns.Cancel"]</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            }
+            @if (Model.Timeline.Any())
+            {
+                <div class="return-timeline mb-3" v-pre>
+                    <h5 class="generalTitle">@Loc["MerchandiseReturns.Timeline"]</h5>
+                    <ol class="list-unstyled mb-0">
+                        @foreach (var entry in Model.Timeline)
+                        {
+                            <li>
+                                <span class="fw-bold">@entry.Name</span>
+                                @if (entry.Date.HasValue)
+                                {
+                                    <small class="text-muted ms-2">@entry.Date.Value.ToString(CultureInfo.InvariantCulture)</small>
+                                }
+                            </li>
+                        }
+                    </ol>
+                </div>
+            }
             <div class="products">
                 <h5 class="generalTitle">@Loc["Order.Product(s)"]</h5>
                 <div class="mt-1">
@@ -300,7 +347,8 @@
 
             @if (Model.MerchandiseReturnNotes.Any())
             {
-                <div class="merchandisereturn-notes">
+                @* v-pre: what the customer and the staff wrote is shown, never compiled as a template *@
+                <div class="merchandisereturn-notes" v-pre>
                     <h5>
                         @Loc["MerchandiseReturns.Notes"]
                     </h5>
@@ -328,6 +376,8 @@
                                         @item.CreatedOn.ToString(CultureInfo.InvariantCulture)
                                     </td>
                                     <td class="note col-8">
+                                        <span class="author d-block small text-muted">@(item.CreatedByCustomer ? Loc["MerchandiseReturns.Notes.From.You"] : Loc["MerchandiseReturns.Notes.From.Store"])</span>
+                                        @* encoded by the handler: the text with its line breaks *@
                                         @Html.Raw(item.Note)
                                         @if (item.HasDownload)
                                         {
@@ -342,6 +392,23 @@
                         </table>
                     </div>
                 </div>
+            }
+
+            @if (Model.CanAddNote)
+            {
+                <form class="merchandisereturn-add-note card mt-3" asp-route="MerchandiseReturnAddNote" asp-route-merchandiseReturnId="@Model.MerchandiseReturnId" method="post" enctype="multipart/form-data" onsubmit="@submitOnce">
+                    <div class="card-body">
+                        <h5 class="generalTitle">@Loc["MerchandiseReturns.Notes.Add"]</h5>
+                        <label for="return-note" class="form-label">@Loc["MerchandiseReturns.Notes.Message"]</label>
+                        <textarea id="return-note" name="note" class="form-control" rows="3" maxlength="2000" required></textarea>
+                        @if (Model.CanAttachFile)
+                        {
+                            <label for="return-note-file" class="form-label mt-2">@Loc["MerchandiseReturns.Notes.Attachment"]</label>
+                            <input type="file" id="return-note-file" name="file" class="form-control" accept="image/*"/>
+                        }
+                        <button type="submit" class="btn btn-secondary mt-2">@Loc["MerchandiseReturns.Notes.Send"]</button>
+                    </div>
+                </form>
             }
         </div>
     </div>

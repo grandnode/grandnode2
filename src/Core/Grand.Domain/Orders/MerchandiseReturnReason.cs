@@ -39,4 +39,9 @@ public class MerchandiseReturnReason : BaseEntity, ITranslationEntity, IStoreLin
     ///     Gets or sets a value indicating whether a return for this reason is shipped at no cost to the customer
     /// </summary>
     public bool FreeReturnShipping { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the customer adds a photo of each item returned for this reason
+    /// </summary>
+    public bool PhotoRequired { get; set; }
 }

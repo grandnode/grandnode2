@@ -22,7 +22,18 @@ import { axios, notifyRequestError } from './shared'
 
 const QUANTITY_FIELD = /^Items\[\d+\]\.Quantity$/
 
-registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, returnShipping, offersUrl, choosePoint }) => {
+// the form's fields without its photos: only the submit uploads them
+function withoutPhotos(form) {
+    const data = new FormData(form)
+    for (const name of [...data.keys()]) {
+        if (name.startsWith('photos.')) data.delete(name)
+    }
+    return data
+}
+
+registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items, photoReasonIds, photosRequired,
+    photosInvalid, nothingChosen, photoTypes, maxPhotoBytes, maxPhotosPerItem, maxPhotosPerSubmit,
+    estimateUrl, returnShipping, offersUrl, choosePoint }) => {
     const quantities = {}
     itemIds.forEach(id => { quantities['quantity_' + id] = '0' })
 
@@ -39,7 +50,13 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
             offers: [],
             selectedKey: '',
             formHtml: '',
-            formError: ''
+            formError: '',
+            step: 1,
+            itemsError: '',
+            estimateError: '',
+            estimate: null,
+            summaryItems: [],
+            submitting: false
         }),
         computed: {
             selectedOffer() {
@@ -70,7 +87,7 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
 
                 this.clearChoice()
 
-                const data = new FormData(form)
+                const data = withoutPhotos(form)
                 const request = ++offersRequest
                 const anyQuantity = [...data.entries()]
                     .some(([name, value]) => QUANTITY_FIELD.test(name) && Number(value) > 0)
@@ -121,12 +138,72 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, return
                 const radios = [...document.querySelectorAll('.return-shipping-form input[type=radio]')]
                 return radios.length === 0 || radios.some(radio => radio.checked)
             },
+            // posted once, from the summary: Enter in a field of an earlier step, or a second click, posts nothing
             submit() {
+                if (this.step !== 3 || this.submitting) return
+                if (returnShipping && !this.formAnswered()) {
+                    this.formError = choosePoint ?? ''
+                    return
+                }
+                this.submitting = true
+                getRootVm().$refs.form.submit()
+            },
+            returned() {
+                return itemIds.filter(id => Number(this['quantity_' + id]) > 0)
+            },
+            // an item returned for a reason that asks for a photo has one chosen; the server checks it again
+            photosMissing() {
+                return this.returned().some(id => {
+                    const input = document.getElementById('photos-' + id)
+                    const reason = input?.closest('td')?.querySelector('select.return-reasons')?.value
+                    return photoReasonIds.includes(reason) && input.files.length === 0
+                })
+            },
+            // the photos the server would refuse, checked before they are uploaded: type, size and count
+            photosRefused() {
+                const returned = this.returned()
+                let total = 0
+                return itemIds.some(id => {
+                    const files = [...(document.getElementById('photos-' + id)?.files ?? [])]
+                    total += files.length
+                    return (files.length > 0 && !returned.includes(id)) || files.length > maxPhotosPerItem ||
+                        files.some(file => file.size === 0 || file.size > maxPhotoBytes ||
+                            !photoTypes.includes(('.' + file.name.split('.').pop()).toLowerCase()))
+                }) || total > maxPhotosPerSubmit
+            },
+            toMethod() {
+                if (this.returned().length === 0) this.itemsError = nothingChosen
+                else if (this.photosRefused()) this.itemsError = photosInvalid
+                else if (this.photosMissing()) this.itemsError = photosRequired
+                else this.itemsError = ''
+                if (!this.itemsError) this.step = 2
+            },
+            // the refund the form comes to, worked out on the server as the refund will be; the photos stay out of it
+            toSummary() {
                 if (!this.formAnswered()) {
                     this.formError = choosePoint ?? ''
                     return
                 }
-                getRootVm().$refs.form.submit()
+                this.estimateError = ''
+                axios.post(estimateUrl, withoutPhotos(getRootVm().$refs.form))
+                    .then(response => {
+                        const estimate = response.data ?? {}
+                        if (estimate.Errors?.length) {
+                            this.estimateError = estimate.Errors.join(' ')
+                            return
+                        }
+                        this.estimate = estimate
+                        this.summaryItems = this.returned().map(id => ({
+                            id,
+                            name: items.find(item => item.id === id)?.name ?? '',
+                            quantity: this['quantity_' + id]
+                        }))
+                        this.step = 3
+                    })
+                    .catch(notifyRequestError)
+            },
+            back() {
+                this.step = Math.max(1, this.step - 1)
             }
         }
     }))

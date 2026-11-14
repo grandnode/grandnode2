@@ -75,6 +75,7 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
             AvailableReturnActions = _orderSettings.MerchandiseReturns_HideRequestedAction
                 ? []
                 : await PrepareAvailableReturnActions(),
+            AllowToUploadFiles = _orderSettings.MerchandiseReturns_AllowToUploadFiles,
             //the options themselves depend on the items chosen, so the form loads them once a quantity is chosen
             ReturnShippingEnabled = (await _returnShippingService.LoadActiveProviders(
                 _contextAccessor.WorkContext.CurrentCustomer, request.Order.StoreId)).Any()
@@ -94,7 +95,9 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
         foreach (var rrr in await _merchandiseReturnService.GetAllMerchandiseReturnReasons(_contextAccessor.StoreContext.CurrentStore.Id))
             reasons.Add(new MerchandiseReturnModel.MerchandiseReturnReasonModel {
                 Id = rrr.Id,
-                Name = rrr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)
+                Name = rrr.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
+                //a store that takes no files asks for no photo
+                PhotoRequired = rrr.PhotoRequired && _orderSettings.MerchandiseReturns_AllowToUploadFiles
             });
         return reasons;
     }

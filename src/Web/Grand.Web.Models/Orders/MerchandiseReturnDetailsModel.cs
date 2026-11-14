@@ -38,12 +38,53 @@ public class MerchandiseReturnDetailsModel : BaseModel
     /// </summary>
     public ReturnShippingModel ReturnShipping { get; set; }
 
+    /// <summary>
+    ///     What happened to the return, oldest first
+    /// </summary>
+    public IList<TimelineEntryModel> Timeline { get; set; } = new List<TimelineEntryModel>();
+
+    /// <summary>
+    ///     Whether the customer may still cancel the return: the store has not answered it yet
+    /// </summary>
+    public bool CanCancel { get; set; }
+
+    /// <summary>
+    ///     Whether the customer may still write to the store about the return: it is not closed
+    /// </summary>
+    public bool CanAddNote { get; set; }
+
+    /// <summary>
+    ///     Whether the customer adds an image to a message: the store takes files with returns
+    /// </summary>
+    public bool CanAttachFile { get; set; }
+
+    /// <summary>
+    ///     Whether the return document is offered: the items are still to be sent back with it
+    /// </summary>
+    public bool CanPrintDocument { get; set; }
+
     #region Nested Classes
+
+    public class TimelineEntryModel
+    {
+        public string Name { get; set; }
+
+        /// <summary>
+        ///     When, in the customer's time; null for a status reached before the dates were recorded
+        /// </summary>
+        public DateTime? Date { get; set; }
+    }
 
     public class MerchandiseReturnNote : BaseEntityModel
     {
         public bool HasDownload { get; set; }
+
+        /// <summary>
+        ///     The note's text, encoded already: it is put in the page as it is
+        /// </summary>
         public string Note { get; set; }
+
+        public bool CreatedByCustomer { get; set; }
         public DateTime CreatedOn { get; set; }
         public string MerchandiseReturnId { get; set; }
     }

@@ -43,4 +43,16 @@ public interface IPdfService
     /// <param name="cancellationToken">Stops the work before the PDF is generated</param>
     Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string languageId = "",
         CancellationToken cancellationToken = default);
+
+    /// <summary>
+    ///     Print the document a customer sends with the items of a merchandise return: what is returned, why, and
+    ///     where it goes
+    /// </summary>
+    /// <param name="stream">Stream</param>
+    /// <param name="merchandiseReturn">Merchandise return</param>
+    /// <param name="order">The order of the return</param>
+    /// <param name="languageId">Language identifier; empty to use the language the order was placed in</param>
+    /// <param name="cancellationToken">Stops the work before the PDF is generated</param>
+    Task PrintMerchandiseReturnToPdf(Stream stream, MerchandiseReturn merchandiseReturn, Order order,
+        string languageId = "", CancellationToken cancellationToken = default);
 }

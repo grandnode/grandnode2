@@ -87,6 +87,12 @@ public class OrderSettings : ISettings
     public bool MerchandiseReturns_HideRequestedAction { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether customers add photos to the items they return and images to their
+    ///     messages; off, no reason asks for a photo. New stores allow it; existing ones keep the setting's default
+    /// </summary>
+    public bool MerchandiseReturns_AllowToUploadFiles { get; set; }
+
+    /// <summary>
     ///     Gets or sets a number of days that the Merchandise Return Link will be available for customers after order placing.
     /// </summary>
     public int NumberOfDaysMerchandiseReturnAvailable { get; set; }
