@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
@@ -70,6 +71,25 @@ public class OrderController : BasePublicController
 
     #endregion
 
+    #region Utilities
+
+    /// <summary>
+    ///     The order and the customer acting on it: the current customer when it is theirs, else the order's guest
+    ///     when the browser holds the grant the link sent to the order's e-mail left; nulls otherwise
+    /// </summary>
+    private async Task<(Order Order, Customer Customer, bool GuestLink)> CustomerOrder(Order order)
+    {
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        if (await order.Access(customer, _groupService))
+            return (order, customer, false);
+
+        var guest = await GuestOrderGrant.GrantedGuest(HttpContext, order, customer,
+            _contextAccessor.StoreContext.CurrentStore.Id, _groupService);
+        return guest != null ? (order, guest, true) : (null, null, false);
+    }
+
+    #endregion
+
     #region Methods
 
     //My account / Orders
@@ -91,16 +111,30 @@ public class OrderController : BasePublicController
     [HttpGet]
     public virtual async Task<ActionResult<OrderDetailsModel>> Details(string orderId)
     {
-        var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (order, customer, guestLink) = await CustomerOrder(await _orderService.GetOrderById(orderId));
+        if (order == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetOrderDetails
             {
                 Order = order,
-                Customer = _contextAccessor.WorkContext.CurrentCustomer,
+                Customer = customer,
                 Language = _contextAccessor.WorkContext.WorkingLanguage
             });
+        model.GuestLink = guestLink;
+        if (guestLink)
+        {
+            //the link lets a guest read the order and pay for it, nothing that changes it
+            model.UserCanCancelUnpaidOrder = false;
+            model.IsReOrderAllowed = false;
+            model.ShowAddOrderNote = false;
+            model.CanWithdrawOrderApproval = false;
+            //the order's returns are reached from here only
+            if (_orderSettings.MerchandiseReturnsEnabled)
+                model.HasMerchandiseReturns = (await _mediator.Send(new GetMerchandiseReturnQuery {
+                    StoreId = _contextAccessor.StoreContext.CurrentStore.Id, OrderId = order.Id, PageSize = 1
+                })).Any();
+        }
 
         return View(model);
     }
@@ -150,8 +184,8 @@ public class OrderController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> GetPdfInvoice(string orderId, [FromServices] IPdfService pdfService)
     {
-        var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (order, _, _) = await CustomerOrder(await _orderService.GetOrderById(orderId));
+        if (order == null)
             return Challenge();
 
         var orders = new List<Order> { order };
@@ -213,8 +247,8 @@ public class OrderController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> RePostPayment(string orderId)
     {
-        var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (order, _, _) = await CustomerOrder(await _orderService.GetOrderById(orderId));
+        if (order == null)
             return Challenge();
 
         var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(order.OrderGuid);
@@ -238,12 +272,12 @@ public class OrderController : BasePublicController
         if (shipment == null)
             return Challenge();
 
-        var order = await _orderService.GetOrderById(shipment.OrderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (order, customer, _) = await CustomerOrder(await _orderService.GetOrderById(shipment.OrderId));
+        if (order == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetShipmentDetails {
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Customer = customer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Order = order,
             Shipment = shipment
@@ -321,7 +355,7 @@ public class OrderController : BasePublicController
         }
 
         GuestOrderGrant.Grant(HttpContext, order);
-        return RedirectToRoute("CustomerMerchandiseReturns");
+        return RedirectToRoute("OrderDetails", new { orderId = order.Id });
     }
 
     private static bool DisplayGuestCaptcha(CaptchaSettings captchaSettings)

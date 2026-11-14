@@ -1,11 +1,17 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
+using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
@@ -14,6 +20,7 @@ using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
 using Grand.Web.Extensions;
+using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -73,8 +80,17 @@ public class OrderControllerGuestTests
         _groups.Setup(x => x.IsOwner(It.IsAny<Customer>())).ReturnsAsync(true);
         _groups.Setup(x => x.IsRegistered(It.IsAny<Customer>())).ReturnsAsync(false);
         _mediator = new Mock<IMediator>();
+        _mediator.Setup(x => x.Send(It.IsAny<GetOrderDetails>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new OrderDetailsModel());
+        _mediator.Setup(x => x.Send(It.IsAny<GetShipmentDetails>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new ShipmentDetailsModel());
+        _mediator.Setup(x => x.Send(It.IsAny<GetMerchandiseReturnQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedList<MerchandiseReturn>([new MerchandiseReturn { Id = "r1", OrderId = "o1" }], 0, 1));
         _payments = new Mock<IPaymentService>();
         _paymentTransactions = new Mock<IPaymentTransactionService>();
+        _paymentTransactions.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new PaymentTransaction());
+        _payments.Setup(x => x.CanRePostRedirectPayment(It.IsAny<PaymentTransaction>())).ReturnsAsync(true);
+        _payments.Setup(x => x.PostRedirectPayment(It.IsAny<PaymentTransaction>())).ReturnsAsync("https://pay");
         var translation = new Mock<IRequestTranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns("text");
 
@@ -207,5 +223,140 @@ public class OrderControllerGuestTests
 
         Assert.AreEqual("GuestOrder", ((RedirectToRouteResult)result).RouteName);
         Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
+    }
+
+    private IShipmentService Shipments()
+    {
+        var shipments = new Mock<IShipmentService>();
+        shipments.Setup(x => x.GetShipmentById("sh1")).ReturnsAsync(new Shipment { Id = "sh1", OrderId = "o1" });
+        shipments.Setup(x => x.GetShipmentById("sh2")).ReturnsAsync(new Shipment { Id = "sh2", OrderId = "o2" });
+        return shipments.Object;
+    }
+
+    [TestMethod]
+    public async Task Details_Grant_ShownAsGuestLink()
+    {
+        var result = (ViewResult)(await _controller.Details("o1")).Result;
+
+        Assert.IsTrue(((OrderDetailsModel)result!.Model).GuestLink);
+        Assert.IsTrue(((OrderDetailsModel)result.Model).HasMerchandiseReturns);
+        _mediator.Verify(x => x.Send(It.Is<GetOrderDetails>(c => c.Customer.Id == "g1"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Details_Grant_OffersNoChanges()
+    {
+        //what the handler offers, as to the order's customer
+        _mediator.Setup(x => x.Send(It.IsAny<GetOrderDetails>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new OrderDetailsModel {
+                UserCanCancelUnpaidOrder = true, IsReOrderAllowed = true, ShowAddOrderNote = true,
+                CanWithdrawOrderApproval = true, CanRePostProcessPayment = true
+            });
+
+        var model = (OrderDetailsModel)((ViewResult)(await _controller.Details("o1")).Result)!.Model;
+
+        Assert.IsFalse(model!.UserCanCancelUnpaidOrder);
+        Assert.IsFalse(model.IsReOrderAllowed);
+        Assert.IsFalse(model.ShowAddOrderNote);
+        Assert.IsFalse(model.CanWithdrawOrderApproval);
+        Assert.IsTrue(model.CanRePostProcessPayment);
+    }
+
+    [TestMethod]
+    public async Task Details_SessionGuest_NotGuestLink()
+    {
+        //the guest still in the session that placed the order keeps the page as it is
+        _work.Setup(x => x.CurrentCustomer).Returns(_guest);
+        _httpContext.Request.Headers.Cookie = "";
+
+        var result = (ViewResult)(await _controller.Details("o1")).Result;
+
+        Assert.IsFalse(((OrderDetailsModel)result!.Model).GuestLink);
+    }
+
+    [TestMethod]
+    public async Task Details_GrantOtherOrder_Challenge()
+    {
+        Assert.IsInstanceOfType<ChallengeResult>((await _controller.Details("o2")).Result);
+    }
+
+    [TestMethod]
+    public async Task Details_GrantVisitorLoggedIn_Challenge()
+    {
+        _groups.Setup(x => x.IsRegistered(_visitor)).ReturnsAsync(true);
+
+        Assert.IsInstanceOfType<ChallengeResult>((await _controller.Details("o1")).Result);
+    }
+
+    [TestMethod]
+    public async Task Details_SettingOff_Challenge()
+    {
+        _orderSettings.AllowGuestOrderAccess = false;
+
+        Assert.IsInstanceOfType<ChallengeResult>((await _controller.Details("o1")).Result);
+    }
+
+    [TestMethod]
+    public async Task PdfInvoice_Grant_File()
+    {
+        Assert.IsInstanceOfType<FileContentResult>(
+            await _controller.GetPdfInvoice("o1", new Mock<IPdfService>().Object));
+    }
+
+    [TestMethod]
+    public async Task PdfInvoice_GrantOtherOrder_Challenge()
+    {
+        Assert.IsInstanceOfType<ChallengeResult>(
+            await _controller.GetPdfInvoice("o2", new Mock<IPdfService>().Object));
+    }
+
+    [TestMethod]
+    public async Task Shipment_Grant_View()
+    {
+        Assert.IsInstanceOfType<ViewResult>((await _controller.ShipmentDetails("sh1", Shipments())).Result);
+        _mediator.Verify(x => x.Send(It.Is<GetShipmentDetails>(c => c.Customer.Id == "g1"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Shipment_OtherOrder_Challenge()
+    {
+        Assert.IsInstanceOfType<ChallengeResult>((await _controller.ShipmentDetails("sh2", Shipments())).Result);
+    }
+
+    [TestMethod]
+    public async Task RePost_Grant_Redirects()
+    {
+        Assert.AreEqual("https://pay", ((RedirectResult)await _controller.RePostPayment("o1")).Url);
+    }
+
+    [TestMethod]
+    public async Task RePost_GrantOtherOrder_Challenge()
+    {
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.RePostPayment("o2"));
+    }
+
+    [TestMethod]
+    public async Task Excluded_Grant_StillRefused()
+    {
+        _orderSettings.AllowCustomerToAddOrderNote = true;
+
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.CancelOrder("o1"));
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.ReOrder("o1"));
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.WithdrawApproval("o1"));
+        Assert.IsInstanceOfType<ChallengeResult>(
+            (await _controller.AddOrderNote(new AddOrderNoteModel { OrderId = "o1", Note = "Hello" })).Result);
+    }
+
+    [TestMethod]
+    public async Task Access_GoodToken_RedirectsToOrderDetails()
+    {
+        var token = GuestOrderGrant.LinkToken(_provider, _order1);
+
+        var result = (RedirectToRouteResult)await _controller.GuestOrderAccess(token, _provider, Customers);
+
+        Assert.AreEqual("OrderDetails", result.RouteName);
+        Assert.AreEqual("o1", result.RouteValues!["orderId"]);
     }
 }

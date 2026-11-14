@@ -2280,6 +2280,9 @@
 	<Resource Name="Order.Guest.InvalidLink" Area="Front">
 		<Value>The link has expired or is not valid. Ask for a new one.</Value>
 	</Resource>
+	<Resource Name="Order.Guest.Returns" Area="Front">
+		<Value>Returns of this order</Value>
+	</Resource>
 	<Resource Name="Order.Guest.LoggedIn" Area="Front">
 		<Value>You are logged in to an account. Log out, then open the link again to see an order placed without an account.</Value>
 	</Resource>

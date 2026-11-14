@@ -676,6 +676,11 @@
                             {
                                 <input type="button" value="@Loc["Order.ReturnItems"]" class="btn btn-outline-info return-items-button" onclick="location = ('@Url.RouteUrl("MerchandiseReturn", new { orderId = Model.Id })    ')"/>
                             }
+                            @if (Model.HasMerchandiseReturns)
+                            {
+                                @* a guest who came with the order's link has no account page listing them *@
+                                <a class="btn btn-outline-info order-returns-button" href="@Url.RouteUrl("CustomerMerchandiseReturns")">@Loc["Order.Guest.Returns"]</a>
+                            }
                         </div>
                     </div>
                 </div>
