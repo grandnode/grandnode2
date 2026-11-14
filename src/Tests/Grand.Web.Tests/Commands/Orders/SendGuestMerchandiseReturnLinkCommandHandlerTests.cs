@@ -2,6 +2,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
@@ -81,6 +82,17 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
 
         VerifySent(Times.Once());
         Assert.AreEqual("o1", MerchandiseReturnGuestGrant.LinkOrderId(_provider, _sentToken, "s1"));
+    }
+
+    [TestMethod]
+    public async Task GuestOrderWithoutCustomerEmail_MatchesBillingEmail()
+    {
+        //a guest's order keeps the address typed at checkout in its billing address only
+        _order.CustomerEmail = null;
+        _order.BillingAddress = new Address { Email = "guest@example.com" };
+
+        Assert.IsTrue(await Send("Guest@example.com"));
+        VerifySent(Times.Once());
     }
 
     [TestMethod]

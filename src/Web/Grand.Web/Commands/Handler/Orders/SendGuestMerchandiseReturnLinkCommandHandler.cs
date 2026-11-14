@@ -33,8 +33,10 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
         if (order == null || order.StoreId != request.Store.Id)
             return false;
 
-        //the address the order was placed with is the proof that it is theirs
-        if (!string.Equals(order.CustomerEmail?.Trim(), request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
+        //the address the order was placed with is the proof that it is theirs; a guest's is kept in the billing
+        //address only, where the order's e-mails go
+        var orderEmail = string.IsNullOrEmpty(order.CustomerEmail) ? order.BillingAddress?.Email : order.CustomerEmail;
+        if (!string.Equals(orderEmail?.Trim(), request.Email?.Trim(), StringComparison.OrdinalIgnoreCase))
             return false;
 
         if (await MerchandiseReturnGuestGrant.GuestOfOrder(order, request.Store.Id, customerService,

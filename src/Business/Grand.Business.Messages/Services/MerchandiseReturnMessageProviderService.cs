@@ -317,10 +317,12 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
-        //the address the link was asked for with, the proof that the order is theirs
+        //the address the link was asked for with, the proof that the order is theirs: a guest's is kept in the
+        //billing address only
+        var toEmail = string.IsNullOrEmpty(order.CustomerEmail) ? order.BillingAddress?.Email : order.CustomerEmail;
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             language.Id, liquidObject,
-            order.CustomerEmail, order.BillingAddress?.FirstName,
+            toEmail, order.BillingAddress?.FirstName,
             reference: Reference.Order, objectId: order.Id);
     }
 

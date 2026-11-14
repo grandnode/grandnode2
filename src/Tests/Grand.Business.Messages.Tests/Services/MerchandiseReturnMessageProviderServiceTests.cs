@@ -100,6 +100,22 @@ public class MerchandiseReturnMessageProviderServiceTests
     }
 
     [TestMethod]
+    public async Task SendGuestLink_NoCustomerEmail_ToBillingEmail()
+    {
+        _messageTemplateServiceMock.Setup(x => x.GetMessageTemplateByName(
+                MessageTemplateNames.SendMerchandiseReturnGuestLinkCustomerMessage, "store1"))
+            .ReturnsAsync(new MessageTemplate { IsActive = true, Subject = "Return items", Body = "Body" });
+        var order = new Order {
+            Id = "o1", StoreId = "store1",
+            BillingAddress = new Address { Email = "guest@example.com", FirstName = "Gina" }
+        };
+
+        await _service.SendMerchandiseReturnGuestLinkCustomerMessage(order, "token");
+
+        Assert.AreEqual("guest@example.com", _queued.Single().To);
+    }
+
+    [TestMethod]
     public async Task SendGuestLink_InactiveTemplate_Zero()
     {
         _messageTemplateServiceMock.Setup(x => x.GetMessageTemplateByName(
