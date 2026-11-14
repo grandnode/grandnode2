@@ -162,10 +162,10 @@ else
                         </div>
                     </div>
                 }
-                @if (Grand.Web.Extensions.MerchandiseReturnGuestGrant.Allowed(orderSettings))
+                @if (Grand.Web.Extensions.GuestOrderGrant.Allowed(orderSettings))
                 {
-                    <div class="col-12 mx-lg-0 mx-auto mt-3 text-center guest-merchandise-return-link">
-                        <a asp-route="GuestMerchandiseReturn">@Loc["Account.Login.GuestMerchandiseReturn"]</a>
+                    <div class="col-12 mx-lg-0 mx-auto mt-3 text-center guest-order-link">
+                        <a asp-route="GuestOrder">@Loc["Account.Login.GuestOrder"]</a>
                     </div>
                 }
             </div>

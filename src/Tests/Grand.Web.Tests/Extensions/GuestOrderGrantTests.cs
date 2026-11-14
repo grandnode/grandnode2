@@ -18,7 +18,7 @@ namespace Grand.Web.Tests.Extensions;
 ///     limited time, and only while the order's customer has no account
 /// </summary>
 [TestClass]
-public class MerchandiseReturnGuestGrantTests
+public class GuestOrderGrantTests
 {
     private readonly Order _order = new() { Id = "o1", StoreId = "s1", CustomerId = "g1" };
     private readonly Customer _guest = new() { Id = "g1" };
@@ -48,7 +48,7 @@ public class MerchandiseReturnGuestGrantTests
                 .BuildServiceProvider()
         };
         if (cookie != null)
-            context.Request.Headers.Cookie = $".Grand.MerchandiseReturnGuest={cookie}";
+            context.Request.Headers.Cookie = $".Grand.GuestOrder={cookie}";
         return context;
     }
 
@@ -62,44 +62,44 @@ public class MerchandiseReturnGuestGrantTests
     [TestMethod]
     public void LinkToken_RoundTrips_OrderId()
     {
-        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order);
+        var token = GuestOrderGrant.LinkToken(_provider, _order);
 
-        Assert.AreEqual("o1", MerchandiseReturnGuestGrant.LinkOrderId(_provider, token, "s1"));
+        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, token, "s1"));
     }
 
     [TestMethod]
     public void LinkOrderId_OtherStore_Null()
     {
-        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order);
+        var token = GuestOrderGrant.LinkToken(_provider, _order);
 
-        Assert.IsNull(MerchandiseReturnGuestGrant.LinkOrderId(_provider, token, "s2"));
+        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, token, "s2"));
     }
 
     [TestMethod]
     public void LinkOrderId_Tampered_Null()
     {
-        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order);
+        var token = GuestOrderGrant.LinkToken(_provider, _order);
         var middle = token.Length / 2;
         var tampered = token[..middle] + (token[middle] == 'A' ? 'B' : 'A') + token[(middle + 1)..];
 
-        Assert.IsNull(MerchandiseReturnGuestGrant.LinkOrderId(_provider, tampered, "s1"));
+        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, tampered, "s1"));
     }
 
     [TestMethod]
     public void LinkOrderId_Expired_Null()
     {
-        var token = _provider.CreateProtector(MerchandiseReturnGuestGrant.LinkPurpose).ToTimeLimitedDataProtector()
+        var token = _provider.CreateProtector(GuestOrderGrant.LinkPurpose).ToTimeLimitedDataProtector()
             .Protect("o1|s1", DateTimeOffset.UtcNow.AddMinutes(-1));
 
-        Assert.IsNull(MerchandiseReturnGuestGrant.LinkOrderId(_provider, token, "s1"));
+        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, token, "s1"));
     }
 
     [TestMethod]
     public void LinkToken_NotAcceptedAsGrant()
     {
-        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order);
+        var token = GuestOrderGrant.LinkToken(_provider, _order);
 
-        Assert.IsNull(MerchandiseReturnGuestGrant.GrantedOrderId(Context(token), "s1"));
+        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(token), "s1"));
     }
 
     [TestMethod]
@@ -107,15 +107,15 @@ public class MerchandiseReturnGuestGrantTests
     {
         var context = Context();
 
-        MerchandiseReturnGuestGrant.Grant(context, _order);
+        GuestOrderGrant.Grant(context, _order);
 
         var header = context.Response.Headers.SetCookie.ToString().ToLowerInvariant();
-        StringAssert.StartsWith(header, ".grand.merchandisereturnguest=");
+        StringAssert.StartsWith(header, ".grand.guestorder=");
         StringAssert.Contains(header, "httponly");
         StringAssert.Contains(header, "secure");
         StringAssert.Contains(header, "samesite=lax");
         StringAssert.Contains(header, "path=/");
-        Assert.AreEqual("o1", MerchandiseReturnGuestGrant.GrantedOrderId(Context(CookieValue(context)), "s1"));
+        Assert.AreEqual("o1", GuestOrderGrant.GrantedOrderId(Context(CookieValue(context)), "s1"));
     }
 
     [TestMethod]
@@ -124,7 +124,7 @@ public class MerchandiseReturnGuestGrantTests
         //a shared computer does not keep it once the browser is closed; the payload still expires on its own
         var context = Context();
 
-        MerchandiseReturnGuestGrant.Grant(context, _order);
+        GuestOrderGrant.Grant(context, _order);
 
         Assert.IsFalse(context.Response.Headers.SetCookie.ToString().Contains("expires",
             StringComparison.OrdinalIgnoreCase));
@@ -139,10 +139,10 @@ public class MerchandiseReturnGuestGrantTests
         _securityConfig.CookieSameSite = SameSiteMode.Strict;
         var context = Context();
 
-        MerchandiseReturnGuestGrant.Grant(context, _order);
+        GuestOrderGrant.Grant(context, _order);
 
         var header = context.Response.Headers.SetCookie.ToString().ToLowerInvariant();
-        StringAssert.StartsWith(header, ".shop.merchandisereturnguest=");
+        StringAssert.StartsWith(header, ".shop.guestorder=");
         Assert.IsFalse(header.Contains("secure"));
         StringAssert.Contains(header, "samesite=strict");
     }
@@ -151,22 +151,22 @@ public class MerchandiseReturnGuestGrantTests
     public void GrantedOrderId_OtherStore_Null()
     {
         var context = Context();
-        MerchandiseReturnGuestGrant.Grant(context, _order);
+        GuestOrderGrant.Grant(context, _order);
 
-        Assert.IsNull(MerchandiseReturnGuestGrant.GrantedOrderId(Context(CookieValue(context)), "s2"));
+        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(CookieValue(context)), "s2"));
     }
 
     [TestMethod]
     public void GrantedOrderId_NoCookie_Null()
     {
-        Assert.IsNull(MerchandiseReturnGuestGrant.GrantedOrderId(Context(), "s1"));
+        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(), "s1"));
     }
 
     [TestMethod]
     public async Task GuestOfOrder_Guest_Customer()
     {
         Assert.AreSame(_guest,
-            await MerchandiseReturnGuestGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+            await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
     }
 
     [TestMethod]
@@ -174,13 +174,13 @@ public class MerchandiseReturnGuestGrantTests
     {
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(true);
 
-        Assert.IsNull(await MerchandiseReturnGuestGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
     }
 
     [TestMethod]
     public async Task GuestOfOrder_OtherStore_Null()
     {
-        Assert.IsNull(await MerchandiseReturnGuestGrant.GuestOfOrder(_order, "s2", _customers.Object, _groups.Object));
+        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s2", _customers.Object, _groups.Object));
     }
 
     [TestMethod]
@@ -188,7 +188,7 @@ public class MerchandiseReturnGuestGrantTests
     {
         _order.Deleted = true;
 
-        Assert.IsNull(await MerchandiseReturnGuestGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
     }
 
     [TestMethod]
@@ -196,6 +196,6 @@ public class MerchandiseReturnGuestGrantTests
     {
         _order.CustomerId = "nobody";
 
-        Assert.IsNull(await MerchandiseReturnGuestGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
     }
 }

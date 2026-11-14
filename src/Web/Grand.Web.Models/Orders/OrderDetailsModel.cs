@@ -8,6 +8,16 @@ public class OrderDetailsModel : BaseEntityModel
 {
     public bool PdfInvoiceDisabled { get; set; }
 
+    /// <summary>
+    ///     Shown through the link sent to a guest's order: only reading it and paying for it are offered
+    /// </summary>
+    public bool GuestLink { get; set; }
+
+    /// <summary>
+    ///     Whether the order has returns, which a guest who came with the link reaches from the page
+    /// </summary>
+    public bool HasMerchandiseReturns { get; set; }
+
     public bool UserCanCancelUnpaidOrder { get; set; }
 
     /// <summary>

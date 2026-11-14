@@ -287,44 +287,5 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
             reference: Reference.MerchandiseReturn, objectId: merchandiseReturn.Id);
     }
 
-    /// <summary>
-    ///     Sends the e-mail address of an order placed without an account the link to return items from it
-    /// </summary>
-    /// <param name="order">Order</param>
-    /// <param name="token">The protected token the link carries</param>
-    /// <param name="host">Host of the storefront request</param>
-    public virtual async Task<int> SendMerchandiseReturnGuestLinkCustomerMessage(Order order, string token,
-        DomainHost host = null)
-    {
-        ArgumentNullException.ThrowIfNull(order);
-
-        var store = await _messageLookupService.GetStore(order.StoreId);
-        var language = await _messageLookupService.EnsureLanguageIsActive(order.CustomerLanguageId, store.Id);
-
-        var messageTemplate =
-            await _messageLookupService.GetMessageTemplate(MessageTemplateNames.SendMerchandiseReturnGuestLinkCustomerMessage, store.Id);
-        if (messageTemplate == null)
-            return 0;
-
-        //email account
-        var emailAccount = await _messageLookupService.GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
-
-        host = store.LinkHost(host);
-        var builder = new LiquidObjectBuilder(_mediator);
-        builder.AddStoreTokens(store, language, emailAccount);
-        builder.AddMerchandiseReturnGuestLinkTokens(order, store, host, token);
-        var liquidObject = await builder.BuildAsync();
-        //event notification
-        await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
-
-        //the address the link was asked for with, the proof that the order is theirs: a guest's is kept in the
-        //billing address only
-        var toEmail = string.IsNullOrEmpty(order.CustomerEmail) ? order.BillingAddress?.Email : order.CustomerEmail;
-        return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
-            language.Id, liquidObject,
-            toEmail, order.BillingAddress?.FirstName,
-            reference: Reference.Order, objectId: order.Id);
-    }
-
     #endregion
 }

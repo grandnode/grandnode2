@@ -163,13 +163,13 @@ public class SettingsMappingTests : VerifyBase
     }
 
     [TestMethod]
-    public void CaptchaSettings_GuestMerchandiseReturnFlag_RoundTrips()
+    public void CaptchaSettings_GuestOrderFlag_RoundTrips()
     {
         var model = _mapper.Map<GeneralCommonSettingsModel.SecuritySettingsModel>(
-            new CaptchaSettings { ShowOnGuestMerchandiseReturnPage = true });
+            new CaptchaSettings { ShowOnGuestOrderPage = true });
 
-        Assert.IsTrue(model.CaptchaShowOnGuestMerchandiseReturnPage);
-        Assert.IsTrue(_mapper.Map<CaptchaSettings>(model).ShowOnGuestMerchandiseReturnPage);
+        Assert.IsTrue(model.CaptchaShowOnGuestOrderPage);
+        Assert.IsTrue(_mapper.Map<CaptchaSettings>(model).ShowOnGuestOrderPage);
     }
 
     [TestMethod]

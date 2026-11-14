@@ -295,12 +295,12 @@ public class LiquidObjectBuilder
         return this;
     }
 
-    public LiquidObjectBuilder AddMerchandiseReturnGuestLinkTokens(Order order, Store store, DomainHost host,
+    public LiquidObjectBuilder AddGuestOrderLinkTokens(Order order, Store store, DomainHost host,
         string token)
     {
         _chain.Add(async liquidObject =>
         {
-            liquidObject.MerchandiseReturnGuestLink = new LiquidMerchandiseReturnGuestLink(order, store, host, token);
+            liquidObject.GuestOrderLink = new LiquidGuestOrderLink(order, store, host, token);
             await Task.CompletedTask;
         });
         return this;

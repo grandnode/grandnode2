@@ -10,13 +10,13 @@ using System.Security.Cryptography;
 namespace Grand.Web.Extensions;
 
 /// <summary>
-///     The way a guest who ordered without an account returns items: a time-limited link sent to the order's e-mail
+///     The way a guest who ordered without an account opens the order and its returns: a time-limited link sent to the order's e-mail
 ///     address leaves a grant for that one order in the browser. Both are protected payloads stored nowhere else
 /// </summary>
-public static class MerchandiseReturnGuestGrant
+public static class GuestOrderGrant
 {
-    public const string LinkPurpose = "Grand.Web.MerchandiseReturn.GuestLink";
-    public const string GrantPurpose = "Grand.Web.MerchandiseReturn.GuestGrant";
+    public const string LinkPurpose = "Grand.Web.GuestOrder.Link";
+    public const string GrantPurpose = "Grand.Web.GuestOrder.Grant";
 
     public static readonly TimeSpan LinkLifetime = TimeSpan.FromHours(24);
     public static readonly TimeSpan GrantLifetime = TimeSpan.FromHours(2);
@@ -26,15 +26,23 @@ public static class MerchandiseReturnGuestGrant
     /// </summary>
     public static string CookieName(ICookieOptionsFactory cookieOptionsFactory)
     {
-        return $"{cookieOptionsFactory.CookiePrefix}MerchandiseReturnGuest";
+        return $"{cookieOptionsFactory.CookiePrefix}GuestOrder";
     }
 
     /// <summary>
-    ///     Whether the store lets guests return items; the pages of the flow are not found otherwise
+    ///     Whether the store lets guests open their orders by a link; the pages of the flow are not found otherwise
     /// </summary>
     public static bool Allowed(OrderSettings orderSettings)
     {
-        return orderSettings.MerchandiseReturnsEnabled && orderSettings.MerchandiseReturns_AllowGuestReturns;
+        return orderSettings.AllowGuestOrderAccess;
+    }
+
+    /// <summary>
+    ///     Whether a guest's link to an order also reaches its returns: only while the store takes them
+    /// </summary>
+    public static bool ReturnsAllowed(OrderSettings orderSettings)
+    {
+        return Allowed(orderSettings) && orderSettings.MerchandiseReturnsEnabled;
     }
 
     /// <summary>
@@ -98,6 +106,20 @@ public static class MerchandiseReturnGuestGrant
 
         return await GuestOfOrder(order, storeId, httpContext.RequestServices.GetRequiredService<ICustomerService>(),
             groupService);
+    }
+
+    /// <summary>
+    ///     The customer acting on the order: the visitor when it is theirs, else the order's guest when the browser
+    ///     holds the grant a link sent to the order's e-mail address left for it; a null customer otherwise
+    /// </summary>
+    public static async Task<(Customer Customer, bool GuestLink)> OrderCustomer(HttpContext httpContext, Order order,
+        Customer visitor, string storeId, IGroupService groupService)
+    {
+        if (visitor != null && await order.Access(visitor, groupService))
+            return (visitor, false);
+
+        var guest = await GrantedGuest(httpContext, order, visitor, storeId, groupService);
+        return (guest, guest != null);
     }
 
     /// <summary>

@@ -17,8 +17,8 @@ public class CaptchaSettingsProfile : Profile, IAutoMapperProfile
             .ForMember(dest => dest.CaptchaShowOnPasswordRecoveryPage,
                 mo => mo.MapFrom(p => p.ShowOnPasswordRecoveryPage))
             .ForMember(dest => dest.CaptchaShowOnContactUsPage, mo => mo.MapFrom(p => p.ShowOnContactUsPage))
-            .ForMember(dest => dest.CaptchaShowOnGuestMerchandiseReturnPage,
-                mo => mo.MapFrom(p => p.ShowOnGuestMerchandiseReturnPage))
+            .ForMember(dest => dest.CaptchaShowOnGuestOrderPage,
+                mo => mo.MapFrom(p => p.ShowOnGuestOrderPage))
             .ForMember(dest => dest.CaptchaShowOnEmailWishlistToFriendPage,
                 mo => mo.MapFrom(p => p.ShowOnEmailWishlistToFriendPage))
             .ForMember(dest => dest.CaptchaShowOnEmailProductToFriendPage,
@@ -45,8 +45,8 @@ public class CaptchaSettingsProfile : Profile, IAutoMapperProfile
             .ForMember(dest => dest.ShowOnPasswordRecoveryPage,
                 mo => mo.MapFrom(p => p.CaptchaShowOnPasswordRecoveryPage))
             .ForMember(dest => dest.ShowOnContactUsPage, mo => mo.MapFrom(p => p.CaptchaShowOnContactUsPage))
-            .ForMember(dest => dest.ShowOnGuestMerchandiseReturnPage,
-                mo => mo.MapFrom(p => p.CaptchaShowOnGuestMerchandiseReturnPage))
+            .ForMember(dest => dest.ShowOnGuestOrderPage,
+                mo => mo.MapFrom(p => p.CaptchaShowOnGuestOrderPage))
             .ForMember(dest => dest.ShowOnEmailWishlistToFriendPage,
                 mo => mo.MapFrom(p => p.CaptchaShowOnEmailWishlistToFriendPage))
             .ForMember(dest => dest.ShowOnEmailProductToFriendPage,

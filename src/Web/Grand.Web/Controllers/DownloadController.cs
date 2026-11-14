@@ -32,6 +32,8 @@ public class DownloadController : BasePublicController
     private readonly IProductService _productService;
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
+    private readonly IGroupService _groupService;
+    private readonly OrderSettings _orderSettings;
 
     public DownloadController(IDownloadService downloadService,
         IProductService productService,
@@ -39,7 +41,9 @@ public class DownloadController : BasePublicController
         IMerchandiseReturnService merchandiseReturnService,
         IContextAccessor contextAccessor,
         IRequestTranslationService translationService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        IGroupService groupService,
+        OrderSettings orderSettings)
     {
         _downloadService = downloadService;
         _productService = productService;
@@ -48,6 +52,8 @@ public class DownloadController : BasePublicController
         _contextAccessor = contextAccessor;
         _translationService = translationService;
         _customerSettings = customerSettings;
+        _groupService = groupService;
+        _orderSettings = orderSettings;
     }
 
     [HttpGet]
@@ -78,6 +84,33 @@ public class DownloadController : BasePublicController
             { FileDownloadName = fileName + download.Extension };
     }
 
+    /// <summary>
+    ///     Whether the current customer may open the order's files: it is theirs, or the browser holds the grant the
+    ///     link sent to the order's e-mail left for it
+    /// </summary>
+    private async Task<bool> OrderAccess(Order order)
+    {
+        var (customer, _) = await GuestOrderGrant.OrderCustomer(HttpContext, order,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, _groupService);
+        return customer != null;
+    }
+
+    /// <summary>
+    ///     Whether the file was uploaded with the order the browser holds a grant for, whose page links it
+    /// </summary>
+    private async Task<bool> GrantedOrderUpload(Guid downloadGuid)
+    {
+        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+        var orderId = GuestOrderGrant.GrantedOrderId(HttpContext, storeId);
+        var order = orderId != null ? await _orderService.GetOrderById(orderId) : null;
+        if (await GuestOrderGrant.GrantedGuest(HttpContext, order, _contextAccessor.WorkContext.CurrentCustomer,
+                storeId, _groupService) == null)
+            return false;
+
+        return order.OrderItems.SelectMany(x => x.Attributes).Concat(order.CheckoutAttributes)
+            .Any(x => Guid.TryParse(x.Value, out var guid) && guid == downloadGuid);
+    }
+
     [HttpGet]
     public virtual async Task<IActionResult> GetDownload(Guid orderItemId, bool agree = false)
     {
@@ -95,7 +128,7 @@ public class DownloadController : BasePublicController
             if (_contextAccessor.WorkContext.CurrentCustomer == null)
                 return Challenge();
 
-            if (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id && order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
+            if (!await OrderAccess(order))
                 return Content("This is not your order");
         }
 
@@ -196,7 +229,7 @@ public class DownloadController : BasePublicController
             return Content("Downloads are not allowed");
 
         if (_customerSettings.DownloadableProductsValidateUser)
-            if (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id && order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id)
+            if (!await OrderAccess(order))
                 return Challenge();
 
         var download = await _downloadService.GetDownloadById(!string.IsNullOrEmpty(orderItem.LicenseDownloadId)
@@ -222,15 +255,16 @@ public class DownloadController : BasePublicController
     }
 
     [HttpGet]
-    public virtual async Task<IActionResult> GetFileUpload(Guid downloadId, [FromServices] IGroupService groupService)
+    public virtual async Task<IActionResult> GetFileUpload(Guid downloadId)
     {
         var download = await _downloadService.GetDownloadByGuid(downloadId);
         if (download == null)
             return Content("Download is not available any more.");
 
         if (_contextAccessor.WorkContext.CurrentCustomer == null ||
-            (!await groupService.IsAdmin(_contextAccessor.WorkContext.CurrentCustomer)
-            && download.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
+            (!await _groupService.IsAdmin(_contextAccessor.WorkContext.CurrentCustomer)
+             && download.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id
+             && !await GrantedOrderUpload(downloadId)))
             return Challenge();
 
         if (download.UseDownloadUrl)
@@ -260,9 +294,12 @@ public class DownloadController : BasePublicController
         if (order == null)
             return NotFound();
 
-        if (_contextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id &&
-                                                     order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
+        if (!await OrderAccess(order))
             return Challenge();
+
+        //the order's page shows the notes meant for the customer only; the staff open the others in the panels
+        if (!orderNote.DisplayToCustomer)
+            return NotFound();
 
         var download = await _downloadService.GetDownloadById(orderNote.DownloadId);
         if (download == null)
@@ -300,9 +337,12 @@ public class DownloadController : BasePublicController
         if (order == null)
             return NotFound();
 
-        if (_contextAccessor.WorkContext.CurrentCustomer == null || (order.CustomerId != _contextAccessor.WorkContext.CurrentCustomer.Id &&
-                                                     order.OwnerId != _contextAccessor.WorkContext.CurrentCustomer.Id))
+        if (!await OrderAccess(order))
             return Challenge();
+
+        //the shipment's page shows the notes meant for the customer only; the staff open the others in the panels
+        if (!shipmentNote.DisplayToCustomer)
+            return NotFound();
 
         var download = await _downloadService.GetDownloadById(shipmentNote.DownloadId);
         if (download == null)
@@ -359,8 +399,7 @@ public class DownloadController : BasePublicController
     }
 
     [HttpGet]
-    public virtual async Task<IActionResult> GetMerchandiseReturnNoteFile(string merchandiseReturnNoteId,
-        [FromServices] IGroupService groupService)
+    public virtual async Task<IActionResult> GetMerchandiseReturnNoteFile(string merchandiseReturnNoteId)
     {
         var merchandiseReturnNote = await _merchandiseReturnService.GetMerchandiseReturnNote(merchandiseReturnNoteId);
         if (merchandiseReturnNote == null)
@@ -375,9 +414,10 @@ public class DownloadController : BasePublicController
         //order who holds its grant
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
-        if ((customer == null || !await merchandiseReturn.Access(customer, groupService)) &&
-            await MerchandiseReturnGuestGrant.GrantedGuest(HttpContext, order, customer,
-                _contextAccessor.StoreContext.CurrentStore.Id, groupService) == null)
+        if ((customer == null || !await merchandiseReturn.Access(customer, _groupService)) &&
+            (!GuestOrderGrant.ReturnsAllowed(_orderSettings) ||
+             await GuestOrderGrant.GrantedGuest(HttpContext, order, customer,
+                 _contextAccessor.StoreContext.CurrentStore.Id, _groupService) == null))
             return Challenge();
 
         //in the store of its order, and only a note the customer is shown

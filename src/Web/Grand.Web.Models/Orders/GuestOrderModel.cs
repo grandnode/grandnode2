@@ -4,14 +4,14 @@ using Grand.Infrastructure.Models;
 namespace Grand.Web.Models.Orders;
 
 /// <summary>
-///     The form a guest asks for the link to return items of an order with
+///     The form a guest asks for the link to an order with
 /// </summary>
-public class GuestMerchandiseReturnModel : BaseModel
+public class GuestOrderModel : BaseModel
 {
-    [GrandResourceDisplayName("MerchandiseReturns.Guest.OrderNumber")]
-    public int? OrderNumber { get; set; }
+    [GrandResourceDisplayName("Order.Guest.OrderNumberOrCode")]
+    public string OrderNumberOrCode { get; set; }
 
-    [GrandResourceDisplayName("MerchandiseReturns.Guest.Email")]
+    [GrandResourceDisplayName("Order.Guest.Email")]
     public string Email { get; set; }
 
     public bool DisplayCaptcha { get; set; }

@@ -6,15 +6,15 @@ using System.Net;
 namespace Grand.Business.Messages.DotLiquidDrops;
 
 /// <summary>
-///     The link a guest returns items of an order with. The token is stored nowhere, so it reaches the template here
+///     The link that opens an order placed without an account. The token is stored nowhere, so it reaches the template here
 /// </summary>
-public class LiquidMerchandiseReturnGuestLink : Drop
+public class LiquidGuestOrderLink : Drop
 {
     private readonly Order _order;
     private readonly string _token;
     private readonly string url;
 
-    public LiquidMerchandiseReturnGuestLink(Order order, Store store, DomainHost host, string token)
+    public LiquidGuestOrderLink(Order order, Store store, DomainHost host, string token)
     {
         _order = order;
         _token = token;
@@ -22,9 +22,9 @@ public class LiquidMerchandiseReturnGuestLink : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public int OrderNumber => _order.OrderNumber;
+    public string OrderCode => _order.Code;
 
-    public string Url => $"{url}/guestmerchandisereturn/access?token={WebUtility.UrlEncode(_token)}";
+    public string Url => $"{url}/guestorder/access?token={WebUtility.UrlEncode(_token)}";
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

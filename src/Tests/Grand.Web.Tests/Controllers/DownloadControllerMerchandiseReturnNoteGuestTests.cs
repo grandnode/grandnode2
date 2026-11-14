@@ -34,7 +34,7 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
     private Order _order;
 
     private readonly OrderSettings _orderSettings =
-        new() { MerchandiseReturnsEnabled = true, MerchandiseReturns_AllowGuestReturns = true };
+        new() { MerchandiseReturnsEnabled = true, AllowGuestOrderAccess = true };
 
     [TestInitialize]
     public void Init()
@@ -80,7 +80,8 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
         Grant(_order);
 
         _controller = new DownloadController(downloads.Object, new Mock<IProductService>().Object, orders.Object,
-            returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings()) {
+            returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings(),
+            _groupService.Object, _orderSettings) {
             ControllerContext = new ControllerContext { HttpContext = _httpContext }
         };
     }
@@ -88,14 +89,14 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
     private void Grant(Order order)
     {
         var granting = new DefaultHttpContext { RequestServices = _httpContext.RequestServices };
-        MerchandiseReturnGuestGrant.Grant(granting, order);
+        GuestOrderGrant.Grant(granting, order);
         var header = granting.Response.Headers.SetCookie.ToString();
         _httpContext.Request.Headers.Cookie = header[..header.IndexOf(';')];
     }
 
     private Task<IActionResult> Download()
     {
-        return _controller.GetMerchandiseReturnNoteFile("n1", _groupService.Object);
+        return _controller.GetMerchandiseReturnNoteFile("n1");
     }
 
     [TestMethod]

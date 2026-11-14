@@ -4,6 +4,12 @@ namespace Grand.Module.Installer.Services.MessageTemplates;
 
 public static partial class MessageTemplateSeed
 {
+    /// <summary>
+    ///     The row of the order confirmation with the code a guest asks for the order's link with
+    /// </summary>
+    private const string OrderCodeRow =
+        "<tr><td style='padding: 0.4em 0;'><strong>Order code:</strong></td><td style='padding: 0.4em 0;'>{{Order.OrderCode}}</td></tr>";
+
     private static IEnumerable<MessageTemplate> OrdersTemplates(string ea)
     {
         return new List<MessageTemplate> {
@@ -18,6 +24,7 @@ public static partial class MessageTemplateSeed
                     + Button("{{Order.OrderURLForCustomer}}", "View order details")
                     + @"<table role='presentation' style='width:100%; border-collapse: collapse; font-size: 14px; margin: 16px 0;'>
                 <tr><td style='padding: 0.4em 0;'><strong>Order number:</strong></td><td style='padding: 0.4em 0;'>{{Order.OrderNumber}}</td></tr>
+                " + OrderCodeRow + @"
                 <tr><td style='padding: 0.4em 0;'><strong>Order date:</strong></td><td style='padding: 0.4em 0;'>{{Order.CreatedOn}}</td></tr>
                 <tr><td style='padding: 0.4em 0;'><strong>Shipping method:</strong></td><td style='padding: 0.4em 0;'>{{Order.ShippingMethod}}</td></tr>
                 </table>
@@ -266,6 +273,19 @@ public static partial class MessageTemplateSeed
                 <p>A new note has been added to order #{{Order.OrderNumber}}:</p>
                 <p>""{{Order.NewNoteText}}""</p>"
                     + Button("{{Order.OrderURLForCustomer}}", "View order")),
+                IsActive = true,
+                EmailAccountId = ea
+            },
+            new() {
+                Name = "GuestOrderLink.CustomerNotification",
+                Subject = "{{Store.Name}} — Your order {{GuestOrderLink.OrderCode}}",
+                Body =
+                    Layout(
+                        "Your link to your order.",
+                        "Your order",
+                        @"<p>You asked to see order {{GuestOrderLink.OrderCode}}.</p>
+                " + Button("{{GuestOrderLink.Url}}", "View your order") + @"
+                <p>The link is valid for 24 hours. If you did not ask for it, ignore this e-mail.</p>"),
                 IsActive = true,
                 EmailAccountId = ea
             },

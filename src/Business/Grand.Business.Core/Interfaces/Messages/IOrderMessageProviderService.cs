@@ -175,4 +175,15 @@ public interface IOrderMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order order, string languageId);
+
+    /// <summary>
+    ///     Sends the e-mail address of an order placed without an account the link that opens the order
+    /// </summary>
+    /// <param name="order">Order</param>
+    /// <param name="token">The protected token the link carries</param>
+    /// <param name="host">
+    ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
+    /// </param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendGuestOrderLinkCustomerMessage(Order order, string token, DomainHost host = null);
 }

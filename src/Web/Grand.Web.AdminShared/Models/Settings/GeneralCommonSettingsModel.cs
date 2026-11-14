@@ -203,8 +203,8 @@ public class GeneralCommonSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CaptchaShowOnContactUsPage")]
         public bool CaptchaShowOnContactUsPage { get; set; }
 
-        [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CaptchaShowOnGuestMerchandiseReturnPage")]
-        public bool CaptchaShowOnGuestMerchandiseReturnPage { get; set; }
+        [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CaptchaShowOnGuestOrderPage")]
+        public bool CaptchaShowOnGuestOrderPage { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CaptchaShowOnEmailWishlistToFriendPage")]
         public bool CaptchaShowOnEmailWishlistToFriendPage { get; set; }

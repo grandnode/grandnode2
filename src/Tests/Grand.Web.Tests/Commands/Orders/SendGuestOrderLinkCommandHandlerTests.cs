@@ -7,6 +7,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Web.Commands.Handler.Orders;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Extensions;
@@ -22,13 +23,14 @@ namespace Grand.Web.Tests.Commands.Orders;
 ///     only when they match an order of the store placed without an account, and nothing tells which case it was
 /// </summary>
 [TestClass]
-public class SendGuestMerchandiseReturnLinkCommandHandlerTests
+public class SendGuestOrderLinkCommandHandlerTests
 {
     private readonly Customer _guest = new() { Id = "g1" };
     private Mock<IGroupService> _groups;
-    private SendGuestMerchandiseReturnLinkCommandHandler _handler;
-    private Mock<IMerchandiseReturnMessageProviderService> _messages;
+    private SendGuestOrderLinkCommandHandler _handler;
+    private Mock<IOrderMessageProviderService> _messages;
     private Order _order;
+    private List<Order> _otherOrders;
     private IDataProtectionProvider _provider;
     private string _sentToken;
 
@@ -36,16 +38,19 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     public void Init()
     {
         _order = new Order {
-            Id = "o1", OrderNumber = 7, StoreId = "s1", CustomerId = "g1", CustomerEmail = "guest@example.com"
+            Id = "o1", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "guest@example.com"
         };
+        _otherOrders = [];
         var orders = new Mock<IOrderService>();
         orders.Setup(x => x.GetOrderByNumber(7)).ReturnsAsync(() => _order);
+        orders.Setup(x => x.GetOrdersByCode(It.IsAny<string>())).ReturnsAsync((string code) =>
+            code == "K7Q2M9XA" ? _otherOrders.Append(_order).ToList() : []);
         var customers = new Mock<ICustomerService>();
         customers.Setup(x => x.GetCustomerById("g1")).ReturnsAsync(_guest);
         _groups = new Mock<IGroupService>();
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(false);
-        _messages = new Mock<IMerchandiseReturnMessageProviderService>();
-        _messages.Setup(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+        _messages = new Mock<IOrderMessageProviderService>();
+        _messages.Setup(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
                 It.IsAny<DomainHost>()))
             .Callback<Order, string, DomainHost>((_, token, _) => _sentToken = token)
             .ReturnsAsync(1);
@@ -60,21 +65,21 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
             .Returns(Task.CompletedTask);
 
         _provider = new EphemeralDataProtectionProvider();
-        _handler = new SendGuestMerchandiseReturnLinkCommandHandler(orders.Object, customers.Object, _groups.Object,
+        _handler = new SendGuestOrderLinkCommandHandler(orders.Object, customers.Object, _groups.Object,
             _messages.Object, _provider, cache.Object,
-            NullLogger<SendGuestMerchandiseReturnLinkCommandHandler>.Instance);
+            NullLogger<SendGuestOrderLinkCommandHandler>.Instance);
     }
 
-    private Task<bool> Send(string email = "guest@example.com", int orderNumber = 7, string storeId = "s1")
+    private Task<bool> Send(string email = "guest@example.com", string orderNumberOrCode = "K7Q2M9XA", string storeId = "s1")
     {
-        return _handler.Handle(new SendGuestMerchandiseReturnLinkCommand {
-            OrderNumber = orderNumber, Email = email, Store = new Domain.Stores.Store { Id = storeId }
+        return _handler.Handle(new SendGuestOrderLinkCommand {
+            OrderNumberOrCode = orderNumberOrCode, Email = email, Store = new Domain.Stores.Store { Id = storeId }
         }, CancellationToken.None);
     }
 
     private void VerifySent(Times times)
     {
-        _messages.Verify(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+        _messages.Verify(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
             It.IsAny<DomainHost>()), times);
     }
 
@@ -84,7 +89,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
         Assert.IsTrue(await Send(" Guest@Example.com "));
 
         VerifySent(Times.Once());
-        Assert.AreEqual("o1", MerchandiseReturnGuestGrant.LinkOrderId(_provider, _sentToken, "s1"));
+        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
     }
 
     [TestMethod]
@@ -101,7 +106,68 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     [TestMethod]
     public async Task NoOrder_NothingSent()
     {
-        Assert.IsFalse(await Send(orderNumber: 8));
+        Assert.IsFalse(await Send(orderNumberOrCode: "K7Q2M9XB"));
+        VerifySent(Times.Never());
+    }
+
+    [TestMethod]
+    public async Task OrderNumber_SendsLink()
+    {
+        //orders placed before the code was shown to customers are known by their number
+        _order.OrderNumber = 7;
+
+        Assert.IsTrue(await Send(orderNumberOrCode: " 7 "));
+        VerifySent(Times.Once());
+    }
+
+    [TestMethod]
+    public async Task OrderNumberWrongEmail_NothingSent()
+    {
+        _order.OrderNumber = 7;
+
+        Assert.IsFalse(await Send("someone@example.com", "7"));
+        VerifySent(Times.Never());
+    }
+
+    [TestMethod]
+    public async Task CodeWithSpaces_SendsLink()
+    {
+        Assert.IsTrue(await Send(orderNumberOrCode: " K7Q2M9XA "));
+        VerifySent(Times.Once());
+    }
+
+    [TestMethod]
+    public async Task CodeShared_OrderOfStoreWithEmailChosen()
+    {
+        //a code is random, not unique: another store's order and one placed with another address share it
+        _otherOrders.Add(new Order
+            { Id = "o2", Code = "K7Q2M9XA", StoreId = "s2", CustomerId = "g1", CustomerEmail = "guest@example.com" });
+        _otherOrders.Add(new Order
+            { Id = "o3", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "other@example.com" });
+
+        Assert.IsTrue(await Send());
+        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
+    }
+
+    [TestMethod]
+    public async Task EarlierMatchNotGuests_GuestOrderChosen()
+    {
+        //a value can match several orders of the address: a deleted one found first does not hide the guest's
+        _otherOrders.Add(new Order {
+            Id = "o2", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "guest@example.com",
+            Deleted = true
+        });
+
+        Assert.IsTrue(await Send());
+        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
+    }
+
+    [TestMethod]
+    public async Task OrderWithoutEmail_NothingSent()
+    {
+        _order.CustomerEmail = null;
+
+        Assert.IsFalse(await Send(""));
         VerifySent(Times.Never());
     }
 
@@ -150,7 +216,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     public async Task SendFails_FalseWithoutException()
     {
         //a failure only a matching order can meet must not answer differently from a mismatch
-        _messages.Setup(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+        _messages.Setup(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
             It.IsAny<DomainHost>())).ThrowsAsync(new InvalidOperationException("no e-mail account"));
 
         Assert.IsFalse(await Send());
@@ -159,7 +225,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     [TestMethod]
     public async Task InactiveTemplate_False()
     {
-        _messages.Setup(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+        _messages.Setup(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
             It.IsAny<DomainHost>())).ReturnsAsync(0);
 
         Assert.IsFalse(await Send());
@@ -169,7 +235,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     public async Task LinkNotSent_GuestMayAskAgain()
     {
         //Arrange - the first link fails, the second goes out
-        _messages.SetupSequence(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(),
+        _messages.SetupSequence(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(),
                 It.IsAny<string>(), It.IsAny<DomainHost>()))
             .ThrowsAsync(new InvalidOperationException("no e-mail account"))
             .ReturnsAsync(0)
@@ -185,5 +251,12 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
         Assert.IsFalse(inactive);
         Assert.IsTrue(sent);
         VerifySent(Times.Exactly(3));
+    }
+
+    [TestMethod]
+    public void ThrottleKey_NotClearedWithOrders()
+    {
+        //every change of an order clears the keys under the orders prefix, which would lift the throttle
+        Assert.IsFalse(string.Format(CacheKey.GUEST_ORDER_LINK_KEY, "o1").StartsWith(CacheKey.ORDERS_PATTERN_KEY));
     }
 }

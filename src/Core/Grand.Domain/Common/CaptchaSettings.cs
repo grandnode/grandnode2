@@ -33,9 +33,9 @@ public class CaptchaSettings : ISettings
     public bool ShowOnContactUsPage { get; set; }
 
     /// <summary>
-    ///     A value indicating whether CAPTCHA should be displayed on the page where guests ask for a return link
+    ///     A value indicating whether CAPTCHA should be displayed on the page where guests ask for the link to their order
     /// </summary>
-    public bool ShowOnGuestMerchandiseReturnPage { get; set; }
+    public bool ShowOnGuestOrderPage { get; set; }
 
     /// <summary>
     ///     A value indicating whether CAPTCHA should be displayed on the wishlist page

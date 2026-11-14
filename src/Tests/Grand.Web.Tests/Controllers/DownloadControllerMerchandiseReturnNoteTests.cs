@@ -62,7 +62,8 @@ public class DownloadControllerMerchandiseReturnNoteTests
         _groupService.Setup(x => x.IsOwner(_buyer)).ReturnsAsync(true);
 
         _controller = new DownloadController(downloads.Object, new Mock<IProductService>().Object, orders.Object,
-            returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings()) {
+            returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings(),
+            _groupService.Object, new OrderSettings()) {
             ControllerContext = new ControllerContext {
                 HttpContext = new DefaultHttpContext {
                     RequestServices = new ServiceCollection()
@@ -75,7 +76,7 @@ public class DownloadControllerMerchandiseReturnNoteTests
 
     private Task<IActionResult> Download()
     {
-        return _controller.GetMerchandiseReturnNoteFile("n1", _groupService.Object);
+        return _controller.GetMerchandiseReturnNoteFile("n1");
     }
 
     [TestMethod]

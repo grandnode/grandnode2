@@ -12,14 +12,14 @@ using Moq;
 namespace Grand.Web.Tests.Validators.Orders;
 
 [TestClass]
-public class GuestMerchandiseReturnValidatorTests
+public class GuestOrderValidatorTests
 {
-    private static GuestMerchandiseReturnValidator Validator(CaptchaSettings captchaSettings = null)
+    private static GuestOrderValidator Validator(CaptchaSettings captchaSettings = null)
     {
         var translation = new Mock<IRequestTranslationService>();
         translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns<string>(key => key);
-        return new GuestMerchandiseReturnValidator(
-            new List<IValidatorConsumer<GuestMerchandiseReturnModel>>(),
+        return new GuestOrderValidator(
+            new List<IValidatorConsumer<GuestOrderModel>>(),
             new List<IValidatorConsumer<ICaptchaValidModel>>(),
             captchaSettings ?? new CaptchaSettings(),
             new Mock<IHttpContextAccessor>().Object,
@@ -27,9 +27,9 @@ public class GuestMerchandiseReturnValidatorTests
             translation.Object);
     }
 
-    private static GuestMerchandiseReturnModel Model()
+    private static GuestOrderModel Model()
     {
-        return new GuestMerchandiseReturnModel { OrderNumber = 7, Email = "guest@example.com" };
+        return new GuestOrderModel { OrderNumberOrCode = "K7Q2M9XA", Email = "guest@example.com" };
     }
 
     [TestMethod]
@@ -39,14 +39,14 @@ public class GuestMerchandiseReturnValidatorTests
     }
 
     [TestMethod]
-    public async Task Validator_OrderNumberMissing_Error()
+    public async Task Validator_OrderNumberOrCodeMissing_Error()
     {
         var model = Model();
-        model.OrderNumber = null;
+        model.OrderNumberOrCode = "";
 
         var result = await Validator().ValidateAsync(model);
 
-        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.Guest.OrderNumber.Required"));
+        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "Order.Guest.OrderNumberOrCode.Required"));
     }
 
     [TestMethod]
@@ -57,7 +57,7 @@ public class GuestMerchandiseReturnValidatorTests
 
         var result = await Validator().ValidateAsync(model);
 
-        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "MerchandiseReturns.Guest.Email.Required"));
+        Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "Order.Guest.Email.Required"));
     }
 
     [TestMethod]
@@ -77,7 +77,7 @@ public class GuestMerchandiseReturnValidatorTests
         var model = Model();
         model.Captcha = null;
 
-        var result = await Validator(new CaptchaSettings { Enabled = true, ShowOnGuestMerchandiseReturnPage = true })
+        var result = await Validator(new CaptchaSettings { Enabled = true, ShowOnGuestOrderPage = true })
             .ValidateAsync(model);
 
         Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "Account.Captcha.Required"));

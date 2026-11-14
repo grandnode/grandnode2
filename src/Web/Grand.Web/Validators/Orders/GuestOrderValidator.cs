@@ -9,23 +9,23 @@ using Grand.Web.Models.Orders;
 
 namespace Grand.Web.Validators.Orders;
 
-public class GuestMerchandiseReturnValidator : BaseGrandValidator<GuestMerchandiseReturnModel>
+public class GuestOrderValidator : BaseGrandValidator<GuestOrderModel>
 {
-    public GuestMerchandiseReturnValidator(
-        IEnumerable<IValidatorConsumer<GuestMerchandiseReturnModel>> validators,
+    public GuestOrderValidator(
+        IEnumerable<IValidatorConsumer<GuestOrderModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
         CaptchaSettings captchaSettings,
         IHttpContextAccessor httpContextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         IRequestTranslationService translationService)
         : base(validators)
     {
-        RuleFor(x => x.OrderNumber).Must(x => x > 0)
-            .WithMessage(translationService.GetResource("MerchandiseReturns.Guest.OrderNumber.Required"));
+        RuleFor(x => x.OrderNumberOrCode).NotEmpty()
+            .WithMessage(translationService.GetResource("Order.Guest.OrderNumberOrCode.Required"));
         RuleFor(x => x.Email).NotEmpty()
-            .WithMessage(translationService.GetResource("MerchandiseReturns.Guest.Email.Required"));
+            .WithMessage(translationService.GetResource("Order.Guest.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
 
-        if (captchaSettings.Enabled && captchaSettings.ShowOnGuestMerchandiseReturnPage)
+        if (captchaSettings.Enabled && captchaSettings.ShowOnGuestOrderPage)
         {
             RuleFor(x => x.Captcha).NotNull()
                 .WithMessage(translationService.GetResource("Account.Captcha.Required"));

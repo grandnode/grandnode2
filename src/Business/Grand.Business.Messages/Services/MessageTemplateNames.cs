@@ -51,6 +51,6 @@ public static class MessageTemplateNames
     public const string SendNewMerchandiseReturnNoteAddedStoreOwnerMessage =
         "NewMerchandiseReturnNote.StoreOwnerNotification";
 
-    public const string SendMerchandiseReturnGuestLinkCustomerMessage =
-        "MerchandiseReturnGuestLink.CustomerNotification";
+    public const string SendGuestOrderLinkCustomerMessage =
+        "GuestOrderLink.CustomerNotification";
 }

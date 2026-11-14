@@ -2241,49 +2241,52 @@
 	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowToUploadFiles.Hint" Area="Admin">
 		<Value>Customers add photos of the items they return, and an image to their messages about a return. Off, the store takes no files with returns and no reason asks for a photo.</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowGuestReturns" Area="Admin">
-		<Value>Allow guests to return items</Value>
+	<Resource Name="Admin.Settings.Order.AllowGuestOrderAccess" Area="Admin">
+		<Value>Guests can open their order by a link</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.Order.MerchandiseReturns_AllowGuestReturns.Hint" Area="Admin">
-		<Value>Customers who ordered without an account can ask for a link to their order's e-mail address and return items with it.</Value>
+	<Resource Name="Admin.Settings.Order.AllowGuestOrderAccess.Hint" Area="Admin">
+		<Value>Check to let a guest who ordered without an account ask for a link, sent to the order's e-mail, that opens the order and its returns.</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestMerchandiseReturnPage" Area="Admin">
-		<Value>Show on the guest merchandise return page</Value>
+	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestOrderPage" Area="Admin">
+		<Value>Show on the guest order page</Value>
 	</Resource>
-	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestMerchandiseReturnPage.Hint" Area="Admin">
-		<Value>Check to show CAPTCHA on the page where guests ask for a return link.</Value>
+	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestOrderPage.Hint" Area="Admin">
+		<Value>Check to show CAPTCHA on the page where guests ask for the link to their order.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.OrderNumber.Required" Area="Front">
-		<Value>Enter the order number.</Value>
+	<Resource Name="Order.Guest.OrderNumberOrCode.Required" Area="Front">
+		<Value>Enter the order number or code.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Email.Required" Area="Front">
+	<Resource Name="Order.Guest.Email.Required" Area="Front">
 		<Value>Enter the e-mail address.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Title" Area="Front">
-		<Value>Return items without an account</Value>
+	<Resource Name="Order.Guest.Title" Area="Front">
+		<Value>Your order without an account</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Intro" Area="Front">
-		<Value>Enter the number of your order and the e-mail address you placed it with. We will send a link to return items from it.</Value>
+	<Resource Name="Order.Guest.Intro" Area="Front">
+		<Value>Enter the number or the code of your order and the e-mail address you placed it with. You will find them in the e-mail that confirmed the order. We will send a link to the order.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.OrderNumber" Area="Front">
-		<Value>Order number</Value>
+	<Resource Name="Order.Guest.OrderNumberOrCode" Area="Front">
+		<Value>Order number or code</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Email" Area="Front">
+	<Resource Name="Order.Guest.Email" Area="Front">
 		<Value>E-mail</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Send" Area="Front">
+	<Resource Name="Order.Guest.Send" Area="Front">
 		<Value>Send the link</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Sent" Area="Front">
+	<Resource Name="Order.Guest.Sent" Area="Front">
 		<Value>If the details match an order placed without an account, we have sent a link to its e-mail address. The link is valid for 24 hours.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.InvalidLink" Area="Front">
+	<Resource Name="Order.Guest.InvalidLink" Area="Front">
 		<Value>The link has expired or is not valid. Ask for a new one.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.LoggedIn" Area="Front">
-		<Value>You are logged in to an account. Log out, then open the link again to return items from an order placed without an account.</Value>
+	<Resource Name="Order.Guest.Returns" Area="Front">
+		<Value>Returns of this order</Value>
 	</Resource>
-	<Resource Name="Account.Login.GuestMerchandiseReturn" Area="Front">
-		<Value>Ordered without an account? Return items</Value>
+	<Resource Name="Order.Guest.LoggedIn" Area="Front">
+		<Value>You are logged in to an account. Log out, then open the link again to see an order placed without an account.</Value>
+	</Resource>
+	<Resource Name="Account.Login.GuestOrder" Area="Front">
+		<Value>Ordered without an account? View your order</Value>
 	</Resource>
 </Language>
