@@ -16,6 +16,7 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Inventory;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
@@ -412,10 +413,59 @@ public class InventoryDocumentControllerTests
             DocumentTypeId = InventoryDocumentType.ReturnReceipt, StoreId = StoreId, WarehouseId = "w-own",
             Lines = { new InventoryDocumentLine { ProductId = foreign.Id, Quantity = 1 } }
         };
-        _documentService.Setup(x => x.CreateReturnReceipt("return", "staff")).ReturnsAsync((receipt, []));
+        _documentService.Setup(x => x.CreateReturnReceipt("return", "staff", It.IsAny<IList<ReturnReceiptInspection>>()))
+            .ReturnsAsync((receipt, []));
 
         AssertRedirectedTo(await _controller.CreateReturnReceipt("return"), "List");
         _documentService.Verify(x => x.DeleteDraft(receipt.Id), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_ForeignWarehouse_Denied()
+    {
+        _merchandiseReturnScope.Setup(x => x.HasAccess(It.IsAny<MerchandiseReturn>())).ReturnsAsync(true);
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById("return"))
+            .ReturnsAsync(new MerchandiseReturn());
+
+        var result = await _controller.CreateReturnReceipt("return",
+            new ReturnReceiptInspectionModel { WarehouseId = "w-other" });
+
+        AssertRedirectedTo(result, "List");
+        _documentService.Verify(x => x.CreateReturnReceipt(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<IList<ReturnReceiptInspection>>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_InspectionPassedAndWarehouseKept()
+    {
+        var product = Stocked(new Product());
+        _merchandiseReturnScope.Setup(x => x.HasAccess(It.IsAny<MerchandiseReturn>())).ReturnsAsync(true);
+        _merchandiseReturnService.Setup(x => x.GetMerchandiseReturnById("return"))
+            .ReturnsAsync(new MerchandiseReturn());
+        var receipt = new InventoryDocument {
+            DocumentTypeId = InventoryDocumentType.ReturnReceipt, StoreId = StoreId, WarehouseId = "",
+            Lines = { new InventoryDocumentLine { ProductId = product.Id, Quantity = 2 } }
+        };
+        IList<ReturnReceiptInspection> passed = null;
+        _documentService.Setup(x => x.CreateReturnReceipt("return", "staff",
+                It.IsAny<IList<ReturnReceiptInspection>>()))
+            .Callback<string, string, IList<ReturnReceiptInspection>>((_, _, inspection) => passed = inspection)
+            .ReturnsAsync((receipt, []));
+
+        var result = await _controller.CreateReturnReceipt("return", new ReturnReceiptInspectionModel {
+            WarehouseId = "w-own",
+            Lines = [
+                new ReturnReceiptInspectionModel.LineModel {
+                    ReturnItemId = "item1", ProductId = product.Id, ScrapQuantity = 1, Comment = "Dented"
+                },
+                new ReturnReceiptInspectionModel.LineModel { ReturnItemId = "item2", ProductId = product.Id }
+            ]
+        });
+
+        AssertRedirectedTo(result, "Edit");
+        Assert.AreEqual(new ReturnReceiptInspection("item1", product.Id, 1, "Dented"), passed.Single());
+        Assert.AreEqual("w-own", receipt.WarehouseId);
+        _documentService.Verify(x => x.UpdateDraft(receipt), Times.Once);
     }
 
     [TestMethod]
@@ -464,7 +514,8 @@ public class InventoryDocumentControllerTests
         _merchandiseReturnScope.Setup(x => x.HasAccess(It.IsAny<MerchandiseReturn>())).ReturnsAsync(false);
 
         AssertRedirectedTo(await _controller.CreateReturnReceipt("return"), "List");
-        _documentService.Verify(x => x.CreateReturnReceipt(It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        _documentService.Verify(x => x.CreateReturnReceipt(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<IList<ReturnReceiptInspection>>()), Times.Never);
     }
 
     [TestMethod]

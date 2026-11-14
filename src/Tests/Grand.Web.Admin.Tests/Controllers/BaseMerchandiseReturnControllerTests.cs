@@ -294,7 +294,7 @@ public class BaseMerchandiseReturnControllerTests
             v => v.PrepareMerchandiseReturnModel(It.IsAny<MerchandiseReturnModel>(), entity, false), Times.Once);
         //Admin and Store have inventory documents: the return's receipts are listed
         _merchandiseReturnViewModelServiceMock.Verify(
-            v => v.PrepareReturnReceipts(It.IsAny<MerchandiseReturnModel>()), Times.Once);
+            v => v.PrepareReturnReceipts(It.IsAny<MerchandiseReturnModel>(), It.IsAny<MerchandiseReturn>()), Times.Once);
     }
 
     [TestMethod]
@@ -318,7 +318,7 @@ public class BaseMerchandiseReturnControllerTests
 
         Assert.IsInstanceOfType(result, typeof(ViewResult));
         _merchandiseReturnViewModelServiceMock.Verify(
-            v => v.PrepareReturnReceipts(It.IsAny<MerchandiseReturnModel>()), Times.Never);
+            v => v.PrepareReturnReceipts(It.IsAny<MerchandiseReturnModel>(), It.IsAny<MerchandiseReturn>()), Times.Never);
     }
 
     // --- Edit (POST) -----------------------------------------------------------------------------
@@ -1216,7 +1216,7 @@ public class BaseMerchandiseReturnControllerTests
         var inventoryDocumentService =
             new Mock<Grand.Business.Core.Interfaces.Catalog.Inventory.IInventoryDocumentService>();
         inventoryDocumentService.Setup(x => x.GetReturnReceipts(It.IsAny<string>()))
-            .ReturnsAsync(new Grand.Business.Core.Interfaces.Catalog.Inventory.MerchandiseReturnReceipts([], false));
+            .ReturnsAsync(new Grand.Business.Core.Interfaces.Catalog.Inventory.MerchandiseReturnReceipts([], false, [], []));
         return inventoryDocumentService.Object;
     }
 

@@ -2289,4 +2289,37 @@
 	<Resource Name="Account.Login.GuestOrder" Area="Front">
 		<Value>Ordered without an account? View your order</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Inspection.Warehouse" Area="Admin">
+		<Value>Warehouse</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Inspection.WarehouseAsSold" Area="Admin">
+		<Value>Warehouse the items were sold from</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Inspection.QuantityLeft" Area="Admin">
+		<Value>To receive</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Inspection.ScrapQuantity" Area="Admin">
+		<Value>Scrap</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Inspection.Comment" Area="Admin">
+		<Value>Comment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Inspection.Create" Area="Admin">
+		<Value>Create return receipt</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Fields.Restocked" Area="Admin">
+		<Value>Restocked</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.Fields.Scrapped" Area="Admin">
+		<Value>Scrapped</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Fields.Restocked" Area="Vendor">
+		<Value>Restocked</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.Fields.Scrapped" Area="Vendor">
+		<Value>Scrapped</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.InspectionQuantity" Area="Admin">
+		<Value>The scrap quantity of each item must be between 0 and the quantity left to receive.</Value>
+	</Resource>
 </Language>

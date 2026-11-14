@@ -344,12 +344,17 @@ public class MerchandiseReturnViewModelService(
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         var items = new List<MerchandiseReturnModel.MerchandiseReturnItemModel>();
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        //what was found on receipt, read from the posted receipts in every panel, the vendor's too
+        var inspected = (await inventoryDocumentService.GetReturnReceipts(merchandiseReturn.Id))?.Inspected ?? [];
 
         foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
             ArgumentNullException.ThrowIfNull(orderItem);
+            var found = inspected.FirstOrDefault(x => x.ReturnItemId == item.Id);
             items.Add(new MerchandiseReturnModel.MerchandiseReturnItemModel {
+                Restocked = found?.Restocked,
+                Scrapped = found?.Scrapped,
                 ProductId = orderItem.ProductId,
                 ProductName = (await productService.GetProductByIdIncludeArch(orderItem.ProductId)).Name,
                 ProductSku = orderItem.Sku,
@@ -363,14 +368,18 @@ public class MerchandiseReturnViewModelService(
         return items;
     }
 
-    public virtual async Task PrepareReturnReceipts(MerchandiseReturnModel model)
+    public virtual async Task PrepareReturnReceipts(MerchandiseReturnModel model,
+        MerchandiseReturn merchandiseReturn)
     {
         ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
         var receipts = await inventoryDocumentService.GetReturnReceipts(model.Id);
         //a staff member without inventory documents sees the receipts named, and creates or opens none
         var managesDocuments = await permissionService.Authorize(PermissionSystemName.InventoryDocuments);
         model.CanReceiveToStock = managesDocuments && receipts.QuantityLeft;
+        if (model.CanReceiveToStock)
+            await PrepareReceiveToStock(model, merchandiseReturn, receipts);
         model.ReturnReceipts = new List<MerchandiseReturnModel.ReturnReceiptModel>();
         var storeId = await warehouseScope.GetDefaultStoreIdAsync();
         foreach (var receipt in receipts.Receipts)
@@ -382,6 +391,42 @@ public class MerchandiseReturnViewModelService(
                 CanOpen = managesDocuments && (storeId == null || receipt.StoreId == storeId) &&
                           await CanUse(receipt.WarehouseId)
             });
+    }
+
+    /// <summary>
+    ///     What "Receive to stock" asks about, and the warehouses the panel books: the drop-off point's is chosen when
+    ///     it is one of them, else the one the items were sold from
+    /// </summary>
+    private async Task PrepareReceiveToStock(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn,
+        MerchandiseReturnReceipts receipts)
+    {
+        foreach (var left in receipts.Left)
+        {
+            var product = await productService.GetProductByIdIncludeArch(left.ProductId);
+            model.ReceiveToStockLines.Add(new MerchandiseReturnModel.ReceiveToStockLineModel {
+                ReturnItemId = left.ReturnItemId,
+                ProductId = left.ProductId,
+                ProductName = product?.Name,
+                ProductSku = product?.Sku,
+                QuantityLeft = left.Quantity
+            });
+        }
+
+        model.AvailableReceiveToStockWarehouses.Add(new SelectListItem {
+            Text = translationService.GetResource("Admin.Orders.MerchandiseReturns.Inspection.WarehouseAsSold"),
+            Value = ""
+        });
+        foreach (var warehouse in await warehouseService.GetAllWarehouses())
+            if (await warehouseScope.HasAccess(warehouse))
+                model.AvailableReceiveToStockWarehouses.Add(new SelectListItem
+                    { Text = warehouse.Name, Value = warehouse.Id });
+
+        var dropOffWarehouseId = merchandiseReturn.ReturnShipping?.DropOffPoint?.WarehouseId;
+        model.ReceiveToStockWarehouseId =
+            !string.IsNullOrEmpty(dropOffWarehouseId) &&
+            model.AvailableReceiveToStockWarehouses.Any(x => x.Value == dropOffWarehouseId)
+                ? dropOffWarehouseId
+                : "";
     }
 
     public virtual async Task PrepareRefund(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn,

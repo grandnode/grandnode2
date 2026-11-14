@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Common;
+using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Orders;
@@ -91,6 +92,15 @@ public class MerchandiseReturnModel : BaseEntityModel
     //the return's receipts, posted or draft; a panel without inventory documents lists none
     public IList<ReturnReceiptModel> ReturnReceipts { get; set; } = new List<ReturnReceiptModel>();
 
+    //what "Receive to stock" asks about: each product of an item left to receive, and how much of it is scrapped
+    public IList<ReceiveToStockLineModel> ReceiveToStockLines { get; set; } = new List<ReceiveToStockLineModel>();
+
+    //the warehouse the receipt books, the drop-off point's when the panel books it; empty for the one sold from
+    [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.Inspection.Warehouse")]
+    public string ReceiveToStockWarehouseId { get; set; }
+
+    public IList<SelectListItem> AvailableReceiveToStockWarehouses { get; set; } = new List<SelectListItem>();
+
     //the money given back for the return, or what it comes to; null when the page shows no refund
     public RefundModel Refund { get; set; }
 
@@ -133,6 +143,15 @@ public class MerchandiseReturnModel : BaseEntityModel
 
         //whether the panel opens the receipt: one of another store's or of a shared warehouse is only named
         public bool CanOpen { get; set; }
+    }
+
+    public class ReceiveToStockLineModel : BaseModel
+    {
+        public string ReturnItemId { get; set; }
+        public string ProductId { get; set; }
+        public string ProductName { get; set; }
+        public string ProductSku { get; set; }
+        public int QuantityLeft { get; set; }
     }
 
     public class ReturnShippingModel : BaseModel
@@ -189,6 +208,11 @@ public class MerchandiseReturnModel : BaseEntityModel
         public string ReasonForReturn { get; set; }
 
         public string RequestedAction { get; set; }
+
+        //the units the posted return receipts put back on stock and wrote off; null until one is posted
+        public int? Restocked { get; set; }
+
+        public int? Scrapped { get; set; }
     }
 
     public class MerchandiseReturnNote : BaseEntityModel

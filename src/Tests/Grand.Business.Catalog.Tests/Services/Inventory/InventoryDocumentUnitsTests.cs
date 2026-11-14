@@ -1,4 +1,5 @@
 using Grand.Business.Catalog.Services.Inventory;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Domain.Orders;
@@ -181,6 +182,62 @@ public class InventoryDocumentUnitsTests
         var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
 
         CollectionAssert.AreEqual(new[] { "A1", "A2" }, document.Lines.Single().SerialNumbers.ToArray());
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_SerialScrap_ScrapLineHasNoNumbers()
+    {
+        var product = await Serialized();
+        await Receive(product, "S1", "S2");
+        var merchandiseReturn = await ShippedAndReturned(product, 2, 2, "S1", "S2");
+
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
+            [new ReturnReceiptInspection(merchandiseReturn.MerchandiseReturnItems[0].Id, product.Id, 1, null)]);
+
+        var restock = document.Lines.Single(x => x.Condition == ReturnLineCondition.Restock);
+        var scrap = document.Lines.Single(x => x.Condition == ReturnLineCondition.Scrap);
+        Assert.AreEqual(1, restock.Quantity);
+        CollectionAssert.AreEqual(new[] { "S1", "S2" }, restock.SerialNumbers.ToArray());
+        Assert.AreEqual(1, scrap.Quantity);
+        Assert.AreEqual(0, scrap.SerialNumbers.Count);
+        //the staff move the scrapped unit's number in the editor before the receipt can be booked
+        var errors = await _service.Post(document.Id, "staff");
+        CollectionAssert.Contains(errors.ToList(), UnitErrors.SerialCountMismatch);
+        Assert.AreEqual(InventoryDocumentStatus.Draft, (await _service.GetById(document.Id)).StatusId);
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_ScrapAcrossBatches_TakesFromLastLine()
+    {
+        var product = await Batched();
+        var orderItem = new OrderItem { ProductId = product.Id, WarehouseId = "w1", Quantity = 3 };
+        var order = new Order { OrderItems = { orderItem } };
+        var shipment = new Shipment { OrderId = order.Id };
+        shipment.ShipmentItems.Add(new ShipmentItem {
+            OrderItemId = orderItem.Id, ProductId = product.Id, Quantity = 3, WarehouseId = "w1",
+            Batches = {
+                new ShipmentItemBatch { Number = "B1", Quantity = 2 },
+                new ShipmentItemBatch { Number = "B2", Quantity = 1 }
+            }
+        });
+        _shipments.Setup(x => x.GetShipmentsByOrder(order.Id)).ReturnsAsync([shipment]);
+        var merchandiseReturn = new MerchandiseReturn {
+            OrderId = order.Id, StoreId = "store1", MerchandiseReturnStatus = MerchandiseReturnStatus.Accepted,
+            MerchandiseReturnItems = { new MerchandiseReturnItem { OrderItemId = orderItem.Id, Quantity = 3 } }
+        };
+        _orders.Setup(x => x.GetOrderById(order.Id)).ReturnsAsync(order);
+        _merchandiseReturns.Setup(x => x.GetMerchandiseReturnById(merchandiseReturn.Id)).ReturnsAsync(merchandiseReturn);
+
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
+            [new ReturnReceiptInspection(merchandiseReturn.MerchandiseReturnItems[0].Id, product.Id, 2, null)]);
+
+        Assert.AreEqual(3, document.Lines.Count);
+        var b2 = document.Lines.Single(x => x.BatchNumber == "B2");
+        Assert.AreEqual(1, b2.Quantity);
+        Assert.AreEqual(ReturnLineCondition.Scrap, b2.Condition);
+        var b1 = document.Lines.Where(x => x.BatchNumber == "B1").ToList();
+        Assert.AreEqual(1, b1.Single(x => x.Condition == ReturnLineCondition.Restock).Quantity);
+        Assert.AreEqual(1, b1.Single(x => x.Condition == ReturnLineCondition.Scrap).Quantity);
     }
 
     [TestMethod]

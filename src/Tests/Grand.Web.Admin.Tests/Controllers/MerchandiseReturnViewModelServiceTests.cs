@@ -564,6 +564,9 @@ public class MerchandiseReturnViewModelServiceTests
         public Mock<IWarehouseService> Warehouses { get; } = new();
         public Mock<IAdminDataScope<Warehouse>> WarehouseScope { get; } = new();
         public Mock<IRequestPermissionService> Permissions { get; } = new();
+        public Mock<IProductService> Products { get; } = new();
+        public Mock<IMerchandiseReturnService> MerchandiseReturns { get; } = new();
+        public Mock<IOrderService> Orders { get; } = new();
     }
 
     private static (MerchandiseReturnViewModelService service, ReturnReceiptMocks mocks) BuildForReturnReceipts(
@@ -575,15 +578,23 @@ public class MerchandiseReturnViewModelServiceTests
         var enumTranslation = new Mock<IEnumTranslationService>();
         enumTranslation.Setup(x => x.GetTranslationEnum(It.IsAny<InventoryDocumentStatus>()))
             .Returns<InventoryDocumentStatus>(status => status.ToString());
+        var translation = new Mock<IRequestTranslationService>();
+        translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns<string>(key => key);
+        mocks.Warehouses.Setup(x => x.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>());
+        var workContext = new Mock<IWorkContext>();
+        workContext.Setup(x => x.WorkingCurrency).Returns(new Currency());
+        var contextAccessor = new Mock<IContextAccessor>();
+        contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
 
         var service = new MerchandiseReturnViewModelService(
-            new Mock<IOrderService>().Object,
-            new Mock<IProductService>().Object,
+            mocks.Orders.Object,
+            mocks.Products.Object,
             new Mock<ICustomerService>().Object,
             new Mock<IDateTimeService>().Object,
-            new Mock<IRequestTranslationService>().Object,
+            translation.Object,
             new Mock<IMerchandiseReturnMessageProviderService>().Object,
-            new Mock<IMerchandiseReturnService>().Object,
+            mocks.MerchandiseReturns.Object,
             new Mock<IPriceFormatter>().Object,
             new AddressSettings(),
             new Mock<ICountryService>().Object,
@@ -592,7 +603,7 @@ public class MerchandiseReturnViewModelServiceTests
             new Mock<IDownloadService>().Object,
             new OrderSettings(),
             enumTranslation.Object,
-            new Mock<IContextAccessor>().Object,
+            contextAccessor.Object,
             new CustomerConfig(),
             new Mock<IAdminDataScope<MerchandiseReturn>>().Object,
             new Mock<IMerchandiseReturnWorkflowService>().Object,
@@ -612,10 +623,10 @@ public class MerchandiseReturnViewModelServiceTests
     [TestMethod]
     public async Task PrepareReturnReceipts_QuantityLeft_OffersReceiveToStock()
     {
-        var (service, _) = BuildForReturnReceipts(new MerchandiseReturnReceipts([], true));
+        var (service, _) = BuildForReturnReceipts(new MerchandiseReturnReceipts([], true, [], []));
         var model = new MerchandiseReturnModel { Id = "r1" };
 
-        await service.PrepareReturnReceipts(model);
+        await service.PrepareReturnReceipts(model, new MerchandiseReturn());
 
         Assert.IsTrue(model.CanReceiveToStock);
         Assert.AreEqual(0, model.ReturnReceipts.Count);
@@ -627,13 +638,13 @@ public class MerchandiseReturnViewModelServiceTests
         var (service, mocks) = BuildForReturnReceipts(new MerchandiseReturnReceipts([
             new ReturnReceiptSummary("d1", "PZZ/2026/0001", InventoryDocumentStatus.Posted, "", "w1"),
             new ReturnReceiptSummary("d2", "PZZ/2026/0002", InventoryDocumentStatus.Draft, "", "")
-        ], false));
+        ], false, [], []));
         var warehouse = new Warehouse { Id = "w1" };
         mocks.Warehouses.Setup(x => x.GetWarehouseById("w1")).ReturnsAsync(warehouse);
         mocks.WarehouseScope.Setup(x => x.HasAccess(warehouse)).ReturnsAsync(true);
         var model = new MerchandiseReturnModel { Id = "r1" };
 
-        await service.PrepareReturnReceipts(model);
+        await service.PrepareReturnReceipts(model, new MerchandiseReturn());
 
         Assert.IsFalse(model.CanReceiveToStock);
         Assert.AreEqual(2, model.ReturnReceipts.Count);
@@ -653,7 +664,7 @@ public class MerchandiseReturnViewModelServiceTests
             new ReturnReceiptSummary("d1", "PZZ/2026/0001", InventoryDocumentStatus.Posted, "s2", "w2"),
             new ReturnReceiptSummary("d2", "PZZ/2026/0002", InventoryDocumentStatus.Posted, "s1", "shared"),
             new ReturnReceiptSummary("d3", "PZZ/2026/0003", InventoryDocumentStatus.Posted, "s1", "w1")
-        ], false));
+        ], false, [], []));
         mocks.WarehouseScope.Setup(x => x.GetDefaultStoreIdAsync()).ReturnsAsync("s1");
         var own = new Warehouse { Id = "w1", StoreId = "s1" };
         var shared = new Warehouse { Id = "shared", StoreId = "" };
@@ -663,7 +674,7 @@ public class MerchandiseReturnViewModelServiceTests
         mocks.WarehouseScope.Setup(x => x.HasAccess(shared)).ReturnsAsync(false);
         var model = new MerchandiseReturnModel { Id = "r1" };
 
-        await service.PrepareReturnReceipts(model);
+        await service.PrepareReturnReceipts(model, new MerchandiseReturn());
 
         //every receipt is named, only the panel's own is a link
         CollectionAssert.AreEqual(new[] { false, false, true },
@@ -675,16 +686,100 @@ public class MerchandiseReturnViewModelServiceTests
     {
         var (service, mocks) = BuildForReturnReceipts(new MerchandiseReturnReceipts([
             new ReturnReceiptSummary("d1", "PZZ/2026/0001", InventoryDocumentStatus.Draft, "", "")
-        ], true));
+        ], true, [], []));
         mocks.Permissions.Setup(x => x.Authorize(PermissionSystemName.InventoryDocuments)).ReturnsAsync(false);
         var model = new MerchandiseReturnModel { Id = "r1" };
 
-        await service.PrepareReturnReceipts(model);
+        await service.PrepareReturnReceipts(model, new MerchandiseReturn());
 
         Assert.IsFalse(model.CanReceiveToStock);
         //the receipt is still named, as plain text
         Assert.AreEqual("PZZ/2026/0001", model.ReturnReceipts.Single().Number);
         Assert.IsFalse(model.ReturnReceipts.Single().CanOpen);
+    }
+
+    private static void Usable(ReturnReceiptMocks mocks, params Warehouse[] warehouses)
+    {
+        mocks.Warehouses.Setup(x => x.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>(warehouses, 0, int.MaxValue));
+        foreach (var warehouse in warehouses)
+        {
+            mocks.Warehouses.Setup(x => x.GetWarehouseById(warehouse.Id)).ReturnsAsync(warehouse);
+            mocks.WarehouseScope.Setup(x => x.HasAccess(warehouse)).ReturnsAsync(warehouse.StoreId != "other");
+        }
+    }
+
+    private static MerchandiseReturn DroppedOffAt(string warehouseId) => new() {
+        Id = "r1",
+        ReturnShipping = new MerchandiseReturnShipping {
+            DropOffPoint = new ReturnDropOffPoint { WarehouseId = warehouseId }
+        }
+    };
+
+    [TestMethod]
+    public async Task PrepareReturnReceipts_DropOffWarehouseUsable_Preselected()
+    {
+        var (service, mocks) = BuildForReturnReceipts(new MerchandiseReturnReceipts([], true,
+            [new ReturnReceiptLeft("item1", "p1", 2)], []));
+        Usable(mocks, new Warehouse { Id = "w1", Name = "Main" }, new Warehouse { Id = "w2", Name = "Counter" });
+        mocks.Products.Setup(x => x.GetProductByIdIncludeArch("p1"))
+            .ReturnsAsync(new Product { Id = "p1", Name = "Mug", Sku = "MUG-1" });
+        var model = new MerchandiseReturnModel { Id = "r1" };
+
+        await service.PrepareReturnReceipts(model, DroppedOffAt("w2"));
+
+        Assert.AreEqual("w2", model.ReceiveToStockWarehouseId);
+        CollectionAssert.AreEqual(new[] { "", "w1", "w2" },
+            model.AvailableReceiveToStockWarehouses.Select(x => x.Value).ToArray());
+        var line = model.ReceiveToStockLines.Single();
+        Assert.AreEqual("item1", line.ReturnItemId);
+        Assert.AreEqual("p1", line.ProductId);
+        Assert.AreEqual("Mug", line.ProductName);
+        Assert.AreEqual("MUG-1", line.ProductSku);
+        Assert.AreEqual(2, line.QuantityLeft);
+    }
+
+    [TestMethod]
+    public async Task PrepareReturnReceipts_DropOffWarehouseNotUsable_AsSoldOption()
+    {
+        var (service, mocks) = BuildForReturnReceipts(new MerchandiseReturnReceipts([], true,
+            [new ReturnReceiptLeft("item1", "p1", 2)], []));
+        Usable(mocks, new Warehouse { Id = "w1" }, new Warehouse { Id = "w3", StoreId = "other" });
+        var model = new MerchandiseReturnModel { Id = "r1" };
+
+        await service.PrepareReturnReceipts(model, DroppedOffAt("w3"));
+
+        Assert.AreEqual("", model.ReceiveToStockWarehouseId);
+        CollectionAssert.AreEqual(new[] { "", "w1" },
+            model.AvailableReceiveToStockWarehouses.Select(x => x.Value).ToArray());
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnItemModel_InspectedFromPostedReceipts()
+    {
+        var (service, mocks) = BuildForReturnReceipts(new MerchandiseReturnReceipts([], false, [],
+            [new ReturnItemInspected("item1", 1, 1)]));
+        var order = new Order {
+            OrderItems = {
+                new OrderItem { Id = "oi1", ProductId = "p1" }, new OrderItem { Id = "oi2", ProductId = "p1" }
+            }
+        };
+        mocks.Orders.Setup(x => x.GetOrderById(order.Id)).ReturnsAsync(order);
+        mocks.Products.Setup(x => x.GetProductByIdIncludeArch("p1")).ReturnsAsync(new Product { Id = "p1" });
+        mocks.MerchandiseReturns.Setup(x => x.GetMerchandiseReturnById("r1")).ReturnsAsync(new MerchandiseReturn {
+            Id = "r1", OrderId = order.Id,
+            MerchandiseReturnItems = {
+                new MerchandiseReturnItem { Id = "item1", OrderItemId = "oi1", Quantity = 2 },
+                new MerchandiseReturnItem { Id = "item2", OrderItemId = "oi2", Quantity = 1 }
+            }
+        });
+
+        var items = await service.PrepareMerchandiseReturnItemModel("r1");
+
+        Assert.AreEqual(1, items[0].Restocked);
+        Assert.AreEqual(1, items[0].Scrapped);
+        Assert.IsNull(items[1].Restocked);
+        Assert.IsNull(items[1].Scrapped);
     }
 
     [TestMethod]

@@ -116,7 +116,7 @@ public class InventoryDocumentService(
     }
 
     public async Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(
-        string merchandiseReturnId, string customerId)
+        string merchandiseReturnId, string customerId, IList<ReturnReceiptInspection> inspection = null)
     {
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null)
@@ -125,13 +125,24 @@ public class InventoryDocumentService(
             return (null, [InventoryDocumentErrors.ReturnNotReceivable]);
 
         var returned = await Returned(merchandiseReturn);
+        var leftToReceive = await LeftToReceive(merchandiseReturn.Id, returned);
+        inspection ??= [];
+        //what the form posted is checked against what is left, never trusted: another return's item, an item named
+        //twice or more scrapped than came back refuses the receipt
+        var left = leftToReceive.GroupBy(x => (x.ReturnItemId, x.ProductId))
+            .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
+        if (inspection.GroupBy(x => (x.ReturnItemId, x.ProductId)).Any(x => x.Count() > 1) ||
+            inspection.Any(x => !left.TryGetValue((x.ReturnItemId, x.ProductId), out var quantity) ||
+                                x.ScrapQuantity < 0 || x.ScrapQuantity > quantity))
+            return (null, [InventoryDocumentErrors.InspectionQuantity]);
+
         var document = new InventoryDocument {
             DocumentTypeId = InventoryDocumentType.ReturnReceipt,
             MerchandiseReturnId = merchandiseReturn.Id,
             CreatedBy = customerId
         };
         Dictionary<string, (int Quantity, List<string> SerialNumbers, List<ShipmentItemBatch> Batches)> shipped = null;
-        foreach (var item in await LeftToReceive(merchandiseReturn.Id, returned))
+        foreach (var item in leftToReceive)
         {
             var line = new InventoryDocumentLine {
                 ProductId = item.ProductId, Attributes = item.Attributes, Quantity = item.Quantity,
@@ -167,11 +178,49 @@ public class InventoryDocumentService(
         if (document.Lines.Count == 0)
             return (null, [InventoryDocumentErrors.NoLines]);
 
+        foreach (var entry in inspection)
+            Inspect(document, entry);
+
         //the warehouse the items were sold from, when it is one
         var warehouses = returned.Select(x => x.WarehouseId ?? "").Distinct().ToList();
         document.WarehouseId = warehouses.Count == 1 ? warehouses[0] : "";
 
         return (await CreateDraft(document), []);
+    }
+
+    /// <summary>
+    ///     Writes the staff's finding on the lines of the item and product: the scrapped units are taken from the last
+    ///     lines first, and a line scrapped in part is split, its scrapped part with the same batch and no serial
+    ///     numbers - the staff name the scrapped units in the editor, and posting waits until they do
+    /// </summary>
+    private static void Inspect(InventoryDocument document, ReturnReceiptInspection entry)
+    {
+        var lines = document.Lines
+            .Where(x => x.MerchandiseReturnItemId == entry.ReturnItemId && x.ProductId == entry.ProductId)
+            .ToList();
+        var comment = string.IsNullOrWhiteSpace(entry.Comment) ? null : entry.Comment.Trim();
+        foreach (var line in lines)
+            line.Comment = comment;
+
+        var toScrap = entry.ScrapQuantity;
+        for (var i = lines.Count - 1; i >= 0 && toScrap > 0; i--)
+        {
+            var line = lines[i];
+            if (line.Quantity <= toScrap)
+            {
+                line.Condition = ReturnLineCondition.Scrap;
+                toScrap -= line.Quantity;
+                continue;
+            }
+
+            line.Quantity -= toScrap;
+            document.Lines.Insert(document.Lines.IndexOf(line) + 1, new InventoryDocumentLine {
+                ProductId = line.ProductId, Attributes = line.Attributes, BatchNumber = line.BatchNumber,
+                MerchandiseReturnItemId = line.MerchandiseReturnItemId, Comment = comment, Quantity = toScrap,
+                Condition = ReturnLineCondition.Scrap
+            });
+            toScrap = 0;
+        }
     }
 
     /// <summary>
@@ -252,14 +301,34 @@ public class InventoryDocumentService(
 
         //a return that no longer takes its quantity is not received to stock, as CreateReturnReceipt refuses it
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
-        var quantityLeft = merchandiseReturn != null && merchandiseReturn.MerchandiseReturnStatus.TakesQuantity() &&
-                           (await LeftToReceive(merchandiseReturn.Id, await Returned(merchandiseReturn))).Count > 0;
+        var left = merchandiseReturn != null && merchandiseReturn.MerchandiseReturnStatus.TakesQuantity()
+            ? (await LeftToReceive(merchandiseReturn.Id, await Returned(merchandiseReturn)))
+            .Select(x => new ReturnReceiptLeft(x.ReturnItemId, x.ProductId, x.Quantity))
+            .ToList()
+            : [];
+
+        //what was found on receipt is what the posted receipts booked; a draft can still change
+        var postedIds = receipts.Where(x => x.StatusId == InventoryDocumentStatus.Posted).Select(x => x.Id).ToList();
+        var inspected = new List<ReturnItemInspected>();
+        if (postedIds.Count > 0)
+        {
+            var posted = await inventoryDocumentRepository.ToListAsync(inventoryDocumentRepository.Table
+                .Where(x => postedIds.Contains(x.Id))
+                .Select(x => new { x.Lines }));
+            inspected = posted.SelectMany(x => x.Lines)
+                .Where(x => !string.IsNullOrEmpty(x.MerchandiseReturnItemId))
+                .GroupBy(x => x.MerchandiseReturnItemId)
+                .Select(x => new ReturnItemInspected(x.Key,
+                    x.Where(y => y.Condition == ReturnLineCondition.Restock).Sum(y => y.Quantity),
+                    x.Where(y => y.Condition == ReturnLineCondition.Scrap).Sum(y => y.Quantity)))
+                .ToList();
+        }
 
         return new MerchandiseReturnReceipts(
             receipts.OrderBy(x => x.CreatedOnUtc)
                 .Select(x => new ReturnReceiptSummary(x.Id, x.Number, x.StatusId, x.StoreId, x.WarehouseId))
                 .ToList(),
-            quantityLeft);
+            left.Count > 0, left, inspected);
     }
 
     public async Task<IList<string>> Post(string id, string customerId)

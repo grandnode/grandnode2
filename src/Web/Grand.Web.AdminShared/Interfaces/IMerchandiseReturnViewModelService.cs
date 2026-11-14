@@ -20,10 +20,11 @@ public interface IMerchandiseReturnViewModelService
         string merchandiseReturnId);
 
     /// <summary>
-    ///     The return receipts of the return and whether "Receive to stock" is offered; only for a panel with
-    ///     inventory documents, as it reads the panel's warehouses
+    ///     The return receipts of the return and whether "Receive to stock" is offered, with what is left to receive
+    ///     and the warehouses to receive it to, the drop-off point's first; only for a panel with inventory documents,
+    ///     as it reads the panel's warehouses
     /// </summary>
-    Task PrepareReturnReceipts(MerchandiseReturnModel model);
+    Task PrepareReturnReceipts(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn);
 
     /// <summary>
     ///     The refund of the return: the refund made or under way, in any panel; or, for a panel that refunds
