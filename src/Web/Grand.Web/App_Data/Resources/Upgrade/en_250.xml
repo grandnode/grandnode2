@@ -2415,4 +2415,16 @@
 	<Resource Name="Admin.Reports.MerchandiseReturns.GroupBy" Area="Admin">
 		<Value>Group by</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.MessageRequired" Area="Admin">
+		<Value>Message text is required.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddFailed" Area="Admin">
+		<Value>The note was not added.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.MessageRequired" Area="Vendor">
+		<Value>Message text is required.</Value>
+	</Resource>
+	<Resource Name="Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddFailed" Area="Vendor">
+		<Value>The note was not added.</Value>
+	</Resource>
 </Language>
