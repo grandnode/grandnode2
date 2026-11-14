@@ -269,10 +269,14 @@ public class OrderControllerGuestTests
         //the guest still in the session that placed the order keeps the page as it is
         _work.Setup(x => x.CurrentCustomer).Returns(_guest);
         _httpContext.Request.Headers.Cookie = "";
+        _mediator.Setup(x => x.Send(It.IsAny<GetOrderDetails>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(() => new OrderDetailsModel { UserCanCancelUnpaidOrder = true, IsReOrderAllowed = true });
 
-        var result = (ViewResult)(await _controller.Details("o1")).Result;
+        var model = (OrderDetailsModel)((ViewResult)(await _controller.Details("o1")).Result)!.Model;
 
-        Assert.IsFalse(((OrderDetailsModel)result!.Model).GuestLink);
+        Assert.IsFalse(model!.GuestLink);
+        Assert.IsTrue(model.UserCanCancelUnpaidOrder);
+        Assert.IsTrue(model.IsReOrderAllowed);
     }
 
     [TestMethod]
