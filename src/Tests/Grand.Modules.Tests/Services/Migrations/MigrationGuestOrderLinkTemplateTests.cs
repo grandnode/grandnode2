@@ -17,13 +17,13 @@ using System.Text.RegularExpressions;
 namespace Grand.Modules.Tests.Services.Migrations;
 
 [TestClass]
-public class MigrationMerchandiseReturnGuestLinkTemplateTests
+public class MigrationGuestOrderLinkTemplateTests
 {
-    private const string TemplateName = "MerchandiseReturnGuestLink.CustomerNotification";
+    private const string TemplateName = "GuestOrderLink.CustomerNotification";
 
     private Mock<ICacheBase> _cache;
     private LiteDBRepositoryMock<EmailAccount> _emailAccounts;
-    private MigrationMerchandiseReturnGuestLinkTemplate _migration;
+    private MigrationGuestOrderLinkTemplate _migration;
     private IServiceProvider _serviceProvider;
     private LiteDBRepositoryMock<MessageTemplate> _templates;
 
@@ -39,10 +39,10 @@ public class MigrationMerchandiseReturnGuestLinkTemplateTests
         services.AddSingleton<IRepository<EmailAccount>>(_emailAccounts);
         services.AddSingleton<IRepository<Setting>>(new LiteDBRepositoryMock<Setting>());
         services.AddSingleton(_cache.Object);
-        services.AddSingleton<ILogger<MigrationMerchandiseReturnGuestLinkTemplate>>(
-            NullLogger<MigrationMerchandiseReturnGuestLinkTemplate>.Instance);
+        services.AddSingleton<ILogger<MigrationGuestOrderLinkTemplate>>(
+            NullLogger<MigrationGuestOrderLinkTemplate>.Instance);
         _serviceProvider = services.BuildServiceProvider();
-        _migration = new MigrationMerchandiseReturnGuestLinkTemplate();
+        _migration = new MigrationGuestOrderLinkTemplate();
     }
 
     [TestMethod]
@@ -76,8 +76,8 @@ public class MigrationMerchandiseReturnGuestLinkTemplateTests
         services.AddSingleton(failing.Object);
         services.AddSingleton<IRepository<EmailAccount>>(_emailAccounts);
         services.AddSingleton<IRepository<Setting>>(new LiteDBRepositoryMock<Setting>());
-        services.AddSingleton<ILogger<MigrationMerchandiseReturnGuestLinkTemplate>>(
-            NullLogger<MigrationMerchandiseReturnGuestLinkTemplate>.Instance);
+        services.AddSingleton<ILogger<MigrationGuestOrderLinkTemplate>>(
+            NullLogger<MigrationGuestOrderLinkTemplate>.Instance);
 
         Assert.IsFalse(await _migration.UpgradeProcess(services.BuildServiceProvider()));
     }
@@ -86,7 +86,7 @@ public class MigrationMerchandiseReturnGuestLinkTemplateTests
     public void Template_EqualsInstallerSeed()
     {
         var seeded = MessageTemplateSeed.Build("ea").Single(x => x.Name == TemplateName);
-        var migrated = MigrationMerchandiseReturnGuestLinkTemplate.Template("ea");
+        var migrated = MigrationGuestOrderLinkTemplate.Template("ea");
 
         Assert.AreEqual(seeded.Subject, migrated.Subject);
         CollectionAssert.AreEqual(MessageTemplateSeedTests.Tokens(seeded.Body).ToList(),

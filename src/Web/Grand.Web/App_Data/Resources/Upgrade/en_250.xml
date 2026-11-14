@@ -2253,37 +2253,37 @@
 	<Resource Name="Admin.Settings.GeneralCommon.CaptchaShowOnGuestOrderPage.Hint" Area="Admin">
 		<Value>Check to show CAPTCHA on the page where guests ask for the link to their order.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.OrderCode.Required" Area="Front">
+	<Resource Name="Order.Guest.OrderCode.Required" Area="Front">
 		<Value>Enter the order code.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Email.Required" Area="Front">
+	<Resource Name="Order.Guest.Email.Required" Area="Front">
 		<Value>Enter the e-mail address.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Title" Area="Front">
-		<Value>Return items without an account</Value>
+	<Resource Name="Order.Guest.Title" Area="Front">
+		<Value>Your order without an account</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Intro" Area="Front">
-		<Value>Enter the code of your order and the e-mail address you placed it with. You will find the code in the e-mail that confirmed the order. We will send a link to return items from it.</Value>
+	<Resource Name="Order.Guest.Intro" Area="Front">
+		<Value>Enter the code of your order and the e-mail address you placed it with. You will find the code in the e-mail that confirmed the order. We will send a link to the order.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.OrderCode" Area="Front">
+	<Resource Name="Order.Guest.OrderCode" Area="Front">
 		<Value>Order code</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Email" Area="Front">
+	<Resource Name="Order.Guest.Email" Area="Front">
 		<Value>E-mail</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Send" Area="Front">
+	<Resource Name="Order.Guest.Send" Area="Front">
 		<Value>Send the link</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.Sent" Area="Front">
+	<Resource Name="Order.Guest.Sent" Area="Front">
 		<Value>If the details match an order placed without an account, we have sent a link to its e-mail address. The link is valid for 24 hours.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.InvalidLink" Area="Front">
+	<Resource Name="Order.Guest.InvalidLink" Area="Front">
 		<Value>The link has expired or is not valid. Ask for a new one.</Value>
 	</Resource>
-	<Resource Name="MerchandiseReturns.Guest.LoggedIn" Area="Front">
-		<Value>You are logged in to an account. Log out, then open the link again to return items from an order placed without an account.</Value>
+	<Resource Name="Order.Guest.LoggedIn" Area="Front">
+		<Value>You are logged in to an account. Log out, then open the link again to see an order placed without an account.</Value>
 	</Resource>
-	<Resource Name="Account.Login.GuestMerchandiseReturn" Area="Front">
-		<Value>Ordered without an account? Return items</Value>
+	<Resource Name="Account.Login.GuestOrder" Area="Front">
+		<Value>Ordered without an account? View your order</Value>
 	</Resource>
 </Language>

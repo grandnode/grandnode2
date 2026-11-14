@@ -376,8 +376,10 @@ public class DownloadController : BasePublicController
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
         if ((customer == null || !await merchandiseReturn.Access(customer, groupService)) &&
-            await MerchandiseReturnGuestGrant.GrantedGuest(HttpContext, order, customer,
-                _contextAccessor.StoreContext.CurrentStore.Id, groupService) == null)
+            (await GuestOrderGrant.GrantedGuest(HttpContext, order, customer,
+                 _contextAccessor.StoreContext.CurrentStore.Id, groupService) == null ||
+             //a grant reaches the returns only while the store takes them
+             !HttpContext.RequestServices.GetRequiredService<OrderSettings>().MerchandiseReturnsEnabled))
             return Challenge();
 
         //in the store of its order, and only a note the customer is shown

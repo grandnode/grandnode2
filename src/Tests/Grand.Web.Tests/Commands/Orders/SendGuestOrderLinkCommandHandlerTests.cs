@@ -7,6 +7,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
+using Grand.Infrastructure.Caching.Constants;
 using Grand.Web.Commands.Handler.Orders;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Extensions;
@@ -22,12 +23,12 @@ namespace Grand.Web.Tests.Commands.Orders;
 ///     only when they match an order of the store placed without an account, and nothing tells which case it was
 /// </summary>
 [TestClass]
-public class SendGuestMerchandiseReturnLinkCommandHandlerTests
+public class SendGuestOrderLinkCommandHandlerTests
 {
     private readonly Customer _guest = new() { Id = "g1" };
     private Mock<IGroupService> _groups;
-    private SendGuestMerchandiseReturnLinkCommandHandler _handler;
-    private Mock<IMerchandiseReturnMessageProviderService> _messages;
+    private SendGuestOrderLinkCommandHandler _handler;
+    private Mock<IOrderMessageProviderService> _messages;
     private Order _order;
     private List<Order> _otherOrders;
     private IDataProtectionProvider _provider;
@@ -47,8 +48,8 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
         customers.Setup(x => x.GetCustomerById("g1")).ReturnsAsync(_guest);
         _groups = new Mock<IGroupService>();
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(false);
-        _messages = new Mock<IMerchandiseReturnMessageProviderService>();
-        _messages.Setup(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+        _messages = new Mock<IOrderMessageProviderService>();
+        _messages.Setup(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
                 It.IsAny<DomainHost>()))
             .Callback<Order, string, DomainHost>((_, token, _) => _sentToken = token)
             .ReturnsAsync(1);
@@ -63,21 +64,21 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
             .Returns(Task.CompletedTask);
 
         _provider = new EphemeralDataProtectionProvider();
-        _handler = new SendGuestMerchandiseReturnLinkCommandHandler(orders.Object, customers.Object, _groups.Object,
+        _handler = new SendGuestOrderLinkCommandHandler(orders.Object, customers.Object, _groups.Object,
             _messages.Object, _provider, cache.Object,
-            NullLogger<SendGuestMerchandiseReturnLinkCommandHandler>.Instance);
+            NullLogger<SendGuestOrderLinkCommandHandler>.Instance);
     }
 
     private Task<bool> Send(string email = "guest@example.com", string orderCode = "K7Q2M9XA", string storeId = "s1")
     {
-        return _handler.Handle(new SendGuestMerchandiseReturnLinkCommand {
+        return _handler.Handle(new SendGuestOrderLinkCommand {
             OrderCode = orderCode, Email = email, Store = new Domain.Stores.Store { Id = storeId }
         }, CancellationToken.None);
     }
 
     private void VerifySent(Times times)
     {
-        _messages.Verify(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+        _messages.Verify(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
             It.IsAny<DomainHost>()), times);
     }
 
@@ -87,7 +88,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
         Assert.IsTrue(await Send(" Guest@Example.com "));
 
         VerifySent(Times.Once());
-        Assert.AreEqual("o1", MerchandiseReturnGuestGrant.LinkOrderId(_provider, _sentToken, "s1"));
+        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
     }
 
     [TestMethod]
@@ -125,7 +126,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
             { Id = "o3", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "other@example.com" });
 
         Assert.IsTrue(await Send());
-        Assert.AreEqual("o1", MerchandiseReturnGuestGrant.LinkOrderId(_provider, _sentToken, "s1"));
+        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
     }
 
     [TestMethod]
@@ -182,7 +183,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     public async Task SendFails_FalseWithoutException()
     {
         //a failure only a matching order can meet must not answer differently from a mismatch
-        _messages.Setup(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+        _messages.Setup(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
             It.IsAny<DomainHost>())).ThrowsAsync(new InvalidOperationException("no e-mail account"));
 
         Assert.IsFalse(await Send());
@@ -191,7 +192,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     [TestMethod]
     public async Task InactiveTemplate_False()
     {
-        _messages.Setup(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
+        _messages.Setup(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(), It.IsAny<string>(),
             It.IsAny<DomainHost>())).ReturnsAsync(0);
 
         Assert.IsFalse(await Send());
@@ -201,7 +202,7 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
     public async Task LinkNotSent_GuestMayAskAgain()
     {
         //Arrange - the first link fails, the second goes out
-        _messages.SetupSequence(x => x.SendMerchandiseReturnGuestLinkCustomerMessage(It.IsAny<Order>(),
+        _messages.SetupSequence(x => x.SendGuestOrderLinkCustomerMessage(It.IsAny<Order>(),
                 It.IsAny<string>(), It.IsAny<DomainHost>()))
             .ThrowsAsync(new InvalidOperationException("no e-mail account"))
             .ReturnsAsync(0)
@@ -217,5 +218,12 @@ public class SendGuestMerchandiseReturnLinkCommandHandlerTests
         Assert.IsFalse(inactive);
         Assert.IsTrue(sent);
         VerifySent(Times.Exactly(3));
+    }
+
+    [TestMethod]
+    public void ThrottleKey_NotClearedWithOrders()
+    {
+        //every change of an order clears the keys under the orders prefix, which would lift the throttle
+        Assert.IsFalse(string.Format(CacheKey.GUEST_ORDER_LINK_KEY, "o1").StartsWith(CacheKey.ORDERS_PATTERN_KEY));
     }
 }

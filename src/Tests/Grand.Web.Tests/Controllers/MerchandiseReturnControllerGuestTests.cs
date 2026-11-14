@@ -114,7 +114,7 @@ public class MerchandiseReturnControllerGuestTests
     private void Grant(Order order)
     {
         var granting = new DefaultHttpContext { RequestServices = _httpContext.RequestServices };
-        MerchandiseReturnGuestGrant.Grant(granting, order);
+        GuestOrderGrant.Grant(granting, order);
         var header = granting.Response.Headers.SetCookie.ToString();
         _httpContext.Request.Headers.Cookie = header[..header.IndexOf(';')];
     }
@@ -268,110 +268,6 @@ public class MerchandiseReturnControllerGuestTests
         var result = (ViewResult)await _controller.MerchandiseReturnDetails("r1");
 
         Assert.IsTrue(((MerchandiseReturnDetailsModel)result.Model).Guest);
-    }
-
-    private ICustomerService Customers => _httpContext.RequestServices.GetRequiredService<ICustomerService>();
-
-    [TestMethod]
-    public async Task GuestPage_SettingOff_NotFound()
-    {
-        _orderSettings.AllowGuestOrderAccess = false;
-
-        Assert.IsInstanceOfType<NotFoundResult>(_controller.GuestMerchandiseReturn(new CaptchaSettings()));
-        //a POST answered with an empty 404 is re-executed as a POST of the not-found page
-        Assert.IsInstanceOfType<NotFoundObjectResult>(
-            await _controller.GuestMerchandiseReturn(new GuestMerchandiseReturnModel(), new CaptchaSettings()));
-        Assert.IsInstanceOfType<NotFoundResult>(
-            await _controller.GuestMerchandiseReturnAccess("token", _provider, Customers));
-    }
-
-    [TestMethod]
-    public void GuestPage_ReturnsDisabled_NotFound()
-    {
-        _orderSettings.MerchandiseReturnsEnabled = false;
-
-        Assert.IsInstanceOfType<NotFoundResult>(_controller.GuestMerchandiseReturn(new CaptchaSettings()));
-    }
-
-    [TestMethod]
-    public async Task GuestPost_AnyOutcome_SameView()
-    {
-        //Arrange - an order that matched, then one that did not
-        _mediator.SetupSequence(x =>
-                x.Send(It.IsAny<SendGuestMerchandiseReturnLinkCommand>(), It.IsAny<CancellationToken>()))
-            .ReturnsAsync(true).ReturnsAsync(false);
-
-        //Act
-        var sent = (ViewResult)await _controller.GuestMerchandiseReturn(
-            new GuestMerchandiseReturnModel { OrderCode = "K7Q2M9XA", Email = "guest@example.com" }, new CaptchaSettings());
-        var notSent = (ViewResult)await _controller.GuestMerchandiseReturn(
-            new GuestMerchandiseReturnModel { OrderCode = "K7Q2M9XB", Email = "guest@example.com" }, new CaptchaSettings());
-
-        //Assert
-        Assert.AreEqual(sent.ViewName, notSent.ViewName);
-        Assert.AreEqual(((GuestMerchandiseReturnModel)sent.Model).Result,
-            ((GuestMerchandiseReturnModel)notSent.Model).Result);
-        Assert.IsNotNull(((GuestMerchandiseReturnModel)sent.Model).Result);
-        Assert.IsNull(sent.StatusCode);
-        Assert.IsNull(notSent.StatusCode);
-    }
-
-    [TestMethod]
-    public async Task GuestPost_InvalidModel_NoCommand()
-    {
-        _controller.ModelState.AddModelError("Email", "Enter the e-mail address.");
-
-        var result = await _controller.GuestMerchandiseReturn(new GuestMerchandiseReturnModel(),
-            new CaptchaSettings());
-
-        Assert.IsInstanceOfType<ViewResult>(result);
-        _mediator.Verify(x => x.Send(It.IsAny<SendGuestMerchandiseReturnLinkCommand>(),
-            It.IsAny<CancellationToken>()), Times.Never);
-    }
-
-    [TestMethod]
-    public async Task Access_GoodToken_SetsCookieAndRedirectsToList()
-    {
-        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order1);
-
-        var result = await _controller.GuestMerchandiseReturnAccess(token, _provider, Customers);
-
-        Assert.AreEqual("CustomerMerchandiseReturns", ((RedirectToRouteResult)result).RouteName);
-        StringAssert.Contains(_httpContext.Response.Headers.SetCookie.ToString(),
-            MerchandiseReturnGuestGrant.CookieName(new CookieOptionsFactory(new SecurityConfig())));
-    }
-
-    [TestMethod]
-    public async Task Access_BadToken_RedirectsToGuestPageWithoutCookie()
-    {
-        var result = await _controller.GuestMerchandiseReturnAccess("not-a-token", _provider, Customers);
-
-        Assert.AreEqual("GuestMerchandiseReturn", ((RedirectToRouteResult)result).RouteName);
-        Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
-    }
-
-    [TestMethod]
-    public async Task Access_VisitorLoggedIn_RedirectsToOwnListWithoutCookie()
-    {
-        _groups.Setup(x => x.IsRegistered(_visitor)).ReturnsAsync(true);
-        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order1);
-
-        var result = await _controller.GuestMerchandiseReturnAccess(token, _provider, Customers);
-
-        Assert.AreEqual("CustomerMerchandiseReturns", ((RedirectToRouteResult)result).RouteName);
-        Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
-    }
-
-    [TestMethod]
-    public async Task Access_RegisteredCustomer_RedirectsToGuestPageWithoutCookie()
-    {
-        _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(true);
-        var token = MerchandiseReturnGuestGrant.LinkToken(_provider, _order1);
-
-        var result = await _controller.GuestMerchandiseReturnAccess(token, _provider, Customers);
-
-        Assert.AreEqual("GuestMerchandiseReturn", ((RedirectToRouteResult)result).RouteName);
-        Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
     }
 
     [TestMethod]

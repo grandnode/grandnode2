@@ -96,8 +96,8 @@ public class GrandCommonStartup : IStartupApplication
             options.OnRejected = (context, cancellationToken) =>
                 new ValueTask(context.HttpContext.Response.WriteAsync(
                     "Too many requests. Please try again later.", cancellationToken));
-            //a guest asking for a return link: guessing order numbers and e-mail addresses takes many tries
-            options.AddPolicy(GuestMerchandiseReturnRateLimitPolicy, context =>
+            //a guest asking for the link to an order: guessing order codes and e-mail addresses takes many tries
+            options.AddPolicy(GuestOrderRateLimitPolicy, context =>
                 RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "",
                     _ => new FixedWindowRateLimiterOptions
                         { PermitLimit = 5, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
@@ -105,9 +105,9 @@ public class GrandCommonStartup : IStartupApplication
     }
 
     /// <summary>
-    ///     The rate limiter policy of the page where guests ask for a merchandise return link
+    ///     The rate limiter policy of the page where guests ask for the link to their order
     /// </summary>
-    public const string GuestMerchandiseReturnRateLimitPolicy = "GuestMerchandiseReturn";
+    public const string GuestOrderRateLimitPolicy = "GuestOrder";
 
     /// <summary>
     ///     Configure the using of added middleware

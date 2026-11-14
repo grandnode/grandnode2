@@ -276,6 +276,19 @@ public static partial class MessageTemplateSeed
                 IsActive = true,
                 EmailAccountId = ea
             },
+            new() {
+                Name = "GuestOrderLink.CustomerNotification",
+                Subject = "{{Store.Name}} — Your order {{GuestOrderLink.OrderCode}}",
+                Body =
+                    Layout(
+                        "Your link to your order.",
+                        "Your order",
+                        @"<p>You asked to see order {{GuestOrderLink.OrderCode}}.</p>
+                " + Button("{{GuestOrderLink.Url}}", "View your order") + @"
+                <p>The link is valid for 24 hours. If you did not ask for it, ignore this e-mail.</p>"),
+                IsActive = true,
+                EmailAccountId = ea
+            },
         };
     }
 }

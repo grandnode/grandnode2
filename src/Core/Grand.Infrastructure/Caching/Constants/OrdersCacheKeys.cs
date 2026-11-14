@@ -72,5 +72,11 @@ public static partial class CacheKey
     /// </summary>
     public static string ORDERS_PATTERN_KEY => "Grand.order.";
 
+    /// <summary>
+    ///     Key marking a link sent to a guest's order lately; outside ORDERS_PATTERN_KEY, which every change of an
+    ///     order clears. {0} - order ID
+    /// </summary>
+    public static string GUEST_ORDER_LINK_KEY => "Grand.guestorder.link-{0}";
+
     #endregion
 }

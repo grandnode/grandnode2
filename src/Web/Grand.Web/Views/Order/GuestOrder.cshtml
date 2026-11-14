@@ -1,30 +1,30 @@
-@model GuestMerchandiseReturnModel
+@model GuestOrderModel
 @inject IPageHeadBuilder pagebuilder
 @{
     Layout = "_SingleColumn";
 
     //title
-    pagebuilder.AddTitleParts(Loc["MerchandiseReturns.Guest.Title"]);
+    pagebuilder.AddTitleParts(Loc["Order.Guest.Title"]);
 }
 @* a guest who ordered without an account asks for a link to the order's e-mail address;
    the page answers the same whatever was found *@
-<div class="page guest-merchandise-return-page">
-    <h1 class="generalTitle h2">@Loc["MerchandiseReturns.Guest.Title"]</h1>
+<div class="page guest-order-page">
+    <h1 class="generalTitle h2">@Loc["Order.Guest.Title"]</h1>
     @if (!string.IsNullOrEmpty(Model.Result))
     {
         <div class="result alert alert-info mt-3">
             @Model.Result
         </div>
     }
-    <form asp-route="GuestMerchandiseReturn" method="post">
+    <form asp-route="GuestOrder" method="post">
         <div asp-validation-summary="All" class="message-error"></div>
-        <p>@Loc["MerchandiseReturns.Guest.Intro"]</p>
+        <p>@Loc["Order.Guest.Intro"]</p>
         <div class="form-group">
-            <label asp-for="OrderCode" class="col-form-label">@Loc["MerchandiseReturns.Guest.OrderCode"]:</label>
+            <label asp-for="OrderCode" class="col-form-label">@Loc["Order.Guest.OrderCode"]:</label>
             <input asp-for="OrderCode" class="form-control" autocapitalize="characters" autocomplete="off" spellcheck="false" autofocus="autofocus"/>
         </div>
         <div class="form-group">
-            <label asp-for="Email" class="col-form-label">@Loc["MerchandiseReturns.Guest.Email"]:</label>
+            <label asp-for="Email" class="col-form-label">@Loc["Order.Guest.Email"]:</label>
             <input asp-for="Email" class="form-control" type="email" autocomplete="email"/>
         </div>
         @if (Model.DisplayCaptcha)
@@ -37,7 +37,7 @@
         }
         <div class="row text-xs-center mt-3">
             <div class="col-12">
-                <button type="submit" class="btn btn-secondary guest-merchandise-return-button">@Loc["MerchandiseReturns.Guest.Send"]</button>
+                <button type="submit" class="btn btn-secondary guest-order-button">@Loc["Order.Guest.Send"]</button>
             </div>
         </div>
     </form>

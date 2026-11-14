@@ -50,7 +50,7 @@ public class LiquidObject
 
     public Drop EmailAFriend { get; set; }
 
-    public Drop MerchandiseReturnGuestLink { get; set; }
+    public Drop GuestOrderLink { get; set; }
 
     public Drop AskQuestion { get; set; }
 

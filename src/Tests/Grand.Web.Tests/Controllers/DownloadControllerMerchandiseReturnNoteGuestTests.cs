@@ -88,7 +88,7 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
     private void Grant(Order order)
     {
         var granting = new DefaultHttpContext { RequestServices = _httpContext.RequestServices };
-        MerchandiseReturnGuestGrant.Grant(granting, order);
+        GuestOrderGrant.Grant(granting, order);
         var header = granting.Response.Headers.SetCookie.ToString();
         _httpContext.Request.Headers.Cookie = header[..header.IndexOf(';')];
     }

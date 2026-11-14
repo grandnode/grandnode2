@@ -12,22 +12,22 @@ using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Commands.Handler.Orders;
 
-public class SendGuestMerchandiseReturnLinkCommandHandler(
+public class SendGuestOrderLinkCommandHandler(
     IOrderService orderService,
     ICustomerService customerService,
     IGroupService groupService,
-    IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
+    IOrderMessageProviderService orderMessageProviderService,
     IDataProtectionProvider dataProtectionProvider,
     ICacheBase cacheBase,
-    ILogger<SendGuestMerchandiseReturnLinkCommandHandler> logger)
-    : IRequestHandler<SendGuestMerchandiseReturnLinkCommand, bool>
+    ILogger<SendGuestOrderLinkCommandHandler> logger)
+    : IRequestHandler<SendGuestOrderLinkCommand, bool>
 {
     /// <summary>
     ///     At most one link per order in this time: asking again does not flood the order's mailbox
     /// </summary>
     private const int ThrottleMinutes = 5;
 
-    public async Task<bool> Handle(SendGuestMerchandiseReturnLinkCommand request, CancellationToken cancellationToken)
+    public async Task<bool> Handle(SendGuestOrderLinkCommand request, CancellationToken cancellationToken)
     {
         //a code is random, so it cannot be guessed as numbers can; it is not unique, so the address the order was
         //placed with, the proof that it is theirs, picks the order
@@ -36,11 +36,11 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
         if (order == null)
             return false;
 
-        if (await MerchandiseReturnGuestGrant.GuestOfOrder(order, request.Store.Id, customerService,
+        if (await GuestOrderGrant.GuestOfOrder(order, request.Store.Id, customerService,
                 groupService) == null)
             return false;
 
-        var throttleKey = string.Format(CacheKey.MERCHANDISE_RETURN_GUEST_LINK_KEY, order.Id);
+        var throttleKey = string.Format(CacheKey.GUEST_ORDER_LINK_KEY, order.Id);
         var first = false;
         await cacheBase.GetAsync(throttleKey, () =>
         {
@@ -53,13 +53,13 @@ public class SendGuestMerchandiseReturnLinkCommandHandler(
         var sent = false;
         try
         {
-            sent = await merchandiseReturnMessageProviderService.SendMerchandiseReturnGuestLinkCustomerMessage(order,
-                MerchandiseReturnGuestGrant.LinkToken(dataProtectionProvider, order), request.Host) > 0;
+            sent = await orderMessageProviderService.SendGuestOrderLinkCustomerMessage(order,
+                GuestOrderGrant.LinkToken(dataProtectionProvider, order), request.Host) > 0;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {
             //only a matching order gets this far: an error page would tell that it exists
-            logger.LogError(ex, "The return link of order {OrderId} was not sent", order.Id);
+            logger.LogError(ex, "The guest link of order {OrderId} was not sent", order.Id);
         }
         finally
         {

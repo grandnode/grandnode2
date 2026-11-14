@@ -4,6 +4,8 @@ using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Interfaces.Customers;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -15,12 +17,15 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Page;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Common.Startup;
 using Grand.Web.Events;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Controllers;
@@ -245,6 +250,83 @@ public class OrderController : BasePublicController
         });
 
         return View(model);
+    }
+
+    /// <summary>
+    ///     The page where a guest who ordered without an account asks for the link to the order
+    /// </summary>
+    [HttpGet]
+    public virtual IActionResult GuestOrder([FromServices] CaptchaSettings captchaSettings)
+    {
+        if (!GuestOrderGrant.Allowed(_orderSettings))
+            return NotFound();
+
+        return View(new GuestOrderModel { DisplayCaptcha = DisplayGuestCaptcha(captchaSettings) });
+    }
+
+    /// <summary>
+    ///     Sends the link when the order code and e-mail address match a guest's order. The answer is the same
+    ///     whatever was found: it never tells whether such an order exists
+    /// </summary>
+    [HttpPost]
+    [EnableRateLimiting(GrandCommonStartup.GuestOrderRateLimitPolicy)]
+    public virtual async Task<IActionResult> GuestOrder(GuestOrderModel model,
+        [FromServices] CaptchaSettings captchaSettings)
+    {
+        if (!GuestOrderGrant.Allowed(_orderSettings))
+            //with a body: an empty 404 of a POST is re-executed as a POST of the not-found page
+            return NotFound("The page was not found.");
+
+        if (ModelState.IsValid)
+        {
+            await _mediator.Send(new SendGuestOrderLinkCommand {
+                OrderCode = model.OrderCode,
+                Email = model.Email,
+                Store = _contextAccessor.StoreContext.CurrentStore,
+                Host = _contextAccessor.StoreContext.CurrentHost
+            });
+            model.Result = _translationService.GetResource("Order.Guest.Sent");
+            model.OrderCode = null;
+            model.Email = null;
+        }
+
+        model.DisplayCaptcha = DisplayGuestCaptcha(captchaSettings);
+        return View(model);
+    }
+
+    /// <summary>
+    ///     The link of the e-mail: leaves the grant for the order in the browser and opens it
+    /// </summary>
+    [HttpGet]
+    public virtual async Task<IActionResult> GuestOrderAccess(string token,
+        [FromServices] IDataProtectionProvider dataProtectionProvider, [FromServices] ICustomerService customerService)
+    {
+        if (!GuestOrderGrant.Allowed(_orderSettings))
+            return NotFound();
+
+        //the grant serves visitors without an account only: one logged in sees the orders of their account
+        if (await _groupService.IsRegistered(_contextAccessor.WorkContext.CurrentCustomer))
+        {
+            Error(_translationService.GetResource("Order.Guest.LoggedIn"));
+            return RedirectToRoute("CustomerOrders");
+        }
+
+        var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
+        var orderId = GuestOrderGrant.LinkOrderId(dataProtectionProvider, token, storeId);
+        var order = orderId != null ? await _orderService.GetOrderById(orderId) : null;
+        if (await GuestOrderGrant.GuestOfOrder(order, storeId, customerService, _groupService) == null)
+        {
+            Error(_translationService.GetResource("Order.Guest.InvalidLink"));
+            return RedirectToRoute("GuestOrder");
+        }
+
+        GuestOrderGrant.Grant(HttpContext, order);
+        return RedirectToRoute("CustomerMerchandiseReturns");
+    }
+
+    private static bool DisplayGuestCaptcha(CaptchaSettings captchaSettings)
+    {
+        return captchaSettings.Enabled && captchaSettings.ShowOnGuestOrderPage;
     }
 
     //My account / Loyalty points
