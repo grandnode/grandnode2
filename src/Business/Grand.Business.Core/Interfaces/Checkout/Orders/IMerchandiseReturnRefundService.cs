@@ -13,13 +13,21 @@ namespace Grand.Business.Core.Interfaces.Checkout.Orders;
 public interface IMerchandiseReturnRefundService
 {
     /// <summary>
-    ///     What the refund of the return comes to now, shown to the staff before they refund. The amounts are filled for
-    ///     a return not received yet as well, with the error RefundNotAllowed: the customer is shown them as an estimate
-    ///     before the return is submitted. A return refunded or being refunded gets its error alone
+    ///     What the refund of the return comes to now, shown to the staff before they refund
     /// </summary>
     /// <param name="merchandiseReturn">The return</param>
     /// <param name="order">The order of the return</param>
     Task<MerchandiseReturnRefundQuote> GetQuote(MerchandiseReturn merchandiseReturn, Order order);
+
+    /// <summary>
+    ///     What the refund of returns not submitted yet comes to once they are received, shown to the customer before
+    ///     they submit: the amounts of all of them together, MaxAmount at most what is left to refund of the order's
+    ///     payment (0 without a payment), and CanRefundOnline whether the payment provider gives that back itself. The
+    ///     quote has no error: the staff decide when they refund
+    /// </summary>
+    /// <param name="merchandiseReturns">The returns the submit would save, one for each vendor of the items</param>
+    /// <param name="order">The order of the returns</param>
+    Task<MerchandiseReturnRefundQuote> GetEstimate(IList<MerchandiseReturn> merchandiseReturns, Order order);
 
     /// <summary>
     ///     Refunds the amount and completes the return: through the payment provider, or offline when the money was

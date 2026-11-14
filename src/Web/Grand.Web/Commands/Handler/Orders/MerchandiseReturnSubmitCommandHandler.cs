@@ -1,4 +1,6 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
@@ -11,7 +13,6 @@ using Grand.Web.Commands.Models.Orders;
 using Grand.Mediator;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Extensions;
-using Grand.Web.Models.Orders;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Commands.Handler.Orders;
@@ -33,6 +34,7 @@ public class MerchandiseReturnSubmitCommandHandler
     private readonly IMerchandiseReturnService _merchandiseReturnService;
     private readonly IDownloadService _downloadService;
     private readonly MediaSettings _mediaSettings;
+    private readonly IProductService _productService;
     private readonly ILogger<MerchandiseReturnSubmitCommandHandler> _logger;
 
     public MerchandiseReturnSubmitCommandHandler(IContextAccessor contextAccessor,
@@ -44,6 +46,7 @@ public class MerchandiseReturnSubmitCommandHandler
         IMerchandiseReturnService merchandiseReturnService,
         IDownloadService downloadService,
         MediaSettings mediaSettings,
+        IProductService productService,
         ILogger<MerchandiseReturnSubmitCommandHandler> logger)
     {
         _orderSettings = orderSettings;
@@ -55,6 +58,7 @@ public class MerchandiseReturnSubmitCommandHandler
         _merchandiseReturnService = merchandiseReturnService;
         _downloadService = downloadService;
         _mediaSettings = mediaSettings;
+        _productService = productService;
         _logger = logger;
     }
 
@@ -69,20 +73,9 @@ public class MerchandiseReturnSubmitCommandHandler
             return new MerchandiseReturnSubmitResult { Error = photoError };
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
-        var result = await _merchandiseReturnWorkflowService.Submit(new MerchandiseReturnSubmitRequest {
-            Order = request.Order,
-            //the store the order was placed in, whose staff handle its returns
-            StoreId = request.Order.StoreId,
-            CustomerId = customer.Id,
-            OwnerId = await _groupService.IsOwner(customer) ? customer.Id : customer.OwnerId,
-            LanguageId = _contextAccessor.WorkContext.WorkingLanguage.Id,
-            Comments = request.Model.Comments,
-            PickupAddress = request.Address,
-            PickupDate = request.Model.PickupDate,
-            //a store that does not ask for the requested action saves none, whatever was posted
-            Items = SubmitItems(request.Model, _orderSettings),
-            ReturnShipping = ReturnShippingChoice(request.Model, request.Form)
-        });
+        var result = await _merchandiseReturnWorkflowService.Submit(await request.Model.ToSubmitRequest(request.Order,
+            customer, _groupService, _contextAccessor.WorkContext.WorkingLanguage.Id, request.Address, request.Form,
+            _orderSettings));
 
         //each vendor's return is a return of its own, with its own photos and messages
         foreach (var merchandiseReturn in result.MerchandiseReturns)
@@ -112,14 +105,16 @@ public class MerchandiseReturnSubmitCommandHandler
             if (request.Photos == null || !request.Photos.TryGetValue(item.OrderItemId, out var photos))
                 continue;
 
+            string productName = null;
             foreach (var photo in photos)
                 try
                 {
+                    productName ??= await ProductName(request.Order, item.OrderItemId);
                     var download = MerchandiseReturnUploads.ToDownload(photo, customerId, merchandiseReturn.Id);
                     await _downloadService.InsertDownload(download);
                     await _merchandiseReturnService.InsertMerchandiseReturnNote(new MerchandiseReturnNote {
                         MerchandiseReturnId = merchandiseReturn.Id,
-                        Note = request.Model.Items.FirstOrDefault(x => x.Id == item.OrderItemId)?.ProductName ?? "",
+                        Note = productName,
                         DownloadId = download.Id,
                         DisplayToCustomer = true,
                         CreatedByCustomer = true
@@ -134,35 +129,13 @@ public class MerchandiseReturnSubmitCommandHandler
     }
 
     /// <summary>
-    ///     The items of the form as the return is asked for: a store that does not ask for the requested action saves
-    ///     none, whatever was posted. The estimate of the form asks for the same
+    ///     The name of the product ordered, which a photo is named after: the form's hidden fields are the customer's to
+    ///     change
     /// </summary>
-    internal static IList<MerchandiseReturnSubmitItem> SubmitItems(MerchandiseReturnModel model,
-        OrderSettings orderSettings)
+    private async Task<string> ProductName(Order order, string orderItemId)
     {
-        return model.Items.Select(x => new MerchandiseReturnSubmitItem(x.Id, x.Quantity,
-            x.MerchandiseReturnReasonId,
-            orderSettings.MerchandiseReturns_HideRequestedAction ? null : x.MerchandiseReturnActionId)).ToList();
-    }
-
-    /// <summary>
-    ///     The return method chosen, with the fields of its form, prefix stripped; null when none was chosen
-    /// </summary>
-    internal static ReturnShippingChoice ReturnShippingChoice(MerchandiseReturnModel model,
-        IDictionary<string, string> postedForm)
-    {
-        if (string.IsNullOrEmpty(model.ReturnShippingProvider))
-            return null;
-
-        var form = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
-        foreach (var (key, value) in postedForm ?? new Dictionary<string, string>())
-            if (key.StartsWith(FormPrefix, StringComparison.OrdinalIgnoreCase) && key.Length > FormPrefix.Length)
-                form[key[FormPrefix.Length..]] = value;
-
-        return new ReturnShippingChoice {
-            ProviderSystemName = model.ReturnShippingProvider,
-            OptionCode = model.ReturnShippingOption,
-            Form = form
-        };
+        var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
+        var product = orderItem == null ? null : await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
+        return product?.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id) ?? "";
     }
 }

@@ -384,6 +384,24 @@ public class MerchandiseReturnControllerTests
     }
 
     [TestMethod]
+    [DataRow(MerchandiseReturnStatus.Received)]
+    [DataRow(MerchandiseReturnStatus.Rejected)]
+    [DataRow(MerchandiseReturnStatus.Cancelled)]
+    [DataRow(MerchandiseReturnStatus.Completed)]
+    public async Task Pdf_ItemsNoLongerToBeSent_NotFound(MerchandiseReturnStatus status)
+    {
+        //the document tells where to send the items
+        Return("buyer").MerchandiseReturnStatus = status;
+        var pdfService = new Mock<IPdfService>();
+
+        var result = await _controller.MerchandiseReturnPdf("r1", pdfService.Object);
+
+        Assert.IsInstanceOfType<NotFoundObjectResult>(result);
+        pdfService.Verify(x => x.PrintMerchandiseReturnToPdf(It.IsAny<Stream>(), It.IsAny<MerchandiseReturn>(),
+            It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Pdf_Owner_Pdf()
     {
         var merchandiseReturn = Return("buyer");

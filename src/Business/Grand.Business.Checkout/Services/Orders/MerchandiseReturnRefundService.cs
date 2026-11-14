@@ -32,6 +32,35 @@ public class MerchandiseReturnRefundService(
         return (await Quote(merchandiseReturn, order)).Quote;
     }
 
+    public async Task<MerchandiseReturnRefundQuote> GetEstimate(IList<MerchandiseReturn> merchandiseReturns,
+        Order order)
+    {
+        ArgumentNullException.ThrowIfNull(merchandiseReturns);
+        ArgumentNullException.ThrowIfNull(order);
+
+        var quote = new MerchandiseReturnRefundQuote { CurrencyCode = order.CustomerCurrencyCode };
+        var rounding = await RoundingOf(order);
+        var refunded = await RefundedReturns(order, null);
+        foreach (var merchandiseReturn in merchandiseReturns)
+        {
+            var (itemsAmount, returnShippingCost) = Amounts(merchandiseReturn, order, refunded, rounding);
+            quote.ItemsAmount = rounding.Round(quote.ItemsAmount + itemsAmount);
+            quote.ReturnShippingCost = rounding.Round(quote.ReturnShippingCost + returnShippingCost);
+            //each return is refunded on its own, so the cost of one is never taken off the items of another
+            quote.Amount = rounding.Round(quote.Amount + Math.Max(0, rounding.Round(itemsAmount - returnShippingCost)));
+        }
+
+        var transaction = await paymentTransactionService.GetOrderByGuid(order.OrderGuid);
+        if (transaction == null)
+            return quote;
+
+        quote.MaxAmount = Math.Max(0, Math.Min(quote.Amount, Left(transaction, refunded, rounding)));
+        if (quote.MaxAmount > 0)
+            quote.CanRefundOnline = await mediator.Send(new CanPartiallyRefundQuery
+                { PaymentTransaction = transaction, AmountToRefund = quote.MaxAmount });
+        return quote;
+    }
+
     public async Task<string> Refund(string merchandiseReturnId, double amount, bool offline,
         string refundedBy = null)
     {
@@ -162,10 +191,7 @@ public class MerchandiseReturnRefundService(
         MerchandiseReturn merchandiseReturn, Order order)
     {
         var quote = new MerchandiseReturnRefundQuote { CurrencyCode = order.CustomerCurrencyCode };
-        var currency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
-        var rounding = currency == null
-            ? new Rounding(2, MidpointRounding.AwayFromZero)
-            : new Rounding(currency.NumberDecimal, currency.MidpointRoundId);
+        var rounding = await RoundingOf(order);
 
         if (merchandiseReturn.Refund != null)
         {
@@ -175,22 +201,16 @@ public class MerchandiseReturnRefundService(
             return (quote, null, rounding);
         }
 
-        var refunded = (await mediator.Send(new GetMerchandiseReturnQuery { OrderId = order.Id }))
-            .Where(x => x.Id != merchandiseReturn.Id && x.Refund != null)
-            .ToList();
-        quote.ItemsAmount = merchandiseReturn.RefundItemsAmount(order, refunded, rounding.Decimals,
-            rounding.MidpointRounding);
-        //the cost is kept in the primary store currency, with the rate of the order's currency
-        var shipping = merchandiseReturn.ReturnShipping;
-        quote.ReturnShippingCost = shipping == null ? 0 : rounding.Round(shipping.Cost * shipping.CurrencyRate);
-        quote.Amount = Math.Max(0, rounding.Round(quote.ItemsAmount - quote.ReturnShippingCost));
-
-        //the money goes back for goods that came back; the amounts above are what the customer is shown before
+        //the money goes back for goods that came back
         if (merchandiseReturn.MerchandiseReturnStatus != MerchandiseReturnStatus.Received)
         {
             quote.Error = MerchandiseReturnErrors.RefundNotAllowed;
             return (quote, null, rounding);
         }
+
+        var refunded = await RefundedReturns(order, merchandiseReturn.Id);
+        (quote.ItemsAmount, quote.ReturnShippingCost) = Amounts(merchandiseReturn, order, refunded, rounding);
+        quote.Amount = Math.Max(0, rounding.Round(quote.ItemsAmount - quote.ReturnShippingCost));
 
         var transaction = await paymentTransactionService.GetOrderByGuid(order.OrderGuid);
         if (transaction == null)
@@ -199,13 +219,7 @@ public class MerchandiseReturnRefundService(
             return (quote, null, rounding);
         }
 
-        //the refunds of the order's other returns not settled yet are kept off what is left, whether the transaction
-        //counts them already or not: what is left is never more than it is
-        var underWay = refunded
-            .Where(x => x.Refund.RefundedOnUtc == null && x.Refund.PaymentTransactionId == transaction.Id)
-            .Sum(x => x.Refund.Amount);
-        var left = rounding.Round(transaction.TransactionAmount - transaction.RefundedAmount - underWay);
-        quote.MaxAmount = Math.Max(0, Math.Min(quote.Amount, left));
+        quote.MaxAmount = Math.Max(0, Math.Min(quote.Amount, Left(transaction, refunded, rounding)));
         if (quote.MaxAmount <= 0)
         {
             quote.Error = MerchandiseReturnErrors.NothingToRefund;
@@ -331,6 +345,50 @@ public class MerchandiseReturnRefundService(
             logger.LogError(ex, "Merchandise return {MerchandiseReturnId} was refunded, but its order note or its " +
                                 "completion failed", merchandiseReturn.Id);
         }
+    }
+
+    private async Task<Rounding> RoundingOf(Order order)
+    {
+        var currency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
+        return currency == null
+            ? new Rounding(2, MidpointRounding.AwayFromZero)
+            : new Rounding(currency.NumberDecimal, currency.MidpointRoundId);
+    }
+
+    /// <summary>
+    ///     The order's returns other than the one given that are refunded, being refunded or waiting for their check
+    /// </summary>
+    private async Task<List<MerchandiseReturn>> RefundedReturns(Order order, string merchandiseReturnId)
+    {
+        return (await mediator.Send(new GetMerchandiseReturnQuery { OrderId = order.Id }))
+            .Where(x => x.Id != merchandiseReturnId && x.Refund != null)
+            .ToList();
+    }
+
+    /// <summary>
+    ///     What was paid for the items of the return, and what shipping it back costs
+    /// </summary>
+    private static (double ItemsAmount, double ReturnShippingCost) Amounts(MerchandiseReturn merchandiseReturn,
+        Order order, IList<MerchandiseReturn> refunded, Rounding rounding)
+    {
+        var itemsAmount = merchandiseReturn.RefundItemsAmount(order, refunded, rounding.Decimals,
+            rounding.MidpointRounding);
+        //the cost is kept in the primary store currency, with the rate of the order's currency
+        var shipping = merchandiseReturn.ReturnShipping;
+        return (itemsAmount, shipping == null ? 0 : rounding.Round(shipping.Cost * shipping.CurrencyRate));
+    }
+
+    /// <summary>
+    ///     What is left to refund of the payment. The refunds of the order's other returns not settled yet are kept off
+    ///     it, whether the transaction counts them already or not: what is left is never more than it is
+    /// </summary>
+    private static double Left(PaymentTransaction transaction, IEnumerable<MerchandiseReturn> refunded,
+        Rounding rounding)
+    {
+        var underWay = refunded
+            .Where(x => x.Refund.RefundedOnUtc == null && x.Refund.PaymentTransactionId == transaction.Id)
+            .Sum(x => x.Refund.Amount);
+        return rounding.Round(transaction.TransactionAmount - transaction.RefundedAmount - underWay);
     }
 
     private static string Format(double amount)

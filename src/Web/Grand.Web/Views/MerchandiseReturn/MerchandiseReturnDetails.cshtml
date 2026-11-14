@@ -6,6 +6,8 @@
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.MerchandiseReturnDetails"]);
+
+    const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
 }
 
 @section left
@@ -22,10 +24,13 @@
                 <span>@Model.CreatedOnUtc.ToString(CultureInfo.InvariantCulture)</span>
             </div>
             <div class="return-actions d-flex flex-wrap gap-2 mb-3">
-                <a class="btn btn-sm btn-outline-info" href="@Url.RouteUrl("MerchandiseReturnPdf", new { merchandiseReturnId = Model.MerchandiseReturnId })">
-                    <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
-                    @Loc["MerchandiseReturns.Pdf"]
-                </a>
+                @if (Model.CanPrintDocument)
+                {
+                    <a class="btn btn-sm btn-outline-info" href="@Url.RouteUrl("MerchandiseReturnPdf", new { merchandiseReturnId = Model.MerchandiseReturnId })">
+                        <i class="bi bi-file-earmark-pdf" aria-hidden="true"></i>
+                        @Loc["MerchandiseReturns.Pdf"]
+                    </a>
+                }
                 @if (Model.CanCancel)
                 {
                     <button type="button" class="btn btn-sm btn-outline-danger" data-bs-toggle="modal" data-bs-target="#ModalCancelReturn">@Loc["MerchandiseReturns.Cancel"]</button>
@@ -391,7 +396,7 @@
 
             @if (Model.CanAddNote)
             {
-                <form class="merchandisereturn-add-note card mt-3" asp-route="MerchandiseReturnAddNote" asp-route-merchandiseReturnId="@Model.MerchandiseReturnId" method="post" enctype="multipart/form-data">
+                <form class="merchandisereturn-add-note card mt-3" asp-route="MerchandiseReturnAddNote" asp-route-merchandiseReturnId="@Model.MerchandiseReturnId" method="post" enctype="multipart/form-data" onsubmit="@submitOnce">
                     <div class="card-body">
                         <h5 class="generalTitle">@Loc["MerchandiseReturns.Notes.Add"]</h5>
                         <label for="return-note" class="form-label">@Loc["MerchandiseReturns.Notes.Message"]</label>

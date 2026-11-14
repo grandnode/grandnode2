@@ -370,14 +370,14 @@ public class MerchandiseReturnController : BasePublicController
     }
 
     /// <summary>
-    ///     The document to put in the parcel with the items, in the working language
+    ///     The document to put in the parcel with the items, in the working language, while they are still to be sent
     /// </summary>
     [HttpGet]
     public virtual async Task<IActionResult> MerchandiseReturnPdf(string merchandiseReturnId,
         [FromServices] IPdfService pdfService)
     {
         var (merchandiseReturn, order) = await CustomerMerchandiseReturn(merchandiseReturnId);
-        if (merchandiseReturn == null)
+        if (!merchandiseReturn.CustomerPrintsDocument())
             return NotFound("The return was not found.");
 
         using var stream = new MemoryStream();

@@ -1,8 +1,10 @@
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
@@ -60,11 +62,14 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         _downloadService.Setup(x => x.InsertDownload(It.IsAny<Download>()))
             .Callback<Download>(x => x.Id = "d-" + x.Filename).Returns(Task.CompletedTask);
 
+        var productService = new Mock<IProductService>();
+        productService.Setup(x => x.GetProductByIdIncludeArch("p")).ReturnsAsync(new Product { Name = "Shoe" });
+
         _orderSettings = new OrderSettings();
         _handler = new MerchandiseReturnSubmitCommandHandler(contextAccessor.Object, _workflowMock.Object,
             _messageProviderMock.Object, new Mock<IGroupService>().Object,
             new LanguageSettings { DefaultAdminLanguageId = "admin-language" }, _orderSettings,
-            _returnService.Object, _downloadService.Object, new MediaSettings(),
+            _returnService.Object, _downloadService.Object, new MediaSettings(), productService.Object,
             NullLogger<MerchandiseReturnSubmitCommandHandler>.Instance);
     }
 
@@ -102,7 +107,8 @@ public class MerchandiseReturnSubmitCommandHandlerTests
         _result.MerchandiseReturns.Add(vendorReturn);
         _result.MerchandiseReturns.Add(storeReturn);
         var command = Command(3);
-        command.Model.Items[0].ProductName = "Shoe";
+        //the hidden field is the customer's to change: the note is named after the product ordered
+        command.Model.Items[0].ProductName = "Approved, no inspection needed";
         command.Model.Items.Add(new MerchandiseReturnModel.OrderItemModel
             { Id = "b", Quantity = 1, MerchandiseReturnReasonId = "rr1" });
         command.Photos = new Dictionary<string, IList<IFormFile>> { ["a"] = [Photo("front.png")] };

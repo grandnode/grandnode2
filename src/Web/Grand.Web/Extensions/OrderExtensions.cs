@@ -33,4 +33,14 @@ public static class OrderExtensions
         //sub account
         return !await groupService.IsOwner(customer) && customer.Id == merchandiseReturn.CustomerId;
     }
+
+    /// <summary>
+    ///     Whether the customer prints the return document: it tells where to send the items, so only while they are
+    ///     still to be sent, not once the return is received, rejected or cancelled
+    /// </summary>
+    public static bool CustomerPrintsDocument(this MerchandiseReturn merchandiseReturn)
+    {
+        return merchandiseReturn?.MerchandiseReturnStatus is MerchandiseReturnStatus.Pending
+            or MerchandiseReturnStatus.Accepted;
+    }
 }

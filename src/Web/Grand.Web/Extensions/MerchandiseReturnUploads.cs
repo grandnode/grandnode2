@@ -21,6 +21,16 @@ public static class MerchandiseReturnUploads
     public const int MaxNoteLength = 2000;
 
     /// <summary>
+    ///     The most notes a customer adds to one return, the photos sent with it included
+    /// </summary>
+    public const int MaxCustomerNotes = 50;
+
+    /// <summary>
+    ///     How long a customer waits after one note before they send the next
+    /// </summary>
+    public static readonly TimeSpan NoteInterval = TimeSpan.FromSeconds(30);
+
+    /// <summary>
     ///     The most a return with all its photos takes to post, the rest of the form included
     /// </summary>
     public const long MaxSubmitRequestBytes = MaxPhotosPerSubmit * (long)MaxFileBytes + 1024 * 1024;

@@ -22,20 +22,21 @@ public class GetMerchandiseReturnEstimateHandlerTests
     private GetMerchandiseReturnEstimateHandler _handler;
     private MerchandiseReturnSubmitResult _preview;
     private MerchandiseReturnSubmitRequest _request;
-    private Dictionary<MerchandiseReturn, MerchandiseReturnRefundQuote> _quotes;
+    private MerchandiseReturnRefundQuote _estimate;
 
     [TestInitialize]
     public void Init()
     {
         _preview = new MerchandiseReturnSubmitResult();
-        _quotes = [];
+        _estimate = new MerchandiseReturnRefundQuote();
         var workflow = new Mock<IMerchandiseReturnWorkflowService>();
         workflow.Setup(x => x.Preview(It.IsAny<MerchandiseReturnSubmitRequest>()))
             .Callback<MerchandiseReturnSubmitRequest>(r => _request = r)
             .ReturnsAsync(() => _preview);
         var refunds = new Mock<IMerchandiseReturnRefundService>();
-        refunds.Setup(x => x.GetQuote(It.IsAny<MerchandiseReturn>(), _order))
-            .ReturnsAsync((MerchandiseReturn r, Order _) => _quotes[r]);
+        refunds.Setup(x => x.GetEstimate(It.IsAny<IList<MerchandiseReturn>>(), _order))
+            .ReturnsAsync((IList<MerchandiseReturn> returns, Order _) =>
+                returns.SequenceEqual(_preview.MerchandiseReturns) ? _estimate : null);
         var currencyService = new Mock<ICurrencyService>();
         currencyService.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(new Currency { CurrencyCode = "EUR" });
         var priceFormatter = new Mock<IPriceFormatter>();
@@ -45,24 +46,17 @@ public class GetMerchandiseReturnEstimateHandlerTests
         translationService.Setup(x => x.GetResource(It.IsAny<string>(), "l1", It.IsAny<string>(), It.IsAny<bool>()))
             .Returns((string key, string _, string defaultValue, bool _) =>
                 key == MerchandiseReturnErrors.SubmitQuantityExceeded ? "Taken meanwhile" : defaultValue);
-        _handler = new GetMerchandiseReturnEstimateHandler(workflow.Object, refunds.Object, currencyService.Object,
-            priceFormatter.Object, translationService.Object, new OrderSettings());
-    }
-
-    private void Previewed(double itemsAmount, double returnShippingCost, double amount)
-    {
-        var merchandiseReturn = new MerchandiseReturn();
-        _preview.MerchandiseReturns.Add(merchandiseReturn);
-        _quotes[merchandiseReturn] = new MerchandiseReturnRefundQuote {
-            Error = MerchandiseReturnErrors.RefundNotAllowed, ItemsAmount = itemsAmount,
-            ReturnShippingCost = returnShippingCost, Amount = amount
-        };
+        var groupService = new Mock<IGroupService>();
+        groupService.Setup(x => x.IsOwner(It.Is<Customer>(c => c.Id == "c1"))).ReturnsAsync(true);
+        _handler = new GetMerchandiseReturnEstimateHandler(workflow.Object, refunds.Object, groupService.Object,
+            currencyService.Object, priceFormatter.Object, translationService.Object, new OrderSettings());
     }
 
     private Task<MerchandiseReturnEstimateModel> Handle(Dictionary<string, string> form = null)
     {
-        var model = new MerchandiseReturnModel
-            { OrderId = "o1", ReturnShippingProvider = "Carrier", ReturnShippingOption = "parcel" };
+        var model = new MerchandiseReturnModel {
+            OrderId = "o1", ReturnShippingProvider = "Carrier", ReturnShippingOption = "parcel", Comments = "torn"
+        };
         model.Items.Add(new MerchandiseReturnModel.OrderItemModel
             { Id = "a", Quantity = 2, MerchandiseReturnReasonId = "rr1" });
         return _handler.Handle(new GetMerchandiseReturnEstimate {
@@ -72,18 +66,35 @@ public class GetMerchandiseReturnEstimateHandlerTests
     }
 
     [TestMethod]
-    public async Task Estimate_SumsQuoteAmountsOfPreviewReturns()
+    public async Task Estimate_OfThePreviewReturns_AtMostWhatGoesBack()
     {
-        //one return for the store's items and one for a vendor's
-        Previewed(20, 3, 17);
-        Previewed(5, 0, 5);
+        //one return for the store's items and one for a vendor's; the payment has 15 left to refund
+        _preview.MerchandiseReturns.Add(new MerchandiseReturn());
+        _preview.MerchandiseReturns.Add(new MerchandiseReturn { VendorId = "v1" });
+        _estimate.ItemsAmount = 25;
+        _estimate.ReturnShippingCost = 3;
+        _estimate.Amount = 22;
+        _estimate.MaxAmount = 15;
+        _estimate.CanRefundOnline = true;
 
         var estimate = await Handle();
 
-        Assert.AreEqual("EUR22", estimate.Amount);
+        Assert.AreEqual("EUR15", estimate.Amount);
         Assert.AreEqual("EUR25", estimate.ItemsAmount);
         Assert.AreEqual("EUR3", estimate.ReturnShippingCost);
+        Assert.IsTrue(estimate.ToPaymentMethod);
         Assert.AreEqual(0, estimate.Errors.Count);
+    }
+
+    [TestMethod]
+    public async Task Estimate_PaymentProviderCannotRefund_NotToThePaymentMethod()
+    {
+        _preview.MerchandiseReturns.Add(new MerchandiseReturn());
+        _estimate.MaxAmount = 10;
+
+        var estimate = await Handle();
+
+        Assert.IsFalse(estimate.ToPaymentMethod);
     }
 
     [TestMethod]
@@ -105,6 +116,9 @@ public class GetMerchandiseReturnEstimateHandlerTests
 
         Assert.AreEqual("s1", _request.StoreId);
         Assert.AreEqual("c1", _request.CustomerId);
+        Assert.AreEqual("c1", _request.OwnerId);
+        Assert.AreEqual("l1", _request.LanguageId);
+        Assert.AreEqual("torn", _request.Comments);
         Assert.AreEqual(new MerchandiseReturnSubmitItem("a", 2, "rr1", null), _request.Items.Single());
         Assert.AreEqual("Carrier", _request.ReturnShipping.ProviderSystemName);
         Assert.AreEqual("p1", _request.ReturnShipping.Form["point"]);

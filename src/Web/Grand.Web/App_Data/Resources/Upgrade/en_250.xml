@@ -2229,4 +2229,10 @@
 	<Resource Name="MerchandiseReturns.Wizard.Back" Area="Front">
 		<Value>Back</Value>
 	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.TooSoon" Area="Front">
+		<Value>Your previous message was sent a moment ago. Wait a little before you send another.</Value>
+	</Resource>
+	<Resource Name="MerchandiseReturns.Notes.TooMany" Area="Front">
+		<Value>This return has reached the most messages it can take. The store will answer those you sent.</Value>
+	</Resource>
 </Language>

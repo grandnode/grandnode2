@@ -305,7 +305,6 @@
                         </template>
                     </div>
                 }
-                <p class="return-refund-destination mt-3 mb-0">@Loc["MerchandiseReturns.Estimate.Destination"]</p>
                 @* why the return could not be submitted as it is, e.g. a quantity another return took meanwhile *@
                 <span class="field-validation-error d-block" v-if="merchandisereturns.estimateError">{{ merchandisereturns.estimateError }}</span>
                 <div class="mt-2 d-flex gap-2" style="display: none" v-show="true">
@@ -329,6 +328,7 @@
                                 <div>@Loc["MerchandiseReturns.Estimate.ItemsAmount"]: {{ merchandisereturns.estimate.ItemsAmount }}</div>
                                 <div>@Loc["MerchandiseReturns.Estimate.ReturnShippingCost"]: {{ merchandisereturns.estimate.ReturnShippingCost }}</div>
                                 <div class="fw-bold">@Loc["MerchandiseReturns.Estimate.Title"]: {{ merchandisereturns.estimate.Amount }}</div>
+                                <p class="return-refund-destination mt-2 mb-0" v-if="merchandisereturns.estimate.ToPaymentMethod">@Loc["MerchandiseReturns.Estimate.Destination"]</p>
                                 <small class="text-muted d-block">@Loc["MerchandiseReturns.Estimate.Note"]</small>
                             </div>
                         </div>

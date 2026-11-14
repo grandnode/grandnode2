@@ -8,6 +8,7 @@ using Grand.Mediator;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Extensions;
+using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Commands.Handler.Orders;
 
@@ -16,7 +17,8 @@ public class InsertMerchandiseReturnNoteCommandHandler(
     IDownloadService downloadService,
     IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
     MediaSettings mediaSettings,
-    LanguageSettings languageSettings)
+    LanguageSettings languageSettings,
+    ILogger<InsertMerchandiseReturnNoteCommandHandler> logger)
     : IRequestHandler<InsertMerchandiseReturnNoteCommand, string>
 {
     public async Task<string> Handle(InsertMerchandiseReturnNoteCommand request, CancellationToken cancellationToken)
@@ -34,6 +36,14 @@ public class InsertMerchandiseReturnNoteCommandHandler(
         if (request.File != null && !MerchandiseReturnUploads.IsAllowed(request.File,
                 FileExtensions.GetAllowedMediaFileTypes(mediaSettings.AllowedFileTypes)))
             return MerchandiseReturnUploads.PhotosInvalid;
+
+        //a second click on Send, or a loop of posts, does not fill the store's mailbox and the downloads
+        var customerNotes = (await merchandiseReturnService.GetMerchandiseReturnNotes(request.MerchandiseReturn.Id))
+            .Where(x => x.CreatedByCustomer).ToList();
+        if (customerNotes.Count >= MerchandiseReturnUploads.MaxCustomerNotes)
+            return "MerchandiseReturns.Notes.TooMany";
+        if (customerNotes.Any(x => x.CreatedOnUtc > DateTime.UtcNow - MerchandiseReturnUploads.NoteInterval))
+            return "MerchandiseReturns.Notes.TooSoon";
 
         string downloadId = null;
         if (request.File != null)
@@ -54,9 +64,19 @@ public class InsertMerchandiseReturnNoteCommandHandler(
         };
         await merchandiseReturnService.InsertMerchandiseReturnNote(merchandiseReturnNote);
 
-        await merchandiseReturnMessageProviderService.SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(
-            request.MerchandiseReturn, merchandiseReturnNote, request.Order, languageSettings.DefaultAdminLanguageId,
-            request.Host);
+        //the message is saved and the staff see it with the return: an e-mail that fails is logged, not shown as an
+        //error that would make the customer send it again
+        try
+        {
+            await merchandiseReturnMessageProviderService.SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(
+                request.MerchandiseReturn, merchandiseReturnNote, request.Order,
+                languageSettings.DefaultAdminLanguageId, request.Host);
+        }
+        catch (Exception ex)
+        {
+            logger.LogError(ex, "The e-mail of the customer's message on merchandise return {MerchandiseReturnId} " +
+                                "was not sent", request.MerchandiseReturn.Id);
+        }
 
         return null;
     }

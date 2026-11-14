@@ -8,7 +8,9 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Web.Commands.Handler.Orders;
 using Grand.Web.Commands.Models.Orders;
+using Grand.Web.Extensions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -21,18 +23,22 @@ public class InsertMerchandiseReturnNoteCommandHandlerTests
     private Mock<IDownloadService> _downloads;
     private InsertMerchandiseReturnNoteCommandHandler _handler;
     private Mock<IMerchandiseReturnMessageProviderService> _messages;
+    private List<MerchandiseReturnNote> _notes;
     private Mock<IMerchandiseReturnService> _returns;
 
     [TestInitialize]
     public void Init()
     {
+        _notes = [];
         _returns = new Mock<IMerchandiseReturnService>();
+        _returns.Setup(x => x.GetMerchandiseReturnNotes("r1")).ReturnsAsync(() => _notes);
         _downloads = new Mock<IDownloadService>();
         _downloads.Setup(x => x.InsertDownload(It.IsAny<Download>()))
             .Callback<Download>(x => x.Id = "d1").Returns(Task.CompletedTask);
         _messages = new Mock<IMerchandiseReturnMessageProviderService>();
         _handler = new InsertMerchandiseReturnNoteCommandHandler(_returns.Object, _downloads.Object,
-            _messages.Object, new MediaSettings(), new LanguageSettings { DefaultAdminLanguageId = "admin" });
+            _messages.Object, new MediaSettings(), new LanguageSettings { DefaultAdminLanguageId = "admin" },
+            NullLogger<InsertMerchandiseReturnNoteCommandHandler>.Instance);
     }
 
     private Task<string> Handle(MerchandiseReturnStatus status, string note, IFormFile file = null)
@@ -106,5 +112,54 @@ public class InsertMerchandiseReturnNoteCommandHandlerTests
         _messages.Verify(x => x.SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(
             It.Is<MerchandiseReturn>(r => r.Id == "r1"), It.IsAny<MerchandiseReturnNote>(), _order, "admin",
             It.Is<DomainHost>(h => h.HostName == "host")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task AddNote_RightAfterTheLast_Refused()
+    {
+        //a second click on Send
+        _notes.Add(new MerchandiseReturnNote { CreatedByCustomer = true, CreatedOnUtc = DateTime.UtcNow.AddSeconds(-2) });
+
+        var error = await Handle(MerchandiseReturnStatus.Pending, "Hello");
+
+        Assert.AreEqual("MerchandiseReturns.Notes.TooSoon", error);
+        _returns.Verify(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()), Times.Never);
+        _messages.VerifyNoOtherCalls();
+    }
+
+    [TestMethod]
+    public async Task AddNote_RightAfterTheStores_Inserted()
+    {
+        _notes.Add(new MerchandiseReturnNote { CreatedOnUtc = DateTime.UtcNow.AddSeconds(-2) });
+        _notes.Add(new MerchandiseReturnNote { CreatedByCustomer = true, CreatedOnUtc = DateTime.UtcNow.AddMinutes(-5) });
+
+        var error = await Handle(MerchandiseReturnStatus.Pending, "Thanks");
+
+        Assert.IsNull(error);
+    }
+
+    [TestMethod]
+    public async Task AddNote_TooManyOnTheReturn_Refused()
+    {
+        for (var i = 0; i < MerchandiseReturnUploads.MaxCustomerNotes; i++)
+            _notes.Add(new MerchandiseReturnNote { CreatedByCustomer = true, CreatedOnUtc = DateTime.UtcNow.AddDays(-1) });
+
+        var error = await Handle(MerchandiseReturnStatus.Pending, "Hello");
+
+        Assert.AreEqual("MerchandiseReturns.Notes.TooMany", error);
+        _returns.Verify(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task AddNote_EmailFails_NoteStandsWithoutAnError()
+    {
+        _messages.Setup(x => x.SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(It.IsAny<MerchandiseReturn>(),
+                It.IsAny<MerchandiseReturnNote>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<DomainHost>()))
+            .ThrowsAsync(new InvalidOperationException("no e-mail account"));
+
+        var error = await Handle(MerchandiseReturnStatus.Pending, "Hello");
+
+        Assert.IsNull(error);
+        _returns.Verify(x => x.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()), Times.Once);
     }
 }

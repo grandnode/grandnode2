@@ -22,6 +22,15 @@ import { axios, notifyRequestError } from './shared'
 
 const QUANTITY_FIELD = /^Items\[\d+\]\.Quantity$/
 
+// the form's fields without its photos: only the submit uploads them
+function withoutPhotos(form) {
+    const data = new FormData(form)
+    for (const name of [...data.keys()]) {
+        if (name.startsWith('photos.')) data.delete(name)
+    }
+    return data
+}
+
 registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items, photoReasonIds, photosRequired,
     photosInvalid, nothingChosen, photoTypes, maxPhotoBytes, maxPhotosPerItem, maxPhotosPerSubmit,
     estimateUrl, returnShipping, offersUrl, choosePoint }) => {
@@ -78,7 +87,7 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items,
 
                 this.clearChoice()
 
-                const data = new FormData(form)
+                const data = withoutPhotos(form)
                 const request = ++offersRequest
                 const anyQuantity = [...data.entries()]
                     .some(([name, value]) => QUANTITY_FIELD.test(name) && Number(value) > 0)
@@ -176,11 +185,7 @@ registerView('merchandiseReturn', ({ pickupDate, showPickupDate, itemIds, items,
                     return
                 }
                 this.estimateError = ''
-                const data = new FormData(getRootVm().$refs.form)
-                for (const name of [...data.keys()]) {
-                    if (name.startsWith('photos.')) data.delete(name)
-                }
-                axios.post(estimateUrl, data)
+                axios.post(estimateUrl, withoutPhotos(getRootVm().$refs.form))
                     .then(response => {
                         const estimate = response.data ?? {}
                         if (estimate.Errors?.length) {

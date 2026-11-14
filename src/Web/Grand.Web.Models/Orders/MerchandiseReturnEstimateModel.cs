@@ -11,6 +11,11 @@ public class MerchandiseReturnEstimateModel
     public string Amount { get; set; }
 
     /// <summary>
+    ///     Whether the money goes back through the payment of the order; otherwise the store gives it back another way
+    /// </summary>
+    public bool ToPaymentMethod { get; set; }
+
+    /// <summary>
     ///     Why the form would be refused, e.g. a quantity another return took in the meantime
     /// </summary>
     public IList<string> Errors { get; set; } = new List<string>();

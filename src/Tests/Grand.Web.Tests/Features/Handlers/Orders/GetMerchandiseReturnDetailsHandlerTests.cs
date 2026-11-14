@@ -8,6 +8,8 @@ using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
+using Grand.Infrastructure.Security;
 using Grand.Mediator;
 using Grand.Web.Features.Handlers.Orders;
 using Grand.Web.Features.Models.Orders;
@@ -49,6 +51,7 @@ public class GetMerchandiseReturnDetailsHandlerTests
             new Mock<IMediator>().Object, dateTimeService.Object, new OrderSettings(),
             new Mock<IReturnShippingService>().Object, currencyService.Object,
             translationService.Object, new Mock<ICountryService>().Object,
+            new HtmlSanitizationService(new SecurityConfig()),
             NullLogger<GetMerchandiseReturnDetailsHandler>.Instance);
     }
 
@@ -101,34 +104,38 @@ public class GetMerchandiseReturnDetailsHandlerTests
     }
 
     [TestMethod]
-    public async Task Timeline_Refunded_LastEntryWithAmount()
+    public async Task Timeline_Refunded_BeforeTheCompletionItLedTo()
     {
+        //the refund is saved, then the return completed a moment later
         var merchandiseReturn = new MerchandiseReturn {
             Id = "r1", CreatedOnUtc = Submitted, MerchandiseReturnStatus = MerchandiseReturnStatus.Completed,
             Refund = new MerchandiseReturnRefund { Amount = 17, RefundedOnUtc = Submitted.AddDays(5) }
         };
         merchandiseReturn.StatusHistory.Add(new MerchandiseReturnStatusChange
-            { Status = MerchandiseReturnStatus.Completed, CreatedOnUtc = Submitted.AddDays(5) });
+            { Status = MerchandiseReturnStatus.Completed, CreatedOnUtc = Submitted.AddDays(5).AddSeconds(2) });
 
         var model = await Details(merchandiseReturn);
 
-        Assert.AreEqual("Refunded EUR17", model.Timeline.Last().Name);
-        Assert.AreEqual(Submitted.AddDays(5).AddHours(1), model.Timeline.Last().Date);
+        CollectionAssert.AreEqual(new[] { "Submitted", "Refunded EUR17", "Completed" },
+            model.Timeline.Select(x => x.Name).ToArray());
+        Assert.AreEqual(Submitted.AddDays(5).AddHours(1), model.Timeline[1].Date);
     }
 
     [TestMethod]
-    [DataRow(MerchandiseReturnStatus.Pending, true, true)]
-    [DataRow(MerchandiseReturnStatus.Accepted, false, true)]
-    [DataRow(MerchandiseReturnStatus.Received, false, true)]
-    [DataRow(MerchandiseReturnStatus.Rejected, false, false)]
-    [DataRow(MerchandiseReturnStatus.Cancelled, false, false)]
-    [DataRow(MerchandiseReturnStatus.Completed, false, false)]
-    public async Task Flags_ByStatus(MerchandiseReturnStatus status, bool canCancel, bool canAddNote)
+    [DataRow(MerchandiseReturnStatus.Pending, true, true, true)]
+    [DataRow(MerchandiseReturnStatus.Accepted, false, true, true)]
+    [DataRow(MerchandiseReturnStatus.Received, false, true, false)]
+    [DataRow(MerchandiseReturnStatus.Rejected, false, false, false)]
+    [DataRow(MerchandiseReturnStatus.Cancelled, false, false, false)]
+    [DataRow(MerchandiseReturnStatus.Completed, false, false, false)]
+    public async Task Flags_ByStatus(MerchandiseReturnStatus status, bool canCancel, bool canAddNote,
+        bool canPrintDocument)
     {
         var model = await Details(new MerchandiseReturn { Id = "r1", MerchandiseReturnStatus = status });
 
         Assert.AreEqual(canCancel, model.CanCancel);
         Assert.AreEqual(canAddNote, model.CanAddNote);
+        Assert.AreEqual(canPrintDocument, model.CanPrintDocument);
     }
 
     private async Task<Grand.Web.Models.Orders.MerchandiseReturnDetailsModel.ReturnShippingModel> Shipping(
@@ -203,6 +210,23 @@ public class GetMerchandiseReturnDetailsHandlerTests
         Assert.AreEqual("&lt;script&gt;x&lt;/script&gt;<br />{{ a }}", model.MerchandiseReturnNotes[1].Note);
         Assert.IsTrue(model.MerchandiseReturnNotes[1].CreatedByCustomer);
         Assert.IsFalse(model.MerchandiseReturnNotes[0].CreatedByCustomer);
+    }
+
+    [TestMethod]
+    public async Task Details_StaffNoteMarkup_KeptWhenTheAllowlistKeepsIt()
+    {
+        //written before the notes were encoded: a link to a form still shows as one, a script does not run
+        _notes.Add(new MerchandiseReturnNote {
+            Id = "n1", Note = "Print <a href=\"https://shop.com/form.pdf\">this form</a>", DisplayToCustomer = true
+        });
+        _notes.Add(new MerchandiseReturnNote
+            { Id = "n2", Note = "<img src=x onerror=alert(1)>", DisplayToCustomer = true });
+
+        var model = await Details(new MerchandiseReturn { Id = "r1" });
+
+        Assert.AreEqual("Print <a href=\"https://shop.com/form.pdf\">this form</a>",
+            model.MerchandiseReturnNotes.Single(x => x.Id == "n1").Note);
+        Assert.AreEqual("&lt;img src=x onerror=alert(1)&gt;", model.MerchandiseReturnNotes.Single(x => x.Id == "n2").Note);
     }
 
     [TestMethod]

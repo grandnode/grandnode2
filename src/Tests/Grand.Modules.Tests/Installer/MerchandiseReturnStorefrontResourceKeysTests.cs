@@ -25,7 +25,7 @@ public class MerchandiseReturnStorefrontResourceKeysTests
         "MerchandiseReturns.Notes.Add", "MerchandiseReturns.Notes.Message", "MerchandiseReturns.Notes.Attachment",
         "MerchandiseReturns.Notes.Send", "MerchandiseReturns.Notes.Added", "MerchandiseReturns.Notes.Closed",
         "MerchandiseReturns.Notes.Required", "MerchandiseReturns.Notes.TooLong", "MerchandiseReturns.Notes.From.You",
-        "MerchandiseReturns.Notes.From.Store",
+        "MerchandiseReturns.Notes.From.Store", "MerchandiseReturns.Notes.TooSoon", "MerchandiseReturns.Notes.TooMany",
         "MerchandiseReturns.Timeline", "MerchandiseReturns.Timeline.Submitted", "MerchandiseReturns.Timeline.Refunded",
         "MerchandiseReturns.Pdf",
         "PDFMerchandiseReturn.Title", "PDFMerchandiseReturn.Order", "PDFMerchandiseReturn.Date",

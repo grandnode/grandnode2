@@ -8,6 +8,8 @@ using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Security;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -22,6 +24,7 @@ public class
 {
     private readonly ICountryService _countryService;
     private readonly ICurrencyService _currencyService;
+    private readonly IHtmlSanitizationService _htmlSanitizationService;
     private readonly IDateTimeService _dateTimeService;
     private readonly ILogger<GetMerchandiseReturnDetailsHandler> _logger;
     private readonly IMediator _mediator;
@@ -45,6 +48,7 @@ public class
         ICurrencyService currencyService,
         ITranslationService translationService,
         ICountryService countryService,
+        IHtmlSanitizationService htmlSanitizationService,
         ILogger<GetMerchandiseReturnDetailsHandler> logger)
     {
         _productService = productService;
@@ -58,6 +62,7 @@ public class
         _currencyService = currencyService;
         _translationService = translationService;
         _countryService = countryService;
+        _htmlSanitizationService = htmlSanitizationService;
         _logger = logger;
     }
 
@@ -118,6 +123,7 @@ public class
 
         var status = request.MerchandiseReturn.MerchandiseReturnStatus;
         model.CanCancel = status == MerchandiseReturnStatus.Pending;
+        model.CanPrintDocument = request.MerchandiseReturn.CustomerPrintsDocument();
         model.CanAddNote = status is MerchandiseReturnStatus.Pending or MerchandiseReturnStatus.Accepted
             or MerchandiseReturnStatus.Received;
 
@@ -125,19 +131,21 @@ public class
     }
 
     /// <summary>
-    ///     Submitted, each status reached since, and the refund: the dates are those the return records
+    ///     Submitted, each status reached since, and the refund, by the dates the return records: the refund comes
+    ///     before the completion it leads to
     /// </summary>
     private async Task PrepareTimeline(GetMerchandiseReturnDetails request, MerchandiseReturnDetailsModel model)
     {
         var merchandiseReturn = request.MerchandiseReturn;
         var languageId = request.Language.Id;
-        model.Timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
+        var timeline = new List<MerchandiseReturnDetailsModel.TimelineEntryModel>();
+        timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
             Name = _translationService.GetResource("MerchandiseReturns.Timeline.Submitted", languageId),
             Date = _dateTimeService.ConvertToUserTime(merchandiseReturn.CreatedOnUtc, DateTimeKind.Utc)
         });
 
         foreach (var change in merchandiseReturn.StatusHistory)
-            model.Timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
+            timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
                 Name = change.Status.GetTranslationEnum(_translationService, languageId),
                 Date = _dateTimeService.ConvertToUserTime(change.CreatedOnUtc, DateTimeKind.Utc)
             });
@@ -145,7 +153,7 @@ public class
         //changed before the statuses were recorded: where it stands is known, not since when
         if (merchandiseReturn.StatusHistory.Count == 0 &&
             merchandiseReturn.MerchandiseReturnStatus != MerchandiseReturnStatus.Pending)
-            model.Timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
+            timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
                 Name = merchandiseReturn.MerchandiseReturnStatus.GetTranslationEnum(_translationService, languageId)
             });
 
@@ -153,12 +161,16 @@ public class
         if (refund?.RefundedOnUtc != null)
         {
             var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
-            model.Timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
+            timeline.Add(new MerchandiseReturnDetailsModel.TimelineEntryModel {
                 Name = string.Format(_translationService.GetResource("MerchandiseReturns.Timeline.Refunded", languageId),
                     _priceFormatter.FormatPrice(refund.Amount, currency)),
                 Date = _dateTimeService.ConvertToUserTime(refund.RefundedOnUtc.Value, DateTimeKind.Utc)
             });
         }
+
+        //a status without a date stays last, where it was added
+        foreach (var entry in timeline.OrderBy(x => x.Date == null).ThenBy(x => x.Date))
+            model.Timeline.Add(entry);
     }
 
     private async Task<MerchandiseReturnDetailsModel.ReturnShippingModel> PrepareReturnShipping(
@@ -243,10 +255,22 @@ public class
                 Id = merchandiseReturnNote.Id,
                 MerchandiseReturnId = merchandiseReturnNote.MerchandiseReturnId,
                 HasDownload = !string.IsNullOrEmpty(merchandiseReturnNote.DownloadId),
-                //what the customer or the staff typed is text, as the e-mails and the panels show it
-                Note = FormatText.ConvertText(merchandiseReturnNote.Note),
+                Note = NoteHtml(merchandiseReturnNote),
                 CreatedByCustomer = merchandiseReturnNote.CreatedByCustomer,
                 CreatedOn = _dateTimeService.ConvertToUserTime(merchandiseReturnNote.CreatedOnUtc, DateTimeKind.Utc)
             });
+    }
+
+    /// <summary>
+    ///     What the customer typed is text, as the e-mails and the panels show it. A staff note is text too, unless it
+    ///     is markup the rich-text allowlist keeps whole, e.g. a link to a form: such notes were shown as HTML before
+    /// </summary>
+    private string NoteHtml(MerchandiseReturnNote note)
+    {
+        if (!note.CreatedByCustomer && _htmlSanitizationService.ContainsMarkup(note.Note) &&
+            !_htmlSanitizationService.ContainsDisallowedRichText(note.Note))
+            return note.Note;
+
+        return FormatText.ConvertText(note.Note);
     }
 }

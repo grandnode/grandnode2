@@ -53,6 +53,11 @@ public class MerchandiseReturnDetailsModel : BaseModel
     /// </summary>
     public bool CanAddNote { get; set; }
 
+    /// <summary>
+    ///     Whether the return document is offered: the items are still to be sent back with it
+    /// </summary>
+    public bool CanPrintDocument { get; set; }
+
     #region Nested Classes
 
     public class TimelineEntryModel
