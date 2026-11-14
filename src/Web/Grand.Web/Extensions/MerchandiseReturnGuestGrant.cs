@@ -34,7 +34,7 @@ public static class MerchandiseReturnGuestGrant
     /// </summary>
     public static bool Allowed(OrderSettings orderSettings)
     {
-        return orderSettings.MerchandiseReturnsEnabled && orderSettings.MerchandiseReturns_AllowGuestReturns;
+        return orderSettings.MerchandiseReturnsEnabled && orderSettings.AllowGuestOrderAccess;
     }
 
     /// <summary>

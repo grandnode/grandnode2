@@ -25,7 +25,7 @@ public class GuestMerchandiseReturnValidator : BaseGrandValidator<GuestMerchandi
             .WithMessage(translationService.GetResource("MerchandiseReturns.Guest.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
 
-        if (captchaSettings.Enabled && captchaSettings.ShowOnGuestMerchandiseReturnPage)
+        if (captchaSettings.Enabled && captchaSettings.ShowOnGuestOrderPage)
         {
             RuleFor(x => x.Captcha).NotNull()
                 .WithMessage(translationService.GetResource("Account.Captcha.Required"));

@@ -145,7 +145,7 @@ public class MerchandiseReturnController : BasePublicController
 
     private static bool DisplayGuestCaptcha(CaptchaSettings captchaSettings)
     {
-        return captchaSettings.Enabled && captchaSettings.ShowOnGuestMerchandiseReturnPage;
+        return captchaSettings.Enabled && captchaSettings.ShowOnGuestOrderPage;
     }
 
     /// <summary>

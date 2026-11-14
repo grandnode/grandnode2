@@ -94,9 +94,10 @@ public class OrderSettings : ISettings
 
     /// <summary>
     ///     Gets or sets a value indicating whether a customer who ordered without an account may ask for a link to the
-    ///     order's e-mail address and return items with it. Off by default: the store decides to send such links
+    ///     order's e-mail address that opens the order and its returns. Off by default: the store decides to send such
+    ///     links
     /// </summary>
-    public bool MerchandiseReturns_AllowGuestReturns { get; set; }
+    public bool AllowGuestOrderAccess { get; set; }
 
     /// <summary>
     ///     Gets or sets a number of days that the Merchandise Return Link will be available for customers after order placing.

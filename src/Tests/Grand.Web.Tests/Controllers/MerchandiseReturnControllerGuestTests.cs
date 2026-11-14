@@ -45,7 +45,7 @@ public class MerchandiseReturnControllerGuestTests
     private readonly Order _order2 = new() { Id = "o2", CustomerId = "g2", StoreId = "s1" };
 
     private readonly OrderSettings _orderSettings =
-        new() { MerchandiseReturnsEnabled = true, MerchandiseReturns_AllowGuestReturns = true };
+        new() { MerchandiseReturnsEnabled = true, AllowGuestOrderAccess = true };
 
     private IDataProtectionProvider _provider;
     private Mock<IMerchandiseReturnWorkflowService> _workflow;
@@ -204,7 +204,7 @@ public class MerchandiseReturnControllerGuestTests
     [TestMethod]
     public async Task Details_GrantSettingOff_Challenge()
     {
-        _orderSettings.MerchandiseReturns_AllowGuestReturns = false;
+        _orderSettings.AllowGuestOrderAccess = false;
 
         var result = await _controller.MerchandiseReturnDetails("r1");
 
@@ -275,7 +275,7 @@ public class MerchandiseReturnControllerGuestTests
     [TestMethod]
     public async Task GuestPage_SettingOff_NotFound()
     {
-        _orderSettings.MerchandiseReturns_AllowGuestReturns = false;
+        _orderSettings.AllowGuestOrderAccess = false;
 
         Assert.IsInstanceOfType<NotFoundResult>(_controller.GuestMerchandiseReturn(new CaptchaSettings()));
         //a POST answered with an empty 404 is re-executed as a POST of the not-found page

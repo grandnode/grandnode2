@@ -77,7 +77,7 @@ public class GuestMerchandiseReturnValidatorTests
         var model = Model();
         model.Captcha = null;
 
-        var result = await Validator(new CaptchaSettings { Enabled = true, ShowOnGuestMerchandiseReturnPage = true })
+        var result = await Validator(new CaptchaSettings { Enabled = true, ShowOnGuestOrderPage = true })
             .ValidateAsync(model);
 
         Assert.IsTrue(result.Errors.Any(x => x.ErrorMessage == "Account.Captcha.Required"));

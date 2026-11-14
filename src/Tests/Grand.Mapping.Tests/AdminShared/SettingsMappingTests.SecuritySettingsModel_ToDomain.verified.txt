@@ -4,7 +4,7 @@
   ShowOnRegistrationPage: false,
   ShowOnPasswordRecoveryPage: false,
   ShowOnContactUsPage: false,
-  ShowOnGuestMerchandiseReturnPage: false,
+  ShowOnGuestOrderPage: false,
   ShowOnEmailWishlistToFriendPage: false,
   ShowOnEmailProductToFriendPage: false,
   ShowOnAskQuestionPage: false,

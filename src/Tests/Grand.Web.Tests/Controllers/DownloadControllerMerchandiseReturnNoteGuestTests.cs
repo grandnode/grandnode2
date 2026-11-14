@@ -34,7 +34,7 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
     private Order _order;
 
     private readonly OrderSettings _orderSettings =
-        new() { MerchandiseReturnsEnabled = true, MerchandiseReturns_AllowGuestReturns = true };
+        new() { MerchandiseReturnsEnabled = true, AllowGuestOrderAccess = true };
 
     [TestInitialize]
     public void Init()
