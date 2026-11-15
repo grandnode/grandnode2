@@ -1,4 +1,4 @@
-﻿{
+{
   Code: WH-MAIN,
   Name: Main Warehouse,
   AdminComment: Primary,
@@ -6,5 +6,6 @@
     Id: ObjectId_1
   },
   DisplayOrder: 1,
+  ExternallyManaged: false,
   Id: ObjectId_1
 }
