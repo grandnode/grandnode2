@@ -68,4 +68,10 @@ public sealed record StockChange(
     ///     lock against the units stored then; null for any other change
     /// </summary>
     public IReadOnlyList<string> CountedSerialNumbers { get; init; }
+
+    /// <summary>
+    ///     The idempotency key of the change, from the stock integration API. A change with a key writes exactly one
+    ///     journal entry, and a retried call with the same key is not applied again
+    /// </summary>
+    public string IdempotencyKey { get; init; }
 }

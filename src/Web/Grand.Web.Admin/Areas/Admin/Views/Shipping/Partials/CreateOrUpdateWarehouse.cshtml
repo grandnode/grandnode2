@@ -1,4 +1,4 @@
-﻿@model WarehouseModel
+@model WarehouseModel
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
 <input id="active-menu-item" type="hidden" value="/@Constants.AreaAdmin/Shipping/Warehouses"/>
@@ -12,6 +12,7 @@
             <admin-textarea asp-for="AdminComment"></admin-textarea>
         </admin-field>
         <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+        <admin-field asp-for="ExternallyManaged"/>
         <admin-field asp-for="Latitude" size="md"/>
         <admin-field asp-for="Longitude" size="md"/>
         <admin-field asp-for="DisplayOrder" size="sm"/>

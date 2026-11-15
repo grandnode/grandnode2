@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Dto;
+using Grand.Business.Core.Dto;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
@@ -136,6 +136,16 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             _logger, cancellationToken);
     }
 
+    /// <summary>
+    ///     Whether the product's stock lies in a warehouse managed by an external system
+    /// </summary>
+    private async Task<bool> ExternallyManaged(Product product)
+    {
+        var external = (await _warehouseService.GetAllWarehouses()).Where(x => x.ExternallyManaged)
+            .Select(x => x.Id).ToList();
+        return InventoryTracking.ExternallyManaged(product, external);
+    }
+
     private async Task<ImportRowResult> ImportRow(int row, ProductDto dto, bool dryRun, ImportMode mode,
         PictureBudget budget, CancellationToken cancellationToken)
     {
@@ -181,6 +191,13 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             dto.StockQuantity = null;
             dto.ReservedQuantity = null;
             warnings.Add($"Stock columns are ignored: {InventoryTracking.StockDocumentsOnlyMessage}.");
+        }
+        else if ((dto.StockQuantity.HasValue || dto.ReservedQuantity.HasValue) && existing != null &&
+                 await ExternallyManaged(existing))
+        {
+            dto.StockQuantity = null;
+            dto.ReservedQuantity = null;
+            warnings.Add("Stock columns are ignored: the stock of this product is managed by an external system.");
         }
 
         var references = await ResolveReferences(dto, warnings);

@@ -1,4 +1,4 @@
-﻿namespace Grand.Domain.Permissions;
+namespace Grand.Domain.Permissions;
 
 public static class PermissionSystemName
 {
@@ -70,6 +70,7 @@ public static class PermissionSystemName
     public const string ScheduleTasks = "ManageScheduleTasks";
     public const string AuditLog = "ManageAuditLog";
     public const string InventoryDocuments = "ManageInventoryDocuments";
+    public const string StockIntegration = "ManageStockIntegration";
 
     public const string AllowUseApi = "AllowUseApi";
 

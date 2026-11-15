@@ -47,6 +47,8 @@ public class ProductAttributeCombinationViewModelServiceTests
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         _productAttributeServiceMock = new Mock<IProductAttributeService>();
         _warehouseServiceMock = new Mock<IWarehouseService>();
+        _warehouseServiceMock.Setup(x => x.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>());
 
         _service = new ProductAttributeCombinationViewModelService(
             new Mock<IPictureService>().Object,

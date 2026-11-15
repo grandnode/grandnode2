@@ -1,4 +1,4 @@
-﻿using Grand.Infrastructure.ModelBinding;
+using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.AdminShared.Models.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -34,4 +34,7 @@ public class WarehouseModel : BaseEntityModel
     public string StoreId { get; set; }
 
     public string StoreName { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.ExternallyManaged")]
+    public bool ExternallyManaged { get; set; }
 }

@@ -96,6 +96,9 @@ public class ProductImportDataObjectTests
         _taxServiceMock = new Mock<ITaxCategoryService>();
         _categoryServiceMock = new Mock<ICategoryService>();
         _warehouseServiceMock = new Mock<IWarehouseService>();
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<Warehouse>>(
+                new PagedList<Warehouse>(new List<Warehouse>(), 0, int.MaxValue)));
         _measureServiceMock = new Mock<IMeasureService>();
         _productCategoryServiceMock = new Mock<IProductCategoryService>();
         _productCollectionServiceMock = new Mock<IProductCollectionService>();

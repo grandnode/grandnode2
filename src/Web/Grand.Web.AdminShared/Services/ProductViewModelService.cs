@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Web.AdminShared.Models.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
@@ -78,16 +78,42 @@ public class ProductViewModelService(
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        if (!await StockDocumentOnly(model))
+        var message = await StockChangeRefusedMessage(model);
+        if (message == null)
             return null;
 
         //an unticked warehouse gives up the stock it held
         var changed = model.StockQuantity != model.OriginalStockQuantity ||
                       model.ProductWarehouseInventoryModels.Any(x =>
                           (x.WarehouseUsed ? x.StockQuantity : 0) != x.OriginalStockQuantity);
-        return changed
-            ? translationService.GetResource("Admin.Catalog.Products.StockChangesOnlyThroughDocuments")
+        return changed ? translationService.GetResource(message) : null;
+    }
+
+    /// <summary>
+    ///     Why the form's stock cannot change: an external system owns it, or stock changes only through documents
+    /// </summary>
+    private async Task<string> StockChangeRefusedMessage(ProductModel model)
+    {
+        var stored = !string.IsNullOrEmpty(model.Id) ? await productService.GetProductById(model.Id) : null;
+        if (await ExternallyManaged(stored))
+            return "Admin.Catalog.Products.StockChangesThroughExternalSystem";
+
+        return await StockDocumentOnly(model)
+            ? "Admin.Catalog.Products.StockChangesOnlyThroughDocuments"
             : null;
+    }
+
+    /// <summary>
+    ///     Whether the product's stock lies in a warehouse managed by an external system
+    /// </summary>
+    private async Task<bool> ExternallyManaged(Product product)
+    {
+        if (product == null)
+            return false;
+
+        var external = (await warehouseService.GetAllWarehouses()).Where(x => x.ExternallyManaged)
+            .Select(x => x.Id).ToList();
+        return InventoryTracking.ExternallyManaged(product, external);
     }
 
     /// <summary>
@@ -222,7 +248,7 @@ public class ProductViewModelService(
         model.BaseDimensionIn = (await measureService.GetMeasureDimensionById(measureSettings.BaseDimensionId))?.Name;
         var inventorySettings = await settingService.LoadSetting<InventorySettings>();
         model.StockChangesOnlyThroughDocuments = product != null
-            ? InventoryTracking.StockDocumentOnly(product, inventorySettings)
+            ? InventoryTracking.StockDocumentOnly(product, inventorySettings) || await ExternallyManaged(product)
             : inventorySettings.StockChangesOnlyThroughDocuments;
         //the stock each bucket holds in batches or serial numbers, and without them
         if (product != null && InventoryTracking.Tracked(product))
@@ -952,7 +978,8 @@ public class ProductViewModelService(
             {
                 //the grid shows no earlier value: the stored one is what it changes
                 var stockChanged = pModel.StockQuantity != product.StockQuantity;
-                var stockChangesOnlyThroughDocuments = InventoryTracking.StockDocumentOnly(product, inventorySettings);
+                var stockChangesOnlyThroughDocuments = InventoryTracking.StockDocumentOnly(product, inventorySettings) ||
+                                                       await ExternallyManaged(product);
 
                 product.Sku = pModel.Sku;
                 product.Price = pModel.Price;

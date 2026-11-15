@@ -1,4 +1,4 @@
-﻿namespace Grand.Domain.Permissions;
+namespace Grand.Domain.Permissions;
 
 public static partial class StandardPermission
 {
@@ -23,6 +23,13 @@ public static partial class StandardPermission
             PermissionActionName.List, PermissionActionName.Preview, PermissionActionName.Create,
             PermissionActionName.Edit, PermissionActionName.Delete
         }
+    };
+
+    public static readonly Permission ManageStockIntegration = new() {
+        Name = "Manage stock integration",
+        SystemName = PermissionSystemName.StockIntegration,
+        Area = "Admin area",
+        Category = CategoryCatalog
     };
 
     public static readonly Permission ManageCategories = new() {

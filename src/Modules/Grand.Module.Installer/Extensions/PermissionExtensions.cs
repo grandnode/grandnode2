@@ -1,4 +1,4 @@
-﻿using Grand.Domain.Customers;
+using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 
 namespace Grand.Module.Installer.Extensions;
@@ -14,6 +14,7 @@ public static class PermissionExtensions
             StandardPermission.AllowCustomerImpersonation,
             StandardPermission.ManageProducts,
             StandardPermission.ManageInventoryDocuments,
+            StandardPermission.ManageStockIntegration,
             StandardPermission.ManageCategories,
             StandardPermission.ManageBrands,
             StandardPermission.ManageCollections,
@@ -95,6 +96,7 @@ public static class PermissionExtensions
                     StandardPermission.AllowCustomerImpersonation,
                     StandardPermission.ManageProducts,
                     StandardPermission.ManageInventoryDocuments,
+                    StandardPermission.ManageStockIntegration,
                     StandardPermission.ManageCategories,
                     StandardPermission.ManageBrands,
                     StandardPermission.ManageCollections,

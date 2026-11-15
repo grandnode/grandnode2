@@ -666,6 +666,21 @@ public class InventoryDocumentService(
                          await warehouseService.GetWarehouseById(document.TargetWarehouseId) == null))
             Add(InventoryDocumentErrors.TargetWarehouseInvalid);
 
+        //a warehouse whose stock belongs to an external system changes only through the API and the shop's own
+        //movements: a receipt, adjustment, stock count or transfer would book stock the ERP did not know about
+        if (document.DocumentTypeId is InventoryDocumentType.Receipt or InventoryDocumentType.Adjustment
+                or InventoryDocumentType.StockCount or InventoryDocumentType.Transfer)
+        {
+            var externallyManaged = !string.IsNullOrEmpty(document.WarehouseId) &&
+                                    await warehouseService.GetWarehouseById(document.WarehouseId) is
+                                        { ExternallyManaged: true };
+            var targetExternallyManaged = transfer && !string.IsNullOrEmpty(document.TargetWarehouseId) &&
+                                          await warehouseService.GetWarehouseById(document.TargetWarehouseId) is
+                                              { ExternallyManaged: true };
+            if (externallyManaged || targetExternallyManaged)
+                Add(InventoryDocumentErrors.ExternalWarehouse);
+        }
+
         if (document.DocumentTypeId == InventoryDocumentType.Adjustment && string.IsNullOrWhiteSpace(document.Comment))
             Add(InventoryDocumentErrors.CommentRequired);
 

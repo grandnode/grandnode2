@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
@@ -37,6 +37,19 @@ public class ProductAttributeCombinationViewModelService(
     ISettingService settingService)
     : IProductAttributeCombinationViewModelService
 {
+    /// <summary>
+    ///     Whether the product's stock lies in a warehouse managed by an external system
+    /// </summary>
+    private async Task<bool> ExternallyManaged(Product product)
+    {
+        if (product == null)
+            return false;
+
+        var external = (await warehouseService.GetAllWarehouses()).Where(x => x.ExternallyManaged)
+            .Select(x => x.Id).ToList();
+        return InventoryTracking.ExternallyManaged(product, external);
+    }
+
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
         Product product)
     {
@@ -136,7 +149,8 @@ public class ProductAttributeCombinationViewModelService(
     {
         var model = new ProductAttributeCombinationModel();
         var stockChangesOnlyThroughDocuments =
-            InventoryTracking.StockDocumentOnly(product, await settingService.LoadSetting<InventorySettings>());
+            InventoryTracking.StockDocumentOnly(product, await settingService.LoadSetting<InventorySettings>()) ||
+            await ExternallyManaged(product);
         var wim = new List<ProductAttributeCombinationModel.WarehouseInventoryModel>();
         foreach (var warehouse in await warehouseService.GetAllWarehouses())
         {
@@ -225,6 +239,8 @@ public class ProductAttributeCombinationViewModelService(
             if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes)
                 warnings.Add(translationService.GetResource(
                     "Admin.Catalog.Products.ProductAttributeCombinations.StockNotTracked"));
+            else if (changes.Any(x => x.SetTo) && await ExternallyManaged(product))
+                warnings.Add(translationService.GetResource("Admin.Catalog.Products.StockChangesThroughExternalSystem"));
             else if (changes.Any(x => x.SetTo) &&
                      InventoryTracking.StockDocumentOnly(product, await settingService.LoadSetting<InventorySettings>()))
                 warnings.Add(translationService.GetResource("Admin.Catalog.Products.StockChangesOnlyThroughDocuments"));

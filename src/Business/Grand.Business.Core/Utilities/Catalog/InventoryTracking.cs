@@ -35,4 +35,24 @@ public static class InventoryTracking
 
         return settings.StockChangesOnlyThroughDocuments || Tracked(product);
     }
+
+    /// <summary>
+    ///     Whether the product's stock lies in a warehouse managed by an external system: a single-warehouse product in
+    ///     that one warehouse, or a multi-warehouse product with any used warehouse row there. Such a product changes
+    ///     stock only through the stock integration API and the shop's own movements to and from customers
+    /// </summary>
+    public static bool ExternallyManaged(Product product, ICollection<string> externallyManagedWarehouseIds)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        if (externallyManagedWarehouseIds == null || externallyManagedWarehouseIds.Count == 0)
+            return false;
+
+        if (!product.UseMultipleWarehouses)
+            return externallyManagedWarehouseIds.Contains(product.WarehouseId ?? "");
+
+        return product.ProductWarehouseInventory.Any(x => externallyManagedWarehouseIds.Contains(x.WarehouseId)) ||
+               product.ProductAttributeCombinations.Any(combination =>
+                   combination.WarehouseInventory.Any(x => externallyManagedWarehouseIds.Contains(x.WarehouseId)));
+    }
 }
