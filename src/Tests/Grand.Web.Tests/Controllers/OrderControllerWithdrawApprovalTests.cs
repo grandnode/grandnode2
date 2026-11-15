@@ -1,17 +1,22 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Localization;
+using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Routing;
 using Microsoft.AspNetCore.Mvc.ViewFeatures;
+using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -47,19 +52,28 @@ public class OrderControllerWithdrawApprovalTests
         var groupService = new Mock<IGroupService>();
         groupService.Setup(x => x.IsOwner(_buyer)).ReturnsAsync(true);
 
+        var orderSettings = new OrderSettings();
+        var customers = new Mock<ICustomerService>();
+        customers.Setup(x => x.GetCustomerById(It.IsAny<string>())).ReturnsAsync(new Customer { Id = "nobody" });
+
         _controller = new OrderController(_orders.Object, context.Object, new Mock<IPaymentService>().Object,
             new Mock<IPaymentTransactionService>().Object, _translation.Object, groupService.Object, _mediator.Object,
-            new OrderSettings());
+            orderSettings);
 
         var httpContext = new DefaultHttpContext();
         var loggerFactory = new Mock<ILoggerFactory>();
         loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(new Mock<ILogger>().Object);
         var urlHelperFactory = new Mock<IUrlHelperFactory>();
         urlHelperFactory.Setup(x => x.GetUrlHelper(It.IsAny<ActionContext>())).Returns(new Mock<IUrlHelper>().Object);
-        var services = new Mock<IServiceProvider>();
-        services.Setup(x => x.GetService(typeof(ILoggerFactory))).Returns(loggerFactory.Object);
-        services.Setup(x => x.GetService(typeof(IUrlHelperFactory))).Returns(urlHelperFactory.Object);
-        httpContext.RequestServices = services.Object;
+        //the grant machinery the order access checks fall through to
+        httpContext.RequestServices = new ServiceCollection()
+            .AddSingleton<IDataProtectionProvider>(new EphemeralDataProtectionProvider())
+            .AddSingleton<ICookieOptionsFactory>(new CookieOptionsFactory(new SecurityConfig()))
+            .AddSingleton(orderSettings)
+            .AddSingleton(customers.Object)
+            .AddSingleton(loggerFactory.Object)
+            .AddSingleton(urlHelperFactory.Object)
+            .BuildServiceProvider();
         _controller.ControllerContext = new ControllerContext { HttpContext = httpContext };
         _controller.TempData = new TempDataDictionary(httpContext, new Mock<ITempDataProvider>().Object);
     }

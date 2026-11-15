@@ -1,3 +1,4 @@
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
@@ -258,9 +259,9 @@ public class OrderControllerGuestTests
     }
 
     [TestMethod]
-    public async Task Details_Grant_OffersNoChanges()
+    public async Task Details_Grant_OffersSameAsOwner()
     {
-        //what the handler offers, as to the order's customer
+        //what the handler offers, as to the order's customer, a guest of the link keeps
         _mediator.Setup(x => x.Send(It.IsAny<GetOrderDetails>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(() => new OrderDetailsModel {
                 UserCanCancelUnpaidOrder = true, IsReOrderAllowed = true, ShowAddOrderNote = true,
@@ -269,17 +270,17 @@ public class OrderControllerGuestTests
 
         var model = (OrderDetailsModel)((ViewResult)(await _controller.Details("o1")).Result)!.Model;
 
-        Assert.IsFalse(model!.UserCanCancelUnpaidOrder);
-        Assert.IsFalse(model.IsReOrderAllowed);
-        Assert.IsFalse(model.ShowAddOrderNote);
-        Assert.IsFalse(model.CanWithdrawOrderApproval);
+        Assert.IsTrue(model!.UserCanCancelUnpaidOrder);
+        Assert.IsTrue(model.IsReOrderAllowed);
+        Assert.IsTrue(model.ShowAddOrderNote);
+        Assert.IsTrue(model.CanWithdrawOrderApproval);
         Assert.IsTrue(model.CanRePostProcessPayment);
     }
 
     [TestMethod]
     public async Task Details_SessionGuest_NotGuestLink()
     {
-        //the guest still in the session that placed the order keeps the page as it is
+        //the guest still in the session that placed the order keeps the page as it is, and sees its returns
         _work.Setup(x => x.CurrentCustomer).Returns(_guest);
         _httpContext.Request.Headers.Cookie = "";
         _mediator.Setup(x => x.Send(It.IsAny<GetOrderDetails>(), It.IsAny<CancellationToken>()))
@@ -290,6 +291,7 @@ public class OrderControllerGuestTests
         Assert.IsFalse(model!.GuestLink);
         Assert.IsTrue(model.UserCanCancelUnpaidOrder);
         Assert.IsTrue(model.IsReOrderAllowed);
+        Assert.IsTrue(model.HasMerchandiseReturns);
     }
 
     [TestMethod]
@@ -355,15 +357,15 @@ public class OrderControllerGuestTests
     }
 
     [TestMethod]
-    public async Task Excluded_Grant_StillRefused()
+    public async Task ReOrder_Grant_Allowed()
     {
-        _orderSettings.AllowCustomerToAddOrderNote = true;
+        _mediator.Setup(x => x.Send(It.IsAny<ReOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new List<string>());
 
-        Assert.IsInstanceOfType<ChallengeResult>(await _controller.CancelOrder("o1"));
-        Assert.IsInstanceOfType<ChallengeResult>(await _controller.ReOrder("o1"));
-        Assert.IsInstanceOfType<ChallengeResult>(await _controller.WithdrawApproval("o1"));
-        Assert.IsInstanceOfType<ChallengeResult>(
-            (await _controller.AddOrderNote(new AddOrderNoteModel { OrderId = "o1", Note = "Hello" })).Result);
+        var result = await _controller.ReOrder("o1");
+
+        Assert.IsInstanceOfType<RedirectToRouteResult>(result);
+        Assert.AreEqual("ShoppingCart", ((RedirectToRouteResult)result).RouteName);
     }
 
     [TestMethod]
