@@ -114,16 +114,30 @@ public class DownloadControllerOrderGuestTests
                 .BuildServiceProvider()
         };
         var granting = new DefaultHttpContext { RequestServices = _httpContext.RequestServices };
-        GuestOrderGrant.Grant(granting, order1);
+        NewGrant(granting).Grant(order1);
         var header = granting.Response.Headers.SetCookie.ToString();
         _httpContext.Request.Headers.Cookie = header[..header.IndexOf(';')];
 
         _controller = new DownloadController(downloads.Object, products.Object, orders.Object,
             new Mock<IMerchandiseReturnService>().Object, context.Object,
             new Mock<IRequestTranslationService>().Object,
-            new CustomerSettings { DownloadableProductsValidateUser = true }, groups.Object, orderSettings) {
+            new CustomerSettings { DownloadableProductsValidateUser = true }, groups.Object, orderSettings,
+            NewGrant(_httpContext)) {
             ControllerContext = new ControllerContext { HttpContext = _httpContext }
         };
+    }
+
+    private GuestOrderGrant NewGrant(HttpContext context)
+    {
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.Setup(a => a.HttpContext).Returns(context);
+        var services = _httpContext.RequestServices;
+        return new GuestOrderGrant(accessor.Object,
+            services.GetRequiredService<IDataProtectionProvider>(),
+            new CookieOptionsFactory(new SecurityConfig()),
+            services.GetRequiredService<OrderSettings>(),
+            services.GetRequiredService<ICustomerService>(),
+            services.GetRequiredService<IGroupService>());
     }
 
     private static Order Paid(Order order)

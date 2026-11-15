@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -34,6 +34,7 @@ public class DownloadController : BasePublicController
     private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
     private readonly OrderSettings _orderSettings;
+    private readonly GuestOrderGrant _guestOrderGrant;
 
     public DownloadController(IDownloadService downloadService,
         IProductService productService,
@@ -43,7 +44,8 @@ public class DownloadController : BasePublicController
         IRequestTranslationService translationService,
         CustomerSettings customerSettings,
         IGroupService groupService,
-        OrderSettings orderSettings)
+        OrderSettings orderSettings,
+        GuestOrderGrant guestOrderGrant)
     {
         _downloadService = downloadService;
         _productService = productService;
@@ -54,6 +56,7 @@ public class DownloadController : BasePublicController
         _customerSettings = customerSettings;
         _groupService = groupService;
         _orderSettings = orderSettings;
+        _guestOrderGrant = guestOrderGrant;
     }
 
     [HttpGet]
@@ -90,8 +93,8 @@ public class DownloadController : BasePublicController
     /// </summary>
     private async Task<bool> OrderAccess(Order order)
     {
-        var (customer, _) = await GuestOrderGrant.OrderCustomer(HttpContext, order,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, _groupService);
+        var (customer, _) = await _guestOrderGrant.OrderCustomer(order,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
         return customer != null;
     }
 
@@ -101,10 +104,9 @@ public class DownloadController : BasePublicController
     private async Task<bool> GrantedOrderUpload(Guid downloadGuid)
     {
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        var orderId = GuestOrderGrant.GrantedOrderId(HttpContext, storeId);
+        var orderId = _guestOrderGrant.GrantedOrderId(storeId);
         var order = orderId != null ? await _orderService.GetOrderById(orderId) : null;
-        if (await GuestOrderGrant.GrantedGuest(HttpContext, order, _contextAccessor.WorkContext.CurrentCustomer,
-                storeId, _groupService) == null)
+        if (await _guestOrderGrant.GrantedGuest(order, _contextAccessor.WorkContext.CurrentCustomer, storeId) == null)
             return false;
 
         return order.OrderItems.SelectMany(x => x.Attributes).Concat(order.CheckoutAttributes)
@@ -416,8 +418,8 @@ public class DownloadController : BasePublicController
         var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
         if ((customer == null || !await merchandiseReturn.Access(customer, _groupService)) &&
             (!GuestOrderGrant.ReturnsAllowed(_orderSettings) ||
-             await GuestOrderGrant.GrantedGuest(HttpContext, order, customer,
-                 _contextAccessor.StoreContext.CurrentStore.Id, _groupService) == null))
+             await _guestOrderGrant.GrantedGuest(order, customer,
+                 _contextAccessor.StoreContext.CurrentStore.Id) == null))
             return Challenge();
 
         //in the store of its order, and only a note the customer is shown

@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
@@ -44,7 +44,8 @@ public class OrderController : BasePublicController
         IRequestTranslationService translationService,
         IGroupService groupService,
         IMediator mediator,
-        OrderSettings orderSettings)
+        OrderSettings orderSettings,
+        GuestOrderGrant guestOrderGrant)
     {
         _orderService = orderService;
         _contextAccessor = contextAccessor;
@@ -54,6 +55,7 @@ public class OrderController : BasePublicController
         _groupService = groupService;
         _mediator = mediator;
         _orderSettings = orderSettings;
+        _guestOrderGrant = guestOrderGrant;
     }
 
     #endregion
@@ -68,6 +70,7 @@ public class OrderController : BasePublicController
     private readonly IGroupService _groupService;
     private readonly IMediator _mediator;
     private readonly OrderSettings _orderSettings;
+    private readonly GuestOrderGrant _guestOrderGrant;
 
     #endregion
 
@@ -79,8 +82,8 @@ public class OrderController : BasePublicController
     /// </summary>
     private async Task<(Order Order, Customer Customer, bool GuestLink)> CustomerOrder(Order order)
     {
-        var (customer, guestLink) = await GuestOrderGrant.OrderCustomer(HttpContext, order,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, _groupService);
+        var (customer, guestLink) = await _guestOrderGrant.OrderCustomer(order,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
         return customer != null ? (order, customer, guestLink) : (null, null, false);
     }
 
@@ -345,7 +348,7 @@ public class OrderController : BasePublicController
             return RedirectToRoute("GuestOrder");
         }
 
-        GuestOrderGrant.Grant(HttpContext, order);
+        _guestOrderGrant.Grant(order);
         return RedirectToRoute("OrderDetails", new { orderId = order.Id });
     }
 

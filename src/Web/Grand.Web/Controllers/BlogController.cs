@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
@@ -29,13 +29,17 @@ public class BlogController : BasePublicController
         IBlogService blogService,
         IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
-        BlogSettings blogSettings)
+        BlogSettings blogSettings,
+        IDateTimeService dateTimeService,
+        CustomerSettings customerSettings)
     {
         _mediator = mediator;
         _blogService = blogService;
         _translationService = translationService;
         _blogSettings = blogSettings;
         _contextAccessor = contextAccessor;
+        _dateTimeService = dateTimeService;
+        _customerSettings = customerSettings;
     }
 
     #endregion
@@ -47,6 +51,8 @@ public class BlogController : BasePublicController
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly BlogSettings _blogSettings;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly CustomerSettings _customerSettings;
 
     #endregion
 
@@ -165,10 +171,8 @@ public class BlogController : BasePublicController
                 message = _translationService.GetResource("Blog.Comments.SuccessfullyAdded"),
                 model = new {
                     blogComment.CommentText,
-                    CreatedOn = HttpContext.RequestServices.GetService<IDateTimeService>()
-                        .ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerName = _contextAccessor.WorkContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices
-                        .GetService<CustomerSettings>().CustomerNameFormat)
+                    CreatedOn = _dateTimeService.ConvertToUserTime(blogComment.CreatedOnUtc, DateTimeKind.Utc),
+                    CustomerName = _contextAccessor.WorkContext.CurrentCustomer.FormatUserName(_customerSettings.CustomerNameFormat)
                 }
             });
         }

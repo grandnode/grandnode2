@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Interfaces.Cms;
+using Grand.Business.Core.Interfaces.Cms;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
@@ -30,7 +30,9 @@ public class NewsController : BasePublicController
         IAclService aclService,
         IRequestPermissionService permissionService,
         IMediator mediator,
-        NewsSettings newsSettings)
+        NewsSettings newsSettings,
+        IDateTimeService dateTimeService,
+        CustomerSettings customerSettings)
     {
         _newsService = newsService;
         _contextAccessor = contextAccessor;
@@ -39,6 +41,8 @@ public class NewsController : BasePublicController
         _permissionService = permissionService;
         _mediator = mediator;
         _newsSettings = newsSettings;
+        _dateTimeService = dateTimeService;
+        _customerSettings = customerSettings;
     }
 
     #endregion
@@ -52,6 +56,8 @@ public class NewsController : BasePublicController
     private readonly IRequestPermissionService _permissionService;
     private readonly IMediator _mediator;
     private readonly NewsSettings _newsSettings;
+    private readonly IDateTimeService _dateTimeService;
+    private readonly CustomerSettings _customerSettings;
 
     #endregion
 
@@ -125,10 +131,8 @@ public class NewsController : BasePublicController
                 model = new {
                     newsComment.CommentText,
                     newsComment.CommentTitle,
-                    CreatedOn = HttpContext.RequestServices.GetService<IDateTimeService>()
-                        .ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc),
-                    CustomerName = _contextAccessor.WorkContext.CurrentCustomer.FormatUserName(HttpContext.RequestServices
-                        .GetService<CustomerSettings>().CustomerNameFormat)
+                    CreatedOn = _dateTimeService.ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc),
+                    CustomerName = _contextAccessor.WorkContext.CurrentCustomer.FormatUserName(_customerSettings.CustomerNameFormat)
                 }
             });
         }

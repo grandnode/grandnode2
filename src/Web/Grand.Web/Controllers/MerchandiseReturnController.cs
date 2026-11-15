@@ -1,4 +1,4 @@
-﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -46,7 +46,9 @@ public class MerchandiseReturnController : BasePublicController
         IDownloadService downloadService,
         AddressSettings addressSettings,
         OrderSettings orderSettings,
-        IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService)
+        IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService,
+        GuestOrderGrant guestOrderGrant,
+        ICountryService countryService)
     {
         _merchandiseReturnService = merchandiseReturnService;
         _pickupPointService = pickupPointService;
@@ -60,6 +62,8 @@ public class MerchandiseReturnController : BasePublicController
         _addressSettings = addressSettings;
         _orderSettings = orderSettings;
         _merchandiseReturnWorkflowService = merchandiseReturnWorkflowService;
+        _guestOrderGrant = guestOrderGrant;
+        _countryService = countryService;
     }
 
     #endregion
@@ -80,6 +84,8 @@ public class MerchandiseReturnController : BasePublicController
     private readonly AddressSettings _addressSettings;
     private readonly OrderSettings _orderSettings;
     private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
+    private readonly GuestOrderGrant _guestOrderGrant;
+    private readonly ICountryService _countryService;
 
     #endregion
 
@@ -87,9 +93,8 @@ public class MerchandiseReturnController : BasePublicController
 
     private async Task PrepareModelAddress(AddressModel addressModel, Address address, Customer customer)
     {
-        var countryService = HttpContext.RequestServices.GetRequiredService<ICountryService>();
         var countries =
-            await countryService.GetAllCountries(_contextAccessor.WorkContext.WorkingLanguage.Id, _contextAccessor.StoreContext.CurrentStore.Id);
+            await _countryService.GetAllCountries(_contextAccessor.WorkContext.WorkingLanguage.Id, _contextAccessor.StoreContext.CurrentStore.Id);
         addressModel = await _mediator.Send(new GetAddressModel {
             Language = _contextAccessor.WorkContext.WorkingLanguage,
             Store = _contextAccessor.StoreContext.CurrentStore,
@@ -141,9 +146,8 @@ public class MerchandiseReturnController : BasePublicController
         if (!GuestOrderGrant.ReturnsAllowed(_orderSettings))
             return null;
 
-        return await GuestOrderGrant.GrantedGuest(HttpContext, order,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
-            _groupService);
+        return await _guestOrderGrant.GrantedGuest(order,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
     }
 
     /// <summary>
@@ -156,8 +160,8 @@ public class MerchandiseReturnController : BasePublicController
         if (order == null || !OfCurrentStore(order))
             return (null, null);
 
-        var (customer, guestLink) = await GuestOrderGrant.OrderCustomer(HttpContext, order,
-            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id, _groupService);
+        var (customer, guestLink) = await _guestOrderGrant.OrderCustomer(order,
+            _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
         return customer != null && (!guestLink || GuestOrderGrant.ReturnsAllowed(_orderSettings))
             ? (order, customer)
             : (null, null);
@@ -238,7 +242,7 @@ public class MerchandiseReturnController : BasePublicController
 
         //a guest who came with a return link sees the returns of that order
         var grantedOrderId =
-            GuestOrderGrant.GrantedOrderId(HttpContext, _contextAccessor.StoreContext.CurrentStore.Id);
+            _guestOrderGrant.GrantedOrderId(_contextAccessor.StoreContext.CurrentStore.Id);
         var order = grantedOrderId != null ? await _orderService.GetOrderById(grantedOrderId) : null;
         var guest = await GrantedGuest(order);
         if (guest == null)
@@ -549,13 +553,12 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> InStoreReturnPoints()
     {
         var points = await _pickupPointService.LoadActivePickupPoints(_contextAccessor.StoreContext.CurrentStore.Id);
-        var countryService = HttpContext.RequestServices.GetRequiredService<ICountryService>();
         var model = new List<MerchandiseReturnInStorePointModel>();
         foreach (var point in points)
             model.Add(new MerchandiseReturnInStorePointModel {
                 Id = point.Id,
                 Name = point.Name,
-                Address = await MerchandiseReturnShippingExtensions.AddressLine(countryService, point.Address)
+                Address = await MerchandiseReturnShippingExtensions.AddressLine(_countryService, point.Address)
             });
         return PartialView("Partials/InStorePoints", model);
     }

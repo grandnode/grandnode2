@@ -88,7 +88,8 @@ public class ContentPreviewTests
         newsServiceMock.Setup(x => x.GetNewsById(newsItem.Id)).ReturnsAsync(newsItem);
         return new NewsController(newsServiceMock.Object, _contextAccessorMock.Object,
             new Mock<IRequestTranslationService>().Object, _aclServiceMock.Object, _permissionServiceMock.Object,
-            _mediatorMock.Object, new NewsSettings { Enabled = true }) { ControllerContext = GetContext() };
+            _mediatorMock.Object, new NewsSettings { Enabled = true }, new Mock<IDateTimeService>().Object,
+            new CustomerSettings()) { ControllerContext = GetContext() };
     }
 
     private BlogController BlogController(BlogPost blogPost)
@@ -97,7 +98,8 @@ public class ContentPreviewTests
         blogServiceMock.Setup(x => x.GetBlogPostById(blogPost.Id)).ReturnsAsync(blogPost);
         return new BlogController(_mediatorMock.Object, blogServiceMock.Object,
             new Mock<IRequestTranslationService>().Object, _contextAccessorMock.Object,
-            new BlogSettings { Enabled = true }) { ControllerContext = GetContext() };
+            new BlogSettings { Enabled = true }, new Mock<IDateTimeService>().Object,
+            new CustomerSettings()) { ControllerContext = GetContext() };
     }
 
     private KnowledgebaseController KnowledgebaseController(KnowledgebaseArticle article)

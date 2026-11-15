@@ -7,7 +7,6 @@ using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Extensions;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -40,16 +39,20 @@ public class GuestOrderGrantTests
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(false);
     }
 
-    private DefaultHttpContext Context(string cookie = null)
+    private static DefaultHttpContext Context(string cookie = null)
     {
-        var context = new DefaultHttpContext {
-            RequestServices = new ServiceCollection().AddSingleton(_provider)
-                .AddSingleton<ICookieOptionsFactory>(new CookieOptionsFactory(_securityConfig))
-                .BuildServiceProvider()
-        };
+        var context = new DefaultHttpContext();
         if (cookie != null)
             context.Request.Headers.Cookie = $".Grand.GuestOrder={cookie}";
         return context;
+    }
+
+    private GuestOrderGrant Create(DefaultHttpContext context)
+    {
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.Setup(a => a.HttpContext).Returns(context);
+        return new GuestOrderGrant(accessor.Object, _provider, new CookieOptionsFactory(_securityConfig),
+            new OrderSettings(), _customers.Object, _groups.Object);
     }
 
     private static string CookieValue(HttpContext context)
@@ -99,7 +102,7 @@ public class GuestOrderGrantTests
     {
         var token = GuestOrderGrant.LinkToken(_provider, _order);
 
-        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(token), "s1"));
+        Assert.IsNull(Create(Context(token)).GrantedOrderId("s1"));
     }
 
     [TestMethod]
@@ -107,7 +110,7 @@ public class GuestOrderGrantTests
     {
         var context = Context();
 
-        GuestOrderGrant.Grant(context, _order);
+        Create(context).Grant(_order);
 
         var header = context.Response.Headers.SetCookie.ToString().ToLowerInvariant();
         StringAssert.StartsWith(header, ".grand.guestorder=");
@@ -115,7 +118,7 @@ public class GuestOrderGrantTests
         StringAssert.Contains(header, "secure");
         StringAssert.Contains(header, "samesite=lax");
         StringAssert.Contains(header, "path=/");
-        Assert.AreEqual("o1", GuestOrderGrant.GrantedOrderId(Context(CookieValue(context)), "s1"));
+        Assert.AreEqual("o1", Create(Context(CookieValue(context))).GrantedOrderId("s1"));
     }
 
     [TestMethod]
@@ -124,7 +127,7 @@ public class GuestOrderGrantTests
         //a shared computer does not keep it once the browser is closed; the payload still expires on its own
         var context = Context();
 
-        GuestOrderGrant.Grant(context, _order);
+        Create(context).Grant(_order);
 
         Assert.IsFalse(context.Response.Headers.SetCookie.ToString().Contains("expires",
             StringComparison.OrdinalIgnoreCase));
@@ -139,7 +142,7 @@ public class GuestOrderGrantTests
         _securityConfig.CookieSameSite = SameSiteMode.Strict;
         var context = Context();
 
-        GuestOrderGrant.Grant(context, _order);
+        Create(context).Grant(_order);
 
         var header = context.Response.Headers.SetCookie.ToString().ToLowerInvariant();
         StringAssert.StartsWith(header, ".shop.guestorder=");
@@ -151,15 +154,15 @@ public class GuestOrderGrantTests
     public void GrantedOrderId_OtherStore_Null()
     {
         var context = Context();
-        GuestOrderGrant.Grant(context, _order);
+        Create(context).Grant(_order);
 
-        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(CookieValue(context)), "s2"));
+        Assert.IsNull(Create(Context(CookieValue(context))).GrantedOrderId("s2"));
     }
 
     [TestMethod]
     public void GrantedOrderId_NoCookie_Null()
     {
-        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(), "s1"));
+        Assert.IsNull(Create(Context()).GrantedOrderId("s1"));
     }
 
     [TestMethod]

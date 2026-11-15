@@ -13,13 +13,35 @@ namespace Grand.Web.Extensions;
 ///     The way a guest who ordered without an account opens the order and its returns: a time-limited link sent to the order's e-mail
 ///     address leaves a grant for that one order in the browser. Both are protected payloads stored nowhere else
 /// </summary>
-public static class GuestOrderGrant
+public class GuestOrderGrant
 {
+    private readonly IHttpContextAccessor _httpContextAccessor;
+    private readonly IDataProtectionProvider _dataProtectionProvider;
+    private readonly ICookieOptionsFactory _cookieOptionsFactory;
+    private readonly OrderSettings _orderSettings;
+    private readonly ICustomerService _customerService;
+    private readonly IGroupService _groupService;
+
     public const string LinkPurpose = "Grand.Web.GuestOrder.Link";
     public const string GrantPurpose = "Grand.Web.GuestOrder.Grant";
 
     public static readonly TimeSpan LinkLifetime = TimeSpan.FromHours(24);
     public static readonly TimeSpan GrantLifetime = TimeSpan.FromHours(2);
+
+    public GuestOrderGrant(IHttpContextAccessor httpContextAccessor,
+        IDataProtectionProvider dataProtectionProvider,
+        ICookieOptionsFactory cookieOptionsFactory,
+        OrderSettings orderSettings,
+        ICustomerService customerService,
+        IGroupService groupService)
+    {
+        _httpContextAccessor = httpContextAccessor;
+        _dataProtectionProvider = dataProtectionProvider;
+        _cookieOptionsFactory = cookieOptionsFactory;
+        _orderSettings = orderSettings;
+        _customerService = customerService;
+        _groupService = groupService;
+    }
 
     /// <summary>
     ///     The name of the grant cookie, with the prefix of the store's other cookies
@@ -64,31 +86,28 @@ public static class GuestOrderGrant
     /// <summary>
     ///     Leaves the grant for the order in the browser, until it is closed and for the grant's lifetime at most
     /// </summary>
-    public static void Grant(HttpContext httpContext, Order order)
+    public void Grant(Order order)
     {
-        var provider = httpContext.RequestServices.GetRequiredService<IDataProtectionProvider>();
-        var cookieOptionsFactory = httpContext.RequestServices.GetRequiredService<ICookieOptionsFactory>();
-        var options = cookieOptionsFactory.Create();
+        var options = _cookieOptionsFactory.Create();
         //a cookie of the browser session: a shared computer does not keep it once the guest closes the browser
         options.Expires = null;
         //the visitor asked for it with the link, as for the session cookie
         options.IsEssential = true;
-        httpContext.Response.Cookies.Append(CookieName(cookieOptionsFactory),
-            Protector(provider, GrantPurpose).Protect(Payload(order), DateTimeOffset.UtcNow + GrantLifetime),
+        _httpContextAccessor.HttpContext!.Response.Cookies.Append(CookieName(_cookieOptionsFactory),
+            Protector(_dataProtectionProvider, GrantPurpose).Protect(Payload(order), DateTimeOffset.UtcNow + GrantLifetime),
             options);
     }
 
     /// <summary>
     ///     The order the browser holds a grant for in the store; null without one
     /// </summary>
-    public static string GrantedOrderId(HttpContext httpContext, string storeId)
+    public string GrantedOrderId(string storeId)
     {
-        var name = CookieName(httpContext.RequestServices.GetRequiredService<ICookieOptionsFactory>());
-        if (!httpContext.Request.Cookies.TryGetValue(name, out var cookie))
+        var name = CookieName(_cookieOptionsFactory);
+        if (!_httpContextAccessor.HttpContext!.Request.Cookies.TryGetValue(name, out var cookie))
             return null;
 
-        return OrderId(httpContext.RequestServices.GetRequiredService<IDataProtectionProvider>(), GrantPurpose,
-            cookie, storeId);
+        return OrderId(_dataProtectionProvider, GrantPurpose, cookie, storeId);
     }
 
     /// <summary>
@@ -96,29 +115,26 @@ public static class GuestOrderGrant
     ///     order's e-mail address left for it; null otherwise. A visitor logged in acts on the orders of their account
     ///     only, whatever the browser holds
     /// </summary>
-    public static async Task<Customer> GrantedGuest(HttpContext httpContext, Order order, Customer visitor,
-        string storeId, IGroupService groupService)
+    public async Task<Customer> GrantedGuest(Order order, Customer visitor, string storeId)
     {
-        if (order == null || GrantedOrderId(httpContext, storeId) != order.Id ||
-            !Allowed(httpContext.RequestServices.GetRequiredService<OrderSettings>()) ||
-            (visitor != null && await groupService.IsRegistered(visitor)))
+        if (order == null || GrantedOrderId(storeId) != order.Id ||
+            !Allowed(_orderSettings) ||
+            (visitor != null && await _groupService.IsRegistered(visitor)))
             return null;
 
-        return await GuestOfOrder(order, storeId, httpContext.RequestServices.GetRequiredService<ICustomerService>(),
-            groupService);
+        return await GuestOfOrder(order, storeId, _customerService, _groupService);
     }
 
     /// <summary>
     ///     The customer acting on the order: the visitor when it is theirs, else the order's guest when the browser
     ///     holds the grant a link sent to the order's e-mail address left for it; a null customer otherwise
     /// </summary>
-    public static async Task<(Customer Customer, bool GuestLink)> OrderCustomer(HttpContext httpContext, Order order,
-        Customer visitor, string storeId, IGroupService groupService)
+    public async Task<(Customer Customer, bool GuestLink)> OrderCustomer(Order order, Customer visitor, string storeId)
     {
-        if (visitor != null && await order.Access(visitor, groupService))
+        if (visitor != null && await order.Access(visitor, _groupService))
             return (visitor, false);
 
-        var guest = await GrantedGuest(httpContext, order, visitor, storeId, groupService);
+        var guest = await GrantedGuest(order, visitor, storeId);
         return (guest, guest != null);
     }
 

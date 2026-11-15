@@ -81,15 +81,28 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
 
         _controller = new DownloadController(downloads.Object, new Mock<IProductService>().Object, orders.Object,
             returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings(),
-            _groupService.Object, _orderSettings) {
+            _groupService.Object, _orderSettings, NewGrant(_httpContext)) {
             ControllerContext = new ControllerContext { HttpContext = _httpContext }
         };
+    }
+
+    private GuestOrderGrant NewGrant(HttpContext context)
+    {
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.Setup(a => a.HttpContext).Returns(context);
+        var services = _httpContext.RequestServices;
+        return new GuestOrderGrant(accessor.Object,
+            services.GetRequiredService<IDataProtectionProvider>(),
+            new CookieOptionsFactory(new SecurityConfig()),
+            _orderSettings,
+            services.GetRequiredService<ICustomerService>(),
+            _groupService.Object);
     }
 
     private void Grant(Order order)
     {
         var granting = new DefaultHttpContext { RequestServices = _httpContext.RequestServices };
-        GuestOrderGrant.Grant(granting, order);
+        NewGrant(granting).Grant(order);
         var header = granting.Response.Headers.SetCookie.ToString();
         _httpContext.Request.Headers.Cookie = header[..header.IndexOf(';')];
     }
