@@ -365,6 +365,32 @@ public class BaseReportsControllerTests
     }
 
     [TestMethod]
+    public async Task MerchandiseReturnReportList_OnlyStart_UntilToday()
+    {
+        ReturnReportLines();
+        var today = DateTime.UtcNow.Date;
+
+        await ReturnReportList(new MerchandiseReturnReportModel { StartDate = today.AddDays(-90) });
+
+        _orderReportServiceMock.Verify(o => o.MerchandiseReturnReport(It.IsAny<MerchandiseReturnReportGrouping>(),
+            today.AddDays(-90), today.AddDays(1), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(),
+            It.IsAny<int>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturnReportList_OnlyEnd_ThirtyDaysBeforeIt()
+    {
+        ReturnReportLines();
+        var end = DateTime.UtcNow.Date.AddDays(-60);
+
+        await ReturnReportList(new MerchandiseReturnReportModel { EndDate = end });
+
+        _orderReportServiceMock.Verify(o => o.MerchandiseReturnReport(It.IsAny<MerchandiseReturnReportGrouping>(),
+            end.AddDays(-30), end.AddDays(1), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(),
+            It.IsAny<int>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task MerchandiseReturnReportList_VendorGroupingInVendorPanel_ByReason()
     {
         ReturnReportLines();

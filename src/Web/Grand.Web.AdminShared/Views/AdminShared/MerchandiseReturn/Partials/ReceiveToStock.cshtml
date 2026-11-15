@@ -37,8 +37,10 @@
                             <td>@line.ProductSku</td>
                             <td>@line.QuantityLeft</td>
                             <td>
+                                @* no min/max: the card sits in the edit form, and a value the browser refuses in a
+                                   collapsed card would block Save and the status buttons; the service checks it *@
                                 <input type="number" name="inspection.Lines[@i].ScrapQuantity" class="form-control"
-                                       min="0" max="@line.QuantityLeft" value="0"/>
+                                       value="0"/>
                             </td>
                             <td><input type="text" name="inspection.Lines[@i].Comment" class="form-control"/></td>
                         </tr>

@@ -393,15 +393,20 @@ public abstract class BaseReportsController(
 
     #region Merchandise returns
 
-    /// <summary>The report's own period when none is chosen, and in place of one that ends before it starts:
-    /// the last 30 days, in the staff member's time zone, so a query is never without a date range.</summary>
+    /// <summary>The report's period, never without both ends: a start alone runs until today, an end alone
+    /// starts 30 days before it, and no dates (or an end before the start) are the last 30 days, in the staff
+    /// member's time zone.</summary>
     private (DateTime Start, DateTime End) MerchandiseReturnReportPeriod(DateTime? start, DateTime? end)
     {
-        if (start.HasValue && end.HasValue && start <= end)
-            return (start.Value, end.Value);
-
         var today = dateTimeService.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).Date;
-        return (today.AddDays(-30), today);
+        if (start.HasValue && !end.HasValue)
+            end = today;
+        else if (!start.HasValue && end.HasValue)
+            start = end.Value.AddDays(-30);
+
+        return start.HasValue && end.HasValue && start <= end
+            ? (start.Value, end.Value)
+            : (today.AddDays(-30), today);
     }
 
     private IList<SelectListItem> MerchandiseReturnReportGroupings(int selected)
