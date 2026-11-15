@@ -6,6 +6,6 @@ namespace Grand.Module.Api.DTOs.Orders;
 /// </summary>
 public class MerchandiseReturnStatusChangeRequest
 {
-    public int Status { get; set; }
+    public int? Status { get; set; }
     public string CustomerNote { get; set; }
 }

@@ -21,7 +21,9 @@ public class UpdateMerchandiseReturnCommandHandler : IRequestHandler<UpdateMerch
             stored.CustomerComments = request.Model.CustomerComments;
             stored.StaffNotes = request.Model.StaffNotes;
             stored.ExternalId = request.Model.ExternalId;
-            stored.PickupDate = request.Model.PickupDate;
+            //a pickup date the client did not send stays as it is, instead of being cleared to DateTime.MinValue
+            if (request.Model.PickupDate.HasValue)
+                stored.PickupDate = request.Model.PickupDate.Value;
             stored.PickupAddress = request.Model.PickupAddress?.ToEntity();
         });
     }

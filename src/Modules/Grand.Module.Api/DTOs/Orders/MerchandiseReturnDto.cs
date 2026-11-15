@@ -21,7 +21,7 @@ public class MerchandiseReturnDto : BaseApiEntityModel
     /// </summary>
     public int MerchandiseReturnStatusId { get; set; }
 
-    public DateTime PickupDate { get; set; }
+    public DateTime? PickupDate { get; set; }
     public AddressDto PickupAddress { get; set; }
     public MerchandiseReturnShippingDto ReturnShipping { get; set; }
     public MerchandiseReturnRefundDto Refund { get; set; }

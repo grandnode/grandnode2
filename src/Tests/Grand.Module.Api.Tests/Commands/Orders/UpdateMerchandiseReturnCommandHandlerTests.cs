@@ -61,4 +61,24 @@ public class UpdateMerchandiseReturnCommandHandlerTests
 
         Assert.AreEqual("Orders.MerchandiseReturns.NotFound", result);
     }
+
+    [TestMethod]
+    public async Task Handle_NullPickupDate_LeavesItUnchanged()
+    {
+        Action<MerchandiseReturn> apply = null;
+        _workflowServiceMock.Setup(w => w.Update("r1", It.IsAny<Action<MerchandiseReturn>>()))
+            .ReturnsAsync((string)null)
+            .Callback<string, Action<MerchandiseReturn>>((_, a) => apply = a);
+
+        await CreateHandler().Handle(new UpdateMerchandiseReturnCommand {
+            Id = "r1",
+            Model = new MerchandiseReturnDto { CustomerComments = "comments", PickupDate = null }
+        }, default);
+
+        var existing = new DateTime(2026, 5, 5, 0, 0, 0, DateTimeKind.Utc);
+        var stored = new MerchandiseReturn { PickupDate = existing };
+        apply(stored);
+
+        Assert.AreEqual(existing, stored.PickupDate);
+    }
 }

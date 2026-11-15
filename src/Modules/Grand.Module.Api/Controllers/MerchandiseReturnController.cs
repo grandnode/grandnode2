@@ -17,6 +17,8 @@ namespace Grand.Module.Api.Controllers;
 
 public class MerchandiseReturnController : BaseApiController
 {
+    private const int MaxPageSize = 1000;
+
     private readonly IMediator _mediator;
     private readonly IPermissionService _permissionService;
 
@@ -37,10 +39,12 @@ public class MerchandiseReturnController : BaseApiController
         [FromQuery] int? status = null, [FromQuery] string returnShippingProvider = "",
         [FromQuery] string reasonId = "", [FromQuery] bool openOnly = false,
         [FromQuery] DateTime? createdFromUtc = null, [FromQuery] DateTime? createdToUtc = null,
-        [FromQuery] int pageIndex = 0, [FromQuery] int pageSize = int.MaxValue)
+        [FromQuery] int pageIndex = 0, [FromQuery] int pageSize = 100)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.MerchandiseReturns, CurrentCustomer))
             return Forbid();
+
+        pageSize = Math.Min(pageSize, MaxPageSize);
 
         var result = await _mediator.Send(new GetMerchandiseReturnsQuery {
             StoreId = storeId,
@@ -131,12 +135,13 @@ public class MerchandiseReturnController : BaseApiController
         if (!await _permissionService.Authorize(PermissionSystemName.MerchandiseReturns, CurrentCustomer))
             return Forbid();
 
-        if (model == null || !Enum.IsDefined(typeof(MerchandiseReturnStatus), model.Status))
+        if (model == null || !model.Status.HasValue ||
+            !Enum.IsDefined(typeof(MerchandiseReturnStatus), model.Status.Value))
             return BadRequest();
 
         var error = await _mediator.Send(new ChangeMerchandiseReturnStatusCommand {
             Id = key,
-            Status = model.Status,
+            Status = model.Status.Value,
             CustomerNote = model.CustomerNote,
             ChangedBy = CurrentCustomer.StatusChangedBy()
         });
