@@ -496,6 +496,22 @@ public class StockLedgerTests
         Assert.AreEqual(3, Stored(first).StockQuantity);
         Assert.AreEqual(3, Stored(second).StockQuantity);
     }
+
+    [TestMethod]
+    public async Task KeyedChange_SameKeyTwiceInOneCall_RefusedWithoutDoubleBooking()
+    {
+        var product = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 1 });
+
+        //the ledger is all-or-nothing per call: a duplicated key refuses the call instead of booking the first line
+        var errors = await Apply(product,
+            By(2) with { IdempotencyKey = "k1" },
+            By(3) with { IdempotencyKey = "k1" });
+
+        CollectionAssert.AreEqual(new[] { StockErrors.AlreadyApplied }, errors.ToArray());
+        Assert.AreEqual(1, Stored(product).StockQuantity);
+        Assert.AreEqual(0, Entries(product).Count);
+    }
 }
 
 /// <summary>

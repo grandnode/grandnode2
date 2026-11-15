@@ -164,6 +164,9 @@ public sealed class StockLedger(
                 entry.IdempotencyKey = change.IdempotencyKey;
                 entries.Add(entry);
                 unitEntries.Add((change, entry));
+                //a key written in this same call is already applied for a later change that reuses it
+                if (!string.IsNullOrEmpty(change.IdempotencyKey))
+                    appliedKeys.Add(change.IdempotencyKey);
             }
 
             if (change.ReservedQuantity is { } reserved && reserved != bucket.Reserved)

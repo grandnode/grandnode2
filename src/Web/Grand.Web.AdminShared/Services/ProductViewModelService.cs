@@ -108,12 +108,8 @@ public class ProductViewModelService(
     /// </summary>
     private async Task<bool> ExternallyManaged(Product product)
     {
-        if (product == null)
-            return false;
-
-        var external = (await warehouseService.GetAllWarehouses()).Where(x => x.ExternallyManaged)
-            .Select(x => x.Id).ToList();
-        return InventoryTracking.ExternallyManaged(product, external);
+        return product != null &&
+               InventoryTracking.ExternallyManaged(product, await warehouseService.ExternallyManagedWarehouseIds());
     }
 
     /// <summary>
@@ -970,6 +966,8 @@ public class ProductViewModelService(
     public virtual async Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products)
     {
         var inventorySettings = await settingService.LoadSetting<InventorySettings>();
+        //read once: every product below is checked against the same set of externally managed warehouses
+        var externallyManagedWarehouseIds = await warehouseService.ExternallyManagedWarehouseIds();
         foreach (var pModel in products)
         {
             //update
@@ -979,7 +977,8 @@ public class ProductViewModelService(
                 //the grid shows no earlier value: the stored one is what it changes
                 var stockChanged = pModel.StockQuantity != product.StockQuantity;
                 var stockChangesOnlyThroughDocuments = InventoryTracking.StockDocumentOnly(product, inventorySettings) ||
-                                                       await ExternallyManaged(product);
+                                                       InventoryTracking.ExternallyManaged(product,
+                                                           externallyManagedWarehouseIds);
 
                 product.Sku = pModel.Sku;
                 product.Price = pModel.Price;

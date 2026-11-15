@@ -33,4 +33,16 @@ public static class ShippingExtensions
     {
         return shippingMethod.RestrictedGroups.Any(roleIds.Contains);
     }
+
+    /// <summary>
+    ///     The ids of the warehouses whose stock belongs to an external system; read once and reused across a batch, so
+    ///     a bulk edit or import does not read the whole warehouse list per product
+    /// </summary>
+    public static async Task<ICollection<string>> ExternallyManagedWarehouseIds(this IWarehouseService warehouseService)
+    {
+        ArgumentNullException.ThrowIfNull(warehouseService);
+
+        return (await warehouseService.GetAllWarehouses()).Where(x => x.ExternallyManaged).Select(x => x.Id)
+            .ToList();
+    }
 }

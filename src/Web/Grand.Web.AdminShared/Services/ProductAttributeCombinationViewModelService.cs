@@ -1,3 +1,4 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
@@ -42,12 +43,8 @@ public class ProductAttributeCombinationViewModelService(
     /// </summary>
     private async Task<bool> ExternallyManaged(Product product)
     {
-        if (product == null)
-            return false;
-
-        var external = (await warehouseService.GetAllWarehouses()).Where(x => x.ExternallyManaged)
-            .Select(x => x.Id).ToList();
-        return InventoryTracking.ExternallyManaged(product, external);
+        return product != null &&
+               InventoryTracking.ExternallyManaged(product, await warehouseService.ExternallyManagedWarehouseIds());
     }
 
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
