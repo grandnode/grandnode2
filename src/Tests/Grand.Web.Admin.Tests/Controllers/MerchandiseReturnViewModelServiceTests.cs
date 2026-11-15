@@ -289,6 +289,19 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     [TestMethod]
+    public async Task List_OpenLongerThan_AboveCap_ClampedToAYear()
+    {
+        var (service, mocks) = BuildForList();
+        var expected = DateTime.UtcNow.AddDays(-365);
+
+        await service.PrepareMerchandiseReturnModel(
+            new MerchandiseReturnListModel { OpenLongerThanDays = 1000000 }, 1, 10);
+
+        VerifySearch(mocks, openOnly: true,
+            createdTo: x => x.HasValue && Math.Abs((x.Value - expected).TotalMinutes) < 1);
+    }
+
+    [TestMethod]
     public async Task PrepareListModel_VendorScope_NoVendors()
     {
         var (service, mocks) = BuildForList();

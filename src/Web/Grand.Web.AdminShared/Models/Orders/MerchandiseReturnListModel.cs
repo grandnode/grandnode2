@@ -37,8 +37,9 @@ public class MerchandiseReturnListModel : BaseModel
     [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.List.SearchReasonId")]
     public string SearchReasonId { get; set; }
 
-    //returns pending, accepted or received for more than this many days
+    //returns pending, accepted or received for more than this many days (at most a year back)
     [GrandResourceDisplayName("Admin.Orders.MerchandiseReturns.List.OpenLongerThanDays")]
+    [Range(0, 365)]
     public int? OpenLongerThanDays { get; set; }
 
     public string StoreId { get; set; }

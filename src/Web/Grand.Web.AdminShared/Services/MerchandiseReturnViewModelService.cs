@@ -250,7 +250,8 @@ public class MerchandiseReturnViewModelService(
         var openOnly = model.OpenLongerThanDays > 0;
         if (openOnly)
         {
-            var openSince = DateTime.UtcNow.AddDays(-model.OpenLongerThanDays.Value);
+            //capped at a year so a huge posted value cannot push the date below DateTime.MinValue
+            var openSince = DateTime.UtcNow.AddDays(-Math.Min(model.OpenLongerThanDays.Value, 365));
             endDateValue = endDateValue == null || endDateValue > openSince ? openSince : endDateValue;
         }
 
