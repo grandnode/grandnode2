@@ -3,12 +3,14 @@ using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
 using Grand.Domain.Media;
+using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Stores;
 using Grand.Domain.Vendors;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.DTOs.Common;
 using Grand.Module.Api.DTOs.Customers;
+using Grand.Module.Api.DTOs.Orders;
 using Grand.Module.Api.DTOs.Shipping;
 using Grand.Module.Api.Queries.Handlers.Common;
 using Grand.Module.Api.Queries.Models.Common;
@@ -43,7 +45,9 @@ namespace Grand.Module.Api.Infrastructure.Extensions
                 (typeof(LayoutDto), typeof(BrandLayout)),
                 (typeof(LayoutDto), typeof(CollectionLayout)),
                 (typeof(LayoutDto), typeof(CategoryLayout)),
-                (typeof(LayoutDto), typeof(ProductLayout))
+                (typeof(LayoutDto), typeof(ProductLayout)),
+                (typeof(MerchandiseReturnReasonDto), typeof(MerchandiseReturnReason)),
+                (typeof(MerchandiseReturnActionDto), typeof(MerchandiseReturnAction))
             };
 
             foreach (var (dto, entity) in handlerTypes)

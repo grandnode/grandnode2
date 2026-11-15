@@ -2427,4 +2427,16 @@
 	<Resource Name="Vendor.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddFailed" Area="Vendor">
 		<Value>The note was not added.</Value>
 	</Resource>
+	<Resource Name="Api.Orders.MerchandiseReturnReason.Fields.Name.Required" Area="Common">
+		<Value>Name is required</Value>
+	</Resource>
+	<Resource Name="Api.Orders.MerchandiseReturnReason.Fields.Id.NotExists" Area="Common">
+		<Value>Merchandise return reason does not exist</Value>
+	</Resource>
+	<Resource Name="Api.Orders.MerchandiseReturnAction.Fields.Name.Required" Area="Common">
+		<Value>Name is required</Value>
+	</Resource>
+	<Resource Name="Api.Orders.MerchandiseReturnAction.Fields.Id.NotExists" Area="Common">
+		<Value>Merchandise return action does not exist</Value>
+	</Resource>
 </Language>
