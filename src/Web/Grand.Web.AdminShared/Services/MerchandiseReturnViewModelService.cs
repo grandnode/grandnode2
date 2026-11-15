@@ -472,6 +472,9 @@ public class MerchandiseReturnViewModelService(
             model.AvailableReceiveToStockWarehouses.Any(x => x.Value == dropOffWarehouseId)
                 ? dropOffWarehouseId
                 : "";
+        //the select is posted as the inspection's warehouse, not bound to the model: the item carries the choice
+        foreach (var item in model.AvailableReceiveToStockWarehouses)
+            item.Selected = item.Value == model.ReceiveToStockWarehouseId;
     }
 
     public virtual async Task PrepareRefund(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn,

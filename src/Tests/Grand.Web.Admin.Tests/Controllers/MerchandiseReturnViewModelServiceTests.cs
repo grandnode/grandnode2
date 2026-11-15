@@ -904,6 +904,8 @@ public class MerchandiseReturnViewModelServiceTests
         await service.PrepareReturnReceipts(model, DroppedOffAt("w2"));
 
         Assert.AreEqual("w2", model.ReceiveToStockWarehouseId);
+        //the select is posted as inspection.WarehouseId, not bound to the model: the item carries the choice
+        Assert.AreEqual("w2", model.AvailableReceiveToStockWarehouses.Single(x => x.Selected).Value);
         CollectionAssert.AreEqual(new[] { "", "w1", "w2" },
             model.AvailableReceiveToStockWarehouses.Select(x => x.Value).ToArray());
         var line = model.ReceiveToStockLines.Single();
@@ -925,6 +927,7 @@ public class MerchandiseReturnViewModelServiceTests
         await service.PrepareReturnReceipts(model, DroppedOffAt("w3"));
 
         Assert.AreEqual("", model.ReceiveToStockWarehouseId);
+        Assert.AreEqual("", model.AvailableReceiveToStockWarehouses.Single(x => x.Selected).Value);
         CollectionAssert.AreEqual(new[] { "", "w1" },
             model.AvailableReceiveToStockWarehouses.Select(x => x.Value).ToArray());
     }
