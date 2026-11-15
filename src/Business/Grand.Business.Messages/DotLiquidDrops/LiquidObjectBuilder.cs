@@ -108,13 +108,14 @@ public class LiquidObjectBuilder
     }
 
     public LiquidObjectBuilder AddMerchandiseReturnTokens(MerchandiseReturn merchandiseReturn, Store store,
-        DomainHost host, Order order, Language language, MerchandiseReturnNote merchandiseReturnNote = null)
+        DomainHost host, Order order, Language language, MerchandiseReturnNote merchandiseReturnNote = null,
+        string statusNote = null)
     {
         _chain.Add(async liquidObject =>
         {
             var liquidMerchandiseReturn = await _mediator.Send(new GetMerchandiseReturnTokensCommand {
                 Order = order, Language = language, MerchandiseReturn = merchandiseReturn,
-                MerchandiseReturnNote = merchandiseReturnNote, Store = store, Host = host
+                MerchandiseReturnNote = merchandiseReturnNote, Store = store, Host = host, StatusNote = statusNote
             });
             liquidObject.MerchandiseReturn = liquidMerchandiseReturn;
             await _mediator.EntityTokensAdded(merchandiseReturn, liquidMerchandiseReturn, liquidObject);

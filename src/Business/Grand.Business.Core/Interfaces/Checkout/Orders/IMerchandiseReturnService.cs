@@ -36,10 +36,15 @@ public interface IMerchandiseReturnService
     /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
+    /// <param name="orderId">Order identifier; empty to load all entries</param>
+    /// <param name="returnShippingProvider">System name of the return shipping provider; empty for any</param>
+    /// <param name="reasonId">A return reason one of the items has; empty for any</param>
+    /// <param name="openOnly">Only the returns still handled: pending, accepted or received</param>
     /// <returns>Merchandise returns</returns>
     Task<IPagedList<MerchandiseReturn>> SearchMerchandiseReturns(string storeId = "", string customerId = "",
         string orderItemId = "", string vendorId = "", string ownerId = "", MerchandiseReturnStatus? rs = null,
-        int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null);
+        int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
+        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false);
 
     /// <summary>
     ///     Inserts a merchandise return

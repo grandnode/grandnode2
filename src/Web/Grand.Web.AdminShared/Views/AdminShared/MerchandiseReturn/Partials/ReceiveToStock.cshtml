@@ -1,0 +1,57 @@
+@model MerchandiseReturnModel
+@if (Model.CanReceiveToStock)
+{
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    @* what came back is inspected on receipt: the units scrapped of each item, the rest goes back on stock;
+       the receipt opens as a draft in the document editor, which posts it *@
+    <div class="collapse" id="merchandisereturn-receivetostock">
+        <admin-card title="@Loc["Admin.Inventory.Documents.ReceiveToStock"]">
+            <div class="grand-fields">
+                <admin-field asp-for="ReceiveToStockWarehouseId" size="md">
+                    <select name="inspection.WarehouseId" id="inspection_WarehouseId" class="form-select"
+                            asp-items="Model.AvailableReceiveToStockWarehouses">
+                    </select>
+                </admin-field>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-sm align-middle mb-0">
+                    <thead>
+                    <tr>
+                        <th>@Loc["Admin.Orders.MerchandiseReturns.Fields.Item"]</th>
+                        <th>@Loc["Admin.Catalog.Products.Fields.Sku"]</th>
+                        <th>@Loc["Admin.Orders.MerchandiseReturns.Inspection.QuantityLeft"]</th>
+                        <th>@Loc["Admin.Orders.MerchandiseReturns.Inspection.ScrapQuantity"]</th>
+                        <th>@Loc["Admin.Orders.MerchandiseReturns.Inspection.Comment"]</th>
+                    </tr>
+                    </thead>
+                    <tbody>
+                    @for (var i = 0; i < Model.ReceiveToStockLines.Count; i++)
+                    {
+                        var line = Model.ReceiveToStockLines[i];
+                        <tr>
+                            <td>
+                                @line.ProductName
+                                <input type="hidden" name="inspection.Lines[@i].ReturnItemId" value="@line.ReturnItemId"/>
+                                <input type="hidden" name="inspection.Lines[@i].ProductId" value="@line.ProductId"/>
+                            </td>
+                            <td>@line.ProductSku</td>
+                            <td>@line.QuantityLeft</td>
+                            <td>
+                                @* no min/max: the card sits in the edit form, and a value the browser refuses in a
+                                   collapsed card would block Save and the status buttons; the service checks it *@
+                                <input type="number" name="inspection.Lines[@i].ScrapQuantity" class="form-control"
+                                       value="0"/>
+                            </td>
+                            <td><input type="text" name="inspection.Lines[@i].Comment" class="form-control"/></td>
+                        </tr>
+                    }
+                    </tbody>
+                </table>
+            </div>
+            <button class="btn btn-outline-secondary mt-3" type="submit"
+                    formaction="@Url.Action("CreateReturnReceipt", "InventoryDocument", new { area, merchandiseReturnId = Model.Id })">
+                <i class="bi bi-box-arrow-in-down"></i> @Loc["Admin.Orders.MerchandiseReturns.Inspection.Create"]
+            </button>
+        </admin-card>
+    </div>
+}

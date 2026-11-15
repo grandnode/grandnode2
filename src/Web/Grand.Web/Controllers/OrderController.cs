@@ -118,19 +118,12 @@ public class OrderController : BasePublicController
                 Language = _contextAccessor.WorkContext.WorkingLanguage
             });
         model.GuestLink = guestLink;
-        if (guestLink)
-        {
-            //the link lets a guest read the order and pay for it, nothing that changes it
-            model.UserCanCancelUnpaidOrder = false;
-            model.IsReOrderAllowed = false;
-            model.ShowAddOrderNote = false;
-            model.CanWithdrawOrderApproval = false;
-            //the order's returns are reached from here only
-            if (GuestOrderGrant.ReturnsAllowed(_orderSettings))
-                model.HasMerchandiseReturns = (await _mediator.Send(new GetMerchandiseReturnQuery {
-                    StoreId = _contextAccessor.StoreContext.CurrentStore.Id, OrderId = order.Id, PageSize = 1
-                })).Any();
-        }
+        //a guest — the order's own customer on its cookie, or the customer of a grant link — has no account
+        //page listing the order's returns, so they are reached from here only
+        if (!await _groupService.IsRegistered(customer) && GuestOrderGrant.ReturnsAllowed(_orderSettings))
+            model.HasMerchandiseReturns = (await _mediator.Send(new GetMerchandiseReturnQuery {
+                StoreId = _contextAccessor.StoreContext.CurrentStore.Id, OrderId = order.Id, PageSize = 1
+            })).Any();
 
         return View(model);
     }
@@ -139,12 +132,12 @@ public class OrderController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> WithdrawApproval(string orderId)
     {
-        var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (order, customer, _) = await CustomerOrder(await _orderService.GetOrderById(orderId));
+        if (order == null)
             return Challenge();
 
         var withdrawn = await _mediator.Send(new WithdrawOrderApprovalCommand {
-            Customer = _contextAccessor.WorkContext.CurrentCustomer,
+            Customer = customer,
             Store = _contextAccessor.StoreContext.CurrentStore,
             OrderId = orderId
         });
@@ -161,8 +154,8 @@ public class OrderController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> CancelOrder(string orderId)
     {
-        var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService)
+        var (order, _, _) = await CustomerOrder(await _orderService.GetOrderById(orderId));
+        if (order == null
             || order.PaymentStatusId != PaymentStatus.Pending
             || (order.ShippingStatusId != ShippingStatus.ShippingNotRequired &&
                 order.ShippingStatusId != ShippingStatus.Pending)
@@ -205,8 +198,8 @@ public class OrderController : BasePublicController
 
         if (!ModelState.IsValid) return View("AddOrderNote", model);
 
-        var order = await _orderService.GetOrderById(model.OrderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (order, _, _) = await CustomerOrder(await _orderService.GetOrderById(model.OrderId));
+        if (order == null)
             return Challenge();
 
         await _mediator.Send(new InsertOrderNoteCommand {
@@ -225,8 +218,8 @@ public class OrderController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> ReOrder(string orderId)
     {
-        var order = await _orderService.GetOrderById(orderId);
-        if (!await order.Access(_contextAccessor.WorkContext.CurrentCustomer, _groupService))
+        var (order, _, _) = await CustomerOrder(await _orderService.GetOrderById(orderId));
+        if (order == null)
             return Challenge();
 
         var warnings = await _mediator.Send(new ReOrderCommand {

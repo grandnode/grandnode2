@@ -394,7 +394,7 @@ public class MerchandiseReturnWorkflowService(
                                   "was not found to tell the customer", changed.Id, changed.OrderId);
             else
                 await merchandiseReturnMessageProviderService.SendMerchandiseReturnStatusChangedCustomerMessage(
-                    changed, order, order.CustomerLanguageId);
+                    changed, order, order.CustomerLanguageId, customerNote);
         }
         catch (Exception ex)
         {

@@ -78,7 +78,7 @@
         $('#addMerchandiseReturnNote').click(function () {
             var merchandisereturnNoteMessage = $("#@Html.IdFor(model => model.AddMerchandiseReturnNoteMessage)").val();
             if (merchandisereturnNoteMessage.length == 0) {
-                alert('Message text is required');
+                alert('@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.MessageRequired"]');
                 return;
             }
             var merchandisereturnNoteDownloadId = '';
@@ -106,7 +106,7 @@
                     $('#addMerchandiseReturnNote').attr('disabled', false);
                 },
                 error:function (xhr, ajaxOptions, thrownError){
-                    alert('Failed to add merchandise return note.');
+                    alert('@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddFailed"]');
                     $('#addMerchandiseReturnNote').attr('disabled', false);
                 }
             });

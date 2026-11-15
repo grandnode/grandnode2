@@ -24,15 +24,18 @@ public class OrderReportService : IOrderReportService
     /// <param name="orderRepository">Order repository</param>
     /// <param name="productAlsoPurchasedRepository">Product also purchased repository</param>
     /// <param name="productRepository">Product repository</param>
+    /// <param name="merchandiseReturnRepository">Merchandise return repository</param>
     /// <param name="dateTimeService">Datetime helper</param>
     public OrderReportService(IRepository<Order> orderRepository,
         IRepository<ProductAlsoPurchased> productAlsoPurchasedRepository,
         IRepository<Product> productRepository,
+        IRepository<MerchandiseReturn> merchandiseReturnRepository,
         IDateTimeService dateTimeService)
     {
         _orderRepository = orderRepository;
         _productAlsoPurchasedRepository = productAlsoPurchasedRepository;
         _productRepository = productRepository;
+        _merchandiseReturnRepository = merchandiseReturnRepository;
         _dateTimeService = dateTimeService;
     }
 
@@ -43,6 +46,7 @@ public class OrderReportService : IOrderReportService
     private readonly IRepository<Order> _orderRepository;
     private readonly IRepository<ProductAlsoPurchased> _productAlsoPurchasedRepository;
     private readonly IRepository<Product> _productRepository;
+    private readonly IRepository<MerchandiseReturn> _merchandiseReturnRepository;
     private readonly IDateTimeService _dateTimeService;
 
     #endregion
@@ -466,6 +470,98 @@ public class OrderReportService : IOrderReportService
             : queryItem.OrderByDescending(x => x.TotalAmount).ThenBy(x => x.ProductId);
 
         return await _orderRepository.PagedAsync(queryItemOrdered, pageIndex, pageSize);
+    }
+
+    public virtual async Task<IPagedList<MerchandiseReturnReportLine>> MerchandiseReturnReport(
+        MerchandiseReturnReportGrouping groupBy, DateTime createdFromUtc, DateTime createdToUtc, string storeId = "",
+        string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue)
+    {
+        //a rejected or cancelled return gives nothing back
+        var query = _merchandiseReturnRepository.Table.Where(x =>
+            x.CreatedOnUtc >= createdFromUtc && x.CreatedOnUtc <= createdToUtc &&
+            x.MerchandiseReturnStatusId != (int)MerchandiseReturnStatus.Rejected &&
+            x.MerchandiseReturnStatusId != (int)MerchandiseReturnStatus.Cancelled);
+        if (!string.IsNullOrEmpty(storeId))
+            query = query.Where(x => x.StoreId == storeId);
+        if (!string.IsNullOrEmpty(vendorId))
+            query = query.Where(x => x.VendorId == vendorId);
+        var returns = await _merchandiseReturnRepository.ToListAsync(query
+            .Select(x => new { x.Id, x.OrderId, x.VendorId, x.MerchandiseReturnItems }));
+
+        //each item returned, with the return it belongs to
+        var returned = returns.SelectMany(x => x.MerchandiseReturnItems.Select(item =>
+            (Return: x.Id, Item: item, Vendor: x.VendorId ?? "", x.OrderId))).ToList();
+        IEnumerable<(string Key, string Name, string Return, int Quantity)> keyed = groupBy switch {
+            //a return item from before reasons were kept by identifier is counted by the text the customer chose
+            MerchandiseReturnReportGrouping.Reason => returned.Select(x =>
+                (string.IsNullOrEmpty(x.Item.ReasonId) ? x.Item.ReasonForReturn?.Trim() ?? "" : x.Item.ReasonId,
+                    x.Item.ReasonForReturn?.Trim(), x.Return, x.Item.Quantity)),
+            MerchandiseReturnReportGrouping.Vendor => returned.Select(x =>
+                (x.Vendor, (string)null, x.Return, x.Item.Quantity)),
+            _ => await ByProduct(returned.Select(x => (x.OrderId, x.Item.OrderItemId, x.Return, x.Item.Quantity))
+                .ToList())
+        };
+
+        var lines = keyed.GroupBy(x => x.Key)
+            .Select(x => new MerchandiseReturnReportLine {
+                Key = x.Key,
+                Name = x.First().Name,
+                ReturnCount = x.Select(y => y.Return).Distinct().Count(),
+                Quantity = x.Sum(y => y.Quantity)
+            })
+            .OrderByDescending(x => x.Quantity).ThenBy(x => x.Key, StringComparer.Ordinal)
+            .ToList();
+        var page = new PagedList<MerchandiseReturnReportLine>(lines, pageIndex, pageSize);
+
+        if (groupBy == MerchandiseReturnReportGrouping.Product && page.Count > 0)
+        {
+            var sold = await SoldQuantities(page.Select(x => x.Key).ToList(), createdFromUtc, createdToUtc, storeId,
+                vendorId);
+            foreach (var line in page)
+                line.SoldQuantity = sold.GetValueOrDefault(line.Key);
+        }
+
+        return page;
+    }
+
+    /// <summary>
+    ///     The product of each item returned, read from the orders of the returns
+    /// </summary>
+    private async Task<IEnumerable<(string Key, string Name, string Return, int Quantity)>> ByProduct(
+        IList<(string OrderId, string OrderItemId, string Return, int Quantity)> returned)
+    {
+        var orderIds = returned.Select(x => x.OrderId).Distinct().ToList();
+        var orders = await _orderRepository.ToListAsync(_orderRepository.Table
+            .Where(x => orderIds.Contains(x.Id))
+            .Select(x => new { x.OrderItems }));
+        var products = orders.SelectMany(x => x.OrderItems).GroupBy(x => x.Id)
+            .ToDictionary(x => x.Key, x => x.First().ProductId);
+        return returned.Where(x => products.ContainsKey(x.OrderItemId))
+            .Select(x => (products[x.OrderItemId], (string)null, x.Return, x.Quantity));
+    }
+
+    /// <summary>
+    ///     The units of the products sold by the orders placed in the period, neither deleted nor cancelled
+    /// </summary>
+    private async Task<Dictionary<string, int>> SoldQuantities(IList<string> productIds, DateTime createdFromUtc,
+        DateTime createdToUtc, string storeId, string vendorId)
+    {
+        var orders = _orderRepository.Table.Where(o =>
+            !o.Deleted && o.OrderStatusId != (int)OrderStatusSystem.Cancelled &&
+            o.CreatedOnUtc >= createdFromUtc && o.CreatedOnUtc <= createdToUtc);
+        if (!string.IsNullOrEmpty(storeId))
+            orders = orders.Where(o => o.StoreId == storeId);
+
+        var items = from o in orders
+            from item in o.OrderItems
+            where productIds.Contains(item.ProductId)
+            select new { item.ProductId, item.VendorId, item.Quantity };
+        if (!string.IsNullOrEmpty(vendorId))
+            items = items.Where(x => x.VendorId == vendorId);
+
+        var sold = await _orderRepository.ToListAsync(items.GroupBy(x => x.ProductId)
+            .Select(x => new { ProductId = x.Key, Quantity = x.Sum(y => y.Quantity) }));
+        return sold.ToDictionary(x => x.ProductId, x => x.Quantity);
     }
 
 

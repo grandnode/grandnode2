@@ -45,7 +45,30 @@ public sealed record ReturnReceiptSummary(
 /// <param name="QuantityLeft">
 ///     Whether some of what the return gives back is on none of them yet, so another receipt can be created
 /// </param>
-public sealed record MerchandiseReturnReceipts(IList<ReturnReceiptSummary> Receipts, bool QuantityLeft);
+/// <param name="Left">What is on none of them yet, by return item and product</param>
+/// <param name="Inspected">What the posted receipts restocked and scrapped of each return item</param>
+public sealed record MerchandiseReturnReceipts(
+    IList<ReturnReceiptSummary> Receipts,
+    bool QuantityLeft,
+    IList<ReturnReceiptLeft> Left,
+    IList<ReturnItemInspected> Inspected);
+
+/// <summary>
+///     What a merchandise return gives back of a product and no return receipt takes in yet
+/// </summary>
+public sealed record ReturnReceiptLeft(string ReturnItemId, string ProductId, int Quantity);
+
+/// <summary>
+///     The units of a merchandise return item the posted return receipts put back on stock, and those they wrote off
+/// </summary>
+public sealed record ReturnItemInspected(string ReturnItemId, int Restocked, int Scrapped);
+
+/// <summary>
+///     What the staff found when the goods came back: how many units of a product of a return item are scrapped,
+///     the rest goes back on stock
+/// </summary>
+/// <param name="Comment">Why, written on every line of the item and product; null for none</param>
+public sealed record ReturnReceiptInspection(string ReturnItemId, string ProductId, int ScrapQuantity, string Comment);
 
 /// <summary>
 ///     Inventory documents: drafts that are edited freely, and posting, which books their stock and freezes them
@@ -96,8 +119,12 @@ public interface IInventoryDocumentService
     ///     A return receipt draft of what a merchandise return gives back and has not been received yet
     /// </summary>
     /// <returns>The draft, or null and the keys of the errors</returns>
+    /// <param name="inspection">
+    ///     The units scrapped of each item and product; the rest is restocked. An entry naming what is not left to
+    ///     receive, named twice, or scrapping less than none or more than is left refuses the whole receipt
+    /// </param>
     Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(string merchandiseReturnId,
-        string customerId);
+        string customerId, IList<ReturnReceiptInspection> inspection = null);
 
     /// <summary>
     ///     The return receipts of a merchandise return, and whether CreateReturnReceipt has anything left to put on a

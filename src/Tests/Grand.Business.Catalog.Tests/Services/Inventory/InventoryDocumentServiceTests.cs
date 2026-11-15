@@ -213,6 +213,155 @@ public class InventoryDocumentServiceTests
     }
 
     [TestMethod]
+    public async Task CreateReturnReceipt_NoInspection_AllRestock()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff");
+
+        var line = document.Lines.Single();
+        Assert.AreEqual(2, line.Quantity);
+        Assert.AreEqual(ReturnLineCondition.Restock, line.Condition);
+    }
+
+    private static ReturnReceiptInspection Inspection(MerchandiseReturn merchandiseReturn, Product product,
+        int scrapQuantity, string comment = null) =>
+        new(merchandiseReturn.MerchandiseReturnItems[0].Id, product.Id, scrapQuantity, comment);
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_PartialScrap_SplitsLine()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var (document, errors) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
+            [Inspection(merchandiseReturn, product, 1, " Broken seal ")]);
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(2, document.Lines.Count);
+        var restock = document.Lines.Single(x => x.Condition == ReturnLineCondition.Restock);
+        var scrap = document.Lines.Single(x => x.Condition == ReturnLineCondition.Scrap);
+        Assert.AreEqual(1, restock.Quantity);
+        Assert.AreEqual(1, scrap.Quantity);
+        Assert.AreEqual("Broken seal", restock.Comment);
+        Assert.AreEqual("Broken seal", scrap.Comment);
+        Assert.AreEqual(merchandiseReturn.MerchandiseReturnItems[0].Id, scrap.MerchandiseReturnItemId);
+        Assert.AreEqual(product.Id, scrap.ProductId);
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_ScrapAll_OneScrapLine()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var (document, _) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
+            [Inspection(merchandiseReturn, product, 2)]);
+
+        var line = document.Lines.Single();
+        Assert.AreEqual(2, line.Quantity);
+        Assert.AreEqual(ReturnLineCondition.Scrap, line.Condition);
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_ScrapAboveLeft_Refused()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var (document, errors) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
+            [Inspection(merchandiseReturn, product, 3)]);
+
+        Assert.IsNull(document);
+        CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.InspectionQuantity }, errors.ToArray());
+        Assert.AreEqual(0, _documents.Table.Count());
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_NegativeScrap_Refused()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var (document, errors) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
+            [Inspection(merchandiseReturn, product, -1)]);
+
+        Assert.IsNull(document);
+        CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.InspectionQuantity }, errors.ToArray());
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_InspectionForUnknownKey_Refused()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var other = Return(product);
+
+        var (document, errors) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
+            [Inspection(other, product, 1)]);
+
+        Assert.IsNull(document);
+        CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.InspectionQuantity }, errors.ToArray());
+        Assert.AreEqual(0, _documents.Table.Count());
+    }
+
+    [TestMethod]
+    public async Task CreateReturnReceipt_InspectionKeyTwice_Refused()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var (document, errors) = await _service.CreateReturnReceipt(merchandiseReturn.Id, "staff",
+            [Inspection(merchandiseReturn, product, 1), Inspection(merchandiseReturn, product, 1)]);
+
+        Assert.IsNull(document);
+        CollectionAssert.AreEqual(new[] { InventoryDocumentErrors.InspectionQuantity }, errors.ToArray());
+    }
+
+    [TestMethod]
+    public async Task GetReturnReceipts_NothingReceived_AllLeftNothingInspected()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+
+        var result = await _service.GetReturnReceipts(merchandiseReturn.Id);
+
+        var left = result.Left.Single();
+        Assert.AreEqual(merchandiseReturn.MerchandiseReturnItems[0].Id, left.ReturnItemId);
+        Assert.AreEqual(product.Id, left.ProductId);
+        Assert.AreEqual(2, left.Quantity);
+        Assert.AreEqual(0, result.Inspected.Count);
+    }
+
+    [TestMethod]
+    public async Task GetReturnReceipts_LeftAndInspectedFromPostedOnly()
+    {
+        var product = await Product();
+        var merchandiseReturn = Return(product);
+        var itemId = merchandiseReturn.MerchandiseReturnItems[0].Id;
+        InventoryDocument Receipt(InventoryDocumentStatus status, ReturnLineCondition condition) => new() {
+            DocumentTypeId = InventoryDocumentType.ReturnReceipt, StatusId = status,
+            MerchandiseReturnId = merchandiseReturn.Id,
+            Lines = {
+                new InventoryDocumentLine {
+                    ProductId = product.Id, MerchandiseReturnItemId = itemId, Quantity = 1, Condition = condition
+                }
+            }
+        };
+        await _documents.InsertAsync(Receipt(InventoryDocumentStatus.Posted, ReturnLineCondition.Restock));
+        await _documents.InsertAsync(Receipt(InventoryDocumentStatus.Draft, ReturnLineCondition.Scrap));
+
+        var result = await _service.GetReturnReceipts(merchandiseReturn.Id);
+
+        var inspected = result.Inspected.Single();
+        Assert.AreEqual(itemId, inspected.ReturnItemId);
+        Assert.AreEqual(1, inspected.Restocked);
+        Assert.AreEqual(0, inspected.Scrapped);
+        Assert.AreEqual(0, result.Left.Count);
+    }
+
+    [TestMethod]
     public async Task CreateReturnReceipt_SecondReceipt_OnlyRemainingQuantity()
     {
         var product = await Product();

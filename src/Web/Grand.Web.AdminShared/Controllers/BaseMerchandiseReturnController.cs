@@ -47,7 +47,7 @@ public abstract class BaseMerchandiseReturnController(
     {
         await MerchandiseReturnViewModelService.PrepareMerchandiseReturnModel(model, merchandiseReturn, false);
         if (HasInventoryDocuments)
-            await MerchandiseReturnViewModelService.PrepareReturnReceipts(model);
+            await MerchandiseReturnViewModelService.PrepareReturnReceipts(model, merchandiseReturn);
         await MerchandiseReturnViewModelService.PrepareRefund(model, merchandiseReturn, RefundsPayments);
     }
 
@@ -55,9 +55,9 @@ public abstract class BaseMerchandiseReturnController(
 
     public IActionResult Index() => RedirectToAction("List");
 
-    public IActionResult List()
+    public async Task<IActionResult> List()
     {
-        var model = merchandiseReturnViewModelService.PrepareReturnRequestListModel();
+        var model = await merchandiseReturnViewModelService.PrepareReturnRequestListModel();
         return View(model);
     }
 

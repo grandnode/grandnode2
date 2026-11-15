@@ -8,6 +8,7 @@ using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Inventory;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
@@ -148,7 +149,8 @@ public abstract class BaseInventoryDocumentController(
         return RedirectToAction("Edit", new { id = document.Id });
     }
 
-    protected virtual async Task<IActionResult> CreateReturnReceiptCore(string merchandiseReturnId)
+    protected virtual async Task<IActionResult> CreateReturnReceiptCore(string merchandiseReturnId,
+        ReturnReceiptInspectionModel inspection = null)
     {
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null || !await merchandiseReturnScope.HasAccess(merchandiseReturn))
@@ -159,12 +161,30 @@ public abstract class BaseInventoryDocumentController(
         if (usable.Count == 0)
             return Denied();
 
+        //a warehouse the staff chose is a posted id: one the panel does not book is refused, never replaced
+        var chosenWarehouseId = inspection?.WarehouseId;
+        if (!string.IsNullOrEmpty(chosenWarehouseId) && !await CanUse(chosenWarehouseId))
+            return Denied();
+
+        //an untouched line restocks everything: only what the staff wrote reaches the receipt
+        var findings = (inspection?.Lines ?? [])
+            .Where(x => x.ScrapQuantity != 0 || !string.IsNullOrWhiteSpace(x.Comment))
+            .Select(x => new ReturnReceiptInspection(x.ReturnItemId, x.ProductId, x.ScrapQuantity, x.Comment))
+            .ToList();
         var (document, errors) =
-            await inventoryDocumentService.CreateReturnReceipt(merchandiseReturnId, CustomerId);
+            await inventoryDocumentService.CreateReturnReceipt(merchandiseReturnId, CustomerId, findings);
         if (document == null)
         {
             Error(string.Join(" ", inventoryDocumentViewModelService.Translate(errors)));
             return RedirectToAction("List");
+        }
+
+        if (!string.IsNullOrEmpty(chosenWarehouseId) && document.WarehouseId != chosenWarehouseId)
+        {
+            document.WarehouseId = chosenWarehouseId;
+            return await KeepAccessibleLines(document, true)
+                ? RedirectToAction("Edit", new { id = document.Id })
+                : RedirectToAction("List");
         }
 
         var otherWarehouse = string.IsNullOrEmpty(document.WarehouseId) || !await CanUse(document.WarehouseId);

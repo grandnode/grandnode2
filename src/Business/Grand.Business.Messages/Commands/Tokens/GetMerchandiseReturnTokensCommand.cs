@@ -14,4 +14,7 @@ public class GetMerchandiseReturnTokensCommand : IRequest<LiquidMerchandiseRetur
     public DomainHost Host { get; set; }
     public Language Language { get; set; }
     public MerchandiseReturnNote MerchandiseReturnNote { get; set; } = null;
+
+    //the note shown to the customer with the status change, e.g. why the return was rejected
+    public string StatusNote { get; set; }
 }

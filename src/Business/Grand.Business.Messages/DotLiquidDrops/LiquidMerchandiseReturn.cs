@@ -105,5 +105,9 @@ public class LiquidMerchandiseReturn : Drop
 
     public string ReturnLabelUrl => HasReturnLabel ? $"{url}/merchandisereturndetails/{_merchandiseReturn.Id}" : "";
 
+    public string RejectionReason { get; set; } = "";
+
+    public string RefundAmount { get; set; } = "";
+
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

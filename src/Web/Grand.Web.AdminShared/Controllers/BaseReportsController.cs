@@ -1,5 +1,6 @@
 #nullable enable
 
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
@@ -386,6 +387,116 @@ public abstract class BaseReportsController(
 
         var gridModel = new DataSourceResult { Data = bestCustomerReportLineModels.ToList(), Total = totalCount };
         return Json(gridModel);
+    }
+
+    #endregion
+
+    #region Merchandise returns
+
+    /// <summary>The report's period, never without both ends: a start alone runs until today, an end alone
+    /// starts 30 days before it, and no dates (or an end before the start) are the last 30 days, in the staff
+    /// member's time zone.</summary>
+    private (DateTime Start, DateTime End) MerchandiseReturnReportPeriod(DateTime? start, DateTime? end)
+    {
+        var today = dateTimeService.ConvertToUserTime(DateTime.UtcNow, DateTimeKind.Utc).Date;
+        if (start.HasValue && !end.HasValue)
+            end = today;
+        else if (!start.HasValue && end.HasValue)
+            start = end.Value.AddDays(-30);
+
+        return start.HasValue && end.HasValue && start <= end
+            ? (start.Value, end.Value)
+            : (today.AddDays(-30), today);
+    }
+
+    private IList<SelectListItem> MerchandiseReturnReportGroupings(int selected)
+    {
+        var groupings = new List<MerchandiseReturnReportGrouping>
+            { MerchandiseReturnReportGrouping.Reason, MerchandiseReturnReportGrouping.Product };
+        //a vendor's report is all one vendor
+        if (string.IsNullOrEmpty(scope.VendorId))
+            groupings.Add(MerchandiseReturnReportGrouping.Vendor);
+        return groupings.Select(x => new SelectListItem {
+            Text = translationService.GetResource($"{scope.ResourceKeyPrefix}.Reports.MerchandiseReturns.GroupBy.{x}"),
+            Value = ((int)x).ToString(),
+            Selected = (int)x == selected
+        }).ToList();
+    }
+
+    public virtual async Task<IActionResult> MerchandiseReturnReport()
+    {
+        var (start, end) = MerchandiseReturnReportPeriod(null, null);
+        var model = new MerchandiseReturnReportModel {
+            StartDate = start, EndDate = end, AvailableGroupings = MerchandiseReturnReportGroupings(0)
+        };
+        if (scope.ShowStoreSelector)
+        {
+            model.AvailableStores.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "" });
+            foreach (var s in await storeService.GetAllStores())
+                model.AvailableStores.Add(new SelectListItem { Text = s.Shortcut, Value = s.Id });
+        }
+
+        return View(model);
+    }
+
+    /// <summary>store/vendor: the scope wins, as BestsellersReportList; a range not posted, or ending before it
+    /// starts, is the last 30 days. Labels: a reason by its identifier in the working language, else the text the
+    /// customer chose; a vendor by name, the store's own items under one line; a product by name.</summary>
+    [HttpPost]
+    public virtual async Task<IActionResult> MerchandiseReturnReportList(DataSourceRequest command,
+        MerchandiseReturnReportModel model, [FromServices] IMerchandiseReturnService merchandiseReturnService)
+    {
+        if (!string.IsNullOrEmpty(scope.StoreId)) model.StoreId = scope.StoreId;
+
+        var (start, end) = MerchandiseReturnReportPeriod(model.StartDate, model.EndDate);
+        var fromUtc = dateTimeService.ConvertToUtcTime(start, dateTimeService.CurrentTimeZone);
+        var toUtc = dateTimeService.ConvertToUtcTime(end, dateTimeService.CurrentTimeZone).AddDays(1);
+        var groupBy = (MerchandiseReturnReportGrouping)model.GroupBy;
+        if (groupBy is not (MerchandiseReturnReportGrouping.Product or MerchandiseReturnReportGrouping.Vendor) ||
+            (groupBy == MerchandiseReturnReportGrouping.Vendor && !string.IsNullOrEmpty(scope.VendorId)))
+            groupBy = MerchandiseReturnReportGrouping.Reason;
+
+        var lines = await orderReportService.MerchandiseReturnReport(groupBy, fromUtc, toUtc, model.StoreId ?? "",
+            scope.VendorId ?? "", command.Page - 1, command.PageSize);
+
+        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        var result = new List<MerchandiseReturnReportLineModel>();
+        foreach (var line in lines)
+        {
+            string name;
+            switch (groupBy)
+            {
+                case MerchandiseReturnReportGrouping.Product:
+                    name = (await productService.GetProductById(line.Key))?.Name ?? line.Key;
+                    break;
+                case MerchandiseReturnReportGrouping.Vendor:
+                    name = string.IsNullOrEmpty(line.Key)
+                        ? translationService.GetResource($"{scope.ResourceKeyPrefix}.Reports.MerchandiseReturns.StoreItems")
+                        : (await vendorService.GetVendorById(line.Key))?.Name ?? line.Key;
+                    break;
+                default:
+                    var reason = string.IsNullOrEmpty(line.Key)
+                        ? null
+                        : await merchandiseReturnService.GetMerchandiseReturnReasonById(line.Key);
+                    name = reason?.GetTranslation(x => x.Name, languageId) ??
+                           (string.IsNullOrEmpty(line.Name)
+                               ? translationService.GetResource(
+                                   $"{scope.ResourceKeyPrefix}.Reports.MerchandiseReturns.UnknownReason")
+                               : line.Name);
+                    break;
+            }
+
+            result.Add(new MerchandiseReturnReportLineModel {
+                Key = line.Key,
+                Name = name,
+                ReturnCount = line.ReturnCount,
+                Quantity = line.Quantity,
+                SoldQuantity = line.SoldQuantity,
+                ReturnRate = line.SoldQuantity > 0 ? (double)line.Quantity / line.SoldQuantity.Value : null
+            });
+        }
+
+        return Json(new DataSourceResult { Data = result, Total = lines.TotalCount });
     }
 
     #endregion

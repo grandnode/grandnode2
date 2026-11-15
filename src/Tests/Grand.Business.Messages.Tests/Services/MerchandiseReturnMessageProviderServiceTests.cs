@@ -76,4 +76,81 @@ public class MerchandiseReturnMessageProviderServiceTests
         Assert.AreEqual(0, result);
         Assert.AreEqual(0, _queued.Count);
     }
+
+    // --- Status changed: a template per transition, the generic one as fallback --------------------
+
+    private readonly Order _billedOrder = new() {
+        Id = "o1", StoreId = "store1", BillingAddress = new Address { Email = "buyer@example.com", FirstName = "Ann" }
+    };
+
+    private void Template(string name, string subject, bool active = true) =>
+        _messageTemplateServiceMock.Setup(x => x.GetMessageTemplateByName(name, "store1"))
+            .ReturnsAsync(new MessageTemplate { Name = name, IsActive = active, Subject = subject, Body = "Body" });
+
+    private Task<int> SendStatusChanged(MerchandiseReturnStatus status)
+    {
+        _return.MerchandiseReturnStatus = status;
+        return _service.SendMerchandiseReturnStatusChangedCustomerMessage(_return, _billedOrder, "en");
+    }
+
+    [DataTestMethod]
+    [DataRow(10, "MerchandiseReturnAccepted.CustomerNotification")]
+    [DataRow(15, "MerchandiseReturnReceived.CustomerNotification")]
+    [DataRow(20, "MerchandiseReturnRejected.CustomerNotification")]
+    [DataRow(40, "MerchandiseReturnCompleted.CustomerNotification")]
+    public async Task SendStatusChanged_PerStatusTemplate(int status, string name)
+    {
+        Template(MessageTemplateNames.SendMerchandiseReturnStatusChangedCustomerMessage, "Status changed");
+        Template(name, "Per status");
+
+        Assert.AreEqual(1, await SendStatusChanged((MerchandiseReturnStatus)status));
+
+        var email = _queued.Single();
+        Assert.AreEqual("Per status", email.Subject);
+        Assert.AreEqual("buyer@example.com", email.To);
+    }
+
+    [TestMethod]
+    public async Task SendStatusChanged_AcceptedTemplateInactive_FallsBackToStatusChanged()
+    {
+        Template(MessageTemplateNames.SendMerchandiseReturnStatusChangedCustomerMessage, "Status changed");
+        Template(MessageTemplateNames.SendMerchandiseReturnAcceptedCustomerMessage, "Accepted", false);
+
+        Assert.AreEqual(1, await SendStatusChanged(MerchandiseReturnStatus.Accepted));
+
+        Assert.AreEqual("Status changed", _queued.Single().Subject);
+    }
+
+    [TestMethod]
+    public async Task SendStatusChanged_AcceptedTemplateMissing_FallsBackToStatusChanged()
+    {
+        Template(MessageTemplateNames.SendMerchandiseReturnStatusChangedCustomerMessage, "Status changed");
+
+        Assert.AreEqual(1, await SendStatusChanged(MerchandiseReturnStatus.Accepted));
+
+        Assert.AreEqual("Status changed", _queued.Single().Subject);
+    }
+
+    [DataTestMethod]
+    [DataRow(0)]
+    [DataRow(30)]
+    public async Task SendStatusChanged_PendingOrCancelled_StatusChanged(int status)
+    {
+        Template(MessageTemplateNames.SendMerchandiseReturnStatusChangedCustomerMessage, "Status changed");
+
+        Assert.AreEqual(1, await SendStatusChanged((MerchandiseReturnStatus)status));
+
+        Assert.AreEqual("Status changed", _queued.Single().Subject);
+        _messageTemplateServiceMock.Verify(x => x.GetMessageTemplateByName(
+            It.Is<string>(n => n != MessageTemplateNames.SendMerchandiseReturnStatusChangedCustomerMessage),
+            It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SendStatusChanged_BothMissing_Zero()
+    {
+        Assert.AreEqual(0, await SendStatusChanged(MerchandiseReturnStatus.Accepted));
+
+        Assert.AreEqual(0, _queued.Count);
+    }
 }

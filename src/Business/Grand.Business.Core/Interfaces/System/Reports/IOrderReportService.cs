@@ -101,6 +101,22 @@ public interface IOrderReportService
         int pageIndex = 0, int pageSize = int.MaxValue,
         bool showHidden = false);
 
+    /// <summary>
+    ///     The merchandise returns created in the period by reason, product or vendor: how many returns and units,
+    ///     and for a product the units of it sold by orders placed in the same period. A rejected or cancelled return
+    ///     gives nothing back and is not counted; lines go from the most units returned
+    /// </summary>
+    /// <param name="groupBy">What the lines count the returns by</param>
+    /// <param name="createdFromUtc">Returns and orders created from (UTC)</param>
+    /// <param name="createdToUtc">Returns and orders created to (UTC)</param>
+    /// <param name="storeId">Store identifier; "" for every store</param>
+    /// <param name="vendorId">Vendor identifier; "" for every vendor and the store's own items</param>
+    /// <param name="pageIndex">Page index</param>
+    /// <param name="pageSize">Page size</param>
+    Task<IPagedList<MerchandiseReturnReportLine>> MerchandiseReturnReport(MerchandiseReturnReportGrouping groupBy,
+        DateTime createdFromUtc, DateTime createdToUtc, string storeId = "", string vendorId = "",
+        int pageIndex = 0, int pageSize = int.MaxValue);
+
 
     /// <summary>
     ///     Gets a report of orders in the last days

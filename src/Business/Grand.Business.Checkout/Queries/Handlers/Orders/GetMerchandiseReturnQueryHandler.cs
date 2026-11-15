@@ -46,6 +46,18 @@ public class
         if (!string.IsNullOrEmpty(request.OrderItemId))
             query = query.Where(rr => rr.MerchandiseReturnItems.Any(x => x.OrderItemId == request.OrderItemId));
 
+        if (!string.IsNullOrEmpty(request.ReturnShippingProvider))
+            query = query.Where(rr =>
+                rr.ReturnShipping != null && rr.ReturnShipping.ProviderSystemName == request.ReturnShippingProvider);
+
+        if (!string.IsNullOrEmpty(request.ReasonId))
+            query = query.Where(rr => rr.MerchandiseReturnItems.Any(x => x.ReasonId == request.ReasonId));
+
+        if (request.OpenOnly)
+            query = query.Where(rr => rr.MerchandiseReturnStatusId == (int)MerchandiseReturnStatus.Pending ||
+                                      rr.MerchandiseReturnStatusId == (int)MerchandiseReturnStatus.Accepted ||
+                                      rr.MerchandiseReturnStatusId == (int)MerchandiseReturnStatus.Received);
+
         if (request.CreatedFromUtc.HasValue)
             query = query.Where(rr => request.CreatedFromUtc.Value <= rr.CreatedOnUtc);
 

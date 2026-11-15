@@ -9,6 +9,7 @@ using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Inventory;
+using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.AdminShared.Services;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -57,8 +58,9 @@ public class InventoryDocumentController(
 
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.Create)]
-    public Task<IActionResult> CreateReturnReceipt(string merchandiseReturnId) =>
-        CreateReturnReceiptCore(merchandiseReturnId);
+    public Task<IActionResult> CreateReturnReceipt(string merchandiseReturnId,
+        ReturnReceiptInspectionModel inspection = null) =>
+        CreateReturnReceiptCore(merchandiseReturnId, inspection);
 
     [HttpGet]
     [PermissionAuthorizeAction(PermissionActionName.Preview)]

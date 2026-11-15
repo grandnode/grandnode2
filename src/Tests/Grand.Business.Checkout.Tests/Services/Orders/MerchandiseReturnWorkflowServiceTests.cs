@@ -130,7 +130,7 @@ public class MerchandiseReturnWorkflowServiceTests
         _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.Is<MerchandiseReturn>(r =>
             r.MerchandiseReturnStatus == MerchandiseReturnStatus.Accepted)), Times.Once);
         _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
-            It.Is<MerchandiseReturn>(r => r.Id == "r1"), _order, "customer-language"), Times.Once);
+            It.Is<MerchandiseReturn>(r => r.Id == "r1"), _order, "customer-language", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -194,7 +194,7 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, error);
         _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
         _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
-            It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>()), Times.Never);
+            It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -294,6 +294,15 @@ public class MerchandiseReturnWorkflowServiceTests
             !n.CreatedByCustomer)), Times.Once);
         _messageProvider.Verify(x => x.SendNewMerchandiseReturnNoteAddedCustomerMessage(
             It.IsAny<MerchandiseReturn>(), It.IsAny<MerchandiseReturnNote>(), It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_Rejected_SendsTheReason()
+    {
+        await _service.ChangeStatus("r1", MerchandiseReturnStatus.Rejected, "Worn out");
+
+        _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
+            It.IsAny<MerchandiseReturn>(), _order, "customer-language", "Worn out"), Times.Once);
     }
 
     [TestMethod]
@@ -423,7 +432,7 @@ public class MerchandiseReturnWorkflowServiceTests
 
         Assert.AreEqual(MerchandiseReturnStatus.Received, _stored.MerchandiseReturnStatus);
         _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
-            _stored, _order, "customer-language"), Times.Once);
+            _stored, _order, "customer-language", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -458,7 +467,7 @@ public class MerchandiseReturnWorkflowServiceTests
     public async Task ChangeStatus_MessageFails_StatusStaysSaved_AndNoErrorReturned()
     {
         _messageProvider.Setup(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
-                It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>()))
+                It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<string>()))
             .ThrowsAsync(new InvalidOperationException("smtp"));
 
         var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Accepted);
@@ -477,7 +486,7 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.IsNull(error);
         Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.MerchandiseReturnStatus);
         _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
-            It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>()), Times.Never);
+            It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -916,7 +925,7 @@ public class MerchandiseReturnWorkflowServiceTests
         var steps = RecordLockRelease();
         _labelService.Setup(x => x.CancelLabel("r1")).Callback(() => steps.Add("cancel")).Returns(Task.CompletedTask);
         _messageProvider.Setup(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
-                It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>()))
+                It.IsAny<MerchandiseReturn>(), It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<string>()))
             .Callback(() => steps.Add("message")).ReturnsAsync(1);
 
         var error = await _service.ChangeStatus("r1", status);
@@ -940,7 +949,7 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.IsNull(error);
         _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
             It.Is<MerchandiseReturn>(r => r.ReturnShipping.LabelStatus == ReturnLabelStatus.Cancelled), _order,
-            "customer-language"), Times.Once);
+            "customer-language", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -957,7 +966,7 @@ public class MerchandiseReturnWorkflowServiceTests
 
         Assert.IsNull(error);
         _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
-            inMemory, _order, "customer-language"), Times.Once);
+            inMemory, _order, "customer-language", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]
@@ -971,7 +980,7 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.IsNull(error);
         Assert.AreEqual(MerchandiseReturnStatus.Rejected, _stored.MerchandiseReturnStatus);
         _messageProvider.Verify(x => x.SendMerchandiseReturnStatusChangedCustomerMessage(
-            _stored, _order, "customer-language"), Times.Once);
+            _stored, _order, "customer-language", It.IsAny<string>()), Times.Once);
     }
 
     [TestMethod]

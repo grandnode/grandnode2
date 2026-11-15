@@ -86,12 +86,20 @@ public class BaseReportsControllerTests
         _vendorServiceMock.Setup(v => v.GetAllVendors("", 0, int.MaxValue, true))
             .ReturnsAsync(new PagedList<Vendor>(new List<Vendor>(), 0, int.MaxValue));
         var dateTimeServiceMock = new Mock<IDateTimeService>();
+        dateTimeServiceMock.Setup(d => d.CurrentTimeZone).Returns(TimeZoneInfo.Utc);
+        dateTimeServiceMock.Setup(d => d.ConvertToUserTime(It.IsAny<DateTime>(), DateTimeKind.Utc))
+            .Returns<DateTime, DateTimeKind>((dt, _) => dt);
+        dateTimeServiceMock.Setup(d => d.ConvertToUtcTime(It.IsAny<DateTime>(), It.IsAny<TimeZoneInfo>()))
+            .Returns<DateTime, TimeZoneInfo>((dt, _) => dt);
         var orderStatusServiceMock = new Mock<IOrderStatusService>();
         orderStatusServiceMock.Setup(o => o.GetAll()).ReturnsAsync(new List<Grand.Domain.Orders.OrderStatus>());
         var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
         enumTranslationServiceMock.Setup(e => e.ToSelectList(Grand.Domain.Payments.PaymentStatus.Pending, false, null))
             .Returns(new Microsoft.AspNetCore.Mvc.Rendering.SelectList(new List<Microsoft.AspNetCore.Mvc.Rendering.SelectListItem>()));
         var contextAccessorMock = new Mock<IContextAccessor>();
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.WorkingLanguage).Returns(new Grand.Domain.Localization.Language { Id = "en" });
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
         _scopeMock = new Mock<IReportDataScope>();
         _scopeMock.Setup(s => s.StoreId).Returns("");
         _scopeMock.Setup(s => s.VendorId).Returns("");
@@ -307,5 +315,119 @@ public class BaseReportsControllerTests
 
         _customerReportViewModelServiceMock.Verify(s => s.PrepareBestCustomerReportLineModel(It.IsAny<BestCustomersReportModel>(), 1, 1, 10, "vendor-1"),
             Times.Once);
+    }
+
+    // --- Merchandise return report ---------------------------------------------------------------
+
+    private readonly Mock<IMerchandiseReturnService> _merchandiseReturnServiceMock = new();
+
+    private void ReturnReportLines(params MerchandiseReturnReportLine[] lines) =>
+        _orderReportServiceMock.Setup(o => o.MerchandiseReturnReport(It.IsAny<MerchandiseReturnReportGrouping>(),
+                It.IsAny<DateTime>(), It.IsAny<DateTime>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(),
+                It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<MerchandiseReturnReportLine>(lines, 0, 10));
+
+    private async Task<List<MerchandiseReturnReportLineModel>> ReturnReportList(MerchandiseReturnReportModel model)
+    {
+        var result = await _controller.MerchandiseReturnReportList(new DataSourceRequest { Page = 1, PageSize = 10 },
+            model, _merchandiseReturnServiceMock.Object) as JsonResult;
+        return ((IEnumerable<MerchandiseReturnReportLineModel>)((DataSourceResult)result!.Value!).Data).ToList();
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturnReportList_ScopeForced()
+    {
+        ReturnReportLines();
+        _scopeMock.Setup(s => s.StoreId).Returns("s1");
+
+        await ReturnReportList(new MerchandiseReturnReportModel { StoreId = "s2" });
+
+        _orderReportServiceMock.Verify(o => o.MerchandiseReturnReport(MerchandiseReturnReportGrouping.Reason,
+            It.IsAny<DateTime>(), It.IsAny<DateTime>(), "s1", "", 0, 10), Times.Once);
+    }
+
+    [DataTestMethod]
+    [DataRow(false)]
+    [DataRow(true)]
+    public async Task MerchandiseReturnReportList_NoOrReversedRange_Last30Days(bool reversed)
+    {
+        ReturnReportLines();
+        var today = DateTime.UtcNow.Date;
+        var model = reversed
+            ? new MerchandiseReturnReportModel { StartDate = today, EndDate = today.AddDays(-3) }
+            : new MerchandiseReturnReportModel();
+
+        await ReturnReportList(model);
+
+        _orderReportServiceMock.Verify(o => o.MerchandiseReturnReport(It.IsAny<MerchandiseReturnReportGrouping>(),
+            today.AddDays(-30), today.AddDays(1), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(),
+            It.IsAny<int>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturnReportList_OnlyStart_UntilToday()
+    {
+        ReturnReportLines();
+        var today = DateTime.UtcNow.Date;
+
+        await ReturnReportList(new MerchandiseReturnReportModel { StartDate = today.AddDays(-90) });
+
+        _orderReportServiceMock.Verify(o => o.MerchandiseReturnReport(It.IsAny<MerchandiseReturnReportGrouping>(),
+            today.AddDays(-90), today.AddDays(1), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(),
+            It.IsAny<int>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturnReportList_OnlyEnd_ThirtyDaysBeforeIt()
+    {
+        ReturnReportLines();
+        var end = DateTime.UtcNow.Date.AddDays(-60);
+
+        await ReturnReportList(new MerchandiseReturnReportModel { EndDate = end });
+
+        _orderReportServiceMock.Verify(o => o.MerchandiseReturnReport(It.IsAny<MerchandiseReturnReportGrouping>(),
+            end.AddDays(-30), end.AddDays(1), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<int>(),
+            It.IsAny<int>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturnReportList_VendorGroupingInVendorPanel_ByReason()
+    {
+        ReturnReportLines();
+        _scopeMock.Setup(s => s.VendorId).Returns("v1");
+
+        await ReturnReportList(new MerchandiseReturnReportModel { GroupBy = (int)MerchandiseReturnReportGrouping.Vendor });
+
+        _orderReportServiceMock.Verify(o => o.MerchandiseReturnReport(MerchandiseReturnReportGrouping.Reason,
+            It.IsAny<DateTime>(), It.IsAny<DateTime>(), "", "v1", It.IsAny<int>(), It.IsAny<int>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturnReportList_ReasonLabelTranslatedElseSnapshot()
+    {
+        ReturnReportLines(new MerchandiseReturnReportLine { Key = "r1", Name = "Damaged", Quantity = 3 },
+            new MerchandiseReturnReportLine { Key = "r2", Name = "Old text", Quantity = 2 },
+            new MerchandiseReturnReportLine { Key = "", Name = null, Quantity = 1 });
+        _merchandiseReturnServiceMock.Setup(m => m.GetMerchandiseReturnReasonById("r1"))
+            .ReturnsAsync(new Grand.Domain.Orders.MerchandiseReturnReason { Id = "r1", Name = "Broken" });
+
+        var lines = await ReturnReportList(new MerchandiseReturnReportModel());
+
+        CollectionAssert.AreEqual(new[] { "Broken", "Old text", "resource" }, lines.Select(x => x.Name).ToArray());
+    }
+
+    [TestMethod]
+    public async Task MerchandiseReturnReportList_Rate()
+    {
+        ReturnReportLines(new MerchandiseReturnReportLine { Key = "p1", Quantity = 2, SoldQuantity = 8 },
+            new MerchandiseReturnReportLine { Key = "p2", Quantity = 1, SoldQuantity = 0 });
+        _productServiceMock.Setup(p => p.GetProductById("p1")).ReturnsAsync(new Product { Id = "p1", Name = "Mug" });
+
+        var lines = await ReturnReportList(
+            new MerchandiseReturnReportModel { GroupBy = (int)MerchandiseReturnReportGrouping.Product });
+
+        Assert.AreEqual("Mug", lines[0].Name);
+        Assert.AreEqual(0.25, lines[0].ReturnRate);
+        Assert.IsNull(lines[1].ReturnRate);
     }
 }

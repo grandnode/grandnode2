@@ -104,16 +104,20 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
     /// <param name="merchandiseReturn">Merchandise return</param>
     /// <param name="order">Order</param>
     /// <param name="languageId">Message language identifier</param>
+    /// <param name="statusNote">The note shown to the customer with the change</param>
     public virtual async Task<int> SendMerchandiseReturnStatusChangedCustomerMessage(
-        MerchandiseReturn merchandiseReturn, Order order, string languageId)
+        MerchandiseReturn merchandiseReturn, Order order, string languageId, string statusNote = null)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
         var store = await _messageLookupService.GetStore(order.StoreId);
         var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
 
+        //the status's own message, else the generic one: no change goes untold for a missing or inactive template
+        var statusTemplate = MessageTemplateNames.MerchandiseReturnStatusTemplate(merchandiseReturn.MerchandiseReturnStatus);
         var messageTemplate =
-            await _messageLookupService.GetMessageTemplate(MessageTemplateNames.SendMerchandiseReturnStatusChangedCustomerMessage, store.Id);
+            (statusTemplate == null ? null : await _messageLookupService.GetMessageTemplate(statusTemplate, store.Id))
+            ?? await _messageLookupService.GetMessageTemplate(MessageTemplateNames.SendMerchandiseReturnStatusChangedCustomerMessage, store.Id);
         if (messageTemplate == null)
             return 0;
 
@@ -128,7 +132,7 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
 
         builder.AddCustomerTokensIfNotNull(customer, store, host, language);
 
-        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, host, order, language);
+        builder.AddMerchandiseReturnTokens(merchandiseReturn, store, host, order, language, statusNote: statusNote);
         var liquidObject = await builder.BuildAsync();
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);

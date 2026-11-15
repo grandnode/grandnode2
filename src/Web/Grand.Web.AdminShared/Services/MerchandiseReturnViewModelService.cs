@@ -60,6 +60,7 @@ public class MerchandiseReturnViewModelService(
     IRequestPermissionService permissionService,
     IPermissionService actionPermissionService,
     IMerchandiseReturnRefundService merchandiseReturnRefundService,
+    IVendorService vendorService,
     ILogger<MerchandiseReturnViewModelService> logger)
     : IMerchandiseReturnViewModelService
 {
@@ -105,6 +106,7 @@ public class MerchandiseReturnViewModelService(
             .Where(x => x != MerchandiseReturnStatus.Received || receivedByHand)
             .Select(x => (int)x).ToList();
         model.CreatedOn = dateTimeService.ConvertToUserTime(merchandiseReturn.CreatedOnUtc, DateTimeKind.Utc);
+        model.DaysOpen = merchandiseReturn.DaysOpen(DateTime.UtcNow);
         model.PickupDate = merchandiseReturn.PickupDate;
         model.UserFields = merchandiseReturn.UserFields;
 
@@ -244,17 +246,41 @@ public class MerchandiseReturnViewModelService(
             ? null
             : dateTimeService.ConvertToUtcTime(model.EndDate.Value, dateTimeService.CurrentTimeZone);
 
+        //open longer than N days: still handled, and created before N days ago
+        var openOnly = model.OpenLongerThanDays > 0;
+        if (openOnly)
+        {
+            //capped at a year so a huge posted value cannot push the date below DateTime.MinValue
+            var openSince = DateTime.UtcNow.AddDays(-Math.Min(model.OpenLongerThanDays.Value, 365));
+            endDateValue = endDateValue == null || endDateValue > openSince ? openSince : endDateValue;
+        }
+
+        var orderId = "";
+        if (model.SearchOrderNumber.HasValue)
+        {
+            //an order of another store finds nothing: the store of the return is filtered too
+            var order = await orderService.GetOrderByNumber(model.SearchOrderNumber.Value);
+            if (order == null)
+                return ([], 0);
+            orderId = order.Id;
+        }
+
         var merchandiseReturns = await merchandiseReturnService.SearchMerchandiseReturns(
             storeId: scope.DefaultStoreId ?? "",
             customerId: customerId,
-            vendorId: scope.DefaultVendorId ?? "",
+            //the vendor panel's vendor comes from its scope, never from the request
+            vendorId: scope.DefaultVendorId ?? model.SearchVendorId ?? "",
             rs: model.SearchMerchandiseReturnStatusId >= 0
                 ? (MerchandiseReturnStatus?)model.SearchMerchandiseReturnStatusId
                 : null,
             pageIndex: pageIndex - 1,
             pageSize: pageSize,
             createdFromUtc: startDateValue,
-            createdToUtc: endDateValue);
+            createdToUtc: endDateValue,
+            orderId: orderId,
+            returnShippingProvider: model.SearchReturnShippingProvider ?? "",
+            reasonId: model.SearchReasonId ?? "",
+            openOnly: openOnly);
         var merchandiseReturnModels = new List<MerchandiseReturnModel>();
         foreach (var rr in merchandiseReturns)
         {
@@ -321,7 +347,7 @@ public class MerchandiseReturnViewModelService(
         return model;
     }
 
-    public virtual MerchandiseReturnListModel PrepareReturnRequestListModel()
+    public virtual async Task<MerchandiseReturnListModel> PrepareReturnRequestListModel()
     {
         var model = new MerchandiseReturnListModel {
             //every return is listed at first, not only the pending ones
@@ -335,6 +361,26 @@ public class MerchandiseReturnViewModelService(
                 Selected = true
             });
 
+        SelectListItem All() => new() { Text = translationService.GetResource("Admin.Common.All"), Value = "" };
+        //a vendor sees its own returns only, so it picks no vendor
+        if (scope.DefaultVendorId == null)
+        {
+            model.AvailableVendors.Add(All());
+            foreach (var vendor in await vendorService.GetAllVendors(showHidden: true))
+                model.AvailableVendors.Add(new SelectListItem { Text = vendor.Name, Value = vendor.Id });
+        }
+
+        model.AvailableReturnShippingProviders.Add(All());
+        foreach (var provider in returnShippingService.LoadAllProviders(storeId: scope.DefaultStoreId ?? ""))
+            model.AvailableReturnShippingProviders.Add(new SelectListItem
+                { Text = provider.FriendlyName, Value = provider.SystemName });
+
+        model.AvailableReasons.Add(All());
+        var languageId = contextAccessor.WorkContext.WorkingLanguage.Id;
+        foreach (var reason in await merchandiseReturnService.GetAllMerchandiseReturnReasons(scope.DefaultStoreId ?? ""))
+            model.AvailableReasons.Add(new SelectListItem
+                { Text = reason.GetTranslation(x => x.Name, languageId), Value = reason.Id });
+
         return model;
     }
 
@@ -344,12 +390,17 @@ public class MerchandiseReturnViewModelService(
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         var items = new List<MerchandiseReturnModel.MerchandiseReturnItemModel>();
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        //what was found on receipt, read from the posted receipts in every panel, the vendor's too
+        var inspected = (await inventoryDocumentService.GetReturnReceipts(merchandiseReturn.Id))?.Inspected ?? [];
 
         foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
             var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
             ArgumentNullException.ThrowIfNull(orderItem);
+            var found = inspected.FirstOrDefault(x => x.ReturnItemId == item.Id);
             items.Add(new MerchandiseReturnModel.MerchandiseReturnItemModel {
+                Restocked = found?.Restocked,
+                Scrapped = found?.Scrapped,
                 ProductId = orderItem.ProductId,
                 ProductName = (await productService.GetProductByIdIncludeArch(orderItem.ProductId)).Name,
                 ProductSku = orderItem.Sku,
@@ -363,14 +414,18 @@ public class MerchandiseReturnViewModelService(
         return items;
     }
 
-    public virtual async Task PrepareReturnReceipts(MerchandiseReturnModel model)
+    public virtual async Task PrepareReturnReceipts(MerchandiseReturnModel model,
+        MerchandiseReturn merchandiseReturn)
     {
         ArgumentNullException.ThrowIfNull(model);
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
         var receipts = await inventoryDocumentService.GetReturnReceipts(model.Id);
         //a staff member without inventory documents sees the receipts named, and creates or opens none
         var managesDocuments = await permissionService.Authorize(PermissionSystemName.InventoryDocuments);
         model.CanReceiveToStock = managesDocuments && receipts.QuantityLeft;
+        if (model.CanReceiveToStock)
+            await PrepareReceiveToStock(model, merchandiseReturn, receipts);
         model.ReturnReceipts = new List<MerchandiseReturnModel.ReturnReceiptModel>();
         var storeId = await warehouseScope.GetDefaultStoreIdAsync();
         foreach (var receipt in receipts.Receipts)
@@ -382,6 +437,45 @@ public class MerchandiseReturnViewModelService(
                 CanOpen = managesDocuments && (storeId == null || receipt.StoreId == storeId) &&
                           await CanUse(receipt.WarehouseId)
             });
+    }
+
+    /// <summary>
+    ///     What "Receive to stock" asks about, and the warehouses the panel books: the drop-off point's is chosen when
+    ///     it is one of them, else the one the items were sold from
+    /// </summary>
+    private async Task PrepareReceiveToStock(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn,
+        MerchandiseReturnReceipts receipts)
+    {
+        foreach (var left in receipts.Left)
+        {
+            var product = await productService.GetProductByIdIncludeArch(left.ProductId);
+            model.ReceiveToStockLines.Add(new MerchandiseReturnModel.ReceiveToStockLineModel {
+                ReturnItemId = left.ReturnItemId,
+                ProductId = left.ProductId,
+                ProductName = product?.Name,
+                ProductSku = product?.Sku,
+                QuantityLeft = left.Quantity
+            });
+        }
+
+        model.AvailableReceiveToStockWarehouses.Add(new SelectListItem {
+            Text = translationService.GetResource("Admin.Orders.MerchandiseReturns.Inspection.WarehouseAsSold"),
+            Value = ""
+        });
+        foreach (var warehouse in await warehouseService.GetAllWarehouses())
+            if (await warehouseScope.HasAccess(warehouse))
+                model.AvailableReceiveToStockWarehouses.Add(new SelectListItem
+                    { Text = warehouse.Name, Value = warehouse.Id });
+
+        var dropOffWarehouseId = merchandiseReturn.ReturnShipping?.DropOffPoint?.WarehouseId;
+        model.ReceiveToStockWarehouseId =
+            !string.IsNullOrEmpty(dropOffWarehouseId) &&
+            model.AvailableReceiveToStockWarehouses.Any(x => x.Value == dropOffWarehouseId)
+                ? dropOffWarehouseId
+                : "";
+        //the select is posted as the inspection's warehouse, not bound to the model: the item carries the choice
+        foreach (var item in model.AvailableReceiveToStockWarehouses)
+            item.Selected = item.Value == model.ReceiveToStockWarehouseId;
     }
 
     public virtual async Task PrepareRefund(MerchandiseReturnModel model, MerchandiseReturn merchandiseReturn,

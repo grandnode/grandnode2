@@ -17,4 +17,13 @@ public class GetMerchandiseReturnQuery : IRequest<IPagedList<MerchandiseReturn>>
     public int PageSize { get; set; } = int.MaxValue;
     public DateTime? CreatedFromUtc { get; set; } = null;
     public DateTime? CreatedToUtc { get; set; } = null;
+
+    //the system name of the return shipping provider the customer chose
+    public string ReturnShippingProvider { get; set; } = "";
+
+    //a return with an item of this reason
+    public string ReasonId { get; set; } = "";
+
+    //only the returns still being handled: pending, accepted or received
+    public bool OpenOnly { get; set; }
 }
