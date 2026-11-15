@@ -123,6 +123,14 @@ There is no request, so there is no ambient context — it is null or stale.
 ### Never remove a widget zone from a view
 It silently disables every installed widget on that page and is a breaking change for third-party plugins.
 
+### Never use `HttpContext` outside the web layer, and never pass it as a method parameter
+`HttpContext` is the ambient web request. Passing it as a parameter smuggles the whole request into a method that needs only one value, and a business service that reads it stops being callable from a scheduled task, a migration or the message queue.
+→ Inject the specific value (store id, language, customer, `CancellationToken`) or, inside the web layer, `IHttpContextAccessor`. Middleware, filters, tag helpers, model binders and the `IStartupApplication` pipeline are the justified places to touch `HttpContext`; feature services never are.
+
+### Never resolve services from `IServiceProvider` or `HttpContext.RequestServices` in feature code
+It is the service-locator anti-pattern: dependencies stop being constructor-injected, which hides lifetimes and test seams.
+→ Constructor injection. `IMigration.UpgradeProcess(IServiceProvider)` requires it by signature, and the mediator and the plugin loader resolve handlers dynamically — that is infrastructure, not a licence for feature code.
+
 ---
 
 ## Reflection and dynamic code

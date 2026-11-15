@@ -69,6 +69,8 @@ public ProductViewModelService(IProductService productService, ICacheBase cacheB
 
 Do not resolve from `IServiceProvider` inside a service. The exception is `IMigration.UpgradeProcess(IServiceProvider)`, where the signature requires it.
 
+`HttpContext`, `IHttpContextAccessor` and `IServiceProvider` belong to the web layer only, and only where the request itself is the data: middleware, filters, tag helpers, model binders and the `IStartupApplication` pipeline. Never pass `HttpContext` as a method parameter; inject `IHttpContextAccessor` or, better, the specific value the method needs.
+
 ## Async
 
 - `async`/`await` all the way down; no `.Result`, `.Wait()`, or `Task.Run` to bridge sync and async.

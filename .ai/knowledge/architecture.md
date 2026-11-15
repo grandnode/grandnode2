@@ -141,3 +141,6 @@ Handler failure semantics, re-entrancy, and the missing-ambient-context trap are
 | Caching in a controller or mediator handler | Cache in the business service, around the repository call |
 | Reading `IWorkContext` from a scheduled task or migration | Pass store/customer explicitly — there is no ambient context |
 | A cache key that omits the store id for store-scoped data | Include every variable that changes the result |
+| Injecting `HttpContext` or `IHttpContextAccessor` into a business service | The business layer must not reference ASP.NET Core; pass the value (store, customer, language) or the `CancellationToken` explicitly |
+| Passing `HttpContext` as a method parameter | Inject `IHttpContextAccessor` (web layer) or the specific value — a request object is not a data type |
+| Resolving services from `IServiceProvider` or `HttpContext.RequestServices` in a controller or service | Constructor injection; `IMigration.UpgradeProcess(IServiceProvider)` is the signature-driven exception |
