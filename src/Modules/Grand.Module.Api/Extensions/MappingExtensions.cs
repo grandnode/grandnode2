@@ -1,10 +1,12 @@
-﻿using Grand.Module.Api.DTOs.Catalog;
+using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.DTOs.Common;
 using Grand.Module.Api.DTOs.Customers;
+using Grand.Module.Api.DTOs.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Media;
+using Grand.Domain.Orders;
 using Grand.Infrastructure.Mapper;
 
 namespace Grand.Module.Api.Extensions;
@@ -225,6 +227,55 @@ public static class MappingExtensions
     }
 
     public static Address ToEntity(this AddressDto model, Address destination)
+    {
+        return model.MapTo(destination);
+    }
+
+    #endregion
+
+    #region Merchandise return
+
+    public static MerchandiseReturnDto ToModel(this MerchandiseReturn entity)
+    {
+        return entity.MapTo<MerchandiseReturn, MerchandiseReturnDto>();
+    }
+
+    #endregion
+
+    #region Merchandise return reason
+
+    public static MerchandiseReturnReasonDto ToModel(this MerchandiseReturnReason entity)
+    {
+        return entity.MapTo<MerchandiseReturnReason, MerchandiseReturnReasonDto>();
+    }
+
+    public static MerchandiseReturnReason ToEntity(this MerchandiseReturnReasonDto model)
+    {
+        return model.MapTo<MerchandiseReturnReasonDto, MerchandiseReturnReason>();
+    }
+
+    public static MerchandiseReturnReason ToEntity(this MerchandiseReturnReasonDto model,
+        MerchandiseReturnReason destination)
+    {
+        return model.MapTo(destination);
+    }
+
+    #endregion
+
+    #region Merchandise return action
+
+    public static MerchandiseReturnActionDto ToModel(this MerchandiseReturnAction entity)
+    {
+        return entity.MapTo<MerchandiseReturnAction, MerchandiseReturnActionDto>();
+    }
+
+    public static MerchandiseReturnAction ToEntity(this MerchandiseReturnActionDto model)
+    {
+        return model.MapTo<MerchandiseReturnActionDto, MerchandiseReturnAction>();
+    }
+
+    public static MerchandiseReturnAction ToEntity(this MerchandiseReturnActionDto model,
+        MerchandiseReturnAction destination)
     {
         return model.MapTo(destination);
     }
