@@ -440,8 +440,11 @@ public class ProductImportDataObjectTests
 
     private void ExternalWarehouse(string id)
     {
+        var warehouse = new Warehouse { Id = id, ExternallyManaged = true };
         _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
-            .ReturnsAsync(new PagedList<Warehouse>([new Warehouse { Id = id, ExternallyManaged = true }], 0, 10));
+            .ReturnsAsync(new PagedList<Warehouse>([warehouse], 0, 10));
+        //an unknown warehouse is cleared from the product by the import
+        _warehouseServiceMock.Setup(c => c.GetWarehouseById(id)).ReturnsAsync(warehouse);
     }
 
     [TestMethod]
@@ -459,7 +462,7 @@ public class ProductImportDataObjectTests
             new List<ProductDto> { new() { Sku = "SKU-X", StockQuantity = 9 } }, false);
 
         Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
-        Assert.IsFalse(_journal.Table.Any(x => x.MovementTypeId == InventoryMovementType.Import));
+        Assert.IsFalse(_journal.Table.Any());
         Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("managed by an external system")));
     }
 
