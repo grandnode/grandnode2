@@ -82,4 +82,17 @@ public class InventoryTrackingTests
     {
         Assert.AreEqual("", StockBuckets.UnitWarehouse(new Product(), "w9"));
     }
+
+    [TestMethod]
+    [DataRow(false, "w1", "w2", true)]
+    [DataRow(false, "w1", "w1", false)]
+    [DataRow(false, "", "w2", false)]
+    [DataRow(true, "w1", "w2", false)]
+    public void KeptElsewhere_OnlyASingleWarehouseProductInAnother(bool multipleWarehouses, string productWarehouseId,
+        string warehouseId, bool expected)
+    {
+        var product = new Product { UseMultipleWarehouses = multipleWarehouses, WarehouseId = productWarehouseId };
+
+        Assert.AreEqual(expected, StockBuckets.KeptElsewhere(product, warehouseId));
+    }
 }

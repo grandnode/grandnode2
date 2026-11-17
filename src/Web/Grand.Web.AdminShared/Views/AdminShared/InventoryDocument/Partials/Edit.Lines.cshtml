@@ -72,6 +72,13 @@
                             @line.ProductName
                         }
                         <div class="grand-cell-sub">@line.Sku @line.AttributesText</div>
+                        @if (line.KeptInWarehouse != null)
+                        {
+                            <div class="small text-warning-emphasis">
+                                <i class="bi bi-exclamation-triangle"></i>
+                                @string.Format(Loc["Admin.Inventory.Documents.Lines.KeptInOtherWarehouse"], line.KeptInWarehouse)
+                            </div>
+                        }
                         <input type="hidden" asp-for="Lines[i].Id"/>
                     </td>
                     @if (type == InventoryDocumentType.StockCount)

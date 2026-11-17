@@ -709,9 +709,7 @@ public class InventoryDocumentService(
                  product.FindProductAttributeCombination(line.Attributes) == null))
                 Add(StockErrors.CombinationNotFound);
 
-            //a product kept in one warehouse is booked there, or anywhere when it names none
-            if (!product.UseMultipleWarehouses && !string.IsNullOrEmpty(product.WarehouseId) &&
-                product.WarehouseId != document.WarehouseId)
+            if (StockBuckets.KeptElsewhere(product, document.WarehouseId))
                 Add(InventoryDocumentErrors.ProductInOtherWarehouse);
 
             //units are kept in a warehouse: nothing comes in to a tracked product that names none, what it holds

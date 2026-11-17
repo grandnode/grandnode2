@@ -22,6 +22,7 @@ namespace Grand.Web.Admin.Tests.Services;
 public class InventoryDocumentUnitLinesTests
 {
     private readonly Mock<IProductService> _productService = new();
+    private readonly Mock<IWarehouseService> _warehouseService = new();
     private InventoryDocumentViewModelService _service;
 
     [TestInitialize]
@@ -29,11 +30,10 @@ public class InventoryDocumentUnitLinesTests
     {
         var productScope = new Mock<IAdminDataScope<Product>>();
         productScope.Setup(x => x.HasAccess(It.IsAny<Product>())).ReturnsAsync(true);
-        var warehouseService = new Mock<IWarehouseService>();
-        warehouseService.Setup(x => x.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+        _warehouseService.Setup(x => x.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
             .ReturnsAsync(new PagedList<Warehouse>(new List<Warehouse>(), 0, 1));
         _service = new InventoryDocumentViewModelService(new Mock<IInventoryDocumentService>().Object,
-            warehouseService.Object, _productService.Object, new Mock<ICategoryService>().Object,
+            _warehouseService.Object, _productService.Object, new Mock<ICategoryService>().Object,
             new Mock<IBrandService>().Object, new Mock<IRequestTranslationService>().Object,
             new Mock<IEnumTranslationService>().Object, new Mock<IDateTimeService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object, productScope.Object);
@@ -74,6 +74,44 @@ public class InventoryDocumentUnitLinesTests
         var line = model.Lines.Single();
         Assert.AreEqual("A1\nA2", line.SerialNumbersText);
         Assert.AreEqual(InventoryTrackingMode.SerialNumber, line.TrackingMode);
+    }
+
+    [TestMethod]
+    public async Task PrepareLines_ProductKeptInOtherWarehouse_NamesItsWarehouse()
+    {
+        var product = Product(InventoryTrackingMode.None);
+        product.WarehouseId = "w1";
+        _warehouseService.Setup(x => x.GetWarehouseById("w1")).ReturnsAsync(new Warehouse { Name = "WH01" });
+        var document = new InventoryDocument {
+            DocumentTypeId = InventoryDocumentType.Receipt, WarehouseId = "w2",
+            Lines = { new InventoryDocumentLine { ProductId = product.Id, Quantity = 1 } }
+        };
+        var model = new InventoryDocumentModel();
+
+        await _service.PrepareModel(model, document);
+
+        Assert.AreEqual("WH01", model.Lines.Single().KeptInWarehouse);
+    }
+
+    [TestMethod]
+    [DataRow(false, "w1", InventoryDocumentStatus.Draft)]
+    [DataRow(true, "w2", InventoryDocumentStatus.Draft)]
+    [DataRow(false, "w2", InventoryDocumentStatus.Posted)]
+    public async Task PrepareLines_ProductBookableHere_NoWarning(bool multipleWarehouses, string documentWarehouseId,
+        InventoryDocumentStatus status)
+    {
+        var product = Product(InventoryTrackingMode.None);
+        product.WarehouseId = "w1";
+        product.UseMultipleWarehouses = multipleWarehouses;
+        var document = new InventoryDocument {
+            DocumentTypeId = InventoryDocumentType.Receipt, WarehouseId = documentWarehouseId, StatusId = status,
+            Lines = { new InventoryDocumentLine { ProductId = product.Id, Quantity = 1 } }
+        };
+        var model = new InventoryDocumentModel();
+
+        await _service.PrepareModel(model, document);
+
+        Assert.IsNull(model.Lines.Single().KeptInWarehouse);
     }
 
     [TestMethod]

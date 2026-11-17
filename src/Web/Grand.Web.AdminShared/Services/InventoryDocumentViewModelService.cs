@@ -187,7 +187,8 @@ public class InventoryDocumentViewModelService(
                         : InventoryTrackingMode.None,
                     BatchNumber = line.BatchNumber,
                     ExpiryDate = line.ExpiryDateUtc,
-                    SerialNumbersText = string.Join("\n", line.SerialNumbers ?? [])
+                    SerialNumbersText = string.Join("\n", line.SerialNumbers ?? []),
+                    KeptInWarehouse = await KeptInWarehouse(document, product)
                 });
             }
         }
@@ -250,6 +251,18 @@ public class InventoryDocumentViewModelService(
         }
 
         return errors;
+    }
+
+    /// <summary>
+    ///     The name of the one warehouse the product is kept in, when a draft books it in another; posting refuses it
+    /// </summary>
+    private async Task<string> KeptInWarehouse(InventoryDocument document, Product product)
+    {
+        if (product == null || document.StatusId == InventoryDocumentStatus.Posted ||
+            string.IsNullOrEmpty(document.WarehouseId) || !StockBuckets.KeptElsewhere(product, document.WarehouseId))
+            return null;
+
+        return (await warehouseService.GetWarehouseById(product.WarehouseId))?.Name ?? product.WarehouseId;
     }
 
     /// <summary>

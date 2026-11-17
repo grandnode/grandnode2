@@ -1086,6 +1086,9 @@
 	<Resource Name="Admin.Inventory.Documents.NoLines" Area="Admin">
 		<Value>No lines yet: add a product above.</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Lines.KeptInOtherWarehouse" Area="Admin">
+		<Value>Kept in warehouse {0}: the document cannot be posted with this line. Remove it, or change the product's warehouse.</Value>
+	</Resource>
 	<Resource Name="Admin.Inventory.Documents.ReceiveToStock" Area="Admin">
 		<Value>Receive to stock</Value>
 	</Resource>

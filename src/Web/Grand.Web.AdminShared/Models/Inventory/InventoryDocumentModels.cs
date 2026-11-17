@@ -175,6 +175,11 @@ public class InventoryDocumentLineModel : BaseEntityModel
     public string SerialNumbersText { get; set; }
 
     /// <summary>
+    ///     The warehouse the line's product is kept in when it is not the document's, so the draft cannot be posted
+    /// </summary>
+    public string KeptInWarehouse { get; set; }
+
+    /// <summary>
     ///     The line is taken off the draft when it is saved
     /// </summary>
     public bool Remove { get; set; }
