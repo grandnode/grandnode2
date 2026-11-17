@@ -1,6 +1,7 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Models.Common;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Grand.Web.Models.Orders;
 
@@ -47,6 +48,18 @@ public class MerchandiseReturnModel : BaseModel
     ///     Whether the customer adds photos of the items; without it, no reason asks for one
     /// </summary>
     public bool AllowToUploadFiles { get; set; }
+
+    /// <summary>Set by the server only: the largest photo the form accepts, in bytes</summary>
+    [BindNever]
+    public int MaxPhotoBytes { get; set; }
+
+    /// <summary>Set by the server only: the most photos of one item</summary>
+    [BindNever]
+    public int MaxPhotosPerItem { get; set; }
+
+    /// <summary>Set by the server only: the most photos sent with one return</summary>
+    [BindNever]
+    public int MaxPhotosPerSubmit { get; set; }
 
     /// <summary>
     ///     Whether a return method is active for the store and the customer; the options are loaded once a quantity

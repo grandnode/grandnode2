@@ -13,6 +13,7 @@ using Grand.Mediator;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Controllers;
+using Grand.Web.Services;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Microsoft.AspNetCore.Http;
@@ -66,7 +67,8 @@ public class AccountControllerExternalRegisterTests
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object,
             new Mock<IRequestTranslationService>().Object, context.Object, new Mock<ICustomerService>().Object,
             groups.Object, _manager.Object, new Mock<ICountryService>().Object, mediator.Object, _messages.Object,
-            new CaptchaSettings(), _settings, new CustomerConfig());
+            new CaptchaSettings(), _settings, new CustomerConfig(),
+            new Mock<IGuestOrderGrantService>().Object);
         _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         _controller.TempData = new TempDataDictionary(_controller.HttpContext, new Mock<ITempDataProvider>().Object);
         var url = new Mock<IUrlHelper>();

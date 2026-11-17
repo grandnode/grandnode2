@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Pdf;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
@@ -17,8 +18,10 @@ using Grand.Web.Common.Security.Authentication;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Controllers;
+using Grand.Web.Services;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
@@ -75,7 +78,11 @@ public class MerchandiseReturnControllerTests
 
         _controller = new MerchandiseReturnController(_returns.Object, new Mock<IPickupPointService>().Object,
             _orders.Object, context.Object, groupService.Object, translation.Object, _mediator.Object,
-            _labels.Object, _downloads.Object, new AddressSettings(), _orderSettings, _workflow.Object);
+            _labels.Object, _downloads.Object, new AddressSettings(), _orderSettings, _workflow.Object,
+            new GuestOrderGrantService(new Mock<IHttpContextAccessor>().Object, new EphemeralDataProtectionProvider(),
+                new CookieOptionsFactory(new SecurityConfig()), _orderSettings,
+                new Mock<ICustomerService>().Object, groupService.Object),
+            new Mock<ICountryService>().Object);
 
         var httpContext = new DefaultHttpContext {
             RequestServices = new ServiceCollection()

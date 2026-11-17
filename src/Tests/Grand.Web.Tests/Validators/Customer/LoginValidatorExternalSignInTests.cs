@@ -14,7 +14,6 @@ using Grand.SharedKernel.Captcha;
 using Grand.Web.Models.Customer;
 using Grand.Web.Validators.Customer;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 using Grand.Web.Common.Localization;
@@ -57,10 +56,7 @@ public class LoginValidatorExternalSignInTests
 
     private LoginValidator Validator()
     {
-        var services = new ServiceCollection();
-        services.AddSingleton(new Mock<IMediator>().Object);
         var http = new Mock<IHttpContextAccessor>();
-        http.Setup(a => a.HttpContext).Returns(new DefaultHttpContext { RequestServices = services.BuildServiceProvider() });
         var store = new Mock<IStoreContext>();
         store.Setup(s => s.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = "store-1" });
         var ctx = new Mock<IContextAccessor>();
@@ -71,7 +67,7 @@ public class LoginValidatorExternalSignInTests
             new List<IValidatorConsumer<ICaptchaValidModel>>(),
             _customerService.Object, _groups.Object, _encryption.Object, _translation.Object, new CustomerSettings(),
             new CaptchaSettings(), http.Object, new Mock<IGoogleReCaptchaValidator>().Object,
-            ctx.Object, new CustomerConfig(), _policy.Object);
+            ctx.Object, new CustomerConfig(), _policy.Object, new Mock<IMediator>().Object);
     }
 
     [TestMethod]

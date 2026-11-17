@@ -11,6 +11,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -76,6 +77,10 @@ public class GetMerchandiseReturnHandler : IRequestHandler<GetMerchandiseReturn,
                 ? []
                 : await PrepareAvailableReturnActions(),
             AllowToUploadFiles = _orderSettings.MerchandiseReturns_AllowToUploadFiles,
+            //the form checks the photos before posting them against the limits the server holds them to
+            MaxPhotoBytes = MerchandiseReturnUploads.MaxFileBytes,
+            MaxPhotosPerItem = MerchandiseReturnUploads.MaxPhotosPerItem,
+            MaxPhotosPerSubmit = MerchandiseReturnUploads.MaxPhotosPerSubmit,
             //the options themselves depend on the items chosen, so the form loads them once a quantity is chosen
             ReturnShippingEnabled = (await _returnShippingService.LoadActiveProviders(
                 request.Customer, request.Order.StoreId)).Any()

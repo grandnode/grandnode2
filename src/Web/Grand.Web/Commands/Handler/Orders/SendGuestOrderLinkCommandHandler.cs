@@ -1,23 +1,18 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
-using Grand.Business.Core.Interfaces.Common.Directory;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Mediator;
 using Grand.Web.Commands.Models.Orders;
-using Grand.Web.Extensions;
-using Microsoft.AspNetCore.DataProtection;
+using Grand.Web.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Commands.Handler.Orders;
 
 public class SendGuestOrderLinkCommandHandler(
     IOrderService orderService,
-    ICustomerService customerService,
-    IGroupService groupService,
+    IGuestOrderGrantService guestOrderGrantService,
     IOrderMessageProviderService orderMessageProviderService,
-    IDataProtectionProvider dataProtectionProvider,
     ICacheBase cacheBase,
     ILogger<SendGuestOrderLinkCommandHandler> logger)
     : IRequestHandler<SendGuestOrderLinkCommand, bool>
@@ -40,7 +35,7 @@ public class SendGuestOrderLinkCommandHandler(
         //a value can be one order's code and another's number: the first that is a guest's order of the address
         Domain.Orders.Order order = null;
         foreach (var candidate in candidates.Where(x => EmailMatches(x, request.Email)))
-            if (await GuestOrderGrant.GuestOfOrder(candidate, request.Store.Id, customerService, groupService) != null)
+            if (await guestOrderGrantService.GuestOfOrder(candidate, request.Store.Id) != null)
             {
                 order = candidate;
                 break;
@@ -63,7 +58,7 @@ public class SendGuestOrderLinkCommandHandler(
         try
         {
             sent = await orderMessageProviderService.SendGuestOrderLinkCustomerMessage(order,
-                GuestOrderGrant.LinkToken(dataProtectionProvider, order), request.Host) > 0;
+                guestOrderGrantService.LinkToken(order), request.Host) > 0;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

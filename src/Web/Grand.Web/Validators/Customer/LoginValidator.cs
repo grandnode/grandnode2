@@ -27,7 +27,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         IRequestTranslationService translationService, CustomerSettings customerSettings, CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         IContextAccessor workContextAccessor, CustomerConfig customerConfig,
-        IExternalSignInPolicy externalSignInPolicy)
+        IExternalSignInPolicy externalSignInPolicy, IMediator mediator)
         : base(validators)
     {
         var storeId = customerConfig.RegisterCustomersPerStore
@@ -82,8 +82,7 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                         if (!isValid)
                         {
                             context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
-                            await contextAccessor.HttpContext!.RequestServices.GetRequiredService<IMediator>()
-                                .Publish(new CustomerLoginFailedEvent(customer, "wrong credentials"), _);
+                            await mediator.Publish(new CustomerLoginFailedEvent(customer, "wrong credentials"), _);
                         }
                         else if (await externalSignInPolicy.PasswordSignIn(customer, SignInSurface.Storefront) is { Allowed: false } decision)
                         {

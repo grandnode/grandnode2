@@ -11,6 +11,7 @@ using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
+using Grand.Web.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -56,11 +57,16 @@ public class OrderControllerWithdrawApprovalTests
         var customers = new Mock<ICustomerService>();
         customers.Setup(x => x.GetCustomerById(It.IsAny<string>())).ReturnsAsync(new Customer { Id = "nobody" });
 
+        var httpContext = new DefaultHttpContext();
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.Setup(a => a.HttpContext).Returns(httpContext);
+        var guestOrderGrantService = new GuestOrderGrantService(accessor.Object, new EphemeralDataProtectionProvider(),
+            new CookieOptionsFactory(new SecurityConfig()), orderSettings, customers.Object, groupService.Object);
+
         _controller = new OrderController(_orders.Object, context.Object, new Mock<IPaymentService>().Object,
             new Mock<IPaymentTransactionService>().Object, _translation.Object, groupService.Object, _mediator.Object,
-            orderSettings);
+            orderSettings, guestOrderGrantService);
 
-        var httpContext = new DefaultHttpContext();
         var loggerFactory = new Mock<ILoggerFactory>();
         loggerFactory.Setup(x => x.CreateLogger(It.IsAny<string>())).Returns(new Mock<ILogger>().Object);
         var urlHelperFactory = new Mock<IUrlHelperFactory>();

@@ -8,10 +8,13 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
+using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Handler.Orders;
 using Grand.Web.Commands.Models.Orders;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
+using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.DataProtection;
+using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -31,7 +34,7 @@ public class SendGuestOrderLinkCommandHandlerTests
     private Mock<IOrderMessageProviderService> _messages;
     private Order _order;
     private List<Order> _otherOrders;
-    private IDataProtectionProvider _provider;
+    private GuestOrderGrantService _grant;
     private string _sentToken;
 
     [TestInitialize]
@@ -64,9 +67,9 @@ public class SendGuestOrderLinkCommandHandlerTests
             .Callback<string, bool>((key, _) => seen.Remove(key))
             .Returns(Task.CompletedTask);
 
-        _provider = new EphemeralDataProtectionProvider();
-        _handler = new SendGuestOrderLinkCommandHandler(orders.Object, customers.Object, _groups.Object,
-            _messages.Object, _provider, cache.Object,
+        _grant = new GuestOrderGrantService(new Mock<IHttpContextAccessor>().Object, new EphemeralDataProtectionProvider(),
+            new CookieOptionsFactory(new SecurityConfig()), new OrderSettings(), customers.Object, _groups.Object);
+        _handler = new SendGuestOrderLinkCommandHandler(orders.Object, _grant, _messages.Object, cache.Object,
             NullLogger<SendGuestOrderLinkCommandHandler>.Instance);
     }
 
@@ -89,7 +92,7 @@ public class SendGuestOrderLinkCommandHandlerTests
         Assert.IsTrue(await Send(" Guest@Example.com "));
 
         VerifySent(Times.Once());
-        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
+        Assert.AreEqual("o1", _grant.LinkOrderId(_sentToken, "s1"));
     }
 
     [TestMethod]
@@ -146,7 +149,7 @@ public class SendGuestOrderLinkCommandHandlerTests
             { Id = "o3", Code = "K7Q2M9XA", StoreId = "s1", CustomerId = "g1", CustomerEmail = "other@example.com" });
 
         Assert.IsTrue(await Send());
-        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
+        Assert.AreEqual("o1", _grant.LinkOrderId(_sentToken, "s1"));
     }
 
     [TestMethod]
@@ -159,7 +162,7 @@ public class SendGuestOrderLinkCommandHandlerTests
         });
 
         Assert.IsTrue(await Send());
-        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, _sentToken, "s1"));
+        Assert.AreEqual("o1", _grant.LinkOrderId(_sentToken, "s1"));
     }
 
     [TestMethod]

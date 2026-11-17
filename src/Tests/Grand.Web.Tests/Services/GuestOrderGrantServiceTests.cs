@@ -4,21 +4,20 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Authentication;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
-using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Web.Tests.Extensions;
+namespace Grand.Web.Tests.Services;
 
 /// <summary>
 ///     The link a guest gets by e-mail and the grant it leaves in the browser open one order of one store, for a
 ///     limited time, and only while the order's customer has no account
 /// </summary>
 [TestClass]
-public class GuestOrderGrantTests
+public class GuestOrderGrantServiceTests
 {
     private readonly Order _order = new() { Id = "o1", StoreId = "s1", CustomerId = "g1" };
     private readonly Customer _guest = new() { Id = "g1" };
@@ -40,16 +39,20 @@ public class GuestOrderGrantTests
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(false);
     }
 
-    private DefaultHttpContext Context(string cookie = null)
+    private static DefaultHttpContext Context(string cookie = null)
     {
-        var context = new DefaultHttpContext {
-            RequestServices = new ServiceCollection().AddSingleton(_provider)
-                .AddSingleton<ICookieOptionsFactory>(new CookieOptionsFactory(_securityConfig))
-                .BuildServiceProvider()
-        };
+        var context = new DefaultHttpContext();
         if (cookie != null)
             context.Request.Headers.Cookie = $".Grand.GuestOrder={cookie}";
         return context;
+    }
+
+    private GuestOrderGrantService Create(DefaultHttpContext context = null)
+    {
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.Setup(a => a.HttpContext).Returns(context ?? Context());
+        return new GuestOrderGrantService(accessor.Object, _provider, new CookieOptionsFactory(_securityConfig),
+            new OrderSettings(), _customers.Object, _groups.Object);
     }
 
     private static string CookieValue(HttpContext context)
@@ -62,44 +65,44 @@ public class GuestOrderGrantTests
     [TestMethod]
     public void LinkToken_RoundTrips_OrderId()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order);
+        var token = Create().LinkToken(_order);
 
-        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, token, "s1"));
+        Assert.AreEqual("o1", Create().LinkOrderId(token, "s1"));
     }
 
     [TestMethod]
     public void LinkOrderId_OtherStore_Null()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order);
+        var token = Create().LinkToken(_order);
 
-        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, token, "s2"));
+        Assert.IsNull(Create().LinkOrderId(token, "s2"));
     }
 
     [TestMethod]
     public void LinkOrderId_Tampered_Null()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order);
+        var token = Create().LinkToken(_order);
         var middle = token.Length / 2;
         var tampered = token[..middle] + (token[middle] == 'A' ? 'B' : 'A') + token[(middle + 1)..];
 
-        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, tampered, "s1"));
+        Assert.IsNull(Create().LinkOrderId(tampered, "s1"));
     }
 
     [TestMethod]
     public void LinkOrderId_Expired_Null()
     {
-        var token = _provider.CreateProtector(GuestOrderGrant.LinkPurpose).ToTimeLimitedDataProtector()
+        var token = _provider.CreateProtector(GuestOrderGrantService.LinkPurpose).ToTimeLimitedDataProtector()
             .Protect("o1|s1", DateTimeOffset.UtcNow.AddMinutes(-1));
 
-        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, token, "s1"));
+        Assert.IsNull(Create().LinkOrderId(token, "s1"));
     }
 
     [TestMethod]
     public void LinkToken_NotAcceptedAsGrant()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order);
+        var token = Create().LinkToken(_order);
 
-        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(token), "s1"));
+        Assert.IsNull(Create(Context(token)).GrantedOrderId("s1"));
     }
 
     [TestMethod]
@@ -107,7 +110,7 @@ public class GuestOrderGrantTests
     {
         var context = Context();
 
-        GuestOrderGrant.Grant(context, _order);
+        Create(context).Grant(_order);
 
         var header = context.Response.Headers.SetCookie.ToString().ToLowerInvariant();
         StringAssert.StartsWith(header, ".grand.guestorder=");
@@ -115,7 +118,7 @@ public class GuestOrderGrantTests
         StringAssert.Contains(header, "secure");
         StringAssert.Contains(header, "samesite=lax");
         StringAssert.Contains(header, "path=/");
-        Assert.AreEqual("o1", GuestOrderGrant.GrantedOrderId(Context(CookieValue(context)), "s1"));
+        Assert.AreEqual("o1", Create(Context(CookieValue(context))).GrantedOrderId("s1"));
     }
 
     [TestMethod]
@@ -124,7 +127,7 @@ public class GuestOrderGrantTests
         //a shared computer does not keep it once the browser is closed; the payload still expires on its own
         var context = Context();
 
-        GuestOrderGrant.Grant(context, _order);
+        Create(context).Grant(_order);
 
         Assert.IsFalse(context.Response.Headers.SetCookie.ToString().Contains("expires",
             StringComparison.OrdinalIgnoreCase));
@@ -139,7 +142,7 @@ public class GuestOrderGrantTests
         _securityConfig.CookieSameSite = SameSiteMode.Strict;
         var context = Context();
 
-        GuestOrderGrant.Grant(context, _order);
+        Create(context).Grant(_order);
 
         var header = context.Response.Headers.SetCookie.ToString().ToLowerInvariant();
         StringAssert.StartsWith(header, ".shop.guestorder=");
@@ -151,22 +154,22 @@ public class GuestOrderGrantTests
     public void GrantedOrderId_OtherStore_Null()
     {
         var context = Context();
-        GuestOrderGrant.Grant(context, _order);
+        Create(context).Grant(_order);
 
-        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(CookieValue(context)), "s2"));
+        Assert.IsNull(Create(Context(CookieValue(context))).GrantedOrderId("s2"));
     }
 
     [TestMethod]
     public void GrantedOrderId_NoCookie_Null()
     {
-        Assert.IsNull(GuestOrderGrant.GrantedOrderId(Context(), "s1"));
+        Assert.IsNull(Create(Context()).GrantedOrderId("s1"));
     }
 
     [TestMethod]
     public async Task GuestOfOrder_Guest_Customer()
     {
         Assert.AreSame(_guest,
-            await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+            await Create().GuestOfOrder(_order, "s1"));
     }
 
     [TestMethod]
@@ -174,13 +177,13 @@ public class GuestOrderGrantTests
     {
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(true);
 
-        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await Create().GuestOfOrder(_order, "s1"));
     }
 
     [TestMethod]
     public async Task GuestOfOrder_OtherStore_Null()
     {
-        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s2", _customers.Object, _groups.Object));
+        Assert.IsNull(await Create().GuestOfOrder(_order, "s2"));
     }
 
     [TestMethod]
@@ -188,7 +191,7 @@ public class GuestOrderGrantTests
     {
         _order.Deleted = true;
 
-        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await Create().GuestOfOrder(_order, "s1"));
     }
 
     [TestMethod]
@@ -196,6 +199,6 @@ public class GuestOrderGrantTests
     {
         _order.CustomerId = "nobody";
 
-        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await Create().GuestOfOrder(_order, "s1"));
     }
 }

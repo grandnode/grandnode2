@@ -16,7 +16,7 @@ using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Microsoft.AspNetCore.DataProtection;
@@ -100,12 +100,21 @@ public class MerchandiseReturnControllerGuestTests
         _controller = new MerchandiseReturnController(returns.Object, new Mock<IPickupPointService>().Object,
             orders.Object, context.Object, _groups.Object, translation.Object, _mediator.Object,
             new Mock<IMerchandiseReturnLabelService>().Object, new Mock<IDownloadService>().Object,
-            new AddressSettings(), _orderSettings, _workflow.Object) {
+            new AddressSettings(), _orderSettings, _workflow.Object, NewGrant(_httpContext),
+            new Mock<ICountryService>().Object) {
             ControllerContext = new ControllerContext { HttpContext = _httpContext }
         };
         _controller.TempData = new TempDataDictionary(_httpContext, new Mock<ITempDataProvider>().Object);
         //the services hold no routing: redirects get their URLs from a helper of their own
         _controller.Url = new Mock<IUrlHelper>().Object;
+    }
+
+    private GuestOrderGrantService NewGrant(HttpContext context)
+    {
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.Setup(a => a.HttpContext).Returns(context);
+        return new GuestOrderGrantService(accessor.Object, _provider, new CookieOptionsFactory(new SecurityConfig()),
+            _orderSettings, _httpContext.RequestServices.GetRequiredService<ICustomerService>(), _groups.Object);
     }
 
     /// <summary>
@@ -114,7 +123,7 @@ public class MerchandiseReturnControllerGuestTests
     private void Grant(Order order)
     {
         var granting = new DefaultHttpContext { RequestServices = _httpContext.RequestServices };
-        GuestOrderGrant.Grant(granting, order);
+        NewGrant(granting).Grant(order);
         var header = granting.Response.Headers.SetCookie.ToString();
         _httpContext.Request.Headers.Cookie = header[..header.IndexOf(';')];
     }

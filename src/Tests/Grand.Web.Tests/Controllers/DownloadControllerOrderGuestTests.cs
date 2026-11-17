@@ -16,7 +16,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -114,16 +114,30 @@ public class DownloadControllerOrderGuestTests
                 .BuildServiceProvider()
         };
         var granting = new DefaultHttpContext { RequestServices = _httpContext.RequestServices };
-        GuestOrderGrant.Grant(granting, order1);
+        NewGrant(granting).Grant(order1);
         var header = granting.Response.Headers.SetCookie.ToString();
         _httpContext.Request.Headers.Cookie = header[..header.IndexOf(';')];
 
         _controller = new DownloadController(downloads.Object, products.Object, orders.Object,
             new Mock<IMerchandiseReturnService>().Object, context.Object,
             new Mock<IRequestTranslationService>().Object,
-            new CustomerSettings { DownloadableProductsValidateUser = true }, groups.Object, orderSettings) {
+            new CustomerSettings { DownloadableProductsValidateUser = true }, groups.Object,
+            NewGrant(_httpContext)) {
             ControllerContext = new ControllerContext { HttpContext = _httpContext }
         };
+    }
+
+    private GuestOrderGrantService NewGrant(HttpContext context)
+    {
+        var accessor = new Mock<IHttpContextAccessor>();
+        accessor.Setup(a => a.HttpContext).Returns(context);
+        var services = _httpContext.RequestServices;
+        return new GuestOrderGrantService(accessor.Object,
+            services.GetRequiredService<IDataProtectionProvider>(),
+            new CookieOptionsFactory(new SecurityConfig()),
+            services.GetRequiredService<OrderSettings>(),
+            services.GetRequiredService<ICustomerService>(),
+            services.GetRequiredService<IGroupService>());
     }
 
     private static Order Paid(Order order)

@@ -27,6 +27,7 @@ using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Customer;
+using Grand.Web.Services;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
@@ -52,7 +53,8 @@ public class AccountController : BasePublicController
         ICustomerMessageProviderService customerMessageProviderService,
         CaptchaSettings captchaSettings,
         CustomerSettings customerSettings,
-        CustomerConfig customerConfig)
+        CustomerConfig customerConfig,
+        IGuestOrderGrantService guestOrderGrantService)
     {
         _authenticationService = authenticationService;
         _translationService = translationService;
@@ -66,6 +68,7 @@ public class AccountController : BasePublicController
         _captchaSettings = captchaSettings;
         _mediator = mediator;
         _customerConfig = customerConfig;
+        _guestOrderGrantService = guestOrderGrantService;
     }
 
     /// <summary>
@@ -177,6 +180,7 @@ public class AccountController : BasePublicController
     private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly CustomerSettings _customerSettings;
     private readonly CustomerConfig _customerConfig;
+    private readonly IGuestOrderGrantService _guestOrderGrantService;
     private readonly CaptchaSettings _captchaSettings;
 
     #endregion
@@ -194,7 +198,8 @@ public class AccountController : BasePublicController
         var model = new LoginModel {
             UsernamesEnabled = _customerSettings.UsernamesEnabled,
             CheckoutAsGuest = checkoutAsGuest.GetValueOrDefault(),
-            DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage
+            DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage,
+            DisplayGuestOrderLink = _guestOrderGrantService.Allowed
         };
         if (!oidcLoginConfig.ProviderOnly)
             return View(model);
@@ -274,6 +279,7 @@ public class AccountController : BasePublicController
         //If we got this far, something failed, redisplay form
         model.UsernamesEnabled = _customerSettings.UsernamesEnabled;
         model.DisplayCaptcha = _captchaSettings.Enabled && _captchaSettings.ShowOnLoginPage;
+        model.DisplayGuestOrderLink = _guestOrderGrantService.Allowed;
 
         return View(model);
     }
@@ -522,7 +528,8 @@ public class AccountController : BasePublicController
                 return Redirect(signInUrl);
             return View("Login", new LoginModel {
                 UsernamesEnabled = _customerSettings.UsernamesEnabled,
-                ExternalSignInUnavailable = true
+                ExternalSignInUnavailable = true,
+                DisplayGuestOrderLink = _guestOrderGrantService.Allowed
             });
         }
 

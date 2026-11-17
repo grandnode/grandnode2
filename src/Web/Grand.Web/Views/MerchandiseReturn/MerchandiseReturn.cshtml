@@ -362,9 +362,9 @@
                                                                     photosInvalid = Loc["MerchandiseReturns.Photos.Invalid"].Value,
                                                                     nothingChosen = Loc["MerchandiseReturns.NoItemsSubmitted"].Value,
                                                                     photoTypes,
-                                                                    maxPhotoBytes = Grand.Web.Extensions.MerchandiseReturnUploads.MaxFileBytes,
-                                                                    maxPhotosPerItem = Grand.Web.Extensions.MerchandiseReturnUploads.MaxPhotosPerItem,
-                                                                    maxPhotosPerSubmit = Grand.Web.Extensions.MerchandiseReturnUploads.MaxPhotosPerSubmit,
+                                                                    maxPhotoBytes = Model.MaxPhotoBytes,
+                                                                    maxPhotosPerItem = Model.MaxPhotosPerItem,
+                                                                    maxPhotosPerSubmit = Model.MaxPhotosPerSubmit,
                                                                     estimateUrl = Url.RouteUrl("MerchandiseReturnEstimate", new { orderId = Model.OrderId }),
                                                                     returnShipping = Model.ReturnShippingEnabled,
                                                                     choosePoint = Model.ReturnShippingEnabled
