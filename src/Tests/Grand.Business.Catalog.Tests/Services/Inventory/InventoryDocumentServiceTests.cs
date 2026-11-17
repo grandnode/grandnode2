@@ -896,6 +896,53 @@ public class InventoryDocumentServiceTests
     }
 
     [TestMethod]
+    public async Task Validate_ReceiptIntoExternalWarehouse_Refused()
+    {
+        var product = await Product(p => p.WarehouseId = "wx");
+        var document = Document(InventoryDocumentType.Receipt, Line(product, 2));
+        document.WarehouseId = "wx";
+
+        var errors = await _service.Validate(document);
+
+        CollectionAssert.Contains(errors.ToList(), InventoryDocumentErrors.ExternalWarehouse);
+    }
+
+    [TestMethod]
+    public async Task Validate_ReceiptOfProductKeptInExternalWarehouse_Refused()
+    {
+        //a product kept in one warehouse books there whatever the document names: the document must not be the way in
+        var product = await Product(p => p.WarehouseId = "wx");
+
+        var errors = await _service.Validate(Document(InventoryDocumentType.Receipt, Line(product, 2)));
+
+        CollectionAssert.Contains(errors.ToList(), InventoryDocumentErrors.ProductInOtherWarehouse);
+    }
+
+    [TestMethod]
+    public async Task Validate_TransferIntoExternalWarehouse_Refused()
+    {
+        var product = await MultiWarehouseProduct(4);
+        var document = Document(InventoryDocumentType.Transfer, Line(product, 2));
+        document.TargetWarehouseId = "wx";
+
+        var errors = await _service.Validate(document);
+
+        CollectionAssert.Contains(errors.ToList(), InventoryDocumentErrors.ExternalWarehouse);
+    }
+
+    [TestMethod]
+    public async Task Validate_ReturnReceiptIntoExternalWarehouse_Allowed()
+    {
+        var product = await Product(p => p.WarehouseId = "wx");
+        var document = Document(InventoryDocumentType.ReturnReceipt, Line(product, 2));
+        document.WarehouseId = "wx";
+
+        var errors = await _service.Validate(document);
+
+        CollectionAssert.DoesNotContain(errors.ToList(), InventoryDocumentErrors.ExternalWarehouse);
+    }
+
+    [TestMethod]
     public async Task Validate_ProductWithoutWarehouse_Allowed()
     {
         var product = await Product();

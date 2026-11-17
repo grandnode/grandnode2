@@ -1,4 +1,5 @@
 using Grand.Business.Core.Interfaces.Common.Security;
+using Grand.Domain.Catalog;
 using Grand.Domain.Permissions;
 using Grand.Module.Api.Commands.Models.Inventory;
 using Grand.Module.Api.DTOs.Inventory;
@@ -36,8 +37,8 @@ public class StockController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.StockIntegration, CurrentCustomer)) return Forbid();
 
-        if (model == null || model.Lines == null || model.Lines.Count > MaxLines)
-            return BadRequest($"A stock write holds at most {MaxLines} lines.");
+        if (model?.Lines == null || model.Lines.Count > MaxLines || model.Lines.Any(x => x == null))
+            return BadRequest($"A stock write holds at most {MaxLines} lines, none of them empty.");
 
         var results = await _mediator.Send(new ApplyStockCommand {
             Lines = model.Lines, CustomerId = CurrentCustomer?.Id ?? ""
@@ -50,18 +51,29 @@ public class StockController : BaseApiController
     [HttpGet("Journal")]
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StockJournalResultDto))]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Journal([FromQuery] string after, [FromQuery] int take = 100,
         [FromQuery] string warehouseId = null, [FromQuery] string warehouseCode = null,
         [FromQuery] string movementTypes = null, [FromQuery] bool excludeOwn = false)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.StockIntegration, CurrentCustomer)) return Forbid();
 
+        //an unknown type is refused: ignoring it would widen the filter to every movement
+        var types = new List<InventoryMovementType>();
+        foreach (var part in (movementTypes ?? "").Split(',',
+                     StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
+        {
+            if (!Enum.TryParse<InventoryMovementType>(part, true, out var type) || !Enum.IsDefined(type))
+                return BadRequest($"Unknown movement type '{part}'.");
+            types.Add(type);
+        }
+
         return Ok(await _mediator.Send(new GetStockJournalQuery {
             After = after,
             Take = take,
             WarehouseId = warehouseId,
             WarehouseCode = warehouseCode,
-            MovementTypes = movementTypes,
+            MovementTypes = types,
             ExcludeOwn = excludeOwn,
             CustomerId = CurrentCustomer?.Id ?? ""
         }));

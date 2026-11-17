@@ -1,4 +1,4 @@
-namespace Grand.Domain.Permissions;
+﻿namespace Grand.Domain.Permissions;
 
 public static partial class StandardPermission
 {

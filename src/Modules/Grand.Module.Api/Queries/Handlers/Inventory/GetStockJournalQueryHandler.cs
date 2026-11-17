@@ -31,8 +31,11 @@ public class GetStockJournalQueryHandler(
         var settleCutoff = DateTime.UtcNow.AddSeconds(-SettleSeconds);
 
         var warehouseIds = await WarehouseIds(request);
+        //a code no warehouse has matches no entry; dropping the filter would hand over every warehouse's movements
+        if (warehouseIds.Count == 0 && !string.IsNullOrWhiteSpace(request.WarehouseCode))
+            return new StockJournalResultDto { Next = request.After };
 
-        var movementTypes = ParseMovementTypes(request.MovementTypes);
+        var movementTypes = request.MovementTypes ?? [];
 
         var query = journalRepository.Table.Where(x => x.CreateDateUtc <= settleCutoff);
         if (!string.IsNullOrEmpty(request.After))
@@ -44,14 +47,15 @@ public class GetStockJournalQueryHandler(
         if (request.ExcludeOwn && !string.IsNullOrEmpty(request.CustomerId))
             query = query.Where(x => x.CustomerId != request.CustomerId);
 
-        //one more than asked tells whether another page follows, and the cursor is the last id of this page
+        //one more than asked tells whether another page follows. The cursor is the last id returned, or the one asked
+        //with when nothing is new: an empty cursor reads from the beginning, so the last page must not hand one back
         var entries = await journalRepository.ToListAsync(query.OrderBy(x => x.Id).Take(take + 1),
             cancellationToken);
-        var hasMore = entries.Count > take;
         var page = entries.Take(take).ToList();
 
         return new StockJournalResultDto {
-            Next = hasMore && page.Count > 0 ? page[^1].Id : null,
+            Next = page.Count > 0 ? page[^1].Id : request.After,
+            HasMore = entries.Count > take,
             Entries = await BuildEntries(page)
         };
     }
@@ -67,19 +71,6 @@ public class GetStockJournalQueryHandler(
                 .Select(x => x.Id).ToList();
 
         return [];
-    }
-
-    private static List<InventoryMovementType> ParseMovementTypes(string value)
-    {
-        if (string.IsNullOrWhiteSpace(value))
-            return [];
-
-        var result = new List<InventoryMovementType>();
-        foreach (var part in value.Split(',', StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries))
-            if (int.TryParse(part, out var number) && Enum.IsDefined(typeof(InventoryMovementType), number))
-                result.Add((InventoryMovementType)number);
-
-        return result;
     }
 
     private async Task<IList<StockJournalEntryDto>> BuildEntries(IList<InventoryJournal> entries)

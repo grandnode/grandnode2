@@ -529,6 +529,8 @@ public static class StockTestFixture
             .ReturnsAsync(new Warehouse { Id = "w1", StoreId = "store1" });
         warehouseService.Setup(x => x.GetWarehouseById("w2"))
             .ReturnsAsync(new Warehouse { Id = "w2", StoreId = "" });
+        warehouseService.Setup(x => x.GetWarehouseById("wx"))
+            .ReturnsAsync(new Warehouse { Id = "wx", StoreId = "", ExternallyManaged = true });
         return warehouseService.Object;
     }
 

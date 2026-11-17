@@ -1,4 +1,4 @@
-{
+﻿{
   Code: WH-MAIN,
   Name: Main Warehouse,
   AdminComment: Primary warehouse,

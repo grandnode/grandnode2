@@ -1,4 +1,4 @@
-using Grand.Domain.Customers;
+﻿using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
 
 namespace Grand.Module.Installer.Extensions;

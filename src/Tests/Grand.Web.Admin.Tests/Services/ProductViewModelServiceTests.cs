@@ -373,6 +373,102 @@ public class ProductViewModelServiceTests
         Assert.IsNull(await _productViewModelService.StockChangeRefused(model));
     }
 
+    private void ExternalWarehouse(string id)
+    {
+        _warehouseServiceMock
+            .Setup(w => w.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>([new Warehouse { Id = id, ExternallyManaged = true }], 0, 10));
+        _translationServiceMock.Setup(t => t.GetResource("Admin.Catalog.Products.StockChangesThroughExternalSystem"))
+            .Returns("external");
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_ProductInExternalWarehouse_ChangedStock_ReturnsExternalMessage()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        ExternalWarehouse("x");
+        var (product, model) = SingleWarehouseProduct(5, 9, 5);
+        product.WarehouseId = model.WarehouseId = "x";
+        _productServiceMock.Setup(x => x.GetProductById(model.Id, It.IsAny<bool>())).ReturnsAsync(product);
+
+        Assert.AreEqual("external", await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_ProductInExternalWarehouse_UnchangedStock_Null()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        ExternalWarehouse("x");
+        var (product, model) = SingleWarehouseProduct(5, 5, 5);
+        product.WarehouseId = model.WarehouseId = "x";
+        _productServiceMock.Setup(x => x.GetProductById(model.Id, It.IsAny<bool>())).ReturnsAsync(product);
+
+        Assert.IsNull(await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_FormMovesProductIntoExternalWarehouse_ChangedStock_ReturnsExternalMessage()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        ExternalWarehouse("x");
+        var (product, model) = SingleWarehouseProduct(5, 9, 5);
+        product.WarehouseId = "own";
+        model.WarehouseId = "x";
+        _productServiceMock.Setup(x => x.GetProductById(model.Id, It.IsAny<bool>())).ReturnsAsync(product);
+
+        Assert.AreEqual("external", await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task StockChangeRefused_FormTicksExternalWarehouseRow_ReturnsExternalMessage()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        ExternalWarehouse("x");
+        var (product, model) = SingleWarehouseProduct(0, 0, 0);
+        product.UseMultipleWarehouses = model.UseMultipleWarehouses = true;
+        model.ProductWarehouseInventoryModels.Add(new ProductModel.ProductWarehouseInventoryModel
+            { WarehouseId = "x", WarehouseUsed = true, StockQuantity = 4, OriginalStockQuantity = 0 });
+        _productServiceMock.Setup(x => x.GetProductById(model.Id, It.IsAny<bool>())).ReturnsAsync(product);
+
+        Assert.AreEqual("external", await _productViewModelService.StockChangeRefused(model));
+    }
+
+    [TestMethod]
+    public async Task PrepareProductModel_ProductInExternalWarehouse_FieldsLocked()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        ExternalWarehouse("x");
+        var product = new Product
+            { Name = "p", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, WarehouseId = "x" };
+        var model = new ProductModel();
+
+        await _productViewModelService.PrepareProductModel(model, product, false, false);
+
+        Assert.IsTrue(model.StockChangesOnlyThroughDocuments);
+    }
+
+    [TestMethod]
+    public async Task UpdateBulkEdit_ProductInExternalWarehouse_StockIgnored()
+    {
+        StockChangesOnlyThroughDocuments(false);
+        ExternalWarehouse("x");
+        var product = new Product {
+            Name = "p", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 5,
+            WarehouseId = "x"
+        };
+        _productServiceMock.Setup(x => x.GetProductById(product.Id, true)).ReturnsAsync(product);
+
+        await _productViewModelService.UpdateBulkEdit([
+            new BulkEditProductModel {
+                Id = product.Id, Name = "p", StockQuantity = 9,
+                ManageInventoryMethodId = (int)ManageInventoryMethod.ManageStock
+            }
+        ]);
+
+        _stockMovementServiceMock.Verify(x => x.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
     [TestMethod]
     public async Task SaveProductWarehouseInventory_RowChanged_AppliesSetToForThatWarehouse()
     {

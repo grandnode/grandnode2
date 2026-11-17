@@ -1,4 +1,4 @@
-using Grand.Business.Core.Dto;
+﻿using Grand.Business.Core.Dto;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
@@ -186,8 +186,12 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             dto.ReservedQuantity = null;
             warnings.Add($"Stock columns are ignored: {InventoryTracking.StockDocumentsOnlyMessage}.");
         }
-        else if ((dto.StockQuantity.HasValue || dto.ReservedQuantity.HasValue) && existing != null &&
-                 InventoryTracking.ExternallyManaged(existing, externallyManagedWarehouseIds))
+        //as stored, or as the row makes it: a row moving a product kept in one warehouse into such a warehouse
+        else if ((dto.StockQuantity.HasValue || dto.ReservedQuantity.HasValue) &&
+                 ((existing != null && InventoryTracking.ExternallyManaged(existing, externallyManagedWarehouseIds)) ||
+                  (!(dto.UseMultipleWarehouses ?? existing?.UseMultipleWarehouses ?? false) &&
+                   !string.IsNullOrEmpty(dto.WarehouseId) &&
+                   externallyManagedWarehouseIds.Contains(dto.WarehouseId))))
         {
             dto.StockQuantity = null;
             dto.ReservedQuantity = null;

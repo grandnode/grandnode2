@@ -438,6 +438,47 @@ public class ProductImportDataObjectTests
         Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("Stock columns are ignored")));
     }
 
+    private void ExternalWarehouse(string id)
+    {
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>([new Warehouse { Id = id, ExternallyManaged = true }], 0, 10));
+    }
+
+    [TestMethod]
+    public async Task Import_ProductInExternalWarehouse_IgnoresStockAndWarns()
+    {
+        SetupLookups();
+        ExternalWarehouse("x");
+        var existing = new Product {
+            Name = "p", Sku = "SKU-X", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2,
+            WarehouseId = "x"
+        };
+        await _repository.InsertAsync(existing);
+
+        var result = await _productImportDataObject.Import(
+            new List<ProductDto> { new() { Sku = "SKU-X", StockQuantity = 9 } }, false);
+
+        Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
+        Assert.IsFalse(_journal.Table.Any(x => x.MovementTypeId == InventoryMovementType.Import));
+        Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("managed by an external system")));
+    }
+
+    [TestMethod]
+    public async Task Import_RowMovesProductIntoExternalWarehouse_IgnoresStockAndWarns()
+    {
+        SetupLookups();
+        ExternalWarehouse("x");
+        var existing = new Product
+            { Name = "p", Sku = "SKU-M", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2 };
+        await _repository.InsertAsync(existing);
+
+        var result = await _productImportDataObject.Import(
+            new List<ProductDto> { new() { Sku = "SKU-M", WarehouseId = "x", StockQuantity = 9 } }, false);
+
+        Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
+        Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("managed by an external system")));
+    }
+
     [TestMethod]
     public async Task Import_NewProduct_JournalsInitialStock()
     {

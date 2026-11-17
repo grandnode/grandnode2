@@ -24,10 +24,6 @@ public static class InventoryIndexes
                 .Ascending(x => x.ProductId), "ObjectType_ObjectId_ProductId");
         await databaseContext.CreateIndex(journal,
             OrderBuilder<InventoryJournal>.Create().Ascending(x => x.PositionId), "PositionId");
-        //the idempotency lookup of the stock integration API, scoped per product
-        await databaseContext.CreateIndex(journal,
-            OrderBuilder<InventoryJournal>.Create().Ascending(x => x.ProductId).Ascending(x => x.IdempotencyKey),
-            "ProductId_IdempotencyKey");
 
         //the backstop of the numbering: one number per type, year and sequence
         await databaseContext.CreateIndex(documents,
@@ -39,6 +35,22 @@ public static class InventoryIndexes
         await databaseContext.CreateIndex(documents,
             OrderBuilder<InventoryDocument>.Create().Ascending(x => x.WarehouseId).Descending(x => x.CreatedOnUtc),
             "WarehouseId_CreatedOnUtc");
+    }
+
+    /// <summary>
+    ///     The indexes of the stock integration API: the idempotency lookup, scoped per product, and the lookup of a
+    ///     line's product or combination by SKU
+    /// </summary>
+    public static async Task CreateIntegrationIndexes(IDatabaseContext databaseContext,
+        IRepository<InventoryJournal> journal, IRepository<Product> products)
+    {
+        await databaseContext.CreateIndex(journal,
+            OrderBuilder<InventoryJournal>.Create().Ascending(x => x.ProductId).Ascending(x => x.IdempotencyKey),
+            "ProductId_IdempotencyKey");
+        await databaseContext.CreateIndex(products, OrderBuilder<Product>.Create().Ascending(x => x.Sku), "Sku");
+        await databaseContext.CreateIndex(products,
+            OrderBuilder<Product>.Create().Ascending("ProductAttributeCombinations.Sku"),
+            "ProductAttributeCombinations_Sku");
     }
 
     /// <summary>

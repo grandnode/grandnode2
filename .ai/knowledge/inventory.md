@@ -51,6 +51,15 @@ Reservations are order state, not journaled: `IInventoryManageService.TryReserve
 
 Admin and Store share `BaseInventoryDocumentController`. The Store panel uses only its own store's warehouses and products; shared warehouses (empty `StoreId`) are Main Admin-only on documents. Permission: `PermissionSystemName.InventoryDocuments`.
 
+## Stock integration (ERP/WMS)
+
+An external system writes stock through `POST /api/Stock/Apply` and reads movements through `GET /api/Stock/Journal` (`StockController` in `Grand.Module.Api`, permission `PermissionSystemName.StockIntegration`, no `Products` needed). It changes no booking rule: every line is one `IStockMovementService.Apply` call of type `Api`.
+
+- **Idempotency key, per product.** `StockChange.IdempotencyKey` is stored on the entry (`InventoryJournal.IdempotencyKey`). `StockLedger` looks the key up under the product's lock, so it needs no unique index on MongoDB or LiteDB; a key already booked returns `StockErrors.AlreadyApplied` and writes nothing. A keyed change always writes exactly one entry, also a 0/0 one, so a retried "set to X" cannot undo a later shipment.
+- **Lines.** At most 1000 a request, applied one by one in order; a rejected line does not stop the others. Products by id or SKU (product, then combination; ambiguous is refused), warehouses by id or code, and the warehouse must already be the product's. Products, SKUs and codes are read once a request. `Set` is refused for batch- and serial-tracked products; their lines name units through `Change`.
+- **Feed.** Ordered by entry id, from the `after` cursor; only entries older than 30 seconds, so an entry made visible late on another instance is not skipped. `Next` is the last id returned (or `after` when nothing is new) and is kept for the next poll; `HasMore` says whether more follow now. An unknown warehouse code returns nothing and an unknown movement type is a 400, never a wider filter.
+- **Externally managed warehouse.** `Warehouse.ExternallyManaged` is enforced at the edges, never in `StockLedger`: the product form, combination popup, bulk edit and import refuse or skip a stock change of a product whose stock lies there (`InventoryTracking.ExternallyManaged`, as stored or as the form or row makes it), and inventory documents refuse `Receipt`, `Adjustment`, `StockCount` and `Transfer` there. Shipments, their reversals, `ReturnReceipt`, `Assignment`, the API and the structural entries (`Reopen`, deleting a row, combination or warehouse) still book.
+
 ## Batches and serial numbers
 
 A product of `ManageStock` or `ManageStockByAttributes` tracks units by `Product.InventoryTrackingModeId`: `None`, `Batch` or `SerialNumber`, never both. `InventoryTracking.Tracked(product)` is the test; mode `None` behaves exactly as without this feature.

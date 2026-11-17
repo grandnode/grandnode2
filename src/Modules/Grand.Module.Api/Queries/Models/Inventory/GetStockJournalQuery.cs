@@ -1,3 +1,4 @@
+using Grand.Domain.Catalog;
 using Grand.Module.Api.DTOs.Inventory;
 using Grand.Mediator;
 
@@ -20,9 +21,9 @@ public class GetStockJournalQuery : IRequest<StockJournalResultDto>
     public string WarehouseCode { get; set; }
 
     /// <summary>
-    ///     Comma-separated inventory movement types to include; empty for all
+    ///     The inventory movement types to include; empty for all
     /// </summary>
-    public string MovementTypes { get; set; }
+    public IList<InventoryMovementType> MovementTypes { get; set; } = new List<InventoryMovementType>();
 
     /// <summary>
     ///     Skip the entries the calling API customer wrote, so one connector does not hide another's writes

@@ -1,4 +1,4 @@
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Web.AdminShared.Models.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
@@ -95,7 +95,13 @@ public class ProductViewModelService(
     private async Task<string> StockChangeRefusedMessage(ProductModel model)
     {
         var stored = !string.IsNullOrEmpty(model.Id) ? await productService.GetProductById(model.Id) : null;
-        if (await ExternallyManaged(stored))
+        var externallyManagedWarehouseIds = await warehouseService.ExternallyManagedWarehouseIds();
+        //as stored, or as the form makes it: moving the product into such a warehouse with a new stock is refused too
+        if ((stored != null && InventoryTracking.ExternallyManaged(stored, externallyManagedWarehouseIds)) ||
+            (model.UseMultipleWarehouses
+                ? model.ProductWarehouseInventoryModels.Any(x =>
+                    x.WarehouseUsed && externallyManagedWarehouseIds.Contains(x.WarehouseId))
+                : externallyManagedWarehouseIds.Contains(model.WarehouseId ?? "")))
             return "Admin.Catalog.Products.StockChangesThroughExternalSystem";
 
         return await StockDocumentOnly(model)

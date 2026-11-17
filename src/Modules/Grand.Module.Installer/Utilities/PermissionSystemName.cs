@@ -1,4 +1,4 @@
-namespace Grand.Module.Installer.Utilities;
+﻿namespace Grand.Module.Installer.Utilities;
 
 public static class PermissionSystemName
 {
