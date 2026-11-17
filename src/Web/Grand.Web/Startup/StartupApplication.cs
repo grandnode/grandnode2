@@ -9,7 +9,7 @@ public class StartupApplication : IStartupApplication
     {
         //the guest-order grant reads and writes the browser's cookies through IHttpContextAccessor,
         //so it lives in the web layer and is resolved per request
-        services.AddScoped<GuestOrderGrant>();
+        services.AddScoped<IGuestOrderGrant, GuestOrderGrant>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

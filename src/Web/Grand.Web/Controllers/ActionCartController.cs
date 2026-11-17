@@ -36,7 +36,8 @@ public class ActionCartController : BasePublicController
         ICurrencyService currencyService,
         IShoppingCartValidator shoppingCartValidator,
         IMediator mediator,
-        ShoppingCartSettings shoppingCartSettings)
+        ShoppingCartSettings shoppingCartSettings,
+        IProductReservationService productReservationService)
     {
         _productService = productService;
         _shoppingCartService = shoppingCartService;
@@ -47,6 +48,7 @@ public class ActionCartController : BasePublicController
         _shoppingCartValidator = shoppingCartValidator;
         _mediator = mediator;
         _shoppingCartSettings = shoppingCartSettings;
+        _productReservationService = productReservationService;
     }
 
     #endregion
@@ -62,6 +64,7 @@ public class ActionCartController : BasePublicController
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly IMediator _mediator;
     private readonly ShoppingCartSettings _shoppingCartSettings;
+    private readonly IProductReservationService _productReservationService;
 
     #endregion
 
@@ -365,9 +368,7 @@ public class ActionCartController : BasePublicController
                     });
                 case IntervalUnit.Hour or IntervalUnit.Minute:
                 {
-                    var productReservationService =
-                        HttpContext.RequestServices.GetRequiredService<IProductReservationService>();
-                    var reservation = await productReservationService.GetProductReservation(model.Reservation);
+                    var reservation = await _productReservationService.GetProductReservation(model.Reservation);
                     if (reservation == null)
                         return Json(new {
                             success = false,
@@ -610,9 +611,7 @@ public class ActionCartController : BasePublicController
                     });
                 case IntervalUnit.Hour or IntervalUnit.Minute:
                 {
-                    var productReservationService =
-                        HttpContext.RequestServices.GetRequiredService<IProductReservationService>();
-                    var reservation = await productReservationService.GetProductReservation(model.Reservation);
+                    var reservation = await _productReservationService.GetProductReservation(model.Reservation);
                     if (reservation == null)
                         return Json(new {
                             success = false,

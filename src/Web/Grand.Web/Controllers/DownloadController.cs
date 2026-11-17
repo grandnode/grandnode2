@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -33,8 +33,7 @@ public class DownloadController : BasePublicController
     private readonly IRequestTranslationService _translationService;
     private readonly IContextAccessor _contextAccessor;
     private readonly IGroupService _groupService;
-    private readonly OrderSettings _orderSettings;
-    private readonly GuestOrderGrant _guestOrderGrant;
+    private readonly IGuestOrderGrant _guestOrderGrant;
 
     public DownloadController(IDownloadService downloadService,
         IProductService productService,
@@ -44,8 +43,7 @@ public class DownloadController : BasePublicController
         IRequestTranslationService translationService,
         CustomerSettings customerSettings,
         IGroupService groupService,
-        OrderSettings orderSettings,
-        GuestOrderGrant guestOrderGrant)
+        IGuestOrderGrant guestOrderGrant)
     {
         _downloadService = downloadService;
         _productService = productService;
@@ -55,7 +53,6 @@ public class DownloadController : BasePublicController
         _translationService = translationService;
         _customerSettings = customerSettings;
         _groupService = groupService;
-        _orderSettings = orderSettings;
         _guestOrderGrant = guestOrderGrant;
     }
 
@@ -417,7 +414,7 @@ public class DownloadController : BasePublicController
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
         if ((customer == null || !await merchandiseReturn.Access(customer, _groupService)) &&
-            (!GuestOrderGrant.ReturnsAllowed(_orderSettings) ||
+            (!_guestOrderGrant.ReturnsAllowed ||
              await _guestOrderGrant.GrantedGuest(order, customer,
                  _contextAccessor.StoreContext.CurrentStore.Id) == null))
             return Challenge();

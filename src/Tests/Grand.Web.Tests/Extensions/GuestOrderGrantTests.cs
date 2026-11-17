@@ -47,10 +47,10 @@ public class GuestOrderGrantTests
         return context;
     }
 
-    private GuestOrderGrant Create(DefaultHttpContext context)
+    private GuestOrderGrant Create(DefaultHttpContext context = null)
     {
         var accessor = new Mock<IHttpContextAccessor>();
-        accessor.Setup(a => a.HttpContext).Returns(context);
+        accessor.Setup(a => a.HttpContext).Returns(context ?? Context());
         return new GuestOrderGrant(accessor.Object, _provider, new CookieOptionsFactory(_securityConfig),
             new OrderSettings(), _customers.Object, _groups.Object);
     }
@@ -65,27 +65,27 @@ public class GuestOrderGrantTests
     [TestMethod]
     public void LinkToken_RoundTrips_OrderId()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order);
+        var token = Create().LinkToken(_order);
 
-        Assert.AreEqual("o1", GuestOrderGrant.LinkOrderId(_provider, token, "s1"));
+        Assert.AreEqual("o1", Create().LinkOrderId(token, "s1"));
     }
 
     [TestMethod]
     public void LinkOrderId_OtherStore_Null()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order);
+        var token = Create().LinkToken(_order);
 
-        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, token, "s2"));
+        Assert.IsNull(Create().LinkOrderId(token, "s2"));
     }
 
     [TestMethod]
     public void LinkOrderId_Tampered_Null()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order);
+        var token = Create().LinkToken(_order);
         var middle = token.Length / 2;
         var tampered = token[..middle] + (token[middle] == 'A' ? 'B' : 'A') + token[(middle + 1)..];
 
-        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, tampered, "s1"));
+        Assert.IsNull(Create().LinkOrderId(tampered, "s1"));
     }
 
     [TestMethod]
@@ -94,13 +94,13 @@ public class GuestOrderGrantTests
         var token = _provider.CreateProtector(GuestOrderGrant.LinkPurpose).ToTimeLimitedDataProtector()
             .Protect("o1|s1", DateTimeOffset.UtcNow.AddMinutes(-1));
 
-        Assert.IsNull(GuestOrderGrant.LinkOrderId(_provider, token, "s1"));
+        Assert.IsNull(Create().LinkOrderId(token, "s1"));
     }
 
     [TestMethod]
     public void LinkToken_NotAcceptedAsGrant()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order);
+        var token = Create().LinkToken(_order);
 
         Assert.IsNull(Create(Context(token)).GrantedOrderId("s1"));
     }
@@ -169,7 +169,7 @@ public class GuestOrderGrantTests
     public async Task GuestOfOrder_Guest_Customer()
     {
         Assert.AreSame(_guest,
-            await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+            await Create().GuestOfOrder(_order, "s1"));
     }
 
     [TestMethod]
@@ -177,13 +177,13 @@ public class GuestOrderGrantTests
     {
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(true);
 
-        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await Create().GuestOfOrder(_order, "s1"));
     }
 
     [TestMethod]
     public async Task GuestOfOrder_OtherStore_Null()
     {
-        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s2", _customers.Object, _groups.Object));
+        Assert.IsNull(await Create().GuestOfOrder(_order, "s2"));
     }
 
     [TestMethod]
@@ -191,7 +191,7 @@ public class GuestOrderGrantTests
     {
         _order.Deleted = true;
 
-        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await Create().GuestOfOrder(_order, "s1"));
     }
 
     [TestMethod]
@@ -199,6 +199,6 @@ public class GuestOrderGrantTests
     {
         _order.CustomerId = "nobody";
 
-        Assert.IsNull(await GuestOrderGrant.GuestOfOrder(_order, "s1", _customers.Object, _groups.Object));
+        Assert.IsNull(await Create().GuestOfOrder(_order, "s1"));
     }
 }

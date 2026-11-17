@@ -1,4 +1,4 @@
-using Grand.Business.Core.Extensions;
+﻿using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
@@ -47,7 +47,7 @@ public class MerchandiseReturnController : BasePublicController
         AddressSettings addressSettings,
         OrderSettings orderSettings,
         IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService,
-        GuestOrderGrant guestOrderGrant,
+        IGuestOrderGrant guestOrderGrant,
         ICountryService countryService)
     {
         _merchandiseReturnService = merchandiseReturnService;
@@ -84,7 +84,7 @@ public class MerchandiseReturnController : BasePublicController
     private readonly AddressSettings _addressSettings;
     private readonly OrderSettings _orderSettings;
     private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
-    private readonly GuestOrderGrant _guestOrderGrant;
+    private readonly IGuestOrderGrant _guestOrderGrant;
     private readonly ICountryService _countryService;
 
     #endregion
@@ -143,7 +143,7 @@ public class MerchandiseReturnController : BasePublicController
     /// </summary>
     private async Task<Customer> GrantedGuest(Order order)
     {
-        if (!GuestOrderGrant.ReturnsAllowed(_orderSettings))
+        if (!_guestOrderGrant.ReturnsAllowed)
             return null;
 
         return await _guestOrderGrant.GrantedGuest(order,
@@ -162,7 +162,7 @@ public class MerchandiseReturnController : BasePublicController
 
         var (customer, guestLink) = await _guestOrderGrant.OrderCustomer(order,
             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
-        return customer != null && (!guestLink || GuestOrderGrant.ReturnsAllowed(_orderSettings))
+        return customer != null && (!guestLink || _guestOrderGrant.ReturnsAllowed)
             ? (order, customer)
             : (null, null);
     }

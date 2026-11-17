@@ -81,7 +81,7 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
 
         _controller = new DownloadController(downloads.Object, new Mock<IProductService>().Object, orders.Object,
             returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings(),
-            _groupService.Object, _orderSettings, NewGrant(_httpContext)) {
+            _groupService.Object, NewGrant(_httpContext)) {
             ControllerContext = new ControllerContext { HttpContext = _httpContext }
         };
     }

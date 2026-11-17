@@ -121,7 +121,7 @@ public class DownloadControllerOrderGuestTests
         _controller = new DownloadController(downloads.Object, products.Object, orders.Object,
             new Mock<IMerchandiseReturnService>().Object, context.Object,
             new Mock<IRequestTranslationService>().Object,
-            new CustomerSettings { DownloadableProductsValidateUser = true }, groups.Object, orderSettings,
+            new CustomerSettings { DownloadableProductsValidateUser = true }, groups.Object,
             NewGrant(_httpContext)) {
             ControllerContext = new ControllerContext { HttpContext = _httpContext }
         };

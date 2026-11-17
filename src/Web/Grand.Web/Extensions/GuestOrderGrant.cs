@@ -9,141 +9,38 @@ using System.Security.Cryptography;
 
 namespace Grand.Web.Extensions;
 
-/// <summary>
-///     The way a guest who ordered without an account opens the order and its returns: a time-limited link sent to the order's e-mail
-///     address leaves a grant for that one order in the browser. Both are protected payloads stored nowhere else
-/// </summary>
-public class GuestOrderGrant
+public class GuestOrderGrant(
+    IHttpContextAccessor httpContextAccessor,
+    IDataProtectionProvider dataProtectionProvider,
+    ICookieOptionsFactory cookieOptionsFactory,
+    OrderSettings orderSettings,
+    ICustomerService customerService,
+    IGroupService groupService) : IGuestOrderGrant
 {
-    private readonly IHttpContextAccessor _httpContextAccessor;
-    private readonly IDataProtectionProvider _dataProtectionProvider;
-    private readonly ICookieOptionsFactory _cookieOptionsFactory;
-    private readonly OrderSettings _orderSettings;
-    private readonly ICustomerService _customerService;
-    private readonly IGroupService _groupService;
-
     public const string LinkPurpose = "Grand.Web.GuestOrder.Link";
     public const string GrantPurpose = "Grand.Web.GuestOrder.Grant";
 
-    public static readonly TimeSpan LinkLifetime = TimeSpan.FromHours(24);
-    public static readonly TimeSpan GrantLifetime = TimeSpan.FromHours(2);
+    private static readonly TimeSpan LinkLifetime = TimeSpan.FromHours(24);
+    private static readonly TimeSpan GrantLifetime = TimeSpan.FromHours(2);
 
-    public GuestOrderGrant(IHttpContextAccessor httpContextAccessor,
-        IDataProtectionProvider dataProtectionProvider,
-        ICookieOptionsFactory cookieOptionsFactory,
-        OrderSettings orderSettings,
-        ICustomerService customerService,
-        IGroupService groupService)
+    public string CookieName => $"{cookieOptionsFactory.CookiePrefix}GuestOrder";
+
+    public bool Allowed => orderSettings.AllowGuestOrderAccess;
+
+    public bool ReturnsAllowed => Allowed && orderSettings.MerchandiseReturnsEnabled;
+
+    public string LinkToken(Order order)
     {
-        _httpContextAccessor = httpContextAccessor;
-        _dataProtectionProvider = dataProtectionProvider;
-        _cookieOptionsFactory = cookieOptionsFactory;
-        _orderSettings = orderSettings;
-        _customerService = customerService;
-        _groupService = groupService;
+        return Protector(dataProtectionProvider, LinkPurpose).Protect(Payload(order),
+            DateTimeOffset.UtcNow + LinkLifetime);
     }
 
-    /// <summary>
-    ///     The name of the grant cookie, with the prefix of the store's other cookies
-    /// </summary>
-    public static string CookieName(ICookieOptionsFactory cookieOptionsFactory)
+    public string LinkOrderId(string token, string storeId)
     {
-        return $"{cookieOptionsFactory.CookiePrefix}GuestOrder";
+        return OrderId(dataProtectionProvider, LinkPurpose, token, storeId);
     }
 
-    /// <summary>
-    ///     Whether the store lets guests open their orders by a link; the pages of the flow are not found otherwise
-    /// </summary>
-    public static bool Allowed(OrderSettings orderSettings)
-    {
-        return orderSettings.AllowGuestOrderAccess;
-    }
-
-    /// <summary>
-    ///     Whether a guest's link to an order also reaches its returns: only while the store takes them
-    /// </summary>
-    public static bool ReturnsAllowed(OrderSettings orderSettings)
-    {
-        return Allowed(orderSettings) && orderSettings.MerchandiseReturnsEnabled;
-    }
-
-    /// <summary>
-    ///     The token of the link sent to the order's e-mail address
-    /// </summary>
-    public static string LinkToken(IDataProtectionProvider provider, Order order)
-    {
-        return Protector(provider, LinkPurpose).Protect(Payload(order), DateTimeOffset.UtcNow + LinkLifetime);
-    }
-
-    /// <summary>
-    ///     The order a link's token opens in the store; null when it expired, was changed or is of another store
-    /// </summary>
-    public static string LinkOrderId(IDataProtectionProvider provider, string token, string storeId)
-    {
-        return OrderId(provider, LinkPurpose, token, storeId);
-    }
-
-    /// <summary>
-    ///     Leaves the grant for the order in the browser, until it is closed and for the grant's lifetime at most
-    /// </summary>
-    public void Grant(Order order)
-    {
-        var options = _cookieOptionsFactory.Create();
-        //a cookie of the browser session: a shared computer does not keep it once the guest closes the browser
-        options.Expires = null;
-        //the visitor asked for it with the link, as for the session cookie
-        options.IsEssential = true;
-        _httpContextAccessor.HttpContext!.Response.Cookies.Append(CookieName(_cookieOptionsFactory),
-            Protector(_dataProtectionProvider, GrantPurpose).Protect(Payload(order), DateTimeOffset.UtcNow + GrantLifetime),
-            options);
-    }
-
-    /// <summary>
-    ///     The order the browser holds a grant for in the store; null without one
-    /// </summary>
-    public string GrantedOrderId(string storeId)
-    {
-        var name = CookieName(_cookieOptionsFactory);
-        if (!_httpContextAccessor.HttpContext!.Request.Cookies.TryGetValue(name, out var cookie))
-            return null;
-
-        return OrderId(_dataProtectionProvider, GrantPurpose, cookie, storeId);
-    }
-
-    /// <summary>
-    ///     The guest of an order placed without an account, when the browser holds the grant a link sent to the
-    ///     order's e-mail address left for it; null otherwise. A visitor logged in acts on the orders of their account
-    ///     only, whatever the browser holds
-    /// </summary>
-    public async Task<Customer> GrantedGuest(Order order, Customer visitor, string storeId)
-    {
-        if (order == null || GrantedOrderId(storeId) != order.Id ||
-            !Allowed(_orderSettings) ||
-            (visitor != null && await _groupService.IsRegistered(visitor)))
-            return null;
-
-        return await GuestOfOrder(order, storeId, _customerService, _groupService);
-    }
-
-    /// <summary>
-    ///     The customer acting on the order: the visitor when it is theirs, else the order's guest when the browser
-    ///     holds the grant a link sent to the order's e-mail address left for it; a null customer otherwise
-    /// </summary>
-    public async Task<(Customer Customer, bool GuestLink)> OrderCustomer(Order order, Customer visitor, string storeId)
-    {
-        if (visitor != null && await order.Access(visitor, _groupService))
-            return (visitor, false);
-
-        var guest = await GrantedGuest(order, visitor, storeId);
-        return (guest, guest != null);
-    }
-
-    /// <summary>
-    ///     The customer of an order the guest flow serves: an order of the store placed without an account. A
-    ///     customer who has registered since logs in instead
-    /// </summary>
-    public static async Task<Customer> GuestOfOrder(Order order, string storeId, ICustomerService customerService,
-        IGroupService groupService)
+    public async Task<Customer> GuestOfOrder(Order order, string storeId)
     {
         if (order == null || order.Deleted || order.StoreId != storeId)
             return null;
@@ -153,6 +50,46 @@ public class GuestOrderGrant
             return null;
 
         return customer;
+    }
+
+    public void Grant(Order order)
+    {
+        var options = cookieOptionsFactory.Create();
+        //a cookie of the browser session: a shared computer does not keep it once the guest closes the browser
+        options.Expires = null;
+        //the visitor asked for it with the link, as for the session cookie
+        options.IsEssential = true;
+        httpContextAccessor.HttpContext!.Response.Cookies.Append(CookieName,
+            Protector(dataProtectionProvider, GrantPurpose).Protect(Payload(order),
+                DateTimeOffset.UtcNow + GrantLifetime),
+            options);
+    }
+
+    public string GrantedOrderId(string storeId)
+    {
+        if (!httpContextAccessor.HttpContext!.Request.Cookies.TryGetValue(CookieName, out var cookie))
+            return null;
+
+        return OrderId(dataProtectionProvider, GrantPurpose, cookie, storeId);
+    }
+
+    public async Task<Customer> GrantedGuest(Order order, Customer visitor, string storeId)
+    {
+        if (order == null || GrantedOrderId(storeId) != order.Id ||
+            !Allowed ||
+            (visitor != null && await groupService.IsRegistered(visitor)))
+            return null;
+
+        return await GuestOfOrder(order, storeId);
+    }
+
+    public async Task<(Customer Customer, bool GuestLink)> OrderCustomer(Order order, Customer visitor, string storeId)
+    {
+        if (visitor != null && await order.Access(visitor, groupService))
+            return (visitor, false);
+
+        var guest = await GrantedGuest(order, visitor, storeId);
+        return (guest, guest != null);
     }
 
     private static ITimeLimitedDataProtector Protector(IDataProtectionProvider provider, string purpose)

@@ -1,6 +1,6 @@
 ﻿@model LoginModel
 @inject IPageHeadBuilder pagebuilder
-@inject Grand.Domain.Orders.OrderSettings orderSettings
+@inject Grand.Web.Extensions.IGuestOrderGrant guestOrderGrant
 @{
     Layout = "_SingleColumn";
 
@@ -162,7 +162,7 @@ else
                         </div>
                     </div>
                 }
-                @if (Grand.Web.Extensions.GuestOrderGrant.Allowed(orderSettings))
+                @if (guestOrderGrant.Allowed)
                 {
                     <div class="col-12 mx-lg-0 mx-auto mt-3 text-center guest-order-link">
                         <a asp-route="GuestOrder">@Loc["Account.Login.GuestOrder"]</a>

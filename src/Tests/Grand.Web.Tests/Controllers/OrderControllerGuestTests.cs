@@ -133,8 +133,6 @@ public class OrderControllerGuestTests
         _httpContext.Request.Headers.Cookie = header[..header.IndexOf(';')];
     }
 
-    private ICustomerService Customers => _httpContext.RequestServices.GetRequiredService<ICustomerService>();
-
     [TestMethod]
     public async Task GuestPage_SettingOff_NotFound()
     {
@@ -145,7 +143,7 @@ public class OrderControllerGuestTests
         Assert.IsInstanceOfType<NotFoundObjectResult>(
             await _controller.GuestOrder(new GuestOrderModel(), new CaptchaSettings()));
         Assert.IsInstanceOfType<NotFoundResult>(
-            await _controller.GuestOrderAccess("token", _provider, Customers));
+            await _controller.GuestOrderAccess("token"));
     }
 
     [TestMethod]
@@ -206,19 +204,19 @@ public class OrderControllerGuestTests
     [TestMethod]
     public async Task Access_GoodToken_SetsCookie()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order1);
+        var token = NewGrant(_httpContext).LinkToken(_order1);
 
-        var result = await _controller.GuestOrderAccess(token, _provider, Customers);
+        var result = await _controller.GuestOrderAccess(token);
 
         Assert.IsInstanceOfType<RedirectToRouteResult>(result);
         StringAssert.Contains(_httpContext.Response.Headers.SetCookie.ToString(),
-            GuestOrderGrant.CookieName(new CookieOptionsFactory(new SecurityConfig())));
+            NewGrant(_httpContext).CookieName);
     }
 
     [TestMethod]
     public async Task Access_BadToken_RedirectsToGuestPageWithoutCookie()
     {
-        var result = await _controller.GuestOrderAccess("not-a-token", _provider, Customers);
+        var result = await _controller.GuestOrderAccess("not-a-token");
 
         Assert.AreEqual("GuestOrder", ((RedirectToRouteResult)result).RouteName);
         Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
@@ -228,9 +226,9 @@ public class OrderControllerGuestTests
     public async Task Access_VisitorLoggedIn_RedirectsToOwnOrdersWithoutCookie()
     {
         _groups.Setup(x => x.IsRegistered(_visitor)).ReturnsAsync(true);
-        var token = GuestOrderGrant.LinkToken(_provider, _order1);
+        var token = NewGrant(_httpContext).LinkToken(_order1);
 
-        var result = await _controller.GuestOrderAccess(token, _provider, Customers);
+        var result = await _controller.GuestOrderAccess(token);
 
         Assert.AreEqual("CustomerOrders", ((RedirectToRouteResult)result).RouteName);
         Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
@@ -240,9 +238,9 @@ public class OrderControllerGuestTests
     public async Task Access_RegisteredCustomer_RedirectsToGuestPageWithoutCookie()
     {
         _groups.Setup(x => x.IsRegistered(_guest)).ReturnsAsync(true);
-        var token = GuestOrderGrant.LinkToken(_provider, _order1);
+        var token = NewGrant(_httpContext).LinkToken(_order1);
 
-        var result = await _controller.GuestOrderAccess(token, _provider, Customers);
+        var result = await _controller.GuestOrderAccess(token);
 
         Assert.AreEqual("GuestOrder", ((RedirectToRouteResult)result).RouteName);
         Assert.AreEqual("", _httpContext.Response.Headers.SetCookie.ToString());
@@ -380,9 +378,9 @@ public class OrderControllerGuestTests
     [TestMethod]
     public async Task Access_GoodToken_RedirectsToOrderDetails()
     {
-        var token = GuestOrderGrant.LinkToken(_provider, _order1);
+        var token = NewGrant(_httpContext).LinkToken(_order1);
 
-        var result = (RedirectToRouteResult)await _controller.GuestOrderAccess(token, _provider, Customers);
+        var result = (RedirectToRouteResult)await _controller.GuestOrderAccess(token);
 
         Assert.AreEqual("OrderDetails", result.RouteName);
         Assert.AreEqual("o1", result.RouteValues!["orderId"]);
