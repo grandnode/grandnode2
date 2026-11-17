@@ -18,7 +18,7 @@ using Grand.Web.Common.Security.Authentication;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Controllers;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Microsoft.AspNetCore.DataProtection;
@@ -79,7 +79,7 @@ public class MerchandiseReturnControllerTests
         _controller = new MerchandiseReturnController(_returns.Object, new Mock<IPickupPointService>().Object,
             _orders.Object, context.Object, groupService.Object, translation.Object, _mediator.Object,
             _labels.Object, _downloads.Object, new AddressSettings(), _orderSettings, _workflow.Object,
-            new GuestOrderGrant(new Mock<IHttpContextAccessor>().Object, new EphemeralDataProtectionProvider(),
+            new GuestOrderGrantService(new Mock<IHttpContextAccessor>().Object, new EphemeralDataProtectionProvider(),
                 new CookieOptionsFactory(new SecurityConfig()), _orderSettings,
                 new Mock<ICustomerService>().Object, groupService.Object),
             new Mock<ICountryService>().Object);

@@ -35,5 +35,10 @@ public class LoginModel : BaseModel
     public bool SignedInWithoutAccess { get; set; }
 
     public bool DisplayCaptcha { get; set; }
+
+    /// <summary>Set by the server only: the store lets guests open their orders by a link</summary>
+    [BindNever]
+    public bool DisplayGuestOrderLink { get; set; }
+
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
 }

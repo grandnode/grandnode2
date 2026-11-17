@@ -19,7 +19,7 @@ using Grand.Web.Common.Page;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Startup;
 using Grand.Web.Events;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Grand.Mediator;
@@ -43,7 +43,7 @@ public class OrderController : BasePublicController
         IGroupService groupService,
         IMediator mediator,
         OrderSettings orderSettings,
-        IGuestOrderGrant guestOrderGrant)
+        IGuestOrderGrantService guestOrderGrantService)
     {
         _orderService = orderService;
         _contextAccessor = contextAccessor;
@@ -53,7 +53,7 @@ public class OrderController : BasePublicController
         _groupService = groupService;
         _mediator = mediator;
         _orderSettings = orderSettings;
-        _guestOrderGrant = guestOrderGrant;
+        _guestOrderGrantService = guestOrderGrantService;
     }
 
     #endregion
@@ -68,7 +68,7 @@ public class OrderController : BasePublicController
     private readonly IGroupService _groupService;
     private readonly IMediator _mediator;
     private readonly OrderSettings _orderSettings;
-    private readonly IGuestOrderGrant _guestOrderGrant;
+    private readonly IGuestOrderGrantService _guestOrderGrantService;
 
     #endregion
 
@@ -80,7 +80,7 @@ public class OrderController : BasePublicController
     /// </summary>
     private async Task<(Order Order, Customer Customer, bool GuestLink)> CustomerOrder(Order order)
     {
-        var (customer, guestLink) = await _guestOrderGrant.OrderCustomer(order,
+        var (customer, guestLink) = await _guestOrderGrantService.OrderCustomer(order,
             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
         return customer != null ? (order, customer, guestLink) : (null, null, false);
     }
@@ -121,7 +121,7 @@ public class OrderController : BasePublicController
         model.GuestLink = guestLink;
         //a guest — the order's own customer on its cookie, or the customer of a grant link — has no account
         //page listing the order's returns, so they are reached from here only
-        if (!await _groupService.IsRegistered(customer) && _guestOrderGrant.ReturnsAllowed)
+        if (!await _groupService.IsRegistered(customer) && _guestOrderGrantService.ReturnsAllowed)
             model.HasMerchandiseReturns = (await _mediator.Send(new GetMerchandiseReturnQuery {
                 StoreId = _contextAccessor.StoreContext.CurrentStore.Id, OrderId = order.Id, PageSize = 1
             })).Any();
@@ -282,7 +282,7 @@ public class OrderController : BasePublicController
     [HttpGet]
     public virtual IActionResult GuestOrder([FromServices] CaptchaSettings captchaSettings)
     {
-        if (!_guestOrderGrant.Allowed)
+        if (!_guestOrderGrantService.Allowed)
             return NotFound();
 
         return View(new GuestOrderModel { DisplayCaptcha = DisplayGuestCaptcha(captchaSettings) });
@@ -297,7 +297,7 @@ public class OrderController : BasePublicController
     public virtual async Task<IActionResult> GuestOrder(GuestOrderModel model,
         [FromServices] CaptchaSettings captchaSettings)
     {
-        if (!_guestOrderGrant.Allowed)
+        if (!_guestOrderGrantService.Allowed)
             //with a body: an empty 404 of a POST is re-executed as a POST of the not-found page
             return NotFound("The page was not found.");
 
@@ -326,7 +326,7 @@ public class OrderController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> GuestOrderAccess(string token)
     {
-        if (!_guestOrderGrant.Allowed)
+        if (!_guestOrderGrantService.Allowed)
             return NotFound();
 
         //the grant serves visitors without an account only: one logged in sees the orders of their account
@@ -337,15 +337,15 @@ public class OrderController : BasePublicController
         }
 
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
-        var orderId = _guestOrderGrant.LinkOrderId(token, storeId);
+        var orderId = _guestOrderGrantService.LinkOrderId(token, storeId);
         var order = orderId != null ? await _orderService.GetOrderById(orderId) : null;
-        if (await _guestOrderGrant.GuestOfOrder(order, storeId) == null)
+        if (await _guestOrderGrantService.GuestOfOrder(order, storeId) == null)
         {
             Error(_translationService.GetResource("Order.Guest.InvalidLink"));
             return RedirectToRoute("GuestOrder");
         }
 
-        _guestOrderGrant.Grant(order);
+        _guestOrderGrantService.Grant(order);
         return RedirectToRoute("OrderDetails", new { orderId = order.Id });
     }
 

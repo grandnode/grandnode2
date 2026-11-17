@@ -3,19 +3,20 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Web.Common.Security.Authentication;
+using Grand.Web.Extensions;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using System.Security.Cryptography;
 
-namespace Grand.Web.Extensions;
+namespace Grand.Web.Services;
 
-public class GuestOrderGrant(
+public class GuestOrderGrantService(
     IHttpContextAccessor httpContextAccessor,
     IDataProtectionProvider dataProtectionProvider,
     ICookieOptionsFactory cookieOptionsFactory,
     OrderSettings orderSettings,
     ICustomerService customerService,
-    IGroupService groupService) : IGuestOrderGrant
+    IGroupService groupService) : IGuestOrderGrantService
 {
     public const string LinkPurpose = "Grand.Web.GuestOrder.Link";
     public const string GrantPurpose = "Grand.Web.GuestOrder.Grant";

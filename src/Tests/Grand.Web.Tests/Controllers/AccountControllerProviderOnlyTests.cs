@@ -12,6 +12,7 @@ using Grand.Mediator;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Controllers;
+using Grand.Web.Services;
 using Grand.Web.Features.Models.Customers;
 using Grand.Web.Models.Customer;
 using Microsoft.AspNetCore.Http;
@@ -40,6 +41,7 @@ public class AccountControllerProviderOnlyTests
     private Customer _currentCustomer;
     private CustomerSettings _customerSettings;
     private AccountController _controller;
+    private Mock<IGuestOrderGrantService> _guestOrderGrant;
 
     [TestInitialize]
     public void Init()
@@ -70,6 +72,7 @@ public class AccountControllerProviderOnlyTests
 
         _customerManager = new Mock<ICustomerManagerService>();
         _customers = new Mock<ICustomerService>();
+        _guestOrderGrant = new Mock<IGuestOrderGrantService>();
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object,
             new Mock<IRequestTranslationService>().Object, context.Object, _customers.Object,
             _groups.Object, _customerManager.Object, new Mock<ICountryService>().Object,
@@ -77,7 +80,7 @@ public class AccountControllerProviderOnlyTests
             _customerSettings = new CustomerSettings {
                 UserRegistrationType = UserRegistrationType.Standard, TwoFactorAuthenticationEnabled = true,
                 AllowUsersToDeleteAccount = true
-            }, new CustomerConfig());
+            }, new CustomerConfig(), _guestOrderGrant.Object);
         _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         _controller.TempData = new TempDataDictionary(_controller.HttpContext, new Mock<ITempDataProvider>().Object);
         var url = new Mock<IUrlHelper>();
@@ -156,6 +159,25 @@ public class AccountControllerProviderOnlyTests
         var model = (LoginModel)((ViewResult)result).Model;
         Assert.IsFalse(model.SignedInWithoutAccess);
         Assert.IsFalse(model.ExternalSignInUnavailable);
+    }
+
+    [TestMethod]
+    public async Task Login_GuestOrderAccessAllowed_ShowsGuestOrderLink()
+    {
+        //the view reads the model only: a theme's copy of it never depends on Grand.Web
+        _guestOrderGrant.Setup(g => g.Allowed).Returns(true);
+
+        var result = await _controller.Login(null, "/cart", new OidcLoginConfig(), _externalAuth.Object);
+
+        Assert.IsTrue(((LoginModel)((ViewResult)result).Model).DisplayGuestOrderLink);
+    }
+
+    [TestMethod]
+    public async Task Login_GuestOrderAccessNotAllowed_HidesGuestOrderLink()
+    {
+        var result = await _controller.Login(null, "/cart", new OidcLoginConfig(), _externalAuth.Object);
+
+        Assert.IsFalse(((LoginModel)((ViewResult)result).Model).DisplayGuestOrderLink);
     }
 
     [TestMethod]

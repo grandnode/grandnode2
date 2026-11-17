@@ -16,6 +16,7 @@ using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Common;
@@ -47,7 +48,7 @@ public class MerchandiseReturnController : BasePublicController
         AddressSettings addressSettings,
         OrderSettings orderSettings,
         IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService,
-        IGuestOrderGrant guestOrderGrant,
+        IGuestOrderGrantService guestOrderGrantService,
         ICountryService countryService)
     {
         _merchandiseReturnService = merchandiseReturnService;
@@ -62,7 +63,7 @@ public class MerchandiseReturnController : BasePublicController
         _addressSettings = addressSettings;
         _orderSettings = orderSettings;
         _merchandiseReturnWorkflowService = merchandiseReturnWorkflowService;
-        _guestOrderGrant = guestOrderGrant;
+        _guestOrderGrantService = guestOrderGrantService;
         _countryService = countryService;
     }
 
@@ -84,7 +85,7 @@ public class MerchandiseReturnController : BasePublicController
     private readonly AddressSettings _addressSettings;
     private readonly OrderSettings _orderSettings;
     private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
-    private readonly IGuestOrderGrant _guestOrderGrant;
+    private readonly IGuestOrderGrantService _guestOrderGrantService;
     private readonly ICountryService _countryService;
 
     #endregion
@@ -143,10 +144,10 @@ public class MerchandiseReturnController : BasePublicController
     /// </summary>
     private async Task<Customer> GrantedGuest(Order order)
     {
-        if (!_guestOrderGrant.ReturnsAllowed)
+        if (!_guestOrderGrantService.ReturnsAllowed)
             return null;
 
-        return await _guestOrderGrant.GrantedGuest(order,
+        return await _guestOrderGrantService.GrantedGuest(order,
             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
     }
 
@@ -160,9 +161,9 @@ public class MerchandiseReturnController : BasePublicController
         if (order == null || !OfCurrentStore(order))
             return (null, null);
 
-        var (customer, guestLink) = await _guestOrderGrant.OrderCustomer(order,
+        var (customer, guestLink) = await _guestOrderGrantService.OrderCustomer(order,
             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
-        return customer != null && (!guestLink || _guestOrderGrant.ReturnsAllowed)
+        return customer != null && (!guestLink || _guestOrderGrantService.ReturnsAllowed)
             ? (order, customer)
             : (null, null);
     }
@@ -242,7 +243,7 @@ public class MerchandiseReturnController : BasePublicController
 
         //a guest who came with a return link sees the returns of that order
         var grantedOrderId =
-            _guestOrderGrant.GrantedOrderId(_contextAccessor.StoreContext.CurrentStore.Id);
+            _guestOrderGrantService.GrantedOrderId(_contextAccessor.StoreContext.CurrentStore.Id);
         var order = grantedOrderId != null ? await _orderService.GetOrderById(grantedOrderId) : null;
         var guest = await GrantedGuest(order);
         if (guest == null)

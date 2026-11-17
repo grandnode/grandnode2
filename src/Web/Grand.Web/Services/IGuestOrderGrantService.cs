@@ -1,13 +1,13 @@
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 
-namespace Grand.Web.Extensions;
+namespace Grand.Web.Services;
 
 /// <summary>
 ///     The way a guest who ordered without an account opens the order and its returns: a time-limited link sent to the order's e-mail
 ///     address leaves a grant for that one order in the browser. Both are protected payloads stored nowhere else
 /// </summary>
-public interface IGuestOrderGrant
+public interface IGuestOrderGrantService
 {
     /// <summary>
     ///     The name of the grant cookie, with the prefix of the store's other cookies

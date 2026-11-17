@@ -11,7 +11,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Localization;
 using Grand.Web.Controllers;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -86,12 +86,12 @@ public class DownloadControllerMerchandiseReturnNoteGuestTests
         };
     }
 
-    private GuestOrderGrant NewGrant(HttpContext context)
+    private GuestOrderGrantService NewGrant(HttpContext context)
     {
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.Setup(a => a.HttpContext).Returns(context);
         var services = _httpContext.RequestServices;
-        return new GuestOrderGrant(accessor.Object,
+        return new GuestOrderGrantService(accessor.Object,
             services.GetRequiredService<IDataProtectionProvider>(),
             new CookieOptionsFactory(new SecurityConfig()),
             _orderSettings,

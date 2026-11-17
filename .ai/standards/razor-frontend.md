@@ -14,6 +14,7 @@ Rules for `.cshtml`, storefront JavaScript, and theme assets. Complementary to `
 - Widget zones stay where they are: `@await Component.InvokeAsync("Widget", new { widgetZone = "..." })`. Removing a zone is a breaking change for every installed widget plugin.
 - Forms use antiforgery. AJAX mutations call `addAntiForgeryToken(data)` where nearby views do.
 - `Html.Raw` only for content that is trusted or already sanitized.
+- A storefront view under `Grand.Web/Views` never names a `Grand.Web` type (`@inject`, `@using`, a static call). A theme copies the view to override it and cannot reference `Grand.Web` (`GRAND001`). Anything the view decides on comes from its model in `Grand.Web.Models`, set by the controller — as `LoginModel.DisplayGuestOrderLink` is.
 
 ### Preserve on every product/catalog view you touch
 

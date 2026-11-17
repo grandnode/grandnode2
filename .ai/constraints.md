@@ -125,7 +125,7 @@ It silently disables every installed widget on that page and is a breaking chang
 
 ### Never use `HttpContext` outside the web layer, and never pass it as a method parameter
 `HttpContext` is the ambient web request. Passing it as a parameter smuggles the whole request into a method that needs only one value, and a business service that reads it stops being callable from a scheduled task, a migration or the message queue.
-→ Outside the web layer, pass the specific value (store id, language, customer, `CancellationToken`). Inside it, touch the request only where the request itself is the data: controllers, middleware, filters, tag helpers, model binders, the `IStartupApplication` pipeline, and a web-layer service whose job is the request's cookies or headers (such as `IGuestOrderGrant`), which injects `IHttpContextAccessor`. A service that needs one value from the request takes that value instead.
+→ Outside the web layer, pass the specific value (store id, language, customer, `CancellationToken`). Inside it, touch the request only where the request itself is the data: controllers, middleware, filters, tag helpers, model binders, the `IStartupApplication` pipeline, and a web-layer service whose job is the request's cookies or headers (such as `IGuestOrderGrantService`), which injects `IHttpContextAccessor`. A service that needs one value from the request takes that value instead.
 
 ### Never resolve services from `IServiceProvider` or `HttpContext.RequestServices` in feature code
 It is the service-locator anti-pattern: dependencies stop being constructor-injected, which hides lifetimes and test seams.

@@ -4,20 +4,20 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Authentication;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
-namespace Grand.Web.Tests.Extensions;
+namespace Grand.Web.Tests.Services;
 
 /// <summary>
 ///     The link a guest gets by e-mail and the grant it leaves in the browser open one order of one store, for a
 ///     limited time, and only while the order's customer has no account
 /// </summary>
 [TestClass]
-public class GuestOrderGrantTests
+public class GuestOrderGrantServiceTests
 {
     private readonly Order _order = new() { Id = "o1", StoreId = "s1", CustomerId = "g1" };
     private readonly Customer _guest = new() { Id = "g1" };
@@ -47,11 +47,11 @@ public class GuestOrderGrantTests
         return context;
     }
 
-    private GuestOrderGrant Create(DefaultHttpContext context = null)
+    private GuestOrderGrantService Create(DefaultHttpContext context = null)
     {
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.Setup(a => a.HttpContext).Returns(context ?? Context());
-        return new GuestOrderGrant(accessor.Object, _provider, new CookieOptionsFactory(_securityConfig),
+        return new GuestOrderGrantService(accessor.Object, _provider, new CookieOptionsFactory(_securityConfig),
             new OrderSettings(), _customers.Object, _groups.Object);
     }
 
@@ -91,7 +91,7 @@ public class GuestOrderGrantTests
     [TestMethod]
     public void LinkOrderId_Expired_Null()
     {
-        var token = _provider.CreateProtector(GuestOrderGrant.LinkPurpose).ToTimeLimitedDataProtector()
+        var token = _provider.CreateProtector(GuestOrderGrantService.LinkPurpose).ToTimeLimitedDataProtector()
             .Protect("o1|s1", DateTimeOffset.UtcNow.AddMinutes(-1));
 
         Assert.IsNull(Create().LinkOrderId(token, "s1"));

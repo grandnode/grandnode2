@@ -11,6 +11,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
+using Grand.Web.Services;
 using Grand.Web.Models.Customer;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -56,7 +57,8 @@ public class AccountControllerTwoFactorReturnUrlTests
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object, new Mock<IRequestTranslationService>().Object,
             context.Object, _customers.Object, new Mock<IGroupService>().Object, _manager.Object, new Mock<ICountryService>().Object,
             new Mock<IMediator>().Object, new Mock<ICustomerMessageProviderService>().Object, new CaptchaSettings(), settings,
-            new CustomerConfig());
+            new CustomerConfig(),
+            new Mock<IGuestOrderGrantService>().Object);
         var http = new DefaultHttpContext { Session = new TestSession() };
         _controller.ControllerContext = new ControllerContext { HttpContext = http };
         var url = new Mock<IUrlHelper>();

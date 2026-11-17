@@ -11,7 +11,7 @@ using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -67,7 +67,7 @@ public class DownloadControllerMerchandiseReturnNoteTests
         _controller = new DownloadController(downloads.Object, new Mock<IProductService>().Object, orders.Object,
             returns.Object, context.Object, new Mock<IRequestTranslationService>().Object, new CustomerSettings(),
             _groupService.Object,
-            new GuestOrderGrant(new Mock<IHttpContextAccessor>().Object, new EphemeralDataProtectionProvider(),
+            new GuestOrderGrantService(new Mock<IHttpContextAccessor>().Object, new EphemeralDataProtectionProvider(),
                 new CookieOptionsFactory(new SecurityConfig()), new OrderSettings(),
                 new Mock<ICustomerService>().Object, _groupService.Object)) {
             ControllerContext = new ControllerContext {

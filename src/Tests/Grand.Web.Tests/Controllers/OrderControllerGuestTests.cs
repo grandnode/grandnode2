@@ -20,7 +20,7 @@ using Grand.Web.Commands.Models.Orders;
 using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
 using Microsoft.AspNetCore.DataProtection;
@@ -114,11 +114,11 @@ public class OrderControllerGuestTests
         _controller.Url = new Mock<IUrlHelper>().Object;
     }
 
-    private GuestOrderGrant NewGrant(HttpContext context)
+    private GuestOrderGrantService NewGrant(HttpContext context)
     {
         var accessor = new Mock<IHttpContextAccessor>();
         accessor.Setup(a => a.HttpContext).Returns(context);
-        return new GuestOrderGrant(accessor.Object, _provider, new CookieOptionsFactory(new SecurityConfig()),
+        return new GuestOrderGrantService(accessor.Object, _provider, new CookieOptionsFactory(new SecurityConfig()),
             _orderSettings, _httpContext.RequestServices.GetRequiredService<ICustomerService>(), _groups.Object);
     }
 

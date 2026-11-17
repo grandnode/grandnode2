@@ -4,14 +4,14 @@ using Grand.Infrastructure.Caching;
 using Grand.Infrastructure.Caching.Constants;
 using Grand.Mediator;
 using Grand.Web.Commands.Models.Orders;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Web.Commands.Handler.Orders;
 
 public class SendGuestOrderLinkCommandHandler(
     IOrderService orderService,
-    IGuestOrderGrant guestOrderGrant,
+    IGuestOrderGrantService guestOrderGrantService,
     IOrderMessageProviderService orderMessageProviderService,
     ICacheBase cacheBase,
     ILogger<SendGuestOrderLinkCommandHandler> logger)
@@ -35,7 +35,7 @@ public class SendGuestOrderLinkCommandHandler(
         //a value can be one order's code and another's number: the first that is a guest's order of the address
         Domain.Orders.Order order = null;
         foreach (var candidate in candidates.Where(x => EmailMatches(x, request.Email)))
-            if (await guestOrderGrant.GuestOfOrder(candidate, request.Store.Id) != null)
+            if (await guestOrderGrantService.GuestOfOrder(candidate, request.Store.Id) != null)
             {
                 order = candidate;
                 break;
@@ -58,7 +58,7 @@ public class SendGuestOrderLinkCommandHandler(
         try
         {
             sent = await orderMessageProviderService.SendGuestOrderLinkCustomerMessage(order,
-                guestOrderGrant.LinkToken(order), request.Host) > 0;
+                guestOrderGrantService.LinkToken(order), request.Host) > 0;
         }
         catch (Exception ex) when (ex is not OperationCanceledException)
         {

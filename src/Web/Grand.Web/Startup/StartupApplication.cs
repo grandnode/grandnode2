@@ -1,5 +1,5 @@
 using Grand.Infrastructure;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 
 namespace Grand.Web.Startup;
 
@@ -9,7 +9,7 @@ public class StartupApplication : IStartupApplication
     {
         //the guest-order grant reads and writes the browser's cookies through IHttpContextAccessor,
         //so it lives in the web layer and is resolved per request
-        services.AddScoped<IGuestOrderGrant, GuestOrderGrant>();
+        services.AddScoped<IGuestOrderGrantService, GuestOrderGrantService>();
     }
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)

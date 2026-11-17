@@ -11,7 +11,7 @@ using Grand.Infrastructure.Caching.Constants;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Commands.Handler.Orders;
 using Grand.Web.Commands.Models.Orders;
-using Grand.Web.Extensions;
+using Grand.Web.Services;
 using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -34,7 +34,7 @@ public class SendGuestOrderLinkCommandHandlerTests
     private Mock<IOrderMessageProviderService> _messages;
     private Order _order;
     private List<Order> _otherOrders;
-    private GuestOrderGrant _grant;
+    private GuestOrderGrantService _grant;
     private string _sentToken;
 
     [TestInitialize]
@@ -67,7 +67,7 @@ public class SendGuestOrderLinkCommandHandlerTests
             .Callback<string, bool>((key, _) => seen.Remove(key))
             .Returns(Task.CompletedTask);
 
-        _grant = new GuestOrderGrant(new Mock<IHttpContextAccessor>().Object, new EphemeralDataProtectionProvider(),
+        _grant = new GuestOrderGrantService(new Mock<IHttpContextAccessor>().Object, new EphemeralDataProtectionProvider(),
             new CookieOptionsFactory(new SecurityConfig()), new OrderSettings(), customers.Object, _groups.Object);
         _handler = new SendGuestOrderLinkCommandHandler(orders.Object, _grant, _messages.Object, cache.Object,
             NullLogger<SendGuestOrderLinkCommandHandler>.Instance);
