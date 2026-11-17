@@ -30,4 +30,7 @@ public static class InventoryDocumentErrors
 
     //an assignment gives batches or serial numbers to stock without them: a product tracking neither has none to give
     public const string UnitsNotTracked = "Admin.Inventory.Documents.Errors.UnitsNotTracked";
+
+    //a warehouse whose stock belongs to an external system: only the API, shipments, returns and assignments move it
+    public const string ExternalWarehouse = "Admin.Inventory.Documents.Errors.ExternalWarehouse";
 }

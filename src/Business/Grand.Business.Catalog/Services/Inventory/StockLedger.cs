@@ -92,8 +92,17 @@ public sealed class StockLedger(
         var costChanged = false;
         //the product's physical stock before each change, for the average cost of a receipt
         var onHand = product.StockQuantity;
+        var appliedKeys = await AppliedKeys(product, changes);
         foreach (var change in changes)
         {
+            //a retried integration line with a key already booked is not applied again; the endpoint treats this as
+            //a distinct "already applied" outcome, not a failure
+            if (!string.IsNullOrEmpty(change.IdempotencyKey) && appliedKeys.Contains(change.IdempotencyKey))
+            {
+                errors.Add(StockErrors.AlreadyApplied);
+                continue;
+            }
+
             var bucket = Locate(product, null, change.Attributes, change.WarehouseId, out var error);
             if (bucket == null)
             {
@@ -138,7 +147,9 @@ public sealed class StockLedger(
                 entries.Add(entry);
                 unitEntries.Add((change, entry));
             }
-            else if (delta != 0)
+            //a keyed line always writes exactly one entry, even for a zero difference: a retried "set to 37" after a
+            //shipment must not set 37 again and undo it
+            else if (delta != 0 || !string.IsNullOrEmpty(change.IdempotencyKey))
             {
                 if (change is { MovementType: InventoryMovementType.Receipt, UnitCost: { } unitCost } && delta > 0)
                 {
@@ -150,8 +161,12 @@ public sealed class StockLedger(
                 Move(bucket, delta, change.MovementType);
                 var entry = Entry(product, bucket, delta, change.MovementType, change.Source,
                     units != null ? change : null);
+                entry.IdempotencyKey = change.IdempotencyKey;
                 entries.Add(entry);
                 unitEntries.Add((change, entry));
+                //a key written in this same call is already applied for a later change that reuses it
+                if (!string.IsNullOrEmpty(change.IdempotencyKey))
+                    appliedKeys.Add(change.IdempotencyKey);
             }
 
             if (change.ReservedQuantity is { } reserved && reserved != bucket.Reserved)
@@ -304,6 +319,23 @@ public sealed class StockLedger(
         return await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
             .Where(x => x.ProductId == product.Id && x.StockRevision > product.StockRevision)
             .OrderBy(x => x.StockRevision));
+    }
+
+    /// <summary>
+    ///     The idempotency keys of this product already booked, for the changes that carry one. The lookup runs under the
+    ///     product's lock, so a key is race-free without a unique index
+    /// </summary>
+    private async Task<HashSet<string>> AppliedKeys(Product product, IReadOnlyList<StockChange> changes)
+    {
+        var keys = changes.Where(x => !string.IsNullOrEmpty(x.IdempotencyKey)).Select(x => x.IdempotencyKey)
+            .ToList();
+        if (keys.Count == 0)
+            return [];
+
+        return (await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
+                .Where(x => x.ProductId == product.Id && keys.Contains(x.IdempotencyKey))
+                .Select(x => x.IdempotencyKey)))
+            .ToHashSet();
     }
 
     /// <summary>

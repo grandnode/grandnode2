@@ -96,6 +96,9 @@ public class ProductImportDataObjectTests
         _taxServiceMock = new Mock<ITaxCategoryService>();
         _categoryServiceMock = new Mock<ICategoryService>();
         _warehouseServiceMock = new Mock<IWarehouseService>();
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .Returns(Task.FromResult<IPagedList<Warehouse>>(
+                new PagedList<Warehouse>(new List<Warehouse>(), 0, int.MaxValue)));
         _measureServiceMock = new Mock<IMeasureService>();
         _productCategoryServiceMock = new Mock<IProductCategoryService>();
         _productCollectionServiceMock = new Mock<IProductCollectionService>();
@@ -433,6 +436,50 @@ public class ProductImportDataObjectTests
         Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
         Assert.IsFalse(_journal.Table.Any());
         Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("Stock columns are ignored")));
+    }
+
+    private void ExternalWarehouse(string id)
+    {
+        var warehouse = new Warehouse { Id = id, ExternallyManaged = true };
+        _warehouseServiceMock.Setup(c => c.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>([warehouse], 0, 10));
+        //an unknown warehouse is cleared from the product by the import
+        _warehouseServiceMock.Setup(c => c.GetWarehouseById(id)).ReturnsAsync(warehouse);
+    }
+
+    [TestMethod]
+    public async Task Import_ProductInExternalWarehouse_IgnoresStockAndWarns()
+    {
+        SetupLookups();
+        ExternalWarehouse("x");
+        var existing = new Product {
+            Name = "p", Sku = "SKU-X", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2,
+            WarehouseId = "x"
+        };
+        await _repository.InsertAsync(existing);
+
+        var result = await _productImportDataObject.Import(
+            new List<ProductDto> { new() { Sku = "SKU-X", StockQuantity = 9 } }, false);
+
+        Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
+        Assert.IsFalse(_journal.Table.Any());
+        Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("managed by an external system")));
+    }
+
+    [TestMethod]
+    public async Task Import_RowMovesProductIntoExternalWarehouse_IgnoresStockAndWarns()
+    {
+        SetupLookups();
+        ExternalWarehouse("x");
+        var existing = new Product
+            { Name = "p", Sku = "SKU-M", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 2 };
+        await _repository.InsertAsync(existing);
+
+        var result = await _productImportDataObject.Import(
+            new List<ProductDto> { new() { Sku = "SKU-M", WarehouseId = "x", StockQuantity = 9 } }, false);
+
+        Assert.AreEqual(2, _repository.Table.Single().StockQuantity);
+        Assert.IsTrue(result.Rows[0].Warnings.Any(w => w.Contains("managed by an external system")));
     }
 
     [TestMethod]

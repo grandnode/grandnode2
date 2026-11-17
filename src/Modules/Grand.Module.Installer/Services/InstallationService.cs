@@ -985,6 +985,7 @@ public partial class InstallationService : IInstallationService
         await InventoryIndexes.Create(dbContext, _inventoryJournalRepository, _inventoryDocumentRepository);
         await InventoryIndexes.CreateUnitIndexes(dbContext, _productBatchRepository, _productSerialNumberRepository,
             _inventoryJournalRepository);
+        await InventoryIndexes.CreateIntegrationIndexes(dbContext, _inventoryJournalRepository, _productRepository);
 
         //merchandise return
         await dbContext.CreateIndex(_merchandiseReturnRepository,

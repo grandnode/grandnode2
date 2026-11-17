@@ -47,6 +47,8 @@ public class ProductAttributeCombinationViewModelServiceTests
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         _productAttributeServiceMock = new Mock<IProductAttributeService>();
         _warehouseServiceMock = new Mock<IWarehouseService>();
+        _warehouseServiceMock.Setup(x => x.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>());
 
         _service = new ProductAttributeCombinationViewModelService(
             new Mock<IPictureService>().Object,
@@ -238,5 +240,50 @@ public class ProductAttributeCombinationViewModelServiceTests
         _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
             It.Is<ProductAttributeCombination>(c => c.WarehouseInventory.Single().WarehouseId == "w1"), "p1"),
             Times.Once);
+    }
+
+    private void ExternalWarehouse(string id)
+    {
+        _warehouseServiceMock.Setup(x => x.GetAllWarehouses(It.IsAny<string>(), It.IsAny<int>(), It.IsAny<int>()))
+            .ReturnsAsync(new PagedList<Warehouse>([new Warehouse { Id = id, ExternallyManaged = true }], 0, 10));
+    }
+
+    [TestMethod]
+    public async Task CombinationPopup_ProductInExternalWarehouse_StockChanged_RefusedWithoutSaving()
+    {
+        ExternalWarehouse("x");
+        var product = ProductWithOneCombination();
+        product.WarehouseId = "x";
+        var model = new ProductAttributeCombinationModel
+            { Id = "c1", StockQuantity = 9, OriginalStockQuantity = 5, Sku = "sku" };
+
+        var warnings = await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
+
+        Assert.AreEqual(1, warnings.Count);
+        _productAttributeServiceMock.Verify(s => s.UpdateProductAttributeCombination(
+            It.IsAny<ProductAttributeCombination>(), It.IsAny<string>()), Times.Never);
+        _stockMovementServiceMock.Verify(s => s.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CombinationPopup_TicksExternalWarehouseWithStock_RefusedWithoutSaving()
+    {
+        ExternalWarehouse("x");
+        var product = ProductWithOneCombination();
+        product.UseMultipleWarehouses = true;
+        var model = new ProductAttributeCombinationModel {
+            Id = "c1",
+            WarehouseInventoryModels = [
+                new ProductAttributeCombinationModel.WarehouseInventoryModel
+                    { WarehouseId = "x", WarehouseUsed = true, StockQuantity = 4 }
+            ]
+        };
+
+        var warnings = await _service.InsertOrUpdateProductAttributeCombinationPopup(product, model);
+
+        Assert.AreEqual(1, warnings.Count);
+        _stockMovementServiceMock.Verify(s => s.Apply(It.IsAny<string>(), It.IsAny<IReadOnlyList<StockChange>>()),
+            Times.Never);
     }
 }

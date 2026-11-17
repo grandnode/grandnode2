@@ -2439,4 +2439,58 @@
 	<Resource Name="Api.Orders.MerchandiseReturnAction.Fields.Id.NotExists" Area="Common">
 		<Value>Merchandise return action does not exist</Value>
 	</Resource>
+	<Resource Name="Admin.Inventory.Errors.AlreadyApplied" Area="Admin">
+		<Value>The stock change was already applied.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.SkuNotFound" Area="Admin">
+		<Value>No product or combination with this SKU was found.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.SkuAmbiguous" Area="Admin">
+		<Value>More than one product or combination has this SKU.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.WarehouseCodeNotFound" Area="Admin">
+		<Value>No warehouse with this code was found.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.WarehouseCodeAmbiguous" Area="Admin">
+		<Value>More than one warehouse has this code.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.WarehouseNotOnProduct" Area="Admin">
+		<Value>The product does not keep stock in this warehouse.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.TrackedSetNotSupported" Area="Admin">
+		<Value>The stock of a batch- or serial-tracked product changes by a difference that names its units, not by a target.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.KeyRequired" Area="Admin">
+		<Value>Each line needs an idempotency key.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.KeyTooLong" Area="Admin">
+		<Value>An idempotency key is at most 100 characters long.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.ProductTargetRequired" Area="Admin">
+		<Value>Name the product by productId or sku.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.ProductTargetBoth" Area="Admin">
+		<Value>Name the product by productId or sku, not both.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.WarehouseTargetBoth" Area="Admin">
+		<Value>Name the warehouse by warehouseId or warehouseCode, not both.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Errors.ModeInvalid" Area="Admin">
+		<Value>The mode must be Set or Change.</Value>
+	</Resource>
+	<Resource Name="Admin.Inventory.Documents.Errors.ExternalWarehouse" Area="Admin">
+		<Value>The stock of this warehouse is managed by an external system: book it through the stock integration API.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.StockChangesThroughExternalSystem" Area="Admin">
+		<Value>The stock of this product is managed by an external system (ERP/WMS): the stock quantities were not saved. Change them through the stock integration API.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.ExternallyManaged" Area="Admin">
+		<Value>Stock managed by an external system</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Shipping.Warehouses.Fields.ExternallyManaged.Hint" Area="Admin">
+		<Value>When on, the stock of this warehouse changes only through the stock integration API and the shop&apos;s own movements to and from customers.</Value>
+	</Resource>
+	<Resource Name="Permission.ManageStockIntegration" Area="Admin">
+		<Value>Manage stock integration</Value>
+	</Resource>
 </Language>

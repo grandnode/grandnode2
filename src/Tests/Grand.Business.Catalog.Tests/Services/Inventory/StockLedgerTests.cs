@@ -432,6 +432,86 @@ public class StockLedgerTests
 
         Assert.AreEqual("store1", Entries(product).Single().StoreId);
     }
+
+    [TestMethod]
+    public async Task KeyedChange_AppliedTwice_BooksOnce()
+    {
+        var product = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 5 });
+
+        var first = await Apply(product, By(3) with { IdempotencyKey = "k1" });
+        var second = await Apply(product, By(3) with { IdempotencyKey = "k1" });
+
+        Assert.AreEqual(0, first.Count);
+        CollectionAssert.AreEqual(new[] { StockErrors.AlreadyApplied }, second.ToArray());
+        Assert.AreEqual(8, Stored(product).StockQuantity);
+        var entry = Entries(product).Single();
+        Assert.AreEqual("k1", entry.IdempotencyKey);
+    }
+
+    [TestMethod]
+    public async Task KeyedSetTo_ZeroDifference_WritesEntry()
+    {
+        var product = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 7 });
+
+        await Apply(product, To(7) with { IdempotencyKey = "k1" });
+
+        var entry = Entries(product).Single();
+        Assert.AreEqual(0, entry.InQty);
+        Assert.AreEqual(0, entry.OutQty);
+        Assert.AreEqual("k1", entry.IdempotencyKey);
+        Assert.AreEqual(7, Stored(product).StockQuantity);
+        Assert.AreEqual(1, Stored(product).StockRevision);
+    }
+
+    [TestMethod]
+    public async Task KeyedSetTo_RetriedAfterShipment_NotAppliedAgain()
+    {
+        var product = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 30 });
+
+        await Apply(product, To(37) with { IdempotencyKey = "k1" });
+        await Apply(product, By(-2, type: InventoryMovementType.Shipment));
+        var retry = await Apply(product, To(37) with { IdempotencyKey = "k1" });
+
+        CollectionAssert.AreEqual(new[] { StockErrors.AlreadyApplied }, retry.ToArray());
+        Assert.AreEqual(35, Stored(product).StockQuantity);
+        Assert.AreEqual(2, Entries(product).Count);
+    }
+
+    [TestMethod]
+    public async Task KeyedChange_SameKeyOnAnotherProduct_Independent()
+    {
+        var first = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 1 });
+        var second = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 1 });
+
+        var firstErrors = await Apply(first, By(2) with { IdempotencyKey = "k1" });
+        var secondErrors = await Apply(second, By(2) with { IdempotencyKey = "k1" });
+
+        Assert.AreEqual(0, firstErrors.Count);
+        Assert.AreEqual(0, secondErrors.Count);
+        Assert.AreEqual(3, Stored(first).StockQuantity);
+        Assert.AreEqual(3, Stored(second).StockQuantity);
+    }
+
+    [TestMethod]
+    public async Task KeyedChange_SameKeyTwiceInOneCall_RefusedWithoutDoubleBooking()
+    {
+        var product = await Insert(new Product
+            { ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 1 });
+
+        //the ledger is all-or-nothing per call: a duplicated key refuses the call instead of booking the first line
+        var errors = await Apply(product,
+            By(2) with { IdempotencyKey = "k1" },
+            By(3) with { IdempotencyKey = "k1" });
+
+        CollectionAssert.AreEqual(new[] { StockErrors.AlreadyApplied }, errors.ToArray());
+        Assert.AreEqual(1, Stored(product).StockQuantity);
+        Assert.AreEqual(0, Entries(product).Count);
+    }
 }
 
 /// <summary>
@@ -449,6 +529,8 @@ public static class StockTestFixture
             .ReturnsAsync(new Warehouse { Id = "w1", StoreId = "store1" });
         warehouseService.Setup(x => x.GetWarehouseById("w2"))
             .ReturnsAsync(new Warehouse { Id = "w2", StoreId = "" });
+        warehouseService.Setup(x => x.GetWarehouseById("wx"))
+            .ReturnsAsync(new Warehouse { Id = "wx", StoreId = "", ExternallyManaged = true });
         return warehouseService.Object;
     }
 

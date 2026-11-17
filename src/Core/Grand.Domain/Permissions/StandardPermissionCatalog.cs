@@ -25,6 +25,13 @@ public static partial class StandardPermission
         }
     };
 
+    public static readonly Permission ManageStockIntegration = new() {
+        Name = "Manage stock integration",
+        SystemName = PermissionSystemName.StockIntegration,
+        Area = "Admin area",
+        Category = CategoryCatalog
+    };
+
     public static readonly Permission ManageCategories = new() {
         Name = "Manage Categories",
         SystemName = PermissionSystemName.Categories,
