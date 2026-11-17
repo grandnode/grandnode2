@@ -84,6 +84,46 @@ public class InventoryTrackingTests
     }
 
     [TestMethod]
+    public void ExternallyManaged_SingleWarehouseExternal_True()
+    {
+        Assert.IsTrue(InventoryTracking.ExternallyManaged(
+            new Product { WarehouseId = "w1" }, new List<string> { "w1" }));
+    }
+
+    [TestMethod]
+    public void ExternallyManaged_SingleWarehouseOwn_False()
+    {
+        Assert.IsFalse(InventoryTracking.ExternallyManaged(
+            new Product { WarehouseId = "w2" }, new List<string> { "w1" }));
+    }
+
+    [TestMethod]
+    public void ExternallyManaged_MultiWarehouseAnyExternal_True()
+    {
+        var product = new Product { UseMultipleWarehouses = true };
+        product.ProductWarehouseInventory.Add(new ProductWarehouseInventory { WarehouseId = "w1" });
+        product.ProductWarehouseInventory.Add(new ProductWarehouseInventory { WarehouseId = "w2" });
+
+        Assert.IsTrue(InventoryTracking.ExternallyManaged(product, new List<string> { "w2" }));
+    }
+
+    [TestMethod]
+    public void ExternallyManaged_MultiWarehouseNoneExternal_False()
+    {
+        var product = new Product { UseMultipleWarehouses = true };
+        product.ProductWarehouseInventory.Add(new ProductWarehouseInventory { WarehouseId = "w1" });
+
+        Assert.IsFalse(InventoryTracking.ExternallyManaged(product, new List<string> { "w2" }));
+    }
+
+    [TestMethod]
+    public void ExternallyManaged_NoExternalWarehouses_False()
+    {
+        Assert.IsFalse(InventoryTracking.ExternallyManaged(
+            new Product { WarehouseId = "w1" }, new List<string>()));
+    }
+
+    [TestMethod]
     [DataRow(false, "w1", "w2", true)]
     [DataRow(false, "w1", "w1", false)]
     [DataRow(false, "", "w2", false)]

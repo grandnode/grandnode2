@@ -38,6 +38,22 @@ public static class InventoryIndexes
     }
 
     /// <summary>
+    ///     The indexes of the stock integration API: the idempotency lookup, scoped per product, and the lookup of a
+    ///     line's product or combination by SKU
+    /// </summary>
+    public static async Task CreateIntegrationIndexes(IDatabaseContext databaseContext,
+        IRepository<InventoryJournal> journal, IRepository<Product> products)
+    {
+        await databaseContext.CreateIndex(journal,
+            OrderBuilder<InventoryJournal>.Create().Ascending(x => x.ProductId).Ascending(x => x.IdempotencyKey),
+            "ProductId_IdempotencyKey");
+        await databaseContext.CreateIndex(products, OrderBuilder<Product>.Create().Ascending(x => x.Sku), "Sku");
+        await databaseContext.CreateIndex(products,
+            OrderBuilder<Product>.Create().Ascending("ProductAttributeCombinations.Sku"),
+            "ProductAttributeCombinations_Sku");
+    }
+
+    /// <summary>
     ///     The indexes of batches and serial numbers. The unique ones are the backstop of the numbering: the stock
     ///     ledger checks it under the product's lock before every write
     /// </summary>

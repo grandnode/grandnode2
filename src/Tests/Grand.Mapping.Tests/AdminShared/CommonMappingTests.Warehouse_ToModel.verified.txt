@@ -33,5 +33,6 @@
     Id: ObjectId_1
   },
   DisplayOrder: 1,
+  ExternallyManaged: false,
   Id: wh-001
 }

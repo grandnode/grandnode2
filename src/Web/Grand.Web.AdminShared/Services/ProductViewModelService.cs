@@ -78,16 +78,44 @@ public class ProductViewModelService(
     {
         ArgumentNullException.ThrowIfNull(model);
 
-        if (!await StockDocumentOnly(model))
+        var message = await StockChangeRefusedMessage(model);
+        if (message == null)
             return null;
 
         //an unticked warehouse gives up the stock it held
         var changed = model.StockQuantity != model.OriginalStockQuantity ||
                       model.ProductWarehouseInventoryModels.Any(x =>
                           (x.WarehouseUsed ? x.StockQuantity : 0) != x.OriginalStockQuantity);
-        return changed
-            ? translationService.GetResource("Admin.Catalog.Products.StockChangesOnlyThroughDocuments")
+        return changed ? translationService.GetResource(message) : null;
+    }
+
+    /// <summary>
+    ///     Why the form's stock cannot change: an external system owns it, or stock changes only through documents
+    /// </summary>
+    private async Task<string> StockChangeRefusedMessage(ProductModel model)
+    {
+        var stored = !string.IsNullOrEmpty(model.Id) ? await productService.GetProductById(model.Id) : null;
+        var externallyManagedWarehouseIds = await warehouseService.ExternallyManagedWarehouseIds();
+        //as stored, or as the form makes it: moving the product into such a warehouse with a new stock is refused too
+        if ((stored != null && InventoryTracking.ExternallyManaged(stored, externallyManagedWarehouseIds)) ||
+            (model.UseMultipleWarehouses
+                ? model.ProductWarehouseInventoryModels.Any(x =>
+                    x.WarehouseUsed && externallyManagedWarehouseIds.Contains(x.WarehouseId))
+                : externallyManagedWarehouseIds.Contains(model.WarehouseId ?? "")))
+            return "Admin.Catalog.Products.StockChangesThroughExternalSystem";
+
+        return await StockDocumentOnly(model)
+            ? "Admin.Catalog.Products.StockChangesOnlyThroughDocuments"
             : null;
+    }
+
+    /// <summary>
+    ///     Whether the product's stock lies in a warehouse managed by an external system
+    /// </summary>
+    private async Task<bool> ExternallyManaged(Product product)
+    {
+        return product != null &&
+               InventoryTracking.ExternallyManaged(product, await warehouseService.ExternallyManagedWarehouseIds());
     }
 
     /// <summary>
@@ -222,7 +250,7 @@ public class ProductViewModelService(
         model.BaseDimensionIn = (await measureService.GetMeasureDimensionById(measureSettings.BaseDimensionId))?.Name;
         var inventorySettings = await settingService.LoadSetting<InventorySettings>();
         model.StockChangesOnlyThroughDocuments = product != null
-            ? InventoryTracking.StockDocumentOnly(product, inventorySettings)
+            ? InventoryTracking.StockDocumentOnly(product, inventorySettings) || await ExternallyManaged(product)
             : inventorySettings.StockChangesOnlyThroughDocuments;
         //the stock each bucket holds in batches or serial numbers, and without them
         if (product != null && InventoryTracking.Tracked(product))
@@ -944,6 +972,8 @@ public class ProductViewModelService(
     public virtual async Task UpdateBulkEdit(IEnumerable<BulkEditProductModel> products)
     {
         var inventorySettings = await settingService.LoadSetting<InventorySettings>();
+        //read once: every product below is checked against the same set of externally managed warehouses
+        var externallyManagedWarehouseIds = await warehouseService.ExternallyManagedWarehouseIds();
         foreach (var pModel in products)
         {
             //update
@@ -952,7 +982,9 @@ public class ProductViewModelService(
             {
                 //the grid shows no earlier value: the stored one is what it changes
                 var stockChanged = pModel.StockQuantity != product.StockQuantity;
-                var stockChangesOnlyThroughDocuments = InventoryTracking.StockDocumentOnly(product, inventorySettings);
+                var stockChangesOnlyThroughDocuments = InventoryTracking.StockDocumentOnly(product, inventorySettings) ||
+                                                       InventoryTracking.ExternallyManaged(product,
+                                                           externallyManagedWarehouseIds);
 
                 product.Sku = pModel.Sku;
                 product.Price = pModel.Price;

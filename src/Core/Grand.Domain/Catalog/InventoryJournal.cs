@@ -64,4 +64,10 @@ public class InventoryJournal : BaseEntity
     ///     A receipt: the purchase price of one unit, in the primary store currency
     /// </summary>
     public decimal? UnitCost { get; set; }
+
+    /// <summary>
+    ///     The idempotency key of a change written through the stock integration API; empty for every other entry. A
+    ///     change with a key writes exactly one entry, and a retried call with the same key is not applied again
+    /// </summary>
+    public string IdempotencyKey { get; set; }
 }

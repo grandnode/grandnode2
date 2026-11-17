@@ -34,4 +34,7 @@ public class WarehouseModel : BaseEntityModel
     public string StoreId { get; set; }
 
     public string StoreName { get; set; }
+
+    [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.ExternallyManaged")]
+    public bool ExternallyManaged { get; set; }
 }

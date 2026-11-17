@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Dto;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Brands;
 using Grand.Business.Core.Interfaces.Catalog.Categories;
 using Grand.Business.Core.Interfaces.Catalog.Collections;
@@ -126,18 +127,21 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
     ///     Row: unknown Id rejected, Sku matching only when no Id is given. Panel (XLSX): by Id, then by Sku; an unknown Id
     ///     creates the product with that Id.
     /// </summary>
-    private Task<ImportBatchResult> Import(IReadOnlyList<ProductDto> rows, bool dryRun, ImportMode mode,
+    private async Task<ImportBatchResult> Import(IReadOnlyList<ProductDto> rows, bool dryRun, ImportMode mode,
         CancellationToken cancellationToken = default)
     {
         //the cap protects the row API; the panel's spreadsheet import downloads every picture
         var budget = mode == ImportMode.Row ? new PictureBudget() : null;
-        return ImportRows.RunBatch(rows, dryRun, r => r.Id, Key,
-            (row, dto) => ImportRow(row, dto, dryRun, mode, budget, cancellationToken), mode == ImportMode.Row,
-            _logger, cancellationToken);
+        //read once: every row below is checked against the same set of externally managed warehouses
+        var externallyManagedWarehouseIds = await _warehouseService.ExternallyManagedWarehouseIds();
+        return await ImportRows.RunBatch(rows, dryRun, r => r.Id, Key,
+            (row, dto) => ImportRow(row, dto, dryRun, mode, budget, externallyManagedWarehouseIds, cancellationToken),
+            mode == ImportMode.Row, _logger, cancellationToken);
     }
 
     private async Task<ImportRowResult> ImportRow(int row, ProductDto dto, bool dryRun, ImportMode mode,
-        PictureBudget budget, CancellationToken cancellationToken)
+        PictureBudget budget, ICollection<string> externallyManagedWarehouseIds,
+        CancellationToken cancellationToken)
     {
         var errors = new List<string>();
         var warnings = new List<string>();
@@ -181,6 +185,17 @@ public class ProductImportDataObject : IImportDataObject<ProductDto>, IRowImport
             dto.StockQuantity = null;
             dto.ReservedQuantity = null;
             warnings.Add($"Stock columns are ignored: {InventoryTracking.StockDocumentsOnlyMessage}.");
+        }
+        //as stored, or as the row makes it: a row moving a product kept in one warehouse into such a warehouse
+        else if ((dto.StockQuantity.HasValue || dto.ReservedQuantity.HasValue) &&
+                 ((existing != null && InventoryTracking.ExternallyManaged(existing, externallyManagedWarehouseIds)) ||
+                  (!(dto.UseMultipleWarehouses ?? existing?.UseMultipleWarehouses ?? false) &&
+                   !string.IsNullOrEmpty(dto.WarehouseId) &&
+                   externallyManagedWarehouseIds.Contains(dto.WarehouseId))))
+        {
+            dto.StockQuantity = null;
+            dto.ReservedQuantity = null;
+            warnings.Add("Stock columns are ignored: the stock of this product is managed by an external system.");
         }
 
         var references = await ResolveReferences(dto, warnings);

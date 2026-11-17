@@ -49,4 +49,11 @@ public class Warehouse : BaseEntity
     /// </summary>
     [AuditReference(typeof(Store))]
     public string StoreId { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the stock of this warehouse belongs to an external system (ERP/WMS).
+    ///     Such a warehouse changes stock only through the stock integration API and the shop's own movements to and
+    ///     from customers
+    /// </summary>
+    public bool ExternallyManaged { get; set; }
 }
