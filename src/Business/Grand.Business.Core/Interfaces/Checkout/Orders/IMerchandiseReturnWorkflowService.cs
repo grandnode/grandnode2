@@ -65,4 +65,13 @@ public interface IMerchandiseReturnWorkflowService
     /// <param name="merchandiseReturnId">Merchandise return identifier</param>
     /// <param name="changedBy">Who posted the receipt, as the staff note names them; null for the system</param>
     Task MarkReceived(string merchandiseReturnId, string changedBy = null);
+
+    /// <summary>
+    ///     Whether staff may mark the return received by hand: a posted return receipt took the goods in already (it
+    ///     marks the return received itself unless that failed), or no receipt can take them in, as a product that does
+    ///     not track stock is not booked. Otherwise only a return receipt makes it received, so the goods reach the stock
+    ///     and their inspection. ChangeStatus does not check it: every staff surface asks before offering Received
+    /// </summary>
+    /// <param name="merchandiseReturn">The merchandise return</param>
+    Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn);
 }

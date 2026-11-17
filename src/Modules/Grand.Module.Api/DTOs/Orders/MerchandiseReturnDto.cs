@@ -29,7 +29,9 @@ public class MerchandiseReturnDto : BaseApiEntityModel
     public IList<MerchandiseReturnStatusChangeDto> StatusHistory { get; set; } = new List<MerchandiseReturnStatusChangeDto>();
 
     /// <summary>
-    ///     The statuses the return may change to, computed from the current status; never mapped from the entity
+    ///     The statuses the return may change to, computed from the current status; never mapped from the entity.
+    ///     Received is offered only when the return may be marked received by hand (a return receipt was posted, or no
+    ///     receipt can take its goods in); a list never offers it, read the return by id to know
     /// </summary>
     public IList<int> NextStatuses { get; set; } = new List<int>();
 }

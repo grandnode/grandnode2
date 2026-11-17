@@ -476,6 +476,12 @@ public class MerchandiseReturnViewModelServiceTests
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
         workflowMock.Setup(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()))
             .ReturnsAsync((string)null);
+        //the rule every staff surface shares lives in the workflow service: a posted receipt, or a product no receipt
+        //books
+        workflowMock.Setup(x => x.CanMarkReceived(It.IsAny<MerchandiseReturn>()))
+            .Returns(async (MerchandiseReturn r) =>
+                (documents != null && await documents.Object.IsReturnReceived(r.Id)) ||
+                manageInventory is not (ManageInventoryMethod.ManageStock or ManageInventoryMethod.ManageStockByAttributes));
         var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
         var returnShippingServiceMock = new Mock<IReturnShippingService>();
         var currencyServiceMock = new Mock<ICurrencyService>();

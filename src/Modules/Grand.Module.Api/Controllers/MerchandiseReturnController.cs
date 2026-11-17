@@ -1,4 +1,5 @@
 using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
@@ -20,12 +21,15 @@ public class MerchandiseReturnController : BaseApiController
     private const int MaxPageSize = 1000;
 
     private readonly IMediator _mediator;
+    private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
     private readonly IPermissionService _permissionService;
 
-    public MerchandiseReturnController(IMediator mediator, IPermissionService permissionService)
+    public MerchandiseReturnController(IMediator mediator, IPermissionService permissionService,
+        IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService)
     {
         _mediator = mediator;
         _permissionService = permissionService;
+        _merchandiseReturnWorkflowService = merchandiseReturnWorkflowService;
     }
 
     [EndpointDescription("Get entities from MerchandiseReturn")]
@@ -63,7 +67,8 @@ public class MerchandiseReturnController : BaseApiController
             PageSize = pageSize
         });
 
-        var items = result.Select(Map).ToList();
+        //the list asks no one whether a return may be marked received by hand, as the panel's list does not
+        var items = result.Select(x => Map(x, false)).ToList();
         return Ok(new MerchandiseReturnListModel { Items = items, TotalCount = result.TotalCount });
     }
 
@@ -78,10 +83,10 @@ public class MerchandiseReturnController : BaseApiController
         if (!await _permissionService.Authorize(PermissionSystemName.MerchandiseReturns, CurrentCustomer))
             return Forbid();
 
-        var merchandiseReturn = await _mediator.Send(new GetMerchandiseReturnQuery { Id = key });
+        var merchandiseReturn = await Load(key);
         if (merchandiseReturn == null) return NotFound();
 
-        return Ok(Map(merchandiseReturn));
+        return Ok(merchandiseReturn);
     }
 
     [EndpointDescription("Update entity in MerchandiseReturn")]
@@ -153,13 +158,25 @@ public class MerchandiseReturnController : BaseApiController
     private async Task<MerchandiseReturnDto> Load(string id)
     {
         var merchandiseReturn = await _mediator.Send(new GetMerchandiseReturnQuery { Id = id });
-        return merchandiseReturn == null ? null : Map(merchandiseReturn);
+        if (merchandiseReturn == null)
+            return null;
+
+        var receivedByHand =
+            merchandiseReturn.MerchandiseReturnStatus.CanChangeTo(MerchandiseReturnStatus.Received) &&
+            await _merchandiseReturnWorkflowService.CanMarkReceived(merchandiseReturn);
+        return Map(merchandiseReturn, receivedByHand);
     }
 
-    private static MerchandiseReturnDto Map(MerchandiseReturn entity)
+    /// <summary>
+    ///     The return with the statuses it may change to; Received only when it may be marked received by hand, as the
+    ///     status endpoint refuses it otherwise
+    /// </summary>
+    private static MerchandiseReturnDto Map(MerchandiseReturn entity, bool receivedByHand)
     {
         var model = entity.ToModel();
-        model.NextStatuses = entity.MerchandiseReturnStatus.NextStatuses().Select(x => (int)x).ToList();
+        model.NextStatuses = entity.MerchandiseReturnStatus.NextStatuses()
+            .Where(x => x != MerchandiseReturnStatus.Received || receivedByHand)
+            .Select(x => (int)x).ToList();
         return model;
     }
 

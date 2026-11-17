@@ -1,11 +1,13 @@
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Inventory;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
+using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
@@ -21,6 +23,7 @@ public class MerchandiseReturnWorkflowService(
     IMerchandiseReturnMessageProviderService merchandiseReturnMessageProviderService,
     IReturnShippingService returnShippingService,
     IMerchandiseReturnLabelService labelService,
+    IProductService productService,
     ILogger<MerchandiseReturnWorkflowService> logger) : IMerchandiseReturnWorkflowService
 {
     public async Task<MerchandiseReturnSubmitResult> Submit(MerchandiseReturnSubmitRequest request)
@@ -478,6 +481,26 @@ public class MerchandiseReturnWorkflowService(
                 merchandiseReturn.OrderId);
             return MerchandiseReturnErrors.Busy;
         }
+    }
+
+    public async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn)
+    {
+        ArgumentNullException.ThrowIfNull(merchandiseReturn);
+
+        if (await IsReceived(merchandiseReturn))
+            return true;
+
+        var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        foreach (var item in merchandiseReturn.MerchandiseReturnItems)
+        {
+            var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+            var product = orderItem == null ? null : await productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            if (product?.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
+                or ManageInventoryMethod.ManageStockByAttributes)
+                return false;
+        }
+
+        return true;
     }
 
     private async Task<string> StatusChangeError(MerchandiseReturn stored, MerchandiseReturnStatus status)

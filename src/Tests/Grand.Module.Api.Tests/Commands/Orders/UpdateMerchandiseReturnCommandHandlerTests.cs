@@ -2,6 +2,8 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Orders;
 using Grand.Module.Api.Commands.Handlers.Orders;
 using Grand.Module.Api.Commands.Models.Orders;
+using Grand.Domain.Common;
+using Grand.Module.Api.DTOs.Customers;
 using Grand.Module.Api.DTOs.Orders;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -19,7 +21,65 @@ public class UpdateMerchandiseReturnCommandHandlerTests
         _workflowServiceMock = new Mock<IMerchandiseReturnWorkflowService>();
     }
 
-    private UpdateMerchandiseReturnCommandHandler CreateHandler() => new(_workflowServiceMock.Object);
+    private UpdateMerchandiseReturnCommandHandler CreateHandler(bool pickupAllowed = true) =>
+        new(_workflowServiceMock.Object, new OrderSettings {
+            MerchandiseReturns_AllowToSpecifyPickupDate = pickupAllowed,
+            MerchandiseReturns_AllowToSpecifyPickupAddress = pickupAllowed
+        });
+
+    private Action<MerchandiseReturn> CaptureApply()
+    {
+        Action<MerchandiseReturn> apply = null;
+        _workflowServiceMock.Setup(w => w.Update("r1", It.IsAny<Action<MerchandiseReturn>>()))
+            .ReturnsAsync((string)null)
+            .Callback<string, Action<MerchandiseReturn>>((_, a) => apply = a);
+        return stored => apply(stored);
+    }
+
+    [TestMethod]
+    public async Task Handle_OnlyStaffNotesSent_KeepsTheOtherFields()
+    {
+        var apply = CaptureApply();
+        var pickupDate = new DateTime(2026, 5, 5, 0, 0, 0, DateTimeKind.Utc);
+        var pickupAddress = new Address { City = "Gdansk" };
+
+        await CreateHandler().Handle(new UpdateMerchandiseReturnCommand {
+            Id = "r1", Model = new MerchandiseReturnDto { StaffNotes = "notes" }
+        }, default);
+
+        var stored = new MerchandiseReturn {
+            CustomerComments = "customer", ExternalId = "ext", PickupDate = pickupDate, PickupAddress = pickupAddress
+        };
+        apply(stored);
+
+        Assert.AreEqual("notes", stored.StaffNotes);
+        Assert.AreEqual("customer", stored.CustomerComments);
+        Assert.AreEqual("ext", stored.ExternalId);
+        Assert.AreEqual(pickupDate, stored.PickupDate);
+        Assert.AreSame(pickupAddress, stored.PickupAddress);
+    }
+
+    [TestMethod]
+    public async Task Handle_PickupNotAllowedByTheStore_KeepsPickupDateAndAddress()
+    {
+        var apply = CaptureApply();
+        var pickupDate = new DateTime(2026, 5, 5, 0, 0, 0, DateTimeKind.Utc);
+        var pickupAddress = new Address { City = "Gdansk" };
+
+        await CreateHandler(false).Handle(new UpdateMerchandiseReturnCommand {
+            Id = "r1",
+            Model = new MerchandiseReturnDto {
+                PickupDate = new DateTime(2026, 6, 6, 0, 0, 0, DateTimeKind.Utc),
+                PickupAddress = new AddressDto { City = "Krakow" }
+            }
+        }, default);
+
+        var stored = new MerchandiseReturn { PickupDate = pickupDate, PickupAddress = pickupAddress };
+        apply(stored);
+
+        Assert.AreEqual(pickupDate, stored.PickupDate);
+        Assert.AreSame(pickupAddress, stored.PickupAddress);
+    }
 
     [TestMethod]
     public async Task Handle_AppliesOnlyEditableFields()
