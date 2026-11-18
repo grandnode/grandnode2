@@ -77,8 +77,11 @@ public class StripeCheckoutService : IStripeCheckoutService
             try
             {
                 paymentTransaction.AuthorizationTransactionId = paymentIntent.Id;
-                paymentTransaction.PaidAmount += paymentIntent.Amount / 100;
-                await _mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
+                await _mediator.Send(new MarkAsPaidCommand {
+                    PaymentTransaction = paymentTransaction,
+                    CreatedBy = StripeCheckoutDefaults.ProviderSystemName,
+                    Reference = paymentIntent.Id
+                });
             }
             catch (Exception e)
             {

@@ -677,4 +677,26 @@ public class MerchandiseReturnRefundServiceTests
     }
 
     #endregion
+
+    [TestMethod]
+    public async Task Refund_Online_TellsThePaymentWhoAndWhichReturn()
+    {
+        await _service.Refund("r1", 200, false, "staff@shop.com");
+
+        _mediator.Verify(x => x.Send(It.Is<PartiallyRefundCommand>(c =>
+                c.CreatedBy == "staff@shop.com" && c.Note == "Merchandise return #7"), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Refund_Offline_TellsThePaymentWhoAndWhichReturn()
+    {
+        SetupCanRefund(false, true);
+
+        await _service.Refund("r1", 200, true, "staff@shop.com");
+
+        _mediator.Verify(x => x.Send(It.Is<PartiallyRefundOfflineCommand>(c =>
+                c.CreatedBy == "staff@shop.com" && c.Note == "Merchandise return #7"), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
 }

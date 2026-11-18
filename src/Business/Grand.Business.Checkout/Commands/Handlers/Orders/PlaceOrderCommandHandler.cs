@@ -401,6 +401,13 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         paymentTransaction.Temp = false;
         paymentTransaction.TransactionStatus = processPaymentResult.NewPaymentTransactionStatus;
         paymentTransaction.Errors.Clear();
+        //what the payment method did at checkout; a pending payment is recorded once it is paid
+        if (paymentTransaction.PaidAmount > 0)
+            paymentTransaction.AddEntry(PaymentTransactionEntryType.Payment, paymentTransaction.PaidAmount,
+                paymentTransaction.PaymentMethodSystemName);
+        else if (paymentTransaction.TransactionStatus == TransactionStatus.Authorized)
+            paymentTransaction.AddEntry(PaymentTransactionEntryType.Authorization,
+                paymentTransaction.TransactionAmount, paymentTransaction.PaymentMethodSystemName);
         await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
     }
 

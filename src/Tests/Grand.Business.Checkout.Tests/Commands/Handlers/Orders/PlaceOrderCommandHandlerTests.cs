@@ -330,6 +330,46 @@ public class PlaceOrderCommandHandlerTests
         giftVouchers.Verify(x => x.UpdateGiftVoucher(It.IsAny<GiftVoucher>()), Times.Never);
     }
 
+    [TestMethod]
+    public async Task Handle_PaidAtCheckout_RecordsPaymentByThePaymentMethod()
+    {
+        var (handler, _, _, _, _, _, details, _) = ClaimSetup();
+        handler.PaymentResult = new ProcessPaymentResult
+            { NewPaymentTransactionStatus = TransactionStatus.Paid, PaidAmount = 100 };
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.IsEmpty(result.Errors);
+        var entry = result.PaymentTransaction.Entries.Single();
+        Assert.AreEqual(PaymentTransactionEntryType.Payment, entry.EntryType);
+        Assert.AreEqual(100, entry.Amount);
+        Assert.AreEqual("Payments.Card", entry.CreatedBy);
+    }
+
+    [TestMethod]
+    public async Task Handle_AuthorizedAtCheckout_RecordsAuthorization()
+    {
+        var (handler, _, _, _, _, _, details, _) = ClaimSetup();
+        handler.PaymentResult = new ProcessPaymentResult { NewPaymentTransactionStatus = TransactionStatus.Authorized };
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        var entry = result.PaymentTransaction.Entries.Single();
+        Assert.AreEqual(PaymentTransactionEntryType.Authorization, entry.EntryType);
+        Assert.AreEqual(100, entry.Amount);
+    }
+
+    [TestMethod]
+    public async Task Handle_PendingAtCheckout_RecordsNothing()
+    {
+        var (handler, _, _, _, _, _, details, _) = ClaimSetup();
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.IsEmpty(result.Errors);
+        Assert.IsEmpty(result.PaymentTransaction.Entries);
+    }
+
     private class ClaimTestHandler : PlaceOrderCommandHandler
     {
         private readonly List<string> _calls;
@@ -363,6 +403,7 @@ public class PlaceOrderCommandHandlerTests
 
         public int PaymentCalls { get; private set; }
         public bool Declined { get; set; }
+        public ProcessPaymentResult PaymentResult { get; set; }
 
         protected override Task<PlaceOrderContainer> PreparePlaceOrderDetails(PlaceOrderCommand command)
         {
@@ -389,7 +430,8 @@ public class PlaceOrderCommandHandlerTests
         {
             PaymentCalls++;
             _calls.Add("payment");
-            var result = new ProcessPaymentResult { NewPaymentTransactionStatus = TransactionStatus.Pending };
+            var result = PaymentResult ??
+                         new ProcessPaymentResult { NewPaymentTransactionStatus = TransactionStatus.Pending };
             if (Declined)
                 result.AddError("declined");
             return Task.FromResult(result);
