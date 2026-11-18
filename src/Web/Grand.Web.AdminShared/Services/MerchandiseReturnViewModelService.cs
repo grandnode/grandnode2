@@ -70,20 +70,22 @@ public class MerchandiseReturnViewModelService(
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
+        //an order or an order item deleted since leaves the return on the page, its price without that item
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
         double unitPriceInclTaxInCustomerCurrency = 0;
         foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
-            var orderItem = order.OrderItems.First(x => x.Id == item.OrderItemId);
-            unitPriceInclTaxInCustomerCurrency += orderItem.UnitPriceInclTax * item.Quantity;
+            var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+            if (orderItem != null)
+                unitPriceInclTaxInCustomerCurrency += orderItem.UnitPriceInclTax * item.Quantity;
         }
 
         model.Total = priceFormatter.FormatPrice(unitPriceInclTaxInCustomerCurrency, contextAccessor.WorkContext.WorkingCurrency);
         model.Quantity = merchandiseReturn.MerchandiseReturnItems.Sum(x => x.Quantity);
         model.Id = merchandiseReturn.Id;
-        model.OrderId = order.Id;
-        model.OrderNumber = order.OrderNumber;
-        model.OrderCode = order.Code;
+        model.OrderId = merchandiseReturn.OrderId;
+        model.OrderNumber = order?.OrderNumber ?? 0;
+        model.OrderCode = order?.Code;
         model.ReturnNumber = merchandiseReturn.ReturnNumber;
         model.CustomerId = merchandiseReturn.CustomerId;
         var customer = await customerService.GetCustomerById(merchandiseReturn.CustomerId);
@@ -101,7 +103,7 @@ public class MerchandiseReturnViewModelService(
         //busy at the time), or for a return no receipt can take in; the list asks no one
         var receivedByHand = !excludeProperties &&
                              merchandiseReturn.MerchandiseReturnStatus.CanChangeTo(MerchandiseReturnStatus.Received) &&
-                             await CanMarkReceived(merchandiseReturn);
+                             await CanMarkReceived(merchandiseReturn, order);
         model.NextStatuses = merchandiseReturn.MerchandiseReturnStatus.NextStatuses()
             .Where(x => x != MerchandiseReturnStatus.Received || receivedByHand)
             .Select(x => (int)x).ToList();
@@ -133,10 +135,10 @@ public class MerchandiseReturnViewModelService(
     ///     Whether the staff may mark the return received: the vendor panel has no inventory documents, so no receipt
     ///     can take the goods in there; elsewhere the rule every staff surface shares
     /// </summary>
-    private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn)
+    private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order)
     {
         return scope.DefaultVendorId != null ||
-               await merchandiseReturnWorkflowService.CanMarkReceived(merchandiseReturn);
+               await merchandiseReturnWorkflowService.CanMarkReceived(merchandiseReturn, order);
     }
 
     private async Task<MerchandiseReturnModel.ReturnShippingModel> PrepareReturnShipping(
@@ -148,7 +150,7 @@ public class MerchandiseReturnViewModelService(
 
         var provider = returnShippingService.LoadProviderBySystemName(shipping.ProviderSystemName);
         //the cost is kept in the primary store currency, with the rate of the order's currency
-        var orderCurrency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode)
+        var orderCurrency = await currencyService.GetCurrencyByCode(order?.CustomerCurrencyCode)
                             ?? contextAccessor.WorkContext.WorkingCurrency;
         var model = new MerchandiseReturnModel.ReturnShippingModel {
             MethodName = provider?.FriendlyName ?? shipping.ProviderSystemName,
@@ -571,7 +573,7 @@ public class MerchandiseReturnViewModelService(
     {
         //received by hand where a receipt takes the goods in is refused before anything is saved: no button offers it
         if (model.ChangeStatusTo == (int)MerchandiseReturnStatus.Received &&
-            !await CanMarkReceived(merchandiseReturn))
+            !await CanMarkReceived(merchandiseReturn, await orderService.GetOrderById(merchandiseReturn.OrderId)))
             return (null, MerchandiseReturnErrors.StatusChangeNotAllowed);
 
         //the fields go onto the return as stored: a status changed since the page was loaded is kept

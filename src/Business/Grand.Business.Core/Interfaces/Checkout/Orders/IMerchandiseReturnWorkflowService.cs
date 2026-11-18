@@ -90,4 +90,11 @@ public interface IMerchandiseReturnWorkflowService
     /// </summary>
     /// <param name="merchandiseReturn">The merchandise return</param>
     Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn);
+
+    /// <summary>
+    ///     As the other overload, with the return's order the caller has loaded already
+    /// </summary>
+    /// <param name="merchandiseReturn">The merchandise return</param>
+    /// <param name="order">The return's order; null when it was not found</param>
+    Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order);
 }

@@ -21,7 +21,16 @@ public class MerchandiseReturnDto : BaseApiEntityModel
     /// </summary>
     public int MerchandiseReturnStatusId { get; set; }
 
+    /// <summary>
+    ///     On update, null keeps the stored date; a new date only where the return's store allows a pickup date, else
+    ///     400 (PickupNotAllowed)
+    /// </summary>
     public DateTime? PickupDate { get; set; }
+
+    /// <summary>
+    ///     On update, null keeps the stored address and an address with no field filled in clears it; a new address
+    ///     only where the return's store allows a pickup address, else 400 (PickupNotAllowed)
+    /// </summary>
     public AddressDto PickupAddress { get; set; }
     public MerchandiseReturnShippingDto ReturnShipping { get; set; }
     public MerchandiseReturnRefundDto Refund { get; set; }
@@ -31,7 +40,7 @@ public class MerchandiseReturnDto : BaseApiEntityModel
     /// <summary>
     ///     The statuses the return may change to, computed from the current status; never mapped from the entity.
     ///     Received is offered only when the return may be marked received by hand (a return receipt was posted, or no
-    ///     receipt can take its goods in); a list never offers it, read the return by id to know
+    ///     receipt can take its goods in)
     /// </summary>
     public IList<int> NextStatuses { get; set; } = new List<int>();
 }

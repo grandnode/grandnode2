@@ -489,14 +489,26 @@ public class MerchandiseReturnWorkflowService(
         }
     }
 
-    public async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn)
+    public Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn)
+    {
+        return CanMarkReceived(merchandiseReturn, null, true);
+    }
+
+    public Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order)
+    {
+        return CanMarkReceived(merchandiseReturn, order, false);
+    }
+
+    private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order, bool readOrder)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
         if (await IsReceived(merchandiseReturn))
             return true;
 
-        var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
+        //the order is read only once a posted receipt has not answered already
+        if (readOrder)
+            order = await orderService.GetOrderById(merchandiseReturn.OrderId);
         foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
             var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);

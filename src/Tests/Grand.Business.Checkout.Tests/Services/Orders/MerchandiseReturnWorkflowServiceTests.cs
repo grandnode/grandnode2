@@ -127,6 +127,20 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.IsTrue(await _service.CanMarkReceived(Return(MerchandiseReturnStatus.Accepted)));
     }
 
+    [TestMethod]
+    public async Task CanMarkReceived_WithTheLoadedOrder_DoesNotReadItAgain()
+    {
+        Assert.IsFalse(await _service.CanMarkReceived(Return(MerchandiseReturnStatus.Accepted), _order));
+        _orderService.Verify(x => x.GetOrderById(It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CanMarkReceived_OrderNotFound_True()
+    {
+        //no order item names a product a receipt could book
+        Assert.IsTrue(await _service.CanMarkReceived(Return(MerchandiseReturnStatus.Accepted), null));
+    }
+
     private void SetupBundle(ManageInventoryMethod bundledManageInventory)
     {
         var bundle = new Product { Id = "p1", ManageInventoryMethodId = ManageInventoryMethod.ManageStockByBundleProducts };

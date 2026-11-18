@@ -67,8 +67,10 @@ public class MerchandiseReturnController : BaseApiController
             PageSize = pageSize
         });
 
-        //the list asks no one whether a return may be marked received by hand, as the panel's list does not
-        var items = result.Select(x => Map(x, false)).ToList();
+        //the list offers the same statuses as the return read by id, so a client may drive the flow from either
+        var items = new List<MerchandiseReturnDto>();
+        foreach (var merchandiseReturn in result)
+            items.Add(Map(merchandiseReturn, await ReceivedByHand(merchandiseReturn)));
         return Ok(new MerchandiseReturnListModel { Items = items, TotalCount = result.TotalCount });
     }
 
@@ -158,13 +160,16 @@ public class MerchandiseReturnController : BaseApiController
     private async Task<MerchandiseReturnDto> Load(string id)
     {
         var merchandiseReturn = await _mediator.Send(new GetMerchandiseReturnQuery { Id = id });
-        if (merchandiseReturn == null)
-            return null;
+        return merchandiseReturn == null ? null : Map(merchandiseReturn, await ReceivedByHand(merchandiseReturn));
+    }
 
-        var receivedByHand =
-            merchandiseReturn.MerchandiseReturnStatus.CanChangeTo(MerchandiseReturnStatus.Received) &&
-            await _merchandiseReturnWorkflowService.CanMarkReceived(merchandiseReturn);
-        return Map(merchandiseReturn, receivedByHand);
+    /// <summary>
+    ///     Whether the status endpoint accepts Received for the return; asked only of a return that may reach it
+    /// </summary>
+    private async Task<bool> ReceivedByHand(MerchandiseReturn merchandiseReturn)
+    {
+        return merchandiseReturn.MerchandiseReturnStatus.CanChangeTo(MerchandiseReturnStatus.Received) &&
+               await _merchandiseReturnWorkflowService.CanMarkReceived(merchandiseReturn);
     }
 
     /// <summary>
@@ -182,8 +187,11 @@ public class MerchandiseReturnController : BaseApiController
 
     private IActionResult ErrorResult(string error)
     {
-        return error == MerchandiseReturnErrors.NotFound
-            ? NotFound()
-            : Conflict(new { error });
+        return error switch {
+            MerchandiseReturnErrors.NotFound => NotFound(),
+            //the request itself asks for what the store does not allow, whatever state the return is in
+            MerchandiseReturnErrors.PickupNotAllowed => BadRequest(new { error }),
+            _ => Conflict(new { error })
+        };
     }
 }
