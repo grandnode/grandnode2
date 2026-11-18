@@ -30,15 +30,15 @@ public class VoidOfflineCommandHandler : IRequestHandler<VoidOfflineCommand, boo
         var paymentTransaction = request.PaymentTransaction;
         ArgumentNullException.ThrowIfNull(paymentTransaction);
 
+        if (!await _mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction },
+                cancellationToken))
+            throw new GrandException("You can't void this order");
+
         paymentTransaction.TransactionStatus = TransactionStatus.Voided;
         await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
         var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
         ArgumentNullException.ThrowIfNull(order);
-
-        if (!await _mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction },
-                cancellationToken))
-            throw new GrandException("You can't void this order");
 
         order.PaymentStatusId = PaymentStatus.Voided;
         await _orderService.UpdateOrder(order);
