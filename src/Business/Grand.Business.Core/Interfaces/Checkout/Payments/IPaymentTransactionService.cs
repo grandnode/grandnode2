@@ -18,7 +18,8 @@ public interface IPaymentTransactionService
     Task UpdatePaymentTransaction(PaymentTransaction paymentTransaction);
 
     /// <summary>
-    ///     Delete an payment transaction
+    ///     Delete an payment transaction; throws for one that is not left behind by an abandoned
+    ///     checkout (see <see cref="Queries.Checkout.Orders.CanDeletePaymentTransactionQuery" />)
     /// </summary>
     /// <param name="paymentTransaction">payment transaction</param>
     Task DeletePaymentTransaction(PaymentTransaction paymentTransaction);

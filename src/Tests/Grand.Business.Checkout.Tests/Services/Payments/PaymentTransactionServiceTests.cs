@@ -1,8 +1,10 @@
 ﻿using Grand.Business.Checkout.Services.Payments;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Events;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -54,9 +56,19 @@ public class PaymentTransactionServiceTests
     [TestMethod]
     public async Task DeletePaymentTransaction_InvokeExpectedMethods()
     {
+        _mediatorMock.Setup(c => c.Send(It.IsAny<CanDeletePaymentTransactionQuery>(), default)).ReturnsAsync(true);
         await _service.DeletePaymentTransaction(new PaymentTransaction());
         _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<PaymentTransaction>()), Times.Once);
         _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityDeleted<PaymentTransaction>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeletePaymentTransaction_NotAbandoned_ThrowsAndKeepsIt()
+    {
+        _mediatorMock.Setup(c => c.Send(It.IsAny<CanDeletePaymentTransactionQuery>(), default)).ReturnsAsync(false);
+
+        await Assert.ThrowsExactlyAsync<GrandException>(() => _service.DeletePaymentTransaction(new PaymentTransaction()));
+        _repositoryMock.Verify(c => c.DeleteAsync(It.IsAny<PaymentTransaction>()), Times.Never);
     }
 
     [TestMethod]

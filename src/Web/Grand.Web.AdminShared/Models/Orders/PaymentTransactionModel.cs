@@ -109,6 +109,7 @@ public class PaymentTransactionModel : BaseEntityModel
     public bool CanPartiallyPaidOffline { get; set; }
     public bool CanVoid { get; set; }
     public bool CanVoidOffline { get; set; }
+    public bool CanDelete { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PartialRefund.AmountToRefund")]
     public double AmountToRefund { get; set; }

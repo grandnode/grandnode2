@@ -2496,6 +2496,9 @@
 	<Resource Name="Permission.ManageStockIntegration" Area="Admin">
 		<Value>Manage stock integration</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.PaymentTransaction.CannotDelete" Area="Admin">
+		<Value>Only a payment transaction left behind by an abandoned checkout can be deleted: still pending, nothing paid or authorized, no order, and not changed in the last hour. Close the payment of an order with Refund, Void or by cancelling the order.</Value>
+	</Resource>
 	<Resource Name="Admin.Orders.PaymentTransaction.List.ShowAbandoned" Area="Admin">
 		<Value>Show abandoned checkouts</Value>
 	</Resource>

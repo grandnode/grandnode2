@@ -217,6 +217,7 @@ public abstract class BasePaymentTransactionController(
             CanPartiallyPaidOffline = await mediator.Send(new CanPartiallyPaidOfflineQuery { PaymentTransaction = paymentTransaction, AmountToPaid = 0 }),
             CanVoid = await mediator.Send(new CanVoidQuery { PaymentTransaction = paymentTransaction }),
             CanVoidOffline = await mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction }),
+            CanDelete = await mediator.Send(new CanDeletePaymentTransactionQuery { PaymentTransaction = paymentTransaction }),
             MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
             MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount
         };
@@ -534,6 +535,12 @@ public abstract class BasePaymentTransactionController(
     {
         var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
         if (denied != null) return denied;
+
+        if (!await mediator.Send(new CanDeletePaymentTransactionQuery { PaymentTransaction = paymentTransaction }))
+        {
+            Error(translationService.GetResource("Admin.Orders.PaymentTransaction.CannotDelete"));
+            return RedirectToAction("Edit", new { id = paymentTransaction.Id });
+        }
 
         if (ModelState.IsValid)
         {
