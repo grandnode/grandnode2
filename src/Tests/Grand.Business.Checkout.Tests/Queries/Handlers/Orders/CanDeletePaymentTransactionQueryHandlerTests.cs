@@ -118,6 +118,17 @@ public class CanDeletePaymentTransactionQueryHandlerTests
     }
 
     [TestMethod]
+    public async Task PaymentJustRecorded_CannotDelete()
+    {
+        //the payment is recorded just before the order is written
+        var recorded = Abandoned();
+        recorded.Temp = false;
+        recorded.UpdatedOnUtc = DateTime.UtcNow.AddSeconds(-1);
+
+        Assert.IsFalse(await Handle(recorded));
+    }
+
+    [TestMethod]
     public async Task NullTransaction_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => Handle(null));

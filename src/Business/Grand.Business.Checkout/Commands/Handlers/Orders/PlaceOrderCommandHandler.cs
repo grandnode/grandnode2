@@ -242,17 +242,15 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
 
                     var orderHeader = PrepareOrderHeader(paymentTransaction, paymentResult, details);
 
+                    //the payment is recorded before the order is written: if saving the order fails, the transaction
+                    //still shows what the gateway did and is no longer taken for an abandoned checkout
+                    await UpdatePaymentTransaction(paymentTransaction, orderHeader, paymentResult);
+
                     result.PlacedOrder = await SaveOrderDetails(details, orderHeader, orderItems);
                     //from here on what was claimed belongs to the order
                     orderInserted = true;
                     await CompleteOrderDetails(details, result.PlacedOrder);
                     result.PaymentTransaction = paymentTransaction;
-
-                    #endregion
-
-                    #region Payment transaction
-
-                    await UpdatePaymentTransaction(paymentTransaction, result.PlacedOrder, paymentResult);
 
                     #endregion
 

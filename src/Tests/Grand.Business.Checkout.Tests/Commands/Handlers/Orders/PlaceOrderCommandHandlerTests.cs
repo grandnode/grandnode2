@@ -277,6 +277,19 @@ public class PlaceOrderCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_ExceptionBeforeOrderInsert_PaymentAlreadyRecorded()
+    {
+        var (handler, _, orders, _, _, _, details, _) = ClaimSetup();
+        orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).ThrowsAsync(new Exception("database down"));
+
+        await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        //what the gateway did stays visible, and the transaction is not taken for an abandoned checkout
+        _paymentTransactions.Verify(x => x.UpdatePaymentTransaction(It.Is<PaymentTransaction>(t =>
+            t.Id == "tx" && !t.Temp && t.TransactionAmount == details.OrderTotal)), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Handle_ExceptionAfterOrderInsert_KeepsClaim()
     {
         var (handler, claims, _, _, _, customers, details, _) = ClaimSetup();
@@ -367,7 +380,7 @@ public class PlaceOrderCommandHandlerTests
         {
             return Task.FromResult(new PaymentTransaction {
                 Id = "tx", StoreId = "store", OrderCode = "CODE1",
-                PaymentMethodSystemName = details.PaymentMethodSystemName
+                PaymentMethodSystemName = details.PaymentMethodSystemName, Temp = true
             });
         }
 

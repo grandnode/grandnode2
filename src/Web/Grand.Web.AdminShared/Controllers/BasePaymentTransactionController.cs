@@ -103,15 +103,18 @@ public abstract class BasePaymentTransactionController(
                     orderGuid = order.OrderGuid;
             }
 
-        var paymentTransactions = await paymentTransactionService.SearchPaymentTransactions(
-            customerEmail: model.SearchCustomerEmail,
-            ts: model.SearchTransactionStatus >= 0 ? (TransactionStatus)model.SearchTransactionStatus : null,
-            createdFromUtc: startDateValue,
-            createdToUtc: endDateValue,
-            storeId: model.StoreId,
-            orderGuid: orderGuid,
-            pageIndex: command.Page - 1,
-            pageSize: command.PageSize);
+        var paymentTransactions = await mediator.Send(new GetPaymentTransactionQuery {
+            CustomerEmail = model.SearchCustomerEmail,
+            Ts = model.SearchTransactionStatus >= 0 ? (TransactionStatus)model.SearchTransactionStatus : null,
+            CreatedFromUtc = startDateValue,
+            CreatedToUtc = endDateValue,
+            StoreId = model.StoreId,
+            OrderGuid = orderGuid,
+            PageIndex = command.Page - 1,
+            PageSize = command.PageSize,
+            //the payment of an order searched for by its number is shown whatever state its checkout left it in
+            IncludeTemp = model.ShowAbandoned || orderGuid.HasValue
+        });
 
         var dataModel = new List<PaymentTransactionModel>();
 
