@@ -456,7 +456,7 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
-    public async Task Delete_Authorized_DeletesAndRedirectsToList()
+    public async Task Delete_WithoutOrder_DeletesAndRedirectsToList()
     {
         var transaction = new PaymentTransaction { Id = "pt-1" };
         _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
@@ -466,5 +466,39 @@ public class BasePaymentTransactionControllerTests
         Assert.IsNotNull(result);
         Assert.AreEqual("List", result!.ActionName);
         _paymentTransactionServiceMock.Verify(s => s.DeletePaymentTransaction(transaction), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Delete_WithOrder_RefusesAndRedirectsToEdit()
+    {
+        SetupOrder(null, null);
+
+        var result = await _controller.Delete("pt-1") as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Edit", result!.ActionName);
+        Assert.AreEqual("pt-1", result.RouteValues!["id"]);
+        _paymentTransactionServiceMock.Verify(s => s.DeletePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Edit_WithOrder_CannotDelete()
+    {
+        SetupOrder(null, null);
+
+        var result = await _controller.Edit("pt-1") as ViewResult;
+
+        Assert.IsFalse(((PaymentTransactionModel)result!.Model!).CanDelete);
+    }
+
+    [TestMethod]
+    public async Task Edit_WithoutOrder_CanDelete()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1"))
+            .ReturnsAsync(new PaymentTransaction { Id = "pt-1", OrderGuid = Guid.NewGuid() });
+
+        var result = await _controller.Edit("pt-1") as ViewResult;
+
+        Assert.IsTrue(((PaymentTransactionModel)result!.Model!).CanDelete);
     }
 }

@@ -8,7 +8,7 @@
 
     @* the order screen's shell: every payment operation the transaction allows is an outline
        button that asks first; there is nothing to save, so no primary action, and Delete is in
-       the overflow menu *@
+       the overflow menu, only for a transaction no order owns *@
     <admin-page sticky
                 title="@Loc["Admin.Orders.PaymentTransaction.Details"]"
                 icon="bi-truck"
@@ -81,10 +81,13 @@
                 <input type="submit" name="voidpaymenttransactionoffline" asp-action="VoidPaymentTransactionOffline"
                        value="@Loc["Admin.PaymentTransaction.Fields.VoidOffline"]" id="voidpaymenttransactionoffline" class="btn btn-outline-secondary" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"/>
             }
-            <admin-action-menu>
-                <admin-action id="paymenttransaction-delete" destructive="true" icon="bi-trash"
-                              text="@Loc["Admin.Common.Delete"]"/>
-            </admin-action-menu>
+            @if (Model.CanDelete)
+            {
+                <admin-action-menu>
+                    <admin-action id="paymenttransaction-delete" destructive="true" icon="bi-trash"
+                                  text="@Loc["Admin.Common.Delete"]"/>
+                </admin-action-menu>
+            }
             <partial name="Partials/WidgetZone.DetailsButtons" model="Model"/>
         </page-actions>
 
@@ -147,4 +150,7 @@
         });
     </script>
 </form>
-<admin-delete-confirmation button-id="paymenttransaction-delete"/>
+@if (Model.CanDelete)
+{
+    <admin-delete-confirmation button-id="paymenttransaction-delete"/>
+}

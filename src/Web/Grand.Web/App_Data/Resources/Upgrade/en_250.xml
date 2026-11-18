@@ -2496,4 +2496,7 @@
 	<Resource Name="Permission.ManageStockIntegration" Area="Admin">
 		<Value>Manage stock integration</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.PaymentTransaction.CannotDeleteWithOrder" Area="Admin">
+		<Value>This payment transaction belongs to an order and cannot be deleted. Use Void or Cancel to close the payment.</Value>
+	</Resource>
 </Language>
