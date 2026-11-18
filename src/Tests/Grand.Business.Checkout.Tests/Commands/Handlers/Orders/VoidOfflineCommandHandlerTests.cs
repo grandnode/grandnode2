@@ -75,6 +75,27 @@ public class VoidOfflineCommandHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_Authorized_RecordsVoid()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction
+            { TransactionStatus = TransactionStatus.Authorized, TransactionAmount = 10, CurrencyCode = "EUR" };
+        SetupRealCanVoidOffline();
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(new VoidOfflineCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(1, transaction.Entries.Count);
+        Assert.AreEqual(PaymentTransactionEntryType.Void, transaction.Entries[0].EntryType);
+        Assert.AreEqual(10, transaction.Entries[0].Amount);
+        Assert.AreEqual("staff@shop.com", transaction.Entries[0].CreatedBy);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Void"))), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Handle_NotAuthorized_ThrowsAndSavesNothing()
     {
         //Arrange
@@ -88,6 +109,7 @@ public class VoidOfflineCommandHandlerTests
 
         //Assert
         Assert.AreEqual(TransactionStatus.Paid, transaction.TransactionStatus);
+        Assert.AreEqual(0, transaction.Entries.Count);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
     }
 

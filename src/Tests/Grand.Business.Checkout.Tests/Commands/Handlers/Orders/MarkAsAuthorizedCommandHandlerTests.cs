@@ -45,4 +45,24 @@ public class MarkAsAuthorizedCommandHandlerTests
         _orderServiceMock.Verify(c => c.UpdateOrder(It.IsAny<Order>()), Times.Once);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Once);
     }
+
+    [TestMethod]
+    public async Task Handle_RecordsAuthorization()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100, CurrencyCode = "EUR" };
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(
+            new MarkAsAuthorizedCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" }, default);
+
+        //Assert
+        Assert.AreEqual(1, transaction.Entries.Count);
+        Assert.AreEqual(PaymentTransactionEntryType.Authorization, transaction.Entries[0].EntryType);
+        Assert.AreEqual(100, transaction.Entries[0].Amount);
+        Assert.AreEqual("staff@shop.com", transaction.Entries[0].CreatedBy);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Authorization"))),
+            Times.Once);
+    }
 }

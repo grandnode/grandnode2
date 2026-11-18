@@ -114,6 +114,11 @@ public class PaymentTransaction : BaseEntity
     public IList<string> Errors { get; set; } = new List<string>();
 
     /// <summary>
+    ///     Gets or sets the money operations recorded on the transaction, oldest first
+    /// </summary>
+    public IList<PaymentTransactionEntry> Entries { get; set; } = new List<PaymentTransactionEntry>();
+
+    /// <summary>
     ///     Gets or sets
     /// </summary>
     public bool Temp { get; set; }
