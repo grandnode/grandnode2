@@ -5,6 +5,7 @@ using Grand.Domain;
 using Grand.Domain.Payments;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
+using Grand.SharedKernel;
 
 namespace Grand.Business.Checkout.Services.Payments;
 
@@ -50,12 +51,16 @@ public class PaymentTransactionService : IPaymentTransactionService
     }
 
     /// <summary>
-    ///     Delete an payment transaction
+    ///     Delete an payment transaction; only one left behind by an abandoned checkout
+    ///     (see <see cref="CanDeletePaymentTransactionQuery" />)
     /// </summary>
     /// <param name="paymentTransaction">payment transaction</param>
     public virtual async Task DeletePaymentTransaction(PaymentTransaction paymentTransaction)
     {
         ArgumentNullException.ThrowIfNull(paymentTransaction);
+
+        if (!await _mediator.Send(new CanDeletePaymentTransactionQuery { PaymentTransaction = paymentTransaction }))
+            throw new GrandException("Only a payment transaction left behind by an abandoned checkout can be deleted");
 
         await _repositoryPaymentTransaction.DeleteAsync(paymentTransaction);
 

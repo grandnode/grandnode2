@@ -216,7 +216,7 @@ public abstract class BasePaymentTransactionController(
             CanPartiallyPaidOffline = await mediator.Send(new CanPartiallyPaidOfflineQuery { PaymentTransaction = paymentTransaction, AmountToPaid = 0 }),
             CanVoid = await mediator.Send(new CanVoidQuery { PaymentTransaction = paymentTransaction }),
             CanVoidOffline = await mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction }),
-            CanDelete = CanDelete(order),
+            CanDelete = await mediator.Send(new CanDeletePaymentTransactionQuery { PaymentTransaction = paymentTransaction }),
             MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
             MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount
         };
@@ -528,11 +528,6 @@ public abstract class BasePaymentTransactionController(
 
     #region Delete
 
-    /// <summary>Only a transaction left behind by an abandoned checkout may be deleted. Once an order
-    /// exists, its payment actions, merchandise-return refunds, gateway callbacks and the customer's
-    /// re-payment all find the payment through this record; Void or Cancel close it instead.</summary>
-    private static bool CanDelete(Order order) => order == null;
-
     [PermissionAuthorizeAction(PermissionActionName.Delete)]
     [HttpPost]
     public async Task<IActionResult> Delete(string id)
@@ -540,9 +535,9 @@ public abstract class BasePaymentTransactionController(
         var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
         if (denied != null) return denied;
 
-        if (!CanDelete(await orderService.GetOrderByGuid(paymentTransaction.OrderGuid)))
+        if (!await mediator.Send(new CanDeletePaymentTransactionQuery { PaymentTransaction = paymentTransaction }))
         {
-            Error(translationService.GetResource("Admin.Orders.PaymentTransaction.CannotDeleteWithOrder"));
+            Error(translationService.GetResource("Admin.Orders.PaymentTransaction.CannotDelete"));
             return RedirectToAction("Edit", new { id = paymentTransaction.Id });
         }
 
