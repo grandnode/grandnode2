@@ -730,7 +730,7 @@ public class MerchandiseReturnViewModelServiceTests
             new MerchandiseReturnModel { Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received }, []);
 
         Assert.IsNull(result.Error);
-        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Received, null, "john@shop.com"),
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Received, null, "john@shop.com", null, true),
             Times.Once);
     }
 

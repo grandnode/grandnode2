@@ -110,6 +110,76 @@ public class MerchandiseReturnWorkflowServiceTests
         Assert.IsTrue(await _service.CanMarkReceived(Return(MerchandiseReturnStatus.Accepted)));
     }
 
+    [TestMethod]
+    public async Task CanMarkReceived_BundleOfProductsTrackingStock_False()
+    {
+        //a receipt takes a returned bundle in as its products
+        SetupBundle(ManageInventoryMethod.ManageStock);
+
+        Assert.IsFalse(await _service.CanMarkReceived(Return(MerchandiseReturnStatus.Accepted)));
+    }
+
+    [TestMethod]
+    public async Task CanMarkReceived_BundleOfProductsNotTrackingStock_True()
+    {
+        SetupBundle(ManageInventoryMethod.DontManageStock);
+
+        Assert.IsTrue(await _service.CanMarkReceived(Return(MerchandiseReturnStatus.Accepted)));
+    }
+
+    private void SetupBundle(ManageInventoryMethod bundledManageInventory)
+    {
+        var bundle = new Product { Id = "p1", ManageInventoryMethodId = ManageInventoryMethod.ManageStockByBundleProducts };
+        bundle.BundleProducts.Add(new BundleProduct { ProductId = "p2", Quantity = 2 });
+        _productService.Setup(x => x.GetProductByIdIncludeArch("p1")).ReturnsAsync(bundle);
+        _productService.Setup(x => x.GetProductByIdIncludeArch("p2"))
+            .ReturnsAsync(new Product { Id = "p2", ManageInventoryMethodId = bundledManageInventory });
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_ReceivedWhereAReceiptTakesTheGoodsIn_RefusedAndNothingSaved()
+    {
+        //every caller, the API and the panel alike: only a return receipt makes such a return received
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+
+        var error = await _service.ChangeStatus("r1", MerchandiseReturnStatus.Received);
+
+        Assert.AreEqual(MerchandiseReturnErrors.StatusChangeNotAllowed, error);
+        Assert.AreEqual(MerchandiseReturnStatus.Accepted, _stored.MerchandiseReturnStatus);
+        _merchandiseReturnService.Verify(x => x.UpdateMerchandiseReturn(It.IsAny<MerchandiseReturn>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_ReceivedOfProductNotTrackingStock_Changes()
+    {
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+        SetupProduct(ManageInventoryMethod.DontManageStock);
+
+        Assert.IsNull(await _service.ChangeStatus("r1", MerchandiseReturnStatus.Received));
+        Assert.AreEqual(MerchandiseReturnStatus.Received, _stored.MerchandiseReturnStatus);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_ReceivedWithoutReturnReceipts_Changes()
+    {
+        //the vendor panel can post no receipt
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+
+        Assert.IsNull(await _service.ChangeStatus("r1", MerchandiseReturnStatus.Received, null, null, null, true));
+        Assert.AreEqual(MerchandiseReturnStatus.Received, _stored.MerchandiseReturnStatus);
+    }
+
+    [TestMethod]
+    public async Task ChangeStatus_ReceivedWithAPostedReceipt_Changes()
+    {
+        //the receipt was posted while the return was busy, so it did not mark the return: the staff finish it by hand
+        _stored = Return(MerchandiseReturnStatus.Accepted);
+        SetupReceived(true);
+
+        Assert.IsNull(await _service.ChangeStatus("r1", MerchandiseReturnStatus.Received));
+        Assert.AreEqual(MerchandiseReturnStatus.Received, _stored.MerchandiseReturnStatus);
+    }
+
     private void SetupReceived(bool received)
     {
         _inventoryDocumentService.Setup(x => x.IsReturnReceived("r1")).ReturnsAsync(received);
@@ -401,6 +471,7 @@ public class MerchandiseReturnWorkflowServiceTests
     public async Task MarkReceived_StaffNoteNamesThePoster()
     {
         _stored = Return(MerchandiseReturnStatus.Accepted);
+        SetupReceived(true);
 
         await _service.MarkReceived("r1", "poster@shop.com");
 
@@ -462,6 +533,7 @@ public class MerchandiseReturnWorkflowServiceTests
     public async Task MarkReceived_PendingOrAccepted_ChangesToReceived(MerchandiseReturnStatus status)
     {
         _stored = Return(status);
+        SetupReceived(true);
 
         await _service.MarkReceived("r1");
 

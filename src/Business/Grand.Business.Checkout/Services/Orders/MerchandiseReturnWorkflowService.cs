@@ -327,8 +327,14 @@ public class MerchandiseReturnWorkflowService(
         return ChangeStatus(merchandiseReturnId, status, customerNote, changedBy, null);
     }
 
-    public async Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
+    public Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
         string customerNote, string changedBy, Func<MerchandiseReturn, bool> allowed)
+    {
+        return ChangeStatus(merchandiseReturnId, status, customerNote, changedBy, allowed, false);
+    }
+
+    public async Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status,
+        string customerNote, string changedBy, Func<MerchandiseReturn, bool> allowed, bool withoutReturnReceipts)
     {
         MerchandiseReturn changed = null;
         var error = await UnderOrderLock(merchandiseReturnId, async stored =>
@@ -336,7 +342,7 @@ public class MerchandiseReturnWorkflowService(
             if (allowed != null && !allowed(stored))
                 return MerchandiseReturnErrors.StatusChangeNotAllowed;
 
-            var statusError = await StatusChangeError(stored, status);
+            var statusError = await StatusChangeError(stored, status, withoutReturnReceipts);
             if (statusError != null)
                 return statusError;
 
@@ -495,17 +501,38 @@ public class MerchandiseReturnWorkflowService(
         {
             var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
             var product = orderItem == null ? null : await productService.GetProductByIdIncludeArch(orderItem.ProductId);
-            if (product?.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
-                or ManageInventoryMethod.ManageStockByAttributes)
+            if (product == null)
+                continue;
+
+            //a receipt takes a returned bundle in as its products, as the stock was taken when it was sold
+            if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
+            {
+                foreach (var bundleProduct in product.BundleProducts)
+                    if (TracksStock(await productService.GetProductByIdIncludeArch(bundleProduct.ProductId)))
+                        return false;
+            }
+            else if (TracksStock(product))
                 return false;
         }
 
         return true;
     }
 
-    private async Task<string> StatusChangeError(MerchandiseReturn stored, MerchandiseReturnStatus status)
+    private static bool TracksStock(Product product)
+    {
+        return product?.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
+            or ManageInventoryMethod.ManageStockByAttributes;
+    }
+
+    private async Task<string> StatusChangeError(MerchandiseReturn stored, MerchandiseReturnStatus status,
+        bool withoutReturnReceipts)
     {
         if (!stored.MerchandiseReturnStatus.CanChangeTo(status))
+            return MerchandiseReturnErrors.StatusChangeNotAllowed;
+
+        //received by hand only where no return receipt takes the goods in, or one did already: the goods of a product
+        //tracking stock reach the stock and their inspection through a receipt, which marks the return itself
+        if (status == MerchandiseReturnStatus.Received && !withoutReturnReceipts && !await CanMarkReceived(stored))
             return MerchandiseReturnErrors.StatusChangeNotAllowed;
 
         //the refund completes the return once the money went back, or leaves it received when it did not

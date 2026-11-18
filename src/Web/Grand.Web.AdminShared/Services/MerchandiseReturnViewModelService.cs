@@ -617,9 +617,14 @@ public class MerchandiseReturnViewModelService(
         if (model.ChangeStatusTo.HasValue)
         {
             var status = (MerchandiseReturnStatus)model.ChangeStatusTo.Value;
-            error = await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id, status,
-                status == MerchandiseReturnStatus.Rejected ? model.ChangeStatusNote : null,
-                contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy());
+            var customerNote = status == MerchandiseReturnStatus.Rejected ? model.ChangeStatusNote : null;
+            var changedBy = contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy();
+            //the vendor panel has no inventory documents to post a receipt with
+            error = scope.DefaultVendorId != null
+                ? await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id, status, customerNote,
+                    changedBy, null, true)
+                : await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id, status, customerNote,
+                    changedBy);
         }
 
         return (merchandiseReturn, error);
