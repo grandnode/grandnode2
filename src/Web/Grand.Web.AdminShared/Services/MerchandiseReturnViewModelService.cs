@@ -70,20 +70,22 @@ public class MerchandiseReturnViewModelService(
         ArgumentNullException.ThrowIfNull(model);
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
+        //an order or an order item deleted since leaves the return on the page, its price without that item
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
         double unitPriceInclTaxInCustomerCurrency = 0;
         foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
-            var orderItem = order.OrderItems.First(x => x.Id == item.OrderItemId);
-            unitPriceInclTaxInCustomerCurrency += orderItem.UnitPriceInclTax * item.Quantity;
+            var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+            if (orderItem != null)
+                unitPriceInclTaxInCustomerCurrency += orderItem.UnitPriceInclTax * item.Quantity;
         }
 
         model.Total = priceFormatter.FormatPrice(unitPriceInclTaxInCustomerCurrency, contextAccessor.WorkContext.WorkingCurrency);
         model.Quantity = merchandiseReturn.MerchandiseReturnItems.Sum(x => x.Quantity);
         model.Id = merchandiseReturn.Id;
-        model.OrderId = order.Id;
-        model.OrderNumber = order.OrderNumber;
-        model.OrderCode = order.Code;
+        model.OrderId = merchandiseReturn.OrderId;
+        model.OrderNumber = order?.OrderNumber ?? 0;
+        model.OrderCode = order?.Code;
         model.ReturnNumber = merchandiseReturn.ReturnNumber;
         model.CustomerId = merchandiseReturn.CustomerId;
         var customer = await customerService.GetCustomerById(merchandiseReturn.CustomerId);
@@ -130,25 +132,13 @@ public class MerchandiseReturnViewModelService(
     private const int AllStatuses = -1;
 
     /// <summary>
-    ///     Whether the staff may mark the return received: its goods came back to stock through a posted return
-    ///     receipt, which marks it received itself unless that failed; or no receipt can take the goods in, as the
-    ///     vendor panel has no inventory documents and a product that does not track stock is not booked
+    ///     Whether the staff may mark the return received: the vendor panel has no inventory documents, so no receipt
+    ///     can take the goods in there; elsewhere the rule every staff surface shares
     /// </summary>
     private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order)
     {
-        if (scope.DefaultVendorId != null || await inventoryDocumentService.IsReturnReceived(merchandiseReturn.Id))
-            return true;
-
-        foreach (var item in merchandiseReturn.MerchandiseReturnItems)
-        {
-            var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
-            var product = orderItem == null ? null : await productService.GetProductByIdIncludeArch(orderItem.ProductId);
-            if (product?.ManageInventoryMethodId is ManageInventoryMethod.ManageStock
-                or ManageInventoryMethod.ManageStockByAttributes)
-                return false;
-        }
-
-        return true;
+        return scope.DefaultVendorId != null ||
+               await merchandiseReturnWorkflowService.CanMarkReceived(merchandiseReturn, order);
     }
 
     private async Task<MerchandiseReturnModel.ReturnShippingModel> PrepareReturnShipping(
@@ -160,7 +150,7 @@ public class MerchandiseReturnViewModelService(
 
         var provider = returnShippingService.LoadProviderBySystemName(shipping.ProviderSystemName);
         //the cost is kept in the primary store currency, with the rate of the order's currency
-        var orderCurrency = await currencyService.GetCurrencyByCode(order.CustomerCurrencyCode)
+        var orderCurrency = await currencyService.GetCurrencyByCode(order?.CustomerCurrencyCode)
                             ?? contextAccessor.WorkContext.WorkingCurrency;
         var model = new MerchandiseReturnModel.ReturnShippingModel {
             MethodName = provider?.FriendlyName ?? shipping.ProviderSystemName,
@@ -629,9 +619,14 @@ public class MerchandiseReturnViewModelService(
         if (model.ChangeStatusTo.HasValue)
         {
             var status = (MerchandiseReturnStatus)model.ChangeStatusTo.Value;
-            error = await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id, status,
-                status == MerchandiseReturnStatus.Rejected ? model.ChangeStatusNote : null,
-                contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy());
+            var customerNote = status == MerchandiseReturnStatus.Rejected ? model.ChangeStatusNote : null;
+            var changedBy = contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy();
+            //the vendor panel has no inventory documents to post a receipt with
+            error = scope.DefaultVendorId != null
+                ? await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id, status, customerNote,
+                    changedBy, null, true)
+                : await merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id, status, customerNote,
+                    changedBy);
         }
 
         return (merchandiseReturn, error);

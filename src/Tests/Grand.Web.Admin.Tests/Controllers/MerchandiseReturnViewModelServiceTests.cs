@@ -440,8 +440,7 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static (MerchandiseReturnViewModelService service, Mock<IMerchandiseReturnWorkflowService> workflow)
-        BuildForUpdate(Mock<IInventoryDocumentService> documents = null,
-            ManageInventoryMethod manageInventory = ManageInventoryMethod.ManageStock, string vendorId = null)
+        BuildForUpdate(bool canMarkReceived = false, string vendorId = null, bool orderDeleted = false)
     {
         //the edit form's pickup address lists the countries and the address attributes
         var countryServiceMock = new Mock<ICountryService>();
@@ -454,11 +453,8 @@ public class MerchandiseReturnViewModelServiceTests
         var orderServiceMock = new Mock<IOrderService>();
         var order = new Order { Id = "o1" };
         order.OrderItems.Add(new OrderItem { Id = "oi1", ProductId = "p1" });
-        orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync(order);
-        //the returned product, which a return receipt books unless it does not track stock
+        orderServiceMock.Setup(x => x.GetOrderById("o1")).ReturnsAsync(orderDeleted ? null : order);
         var productServiceMock = new Mock<IProductService>();
-        productServiceMock.Setup(x => x.GetProductByIdIncludeArch("p1"))
-            .ReturnsAsync(new Product { Id = "p1", ManageInventoryMethodId = manageInventory });
         var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
         scopeMock.Setup(x => x.DefaultVendorId).Returns(vendorId);
         var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
@@ -476,6 +472,9 @@ public class MerchandiseReturnViewModelServiceTests
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
         workflowMock.Setup(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()))
             .ReturnsAsync((string)null);
+        //the rule every staff surface shares lives in the workflow service and is tested there: here only its answer
+        workflowMock.Setup(x => x.CanMarkReceived(It.IsAny<MerchandiseReturn>(), It.IsAny<Order>()))
+            .ReturnsAsync(canMarkReceived);
         var labelServiceMock = new Mock<IMerchandiseReturnLabelService>();
         var returnShippingServiceMock = new Mock<IReturnShippingService>();
         var currencyServiceMock = new Mock<ICurrencyService>();
@@ -503,7 +502,7 @@ public class MerchandiseReturnViewModelServiceTests
             labelServiceMock.Object,
             returnShippingServiceMock.Object,
             currencyServiceMock.Object,
-            (documents ?? new Mock<IInventoryDocumentService>()).Object,
+            new Mock<IInventoryDocumentService>().Object,
             new Mock<IWarehouseService>().Object,
             new Mock<IAdminDataScope<Warehouse>>().Object,
             new Mock<IRequestPermissionService>().Object,
@@ -689,12 +688,25 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task PrepareMerchandiseReturnModel_EditPage_ReceiptPostedButNotMarked_OffersReceived()
+    public async Task PrepareMerchandiseReturnModel_EditPage_RuleAllowsReceived_OffersReceived_WithTheLoadedOrder()
     {
-        //the receipt was posted while the return was busy: MarkReceived refused, the staff finishes it by hand
-        var documents = new Mock<IInventoryDocumentService>();
-        documents.Setup(x => x.IsReturnReceived("r1")).ReturnsAsync(true);
-        var (service, _) = BuildForUpdate(documents);
+        //a posted receipt the return was not marked received by, or goods no receipt can take in
+        var (service, workflow) = BuildForUpdate(canMarkReceived: true);
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
+            StoredReturn(MerchandiseReturnStatus.Accepted), false);
+
+        CollectionAssert.AreEqual(new[] { 15, 40, 20, 30 }, model.NextStatuses.ToArray());
+        //the order the page loaded is handed over, not read again
+        workflow.Verify(x => x.CanMarkReceived(It.IsAny<MerchandiseReturn>(), It.Is<Order>(o => o.Id == "o1")),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_EditPage_VendorPanel_OffersReceived()
+    {
+        //the vendor panel has no inventory documents to post a receipt with
+        var (service, _) = BuildForUpdate(vendorId: "v1");
 
         var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
             StoredReturn(MerchandiseReturnStatus.Accepted), false);
@@ -703,15 +715,28 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task PrepareMerchandiseReturnModel_EditPage_ProductDoesNotTrackStock_OffersReceived()
+    public async Task PrepareMerchandiseReturnModel_EditPage_OrderDeleted_RendersTheReturn()
     {
-        //no receipt can book a product that does not track stock: the staff marks the return received by hand
-        var (service, _) = BuildForUpdate(manageInventory: ManageInventoryMethod.DontManageStock);
+        var (service, _) = BuildForUpdate(orderDeleted: true);
 
         var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(),
             StoredReturn(MerchandiseReturnStatus.Accepted), false);
 
-        CollectionAssert.AreEqual(new[] { 15, 40, 20, 30 }, model.NextStatuses.ToArray());
+        Assert.AreEqual("r1", model.Id);
+        Assert.AreEqual("o1", model.OrderId);
+        Assert.AreEqual(1, model.Quantity);
+    }
+
+    [TestMethod]
+    public async Task PrepareMerchandiseReturnModel_EditPage_OrderItemDeleted_RendersTheReturn()
+    {
+        var (service, _) = BuildForUpdate();
+        var merchandiseReturn = StoredReturn(MerchandiseReturnStatus.Accepted);
+        merchandiseReturn.MerchandiseReturnItems.Add(new MerchandiseReturnItem { OrderItemId = "gone", Quantity = 2 });
+
+        var model = await service.PrepareMerchandiseReturnModel(new MerchandiseReturnModel(), merchandiseReturn, false);
+
+        Assert.AreEqual(3, model.Quantity);
     }
 
     [TestMethod]
@@ -724,16 +749,14 @@ public class MerchandiseReturnViewModelServiceTests
             new MerchandiseReturnModel { Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received }, []);
 
         Assert.IsNull(result.Error);
-        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Received, null, "john@shop.com"),
+        workflow.Verify(x => x.ChangeStatus("r1", MerchandiseReturnStatus.Received, null, "john@shop.com", null, true),
             Times.Once);
     }
 
     [TestMethod]
-    public async Task UpdateMerchandiseReturnModel_PostedReceived_ReceiptPosted_ChangesStatus()
+    public async Task UpdateMerchandiseReturnModel_PostedReceived_RuleAllowsIt_ChangesStatus()
     {
-        var documents = new Mock<IInventoryDocumentService>();
-        documents.Setup(x => x.IsReturnReceived("r1")).ReturnsAsync(true);
-        var (service, workflow) = BuildForUpdate(documents);
+        var (service, workflow) = BuildForUpdate(canMarkReceived: true);
 
         var result = await service.UpdateMerchandiseReturnModel(StoredReturn(MerchandiseReturnStatus.Accepted),
             new MerchandiseReturnModel { Id = "r1", ChangeStatusTo = (int)MerchandiseReturnStatus.Received }, []);

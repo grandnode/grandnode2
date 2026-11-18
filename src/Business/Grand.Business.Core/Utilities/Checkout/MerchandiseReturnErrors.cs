@@ -25,4 +25,7 @@ public static class MerchandiseReturnErrors
     public const string SubmitQuantityExceeded = "MerchandiseReturns.QuantityExceeded";
     public const string SubmitBusy = "MerchandiseReturns.Busy";
     public const string SubmitReturnShippingChoose = "MerchandiseReturns.ReturnShipping.Choose";
+
+    //the API's, returned to the client as the code they are and never translated
+    public const string PickupNotAllowed = "Orders.MerchandiseReturns.PickupNotAllowed";
 }

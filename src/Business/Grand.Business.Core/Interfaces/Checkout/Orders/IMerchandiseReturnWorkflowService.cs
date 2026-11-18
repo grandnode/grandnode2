@@ -25,7 +25,7 @@ public interface IMerchandiseReturnWorkflowService
 
     /// <summary>
     ///     Changes the status along the allowed flow, notes for the staff who changed it, and sends the customer the
-    ///     status changed message
+    ///     status changed message. Received only where CanMarkReceived says yes to the return as stored
     /// </summary>
     /// <param name="merchandiseReturnId">Merchandise return identifier</param>
     /// <param name="status">The new status</param>
@@ -49,6 +49,21 @@ public interface IMerchandiseReturnWorkflowService
         string changedBy, Func<MerchandiseReturn, bool> allowed);
 
     /// <summary>
+    ///     Changes the status as the overload with allowed does
+    /// </summary>
+    /// <param name="merchandiseReturnId">Merchandise return identifier</param>
+    /// <param name="status">The new status</param>
+    /// <param name="customerNote">A note shown to the customer with the change</param>
+    /// <param name="changedBy">Who changed it, as the staff note names them; null for the system</param>
+    /// <param name="allowed">Checked on the return as stored, under the lock; null allows any return</param>
+    /// <param name="withoutReturnReceipts">
+    ///     The caller can post no return receipt (the vendor panel has no inventory documents): Received is allowed
+    ///     where a receipt would take the goods in
+    /// </param>
+    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string customerNote,
+        string changedBy, Func<MerchandiseReturn, bool> allowed, bool withoutReturnReceipts);
+
+    /// <summary>
     ///     Saves the fields set by apply; the status stays as stored, it changes only through ChangeStatus
     /// </summary>
     Task<string> Update(string merchandiseReturnId, Action<MerchandiseReturn> apply);
@@ -65,4 +80,21 @@ public interface IMerchandiseReturnWorkflowService
     /// <param name="merchandiseReturnId">Merchandise return identifier</param>
     /// <param name="changedBy">Who posted the receipt, as the staff note names them; null for the system</param>
     Task MarkReceived(string merchandiseReturnId, string changedBy = null);
+
+    /// <summary>
+    ///     Whether staff may mark the return received by hand: a posted return receipt took the goods in already (it
+    ///     marks the return received itself unless that failed), or no receipt can take them in, as a product that does
+    ///     not track stock, nor a bundle none of whose products does, is not booked. Otherwise only a return receipt makes
+    ///     it received, so the goods reach the stock and their inspection. ChangeStatus refuses Received otherwise, on
+    ///     the return as stored; a staff surface asks it before offering Received
+    /// </summary>
+    /// <param name="merchandiseReturn">The merchandise return</param>
+    Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn);
+
+    /// <summary>
+    ///     As the other overload, with the return's order the caller has loaded already
+    /// </summary>
+    /// <param name="merchandiseReturn">The merchandise return</param>
+    /// <param name="order">The return's order; null when it was not found</param>
+    Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order);
 }
