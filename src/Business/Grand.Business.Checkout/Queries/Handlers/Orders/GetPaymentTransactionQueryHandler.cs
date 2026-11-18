@@ -40,6 +40,9 @@ public class
         if (request.CreatedToUtc.HasValue)
             query = query.Where(rr => request.CreatedToUtc.Value >= rr.CreatedOnUtc);
 
+        if (!request.IncludeTemp)
+            query = query.Where(rr => !rr.Temp);
+
         query = query.OrderByDescending(rr => rr.CreatedOnUtc);
 
         return await _paymentTransactionRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);

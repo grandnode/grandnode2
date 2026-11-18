@@ -127,6 +127,7 @@ public class PaymentTransactionService : IPaymentTransactionService
     /// <param name="pageSize">Page size</param>
     /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
     /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
+    /// <param name="includeTemp">False leaves out transactions of a checkout that never became an order</param>
     /// <returns>Page list payment transaction</returns>
     public virtual async Task<IPagedList<PaymentTransaction>> SearchPaymentTransactions(
         Guid? orderGuid = null,
@@ -135,7 +136,8 @@ public class PaymentTransactionService : IPaymentTransactionService
         TransactionStatus? ts = null,
         int pageIndex = 0, int pageSize = int.MaxValue,
         DateTime? createdFromUtc = null,
-        DateTime? createdToUtc = null)
+        DateTime? createdToUtc = null,
+        bool includeTemp = true)
     {
         var model = new GetPaymentTransactionQuery {
             CreatedFromUtc = createdFromUtc,
@@ -145,7 +147,8 @@ public class PaymentTransactionService : IPaymentTransactionService
             OrderGuid = orderGuid,
             CustomerEmail = customerEmail,
             StoreId = storeId,
-            Ts = ts
+            Ts = ts,
+            IncludeTemp = includeTemp
         };
 
         return await _mediator.Send(model);

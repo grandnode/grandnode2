@@ -14,4 +14,7 @@ public class GetPaymentTransactionQuery : IRequest<IPagedList<PaymentTransaction
     public int PageSize { get; set; } = int.MaxValue;
     public DateTime? CreatedFromUtc { get; set; } = null;
     public DateTime? CreatedToUtc { get; set; } = null;
+
+    /// <summary>False leaves out transactions of a checkout that never became an order.</summary>
+    public bool IncludeTemp { get; set; } = true;
 }

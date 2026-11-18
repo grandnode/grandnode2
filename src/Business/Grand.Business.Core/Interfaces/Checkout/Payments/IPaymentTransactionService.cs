@@ -64,6 +64,7 @@ public interface IPaymentTransactionService
     /// <param name="pageSize">Page size</param>
     /// <param name="createdFromUtc">Created date from (UTC); null to load all records</param>
     /// <param name="createdToUtc">Created date to (UTC); null to load all records</param>
+    /// <param name="includeTemp">False leaves out transactions of a checkout that never became an order</param>
     /// <returns>Page list payment transaction</returns>
     Task<IPagedList<PaymentTransaction>> SearchPaymentTransactions(
         Guid? orderGuid = null,
@@ -72,7 +73,8 @@ public interface IPaymentTransactionService
         TransactionStatus? ts = null,
         int pageIndex = 0, int pageSize = int.MaxValue,
         DateTime? createdFromUtc = null,
-        DateTime? createdToUtc = null);
+        DateTime? createdToUtc = null,
+        bool includeTemp = true);
 
     /// <summary>
     ///     Set payment error for transaction

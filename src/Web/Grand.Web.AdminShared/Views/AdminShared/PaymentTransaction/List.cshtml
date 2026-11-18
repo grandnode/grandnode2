@@ -28,6 +28,7 @@
             <admin-field asp-for="SearchTransactionStatus" asp-items="Model.PaymentTransactionStatus"/>
             <admin-field asp-for="StartDate"/>
             <admin-field asp-for="EndDate"/>
+            <admin-field asp-for="ShowAbandoned"/>
         </admin-filters>
 
         <admin-card flush>
@@ -77,7 +78,8 @@
             SearchCustomerEmail: $('#@Html.IdFor(model => model.SearchCustomerEmail)').val(),
             OrderNumber: $('#@Html.IdFor(model => model.OrderNumber)').val(),
             StartDate: $('#@Html.IdFor(model => model.StartDate)').val(),
-            EndDate: $('#@Html.IdFor(model => model.EndDate)').val()
+            EndDate: $('#@Html.IdFor(model => model.EndDate)').val(),
+            ShowAbandoned: $('#@Html.IdFor(model => model.ShowAbandoned)').is(':checked')
         };
         addAntiForgeryToken(data);
         return data;

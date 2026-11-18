@@ -103,7 +103,7 @@ public class BasePaymentTransactionControllerTests
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _paymentTransactionServiceMock
-            .Setup(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null))
+            .Setup(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null, false))
             .ReturnsAsync(new PagedList<PaymentTransaction>(new List<PaymentTransaction>(), 0, 10));
 
         var model = new PaymentTransactionListModel();
@@ -113,11 +113,26 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
+    public async Task List_Post_LeavesOutAbandonedUnlessAsked()
+    {
+        _paymentTransactionServiceMock
+            .Setup(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null, It.IsAny<bool>()))
+            .ReturnsAsync(new PagedList<PaymentTransaction>(new List<PaymentTransaction>(), 0, 10));
+        var command = new DataSourceRequest { Page = 1, PageSize = int.MaxValue };
+
+        await _controller.List(command, new PaymentTransactionListModel());
+        await _controller.List(command, new PaymentTransactionListModel { ShowAbandoned = true });
+
+        _paymentTransactionServiceMock.Verify(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null, false), Times.Once);
+        _paymentTransactionServiceMock.Verify(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null, true), Times.Once);
+    }
+
+    [TestMethod]
     public async Task List_Post_StoreScope_ForcesStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _paymentTransactionServiceMock
-            .Setup(s => s.SearchPaymentTransactions(null, "store-1", It.IsAny<string>(), null, 0, int.MaxValue, null, null))
+            .Setup(s => s.SearchPaymentTransactions(null, "store-1", It.IsAny<string>(), null, 0, int.MaxValue, null, null, false))
             .ReturnsAsync(new PagedList<PaymentTransaction>(new List<PaymentTransaction>(), 0, 10));
 
         var model = new PaymentTransactionListModel { StoreId = "some-other-store" };

@@ -2496,4 +2496,10 @@
 	<Resource Name="Permission.ManageStockIntegration" Area="Admin">
 		<Value>Manage stock integration</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.PaymentTransaction.List.ShowAbandoned" Area="Admin">
+		<Value>Show abandoned checkouts</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.PaymentTransaction.List.ShowAbandoned.Hint" Area="Admin">
+		<Value>Also show transactions of a checkout that never became an order, e.g. a payment that failed or was left unfinished.</Value>
+	</Resource>
 </Language>

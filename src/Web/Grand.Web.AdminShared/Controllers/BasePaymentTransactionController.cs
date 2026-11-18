@@ -111,7 +111,8 @@ public abstract class BasePaymentTransactionController(
             storeId: model.StoreId,
             orderGuid: orderGuid,
             pageIndex: command.Page - 1,
-            pageSize: command.PageSize);
+            pageSize: command.PageSize,
+            includeTemp: model.ShowAbandoned);
 
         var dataModel = new List<PaymentTransactionModel>();
 

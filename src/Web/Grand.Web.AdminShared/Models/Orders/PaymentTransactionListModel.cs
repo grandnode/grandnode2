@@ -24,6 +24,9 @@ public class PaymentTransactionListModel : BaseModel
     [UIHint("DateNullable")]
     public DateTime? EndDate { get; set; }
 
+    [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.ShowAbandoned")]
+    public bool ShowAbandoned { get; set; }
+
     public string StoreId { get; set; }
 
     public IList<SelectListItem> PaymentTransactionStatus { get; set; } = new List<SelectListItem>();
