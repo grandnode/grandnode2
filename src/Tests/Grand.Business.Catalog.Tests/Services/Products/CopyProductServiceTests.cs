@@ -1,9 +1,7 @@
 ﻿using Grand.Business.Catalog.Services.Products;
 using Grand.Business.Catalog.Tests.Services.Inventory;
 using Grand.Business.Common.Services.Seo;
-using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Seo;
 using Grand.Domain.Catalog;
@@ -32,32 +30,36 @@ public class CopyProductServiceTests
         _slugServiceMock = new Mock<ISlugService>();
         _settings = new SeoSettings();
         _seNameService = new SeNameService(_slugServiceMock.Object, _langServiceMock.Object, new SeoSettings());
-        _stockMovementServiceMock = new Mock<IStockMovementService>();
-        _copyProductService = new CopyProductService(_productServiceMock.Object, _slugServiceMock.Object, _seNameService,
-            _stockMovementServiceMock.Object);
+        _copyProductService = new CopyProductService(_productServiceMock.Object, _slugServiceMock.Object, _seNameService);
     }
 
-    private Mock<IStockMovementService> _stockMovementServiceMock;
-
     [TestMethod]
-    public async Task CopyProduct_WritesProductCopyEntriesForCopy()
+    public async Task CopyProduct_CopyHasNoStock_KeepsWarehouses()
     {
         _langServiceMock.Setup(c => c.GetAllLanguages(It.IsAny<bool>(), It.IsAny<string>()))
             .Returns(Task.FromResult<IList<Language>>(new List<Language>()));
-        var product = new Product
-            { Name = "name", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 6 };
-        var journaledBeforeInsert = false;
-        _stockMovementServiceMock.Setup(x => x.JournalNewProduct(It.IsAny<Product>(),
-                It.IsAny<InventoryMovementType>(), It.IsAny<StockSource>()))
-            .Callback(() => journaledBeforeInsert = true);
-        _productServiceMock.Setup(x => x.InsertProduct(It.IsAny<Product>()))
-            .Callback(() => Assert.IsTrue(journaledBeforeInsert));
+        var product = new Product {
+            Name = "name", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 6,
+            ReservedQuantity = 2, WarehouseId = "w1", UseMultipleWarehouses = true,
+            ProductWarehouseInventory = {
+                new ProductWarehouseInventory { WarehouseId = "w2", StockQuantity = 6, ReservedQuantity = 2 }
+            }
+        };
 
         var copy = await _copyProductService.CopyProduct(product, "copy-product");
 
-        _stockMovementServiceMock.Verify(x => x.JournalNewProduct(copy, InventoryMovementType.ProductCopy,
-            It.Is<StockSource>(s => s.ObjectId == product.Id && s.ObjectType == nameof(Product))), Times.Once);
-        Assert.AreEqual(6, copy.StockQuantity);
+        Assert.AreEqual(0, copy.StockQuantity);
+        Assert.AreEqual(0, copy.ReservedQuantity);
+        Assert.IsTrue(copy.LowStock);
+        Assert.AreEqual("w1", copy.WarehouseId);
+        Assert.IsTrue(copy.UseMultipleWarehouses);
+        var row = copy.ProductWarehouseInventory.Single();
+        Assert.AreEqual("w2", row.WarehouseId);
+        Assert.AreEqual(0, row.StockQuantity);
+        Assert.AreEqual(0, row.ReservedQuantity);
+        //the source keeps its stock
+        Assert.AreEqual(6, product.StockQuantity);
+        Assert.AreEqual(6, product.ProductWarehouseInventory.Single().StockQuantity);
     }
 
 

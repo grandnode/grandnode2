@@ -133,6 +133,18 @@ public static class StockBuckets
     }
 
     /// <summary>
+    ///     The product is kept in one warehouse other than this one, so its stock is not booked here; a product naming
+    ///     no warehouse is booked anywhere
+    /// </summary>
+    public static bool KeptElsewhere(Product product, string warehouseId)
+    {
+        ArgumentNullException.ThrowIfNull(product);
+
+        return !product.UseMultipleWarehouses && !string.IsNullOrEmpty(product.WarehouseId) &&
+               product.WarehouseId != warehouseId;
+    }
+
+    /// <summary>
     ///     The warehouses the product's buckets name
     /// </summary>
     public static IEnumerable<string> Warehouses(Product product)

@@ -122,4 +122,17 @@ public class InventoryTrackingTests
         Assert.IsFalse(InventoryTracking.ExternallyManaged(
             new Product { WarehouseId = "w1" }, new List<string>()));
     }
+
+    [TestMethod]
+    [DataRow(false, "w1", "w2", true)]
+    [DataRow(false, "w1", "w1", false)]
+    [DataRow(false, "", "w2", false)]
+    [DataRow(true, "w1", "w2", false)]
+    public void KeptElsewhere_OnlyASingleWarehouseProductInAnother(bool multipleWarehouses, string productWarehouseId,
+        string warehouseId, bool expected)
+    {
+        var product = new Product { UseMultipleWarehouses = multipleWarehouses, WarehouseId = productWarehouseId };
+
+        Assert.AreEqual(expected, StockBuckets.KeptElsewhere(product, warehouseId));
+    }
 }

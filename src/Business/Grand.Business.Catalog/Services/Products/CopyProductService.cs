@@ -1,7 +1,5 @@
-using Grand.Business.Core.Interfaces.Catalog.Inventory;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Seo;
-using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 
 namespace Grand.Business.Catalog.Services.Products;
@@ -17,20 +15,17 @@ public class CopyProductService : ICopyProductService
     private readonly IProductService _productService;
     private readonly ISlugService _slugService;
     private readonly ISeNameService _seNameService;
-    private readonly IStockMovementService _stockMovementService;
     
     #endregion
     #region Ctor
 
     public CopyProductService(IProductService productService,
         ISlugService slugService,
-        ISeNameService seNameService,
-        IStockMovementService stockMovementService)
+        ISeNameService seNameService)
     {
         _productService = productService;
         _slugService = slugService;
         _seNameService = seNameService;
-        _stockMovementService = stockMovementService;
     }
 
     #endregion
@@ -191,13 +186,9 @@ public class CopyProductService : ICopyProductService
         productCopy.InventoryTrackingModeId = product.InventoryTrackingModeId;
         productCopy.WarrantyMonths = product.WarrantyMonths;
         productCopy.ExpiryWarningDays = product.ExpiryWarningDays;
-        //batches and serial numbers are physical units: a copy of a product tracking them starts with no stock
-        if (InventoryTracking.Tracked(product))
-            WithoutStock(productCopy);
-
-        //the copy starts with the source's stock: its journal says where the stock came from
-        await _stockMovementService.JournalNewProduct(productCopy, InventoryMovementType.ProductCopy,
-            new StockSource(nameof(Product), product.Id, Reference: product.Name));
+        //copying a product does not copy the goods: the copy starts with no stock, which comes in through
+        //inventory documents
+        WithoutStock(productCopy);
 
         //validate search engine name
         await _productService.InsertProduct(productCopy);
