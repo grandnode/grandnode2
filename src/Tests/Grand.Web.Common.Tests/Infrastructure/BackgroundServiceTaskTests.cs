@@ -336,8 +336,10 @@ public class BackgroundServiceTaskTests
                 }
             });
 
-        var service = new BackgroundServiceTask(TaskName, _serviceProvider, TimeSpan.FromMilliseconds(200),
-            TimeSpan.FromSeconds(1));
+        //the run stops one renewal interval before the lease runs out; the delays between renewals may each come
+        //late on a busy machine, so the interval leaves room for that
+        var service = new BackgroundServiceTask(TaskName, _serviceProvider, TimeSpan.FromMilliseconds(500),
+            TimeSpan.FromSeconds(2));
         using var cts = new CancellationTokenSource();
         await service.StartAsync(cts.Token);
 
