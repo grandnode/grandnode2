@@ -144,4 +144,54 @@ public class PartiallyRefundCommandHandlerTests
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()),
             Times.Never);
     }
+
+    [TestMethod]
+    public async Task Handle_Success_RecordsRefundWithReferenceAndNote()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { Id = "t1", TransactionAmount = 100, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyRefundQuery>(), default)).ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order { OrderTotal = 100 });
+        _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).ReturnsAsync(
+            new RefundPaymentResult { NewTransactionStatus = TransactionStatus.PartiallyRefunded });
+        _paymentTransactionMock.Setup(x => x.GetById("t1")).ReturnsAsync(transaction);
+
+        //Act
+        await _handler.Handle(new PartiallyRefundCommand {
+            PaymentTransaction = transaction, AmountToRefund = 30, CreatedBy = "staff@shop.com", Reference = "RF-1",
+            Note = "Merchandise return #7"
+        }, CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(1, transaction.Entries.Count);
+        var entry = transaction.Entries[0];
+        Assert.AreEqual(PaymentTransactionEntryType.Refund, entry.EntryType);
+        Assert.AreEqual(30, entry.Amount);
+        Assert.AreEqual("staff@shop.com", entry.CreatedBy);
+        Assert.AreEqual("RF-1", entry.Reference);
+        Assert.AreEqual("Merchandise return #7", entry.Note);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Refund"))),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_ProviderRefuses_RecordsNothing()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { Id = "t1", TransactionAmount = 100 };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyRefundQuery>(), default)).ReturnsAsync(true);
+        var refused = new RefundPaymentResult();
+        refused.AddError("x");
+        _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).ReturnsAsync(refused);
+        _paymentTransactionMock.Setup(x => x.GetById("t1")).ReturnsAsync(transaction);
+
+        //Act
+        await _handler.Handle(new PartiallyRefundCommand {
+            PaymentTransaction = transaction, AmountToRefund = 30, CreatedBy = "staff@shop.com"
+        }, CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(0, transaction.Entries.Count);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+    }
 }

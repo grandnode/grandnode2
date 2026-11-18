@@ -1,10 +1,12 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Checkout.Extensions;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Localization;
+using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
@@ -55,6 +57,8 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
             result = await _paymentService.Refund(request);
             if (result.Success)
             {
+                var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Refund, request.AmountToRefund,
+                    command.CreatedBy);
                 paymentTransaction.TransactionStatus = result.NewTransactionStatus;
                 paymentTransaction.RefundedAmount += request.AmountToRefund;
                 await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
@@ -70,6 +74,11 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
                     ? PaymentStatus.Refunded
                     : PaymentStatus.PartiallyRefunded;
                 await _orderService.UpdateOrder(order);
+                await _orderService.InsertOrderNote(new OrderNote {
+                    Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
+                    DisplayToCustomer = false,
+                    OrderId = order.Id
+                });
 
                 //check order status
                 await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);

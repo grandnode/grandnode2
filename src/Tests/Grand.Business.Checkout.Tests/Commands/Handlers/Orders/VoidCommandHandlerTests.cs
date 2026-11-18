@@ -58,4 +58,46 @@ public class VoidCommandHandlerTests
         _orderServiceMock.Verify(c => c.UpdateOrder(It.IsAny<Order>()), Times.Once);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Once);
     }
+
+    [TestMethod]
+    public async Task Handle_Success_RecordsVoid()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanVoidQuery>(), default)).ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+        _paymentServiceMock.Setup(x => x.Void(It.IsAny<PaymentTransaction>())).ReturnsAsync(
+            new VoidPaymentResult { NewTransactionStatus = TransactionStatus.Voided });
+
+        //Act
+        await _handler.Handle(new VoidCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(1, transaction.Entries.Count);
+        Assert.AreEqual(PaymentTransactionEntryType.Void, transaction.Entries[0].EntryType);
+        Assert.AreEqual(100, transaction.Entries[0].Amount);
+        Assert.AreEqual("staff@shop.com", transaction.Entries[0].CreatedBy);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Void"))),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_ProviderRefuses_RecordsNothing()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100 };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanVoidQuery>(), default)).ReturnsAsync(true);
+        var refused = new VoidPaymentResult();
+        refused.AddError("x");
+        _paymentServiceMock.Setup(x => x.Void(It.IsAny<PaymentTransaction>())).ReturnsAsync(refused);
+
+        //Act
+        await _handler.Handle(new VoidCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(0, transaction.Entries.Count);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+    }
 }

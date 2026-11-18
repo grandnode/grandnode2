@@ -3,6 +3,8 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
@@ -47,5 +49,51 @@ public class CaptureCommandHandlerTests
         var result = await _handler.Handle(command, CancellationToken.None);
 
         _paymentServiceMock.Verify(c => c.Capture(It.IsAny<PaymentTransaction>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_Success_RecordsCapture()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { Id = "t1", TransactionAmount = 100, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanCaptureQuery>(), default)).ReturnsAsync(true);
+        _paymentServiceMock.Setup(x => x.Capture(It.IsAny<PaymentTransaction>())).ReturnsAsync(
+            new CapturePaymentResult { NewPaymentStatus = TransactionStatus.Paid, CaptureTransactionId = "ch_1" });
+        _paymentTransactionMock.Setup(x => x.GetById("t1")).ReturnsAsync(transaction);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(new CaptureCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(1, transaction.Entries.Count);
+        var entry = transaction.Entries[0];
+        Assert.AreEqual(PaymentTransactionEntryType.Capture, entry.EntryType);
+        Assert.AreEqual(100, entry.Amount);
+        Assert.AreEqual("staff@shop.com", entry.CreatedBy);
+        Assert.AreEqual("ch_1", entry.Reference);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Capture"))),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_ProviderRefuses_RecordsNothing()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { Id = "t1", TransactionAmount = 100 };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanCaptureQuery>(), default)).ReturnsAsync(true);
+        var refused = new CapturePaymentResult();
+        refused.AddError("x");
+        _paymentServiceMock.Setup(x => x.Capture(It.IsAny<PaymentTransaction>())).ReturnsAsync(refused);
+        _paymentTransactionMock.Setup(x => x.GetById("t1")).ReturnsAsync(transaction);
+
+        //Act
+        await _handler.Handle(new CaptureCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(0, transaction.Entries.Count);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
     }
 }

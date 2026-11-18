@@ -59,4 +59,44 @@ public class RefundCommandHandlerTests
         _orderServiceMock.Verify(c => c.UpdateOrder(It.IsAny<Order>()), Times.Once);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Once);
     }
+
+    [TestMethod]
+    public async Task Handle_Success_RecordsRefundOfThePaidAmount()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100, PaidAmount = 100, CurrencyCode = "EUR" };
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order { OrderTotal = 100 });
+        _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).ReturnsAsync(
+            new RefundPaymentResult { NewTransactionStatus = TransactionStatus.Refunded });
+
+        //Act
+        await _handler.Handle(new RefundCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(1, transaction.Entries.Count);
+        Assert.AreEqual(PaymentTransactionEntryType.Refund, transaction.Entries[0].EntryType);
+        Assert.AreEqual(100, transaction.Entries[0].Amount);
+        Assert.AreEqual("staff@shop.com", transaction.Entries[0].CreatedBy);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Refund"))),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_ProviderRefuses_RecordsNothing()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100, PaidAmount = 100 };
+        var refused = new RefundPaymentResult();
+        refused.AddError("x");
+        _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).ReturnsAsync(refused);
+
+        //Act
+        await _handler.Handle(new RefundCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(0, transaction.Entries.Count);
+        _orderServiceMock.Verify(c => c.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+    }
 }

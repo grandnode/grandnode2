@@ -1,9 +1,11 @@
-﻿using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Checkout.Extensions;
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using Grand.Mediator;
@@ -54,6 +56,8 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
             if (result.Success)
             {
                 paymentTransaction = await _paymentTransaction.GetById(paymentTransaction.Id);
+                var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Capture,
+                    paymentTransaction.TransactionAmount, command.CreatedBy, result.CaptureTransactionId);
                 paymentTransaction.PaidAmount = paymentTransaction.TransactionAmount;
                 paymentTransaction.CaptureTransactionId = result.CaptureTransactionId;
                 paymentTransaction.CaptureTransactionResult = result.CaptureTransactionResult;
@@ -62,6 +66,13 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
                 await _paymentTransaction.UpdatePaymentTransaction(paymentTransaction);
 
                 var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
+                if (order != null)
+                    await _orderService.InsertOrderNote(new OrderNote {
+                        Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
+                        DisplayToCustomer = false,
+                        OrderId = order.Id
+                    });
+
                 if (order != null && paymentTransaction.TransactionStatus == TransactionStatus.Paid)
                 {
                     order.PaidAmount = paymentTransaction.PaidAmount;
