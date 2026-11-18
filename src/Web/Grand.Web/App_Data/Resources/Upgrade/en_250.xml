@@ -2503,6 +2503,6 @@
 		<Value>Show abandoned checkouts</Value>
 	</Resource>
 	<Resource Name="Admin.Orders.PaymentTransaction.List.ShowAbandoned.Hint" Area="Admin">
-		<Value>Also show transactions of a checkout that never became an order, e.g. a payment that failed or was left unfinished.</Value>
+		<Value>Also show transactions of a checkout whose payment never went through, e.g. it failed or was left unfinished.</Value>
 	</Resource>
 </Language>

@@ -104,9 +104,7 @@ public class BasePaymentTransactionControllerTests
     public async Task List_Post_AdminScope_DoesNotForceStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
-        _paymentTransactionServiceMock
-            .Setup(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null, false))
-            .ReturnsAsync(new PagedList<PaymentTransaction>(new List<PaymentTransaction>(), 0, 10));
+        SetupSearch();
 
         var model = new PaymentTransactionListModel();
         await _controller.List(new DataSourceRequest { Page = 1, PageSize = int.MaxValue }, model);
@@ -114,33 +112,52 @@ public class BasePaymentTransactionControllerTests
         Assert.IsNull(model.StoreId);
     }
 
+    private void SetupSearch()
+    {
+        _mediatorMock
+            .Setup(m => m.Send(It.IsAny<GetPaymentTransactionQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedList<PaymentTransaction>(new List<PaymentTransaction>(), 0, 10));
+    }
+
     [TestMethod]
     public async Task List_Post_LeavesOutAbandonedUnlessAsked()
     {
-        _paymentTransactionServiceMock
-            .Setup(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null, It.IsAny<bool>()))
-            .ReturnsAsync(new PagedList<PaymentTransaction>(new List<PaymentTransaction>(), 0, 10));
+        SetupSearch();
         var command = new DataSourceRequest { Page = 1, PageSize = int.MaxValue };
 
         await _controller.List(command, new PaymentTransactionListModel());
         await _controller.List(command, new PaymentTransactionListModel { ShowAbandoned = true });
 
-        _paymentTransactionServiceMock.Verify(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null, false), Times.Once);
-        _paymentTransactionServiceMock.Verify(s => s.SearchPaymentTransactions(null, null, null, null, 0, int.MaxValue, null, null, true), Times.Once);
+        _mediatorMock.Verify(m => m.Send(It.Is<GetPaymentTransactionQuery>(q => !q.IncludeTemp), It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(m => m.Send(It.Is<GetPaymentTransactionQuery>(q => q.IncludeTemp), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task List_Post_ByOrderNumber_IncludesAbandoned()
+    {
+        SetupSearch();
+        var orderGuid = Guid.NewGuid();
+        _orderServiceMock.Setup(s => s.GetOrderByNumber(1001)).ReturnsAsync(new Order { OrderGuid = orderGuid });
+
+        await _controller.List(new DataSourceRequest { Page = 1, PageSize = int.MaxValue },
+            new PaymentTransactionListModel { OrderNumber = "1001" });
+
+        _mediatorMock.Verify(m => m.Send(It.Is<GetPaymentTransactionQuery>(q => q.OrderGuid == orderGuid && q.IncludeTemp),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]
     public async Task List_Post_StoreScope_ForcesStoreId()
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
-        _paymentTransactionServiceMock
-            .Setup(s => s.SearchPaymentTransactions(null, "store-1", It.IsAny<string>(), null, 0, int.MaxValue, null, null, false))
-            .ReturnsAsync(new PagedList<PaymentTransaction>(new List<PaymentTransaction>(), 0, 10));
+        SetupSearch();
 
         var model = new PaymentTransactionListModel { StoreId = "some-other-store" };
         await _controller.List(new DataSourceRequest { Page = 1, PageSize = int.MaxValue }, model);
 
         Assert.AreEqual("store-1", model.StoreId);
+        _mediatorMock.Verify(m => m.Send(It.Is<GetPaymentTransactionQuery>(q => q.StoreId == "store-1"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 
     [TestMethod]

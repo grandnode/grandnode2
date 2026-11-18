@@ -29,7 +29,8 @@ public class CanDeletePaymentTransactionQueryHandler(IRepository<Order> orderRep
             return false;
 
         var lastChangedUtc = paymentTransaction.UpdatedOnUtc ?? paymentTransaction.CreatedOnUtc;
-        if (paymentTransaction.Temp && lastChangedUtc > DateTime.UtcNow - CheckoutInProgress)
+        //the payment is recorded just before the order is written, so a recent change may still be getting one
+        if (lastChangedUtc > DateTime.UtcNow - CheckoutInProgress)
             return false;
 
         //a deleted order is gone from the panel, and the placeholders reserving order numbers are deleted ones
