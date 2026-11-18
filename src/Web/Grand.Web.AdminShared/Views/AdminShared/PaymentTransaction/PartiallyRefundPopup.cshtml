@@ -3,6 +3,8 @@
     //page title
     ViewBag.Title = Loc["Admin.PaymentTransaction.Fields.PartialRefund"];
     var area = ViewContext.RouteData.Values["area"]?.ToString();
+    //a gateway refund has its own number; a refund made by hand is matched by what the staff enter
+    var offline = !string.Equals(Context.Request.Query["online"], "true", StringComparison.OrdinalIgnoreCase);
 }
 @model PaymentTransactionModel
 <form id="PartiallyRefundPopup" asp-area="@area" asp-controller="PaymentTransaction" asp-action="PartiallyRefundPopup" method="post"
@@ -20,6 +22,13 @@
         <div class="grand-fields">
             <admin-field asp-for="AmountToRefund" size="md" suffix="@Model.CurrencyCode"
                          hint="@string.Format(Loc["Admin.PaymentTransaction.Fields.PartialRefund.AmountToRefund.Max"], Model.MaxAmountToRefund.ToString("G29"), Model.CurrencyCode)"/>
+            @if (offline)
+            {
+                <admin-field asp-for="Reference"/>
+                <admin-field asp-for="Note">
+                    <admin-textarea asp-for="Note"></admin-textarea>
+                </admin-field>
+            }
         </div>
         <div class="grand-popup__actions">
             <partial name="Partials/WidgetZone.PartiallyRefundButtons" model="Model"/>

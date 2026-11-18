@@ -3,9 +3,11 @@ using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain.Customers;
 using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
+using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
@@ -33,9 +35,10 @@ public class BasePaymentTransactionControllerTests
         IDateTimeService dateTimeService,
         IMediator mediator,
         IEnumTranslationService enumTranslationService,
-        IAdminDataScope<PaymentTransaction> scope)
+        IAdminDataScope<PaymentTransaction> scope,
+        IContextAccessor contextAccessor)
         : BasePaymentTransactionController(paymentTransactionService, orderService, translationService,
-            dateTimeService, mediator, enumTranslationService, scope);
+            dateTimeService, mediator, enumTranslationService, scope, contextAccessor);
 
     private TestPaymentTransactionController _controller;
     private Mock<IPaymentTransactionService> _paymentTransactionServiceMock;
@@ -46,6 +49,7 @@ public class BasePaymentTransactionControllerTests
     // 4) add further .Setup() calls on it from their own test methods for Capture/Refund/Void/
     // partial-refund-and-paid commands.
     private Mock<IMediator> _mediatorMock;
+    private Mock<IEnumTranslationService> _enumTranslationServiceMock;
 
     [TestInitialize]
     public void Setup()
@@ -62,6 +66,7 @@ public class BasePaymentTransactionControllerTests
             .Returns((DateTime dt, DateTimeKind _) => dt);
         _mediatorMock = new Mock<IMediator>();
         var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
+        _enumTranslationServiceMock = enumTranslationServiceMock;
         // ToSelectList<TEnum> is generic with a `where TEnum : struct` constraint, so the setup must
         // target the concrete enum actually passed at the List() call site (TransactionStatus), not
         // the abstract System.Enum base class - Enum doesn't satisfy `struct` and won't compile as a
@@ -71,9 +76,15 @@ public class BasePaymentTransactionControllerTests
             .Setup(e => e.ToSelectList(It.IsAny<TransactionStatus>(), It.IsAny<bool>(), It.IsAny<int[]>()))
             .Returns(new SelectList(new List<SelectListItem>()));
 
+        var workContextMock = new Mock<IWorkContext>();
+        workContextMock.Setup(w => w.CurrentCustomer).Returns(new Customer { Id = "staff", Email = "staff@shop.com" });
+        var contextAccessorMock = new Mock<IContextAccessor>();
+        contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
+
         _controller = new TestPaymentTransactionController(
             _paymentTransactionServiceMock.Object, _orderServiceMock.Object, _translationServiceMock.Object,
-            dateTimeServiceMock.Object, _mediatorMock.Object, enumTranslationServiceMock.Object, _scopeMock.Object);
+            dateTimeServiceMock.Object, _mediatorMock.Object, enumTranslationServiceMock.Object, _scopeMock.Object,
+            contextAccessorMock.Object);
 
         // Error()/Success() (used by this task's popup and Delete actions) reach into
         // HttpContext.RequestServices for ILoggerFactory and into TempData - wire up the same
@@ -534,5 +545,88 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.Edit("pt-1") as ViewResult;
 
         Assert.AreEqual(canDelete, ((PaymentTransactionModel)result!.Model!).CanDelete);
+    }
+
+    [TestMethod]
+    public async Task Edit_MapsEntriesOldestFirst()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", CurrencyCode = "EUR", TransactionAmount = 100 };
+        transaction.Entries.Add(new PaymentTransactionEntry {
+            EntryType = PaymentTransactionEntryType.Refund, Amount = 10, CreatedBy = "staff@shop.com",
+            CreatedOnUtc = new DateTime(2026, 11, 2, 0, 0, 0, DateTimeKind.Utc)
+        });
+        transaction.Entries.Add(new PaymentTransactionEntry {
+            EntryType = PaymentTransactionEntryType.Payment, Amount = 100, Reference = "TR-881", Note = "First",
+            CreatedOnUtc = new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc)
+        });
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _enumTranslationServiceMock.Setup(e => e.GetTranslationEnum(PaymentTransactionEntryType.Payment))
+            .Returns("Payment");
+        _enumTranslationServiceMock.Setup(e => e.GetTranslationEnum(PaymentTransactionEntryType.Refund))
+            .Returns("Refund");
+
+        var model = (await _controller.Edit("pt-1") as ViewResult)!.Model as PaymentTransactionModel;
+
+        Assert.HasCount(2, model!.Entries);
+        Assert.AreEqual("Payment", model.Entries[0].Operation);
+        Assert.AreEqual(100, model.Entries[0].Amount);
+        Assert.AreEqual("TR-881", model.Entries[0].Reference);
+        Assert.AreEqual("First", model.Entries[0].Note);
+        Assert.AreEqual(new DateTime(2026, 11, 1), model.Entries[0].CreatedOn.Date);
+        Assert.AreEqual("Refund", model.Entries[1].Operation);
+        Assert.AreEqual("staff@shop.com", model.Entries[1].CreatedBy);
+    }
+
+    [TestMethod]
+    public async Task Edit_WithoutEntries_HasEmptyList()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
+
+        var model = (await _controller.Edit("pt-1") as ViewResult)!.Model as PaymentTransactionModel;
+
+        Assert.IsNotNull(model!.Entries);
+        Assert.IsEmpty(model.Entries);
+    }
+
+    [TestMethod]
+    public async Task PartiallyPaidPopup_Post_SendsStaffReferenceAndNote()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<PartiallyPaidOfflineCommand>(), default)).ReturnsAsync(true);
+
+        await _controller.PartiallyPaidPopup("pt-1", false,
+            new PaymentTransactionModel { AmountToPaid = 50, Reference = "TR-881", Note = "First instalment" });
+
+        _mediatorMock.Verify(m => m.Send(It.Is<PartiallyPaidOfflineCommand>(c =>
+            c.CreatedBy == "staff@shop.com" && c.Reference == "TR-881" && c.Note == "First instalment" &&
+            c.AmountToPaid == 50), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PartiallyRefundPopup_Post_Offline_SendsStaffReferenceAndNote()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<PartiallyRefundOfflineCommand>(), default)).ReturnsAsync(true);
+
+        await _controller.PartiallyRefundPopup("pt-1", false,
+            new PaymentTransactionModel { AmountToRefund = 20, Reference = "RF-1", Note = "Damaged box" });
+
+        _mediatorMock.Verify(m => m.Send(It.Is<PartiallyRefundOfflineCommand>(c =>
+            c.CreatedBy == "staff@shop.com" && c.Reference == "RF-1" && c.Note == "Damaged box"), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MarkPaymentTransactionAsPaid_SendsStaff()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<MarkAsPaidCommand>(), default)).ReturnsAsync(true);
+
+        await _controller.MarkPaymentTransactionAsPaid("pt-1");
+
+        _mediatorMock.Verify(m => m.Send(It.Is<MarkAsPaidCommand>(c =>
+            c.PaymentTransaction == transaction && c.CreatedBy == "staff@shop.com"), default), Times.Once);
     }
 }

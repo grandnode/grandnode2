@@ -117,6 +117,14 @@ public class PaymentTransactionModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PartialRefund.AmountToPaid")]
     public double AmountToPaid { get; set; }
 
+    [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Reference")]
+    public string Reference { get; set; }
+
+    [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Note")]
+    public string Note { get; set; }
+
+    public IList<PaymentTransactionEntryModel> Entries { get; set; } = new List<PaymentTransactionEntryModel>();
+
     /// <summary>
     /// Set by the controller after a successful partial refund/paid, so the popup view can signal
     /// the parent page to refresh.

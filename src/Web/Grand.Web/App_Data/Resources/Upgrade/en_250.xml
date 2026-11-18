@@ -2505,4 +2505,49 @@
 	<Resource Name="Admin.Orders.PaymentTransaction.List.ShowAbandoned.Hint" Area="Admin">
 		<Value>Also show transactions of a checkout whose payment never went through, e.g. it failed or was left unfinished.</Value>
 	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.Reference" Area="Admin">
+		<Value>Reference</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.Reference.Hint" Area="Admin">
+		<Value>Bank transfer title, receipt or gateway number the money can be matched with.</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.Note" Area="Admin">
+		<Value>Note</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.Note.Hint" Area="Admin">
+		<Value>Kept in the operation history and the order notes.</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.History" Area="Admin">
+		<Value>Operation history</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.History.Operation" Area="Admin">
+		<Value>Operation</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.History.Amount" Area="Admin">
+		<Value>Amount</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.History.CreatedOn" Area="Admin">
+		<Value>Date</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.History.CreatedBy" Area="Admin">
+		<Value>By</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.History.Empty" Area="Admin">
+		<Value>No operations recorded. Operations made before this version are not listed.</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Payments.PaymentTransactionEntryType.Payment" Area="Common">
+		<Value>Payment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Payments.PaymentTransactionEntryType.Authorization" Area="Common">
+		<Value>Authorization</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Payments.PaymentTransactionEntryType.Capture" Area="Common">
+		<Value>Capture</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Payments.PaymentTransactionEntryType.Refund" Area="Common">
+		<Value>Refund</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Payments.PaymentTransactionEntryType.Void" Area="Common">
+		<Value>Void</Value>
+	</Resource>
 </Language>
