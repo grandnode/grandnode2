@@ -2,6 +2,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -40,6 +41,7 @@ public class BasePaymentTransactionControllerTests
     private Mock<IPaymentTransactionService> _paymentTransactionServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IAdminDataScope<PaymentTransaction>> _scopeMock;
+    private Mock<IRequestTranslationService> _translationServiceMock;
     // Declared as a field (not a local in Setup()) because later tasks in this plan (Task 3, Task
     // 4) add further .Setup() calls on it from their own test methods for Capture/Refund/Void/
     // partial-refund-and-paid commands.
@@ -53,8 +55,8 @@ public class BasePaymentTransactionControllerTests
         _scopeMock = new Mock<IAdminDataScope<PaymentTransaction>>();
         _scopeMock.Setup(s => s.HasAccess(It.IsAny<PaymentTransaction>())).ReturnsAsync(true);
 
-        var translationServiceMock = new Mock<IRequestTranslationService>();
-        translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
+        _translationServiceMock = new Mock<IRequestTranslationService>();
+        _translationServiceMock.Setup(t => t.GetResource(It.IsAny<string>())).Returns("resource");
         var dateTimeServiceMock = new Mock<IDateTimeService>();
         dateTimeServiceMock.Setup(d => d.ConvertToUserTime(It.IsAny<DateTime>(), It.IsAny<DateTimeKind>()))
             .Returns((DateTime dt, DateTimeKind _) => dt);
@@ -70,7 +72,7 @@ public class BasePaymentTransactionControllerTests
             .Returns(new SelectList(new List<SelectListItem>()));
 
         _controller = new TestPaymentTransactionController(
-            _paymentTransactionServiceMock.Object, _orderServiceMock.Object, translationServiceMock.Object,
+            _paymentTransactionServiceMock.Object, _orderServiceMock.Object, _translationServiceMock.Object,
             dateTimeServiceMock.Object, _mediatorMock.Object, enumTranslationServiceMock.Object, _scopeMock.Object);
 
         // Error()/Success() (used by this task's popup and Delete actions) reach into
@@ -455,16 +457,50 @@ public class BasePaymentTransactionControllerTests
         Assert.AreEqual("List", result!.ActionName);
     }
 
+    private void SetupCanDelete(bool canDelete)
+    {
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanDeletePaymentTransactionQuery>(), default)).ReturnsAsync(canDelete);
+    }
+
     [TestMethod]
-    public async Task Delete_Authorized_DeletesAndRedirectsToList()
+    public async Task Delete_Allowed_DeletesAndRedirectsToList()
     {
         var transaction = new PaymentTransaction { Id = "pt-1" };
         _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        SetupCanDelete(true);
 
         var result = await _controller.Delete("pt-1") as RedirectToActionResult;
 
         Assert.IsNotNull(result);
         Assert.AreEqual("List", result!.ActionName);
         _paymentTransactionServiceMock.Verify(s => s.DeletePaymentTransaction(transaction), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Delete_Refused_ShowsWhyAndRedirectsToEdit()
+    {
+        SetupOrder(null, null);
+        SetupCanDelete(false);
+
+        var result = await _controller.Delete("pt-1") as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("Edit", result!.ActionName);
+        Assert.AreEqual("pt-1", result.RouteValues!["id"]);
+        _translationServiceMock.Verify(t => t.GetResource("Admin.Orders.PaymentTransaction.CannotDelete"), Times.Once);
+        _paymentTransactionServiceMock.Verify(s => s.DeletePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow(true)]
+    [DataRow(false)]
+    public async Task Edit_CanDelete_FollowsTheRule(bool canDelete)
+    {
+        SetupOrder(null, null);
+        SetupCanDelete(canDelete);
+
+        var result = await _controller.Edit("pt-1") as ViewResult;
+
+        Assert.AreEqual(canDelete, ((PaymentTransactionModel)result!.Model!).CanDelete);
     }
 }
