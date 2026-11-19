@@ -95,17 +95,10 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IPagedList<Or
             query = query.Where(o => o.OrderTags.Any(y => y == request.OrderTagId));
 
         if (!string.IsNullOrWhiteSpace(request.PurchaseOrderNumber))
-        {
-            var purchaseOrderNumber = request.PurchaseOrderNumber.Trim();
-            query = query.Where(o => o.PurchaseOrderNumber == purchaseOrderNumber);
-        }
+            query = query.WherePurchaseOrderNumber(request.PurchaseOrderNumber);
 
-        //the same rule as PaymentExtensions.IsPaymentOverdue
         if (request.OverdueOnly)
-        {
-            var today = DateTime.UtcNow.Date;
-            query = query.Where(PaymentExtensions.UnpaidOnCredit).Where(o => o.PaymentDueDateUtc < today);
-        }
+            query = query.WherePaymentOverdue(DateTime.UtcNow);
 
         query = query.Where(o => !o.Deleted);
         query = query.OrderByDescending(o => o.CreatedOnUtc);

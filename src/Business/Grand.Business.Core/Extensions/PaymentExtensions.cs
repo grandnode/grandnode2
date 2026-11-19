@@ -80,4 +80,59 @@ public static class PaymentExtensions
 
         return IsUnpaidOnCredit(order) && order.PaymentDueDateUtc!.Value < utcNow.Date;
     }
+
+    /// <summary>
+    ///     Filters orders to those whose payment is overdue, by the same rule as <see cref="IsPaymentOverdue" />
+    /// </summary>
+    /// <param name="orders">Orders</param>
+    /// <param name="utcNow">Current date and time in UTC</param>
+    /// <returns>Orders bought on credit, not paid yet and past their due date</returns>
+    public static IQueryable<Order> WherePaymentOverdue(this IQueryable<Order> orders, DateTime utcNow)
+    {
+        var today = utcNow.Date;
+        return orders.Where(UnpaidOnCredit).Where(o => o.PaymentDueDateUtc < today);
+    }
+
+    /// <summary>
+    ///     Filters orders to those carrying a purchase order number, matched exactly once trimmed
+    /// </summary>
+    /// <param name="orders">Orders</param>
+    /// <param name="purchaseOrderNumber">Purchase order number</param>
+    /// <returns>Orders carrying the number</returns>
+    public static IQueryable<Order> WherePurchaseOrderNumber(this IQueryable<Order> orders,
+        string purchaseOrderNumber)
+    {
+        var number = purchaseOrderNumber.Trim();
+        return orders.Where(o => o.PurchaseOrderNumber == number);
+    }
+
+    /// <summary>
+    ///     Gets what is left to pay of a payment transaction
+    /// </summary>
+    /// <param name="paymentTransaction">Payment transaction</param>
+    /// <returns>The amount, never below zero</returns>
+    public static double AmountLeftToPay(this PaymentTransaction paymentTransaction)
+    {
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
+
+        return AmountLeft(paymentTransaction.TransactionAmount, paymentTransaction.PaidAmount);
+    }
+
+    /// <summary>
+    ///     Gets what is left to refund of a payment transaction
+    /// </summary>
+    /// <param name="paymentTransaction">Payment transaction</param>
+    /// <returns>The amount, never below zero</returns>
+    public static double AmountLeftToRefund(this PaymentTransaction paymentTransaction)
+    {
+        ArgumentNullException.ThrowIfNull(paymentTransaction);
+
+        return AmountLeft(paymentTransaction.TransactionAmount, paymentTransaction.RefundedAmount);
+    }
+
+    /// <summary>
+    ///     Amounts paid or refunded in parts add up with floating-point residue (0.1 + 0.2 is not 0.3), which is
+    ///     rounded off so that a transaction settled in full has nothing left. No currency has six decimals.
+    /// </summary>
+    private static double AmountLeft(double amount, double used) => Math.Max(Math.Round(amount - used, 6), 0);
 }

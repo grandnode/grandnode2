@@ -74,17 +74,10 @@ public class
             orders = orders.Where(o => o.StoreId == request.StoreId);
 
         if (!string.IsNullOrWhiteSpace(request.PurchaseOrderNumber))
-        {
-            var purchaseOrderNumber = request.PurchaseOrderNumber.Trim();
-            orders = orders.Where(o => o.PurchaseOrderNumber == purchaseOrderNumber);
-        }
+            orders = orders.WherePurchaseOrderNumber(request.PurchaseOrderNumber);
 
-        //the same rule as PaymentExtensions.IsPaymentOverdue
         if (request.OverdueOnly)
-        {
-            var today = DateTime.UtcNow.Date;
-            orders = orders.Where(PaymentExtensions.UnpaidOnCredit).Where(o => o.PaymentDueDateUtc < today);
-        }
+            orders = orders.WherePaymentOverdue(DateTime.UtcNow);
 
         return _orderRepository.ToListAsync(orders.Select(o => o.OrderGuid), cancellationToken);
     }

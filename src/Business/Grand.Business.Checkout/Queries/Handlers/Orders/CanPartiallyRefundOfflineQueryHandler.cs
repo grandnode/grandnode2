@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Queries.Checkout.Orders;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
 
@@ -16,7 +17,7 @@ public class CanPartiallyRefundOfflineQueryHandler : IRequestHandler<CanPartiall
         if (paymentTransaction.TransactionAmount == 0)
             return Task.FromResult(false);
 
-        var canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+        var canBeRefunded = paymentTransaction.AmountLeftToRefund();
         if (canBeRefunded <= 0)
             return Task.FromResult(false);
 
