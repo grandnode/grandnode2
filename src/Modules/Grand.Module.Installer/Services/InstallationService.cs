@@ -916,6 +916,9 @@ public partial class InstallationService : IInstallationService
         await dbContext.CreateIndex(_orderRepository,
             OrderBuilder<Order>.Create().Ascending(x => x.OwnerId).Ascending(x => x.PaymentDueDateUtc),
             "OwnerId_PaymentDueDateUtc");
+        //orders bought on credit falling due or overdue - the daily payment reminders
+        await dbContext.CreateIndex(_orderRepository,
+            OrderBuilder<Order>.Create().Ascending(x => x.PaymentDueDateUtc), "PaymentDueDateUtc");
 
         await dbContext.CreateIndex(_orderStatusRepository,
             OrderBuilder<OrderStatus>.Create().Ascending(x => x.StatusId), "StatusId", true);

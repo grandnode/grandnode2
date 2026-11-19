@@ -14,6 +14,7 @@ public static partial class MessageTemplateSeed
         templates.AddRange(OwnerNotificationTemplates(emailAccountId));
         templates.AddRange(ServiceTemplates(emailAccountId));
         templates.AddRange(OrderApprovalTemplates(emailAccountId));
+        templates.AddRange(PaymentReminderTemplates(emailAccountId));
         return templates;
     }
 
