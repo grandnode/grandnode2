@@ -6,9 +6,11 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging;
 using System.Security.Claims;
+using System.Security.Cryptography;
 
 namespace Grand.Web.Common.Security.Authentication;
 
@@ -30,6 +32,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <param name="oidcSessionService">Server-side sessions of provider sign-ins</param>
     /// <param name="externalSignInPolicy">Accounts that must sign in through an external provider</param>
     /// <param name="oidcLinkService">Whether the provider sessions belong to the configured identity provider</param>
+    /// <param name="dataProtectionProvider">Protects the guest cookie</param>
     /// <param name="logger">Logger</param>
     public CookieAuthenticationService(
         CustomerSettings customerSettings,
@@ -41,8 +44,10 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         IOidcSessionService oidcSessionService,
         IExternalSignInPolicy externalSignInPolicy,
         IOidcLinkService oidcLinkService,
+        IDataProtectionProvider dataProtectionProvider,
         ILogger<CookieAuthenticationService> logger)
     {
+        _customerCookieProtector = dataProtectionProvider.CreateProtector(CustomerCookiePurpose);
         _customerSettings = customerSettings;
         _customerService = customerService;
         _groupService = groupService;
@@ -65,6 +70,10 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     //(works regardless of per-store customer identity - the id is globally unique, unlike e-mail/username)
     private const string CustomerIdClaimType = "grand:customerId";
 
+    //the guest cookie is protected: the customer GUID is also public (the shared wishlist URL), so a bare GUID
+    //must not be enough to become that guest
+    private const string CustomerCookiePurpose = "Grand.Web.Customer.Guest";
+
     #endregion
 
     #region Fields
@@ -79,6 +88,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private readonly IOidcSessionService _oidcSessionService;
     private readonly IExternalSignInPolicy _externalSignInPolicy;
     private readonly IOidcLinkService _oidcLinkService;
+    private readonly IDataProtector _customerCookieProtector;
     private readonly ILogger<CookieAuthenticationService> _logger;
 
     #endregion
@@ -332,9 +342,19 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <returns>String value of cookie</returns>
     public virtual Task<string> GetCustomerGuid()
     {
-        return _httpContextAccessor.HttpContext?.Request == null
-            ? Task.FromResult<string>(null)
-            : Task.FromResult(_httpContextAccessor.HttpContext.Request.Cookies[CustomerCookieName]);
+        var cookie = _httpContextAccessor.HttpContext?.Request.Cookies[CustomerCookieName];
+        if (string.IsNullOrEmpty(cookie))
+            return Task.FromResult<string>(null);
+
+        try
+        {
+            return Task.FromResult(_customerCookieProtector.Unprotect(cookie));
+        }
+        catch (CryptographicException)
+        {
+            //not issued by the store (a bare GUID included), or protected with a key that is gone
+            return Task.FromResult<string>(null);
+        }
     }
 
     /// <summary>
@@ -358,7 +378,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
 
         //set new cookie value
         var options = _cookieOptionsFactory.Create(cookieExpiresDate);
-        _httpContextAccessor.HttpContext.Response.Cookies.Append(CustomerCookieName, customerGuid.ToString(), options);
+        _httpContextAccessor.HttpContext.Response.Cookies.Append(CustomerCookieName,
+            _customerCookieProtector.Protect(customerGuid.ToString()), options);
 
         return Task.CompletedTask;
     }

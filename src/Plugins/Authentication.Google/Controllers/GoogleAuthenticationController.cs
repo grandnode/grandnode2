@@ -4,6 +4,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Infrastructure;
 using Grand.SharedKernel;
 using Grand.Web.Common.Controllers;
+using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Authentication.Google;
@@ -60,6 +61,9 @@ public class GoogleAuthenticationController : BasePluginController
         return Challenge(authenticationProperties, GoogleDefaults.AuthenticationScheme);
     }
 
+    //registration turns the request's guest into the new account: it must be saved even when the redirect back from
+    //the provider came without the guest cookie
+    [PersistGuestCustomer]
     public async Task<IActionResult> GoogleLoginCallback(string returnUrl)
     {
         //authenticate google user
