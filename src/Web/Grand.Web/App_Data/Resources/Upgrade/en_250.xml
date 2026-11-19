@@ -2559,4 +2559,31 @@
 	<Resource Name="Admin.Settings.Order.PaymentReminderDaysBefore.Invalid" Area="Admin">
 		<Value>Enter from 0 to 365 days.</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.PaymentTransaction.List.OverdueOnly" Area="Admin">
+		<Value>Overdue payments only</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.PaymentTransaction.List.OverdueOnly.Hint" Area="Admin">
+		<Value>Show only payments of orders bought on trade credit that are past their due date.</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Abandoned" Area="Admin">
+		<Value>Abandoned checkout</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.UpdatedOn" Area="Admin">
+		<Value>Last changed</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.AmountDue" Area="Admin">
+		<Value>Left to pay</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.AmountRefundable" Area="Admin">
+		<Value>Refundable</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.Errors" Area="Admin">
+		<Value>Payment errors</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.CustomValues" Area="Admin">
+		<Value>Payment method data</Value>
+	</Resource>
+	<Resource Name="Admin.PaymentTransaction.Fields.BillingName" Area="Admin">
+		<Value>Billed to</Value>
+	</Resource>
 </Language>
