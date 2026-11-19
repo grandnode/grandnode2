@@ -1,4 +1,4 @@
-using Grand.Business.Core.Interfaces.Catalog.Prices;
+﻿using Grand.Business.Core.Interfaces.Catalog.Prices;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
@@ -24,6 +24,7 @@ namespace Grand.Business.Messages.Tests.Commands;
 public class GetOrderTokensCommandHandlerTests
 {
     private readonly Currency _orderCurrency = new() { CurrencyCode = "EUR" };
+    private Mock<IGiftVoucherService> _giftVoucherServiceMock;
     private GetOrderTokensCommandHandler _handler;
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPriceFormatter> _priceFormatterMock;
@@ -36,8 +37,8 @@ public class GetOrderTokensCommandHandlerTests
         languageService.Setup(x => x.GetLanguageById(It.IsAny<string>())).ReturnsAsync(new Language { Id = "1" });
         var currencyService = new Mock<ICurrencyService>();
         currencyService.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(_orderCurrency);
-        var giftVoucherService = new Mock<IGiftVoucherService>();
-        giftVoucherService.Setup(x => x.GetAllGiftVoucherUsageHistory(It.IsAny<string>()))
+        _giftVoucherServiceMock = new Mock<IGiftVoucherService>();
+        _giftVoucherServiceMock.Setup(x => x.GetAllGiftVoucherUsageHistory(It.IsAny<string>()))
             .ReturnsAsync(new List<GiftVoucherUsageHistory>());
         _priceFormatterMock = new Mock<IPriceFormatter>();
         _priceFormatterMock.Setup(x => x.FormatTaxRate(It.IsAny<double>())).Returns("23");
@@ -51,7 +52,7 @@ public class GetOrderTokensCommandHandlerTests
         _handler = new GetOrderTokensCommandHandler(languageService.Object, currencyService.Object,
             new Mock<IProductService>().Object, new Mock<IVendorService>().Object, _priceFormatterMock.Object,
             new Mock<ICountryService>().Object, new Mock<IAddressAttributeParser>().Object,
-            _paymentServiceMock.Object, giftVoucherService.Object, _settingServiceMock.Object);
+            _paymentServiceMock.Object, _giftVoucherServiceMock.Object, _settingServiceMock.Object);
     }
 
     [TestMethod]
@@ -93,12 +94,13 @@ public class GetOrderTokensCommandHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_TaxSettingsOfTheOrdersStore()
+    public async Task Handle_TaxSettingsOfTheMessagesStore()
     {
-        //Arrange - sent from a scheduled task or another store's admin, the current store is not the order's
+        //Arrange - sent from a scheduled task or another store's admin, the current store is not the order's.
+        //An order without a store gets the store the message falls back to, the one the store tokens read
         _settingServiceMock.Setup(x => x.LoadSetting<TaxSettings>("store2"))
             .ReturnsAsync(new TaxSettings { DisplayTaxRates = true });
-        var order = new Order { StoreId = "store2", CustomerCurrencyCode = "EUR", CustomerLanguageId = "1", OrderTax = 10 };
+        var order = new Order { StoreId = "", CustomerCurrencyCode = "EUR", CustomerLanguageId = "1", OrderTax = 10 };
         order.OrderTaxes.Add(new OrderTax { Percent = 23, Amount = 10 });
 
         //Act
@@ -110,5 +112,44 @@ public class GetOrderTokensCommandHandlerTests
         //Assert
         Assert.IsTrue(result.DisplayTaxRates);
         _settingServiceMock.Verify(x => x.LoadSetting<TaxSettings>("store2"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_GiftVoucherDeletedAfterUse_StillShowsTheAmount()
+    {
+        //Arrange
+        _giftVoucherServiceMock.Setup(x => x.GetAllGiftVoucherUsageHistory("order1"))
+            .ReturnsAsync([new GiftVoucherUsageHistory { GiftVoucherId = "deleted", UsedValue = 5 }]);
+        var order = new Order { Id = "order1", CustomerCurrencyCode = "EUR", CustomerLanguageId = "1" };
+
+        //Act
+        var result = await _handler.Handle(new GetOrderTokensCommand {
+            Order = order, Customer = new Customer(), Store = new Store(), Host = new DomainHost { Url = "https://localhost/" }
+        }, CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual("EUR-5", result.GiftVouchers[""]);
+    }
+
+    [TestMethod]
+    public async Task Handle_GiftVoucherUsedTwice_OneLineWithTheSum()
+    {
+        //Arrange
+        _giftVoucherServiceMock.Setup(x => x.GetAllGiftVoucherUsageHistory("order1")).ReturnsAsync([
+            new GiftVoucherUsageHistory { GiftVoucherId = "gv1", UsedValue = 5 },
+            new GiftVoucherUsageHistory { GiftVoucherId = "gv1", UsedValue = 3 }
+        ]);
+        _giftVoucherServiceMock.Setup(x => x.GetGiftVoucherById("gv1"))
+            .ReturnsAsync(new GiftVoucher { Id = "gv1", Code = "CODE-1" });
+        var order = new Order { Id = "order1", CustomerCurrencyCode = "EUR", CustomerLanguageId = "1" };
+
+        //Act
+        var result = await _handler.Handle(new GetOrderTokensCommand {
+            Order = order, Customer = new Customer(), Store = new Store(), Host = new DomainHost { Url = "https://localhost/" }
+        }, CancellationToken.None);
+
+        //Assert
+        Assert.HasCount(1, result.GiftVouchers);
+        Assert.AreEqual("EUR-8", result.GiftVouchers["CODE-1"]);
     }
 }

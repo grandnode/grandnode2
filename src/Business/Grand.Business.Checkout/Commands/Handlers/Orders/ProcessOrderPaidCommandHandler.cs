@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -18,15 +19,15 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
     private readonly ILogger<ProcessOrderPaidCommandHandler> _logger;
     private readonly IMediator _mediator;
     private readonly IOrderMessageProviderService _orderMessageProviderService;
-    private readonly OrderSettings _orderSettings;
     private readonly IPdfService _pdfService;
+    private readonly ISettingService _settingService;
 
     public ProcessOrderPaidCommandHandler(
         IOrderMessageProviderService orderMessageProviderService,
         ICustomerService customerService,
         IMediator mediator,
         IPdfService pdfService,
-        OrderSettings orderSettings,
+        ISettingService settingService,
         LanguageSettings languageSettings,
         ILogger<ProcessOrderPaidCommandHandler> logger)
     {
@@ -34,7 +35,7 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
         _customerService = customerService;
         _mediator = mediator;
         _pdfService = pdfService;
-        _orderSettings = orderSettings;
+        _settingService = settingService;
         _languageSettings = languageSettings;
         _logger = logger;
     }
@@ -65,11 +66,13 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
         {
             var customer = await _customerService.GetCustomerById(order.CustomerId);
 
+            //the order's store, not the current one: a scheduled task or another store's admin marks it paid too
+            var orderSettings = await _settingService.LoadSetting<OrderSettings>(order.StoreId);
             string invoiceDownloadId = null;
 
             try
             {
-                if (_orderSettings.AttachPdfInvoiceToOrderPaidEmail)
+                if (orderSettings.AttachPdfInvoiceToOrderPaidEmail)
                     invoiceDownloadId = await _pdfService.SaveOrderToBinary(order, "");
             }
             catch (Exception ex)

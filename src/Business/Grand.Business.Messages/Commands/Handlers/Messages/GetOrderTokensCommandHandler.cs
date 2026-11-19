@@ -60,8 +60,9 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
     {
         var language = await _languageService.GetLanguageById(request.Order.CustomerLanguageId);
         var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
-        //the order's store, not the current one: a scheduled task or another store's admin sends it too
-        var taxSettings = await _settingService.LoadSetting<TaxSettings>(request.Order.StoreId);
+        //the message's store, not the current one: a scheduled task or another store's admin sends it too.
+        //The store tokens read the same store, so one e-mail never mixes the settings of two stores
+        var taxSettings = await _settingService.LoadSetting<TaxSettings>(request.Store?.Id);
 
         var liquidOrder = new LiquidOrder(request.Order, request.Customer, language, currency, request.Store,
             request.Host, request.OrderNote, request.Vendor);
@@ -147,17 +148,18 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
 
         liquidOrder.TaxRates = dict;
 
-        var cards = new Dictionary<string, string>();
+        //one line per voucher code; a voucher deleted after it was used still shows its amount, as on the invoice
+        var usedByCode = new Dictionary<string, double>();
         var gcuhC = await _giftVoucherService.GetAllGiftVoucherUsageHistory(request.Order.Id);
         foreach (var gcuh in gcuhC)
         {
             var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
-            var giftVoucherText = WebUtility.HtmlEncode(giftVoucher.Code);
-            var giftVoucherAmount = _priceFormatter.FormatPrice(-gcuh.UsedValue, currency);
-            cards.Add(giftVoucherText, giftVoucherAmount);
+            var giftVoucherText = WebUtility.HtmlEncode(giftVoucher?.Code ?? string.Empty);
+            usedByCode[giftVoucherText] = usedByCode.GetValueOrDefault(giftVoucherText) + gcuh.UsedValue;
         }
 
-        liquidOrder.GiftVouchers = cards;
+        liquidOrder.GiftVouchers = usedByCode.ToDictionary(x => x.Key,
+            x => _priceFormatter.FormatPrice(-x.Value, currency));
         if (request.Order.RedeemedLoyaltyPoints > 0)
         {
             liquidOrder.RPPoints = request.Order.RedeemedLoyaltyPoints.ToString();
