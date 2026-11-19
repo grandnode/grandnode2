@@ -238,14 +238,12 @@ public class CustomerService : ICustomerService
             return null;
 
         var loweredEmail = email.ToLowerInvariant();
-        if (!string.IsNullOrEmpty(storeId))
+        //without per-store identity the e-mail is unique across stores, so the store does not narrow the lookup
+        if (_customerConfig.RegisterCustomersPerStore && !string.IsNullOrEmpty(storeId))
         {
             var inStore = await _customerRepository.GetOneAsync(x => x.Email == loweredEmail && x.StoreId == storeId);
             if (inStore != null)
                 return inStore;
-
-            if (!_customerConfig.RegisterCustomersPerStore)
-                return null;
 
             return await _customerRepository.GetOneAsync(x =>
                 x.Email == loweredEmail && (x.StoreId == null || x.StoreId == ""));
@@ -291,17 +289,14 @@ public class CustomerService : ICustomerService
             return null;
 
         var loweredUsername = username.ToLowerInvariant();
-        if (!string.IsNullOrEmpty(storeId))
+        //without per-store identity the username is unique across stores (see GetCustomerByEmail)
+        if (_customerConfig.RegisterCustomersPerStore && !string.IsNullOrEmpty(storeId))
         {
             var inStore = await _customerRepository.GetOneAsync(x => x.Username == loweredUsername && x.StoreId == storeId);
             if (inStore != null)
                 return inStore;
 
-            //no customer for this store: without per-store identity there is no fallback; with it, a
-            //store-scoped lookup must still reach the store-independent system/back-office account
-            if (!_customerConfig.RegisterCustomersPerStore)
-                return null;
-
+            //no customer for this store: the lookup must still reach the store-independent system/back-office account
             return await _customerRepository.GetOneAsync(x =>
                 x.Username == loweredUsername && (x.StoreId == null || x.StoreId == ""));
         }

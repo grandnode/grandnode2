@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
@@ -30,14 +29,11 @@ public class RegisterValidator : BaseGrandValidator<RegisterModel>
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         ICustomerService customerService,
         IGroupService groupService, IContextAccessor contextAccessor,
-        CustomerConfig customerConfig,
         IExternalRegistrationContext externalRegistrationContext
     )
         : base(validators)
     {
-        var storeId = customerConfig.RegisterCustomersPerStore
-            ? contextAccessor.StoreContext.CurrentStore.Id
-            : "";
+        var storeId = contextAccessor.StoreContext.CurrentStore.Id;
 
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));

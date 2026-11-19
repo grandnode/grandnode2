@@ -7,7 +7,6 @@ using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Controllers;
@@ -57,7 +56,6 @@ public class AccountControllerTwoFactorReturnUrlTests
         _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object, new Mock<IRequestTranslationService>().Object,
             context.Object, _customers.Object, new Mock<IGroupService>().Object, _manager.Object, new Mock<ICountryService>().Object,
             new Mock<IMediator>().Object, new Mock<ICustomerMessageProviderService>().Object, new CaptchaSettings(), settings,
-            new CustomerConfig(),
             new Mock<IGuestOrderGrantService>().Object);
         var http = new DefaultHttpContext { Session = new TestSession() };
         _controller.ControllerContext = new ControllerContext { HttpContext = http };

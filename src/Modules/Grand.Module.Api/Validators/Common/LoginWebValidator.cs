@@ -16,13 +16,10 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
         FrontendAPIConfig apiConfig,
         ICustomerService customerService,
         ICustomerManagerService customerManagerService,
-        IContextAccessor contextAccessor,
-        CustomerConfig customerConfig)
+        IContextAccessor contextAccessor)
         : base(validators)
     {
-        var storeId = customerConfig.RegisterCustomersPerStore
-            ? contextAccessor.StoreContext.CurrentStore.Id
-            : "";
+        var storeId = contextAccessor.StoreContext.CurrentStore.Id;
 
         if (!apiConfig.Enabled)
         {

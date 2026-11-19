@@ -10,7 +10,6 @@ using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
-using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -43,8 +42,7 @@ public class ExternalAuthenticationServiceTests
         _externalAuthenticationService = CreateService(UserRegistrationType.Standard);
     }
 
-    private ExternalAuthenticationService CreateService(UserRegistrationType userRegistrationType,
-        bool registerCustomersPerStore = false)
+    private ExternalAuthenticationService CreateService(UserRegistrationType userRegistrationType)
     {
         var externalAuthenticationSetting = new ExternalAuthenticationSettings {
             ActiveAuthenticationMethodSystemNames = [
@@ -55,8 +53,7 @@ public class ExternalAuthenticationServiceTests
         return new ExternalAuthenticationService(_customerManagerServiceMock.Object, _customerServiceMock.Object,
             _groupServiceMock.Object, _mediatorMock.Object, _externalAuthenticationRecordRepository,
             _externalAuthenticationProviders,
-            new CustomerSettings { UserRegistrationType = userRegistrationType }, externalAuthenticationSetting,
-            new CustomerConfig { RegisterCustomersPerStore = registerCustomersPerStore });
+            new CustomerSettings { UserRegistrationType = userRegistrationType }, externalAuthenticationSetting);
     }
 
 
@@ -173,7 +170,7 @@ public class ExternalAuthenticationServiceTests
     [TestMethod]
     public async Task Authenticate_UnknownIdentityWithEmailOfExistingCustomer_RegistersNobody()
     {
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail("taken@test.com", ""))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("taken@test.com", "store1"))
             .ReturnsAsync(new Customer { Id = "existing", Email = "taken@test.com" });
         var guest = new Customer { Id = "guest" };
         var parameters = new ExternalAuthParam {
@@ -187,22 +184,6 @@ public class ExternalAuthenticationServiceTests
         Assert.IsNull(result.Customer);
         _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
         Assert.IsFalse(_externalAuthenticationRecordRepository.Table.Any());
-    }
-
-    [TestMethod]
-    public async Task Authenticate_UnknownIdentityWithPerStoreIdentity_LooksUpTheEmailInTheStore()
-    {
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail("taken@test.com", "store1"))
-            .ReturnsAsync(new Customer { Id = "existing", Email = "taken@test.com", StoreId = "store1" });
-        var parameters = new ExternalAuthParam {
-            ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new", Email = "taken@test.com"
-        };
-
-        var result = await CreateService(UserRegistrationType.Standard, registerCustomersPerStore: true)
-            .Authenticate(parameters, new Customer { Id = "guest" }, new Store { Id = "store1" }, new Language());
-
-        Assert.AreEqual(ExternalAuthStatus.EmailAlreadyExists, result.Status);
-        _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
     }
 
     [TestMethod]

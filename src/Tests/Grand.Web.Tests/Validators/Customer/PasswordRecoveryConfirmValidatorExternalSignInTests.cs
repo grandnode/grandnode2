@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Customer;
 using Grand.Web.Validators.Customer;
@@ -44,12 +43,16 @@ public class PasswordRecoveryConfirmValidatorExternalSignInTests
         _signInPolicy = new Mock<IExternalSignInPolicy>();
         _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))
             .ReturnsAsync(PasswordSignInDecision.Password);
+        var storeContext = new Mock<IStoreContext>();
+        storeContext.Setup(x => x.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = "store1" });
+        var contextAccessor = new Mock<IContextAccessor>();
+        contextAccessor.Setup(x => x.StoreContext).Returns(storeContext.Object);
 
         _validator = new PasswordRecoveryConfirmValidator(
             new List<IValidatorConsumer<PasswordRecoveryConfirmModel>>(),
             customerService.Object, groupService.Object,
             new Mock<ICustomerManagerService>().Object, new Mock<ICustomerHistoryPasswordService>().Object,
-            translation.Object, new CustomerSettings(), new Mock<IContextAccessor>().Object, new CustomerConfig(),
+            translation.Object, new CustomerSettings(), contextAccessor.Object,
             _signInPolicy.Object);
     }
 

@@ -48,7 +48,7 @@ public class TokenWebControllerTests
             .ReturnsAsync("jwt");
     }
 
-    private TokenWebController CreateController(bool perStore)
+    private TokenWebController CreateController()
     {
         var storeContext = new Mock<IStoreContext>();
         storeContext.Setup(s => s.CurrentStore).Returns(new Store { Id = StoreId });
@@ -58,16 +58,15 @@ public class TokenWebControllerTests
         return new TokenWebController(
             _customerServiceMock.Object, _mediatorMock.Object, contextAccessor.Object,
             _refreshTokenServiceMock.Object, _signInPolicyMock.Object, new Mock<IAntiforgery>().Object,
-            new FrontendAPIConfig { Enabled = true },
-            new CustomerConfig { RegisterCustomersPerStore = perStore });
+            new FrontendAPIConfig { Enabled = true });
     }
 
     [TestMethod]
-    public async Task Login_PerStoreOn_ScopesLookupToStore_AndAddsCustomerIdClaim()
+    public async Task Login_ScopesLookupToStore_AndAddsCustomerIdClaim()
     {
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), StoreId))
             .ReturnsAsync(new Customer { Id = "c1" });
-        var controller = CreateController(perStore: true);
+        var controller = CreateController();
 
         var result = await controller.Login(new LoginWebModel { Email = "u@x.com", Password = "p" });
 
@@ -75,19 +74,6 @@ public class TokenWebControllerTests
         _customerServiceMock.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), StoreId), Times.Once);
         Assert.IsNotNull(_capturedCommand);
         Assert.AreEqual("c1", _capturedCommand.Claims["CustomerId"]);
-    }
-
-    [TestMethod]
-    public async Task Login_PerStoreOff_UsesGlobalLookup()
-    {
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), ""))
-            .ReturnsAsync(new Customer { Id = "c1" });
-        var controller = CreateController(perStore: false);
-
-        var result = await controller.Login(new LoginWebModel { Email = "u@x.com", Password = "p" });
-
-        Assert.IsInstanceOfType(result, typeof(OkObjectResult));
-        _customerServiceMock.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), ""), Times.Once);
     }
 
     [TestMethod]
@@ -99,7 +85,7 @@ public class TokenWebControllerTests
         _customerServiceMock.Setup(c => c.GetCustomerById("c1")).ReturnsAsync(customer);
         _refreshTokenServiceMock.Setup(r => r.GetCustomerRefreshToken(customer))
             .ReturnsAsync(new RefreshToken { Token = "rt", ValidTo = DateTime.UtcNow.AddDays(1), RefreshId = "rid" });
-        var controller = CreateController(perStore: true);
+        var controller = CreateController();
 
         var result = await controller.Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
 
@@ -126,7 +112,7 @@ public class TokenWebControllerTests
     {
         var customer = RefreshableCustomer();
         _signInPolicyMock.Setup(p => p.PasswordSignIn(customer, SignInSurface.FrontendApi)).ReturnsAsync(new PasswordSignInDecision(false, Mock.Of<IExternalAuthenticationProvider>()));
-        var controller = CreateController(perStore: false);
+        var controller = CreateController();
 
         var result = await controller.Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
 
@@ -149,7 +135,7 @@ public class TokenWebControllerTests
         _signInPolicyMock.Setup(p => p.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(new PasswordSignInDecision(false, null));
 
-        var result = await CreateController(perStore: false)
+        var result = await CreateController()
             .Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
 
         Assert.IsInstanceOfType(result, typeof(OkObjectResult));
@@ -161,7 +147,7 @@ public class TokenWebControllerTests
     {
         var customer = RefreshableCustomer();
         _signInPolicyMock.Setup(p => p.PasswordSignIn(customer, SignInSurface.FrontendApi)).ReturnsAsync(PasswordSignInDecision.Password);
-        var controller = CreateController(perStore: false);
+        var controller = CreateController();
 
         var result = await controller.Refresh(new TokenDto { AccessToken = "access", RefreshToken = "rt" });
 

@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Features.Models.Customers;
@@ -22,8 +21,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
         IMediator mediator, ICustomerAttributeParser customerAttributeParser,
         IRequestTranslationService translationService,
         ICountryService countryService,
-        CustomerSettings customerSettings,
-        CustomerConfig customerConfig)
+        CustomerSettings customerSettings)
         : base(validators)
     {
         RuleFor(x => x.Email).NotEmpty()
@@ -124,7 +122,7 @@ public class CustomerInfoValidator : BaseGrandValidator<CustomerInfoModel>
 
             //the same values the command stores, checked where the account lives
             var currentCustomer = contextAccessor.WorkContext.CurrentCustomer;
-            var storeId = customerConfig.RegisterCustomersPerStore ? currentCustomer.StoreId : "";
+            var storeId = currentCustomer.StoreId;
 
             var email = x.Email?.Trim().ToLowerInvariant();
             var sameAddress = string.Equals(currentCustomer.Email, email, StringComparison.OrdinalIgnoreCase);

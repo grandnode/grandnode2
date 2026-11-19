@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
@@ -20,12 +19,10 @@ public class PasswordRecoveryValidator : BaseGrandValidator<PasswordRecoveryMode
         ICustomerService customerService, CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
         IRequestTranslationService translationService,
-        IContextAccessor workContextAccessor, CustomerConfig customerConfig)
+        IContextAccessor workContextAccessor)
         : base(validators)
     {
-        var storeId = customerConfig.RegisterCustomersPerStore
-            ? workContextAccessor.StoreContext.CurrentStore.Id
-            : "";
+        var storeId = workContextAccessor.StoreContext.CurrentStore.Id;
 
         RuleFor(x => x.Email).NotEmpty()
             .WithMessage(translationService.GetResource("Account.PasswordRecovery.Email.Required"));

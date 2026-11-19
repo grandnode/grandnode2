@@ -5,7 +5,6 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Commands.Models.Customers;
 using Grand.Web.Common.Localization;
@@ -54,7 +53,7 @@ public class AccountControllerSubAccountsTests
             new Mock<IRequestTranslationService>().Object, context.Object, new Mock<ICustomerService>().Object,
             groups.Object, new Mock<ICustomerManagerService>().Object, new Mock<ICountryService>().Object,
             _mediator.Object, new Mock<ICustomerMessageProviderService>().Object, new CaptchaSettings(),
-            _customerSettings, new CustomerConfig(),
+            _customerSettings,
             new Mock<IGuestOrderGrantService>().Object);
         _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         _controller.TempData = new TempDataDictionary(_controller.HttpContext, new Mock<ITempDataProvider>().Object);

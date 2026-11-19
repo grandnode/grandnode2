@@ -37,8 +37,7 @@ public class TokenWebController : ControllerBase
         IRefreshTokenService refreshTokenService,
         IExternalSignInPolicy externalSignInPolicy,
         IAntiforgery antiforgery,
-        FrontendAPIConfig apiConfig,
-        CustomerConfig customerConfig)
+        FrontendAPIConfig apiConfig)
     {
         _customerService = customerService;
         _mediator = mediator;
@@ -47,16 +46,12 @@ public class TokenWebController : ControllerBase
         _externalSignInPolicy = externalSignInPolicy;
         _antiforgery = antiforgery;
         _apiConfig = apiConfig;
-        _customerConfig = customerConfig;
     }
 
-    private readonly CustomerConfig _customerConfig;
-
     /// <summary>
-    ///     The current store id when per-store customer identity is enabled, otherwise empty (global lookup).
+    ///     The store of the customer lookups; it narrows them only with per-store customer identity
     /// </summary>
-    private string CustomerStoreId =>
-        _customerConfig.RegisterCustomersPerStore ? _contextAccessor.StoreContext.CurrentStore.Id : "";
+    private string CustomerStoreId => _contextAccessor.StoreContext.CurrentStore.Id;
 
     [AllowAnonymous]
     [IgnoreAntiforgeryToken]

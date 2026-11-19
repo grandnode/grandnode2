@@ -386,8 +386,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                 return customer.OwnerId;
         }
 
-        var storeId = _customerConfig.RegisterCustomersPerStore ? model.StoreId : "";
-        var owner = await _customerService.GetCustomerByEmail(ownerEmail, storeId);
+        var owner = await _customerService.GetCustomerByEmail(ownerEmail, model.StoreId);
         return owner?.Id ?? customer?.OwnerId ?? string.Empty;
     }
 

@@ -14,7 +14,6 @@ namespace Grand.Web.Common.Security.Oidc;
 public class OidcProfileSynchronizer(
     ICustomerService customerService,
     CustomerSettings customerSettings,
-    CustomerConfig customerConfig,
     OidcLoginConfig loginConfig,
     ILogger<OidcProfileSynchronizer> logger)
 {
@@ -64,7 +63,7 @@ public class OidcProfileSynchronizer(
             return;
         }
 
-        var owner = await customerService.GetCustomerByEmail(newEmail, customerConfig.RegisterCustomersPerStore ? storeId : "");
+        var owner = await customerService.GetCustomerByEmail(newEmail, storeId);
         if (owner != null && owner.Id != customer.Id)
         {
             logger.LogWarning("OpenID Connect profile sync: customer {CustomerId} keeps its e-mail: the identity " +

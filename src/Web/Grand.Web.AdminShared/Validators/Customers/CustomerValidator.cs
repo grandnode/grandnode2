@@ -27,9 +27,6 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
         IAdminDataScope<Customer> scope)
         : base(validators)
     {
-        //when per-store customer identity is enabled, uniqueness is scoped to the customer's store
-        string StoreScope(CustomerModel m) => customerConfig.RegisterCustomersPerStore ? m.StoreId : "";
-
         CustomerCreateValidator();
         CustomerEditValidator();
 
@@ -237,7 +234,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                 return;
             }
 
-            var owner = await customerService.GetCustomerByEmail(ownerEmail, StoreScope(x));
+            var owner = await customerService.GetCustomerByEmail(ownerEmail, x.StoreId);
             if (owner == null || owner.Deleted)
             {
                 context.AddFailure(nameof(x.Owner),
@@ -276,7 +273,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                        var customerByEmail = await customerService.GetCustomerByEmail(x.Email, StoreScope(x));
+                        var customerByEmail = await customerService.GetCustomerByEmail(x.Email, x.StoreId);
                         if (customerByEmail != null)
                             context.AddFailure("Email is already registered");
                     }
@@ -285,7 +282,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
 
                     if (!string.IsNullOrWhiteSpace(x.Username) && customerSettings.UsernamesEnabled)
                     {
-                        var customerByUsername = await customerService.GetCustomerByUsername(x.Username, StoreScope(x));
+                        var customerByUsername = await customerService.GetCustomerByUsername(x.Username, x.StoreId);
                         if (customerByUsername != null)
                             context.AddFailure("Username is already registered");
 
@@ -335,7 +332,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                        var customer2 = await customerService.GetCustomerByEmail(x.Email, StoreScope(x));
+                        var customer2 = await customerService.GetCustomerByEmail(x.Email, x.StoreId);
                         if (customer2 != null && customer.Id != customer2.Id)
                             context.AddFailure(
                                 translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));
@@ -346,7 +343,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
                         if (x.Username.Length > 100)
                             context.AddFailure("Username is too long");
 
-                        var user2 = await customerService.GetCustomerByUsername(x.Username, StoreScope(x));
+                        var user2 = await customerService.GetCustomerByUsername(x.Username, x.StoreId);
                         if (user2 != null && customer.Id != user2.Id)
                             context.AddFailure("The username is already in use");
                     }

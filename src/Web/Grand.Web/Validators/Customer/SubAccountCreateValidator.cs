@@ -2,7 +2,6 @@
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Customer;
 using Grand.Web.Common.Localization;
@@ -16,12 +15,10 @@ public class SubAccountCreateValidator : BaseGrandValidator<SubAccountCreateMode
         ICustomerService customerService,
         IRequestTranslationService translationService,
         CustomerSettings customerSettings,
-        IContextAccessor contextAccessor, CustomerConfig customerConfig)
+        IContextAccessor contextAccessor)
         : base(validators)
     {
-        var storeId = customerConfig.RegisterCustomersPerStore
-            ? contextAccessor.StoreContext.CurrentStore.Id
-            : "";
+        var storeId = contextAccessor.StoreContext.CurrentStore.Id;
 
         RuleFor(x => x.Email).NotEmpty()
             .WithMessage(translationService.GetResource("Account.Fields.Email.Required"));

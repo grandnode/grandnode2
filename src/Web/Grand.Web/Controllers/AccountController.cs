@@ -53,7 +53,6 @@ public class AccountController : BasePublicController
         ICustomerMessageProviderService customerMessageProviderService,
         CaptchaSettings captchaSettings,
         CustomerSettings customerSettings,
-        CustomerConfig customerConfig,
         IGuestOrderGrantService guestOrderGrantService)
     {
         _authenticationService = authenticationService;
@@ -67,16 +66,13 @@ public class AccountController : BasePublicController
         _customerMessageProviderService = customerMessageProviderService;
         _captchaSettings = captchaSettings;
         _mediator = mediator;
-        _customerConfig = customerConfig;
         _guestOrderGrantService = guestOrderGrantService;
     }
 
     /// <summary>
-    ///     Returns the current store id when per-store customer identity is enabled, otherwise an empty
-    ///     string (which makes the store-aware customer lookups fall back to the global behaviour).
+    ///     The store of the customer lookups; it narrows them only with per-store customer identity
     /// </summary>
-    private string CustomerStoreId =>
-        _customerConfig.RegisterCustomersPerStore ? _contextAccessor.StoreContext.CurrentStore.Id : "";
+    private string CustomerStoreId => _contextAccessor.StoreContext.CurrentStore.Id;
 
     #endregion
 
@@ -179,7 +175,6 @@ public class AccountController : BasePublicController
     private readonly IMediator _mediator;
     private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly CustomerSettings _customerSettings;
-    private readonly CustomerConfig _customerConfig;
     private readonly IGuestOrderGrantService _guestOrderGrantService;
     private readonly CaptchaSettings _captchaSettings;
 

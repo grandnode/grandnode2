@@ -18,7 +18,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
@@ -48,7 +47,6 @@ public class MerchandiseReturnViewModelService(
     OrderSettings orderSettings,
     IEnumTranslationService enumTranslationService,
     IContextAccessor contextAccessor,
-    CustomerConfig customerConfig,
     IAdminDataScope<MerchandiseReturn> scope,
     IMerchandiseReturnWorkflowService merchandiseReturnWorkflowService,
     IMerchandiseReturnLabelService merchandiseReturnLabelService,
@@ -217,14 +215,10 @@ public class MerchandiseReturnViewModelService(
         var customerId = string.Empty;
         if (!string.IsNullOrEmpty(model.SearchCustomerEmail))
         {
-            //with per-store customer identity the same e-mail may exist in several stores - scope
-            //the lookup to the current store so the search matches this store's customer (folded in
-            //from Vendor's original service, spec §2.4/§11 - approved, disclosed behavior change for
-            //Admin/Store when CustomerConfig.RegisterCustomersPerStore is on)
-            var storeId = customerConfig.RegisterCustomersPerStore
-                ? contextAccessor.StoreContext.CurrentStore.Id
-                : "";
-            var customer = await customerService.GetCustomerByEmail(model.SearchCustomerEmail.ToLowerInvariant(), storeId);
+            //with per-store customer identity the same e-mail may exist in several stores - the search matches
+            //this store's customer
+            var customer = await customerService.GetCustomerByEmail(model.SearchCustomerEmail.ToLowerInvariant(),
+                contextAccessor.StoreContext.CurrentStore.Id);
             customerId = customer != null ? customer.Id : "00000000-0000-0000-0000-000000000000";
         }
 

@@ -35,13 +35,12 @@ public class LoginWebValidatorTests
         _contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
     }
 
-    private LoginWebValidator CreateValidator(bool apiEnabled, bool perStore) =>
+    private LoginWebValidator CreateValidator(bool apiEnabled) =>
         new(new List<IValidatorConsumer<LoginWebModel>>(),
             new FrontendAPIConfig { Enabled = apiEnabled },
             _customerServiceMock.Object,
             _customerManagerServiceMock.Object,
-            _contextAccessorMock.Object,
-            new CustomerConfig { RegisterCustomersPerStore = perStore });
+            _contextAccessorMock.Object);
 
     private static LoginWebModel ValidModel() => new() {
         Email = "user@x.com",
@@ -51,40 +50,25 @@ public class LoginWebValidatorTests
     [TestMethod]
     public async Task ApiDisabled_Fails()
     {
-        var validator = CreateValidator(apiEnabled: false, perStore: true);
+        var validator = CreateValidator(apiEnabled: false);
         var result = await validator.ValidateAsync(ValidModel());
         Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "API is disabled"));
     }
 
     [TestMethod]
-    public async Task PerStoreOn_ValidCredentials_ScopesLookupAndLoginToCurrentStore()
+    public async Task ValidCredentials_ScopesLookupAndLoginToCurrentStore()
     {
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), StoreId))
             .ReturnsAsync(new Customer { Active = true });
         _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), StoreId, It.IsAny<SignInSurface>()))
             .ReturnsAsync(CustomerLoginResults.Successful);
 
-        var validator = CreateValidator(apiEnabled: true, perStore: true);
+        var validator = CreateValidator(apiEnabled: true);
         var result = await validator.ValidateAsync(ValidModel());
 
         Assert.IsTrue(result.IsValid);
         _customerServiceMock.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), StoreId), Times.Once);
         _customerManagerServiceMock.Verify(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), StoreId, SignInSurface.FrontendApi), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task PerStoreOff_UsesGlobalLookup()
-    {
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), ""))
-            .ReturnsAsync(new Customer { Active = true });
-        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), "", It.IsAny<SignInSurface>()))
-            .ReturnsAsync(CustomerLoginResults.Successful);
-
-        var validator = CreateValidator(apiEnabled: true, perStore: false);
-        var result = await validator.ValidateAsync(ValidModel());
-
-        Assert.IsTrue(result.IsValid);
-        _customerManagerServiceMock.Verify(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), "", It.IsAny<SignInSurface>()), Times.Once);
     }
 
     [TestMethod]
@@ -95,7 +79,7 @@ public class LoginWebValidatorTests
         _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(CustomerLoginResults.ExternalSignInRequired);
 
-        var validator = CreateValidator(apiEnabled: true, perStore: true);
+        var validator = CreateValidator(apiEnabled: true);
         var result = await validator.ValidateAsync(ValidModel());
 
         Assert.IsFalse(result.IsValid);
@@ -107,7 +91,7 @@ public class LoginWebValidatorTests
         _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync((Customer)null);
 
-        var validator = CreateValidator(apiEnabled: true, perStore: true);
+        var validator = CreateValidator(apiEnabled: true);
         var result = await validator.ValidateAsync(ValidModel());
 
         Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Customer not exist or password is wrong"));

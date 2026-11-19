@@ -132,7 +132,7 @@ public class OidcCustomerResolverLoginTests
     public async Task ExistingCustomer_Verified_LinkedAndSignIn()
     {
         var customer = new Customer { Id = "c1", Active = true, Email = "john@example.com" };
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(customer);
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", Store)).ReturnsAsync(customer);
         var result = await Resolver().ResolveForLogin("sub-1", "John@Example.com", true, Store, Language);
         Assert.AreEqual(OidcLoginOutcome.SignIn, result.Outcome);
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");

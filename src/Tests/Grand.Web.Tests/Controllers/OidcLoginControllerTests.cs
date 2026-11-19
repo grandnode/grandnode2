@@ -108,7 +108,7 @@ public class OidcLoginControllerTests
         _logger = new Mock<ILogger<OidcLoginController>>();
         _customers = new Mock<ICustomerService>();
         _loginConfig = new OidcLoginConfig();
-        var sync = new OidcProfileSynchronizer(_customers.Object, new CustomerSettings(), new CustomerConfig(), _loginConfig,
+        var sync = new OidcProfileSynchronizer(_customers.Object, new CustomerSettings(), _loginConfig,
             new Mock<ILogger<OidcProfileSynchronizer>>().Object);
         var http = new DefaultHttpContext {
             Session = new TestSession(),

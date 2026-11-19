@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.Mediator;
@@ -61,7 +60,7 @@ public class RegisterValidatorExternalTests
             translation.Object, new Mock<ICountryService>().Object, new CustomerSettings(),
             new CaptchaSettings(), new Mock<IHttpContextAccessor>().Object,
             new Mock<IGoogleReCaptchaValidator>().Object, mediator.Object, attrParser.Object,
-            _customerService.Object, groupService.Object, ctx.Object, new CustomerConfig(), _external.Object);
+            _customerService.Object, groupService.Object, ctx.Object, _external.Object);
     }
 
     [TestMethod]
