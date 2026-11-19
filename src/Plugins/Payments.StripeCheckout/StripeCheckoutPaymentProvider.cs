@@ -125,9 +125,20 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     /// <returns>Result</returns>
     public async Task<RefundPaymentResult> Refund(RefundPaymentRequest refundPaymentRequest)
     {
-        var result = new RefundPaymentResult();
-        result.AddError("Refund method not supported");
-        return await Task.FromResult(result);
+        var result = new RefundPaymentResult {
+            //a partial refund leaves the status to the handler, which compares the refunded amount with the total
+            NewTransactionStatus = refundPaymentRequest.IsPartialRefund
+                ? TransactionStatus.Pending
+                : TransactionStatus.Refunded
+        };
+        //a full refund leaves the amount to Stripe: the paid amount recorded here is the order total, which
+        //may round a cent away from what Stripe charged, and Stripe refuses a refund above the charge
+        var errors = await _stripeCheckoutService.Refund(refundPaymentRequest.PaymentTransaction,
+            refundPaymentRequest.IsPartialRefund ? refundPaymentRequest.AmountToRefund : null);
+        foreach (var error in errors)
+            result.AddError(error);
+
+        return result;
     }
 
     /// <summary>
@@ -199,7 +210,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     /// </summary>
     public async Task<bool> SupportPartiallyRefund()
     {
-        return await Task.FromResult(false);
+        return await Task.FromResult(true);
     }
 
     /// <summary>
@@ -207,7 +218,7 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     /// </summary>
     public async Task<bool> SupportRefund()
     {
-        return await Task.FromResult(false);
+        return await Task.FromResult(true);
     }
 
     /// <summary>
