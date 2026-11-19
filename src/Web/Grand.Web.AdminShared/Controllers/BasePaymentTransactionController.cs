@@ -581,7 +581,17 @@ public abstract class BasePaymentTransactionController(
         order.PurchaseOrderNumber = purchaseOrderNumber;
         //the due date is a calendar day; a date posted for an order paid at once must not put it on credit
         if (model.BoughtOnCredit)
-            order.PaymentDueDateUtc = DateTime.SpecifyKind(model.PaymentDueDate!.Value.Date, DateTimeKind.Utc);
+        {
+            var dueDate = DateTime.SpecifyKind(model.PaymentDueDate!.Value.Date, DateTimeKind.Utc);
+            //a new due date is a new term: the customer is reminded of it and told when it passes
+            if (order.PaymentDueDateUtc != dueDate)
+            {
+                order.PaymentReminderSentOnUtc = null;
+                order.PaymentOverdueNoticeSentOnUtc = null;
+            }
+
+            order.PaymentDueDateUtc = dueDate;
+        }
 
         await orderService.UpdateOrder(order);
 

@@ -372,6 +372,33 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
+    public async Task PaymentTermsPopup_Post_NewDueDate_RemindersSentAgain()
+    {
+        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+        order.PaymentReminderSentOnUtc = new DateTime(2026, 11, 10, 6, 0, 0, DateTimeKind.Utc);
+        order.PaymentOverdueNoticeSentOnUtc = new DateTime(2026, 11, 14, 6, 0, 0, DateTimeKind.Utc);
+
+        await _controller.PaymentTermsPopup("pt-1",
+            new PaymentTransactionModel { PurchaseOrderNumber = "PO-1", PaymentDueDate = new DateTime(2026, 12, 1) });
+
+        Assert.IsNull(order.PaymentReminderSentOnUtc);
+        Assert.IsNull(order.PaymentOverdueNoticeSentOnUtc);
+    }
+
+    [TestMethod]
+    public async Task PaymentTermsPopup_Post_SameDueDate_RemindersNotSentAgain()
+    {
+        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
+        var sentOn = new DateTime(2026, 11, 10, 6, 0, 0, DateTimeKind.Utc);
+        order.PaymentReminderSentOnUtc = sentOn;
+
+        await _controller.PaymentTermsPopup("pt-1",
+            new PaymentTransactionModel { PurchaseOrderNumber = "PO-2", PaymentDueDate = new DateTime(2026, 11, 13) });
+
+        Assert.AreEqual(sentOn, order.PaymentReminderSentOnUtc);
+    }
+
+    [TestMethod]
     public async Task PaymentTermsPopup_Post_EmptyNumber_ClearsIt()
     {
         var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
