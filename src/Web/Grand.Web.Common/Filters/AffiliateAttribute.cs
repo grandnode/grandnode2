@@ -3,6 +3,7 @@ using Grand.Data;
 using Grand.Domain.Affiliates;
 using Grand.Infrastructure;
 using Grand.Web.Common.RequestCustomerResolvers;
+using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Filters;
 
@@ -39,13 +40,21 @@ public class AffiliateAttribute : TypeFilterAttribute
         /// <param name="next">Action execution delegate</param>
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            //before the action: saving an unsaved guest after it would also save whatever the action changed on it
+            await SetAffiliateFromQuery(context.HttpContext.Request);
             await next();
+        }
 
+        #endregion
+
+        #region Utilities
+
+        private async Task SetAffiliateFromQuery(HttpRequest request)
+        {
             if (!DataSettingsManager.DatabaseIsInstalled())
                 return;
 
             //check request query parameters
-            var request = context.HttpContext.Request;
             if (!request.Query.Any())
                 return;
 
@@ -69,10 +78,6 @@ public class AffiliateAttribute : TypeFilterAttribute
                     await SetCustomerAffiliateId(await affiliateService.GetAffiliateByFriendlyUrlName(affiliateName));
             }
         }
-
-        #endregion
-
-        #region Utilities
 
         /// <summary>
         ///     Set the affiliate identifier of current customer

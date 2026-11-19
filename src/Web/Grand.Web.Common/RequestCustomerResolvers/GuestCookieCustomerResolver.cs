@@ -18,12 +18,18 @@ public class GuestCookieCustomerResolver(
     public async Task<Customer> Resolve()
     {
         var cookie = await authenticationService.GetCustomerGuid();
-        if (!GuestCustomerRules.TryParseCookie(cookie, out var customerGuid)) return null;
+        //transition, removed in 2.6: a cookie written before it was protected still finds its existing guest
+        //(never creates one) and is rewritten protected, so guests keep their carts across the upgrade
+        var legacyCookie = cookie == null ? await authenticationService.GetLegacyCustomerGuid() : null;
+        if (!GuestCustomerRules.TryParseCookie(cookie ?? legacyCookie, out var customerGuid)) return null;
 
         var customerByGuid = await customerService.GetCustomerByGuid(customerGuid);
-        if (customerByGuid != null && await GuestCustomerRules.IsAcceptableGuest(customerByGuid, groupService))
-            return customerByGuid;
+        if (customerByGuid == null || !await GuestCustomerRules.IsAcceptableGuest(customerByGuid, groupService))
+            return null;
 
-        return null;
+        if (legacyCookie != null)
+            await authenticationService.SetCustomerGuid(customerByGuid.CustomerGuid);
+
+        return customerByGuid;
     }
 }

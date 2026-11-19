@@ -60,18 +60,19 @@ public class PersistGuestCustomerAttributeTests
     }
 
     [TestMethod]
-    public async Task Affiliate_LandingWithAffiliateId_PersistsThenWrites()
+    public async Task Affiliate_LandingWithAffiliateId_PersistsAndWritesBeforeTheAction()
     {
         var customer = new Customer { Id = "g1" };
         var (filter, customerService) = AffiliateFilter(customer,
             new Affiliate { Id = "aff", Active = true });
         customerService.Setup(c => c.UpdateCustomerField("g1", It.IsAny<Expression<Func<Customer, string>>>(), "aff"))
             .Callback(() => _order.Add("write")).Returns(Task.CompletedTask);
-        var (executing, next) = Context("?affiliateid=aff", () => { });
+        var (executing, next) = Context("?affiliateid=aff", () => _order.Add("action"));
 
         await filter.OnActionExecutionAsync(executing, next);
 
-        CollectionAssert.AreEqual(new[] { "persist", "write" }, _order);
+        //the guest is saved as it came in, not with whatever the action changed on it
+        CollectionAssert.AreEqual(new[] { "persist", "write", "action" }, _order);
     }
 
     [TestMethod]
