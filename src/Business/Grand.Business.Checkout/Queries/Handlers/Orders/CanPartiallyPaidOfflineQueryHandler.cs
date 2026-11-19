@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Queries.Checkout.Orders;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
 
@@ -16,7 +17,7 @@ public class CanPartiallyPaidOfflineQueryHandler : IRequestHandler<CanPartiallyP
         if (paymentTransaction.TransactionAmount == 0)
             return Task.FromResult(false);
 
-        var canBePaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
+        var canBePaid = paymentTransaction.AmountLeftToPay();
         if (canBePaid <= 0)
             return Task.FromResult(false);
 

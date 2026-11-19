@@ -47,6 +47,12 @@ public interface IGrandAuthenticationService
     Task<string> GetCustomerGuid();
 
     /// <summary>
+    ///     The customer guid of a guest cookie written before the cookie was protected (a bare GUID); null otherwise.
+    ///     Transition only, removed in 2.6
+    /// </summary>
+    Task<string> GetLegacyCustomerGuid() => Task.FromResult<string>(null);
+
+    /// <summary>
     ///     Set customer guid
     /// </summary>
     /// <param name="customerGuid">Guid of the customer</param>

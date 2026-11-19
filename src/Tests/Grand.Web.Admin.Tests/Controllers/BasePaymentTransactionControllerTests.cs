@@ -2,11 +2,14 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
+using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.SharedKernel;
@@ -38,13 +41,18 @@ public class BasePaymentTransactionControllerTests
         IEnumTranslationService enumTranslationService,
         IAdminDataScope<PaymentTransaction> scope,
         IContextAccessor contextAccessor,
-        IPaymentTransactionHistoryService paymentTransactionHistoryService)
+        IPaymentTransactionHistoryService paymentTransactionHistoryService,
+        IPaymentService paymentService,
+        IStoreService storeService,
+        IOrderStatusService orderStatusService)
         : BasePaymentTransactionController(paymentTransactionService, orderService, translationService,
             dateTimeService, mediator, enumTranslationService, scope, contextAccessor,
-            paymentTransactionHistoryService);
+            paymentTransactionHistoryService, paymentService, storeService, orderStatusService);
 
     private TestPaymentTransactionController _controller;
     private Mock<IPaymentTransactionHistoryService> _historyMock;
+    private Mock<IPaymentService> _paymentServiceMock;
+    private Mock<IStoreService> _storeServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IAdminDataScope<PaymentTransaction>> _scopeMock;
@@ -88,10 +96,25 @@ public class BasePaymentTransactionControllerTests
         _historyMock = new Mock<IPaymentTransactionHistoryService>();
         _historyMock.Setup(h => h.GetEntries(It.IsAny<string>())).ReturnsAsync(new List<PaymentTransactionEntry>());
 
+        var onAccount = new Mock<IPaymentProvider>();
+        onAccount.Setup(p => p.SystemName).Returns("Payments.OnAccount");
+        onAccount.Setup(p => p.FriendlyName).Returns("On account");
+        _paymentServiceMock = new Mock<IPaymentService>();
+        _paymentServiceMock
+            .Setup(p => p.LoadAllPaymentMethods(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<IPaymentProvider> { onAccount.Object });
+
+        _paymentServiceMock.Setup(p => p.LoadPaymentMethodBySystemName("Payments.OnAccount")).Returns(onAccount.Object);
+        _storeServiceMock = new Mock<IStoreService>();
+        _storeServiceMock.Setup(s => s.GetStoreById("s1")).ReturnsAsync(new Store { Id = "s1", Name = "Main" });
+        var orderStatusServiceMock = new Mock<IOrderStatusService>();
+        orderStatusServiceMock.Setup(s => s.GetByStatusId(10)).ReturnsAsync(new OrderStatus { StatusId = 10, Name = "Pending" });
+
         _controller = new TestPaymentTransactionController(
             _paymentTransactionServiceMock.Object, _orderServiceMock.Object, _translationServiceMock.Object,
             dateTimeServiceMock.Object, _mediatorMock.Object, enumTranslationServiceMock.Object, _scopeMock.Object,
-            contextAccessorMock.Object, _historyMock.Object);
+            contextAccessorMock.Object, _historyMock.Object, _paymentServiceMock.Object, _storeServiceMock.Object,
+            orderStatusServiceMock.Object);
 
         // Error()/Success() (used by this task's popup and Delete actions) reach into
         // HttpContext.RequestServices for ILoggerFactory and into TempData - wire up the same
@@ -110,9 +133,9 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
-    public void List_ReturnsViewWithPreparedModel()
+    public async Task List_ReturnsViewWithPreparedModel()
     {
-        var result = _controller.List() as ViewResult;
+        var result = await _controller.List() as ViewResult;
 
         Assert.IsNotNull(result);
         Assert.IsInstanceOfType(result!.Model, typeof(PaymentTransactionListModel));
@@ -128,6 +151,62 @@ public class BasePaymentTransactionControllerTests
         await _controller.List(new DataSourceRequest { Page = 1, PageSize = int.MaxValue }, model);
 
         Assert.IsNull(model.StoreId);
+    }
+
+    [TestMethod]
+    public async Task List_ListsPaymentMethodsAfterAll()
+    {
+        var model = (PaymentTransactionListModel)((ViewResult)await _controller.List()).Model;
+
+        Assert.AreEqual(2, model.AvailablePaymentMethods.Count);
+        Assert.AreEqual(" ", model.AvailablePaymentMethods[0].Value);
+        Assert.AreEqual("Payments.OnAccount", model.AvailablePaymentMethods[1].Value);
+        Assert.AreEqual("On account", model.AvailablePaymentMethods[1].Text);
+    }
+
+    [TestMethod]
+    [DataRow(null, "")]
+    [DataRow("store-1", "store-1")]
+    public async Task List_ListsThePaymentMethodsOfTheScopedStore(string defaultStoreId, string storeId)
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns(defaultStoreId);
+
+        await _controller.List();
+
+        _paymentServiceMock.Verify(p => p.LoadAllPaymentMethods(null, storeId, ""), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task List_Post_PassesTheNewFilters()
+    {
+        SetupSearch();
+
+        await _controller.List(new DataSourceRequest { Page = 1, PageSize = int.MaxValue },
+            new PaymentTransactionListModel {
+                PaymentMethodSystemName = "Payments.OnAccount", PurchaseOrderNumber = "PO-7", OverdueOnly = true
+            });
+
+        _mediatorMock.Verify(m => m.Send(It.Is<GetPaymentTransactionQuery>(q =>
+                q.PaymentMethodSystemName == "Payments.OnAccount" && q.PurchaseOrderNumber == "PO-7" && q.OverdueOnly),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task List_Post_UnknownOrderNumber_ReturnsEmptyWithoutSearching()
+    {
+        SetupSearch();
+        _orderServiceMock.Setup(s => s.GetOrderByNumber(999)).ReturnsAsync((Order)null);
+        var command = new DataSourceRequest { Page = 1, PageSize = int.MaxValue };
+
+        foreach (var orderNumber in new[] { "999", "abc" })
+        {
+            var result = await _controller.List(command, new PaymentTransactionListModel { OrderNumber = orderNumber });
+
+            Assert.AreEqual(0, ((DataSourceResult)((JsonResult)result).Value!).Total);
+        }
+
+        _mediatorMock.Verify(m => m.Send(It.IsAny<GetPaymentTransactionQuery>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private void SetupSearch()
@@ -207,6 +286,16 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
+    public async Task GoToOrderNumber_UnreadableNumber_RedirectsToListWithoutLookingItUp()
+    {
+        var result = await _controller.GoToOrderNumber(new PaymentTransactionListModel { OrderNumber = "abc" }) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result!.ActionName);
+        _orderServiceMock.Verify(s => s.GetOrderByNumber(It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Edit_DeniedByScope_RedirectsToList()
     {
         _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
@@ -232,6 +321,135 @@ public class BasePaymentTransactionControllerTests
         Assert.IsNotNull(model);
         Assert.AreEqual("pt-1", model!.Id);
         Assert.AreEqual(80, model.MaxAmountToRefund);
+    }
+
+    private async Task<PaymentTransactionModel> EditModel(PaymentTransaction transaction, Order order)
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById(transaction.Id)).ReturnsAsync(transaction);
+        _orderServiceMock.Setup(s => s.GetOrderByGuid(transaction.OrderGuid)).ReturnsAsync(order);
+
+        var result = await _controller.Edit(transaction.Id) as ViewResult;
+
+        Assert.IsNotNull(result);
+        return (PaymentTransactionModel)result!.Model;
+    }
+
+    [TestMethod]
+    public async Task Edit_MapsGatewayFieldsAmountsAndErrors()
+    {
+        var model = await EditModel(new PaymentTransaction {
+            Id = "pt-1", OrderGuid = Guid.NewGuid(), PaymentMethodSystemName = "Payments.OnAccount",
+            TransactionAmount = 100, PaidAmount = 40, RefundedAmount = 10, CurrencyRate = 4.2,
+            AuthorizationTransactionCode = "A1", AuthorizationTransactionResult = "ok",
+            CaptureTransactionId = "C1", CaptureTransactionResult = "done",
+            Errors = new List<string> { "declined" }, CustomValues = new Dictionary<string, object> { ["IBAN"] = "PL61" },
+            Temp = true, UpdatedOnUtc = new DateTime(2026, 11, 19, 8, 0, 0, DateTimeKind.Utc)
+        }, null);
+
+        Assert.AreEqual(4.2, model.CurrencyRate);
+        Assert.AreEqual("A1", model.AuthorizationTransactionCode);
+        Assert.AreEqual("ok", model.AuthorizationTransactionResult);
+        Assert.AreEqual("C1", model.CaptureTransactionId);
+        Assert.AreEqual("done", model.CaptureTransactionResult);
+        Assert.AreEqual("declined", model.Errors.Single());
+        Assert.AreEqual("PL61", model.CustomValues["IBAN"]);
+        Assert.IsTrue(model.CheckoutNotCompleted);
+        Assert.IsNotNull(model.UpdatedOn);
+        Assert.AreEqual("On account", model.PaymentMethodName);
+    }
+
+    [TestMethod]
+    public async Task Edit_AmountDue_OnlyWhileTheTransactionCanBePaid()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 40 };
+
+        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountDue);
+
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default)).ReturnsAsync(true);
+        Assert.AreEqual(60, (await EditModel(transaction, null)).AmountDue);
+
+        //a checkout never completed owes nothing
+        transaction.Temp = true;
+        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountDue);
+    }
+
+    [TestMethod]
+    public async Task Edit_AmountRefundable_IsTheRefundLimit_OnlyWhileARefundCanBeMade()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 40, RefundedAmount = 10 };
+
+        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountRefundable);
+
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanPartiallyRefundOfflineQuery>(), default)).ReturnsAsync(true);
+        var model = await EditModel(transaction, null);
+        Assert.AreEqual(90, model.AmountRefundable);
+        Assert.AreEqual(model.MaxAmountToRefund, model.AmountRefundable);
+    }
+
+    [TestMethod]
+    public async Task Edit_PaidInPartsToTheFullAmount_LeavesNothingToPay()
+    {
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default)).ReturnsAsync(true);
+
+        //0.7 + 0.1 + 0.1 + 0.1 adds up to a hair below 1
+        var model = await EditModel(new PaymentTransaction { Id = "pt-1", TransactionAmount = 1, PaidAmount = 0.7 + 0.1 + 0.1 + 0.1 },
+            null);
+
+        Assert.AreEqual(0, model.AmountDue);
+        Assert.AreEqual(0, model.MaxAmountToPaid);
+    }
+
+    [TestMethod]
+    public async Task Edit_MapsOrderData()
+    {
+        _enumTranslationServiceMock.Setup(e => e.GetTranslationEnum(PaymentStatus.PartiallyPaid)).Returns("Partially paid");
+
+        var model = await EditModel(new PaymentTransaction { Id = "pt-1", OrderGuid = Guid.NewGuid() }, new Order {
+            Id = "order-1", OrderStatusId = 10, PaymentStatusId = PaymentStatus.PartiallyPaid, OrderTotal = 100,
+            CustomerCurrencyCode = "PLN",
+            BillingAddress = new Address { Company = "", FirstName = "Jan", LastName = "Nowak" }
+        });
+
+        Assert.AreEqual("Pending", model.OrderStatus);
+        Assert.AreEqual("Partially paid", model.OrderPaymentStatus);
+        Assert.AreEqual(100, model.OrderTotal);
+        Assert.AreEqual("PLN", model.OrderCurrencyCode);
+        Assert.AreEqual("Jan Nowak", model.BillingName);
+    }
+
+    [TestMethod]
+    public async Task Edit_BillingName_PrefersTheCompany()
+    {
+        var model = await EditModel(new PaymentTransaction { Id = "pt-1", OrderGuid = Guid.NewGuid() }, new Order {
+            Id = "order-1", BillingAddress = new Address { Company = "ACME", FirstName = "Jan", LastName = "Nowak" }
+        });
+
+        Assert.AreEqual("ACME", model.BillingName);
+    }
+
+    [TestMethod]
+    public async Task Edit_StoreName_OnlyWithoutStoreScope()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", StoreId = "s1" };
+
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
+        Assert.AreEqual("Main", (await EditModel(transaction, null)).StoreName);
+
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns("s1");
+        Assert.IsNull((await EditModel(transaction, null)).StoreName);
+    }
+
+    [TestMethod]
+    public async Task Edit_WithoutOrderOrPaymentPlugin_StillRenders()
+    {
+        var model = await EditModel(
+            new PaymentTransaction { Id = "pt-1", OrderGuid = Guid.NewGuid(), PaymentMethodSystemName = "Payments.Gone" },
+            null);
+
+        Assert.IsNull(model.OrderStatus);
+        Assert.IsNull(model.OrderTotal);
+        Assert.IsNull(model.BillingName);
+        Assert.AreEqual("Payments.Gone", model.PaymentMethodName);
     }
 
     [TestMethod]

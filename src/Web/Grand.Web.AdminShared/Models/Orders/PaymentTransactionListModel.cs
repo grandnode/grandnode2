@@ -24,10 +24,20 @@ public class PaymentTransactionListModel : BaseModel
     [UIHint("DateNullable")]
     public DateTime? EndDate { get; set; }
 
+    [GrandResourceDisplayName("Admin.Orders.List.PaymentMethod")]
+    public string PaymentMethodSystemName { get; set; }
+
+    [GrandResourceDisplayName("Admin.Orders.List.PurchaseOrderNumber")]
+    public string PurchaseOrderNumber { get; set; }
+
+    [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.OverdueOnly")]
+    public bool OverdueOnly { get; set; }
+
     [GrandResourceDisplayName("Admin.Orders.PaymentTransaction.List.ShowAbandoned")]
     public bool ShowAbandoned { get; set; }
 
     public string StoreId { get; set; }
 
     public IList<SelectListItem> PaymentTransactionStatus { get; set; } = new List<SelectListItem>();
+    public IList<SelectListItem> AvailablePaymentMethods { get; set; } = new List<SelectListItem>();
 }

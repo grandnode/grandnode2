@@ -87,4 +87,56 @@ public class PaymentExtensionsTests
         var order = new Order { PaymentMethodSystemName = "Payments.Test" };
         Assert.AreEqual("Payments.Test", provider.GetPaymentMethodName(order));
     }
+
+    [TestMethod]
+    public void AmountLeftToPay_PaidInPartsToTheFullAmount_NothingLeft()
+    {
+        //0.7 + 0.1 + 0.1 + 0.1 adds up to a hair below 1
+        var paymentTransaction = new PaymentTransaction { TransactionAmount = 1, PaidAmount = 0.7 + 0.1 + 0.1 + 0.1 };
+        Assert.AreEqual(0, paymentTransaction.AmountLeftToPay());
+    }
+
+    [TestMethod]
+    public void AmountLeftToPay_KeepsAThirdDecimal()
+    {
+        var paymentTransaction = new PaymentTransaction { TransactionAmount = 10.005, PaidAmount = 10 };
+        Assert.AreEqual(0.005, paymentTransaction.AmountLeftToPay(), 1e-9);
+    }
+
+    [TestMethod]
+    public void AmountLeftToRefund_IsTheTransactionAmountLessTheRefunds_NeverBelowZero()
+    {
+        Assert.AreEqual(90, new PaymentTransaction { TransactionAmount = 100, PaidAmount = 40, RefundedAmount = 10 }
+            .AmountLeftToRefund());
+        Assert.AreEqual(0, new PaymentTransaction { TransactionAmount = 100, RefundedAmount = 120 }.AmountLeftToRefund());
+    }
+
+    [TestMethod]
+    public void WherePaymentOverdue_MatchesIsPaymentOverdue()
+    {
+        var now = new DateTime(2026, 11, 19, 10, 0, 0, DateTimeKind.Utc);
+        var orders = new List<Order> {
+            new() { Id = "overdue", PaymentDueDateUtc = now.Date.AddDays(-1), PaymentStatusId = PaymentStatus.Pending },
+            new() { Id = "dueToday", PaymentDueDateUtc = now.Date, PaymentStatusId = PaymentStatus.Pending },
+            new() { Id = "paid", PaymentDueDateUtc = now.Date.AddDays(-1), PaymentStatusId = PaymentStatus.Paid },
+            new() { Id = "paidAtOnce", PaymentStatusId = PaymentStatus.Pending }
+        };
+
+        var overdue = orders.AsQueryable().WherePaymentOverdue(now).Select(o => o.Id).ToList();
+
+        CollectionAssert.AreEqual(new[] { "overdue" }, overdue);
+        CollectionAssert.AreEqual(orders.Where(o => o.IsPaymentOverdue(now)).Select(o => o.Id).ToList(), overdue);
+    }
+
+    [TestMethod]
+    public void WherePurchaseOrderNumber_MatchesTheTrimmedNumberExactly()
+    {
+        var orders = new List<Order> {
+            new() { Id = "a", PurchaseOrderNumber = "PO-7" },
+            new() { Id = "b", PurchaseOrderNumber = "PO-77" }
+        };
+
+        CollectionAssert.AreEqual(new[] { "a" },
+            orders.AsQueryable().WherePurchaseOrderNumber(" PO-7 ").Select(o => o.Id).ToList());
+    }
 }

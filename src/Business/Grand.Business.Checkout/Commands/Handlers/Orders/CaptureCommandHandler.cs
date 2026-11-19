@@ -59,7 +59,7 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
                 paymentTransaction = await _paymentTransaction.GetById(paymentTransaction.Id);
                 //a capture the gateway settles later is not money in yet: it is paid, and recorded, when it is
                 var captured = result.NewPaymentStatus == TransactionStatus.Paid
-                    ? paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount
+                    ? paymentTransaction.AmountLeftToPay()
                     : 0;
                 paymentTransaction.PaidAmount += captured;
                 paymentTransaction.CaptureTransactionId = result.CaptureTransactionId;

@@ -22,6 +22,7 @@ using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
@@ -218,9 +219,7 @@ public class OrderViewModelService : IOrderViewModelService
             model.AvailableWarehouses.Add(new SelectListItem { Text = w.Name, Value = w.Id });
 
         //payment methods
-        model.AvailablePaymentMethods.Add(new SelectListItem { Text = _translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var pm in await _paymentService.LoadAllPaymentMethods())
-            model.AvailablePaymentMethods.Add(new SelectListItem { Text = pm.FriendlyName, Value = pm.SystemName });
+        model.AvailablePaymentMethods = await _paymentService.PaymentMethodSelectList(_translationService, storeId);
 
         //billing countries
         foreach (var c in await _countryService.GetAllCountriesForBilling(showHidden: true))

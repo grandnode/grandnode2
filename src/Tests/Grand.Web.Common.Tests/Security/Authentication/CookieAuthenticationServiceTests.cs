@@ -7,6 +7,7 @@ using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
 using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -31,6 +32,7 @@ public class CookieAuthenticationServiceTests
     private Mock<IOidcSessionService> _oidcSessionService;
     private Mock<IExternalSignInPolicy> _signInPolicy;
     private Mock<IOidcLinkService> _linkService;
+    private IDataProtectionProvider _dataProtectionProvider;
 
     [TestInitialize]
     public void Init()
@@ -51,6 +53,7 @@ public class CookieAuthenticationServiceTests
         _linkService.Setup(x => x.LinksMatchProvider()).ReturnsAsync(true);
         _signInPolicy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), It.IsAny<SignInSurface>()))
             .ReturnsAsync(PasswordSignInDecision.Password);
+        _dataProtectionProvider = new EphemeralDataProtectionProvider();
         _cookieAuthService = NewService();
         //For mock HttpContext extension methods like SignOutAsync ,SignInAsync etc..
         _authServiceMock = new Mock<IAuthenticationService>();
@@ -208,8 +211,68 @@ public class CookieAuthenticationServiceTests
 
     private CookieAuthenticationService NewService() => new(_customerSettings, _customerServiceMock.Object,
         _groupServiceMock.Object, _httpAccessorMock.Object, _cookieOptionsFactory, _config,
-        _oidcSessionService.Object, _signInPolicy.Object, _linkService.Object,
+        _oidcSessionService.Object, _signInPolicy.Object, _linkService.Object, _dataProtectionProvider,
         NullLogger<CookieAuthenticationService>.Instance);
+
+    [TestMethod]
+    public async Task SetCustomerGuid_CookieIsNotTheBareGuid_AndReadsBack()
+    {
+        var customerGuid = Guid.NewGuid();
+
+        await _cookieAuthService.SetCustomerGuid(customerGuid);
+
+        //the old cookie is deleted first: the last header is the one the browser keeps
+        var setCookie = _httpContext.Response.Headers.SetCookie.Last();
+        Assert.StartsWith(".Grand.Customer=", setCookie);
+        Assert.DoesNotContain(customerGuid.ToString(), setCookie);
+
+        var value = setCookie.Split(";")[0].Split("=", 2)[1];
+        _httpContext.Request.Headers.Cookie = $".Grand.Customer={value}";
+        Assert.AreEqual(customerGuid.ToString(), await _cookieAuthService.GetCustomerGuid());
+    }
+
+    [TestMethod]
+    public async Task GetCustomerGuid_BareGuid_IsNotAccepted()
+    {
+        //a customer GUID is public (the shared wishlist URL): on its own it never identifies the guest
+        _httpContext.Request.Headers.Cookie = $".Grand.Customer={Guid.NewGuid()}";
+
+        Assert.IsNull(await _cookieAuthService.GetCustomerGuid());
+    }
+
+    [TestMethod]
+    public async Task GetCustomerGuid_ProtectedByAnotherKey_IsNotAccepted()
+    {
+        var otherStore = new EphemeralDataProtectionProvider().CreateProtector("Grand.Web.Customer.Guest");
+        _httpContext.Request.Headers.Cookie = $".Grand.Customer={otherStore.Protect(Guid.NewGuid().ToString())}";
+
+        Assert.IsNull(await _cookieAuthService.GetCustomerGuid());
+    }
+
+    [TestMethod]
+    public async Task GetCustomerGuid_NoCookie_Null()
+    {
+        Assert.IsNull(await _cookieAuthService.GetCustomerGuid());
+    }
+
+    [TestMethod]
+    public async Task GetLegacyCustomerGuid_BareGuid_ReturnsIt()
+    {
+        var customerGuid = Guid.NewGuid();
+        _httpContext.Request.Headers.Cookie = $".Grand.Customer={customerGuid}";
+
+        Assert.AreEqual(customerGuid.ToString(), await _cookieAuthService.GetLegacyCustomerGuid());
+    }
+
+    [TestMethod]
+    public async Task GetLegacyCustomerGuid_ProtectedCookie_Null()
+    {
+        await _cookieAuthService.SetCustomerGuid(Guid.NewGuid());
+        var value = _httpContext.Response.Headers.SetCookie.Last().Split(";")[0].Split("=", 2)[1];
+        _httpContext.Request.Headers.Cookie = $".Grand.Customer={value}";
+
+        Assert.IsNull(await _cookieAuthService.GetLegacyCustomerGuid());
+    }
 
     [TestMethod]
     public async Task GetAuthenticatedCustomer_NoSessionClaim_SessionServiceNotAsked()
