@@ -4,7 +4,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Models.Customer;
 using Grand.Web.Common.Localization;
@@ -19,13 +18,11 @@ public class PasswordRecoveryConfirmValidator : BaseGrandValidator<PasswordRecov
         ICustomerManagerService customerManagerService,
         ICustomerHistoryPasswordService customerHistoryPasswordService,
         IRequestTranslationService translationService, CustomerSettings customerSettings,
-        IContextAccessor contextAccessor, CustomerConfig customerConfig,
+        IContextAccessor contextAccessor,
         IExternalSignInPolicy externalSignInPolicy)
         : base(validators)
     {
-        var storeId = customerConfig.RegisterCustomersPerStore
-            ? contextAccessor.StoreContext.CurrentStore.Id
-            : "";
+        var storeId = contextAccessor.StoreContext.CurrentStore.Id;
 
         RuleFor(x => x.NewPassword).NotEmpty()
             .WithMessage(translationService.GetResource("Account.PasswordRecovery.NewPassword.Required"));

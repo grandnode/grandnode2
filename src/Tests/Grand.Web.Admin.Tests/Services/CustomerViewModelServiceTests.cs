@@ -571,7 +571,7 @@ public class CustomerViewModelServiceTests
     [TestMethod]
     public async Task InsertCustomerModel_WithOwner_LinksIt()
     {
-        _customerServiceMock.Setup(c => c.GetCustomerByEmail("boss@firm.com", ""))
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("boss@firm.com", It.IsAny<string>()))
             .ReturnsAsync(new Customer { Id = "owner-1" });
 
         var customer = await _customerViewModelService.InsertCustomerModel(

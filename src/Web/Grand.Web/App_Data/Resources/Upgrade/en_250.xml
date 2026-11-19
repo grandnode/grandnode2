@@ -66,6 +66,12 @@
 	<Resource Name="Account.AssociatedExternalAuth.RegistrationDisabled" Area="Front">
 		<Value>Registration of new customers is disabled, so this external account cannot be used to create one.</Value>
 	</Resource>
+	<Resource Name="Account.AssociatedExternalAuth.EmailAlreadyExists" Area="Front">
+		<Value>An account with this e-mail address already exists. Sign in to it (recover the password if you never set one), then sign in with this external account again to connect it.</Value>
+	</Resource>
+	<Resource Name="Account.AssociatedExternalAuth.EmailRequired" Area="Front">
+		<Value>This external account did not share an e-mail address, which a new customer account needs. Allow access to your e-mail address and try again, or register with the form.</Value>
+	</Resource>
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.Authority" Area="Admin">
 		<Value>Identity provider (Authority)</Value>
 	</Resource>

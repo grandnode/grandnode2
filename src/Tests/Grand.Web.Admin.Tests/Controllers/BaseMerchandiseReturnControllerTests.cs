@@ -1240,7 +1240,6 @@ public class BaseMerchandiseReturnControllerTests
             new Grand.Domain.Orders.OrderSettings(),
             new Mock<Grand.Web.Common.Localization.IEnumTranslationService>().Object,
             new Mock<IContextAccessor>().Object,
-            new Grand.Infrastructure.Configuration.CustomerConfig(),
             _scopeMock.Object,
             workflow,
             labelService,

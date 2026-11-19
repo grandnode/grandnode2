@@ -37,8 +37,7 @@ public class TokenWebController : ControllerBase
         IRefreshTokenService refreshTokenService,
         IExternalSignInPolicy externalSignInPolicy,
         IAntiforgery antiforgery,
-        FrontendAPIConfig apiConfig,
-        CustomerConfig customerConfig)
+        FrontendAPIConfig apiConfig)
     {
         _customerService = customerService;
         _mediator = mediator;
@@ -47,16 +46,7 @@ public class TokenWebController : ControllerBase
         _externalSignInPolicy = externalSignInPolicy;
         _antiforgery = antiforgery;
         _apiConfig = apiConfig;
-        _customerConfig = customerConfig;
     }
-
-    private readonly CustomerConfig _customerConfig;
-
-    /// <summary>
-    ///     The current store id when per-store customer identity is enabled, otherwise empty (global lookup).
-    /// </summary>
-    private string CustomerStoreId =>
-        _customerConfig.RegisterCustomersPerStore ? _contextAccessor.StoreContext.CurrentStore.Id : "";
 
     [AllowAnonymous]
     [IgnoreAntiforgeryToken]
@@ -93,7 +83,7 @@ public class TokenWebController : ControllerBase
 
         try
         {
-            var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
+            var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id);
             var claims = new Dictionary<string, string> {
                 { "CustomerId", customer.Id },
                 { "Email", model.Email },

@@ -108,8 +108,8 @@ public interface ICustomerService
 
     /// <summary>
     ///     Get customer by email.
-    ///     When <paramref name="storeId" /> is supplied (per-store customer identity) the lookup is scoped to
-    ///     that store; when it is empty the customer is resolved globally (default behaviour).
+    ///     With per-store customer identity a supplied <paramref name="storeId" /> scopes the lookup to that store
+    ///     (and the store-independent accounts); otherwise, or when it is empty, the customer is resolved globally.
     /// </summary>
     /// <param name="email">Email</param>
     /// <param name="storeId">Store identifier (optional)</param>
@@ -125,8 +125,8 @@ public interface ICustomerService
 
     /// <summary>
     ///     Get customer by username.
-    ///     When <paramref name="storeId" /> is supplied (per-store customer identity) the lookup is scoped to
-    ///     that store; when it is empty the customer is resolved globally (default behaviour).
+    ///     With per-store customer identity a supplied <paramref name="storeId" /> scopes the lookup to that store
+    ///     (and the store-independent accounts); otherwise, or when it is empty, the customer is resolved globally.
     /// </summary>
     /// <param name="username">Username</param>
     /// <param name="storeId">Store identifier (optional)</param>

@@ -23,7 +23,6 @@ using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
@@ -62,7 +61,7 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task PrepareMerchandiseReturnModel_RegisterCustomersPerStore_ScopesEmailLookupToCurrentStore()
+    public async Task PrepareMerchandiseReturnModel_ScopesEmailLookupToCurrentStore()
     {
         var customerServiceMock = new Mock<ICustomerService>();
         customerServiceMock
@@ -74,9 +73,7 @@ public class MerchandiseReturnViewModelServiceTests
         var contextAccessorMock = new Mock<IContextAccessor>();
         contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
 
-        var customerConfig = new CustomerConfig { RegisterCustomersPerStore = true };
-
-        var service = Build(customerServiceMock.Object, contextAccessorMock.Object, customerConfig);
+        var service = Build(customerServiceMock.Object, contextAccessorMock.Object);
 
         var model = new MerchandiseReturnListModel { SearchCustomerEmail = "Test@Example.com" };
         await service.PrepareMerchandiseReturnModel(model, 1, 10);
@@ -84,25 +81,6 @@ public class MerchandiseReturnViewModelServiceTests
         // ToLowerInvariant() is kept (spec §2.4: AdminShared's existing lower-casing survives;
         // Vendor's omission of it was the drift, not the other way around).
         customerServiceMock.Verify(c => c.GetCustomerByEmail("test@example.com", "store-1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task PrepareMerchandiseReturnModel_RegisterCustomersPerStoreDisabled_LooksUpAcrossAllStores()
-    {
-        var customerServiceMock = new Mock<ICustomerService>();
-        customerServiceMock
-            .Setup(c => c.GetCustomerByEmail("test@example.com", ""))
-            .ReturnsAsync(new Customer { Id = "customer-1" });
-
-        var contextAccessorMock = new Mock<IContextAccessor>();
-        var customerConfig = new CustomerConfig { RegisterCustomersPerStore = false };
-
-        var service = Build(customerServiceMock.Object, contextAccessorMock.Object, customerConfig);
-
-        var model = new MerchandiseReturnListModel { SearchCustomerEmail = "Test@Example.com" };
-        await service.PrepareMerchandiseReturnModel(model, 1, 10);
-
-        customerServiceMock.Verify(c => c.GetCustomerByEmail("test@example.com", ""), Times.Once);
     }
 
     [TestMethod]
@@ -198,7 +176,6 @@ public class MerchandiseReturnViewModelServiceTests
             new OrderSettings(),
             enumTranslation.Object,
             contextAccessor.Object,
-            new CustomerConfig(),
             mocks.Scope.Object,
             new Mock<IMerchandiseReturnWorkflowService>().Object,
             new Mock<IMerchandiseReturnLabelService>().Object,
@@ -323,7 +300,7 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static MerchandiseReturnViewModelService Build(ICustomerService customerService,
-        IContextAccessor contextAccessor, CustomerConfig customerConfig)
+        IContextAccessor contextAccessor)
     {
         var orderServiceMock = new Mock<IOrderService>();
         var productServiceMock = new Mock<IProductService>();
@@ -368,7 +345,6 @@ public class MerchandiseReturnViewModelServiceTests
             orderSettings,
             enumTranslationServiceMock.Object,
             contextAccessor,
-            customerConfig,
             scopeMock.Object,
             new Mock<IMerchandiseReturnWorkflowService>().Object,
             new Mock<IMerchandiseReturnLabelService>().Object,
@@ -404,7 +380,6 @@ public class MerchandiseReturnViewModelServiceTests
         var downloadServiceMock = new Mock<IDownloadService>();
         var orderSettings = new OrderSettings();
         var enumTranslationServiceMock = new Mock<IEnumTranslationService>();
-        var customerConfig = new CustomerConfig();
 
         return new MerchandiseReturnViewModelService(
             orderServiceMock.Object,
@@ -423,7 +398,6 @@ public class MerchandiseReturnViewModelServiceTests
             orderSettings,
             enumTranslationServiceMock.Object,
             contextAccessor,
-            customerConfig,
             scope,
             new Mock<IMerchandiseReturnWorkflowService>().Object,
             new Mock<IMerchandiseReturnLabelService>().Object,
@@ -496,7 +470,6 @@ public class MerchandiseReturnViewModelServiceTests
             new OrderSettings(),
             enumTranslationServiceMock.Object,
             contextAccessor.Object,
-            new CustomerConfig(),
             scopeMock.Object,
             workflowMock.Object,
             labelServiceMock.Object,
@@ -814,7 +787,6 @@ public class MerchandiseReturnViewModelServiceTests
             new OrderSettings(),
             enumTranslation.Object,
             contextAccessor.Object,
-            new CustomerConfig(),
             new Mock<IAdminDataScope<MerchandiseReturn>>().Object,
             new Mock<IMerchandiseReturnWorkflowService>().Object,
             new Mock<IMerchandiseReturnLabelService>().Object,
@@ -1068,7 +1040,6 @@ public class MerchandiseReturnViewModelServiceTests
             new OrderSettings(),
             new Mock<IEnumTranslationService>().Object,
             contextAccessor.Object,
-            new CustomerConfig(),
             scopeMock.Object,
             mocks.Workflow.Object,
             mocks.LabelService.Object,
@@ -1286,7 +1257,6 @@ public class MerchandiseReturnViewModelServiceTests
             new OrderSettings(),
             new Mock<IEnumTranslationService>().Object,
             contextAccessor.Object,
-            new CustomerConfig(),
             scopeMock.Object,
             new Mock<IMerchandiseReturnWorkflowService>().Object,
             new Mock<IMerchandiseReturnLabelService>().Object,

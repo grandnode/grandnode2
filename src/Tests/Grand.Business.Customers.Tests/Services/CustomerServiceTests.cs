@@ -281,23 +281,32 @@ public class CustomerServiceTests
     }
 
     [TestMethod]
-    public async Task GetCustomerByEmail_PerStoreOff_StoreScoped_ReturnsExactStoreMatch()
+    public async Task GetCustomerByEmail_PerStoreOff_StoreIgnored_FindsCustomerOfAnotherStore()
     {
         var service = CreateService(registerCustomersPerStore: false);
         await _repository.InsertAsync(new Customer { Email = "user@email.com", StoreId = "store-1" });
-        var result = await service.GetCustomerByEmail("user@email.com", "store-1");
+        var result = await service.GetCustomerByEmail("user@email.com", "store-2");
         Assert.IsNotNull(result);
         Assert.AreEqual("store-1", result.StoreId);
     }
 
     [TestMethod]
-    public async Task GetCustomerByEmail_PerStoreOff_StoreScoped_DoesNotFallBackToStoreless()
+    public async Task GetCustomerByEmail_PerStoreOff_StoreIgnored_FindsStorelessAccount()
     {
         var service = CreateService(registerCustomersPerStore: false);
-        //a store-independent account exists, but with the flag off there is no fallback
         await _repository.InsertAsync(new Customer { Email = "admin@email.com", StoreId = "" });
         var result = await service.GetCustomerByEmail("admin@email.com", "store-1");
-        Assert.IsNull(result);
+        Assert.IsNotNull(result);
+    }
+
+    [TestMethod]
+    public async Task GetCustomerByUsername_PerStoreOff_StoreIgnored_FindsCustomerOfAnotherStore()
+    {
+        var service = CreateService(registerCustomersPerStore: false);
+        await _repository.InsertAsync(new Customer { Username = "user", StoreId = "store-1" });
+        var result = await service.GetCustomerByUsername("user", "store-2");
+        Assert.IsNotNull(result);
+        Assert.AreEqual("store-1", result.StoreId);
     }
 
     [TestMethod]

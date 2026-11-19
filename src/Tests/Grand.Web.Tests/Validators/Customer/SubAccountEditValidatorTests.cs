@@ -2,7 +2,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.Web.Common.Localization;
 using Grand.Web.Models.Customer;
@@ -41,7 +40,7 @@ public class SubAccountEditValidatorTests
 
         _validator = new SubAccountEditValidator(new List<IValidatorConsumer<SubAccountEditModel>>(),
             _customerService.Object, _groupService.Object, translation.Object, context.Object,
-            new CustomerSettings { AllowUsersToChangeEmail = true }, new CustomerConfig());
+            new CustomerSettings { AllowUsersToChangeEmail = true });
     }
 
     private CultureInfo _culture;

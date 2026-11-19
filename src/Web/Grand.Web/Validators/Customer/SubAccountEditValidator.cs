@@ -3,7 +3,6 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Models.Customer;
@@ -18,8 +17,7 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
         ICustomerService customerService, IGroupService groupService,
         IRequestTranslationService translationService,
         IContextAccessor contextAccessor,
-        CustomerSettings customerSettings,
-        CustomerConfig customerConfig)
+        CustomerSettings customerSettings)
         : base(validators)
     {
         RuleFor(x => x.Email).NotEmpty().WithMessage(translationService.GetResource("Account.Fields.Email.Required"));
@@ -80,8 +78,7 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
                 if (email.Length > 100)
                     context.AddFailure(translationService.GetResource("Account.EmailUsernameErrors.EmailTooLong"));
 
-                var storeId = customerConfig.RegisterCustomersPerStore ? customer.StoreId : "";
-                var customer2 = await customerService.GetCustomerByEmail(email, storeId);
+                var customer2 = await customerService.GetCustomerByEmail(email, customer.StoreId);
                 if (customer2 != null && customer.Id != customer2.Id)
                     context.AddFailure(
                         translationService.GetResource("Account.EmailUsernameErrors.EmailAlreadyExists"));

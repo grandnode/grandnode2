@@ -7,7 +7,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
@@ -26,13 +25,11 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
         ICustomerService customerService, IGroupService groupService, IEncryptionService encryptionService,
         IRequestTranslationService translationService, CustomerSettings customerSettings, CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        IContextAccessor workContextAccessor, CustomerConfig customerConfig,
+        IContextAccessor workContextAccessor,
         IExternalSignInPolicy externalSignInPolicy, IMediator mediator)
         : base(validators)
     {
-        var storeId = customerConfig.RegisterCustomersPerStore
-            ? workContextAccessor.StoreContext.CurrentStore.Id
-            : "";
+        var storeId = workContextAccessor.StoreContext.CurrentStore.Id;
 
         if (!customerSettings.UsernamesEnabled)
         {

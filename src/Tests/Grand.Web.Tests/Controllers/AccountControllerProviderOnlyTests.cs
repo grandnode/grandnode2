@@ -80,7 +80,7 @@ public class AccountControllerProviderOnlyTests
             _customerSettings = new CustomerSettings {
                 UserRegistrationType = UserRegistrationType.Standard, TwoFactorAuthenticationEnabled = true,
                 AllowUsersToDeleteAccount = true
-            }, new CustomerConfig(), _guestOrderGrant.Object);
+            }, _guestOrderGrant.Object);
         _controller.ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() };
         _controller.TempData = new TempDataDictionary(_controller.HttpContext, new Mock<ITempDataProvider>().Object);
         var url = new Mock<IUrlHelper>();

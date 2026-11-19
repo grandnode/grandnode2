@@ -6,7 +6,6 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
-using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.Mediator;
@@ -67,7 +66,7 @@ public class LoginValidatorExternalSignInTests
             new List<IValidatorConsumer<ICaptchaValidModel>>(),
             _customerService.Object, _groups.Object, _encryption.Object, _translation.Object, new CustomerSettings(),
             new CaptchaSettings(), http.Object, new Mock<IGoogleReCaptchaValidator>().Object,
-            ctx.Object, new CustomerConfig(), _policy.Object, new Mock<IMediator>().Object);
+            ctx.Object, _policy.Object, new Mock<IMediator>().Object);
     }
 
     [TestMethod]

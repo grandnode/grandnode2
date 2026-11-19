@@ -172,7 +172,7 @@ public class OidcCustomerResolverTests
     [DataRow("True")]
     public async Task EmailVerified_AnyCase(string verified)
     {
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         Assert.IsTrue((await Resolver().Resolve(Principal(emailVerified: verified), "store1")).Succeeded);
     }
 
@@ -180,7 +180,7 @@ public class OidcCustomerResolverTests
     public async Task VerificationNotRequired()
     {
         _config.RequireEmailVerified = false;
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         Assert.IsTrue((await Resolver().Resolve(Principal(emailVerified: null), "store1")).Succeeded);
     }
 
@@ -188,9 +188,9 @@ public class OidcCustomerResolverTests
     public void AutoRegister_DefaultsToFalse() => Assert.IsFalse(new OidcResourceServerConfig().AutoRegister);
 
     [TestMethod]
-    public async Task ExistingCustomer_NotPerStore_GlobalLookup_Linked()
+    public async Task ExistingCustomer_NotPerStore_CustomerOfAnotherStore_Linked()
     {
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
 
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
 
@@ -211,7 +211,7 @@ public class OidcCustomerResolverTests
     [TestMethod]
     public async Task ExistingCustomerInactive_Forbidden_NotLinked()
     {
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = false });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = false });
         Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
     }
@@ -307,7 +307,7 @@ public class OidcCustomerResolverTests
             .ReturnsAsync((ExternalAuthentication)null) //no other identity linked to the matched customer
             .ReturnsAsync(new ExternalAuthentication { CustomerId = "c1", ProviderSystemName = "Oidc", ExternalIdentifier = "sub-1" });
         links.Setup(x => x.InsertAsync(It.IsAny<ExternalAuthentication>())).ThrowsAsync(new Exception("duplicate key"));
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
         Assert.AreEqual("c1", (await Resolver(links.Object).Resolve(Principal(), "store1")).Customer.Id);
@@ -338,7 +338,7 @@ public class OidcCustomerResolverTests
     public async Task EmailMatchesGuest_Forbidden_NotLinked()
     {
         var guest = new Customer { Id = "c1", Active = true };
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(guest);
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(guest);
         _groupService.Setup(x => x.IsRegistered(guest)).ReturnsAsync(false);
 
         Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
@@ -349,7 +349,7 @@ public class OidcCustomerResolverTests
     public async Task EmailMatchesCustomerLinkedToAnotherSubject_Forbidden_NotLinked()
     {
         await Link("c1", sub: "other-sub");
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
         Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
         Assert.IsNull(await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1"));
@@ -389,7 +389,7 @@ public class OidcCustomerResolverTests
     public async Task PasswordOnlyAccount_NotLinkedByEmail(string kind, bool emailVerified)
     {
         _config.RequireEmailVerified = emailVerified;
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(PasswordOnlyCustomer(kind));
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(PasswordOnlyCustomer(kind));
 
         var result = await Resolver().Resolve(Principal(emailVerified: emailVerified ? "true" : null), "store1");
 
@@ -402,7 +402,7 @@ public class OidcCustomerResolverTests
     public async Task TwoFactorCustomer_StoreTwoFactorOff_LinkedByEmail()
     {
         _customerSettings.TwoFactorAuthenticationEnabled = false;
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(TwoFactorCustomer());
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(TwoFactorCustomer());
 
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
         Assert.IsTrue((await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1")).LinkedByEmail);
@@ -412,7 +412,7 @@ public class OidcCustomerResolverTests
     public async Task PasswordOnlyAccount_LinkedToOtherSubject_LinkedToOtherIdentity()
     {
         await Link("c1", sub: "other-sub");
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(PasswordOnlyCustomer("admin"));
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(PasswordOnlyCustomer("admin"));
 
         var result = await Resolver().Resolve(Principal(), "store1");
 
@@ -426,7 +426,7 @@ public class OidcCustomerResolverTests
     public async Task PlainRegisteredCustomer_LinkedByEmail(string emailVerified)
     {
         _config.RequireEmailVerified = emailVerified != null;
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
         Assert.IsTrue((await Resolver().Resolve(Principal(emailVerified: emailVerified), "store1")).Succeeded);
         var link = await _links.GetOneAsync(x => x.ExternalIdentifier == "sub-1");
@@ -532,7 +532,7 @@ public class OidcCustomerResolverTests
     public async Task UsernameTaken_Forbidden_NoRegistration()
     {
         _config.AutoRegister = true;
-        _customerService.Setup(x => x.GetCustomerByUsername("john@example.com", "")).ReturnsAsync(new Customer { Id = "other" });
+        _customerService.Setup(x => x.GetCustomerByUsername("john@example.com", "store1")).ReturnsAsync(new Customer { Id = "other" });
 
         Assert.AreEqual(OidcFailureKind.Forbidden, (await Resolver().Resolve(Principal(), "store1")).Failure);
         _customerService.Verify(x => x.InsertGuestCustomer(It.IsAny<Customer>()), Times.Never);
@@ -622,7 +622,7 @@ public class OidcCustomerResolverTests
     [TestMethod]
     public async Task NotPerStore_LinkStoredWithoutStore_AndFoundInAnyStore()
     {
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true, StoreId = "store2" });
 
         Assert.AreEqual("c1", (await Resolver().Resolve(Principal(), "store1")).Customer.Id);
@@ -715,7 +715,7 @@ public class OidcCustomerResolverTests
     [TestMethod]
     public async Task LinkingExisting_StoresLinkWithCustomerDerivedId()
     {
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
 
@@ -741,7 +741,7 @@ public class OidcCustomerResolverTests
             Id = OidcCustomerResolver.OidcLinkId("c1"), CustomerId = "c1",
             ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "other-sub", StoreId = ""
         });
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
         var result = await Resolver(links).Resolve(Principal(), "store1");
 
@@ -760,7 +760,7 @@ public class OidcCustomerResolverTests
             Id = OidcCustomerResolver.OidcLinkId("c1"), CustomerId = "c1",
             ProviderSystemName = OidcCustomerResolver.ProviderSystemName, ExternalIdentifier = "sub-1", StoreId = ""
         });
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         _customerService.Setup(x => x.GetCustomerById("c1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
 
         Assert.AreEqual("c1", (await Resolver(links).Resolve(Principal(), "store1")).Customer.Id);
@@ -770,7 +770,7 @@ public class OidcCustomerResolverTests
     [TestMethod]
     public async Task Unlink_ThenOtherSubject_RelinksWithTheSameId()
     {
-        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "")).ReturnsAsync(new Customer { Id = "c1", Active = true });
+        _customerService.Setup(x => x.GetCustomerByEmail("John@Example.com", "store1")).ReturnsAsync(new Customer { Id = "c1", Active = true });
         Assert.IsTrue((await Resolver().Resolve(Principal(), "store1")).Succeeded);
         var first = LinksOf("sub-1").Single();
 

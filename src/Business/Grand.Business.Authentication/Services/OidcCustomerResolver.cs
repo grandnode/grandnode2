@@ -115,10 +115,9 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             !string.Equals(principal.FindFirst(_config.Claims.EmailVerified)?.Value, "true", StringComparison.OrdinalIgnoreCase))
             return OidcCustomerResult.InvalidToken("The e-mail address in the token is not verified");
 
-        //without per-store identity the e-mail is unique across stores - a store-scoped lookup would miss customers
-        //of other stores and register a duplicate
-        var customer = await _customerService.GetCustomerByEmail(email,
-            _customerConfig.RegisterCustomersPerStore ? storeId : "");
+        //the lookup applies the per-store identity rule: without it the store does not narrow the search, so a
+        //customer of another store is found instead of registered twice
+        var customer = await _customerService.GetCustomerByEmail(email, storeId);
         if (customer == null)
             return await Register(sub, email, storeId);
 
@@ -182,8 +181,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             return OidcLoginResult.Refused(OidcLoginRefusal.EmailNotVerified);
         }
 
-        var customer = await _customerService.GetCustomerByEmail(email,
-            _customerConfig.RegisterCustomersPerStore ? storeId : "");
+        var customer = await _customerService.GetCustomerByEmail(email, storeId);
         if (customer == null)
         {
             //provider-only with automatic accounts: the provider decides who gets in, no form and no registration type
@@ -323,8 +321,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     {
         //the e-mail becomes the user name - another account may hold it as its user name without that e-mail
         var normalizedEmail = email.ToLowerInvariant();
-        if (await _customerService.GetCustomerByUsername(normalizedEmail,
-                _customerConfig.RegisterCustomersPerStore ? storeId : "") != null)
+        if (await _customerService.GetCustomerByUsername(normalizedEmail, storeId) != null)
         {
             _logger.LogWarning("Subject {Subject}: the user name is already taken in store {StoreId}", sub, storeId);
             return (Provisioning.UserNameTaken, null, null);

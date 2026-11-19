@@ -53,7 +53,6 @@ public class AccountController : BasePublicController
         ICustomerMessageProviderService customerMessageProviderService,
         CaptchaSettings captchaSettings,
         CustomerSettings customerSettings,
-        CustomerConfig customerConfig,
         IGuestOrderGrantService guestOrderGrantService)
     {
         _authenticationService = authenticationService;
@@ -67,16 +66,8 @@ public class AccountController : BasePublicController
         _customerMessageProviderService = customerMessageProviderService;
         _captchaSettings = captchaSettings;
         _mediator = mediator;
-        _customerConfig = customerConfig;
         _guestOrderGrantService = guestOrderGrantService;
     }
-
-    /// <summary>
-    ///     Returns the current store id when per-store customer identity is enabled, otherwise an empty
-    ///     string (which makes the store-aware customer lookups fall back to the global behaviour).
-    /// </summary>
-    private string CustomerStoreId =>
-        _customerConfig.RegisterCustomersPerStore ? _contextAccessor.StoreContext.CurrentStore.Id : "";
 
     #endregion
 
@@ -179,7 +170,6 @@ public class AccountController : BasePublicController
     private readonly IMediator _mediator;
     private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly CustomerSettings _customerSettings;
-    private readonly CustomerConfig _customerConfig;
     private readonly IGuestOrderGrantService _guestOrderGrantService;
     private readonly CaptchaSettings _captchaSettings;
 
@@ -250,15 +240,15 @@ public class AccountController : BasePublicController
         {
             var loginResult =
                 await _customerManagerService.LoginCustomer(
-                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password, CustomerStoreId,
+                    _customerSettings.UsernamesEnabled ? model.Username : model.Email, model.Password, _contextAccessor.StoreContext.CurrentStore.Id,
                     SignInSurface.Storefront);
             switch (loginResult)
             {
                 case CustomerLoginResults.Successful:
                 {
                     var customer = _customerSettings.UsernamesEnabled
-                        ? await _customerService.GetCustomerByUsername(model.Username, CustomerStoreId)
-                        : await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
+                        ? await _customerService.GetCustomerByUsername(model.Username, _contextAccessor.StoreContext.CurrentStore.Id)
+                        : await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id);
                     //sign in
                     return await SignInAction(customer, model.RememberMe, returnUrl);
                 }
@@ -295,8 +285,8 @@ public class AccountController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(username, CustomerStoreId)
-            : await _customerService.GetCustomerByEmail(username, CustomerStoreId);
+            ? await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore.Id)
+            : await _customerService.GetCustomerByEmail(username, _contextAccessor.StoreContext.CurrentStore.Id);
         if (customer == null)
             return RedirectToRoute("HomePage");
 
@@ -327,8 +317,8 @@ public class AccountController : BasePublicController
             return RedirectToRoute("HomePage");
 
         var customer = _customerSettings.UsernamesEnabled
-            ? await _customerService.GetCustomerByUsername(username, CustomerStoreId)
-            : await _customerService.GetCustomerByEmail(username, CustomerStoreId);
+            ? await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore.Id)
+            : await _customerService.GetCustomerByEmail(username, _contextAccessor.StoreContext.CurrentStore.Id);
         if (customer == null)
             return RedirectToRoute("Login");
 
@@ -442,7 +432,7 @@ public class AccountController : BasePublicController
 
         if (!ModelState.IsValid) return View(model);
 
-        var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
+        var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id);
         await _mediator.Send(new PasswordRecoverySendCommand {
             Host = _contextAccessor.StoreContext.CurrentHost,
             Customer = customer,
@@ -464,7 +454,7 @@ public class AccountController : BasePublicController
         if (oidcLoginConfig.ProviderOnly)
             return RedirectToRoute("Login");
 
-        var customer = await _customerService.GetCustomerByEmail(email, CustomerStoreId);
+        var customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore.Id);
         if (customer == null)
             return RedirectToRoute("HomePage");
 
@@ -484,10 +474,10 @@ public class AccountController : BasePublicController
 
         if (!ModelState.IsValid) return View(model);
 
-        var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
+        var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id);
 
         await _customerManagerService.ChangePassword(new ChangePasswordRequest(model.Email,
-            _customerSettings.DefaultPasswordFormat, model.NewPassword), CustomerStoreId);
+            _customerSettings.DefaultPasswordFormat, model.NewPassword), _contextAccessor.StoreContext.CurrentStore.Id);
 
         await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordRecoveryToken, "");
 
@@ -775,7 +765,7 @@ public class AccountController : BasePublicController
         }
         else
         {
-            var customer = await _customerService.GetCustomerByUsername(username, CustomerStoreId);
+            var customer = await _customerService.GetCustomerByUsername(username, _contextAccessor.StoreContext.CurrentStore.Id);
             if (customer != null) return Json(new { Available = false, Text = statusText });
             statusText = _translationService.GetResource("Account.CheckUsernameAvailability.Available");
             usernameAvailable = true;
@@ -789,7 +779,7 @@ public class AccountController : BasePublicController
     [PublicStore(true)]
     public virtual async Task<IActionResult> AccountActivation(string token, string email)
     {
-        var customer = await _customerService.GetCustomerByEmail(email, CustomerStoreId);
+        var customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore.Id);
         if (customer == null)
             return RedirectToRoute("HomePage");
 

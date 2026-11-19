@@ -20,8 +20,8 @@ using Grand.Web.Common.Localization;
 namespace Grand.Web.Tests.Validators.Customers;
 
 /// <summary>
-///     Verifies the storefront customer validators thread the current store into the customer lookup when
-///     per-store customer identity is enabled (Customer:RegisterCustomersPerStore).
+///     Verifies the storefront customer validators thread the current store into the customer lookup; whether the
+///     store narrows it (Customer:RegisterCustomersPerStore) is decided by the customer service.
 /// </summary>
 [TestClass]
 public class CustomerValidatorsStoreScopingTests
@@ -49,14 +49,6 @@ public class CustomerValidatorsStoreScopingTests
         return ctx.Object;
     }
 
-    private static CustomerConfigProbe PerStoreOn() => new(true);
-
-    //small wrapper so the intent (per-store on) reads clearly at call sites
-    private sealed record CustomerConfigProbe(bool On)
-    {
-        public Grand.Infrastructure.Configuration.CustomerConfig Config => new() { RegisterCustomersPerStore = On };
-    }
-
     [TestMethod]
     public async Task LoginValidator_ScopesEmailLookupToCurrentStore()
     {
@@ -67,7 +59,7 @@ public class CustomerValidatorsStoreScopingTests
             customerService.Object, new Mock<IGroupService>().Object, new Mock<IEncryptionService>().Object,
             Translation().Object, new CustomerSettings(), new Grand.Domain.Common.CaptchaSettings(),
             new Mock<IHttpContextAccessor>().Object, new Mock<IGoogleReCaptchaValidator>().Object,
-            Context(), PerStoreOn().Config, new Mock<Grand.Business.Core.Interfaces.Authentication.IExternalSignInPolicy>().Object,
+            Context(), new Mock<Grand.Business.Core.Interfaces.Authentication.IExternalSignInPolicy>().Object,
             new Mock<IMediator>().Object);
 
         await validator.ValidateAsync(new LoginModel { Email = "u@x.com", Password = "p" });
@@ -94,7 +86,7 @@ public class CustomerValidatorsStoreScopingTests
             Translation().Object, new Mock<ICountryService>().Object, new CustomerSettings(),
             new Grand.Domain.Common.CaptchaSettings(), new Mock<IHttpContextAccessor>().Object,
             new Mock<IGoogleReCaptchaValidator>().Object, mediator.Object, attrParser.Object,
-            customerService.Object, groupService.Object, Context(), PerStoreOn().Config,
+            customerService.Object, groupService.Object, Context(),
             new Mock<Grand.Web.Common.Security.ExternalRegistration.IExternalRegistrationContext>().Object);
 
         await validator.ValidateAsync(new RegisterModel { Email = "u@x.com" });
@@ -111,7 +103,7 @@ public class CustomerValidatorsStoreScopingTests
             new List<IValidatorConsumer<ICaptchaValidModel>>(),
             customerService.Object, new Grand.Domain.Common.CaptchaSettings(),
             new Mock<IHttpContextAccessor>().Object, new Mock<IGoogleReCaptchaValidator>().Object,
-            Translation().Object, Context(), PerStoreOn().Config);
+            Translation().Object, Context());
 
         await validator.ValidateAsync(new PasswordRecoveryModel { Email = "u@x.com" });
 
@@ -126,7 +118,7 @@ public class CustomerValidatorsStoreScopingTests
             new List<IValidatorConsumer<PasswordRecoveryConfirmModel>>(),
             customerService.Object, new Mock<IGroupService>().Object,
             new Mock<ICustomerManagerService>().Object, new Mock<ICustomerHistoryPasswordService>().Object,
-            Translation().Object, new CustomerSettings(), Context(), PerStoreOn().Config,
+            Translation().Object, new CustomerSettings(), Context(),
             new Mock<Grand.Business.Core.Interfaces.Authentication.IExternalSignInPolicy>().Object);
 
         await validator.ValidateAsync(new PasswordRecoveryConfirmModel {
@@ -151,7 +143,7 @@ public class CustomerValidatorsStoreScopingTests
             new List<IValidatorConsumer<CustomerInfoModel>>(),
             Context("old@x.com"), customerService.Object, mediator.Object, attrParser.Object,
             Translation().Object, new Mock<ICountryService>().Object,
-            new CustomerSettings { AllowUsersToChangeEmail = true }, PerStoreOn().Config);
+            new CustomerSettings { AllowUsersToChangeEmail = true });
 
         await validator.ValidateAsync(new CustomerInfoModel { Email = "new@x.com" });
 
@@ -165,7 +157,7 @@ public class CustomerValidatorsStoreScopingTests
         var validator = new SubAccountCreateValidator(
             new List<IValidatorConsumer<SubAccountCreateModel>>(),
             customerService.Object, Translation().Object, new CustomerSettings(),
-            Context(), PerStoreOn().Config);
+            Context());
 
         await validator.ValidateAsync(new SubAccountCreateModel {
             Email = "u@x.com", FirstName = "A", LastName = "B", Password = "p"
@@ -253,7 +245,7 @@ public class CustomerValidatorsStoreScopingTests
         return (new SubAccountEditValidator(
             new List<IValidatorConsumer<SubAccountEditModel>>(),
             customerService.Object, groupService.Object, Translation().Object,
-            Context(), settings ?? new CustomerSettings { AllowUsersToChangeEmail = true }, PerStoreOn().Config),
+            Context(), settings ?? new CustomerSettings { AllowUsersToChangeEmail = true }),
             customerService);
     }
 
@@ -292,6 +284,6 @@ public class CustomerValidatorsStoreScopingTests
         return new CustomerInfoValidator(
             new List<IValidatorConsumer<CustomerInfoModel>>(),
             Context(currentEmail), customerService.Object, mediator.Object, attrParser.Object,
-            Translation().Object, new Mock<ICountryService>().Object, settings, PerStoreOn().Config);
+            Translation().Object, new Mock<ICountryService>().Object, settings);
     }
 }

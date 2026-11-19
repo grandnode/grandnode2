@@ -102,12 +102,31 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
             return ExternalAuthResult.Associated(currentLoggedInUser);
         }
 
-        //or try to register new user
-        if (_customerSettings.UserRegistrationType != UserRegistrationType.Disabled)
-            return await RegisterNewUser(parameters, customer, storeId, language);
+        //the same rule as the registration form; the provider's e-mail never takes over an existing account. Checked
+        //before the registration type: the owner signs in and connects the account, registration or not
+        if (await IsEmailOrUsernameTaken(parameters.Email, storeId))
+            return ExternalAuthResult.EmailAlreadyExists();
 
         //registration is disabled
-        return ExternalAuthResult.RegistrationDisabled();
+        if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
+            return ExternalAuthResult.RegistrationDisabled();
+
+        //the new account signs in and receives its mail with the provider's e-mail
+        if (string.IsNullOrWhiteSpace(parameters.Email))
+            return ExternalAuthResult.EmailRequired();
+
+        return await RegisterNewUser(parameters, customer, storeId, language);
+    }
+
+    /// <summary>
+    ///     Whether another customer has the provider's e-mail as their e-mail or, with usernames enabled, as their
+    ///     username; registration stores the provider's e-mail in both fields
+    /// </summary>
+    private async Task<bool> IsEmailOrUsernameTaken(string email, string storeId)
+    {
+        return await _customerService.GetCustomerByEmail(email, storeId) != null ||
+               (_customerSettings.UsernamesEnabled &&
+                await _customerService.GetCustomerByUsername(email, storeId) != null);
     }
 
     /// <summary>

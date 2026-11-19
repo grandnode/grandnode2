@@ -17,7 +17,6 @@ public class OidcProfileSynchronizerTests
     private Mock<ICustomerService> _customers;
     private Mock<ILogger<OidcProfileSynchronizer>> _logger;
     private CustomerSettings _settings;
-    private CustomerConfig _config;
     private OidcLoginConfig _login;
     private Customer _customer;
 
@@ -27,7 +26,6 @@ public class OidcProfileSynchronizerTests
         _customers = new Mock<ICustomerService>();
         _logger = new Mock<ILogger<OidcProfileSynchronizer>>();
         _settings = new CustomerSettings { UsernamesEnabled = false };
-        _config = new CustomerConfig();
         _login = new OidcLoginConfig { SignInMode = OidcSignInMode.ProviderOnly };
         _customer = new Customer { Id = "c1", Email = "old@shop.com", Username = "old@shop.com" };
         _customer.UserFields.Add(new UserField { Key = SystemCustomerFieldNames.FirstName, Value = "John", StoreId = "" });
@@ -35,7 +33,7 @@ public class OidcProfileSynchronizerTests
     }
 
     private Task Sync(string email = "old@shop.com", bool verified = true, string first = "John", string last = "Doe") =>
-        new OidcProfileSynchronizer(_customers.Object, _settings, _config, _login, _logger.Object)
+        new OidcProfileSynchronizer(_customers.Object, _settings, _login, _logger.Object)
             .Sync(_customer, new ExternalRegistrationIdentity("OpenIdConnect", "sub-1", email, verified, first, last), "s1");
 
     private void VerifyEmail(string value, Times times) =>
@@ -148,18 +146,9 @@ public class OidcProfileSynchronizerTests
     }
 
     [TestMethod]
-    public async Task Email_PerStoreIdentity_LooksUpInStore()
+    public async Task Email_LooksUpInStore()
     {
-        _config.RegisterCustomersPerStore = true;
         await Sync("new@shop.com");
         _customers.Verify(x => x.GetCustomerByEmail("new@shop.com", "s1"), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task Email_GlobalIdentity_LooksUpGlobally()
-    {
-        _config.RegisterCustomersPerStore = false;
-        await Sync("new@shop.com");
-        _customers.Verify(x => x.GetCustomerByEmail("new@shop.com", ""), Times.Once);
     }
 }

@@ -136,6 +136,17 @@ public class CustomerManagerService : ICustomerManagerService
         if (request.Customer == null)
             throw new ArgumentException("Can't load current customer");
 
+        //every registration path answers a taken e-mail or username itself; this stops any path that forgot to
+        var byEmail = await _customerService.GetCustomerByEmail(request.Email, request.StoreId);
+        if (byEmail != null && byEmail.Id != request.Customer.Id)
+            throw new GrandException("The e-mail is already used by another customer");
+        if (_customerSettings.UsernamesEnabled)
+        {
+            var byUsername = await _customerService.GetCustomerByUsername(request.Username, request.StoreId);
+            if (byUsername != null && byUsername.Id != request.Customer.Id)
+                throw new GrandException("The username is already used by another customer");
+        }
+
         //event notification
         await _mediator.CustomerRegistrationEvent(request);
 

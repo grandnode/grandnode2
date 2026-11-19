@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Customers;
 using Grand.Business.Customers.Services;
 using Grand.Domain.Customers;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -52,6 +53,48 @@ public class CustomerManagerServiceTests
         _customerManagerService = new CustomerManagerService(_customerServiceMock.Object, _groupServiceMock.Object,
             _encryptionServiceMock.Object, _mediatorMock.Object, _customerHistoryPasswordServiceMock.Object, _customerSettings,
             _signInPolicy.Object, _logger.Object);
+    }
+
+    [TestMethod]
+    public async Task RegisterCustomer_EmailOfAnotherCustomer_Throws()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("taken@test.com", "store1"))
+            .ReturnsAsync(new Customer { Id = "existing" });
+        var request = new RegistrationRequest(new Customer { Id = "guest" }, "taken@test.com", "taken@test.com",
+            "password", PasswordFormat.Clear, "store1");
+
+        await Assert.ThrowsExactlyAsync<GrandException>(() => _customerManagerService.RegisterCustomer(request));
+
+        _customerServiceMock.Verify(c => c.UpdateCustomer(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RegisterCustomer_UsernameOfAnotherCustomer_Throws()
+    {
+        _customerSettings.UsernamesEnabled = true;
+        _customerServiceMock.Setup(c => c.GetCustomerByUsername("taken", "store1"))
+            .ReturnsAsync(new Customer { Id = "existing" });
+        var request = new RegistrationRequest(new Customer { Id = "guest" }, "new@test.com", "taken",
+            "password", PasswordFormat.Clear, "store1");
+
+        await Assert.ThrowsExactlyAsync<GrandException>(() => _customerManagerService.RegisterCustomer(request));
+
+        _customerServiceMock.Verify(c => c.UpdateCustomer(It.IsAny<Customer>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RegisterCustomer_EmailAlreadyOnTheRegisteringCustomer_Registers()
+    {
+        var guest = new Customer { Id = "guest", Email = "guest@test.com" };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("guest@test.com", "store1")).ReturnsAsync(guest);
+        _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered))
+            .ReturnsAsync(new CustomerGroup { Id = "registered" });
+        var request = new RegistrationRequest(guest, "guest@test.com", "guest@test.com", "password",
+            PasswordFormat.Clear, "store1");
+
+        await _customerManagerService.RegisterCustomer(request);
+
+        _customerServiceMock.Verify(c => c.UpdateCustomer(guest), Times.Once);
     }
 
     [TestMethod]
