@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Checkout.Payments;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
@@ -28,7 +29,7 @@ public class CanPartiallyRefundQueryHandler : IRequestHandler<CanPartiallyRefund
         //if (order.OrderStatus == OrderStatus.Cancelled)
         //    return false;
 
-        var canBeRefunded = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+        var canBeRefunded = paymentTransaction.AmountLeftToRefund();
         if (canBeRefunded <= 0)
             return false;
 

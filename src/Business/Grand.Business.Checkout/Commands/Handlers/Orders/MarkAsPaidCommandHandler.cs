@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
@@ -40,7 +41,7 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
             throw new GrandException("You can't mark this Payment Transaction as paid");
 
         //what the payment method reports it took, else what was still to pay
-        var paid = request.Amount ?? paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
+        var paid = request.Amount ?? paymentTransaction.AmountLeftToPay();
         paymentTransaction.TransactionStatus = TransactionStatus.Paid;
         paymentTransaction.PaidAmount = paymentTransaction.TransactionAmount;
 
