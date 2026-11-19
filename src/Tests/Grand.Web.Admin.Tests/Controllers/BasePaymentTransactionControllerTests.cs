@@ -339,6 +339,21 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
+    public async Task Edit_AmountsLeftAreRoundedToCents()
+    {
+        var model = await EditModel(new PaymentTransaction {
+            Id = "pt-1", TransactionAmount = 123.45, PaidAmount = 100, RefundedAmount = 76.55
+        }, null);
+        Assert.AreEqual(23.45, model.AmountDue);
+        Assert.AreEqual(23.45, model.AmountRefundable);
+
+        //paid in two parts that add up to a hair below the amount: nothing is left to pay
+        model = await EditModel(new PaymentTransaction { Id = "pt-1", TransactionAmount = 0.1 + 0.2, PaidAmount = 0.3 },
+            null);
+        Assert.AreEqual(0, model.AmountDue);
+    }
+
+    [TestMethod]
     public async Task Edit_MapsOrderData()
     {
         _enumTranslationServiceMock.Setup(e => e.GetTranslationEnum(PaymentStatus.PartiallyPaid)).Returns("Partially paid");

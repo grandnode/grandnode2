@@ -227,8 +227,8 @@ public abstract class BasePaymentTransactionController(
                 paymentTransaction.PaymentMethodSystemName,
             Abandoned = paymentTransaction.Temp,
             RefundedAmount = paymentTransaction.RefundedAmount,
-            AmountDue = Math.Max(paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount, 0),
-            AmountRefundable = Math.Max(paymentTransaction.PaidAmount - paymentTransaction.RefundedAmount, 0),
+            AmountDue = AmountLeft(paymentTransaction.TransactionAmount, paymentTransaction.PaidAmount),
+            AmountRefundable = AmountLeft(paymentTransaction.PaidAmount, paymentTransaction.RefundedAmount),
             CurrencyRate = paymentTransaction.CurrencyRate,
             //the store panel shows its own store only, so naming it says nothing
             StoreName = scope.DefaultStoreId is null
@@ -287,6 +287,11 @@ public abstract class BasePaymentTransactionController(
 
         return View(model);
     }
+
+    /// <summary>
+    ///     What is left of an amount, to the cent: amounts paid in parts add up with floating-point residue
+    /// </summary>
+    private static double AmountLeft(double amount, double used) => Math.Max(Math.Round(amount - used, 2), 0);
 
     private static string BillingName(Address address)
     {
