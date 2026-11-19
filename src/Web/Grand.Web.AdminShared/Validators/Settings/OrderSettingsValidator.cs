@@ -16,5 +16,7 @@ public class OrderSettingsValidator : BaseGrandValidator<SalesSettingsModel.Orde
         RuleFor(x => x.GiftVouchers_Activated_OrderStatusId).NotEqual((int)OrderStatusSystem.Pending)
             .WithMessage(
                 translationService.GetResource("Admin.Settings.LoyaltyPoints.PointsForPurchases_Awarded.Pending"));
+        RuleFor(x => x.PaymentReminderDaysBefore).InclusiveBetween(0, OrderSettings.MaxPaymentReminderDaysBefore)
+            .WithMessage(translationService.GetResource("Admin.Settings.Order.PaymentReminderDaysBefore.Invalid"));
     }
 }

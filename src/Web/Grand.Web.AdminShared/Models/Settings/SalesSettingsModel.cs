@@ -116,6 +116,9 @@ public class SalesSettingsModel : BaseModel
 
         [GrandResourceDisplayName("Admin.Settings.Order.PageSize")]
         public int PageSize { get; set; }
+
+        [GrandResourceDisplayName("Admin.Settings.Order.PaymentReminderDaysBefore")]
+        public int PaymentReminderDaysBefore { get; set; }
     }
 
     public class ShoppingCartSettingsModel : BaseModel

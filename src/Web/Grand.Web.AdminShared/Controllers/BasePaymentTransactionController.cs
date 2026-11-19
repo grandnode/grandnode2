@@ -578,12 +578,11 @@ public abstract class BasePaymentTransactionController(
         if (!ModelState.IsValid)
             return View(model);
 
-        order.PurchaseOrderNumber = purchaseOrderNumber;
         //the due date is a calendar day; a date posted for an order paid at once must not put it on credit
-        if (model.BoughtOnCredit)
-            order.PaymentDueDateUtc = DateTime.SpecifyKind(model.PaymentDueDate!.Value.Date, DateTimeKind.Utc);
-
-        await orderService.UpdateOrder(order);
+        var dueDate = model.BoughtOnCredit
+            ? DateTime.SpecifyKind(model.PaymentDueDate!.Value.Date, DateTimeKind.Utc)
+            : (DateTime?)null;
+        await orderService.UpdatePaymentTerms(order, purchaseOrderNumber, dueDate);
 
         model.RefreshPage = true;
         return View(model);

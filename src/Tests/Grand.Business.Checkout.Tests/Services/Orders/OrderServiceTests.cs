@@ -10,6 +10,7 @@ using Grand.Mediator;
 using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Checkout.Tests.Services.Orders;
 
@@ -259,5 +260,49 @@ public class OrderServiceTests
 
         _mediatorMock.Verify(c => c.Send(It.Is<GetOrderQuery>(q => q.PurchaseOrderNumber == "PO-1" && q.OverdueOnly),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdatePaymentTerms_NewDueDate_RemindersSentAgain()
+    {
+        var order = new Order {
+            Id = "o1",
+            PaymentDueDateUtc = new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc),
+            PaymentReminderSentOnUtc = new DateTime(2026, 11, 10, 6, 0, 0, DateTimeKind.Utc),
+            PaymentOverdueNoticeSentOnUtc = new DateTime(2026, 11, 14, 6, 0, 0, DateTimeKind.Utc)
+        };
+        var dueDate = new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc);
+
+        await _service.UpdatePaymentTerms(order, "PO-2", dueDate);
+
+        Assert.AreEqual("PO-2", order.PurchaseOrderNumber);
+        Assert.AreEqual(dueDate, order.PaymentDueDateUtc);
+        Assert.IsNull(order.PaymentReminderSentOnUtc);
+        Assert.IsNull(order.PaymentOverdueNoticeSentOnUtc);
+        _orderRepositoryMock.Verify(c => c.UpdateOneAsync(It.IsAny<Expression<Func<Order, bool>>>(),
+            It.Is<UpdateBuilder<Order>>(u => u.Fields.Count() == 4)), Times.Once);
+        _orderRepositoryMock.Verify(c => c.UpdateAsync(It.IsAny<Order>()), Times.Never);
+        _mediatorMock.Verify(c => c.Publish(It.IsAny<EntityUpdated<Order>>(), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdatePaymentTerms_SameDueDateReadInLocalTime_RemindersKept()
+    {
+        //LiteDB reads a stored date back in local time
+        var dueDate = new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc);
+        var sentOn = new DateTime(2026, 11, 10, 6, 0, 0, DateTimeKind.Utc);
+        var order = new Order {
+            Id = "o1",
+            PaymentDueDateUtc = dueDate.ToLocalTime(),
+            PaymentReminderSentOnUtc = sentOn,
+            PaymentOverdueNoticeSentOnUtc = sentOn
+        };
+
+        await _service.UpdatePaymentTerms(order, "PO-2", dueDate);
+
+        Assert.AreEqual(sentOn, order.PaymentReminderSentOnUtc);
+        Assert.AreEqual(sentOn, order.PaymentOverdueNoticeSentOnUtc);
+        _orderRepositoryMock.Verify(c => c.UpdateOneAsync(It.IsAny<Expression<Func<Order, bool>>>(),
+            It.Is<UpdateBuilder<Order>>(u => u.Fields.Count() == 2)), Times.Once);
     }
 }

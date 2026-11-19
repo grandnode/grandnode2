@@ -25,6 +25,8 @@ public static class MessageTemplateNames
     public const string SendOrderCompletedCustomerMessage = "OrderCompleted.CustomerNotification";
     public const string SendOrderCancelledCustomerMessage = "OrderCancelled.CustomerNotification";
     public const string SendOrderRefundedCustomerMessage = "OrderRefunded.CustomerNotification";
+    public const string SendPaymentDueReminderCustomerMessage = "OrderPaymentDue.CustomerNotification";
+    public const string SendPaymentOverdueCustomerMessage = "OrderPaymentOverdue.CustomerNotification";
 
     public const string SendOrderPlacedVendorMessage = "OrderPlaced.VendorNotification";
     public const string SendOrderPaidVendorMessage = "OrderPaid.VendorNotification";
