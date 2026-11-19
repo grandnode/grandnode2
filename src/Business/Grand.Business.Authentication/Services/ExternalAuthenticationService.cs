@@ -10,6 +10,7 @@ using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
+using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
@@ -31,9 +32,11 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         IRepository<ExternalAuthentication> externalAuthenticationRecordRepository,
         IEnumerable<IExternalAuthenticationProvider> externalAuthenticationProviders,
         CustomerSettings customerSettings,
-        ExternalAuthenticationSettings externalAuthenticationSettings)
+        ExternalAuthenticationSettings externalAuthenticationSettings,
+        CustomerConfig customerConfig)
     {
         _customerSettings = customerSettings;
+        _customerConfig = customerConfig;
         _externalAuthenticationSettings = externalAuthenticationSettings;
         _customerManagerService = customerManagerService;
         _customerService = customerService;
@@ -55,6 +58,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     private readonly IEnumerable<IExternalAuthenticationProvider> _externalAuthenticationProviders;
     private readonly CustomerSettings _customerSettings;
     private readonly ExternalAuthenticationSettings _externalAuthenticationSettings;
+    private readonly CustomerConfig _customerConfig;
 
     #endregion
 
@@ -121,6 +125,11 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     protected virtual async Task<ExternalAuthResult> RegisterNewUser(ExternalAuthParam parameters, Customer customer,
         string storeId, Language language)
     {
+        //the same rule as the registration form; the provider's e-mail never takes over an existing account
+        if (await _customerService.GetCustomerByEmail(parameters.Email,
+                _customerConfig.RegisterCustomersPerStore ? storeId : "") != null)
+            return ExternalAuthResult.EmailAlreadyExists();
+
         var approved =
             _customerSettings.UserRegistrationType is UserRegistrationType.Standard
                 or UserRegistrationType.EmailValidation;

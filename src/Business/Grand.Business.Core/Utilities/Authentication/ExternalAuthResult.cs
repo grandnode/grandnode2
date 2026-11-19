@@ -22,6 +22,12 @@ public enum ExternalAuthStatus
     /// <summary>The external account is unknown and registration of new customers is disabled</summary>
     RegistrationDisabled,
 
+    /// <summary>
+    ///     The external account is unknown and its e-mail belongs to an existing customer, who signs in and connects
+    ///     the account instead
+    /// </summary>
+    EmailAlreadyExists,
+
     /// <summary>The authentication failed; <see cref="ExternalAuthResult.Errors" /> says why</summary>
     Error
 }
@@ -59,6 +65,9 @@ public class ExternalAuthResult
 
     public static ExternalAuthResult RegistrationDisabled() =>
         new(ExternalAuthStatus.RegistrationDisabled, null, []);
+
+    public static ExternalAuthResult EmailAlreadyExists() =>
+        new(ExternalAuthStatus.EmailAlreadyExists, null, []);
 
     public static ExternalAuthResult Error(string error) => new(ExternalAuthStatus.Error, null, [error]);
 }
