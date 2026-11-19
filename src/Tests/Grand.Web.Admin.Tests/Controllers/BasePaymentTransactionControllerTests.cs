@@ -38,13 +38,15 @@ public class BasePaymentTransactionControllerTests
         IEnumTranslationService enumTranslationService,
         IAdminDataScope<PaymentTransaction> scope,
         IContextAccessor contextAccessor,
-        IPaymentTransactionHistoryService paymentTransactionHistoryService)
+        IPaymentTransactionHistoryService paymentTransactionHistoryService,
+        IPaymentService paymentService)
         : BasePaymentTransactionController(paymentTransactionService, orderService, translationService,
             dateTimeService, mediator, enumTranslationService, scope, contextAccessor,
-            paymentTransactionHistoryService);
+            paymentTransactionHistoryService, paymentService);
 
     private TestPaymentTransactionController _controller;
     private Mock<IPaymentTransactionHistoryService> _historyMock;
+    private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IAdminDataScope<PaymentTransaction>> _scopeMock;
@@ -88,10 +90,18 @@ public class BasePaymentTransactionControllerTests
         _historyMock = new Mock<IPaymentTransactionHistoryService>();
         _historyMock.Setup(h => h.GetEntries(It.IsAny<string>())).ReturnsAsync(new List<PaymentTransactionEntry>());
 
+        var onAccount = new Mock<IPaymentProvider>();
+        onAccount.Setup(p => p.SystemName).Returns("Payments.OnAccount");
+        onAccount.Setup(p => p.FriendlyName).Returns("On account");
+        _paymentServiceMock = new Mock<IPaymentService>();
+        _paymentServiceMock
+            .Setup(p => p.LoadAllPaymentMethods(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<IPaymentProvider> { onAccount.Object });
+
         _controller = new TestPaymentTransactionController(
             _paymentTransactionServiceMock.Object, _orderServiceMock.Object, _translationServiceMock.Object,
             dateTimeServiceMock.Object, _mediatorMock.Object, enumTranslationServiceMock.Object, _scopeMock.Object,
-            contextAccessorMock.Object, _historyMock.Object);
+            contextAccessorMock.Object, _historyMock.Object, _paymentServiceMock.Object);
 
         // Error()/Success() (used by this task's popup and Delete actions) reach into
         // HttpContext.RequestServices for ILoggerFactory and into TempData - wire up the same
@@ -110,9 +120,9 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
-    public void List_ReturnsViewWithPreparedModel()
+    public async Task List_ReturnsViewWithPreparedModel()
     {
-        var result = _controller.List() as ViewResult;
+        var result = await _controller.List() as ViewResult;
 
         Assert.IsNotNull(result);
         Assert.IsInstanceOfType(result!.Model, typeof(PaymentTransactionListModel));
@@ -128,6 +138,50 @@ public class BasePaymentTransactionControllerTests
         await _controller.List(new DataSourceRequest { Page = 1, PageSize = int.MaxValue }, model);
 
         Assert.IsNull(model.StoreId);
+    }
+
+    [TestMethod]
+    public async Task List_ListsPaymentMethodsAfterAll()
+    {
+        var model = (PaymentTransactionListModel)((ViewResult)await _controller.List()).Model;
+
+        Assert.AreEqual(2, model.AvailablePaymentMethods.Count);
+        Assert.AreEqual(" ", model.AvailablePaymentMethods[0].Value);
+        Assert.AreEqual("Payments.OnAccount", model.AvailablePaymentMethods[1].Value);
+        Assert.AreEqual("On account", model.AvailablePaymentMethods[1].Text);
+    }
+
+    [TestMethod]
+    public async Task List_Post_PassesTheNewFilters()
+    {
+        SetupSearch();
+
+        await _controller.List(new DataSourceRequest { Page = 1, PageSize = int.MaxValue },
+            new PaymentTransactionListModel {
+                PaymentMethodSystemName = "Payments.OnAccount", PurchaseOrderNumber = "PO-7", OverdueOnly = true
+            });
+
+        _mediatorMock.Verify(m => m.Send(It.Is<GetPaymentTransactionQuery>(q =>
+                q.PaymentMethodSystemName == "Payments.OnAccount" && q.PurchaseOrderNumber == "PO-7" && q.OverdueOnly),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task List_Post_UnknownOrderNumber_ReturnsEmptyWithoutSearching()
+    {
+        SetupSearch();
+        _orderServiceMock.Setup(s => s.GetOrderByNumber(999)).ReturnsAsync((Order)null);
+        var command = new DataSourceRequest { Page = 1, PageSize = int.MaxValue };
+
+        foreach (var orderNumber in new[] { "999", "abc" })
+        {
+            var result = await _controller.List(command, new PaymentTransactionListModel { OrderNumber = orderNumber });
+
+            Assert.AreEqual(0, ((DataSourceResult)((JsonResult)result).Value!).Total);
+        }
+
+        _mediatorMock.Verify(m => m.Send(It.IsAny<GetPaymentTransactionQuery>(), It.IsAny<CancellationToken>()),
+            Times.Never);
     }
 
     private void SetupSearch()

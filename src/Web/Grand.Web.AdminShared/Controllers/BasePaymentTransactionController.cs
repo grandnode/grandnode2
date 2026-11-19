@@ -33,7 +33,8 @@ public abstract class BasePaymentTransactionController(
     IEnumTranslationService enumTranslationService,
     IAdminDataScope<PaymentTransaction> scope,
     IContextAccessor contextAccessor,
-    IPaymentTransactionHistoryService paymentTransactionHistoryService)
+    IPaymentTransactionHistoryService paymentTransactionHistoryService,
+    IPaymentService paymentService)
     : BaseController
 {
     // Exposed for host-specific concrete subclasses (none currently need extra actions, unlike
@@ -48,6 +49,7 @@ public abstract class BasePaymentTransactionController(
     protected IAdminDataScope<PaymentTransaction> Scope => scope;
     protected IContextAccessor ContextAccessor => contextAccessor;
     protected IPaymentTransactionHistoryService PaymentTransactionHistoryService => paymentTransactionHistoryService;
+    protected IPaymentService PaymentService => paymentService;
 
     /// <summary>Who the payment operation history and order notes name for an operation made here</summary>
     private string StaffName => contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy();
@@ -69,7 +71,7 @@ public abstract class BasePaymentTransactionController(
 
     public IActionResult Index() => RedirectToAction("List");
 
-    public IActionResult List()
+    public async Task<IActionResult> List()
     {
         var model = new PaymentTransactionListModel {
             PaymentTransactionStatus = enumTranslationService.ToSelectList(TransactionStatus.Pending, false)
@@ -77,6 +79,11 @@ public abstract class BasePaymentTransactionController(
         };
         model.PaymentTransactionStatus.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "-1", Selected = true });
+
+        model.AvailablePaymentMethods.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
+        foreach (var pm in await paymentService.LoadAllPaymentMethods())
+            model.AvailablePaymentMethods.Add(new SelectListItem { Text = pm.FriendlyName, Value = pm.SystemName });
+
         return View(model);
     }
 
@@ -104,12 +111,15 @@ public abstract class BasePaymentTransactionController(
 
         Guid? orderGuid = null;
         if (!string.IsNullOrEmpty(model.OrderNumber))
-            if (int.TryParse(model.OrderNumber, out var ordernumber))
-            {
-                var order = await orderService.GetOrderByNumber(ordernumber);
-                if (order != null)
-                    orderGuid = order.OrderGuid;
-            }
+        {
+            var order = int.TryParse(model.OrderNumber, out var ordernumber)
+                ? await orderService.GetOrderByNumber(ordernumber)
+                : null;
+            //an order number that finds no order finds no payment, rather than every payment
+            if (order == null)
+                return Json(new DataSourceResult { Data = new List<PaymentTransactionModel>(), Total = 0 });
+            orderGuid = order.OrderGuid;
+        }
 
         var paymentTransactions = await mediator.Send(new GetPaymentTransactionQuery {
             CustomerEmail = model.SearchCustomerEmail,
@@ -118,6 +128,9 @@ public abstract class BasePaymentTransactionController(
             CreatedToUtc = endDateValue,
             StoreId = model.StoreId,
             OrderGuid = orderGuid,
+            PaymentMethodSystemName = model.PaymentMethodSystemName,
+            PurchaseOrderNumber = model.PurchaseOrderNumber,
+            OverdueOnly = model.OverdueOnly,
             PageIndex = command.Page - 1,
             PageSize = command.PageSize,
             //the payment of an order searched for by its number is shown whatever state its checkout left it in
