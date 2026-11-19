@@ -256,6 +256,25 @@ public class CookieAuthenticationServiceTests
     }
 
     [TestMethod]
+    public async Task GetLegacyCustomerGuid_BareGuid_ReturnsIt()
+    {
+        var customerGuid = Guid.NewGuid();
+        _httpContext.Request.Headers.Cookie = $".Grand.Customer={customerGuid}";
+
+        Assert.AreEqual(customerGuid.ToString(), await _cookieAuthService.GetLegacyCustomerGuid());
+    }
+
+    [TestMethod]
+    public async Task GetLegacyCustomerGuid_ProtectedCookie_Null()
+    {
+        await _cookieAuthService.SetCustomerGuid(Guid.NewGuid());
+        var value = _httpContext.Response.Headers.SetCookie.Last().Split(";")[0].Split("=", 2)[1];
+        _httpContext.Request.Headers.Cookie = $".Grand.Customer={value}";
+
+        Assert.IsNull(await _cookieAuthService.GetLegacyCustomerGuid());
+    }
+
+    [TestMethod]
     public async Task GetAuthenticatedCustomer_NoSessionClaim_SessionServiceNotAsked()
     {
         var customer = RegisteredCustomer();

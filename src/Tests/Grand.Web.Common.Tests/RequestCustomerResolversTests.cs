@@ -105,6 +105,37 @@ public class RequestCustomerResolversTests
             Mock.Of<IGroupService>());
 
         Assert.AreSame(guest, await resolver.Resolve());
+        authentication.Verify(a => a.SetCustomerGuid(It.IsAny<Guid>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task GuestCookie_LegacyBareGuidOfExistingGuest_ResolvesAndRewritesCookie()
+    {
+        var guid = Guid.NewGuid();
+        var guest = new Customer { Id = "guest", CustomerGuid = guid, Active = true };
+        var authentication = new Mock<IGrandAuthenticationService>();
+        authentication.Setup(a => a.GetLegacyCustomerGuid()).ReturnsAsync(guid.ToString());
+        var customers = new Mock<ICustomerService>();
+        customers.Setup(c => c.GetCustomerByGuid(guid)).ReturnsAsync(guest);
+
+        var resolver = new GuestCookieCustomerResolver(authentication.Object, customers.Object,
+            Mock.Of<IGroupService>());
+
+        Assert.AreSame(guest, await resolver.Resolve());
+        authentication.Verify(a => a.SetCustomerGuid(guid), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task GuestCookie_LegacyBareGuidWithoutGuest_ReturnsNull_CookieNotRewritten()
+    {
+        var authentication = new Mock<IGrandAuthenticationService>();
+        authentication.Setup(a => a.GetLegacyCustomerGuid()).ReturnsAsync(Guid.NewGuid().ToString());
+
+        var resolver = new GuestCookieCustomerResolver(authentication.Object, Mock.Of<ICustomerService>(),
+            Mock.Of<IGroupService>());
+
+        Assert.IsNull(await resolver.Resolve());
+        authentication.Verify(a => a.SetCustomerGuid(It.IsAny<Guid>()), Times.Never);
     }
 
     [TestMethod]

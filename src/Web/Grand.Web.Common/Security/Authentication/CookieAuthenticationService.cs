@@ -5,6 +5,7 @@ using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using Grand.Web.Common.RequestCustomerResolvers;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.DataProtection;
 using Microsoft.AspNetCore.Http;
@@ -355,6 +356,16 @@ public class CookieAuthenticationService : IGrandAuthenticationService
             //not issued by the store (a bare GUID included), or protected with a key that is gone
             return Task.FromResult<string>(null);
         }
+    }
+
+    /// <summary>
+    ///     The bare GUID of a guest cookie written before the cookie was protected; null otherwise.
+    ///     Transition only, removed in 2.6
+    /// </summary>
+    public virtual Task<string> GetLegacyCustomerGuid()
+    {
+        var cookie = _httpContextAccessor.HttpContext?.Request.Cookies[CustomerCookieName];
+        return Task.FromResult(GuestCustomerRules.TryParseCookie(cookie, out _) ? cookie : null);
     }
 
     /// <summary>
