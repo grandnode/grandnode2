@@ -165,6 +165,18 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
+    [DataRow(null, "")]
+    [DataRow("store-1", "store-1")]
+    public async Task List_ListsThePaymentMethodsOfTheScopedStore(string defaultStoreId, string storeId)
+    {
+        _scopeMock.Setup(s => s.DefaultStoreId).Returns(defaultStoreId);
+
+        await _controller.List();
+
+        _paymentServiceMock.Verify(p => p.LoadAllPaymentMethods(null, storeId, ""), Times.Once);
+    }
+
+    [TestMethod]
     public async Task List_Post_PassesTheNewFilters()
     {
         SetupSearch();
@@ -274,6 +286,16 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
+    public async Task GoToOrderNumber_UnreadableNumber_RedirectsToListWithoutLookingItUp()
+    {
+        var result = await _controller.GoToOrderNumber(new PaymentTransactionListModel { OrderNumber = "abc" }) as RedirectToActionResult;
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual("List", result!.ActionName);
+        _orderServiceMock.Verify(s => s.GetOrderByNumber(It.IsAny<int>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Edit_DeniedByScope_RedirectsToList()
     {
         _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction { Id = "pt-1" });
@@ -324,8 +346,6 @@ public class BasePaymentTransactionControllerTests
             Temp = true, UpdatedOnUtc = new DateTime(2026, 11, 19, 8, 0, 0, DateTimeKind.Utc)
         }, null);
 
-        Assert.AreEqual(60, model.AmountDue);
-        Assert.AreEqual(30, model.AmountRefundable);
         Assert.AreEqual(4.2, model.CurrencyRate);
         Assert.AreEqual("A1", model.AuthorizationTransactionCode);
         Assert.AreEqual("ok", model.AuthorizationTransactionResult);
@@ -333,24 +353,50 @@ public class BasePaymentTransactionControllerTests
         Assert.AreEqual("done", model.CaptureTransactionResult);
         Assert.AreEqual("declined", model.Errors.Single());
         Assert.AreEqual("PL61", model.CustomValues["IBAN"]);
-        Assert.IsTrue(model.Abandoned);
+        Assert.IsTrue(model.CheckoutNotCompleted);
         Assert.IsNotNull(model.UpdatedOn);
         Assert.AreEqual("On account", model.PaymentMethodName);
     }
 
     [TestMethod]
-    public async Task Edit_AmountsLeftAreRoundedToCents()
+    public async Task Edit_AmountDue_OnlyWhileTheTransactionCanBePaid()
     {
-        var model = await EditModel(new PaymentTransaction {
-            Id = "pt-1", TransactionAmount = 123.45, PaidAmount = 100, RefundedAmount = 76.55
-        }, null);
-        Assert.AreEqual(23.45, model.AmountDue);
-        Assert.AreEqual(23.45, model.AmountRefundable);
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 40 };
 
-        //paid in two parts that add up to a hair below the amount: nothing is left to pay
-        model = await EditModel(new PaymentTransaction { Id = "pt-1", TransactionAmount = 0.1 + 0.2, PaidAmount = 0.3 },
+        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountDue);
+
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default)).ReturnsAsync(true);
+        Assert.AreEqual(60, (await EditModel(transaction, null)).AmountDue);
+
+        //a checkout never completed owes nothing
+        transaction.Temp = true;
+        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountDue);
+    }
+
+    [TestMethod]
+    public async Task Edit_AmountRefundable_IsTheRefundLimit_OnlyWhileARefundCanBeMade()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100, PaidAmount = 40, RefundedAmount = 10 };
+
+        Assert.AreEqual(0, (await EditModel(transaction, null)).AmountRefundable);
+
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanPartiallyRefundOfflineQuery>(), default)).ReturnsAsync(true);
+        var model = await EditModel(transaction, null);
+        Assert.AreEqual(90, model.AmountRefundable);
+        Assert.AreEqual(model.MaxAmountToRefund, model.AmountRefundable);
+    }
+
+    [TestMethod]
+    public async Task Edit_PaidInPartsToTheFullAmount_LeavesNothingToPay()
+    {
+        _mediatorMock.Setup(m => m.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default)).ReturnsAsync(true);
+
+        //0.7 + 0.1 + 0.1 + 0.1 adds up to a hair below 1
+        var model = await EditModel(new PaymentTransaction { Id = "pt-1", TransactionAmount = 1, PaidAmount = 0.7 + 0.1 + 0.1 + 0.1 },
             null);
+
         Assert.AreEqual(0, model.AmountDue);
+        Assert.AreEqual(0, model.MaxAmountToPaid);
     }
 
     [TestMethod]

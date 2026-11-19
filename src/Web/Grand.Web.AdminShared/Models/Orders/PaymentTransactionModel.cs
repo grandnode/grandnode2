@@ -17,9 +17,9 @@ public class PaymentTransactionModel : BaseEntityModel
     public string PaymentMethodName { get; set; }
 
     /// <summary>
-    ///     A checkout whose payment never went through: failed, left unfinished or still in progress
+    ///     A checkout whose payment never went through: failed, abandoned or still in progress at the gateway
     /// </summary>
-    public bool Abandoned { get; set; }
+    public bool CheckoutNotCompleted { get; set; }
 
     public TransactionStatus TransactionStatus { get; set; }
 

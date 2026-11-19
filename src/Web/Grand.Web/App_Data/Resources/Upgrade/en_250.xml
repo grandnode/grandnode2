@@ -2565,8 +2565,8 @@
 	<Resource Name="Admin.Orders.PaymentTransaction.List.OverdueOnly.Hint" Area="Admin">
 		<Value>Show only payments of orders bought on trade credit that are past their due date.</Value>
 	</Resource>
-	<Resource Name="Admin.PaymentTransaction.Abandoned" Area="Admin">
-		<Value>Abandoned checkout</Value>
+	<Resource Name="Admin.PaymentTransaction.CheckoutNotCompleted" Area="Admin">
+		<Value>Checkout not completed</Value>
 	</Resource>
 	<Resource Name="Admin.PaymentTransaction.Fields.UpdatedOn" Area="Admin">
 		<Value>Last changed</Value>

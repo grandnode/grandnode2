@@ -13,6 +13,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.SharedKernel;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Grand.Web.Common.Controllers;
@@ -86,9 +87,9 @@ public abstract class BasePaymentTransactionController(
         model.PaymentTransactionStatus.Insert(0,
             new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = "-1", Selected = true });
 
-        model.AvailablePaymentMethods.Add(new SelectListItem { Text = translationService.GetResource("Admin.Common.All"), Value = " " });
-        foreach (var pm in await paymentService.LoadAllPaymentMethods())
-            model.AvailablePaymentMethods.Add(new SelectListItem { Text = pm.FriendlyName, Value = pm.SystemName });
+        //the store panel lists the methods its own store can use
+        model.AvailablePaymentMethods =
+            await paymentService.PaymentMethodSelectList(translationService, scope.DefaultStoreId);
 
         return View(model);
     }
@@ -182,9 +183,10 @@ public abstract class BasePaymentTransactionController(
         if (model.OrderNumber == null)
             return RedirectToAction("List", "PaymentTransaction");
 
-        int.TryParse(model.OrderNumber, out var id);
+        if (!int.TryParse(model.OrderNumber, out var orderNumber))
+            return RedirectToAction("List", "PaymentTransaction");
 
-        var order = await orderService.GetOrderByNumber(id);
+        var order = await orderService.GetOrderByNumber(orderNumber);
         if (order == null)
             return RedirectToAction("List", "PaymentTransaction");
 
@@ -225,10 +227,8 @@ public abstract class BasePaymentTransactionController(
             PaymentMethodName =
                 paymentService.LoadPaymentMethodBySystemName(paymentTransaction.PaymentMethodSystemName)?.FriendlyName ??
                 paymentTransaction.PaymentMethodSystemName,
-            Abandoned = paymentTransaction.Temp,
+            CheckoutNotCompleted = paymentTransaction.Temp,
             RefundedAmount = paymentTransaction.RefundedAmount,
-            AmountDue = AmountLeft(paymentTransaction.TransactionAmount, paymentTransaction.PaidAmount),
-            AmountRefundable = AmountLeft(paymentTransaction.PaidAmount, paymentTransaction.RefundedAmount),
             CurrencyRate = paymentTransaction.CurrencyRate,
             //the store panel shows its own store only, so naming it says nothing
             StoreName = scope.DefaultStoreId is null
@@ -272,8 +272,8 @@ public abstract class BasePaymentTransactionController(
             CanVoid = await mediator.Send(new CanVoidQuery { PaymentTransaction = paymentTransaction }),
             CanVoidOffline = await mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction }),
             CanDelete = await mediator.Send(new CanDeletePaymentTransactionQuery { PaymentTransaction = paymentTransaction }),
-            MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
-            MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount,
+            MaxAmountToRefund = paymentTransaction.AmountLeftToRefund(),
+            MaxAmountToPaid = paymentTransaction.AmountLeftToPay(),
             Entries = (await paymentTransactionHistoryService.GetEntries(paymentTransaction.Id)).Select(x =>
                 new PaymentTransactionEntryModel {
                     Operation = enumTranslationService.GetTranslationEnum(x.EntryType),
@@ -284,14 +284,15 @@ public abstract class BasePaymentTransactionController(
                     Note = x.Note
                 }).ToList()
         };
+        //what is left is shown only while it can still be paid or refunded: a voided, cancelled or
+        //never completed transaction owes nothing
+        if (model.CanMarkAsPaid && !paymentTransaction.Temp)
+            model.AmountDue = paymentTransaction.AmountLeftToPay();
+        if (model.CanRefund || model.CanRefundOffline || model.CanPartiallyRefund || model.CanPartiallyRefundOffline)
+            model.AmountRefundable = paymentTransaction.AmountLeftToRefund();
 
         return View(model);
     }
-
-    /// <summary>
-    ///     What is left of an amount, to the cent: amounts paid in parts add up with floating-point residue
-    /// </summary>
-    private static double AmountLeft(double amount, double used) => Math.Max(Math.Round(amount - used, 2), 0);
 
     private static string BillingName(Address address)
     {
@@ -475,7 +476,7 @@ public abstract class BasePaymentTransactionController(
 
         var model = new PaymentTransactionModel {
             Id = paymentTransaction.Id,
-            MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
+            MaxAmountToRefund = paymentTransaction.AmountLeftToRefund(),
             CurrencyCode = paymentTransaction.CurrencyCode,
             Online = online
         };
@@ -497,7 +498,7 @@ public abstract class BasePaymentTransactionController(
             if (amountToRefund <= 0)
                 throw new GrandException("Enter amount to refund");
 
-            var maxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount;
+            var maxAmountToRefund = paymentTransaction.AmountLeftToRefund();
             if (amountToRefund > maxAmountToRefund)
                 amountToRefund = maxAmountToRefund;
 
@@ -543,7 +544,7 @@ public abstract class BasePaymentTransactionController(
 
         var model = new PaymentTransactionModel {
             Id = paymentTransaction.Id,
-            MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount,
+            MaxAmountToPaid = paymentTransaction.AmountLeftToPay(),
             CurrencyCode = paymentTransaction.CurrencyCode
         };
 
@@ -563,7 +564,7 @@ public abstract class BasePaymentTransactionController(
             if (amountToPaid <= 0)
                 throw new GrandException("Enter amount to refund");
 
-            var maxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
+            var maxAmountToPaid = paymentTransaction.AmountLeftToPay();
             if (amountToPaid > maxAmountToPaid)
                 amountToPaid = maxAmountToPaid;
 

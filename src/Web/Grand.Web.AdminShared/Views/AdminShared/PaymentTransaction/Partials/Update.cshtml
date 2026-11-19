@@ -15,9 +15,9 @@
             <admin-label asp-for="Status" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">
                 @Model.Status
-                @if (Model.Abandoned)
+                @if (Model.CheckoutNotCompleted)
                 {
-                    <span class="grand-chip grand-chip--amber ms-1">@Loc["Admin.PaymentTransaction.Abandoned"]</span>
+                    <span class="grand-chip grand-chip--amber ms-1">@Loc["Admin.PaymentTransaction.CheckoutNotCompleted"]</span>
                 }
             </div>
         </div>
@@ -76,7 +76,7 @@
         {
             <div>
                 <admin-label asp-for="UpdatedOn" asp-display-hint="false" class="grand-fact__label"/>
-                <div class="grand-fact__value">@Model.UpdatedOn.Value.ToString("G")</div>
+                <div class="grand-fact__value">@Html.DisplayFor(model => model.UpdatedOn)</div>
             </div>
         }
         <div>
