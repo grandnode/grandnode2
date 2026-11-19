@@ -131,8 +131,10 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
                 ? TransactionStatus.Pending
                 : TransactionStatus.Refunded
         };
+        //a full refund leaves the amount to Stripe: the paid amount recorded here is the order total, which
+        //may round a cent away from what Stripe charged, and Stripe refuses a refund above the charge
         var errors = await _stripeCheckoutService.Refund(refundPaymentRequest.PaymentTransaction,
-            refundPaymentRequest.AmountToRefund);
+            refundPaymentRequest.IsPartialRefund ? refundPaymentRequest.AmountToRefund : null);
         foreach (var error in errors)
             result.AddError(error);
 

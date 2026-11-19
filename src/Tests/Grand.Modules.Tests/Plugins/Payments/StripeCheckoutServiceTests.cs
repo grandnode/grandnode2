@@ -40,18 +40,45 @@ public class StripeCheckoutServiceTests
         return new PaymentTransaction { StoreId = "s2", AuthorizationTransactionId = paymentIntentId };
     }
 
+    private const string NoRefunds = """{"object":"list","data":[],"has_more":false,"url":"/v1/refunds"}""";
+    private const string Succeeded = """{"id":"re_1","object":"refund","status":"succeeded"}""";
+
+    private static string Refunds(params (long amount, string status)[] refunds)
+    {
+        var data = string.Join(",", refunds.Select((r, i) =>
+            $$"""{"id":"re_{{i}}","object":"refund","amount":{{r.amount}},"status":"{{r.status}}"}"""));
+        return $$"""{"object":"list","data":[{{data}}],"has_more":false,"url":"/v1/refunds"}""";
+    }
+
     [TestMethod]
     public async Task Refund_PostsPaymentIntentAndAmountInCents_WithTheTransactionStoreKey()
     {
-        _handler.Respond(HttpStatusCode.OK, """{"id":"re_1","object":"refund","status":"succeeded"}""");
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, NoRefunds);
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.OK, Succeeded);
 
         var errors = await _service.Refund(Transaction(), 19.99);
 
         Assert.AreEqual(0, errors.Count);
-        Assert.AreEqual("/v1/refunds", _handler.Request.RequestUri!.AbsolutePath);
-        Assert.AreEqual("Bearer sk_s2", _handler.Request.Headers.Authorization!.ToString());
-        StringAssert.Contains(_handler.Body, "payment_intent=pi_1");
-        StringAssert.Contains(_handler.Body, "amount=1999");
+        var list = _handler.Requests[0];
+        Assert.AreEqual(HttpMethod.Get, list.Request.Method);
+        StringAssert.Contains(list.Request.RequestUri!.Query, "payment_intent=pi_1");
+        var create = _handler.Requests[1];
+        Assert.AreEqual("/v1/refunds", create.Request.RequestUri!.AbsolutePath);
+        Assert.AreEqual("Bearer sk_s2", create.Request.Headers.Authorization!.ToString());
+        StringAssert.Contains(create.Body, "payment_intent=pi_1");
+        StringAssert.Contains(create.Body, "amount=1999");
+    }
+
+    [TestMethod]
+    public async Task Refund_Full_LeavesTheAmountToStripe()
+    {
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, NoRefunds);
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.OK, Succeeded);
+
+        var errors = await _service.Refund(Transaction(), null);
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.IsFalse(_handler.Requests[1].Body.Contains("amount="));
     }
 
     [TestMethod]
@@ -62,33 +89,100 @@ public class StripeCheckoutServiceTests
         Assert.AreEqual(1, errors.Count);
         //the money may still be in Stripe (staff marked the order paid before the webhook came)
         StringAssert.Contains(errors[0], "Stripe dashboard");
-        Assert.IsNull(_handler.Request);
+        Assert.AreEqual(0, _handler.Requests.Count);
     }
 
     [TestMethod]
-    public async Task Refund_RetryBeforeTheRefundIsSaved_ReusesTheIdempotencyKey()
+    public async Task Refund_NoApiKey_ReturnsErrorWithoutCallingStripe()
     {
-        _handler.Respond(HttpStatusCode.OK, """{"id":"re_1","object":"refund","status":"succeeded"}""");
+        _settingService.Setup(s => s.LoadSetting<StripeCheckoutPaymentSettings>("s2"))
+            .ReturnsAsync(new StripeCheckoutPaymentSettings());
+
+        var errors = await _service.Refund(Transaction(), 10);
+
+        Assert.AreEqual(1, errors.Count);
+        Assert.AreEqual(0, _handler.Requests.Count);
+    }
+
+    [TestMethod]
+    public async Task Refund_StripeRefundedMoreThanRecorded_RefusesWithoutRefunding()
+    {
+        //an earlier refund went through in Stripe but was not saved - a retry a day later included
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, Refunds((1000, "succeeded"), (500, "pending")));
         var transaction = Transaction();
-        transaction.Id = "t1";
+        transaction.RefundedAmount = 10;
+
+        var errors = await _service.Refund(transaction, 10);
+
+        Assert.AreEqual(1, errors.Count);
+        StringAssert.Contains(errors[0], "Stripe dashboard");
+        Assert.AreEqual(1, _handler.Requests.Count);
+    }
+
+    [TestMethod]
+    public async Task Refund_RefundsRecordedOffline_DoNotBlockTheRefund()
+    {
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, NoRefunds);
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.OK, Succeeded);
+        var transaction = Transaction();
         transaction.RefundedAmount = 5;
 
-        await _service.Refund(transaction, 10);
-        var first = _handler.Request.Headers.GetValues("Idempotency-Key").Single();
-        await _service.Refund(transaction, 10);
-        var retry = _handler.Request.Headers.GetValues("Idempotency-Key").Single();
-        transaction.RefundedAmount = 15;
-        await _service.Refund(transaction, 10);
-        var next = _handler.Request.Headers.GetValues("Idempotency-Key").Single();
+        var errors = await _service.Refund(transaction, 10);
 
-        Assert.AreEqual(first, retry);
-        Assert.AreNotEqual(first, next);
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual(2, _handler.Requests.Count);
+    }
+
+    [TestMethod]
+    public async Task Refund_IdempotencyKey_IsTheTransactionTheRefundsInStripeAndTheAmount()
+    {
+        //no culture-formatted number in the key: a Polish and an English admin send the same key
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, NoRefunds);
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.OK, Succeeded);
+        var transaction = Transaction();
+        transaction.Id = "t1";
+        transaction.RefundedAmount = 5.5;
+
+        await _service.Refund(transaction, 10);
+
+        Assert.AreEqual("t1-refund-0-1000",
+            _handler.Requests[1].Request.Headers.GetValues("Idempotency-Key").Single());
+    }
+
+    [TestMethod]
+    public async Task Refund_AfterAFailedRefund_SendsANewIdempotencyKey()
+    {
+        //Stripe replays the saved response of a key for 24 hours, a failed refund included
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, Refunds((1000, "failed")));
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.OK, Succeeded);
+        var transaction = Transaction();
+        transaction.Id = "t1";
+
+        var errors = await _service.Refund(transaction, 10);
+
+        Assert.AreEqual(0, errors.Count);
+        Assert.AreEqual("t1-refund-1-1000",
+            _handler.Requests[1].Request.Headers.GetValues("Idempotency-Key").Single());
+    }
+
+    [TestMethod]
+    public async Task Refund_ReplayedRefund_ReturnsErrorSoItIsNotRecordedTwice()
+    {
+        //a double submit: both requests send the same key, Stripe pays once and replays the refund to the second
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, NoRefunds);
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.OK, Succeeded, ("Idempotent-Replayed", "true"));
+
+        var errors = await _service.Refund(Transaction(), 10);
+
+        Assert.AreEqual(1, errors.Count);
+        StringAssert.Contains(errors[0], "re_1");
     }
 
     [TestMethod]
     public async Task Refund_StripeRefusal_ReturnsStripeMessage()
     {
-        _handler.Respond(HttpStatusCode.BadRequest,
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, NoRefunds);
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.BadRequest,
             """{"error":{"type":"invalid_request_error","message":"Charge has already been refunded."}}""");
 
         var errors = await _service.Refund(Transaction(), 10);
@@ -98,11 +192,24 @@ public class StripeCheckoutServiceTests
     }
 
     [TestMethod]
+    public async Task Refund_StripeUnreachable_ReturnsErrorInsteadOfThrowing()
+    {
+        _handler.Fail(new HttpRequestException("No such host is known."));
+
+        var errors = await _service.Refund(Transaction(), 10);
+
+        Assert.AreEqual(1, errors.Count);
+        StringAssert.Contains(errors[0], "Stripe dashboard");
+    }
+
+    [TestMethod]
     [DataRow("failed")]
     [DataRow("canceled")]
     public async Task Refund_FailedOrCanceledStatus_ReturnsError(string status)
     {
-        _handler.Respond(HttpStatusCode.OK, $$"""{"id":"re_1","object":"refund","status":"{{status}}"}""");
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, NoRefunds);
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.OK,
+            $$"""{"id":"re_1","object":"refund","status":"{{status}}"}""");
 
         var errors = await _service.Refund(Transaction(), 10);
 
@@ -112,7 +219,9 @@ public class StripeCheckoutServiceTests
     [TestMethod]
     public async Task Refund_PendingStatus_Succeeds()
     {
-        _handler.Respond(HttpStatusCode.OK, """{"id":"re_1","object":"refund","status":"pending"}""");
+        _handler.Respond(HttpMethod.Get, HttpStatusCode.OK, NoRefunds);
+        _handler.Respond(HttpMethod.Post, HttpStatusCode.OK,
+            """{"id":"re_1","object":"refund","status":"pending"}""");
 
         var errors = await _service.Refund(Transaction(), 10);
 
@@ -138,26 +247,39 @@ public class StripeCheckoutServiceTests
 
     private class FakeStripeHandler : HttpMessageHandler
     {
-        private string _json;
-        private HttpStatusCode _status;
+        private readonly Dictionary<HttpMethod, (HttpStatusCode status, string json, (string name, string value)[] headers)>
+            _responses = new();
 
-        public HttpRequestMessage Request { get; private set; }
-        public string Body { get; private set; }
+        private Exception _failure;
 
-        public void Respond(HttpStatusCode status, string json)
+        public List<(HttpRequestMessage Request, string Body)> Requests { get; } = [];
+
+        public void Respond(HttpMethod method, HttpStatusCode status, string json,
+            params (string name, string value)[] headers)
         {
-            _status = status;
-            _json = json;
+            _responses[method] = (status, json, headers);
+        }
+
+        public void Fail(Exception failure)
+        {
+            _failure = failure;
         }
 
         protected override async Task<HttpResponseMessage> SendAsync(HttpRequestMessage request,
             CancellationToken cancellationToken)
         {
-            Request = request;
-            Body = request.Content == null ? "" : await request.Content.ReadAsStringAsync(cancellationToken);
-            return new HttpResponseMessage(_status) {
-                Content = new StringContent(_json, Encoding.UTF8, "application/json")
+            Requests.Add((request,
+                request.Content == null ? "" : await request.Content.ReadAsStringAsync(cancellationToken)));
+            if (_failure != null)
+                throw _failure;
+
+            var (status, json, headers) = _responses[request.Method];
+            var response = new HttpResponseMessage(status) {
+                Content = new StringContent(json, Encoding.UTF8, "application/json")
             };
+            foreach (var (name, value) in headers)
+                response.Headers.Add(name, value);
+            return response;
         }
     }
 }

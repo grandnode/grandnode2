@@ -6,6 +6,7 @@ using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
+using System.Globalization;
 using Stripe;
 using Stripe.Checkout;
 
@@ -42,7 +43,7 @@ public class StripeCheckoutService : IStripeCheckoutService
         return session.Url;
     }
 
-    public async Task<IList<string>> Refund(PaymentTransaction paymentTransaction, double amount)
+    public async Task<IList<string>> Refund(PaymentTransaction paymentTransaction, double? amount)
     {
         //a payment staff marked as paid by hand never went through Stripe
         if (string.IsNullOrEmpty(paymentTransaction.AuthorizationTransactionId))
@@ -51,20 +52,42 @@ public class StripeCheckoutService : IStripeCheckoutService
         //the refund is made in the panel, whose store is not the order's: the key comes from the
         //transaction's store, as two stores may use two Stripe accounts
         var settings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(paymentTransaction.StoreId);
-        //in the smallest unit, as the session was created with the order total * 100
-        var amountInCents = (long)Math.Round(amount * 100);
+        if (string.IsNullOrEmpty(settings.ApiKey))
+            return ["The Stripe API key is not set for the store of this payment."];
+
+        //in the smallest unit, as the session was created with the order total * 100; a full refund
+        //leaves the amount to Stripe, which refunds what is left of the charge
+        var amountInCents = amount.HasValue ? (long)Math.Round(amount.Value * 100) : (long?)null;
+        var recordedInCents = (long)Math.Round(paymentTransaction.RefundedAmount * 100);
         try
         {
-            var refund = await new RefundService(CreateStripeClient(settings.ApiKey)).CreateAsync(
+            var refundService = new RefundService(CreateStripeClient(settings.ApiKey));
+            var refunds = await refundService.ListAsync(new RefundListOptions {
+                PaymentIntent = paymentTransaction.AuthorizationTransactionId,
+                Limit = 100
+            });
+            //Stripe keeps an idempotency key for 24 hours only, so a refund Stripe made but the shop did not
+            //save is caught here instead: refunding again would pay it out twice
+            var refundedInCents = refunds.Data.Where(r => r.Status is not ("failed" or "canceled")).Sum(r => r.Amount);
+            if (refundedInCents > recordedInCents)
+                return [$"Stripe has refunded {FormatCents(refundedInCents)} of this payment, more than the {FormatCents(recordedInCents)} recorded here. Check the Stripe dashboard and record the missing refund offline."];
+
+            var refund = await refundService.CreateAsync(
                 new RefundCreateOptions {
                     PaymentIntent = paymentTransaction.AuthorizationTransactionId,
                     Amount = amountInCents
                 },
-                //a retry after Stripe refunded but the refund was not saved sends the same key, so Stripe
-                //returns that refund instead of paying out again; once saved, the refunded amount changes the key
+                //a double submit sends the same key, so Stripe pays out once; any refund made since, a failed
+                //one included, changes the key, as Stripe would replay a failure saved under the old one
                 new RequestOptions {
-                    IdempotencyKey = $"{paymentTransaction.Id}-refund-{paymentTransaction.RefundedAmount}-{amountInCents}"
+                    IdempotencyKey =
+                        $"{paymentTransaction.Id}-refund-{refunds.Data.Count}-{amountInCents?.ToString() ?? "full"}"
                 });
+            //the request that made the refund records it; a replay must not record it a second time
+            if (refund.StripeResponse?.Headers != null
+                && refund.StripeResponse.Headers.TryGetValues("Idempotent-Replayed", out var replayed)
+                && replayed.Contains("true"))
+                return [$"Stripe refund {refund.Id} was already made by an earlier request. Reload the payment before refunding again."];
             //a pending refund is accepted: Stripe settles card refunds later
             if (refund.Status is "failed" or "canceled")
                 return [$"Stripe refund {refund.Id} {refund.Status}."];
@@ -74,8 +97,19 @@ public class StripeCheckoutService : IStripeCheckoutService
             _logger.LogError(e, "Stripe refund of order #{OrderCode} failed", paymentTransaction.OrderCode);
             return [e.StripeError?.Message ?? e.Message];
         }
+        catch (Exception e)
+        {
+            //a timeout leaves it unknown whether Stripe refunded; the check above catches a refund made after all
+            _logger.LogError(e, "Stripe refund of order #{OrderCode} failed", paymentTransaction.OrderCode);
+            return [$"Stripe could not be reached ({e.Message}). Check the Stripe dashboard before refunding again."];
+        }
 
         return [];
+    }
+
+    private static string FormatCents(long cents)
+    {
+        return (cents / 100.0).ToString("0.00", CultureInfo.InvariantCulture);
     }
 
     public async Task<bool> WebHookProcessPayment(string stripeSignature, string json)

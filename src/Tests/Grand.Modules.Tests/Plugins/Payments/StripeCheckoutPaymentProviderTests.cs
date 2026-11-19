@@ -21,7 +21,7 @@ public class StripeCheckoutPaymentProviderTests
     {
         _transaction = new PaymentTransaction { AuthorizationTransactionId = "pi_1" };
         _stripeCheckoutService = new Mock<IStripeCheckoutService>();
-        _stripeCheckoutService.Setup(s => s.Refund(It.IsAny<PaymentTransaction>(), It.IsAny<double>()))
+        _stripeCheckoutService.Setup(s => s.Refund(It.IsAny<PaymentTransaction>(), It.IsAny<double?>()))
             .ReturnsAsync(new List<string>());
         _provider = new StripeCheckoutPaymentProvider(Mock.Of<IRequestTranslationService>(),
             Mock.Of<IOrderService>(), new StripeCheckoutPaymentSettings(), _stripeCheckoutService.Object);
@@ -37,7 +37,7 @@ public class StripeCheckoutPaymentProviderTests
     }
 
     [TestMethod]
-    public async Task Refund_Full_PassesAmountAndSetsRefunded()
+    public async Task Refund_Full_LeavesTheAmountToStripeAndSetsRefunded()
     {
         var result = await _provider.Refund(new RefundPaymentRequest {
             PaymentTransaction = _transaction, AmountToRefund = 50, IsPartialRefund = false
@@ -45,7 +45,8 @@ public class StripeCheckoutPaymentProviderTests
 
         Assert.IsTrue(result.Success);
         Assert.AreEqual(TransactionStatus.Refunded, result.NewTransactionStatus);
-        _stripeCheckoutService.Verify(s => s.Refund(_transaction, 50), Times.Once);
+        //Stripe refunds what is left of the charge, so a rounding difference cannot make it refuse
+        _stripeCheckoutService.Verify(s => s.Refund(_transaction, null), Times.Once);
     }
 
     [TestMethod]
@@ -63,7 +64,7 @@ public class StripeCheckoutPaymentProviderTests
     [TestMethod]
     public async Task Refund_ServiceErrors_AreReturned()
     {
-        _stripeCheckoutService.Setup(s => s.Refund(_transaction, 50))
+        _stripeCheckoutService.Setup(s => s.Refund(_transaction, null))
             .ReturnsAsync(new List<string> { "Charge has already been refunded." });
 
         var result = await _provider.Refund(new RefundPaymentRequest {
