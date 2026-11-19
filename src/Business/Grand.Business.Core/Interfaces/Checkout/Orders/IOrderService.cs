@@ -122,6 +122,15 @@ public interface IOrderService
     /// <param name="order">The order</param>
     Task UpdateOrder(Order order);
 
+    /// <summary>
+    ///     Updates the purchase order number and the payment due date of an order. A new due date is a new term: the
+    ///     payment reminder and the overdue notice are sent again
+    /// </summary>
+    /// <param name="order">The order</param>
+    /// <param name="purchaseOrderNumber">Purchase order number</param>
+    /// <param name="paymentDueDateUtc">Payment due date (a calendar day, UTC), or null when the order is paid at once</param>
+    Task UpdatePaymentTerms(Order order, string purchaseOrderNumber, DateTime? paymentDueDateUtc);
+
     #endregion
 
     #region Order notes

@@ -259,6 +259,38 @@ public class OrderService : IOrderService
     }
 
     /// <summary>
+    ///     Updates the purchase order number and the payment due date of an order
+    /// </summary>
+    /// <param name="order">The order</param>
+    /// <param name="purchaseOrderNumber">Purchase order number</param>
+    /// <param name="paymentDueDateUtc">Payment due date (a calendar day, UTC), or null when the order is paid at once</param>
+    public virtual async Task UpdatePaymentTerms(Order order, string purchaseOrderNumber, DateTime? paymentDueDateUtc)
+    {
+        ArgumentNullException.ThrowIfNull(order);
+
+        //only these fields: a payment or a reminder saved meanwhile must not be overwritten
+        var update = UpdateBuilder<Order>.Create()
+            .Set(x => x.PurchaseOrderNumber, purchaseOrderNumber)
+            .Set(x => x.PaymentDueDateUtc, paymentDueDateUtc);
+
+        //a new due date is a new term: the customer is reminded of it and told when it passes. Compared in UTC,
+        //because LiteDB reads a stored date back in local time
+        if (order.PaymentDueDateUtc?.ToUniversalTime() != paymentDueDateUtc?.ToUniversalTime())
+        {
+            update.Set(x => x.PaymentReminderSentOnUtc, null).Set(x => x.PaymentOverdueNoticeSentOnUtc, null);
+            order.PaymentReminderSentOnUtc = null;
+            order.PaymentOverdueNoticeSentOnUtc = null;
+        }
+
+        order.PurchaseOrderNumber = purchaseOrderNumber;
+        order.PaymentDueDateUtc = paymentDueDateUtc;
+        await _orderRepository.UpdateOneAsync(x => x.Id == order.Id, update);
+
+        //event notification
+        await _mediator.EntityUpdated(order);
+    }
+
+    /// <summary>
     ///     Cancel UnPaid Orders and has pending status
     /// </summary>
     /// <param name="expirationDateUtc">

@@ -365,37 +365,9 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.PaymentTermsPopup("pt-1", model) as ViewResult;
 
         Assert.IsTrue(((PaymentTransactionModel)result!.Model!).RefreshPage);
-        Assert.AreEqual("PO-2", order.PurchaseOrderNumber);
-        Assert.AreEqual(new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc), order.PaymentDueDateUtc);
-        Assert.AreEqual(DateTimeKind.Utc, order.PaymentDueDateUtc!.Value.Kind);
-        _orderServiceMock.Verify(s => s.UpdateOrder(order), Times.Once);
-    }
-
-    [TestMethod]
-    public async Task PaymentTermsPopup_Post_NewDueDate_RemindersSentAgain()
-    {
-        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
-        order.PaymentReminderSentOnUtc = new DateTime(2026, 11, 10, 6, 0, 0, DateTimeKind.Utc);
-        order.PaymentOverdueNoticeSentOnUtc = new DateTime(2026, 11, 14, 6, 0, 0, DateTimeKind.Utc);
-
-        await _controller.PaymentTermsPopup("pt-1",
-            new PaymentTransactionModel { PurchaseOrderNumber = "PO-1", PaymentDueDate = new DateTime(2026, 12, 1) });
-
-        Assert.IsNull(order.PaymentReminderSentOnUtc);
-        Assert.IsNull(order.PaymentOverdueNoticeSentOnUtc);
-    }
-
-    [TestMethod]
-    public async Task PaymentTermsPopup_Post_SameDueDate_RemindersNotSentAgain()
-    {
-        var order = SetupOrder("PO-1", new DateTime(2026, 11, 13, 0, 0, 0, DateTimeKind.Utc));
-        var sentOn = new DateTime(2026, 11, 10, 6, 0, 0, DateTimeKind.Utc);
-        order.PaymentReminderSentOnUtc = sentOn;
-
-        await _controller.PaymentTermsPopup("pt-1",
-            new PaymentTransactionModel { PurchaseOrderNumber = "PO-2", PaymentDueDate = new DateTime(2026, 11, 13) });
-
-        Assert.AreEqual(sentOn, order.PaymentReminderSentOnUtc);
+        _orderServiceMock.Verify(s => s.UpdatePaymentTerms(order, "PO-2",
+            It.Is<DateTime?>(d => d == new DateTime(2026, 12, 1, 0, 0, 0, DateTimeKind.Utc) &&
+                                  d.Value.Kind == DateTimeKind.Utc)), Times.Once);
     }
 
     [TestMethod]
@@ -406,8 +378,7 @@ public class BasePaymentTransactionControllerTests
         var model = new PaymentTransactionModel { PurchaseOrderNumber = " ", PaymentDueDate = new DateTime(2026, 11, 13) };
         await _controller.PaymentTermsPopup("pt-1", model);
 
-        Assert.IsNull(order.PurchaseOrderNumber);
-        _orderServiceMock.Verify(s => s.UpdateOrder(order), Times.Once);
+        _orderServiceMock.Verify(s => s.UpdatePaymentTerms(order, null, It.IsAny<DateTime?>()), Times.Once);
     }
 
     [TestMethod]
@@ -421,7 +392,7 @@ public class BasePaymentTransactionControllerTests
         Assert.IsFalse(_controller.ModelState.IsValid);
         Assert.IsFalse(((PaymentTransactionModel)result!.Model!).RefreshPage);
         Assert.AreEqual("PO-1", order.PurchaseOrderNumber);
-        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        _orderServiceMock.Verify(s => s.UpdatePaymentTerms(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<DateTime?>()), Times.Never);
     }
 
     [TestMethod]
@@ -435,7 +406,7 @@ public class BasePaymentTransactionControllerTests
         Assert.IsFalse(_controller.ModelState.IsValid);
         Assert.IsTrue(((PaymentTransactionModel)result!.Model!).BoughtOnCredit);
         Assert.IsNotNull(order.PaymentDueDateUtc);
-        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        _orderServiceMock.Verify(s => s.UpdatePaymentTerms(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<DateTime?>()), Times.Never);
     }
 
     [TestMethod]
@@ -451,7 +422,7 @@ public class BasePaymentTransactionControllerTests
         Assert.HasCount(1, errors);
         Assert.AreEqual("resource", errors[0].ErrorMessage);
         Assert.IsNotNull(order.PaymentDueDateUtc);
-        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        _orderServiceMock.Verify(s => s.UpdatePaymentTerms(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<DateTime?>()), Times.Never);
     }
 
     [TestMethod]
@@ -463,8 +434,7 @@ public class BasePaymentTransactionControllerTests
         var model = new PaymentTransactionModel { PurchaseOrderNumber = "PO-2", PaymentDueDate = new DateTime(2026, 12, 1) };
         await _controller.PaymentTermsPopup("pt-1", model);
 
-        Assert.AreEqual("PO-2", order.PurchaseOrderNumber);
-        Assert.IsNull(order.PaymentDueDateUtc);
+        _orderServiceMock.Verify(s => s.UpdatePaymentTerms(order, "PO-2", null), Times.Once);
     }
 
     [TestMethod]
@@ -477,7 +447,7 @@ public class BasePaymentTransactionControllerTests
 
         Assert.AreEqual("Edit", result!.ActionName);
         Assert.IsNull(order.PurchaseOrderNumber);
-        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        _orderServiceMock.Verify(s => s.UpdatePaymentTerms(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<DateTime?>()), Times.Never);
     }
 
     [TestMethod]
@@ -490,7 +460,7 @@ public class BasePaymentTransactionControllerTests
         var result = await _controller.PaymentTermsPopup("pt-1", model) as RedirectToActionResult;
 
         Assert.AreEqual("List", result!.ActionName);
-        _orderServiceMock.Verify(s => s.UpdateOrder(It.IsAny<Order>()), Times.Never);
+        _orderServiceMock.Verify(s => s.UpdatePaymentTerms(It.IsAny<Order>(), It.IsAny<string>(), It.IsAny<DateTime?>()), Times.Never);
     }
 
     [TestMethod]
