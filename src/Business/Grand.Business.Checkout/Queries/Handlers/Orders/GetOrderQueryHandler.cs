@@ -1,8 +1,8 @@
-﻿using Grand.Business.Core.Queries.Checkout.Orders;
+﻿using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain;
 using Grand.Domain.Orders;
-using Grand.Domain.Payments;
 using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
@@ -104,11 +104,7 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IPagedList<Or
         if (request.OverdueOnly)
         {
             var today = DateTime.UtcNow.Date;
-            query = query.Where(o => o.PaymentDueDateUtc != null && o.PaymentDueDateUtc < today &&
-                                     o.OrderStatusId != (int)OrderStatusSystem.Cancelled &&
-                                     (o.PaymentStatusId == PaymentStatus.Pending ||
-                                      o.PaymentStatusId == PaymentStatus.Authorized ||
-                                      o.PaymentStatusId == PaymentStatus.PartiallyPaid));
+            query = query.Where(PaymentExtensions.UnpaidOnCredit).Where(o => o.PaymentDueDateUtc < today);
         }
 
         query = query.Where(o => !o.Deleted);

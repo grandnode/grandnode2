@@ -1,10 +1,10 @@
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
-using Grand.Domain.Payments;
 
 namespace Grand.Business.Checkout.Services.Orders;
 
@@ -37,14 +37,8 @@ public class CompanyCreditService : ICompanyCreditService
     /// </summary>
     private IQueryable<Order> UnpaidCreditOrders(string companyOwnerId)
     {
-        return _orderRepository.Table.Where(o =>
-            o.OwnerId == companyOwnerId &&
-            o.PaymentDueDateUtc != null &&
-            !o.Deleted &&
-            o.OrderStatusId != (int)OrderStatusSystem.Cancelled &&
-            (o.PaymentStatusId == PaymentStatus.Pending ||
-             o.PaymentStatusId == PaymentStatus.Authorized ||
-             o.PaymentStatusId == PaymentStatus.PartiallyPaid));
+        return _orderRepository.Table.Where(o => o.OwnerId == companyOwnerId)
+            .Where(PaymentExtensions.UnpaidOnCredit);
     }
 
     #endregion
