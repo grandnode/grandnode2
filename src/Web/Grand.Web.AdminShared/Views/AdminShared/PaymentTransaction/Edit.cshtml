@@ -24,9 +24,11 @@
             }
             @if (Model.CanMarkAsPaid)
             {
-                <button type="submit" id="markpaymenttransactionaspaid" name="markpaymenttransactionaspaid" asp-action="MarkPaymentTransactionAsPaid" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]" class="btn btn-outline-secondary">
+                <a id="markpaymenttransactionaspaid" name="markpaymenttransactionaspaid"
+                   href="@(Url.Action("MarkAsPaidPopup", "PaymentTransaction", new { id = Model.Id, area = area }))"
+                   class="btn btn-outline-secondary">
                     <i class="bi bi-cash" aria-hidden="true"></i> @Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]
-                </button>
+                </a>
             }
             @if (Model.CanPartiallyPaidOffline)
             {
@@ -51,8 +53,11 @@
             }
             @if (Model.CanRefundOffline)
             {
-                <input type="submit" name="refundpaymenttransactionoffline" asp-action="RefundPaymentTransactionOffline" value="@Loc["Admin.PaymentTransaction.Fields.RefundOffline"]"
-                       id="refundpaymenttransactionoffline" class="btn btn-outline-secondary" data-grand-confirm="@Loc["Admin.Common.AreYouSure"]"/>
+                <a id="refundpaymenttransactionoffline" name="refundpaymenttransactionoffline"
+                   href="@(Url.Action("RefundOfflinePopup", "PaymentTransaction", new { id = Model.Id, area = area }))"
+                   class="btn btn-outline-secondary">
+                    @Loc["Admin.PaymentTransaction.Fields.RefundOffline"]
+                </a>
             }
             @if (Model.CanPartiallyRefund)
             {
@@ -92,9 +97,23 @@
         </page-actions>
 
         <partial name="Partials/Update" model="Model"/>
+        <partial name="Partials/History" model="Model"/>
     </admin-page>
     <script>
         $(document).ready(function () {
+            $('#markpaymenttransactionaspaid, #refundpaymenttransactionoffline').magnificPopup({
+                type: 'ajax',
+                settings: { cache: false, async: false },
+                midClick: true,
+                callbacks: {
+                    parseAjax: function (mfpResponse) {
+                        mfpResponse.data = $('<div></div>').html(mfpResponse.data);
+                    },
+                    ajaxContentAdded: function () {
+                        $('.mfp-wrap').removeAttr('tabindex');
+                    }
+                }
+            });
             $('#partiallypaidpaymenttransactionoffline').magnificPopup({
                 type: 'ajax',
                 settings: { cache: false, async: false },

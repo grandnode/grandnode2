@@ -20,6 +20,7 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public RefundCommandHandler(
         IMediator mediator,
@@ -28,7 +29,8 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
         IOrderService orderService,
         IOrderMessageProviderService orderMessageProviderService,
         ILogger<RefundCommandHandler> logger,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _mediator = mediator;
         _paymentService = paymentService;
@@ -37,6 +39,7 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
         _orderMessageProviderService = orderMessageProviderService;
         _logger = logger;
         _languageSettings = languageSettings;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
 
@@ -70,6 +73,8 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
                     ? PaymentStatus.Refunded
                     : PaymentStatus.PartiallyRefunded;
                 await _orderService.UpdateOrder(order);
+                await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Refund,
+                    request.AmountToRefund, command.CreatedBy);
 
                 //check order status
                 await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);

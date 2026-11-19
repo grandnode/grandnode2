@@ -7,6 +7,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -20,6 +21,7 @@ public class VoidOfflineCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -27,11 +29,12 @@ public class VoidOfflineCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
         _paymentServiceMock = new Mock<IPaymentService>();
 
         _handler = new VoidOfflineCommandHandler(
             _orderServiceMock.Object, _paymentTransactionMock.Object,
-            _mediatorMock.Object);
+            _mediatorMock.Object, _historyMock.Object);
     }
 
     [TestMethod]
@@ -51,5 +54,70 @@ public class VoidOfflineCommandHandlerTests
         //Assert
         _orderServiceMock.Verify(c => c.UpdateOrder(It.IsAny<Order>()), Times.Once);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_Authorized_VoidsTransactionAndOrder()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction
+            { TransactionStatus = TransactionStatus.Authorized, TransactionAmount = 10 };
+        var order = new Order();
+        SetupRealCanVoidOffline();
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(order);
+
+        //Act
+        await _handler.Handle(new VoidOfflineCommand { PaymentTransaction = transaction }, CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(TransactionStatus.Voided, transaction.TransactionStatus);
+        Assert.AreEqual(PaymentStatus.Voided, order.PaymentStatusId);
+        _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(transaction), Times.Once);
+        _orderServiceMock.Verify(c => c.UpdateOrder(order), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_Authorized_RecordsVoid()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction
+            { TransactionStatus = TransactionStatus.Authorized, TransactionAmount = 10, CurrencyCode = "EUR" };
+        SetupRealCanVoidOffline();
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(new VoidOfflineCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Void, 10,
+            "staff@shop.com", null, null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_NotAuthorized_ThrowsAndSavesNothing()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionStatus = TransactionStatus.Paid, TransactionAmount = 10 };
+        SetupRealCanVoidOffline();
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await Assert.ThrowsExactlyAsync<GrandException>(() =>
+            _handler.Handle(new VoidOfflineCommand { PaymentTransaction = transaction }, CancellationToken.None));
+
+        //Assert
+        Assert.AreEqual(TransactionStatus.Paid, transaction.TransactionStatus);
+        _historyMock.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
+        _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
+    }
+
+    private void SetupRealCanVoidOffline()
+    {
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanVoidOfflineQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync((CanVoidOfflineQuery q, CancellationToken _) =>
+                q.PaymentTransaction.TransactionStatus == TransactionStatus.Authorized);
     }
 }

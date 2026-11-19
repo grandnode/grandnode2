@@ -22,6 +22,7 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public PartiallyRefundCommandHandler(
         IPaymentService paymentService,
@@ -30,7 +31,8 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
         IOrderMessageProviderService orderMessageProviderService,
         ILogger<PartiallyRefundCommandHandler> logger,
         IOrderService orderService,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;
@@ -39,6 +41,7 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
         _orderMessageProviderService = orderMessageProviderService;
         _logger = logger;
         _languageSettings = languageSettings;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<IList<string>> Handle(PartiallyRefundCommand command, CancellationToken cancellationToken)
@@ -88,6 +91,8 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
                     ? PaymentStatus.Refunded
                     : PaymentStatus.PartiallyRefunded;
                 await _orderService.UpdateOrder(order);
+                await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Refund,
+                    amountToRefund, command.CreatedBy, command.Reference, command.Note);
 
                 //check order status
                 await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);

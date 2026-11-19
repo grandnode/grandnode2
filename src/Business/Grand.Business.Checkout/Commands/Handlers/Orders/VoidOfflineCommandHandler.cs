@@ -14,15 +14,18 @@ public class VoidOfflineCommandHandler : IRequestHandler<VoidOfflineCommand, boo
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public VoidOfflineCommandHandler(
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
-        IMediator mediator)
+        IMediator mediator,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
         _mediator = mediator;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(VoidOfflineCommand request, CancellationToken cancellationToken)
@@ -30,18 +33,20 @@ public class VoidOfflineCommandHandler : IRequestHandler<VoidOfflineCommand, boo
         var paymentTransaction = request.PaymentTransaction;
         ArgumentNullException.ThrowIfNull(paymentTransaction);
 
+        if (!await _mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction },
+                cancellationToken))
+            throw new GrandException("You can't void this order");
+
         paymentTransaction.TransactionStatus = TransactionStatus.Voided;
         await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
         var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
         ArgumentNullException.ThrowIfNull(order);
 
-        if (!await _mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction },
-                cancellationToken))
-            throw new GrandException("You can't void this order");
-
         order.PaymentStatusId = PaymentStatus.Voided;
         await _orderService.UpdateOrder(order);
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Void,
+            paymentTransaction.TransactionAmount, request.CreatedBy);
 
         //event notification
         await _mediator.Publish(new PaymentTransactionVoidOfflineEvent(paymentTransaction), cancellationToken);

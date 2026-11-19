@@ -13,16 +13,19 @@ public class PartiallyPaidOfflineCommandHandler : IRequestHandler<PartiallyPaidO
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public PartiallyPaidOfflineCommandHandler(
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
-        IMediator mediator)
+        IMediator mediator,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
         _mediator = mediator;
         _orderService = orderService;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(PartiallyPaidOfflineCommand command, CancellationToken cancellationToken)
@@ -52,6 +55,8 @@ public class PartiallyPaidOfflineCommandHandler : IRequestHandler<PartiallyPaidO
         order.PaidAmount += amountToPaid;
         order.PaymentStatusId = order.PaidAmount >= order.OrderTotal ? PaymentStatus.Paid : PaymentStatus.PartiallyPaid;
         await _orderService.UpdateOrder(order);
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Payment,
+            amountToPaid, command.CreatedBy, command.Reference, command.Note);
 
         //check order status
         await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);

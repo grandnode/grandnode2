@@ -7,4 +7,7 @@ public class PartiallyPaidOfflineCommand : IRequest<bool>
 {
     public PaymentTransaction PaymentTransaction { get; set; }
     public double AmountToPaid { get; set; }
+    public string CreatedBy { get; set; }
+    public string Reference { get; set; }
+    public string Note { get; set; }
 }

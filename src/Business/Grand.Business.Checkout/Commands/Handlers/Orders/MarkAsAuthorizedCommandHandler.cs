@@ -12,15 +12,18 @@ public class MarkAsAuthorizedCommandHandler : IRequestHandler<MarkAsAuthorizedCo
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public MarkAsAuthorizedCommandHandler(
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
-        IMediator mediator)
+        IMediator mediator,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
         _mediator = mediator;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(MarkAsAuthorizedCommand request, CancellationToken cancellationToken)
@@ -36,6 +39,8 @@ public class MarkAsAuthorizedCommandHandler : IRequestHandler<MarkAsAuthorizedCo
 
         order.PaymentStatusId = PaymentStatus.Authorized;
         await _orderService.UpdateOrder(order);
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order,
+            PaymentTransactionEntryType.Authorization, paymentTransaction.TransactionAmount, request.CreatedBy);
 
         //event notification
         await _mediator.Publish(new PaymentTransactionMarkAsAuthorizedEvent(paymentTransaction), cancellationToken);

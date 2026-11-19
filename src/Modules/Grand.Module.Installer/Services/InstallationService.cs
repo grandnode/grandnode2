@@ -929,6 +929,10 @@ public partial class InstallationService : IInstallationService
         //payments 
         await dbContext.CreateIndex(_paymentTransactionRepository,
             OrderBuilder<PaymentTransaction>.Create().Descending(x => x.CreatedOnUtc), "CreatedOnUtc");
+        //a transaction's history, read on its screen
+        await dbContext.CreateIndex(_serviceProvider.GetRequiredService<IRepository<PaymentTransactionEntry>>(),
+            OrderBuilder<PaymentTransactionEntry>.Create().Ascending(x => x.PaymentTransactionId)
+                .Ascending(x => x.CreatedOnUtc), "PaymentTransactionId_CreatedOnUtc");
 
         //queuemail
         await dbContext.CreateIndex(_queuedEmailRepository,

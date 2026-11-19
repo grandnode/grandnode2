@@ -74,7 +74,7 @@ public class MerchandiseReturnRefundService(
             if (start.Error != null)
                 return start.Error;
 
-            var errors = await PayBack(start.Transaction, start.Refund);
+            var errors = await PayBack(merchandiseReturn, start.Transaction, start.Refund);
             var saved = await Finish(merchandiseReturn, start.Refund, errors);
 
             //the payment may have given the money back before it failed: the staff check it and say so
@@ -241,19 +241,25 @@ public class MerchandiseReturnRefundService(
     ///     Gives the money back with the payment transaction's partial refund command
     /// </summary>
     /// <returns>the errors the command gave</returns>
-    private async Task<IList<string>> PayBack(PaymentTransaction transaction, MerchandiseReturnRefund refund)
+    private async Task<IList<string>> PayBack(MerchandiseReturn merchandiseReturn, PaymentTransaction transaction,
+        MerchandiseReturnRefund refund)
     {
+        var note = $"Merchandise return #{merchandiseReturn.ReturnNumber}";
         try
         {
             if (refund.Offline)
             {
-                await mediator.Send(new PartiallyRefundOfflineCommand
-                    { PaymentTransaction = transaction, AmountToRefund = refund.Amount });
+                await mediator.Send(new PartiallyRefundOfflineCommand {
+                    PaymentTransaction = transaction, AmountToRefund = refund.Amount, CreatedBy = refund.RefundedBy,
+                    Note = note
+                });
                 return [];
             }
 
-            return await mediator.Send(new PartiallyRefundCommand
-                { PaymentTransaction = transaction, AmountToRefund = refund.Amount }) ?? [];
+            return await mediator.Send(new PartiallyRefundCommand {
+                PaymentTransaction = transaction, AmountToRefund = refund.Amount, CreatedBy = refund.RefundedBy,
+                Note = note
+            }) ?? [];
         }
         catch (Exception ex)
         {

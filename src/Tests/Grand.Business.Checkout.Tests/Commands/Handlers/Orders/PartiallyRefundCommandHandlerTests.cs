@@ -25,6 +25,7 @@ public class PartiallyRefundCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -32,13 +33,14 @@ public class PartiallyRefundCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
         _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
         _paymentServiceMock = new Mock<IPaymentService>();
         _loggerMock = new Mock<ILogger<PartiallyRefundCommandHandler>>();
 
         _handler = new PartiallyRefundCommandHandler(_paymentServiceMock.Object, _paymentTransactionMock.Object,
             _mediatorMock.Object, _orderMessageProviderServiceMock.Object, _loggerMock.Object, _orderServiceMock.Object,
-            new LanguageSettings());
+            new LanguageSettings(), _historyMock.Object);
     }
 
     [TestMethod]
@@ -143,5 +145,49 @@ public class PartiallyRefundCommandHandlerTests
         _orderServiceMock.Verify(c => c.UpdateOrder(It.IsAny<Order>()), Times.Never);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()),
             Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_Success_RecordsRefundWithReferenceAndNote()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { Id = "t1", TransactionAmount = 100, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyRefundQuery>(), default)).ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order { OrderTotal = 100 });
+        _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).ReturnsAsync(
+            new RefundPaymentResult { NewTransactionStatus = TransactionStatus.PartiallyRefunded });
+        _paymentTransactionMock.Setup(x => x.GetById("t1")).ReturnsAsync(transaction);
+
+        //Act
+        await _handler.Handle(new PartiallyRefundCommand {
+            PaymentTransaction = transaction, AmountToRefund = 30, CreatedBy = "staff@shop.com", Reference = "RF-1",
+            Note = "Merchandise return #7"
+        }, CancellationToken.None);
+
+        //Assert
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Refund, 30,
+            "staff@shop.com", "RF-1", "Merchandise return #7"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_ProviderRefuses_RecordsNothing()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { Id = "t1", TransactionAmount = 100 };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyRefundQuery>(), default)).ReturnsAsync(true);
+        var refused = new RefundPaymentResult();
+        refused.AddError("x");
+        _paymentServiceMock.Setup(x => x.Refund(It.IsAny<RefundPaymentRequest>())).ReturnsAsync(refused);
+        _paymentTransactionMock.Setup(x => x.GetById("t1")).ReturnsAsync(transaction);
+
+        //Act
+        await _handler.Handle(new PartiallyRefundCommand {
+            PaymentTransaction = transaction, AmountToRefund = 30, CreatedBy = "staff@shop.com"
+        }, CancellationToken.None);
+
+        //Assert
+        _historyMock.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 }

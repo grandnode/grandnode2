@@ -67,6 +67,7 @@ public class StartupApplication : IStartupApplication
     {
         serviceCollection.AddScoped<IPaymentService, PaymentService>();
         serviceCollection.AddScoped<IPaymentTransactionService, PaymentTransactionService>();
+        serviceCollection.AddScoped<IPaymentTransactionHistoryService, PaymentTransactionHistoryService>();
     }
 
     private static void RegisterShippingService(IServiceCollection serviceCollection)

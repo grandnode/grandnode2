@@ -48,6 +48,7 @@ public class PlaceOrderCommandHandlerTests
         _handler = new PlaceOrderCommandHandler(new Mock<IOrderService>().Object, new Mock<ILanguageService>().Object,
             new Mock<IProductService>().Object, new Mock<IInventoryManageService>().Object,
             new Mock<IPaymentService>().Object, new Mock<IPaymentTransactionService>().Object,
+            new Mock<IPaymentTransactionHistoryService>().Object,
             new Mock<ILogger<PlaceOrderCommandHandler>>().Object, new Mock<IOrderCalculationService>().Object,
             new Mock<IShoppingCartSubTotalService>().Object, new Mock<IShoppingCartShippingService>().Object,
             new Mock<IShoppingCartTaxService>().Object,
@@ -135,6 +136,7 @@ public class PlaceOrderCommandHandlerTests
     private const string ChangedText = "Some items are no longer available";
 
     private Mock<IPaymentTransactionService> _paymentTransactions;
+    private Mock<IPaymentTransactionHistoryService> _history;
 
     private (ClaimTestHandler handler, Mock<ICheckoutClaimService> claims, Mock<IOrderService> orders,
         Mock<IInventoryManageService> inventory, Mock<IGiftVoucherService> giftVouchers,
@@ -183,10 +185,11 @@ public class PlaceOrderCommandHandlerTests
             It.IsAny<bool>())).Returns(ChangedText);
 
         _paymentTransactions = new Mock<IPaymentTransactionService>();
+        _history = new Mock<IPaymentTransactionHistoryService>();
 
         var handler = new ClaimTestHandler(details, calls, orders.Object, products.Object, inventory.Object,
             giftVouchers.Object, customers.Object, reservations.Object, placement.Object, claims.Object,
-            translation.Object, _paymentTransactions.Object);
+            translation.Object, _paymentTransactions.Object, _history.Object);
         return (handler, claims, orders, inventory, giftVouchers, customers, details, calls);
     }
 
@@ -330,6 +333,46 @@ public class PlaceOrderCommandHandlerTests
         giftVouchers.Verify(x => x.UpdateGiftVoucher(It.IsAny<GiftVoucher>()), Times.Never);
     }
 
+    [TestMethod]
+    public async Task Handle_PaidAtCheckout_RecordsPaymentByThePaymentMethod()
+    {
+        var (handler, _, _, _, _, _, details, _) = ClaimSetup();
+        handler.PaymentResult = new ProcessPaymentResult
+            { NewPaymentTransactionStatus = TransactionStatus.Paid, PaidAmount = 100 };
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.IsEmpty(result.Errors);
+        //kept off the order notes: no order is passed
+        _history.Verify(x => x.Record(result.PaymentTransaction, null, PaymentTransactionEntryType.Payment, 100,
+            "Payments.Card", null, null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_AuthorizedAtCheckout_RecordsAuthorization()
+    {
+        var (handler, _, _, _, _, _, details, _) = ClaimSetup();
+        handler.PaymentResult = new ProcessPaymentResult { NewPaymentTransactionStatus = TransactionStatus.Authorized };
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        _history.Verify(x => x.Record(result.PaymentTransaction, null, PaymentTransactionEntryType.Authorization, 100,
+            "Payments.Card", null, null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_PendingAtCheckout_RecordsNothing()
+    {
+        var (handler, _, _, _, _, _, details, _) = ClaimSetup();
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.IsEmpty(result.Errors);
+        _history.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
+    }
+
     private class ClaimTestHandler : PlaceOrderCommandHandler
     {
         private readonly List<string> _calls;
@@ -340,9 +383,10 @@ public class PlaceOrderCommandHandlerTests
             IGiftVoucherService giftVoucherService, ICustomerService customerService,
             IProductReservationService productReservationService, IOrderPlacementService orderPlacementService,
             ICheckoutClaimService checkoutClaimService, ITranslationService translationService,
-            IPaymentTransactionService paymentTransactionService) : base(orderService,
+            IPaymentTransactionService paymentTransactionService,
+            IPaymentTransactionHistoryService paymentTransactionHistoryService) : base(orderService,
             new Mock<ILanguageService>().Object, productService, inventoryManageService,
-            new Mock<IPaymentService>().Object, paymentTransactionService,
+            new Mock<IPaymentService>().Object, paymentTransactionService, paymentTransactionHistoryService,
             new Mock<ILogger<PlaceOrderCommandHandler>>().Object, new Mock<IOrderCalculationService>().Object,
             new Mock<IShoppingCartSubTotalService>().Object, new Mock<IShoppingCartShippingService>().Object,
             new Mock<IShoppingCartTaxService>().Object, new Mock<IPricingService>().Object,
@@ -363,6 +407,7 @@ public class PlaceOrderCommandHandlerTests
 
         public int PaymentCalls { get; private set; }
         public bool Declined { get; set; }
+        public ProcessPaymentResult PaymentResult { get; set; }
 
         protected override Task<PlaceOrderContainer> PreparePlaceOrderDetails(PlaceOrderCommand command)
         {
@@ -389,7 +434,8 @@ public class PlaceOrderCommandHandlerTests
         {
             PaymentCalls++;
             _calls.Add("payment");
-            var result = new ProcessPaymentResult { NewPaymentTransactionStatus = TransactionStatus.Pending };
+            var result = PaymentResult ??
+                         new ProcessPaymentResult { NewPaymentTransactionStatus = TransactionStatus.Pending };
             if (Declined)
                 result.AddError("declined");
             return Task.FromResult(result);

@@ -18,19 +18,22 @@ public class VoidCommandHandler : IRequestHandler<VoidCommand, IList<string>>
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public VoidCommandHandler(
         IOrderService orderService,
         IMediator mediator,
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
-        ILogger<VoidCommandHandler> logger)
+        ILogger<VoidCommandHandler> logger,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _mediator = mediator;
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;
         _logger = logger;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<IList<string>> Handle(VoidCommand command, CancellationToken cancellationToken)
@@ -60,8 +63,12 @@ public class VoidCommandHandler : IRequestHandler<VoidCommand, IList<string>>
                 var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
                 ArgumentNullException.ThrowIfNull(order);
 
+                //a provider that voids later leaves the transaction as it was: nothing is voided yet
                 if (paymentTransaction.TransactionStatus == TransactionStatus.Voided)
                 {
+                    await _paymentTransactionHistoryService.Record(paymentTransaction, order,
+                        PaymentTransactionEntryType.Void, paymentTransaction.TransactionAmount, command.CreatedBy);
+
                     order.PaymentStatusId = PaymentStatus.Voided;
                     await _orderService.UpdateOrder(order);
 

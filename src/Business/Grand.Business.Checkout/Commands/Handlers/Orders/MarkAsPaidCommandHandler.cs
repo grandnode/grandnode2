@@ -14,15 +14,18 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public MarkAsPaidCommandHandler(
         IMediator mediator,
         IOrderService orderService,
-        IPaymentTransactionService paymentTransactionService)
+        IPaymentTransactionService paymentTransactionService,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _mediator = mediator;
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(MarkAsPaidCommand request, CancellationToken cancellationToken)
@@ -36,6 +39,8 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
         if (!canMarkOrderAsPaid)
             throw new GrandException("You can't mark this Payment Transaction as paid");
 
+        //what the payment method reports it took, else what was still to pay
+        var paid = request.Amount ?? paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
         paymentTransaction.TransactionStatus = TransactionStatus.Paid;
         paymentTransaction.PaidAmount = paymentTransaction.TransactionAmount;
 
@@ -48,12 +53,8 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
         order.PaidDateUtc = DateTime.UtcNow;
         await _orderService.UpdateOrder(order);
 
-        //add a note
-        await _orderService.InsertOrderNote(new OrderNote {
-            Note = "Order has been marked as paid",
-            DisplayToCustomer = false,
-            OrderId = order.Id
-        });
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Payment,
+            paid, request.CreatedBy, request.Reference, request.Note);
 
         await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
         if (order.PaymentStatusId == PaymentStatus.Paid)

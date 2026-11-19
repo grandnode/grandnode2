@@ -8,6 +8,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Permissions;
+using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.SharedKernel;
 using Grand.Web.AdminShared.Interfaces;
@@ -30,7 +31,9 @@ public abstract class BasePaymentTransactionController(
     IDateTimeService dateTimeService,
     IMediator mediator,
     IEnumTranslationService enumTranslationService,
-    IAdminDataScope<PaymentTransaction> scope)
+    IAdminDataScope<PaymentTransaction> scope,
+    IContextAccessor contextAccessor,
+    IPaymentTransactionHistoryService paymentTransactionHistoryService)
     : BaseController
 {
     // Exposed for host-specific concrete subclasses (none currently need extra actions, unlike
@@ -43,6 +46,11 @@ public abstract class BasePaymentTransactionController(
     protected IMediator Mediator => mediator;
     protected IEnumTranslationService EnumTranslationService => enumTranslationService;
     protected IAdminDataScope<PaymentTransaction> Scope => scope;
+    protected IContextAccessor ContextAccessor => contextAccessor;
+    protected IPaymentTransactionHistoryService PaymentTransactionHistoryService => paymentTransactionHistoryService;
+
+    /// <summary>Who the payment operation history and order notes name for an operation made here</summary>
+    private string StaffName => contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy();
 
     /// <summary>DRY replacement for the repeated "load payment transaction, redirect to List if not
     /// found or not authorized" pattern found in both original controllers (Admin never denied;
@@ -221,7 +229,16 @@ public abstract class BasePaymentTransactionController(
             CanVoidOffline = await mediator.Send(new CanVoidOfflineQuery { PaymentTransaction = paymentTransaction }),
             CanDelete = await mediator.Send(new CanDeletePaymentTransactionQuery { PaymentTransaction = paymentTransaction }),
             MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
-            MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount
+            MaxAmountToPaid = paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount,
+            Entries = (await paymentTransactionHistoryService.GetEntries(paymentTransaction.Id)).Select(x =>
+                new PaymentTransactionEntryModel {
+                    Operation = enumTranslationService.GetTranslationEnum(x.EntryType),
+                    Amount = x.Amount,
+                    CreatedOn = dateTimeService.ConvertToUserTime(x.CreatedOnUtc, DateTimeKind.Utc),
+                    RecordedBy = x.RecordedBy,
+                    Reference = x.Reference,
+                    Note = x.Note
+                }).ToList()
         };
 
         return View(model);
@@ -236,7 +253,7 @@ public abstract class BasePaymentTransactionController(
 
         try
         {
-            var errors = await mediator.Send(new CaptureCommand { PaymentTransaction = paymentTransaction });
+            var errors = await mediator.Send(new CaptureCommand { PaymentTransaction = paymentTransaction, CreatedBy = StaffName });
 
             foreach (var error in errors)
                 Error(error);
@@ -251,22 +268,35 @@ public abstract class BasePaymentTransactionController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> MarkAsPaidPopup(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        return View(PrepareOfflinePopupModel(paymentTransaction));
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> MarkPaymentTransactionAsPaid(string id)
+    public async Task<IActionResult> MarkAsPaidPopup(string id, PaymentTransactionModel model)
     {
         var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
         if (denied != null) return denied;
 
         try
         {
-            await mediator.Send(new MarkAsPaidCommand { PaymentTransaction = paymentTransaction });
-            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+            await mediator.Send(new MarkAsPaidCommand {
+                PaymentTransaction = paymentTransaction, CreatedBy = StaffName, Reference = model.Reference,
+                Note = model.Note
+            });
+            model.RefreshPage = true;
         }
         catch (Exception exc)
         {
             Error(exc, false);
-            return RedirectToAction("Edit", "PaymentTransaction", new { id });
         }
+
+        return View(model);
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
@@ -278,7 +308,7 @@ public abstract class BasePaymentTransactionController(
 
         try
         {
-            var errors = await mediator.Send(new RefundCommand { PaymentTransaction = paymentTransaction });
+            var errors = await mediator.Send(new RefundCommand { PaymentTransaction = paymentTransaction, CreatedBy = StaffName });
             foreach (var error in errors)
                 Error(error);
 
@@ -292,23 +322,45 @@ public abstract class BasePaymentTransactionController(
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
+    public async Task<IActionResult> RefundOfflinePopup(string id)
+    {
+        var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
+        if (denied != null) return denied;
+
+        return View(PrepareOfflinePopupModel(paymentTransaction));
+    }
+
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> RefundPaymentTransactionOffline(string id)
+    public async Task<IActionResult> RefundOfflinePopup(string id, PaymentTransactionModel model)
     {
         var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
         if (denied != null) return denied;
 
         try
         {
-            await mediator.Send(new RefundOfflineCommand { PaymentTransaction = paymentTransaction });
-            return RedirectToAction("Edit", "PaymentTransaction", new { id });
+            await mediator.Send(new RefundOfflineCommand {
+                PaymentTransaction = paymentTransaction, CreatedBy = StaffName, Reference = model.Reference,
+                Note = model.Note
+            });
+            model.RefreshPage = true;
         }
         catch (Exception exc)
         {
             Error(exc, false);
-            return RedirectToAction("Edit", "PaymentTransaction", new { id });
         }
+
+        return View(model);
     }
+
+    /// <summary>A whole-amount operation made by hand: the amounts it is about, and what the money can be matched
+    /// with</summary>
+    private static PaymentTransactionModel PrepareOfflinePopupModel(PaymentTransaction paymentTransaction) => new() {
+        Id = paymentTransaction.Id,
+        TransactionAmount = paymentTransaction.TransactionAmount,
+        PaidAmount = paymentTransaction.PaidAmount,
+        CurrencyCode = paymentTransaction.CurrencyCode
+    };
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
@@ -319,7 +371,7 @@ public abstract class BasePaymentTransactionController(
 
         try
         {
-            var errors = await mediator.Send(new VoidCommand { PaymentTransaction = paymentTransaction });
+            var errors = await mediator.Send(new VoidCommand { PaymentTransaction = paymentTransaction, CreatedBy = StaffName });
             foreach (var error in errors)
                 Error(error);
 
@@ -341,7 +393,7 @@ public abstract class BasePaymentTransactionController(
 
         try
         {
-            await mediator.Send(new VoidOfflineCommand { PaymentTransaction = paymentTransaction });
+            await mediator.Send(new VoidOfflineCommand { PaymentTransaction = paymentTransaction, CreatedBy = StaffName });
             return RedirectToAction("Edit", "PaymentTransaction", new { id });
         }
         catch (Exception exc)
@@ -364,7 +416,8 @@ public abstract class BasePaymentTransactionController(
         var model = new PaymentTransactionModel {
             Id = paymentTransaction.Id,
             MaxAmountToRefund = paymentTransaction.TransactionAmount - paymentTransaction.RefundedAmount,
-            CurrencyCode = paymentTransaction.CurrencyCode
+            CurrencyCode = paymentTransaction.CurrencyCode,
+            Online = online
         };
 
         return View(model);
@@ -377,6 +430,7 @@ public abstract class BasePaymentTransactionController(
         var (paymentTransaction, denied) = await LoadAuthorizedPaymentTransaction(id);
         if (denied != null) return denied;
 
+        model.Online = online;
         try
         {
             var amountToRefund = model.AmountToRefund;
@@ -389,9 +443,14 @@ public abstract class BasePaymentTransactionController(
 
             var errors = new List<string>();
             if (online)
-                errors = (await mediator.Send(new PartiallyRefundCommand { PaymentTransaction = paymentTransaction, AmountToRefund = amountToRefund })).ToList();
+                errors = (await mediator.Send(new PartiallyRefundCommand {
+                    PaymentTransaction = paymentTransaction, AmountToRefund = amountToRefund, CreatedBy = StaffName
+                })).ToList();
             else
-                await mediator.Send(new PartiallyRefundOfflineCommand { PaymentTransaction = paymentTransaction, AmountToRefund = amountToRefund });
+                await mediator.Send(new PartiallyRefundOfflineCommand {
+                    PaymentTransaction = paymentTransaction, AmountToRefund = amountToRefund, CreatedBy = StaffName,
+                    Reference = model.Reference, Note = model.Note
+                });
 
             if (errors.Count == 0)
             {
@@ -448,7 +507,10 @@ public abstract class BasePaymentTransactionController(
             if (amountToPaid > maxAmountToPaid)
                 amountToPaid = maxAmountToPaid;
 
-            await mediator.Send(new PartiallyPaidOfflineCommand { PaymentTransaction = paymentTransaction, AmountToPaid = amountToPaid });
+            await mediator.Send(new PartiallyPaidOfflineCommand {
+                PaymentTransaction = paymentTransaction, AmountToPaid = amountToPaid, CreatedBy = StaffName,
+                Reference = model.Reference, Note = model.Note
+            });
 
             //same RefreshPage fix as PartiallyRefundPopup above.
             model.RefreshPage = true;

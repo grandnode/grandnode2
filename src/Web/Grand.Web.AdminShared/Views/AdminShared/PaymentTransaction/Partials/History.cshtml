@@ -1,0 +1,42 @@
+@model PaymentTransactionModel
+@* every money operation recorded on the transaction, oldest first; a transaction from before the history
+   was kept has none *@
+<admin-card title="@Loc["Admin.PaymentTransaction.History"]" flush>
+    @if (Model.Entries.Count == 0)
+    {
+        <div class="grand-empty">
+            <i class="bi bi-clock-history grand-empty__icon"></i>
+            <div class="grand-empty__title">@Loc["Admin.PaymentTransaction.History.Empty"]</div>
+        </div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm align-middle mb-0">
+                <thead>
+                <tr>
+                    <th>@Loc["Admin.PaymentTransaction.History.CreatedOn"]</th>
+                    <th>@Loc["Admin.PaymentTransaction.History.Operation"]</th>
+                    <th class="text-end">@Loc["Admin.PaymentTransaction.History.Amount"]</th>
+                    <th>@Loc["Admin.PaymentTransaction.History.CreatedBy"]</th>
+                    <th>@Loc["Admin.PaymentTransaction.Fields.Reference"]</th>
+                    <th>@Loc["Admin.PaymentTransaction.Fields.Note"]</th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var entry in Model.Entries)
+                {
+                    <tr>
+                        <td class="text-nowrap">@entry.CreatedOn</td>
+                        <td>@entry.Operation</td>
+                        <td class="text-end text-nowrap">@entry.Amount [@Model.CurrencyCode]</td>
+                        <td>@entry.RecordedBy</td>
+                        <td>@entry.Reference</td>
+                        <td>@entry.Note</td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+    }
+</admin-card>

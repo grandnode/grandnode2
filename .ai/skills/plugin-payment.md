@@ -53,7 +53,7 @@ Do not use this skill for order processing business logic outside the payment fl
 
 #### Redirect Payment Flow
 6. When `PaymentMethodType == Redirection`: `PostRedirectPayment` returns the URL; the checkout redirects the customer there. The gateway posts back to a return controller action in the plugin.
-7. Implement a public storefront controller (`[Area("")]` without `[AuthorizeAdmin]`) as the redirect return handler. The controller receives the gateway callback, updates the `PaymentTransaction`, and redirects to order confirmation.
+7. Implement a public storefront controller (`[Area("")]` without `[AuthorizeAdmin]`) as the redirect return handler. The controller receives the gateway callback, records the money with `MarkAsPaidCommand` (or `MarkAsAuthorizedCommand` for an authorization), and redirects to order confirmation. Pass `CreatedBy` = the plugin's system name, `Reference` = the gateway's payment id, and `Amount` = what the gateway reports it took. Never set `PaidAmount` or `TransactionStatus` and save through `IPaymentTransactionService.UpdatePaymentTransaction` for a money operation: the commands also update the order and write the transaction's payment history (`IPaymentTransactionHistoryService`), a direct save leaves the history empty.
 8. Register the return controller route in `EndpointProvider` or via a convention route in `StartupApplication.Configure`.
 
 #### Operations: Capture, Refund, Void
@@ -167,7 +167,7 @@ bool IsPartialRefund { get; }
 Set `PaymentMethodType.Standard`. `ProcessPayment` returns `TransactionStatus.Pending`. `PostRedirectPayment` returns `""`. All capture/refund/void methods return an error result. `SkipPaymentInfo` driven from settings.
 
 ### Example 2: Redirect Gateway (e.g., Stripe Checkout)
-Set `PaymentMethodType.Redirection`. `ProcessPayment` returns an empty result. `PostRedirectPayment` calls the gateway SDK to create a session and returns the session URL. Implement a public return controller that verifies the webhook/callback and calls `IPaymentTransactionService.UpdatePaymentTransaction`.
+Set `PaymentMethodType.Redirection`. `ProcessPayment` returns an empty result. `PostRedirectPayment` calls the gateway SDK to create a session and returns the session URL. Implement a public return controller that verifies the webhook/callback and sends `MarkAsPaidCommand` with the gateway's payment id and amount (see `StripeCheckoutService.CreatePaymentTransaction`).
 
 ### Example 3: Authorize-and-Capture Gateway
 Set `PaymentMethodType.Standard`. `ProcessPayment` calls the gateway authorize API and sets `TransactionStatus.Authorized`. Implement `Capture` to charge the authorization. Return `SupportCapture() => true`. Implement `Void` to cancel the authorization.

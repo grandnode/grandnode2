@@ -11,6 +11,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -25,6 +26,7 @@ public class MarkAsPaidCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
 
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -32,9 +34,10 @@ public class MarkAsPaidCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
 
         _handler = new MarkAsPaidCommandHandler(_mediatorMock.Object, _orderServiceMock.Object,
-            _paymentTransactionMock.Object);
+            _paymentTransactionMock.Object, _historyMock.Object);
     }
 
     [TestMethod]
@@ -53,6 +56,66 @@ public class MarkAsPaidCommandHandlerTests
 
         _orderServiceMock.Verify(c => c.UpdateOrder(It.IsAny<Order>()), Times.Once);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_RecordsTheRemainingAmountAsPayment()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100, PaidAmount = 40, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default))
+            .ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(new MarkAsPaidCommand {
+            PaymentTransaction = transaction, CreatedBy = "staff@shop.com", Reference = "TR-881"
+        }, default);
+
+        //Assert
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Payment, 60,
+            "staff@shop.com", "TR-881", null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_PaymentMethodReportsTheAmount_RecordsWhatItTook()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default))
+            .ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(new MarkAsPaidCommand {
+            PaymentTransaction = transaction, CreatedBy = "Payments.StripeCheckout", Amount = 99.5,
+            Reference = "pi_1"
+        }, default);
+
+        //Assert
+        Assert.AreEqual(100, transaction.PaidAmount);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Payment, 99.5,
+            "Payments.StripeCheckout", "pi_1", null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_Refused_AddsNoEntry()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100 };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default))
+            .ReturnsAsync(false);
+
+        //Act
+        await Assert.ThrowsExactlyAsync<GrandException>(() =>
+            _handler.Handle(new MarkAsPaidCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+                default));
+
+        //Assert
+        _historyMock.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
+        _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
     }
 
     [TestMethod]

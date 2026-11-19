@@ -15,11 +15,16 @@
     <input asp-for="MaxAmountToPaid" type="hidden"/>
     <input asp-for="CurrencyCode" type="hidden"/>
 
-    @* the popup shell: the amount with its ceiling as the hint, one primary action *@
+    @* the popup shell: the amount with its ceiling as the hint, what the money can be matched with, one primary
+       action *@
     <admin-popup title="@Loc["Admin.PaymentTransaction.Fields.PartialPaid"]" icon="bi-tag">
         <div class="grand-fields">
             <admin-field asp-for="AmountToPaid" size="md" suffix="@Model.CurrencyCode"
                          hint="@string.Format(Loc["Admin.PaymentTransaction.Fields.PartialPaid.AmountToPaid.Max"], Model.MaxAmountToPaid.ToString("N2"), Model.CurrencyCode)"/>
+            <admin-field asp-for="Reference"/>
+            <admin-field asp-for="Note">
+                <admin-textarea asp-for="Note"></admin-textarea>
+            </admin-field>
         </div>
         <div class="grand-popup__actions">
             <partial name="Partials/WidgetZone.PartiallyPaidButtons" model="Model"/>

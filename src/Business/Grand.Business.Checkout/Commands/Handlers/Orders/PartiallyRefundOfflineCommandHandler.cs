@@ -18,13 +18,15 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
     private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public PartiallyRefundOfflineCommandHandler(
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
         IMediator mediator,
         IOrderMessageProviderService orderMessageProviderService,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
@@ -32,6 +34,7 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
         _orderMessageProviderService = orderMessageProviderService;
         _languageSettings = languageSettings;
         _orderService = orderService;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(PartiallyRefundOfflineCommand command, CancellationToken cancellationToken)
@@ -66,6 +69,8 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
             ? PaymentStatus.Refunded
             : PaymentStatus.PartiallyRefunded;
         await _orderService.UpdateOrder(order);
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Refund,
+            amountToRefund, command.CreatedBy, command.Reference, command.Note);
 
 
         //check order status

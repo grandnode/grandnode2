@@ -19,6 +19,7 @@ public class PartiallyPaidOfflineCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
 
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -26,9 +27,10 @@ public class PartiallyPaidOfflineCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
 
         _handler = new PartiallyPaidOfflineCommandHandler(_orderServiceMock.Object, _paymentTransactionMock.Object,
-            _mediatorMock.Object);
+            _mediatorMock.Object, _historyMock.Object);
     }
 
     [TestMethod]
@@ -44,5 +46,41 @@ public class PartiallyPaidOfflineCommandHandlerTests
 
         _orderServiceMock.Verify(c => c.UpdateOrder(It.IsAny<Order>()), Times.Once);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_RecordsPaymentWithReferenceAndNote()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyPaidOfflineQuery>(), default)).ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(new PartiallyPaidOfflineCommand {
+            PaymentTransaction = transaction, AmountToPaid = 30, CreatedBy = "staff@shop.com",
+            Reference = "TR-881", Note = "First instalment"
+        }, default);
+
+        //Assert
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Payment, 30,
+            "staff@shop.com", "TR-881", "First instalment"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_WithoutCreatedBy_StillRecordsEntry()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { TransactionAmount = 100, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanPartiallyPaidOfflineQuery>(), default)).ReturnsAsync(true);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(new PartiallyPaidOfflineCommand { PaymentTransaction = transaction, AmountToPaid = 30 },
+            default);
+
+        //Assert
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Payment, 30,
+            null, null, null), Times.Once);
     }
 }
