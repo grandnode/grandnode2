@@ -115,8 +115,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             !string.Equals(principal.FindFirst(_config.Claims.EmailVerified)?.Value, "true", StringComparison.OrdinalIgnoreCase))
             return OidcCustomerResult.InvalidToken("The e-mail address in the token is not verified");
 
-        //without per-store identity the e-mail is unique across stores - a store-scoped lookup would miss customers
-        //of other stores and register a duplicate
+        //the lookup applies the per-store identity rule: without it the store does not narrow the search, so a
+        //customer of another store is found instead of registered twice
         var customer = await _customerService.GetCustomerByEmail(email, storeId);
         if (customer == null)
             return await Register(sub, email, storeId);

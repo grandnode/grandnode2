@@ -28,6 +28,9 @@ public enum ExternalAuthStatus
     /// </summary>
     EmailAlreadyExists,
 
+    /// <summary>The external account is unknown and shares no e-mail, which a new customer needs</summary>
+    EmailRequired,
+
     /// <summary>The authentication failed; <see cref="ExternalAuthResult.Errors" /> says why</summary>
     Error
 }
@@ -68,6 +71,9 @@ public class ExternalAuthResult
 
     public static ExternalAuthResult EmailAlreadyExists() =>
         new(ExternalAuthStatus.EmailAlreadyExists, null, []);
+
+    public static ExternalAuthResult EmailRequired() =>
+        new(ExternalAuthStatus.EmailRequired, null, []);
 
     public static ExternalAuthResult Error(string error) => new(ExternalAuthStatus.Error, null, [error]);
 }

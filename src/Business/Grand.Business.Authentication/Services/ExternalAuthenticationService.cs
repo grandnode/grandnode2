@@ -102,12 +102,30 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
             return ExternalAuthResult.Associated(currentLoggedInUser);
         }
 
-        //or try to register new user
-        if (_customerSettings.UserRegistrationType != UserRegistrationType.Disabled)
-            return await RegisterNewUser(parameters, customer, storeId, language);
+        //the same rule as the registration form; the provider's e-mail never takes over an existing account. Checked
+        //before the registration type: the owner signs in and connects the account, registration or not
+        if (await AccountExists(parameters.Email, storeId))
+            return ExternalAuthResult.EmailAlreadyExists();
 
         //registration is disabled
-        return ExternalAuthResult.RegistrationDisabled();
+        if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled)
+            return ExternalAuthResult.RegistrationDisabled();
+
+        //the new account signs in and receives its mail with the provider's e-mail
+        if (string.IsNullOrWhiteSpace(parameters.Email))
+            return ExternalAuthResult.EmailRequired();
+
+        return await RegisterNewUser(parameters, customer, storeId, language);
+    }
+
+    /// <summary>
+    ///     Whether a customer already signs in with the e-mail; registration stores it as the username too
+    /// </summary>
+    private async Task<bool> AccountExists(string email, string storeId)
+    {
+        return await _customerService.GetCustomerByEmail(email, storeId) != null ||
+               (_customerSettings.UsernamesEnabled &&
+                await _customerService.GetCustomerByUsername(email, storeId) != null);
     }
 
     /// <summary>
@@ -121,10 +139,6 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     protected virtual async Task<ExternalAuthResult> RegisterNewUser(ExternalAuthParam parameters, Customer customer,
         string storeId, Language language)
     {
-        //the same rule as the registration form; the provider's e-mail never takes over an existing account
-        if (await _customerService.GetCustomerByEmail(parameters.Email, storeId) != null)
-            return ExternalAuthResult.EmailAlreadyExists();
-
         var approved =
             _customerSettings.UserRegistrationType is UserRegistrationType.Standard
                 or UserRegistrationType.EmailValidation;

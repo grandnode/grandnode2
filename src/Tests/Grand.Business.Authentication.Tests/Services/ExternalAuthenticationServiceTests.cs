@@ -42,7 +42,8 @@ public class ExternalAuthenticationServiceTests
         _externalAuthenticationService = CreateService(UserRegistrationType.Standard);
     }
 
-    private ExternalAuthenticationService CreateService(UserRegistrationType userRegistrationType)
+    private ExternalAuthenticationService CreateService(UserRegistrationType userRegistrationType,
+        bool usernamesEnabled = false)
     {
         var externalAuthenticationSetting = new ExternalAuthenticationSettings {
             ActiveAuthenticationMethodSystemNames = [
@@ -53,7 +54,8 @@ public class ExternalAuthenticationServiceTests
         return new ExternalAuthenticationService(_customerManagerServiceMock.Object, _customerServiceMock.Object,
             _groupServiceMock.Object, _mediatorMock.Object, _externalAuthenticationRecordRepository,
             _externalAuthenticationProviders,
-            new CustomerSettings { UserRegistrationType = userRegistrationType }, externalAuthenticationSetting);
+            new CustomerSettings { UserRegistrationType = userRegistrationType, UsernamesEnabled = usernamesEnabled },
+            externalAuthenticationSetting);
     }
 
 
@@ -184,6 +186,50 @@ public class ExternalAuthenticationServiceTests
         Assert.IsNull(result.Customer);
         _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
         Assert.IsFalse(_externalAuthenticationRecordRepository.Table.Any());
+    }
+
+    [TestMethod]
+    public async Task Authenticate_UnknownIdentityWithEmailUsedAsUsername_RegistersNobody()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerByUsername("taken@test.com", "store1"))
+            .ReturnsAsync(new Customer { Id = "existing", Username = "taken@test.com", Email = "other@test.com" });
+        var parameters = new ExternalAuthParam {
+            ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new", Email = "taken@test.com"
+        };
+
+        var result = await CreateService(UserRegistrationType.Standard, usernamesEnabled: true)
+            .Authenticate(parameters, new Customer { Id = "guest" }, new Store { Id = "store1" }, new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.EmailAlreadyExists, result.Status);
+        _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_UnknownIdentityWithoutEmail_RegistersNobody()
+    {
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, new Customer { Id = "guest" },
+            new Store { Id = "store1" }, new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.EmailRequired, result.Status);
+        _customerManagerServiceMock.Verify(m => m.RegisterCustomer(It.IsAny<RegistrationRequest>()), Times.Never);
+        Assert.IsFalse(_externalAuthenticationRecordRepository.Table.Any());
+    }
+
+    [TestMethod]
+    public async Task Authenticate_UnknownIdentityWithEmailOfExistingCustomerAndRegistrationDisabled_IsEmailAlreadyExists()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail("taken@test.com", "store1"))
+            .ReturnsAsync(new Customer { Id = "existing", Email = "taken@test.com" });
+        var parameters = new ExternalAuthParam {
+            ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new", Email = "taken@test.com"
+        };
+
+        var result = await CreateService(UserRegistrationType.Disabled)
+            .Authenticate(parameters, new Customer { Id = "guest" }, new Store { Id = "store1" }, new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.EmailAlreadyExists, result.Status);
     }
 
     [TestMethod]

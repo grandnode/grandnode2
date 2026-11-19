@@ -48,11 +48,6 @@ public class TokenWebController : ControllerBase
         _apiConfig = apiConfig;
     }
 
-    /// <summary>
-    ///     The store of the customer lookups; it narrows them only with per-store customer identity
-    /// </summary>
-    private string CustomerStoreId => _contextAccessor.StoreContext.CurrentStore.Id;
-
     [AllowAnonymous]
     [IgnoreAntiforgeryToken]
     [HttpPost]
@@ -88,7 +83,7 @@ public class TokenWebController : ControllerBase
 
         try
         {
-            var customer = await _customerService.GetCustomerByEmail(model.Email, CustomerStoreId);
+            var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id);
             var claims = new Dictionary<string, string> {
                 { "CustomerId", customer.Id },
                 { "Email", model.Email },

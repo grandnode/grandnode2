@@ -41,7 +41,11 @@ public class ExternalSignInService(
                 ]);
             case ExternalAuthStatus.EmailAlreadyExists:
                 return Error([
-                    translationService.GetResource("Account.Register.Errors.EmailAlreadyExists", language.Id)
+                    translationService.GetResource("Account.AssociatedExternalAuth.EmailAlreadyExists", language.Id)
+                ]);
+            case ExternalAuthStatus.EmailRequired:
+                return Error([
+                    translationService.GetResource("Account.AssociatedExternalAuth.EmailRequired", language.Id)
                 ]);
             case ExternalAuthStatus.Error:
                 return Error(result.Errors);

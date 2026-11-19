@@ -140,7 +140,18 @@ public class ExternalSignInServiceTests
         var result = (RedirectToActionResult)await Authenticate(ExternalAuthResult.EmailAlreadyExists());
 
         Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
-        CollectionAssert.AreEqual(new[] { "Account.Register.Errors.EmailAlreadyExists@lang1" },
+        CollectionAssert.AreEqual(new[] { "Account.AssociatedExternalAuth.EmailAlreadyExists@lang1" },
+            ((IEnumerable<string>)result.RouteValues!["Errors"]).ToArray());
+        _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task EmailRequired_ShowsTranslatedErrorWithoutSignIn()
+    {
+        var result = (RedirectToActionResult)await Authenticate(ExternalAuthResult.EmailRequired());
+
+        Assert.AreEqual("ExternalAuthenticationError", result.ActionName);
+        CollectionAssert.AreEqual(new[] { "Account.AssociatedExternalAuth.EmailRequired@lang1" },
             ((IEnumerable<string>)result.RouteValues!["Errors"]).ToArray());
         _authenticationServiceMock.Verify(a => a.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
     }
