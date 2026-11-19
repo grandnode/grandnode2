@@ -104,7 +104,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
 
         //the same rule as the registration form; the provider's e-mail never takes over an existing account. Checked
         //before the registration type: the owner signs in and connects the account, registration or not
-        if (await AccountExists(parameters.Email, storeId))
+        if (await IsEmailOrUsernameTaken(parameters.Email, storeId))
             return ExternalAuthResult.EmailAlreadyExists();
 
         //registration is disabled
@@ -119,9 +119,10 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     }
 
     /// <summary>
-    ///     Whether a customer already signs in with the e-mail; registration stores it as the username too
+    ///     Whether another customer has the provider's e-mail as their e-mail or, with usernames enabled, as their
+    ///     username; registration stores the provider's e-mail in both fields
     /// </summary>
-    private async Task<bool> AccountExists(string email, string storeId)
+    private async Task<bool> IsEmailOrUsernameTaken(string email, string storeId)
     {
         return await _customerService.GetCustomerByEmail(email, storeId) != null ||
                (_customerSettings.UsernamesEnabled &&
