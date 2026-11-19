@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
+using System.Linq.Expressions;
 
 namespace Grand.Business.Core.Extensions;
 
@@ -9,6 +10,20 @@ namespace Grand.Business.Core.Extensions;
 /// </summary>
 public static class PaymentExtensions
 {
+    /// <summary>
+    ///     Orders bought on credit and not paid yet: not deleted, not cancelled and with the payment still open. A query
+    ///     filter, so the reminders, the company credit and the overdue order list all count the same orders
+    /// </summary>
+    public static readonly Expression<Func<Order, bool>> UnpaidOnCredit = o =>
+        o.PaymentDueDateUtc != null &&
+        !o.Deleted &&
+        o.OrderStatusId != (int)OrderStatusSystem.Cancelled &&
+        (o.PaymentStatusId == PaymentStatus.Pending ||
+         o.PaymentStatusId == PaymentStatus.Authorized ||
+         o.PaymentStatusId == PaymentStatus.PartiallyPaid);
+
+    private static readonly Func<Order, bool> IsUnpaidOnCredit = UnpaidOnCredit.Compile();
+
     /// <summary>
     ///     Is payment method active?
     /// </summary>
@@ -63,11 +78,6 @@ public static class PaymentExtensions
     {
         ArgumentNullException.ThrowIfNull(order);
 
-        return order.PaymentDueDateUtc.HasValue &&
-               order.PaymentDueDateUtc.Value < utcNow.Date &&
-               !order.Deleted &&
-               order.OrderStatusId != (int)OrderStatusSystem.Cancelled &&
-               order.PaymentStatusId is PaymentStatus.Pending or PaymentStatus.Authorized
-                   or PaymentStatus.PartiallyPaid;
+        return IsUnpaidOnCredit(order) && order.PaymentDueDateUtc!.Value < utcNow.Date;
     }
 }

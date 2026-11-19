@@ -1,10 +1,11 @@
-using Grand.Business.Core.Events.Checkout.Orders;
+﻿using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
@@ -38,9 +39,9 @@ public class PdfService : IPdfService
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
-    private readonly PdfSettings _pdfSettings;
     private readonly IPictureService _pictureService;
     private readonly IProductService _productService;
+    private readonly ISettingService _settingService;
     private readonly IShipmentService _shipmentService;
     private readonly IStoreFilesContext _storeFilesContext;
     private readonly IStoreService _storeService;
@@ -57,7 +58,7 @@ public class PdfService : IPdfService
         IPaymentService paymentService,
         IGiftVoucherService giftVoucherService,
         IOrderService orderService,
-        PdfSettings pdfSettings,
+        ISettingService settingService,
         IMediator mediator,
         ILogger<PdfService> logger,
         IShipmentService shipmentService)
@@ -73,7 +74,7 @@ public class PdfService : IPdfService
         _paymentService = paymentService;
         _giftVoucherService = giftVoucherService;
         _orderService = orderService;
-        _pdfSettings = pdfSettings;
+        _settingService = settingService;
         _mediator = mediator;
         _logger = logger;
     }
@@ -85,11 +86,12 @@ public class PdfService : IPdfService
         ArgumentNullException.ThrowIfNull(orders);
 
         using var pdf = new PdfComposer();
-        var logo = await LoadLogo();
+        //orders of several stores can be printed together; each store's logo is loaded once
+        var logos = new Dictionary<string, byte[]>();
         foreach (var order in orders)
         {
             cancellationToken.ThrowIfCancellationRequested();
-            await ComposeOrder(pdf, order, vendorId, logo);
+            await ComposeOrder(pdf, order, vendorId, logos);
         }
 
         //nothing is written until the whole document is laid out, so a cancelled request leaves the stream empty
@@ -134,16 +136,21 @@ public class PdfService : IPdfService
         return download.Id;
     }
 
-    private async Task ComposeOrder(PdfComposer pdf, Order order, string vendorId, byte[] logo)
+    private async Task ComposeOrder(PdfComposer pdf, Order order, string vendorId, Dictionary<string, byte[]> logos)
     {
         var lang = order.CustomerLanguageId;
         var limitByVendor = !string.IsNullOrEmpty(vendorId);
         var priceIncludesTax = order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax;
         var store = await _storeService.GetStoreById(order.StoreId);
+        //the order's store, not the current one: a scheduled task or another store's admin prints it too
+        var pdfSettings = await _settingService.LoadSetting<PdfSettings>(order.StoreId);
+        var logoPictureId = pdfSettings.LogoPictureId ?? string.Empty;
+        if (!logos.TryGetValue(logoPictureId, out var logo))
+            logos[logoPictureId] = logo = await LoadLogo(logoPictureId);
 
-        pdf.NewPage(PdfHtmlText.ToPlainText(_pdfSettings.InvoiceFooterText));
+        pdf.NewPage(PdfHtmlText.ToPlainText(pdfSettings.InvoiceFooterText));
         if (logo != null) pdf.Image(logo, LogoMaxWidth, LogoMaxHeight, PdfAlign.Right);
-        pdf.Text(PdfHtmlText.ToPlainText(_pdfSettings.InvoiceHeaderText), 9, gray: 90);
+        pdf.Text(PdfHtmlText.ToPlainText(pdfSettings.InvoiceHeaderText), 9, gray: 90);
         pdf.Text(store?.CompanyName, 14, true);
         pdf.Text($"{Format("PDFInvoice.Order#", lang, order.OrderNumber)} ({order.CreatedOnUtc})", 11, true);
         pdf.ClearImage();
@@ -173,7 +180,7 @@ public class PdfService : IPdfService
 
         var items = order.OrderItems.Where(x => !limitByVendor || x.VendorId == vendorId).ToList();
         //what the shipped shipments shipped of each item, read only when the store shows it
-        var shipped = _pdfSettings.ShowUnitNumbersOnInvoices && items.Any(x => x.ShipQty > 0)
+        var shipped = pdfSettings.ShowUnitNumbersOnInvoices && items.Any(x => x.ShipQty > 0)
             ? (await _shipmentService.GetShipmentsByOrder(order.Id)).Where(x => x.ShippedDateUtc.HasValue).ToList()
             : [];
         var rows = new List<IReadOnlyList<PdfCell>>();
@@ -285,6 +292,7 @@ public class PdfService : IPdfService
 
         var lang = order.CustomerLanguageId;
         var store = await _storeService.GetStoreById(order.StoreId);
+        var pdfSettings = await _settingService.LoadSetting<PdfSettings>(order.StoreId);
 
         pdf.NewPage();
         pdf.Text(Format("PDFPackagingSlip.Shipment", lang, shipment.ShipmentNumber), 14, true);
@@ -317,7 +325,7 @@ public class PdfService : IPdfService
             var name = new List<PdfLine> { new(product?.GetTranslation(x => x.Name, lang) ?? item.ProductId) };
             var attributes = PdfHtmlText.ToPlainText(orderItem.AttributeDescription);
             if (attributes.Length > 0) name.Add(new PdfLine(attributes, Small: true));
-            if (_pdfSettings.ShowUnitNumbersOnPackagingSlips)
+            if (pdfSettings.ShowUnitNumbersOnPackagingSlips)
                 name.AddRange(UnitLines(item.SerialNumbers ?? [], item.Batches ?? [], lang));
 
             rows.Add([new PdfCell(name), PdfCell.Of(product?.Sku), PdfCell.Of(item.Quantity.ToString())]);
@@ -454,12 +462,12 @@ public class PdfService : IPdfService
     ///     Loads the PDF logo as PNG, the one raster format the composer embeds. Pictures are usually stored as
     ///     WebP, so anything else is converted. A logo that cannot be read is left out rather than failing the PDF.
     /// </summary>
-    private async Task<byte[]> LoadLogo()
+    private async Task<byte[]> LoadLogo(string logoPictureId)
     {
-        if (string.IsNullOrEmpty(_pdfSettings.LogoPictureId)) return null;
+        if (string.IsNullOrEmpty(logoPictureId)) return null;
         try
         {
-            var picture = await _pictureService.GetPictureById(_pdfSettings.LogoPictureId);
+            var picture = await _pictureService.GetPictureById(logoPictureId);
             if (picture == null) return null;
 
             var binary = await _pictureService.LoadPictureBinary(picture);
@@ -472,12 +480,12 @@ public class PdfService : IPdfService
             if (PdfComposer.CanEmbedPng(png)) return png;
 
             _logger.LogWarning("PDF logo {PictureId} is not a PNG the PDF writer can embed",
-                _pdfSettings.LogoPictureId);
+                logoPictureId);
             return null;
         }
         catch (Exception ex)
         {
-            _logger.LogWarning(ex, "PDF logo {PictureId} could not be loaded", _pdfSettings.LogoPictureId);
+            _logger.LogWarning(ex, "PDF logo {PictureId} could not be loaded", logoPictureId);
             return null;
         }
     }

@@ -22,5 +22,6 @@
   MerchandiseReturns_HideRequestedAction: false,
   MerchandiseReturns_AllowToUploadFiles: false,
   AllowGuestOrderAccess: false,
-  UnpublishAuctionProduct: false
+  UnpublishAuctionProduct: false,
+  PaymentReminderDaysBefore: 3
 }

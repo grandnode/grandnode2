@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Checkout.Commands.Handlers.Orders;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -24,6 +25,7 @@ public class OrderStatusCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
     private OrderSettings _orderSettings;
     private Mock<IPdfService> _pdfServiceMock;
+    private Mock<ISettingService> _settingServiceMock;
     private Mock<IVendorService> _vendorServiceMock;
 
     [TestInitialize]
@@ -37,10 +39,12 @@ public class OrderStatusCommandHandlerTests
         _vendorServiceMock = new Mock<IVendorService>();
         _loyaltyPointsSettings = new LoyaltyPointsSettings();
         _orderSettings = new OrderSettings();
+        _settingServiceMock = new Mock<ISettingService>();
+        _settingServiceMock.Setup(x => x.LoadSetting<OrderSettings>(It.IsAny<string>())).ReturnsAsync(_orderSettings);
 
         _handler = new OrderStatusCommandHandler(_orderServiceMock.Object, _customerServiceMock.Object,
             _pdfServiceMock.Object, _orderMessageProviderServiceMock.Object, _vendorServiceMock.Object, _mediatorMock.Object,
-            _orderSettings, _loyaltyPointsSettings, new Mock<ILogger<OrderStatusCommandHandler>>().Object);
+            _settingServiceMock.Object, _loyaltyPointsSettings, new Mock<ILogger<OrderStatusCommandHandler>>().Object);
     }
 
     [TestMethod]
@@ -60,6 +64,26 @@ public class OrderStatusCommandHandlerTests
     {
         _orderSettings.AttachPdfInvoiceToOrderCompletedEmail = true;
         var order = new Order { OrderStatusId = (int)OrderStatusSystem.Pending, CustomerLanguageId = "en" };
+        _pdfServiceMock.Setup(c => c.SaveOrderToBinary(order, It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync("invoice");
+
+        await _handler.Handle(
+            new SetOrderStatusCommand { Order = order, Os = OrderStatusSystem.Complete, NotifyCustomer = true },
+            CancellationToken.None);
+
+        _orderMessageProviderServiceMock.Verify(c => c.SendOrderCompletedCustomerMessage(order, It.IsAny<Customer>(),
+            "en", "invoice"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_OrderCompleted_ReadsTheInvoiceSettingOfTheOrdersStore()
+    {
+        //the current store has the invoice off, the order's store has it on
+        _settingServiceMock.Setup(x => x.LoadSetting<OrderSettings>("store2"))
+            .ReturnsAsync(new OrderSettings { AttachPdfInvoiceToOrderCompletedEmail = true });
+        var order = new Order {
+            OrderStatusId = (int)OrderStatusSystem.Pending, CustomerLanguageId = "en", StoreId = "store2"
+        };
         _pdfServiceMock.Setup(c => c.SaveOrderToBinary(order, It.IsAny<string>(), It.IsAny<string>()))
             .ReturnsAsync("invoice");
 

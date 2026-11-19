@@ -37,5 +37,6 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddKeyedScoped<IScheduleTask, UpdateExchangeRateScheduleTask>("Update currency exchange rates");
         serviceCollection.AddKeyedScoped<IScheduleTask, EndAuctionsTask>("End of the auctions");
         serviceCollection.AddKeyedScoped<IScheduleTask, CancelOrderScheduledTask>("Cancel unpaid and pending orders");
+        serviceCollection.AddKeyedScoped<IScheduleTask, PaymentDueReminderScheduleTask>("Payment due reminders");
     }
 }

@@ -2556,4 +2556,13 @@
 	<Resource Name="Enums.Grand.Domain.Payments.PaymentTransactionEntryType.Void" Area="Common">
 		<Value>Void</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Order.PaymentReminderDaysBefore" Area="Admin">
+		<Value>Payment reminder (days before the due date)</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.PaymentReminderDaysBefore.Hint" Area="Admin">
+		<Value>How many days before the due date of an order bought on credit the customer is reminded to pay (0 - on the due date). The "Payment due reminders" scheduled task sends the reminder once, and tells the customer once when the payment is overdue.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Order.PaymentReminderDaysBefore.Invalid" Area="Admin">
+		<Value>Enter from 0 to 365 days.</Value>
+	</Resource>
 </Language>

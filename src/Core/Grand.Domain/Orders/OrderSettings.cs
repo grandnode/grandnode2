@@ -5,6 +5,11 @@ namespace Grand.Domain.Orders;
 public class OrderSettings : ISettings
 {
     /// <summary>
+    ///     The most days before the due date a payment reminder can be sent
+    /// </summary>
+    public const int MaxPaymentReminderDaysBefore = 365;
+
+    /// <summary>
     ///     Gets or sets a value indicating whether customer can make re-order
     /// </summary>
     public bool IsReOrderAllowed { get; set; }
@@ -177,4 +182,10 @@ public class OrderSettings : ISettings
     ///     Gets or sets a page size
     /// </summary>
     public int PageSize { get; set; }
+
+    /// <summary>
+    ///     Gets or sets how many days before the due date of an order bought on credit the customer is reminded to pay
+    ///     (0 - on the due date)
+    /// </summary>
+    public int PaymentReminderDaysBefore { get; set; } = 3;
 }
