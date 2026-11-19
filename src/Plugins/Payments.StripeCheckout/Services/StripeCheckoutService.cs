@@ -46,18 +46,24 @@ public class StripeCheckoutService : IStripeCheckoutService
     {
         //a payment staff marked as paid by hand never went through Stripe
         if (string.IsNullOrEmpty(paymentTransaction.AuthorizationTransactionId))
-            return ["The payment has no Stripe payment id. Refund it offline."];
+            return ["The payment has no Stripe payment id. Check the Stripe dashboard: if Stripe took the money, refund it there, then record the refund offline."];
 
         //the refund is made in the panel, whose store is not the order's: the key comes from the
         //transaction's store, as two stores may use two Stripe accounts
         var settings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(paymentTransaction.StoreId);
+        //in the smallest unit, as the session was created with the order total * 100
+        var amountInCents = (long)Math.Round(amount * 100);
         try
         {
             var refund = await new RefundService(CreateStripeClient(settings.ApiKey)).CreateAsync(
                 new RefundCreateOptions {
                     PaymentIntent = paymentTransaction.AuthorizationTransactionId,
-                    //in the smallest unit, as the session was created with the order total * 100
-                    Amount = (long)Math.Round(amount * 100)
+                    Amount = amountInCents
+                },
+                //a retry after Stripe refunded but the refund was not saved sends the same key, so Stripe
+                //returns that refund instead of paying out again; once saved, the refunded amount changes the key
+                new RequestOptions {
+                    IdempotencyKey = $"{paymentTransaction.Id}-refund-{paymentTransaction.RefundedAmount}-{amountInCents}"
                 });
             //a pending refund is accepted: Stripe settles card refunds later
             if (refund.Status is "failed" or "canceled")

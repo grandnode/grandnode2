@@ -60,7 +60,29 @@ public class StripeCheckoutServiceTests
         var errors = await _service.Refund(Transaction(null), 10);
 
         Assert.AreEqual(1, errors.Count);
+        //the money may still be in Stripe (staff marked the order paid before the webhook came)
+        StringAssert.Contains(errors[0], "Stripe dashboard");
         Assert.IsNull(_handler.Request);
+    }
+
+    [TestMethod]
+    public async Task Refund_RetryBeforeTheRefundIsSaved_ReusesTheIdempotencyKey()
+    {
+        _handler.Respond(HttpStatusCode.OK, """{"id":"re_1","object":"refund","status":"succeeded"}""");
+        var transaction = Transaction();
+        transaction.Id = "t1";
+        transaction.RefundedAmount = 5;
+
+        await _service.Refund(transaction, 10);
+        var first = _handler.Request.Headers.GetValues("Idempotency-Key").Single();
+        await _service.Refund(transaction, 10);
+        var retry = _handler.Request.Headers.GetValues("Idempotency-Key").Single();
+        transaction.RefundedAmount = 15;
+        await _service.Refund(transaction, 10);
+        var next = _handler.Request.Headers.GetValues("Idempotency-Key").Single();
+
+        Assert.AreEqual(first, retry);
+        Assert.AreNotEqual(first, next);
     }
 
     [TestMethod]
