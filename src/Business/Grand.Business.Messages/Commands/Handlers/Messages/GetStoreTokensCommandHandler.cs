@@ -1,4 +1,5 @@
-﻿using Grand.Business.Messages.Commands.Tokens;
+﻿using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Messages.Commands.Tokens;
 using Grand.Business.Messages.DotLiquidDrops;
 using Grand.Domain.Stores;
 using Grand.Mediator;
@@ -7,23 +8,25 @@ namespace Grand.Business.Messages.Commands.Handlers.Messages;
 
 public class GetStoreTokensCommandHandler : IRequestHandler<GetStoreTokensCommand, LiquidStore>
 {
-    private readonly StoreInformationSettings _storeInformationSettings;
+    private readonly ISettingService _settingService;
 
-    public GetStoreTokensCommandHandler(StoreInformationSettings storeInformationSettings)
+    public GetStoreTokensCommandHandler(ISettingService settingService)
     {
-        _storeInformationSettings = storeInformationSettings;
+        _settingService = settingService;
     }
 
     public async Task<LiquidStore> Handle(GetStoreTokensCommand request, CancellationToken cancellationToken)
     {
-        var liquidStore = new LiquidStore(request.Store, request.Language, request.EmailAccount) {
-            TwitterLink = _storeInformationSettings.TwitterLink,
-            FacebookLink = _storeInformationSettings.FacebookLink,
-            YoutubeLink = _storeInformationSettings.YoutubeLink,
-            InstagramLink = _storeInformationSettings.InstagramLink,
-            LinkedInLink = _storeInformationSettings.LinkedInLink,
-            PinterestLink = _storeInformationSettings.PinterestLink
+        //the message's store, not the current one: a scheduled task or another store's admin sends it too
+        var storeInformationSettings =
+            await _settingService.LoadSetting<StoreInformationSettings>(request.Store?.Id);
+        return new LiquidStore(request.Store, request.Language, request.EmailAccount) {
+            TwitterLink = storeInformationSettings.TwitterLink,
+            FacebookLink = storeInformationSettings.FacebookLink,
+            YoutubeLink = storeInformationSettings.YoutubeLink,
+            InstagramLink = storeInformationSettings.InstagramLink,
+            LinkedInLink = storeInformationSettings.LinkedInLink,
+            PinterestLink = storeInformationSettings.PinterestLink
         };
-        return await Task.FromResult(liquidStore);
     }
 }

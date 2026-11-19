@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Addresses;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -28,8 +29,7 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
     private readonly IPaymentService _paymentService;
     private readonly IPriceFormatter _priceFormatter;
     private readonly IProductService _productService;
-
-    private readonly TaxSettings _taxSettings;
+    private readonly ISettingService _settingService;
     private readonly IVendorService _vendorService;
 
     public GetOrderTokensCommandHandler(
@@ -42,7 +42,7 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
         IAddressAttributeParser addressAttributeParser,
         IPaymentService paymentService,
         IGiftVoucherService giftVoucherService,
-        TaxSettings taxSettings)
+        ISettingService settingService)
     {
         _languageService = languageService;
         _currencyService = currencyService;
@@ -53,13 +53,15 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
         _addressAttributeParser = addressAttributeParser;
         _paymentService = paymentService;
         _giftVoucherService = giftVoucherService;
-        _taxSettings = taxSettings;
+        _settingService = settingService;
     }
 
     public async Task<LiquidOrder> Handle(GetOrderTokensCommand request, CancellationToken cancellationToken)
     {
         var language = await _languageService.GetLanguageById(request.Order.CustomerLanguageId);
         var currency = await _currencyService.GetCurrencyByCode(request.Order.CustomerCurrencyCode);
+        //the order's store, not the current one: a scheduled task or another store's admin sends it too
+        var taxSettings = await _settingService.LoadSetting<TaxSettings>(request.Order.StoreId);
 
         var liquidOrder = new LiquidOrder(request.Order, request.Customer, language, currency, request.Store,
             request.Host, request.OrderNote, request.Vendor);
@@ -179,7 +181,7 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
             _displaySubTotalDiscount = false;
             _cusSubTotalDiscount = string.Empty;
             if (request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax &&
-                !_taxSettings.ForceTaxExclusionFromOrderSubtotal)
+                !taxSettings.ForceTaxExclusionFromOrderSubtotal)
             {
                 //subtotal
                 _cusSubTotal = _priceFormatter.FormatPrice(request.Order.OrderSubtotalInclTax, currency);
@@ -225,7 +227,7 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
                     _priceFormatter.FormatPrice(request.Order.PaymentMethodAdditionalFeeExclTax, currency);
             }
 
-            if (_taxSettings.HideTaxInOrderSummary &&
+            if (taxSettings.HideTaxInOrderSummary &&
                 request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax)
             {
                 _displayTax = false;
@@ -233,14 +235,14 @@ public class GetOrderTokensCommandHandler : IRequestHandler<GetOrderTokensComman
             }
             else
             {
-                if (request.Order.OrderTax == 0 && _taxSettings.HideZeroTax)
+                if (request.Order.OrderTax == 0 && taxSettings.HideZeroTax)
                 {
                     _displayTax = false;
                     _displayTaxRates = false;
                 }
                 else
                 {
-                    _displayTaxRates = _taxSettings.DisplayTaxRates && request.Order.OrderTaxes.Any();
+                    _displayTaxRates = taxSettings.DisplayTaxRates && request.Order.OrderTaxes.Any();
                     _displayTax = !_displayTaxRates;
 
                     var taxStr = _priceFormatter.FormatPrice(request.Order.OrderTax, currency);

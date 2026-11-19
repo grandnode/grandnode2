@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Addresses;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Customers;
@@ -26,6 +27,7 @@ public class GetOrderTokensCommandHandlerTests
     private GetOrderTokensCommandHandler _handler;
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPriceFormatter> _priceFormatterMock;
+    private Mock<ISettingService> _settingServiceMock;
 
     [TestInitialize]
     public void Init()
@@ -43,11 +45,13 @@ public class GetOrderTokensCommandHandlerTests
             .Returns((double price, Currency currency) => $"{currency?.CurrencyCode}{price}");
 
         _paymentServiceMock = new Mock<IPaymentService>();
+        _settingServiceMock = new Mock<ISettingService>();
+        _settingServiceMock.Setup(x => x.LoadSetting<TaxSettings>(It.IsAny<string>())).ReturnsAsync(new TaxSettings());
 
         _handler = new GetOrderTokensCommandHandler(languageService.Object, currencyService.Object,
             new Mock<IProductService>().Object, new Mock<IVendorService>().Object, _priceFormatterMock.Object,
             new Mock<ICountryService>().Object, new Mock<IAddressAttributeParser>().Object,
-            _paymentServiceMock.Object, giftVoucherService.Object, new TaxSettings());
+            _paymentServiceMock.Object, giftVoucherService.Object, _settingServiceMock.Object);
     }
 
     [TestMethod]
@@ -86,5 +90,25 @@ public class GetOrderTokensCommandHandlerTests
 
         //Assert
         Assert.AreEqual("Customer language", result.PaymentMethod);
+    }
+
+    [TestMethod]
+    public async Task Handle_TaxSettingsOfTheOrdersStore()
+    {
+        //Arrange - sent from a scheduled task or another store's admin, the current store is not the order's
+        _settingServiceMock.Setup(x => x.LoadSetting<TaxSettings>("store2"))
+            .ReturnsAsync(new TaxSettings { DisplayTaxRates = true });
+        var order = new Order { StoreId = "store2", CustomerCurrencyCode = "EUR", CustomerLanguageId = "1", OrderTax = 10 };
+        order.OrderTaxes.Add(new OrderTax { Percent = 23, Amount = 10 });
+
+        //Act
+        var result = await _handler.Handle(new GetOrderTokensCommand {
+            Order = order, Customer = new Customer(), Store = new Store { Id = "store2" },
+            Host = new DomainHost { Url = "https://localhost/" }
+        }, CancellationToken.None);
+
+        //Assert
+        Assert.IsTrue(result.DisplayTaxRates);
+        _settingServiceMock.Verify(x => x.LoadSetting<TaxSettings>("store2"), Times.Once);
     }
 }
