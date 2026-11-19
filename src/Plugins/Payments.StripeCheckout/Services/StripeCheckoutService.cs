@@ -1,6 +1,8 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Domain.Orders;
+using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
@@ -14,6 +16,7 @@ public class StripeCheckoutService : IStripeCheckoutService
     private readonly ILogger<StripeCheckoutService> _logger;
     private readonly IMediator _mediator;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly ISettingService _settingService;
     private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
     private readonly IContextAccessor _contextAccessor;
 
@@ -22,19 +25,51 @@ public class StripeCheckoutService : IStripeCheckoutService
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings,
         ILogger<StripeCheckoutService> logger,
         IMediator mediator,
-        IPaymentTransactionService paymentTransactionService)
+        IPaymentTransactionService paymentTransactionService,
+        ISettingService settingService)
     {
         _contextAccessor = contextAccessor;
         _stripeCheckoutPaymentSettings = stripeCheckoutPaymentSettings;
         _logger = logger;
         _mediator = mediator;
         _paymentTransactionService = paymentTransactionService;
+        _settingService = settingService;
     }
 
     public async Task<string> CreateRedirectUrl(Order order)
     {
         var session = await CreateUrlSession(order);
         return session.Url;
+    }
+
+    public async Task<IList<string>> Refund(PaymentTransaction paymentTransaction, double amount)
+    {
+        //a payment staff marked as paid by hand never went through Stripe
+        if (string.IsNullOrEmpty(paymentTransaction.AuthorizationTransactionId))
+            return ["The payment has no Stripe payment id. Refund it offline."];
+
+        //the refund is made in the panel, whose store is not the order's: the key comes from the
+        //transaction's store, as two stores may use two Stripe accounts
+        var settings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(paymentTransaction.StoreId);
+        try
+        {
+            var refund = await new RefundService(CreateStripeClient(settings.ApiKey)).CreateAsync(
+                new RefundCreateOptions {
+                    PaymentIntent = paymentTransaction.AuthorizationTransactionId,
+                    //in the smallest unit, as the session was created with the order total * 100
+                    Amount = (long)Math.Round(amount * 100)
+                });
+            //a pending refund is accepted: Stripe settles card refunds later
+            if (refund.Status is "failed" or "canceled")
+                return [$"Stripe refund {refund.Id} {refund.Status}."];
+        }
+        catch (StripeException e)
+        {
+            _logger.LogError(e, "Stripe refund of order #{OrderCode} failed", paymentTransaction.OrderCode);
+            return [e.StripeError?.Message ?? e.Message];
+        }
+
+        return [];
     }
 
     public async Task<bool> WebHookProcessPayment(string stripeSignature, string json)
@@ -125,9 +160,14 @@ public class StripeCheckoutService : IStripeCheckoutService
         //the api key is store-specific, so it travels with the client - the static
         //StripeConfiguration.ApiKey is process-wide and two stores checking out at the same time
         //would overwrite each other's credentials
-        var service = new SessionService(new StripeClient(_stripeCheckoutPaymentSettings.ApiKey));
+        var service = new SessionService(CreateStripeClient(_stripeCheckoutPaymentSettings.ApiKey));
         var session = await service.CreateAsync(options);
 
         return session;
+    }
+
+    protected virtual IStripeClient CreateStripeClient(string apiKey)
+    {
+        return new StripeClient(apiKey);
     }
 }
