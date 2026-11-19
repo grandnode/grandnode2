@@ -29,15 +29,19 @@ public class OrderSettingsValidatorTests
     [TestMethod]
     [DataRow(0)]
     [DataRow(3)]
-    public async Task PaymentReminderDaysBefore_ZeroOrMore_IsValid(int days)
+    [DataRow(OrderSettings.MaxPaymentReminderDaysBefore)]
+    public async Task PaymentReminderDaysBefore_InRange_IsValid(int days)
     {
         Assert.IsTrue((await _validator.ValidateAsync(Model(days))).IsValid);
     }
 
     [TestMethod]
-    public async Task PaymentReminderDaysBefore_Negative_IsInvalid()
+    [DataRow(-1)]
+    [DataRow(OrderSettings.MaxPaymentReminderDaysBefore + 1)]
+    [DataRow(int.MaxValue)]
+    public async Task PaymentReminderDaysBefore_OutOfRange_IsInvalid(int days)
     {
-        var result = await _validator.ValidateAsync(Model(-1));
+        var result = await _validator.ValidateAsync(Model(days));
 
         Assert.IsFalse(result.IsValid);
         Assert.AreEqual(nameof(SalesSettingsModel.OrderSettingsModel.PaymentReminderDaysBefore),

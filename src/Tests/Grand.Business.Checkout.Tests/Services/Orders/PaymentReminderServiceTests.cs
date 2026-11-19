@@ -10,6 +10,8 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Stores;
+using Grand.Infrastructure.Events;
+using Grand.Mediator;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -23,6 +25,7 @@ public class PaymentReminderServiceTests
     private static readonly DateTime Today = Now.Date;
 
     private Mock<ICustomerService> _customerServiceMock;
+    private Mock<IMediator> _mediatorMock;
     private Mock<IOrderMessageProviderService> _messageServiceMock;
     private IRepository<Order> _orderRepository;
     private Mock<IOrderService> _orderServiceMock;
@@ -50,9 +53,11 @@ public class PaymentReminderServiceTests
         _messageServiceMock.Setup(x => x.SendPaymentOverdueCustomerMessage(It.IsAny<Order>(),
             It.IsAny<Customer>(), It.IsAny<string>())).ReturnsAsync(1);
 
+        _mediatorMock = new Mock<IMediator>();
+
         _service = new PaymentReminderService(_orderRepository, storeServiceMock.Object,
             _settingServiceMock.Object, _customerServiceMock.Object, _orderServiceMock.Object,
-            _messageServiceMock.Object, NullLogger<PaymentReminderService>.Instance);
+            _messageServiceMock.Object, _mediatorMock.Object, NullLogger<PaymentReminderService>.Instance);
     }
 
     private async Task<Order> AddOrder(int dueInDays, PaymentStatus paymentStatus = PaymentStatus.Pending,
@@ -101,6 +106,8 @@ public class PaymentReminderServiceTests
         Assert.IsNull(stored.PaymentOverdueNoticeSentOnUtc);
         _orderServiceMock.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
             n.OrderId == order.Id && !n.DisplayToCustomer && n.Note == "Payment due reminder e-mail sent")));
+        _mediatorMock.Verify(x => x.Publish(It.Is<EntityUpdated<Order>>(e =>
+            e.Entity.Id == order.Id && e.Entity.PaymentReminderSentOnUtc == Now), default), Times.Once);
     }
 
     [TestMethod]
@@ -197,6 +204,27 @@ public class PaymentReminderServiceTests
     }
 
     [TestMethod]
+    [DataRow(int.MaxValue)]
+    [DataRow(-5)]
+    public async Task DaysBeforeOutOfRange_Bounded_OtherStoresStillServed(int daysBefore)
+    {
+        _stores.Insert(0, new Store { Id = "store0" });
+        _settingServiceMock.Setup(x => x.LoadSetting<OrderSettings>("store0"))
+            .ReturnsAsync(new OrderSettings { PaymentReminderDaysBefore = daysBefore });
+        var lastInWindow = await AddOrder(daysBefore < 0 ? 0 : OrderSettings.MaxPaymentReminderDaysBefore,
+            storeId: "store0");
+        var pastWindow = await AddOrder(daysBefore < 0 ? 1 : OrderSettings.MaxPaymentReminderDaysBefore + 1,
+            storeId: "store0");
+        var otherStore = await AddOrder(1);
+
+        await _service.SendPaymentReminders(Now);
+
+        VerifyReminders(lastInWindow, 1);
+        VerifyReminders(pastWindow, 0);
+        VerifyReminders(otherStore, 1);
+    }
+
+    [TestMethod]
     public async Task TemplateInactive_StillMarked()
     {
         _messageServiceMock.Setup(x => x.SendPaymentDueReminderCustomerMessage(It.IsAny<Order>(),
@@ -210,7 +238,7 @@ public class PaymentReminderServiceTests
     }
 
     [TestMethod]
-    public async Task OneOrderFails_OthersSent()
+    public async Task OneOrderFails_OthersSent_FailedOneTriedAgainNextRun()
     {
         _customerServiceMock.Setup(x => x.GetCustomerById("broken")).ThrowsAsync(new InvalidOperationException());
         var broken = await AddOrder(1, customerId: "broken");
@@ -219,7 +247,26 @@ public class PaymentReminderServiceTests
         await _service.SendPaymentReminders(Now);
 
         VerifyReminders(good, 1);
-        Assert.AreEqual(Now, (await _orderRepository.GetByIdAsync(broken.Id)).PaymentReminderSentOnUtc);
+        Assert.IsNull((await _orderRepository.GetByIdAsync(broken.Id)).PaymentReminderSentOnUtc);
+
+        _customerServiceMock.Setup(x => x.GetCustomerById("broken")).ReturnsAsync(new Customer { Id = "broken" });
+        await _service.SendPaymentReminders(Now.AddDays(1));
+
+        VerifyReminders(broken, 1);
+        VerifyReminders(good, 1);
+    }
+
+    [TestMethod]
+    public async Task SendingFails_NotMarked()
+    {
+        _messageServiceMock.Setup(x => x.SendPaymentOverdueCustomerMessage(It.IsAny<Order>(),
+            It.IsAny<Customer>(), It.IsAny<string>())).ThrowsAsync(new InvalidOperationException());
+        var order = await AddOrder(-1);
+
+        await _service.SendPaymentReminders(Now);
+
+        Assert.IsNull((await _orderRepository.GetByIdAsync(order.Id)).PaymentOverdueNoticeSentOnUtc);
+        _orderServiceMock.Verify(x => x.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
     }
 
     [TestMethod]
