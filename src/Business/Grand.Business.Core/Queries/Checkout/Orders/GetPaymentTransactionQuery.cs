@@ -18,4 +18,12 @@ public class GetPaymentTransactionQuery : IRequest<IPagedList<PaymentTransaction
     /// <summary>False leaves out transactions of a checkout that never got a payment through: still in progress,
     /// failed or abandoned.</summary>
     public bool IncludeTemp { get; set; } = true;
+
+    public string PaymentMethodSystemName { get; set; }
+
+    /// <summary>Only the payments of orders carrying this purchase order number, matched exactly.</summary>
+    public string PurchaseOrderNumber { get; set; }
+
+    /// <summary>Only the payments of orders bought on credit and past their due date.</summary>
+    public bool OverdueOnly { get; set; }
 }
