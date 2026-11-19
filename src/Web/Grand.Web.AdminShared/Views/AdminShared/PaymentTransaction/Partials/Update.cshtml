@@ -3,17 +3,23 @@
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
 
-@* a transaction is read, not edited: what it is and what the gateway said, as facts *@
+@* a transaction is read, not edited: what it is, the order it pays for and what the gateway said, as facts *@
 <partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
 <admin-card>
     <div class="grand-facts">
         <div>
-            <admin-label asp-for="PaymentMethodSystemName" asp-display-hint="false" class="grand-fact__label"/>
-            <div class="grand-fact__value">@Model.PaymentMethodSystemName</div>
+            <admin-label asp-for="PaymentMethodName" asp-display-hint="false" class="grand-fact__label"/>
+            <div class="grand-fact__value">@Model.PaymentMethodName</div>
         </div>
         <div>
             <admin-label asp-for="Status" asp-display-hint="false" class="grand-fact__label"/>
-            <div class="grand-fact__value">@Model.Status</div>
+            <div class="grand-fact__value">
+                @Model.Status
+                @if (Model.Abandoned)
+                {
+                    <span class="grand-chip grand-chip--amber ms-1">@Loc["Admin.PaymentTransaction.Abandoned"]</span>
+                }
+            </div>
         </div>
         <div>
             <admin-label asp-for="TransactionAmount" asp-display-hint="false" class="grand-fact__label"/>
@@ -23,6 +29,13 @@
             <admin-label asp-for="PaidAmount" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">@Model.PaidAmount [@Model.CurrencyCode]</div>
         </div>
+        @if (Model.AmountDue > 0)
+        {
+            <div>
+                <admin-label asp-for="AmountDue" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.AmountDue [@Model.CurrencyCode]</div>
+            </div>
+        }
         @if (Model.RefundedAmount > 0)
         {
             <div>
@@ -30,44 +43,104 @@
                 <div class="grand-fact__value">@Model.RefundedAmount [@Model.CurrencyCode]</div>
             </div>
         }
+        @if (Model.AmountRefundable > 0)
+        {
+            <div>
+                <admin-label asp-for="AmountRefundable" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.AmountRefundable [@Model.CurrencyCode]</div>
+            </div>
+        }
+        @if (Model.CurrencyRate > 0 && Model.CurrencyRate != 1)
+        {
+            <div>
+                <admin-label asp-for="CurrencyRate" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.CurrencyRate</div>
+            </div>
+        }
         <div>
             <admin-label asp-for="CustomerId" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">@Html.ActionLink(Model.CustomerEmail, "Edit", "Customer", new { id = Model.CustomerId }, new { })</div>
         </div>
-        <div>
-            <admin-label asp-for="OrderId" asp-display-hint="false" class="grand-fact__label"/>
-            <div class="grand-fact__value">@Html.ActionLink(Model.OrderNumber.ToString(), "Edit", "Order", new { id = Model.OrderId }, new { })</div>
-        </div>
-        @if (!string.IsNullOrEmpty(Model.PurchaseOrderNumber))
+        @if (!string.IsNullOrEmpty(Model.StoreName))
         {
             <div>
-                <admin-label asp-for="PurchaseOrderNumber" asp-display-hint="false" class="grand-fact__label"/>
-                <div class="grand-fact__value">@Model.PurchaseOrderNumber</div>
-            </div>
-        }
-        @if (Model.PaymentDueDate.HasValue)
-        {
-            <div>
-                <admin-label asp-for="PaymentDueDate" asp-display-hint="false" class="grand-fact__label"/>
-                <div class="grand-fact__value">
-                    @Model.PaymentDueDate.Value.ToString("D")
-                    @if (Model.IsPaymentOverdue)
-                    {
-                        <span class="grand-chip grand-chip--red ms-1">@Loc["Admin.Orders.Fields.PaymentOverdue"]</span>
-                    }
-                </div>
+                <admin-label asp-for="StoreName" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.StoreName</div>
             </div>
         }
         <div>
             <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">@Html.DisplayFor(model => model.CreatedOn)</div>
         </div>
+        @if (Model.UpdatedOn.HasValue)
+        {
+            <div>
+                <admin-label asp-for="UpdatedOn" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.UpdatedOn.Value.ToString("G")</div>
+            </div>
+        }
         <div>
             <admin-label asp-for="IPAddress" asp-display-hint="false" class="grand-fact__label"/>
             <div class="grand-fact__value">@Model.IPAddress</div>
         </div>
     </div>
 </admin-card>
+@if (!string.IsNullOrEmpty(Model.OrderId))
+{
+    <admin-card>
+        <div class="grand-facts">
+            <div>
+                <admin-label asp-for="OrderId" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Html.ActionLink(Model.OrderNumber.ToString(), "Edit", "Order", new { id = Model.OrderId }, new { })</div>
+            </div>
+            @if (!string.IsNullOrEmpty(Model.OrderStatus))
+            {
+                <div>
+                    <admin-label asp-for="OrderStatus" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.OrderStatus</div>
+                </div>
+            }
+            <div>
+                <admin-label asp-for="OrderPaymentStatus" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.OrderPaymentStatus</div>
+            </div>
+            @if (Model.OrderTotal.HasValue)
+            {
+                <div>
+                    <admin-label asp-for="OrderTotal" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.OrderTotal [@Model.OrderCurrencyCode]</div>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.BillingName))
+            {
+                <div>
+                    <admin-label asp-for="BillingName" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.BillingName</div>
+                </div>
+            }
+            @if (!string.IsNullOrEmpty(Model.PurchaseOrderNumber))
+            {
+                <div>
+                    <admin-label asp-for="PurchaseOrderNumber" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.PurchaseOrderNumber</div>
+                </div>
+            }
+            @if (Model.PaymentDueDate.HasValue)
+            {
+                <div>
+                    <admin-label asp-for="PaymentDueDate" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">
+                        @Model.PaymentDueDate.Value.ToString("D")
+                        @if (Model.IsPaymentOverdue)
+                        {
+                            <span class="grand-chip grand-chip--red ms-1">@Loc["Admin.Orders.Fields.PaymentOverdue"]</span>
+                        }
+                    </div>
+                </div>
+            }
+        </div>
+    </admin-card>
+}
 <admin-card>
     <div class="grand-facts">
         @if (!string.IsNullOrEmpty(Model.AdditionalInfo))
@@ -119,5 +192,32 @@
                 <div class="grand-fact__value">@Model.AuthorizationTransactionResult</div>
             </div>
         }
+        @if (Model.Errors.Count > 0)
+        {
+            <div>
+                <admin-label asp-for="Errors" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">
+                    @foreach (var error in Model.Errors)
+                    {
+                        <div>@error</div>
+                    }
+                </div>
+            </div>
+        }
     </div>
+    @if (Model.CustomValues.Count > 0)
+    {
+        <div class="mt-3">
+            <admin-label asp-for="CustomValues" asp-display-hint="false" class="grand-fact__label"/>
+            <table class="table table-sm mb-0">
+                @foreach (var item in Model.CustomValues)
+                {
+                    <tr>
+                        <td>@item.Key:</td>
+                        <td>@(item.Value != null ? item.Value.ToString() : "")</td>
+                    </tr>
+                }
+            </table>
+        </div>
+    }
 </admin-card>

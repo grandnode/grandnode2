@@ -3,8 +3,10 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain.Common;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Permissions;
@@ -34,7 +36,9 @@ public abstract class BasePaymentTransactionController(
     IAdminDataScope<PaymentTransaction> scope,
     IContextAccessor contextAccessor,
     IPaymentTransactionHistoryService paymentTransactionHistoryService,
-    IPaymentService paymentService)
+    IPaymentService paymentService,
+    IStoreService storeService,
+    IOrderStatusService orderStatusService)
     : BaseController
 {
     // Exposed for host-specific concrete subclasses (none currently need extra actions, unlike
@@ -50,6 +54,8 @@ public abstract class BasePaymentTransactionController(
     protected IContextAccessor ContextAccessor => contextAccessor;
     protected IPaymentTransactionHistoryService PaymentTransactionHistoryService => paymentTransactionHistoryService;
     protected IPaymentService PaymentService => paymentService;
+    protected IStoreService StoreService => storeService;
+    protected IOrderStatusService OrderStatusService => orderStatusService;
 
     /// <summary>Who the payment operation history and order notes name for an operation made here</summary>
     private string StaffName => contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy();
@@ -216,21 +222,46 @@ public abstract class BasePaymentTransactionController(
             TransactionAmount = paymentTransaction.TransactionAmount,
             PaidAmount = paymentTransaction.PaidAmount,
             PaymentMethodSystemName = paymentTransaction.PaymentMethodSystemName,
+            PaymentMethodName =
+                paymentService.LoadPaymentMethodBySystemName(paymentTransaction.PaymentMethodSystemName)?.FriendlyName ??
+                paymentTransaction.PaymentMethodSystemName,
+            Abandoned = paymentTransaction.Temp,
             RefundedAmount = paymentTransaction.RefundedAmount,
+            AmountDue = Math.Max(paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount, 0),
+            AmountRefundable = Math.Max(paymentTransaction.PaidAmount - paymentTransaction.RefundedAmount, 0),
+            CurrencyRate = paymentTransaction.CurrencyRate,
+            //the store panel shows its own store only, so naming it says nothing
+            StoreName = scope.DefaultStoreId is null
+                ? (await storeService.GetStoreById(paymentTransaction.StoreId))?.Name
+                : null,
             OrderId = order?.Id,
             OrderNumber = order?.OrderNumber,
+            OrderStatus = order != null ? (await orderStatusService.GetByStatusId(order.OrderStatusId))?.Name : null,
+            OrderPaymentStatus = order != null ? enumTranslationService.GetTranslationEnum(order.PaymentStatusId) : null,
+            OrderTotal = order?.OrderTotal,
+            OrderCurrencyCode = order?.CustomerCurrencyCode,
+            BillingName = BillingName(order?.BillingAddress),
             PurchaseOrderNumber = order?.PurchaseOrderNumber,
             PaymentDueDate = order?.PaymentDueDateUtc?.Date,
             IsPaymentOverdue = order?.IsPaymentOverdue(DateTime.UtcNow) ?? false,
             BoughtOnCredit = order?.PaymentDueDateUtc != null,
             CanEditPaymentTerms = HasPaymentTerms(order),
             CreatedOn = dateTimeService.ConvertToUserTime(paymentTransaction.CreatedOnUtc, DateTimeKind.Utc),
+            UpdatedOn = paymentTransaction.UpdatedOnUtc.HasValue
+                ? dateTimeService.ConvertToUserTime(paymentTransaction.UpdatedOnUtc.Value, DateTimeKind.Utc)
+                : null,
             TransactionStatus = paymentTransaction.TransactionStatus,
             Status = enumTranslationService.GetTranslationEnum(paymentTransaction.TransactionStatus),
             IPAddress = paymentTransaction.IPAddress,
             Description = paymentTransaction.Description,
             AdditionalInfo = paymentTransaction.AdditionalInfo,
             AuthorizationTransactionId = paymentTransaction.AuthorizationTransactionId,
+            AuthorizationTransactionCode = paymentTransaction.AuthorizationTransactionCode,
+            AuthorizationTransactionResult = paymentTransaction.AuthorizationTransactionResult,
+            CaptureTransactionId = paymentTransaction.CaptureTransactionId,
+            CaptureTransactionResult = paymentTransaction.CaptureTransactionResult,
+            Errors = paymentTransaction.Errors ?? new List<string>(),
+            CustomValues = paymentTransaction.CustomValues ?? new Dictionary<string, object>(),
             CanCapture = await mediator.Send(new CanCaptureQuery { PaymentTransaction = paymentTransaction }),
             CanMarkAsPaid = await mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction }),
             CanRefund = await mediator.Send(new CanRefundQuery { PaymentTransaction = paymentTransaction }),
@@ -255,6 +286,17 @@ public abstract class BasePaymentTransactionController(
         };
 
         return View(model);
+    }
+
+    private static string BillingName(Address address)
+    {
+        if (address == null)
+            return null;
+        if (!string.IsNullOrWhiteSpace(address.Company))
+            return address.Company;
+
+        var name = $"{address.FirstName} {address.LastName}".Trim();
+        return string.IsNullOrEmpty(name) ? null : name;
     }
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]

@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Mediator;
@@ -27,7 +28,9 @@ public class PaymentTransactionController(
     IAdminDataScope<PaymentTransaction> scope,
     IContextAccessor contextAccessor,
     IPaymentTransactionHistoryService paymentTransactionHistoryService,
-    IPaymentService paymentService)
+    IPaymentService paymentService,
+    IStoreService storeService,
+    IOrderStatusService orderStatusService)
     : BasePaymentTransactionController(paymentTransactionService, orderService, translationService,
         dateTimeService, mediator, enumTranslationService, scope, contextAccessor, paymentTransactionHistoryService,
-        paymentService);
+        paymentService, storeService, orderStatusService);
