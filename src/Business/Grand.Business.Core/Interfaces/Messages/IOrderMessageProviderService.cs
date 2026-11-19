@@ -157,6 +157,24 @@ public interface IOrderMessageProviderService
     Task<int> SendOrderRefundedCustomerMessage(Order order, double refundedAmount, string languageId);
 
     /// <summary>
+    ///     Reminds a customer that the payment of an order bought on credit falls due
+    /// </summary>
+    /// <param name="order">Order</param>
+    /// <param name="customer">Customer</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendPaymentDueReminderCustomerMessage(Order order, Customer customer, string languageId);
+
+    /// <summary>
+    ///     Tells a customer that the payment of an order bought on credit is overdue
+    /// </summary>
+    /// <param name="order">Order</param>
+    /// <param name="customer">Customer</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <returns>Queued email identifier</returns>
+    Task<int> SendPaymentOverdueCustomerMessage(Order order, Customer customer, string languageId);
+
+    /// <summary>
     ///     Sends a new order note added notification to a customer
     /// </summary>
     /// <param name="order">Order</param>

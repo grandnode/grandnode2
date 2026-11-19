@@ -220,6 +220,16 @@ public class Order : BaseEntity
     public DateTime? PaymentDueDateUtc { get; set; }
 
     /// <summary>
+    ///     Gets or sets when the customer was reminded that the payment falls due; cleared when the due date changes
+    /// </summary>
+    public DateTime? PaymentReminderSentOnUtc { get; set; }
+
+    /// <summary>
+    ///     Gets or sets when the customer was told that the payment is overdue; cleared when the due date changes
+    /// </summary>
+    public DateTime? PaymentOverdueNoticeSentOnUtc { get; set; }
+
+    /// <summary>
     ///     Gets or sets the refunded amount
     /// </summary>
     public double RefundedAmount { get; set; }

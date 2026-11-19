@@ -224,6 +224,34 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     }
 
     /// <summary>
+    ///     Reminds a customer that the payment of an order bought on credit falls due
+    /// </summary>
+    /// <param name="order">Order</param>
+    /// <param name="customer">Customer</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <returns>Queued email identifier</returns>
+    public virtual async Task<int> SendPaymentDueReminderCustomerMessage(Order order, Customer customer,
+        string languageId)
+    {
+        return await SendOrderCustomerMessage(MessageTemplateNames.SendPaymentDueReminderCustomerMessage, order,
+            customer, languageId);
+    }
+
+    /// <summary>
+    ///     Tells a customer that the payment of an order bought on credit is overdue
+    /// </summary>
+    /// <param name="order">Order</param>
+    /// <param name="customer">Customer</param>
+    /// <param name="languageId">Message language identifier</param>
+    /// <returns>Queued email identifier</returns>
+    public virtual async Task<int> SendPaymentOverdueCustomerMessage(Order order, Customer customer,
+        string languageId)
+    {
+        return await SendOrderCustomerMessage(MessageTemplateNames.SendPaymentOverdueCustomerMessage, order,
+            customer, languageId);
+    }
+
+    /// <summary>
     ///     Sends an order notification with an invoice to a customer
     /// </summary>
     private async Task<int> SendOrderInvoiceMessage(string message, Order order, Customer customer, string languageId,
