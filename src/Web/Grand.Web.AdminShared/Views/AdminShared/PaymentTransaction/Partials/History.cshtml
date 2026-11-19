@@ -29,8 +29,8 @@
                     <tr>
                         <td class="text-nowrap">@entry.CreatedOn</td>
                         <td>@entry.Operation</td>
-                        <td class="text-end text-nowrap">@entry.Amount.ToString("N2") @Model.CurrencyCode</td>
-                        <td>@entry.CreatedBy</td>
+                        <td class="text-end text-nowrap">@entry.Amount [@Model.CurrencyCode]</td>
+                        <td>@entry.RecordedBy</td>
                         <td>@entry.Reference</td>
                         <td>@entry.Note</td>
                     </tr>

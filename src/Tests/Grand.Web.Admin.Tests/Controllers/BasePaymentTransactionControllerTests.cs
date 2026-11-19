@@ -9,6 +9,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
@@ -36,11 +37,14 @@ public class BasePaymentTransactionControllerTests
         IMediator mediator,
         IEnumTranslationService enumTranslationService,
         IAdminDataScope<PaymentTransaction> scope,
-        IContextAccessor contextAccessor)
+        IContextAccessor contextAccessor,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
         : BasePaymentTransactionController(paymentTransactionService, orderService, translationService,
-            dateTimeService, mediator, enumTranslationService, scope, contextAccessor);
+            dateTimeService, mediator, enumTranslationService, scope, contextAccessor,
+            paymentTransactionHistoryService);
 
     private TestPaymentTransactionController _controller;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
     private Mock<IPaymentTransactionService> _paymentTransactionServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IAdminDataScope<PaymentTransaction>> _scopeMock;
@@ -81,10 +85,13 @@ public class BasePaymentTransactionControllerTests
         var contextAccessorMock = new Mock<IContextAccessor>();
         contextAccessorMock.Setup(c => c.WorkContext).Returns(workContextMock.Object);
 
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
+        _historyMock.Setup(h => h.GetEntries(It.IsAny<string>())).ReturnsAsync(new List<PaymentTransactionEntry>());
+
         _controller = new TestPaymentTransactionController(
             _paymentTransactionServiceMock.Object, _orderServiceMock.Object, _translationServiceMock.Object,
             dateTimeServiceMock.Object, _mediatorMock.Object, enumTranslationServiceMock.Object, _scopeMock.Object,
-            contextAccessorMock.Object);
+            contextAccessorMock.Object, _historyMock.Object);
 
         // Error()/Success() (used by this task's popup and Delete actions) reach into
         // HttpContext.RequestServices for ILoggerFactory and into TempData - wire up the same
@@ -548,16 +555,18 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
-    public async Task Edit_MapsEntriesOldestFirst()
+    public async Task Edit_MapsTheRecordedHistoryInItsOrder()
     {
         var transaction = new PaymentTransaction { Id = "pt-1", CurrencyCode = "EUR", TransactionAmount = 100 };
-        transaction.Entries.Add(new PaymentTransactionEntry {
-            EntryType = PaymentTransactionEntryType.Refund, Amount = 10, CreatedBy = "staff@shop.com",
-            CreatedOnUtc = new DateTime(2026, 11, 2, 0, 0, 0, DateTimeKind.Utc)
-        });
-        transaction.Entries.Add(new PaymentTransactionEntry {
-            EntryType = PaymentTransactionEntryType.Payment, Amount = 100, Reference = "TR-881", Note = "First",
-            CreatedOnUtc = new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc)
+        _historyMock.Setup(h => h.GetEntries("pt-1")).ReturnsAsync(new List<PaymentTransactionEntry> {
+            new() {
+                EntryType = PaymentTransactionEntryType.Payment, Amount = 100, Reference = "TR-881", Note = "First",
+                CreatedOnUtc = new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc)
+            },
+            new() {
+                EntryType = PaymentTransactionEntryType.Refund, Amount = 10, RecordedBy = "staff@shop.com",
+                CreatedOnUtc = new DateTime(2026, 11, 2, 0, 0, 0, DateTimeKind.Utc)
+            }
         });
         _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
         _enumTranslationServiceMock.Setup(e => e.GetTranslationEnum(PaymentTransactionEntryType.Payment))
@@ -574,7 +583,7 @@ public class BasePaymentTransactionControllerTests
         Assert.AreEqual("First", model.Entries[0].Note);
         Assert.AreEqual(new DateTime(2026, 11, 1), model.Entries[0].CreatedOn.Date);
         Assert.AreEqual("Refund", model.Entries[1].Operation);
-        Assert.AreEqual("staff@shop.com", model.Entries[1].CreatedBy);
+        Assert.AreEqual("staff@shop.com", model.Entries[1].RecordedBy);
     }
 
     [TestMethod]
@@ -618,15 +627,73 @@ public class BasePaymentTransactionControllerTests
     }
 
     [TestMethod]
-    public async Task MarkPaymentTransactionAsPaid_SendsStaff()
+    [DataRow(true)]
+    [DataRow(false)]
+    public async Task PartiallyRefundPopup_Get_CarriesWhetherTheRefundIsOnline(bool online)
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1"))
+            .ReturnsAsync(new PaymentTransaction { Id = "pt-1", TransactionAmount = 100 });
+
+        var model = (await _controller.PartiallyRefundPopup("pt-1", online) as ViewResult)!.Model as PaymentTransactionModel;
+
+        Assert.AreEqual(online, model!.Online);
+    }
+
+    [TestMethod]
+    public async Task MarkAsPaidPopup_Get_ShowsTheAmounts()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(new PaymentTransaction
+            { Id = "pt-1", TransactionAmount = 100, PaidAmount = 40, CurrencyCode = "EUR" });
+
+        var model = (await _controller.MarkAsPaidPopup("pt-1") as ViewResult)!.Model as PaymentTransactionModel;
+
+        Assert.AreEqual(100, model!.TransactionAmount);
+        Assert.AreEqual(40, model.PaidAmount);
+        Assert.AreEqual("EUR", model.CurrencyCode);
+    }
+
+    [TestMethod]
+    public async Task MarkAsPaidPopup_Post_SendsStaffReferenceAndNote()
     {
         var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100 };
         _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
         _mediatorMock.Setup(m => m.Send(It.IsAny<MarkAsPaidCommand>(), default)).ReturnsAsync(true);
 
-        await _controller.MarkPaymentTransactionAsPaid("pt-1");
+        var result = await _controller.MarkAsPaidPopup("pt-1",
+            new PaymentTransactionModel { Reference = "TR-881", Note = "Whole transfer" }) as ViewResult;
 
+        Assert.IsTrue(((PaymentTransactionModel)result!.Model!).RefreshPage);
         _mediatorMock.Verify(m => m.Send(It.Is<MarkAsPaidCommand>(c =>
-            c.PaymentTransaction == transaction && c.CreatedBy == "staff@shop.com"), default), Times.Once);
+            c.PaymentTransaction == transaction && c.CreatedBy == "staff@shop.com" && c.Reference == "TR-881" &&
+            c.Note == "Whole transfer"), default), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task MarkAsPaidPopup_Post_Refused_DoesNotRefresh()
+    {
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1"))
+            .ReturnsAsync(new PaymentTransaction { Id = "pt-1", TransactionAmount = 100 });
+        _mediatorMock.Setup(m => m.Send(It.IsAny<MarkAsPaidCommand>(), default))
+            .ThrowsAsync(new GrandException("You can't mark this Payment Transaction as paid"));
+
+        var result = await _controller.MarkAsPaidPopup("pt-1", new PaymentTransactionModel()) as ViewResult;
+
+        Assert.IsFalse(((PaymentTransactionModel)result!.Model!).RefreshPage);
+    }
+
+    [TestMethod]
+    public async Task RefundOfflinePopup_Post_SendsStaffReferenceAndNote()
+    {
+        var transaction = new PaymentTransaction { Id = "pt-1", TransactionAmount = 100 };
+        _paymentTransactionServiceMock.Setup(s => s.GetById("pt-1")).ReturnsAsync(transaction);
+        _mediatorMock.Setup(m => m.Send(It.IsAny<RefundOfflineCommand>(), default)).ReturnsAsync(true);
+
+        var result = await _controller.RefundOfflinePopup("pt-1",
+            new PaymentTransactionModel { Reference = "RF-9", Note = "By transfer" }) as ViewResult;
+
+        Assert.IsTrue(((PaymentTransactionModel)result!.Model!).RefreshPage);
+        _mediatorMock.Verify(m => m.Send(It.Is<RefundOfflineCommand>(c =>
+            c.PaymentTransaction == transaction && c.CreatedBy == "staff@shop.com" && c.Reference == "RF-9" &&
+            c.Note == "By transfer"), default), Times.Once);
     }
 }

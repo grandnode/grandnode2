@@ -1,11 +1,9 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using Grand.Mediator;
@@ -20,19 +18,22 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransaction;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public CaptureCommandHandler(
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransaction,
         IMediator mediator,
         IOrderService orderService,
-        ILogger<CaptureCommandHandler> logger)
+        ILogger<CaptureCommandHandler> logger,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _paymentService = paymentService;
         _paymentTransaction = paymentTransaction;
         _mediator = mediator;
         _orderService = orderService;
         _logger = logger;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<IList<string>> Handle(CaptureCommand command, CancellationToken cancellationToken)
@@ -56,9 +57,11 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
             if (result.Success)
             {
                 paymentTransaction = await _paymentTransaction.GetById(paymentTransaction.Id);
-                var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Capture,
-                    paymentTransaction.TransactionAmount, command.CreatedBy, result.CaptureTransactionId);
-                paymentTransaction.PaidAmount = paymentTransaction.TransactionAmount;
+                //a capture the gateway settles later is not money in yet: it is paid, and recorded, when it is
+                var captured = result.NewPaymentStatus == TransactionStatus.Paid
+                    ? paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount
+                    : 0;
+                paymentTransaction.PaidAmount += captured;
                 paymentTransaction.CaptureTransactionId = result.CaptureTransactionId;
                 paymentTransaction.CaptureTransactionResult = result.CaptureTransactionResult;
                 paymentTransaction.TransactionStatus = result.NewPaymentStatus;
@@ -66,12 +69,10 @@ public class CaptureCommandHandler : IRequestHandler<CaptureCommand, IList<strin
                 await _paymentTransaction.UpdatePaymentTransaction(paymentTransaction);
 
                 var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
-                if (order != null)
-                    await _orderService.InsertOrderNote(new OrderNote {
-                        Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
-                        DisplayToCustomer = false,
-                        OrderId = order.Id
-                    });
+                if (paymentTransaction.TransactionStatus == TransactionStatus.Paid)
+                    await _paymentTransactionHistoryService.Record(paymentTransaction, order,
+                        PaymentTransactionEntryType.Capture, captured, command.CreatedBy,
+                        result.CaptureTransactionId);
 
                 if (order != null && paymentTransaction.TransactionStatus == TransactionStatus.Paid)
                 {

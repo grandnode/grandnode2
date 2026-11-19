@@ -1,5 +1,4 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
@@ -7,7 +6,6 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Localization;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using Grand.Mediator;
@@ -24,6 +22,7 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public PartiallyRefundCommandHandler(
         IPaymentService paymentService,
@@ -32,7 +31,8 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
         IOrderMessageProviderService orderMessageProviderService,
         ILogger<PartiallyRefundCommandHandler> logger,
         IOrderService orderService,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;
@@ -41,6 +41,7 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
         _orderMessageProviderService = orderMessageProviderService;
         _logger = logger;
         _languageSettings = languageSettings;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<IList<string>> Handle(PartiallyRefundCommand command, CancellationToken cancellationToken)
@@ -70,8 +71,6 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
             if (result.Success)
             {
                 paymentTransaction = await _paymentTransactionService.GetById(paymentTransaction.Id);
-                var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Refund, amountToRefund,
-                    command.CreatedBy, command.Reference, command.Note);
                 paymentTransaction.RefundedAmount += amountToRefund;
                 //a provider that gives no status leaves the one the refunded amount comes to, as the offline partial
                 //refund sets it: a transaction left pending could not be refunded again
@@ -92,11 +91,8 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
                     ? PaymentStatus.Refunded
                     : PaymentStatus.PartiallyRefunded;
                 await _orderService.UpdateOrder(order);
-                await _orderService.InsertOrderNote(new OrderNote {
-                    Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
-                    DisplayToCustomer = false,
-                    OrderId = order.Id
-                });
+                await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Refund,
+                    amountToRefund, command.CreatedBy, command.Reference, command.Note);
 
                 //check order status
                 await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);

@@ -21,6 +21,7 @@ public class RefundOfflineCommandHandlerTests
     private Mock<IMediator> _mediatorMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -28,9 +29,10 @@ public class RefundOfflineCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
 
         _handler = new RefundOfflineCommandHandler(_mediatorMock.Object, _orderServiceMock.Object,
-            _paymentTransactionMock.Object, new Mock<IOrderMessageProviderService>().Object, new LanguageSettings());
+            _paymentTransactionMock.Object, new Mock<IOrderMessageProviderService>().Object, new LanguageSettings(), _historyMock.Object);
     }
 
     [TestMethod]
@@ -42,16 +44,13 @@ public class RefundOfflineCommandHandlerTests
         _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order { OrderTotal = 100 });
 
         //Act
-        await _handler.Handle(new RefundOfflineCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
-            default);
+        await _handler.Handle(new RefundOfflineCommand {
+            PaymentTransaction = transaction, CreatedBy = "staff@shop.com", Reference = "RF-9", Note = "By transfer"
+        }, default);
 
         //Assert
-        Assert.AreEqual(1, transaction.Entries.Count);
-        Assert.AreEqual(PaymentTransactionEntryType.Refund, transaction.Entries[0].EntryType);
-        Assert.AreEqual(100, transaction.Entries[0].Amount);
-        Assert.AreEqual("staff@shop.com", transaction.Entries[0].CreatedBy);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n =>
-            n.Note == "Refund of 100.00 EUR recorded by staff@shop.com")), Times.Once);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Refund, 100,
+            "staff@shop.com", "RF-9", "By transfer"), Times.Once);
     }
 
     [TestMethod]
@@ -66,7 +65,9 @@ public class RefundOfflineCommandHandlerTests
             _handler.Handle(new RefundOfflineCommand { PaymentTransaction = transaction }, default));
 
         //Assert
-        Assert.AreEqual(0, transaction.Entries.Count);
+        _historyMock.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
     }
 }

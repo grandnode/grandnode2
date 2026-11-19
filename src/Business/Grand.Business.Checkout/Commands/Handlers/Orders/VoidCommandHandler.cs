@@ -1,11 +1,9 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using Grand.Mediator;
@@ -20,19 +18,22 @@ public class VoidCommandHandler : IRequestHandler<VoidCommand, IList<string>>
     private readonly IOrderService _orderService;
     private readonly IPaymentService _paymentService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public VoidCommandHandler(
         IOrderService orderService,
         IMediator mediator,
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
-        ILogger<VoidCommandHandler> logger)
+        ILogger<VoidCommandHandler> logger,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _mediator = mediator;
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;
         _logger = logger;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<IList<string>> Handle(VoidCommand command, CancellationToken cancellationToken)
@@ -55,22 +56,19 @@ public class VoidCommandHandler : IRequestHandler<VoidCommand, IList<string>>
 
             if (result.Success)
             {
-                var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Void,
-                    paymentTransaction.TransactionAmount, command.CreatedBy);
                 //update order info
                 paymentTransaction.TransactionStatus = result.NewTransactionStatus;
                 await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
                 var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
                 ArgumentNullException.ThrowIfNull(order);
-                await _orderService.InsertOrderNote(new OrderNote {
-                    Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
-                    DisplayToCustomer = false,
-                    OrderId = order.Id
-                });
 
+                //a provider that voids later leaves the transaction as it was: nothing is voided yet
                 if (paymentTransaction.TransactionStatus == TransactionStatus.Voided)
                 {
+                    await _paymentTransactionHistoryService.Record(paymentTransaction, order,
+                        PaymentTransactionEntryType.Void, paymentTransaction.TransactionAmount, command.CreatedBy);
+
                     order.PaymentStatusId = PaymentStatus.Voided;
                     await _orderService.UpdateOrder(order);
 

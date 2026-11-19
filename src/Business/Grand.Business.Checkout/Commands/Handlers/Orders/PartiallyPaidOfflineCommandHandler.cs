@@ -1,9 +1,7 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using Grand.Mediator;
@@ -15,16 +13,19 @@ public class PartiallyPaidOfflineCommandHandler : IRequestHandler<PartiallyPaidO
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public PartiallyPaidOfflineCommandHandler(
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
-        IMediator mediator)
+        IMediator mediator,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
         _mediator = mediator;
         _orderService = orderService;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(PartiallyPaidOfflineCommand command, CancellationToken cancellationToken)
@@ -41,8 +42,6 @@ public class PartiallyPaidOfflineCommandHandler : IRequestHandler<PartiallyPaidO
         if (!canPartiallyPaidOffline)
             throw new GrandException("You can't partially paid (offline) this transaction");
 
-        var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Payment, amountToPaid,
-            command.CreatedBy, command.Reference, command.Note);
         paymentTransaction.PaidAmount += amountToPaid;
         paymentTransaction.TransactionStatus = paymentTransaction.PaidAmount >= paymentTransaction.TransactionAmount
             ? TransactionStatus.Paid
@@ -56,11 +55,8 @@ public class PartiallyPaidOfflineCommandHandler : IRequestHandler<PartiallyPaidO
         order.PaidAmount += amountToPaid;
         order.PaymentStatusId = order.PaidAmount >= order.OrderTotal ? PaymentStatus.Paid : PaymentStatus.PartiallyPaid;
         await _orderService.UpdateOrder(order);
-        await _orderService.InsertOrderNote(new OrderNote {
-            Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
-            DisplayToCustomer = false,
-            OrderId = order.Id
-        });
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Payment,
+            amountToPaid, command.CreatedBy, command.Reference, command.Note);
 
         //check order status
         await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);

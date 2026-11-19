@@ -22,6 +22,7 @@ public class PartiallyRefundOfflineCommandHandlerTests
     private Mock<IOrderMessageProviderService> _orderMessageProviderServiceMock;
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -29,10 +30,11 @@ public class PartiallyRefundOfflineCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
         _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
 
         _handler = new PartiallyRefundOfflineCommandHandler(_orderServiceMock.Object, _paymentTransactionMock.Object,
-            _mediatorMock.Object, _orderMessageProviderServiceMock.Object, new LanguageSettings());
+            _mediatorMock.Object, _orderMessageProviderServiceMock.Object, new LanguageSettings(), _historyMock.Object);
     }
 
     [TestMethod]
@@ -67,15 +69,8 @@ public class PartiallyRefundOfflineCommandHandlerTests
         }, default);
 
         //Assert
-        Assert.AreEqual(1, transaction.Entries.Count);
-        var entry = transaction.Entries[0];
-        Assert.AreEqual(PaymentTransactionEntryType.Refund, entry.EntryType);
-        Assert.AreEqual(25, entry.Amount);
-        Assert.AreEqual("staff@shop.com", entry.CreatedBy);
-        Assert.AreEqual("RF-1", entry.Reference);
-        Assert.AreEqual("Damaged box", entry.Note);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Refund"))),
-            Times.Once);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Refund, 25,
+            "staff@shop.com", "RF-1", "Damaged box"), Times.Once);
     }
 
     [TestMethod]
@@ -90,7 +85,9 @@ public class PartiallyRefundOfflineCommandHandlerTests
             new PartiallyRefundOfflineCommand { PaymentTransaction = transaction, AmountToRefund = 25 }, default));
 
         //Assert
-        Assert.AreEqual(0, transaction.Entries.Count);
+        _historyMock.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
     }
 }

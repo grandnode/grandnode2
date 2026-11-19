@@ -21,6 +21,7 @@ public class VoidOfflineCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -28,11 +29,12 @@ public class VoidOfflineCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
         _paymentServiceMock = new Mock<IPaymentService>();
 
         _handler = new VoidOfflineCommandHandler(
             _orderServiceMock.Object, _paymentTransactionMock.Object,
-            _mediatorMock.Object);
+            _mediatorMock.Object, _historyMock.Object);
     }
 
     [TestMethod]
@@ -88,11 +90,8 @@ public class VoidOfflineCommandHandlerTests
             CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(1, transaction.Entries.Count);
-        Assert.AreEqual(PaymentTransactionEntryType.Void, transaction.Entries[0].EntryType);
-        Assert.AreEqual(10, transaction.Entries[0].Amount);
-        Assert.AreEqual("staff@shop.com", transaction.Entries[0].CreatedBy);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Void"))), Times.Once);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Void, 10,
+            "staff@shop.com", null, null), Times.Once);
     }
 
     [TestMethod]
@@ -109,7 +108,9 @@ public class VoidOfflineCommandHandlerTests
 
         //Assert
         Assert.AreEqual(TransactionStatus.Paid, transaction.TransactionStatus);
-        Assert.AreEqual(0, transaction.Entries.Count);
+        _historyMock.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
         _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
     }
 

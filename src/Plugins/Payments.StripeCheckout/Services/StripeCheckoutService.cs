@@ -80,6 +80,8 @@ public class StripeCheckoutService : IStripeCheckoutService
                 await _mediator.Send(new MarkAsPaidCommand {
                     PaymentTransaction = paymentTransaction,
                     CreatedBy = StripeCheckoutDefaults.ProviderSystemName,
+                    //in the smallest unit, as the session was created with the order total * 100
+                    Amount = paymentIntent.Amount / 100.0,
                     Reference = paymentIntent.Id
                 });
             }

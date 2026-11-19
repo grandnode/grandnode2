@@ -25,6 +25,7 @@ public class PartiallyRefundCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -32,13 +33,14 @@ public class PartiallyRefundCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
         _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
         _paymentServiceMock = new Mock<IPaymentService>();
         _loggerMock = new Mock<ILogger<PartiallyRefundCommandHandler>>();
 
         _handler = new PartiallyRefundCommandHandler(_paymentServiceMock.Object, _paymentTransactionMock.Object,
             _mediatorMock.Object, _orderMessageProviderServiceMock.Object, _loggerMock.Object, _orderServiceMock.Object,
-            new LanguageSettings());
+            new LanguageSettings(), _historyMock.Object);
     }
 
     [TestMethod]
@@ -163,15 +165,8 @@ public class PartiallyRefundCommandHandlerTests
         }, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(1, transaction.Entries.Count);
-        var entry = transaction.Entries[0];
-        Assert.AreEqual(PaymentTransactionEntryType.Refund, entry.EntryType);
-        Assert.AreEqual(30, entry.Amount);
-        Assert.AreEqual("staff@shop.com", entry.CreatedBy);
-        Assert.AreEqual("RF-1", entry.Reference);
-        Assert.AreEqual("Merchandise return #7", entry.Note);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Refund"))),
-            Times.Once);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Refund, 30,
+            "staff@shop.com", "RF-1", "Merchandise return #7"), Times.Once);
     }
 
     [TestMethod]
@@ -191,7 +186,8 @@ public class PartiallyRefundCommandHandlerTests
         }, CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(0, transaction.Entries.Count);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+        _historyMock.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 }

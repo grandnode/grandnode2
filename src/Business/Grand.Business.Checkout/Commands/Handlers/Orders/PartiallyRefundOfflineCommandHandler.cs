@@ -1,12 +1,10 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Localization;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using Grand.Mediator;
@@ -20,13 +18,15 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
     private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public PartiallyRefundOfflineCommandHandler(
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
         IMediator mediator,
         IOrderMessageProviderService orderMessageProviderService,
-        LanguageSettings languageSettings)
+        LanguageSettings languageSettings,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
@@ -34,6 +34,7 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
         _orderMessageProviderService = orderMessageProviderService;
         _languageSettings = languageSettings;
         _orderService = orderService;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(PartiallyRefundOfflineCommand command, CancellationToken cancellationToken)
@@ -50,8 +51,6 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
         if (!canPartiallyRefundOffline)
             throw new GrandException("You can't partially refund (offline) this order");
 
-        var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Refund, amountToRefund,
-            command.CreatedBy, command.Reference, command.Note);
         paymentTransaction.RefundedAmount += amountToRefund;
         paymentTransaction.TransactionStatus = paymentTransaction.RefundedAmount >= paymentTransaction.TransactionAmount
             ? TransactionStatus.Refunded
@@ -70,11 +69,8 @@ public class PartiallyRefundOfflineCommandHandler : IRequestHandler<PartiallyRef
             ? PaymentStatus.Refunded
             : PaymentStatus.PartiallyRefunded;
         await _orderService.UpdateOrder(order);
-        await _orderService.InsertOrderNote(new OrderNote {
-            Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
-            DisplayToCustomer = false,
-            OrderId = order.Id
-        });
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Refund,
+            amountToRefund, command.CreatedBy, command.Reference, command.Note);
 
 
         //check order status

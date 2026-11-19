@@ -19,6 +19,7 @@ public class MarkAsAuthorizedCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
 
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -26,9 +27,10 @@ public class MarkAsAuthorizedCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
 
         _handler = new MarkAsAuthorizedCommandHandler(_orderServiceMock.Object, _paymentTransactionMock.Object,
-            _mediatorMock.Object);
+            _mediatorMock.Object, _historyMock.Object);
     }
 
     [TestMethod]
@@ -58,11 +60,7 @@ public class MarkAsAuthorizedCommandHandlerTests
             new MarkAsAuthorizedCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" }, default);
 
         //Assert
-        Assert.AreEqual(1, transaction.Entries.Count);
-        Assert.AreEqual(PaymentTransactionEntryType.Authorization, transaction.Entries[0].EntryType);
-        Assert.AreEqual(100, transaction.Entries[0].Amount);
-        Assert.AreEqual("staff@shop.com", transaction.Entries[0].CreatedBy);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Authorization"))),
-            Times.Once);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Authorization,
+            100, "staff@shop.com", null, null), Times.Once);
     }
 }

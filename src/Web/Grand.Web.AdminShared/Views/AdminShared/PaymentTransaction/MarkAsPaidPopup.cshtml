@@ -1,0 +1,70 @@
+@{
+    Layout = "";
+    //page title
+    ViewBag.Title = Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+@model PaymentTransactionModel
+<form id="MarkAsPaidPopup" asp-area="@area" asp-controller="PaymentTransaction" asp-action="MarkAsPaidPopup" method="post"
+      asp-route-id="@Model.Id">
+
+    <input asp-for="Id" type="hidden"/>
+    <input asp-for="TransactionAmount" type="hidden"/>
+    <input asp-for="PaidAmount" type="hidden"/>
+    <input asp-for="CurrencyCode" type="hidden"/>
+
+    @* the popup shell: the amounts the rest is paid against as facts, what the money can be matched with, one
+       primary action *@
+    <admin-popup title="@Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]" icon="bi-cash">
+        <div class="grand-facts">
+            <div>
+                <admin-label asp-for="TransactionAmount" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.TransactionAmount [@Model.CurrencyCode]</div>
+            </div>
+            <div>
+                <admin-label asp-for="PaidAmount" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.PaidAmount [@Model.CurrencyCode]</div>
+            </div>
+        </div>
+        <div class="grand-fields">
+            <admin-field asp-for="Reference"/>
+            <admin-field asp-for="Note">
+                <admin-textarea asp-for="Note"></admin-textarea>
+            </admin-field>
+        </div>
+        <div class="grand-popup__actions">
+            <input type="submit" name="markaspaidpaymenttransaction" value="@Loc["Admin.PaymentTransaction.Fields.MarkAsPaid"]" id="markaspaidpaymenttransaction" class="btn btn-primary"/>
+        </div>
+    </admin-popup>
+
+    <div asp-validation-summary="All"></div>
+    @if (Model.RefreshPage)
+    {
+        <script>
+            try {
+                window.location.href = window.location.href;
+            }
+            catch (e) { }
+        </script>
+    }
+    <script>
+        $("#MarkAsPaidPopup").submit(function (e) {
+            e.preventDefault();
+            var form = $(this);
+            var url = form.attr('action');
+            $.ajax({
+                type: "POST",
+                url: url,
+                data: form.serialize(),
+                success: function (data) {
+                    $.magnificPopup.open({
+                        items: {
+                            src: data,
+                            type: 'inline'
+                        }
+                    });
+                }
+            });
+        });
+    </script>
+</form>

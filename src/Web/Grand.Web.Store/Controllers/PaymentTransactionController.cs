@@ -25,6 +25,7 @@ public class PaymentTransactionController(
     IMediator mediator,
     IEnumTranslationService enumTranslationService,
     IAdminDataScope<PaymentTransaction> scope,
-    IContextAccessor contextAccessor)
+    IContextAccessor contextAccessor,
+    IPaymentTransactionHistoryService paymentTransactionHistoryService)
     : BasePaymentTransactionController(paymentTransactionService, orderService, translationService,
-        dateTimeService, mediator, enumTranslationService, scope, contextAccessor);
+        dateTimeService, mediator, enumTranslationService, scope, contextAccessor, paymentTransactionHistoryService);

@@ -1,9 +1,7 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
 
@@ -14,15 +12,18 @@ public class MarkAsAuthorizedCommandHandler : IRequestHandler<MarkAsAuthorizedCo
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public MarkAsAuthorizedCommandHandler(
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
-        IMediator mediator)
+        IMediator mediator,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
         _mediator = mediator;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(MarkAsAuthorizedCommand request, CancellationToken cancellationToken)
@@ -30,8 +31,6 @@ public class MarkAsAuthorizedCommandHandler : IRequestHandler<MarkAsAuthorizedCo
         var paymentTransaction = request.PaymentTransaction;
         ArgumentNullException.ThrowIfNull(paymentTransaction);
 
-        var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Authorization,
-            paymentTransaction.TransactionAmount, request.CreatedBy);
         paymentTransaction.TransactionStatus = TransactionStatus.Authorized;
         await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
@@ -40,11 +39,8 @@ public class MarkAsAuthorizedCommandHandler : IRequestHandler<MarkAsAuthorizedCo
 
         order.PaymentStatusId = PaymentStatus.Authorized;
         await _orderService.UpdateOrder(order);
-        await _orderService.InsertOrderNote(new OrderNote {
-            Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
-            DisplayToCustomer = false,
-            OrderId = order.Id
-        });
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order,
+            PaymentTransactionEntryType.Authorization, paymentTransaction.TransactionAmount, request.CreatedBy);
 
         //event notification
         await _mediator.Publish(new PaymentTransactionMarkAsAuthorizedEvent(paymentTransaction), cancellationToken);

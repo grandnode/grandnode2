@@ -1,10 +1,8 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
-using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
 using Grand.Mediator;
@@ -16,15 +14,18 @@ public class VoidOfflineCommandHandler : IRequestHandler<VoidOfflineCommand, boo
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public VoidOfflineCommandHandler(
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
-        IMediator mediator)
+        IMediator mediator,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
         _mediator = mediator;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(VoidOfflineCommand request, CancellationToken cancellationToken)
@@ -36,8 +37,6 @@ public class VoidOfflineCommandHandler : IRequestHandler<VoidOfflineCommand, boo
                 cancellationToken))
             throw new GrandException("You can't void this order");
 
-        var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Void,
-            paymentTransaction.TransactionAmount, request.CreatedBy);
         paymentTransaction.TransactionStatus = TransactionStatus.Voided;
         await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
 
@@ -46,11 +45,8 @@ public class VoidOfflineCommandHandler : IRequestHandler<VoidOfflineCommand, boo
 
         order.PaymentStatusId = PaymentStatus.Voided;
         await _orderService.UpdateOrder(order);
-        await _orderService.InsertOrderNote(new OrderNote {
-            Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
-            DisplayToCustomer = false,
-            OrderId = order.Id
-        });
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Void,
+            paymentTransaction.TransactionAmount, request.CreatedBy);
 
         //event notification
         await _mediator.Publish(new PaymentTransactionVoidOfflineEvent(paymentTransaction), cancellationToken);

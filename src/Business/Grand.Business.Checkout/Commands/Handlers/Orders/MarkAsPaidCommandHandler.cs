@@ -1,5 +1,4 @@
-﻿using Grand.Business.Checkout.Extensions;
-using Grand.Business.Core.Commands.Checkout.Orders;
+﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
@@ -15,15 +14,18 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
     private readonly IMediator _mediator;
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
 
     public MarkAsPaidCommandHandler(
         IMediator mediator,
         IOrderService orderService,
-        IPaymentTransactionService paymentTransactionService)
+        IPaymentTransactionService paymentTransactionService,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService)
     {
         _mediator = mediator;
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
     }
 
     public async Task<bool> Handle(MarkAsPaidCommand request, CancellationToken cancellationToken)
@@ -37,9 +39,8 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
         if (!canMarkOrderAsPaid)
             throw new GrandException("You can't mark this Payment Transaction as paid");
 
-        var entry = paymentTransaction.AddEntry(PaymentTransactionEntryType.Payment,
-            paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount,
-            request.CreatedBy, request.Reference, request.Note);
+        //what the payment method reports it took, else what was still to pay
+        var paid = request.Amount ?? paymentTransaction.TransactionAmount - paymentTransaction.PaidAmount;
         paymentTransaction.TransactionStatus = TransactionStatus.Paid;
         paymentTransaction.PaidAmount = paymentTransaction.TransactionAmount;
 
@@ -52,11 +53,8 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
         order.PaidDateUtc = DateTime.UtcNow;
         await _orderService.UpdateOrder(order);
 
-        await _orderService.InsertOrderNote(new OrderNote {
-            Note = entry.ToOrderNote(paymentTransaction.CurrencyCode),
-            DisplayToCustomer = false,
-            OrderId = order.Id
-        });
+        await _paymentTransactionHistoryService.Record(paymentTransaction, order, PaymentTransactionEntryType.Payment,
+            paid, request.CreatedBy, request.Reference, request.Note);
 
         await _mediator.Send(new CheckOrderStatusCommand { Order = order }, cancellationToken);
         if (order.PaymentStatusId == PaymentStatus.Paid)

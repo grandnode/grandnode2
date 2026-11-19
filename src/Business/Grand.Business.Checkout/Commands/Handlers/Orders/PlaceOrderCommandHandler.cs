@@ -61,6 +61,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly IPaymentService _paymentService;
     private readonly PaymentSettings _paymentSettings;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
     private readonly IPricingService _pricingService;
     private readonly IProductAttributeFormatter _productAttributeFormatter;
     private readonly IProductReservationService _productReservationService;
@@ -80,6 +81,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         IInventoryManageService inventoryManageService,
         IPaymentService paymentService,
         IPaymentTransactionService paymentTransactionService,
+        IPaymentTransactionHistoryService paymentTransactionHistoryService,
         ILogger<PlaceOrderCommandHandler> logger,
         IOrderCalculationService orderTotalCalculationService,
         IShoppingCartSubTotalService shoppingCartSubTotalService,
@@ -119,6 +121,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _inventoryManageService = inventoryManageService;
         _paymentService = paymentService;
         _paymentTransactionService = paymentTransactionService;
+        _paymentTransactionHistoryService = paymentTransactionHistoryService;
         _logger = logger;
         _orderTotalCalculationService = orderTotalCalculationService;
         _shoppingCartSubTotalService = shoppingCartSubTotalService;
@@ -401,14 +404,18 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         paymentTransaction.Temp = false;
         paymentTransaction.TransactionStatus = processPaymentResult.NewPaymentTransactionStatus;
         paymentTransaction.Errors.Clear();
-        //what the payment method did at checkout; a pending payment is recorded once it is paid
+        await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
+
+        //what the payment method did at checkout, kept off the order notes; a pending payment is recorded once it
+        //is paid
         if (paymentTransaction.PaidAmount > 0)
-            paymentTransaction.AddEntry(PaymentTransactionEntryType.Payment, paymentTransaction.PaidAmount,
+            await _paymentTransactionHistoryService.Record(paymentTransaction, null,
+                PaymentTransactionEntryType.Payment, paymentTransaction.PaidAmount,
                 paymentTransaction.PaymentMethodSystemName);
         else if (paymentTransaction.TransactionStatus == TransactionStatus.Authorized)
-            paymentTransaction.AddEntry(PaymentTransactionEntryType.Authorization,
-                paymentTransaction.TransactionAmount, paymentTransaction.PaymentMethodSystemName);
-        await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
+            await _paymentTransactionHistoryService.Record(paymentTransaction, null,
+                PaymentTransactionEntryType.Authorization, paymentTransaction.TransactionAmount,
+                paymentTransaction.PaymentMethodSystemName);
     }
 
     private async Task<double?> PrepareCommissionRate(Product product, PlaceOrderContainer details)

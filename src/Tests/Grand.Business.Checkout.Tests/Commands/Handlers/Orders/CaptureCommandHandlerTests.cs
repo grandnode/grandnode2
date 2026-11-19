@@ -23,6 +23,7 @@ public class CaptureCommandHandlerTests
 
     private Mock<IPaymentService> _paymentServiceMock;
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -32,9 +33,10 @@ public class CaptureCommandHandlerTests
         _orderServiceMock = new Mock<IOrderService>();
         _paymentServiceMock = new Mock<IPaymentService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
 
         _handler = new CaptureCommandHandler(_paymentServiceMock.Object, _paymentTransactionMock.Object,
-            _mediatorMock.Object, _orderServiceMock.Object, _loggerMock.Object);
+            _mediatorMock.Object, _orderServiceMock.Object, _loggerMock.Object, _historyMock.Object);
     }
 
     [TestMethod]
@@ -67,14 +69,37 @@ public class CaptureCommandHandlerTests
             CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(1, transaction.Entries.Count);
-        var entry = transaction.Entries[0];
-        Assert.AreEqual(PaymentTransactionEntryType.Capture, entry.EntryType);
-        Assert.AreEqual(100, entry.Amount);
-        Assert.AreEqual("staff@shop.com", entry.CreatedBy);
-        Assert.AreEqual("ch_1", entry.Reference);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note.StartsWith("Capture"))),
-            Times.Once);
+        Assert.AreEqual(100, transaction.PaidAmount);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Capture, 100,
+            "staff@shop.com", "ch_1", null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_GatewaySettlesLater_RecordsNothingAndTakesNoMoney()
+    {
+        //Arrange
+        var transaction = new PaymentTransaction { Id = "t1", TransactionAmount = 100, CurrencyCode = "EUR" };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanCaptureQuery>(), default)).ReturnsAsync(true);
+        _paymentServiceMock.Setup(x => x.Capture(It.IsAny<PaymentTransaction>())).ReturnsAsync(
+            new CapturePaymentResult { NewPaymentStatus = TransactionStatus.Pending, CaptureTransactionId = "ch_1" });
+        _paymentTransactionMock.Setup(x => x.GetById("t1")).ReturnsAsync(transaction);
+        _orderServiceMock.Setup(x => x.GetOrderByGuid(It.IsAny<Guid>())).ReturnsAsync(new Order());
+
+        //Act
+        await _handler.Handle(new CaptureCommand { PaymentTransaction = transaction, CreatedBy = "staff@shop.com" },
+            CancellationToken.None);
+
+        //Assert
+        Assert.AreEqual(0, transaction.PaidAmount);
+        Assert.AreEqual(TransactionStatus.Pending, transaction.TransactionStatus);
+        VerifyNothingRecorded();
+    }
+
+    private void VerifyNothingRecorded()
+    {
+        _historyMock.Verify(x => x.Record(It.IsAny<PaymentTransaction>(), It.IsAny<Order>(),
+            It.IsAny<PaymentTransactionEntryType>(), It.IsAny<double>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
     }
 
     [TestMethod]
@@ -93,7 +118,6 @@ public class CaptureCommandHandlerTests
             CancellationToken.None);
 
         //Assert
-        Assert.AreEqual(0, transaction.Entries.Count);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+        VerifyNothingRecorded();
     }
 }

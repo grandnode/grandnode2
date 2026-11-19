@@ -19,6 +19,7 @@ public class PartiallyPaidOfflineCommandHandlerTests
     private Mock<IOrderService> _orderServiceMock;
 
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
+    private Mock<IPaymentTransactionHistoryService> _historyMock;
 
     [TestInitialize]
     public void Init()
@@ -26,9 +27,10 @@ public class PartiallyPaidOfflineCommandHandlerTests
         _mediatorMock = new Mock<IMediator>();
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
+        _historyMock = new Mock<IPaymentTransactionHistoryService>();
 
         _handler = new PartiallyPaidOfflineCommandHandler(_orderServiceMock.Object, _paymentTransactionMock.Object,
-            _mediatorMock.Object);
+            _mediatorMock.Object, _historyMock.Object);
     }
 
     [TestMethod]
@@ -61,16 +63,8 @@ public class PartiallyPaidOfflineCommandHandlerTests
         }, default);
 
         //Assert
-        Assert.AreEqual(1, transaction.Entries.Count);
-        var entry = transaction.Entries[0];
-        Assert.AreEqual(PaymentTransactionEntryType.Payment, entry.EntryType);
-        Assert.AreEqual(30, entry.Amount);
-        Assert.AreEqual("staff@shop.com", entry.CreatedBy);
-        Assert.AreEqual("TR-881", entry.Reference);
-        Assert.AreEqual("First instalment", entry.Note);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n =>
-            n.Note == "Payment of 30.00 EUR recorded by staff@shop.com. Reference: TR-881. Note: First instalment")),
-            Times.Once);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Payment, 30,
+            "staff@shop.com", "TR-881", "First instalment"), Times.Once);
     }
 
     [TestMethod]
@@ -86,9 +80,7 @@ public class PartiallyPaidOfflineCommandHandlerTests
             default);
 
         //Assert
-        Assert.AreEqual(1, transaction.Entries.Count);
-        Assert.IsNull(transaction.Entries[0].CreatedBy);
-        _orderServiceMock.Verify(c => c.InsertOrderNote(It.Is<OrderNote>(n => n.Note == "Payment of 30.00 EUR recorded")),
-            Times.Once);
+        _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Payment, 30,
+            null, null, null), Times.Once);
     }
 }
