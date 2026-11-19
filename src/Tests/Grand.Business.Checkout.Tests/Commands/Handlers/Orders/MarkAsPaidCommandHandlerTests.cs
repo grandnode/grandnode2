@@ -3,6 +3,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -129,7 +130,8 @@ public class MarkAsPaidCommandHandlerTests
         var checkStatus = new CheckOrderStatusCommandHandler(paidMediator.Object, _orderServiceMock.Object,
             new OrderSettings());
         var paid = new ProcessOrderPaidCommandHandler(messageProvider.Object, customerService.Object,
-            paidMediator.Object, new Mock<IPdfService>().Object, new OrderSettings(), new LanguageSettings(),
+            paidMediator.Object, new Mock<IPdfService>().Object, new Mock<ISettingService>().Object,
+            new LanguageSettings(),
             new Mock<ILogger<ProcessOrderPaidCommandHandler>>().Object);
         _mediatorMock.Setup(x => x.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), default))
             .ReturnsAsync(true);

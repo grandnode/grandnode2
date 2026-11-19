@@ -1,4 +1,4 @@
-using System.Buffers.Binary;
+﻿using System.Buffers.Binary;
 using System.IO.Compression;
 using Grand.Business.Common.Services.Pdf;
 using Grand.Business.Core.Events.Checkout.Orders;
@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Checkout.Shipping;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Pdf;
@@ -38,6 +39,7 @@ public class PdfServiceTests
     private PdfSettings _pdfSettings;
     private Mock<IPictureService> _pictureServiceMock;
     private Mock<IProductService> _productServiceMock;
+    private Mock<ISettingService> _settingServiceMock;
     private PdfService _service;
     private Mock<IStoreFilesContext> _storeFilesContextMock;
 
@@ -48,6 +50,8 @@ public class PdfServiceTests
         _productServiceMock = new Mock<IProductService>();
         _pictureServiceMock = new Mock<IPictureService>();
         _pdfSettings = new PdfSettings();
+        _settingServiceMock = new Mock<ISettingService>();
+        _settingServiceMock.Setup(x => x.LoadSetting<PdfSettings>(It.IsAny<string>())).ReturnsAsync(_pdfSettings);
         _mediatorMock = new Mock<IMediator>();
 
         var translationServiceMock = new Mock<ITranslationService>();
@@ -74,7 +78,7 @@ public class PdfServiceTests
             _storeFilesContextMock.Object,
             _productServiceMock.Object, new Mock<ICountryService>().Object,
             storeServiceMock.Object, _pictureServiceMock.Object, new Mock<IPaymentService>().Object,
-            giftVoucherServiceMock.Object, _orderServiceMock.Object, _pdfSettings, _mediatorMock.Object,
+            giftVoucherServiceMock.Object, _orderServiceMock.Object, _settingServiceMock.Object, _mediatorMock.Object,
             new Mock<ILogger<PdfService>>().Object, _shipmentServiceMock.Object);
     }
 
@@ -242,6 +246,27 @@ public class PdfServiceTests
         foreach (var page in pdf.GetPages())
             StringAssert.Contains(page.Text, "Footer & bank account");
         StringAssert.Contains(pdf.GetPage(pdf.NumberOfPages).Text, "Product p1");
+    }
+
+    [TestMethod]
+    public async Task PrintOrdersToPdf_EachOrderUsesThePdfSettingsOfItsStore()
+    {
+        //Arrange - printed from a scheduled task or another store's admin, the current store is not the order's
+        _settingServiceMock.Setup(x => x.LoadSetting<PdfSettings>("store1"))
+            .ReturnsAsync(new PdfSettings { InvoiceFooterText = "Footer of store one" });
+        _settingServiceMock.Setup(x => x.LoadSetting<PdfSettings>("store2"))
+            .ReturnsAsync(new PdfSettings { InvoiceFooterText = "Footer of store two" });
+        var first = CreateOrder();
+        first.StoreId = "store1";
+        var second = CreateOrder();
+        second.StoreId = "store2";
+        //Act
+        using var stream = new MemoryStream();
+        await _service.PrintOrdersToPdf(stream, [first, second]);
+        //Assert
+        using var pdf = PdfDocument.Open(stream.ToArray());
+        StringAssert.Contains(pdf.GetPage(1).Text, "Footer of store one");
+        StringAssert.Contains(pdf.GetPage(pdf.NumberOfPages).Text, "Footer of store two");
     }
 
     [TestMethod]

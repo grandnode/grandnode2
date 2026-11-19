@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -17,8 +18,8 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
     private readonly IMediator _mediator;
     private readonly IOrderMessageProviderService _orderMessageProviderService;
     private readonly IOrderService _orderService;
-    private readonly OrderSettings _orderSettings;
     private readonly IPdfService _pdfService;
+    private readonly ISettingService _settingService;
     private readonly IVendorService _vendorService;
 
     public OrderStatusCommandHandler(
@@ -28,7 +29,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         IOrderMessageProviderService orderMessageProviderService,
         IVendorService vendorService,
         IMediator mediator,
-        OrderSettings orderSettings,
+        ISettingService settingService,
         LoyaltyPointsSettings loyaltyPointsSettings,
         ILogger<OrderStatusCommandHandler> logger)
     {
@@ -38,7 +39,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         _orderMessageProviderService = orderMessageProviderService;
         _vendorService = vendorService;
         _mediator = mediator;
-        _orderSettings = orderSettings;
+        _settingService = settingService;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _logger = logger;
     }
@@ -63,6 +64,8 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         });
 
         var customer = await _customerService.GetCustomerById(request.Order.CustomerId);
+        //the order's store, not the current one: a scheduled task or another store's admin changes the status too
+        var orderSettings = await _settingService.LoadSetting<OrderSettings>(request.Order.StoreId);
 
         if (prevOrderStatus != (int)OrderStatusSystem.Complete &&
             request.Os == OrderStatusSystem.Complete
@@ -74,7 +77,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
 
             try
             {
-                if (_orderSettings.AttachPdfInvoiceToOrderCompletedEmail)
+                if (orderSettings.AttachPdfInvoiceToOrderCompletedEmail)
                     invoiceDownloadId = await _pdfService.SaveOrderToBinary(request.Order, "");
             }
             catch (Exception ex)
@@ -125,14 +128,14 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
             await _mediator.Send(new ReduceLoyaltyPointsCommand { Order = request.Order }, cancellationToken);
 
         //gift vouchers activation
-        if (_orderSettings.GiftVouchers_Activated_OrderStatusId > 0 &&
-            _orderSettings.GiftVouchers_Activated_OrderStatusId == request.Order.OrderStatusId)
+        if (orderSettings.GiftVouchers_Activated_OrderStatusId > 0 &&
+            orderSettings.GiftVouchers_Activated_OrderStatusId == request.Order.OrderStatusId)
             await _mediator.Send(
                 new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = true },
                 cancellationToken);
 
         //gift vouchers deactivation
-        if (_orderSettings.DeactivateGiftVouchersAfterCancelOrder &&
+        if (orderSettings.DeactivateGiftVouchersAfterCancelOrder &&
             request.Order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
             await _mediator.Send(
                 new ActivatedValueForPurchasedGiftVouchersCommand { Order = request.Order, Activate = false },
