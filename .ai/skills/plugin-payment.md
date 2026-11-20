@@ -65,6 +65,11 @@ Do not use this skill for order processing business logic outside the payment fl
 - The provider, not the shop, runs the schedule: the gateway charges every cycle, retries failures and reports each cycle to the shop, the first one (the initial order's payment) included: `CyclesPaid` stays 0 until it does. A cart with a recurring product is offered only methods whose `SupportRecurringPayment()` returns `true`, and the order is refused for any other method.
 - Return `SupportRecurringPayment() => true` only when the payment flow starts the gateway's schedule for a recurring order and `CancelRecurringPayment` stops it. Both members have defaults (`false`, and an error result), so a provider without recurring support implements neither.
 - Never report "cancelled" from `CancelRecurringPayment` unless the gateway confirmed it: on an error result the shop keeps the recurring payment running.
+- A provider reports to the shop with three mediator commands (`Grand.Business.Core.Commands.Checkout.Orders`): `RecordRecurringPaymentCycleCommand` (a cycle was paid; the shop places the cycle order from the second cycle on and, once every cycle is paid, calls `CancelRecurringPayment` to stop the gateway), `RecordRecurringPaymentFailureCommand` and `RecordRecurringPaymentEndedCommand` (the gateway ended it).
+- Pass `RecurringPayment.Id` to the gateway as metadata when the schedule starts, and send it back as `RecurringPaymentId` in every command. The webhook must verify the gateway signature before sending any of them.
+- `CycleReference` is the gateway's invoice or charge id, so a resent webhook is recorded once and the command returns `false`. `ProviderReference` is the subscription id.
+- `Amount` uses the units of `MarkAsPaidCommand.Amount`: the order total in the order's currency, as Stripe Checkout passes it (`paymentIntent.Amount / 100.0`).
+- The first paid cycle is the initial order's own payment: the provider still marks that order paid on its existing path and also sends the cycle command, which records cycle 1 and places no order. If placing a later cycle's order throws, the command notes it on the initial order and rethrows so the gateway resends.
 
 #### Project Structure
 12. Use `Microsoft.NET.Sdk.Razor` as SDK.

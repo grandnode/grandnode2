@@ -155,6 +155,13 @@ public interface IPaymentService
     Task<bool> SupportRecurringPayment(string paymentMethodSystemName);
 
     /// <summary>
+    ///     Asks the payment method to stop the gateway schedule of a recurring payment
+    /// </summary>
+    /// <param name="recurringPayment">Recurring payment</param>
+    /// <returns>Result; an error when the payment method could not be loaded</returns>
+    Task<CancelRecurringPaymentResult> CancelRecurringPayment(RecurringPayment recurringPayment);
+
+    /// <summary>
     ///     Voids a payment
     /// </summary>
     /// <param name="paymentTransaction">Payment transaction</param>
