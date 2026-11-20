@@ -2,6 +2,7 @@
 using Grand.Business.Checkout.Validators;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.CheckoutAttributes;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Utilities.Catalog;
@@ -23,6 +24,7 @@ public class ShoppingCartValidatorsTests
 {
     private static readonly Language Language = new() { Id = "lang1" };
     private Mock<IAclService> _aclServiceMock;
+    private Mock<IGroupService> _groupServiceMock;
     private Mock<ICheckoutAttributeParser> _checkoutAttributeParserMock;
     private Mock<ICheckoutAttributeService> _checkoutAttributeServiceMock;
     private Mock<IPermissionService> _permissionServiceMock;
@@ -40,6 +42,7 @@ public class ShoppingCartValidatorsTests
         _checkoutAttributeServiceMock = new Mock<ICheckoutAttributeService>();
         _productServiceMock = new Mock<IProductService>();
         _aclServiceMock = new Mock<IAclService>();
+        _groupServiceMock = new Mock<IGroupService>();
         _productAttributeService = new Mock<IProductAttributeService>();
         _productReservationServiceMock = new Mock<IProductReservationService>();
         _permissionServiceMock = new Mock<IPermissionService>();
@@ -710,7 +713,8 @@ public class ShoppingCartValidatorsTests
     {
         //Arrange
         var shoppingCartWarningsValidator =
-            new ShoppingCartWarningsValidator(_translationServiceMock.Object, _productServiceMock.Object);
+            new ShoppingCartWarningsValidator(_translationServiceMock.Object, _productServiceMock.Object,
+                _groupServiceMock.Object);
 
         _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
             .Returns(() => Task.FromResult(new Product()));
@@ -747,7 +751,8 @@ public class ShoppingCartValidatorsTests
     {
         //Arrange
         var shoppingCartWarningsValidator =
-            new ShoppingCartWarningsValidator(_translationServiceMock.Object, _productServiceMock.Object);
+            new ShoppingCartWarningsValidator(_translationServiceMock.Object, _productServiceMock.Object,
+                _groupServiceMock.Object);
 
         _productServiceMock.Setup(x => x.GetProductById("1", false))
             .Returns(() => Task.FromResult(new Product
@@ -781,5 +786,48 @@ public class ShoppingCartValidatorsTests
 
         //Assert
         Assert.IsFalse(result.IsValid);
+    }
+
+    [TestMethod]
+    public async Task ShoppingCartWarningsValidator_GuestWithRecurringProduct_AddsAccountWarning()
+    {
+        var result = await ValidateRecurringAccount(isRecurring: true, isGuest: true);
+
+        Assert.AreEqual("Log in to buy it", result.Errors.Single().ErrorMessage);
+    }
+
+    [TestMethod]
+    public async Task ShoppingCartWarningsValidator_RegisteredWithRecurringProduct_NoAccountWarning()
+    {
+        var result = await ValidateRecurringAccount(isRecurring: true, isGuest: false);
+
+        Assert.IsTrue(result.IsValid);
+    }
+
+    [TestMethod]
+    public async Task ShoppingCartWarningsValidator_GuestWithStandardProduct_NoAccountWarning()
+    {
+        var result = await ValidateRecurringAccount(isRecurring: false, isGuest: true);
+
+        Assert.IsTrue(result.IsValid);
+    }
+
+    private async Task<FluentValidation.Results.ValidationResult> ValidateRecurringAccount(bool isRecurring,
+        bool isGuest)
+    {
+        var customer = new Customer();
+        _groupServiceMock.Setup(x => x.IsGuest(customer)).ReturnsAsync(isGuest);
+        _translationServiceMock.Setup(x => x.GetResource("ShoppingCart.RecurringProductsRequireAccount", "lang1",
+            It.IsAny<string>(), It.IsAny<bool>())).Returns("Log in to buy it");
+        _productServiceMock.Setup(x => x.GetProductById(It.IsAny<string>(), false))
+            .ReturnsAsync(new Product {
+                IsRecurring = isRecurring, RecurringCycleLength = 1, RecurringCyclePeriodId = RecurringCyclePeriod.Months
+            });
+        var validator = new ShoppingCartWarningsValidator(_translationServiceMock.Object, _productServiceMock.Object,
+            _groupServiceMock.Object);
+
+        //two items, so a warning added per item would show twice
+        return await validator.ValidateAsync(new ShoppingCartWarningsValidatorRecord(customer, new Store(),
+            new List<ShoppingCartItem> { new() { ProductId = "1" }, new() { ProductId = "2" } }, Language));
     }
 }

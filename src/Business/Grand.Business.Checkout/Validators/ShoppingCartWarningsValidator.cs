@@ -1,5 +1,6 @@
 ﻿using FluentValidation;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
@@ -17,7 +18,8 @@ public record ShoppingCartWarningsValidatorRecord(
 
 public class ShoppingCartWarningsValidator : AbstractValidator<ShoppingCartWarningsValidatorRecord>
 {
-    public ShoppingCartWarningsValidator(ITranslationService translationService, IProductService productService)
+    public ShoppingCartWarningsValidator(ITranslationService translationService, IProductService productService,
+        IGroupService groupService)
     {
         RuleFor(x => x).CustomAsync(async (value, context, _) =>
         {
@@ -63,6 +65,10 @@ public class ShoppingCartWarningsValidator : AbstractValidator<ShoppingCartWarni
             //don't mix recurring products
             if (hasRecurringProducts && hasRecurringProductsMix)
                 context.AddFailure(translationService.GetResource("ShoppingCart.CannotMixRecurringProducts", value.Language.Id));
+
+            //a recurring payment is cancelled from My account, so a guest has to log in or register first
+            if (hasRecurringProducts && await groupService.IsGuest(value.Customer))
+                context.AddFailure(translationService.GetResource("ShoppingCart.RecurringProductsRequireAccount", value.Language.Id));
         });
     }
 }
