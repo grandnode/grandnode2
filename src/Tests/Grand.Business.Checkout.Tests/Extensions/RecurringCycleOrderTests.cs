@@ -263,6 +263,74 @@ public class RecurringCycleOrderTests
         }
     }
 
+    [TestMethod]
+    public void Copy_EveryOrderItemPropertyIsCopiedOrDeliberatelyReset()
+    {
+        var properties = typeof(OrderItem).GetProperties(BindingFlags.Public | BindingFlags.Instance)
+            .Where(p => p.SetMethod is { IsPublic: true }).ToList();
+        var reset = new[] {
+            nameof(OrderItem.Id), nameof(OrderItem.OrderItemGuid), nameof(OrderItem.OpenQty),
+            nameof(OrderItem.ShipQty), nameof(OrderItem.CancelQty), nameof(OrderItem.CancelAmount),
+            nameof(OrderItem.Status), nameof(OrderItem.ReturnQty), nameof(OrderItem.DownloadCount),
+            nameof(OrderItem.IsDownloadActivated), nameof(OrderItem.LicenseDownloadId),
+            nameof(OrderItem.CreatedOnUtc)
+        };
+        foreach (var name in reset)
+            Assert.IsTrue(properties.Any(p => p.Name == name), $"{name} is not a settable OrderItem property");
+
+        var source = new OrderItem();
+        var n = 1;
+        foreach (var property in properties)
+            property.SetValue(source, Distinct(property.PropertyType, property.Name, n++));
+        var initial = new Order();
+        initial.OrderItems.Add(source);
+
+        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn).OrderItems.Single();
+
+        foreach (var property in properties)
+        {
+            var actual = property.GetValue(copy);
+            switch (property.Name)
+            {
+                case nameof(OrderItem.Id):
+                    Assert.IsFalse(string.IsNullOrEmpty((string)actual));
+                    Assert.AreNotEqual(source.Id, actual);
+                    break;
+                case nameof(OrderItem.OrderItemGuid):
+                    Assert.AreNotEqual(Guid.Empty, actual);
+                    Assert.AreNotEqual(source.OrderItemGuid, actual);
+                    break;
+                case nameof(OrderItem.OpenQty):
+                    Assert.AreEqual(source.Quantity, actual);
+                    break;
+                case nameof(OrderItem.ShipQty):
+                case nameof(OrderItem.CancelQty):
+                case nameof(OrderItem.ReturnQty):
+                case nameof(OrderItem.DownloadCount):
+                    Assert.AreEqual(0, actual, property.Name);
+                    break;
+                case nameof(OrderItem.CancelAmount):
+                    Assert.AreEqual(0d, actual);
+                    break;
+                case nameof(OrderItem.Status):
+                    Assert.AreEqual(OrderItemStatus.Open, actual);
+                    break;
+                case nameof(OrderItem.IsDownloadActivated):
+                    Assert.AreEqual(false, actual);
+                    break;
+                case nameof(OrderItem.LicenseDownloadId):
+                    Assert.AreEqual("", actual);
+                    break;
+                case nameof(OrderItem.CreatedOnUtc):
+                    Assert.AreEqual(CreatedOn, actual);
+                    break;
+                default:
+                    AssertSameValue(property.GetValue(source), actual, property.Name);
+                    break;
+            }
+        }
+    }
+
     private static object Distinct(Type type, string name, int n)
     {
         type = Nullable.GetUnderlyingType(type) ?? type;
