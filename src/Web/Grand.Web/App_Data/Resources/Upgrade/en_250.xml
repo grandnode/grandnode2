@@ -72,6 +72,9 @@
 	<Resource Name="Account.AssociatedExternalAuth.EmailRequired" Area="Front">
 		<Value>This external account did not share an e-mail address, which a new customer account needs. Allow access to your e-mail address and try again, or register with the form.</Value>
 	</Resource>
+	<Resource Name="Account.AssociatedExternalAuth.ProviderAlreadyConnected" Area="Front">
+		<Value>You already have an external account of this provider connected. Remove it on the My account page before you connect another one.</Value>
+	</Resource>
 	<Resource Name="Admin.Plugins.ExternalAuthenticationMethods.Oidc.Authority" Area="Admin">
 		<Value>Identity provider (Authority)</Value>
 	</Resource>

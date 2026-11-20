@@ -47,6 +47,10 @@ public class ExternalSignInService(
                 return Error([
                     translationService.GetResource("Account.AssociatedExternalAuth.EmailRequired", language.Id)
                 ]);
+            case ExternalAuthStatus.ProviderAlreadyConnected:
+                return Error([
+                    translationService.GetResource("Account.AssociatedExternalAuth.ProviderAlreadyConnected", language.Id)
+                ]);
             case ExternalAuthStatus.Error:
                 return Error(result.Errors);
             default:
