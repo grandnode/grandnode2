@@ -1,3 +1,4 @@
+using System.Globalization;
 using Grand.Business.Checkout.Extensions;
 using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Commands.Messages.Common;
@@ -86,19 +87,35 @@ public class PlaceRecurringCycleOrderCommandHandler(
 
         await mediator.Publish(new OrderPlacedEvent(order), cancellationToken);
 
-        await mediator.Send(new MarkAsPaidCommand {
-            PaymentTransaction = paymentTransaction,
-            Amount = cycle.Amount,
-            Reference = cycle.ProviderReference,
-            CreatedBy = recurringPayment.PaymentMethodSystemName
-        }, cancellationToken);
+        // the order is paid with what the gateway charged: a smaller charge must not show as fully paid
+        var charged = Math.Round(cycle.Amount, 2);
+        var total = Math.Round(order.OrderTotal, 2);
+        if (charged >= total)
+            await mediator.Send(new MarkAsPaidCommand {
+                PaymentTransaction = paymentTransaction,
+                Amount = cycle.Amount,
+                Reference = cycle.ProviderReference,
+                CreatedBy = recurringPayment.PaymentMethodSystemName
+            }, cancellationToken);
+        else if (charged > 0)
+            await mediator.Send(new PartiallyPaidOfflineCommand {
+                PaymentTransaction = paymentTransaction,
+                AmountToPaid = cycle.Amount,
+                Reference = cycle.ProviderReference,
+                CreatedBy = recurringPayment.PaymentMethodSystemName
+            }, cancellationToken);
 
-        // the order is paid with what the gateway charged; a price change at the gateway shows here
-        if (Math.Round(cycle.Amount, 2) != Math.Round(order.OrderTotal, 2))
+        // a price change at the gateway shows here
+        if (charged != total)
             await InsertNote(order.Id,
-                $"The payment gateway charged {cycle.Amount} for this cycle; the order total is {order.OrderTotal}");
+                $"The payment gateway charged {Format(charged, order)} for this cycle; the order total is {Format(total, order)}");
 
         return order;
+    }
+
+    private static string Format(double amount, Order order)
+    {
+        return $"{amount.ToString("0.00", CultureInfo.InvariantCulture)} {order.CustomerCurrencyCode}";
     }
 
     private Task InsertNote(string orderId, string note)

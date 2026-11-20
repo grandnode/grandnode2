@@ -118,6 +118,9 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
         _mediatorMock.Setup(x => x.Send(It.IsAny<MarkAsPaidCommand>(), It.IsAny<CancellationToken>()))
             .Callback<IRequest<bool>, CancellationToken>((_, _) => _calls.Add("MarkAsPaid"))
             .ReturnsAsync(true);
+        _mediatorMock.Setup(x => x.Send(It.IsAny<PartiallyPaidOfflineCommand>(), It.IsAny<CancellationToken>()))
+            .Callback<IRequest<bool>, CancellationToken>((_, _) => _calls.Add("PartiallyPaidOffline"))
+            .ReturnsAsync(true);
     }
 
     private Task<Order> Place()
@@ -231,17 +234,53 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
     }
 
     [TestMethod]
-    public async Task Handle_GatewayAmountDiffers_AddsANote()
+    public async Task Handle_GatewayChargedLess_RecordsAPartialPaymentAndANote()
     {
         _cycle.Amount = 95;
 
         await Place();
 
         Assert.AreEqual(2, _notes.Count);
-        Assert.AreEqual("The payment gateway charged 95 for this cycle; the order total is 100", _notes[1].Note);
+        Assert.AreEqual("The payment gateway charged 95.00 EUR for this cycle; the order total is 100.00 EUR",
+            _notes[1].Note);
         Assert.AreEqual("cycle-order", _notes[1].OrderId);
         // the note comes after the payment is recorded
-        Assert.AreEqual("MarkAsPaid", _calls[^1]);
+        Assert.AreEqual("PartiallyPaidOffline", _calls[^1]);
+        _mediatorMock.Verify(x => x.Send(It.Is<PartiallyPaidOfflineCommand>(c =>
+                c.PaymentTransaction == _insertedTransaction && c.AmountToPaid == 95 && c.Reference == "in_2" &&
+                c.CreatedBy == "Payments.Stripe"),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(x => x.Send(It.IsAny<MarkAsPaidCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_GatewayChargedNothing_RecordsNoPayment()
+    {
+        _cycle.Amount = 0;
+
+        await Place();
+
+        _mediatorMock.Verify(x => x.Send(It.IsAny<MarkAsPaidCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mediatorMock.Verify(x => x.Send(It.IsAny<PartiallyPaidOfflineCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        Assert.AreEqual(2, _notes.Count);
+        Assert.AreEqual("The payment gateway charged 0.00 EUR for this cycle; the order total is 100.00 EUR",
+            _notes[1].Note);
+    }
+
+    [TestMethod]
+    public async Task Handle_GatewayChargedMore_MarksPaidAndAddsANote()
+    {
+        _cycle.Amount = 105;
+
+        await Place();
+
+        _mediatorMock.Verify(x => x.Send(It.Is<MarkAsPaidCommand>(c => c.Amount == 105),
+            It.IsAny<CancellationToken>()), Times.Once);
+        _mediatorMock.Verify(x => x.Send(It.IsAny<PartiallyPaidOfflineCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        Assert.AreEqual("The payment gateway charged 105.00 EUR for this cycle; the order total is 100.00 EUR",
+            _notes[1].Note);
     }
 
     [TestMethod]
