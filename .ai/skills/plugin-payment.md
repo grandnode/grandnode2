@@ -62,7 +62,7 @@ Do not use this skill for order processing business logic outside the payment fl
 11. In `CancelPayment`, update `paymentTransaction.TransactionStatus = TransactionStatus.Canceled` and persist via `IPaymentTransactionService.UpdatePaymentTransaction`.
 
 #### Recurring Payments
-- The provider, not the shop, runs the schedule: the gateway charges every cycle, retries failures and reports each cycle to the shop. A cart with a recurring product is offered only methods whose `SupportRecurringPayment()` returns `true`, and the order is refused for any other method.
+- The provider, not the shop, runs the schedule: the gateway charges every cycle, retries failures and reports each cycle to the shop, the first one (the initial order's payment) included: `CyclesPaid` stays 0 until it does. A cart with a recurring product is offered only methods whose `SupportRecurringPayment()` returns `true`, and the order is refused for any other method.
 - Return `SupportRecurringPayment() => true` only when the payment flow starts the gateway's schedule for a recurring order and `CancelRecurringPayment` stops it. Both members have defaults (`false`, and an error result), so a provider without recurring support implements neither.
 - Never report "cancelled" from `CancelRecurringPayment` unless the gateway confirmed it: on an error result the shop keeps the recurring payment running.
 

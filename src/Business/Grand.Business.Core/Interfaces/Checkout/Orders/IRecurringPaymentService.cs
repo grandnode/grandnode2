@@ -26,4 +26,9 @@ public interface IRecurringPaymentService
     ///     Gets the recurring payment of the order the customer placed; null when the order is not recurring
     /// </summary>
     Task<RecurringPayment> GetRecurringPaymentByInitialOrderId(string initialOrderId);
+
+    /// <summary>
+    ///     Gets a value indicating whether the cart holds a product billed in cycles
+    /// </summary>
+    Task<bool> HasRecurringProducts(IEnumerable<ShoppingCartItem> cart);
 }

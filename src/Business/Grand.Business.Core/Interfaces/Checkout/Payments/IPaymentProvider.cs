@@ -164,7 +164,8 @@ public interface IPaymentProvider : IProvider
 
     /// <summary>
     ///     Gets a value indicating whether the provider runs recurring payments: it starts the gateway's schedule in its
-    ///     payment flow, charges every cycle and reports each one to the shop
+    ///     payment flow, charges every cycle and reports each one to the shop, the first one (the initial order's
+    ///     payment) included
     /// </summary>
     Task<bool> SupportRecurringPayment() => Task.FromResult(false);
 

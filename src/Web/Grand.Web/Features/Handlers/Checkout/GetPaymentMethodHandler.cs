@@ -1,6 +1,5 @@
 ﻿using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
@@ -30,10 +29,10 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
     private readonly IPaymentService _paymentService;
     private readonly PaymentSettings _paymentSettings;
     private readonly IPriceFormatter _priceFormatter;
-    private readonly IProductService _productService;
     private readonly ITaxService _taxService;
     private readonly IOrderApprovalService _orderApprovalService;
     private readonly IOrderPlacementService _orderPlacementService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly IRequestTranslationService _translationService;
 
     public GetPaymentMethodHandler(ILoyaltyPointsService loyaltyPointsService,
@@ -47,7 +46,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         IOrderPlacementService orderPlacementService,
         ICompanyCreditService companyCreditService,
         IRequestTranslationService translationService,
-        IProductService productService,
+        IRecurringPaymentService recurringPaymentService,
         LoyaltyPointsSettings loyaltyPointsSettings,
         PaymentSettings paymentSettings)
     {
@@ -62,7 +61,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         _orderPlacementService = orderPlacementService;
         _companyCreditService = companyCreditService;
         _translationService = translationService;
-        _productService = productService;
+        _recurringPaymentService = recurringPaymentService;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _paymentSettings = paymentSettings;
     }
@@ -103,7 +102,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
                 availablepaymentMethods.Add(pm);
 
         //a method that charges once would break the promise of a product billed in cycles
-        if (await HasRecurringProducts(request.Cart))
+        if (await _recurringPaymentService.HasRecurringProducts(request.Cart))
         {
             var recurringPaymentMethods = new List<IPaymentProvider>();
             foreach (var pm in availablepaymentMethods)
@@ -127,8 +126,9 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         {
             availablepaymentMethods = availablepaymentMethods
                 .Where(pm => _orderApprovalService.IsPaymentMethodAllowed(pm.SystemName)).ToList();
+            //a list already emptied by the recurring filter keeps its own reason
             if (availablepaymentMethods.Count == 0)
-                model.NoPaymentMethodMessage = _translationService.GetResource("Checkout.OrderApproval.NoPaymentMethod");
+                model.NoPaymentMethodMessage ??= _translationService.GetResource("Checkout.OrderApproval.NoPaymentMethod");
         }
 
         model.TradeCreditNotice = await GetTradeCreditNotice(request);
@@ -175,18 +175,6 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         }
 
         return model;
-    }
-
-    private async Task<bool> HasRecurringProducts(IList<ShoppingCartItem> cart)
-    {
-        foreach (var sci in cart)
-        {
-            var product = await _productService.GetProductById(sci.ProductId);
-            if (product is { IsRecurring: true })
-                return true;
-        }
-
-        return false;
     }
 
     private async Task<string> GetTradeCreditNotice(GetPaymentMethod request)

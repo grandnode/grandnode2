@@ -812,8 +812,17 @@ public class ShoppingCartValidatorsTests
         Assert.IsTrue(result.IsValid);
     }
 
+    [TestMethod]
+    public async Task ShoppingCartWarningsValidator_GuestWishlistWithRecurringProduct_NoAccountWarning()
+    {
+        //a wishlist buys nothing
+        var result = await ValidateRecurringAccount(isRecurring: true, isGuest: true, ShoppingCartType.Wishlist);
+
+        Assert.IsTrue(result.IsValid);
+    }
+
     private async Task<FluentValidation.Results.ValidationResult> ValidateRecurringAccount(bool isRecurring,
-        bool isGuest)
+        bool isGuest, ShoppingCartType cartType = ShoppingCartType.ShoppingCart)
     {
         var customer = new Customer();
         _groupServiceMock.Setup(x => x.IsGuest(customer)).ReturnsAsync(isGuest);
@@ -828,6 +837,9 @@ public class ShoppingCartValidatorsTests
 
         //two items, so a warning added per item would show twice
         return await validator.ValidateAsync(new ShoppingCartWarningsValidatorRecord(customer, new Store(),
-            new List<ShoppingCartItem> { new() { ProductId = "1" }, new() { ProductId = "2" } }, Language));
+            new List<ShoppingCartItem> {
+                new() { ProductId = "1", ShoppingCartTypeId = cartType },
+                new() { ProductId = "2", ShoppingCartTypeId = cartType }
+            }, Language));
     }
 }

@@ -1,13 +1,11 @@
 using Grand.Business.Core.Enums.Checkout;
 using Grand.Domain.Shipping;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
-using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Catalog.Tax;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Utilities.Checkout;
-using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
@@ -35,7 +33,7 @@ public class CheckoutOrderApprovalHandlersTests
     private readonly Language _language = new() { Id = "pl" };
     private Mock<IPaymentService> _paymentService;
     private Mock<IOrderPlacementService> _placement;
-    private Mock<IProductService> _productService;
+    private Mock<IRecurringPaymentService> _recurringPaymentService;
     private readonly HashSet<string> _recurringMethods = [];
     private Grand.Domain.Stores.Store _store;
     private Mock<IRequestTranslationService> _translation;
@@ -57,7 +55,7 @@ public class CheckoutOrderApprovalHandlersTests
         _translation.Setup(t => t.GetResource("Checkout.TradeCredit.Available")).Returns("Available {0} of {1}.");
         _translation.Setup(t => t.GetResource("Checkout.TradeCredit.Overdue")).Returns("Overdue.");
         _placement = new Mock<IOrderPlacementService>();
-        _productService = new Mock<IProductService>();
+        _recurringPaymentService = new Mock<IRecurringPaymentService>();
     }
 
     private void Evaluates(OrderPlacementDecision decision, params string[] reasons) =>
@@ -97,7 +95,7 @@ public class CheckoutOrderApprovalHandlersTests
             new Mock<IOrderCalculationService>().Object, new Mock<ILoyaltyPointsCalculationService>().Object,
             currencyService.Object, priceFormatter.Object, _paymentService.Object,
             tax.Object, _approval.Object, _placement.Object, _credit.Object, _translation.Object,
-            _productService.Object,
+            _recurringPaymentService.Object,
             new LoyaltyPointsSettings(),
             new PaymentSettings());
     }
@@ -194,7 +192,6 @@ public class CheckoutOrderApprovalHandlersTests
     public async Task PaymentMethods_StandardCart_KeepsEveryMethod()
     {
         State(false);
-        _productService.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(new Product { Id = "p1" });
 
         var model = await PaymentHandler("Payments.Card", "Payments.CashOnDelivery")
             .Handle(PaymentRequest(), CancellationToken.None);
@@ -203,9 +200,21 @@ public class CheckoutOrderApprovalHandlersTests
         Assert.IsNull(model.NoPaymentMethodMessage);
     }
 
+    [TestMethod]
+    public async Task PaymentMethods_RecurringCartAndNoCapableMethodAndApproval_KeepsTheRecurringMessage()
+    {
+        State(true);
+        RecurringCart();
+
+        var model = await PaymentHandler("Payments.Card").Handle(PaymentRequest(), CancellationToken.None);
+
+        Assert.IsEmpty(model.PaymentMethods);
+        Assert.AreEqual("Checkout.RecurringPayment.NoPaymentMethod", model.NoPaymentMethodMessage);
+    }
+
     private void RecurringCart() =>
-        _productService.Setup(p => p.GetProductById("p1", false))
-            .ReturnsAsync(new Product { Id = "p1", IsRecurring = true });
+        _recurringPaymentService.Setup(p => p.HasRecurringProducts(It.IsAny<IEnumerable<ShoppingCartItem>>()))
+            .ReturnsAsync(true);
 
     [TestMethod]
     public async Task PaymentMethods_NoTradeCredit_ShowsNoNotice()

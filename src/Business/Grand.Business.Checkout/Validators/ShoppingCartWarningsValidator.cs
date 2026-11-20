@@ -66,8 +66,10 @@ public class ShoppingCartWarningsValidator : AbstractValidator<ShoppingCartWarni
             if (hasRecurringProducts && hasRecurringProductsMix)
                 context.AddFailure(translationService.GetResource("ShoppingCart.CannotMixRecurringProducts", value.Language.Id));
 
-            //a recurring payment is cancelled from My account, so a guest has to log in or register first
-            if (hasRecurringProducts && await groupService.IsGuest(value.Customer))
+            //a recurring payment is cancelled from My account, so a guest has to log in or register first; a wishlist
+            //buys nothing
+            if (hasRecurringProducts && value.ShoppingCarts.Any(x => x.ShoppingCartTypeId != ShoppingCartType.Wishlist) &&
+                await groupService.IsGuest(value.Customer))
                 context.AddFailure(translationService.GetResource("ShoppingCart.RecurringProductsRequireAccount", value.Language.Id));
         });
     }

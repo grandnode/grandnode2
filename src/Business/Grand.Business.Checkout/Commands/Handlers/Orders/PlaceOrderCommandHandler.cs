@@ -193,25 +193,6 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 return result;
             }
 
-            //the payment method charges the cycles; checked again here, the method may have changed after the payment
-            //step. A zero total clears the method, so it is refused first: nothing would run the schedule
-            if (details.IsRecurring)
-            {
-                if (details.OrderTotal == 0)
-                {
-                    result.AddError(_translationService.GetResource("Checkout.RecurringPayment.NothingToPay",
-                        command.Language.Id));
-                    return result;
-                }
-
-                if (!await _paymentService.SupportRecurringPayment(details.PaymentMethodSystemName))
-                {
-                    result.AddError(_translationService.GetResource(
-                        "Checkout.RecurringPayment.PaymentMethodNotSupported", command.Language.Id));
-                    return result;
-                }
-            }
-
             //the rules are asked before any payment is taken: this answer is the authoritative one
             var evaluation = await _orderPlacementService.Evaluate(details.Cart, details.Context, command.Language,
                 details.PaymentMethodSystemName, cancellationToken);
@@ -274,10 +255,11 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                     result.PlacedOrder = await SaveOrderDetails(details, orderHeader, orderItems);
                     //from here on what was claimed belongs to the order
                     orderInserted = true;
-                    //saved before the provider's post-process step, which starts the gateway's schedule for it
+                    await CompleteOrderDetails(details, result.PlacedOrder);
+                    //after the cart is cleared, so a failed write cannot lead to a second paid order; still before the
+                    //provider's post-process step, which starts the gateway's schedule for it
                     if (details.IsRecurring)
                         await InsertRecurringPayment(result.PlacedOrder);
-                    await CompleteOrderDetails(details, result.PlacedOrder);
                     result.PaymentTransaction = paymentTransaction;
 
                     #endregion

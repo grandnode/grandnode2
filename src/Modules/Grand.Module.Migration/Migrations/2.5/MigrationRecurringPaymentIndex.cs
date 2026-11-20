@@ -23,9 +23,10 @@ public class MigrationRecurringPaymentIndex : IMigration
 
         try
         {
-            //every order screen and every provider webhook finds the recurring payment by the order the customer placed
+            //every order screen and every provider webhook finds the recurring payment by the order the customer placed;
+            //unique, so an order never has two
             await databaseContext.CreateIndex(repository,
-                OrderBuilder<RecurringPayment>.Create().Ascending(x => x.InitialOrderId), IndexName);
+                OrderBuilder<RecurringPayment>.Create().Ascending(x => x.InitialOrderId), IndexName, true);
         }
         catch (Exception ex)
         {

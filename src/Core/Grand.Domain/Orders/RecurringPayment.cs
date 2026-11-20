@@ -50,7 +50,8 @@ public class RecurringPayment : BaseEntity
     public int TotalCycles { get; set; }
 
     /// <summary>
-    ///     Gets or sets the number of paid cycles, the initial order included
+    ///     Gets or sets the number of paid cycles the provider reported, the initial order's included: 0 until the
+    ///     provider reports the first one, even when the initial order is already paid
     /// </summary>
     public int CyclesPaid { get; set; }
 

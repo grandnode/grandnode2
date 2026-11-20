@@ -55,6 +55,7 @@ public class CheckoutController : BasePublicController
         IShoppingCartValidator shoppingCartValidator,
         IOrderApprovalService orderApprovalService,
         IOrderPlacementService orderPlacementService,
+        IRecurringPaymentService recurringPaymentService,
         OrderSettings orderSettings,
         OidcLoginConfig oidcLoginConfig,
         LoyaltyPointsSettings loyaltyPointsSettings,
@@ -78,6 +79,7 @@ public class CheckoutController : BasePublicController
         _shoppingCartValidator = shoppingCartValidator;
         _orderApprovalService = orderApprovalService;
         _orderPlacementService = orderPlacementService;
+        _recurringPaymentService = recurringPaymentService;
         _orderSettings = orderSettings;
         _oidcLoginConfig = oidcLoginConfig;
         _loyaltyPointsSettings = loyaltyPointsSettings;
@@ -99,7 +101,7 @@ public class CheckoutController : BasePublicController
         if (!cart.Any())
             return RedirectToRoute("ShoppingCart");
 
-        if (await _groupService.IsGuest(customer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
+        if (await _groupService.IsGuest(customer) && !await GuestCanCheckOut(cart))
             return Challenge();
 
         //reset checkout data
@@ -136,7 +138,7 @@ public class CheckoutController : BasePublicController
         if (!cart.Any())
             return RedirectToRoute("ShoppingCart");
 
-        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
+        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !await GuestCanCheckOut(cart))
             return Challenge();
 
         //validation (checkout attributes)
@@ -849,6 +851,7 @@ public class CheckoutController : BasePublicController
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly IOrderApprovalService _orderApprovalService;
     private readonly IOrderPlacementService _orderPlacementService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
@@ -890,6 +893,16 @@ public class CheckoutController : BasePublicController
     #endregion
 
     #region Private methods
+
+    /// <summary>
+    ///     A guest is sent to log in when the store has no guest checkout, or when the cart holds a recurring product:
+    ///     a recurring payment is cancelled from My account
+    /// </summary>
+    private async Task<bool> GuestCanCheckOut(IList<ShoppingCartItem> cart)
+    {
+        return _orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig) &&
+               !await _recurringPaymentService.HasRecurringProducts(cart);
+    }
 
     private async Task CartValidate(IList<ShoppingCartItem> cart)
     {

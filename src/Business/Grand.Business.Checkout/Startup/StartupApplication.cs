@@ -52,6 +52,7 @@ public class StartupApplication : IStartupApplication
         serviceCollection.AddScoped<IOrderPlacementService, OrderPlacementService>();
         serviceCollection.AddScoped<ICheckoutClaimService, CheckoutClaimService>();
         serviceCollection.AddScoped<IOrderPlacementRuleProvider, OrderApprovalLimitRuleProvider>();
+        serviceCollection.AddScoped<IOrderPlacementRuleProvider, RecurringPaymentRuleProvider>();
         serviceCollection.AddScoped<ICompanyCreditService, CompanyCreditService>();
         serviceCollection.AddScoped<IPaymentReminderService, PaymentReminderService>();
         serviceCollection.AddScoped<IRecurringPaymentService, RecurringPaymentService>();

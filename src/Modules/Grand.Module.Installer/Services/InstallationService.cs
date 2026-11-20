@@ -937,9 +937,9 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<PaymentTransactionEntry>.Create().Ascending(x => x.PaymentTransactionId)
                 .Ascending(x => x.CreatedOnUtc), "PaymentTransactionId_CreatedOnUtc");
 
-        //the recurring payment of an order, found by the order the customer placed
+        //the recurring payment of an order, found by the order the customer placed; unique, so an order never has two
         await dbContext.CreateIndex(_serviceProvider.GetRequiredService<IRepository<RecurringPayment>>(),
-            OrderBuilder<RecurringPayment>.Create().Ascending(x => x.InitialOrderId), "InitialOrderId");
+            OrderBuilder<RecurringPayment>.Create().Ascending(x => x.InitialOrderId), "InitialOrderId", true);
 
         //queuemail
         await dbContext.CreateIndex(_queuedEmailRepository,

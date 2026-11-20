@@ -36,11 +36,13 @@ public class CheckoutControllerOrderApprovalTests
     private List<ShoppingCartItem> _cart;
     private CheckoutController _controller;
     private Mock<ICustomerService> _customerService;
+    private Mock<IGroupService> _groupService;
     private Language _language;
     private Mock<IMediator> _mediator;
     private Mock<IPaymentService> _paymentService;
     private PaymentSettings _paymentSettings;
     private Mock<IOrderPlacementService> _placement;
+    private Mock<IRecurringPaymentService> _recurringPaymentService;
     private Mock<IShippingService> _shippingService;
 
     [TestInitialize]
@@ -83,17 +85,31 @@ public class CheckoutControllerOrderApprovalTests
         _paymentService = new Mock<IPaymentService>();
         _shippingService = new Mock<IShippingService>();
         _paymentSettings = new PaymentSettings();
+        _groupService = new Mock<IGroupService>();
+        _recurringPaymentService = new Mock<IRecurringPaymentService>();
 
         _controller = new CheckoutController(context.Object, translation.Object, _customerService.Object,
-            new Mock<IGroupService>().Object, cartService.Object, _shippingService.Object,
+            _groupService.Object, cartService.Object, _shippingService.Object,
             new Mock<IPickupPointService>().Object, _paymentService.Object,
             new Mock<IPaymentTransactionService>().Object, new Mock<ILogger<CheckoutController>>().Object,
             new Mock<IOrderService>().Object, _mediator.Object, new Mock<IProductService>().Object,
-            new Mock<IShoppingCartValidator>().Object, _approval.Object, _placement.Object, new OrderSettings(),
+            new Mock<IShoppingCartValidator>().Object, _approval.Object, _placement.Object,
+            _recurringPaymentService.Object, new OrderSettings { AnonymousCheckoutAllowed = true },
             new OidcLoginConfig(),
             new LoyaltyPointsSettings(), _paymentSettings, new ShippingSettings(), new AddressSettings()) {
             ControllerContext = new ControllerContext { HttpContext = new DefaultHttpContext() }
         };
+    }
+
+    [TestMethod]
+    public async Task Index_GuestWithRecurringCart_IsSentToLogIn()
+    {
+        //guest checkout is allowed, but a recurring payment is cancelled from My account
+        _groupService.Setup(g => g.IsGuest(It.IsAny<Customer>())).ReturnsAsync(true);
+        _recurringPaymentService.Setup(r => r.HasRecurringProducts(_cart)).ReturnsAsync(true);
+
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.Index());
+        Assert.IsInstanceOfType<ChallengeResult>(await _controller.Start());
     }
 
     [TestMethod]

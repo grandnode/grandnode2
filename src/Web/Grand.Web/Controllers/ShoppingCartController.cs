@@ -23,6 +23,7 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Localization;
@@ -45,6 +46,7 @@ public class ShoppingCartController : BasePublicController
         IRequestPermissionService permissionService,
         IMediator mediator,
         IShoppingCartValidator shoppingCartValidator,
+        IRecurringPaymentService recurringPaymentService,
         ShoppingCartSettings shoppingCartSettings,
         OrderSettings orderSettings,
         OidcLoginConfig oidcLoginConfig)
@@ -59,6 +61,7 @@ public class ShoppingCartController : BasePublicController
         _permissionService = permissionService;
         _mediator = mediator;
         _shoppingCartValidator = shoppingCartValidator;
+        _recurringPaymentService = recurringPaymentService;
         _shoppingCartSettings = shoppingCartSettings;
         _orderSettings = orderSettings;
         _oidcLoginConfig = oidcLoginConfig;
@@ -110,6 +113,7 @@ public class ShoppingCartController : BasePublicController
     private readonly IRequestPermissionService _permissionService;
     private readonly IMediator _mediator;
     private readonly IShoppingCartValidator _shoppingCartValidator;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
@@ -471,6 +475,12 @@ public class ShoppingCartController : BasePublicController
             checkoutAttributes =
                 _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<CustomAttribute>>(
                     SystemCustomerFieldNames.CheckoutAttributes, _contextAccessor.StoreContext.CurrentStore.Id);
+
+        //a recurring payment is cancelled from My account: a guest logs in or registers first and comes back to the cart,
+        //where the cart warning stops a guest who did not
+        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) &&
+            await _recurringPaymentService.HasRecurringProducts(cart))
+            return Challenge(new AuthenticationProperties { RedirectUri = Url.RouteUrl("ShoppingCart") });
 
         var checkoutAttributeWarnings =
             await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes,

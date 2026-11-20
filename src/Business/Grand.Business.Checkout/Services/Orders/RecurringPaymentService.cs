@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Data;
 using Grand.Domain.Orders;
@@ -6,7 +7,10 @@ using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Services.Orders;
 
-public class RecurringPaymentService(IRepository<RecurringPayment> repository, IMediator mediator)
+public class RecurringPaymentService(
+    IRepository<RecurringPayment> repository,
+    IProductService productService,
+    IMediator mediator)
     : IRecurringPaymentService
 {
     public virtual async Task InsertRecurringPayment(RecurringPayment recurringPayment)
@@ -37,5 +41,16 @@ public class RecurringPaymentService(IRepository<RecurringPayment> repository, I
     public virtual Task<RecurringPayment> GetRecurringPaymentByInitialOrderId(string initialOrderId)
     {
         return repository.GetOneAsync(x => x.InitialOrderId == initialOrderId);
+    }
+
+    public virtual async Task<bool> HasRecurringProducts(IEnumerable<ShoppingCartItem> cart)
+    {
+        ArgumentNullException.ThrowIfNull(cart);
+
+        foreach (var sci in cart)
+            if (await productService.GetProductById(sci.ProductId) is { IsRecurring: true })
+                return true;
+
+        return false;
     }
 }

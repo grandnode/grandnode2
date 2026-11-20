@@ -1,4 +1,5 @@
 using Grand.Business.Checkout.Services.Orders;
+using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -12,6 +13,7 @@ namespace Grand.Business.Checkout.Tests.Services.Orders;
 [TestClass]
 public class RecurringPaymentServiceTests
 {
+    private Mock<IProductService> _productService;
     private IRepository<RecurringPayment> _repository;
     private RecurringPaymentService _service;
 
@@ -19,7 +21,11 @@ public class RecurringPaymentServiceTests
     public void Init()
     {
         _repository = new MongoDBRepositoryTest<RecurringPayment>();
-        _service = new RecurringPaymentService(_repository, new Mock<IMediator>().Object);
+        _productService = new Mock<IProductService>();
+        _productService.Setup(x => x.GetProductById("standard", false)).ReturnsAsync(new Product { Id = "standard" });
+        _productService.Setup(x => x.GetProductById("recurring", false))
+            .ReturnsAsync(new Product { Id = "recurring", IsRecurring = true });
+        _service = new RecurringPaymentService(_repository, _productService.Object, new Mock<IMediator>().Object);
     }
 
     [TestMethod]
@@ -53,6 +59,22 @@ public class RecurringPaymentServiceTests
         var saved = await _service.GetRecurringPaymentById(rp.Id);
         Assert.AreEqual(RecurringPaymentStatus.Active, saved.Status);
         Assert.AreEqual("in_1", saved.Cycles.Single().ProviderReference);
+    }
+
+    [TestMethod]
+    public async Task HasRecurringProducts_CartWithRecurringProduct_ReturnsTrue()
+    {
+        Assert.IsTrue(await _service.HasRecurringProducts([
+            new ShoppingCartItem { ProductId = "standard" }, new ShoppingCartItem { ProductId = "recurring" }
+        ]));
+    }
+
+    [TestMethod]
+    public async Task HasRecurringProducts_StandardOrMissingProducts_ReturnsFalse()
+    {
+        Assert.IsFalse(await _service.HasRecurringProducts([
+            new ShoppingCartItem { ProductId = "standard" }, new ShoppingCartItem { ProductId = "deleted" }
+        ]));
     }
 
     [TestMethod]
