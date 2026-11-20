@@ -148,6 +148,13 @@ public interface IPaymentService
     Task<bool> SupportVoid(string paymentMethodSystemName);
 
     /// <summary>
+    ///     Gets a value indicating whether recurring payments are supported by payment method
+    /// </summary>
+    /// <param name="paymentMethodSystemName">Payment method system name</param>
+    /// <returns>A value indicating whether recurring payments are supported</returns>
+    Task<bool> SupportRecurringPayment(string paymentMethodSystemName);
+
+    /// <summary>
     ///     Voids a payment
     /// </summary>
     /// <param name="paymentTransaction">Payment transaction</param>

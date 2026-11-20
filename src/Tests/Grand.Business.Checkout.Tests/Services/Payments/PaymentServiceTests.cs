@@ -2,6 +2,7 @@
 using Grand.Business.Core.Enums.Checkout;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
@@ -291,5 +292,66 @@ public class PaymentServiceTests
             new()
         };
         Assert.AreEqual(0, await _paymentService.GetAdditionalHandlingFee(cart, null));
+    }
+
+    [TestMethod]
+    public async Task SupportRecurringPayment_ProviderWithoutOverride_IsFalse()
+    {
+        Assert.IsFalse(await ((IPaymentProvider)new LegacyProvider()).SupportRecurringPayment());
+    }
+
+    [TestMethod]
+    public async Task CancelRecurringPayment_ProviderWithoutOverride_ReturnsError()
+    {
+        var result = await ((IPaymentProvider)new LegacyProvider()).CancelRecurringPayment(new RecurringPayment());
+        Assert.IsFalse(result.Success);
+    }
+
+    [TestMethod]
+    public async Task PaymentService_SupportRecurringPayment_UnknownMethod_IsFalse()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("Payments.Test");
+        Assert.IsFalse(await _paymentService.SupportRecurringPayment("Missing"));
+    }
+
+    [TestMethod]
+    public async Task PaymentService_SupportRecurringPayment_AsksTheProvider()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("Payments.Test");
+        _paymentProviderMock.Setup(c => c.SupportRecurringPayment()).ReturnsAsync(true);
+        Assert.IsTrue(await _paymentService.SupportRecurringPayment("Payments.Test"));
+    }
+
+    //a provider written before the recurring contract existed keeps its defaults
+    private class LegacyProvider : IPaymentProvider
+    {
+        public string ConfigurationUrl => throw new NotImplementedException();
+        public string SystemName => "Legacy";
+        public string FriendlyName => throw new NotImplementedException();
+        public int Priority => throw new NotImplementedException();
+        public IList<string> LimitedToStores => throw new NotImplementedException();
+        public IList<string> LimitedToGroups => throw new NotImplementedException();
+        public PaymentMethodType PaymentMethodType => throw new NotImplementedException();
+        public string LogoURL => throw new NotImplementedException();
+        public Task<PaymentTransaction> InitPaymentTransaction() => throw new NotImplementedException();
+        public Task<ProcessPaymentResult> ProcessPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
+        public Task PostProcessPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
+        public Task<string> PostRedirectPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
+        public Task<bool> HidePaymentMethod(IList<ShoppingCartItem> cart) => throw new NotImplementedException();
+        public Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart) => throw new NotImplementedException();
+        public Task<CapturePaymentResult> Capture(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
+        public Task<RefundPaymentResult> Refund(RefundPaymentRequest refundPaymentRequest) => throw new NotImplementedException();
+        public Task<VoidPaymentResult> Void(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
+        public Task CancelPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
+        public Task<bool> CanRePostRedirectPayment(PaymentTransaction paymentTransaction) => throw new NotImplementedException();
+        public Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model) => throw new NotImplementedException();
+        public Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model) => throw new NotImplementedException();
+        public Task<string> GetControllerRouteName() => throw new NotImplementedException();
+        public Task<bool> SkipPaymentInfo() => throw new NotImplementedException();
+        public Task<string> Description() => throw new NotImplementedException();
+        public Task<bool> SupportCapture() => throw new NotImplementedException();
+        public Task<bool> SupportPartiallyRefund() => throw new NotImplementedException();
+        public Task<bool> SupportRefund() => throw new NotImplementedException();
+        public Task<bool> SupportVoid() => throw new NotImplementedException();
     }
 }

@@ -390,6 +390,19 @@ public class PaymentService : IPaymentService
     }
 
     /// <summary>
+    ///     Gets a value indicating whether recurring payments are supported by payment method
+    /// </summary>
+    /// <param name="paymentMethodSystemName">Payment method system name</param>
+    /// <returns>A value indicating whether recurring payments are supported</returns>
+    public virtual async Task<bool> SupportRecurringPayment(string paymentMethodSystemName)
+    {
+        var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
+        if (paymentMethod == null)
+            return false;
+        return await paymentMethod.SupportRecurringPayment();
+    }
+
+    /// <summary>
     ///     Voids a payment
     /// </summary>
     /// <param name="paymentTransaction">Payment transaction</param>

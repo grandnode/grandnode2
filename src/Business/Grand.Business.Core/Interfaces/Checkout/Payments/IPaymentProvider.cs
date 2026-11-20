@@ -162,5 +162,23 @@ public interface IPaymentProvider : IProvider
     /// </summary>
     Task<bool> SupportVoid();
 
+    /// <summary>
+    ///     Gets a value indicating whether the provider runs recurring payments: it starts the gateway's schedule in its
+    ///     payment flow, charges every cycle and reports each one to the shop
+    /// </summary>
+    Task<bool> SupportRecurringPayment() => Task.FromResult(false);
+
+    /// <summary>
+    ///     Cancels a recurring payment at the gateway, so no further cycle is charged
+    /// </summary>
+    /// <param name="recurringPayment">Recurring payment</param>
+    /// <returns>Result</returns>
+    Task<CancelRecurringPaymentResult> CancelRecurringPayment(RecurringPayment recurringPayment)
+    {
+        var result = new CancelRecurringPaymentResult();
+        result.AddError("Recurring payment method not supported");
+        return Task.FromResult(result);
+    }
+
     #endregion
 }
