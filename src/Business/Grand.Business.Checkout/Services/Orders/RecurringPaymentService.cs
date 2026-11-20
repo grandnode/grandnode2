@@ -39,6 +39,8 @@ public class RecurringPaymentService(
     public virtual async Task<RecurringCycleClaim> ClaimCycle(string recurringPaymentId, string providerReference,
         string cycleReference, double amount, DateTime paidOnUtc, DateTime? nextPaymentDateUtc)
     {
+        ArgumentException.ThrowIfNullOrEmpty(cycleReference);
+
         RecurringPayment recurringPayment;
         RecurringPaymentCycle cycle;
         var completed = false;
@@ -89,6 +91,8 @@ public class RecurringPaymentService(
 
     public virtual async Task<bool> RecordFailure(string recurringPaymentId, string cycleReference, string reason)
     {
+        ArgumentException.ThrowIfNullOrEmpty(cycleReference);
+
         RecurringPayment recurringPayment;
         bool enteredPastDue;
 

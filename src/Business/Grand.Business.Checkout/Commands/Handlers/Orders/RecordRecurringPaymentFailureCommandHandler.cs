@@ -10,6 +10,7 @@ public class RecordRecurringPaymentFailureCommandHandler(IRecurringPaymentServic
     public async Task<bool> Handle(RecordRecurringPaymentFailureCommand request, CancellationToken cancellationToken)
     {
         ArgumentException.ThrowIfNullOrEmpty(request.RecurringPaymentId);
+        ArgumentException.ThrowIfNullOrEmpty(request.CycleReference);
 
         return await recurringPaymentService.RecordFailure(request.RecurringPaymentId, request.CycleReference,
             request.Reason);

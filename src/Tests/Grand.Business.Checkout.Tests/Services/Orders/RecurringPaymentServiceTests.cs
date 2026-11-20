@@ -203,6 +203,35 @@ public class RecurringPaymentServiceTests
     }
 
     [TestMethod]
+    public async Task ClaimCycle_ReachingTotalCyclesAfterCancelled_KeepsTheStatusAndIsNotCompleted()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Cancelled, 1, 2);
+
+        var claim = await _service.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
+
+        Assert.IsNotNull(claim);
+        Assert.IsFalse(claim.Completed);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_WithoutCycleReference_Throws()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            _service.ClaimCycle(rp.Id, "sub_1", "", 10, DateTime.UtcNow, null));
+    }
+
+    [TestMethod]
+    public async Task RecordFailure_WithoutCycleReference_Throws()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _service.RecordFailure(rp.Id, "", "declined"));
+    }
+
+    [TestMethod]
     public async Task ClaimCycle_UnknownRecurringPayment_ReturnsNull()
     {
         Assert.IsNull(await _service.ClaimCycle(UniqueIdentifier.New, "sub_1", "in_1", 10, DateTime.UtcNow, null));
