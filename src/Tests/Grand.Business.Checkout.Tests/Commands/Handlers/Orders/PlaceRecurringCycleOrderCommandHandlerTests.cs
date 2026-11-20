@@ -3,6 +3,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Customers;
@@ -30,6 +31,7 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
     private Mock<IPaymentTransactionService> _paymentTransactionServiceMock;
     private Mock<IProductService> _productServiceMock;
     private Mock<ICustomerService> _customerServiceMock;
+    private Mock<IGiftVoucherService> _giftVoucherServiceMock;
 
     private Order _initialOrder;
     private Customer _customer;
@@ -53,10 +55,13 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
         _productServiceMock = new Mock<IProductService>();
         _inventoryMock = new Mock<IInventoryManageService>();
         _customerServiceMock = new Mock<ICustomerService>();
+        _giftVoucherServiceMock = new Mock<IGiftVoucherService>();
+        _giftVoucherServiceMock.Setup(x => x.GetAllGiftVoucherUsageHistory(It.IsAny<string>()))
+            .ReturnsAsync(new List<GiftVoucherUsageHistory>());
 
         _handler = new PlaceRecurringCycleOrderCommandHandler(_orderServiceMock.Object,
             _paymentTransactionServiceMock.Object, _productServiceMock.Object, _inventoryMock.Object,
-            _customerServiceMock.Object, _mediatorMock.Object,
+            _customerServiceMock.Object, _giftVoucherServiceMock.Object, _mediatorMock.Object,
             new Mock<ILogger<PlaceRecurringCycleOrderCommandHandler>>().Object);
 
         _initialOrder = new Order {
@@ -312,5 +317,23 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
 
         Assert.AreEqual("The initial order o1 of recurring payment rp1 was not found", exception.Message);
         _orderServiceMock.Verify(x => x.InsertOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_GiftVouchersSpentOnTheInitialOrderAreAddedBackToTheTotal()
+    {
+        _giftVoucherServiceMock.Setup(x => x.GetAllGiftVoucherUsageHistory("o1"))
+            .ReturnsAsync(new List<GiftVoucherUsageHistory> {
+                new() { UsedWithOrderId = "o1", UsedValue = 15 },
+                new() { UsedWithOrderId = "o1", UsedValue = 5 }
+            });
+        _cycle.Amount = 120;
+
+        var order = await Place();
+
+        Assert.AreEqual(120, order.OrderTotal);
+        Assert.AreEqual(120, _insertedTransaction.TransactionAmount);
+        Assert.IsTrue(_calls.Contains("MarkAsPaid"));
+        Assert.IsFalse(_notes.Any(n => n.Note.Contains("charged")));
     }
 }

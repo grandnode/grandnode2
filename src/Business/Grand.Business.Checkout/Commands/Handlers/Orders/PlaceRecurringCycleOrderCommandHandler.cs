@@ -4,6 +4,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Commands.Messages.Common;
 using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Interfaces.Checkout.GiftVouchers;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Customers;
@@ -21,6 +22,7 @@ public class PlaceRecurringCycleOrderCommandHandler(
     IProductService productService,
     IInventoryManageService inventoryManageService,
     ICustomerService customerService,
+    IGiftVoucherService giftVoucherService,
     IMediator mediator,
     ILogger<PlaceRecurringCycleOrderCommandHandler> logger)
     : IRequestHandler<PlaceRecurringCycleOrderCommand, Order>
@@ -35,8 +37,13 @@ public class PlaceRecurringCycleOrderCommandHandler(
             throw new GrandException(
                 $"The initial order {recurringPayment.InitialOrderId} of recurring payment {recurringPayment.Id} was not found");
 
+        // a gift voucher paid part of the first cycle only
+        var giftVouchersAmount = (await giftVoucherService.GetAllGiftVoucherUsageHistory(initialOrder.Id))
+            .Sum(x => x.UsedValue);
+
         var code = await mediator.Send(new PrepareOrderCodeCommand(), cancellationToken);
-        var order = RecurringCycleOrder.Copy(initialOrder, cycle.OrderId, cycle.CycleNumber, code, DateTime.UtcNow);
+        var order = RecurringCycleOrder.Copy(initialOrder, cycle.OrderId, cycle.CycleNumber, code, DateTime.UtcNow,
+            giftVouchersAmount);
 
         // the gateway already took the money, so the transaction is a real one from the start
         var paymentTransaction = new PaymentTransaction {

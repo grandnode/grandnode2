@@ -11,10 +11,12 @@ public static class RecurringCycleOrder
     ///     The order that pays one later cycle of a recurring payment: the order the customer placed, at its prices,
     ///     as a new unpaid order. Everything that describes what was bought and what it costs is copied; identity,
     ///     dates, statuses, payment and shipping progress and the loyalty points spent are those of a new order.
-    ///     Loyalty points spent on the initial order are not spent again, so their amount is added back to the total.
+    ///     Loyalty points and gift vouchers spent on the initial order are not spent again, so their amounts are added
+    ///     back to the total.
     /// </summary>
+    /// <param name="giftVouchersAmount">The gift voucher amount redeemed on the initial order</param>
     public static Order Copy(Order initialOrder, string orderId, int cycleNumber, string orderCode,
-        DateTime createdOnUtc)
+        DateTime createdOnUtc, double giftVouchersAmount)
     {
         var order = new Order {
             Id = orderId,
@@ -37,7 +39,8 @@ public static class RecurringCycleOrder
             RedeemedLoyaltyPointsAmount = 0,
             LoyaltyPointsWereAdded = false,
             CalcLoyaltyPoints = 0,
-            OrderTotal = Math.Round(initialOrder.OrderTotal + initialOrder.RedeemedLoyaltyPointsAmount, 6),
+            OrderTotal = Math.Round(
+                initialOrder.OrderTotal + initialOrder.RedeemedLoyaltyPointsAmount + giftVouchersAmount, 6),
             Deleted = false,
             Imported = false,
 

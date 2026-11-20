@@ -118,7 +118,7 @@ public class RecurringCycleOrderTests
         var initial = Initial();
         initial.OrderTaxes.Add(new OrderTax { Percent = 23, Amount = 22.4 });
 
-        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn);
+        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn, 0);
 
         Assert.AreEqual(120, copy.OrderTotal);
         Assert.AreEqual(4.3, copy.CurrencyRate);
@@ -160,7 +160,7 @@ public class RecurringCycleOrderTests
     {
         var initial = Initial();
 
-        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn);
+        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn, 0);
 
         Assert.AreEqual("c2", copy.Id);
         Assert.AreEqual("ABC", copy.Code);
@@ -198,11 +198,22 @@ public class RecurringCycleOrderTests
         initial.RedeemedLoyaltyPoints = 100;
         initial.RedeemedLoyaltyPointsAmount = 10;
 
-        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn);
+        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn, 0);
 
         Assert.AreEqual(100, copy.OrderTotal);
         Assert.AreEqual(0, copy.RedeemedLoyaltyPoints);
         Assert.AreEqual(0, copy.RedeemedLoyaltyPointsAmount);
+    }
+
+    [TestMethod]
+    public void Copy_GiftVouchersSpentOnTheInitialOrderAreNotSpentAgain()
+    {
+        var initial = Initial();
+        initial.OrderTotal = 75;
+
+        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn, 25);
+
+        Assert.AreEqual(100, copy.OrderTotal);
     }
 
     [TestMethod]
@@ -211,7 +222,7 @@ public class RecurringCycleOrderTests
         var initial = Initial();
         foreach (var item in initial.OrderItems) item.IsShipEnabled = false;
 
-        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn);
+        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn, 0);
 
         Assert.AreEqual(ShippingStatus.ShippingNotRequired, copy.ShippingStatusId);
     }
@@ -233,7 +244,7 @@ public class RecurringCycleOrderTests
         initial.OrderTotal = 90;
         initial.RedeemedLoyaltyPointsAmount = 10;
 
-        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn);
+        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn, 0);
 
         foreach (var property in properties)
         {
@@ -285,7 +296,7 @@ public class RecurringCycleOrderTests
         var initial = new Order();
         initial.OrderItems.Add(source);
 
-        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn).OrderItems.Single();
+        var copy = RecurringCycleOrder.Copy(initial, "c2", 2, "ABC", CreatedOn, 0).OrderItems.Single();
 
         foreach (var property in properties)
         {
