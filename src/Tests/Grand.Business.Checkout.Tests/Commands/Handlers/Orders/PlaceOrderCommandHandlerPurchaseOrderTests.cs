@@ -164,7 +164,7 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
             new Mock<ICurrencyService>().Object, new Mock<IAffiliateService>().Object, mediator.Object,
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,
             new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object,
-            new Mock<IOrderApprovalService>().Object, placement.Object, Claims(),
+            new Mock<IOrderApprovalService>().Object, placement.Object, Claims(), new Mock<IRecurringPaymentService>().Object,
             translation.Object, new ShippingSettings(), new ShoppingCartSettings(), new PaymentSettings(),
             new OrderSettings(), new OidcLoginConfig(), new TaxSettings())
         {

@@ -61,6 +61,7 @@ public class PlaceOrderCommandHandlerTests
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,
             new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object, new Mock<IOrderApprovalService>().Object,
             new Mock<IOrderPlacementService>().Object, new Mock<ICheckoutClaimService>().Object,
+            new Mock<IRecurringPaymentService>().Object,
             new Mock<ITranslationService>().Object, new ShippingSettings(),
             new ShoppingCartSettings(), new PaymentSettings(), new OrderSettings(), new OidcLoginConfig(),
             new TaxSettings());
@@ -181,15 +182,19 @@ public class PlaceOrderCommandHandlerTests
                 It.IsAny<Language>(), It.IsAny<string>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(new OrderPlacementEvaluation(OrderPlacementDecision.Allow, []));
         var translation = new Mock<ITranslationService>();
+        _translation = translation;
         translation.Setup(x => x.GetResource("ShoppingCart.ChangedDuringCheckout", "pl", It.IsAny<string>(),
             It.IsAny<bool>())).Returns(ChangedText);
 
         _paymentTransactions = new Mock<IPaymentTransactionService>();
         _history = new Mock<IPaymentTransactionHistoryService>();
+        _payments = new Mock<IPaymentService>();
+        _recurringPayments = new Mock<IRecurringPaymentService>();
 
         var handler = new ClaimTestHandler(details, calls, orders.Object, products.Object, inventory.Object,
             giftVouchers.Object, customers.Object, reservations.Object, placement.Object, claims.Object,
-            translation.Object, _paymentTransactions.Object, _history.Object);
+            translation.Object, _paymentTransactions.Object, _history.Object, _payments.Object,
+            _recurringPayments.Object);
         return (handler, claims, orders, inventory, giftVouchers, customers, details, calls);
     }
 
@@ -373,6 +378,84 @@ public class PlaceOrderCommandHandlerTests
             It.IsAny<string>()), Times.Never);
     }
 
+    private Mock<IPaymentService> _payments;
+    private Mock<IRecurringPaymentService> _recurringPayments;
+    private Mock<ITranslationService> _translation;
+
+    //a product billed every month until cancelled, paid with a method that runs recurring payments
+    private (ClaimTestHandler handler, Mock<IOrderService> orders, PlaceOrderContainer details) RecurringSetup()
+    {
+        var (handler, _, orders, _, _, _, details, _) = ClaimSetup();
+        details.IsRecurring = true;
+        details.RecurringCycleLength = 1;
+        details.RecurringCyclePeriodId = RecurringCyclePeriod.Months;
+        details.RecurringTotalCycles = 0;
+        _payments.Setup(x => x.SupportRecurringPayment("Payments.Card")).ReturnsAsync(true);
+        _translation.Setup(x => x.GetResource("Checkout.RecurringPayment.PaymentMethodNotSupported", "pl",
+            It.IsAny<string>(), It.IsAny<bool>())).Returns("Method cannot charge in cycles");
+        _translation.Setup(x => x.GetResource("Checkout.RecurringPayment.NothingToPay", "pl", It.IsAny<string>(),
+            It.IsAny<bool>())).Returns("Nothing to pay");
+        return (handler, orders, details);
+    }
+
+    [TestMethod]
+    public async Task Handle_RecurringOrder_CreatesPendingRecurringPaymentForTheOrder()
+    {
+        var (handler, orders, details) = RecurringSetup();
+        Order inserted = null;
+        orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o);
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.IsEmpty(result.Errors);
+        Assert.AreEqual(1, inserted.RecurringCycleNumber);
+        _recurringPayments.Verify(x => x.InsertRecurringPayment(It.Is<RecurringPayment>(rp =>
+            rp.InitialOrderId == inserted.Id && rp.StoreId == "store" && rp.CustomerId == "buyer" &&
+            rp.PaymentMethodSystemName == "Payments.Card" && rp.CycleLength == 1 &&
+            rp.CyclePeriodId == RecurringCyclePeriod.Months && rp.TotalCycles == 0 && rp.CyclesPaid == 0 &&
+            rp.Status == RecurringPaymentStatus.Pending)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_StandardOrder_CreatesNoRecurringPayment()
+    {
+        var (handler, _, orders, _, _, _, details, _) = ClaimSetup();
+        Order inserted = null;
+        orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o);
+
+        await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.AreEqual(0, inserted.RecurringCycleNumber);
+        _recurringPayments.Verify(x => x.InsertRecurringPayment(It.IsAny<RecurringPayment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_RecurringOrderWithMethodWithoutRecurringSupport_IsRefusedBeforePayment()
+    {
+        //a method changed after the payment step, from a stale tab or a crafted post
+        var (handler, orders, details) = RecurringSetup();
+        _payments.Setup(x => x.SupportRecurringPayment("Payments.Card")).ReturnsAsync(false);
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        CollectionAssert.Contains(result.Errors.ToList(), "Method cannot charge in cycles");
+        Assert.AreEqual(0, handler.PaymentCalls);
+        orders.Verify(x => x.InsertOrder(It.IsAny<Order>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_RecurringOrderWithZeroTotal_IsRefused()
+    {
+        var (handler, orders, details) = RecurringSetup();
+        details.OrderTotal = 0;
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        CollectionAssert.Contains(result.Errors.ToList(), "Nothing to pay");
+        Assert.AreEqual(0, handler.PaymentCalls);
+        orders.Verify(x => x.InsertOrder(It.IsAny<Order>()), Times.Never);
+    }
+
     private class ClaimTestHandler : PlaceOrderCommandHandler
     {
         private readonly List<string> _calls;
@@ -384,9 +467,10 @@ public class PlaceOrderCommandHandlerTests
             IProductReservationService productReservationService, IOrderPlacementService orderPlacementService,
             ICheckoutClaimService checkoutClaimService, ITranslationService translationService,
             IPaymentTransactionService paymentTransactionService,
-            IPaymentTransactionHistoryService paymentTransactionHistoryService) : base(orderService,
+            IPaymentTransactionHistoryService paymentTransactionHistoryService, IPaymentService paymentService,
+            IRecurringPaymentService recurringPaymentService) : base(orderService,
             new Mock<ILanguageService>().Object, productService, inventoryManageService,
-            new Mock<IPaymentService>().Object, paymentTransactionService, paymentTransactionHistoryService,
+            paymentService, paymentTransactionService, paymentTransactionHistoryService,
             new Mock<ILogger<PlaceOrderCommandHandler>>().Object, new Mock<IOrderCalculationService>().Object,
             new Mock<IShoppingCartSubTotalService>().Object, new Mock<IShoppingCartShippingService>().Object,
             new Mock<IShoppingCartTaxService>().Object, new Mock<IPricingService>().Object,
@@ -397,7 +481,8 @@ public class PlaceOrderCommandHandlerTests
             new Mock<ICurrencyService>().Object, new Mock<IAffiliateService>().Object, new Mock<IMediator>().Object,
             productReservationService, new Mock<IAuctionService>().Object, new Mock<ICountryService>().Object,
             new Mock<IShoppingCartValidator>().Object, new Mock<IOrderApprovalService>().Object,
-            orderPlacementService, checkoutClaimService, translationService, new ShippingSettings(),
+            orderPlacementService, checkoutClaimService, recurringPaymentService, translationService,
+            new ShippingSettings(),
             new ShoppingCartSettings(), new PaymentSettings(), new OrderSettings(), new OidcLoginConfig(),
             new TaxSettings())
         {

@@ -66,6 +66,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly IProductAttributeFormatter _productAttributeFormatter;
     private readonly IProductReservationService _productReservationService;
     private readonly IProductService _productService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly ShippingSettings _shippingSettings;
     private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -107,6 +108,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         IOrderApprovalService orderApprovalService,
         IOrderPlacementService orderPlacementService,
         ICheckoutClaimService checkoutClaimService,
+        IRecurringPaymentService recurringPaymentService,
         ITranslationService translationService,
         ShippingSettings shippingSettings,
         ShoppingCartSettings shoppingCartSettings,
@@ -147,6 +149,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _orderApprovalService = orderApprovalService;
         _orderPlacementService = orderPlacementService;
         _checkoutClaimService = checkoutClaimService;
+        _recurringPaymentService = recurringPaymentService;
         _translationService = translationService;
         _shippingSettings = shippingSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -188,6 +191,25 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             {
                 result.AddError(_translationService.GetResource(purchaseOrderNumberError, command.Language.Id));
                 return result;
+            }
+
+            //the payment method charges the cycles; checked again here, the method may have changed after the payment
+            //step. A zero total clears the method, so it is refused first: nothing would run the schedule
+            if (details.IsRecurring)
+            {
+                if (details.OrderTotal == 0)
+                {
+                    result.AddError(_translationService.GetResource("Checkout.RecurringPayment.NothingToPay",
+                        command.Language.Id));
+                    return result;
+                }
+
+                if (!await _paymentService.SupportRecurringPayment(details.PaymentMethodSystemName))
+                {
+                    result.AddError(_translationService.GetResource(
+                        "Checkout.RecurringPayment.PaymentMethodNotSupported", command.Language.Id));
+                    return result;
+                }
             }
 
             //the rules are asked before any payment is taken: this answer is the authoritative one
@@ -252,6 +274,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                     result.PlacedOrder = await SaveOrderDetails(details, orderHeader, orderItems);
                     //from here on what was claimed belongs to the order
                     orderInserted = true;
+                    //saved before the provider's post-process step, which starts the gateway's schedule for it
+                    if (details.IsRecurring)
+                        await InsertRecurringPayment(result.PlacedOrder);
                     await CompleteOrderDetails(details, result.PlacedOrder);
                     result.PaymentTransaction = paymentTransaction;
 
@@ -320,6 +345,20 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         #endregion
 
         return result;
+    }
+
+    private Task InsertRecurringPayment(Order order)
+    {
+        return _recurringPaymentService.InsertRecurringPayment(new RecurringPayment {
+            StoreId = order.StoreId,
+            CustomerId = order.CustomerId,
+            InitialOrderId = order.Id,
+            PaymentMethodSystemName = order.PaymentMethodSystemName,
+            CycleLength = order.RecurringCycleLength,
+            CyclePeriodId = order.RecurringCyclePeriodId,
+            TotalCycles = order.RecurringTotalCycles,
+            Status = RecurringPaymentStatus.Pending
+        });
     }
 
     protected virtual async Task<ProcessPaymentResult> ProcessPayment(PlaceOrderContainer details,
@@ -1039,7 +1078,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             IsRecurring = details.IsRecurring,
             RecurringCycleLength = details.RecurringCycleLength,
             RecurringCyclePeriodId = details.RecurringCyclePeriodId,
-            RecurringTotalCycles = details.RecurringTotalCycles
+            RecurringTotalCycles = details.RecurringTotalCycles,
+            RecurringCycleNumber = details.IsRecurring ? 1 : 0
         };
 
         foreach (var item in details.Taxes) order.OrderTaxes.Add(item);
