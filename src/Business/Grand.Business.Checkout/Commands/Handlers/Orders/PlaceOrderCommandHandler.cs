@@ -66,6 +66,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly IProductAttributeFormatter _productAttributeFormatter;
     private readonly IProductReservationService _productReservationService;
     private readonly IProductService _productService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly ShippingSettings _shippingSettings;
     private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -107,6 +108,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         IOrderApprovalService orderApprovalService,
         IOrderPlacementService orderPlacementService,
         ICheckoutClaimService checkoutClaimService,
+        IRecurringPaymentService recurringPaymentService,
         ITranslationService translationService,
         ShippingSettings shippingSettings,
         ShoppingCartSettings shoppingCartSettings,
@@ -147,6 +149,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _orderApprovalService = orderApprovalService;
         _orderPlacementService = orderPlacementService;
         _checkoutClaimService = checkoutClaimService;
+        _recurringPaymentService = recurringPaymentService;
         _translationService = translationService;
         _shippingSettings = shippingSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -253,6 +256,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                     //from here on what was claimed belongs to the order
                     orderInserted = true;
                     await CompleteOrderDetails(details, result.PlacedOrder);
+                    //after the cart is cleared, so a failed write cannot lead to a second paid order; still before the
+                    //provider's post-process step, which starts the gateway's schedule for it
+                    if (details.IsRecurring)
+                        await InsertRecurringPayment(result.PlacedOrder);
                     result.PaymentTransaction = paymentTransaction;
 
                     #endregion
@@ -320,6 +327,20 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         #endregion
 
         return result;
+    }
+
+    private Task InsertRecurringPayment(Order order)
+    {
+        return _recurringPaymentService.InsertRecurringPayment(new RecurringPayment {
+            StoreId = order.StoreId,
+            CustomerId = order.CustomerId,
+            InitialOrderId = order.Id,
+            PaymentMethodSystemName = order.PaymentMethodSystemName,
+            CycleLength = order.RecurringCycleLength,
+            CyclePeriodId = order.RecurringCyclePeriodId,
+            TotalCycles = order.RecurringTotalCycles,
+            Status = RecurringPaymentStatus.Pending
+        });
     }
 
     protected virtual async Task<ProcessPaymentResult> ProcessPayment(PlaceOrderContainer details,
@@ -1039,7 +1060,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             IsRecurring = details.IsRecurring,
             RecurringCycleLength = details.RecurringCycleLength,
             RecurringCyclePeriodId = details.RecurringCyclePeriodId,
-            RecurringTotalCycles = details.RecurringTotalCycles
+            RecurringTotalCycles = details.RecurringTotalCycles,
+            RecurringCycleNumber = details.IsRecurring ? 1 : 0
         };
 
         foreach (var item in details.Taxes) order.OrderTaxes.Add(item);

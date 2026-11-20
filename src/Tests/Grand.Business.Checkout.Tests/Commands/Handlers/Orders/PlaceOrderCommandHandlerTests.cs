@@ -61,6 +61,7 @@ public class PlaceOrderCommandHandlerTests
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,
             new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object, new Mock<IOrderApprovalService>().Object,
             new Mock<IOrderPlacementService>().Object, new Mock<ICheckoutClaimService>().Object,
+            new Mock<IRecurringPaymentService>().Object,
             new Mock<ITranslationService>().Object, new ShippingSettings(),
             new ShoppingCartSettings(), new PaymentSettings(), new OrderSettings(), new OidcLoginConfig(),
             new TaxSettings());
@@ -186,10 +187,11 @@ public class PlaceOrderCommandHandlerTests
 
         _paymentTransactions = new Mock<IPaymentTransactionService>();
         _history = new Mock<IPaymentTransactionHistoryService>();
+        _recurringPayments = new Mock<IRecurringPaymentService>();
 
         var handler = new ClaimTestHandler(details, calls, orders.Object, products.Object, inventory.Object,
             giftVouchers.Object, customers.Object, reservations.Object, placement.Object, claims.Object,
-            translation.Object, _paymentTransactions.Object, _history.Object);
+            translation.Object, _paymentTransactions.Object, _history.Object, _recurringPayments.Object);
         return (handler, claims, orders, inventory, giftVouchers, customers, details, calls);
     }
 
@@ -373,6 +375,65 @@ public class PlaceOrderCommandHandlerTests
             It.IsAny<string>()), Times.Never);
     }
 
+    private Mock<IRecurringPaymentService> _recurringPayments;
+
+    //a product billed every month until cancelled; the payment method is checked by an order placement rule
+    private (ClaimTestHandler handler, Mock<IOrderService> orders, Mock<ICustomerService> customers,
+        PlaceOrderContainer details) RecurringSetup()
+    {
+        var (handler, _, orders, _, _, customers, details, _) = ClaimSetup();
+        details.IsRecurring = true;
+        details.RecurringCycleLength = 1;
+        details.RecurringCyclePeriodId = RecurringCyclePeriod.Months;
+        details.RecurringTotalCycles = 0;
+        return (handler, orders, customers, details);
+    }
+
+    [TestMethod]
+    public async Task Handle_RecurringOrder_CreatesPendingRecurringPaymentForTheOrder()
+    {
+        var (handler, orders, _, details) = RecurringSetup();
+        Order inserted = null;
+        orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o);
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.IsEmpty(result.Errors);
+        Assert.AreEqual(1, inserted.RecurringCycleNumber);
+        _recurringPayments.Verify(x => x.InsertRecurringPayment(It.Is<RecurringPayment>(rp =>
+            rp.InitialOrderId == inserted.Id && rp.StoreId == "store" && rp.CustomerId == "buyer" &&
+            rp.PaymentMethodSystemName == "Payments.Card" && rp.CycleLength == 1 &&
+            rp.CyclePeriodId == RecurringCyclePeriod.Months && rp.TotalCycles == 0 && rp.CyclesPaid == 0 &&
+            rp.Status == RecurringPaymentStatus.Pending)), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_StandardOrder_CreatesNoRecurringPayment()
+    {
+        var (handler, _, orders, _, _, _, details, _) = ClaimSetup();
+        Order inserted = null;
+        orders.Setup(x => x.InsertOrder(It.IsAny<Order>())).Callback<Order>(o => inserted = o);
+
+        await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.AreEqual(0, inserted.RecurringCycleNumber);
+        _recurringPayments.Verify(x => x.InsertRecurringPayment(It.IsAny<RecurringPayment>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Handle_RecurringPaymentWriteFails_CartIsAlreadyCleared()
+    {
+        //an error shown with the cart still full would let the buyer place and pay a second order
+        var (handler, _, customers, details) = RecurringSetup();
+        _recurringPayments.Setup(x => x.InsertRecurringPayment(It.IsAny<RecurringPayment>()))
+            .ThrowsAsync(new Exception("write failed"));
+
+        var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
+
+        Assert.IsNotEmpty(result.Errors);
+        customers.Verify(x => x.ClearShoppingCartItem("buyer", details.Cart), Times.Once);
+    }
+
     private class ClaimTestHandler : PlaceOrderCommandHandler
     {
         private readonly List<string> _calls;
@@ -384,7 +445,8 @@ public class PlaceOrderCommandHandlerTests
             IProductReservationService productReservationService, IOrderPlacementService orderPlacementService,
             ICheckoutClaimService checkoutClaimService, ITranslationService translationService,
             IPaymentTransactionService paymentTransactionService,
-            IPaymentTransactionHistoryService paymentTransactionHistoryService) : base(orderService,
+            IPaymentTransactionHistoryService paymentTransactionHistoryService,
+            IRecurringPaymentService recurringPaymentService) : base(orderService,
             new Mock<ILanguageService>().Object, productService, inventoryManageService,
             new Mock<IPaymentService>().Object, paymentTransactionService, paymentTransactionHistoryService,
             new Mock<ILogger<PlaceOrderCommandHandler>>().Object, new Mock<IOrderCalculationService>().Object,
@@ -397,7 +459,8 @@ public class PlaceOrderCommandHandlerTests
             new Mock<ICurrencyService>().Object, new Mock<IAffiliateService>().Object, new Mock<IMediator>().Object,
             productReservationService, new Mock<IAuctionService>().Object, new Mock<ICountryService>().Object,
             new Mock<IShoppingCartValidator>().Object, new Mock<IOrderApprovalService>().Object,
-            orderPlacementService, checkoutClaimService, translationService, new ShippingSettings(),
+            orderPlacementService, checkoutClaimService, recurringPaymentService, translationService,
+            new ShippingSettings(),
             new ShoppingCartSettings(), new PaymentSettings(), new OrderSettings(), new OidcLoginConfig(),
             new TaxSettings())
         {

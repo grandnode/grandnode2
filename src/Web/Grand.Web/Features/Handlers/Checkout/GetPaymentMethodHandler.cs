@@ -32,6 +32,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
     private readonly ITaxService _taxService;
     private readonly IOrderApprovalService _orderApprovalService;
     private readonly IOrderPlacementService _orderPlacementService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly IRequestTranslationService _translationService;
 
     public GetPaymentMethodHandler(ILoyaltyPointsService loyaltyPointsService,
@@ -45,6 +46,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         IOrderPlacementService orderPlacementService,
         ICompanyCreditService companyCreditService,
         IRequestTranslationService translationService,
+        IRecurringPaymentService recurringPaymentService,
         LoyaltyPointsSettings loyaltyPointsSettings,
         PaymentSettings paymentSettings)
     {
@@ -59,6 +61,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         _orderPlacementService = orderPlacementService;
         _companyCreditService = companyCreditService;
         _translationService = translationService;
+        _recurringPaymentService = recurringPaymentService;
         _loyaltyPointsSettings = loyaltyPointsSettings;
         _paymentSettings = paymentSettings;
     }
@@ -98,6 +101,18 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
             if (!await pm.HidePaymentMethod(request.Cart))
                 availablepaymentMethods.Add(pm);
 
+        //a method that charges once would break the promise of a product billed in cycles
+        if (await _recurringPaymentService.HasRecurringProducts(request.Cart))
+        {
+            var recurringPaymentMethods = new List<IPaymentProvider>();
+            foreach (var pm in availablepaymentMethods)
+                if (await pm.SupportRecurringPayment())
+                    recurringPaymentMethods.Add(pm);
+            availablepaymentMethods = recurringPaymentMethods;
+            if (availablepaymentMethods.Count == 0)
+                model.NoPaymentMethodMessage = _translationService.GetResource("Checkout.RecurringPayment.NoPaymentMethod");
+        }
+
         //a blocked order has nothing to pay with; one that needs an approval may only use the payment methods the admin chose
         var evaluation = await _orderPlacementService.Evaluate(request.Cart,
             new CalculationContext(request.Customer, request.Store, request.Currency, request.TaxDisplayType),
@@ -111,8 +126,9 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         {
             availablepaymentMethods = availablepaymentMethods
                 .Where(pm => _orderApprovalService.IsPaymentMethodAllowed(pm.SystemName)).ToList();
+            //a list already emptied by the recurring filter keeps its own reason
             if (availablepaymentMethods.Count == 0)
-                model.NoPaymentMethodMessage = _translationService.GetResource("Checkout.OrderApproval.NoPaymentMethod");
+                model.NoPaymentMethodMessage ??= _translationService.GetResource("Checkout.OrderApproval.NoPaymentMethod");
         }
 
         model.TradeCreditNotice = await GetTradeCreditNotice(request);

@@ -316,6 +316,16 @@ public class Order : BaseEntity
     public int RecurringUseCycles { get; set; }
 
     /// <summary>
+    ///     Gets or sets the order the customer placed, on an order paying a later cycle of its recurring payment
+    /// </summary>
+    public string InitialOrderId { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the recurring payment cycle the order pays: 1 on the initial order, 0 when not recurring
+    /// </summary>
+    public int RecurringCycleNumber { get; set; }
+
+    /// <summary>
     ///     Gets or sets the Shipping Option description (customer friendly string)
     /// </summary>
     public string ShippingOptionAttributeDescription { get; set; }

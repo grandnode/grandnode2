@@ -279,7 +279,7 @@ public class PlaceOrderCommandHandlerApprovalTests
             new Mock<ICurrencyService>().Object, new Mock<IAffiliateService>().Object, mediator.Object,
             new Mock<IProductReservationService>().Object, new Mock<IAuctionService>().Object,
             new Mock<ICountryService>().Object, new Mock<IShoppingCartValidator>().Object, approval.Object,
-            placement.Object, Claims(), translation.Object, new ShippingSettings(), new ShoppingCartSettings(), new PaymentSettings(),
+            placement.Object, Claims(), new Mock<IRecurringPaymentService>().Object, translation.Object, new ShippingSettings(), new ShoppingCartSettings(), new PaymentSettings(),
             new OrderSettings(), new OidcLoginConfig(), new TaxSettings())
         {
             _details = details;

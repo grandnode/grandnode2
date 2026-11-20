@@ -2592,4 +2592,16 @@
 	<Resource Name="Admin.PaymentTransaction.Fields.BillingName" Area="Admin">
 		<Value>Billed to</Value>
 	</Resource>
+	<Resource Name="ShoppingCart.RecurringProductsRequireAccount" Area="Front">
+		<Value>Log in or register to buy a product billed in cycles: you will manage and cancel it in your account.</Value>
+	</Resource>
+	<Resource Name="Checkout.RecurringPayment.NoPaymentMethod" Area="Front">
+		<Value>None of the available payment methods can charge in cycles, so this order cannot be paid.</Value>
+	</Resource>
+	<Resource Name="Checkout.RecurringPayment.PaymentMethodNotSupported" Area="Front">
+		<Value>The selected payment method cannot charge in cycles. Choose another payment method.</Value>
+	</Resource>
+	<Resource Name="Checkout.RecurringPayment.NothingToPay" Area="Front">
+		<Value>An order billed in cycles must have something to pay.</Value>
+	</Resource>
 </Language>
