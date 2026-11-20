@@ -87,6 +87,59 @@ public class RecurringPaymentService(
         return new RecurringCycleClaim { RecurringPayment = recurringPayment, Cycle = cycle, Completed = completed };
     }
 
+    public virtual async Task<bool> RecordFailure(string recurringPaymentId, string cycleReference, string reason)
+    {
+        RecurringPayment recurringPayment;
+        bool enteredPastDue;
+
+        await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
+        {
+            recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            //a failure that arrives after the cycle was paid is a late, out of order event
+            if (recurringPayment == null ||
+                recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed ||
+                recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference))
+                return false;
+
+            recurringPayment.LastError = reason;
+            recurringPayment.LastErrorDateUtc = DateTime.UtcNow;
+
+            enteredPastDue = recurringPayment.Status != RecurringPaymentStatus.PastDue;
+            recurringPayment.Status = RecurringPaymentStatus.PastDue;
+
+            await repository.UpdateAsync(recurringPayment);
+        }
+
+        //event notification
+        await mediator.EntityUpdated(recurringPayment);
+
+        return enteredPastDue;
+    }
+
+    public virtual async Task<bool> RecordEnded(string recurringPaymentId)
+    {
+        RecurringPayment recurringPayment;
+
+        await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
+        {
+            recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            if (recurringPayment == null ||
+                recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
+                return false;
+
+            recurringPayment.Status = RecurringPaymentStatus.Cancelled;
+            recurringPayment.CancelledOnUtc = DateTime.UtcNow;
+            recurringPayment.CancelledBy = recurringPayment.PaymentMethodSystemName;
+
+            await repository.UpdateAsync(recurringPayment);
+        }
+
+        //event notification
+        await mediator.EntityUpdated(recurringPayment);
+
+        return true;
+    }
+
     private static string LockKey(string recurringPaymentId)
     {
         return $"{nameof(RecurringPayment)}:{recurringPaymentId}";

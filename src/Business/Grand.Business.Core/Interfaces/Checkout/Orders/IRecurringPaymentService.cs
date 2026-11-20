@@ -26,6 +26,19 @@ public interface IRecurringPaymentService
         double amount, DateTime paidOnUtc, DateTime? nextPaymentDateUtc);
 
     /// <summary>
+    ///     Records a cycle the provider reports as failed, under the same lock. Returns true only when the status moved
+    ///     into PastDue. Nothing is recorded for an unknown recurring payment, one that is Cancelled or Completed, or a
+    ///     cycle that was paid already
+    /// </summary>
+    Task<bool> RecordFailure(string recurringPaymentId, string cycleReference, string reason);
+
+    /// <summary>
+    ///     Cancels a recurring payment the provider reports as ended at the gateway, under the same lock. Returns false
+    ///     for an unknown recurring payment or one that is Cancelled or Completed
+    /// </summary>
+    Task<bool> RecordEnded(string recurringPaymentId);
+
+    /// <summary>
     ///     Gets a recurring payment
     /// </summary>
     Task<RecurringPayment> GetRecurringPaymentById(string id);
