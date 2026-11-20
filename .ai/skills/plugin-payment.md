@@ -69,7 +69,7 @@ Do not use this skill for order processing business logic outside the payment fl
 - Pass `RecurringPayment.Id` to the gateway as metadata when the schedule starts, and send it back as `RecurringPaymentId` in every command. The webhook must verify the gateway signature before sending any of them.
 - `CycleReference` is the gateway's invoice or charge id, so a resent webhook is recorded once and the command returns `false`. `ProviderReference` is the subscription id.
 - `Amount` uses the units of `MarkAsPaidCommand.Amount`: the order total in the order's currency, as Stripe Checkout passes it (`paymentIntent.Amount / 100.0`).
-- The first paid cycle is the initial order's own payment: the provider still marks that order paid on its existing path and also sends the cycle command, which records cycle 1 and places no order. If placing a later cycle's order throws, the command notes it on the initial order and rethrows so the gateway resends.
+- The first paid cycle is the initial order's own payment: the provider still marks that order paid on its existing path and also sends the cycle command, which records cycle 1 and places no order. If placing a later cycle's order throws, the command notes it on the initial order for staff and rethrows so the provider can log or report it. The cycle is already recorded, so a resend of the same `CycleReference` returns `false` and does not retry the order.
 
 #### Project Structure
 12. Use `Microsoft.NET.Sdk.Razor` as SDK.

@@ -193,6 +193,48 @@ public class RecordRecurringPaymentCommandHandlersTests
     }
 
     [TestMethod]
+    public async Task CycleCommand_NoteCannotBeWritten_StillThrowsTheOriginalException()
+    {
+        SetupClaim(2, false);
+        _mediator.Setup(x => x.Send(It.IsAny<PlaceRecurringCycleOrderCommand>(), It.IsAny<CancellationToken>()))
+            .ThrowsAsync(new InvalidOperationException("boom"));
+        _orderService.Setup(x => x.InsertOrderNote(It.IsAny<OrderNote>())).ThrowsAsync(new TimeoutException("db"));
+
+        var e = await Assert.ThrowsExactlyAsync<InvalidOperationException>(() =>
+            CycleHandler().Handle(CycleCommand(), CancellationToken.None));
+
+        Assert.AreEqual("boom", e.Message);
+    }
+
+    [TestMethod]
+    public async Task CycleCommand_CompletedAndNoteCannotBeWritten_StillSucceeds()
+    {
+        SetupClaim(3, true);
+        var refusal = new CancelRecurringPaymentResult();
+        refusal.AddError("no way");
+        _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>())).ReturnsAsync(refusal);
+        _orderService.Setup(x => x.InsertOrderNote(It.IsAny<OrderNote>())).ThrowsAsync(new TimeoutException("db"));
+
+        Assert.IsTrue(await CycleHandler().Handle(CycleCommand(), CancellationToken.None));
+    }
+
+    [TestMethod]
+    public async Task CycleCommand_CompletedAndProviderThrows_NotesItAndDoesNotRethrow()
+    {
+        SetupClaim(3, true);
+        _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
+            .ThrowsAsync(new HttpRequestException("network down"));
+
+        var result = await CycleHandler().Handle(CycleCommand(), CancellationToken.None);
+
+        Assert.IsTrue(result);
+        _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
+            n.OrderId == "o1" && n.Note ==
+            "The recurring payment is completed, but the payment gateway did not confirm it stopped charging: network down")),
+            Times.Once);
+    }
+
+    [TestMethod]
     public async Task CycleCommand_WithoutRecurringPaymentId_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
