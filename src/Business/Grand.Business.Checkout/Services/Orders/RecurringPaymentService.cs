@@ -1,3 +1,4 @@
+using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
@@ -106,6 +107,8 @@ public class RecurringPaymentService(
 
         //event notification
         await mediator.EntityUpdated(recurringPayment);
+        if (enteredPastDue)
+            await mediator.Publish(new RecurringPaymentPastDueEvent(recurringPayment));
 
         return enteredPastDue;
     }
@@ -130,6 +133,7 @@ public class RecurringPaymentService(
 
         //event notification
         await mediator.EntityUpdated(recurringPayment);
+        await mediator.Publish(new RecurringPaymentCancelledEvent(recurringPayment));
 
         return true;
     }
@@ -176,6 +180,7 @@ public class RecurringPaymentService(
 
         //event notification
         await mediator.EntityUpdated(recurringPayment);
+        await mediator.Publish(new RecurringPaymentCancelledEvent(recurringPayment));
 
         return new CancelRecurringPaymentResult();
     }

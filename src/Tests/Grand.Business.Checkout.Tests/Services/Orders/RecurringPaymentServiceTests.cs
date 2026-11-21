@@ -1,4 +1,5 @@
 using Grand.Business.Checkout.Services.Orders;
+using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
@@ -17,6 +18,7 @@ public class RecurringPaymentServiceTests
 {
     private Mock<IProductService> _productService;
     private IRepository<RecurringPayment> _repository;
+    private Mock<IMediator> _mediatorMock;
     private IMediator _mediator;
     private IResourceLock _resourceLock;
     private RecurringPaymentService _service;
@@ -29,7 +31,8 @@ public class RecurringPaymentServiceTests
         _productService.Setup(x => x.GetProductById("standard", false)).ReturnsAsync(new Product { Id = "standard" });
         _productService.Setup(x => x.GetProductById("recurring", false))
             .ReturnsAsync(new Product { Id = "recurring", IsRecurring = true });
-        _mediator = new Mock<IMediator>().Object;
+        _mediatorMock = new Mock<IMediator>();
+        _mediator = _mediatorMock.Object;
         _resourceLock = new MongoResourceLockTest();
         _service = new RecurringPaymentService(_repository, _productService.Object, _mediator, _resourceLock);
     }
@@ -473,5 +476,75 @@ public class RecurringPaymentServiceTests
         var saved = await _service.GetRecurringPaymentById(rp.Id);
         Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
         Assert.AreEqual(2, saved.Cycles.Count);
+    }
+
+    private List<T> Published<T>()
+    {
+        return _mediatorMock.Invocations.Where(x => x.Method.Name == nameof(IMediator.Publish))
+            .Select(x => x.Arguments[0]).OfType<T>().ToList();
+    }
+
+    [TestMethod]
+    public async Task Cancel_PublishesCancelledOnce()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
+
+        Assert.IsTrue((await _service.Cancel(rp.Id, "jane@example.com", _ => Task.FromResult(new CancelRecurringPaymentResult()))).Success);
+        Assert.IsTrue((await _service.Cancel(rp.Id, "jane@example.com", _ => Task.FromResult(new CancelRecurringPaymentResult()))).Success);
+
+        var published = Published<RecurringPaymentCancelledEvent>();
+        Assert.AreEqual(1, published.Count);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, published[0].RecurringPayment.Status);
+        Assert.AreEqual(0, Published<RecurringPaymentPastDueEvent>().Count);
+    }
+
+    [TestMethod]
+    public async Task Cancel_GatewayRefuses_PublishesNothing()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com", _ => Task.FromResult(Refusal("declined")));
+
+        Assert.IsFalse(result.Success);
+        Assert.AreEqual(0, Published<RecurringPaymentCancelledEvent>().Count);
+        Assert.AreEqual(0, Published<RecurringPaymentPastDueEvent>().Count);
+    }
+
+    [TestMethod]
+    public async Task RecordEnded_PublishesCancelledOnlyOnTheTransition()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+
+        Assert.IsTrue(await _service.RecordEnded(rp.Id));
+        Assert.IsFalse(await _service.RecordEnded(rp.Id));
+
+        var published = Published<RecurringPaymentCancelledEvent>();
+        Assert.AreEqual(1, published.Count);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, published[0].RecurringPayment.Status);
+    }
+
+    [TestMethod]
+    public async Task RecordFailure_PublishesPastDueOnlyWhenEnteringIt()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+
+        await _service.RecordFailure(rp.Id, "in_2", "a");
+        await _service.RecordFailure(rp.Id, "in_2", "b");
+
+        var published = Published<RecurringPaymentPastDueEvent>();
+        Assert.AreEqual(1, published.Count);
+        Assert.AreEqual("a", published[0].RecurringPayment.LastError);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_Completing_PublishesNeitherEvent()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, 2);
+
+        var claim = await _service.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
+
+        Assert.IsTrue(claim.Completed);
+        Assert.AreEqual(0, Published<RecurringPaymentCancelledEvent>().Count);
+        Assert.AreEqual(0, Published<RecurringPaymentPastDueEvent>().Count);
     }
 }
