@@ -71,6 +71,7 @@ public class OrderViewModelService : IOrderViewModelService
     private readonly IOrderApprovalService _orderApprovalService;
     private readonly IShipmentService _shipmentService;
     private readonly IAdminDataScope<MerchandiseReturn> _merchandiseReturnScope;
+    private readonly IRecurringPaymentService _recurringPaymentService;
 
     #endregion
 
@@ -107,8 +108,10 @@ public class OrderViewModelService : IOrderViewModelService
         IAdminDataScope<Order> scope,
         IOrderApprovalService orderApprovalService,
         IShipmentService shipmentService,
-        IAdminDataScope<MerchandiseReturn> merchandiseReturnScope)
+        IAdminDataScope<MerchandiseReturn> merchandiseReturnScope,
+        IRecurringPaymentService recurringPaymentService)
     {
+        _recurringPaymentService = recurringPaymentService;
         _orderApprovalService = orderApprovalService;
         _shipmentService = shipmentService;
         _orderService = orderService;
@@ -323,6 +326,31 @@ public class OrderViewModelService : IOrderViewModelService
     /// <summary>
     ///     The order's approval request, for the panels that own the whole order: a vendor sees neither it nor its reasons
     /// </summary>
+    public virtual async Task PrepareOrderRecurringPayment(OrderModel model, Order order)
+    {
+        //the vendor panel has no recurring payment screens
+        if (_scope.DefaultVendorId is not null)
+            return;
+
+        model.RecurringCycleNumber = order.RecurringCycleNumber;
+        switch (order.RecurringCycleNumber)
+        {
+            case 1:
+                model.RecurringPaymentId =
+                    (await _recurringPaymentService.GetRecurringPaymentByInitialOrderId(order.Id))?.Id;
+                break;
+            //a cycle order copies the initial order's store and sales employee, so whoever opens one can open the other
+            case > 1 when !string.IsNullOrEmpty(order.InitialOrderId):
+                var initialOrder = await _orderService.GetOrderById(order.InitialOrderId);
+                if (initialOrder == null)
+                    break;
+                model.InitialOrderNumber = initialOrder.OrderNumber;
+                if (!initialOrder.Deleted)
+                    model.InitialOrderId = initialOrder.Id;
+                break;
+        }
+    }
+
     public virtual async Task PrepareOrderApprovalDetails(OrderModel model, Order order)
     {
         if (_scope.DefaultVendorId is not null)
@@ -415,6 +443,7 @@ public class OrderViewModelService : IOrderViewModelService
         if (_scope.DefaultVendorId is null)
             model.CanCancelOrder = await _mediator.Send(new CanCancelOrderQuery { Order = order });
         await PrepareOrderApprovalDetails(model, order);
+        await PrepareOrderRecurringPayment(model, order);
         await PrepareOrderMerchandiseReturns(model, order);
 
         var store = await _storeService.GetStoreById(order.StoreId);

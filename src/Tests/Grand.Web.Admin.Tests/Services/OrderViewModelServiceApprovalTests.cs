@@ -71,7 +71,7 @@ public class OrderViewModelServiceApprovalTests
             new Mock<IWarehouseService>().Object, new CurrencySettings(), new TaxSettings(), new AddressSettings(),
             new Mock<IOrderTagService>().Object, new Mock<IOrderStatusService>().Object, new Mock<IMediator>().Object,
             enums.Object, _scope.Object, approvals.Object, new Mock<IShipmentService>().Object,
-            new Mock<IAdminDataScope<MerchandiseReturn>>().Object);
+            new Mock<IAdminDataScope<MerchandiseReturn>>().Object, new Mock<IRecurringPaymentService>().Object);
     }
 
     private async Task<OrderModel> Details()
