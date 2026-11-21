@@ -1,3 +1,4 @@
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -16,6 +17,26 @@ public interface IRecurringPaymentService
     ///     Updates a recurring payment
     /// </summary>
     Task UpdateRecurringPayment(RecurringPayment recurringPayment);
+
+    /// <summary>
+    ///     Records a cycle the provider reports as paid, once: under a lock, so a gateway resending the event claims
+    ///     nothing. Returns null when the recurring payment is unknown or the cycle reference was already recorded
+    /// </summary>
+    Task<RecurringCycleClaim> ClaimCycle(string recurringPaymentId, string providerReference, string cycleReference,
+        double amount, DateTime paidOnUtc, DateTime? nextPaymentDateUtc);
+
+    /// <summary>
+    ///     Records a cycle the provider reports as failed, under the same lock. Returns true only when the status moved
+    ///     into PastDue. Nothing is recorded for an unknown recurring payment, one that is Cancelled or Completed, or a
+    ///     cycle that was paid already
+    /// </summary>
+    Task<bool> RecordFailure(string recurringPaymentId, string cycleReference, string reason);
+
+    /// <summary>
+    ///     Cancels a recurring payment the provider reports as ended at the gateway, under the same lock. Returns false
+    ///     for an unknown recurring payment or one that is Cancelled or Completed
+    /// </summary>
+    Task<bool> RecordEnded(string recurringPaymentId);
 
     /// <summary>
     ///     Gets a recurring payment

@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
+using Grand.Domain;
 using Grand.Domain.Orders;
 using Grand.Mediator;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -15,6 +16,8 @@ public class RecurringPaymentServiceTests
 {
     private Mock<IProductService> _productService;
     private IRepository<RecurringPayment> _repository;
+    private IMediator _mediator;
+    private IResourceLock _resourceLock;
     private RecurringPaymentService _service;
 
     [TestInitialize]
@@ -25,7 +28,9 @@ public class RecurringPaymentServiceTests
         _productService.Setup(x => x.GetProductById("standard", false)).ReturnsAsync(new Product { Id = "standard" });
         _productService.Setup(x => x.GetProductById("recurring", false))
             .ReturnsAsync(new Product { Id = "recurring", IsRecurring = true });
-        _service = new RecurringPaymentService(_repository, _productService.Object, new Mock<IMediator>().Object);
+        _mediator = new Mock<IMediator>().Object;
+        _resourceLock = new MongoResourceLockTest();
+        _service = new RecurringPaymentService(_repository, _productService.Object, _mediator, _resourceLock);
     }
 
     [TestMethod]
@@ -81,5 +86,235 @@ public class RecurringPaymentServiceTests
     public async Task InsertRecurringPayment_Null_Throws()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() => _service.InsertRecurringPayment(null));
+    }
+
+    private async Task<RecurringPayment> Insert(RecurringPaymentStatus status, int cyclesPaid, int totalCycles = 12,
+        string lastError = null)
+    {
+        var rp = new RecurringPayment {
+            InitialOrderId = "o1", Status = status, CyclesPaid = cyclesPaid, TotalCycles = totalCycles,
+            LastError = lastError
+        };
+        for (var i = 1; i <= cyclesPaid; i++)
+            rp.Cycles.Add(new RecurringPaymentCycle {
+                CycleNumber = i, OrderId = $"o{i}", ProviderReference = $"in_{i}"
+            });
+        await _service.InsertRecurringPayment(rp);
+        return rp;
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_FirstCycle_IsTheInitialOrderAndActivates()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Pending, 0);
+        var paid = new DateTime(2026, 11, 1, 0, 0, 0, DateTimeKind.Utc);
+        var next = paid.AddMonths(1);
+
+        var claim = await _service.ClaimCycle(rp.Id, "sub_1", "in_1", 10, paid, next);
+
+        Assert.IsNotNull(claim);
+        Assert.AreEqual(1, claim.Cycle.CycleNumber);
+        Assert.AreEqual("o1", claim.Cycle.OrderId);
+        Assert.AreEqual("in_1", claim.Cycle.ProviderReference);
+        Assert.AreEqual(10, claim.Cycle.Amount);
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Active, saved.Status);
+        Assert.AreEqual(1, saved.CyclesPaid);
+        Assert.AreEqual("sub_1", saved.ProviderReference);
+        Assert.AreEqual(next, saved.NextPaymentDateUtc);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_LaterCycle_GetsANewOrderIdAndLeavesPastDue()
+    {
+        var rp = await Insert(RecurringPaymentStatus.PastDue, 1, lastError: "card declined");
+
+        var claim = await _service.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
+
+        Assert.AreEqual(2, claim.Cycle.CycleNumber);
+        Assert.IsFalse(string.IsNullOrEmpty(claim.Cycle.OrderId));
+        Assert.AreNotEqual("o1", claim.Cycle.OrderId);
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Active, saved.Status);
+        Assert.AreEqual("card declined", saved.LastError);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_SameCycleReferenceAgain_ReturnsNull()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Pending, 0);
+
+        Assert.IsNotNull(await _service.ClaimCycle(rp.Id, "sub_1", "in_1", 10, DateTime.UtcNow, null));
+        Assert.IsNull(await _service.ClaimCycle(rp.Id, "sub_1", "in_1", 10, DateTime.UtcNow, null));
+
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(1, saved.Cycles.Count);
+        Assert.AreEqual(1, saved.CyclesPaid);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_ConcurrentDeliveries_ClaimOnce()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, _resourceLock);
+
+        var claims = await Task.WhenAll(
+            _service.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null),
+            other.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null));
+
+        Assert.AreEqual(1, claims.Count(c => c != null));
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(1, saved.Cycles.Count(c => c.ProviderReference == "in_2"));
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_ReachingTotalCycles_Completes()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, 2);
+
+        var claim = await _service.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
+
+        Assert.IsTrue(claim.Completed);
+        Assert.AreEqual(RecurringPaymentStatus.Completed, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_TotalCyclesZero_NeverCompletes()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 11, 0);
+
+        var claim = await _service.ClaimCycle(rp.Id, "sub_1", "in_12", 10, DateTime.UtcNow, null);
+
+        Assert.IsFalse(claim.Completed);
+        Assert.AreEqual(RecurringPaymentStatus.Active, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_AfterCancelled_RecordsTheCycleAndKeepsTheStatus()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Cancelled, 1);
+
+        var claim = await _service.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
+
+        Assert.IsNotNull(claim);
+        Assert.AreEqual(2, claim.Cycle.CycleNumber);
+        Assert.IsFalse(claim.Completed);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_ReachingTotalCyclesAfterCancelled_KeepsTheStatusAndIsNotCompleted()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Cancelled, 1, 2);
+
+        var claim = await _service.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
+
+        Assert.IsNotNull(claim);
+        Assert.IsFalse(claim.Completed);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_WithoutCycleReference_Throws()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
+            _service.ClaimCycle(rp.Id, "sub_1", "", 10, DateTime.UtcNow, null));
+    }
+
+    [TestMethod]
+    public async Task RecordFailure_WithoutCycleReference_Throws()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _service.RecordFailure(rp.Id, "", "declined"));
+    }
+
+    [TestMethod]
+    public async Task ClaimCycle_UnknownRecurringPayment_ReturnsNull()
+    {
+        Assert.IsNull(await _service.ClaimCycle(UniqueIdentifier.New, "sub_1", "in_1", 10, DateTime.UtcNow, null));
+    }
+
+    [TestMethod]
+    public async Task RecordFailure_Active_EntersPastDueOnlyOnce()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+
+        Assert.IsTrue(await _service.RecordFailure(rp.Id, "in_2", "declined"));
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.PastDue, saved.Status);
+        Assert.AreEqual("declined", saved.LastError);
+        Assert.IsNotNull(saved.LastErrorDateUtc);
+
+        Assert.IsFalse(await _service.RecordFailure(rp.Id, "in_2", "expired"));
+        saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.PastDue, saved.Status);
+        Assert.AreEqual("expired", saved.LastError);
+    }
+
+    [TestMethod]
+    public async Task RecordFailure_ForACyclePaidAlready_IsIgnored()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 2);
+
+        Assert.IsFalse(await _service.RecordFailure(rp.Id, "in_2", "late"));
+
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Active, saved.Status);
+        Assert.IsNull(saved.LastError);
+    }
+
+    [TestMethod]
+    public async Task RecordFailure_Cancelled_ChangesNothing()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Cancelled, 1);
+
+        Assert.IsFalse(await _service.RecordFailure(rp.Id, "in_2", "declined"));
+
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
+        Assert.IsNull(saved.LastError);
+    }
+
+    [TestMethod]
+    public async Task RecordFailure_UnknownRecurringPayment_ReturnsFalse()
+    {
+        Assert.IsFalse(await _service.RecordFailure(UniqueIdentifier.New, "in_2", "declined"));
+    }
+
+    [TestMethod]
+    public async Task RecordEnded_Active_CancelsByTheProvider()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+        rp.PaymentMethodSystemName = "Payments.Test";
+        await _repository.UpdateAsync(rp);
+
+        Assert.IsTrue(await _service.RecordEnded(rp.Id));
+
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
+        Assert.AreEqual("Payments.Test", saved.CancelledBy);
+        Assert.IsNotNull(saved.CancelledOnUtc);
+    }
+
+    [TestMethod]
+    public async Task RecordEnded_CompletedOrCancelled_ChangesNothing()
+    {
+        var completed = await Insert(RecurringPaymentStatus.Completed, 12);
+        Assert.IsFalse(await _service.RecordEnded(completed.Id));
+        Assert.AreEqual(RecurringPaymentStatus.Completed,
+            (await _service.GetRecurringPaymentById(completed.Id)).Status);
+
+        var active = await Insert(RecurringPaymentStatus.Active, 1);
+        Assert.IsTrue(await _service.RecordEnded(active.Id));
+        Assert.IsFalse(await _service.RecordEnded(active.Id));
+    }
+
+    [TestMethod]
+    public async Task RecordEnded_UnknownRecurringPayment_ReturnsFalse()
+    {
+        Assert.IsFalse(await _service.RecordEnded(UniqueIdentifier.New));
     }
 }

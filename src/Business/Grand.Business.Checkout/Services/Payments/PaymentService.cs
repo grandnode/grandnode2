@@ -403,6 +403,26 @@ public class PaymentService : IPaymentService
     }
 
     /// <summary>
+    ///     Asks the payment method to stop the gateway schedule of a recurring payment
+    /// </summary>
+    /// <param name="recurringPayment">Recurring payment</param>
+    /// <returns>Result; an error when the payment method could not be loaded</returns>
+    public virtual async Task<CancelRecurringPaymentResult> CancelRecurringPayment(RecurringPayment recurringPayment)
+    {
+        ArgumentNullException.ThrowIfNull(recurringPayment);
+
+        var paymentMethod = LoadPaymentMethodBySystemName(recurringPayment.PaymentMethodSystemName);
+        if (paymentMethod == null)
+        {
+            var result = new CancelRecurringPaymentResult();
+            result.AddError("Payment method couldn't be loaded");
+            return result;
+        }
+
+        return await paymentMethod.CancelRecurringPayment(recurringPayment);
+    }
+
+    /// <summary>
     ///     Voids a payment
     /// </summary>
     /// <param name="paymentTransaction">Payment transaction</param>

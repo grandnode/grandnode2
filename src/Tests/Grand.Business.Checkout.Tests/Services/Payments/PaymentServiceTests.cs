@@ -322,6 +322,31 @@ public class PaymentServiceTests
         Assert.IsTrue(await _paymentService.SupportRecurringPayment("Payments.Test"));
     }
 
+    [TestMethod]
+    public async Task PaymentService_CancelRecurringPayment_UnknownMethod_ReturnsError()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("Payments.Test");
+
+        var result = await _paymentService.CancelRecurringPayment(new RecurringPayment
+            { PaymentMethodSystemName = "Missing" });
+
+        Assert.IsFalse(result.Success);
+        CollectionAssert.AreEqual(new[] { "Payment method couldn't be loaded" }, result.Errors.ToArray());
+    }
+
+    [TestMethod]
+    public async Task PaymentService_CancelRecurringPayment_AsksTheProvider()
+    {
+        _paymentProviderMock.Setup(c => c.SystemName).Returns("Payments.Test");
+        _paymentProviderMock.Setup(c => c.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
+            .ReturnsAsync(new CancelRecurringPaymentResult());
+
+        var result = await _paymentService.CancelRecurringPayment(new RecurringPayment
+            { PaymentMethodSystemName = "Payments.Test" });
+
+        Assert.IsTrue(result.Success);
+    }
+
     //a provider written before the recurring contract existed keeps its defaults
     private class LegacyProvider : IPaymentProvider
     {
