@@ -31,6 +31,7 @@ public class RecurringPaymentMessageProviderServiceTests
     private readonly RecurringPayment _recurringPayment =
         new() { Id = "rp1", StoreId = "store1", InitialOrderId = "o1" };
     private Mock<IMessageTemplateService> _messageTemplateServiceMock;
+    private Mock<ILanguageService> _languageServiceMock;
     private List<QueuedEmail> _queued;
     private RecurringPaymentMessageProviderService _service;
 
@@ -42,8 +43,8 @@ public class RecurringPaymentMessageProviderServiceTests
         var queuedEmailService = new Mock<IQueuedEmailService>();
         queuedEmailService.Setup(x => x.InsertQueuedEmail(It.IsAny<QueuedEmail>())).Callback<QueuedEmail>(_queued.Add);
 
-        var languageService = new Mock<ILanguageService>();
-        languageService.Setup(x => x.GetLanguageById(It.IsAny<string>()))
+        _languageServiceMock = new Mock<ILanguageService>();
+        _languageServiceMock.Setup(x => x.GetLanguageById(It.IsAny<string>()))
             .ReturnsAsync(new Language { Id = "en", Published = true });
         var emailAccountService = new Mock<IEmailAccountService>();
         emailAccountService.Setup(x => x.GetEmailAccountById(It.IsAny<string>()))
@@ -57,7 +58,7 @@ public class RecurringPaymentMessageProviderServiceTests
                 default))
             .ReturnsAsync(new LiquidRecurringPayment { CyclePeriod = "Months" });
 
-        var lookup = new MessageLookupService(_messageTemplateServiceMock.Object, languageService.Object,
+        var lookup = new MessageLookupService(_messageTemplateServiceMock.Object, _languageServiceMock.Object,
             emailAccountService.Object, storeService.Object, new EmailAccountSettings());
         _service = new RecurringPaymentMessageProviderService(lookup,
             new MessageProviderService(queuedEmailService.Object), mediator.Object);
@@ -165,5 +166,29 @@ public class RecurringPaymentMessageProviderServiceTests
         Assert.AreEqual(0, withoutEmail);
         Assert.AreEqual(0, withoutCustomer);
         Assert.AreEqual(0, _queued.Count);
+    }
+
+    [TestMethod]
+    public async Task Message_LanguageNotPublished_IsWrittenInTheStoreLanguage()
+    {
+        _languageServiceMock.Setup(x => x.GetLanguageById("hidden"))
+            .ReturnsAsync(new Language { Id = "hidden", Published = false });
+        _languageServiceMock.Setup(x => x.GetAllLanguages(false, "store1"))
+            .ReturnsAsync([new Language { Id = "pl", Published = true }]);
+        _messageTemplateServiceMock.Setup(x =>
+                x.GetMessageTemplateByName(MessageTemplateNames.RecurringPaymentCancelledCustomerNotification, "store1"))
+            .ReturnsAsync(new MessageTemplate {
+                Name = MessageTemplateNames.RecurringPaymentCancelledCustomerNotification, IsActive = true,
+                Subject = "Cancelled", Body = "Body",
+                Locales = {
+                    new TranslationEntity { LanguageId = "hidden", LocaleKey = "Subject", LocaleValue = "Hidden" },
+                    new TranslationEntity { LanguageId = "pl", LocaleKey = "Subject", LocaleValue = "Anulowano" }
+                }
+            });
+
+        await _service.SendRecurringPaymentCancelledCustomerMessage(_recurringPayment, _initialOrder, _customer,
+            "hidden");
+
+        Assert.AreEqual("Anulowano", _queued.Single().Subject);
     }
 }

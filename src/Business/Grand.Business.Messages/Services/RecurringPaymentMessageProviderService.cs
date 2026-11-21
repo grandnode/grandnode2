@@ -71,7 +71,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
         var toEmail = toStoreOwner ? emailAccount.Email : customer.Email;
         var toName = toStoreOwner ? emailAccount.DisplayName : customer.GetFullName();
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
-            languageId, liquidObject,
+            language.Id, liquidObject,
             toEmail, toName,
             reference: Reference.Order, objectId: initialOrder.Id);
     }

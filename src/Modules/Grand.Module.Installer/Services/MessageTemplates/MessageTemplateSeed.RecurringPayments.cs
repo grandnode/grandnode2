@@ -28,7 +28,7 @@ public static partial class MessageTemplateSeed
                 Body = Layout(
                     "A recurring payment was cancelled.",
                     "Recurring payment cancelled",
-                    @"<p>The recurring payment for order #{{Order.OrderNumber}} ({{Customer.Email | Escape}}) was cancelled by {{RecurringPayment.CancelledBy}}.</p>
+                    @"<p>The recurring payment for order #{{Order.OrderNumber}} ({{Customer.Email | Escape}}) was cancelled. Cancelled by: {{RecurringPayment.CancelledBy}}.</p>
                 <ul>{% for item in Order.OrderItems %}<li>{{item.ProductName}}</li>{% endfor %}</ul>
                 <p>Every {{RecurringPayment.CycleLength}} {{RecurringPayment.CyclePeriod}}{% if RecurringPayment.TotalCycles > 0 %}, {{RecurringPayment.CyclesPaid}} of {{RecurringPayment.TotalCycles}} paid{% endif %}</p>"),
                 IsActive = true,
