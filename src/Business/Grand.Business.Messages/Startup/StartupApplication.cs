@@ -20,6 +20,7 @@ public class StartupApplication : IStartupApplication
         services.AddScoped<INewsletterMessageProviderService, NewsletterMessageProviderService>();
         services.AddScoped<ICatalogMessageProviderService, CatalogMessageProviderService>();
         services.AddScoped<IMerchandiseReturnMessageProviderService, MerchandiseReturnMessageProviderService>();
+        services.AddScoped<IRecurringPaymentMessageProviderService, RecurringPaymentMessageProviderService>();
         services.AddScoped<IVendorMessageProviderService, VendorMessageProviderService>();
         services.AddScoped<ICmsMessageProviderService, CmsMessageProviderService>();
         services.AddScoped<IMessageTokenProvider, MessageTokenProvider>();

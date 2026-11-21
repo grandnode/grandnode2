@@ -94,6 +94,7 @@ Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string 
 | `INewsletterMessageProviderService` | newsletter subscription activation and deactivation |
 | `ICatalogMessageProviderService` | email a friend, wishlist, product questions and reviews, low stock, back in stock, auctions and bids |
 | `IMerchandiseReturnMessageProviderService` | merchandise return created, status changed, notes |
+| `IRecurringPaymentMessageProviderService` | recurring payment cancelled and cycle failed, for customer and store owner |
 | `IVendorMessageProviderService` | vendor application, information change, vendor reviews, contact vendor |
 | `ICmsMessageProviderService` | blog, knowledgebase article and news comments |
 
@@ -167,6 +168,7 @@ public class MessageTokensAddedEvent : INotification {
 | `LiquidShipment` | `{{Shipment.*}}` | Shipment |
 | `LiquidProduct` | `{{Product.*}}` | Product |
 | `LiquidMerchandiseReturn` | `{{MerchandiseReturn.*}}` | MerchandiseReturn |
+| `LiquidRecurringPayment` | `{{RecurringPayment.*}}` | RecurringPayment (the initial order comes from `LiquidOrder`) |
 | `LiquidGiftVoucher` | `{{GiftVoucher.*}}` | GiftVoucher |
 | `LiquidNewsLetterSubscription` | `{{NewsLetterSubscription.*}}` | NewsLetterSubscription |
 | `LiquidVendor` | `{{Vendor.*}}` | Vendor |
