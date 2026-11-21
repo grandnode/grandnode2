@@ -589,4 +589,48 @@ public class RecurringPaymentServiceTests
         Assert.AreEqual(0, Published<RecurringPaymentCancelledEvent>().Count);
         Assert.AreEqual(0, Published<RecurringPaymentPastDueEvent>().Count);
     }
+
+    [TestMethod]
+    public async Task GetCustomerRecurringPayments_ReturnsOnlyTheCustomersInTheStore_NewestFirst()
+    {
+        await _repository.InsertAsync(new RecurringPayment {
+            Id = "old", CustomerId = "c1", StoreId = "s1", CreatedOnUtc = new DateTime(2026, 1, 1)
+        });
+        await _repository.InsertAsync(new RecurringPayment {
+            Id = "new", CustomerId = "c1", StoreId = "s1", CreatedOnUtc = new DateTime(2026, 2, 1)
+        });
+        await _repository.InsertAsync(new RecurringPayment { Id = "other-customer", CustomerId = "c2", StoreId = "s1" });
+        await _repository.InsertAsync(new RecurringPayment { Id = "other-store", CustomerId = "c1", StoreId = "s2" });
+
+        var result = await _service.GetCustomerRecurringPayments("c1", "s1");
+
+        CollectionAssert.AreEqual(new[] { "new", "old" }, result.Select(x => x.Id).ToArray());
+    }
+
+    [TestMethod]
+    public async Task HasCustomerRecurringPayments_OnlyTheCustomersInTheStore()
+    {
+        await _repository.InsertAsync(new RecurringPayment { Id = "rp1", CustomerId = "c1", StoreId = "s1" });
+
+        Assert.IsTrue(await _service.HasCustomerRecurringPayments("c1", "s1"));
+        Assert.IsFalse(await _service.HasCustomerRecurringPayments("c1", "s2"));
+        Assert.IsFalse(await _service.HasCustomerRecurringPayments("c2", "s1"));
+    }
+
+    [TestMethod]
+    public async Task HasCustomerRecurringPayments_EmptyCustomerOrStore_False()
+    {
+        await _repository.InsertAsync(new RecurringPayment { CustomerId = "", StoreId = "" });
+
+        Assert.IsFalse(await _service.HasCustomerRecurringPayments("", ""));
+    }
+
+    [TestMethod]
+    public async Task GetCustomerRecurringPayments_EmptyCustomerOrStore_ReturnsNothing()
+    {
+        await _repository.InsertAsync(new RecurringPayment { CustomerId = "", StoreId = "" });
+
+        Assert.AreEqual(0, (await _service.GetCustomerRecurringPayments("", "s1")).Count);
+        Assert.AreEqual(0, (await _service.GetCustomerRecurringPayments("c1", "")).Count);
+    }
 }

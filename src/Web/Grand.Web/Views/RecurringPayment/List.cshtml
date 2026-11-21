@@ -1,0 +1,96 @@
+@using Grand.Domain.Orders
+@model RecurringPaymentListModel
+@inject IPageHeadBuilder pagebuilder
+@{
+    Layout = "_TwoColumns";
+
+    //title
+    pagebuilder.AddTitleParts(Loc["Account.RecurringPayments"]);
+
+    // a double click must not post the cancel twice
+    const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
+    var confirmCancel = System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["RecurringPayment.Cancel.Confirm"].Value);
+}
+
+@section left
+{
+    @await Component.InvokeAsync("CustomerNavigation", new { selectedTabId = AccountNavigationEnum.RecurringPayments })
+}
+
+<div class="page account-page recurring-payments-page ps-lg-3 pt-lg-0 pt-3">
+    <h1 class="h2 generalTitle">@Loc["Account.RecurringPayments"]</h1>
+    @if (Model.RecurringPayments.Any())
+    {
+        <div class="table-responsive">
+            <table class="table hover-table recurring-payments-table">
+                <thead>
+                <tr>
+                    <th scope="col">@Loc["RecurringPayment.Products"]</th>
+                    <th scope="col">@Loc["RecurringPayment.Cycle"]</th>
+                    <th scope="col">@Loc["RecurringPayment.CyclesPaid"]</th>
+                    <th scope="col">@Loc["RecurringPayment.NextPayment"]</th>
+                    <th scope="col">@Loc["RecurringPayment.Status"]</th>
+                    <th scope="col">@Loc["RecurringPayment.InitialOrder"]</th>
+                    <th scope="col"></th>
+                </tr>
+                </thead>
+                <tbody>
+                @foreach (var recurringPayment in Model.RecurringPayments)
+                {
+                    var badge = (RecurringPaymentStatus)recurringPayment.StatusId switch {
+                        RecurringPaymentStatus.Active => "text-bg-success",
+                        RecurringPaymentStatus.Pending or RecurringPaymentStatus.PastDue => "text-bg-warning",
+                        _ => "text-bg-secondary"
+                    };
+                    <tr class="recurring-payment-row">
+                        <td>
+                            <ul class="list-unstyled mb-0">
+                                @foreach (var product in recurringPayment.Products)
+                                {
+                                    <li v-pre>@product</li>
+                                }
+                            </ul>
+                        </td>
+                        <td>@recurringPayment.Cycle</td>
+                        <td>@recurringPayment.CyclesPaid</td>
+                        <td>@(recurringPayment.NextPaymentDate?.ToString("D"))</td>
+                        <td>
+                            <span class="badge status recurring-payment-status-@recurringPayment.StatusId @badge">@recurringPayment.Status</span>
+                            @if (recurringPayment.IsPastDue)
+                            {
+                                <small class="d-block text-danger">@Loc["RecurringPayment.PastDue.Hint"]</small>
+                            }
+                        </td>
+                        <td>
+                            @if (recurringPayment.CanViewInitialOrder)
+                            {
+                                <a class="recurring-payment-order-link" href="@Url.RouteUrl("OrderDetails", new { orderId = recurringPayment.InitialOrderId })">@recurringPayment.InitialOrderNumber</a>
+                            }
+                            else if (recurringPayment.InitialOrderNumber > 0)
+                            {
+                                <span>@recurringPayment.InitialOrderNumber</span>
+                            }
+                        </td>
+                        <td>
+                            @if (recurringPayment.CanCancel)
+                            {
+                                <form asp-route="RecurringPaymentCancel" method="post" class="recurring-payment-cancel" onsubmit="@submitOnce">
+                                    <input type="hidden" name="id" value="@recurringPayment.Id"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('@confirmCancel');">@Loc["RecurringPayment.Cancel"]</button>
+                                </form>
+                            }
+                        </td>
+                    </tr>
+                }
+                </tbody>
+            </table>
+        </div>
+        <page-navigation asp-query-param="pagenumber" asp-pagination="Model.PagingContext"/>
+    }
+    else
+    {
+        <div class="no-data alert alert-info my-3">
+            @Loc["RecurringPayment.NoRecurringPayments"]
+        </div>
+    }
+</div>

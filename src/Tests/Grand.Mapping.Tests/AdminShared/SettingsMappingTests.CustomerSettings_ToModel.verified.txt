@@ -44,5 +44,6 @@
   HideCoursesTab: false,
   TwoFactorAuthenticationEnabled: false,
   HideSubAccountsTab: false,
+  HideRecurringPaymentsTab: false,
   HideDocumentsTab: false
 }

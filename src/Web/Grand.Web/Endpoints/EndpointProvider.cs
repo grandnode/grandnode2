@@ -172,6 +172,14 @@ public class EndpointProvider : IEndpointProvider
             pattern + "orderapproval/decide",
             new { controller = "OrderApproval", action = "Decide" });
 
+        endpointRouteBuilder.MapControllerRoute("CustomerRecurringPayments",
+            pattern + "account/recurringpayments",
+            new { controller = "RecurringPayment", action = "List" });
+
+        endpointRouteBuilder.MapControllerRoute("RecurringPaymentCancel",
+            pattern + "recurringpayment/cancel",
+            new { controller = "RecurringPayment", action = "Cancel" });
+
         endpointRouteBuilder.MapControllerRoute("OrderApprovalWithdraw",
             pattern + "orderapproval/withdraw",
             new { controller = "OrderApproval", action = "Withdraw" });

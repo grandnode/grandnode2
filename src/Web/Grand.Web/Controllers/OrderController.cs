@@ -116,6 +116,7 @@ public class OrderController : BasePublicController
             {
                 Order = order,
                 Customer = customer,
+                Store = _contextAccessor.StoreContext.CurrentStore,
                 Language = _contextAccessor.WorkContext.WorkingLanguage
             });
         model.GuestLink = guestLink;

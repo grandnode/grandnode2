@@ -2616,4 +2616,103 @@
 	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Years" Area="Common">
 		<Value>Years</Value>
 	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Day" Area="Common">
+		<Value>Every day</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Days" Area="Common">
+		<Value>Every {0} days</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Week" Area="Common">
+		<Value>Every week</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Weeks" Area="Common">
+		<Value>Every {0} weeks</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Month" Area="Common">
+		<Value>Every month</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Months" Area="Common">
+		<Value>Every {0} months</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Year" Area="Common">
+		<Value>Every year</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Years" Area="Common">
+		<Value>Every {0} years</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Pending" Area="Common">
+		<Value>Waiting for the first payment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Active" Area="Common">
+		<Value>Active</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.PastDue" Area="Common">
+		<Value>Payment failed</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Cancelled" Area="Common">
+		<Value>Cancelled</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Completed" Area="Common">
+		<Value>Completed</Value>
+	</Resource>
+	<Resource Name="Account.RecurringPayments" Area="Front">
+		<Value>Recurring payments</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Customer.HideRecurringPaymentsTab" Area="Admin">
+		<Value>Hide 'Recurring payments' tab</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Products" Area="Front">
+		<Value>Products</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle" Area="Front">
+		<Value>Billed</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid" Area="Front">
+		<Value>Payments</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid.Of" Area="Front">
+		<Value>{0} of {1}</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid.UntilCancelled" Area="Front">
+		<Value>{0}, until cancelled</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.NextPayment" Area="Front">
+		<Value>Next payment</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Status" Area="Front">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.InitialOrder" Area="Front">
+		<Value>Order</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.PastDue.Hint" Area="Front">
+		<Value>The last payment failed. The payment provider will try again; check the card you pay with.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.NoRecurringPayments" Area="Front">
+		<Value>You have no recurring payments.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel" Area="Front">
+		<Value>Cancel</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Confirm" Area="Front">
+		<Value>Cancel this recurring payment? No further payments will be taken, and it cannot be resumed.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Success" Area="Front">
+		<Value>The recurring payment has been cancelled.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Refused" Area="Front">
+		<Value>This recurring payment cannot be cancelled.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Failed" Area="Front">
+		<Value>The payment provider could not cancel this recurring payment. Please try again later or contact us.</Value>
+	</Resource>
+	<Resource Name="Order.RecurringCycle" Area="Front">
+		<Value>Payment {0} of a recurring order</Value>
+	</Resource>
+	<Resource Name="Order.RecurringCycle.InitialOrder" Area="Front">
+		<Value>placed as order</Value>
+	</Resource>
+	<Resource Name="Order.RecurringPayment.Manage" Area="Front">
+		<Value>Manage the recurring payment</Value>
+	</Resource>
 </Language>

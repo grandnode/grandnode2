@@ -223,6 +223,28 @@ public class RecurringPaymentService(
         return repository.GetOneAsync(x => x.InitialOrderId == initialOrderId);
     }
 
+    public virtual async Task<IPagedList<RecurringPayment>> GetCustomerRecurringPayments(string customerId,
+        string storeId, int pageIndex = 0, int pageSize = int.MaxValue)
+    {
+        if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(storeId))
+            return new PagedList<RecurringPayment>([], pageIndex, pageSize);
+
+        var query = repository.Table
+            .Where(x => x.CustomerId == customerId && x.StoreId == storeId)
+            .OrderByDescending(x => x.CreatedOnUtc);
+
+        return await repository.PagedAsync(query, pageIndex, pageSize);
+    }
+
+    public virtual async Task<bool> HasCustomerRecurringPayments(string customerId, string storeId)
+    {
+        if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(storeId))
+            return false;
+
+        return await repository.AnyAsync(repository.Table
+            .Where(x => x.CustomerId == customerId && x.StoreId == storeId));
+    }
+
     public virtual async Task<bool> HasRecurringProducts(IEnumerable<ShoppingCartItem> cart)
     {
         ArgumentNullException.ThrowIfNull(cart);
