@@ -156,7 +156,8 @@ public class RecurringPaymentService(
             if (recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
                 return new CancelRecurringPaymentResult();
 
-            //a pending payment the gateway never reported has no schedule to stop
+            //a pending payment has no reference to stop yet; the gateway may have started the subscription at checkout,
+            //and the first cycle it reports, recorded on the cancelled payment, stops it
             if (recurringPayment.Status != RecurringPaymentStatus.Pending ||
                 !string.IsNullOrEmpty(recurringPayment.ProviderReference))
             {

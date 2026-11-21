@@ -31,7 +31,7 @@ public class CancelRecurringPaymentCommandHandler(
         }
         catch (Exception e)
         {
-            // a throw is treated as a refusal: the gateway may still be charging, so the status must stay as it is
+            //a throw is treated as a refusal: the gateway may still be charging, so the status must stay as it is
             logger.LogError(e, "Recurring payment {RecurringPaymentId}: the payment gateway could not be asked to stop charging",
                 recurringPayment.Id);
             var result = new CancelRecurringPaymentResult();

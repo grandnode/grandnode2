@@ -350,6 +350,56 @@ public class RecurringPaymentServiceTests
     }
 
     [TestMethod]
+    public async Task Cancel_PendingWithProviderReference_AsksTheGateway()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Pending, 0, providerReference: "sub_1");
+        var calls = 0;
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com", _ =>
+        {
+            calls++;
+            return Task.FromResult(new CancelRecurringPaymentResult());
+        });
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(1, calls);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
+    public async Task Cancel_ActiveWithoutProviderReference_AsksTheGateway()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1);
+        var calls = 0;
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com", _ =>
+        {
+            calls++;
+            return Task.FromResult(new CancelRecurringPaymentResult());
+        });
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(1, calls);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
+    public async Task Cancel_CallbackThrows_ReleasesTheLock()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
+
+        await Assert.ThrowsExactlyAsync<InvalidOperationException>(() => _service.Cancel(rp.Id, "jane@example.com",
+            _ => throw new InvalidOperationException("boom")));
+        Assert.AreEqual(RecurringPaymentStatus.Active, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com",
+            _ => Task.FromResult(new CancelRecurringPaymentResult()));
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
     public async Task Cancel_GatewayRefuses_ReturnsTheErrorsAndKeepsTheStatus()
     {
         var rp = await Insert(RecurringPaymentStatus.PastDue, 1, providerReference: "sub_1");
