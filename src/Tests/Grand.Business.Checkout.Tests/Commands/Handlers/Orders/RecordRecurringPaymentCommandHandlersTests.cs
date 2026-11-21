@@ -166,6 +166,21 @@ public class RecordRecurringPaymentCommandHandlersTests
     }
 
     [TestMethod]
+    public async Task CycleCommand_FirstCycleClaimedAfterCancel_AsksTheProviderToStop()
+    {
+        // a payment cancelled before its first cycle was reported is still charged once at the gateway
+        SetupClaim(1, RecurringPaymentStatus.Cancelled);
+        _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
+            .ReturnsAsync(new CancelRecurringPaymentResult());
+
+        Assert.IsTrue(await CycleHandler().Handle(CycleCommand(), CancellationToken.None));
+
+        _mediator.Verify(x => x.Send(It.IsAny<PlaceRecurringCycleOrderCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _paymentService.Verify(x => x.CancelRecurringPayment(It.Is<RecurringPayment>(r => r.Id == "rp1")), Times.Once);
+    }
+
+    [TestMethod]
     public async Task CycleCommand_NotCompleted_DoesNotAskTheProviderToStop()
     {
         SetupClaim(3);

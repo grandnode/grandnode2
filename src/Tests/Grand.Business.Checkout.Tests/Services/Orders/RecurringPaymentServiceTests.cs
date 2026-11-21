@@ -1,5 +1,6 @@
 using Grand.Business.Checkout.Services.Orders;
 using Grand.Business.Core.Interfaces.Catalog.Products;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Data;
 using Grand.Data.Tests.MongoDb;
 using Grand.Domain.Catalog;
@@ -53,20 +54,6 @@ public class RecurringPaymentServiceTests
     }
 
     [TestMethod]
-    public async Task UpdateRecurringPayment_SavesStatusAndCycles()
-    {
-        var rp = new RecurringPayment { InitialOrderId = "o1" };
-        await _service.InsertRecurringPayment(rp);
-        rp.Status = RecurringPaymentStatus.Active;
-        rp.Cycles.Add(new RecurringPaymentCycle { CycleNumber = 1, OrderId = "o1", ProviderReference = "in_1" });
-        await _service.UpdateRecurringPayment(rp);
-
-        var saved = await _service.GetRecurringPaymentById(rp.Id);
-        Assert.AreEqual(RecurringPaymentStatus.Active, saved.Status);
-        Assert.AreEqual("in_1", saved.Cycles.Single().ProviderReference);
-    }
-
-    [TestMethod]
     public async Task HasRecurringProducts_CartWithRecurringProduct_ReturnsTrue()
     {
         Assert.IsTrue(await _service.HasRecurringProducts([
@@ -89,11 +76,11 @@ public class RecurringPaymentServiceTests
     }
 
     private async Task<RecurringPayment> Insert(RecurringPaymentStatus status, int cyclesPaid, int totalCycles = 12,
-        string lastError = null)
+        string lastError = null, string providerReference = null)
     {
         var rp = new RecurringPayment {
             InitialOrderId = "o1", Status = status, CyclesPaid = cyclesPaid, TotalCycles = totalCycles,
-            LastError = lastError
+            LastError = lastError, ProviderReference = providerReference
         };
         for (var i = 1; i <= cyclesPaid; i++)
             rp.Cycles.Add(new RecurringPaymentCycle {
@@ -316,5 +303,125 @@ public class RecurringPaymentServiceTests
     public async Task RecordEnded_UnknownRecurringPayment_ReturnsFalse()
     {
         Assert.IsFalse(await _service.RecordEnded(UniqueIdentifier.New));
+    }
+
+    private static CancelRecurringPaymentResult Refusal(string error)
+    {
+        var result = new CancelRecurringPaymentResult();
+        result.AddError(error);
+        return result;
+    }
+
+    [TestMethod]
+    public async Task Cancel_PendingWithoutProviderReference_CancelsWithoutTheGateway()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Pending, 0);
+        var calls = 0;
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com", _ =>
+        {
+            calls++;
+            return Task.FromResult(new CancelRecurringPaymentResult());
+        });
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(0, calls);
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
+        Assert.AreEqual("jane@example.com", saved.CancelledBy);
+        Assert.IsNotNull(saved.CancelledOnUtc);
+    }
+
+    [TestMethod]
+    public async Task Cancel_Active_AsksTheGatewayFirst()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
+        RecurringPayment asked = null;
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com", r =>
+        {
+            asked = r;
+            return Task.FromResult(new CancelRecurringPaymentResult());
+        });
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(rp.Id, asked?.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, (await _service.GetRecurringPaymentById(rp.Id)).Status);
+    }
+
+    [TestMethod]
+    public async Task Cancel_GatewayRefuses_ReturnsTheErrorsAndKeepsTheStatus()
+    {
+        var rp = await Insert(RecurringPaymentStatus.PastDue, 1, providerReference: "sub_1");
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com",
+            _ => Task.FromResult(Refusal("declined by gateway")));
+
+        Assert.IsFalse(result.Success);
+        CollectionAssert.Contains(result.Errors.ToList(), "declined by gateway");
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.PastDue, saved.Status);
+        Assert.IsNull(saved.CancelledOnUtc);
+    }
+
+    [TestMethod]
+    [DataRow(RecurringPaymentStatus.Cancelled)]
+    [DataRow(RecurringPaymentStatus.Completed)]
+    public async Task Cancel_CancelledOrCompleted_IsANoOp(RecurringPaymentStatus status)
+    {
+        var rp = await Insert(status, 1, providerReference: "sub_1");
+        rp.CancelledBy = "earlier";
+        await _repository.UpdateAsync(rp);
+        var calls = 0;
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com", _ =>
+        {
+            calls++;
+            return Task.FromResult(new CancelRecurringPaymentResult());
+        });
+
+        Assert.IsTrue(result.Success);
+        Assert.AreEqual(0, calls);
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(status, saved.Status);
+        Assert.AreEqual("earlier", saved.CancelledBy);
+    }
+
+    [TestMethod]
+    public async Task Cancel_UnknownRecurringPayment_ReturnsAnError()
+    {
+        var result = await _service.Cancel(UniqueIdentifier.New, "jane@example.com",
+            _ => Task.FromResult(new CancelRecurringPaymentResult()));
+
+        CollectionAssert.AreEqual(new[] { "The recurring payment was not found" }, result.Errors.ToList());
+    }
+
+    [TestMethod]
+    public async Task Cancel_CycleWebhookDuringTheGatewayCall_WaitsAndIsRecordedOnCancelled()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
+        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, _resourceLock);
+        var gatewayAsked = new TaskCompletionSource();
+        var gatewayAnswer = new TaskCompletionSource<CancelRecurringPaymentResult>();
+
+        var cancel = _service.Cancel(rp.Id, "jane@example.com", _ =>
+        {
+            gatewayAsked.SetResult();
+            return gatewayAnswer.Task;
+        });
+        await gatewayAsked.Task;
+        var claimTask = other.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
+        await Task.Delay(200);
+        Assert.IsFalse(claimTask.IsCompleted);
+
+        gatewayAnswer.SetResult(new CancelRecurringPaymentResult());
+        var result = await cancel;
+        var claim = await claimTask;
+
+        Assert.IsTrue(result.Success);
+        Assert.IsNotNull(claim);
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
+        Assert.AreEqual(2, saved.Cycles.Count);
     }
 }

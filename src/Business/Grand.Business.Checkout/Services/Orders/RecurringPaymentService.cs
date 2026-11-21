@@ -26,16 +26,6 @@ public class RecurringPaymentService(
         await mediator.EntityInserted(recurringPayment);
     }
 
-    public virtual async Task UpdateRecurringPayment(RecurringPayment recurringPayment)
-    {
-        ArgumentNullException.ThrowIfNull(recurringPayment);
-
-        await repository.UpdateAsync(recurringPayment);
-
-        //event notification
-        await mediator.EntityUpdated(recurringPayment);
-    }
-
     public virtual async Task<RecurringCycleClaim> ClaimCycle(string recurringPaymentId, string providerReference,
         string cycleReference, double amount, DateTime paidOnUtc, DateTime? nextPaymentDateUtc)
     {
@@ -142,6 +132,51 @@ public class RecurringPaymentService(
         await mediator.EntityUpdated(recurringPayment);
 
         return true;
+    }
+
+    public virtual async Task<CancelRecurringPaymentResult> Cancel(string recurringPaymentId, string cancelledBy,
+        Func<RecurringPayment, Task<CancelRecurringPaymentResult>> stopAtGateway)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(cancelledBy);
+        ArgumentNullException.ThrowIfNull(stopAtGateway);
+
+        RecurringPayment recurringPayment;
+
+        //the gateway is asked under the lock, so a cycle reported meanwhile is recorded after the cancel and stopped again
+        await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
+        {
+            recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            if (recurringPayment == null)
+            {
+                var notFound = new CancelRecurringPaymentResult();
+                notFound.AddError("The recurring payment was not found");
+                return notFound;
+            }
+
+            if (recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
+                return new CancelRecurringPaymentResult();
+
+            //a pending payment the gateway never reported has no schedule to stop
+            if (recurringPayment.Status != RecurringPaymentStatus.Pending ||
+                !string.IsNullOrEmpty(recurringPayment.ProviderReference))
+            {
+                var result = await stopAtGateway(recurringPayment);
+                //never cancelled while the gateway may still charge
+                if (!result.Success)
+                    return result;
+            }
+
+            recurringPayment.Status = RecurringPaymentStatus.Cancelled;
+            recurringPayment.CancelledOnUtc = DateTime.UtcNow;
+            recurringPayment.CancelledBy = cancelledBy;
+
+            await repository.UpdateAsync(recurringPayment);
+        }
+
+        //event notification
+        await mediator.EntityUpdated(recurringPayment);
+
+        return new CancelRecurringPaymentResult();
     }
 
     private static string LockKey(string recurringPaymentId)

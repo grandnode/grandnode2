@@ -14,11 +14,6 @@ public interface IRecurringPaymentService
     Task InsertRecurringPayment(RecurringPayment recurringPayment);
 
     /// <summary>
-    ///     Updates a recurring payment
-    /// </summary>
-    Task UpdateRecurringPayment(RecurringPayment recurringPayment);
-
-    /// <summary>
     ///     Records a cycle the provider reports as paid, once: under a lock, so a gateway resending the event claims
     ///     nothing. Returns null when the recurring payment is unknown or the cycle reference was already recorded
     /// </summary>
@@ -37,6 +32,15 @@ public interface IRecurringPaymentService
     ///     for an unknown recurring payment or one that is Cancelled or Completed
     /// </summary>
     Task<bool> RecordEnded(string recurringPaymentId);
+
+    /// <summary>
+    ///     Cancels a recurring payment under the same lock, reading it again inside it. Unless it is Pending without a
+    ///     provider reference, stopAtGateway is called first and the payment is cancelled only when it succeeds; its
+    ///     errors are returned otherwise. stopAtGateway must not take the lock. Cancelling a Cancelled or Completed
+    ///     recurring payment succeeds and changes nothing; an unknown one returns an error
+    /// </summary>
+    Task<CancelRecurringPaymentResult> Cancel(string recurringPaymentId, string cancelledBy,
+        Func<RecurringPayment, Task<CancelRecurringPaymentResult>> stopAtGateway);
 
     /// <summary>
     ///     Gets a recurring payment
