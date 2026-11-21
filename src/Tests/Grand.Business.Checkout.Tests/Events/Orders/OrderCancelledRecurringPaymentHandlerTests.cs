@@ -86,6 +86,18 @@ public class OrderCancelledRecurringPaymentHandlerTests
     }
 
     [TestMethod]
+    public async Task OrderCancelled_NoRecurringPayment_SendsNothing()
+    {
+        _recurringPaymentService.Setup(x => x.GetRecurringPaymentByInitialOrderId("o1"))
+            .ReturnsAsync((RecurringPayment)null);
+
+        await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
+
+        CommandNeverSent();
+        _orderService.Verify(x => x.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task OrderCancelled_ProviderRefuses_NotesItOnTheOrder()
     {
         var result = new CancelRecurringPaymentResult();
@@ -121,6 +133,6 @@ public class OrderCancelledRecurringPaymentHandlerTests
         await _handler.Handle(new OrderCancelledEvent(_order), CancellationToken.None);
 
         _logger.Verify(x => x.Log(LogLevel.Error, It.IsAny<EventId>(), It.IsAny<It.IsAnyType>(),
-            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.AtLeastOnce);
+            It.IsAny<Exception>(), It.IsAny<Func<It.IsAnyType, Exception, string>>()), Times.Exactly(2));
     }
 }
