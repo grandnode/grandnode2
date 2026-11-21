@@ -2661,4 +2661,34 @@
 	<Resource Name="Admin.Settings.Customer.HideRecurringPaymentsTab" Area="Admin">
 		<Value>Hide 'Recurring payments' tab</Value>
 	</Resource>
+	<Resource Name="RecurringPayment.Products" Area="Front">
+		<Value>Products</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle" Area="Front">
+		<Value>Billed</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid" Area="Front">
+		<Value>Payments</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid.Of" Area="Front">
+		<Value>{0} of {1}</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid.UntilCancelled" Area="Front">
+		<Value>{0}, until cancelled</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.NextPayment" Area="Front">
+		<Value>Next payment</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Status" Area="Front">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.InitialOrder" Area="Front">
+		<Value>Order</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.PastDue.Hint" Area="Front">
+		<Value>The last payment failed. The payment provider will try again; check the card you pay with.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.NoRecurringPayments" Area="Front">
+		<Value>You have no recurring payments.</Value>
+	</Resource>
 </Language>
