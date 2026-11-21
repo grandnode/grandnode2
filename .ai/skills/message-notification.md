@@ -32,7 +32,7 @@ Do not use this skill as the primary review for MongoDB queries or security; com
 6. Use DotLiquid syntax: `{{Drop.Property}}` for values, `{% if condition %}...{% endif %}` for conditions, `{% for item in Collection %}...{% endfor %}` for loops.
 
 #### Sending Messages
-7. Add a typed send method to the area interface that owns the recipient's flow, `I<Area>MessageProviderService` in `src/Business/Grand.Business.Core/Interfaces/Messages/` (Customer, Order, Newsletter, Catalog, MerchandiseReturn, Vendor, Cms), when the trigger is a recurring, well-defined business event. Follow the signature pattern:
+7. Add a typed send method to the area interface that owns the recipient's flow, `I<Area>MessageProviderService` in `src/Business/Grand.Business.Core/Interfaces/Messages/` (Customer, Order, Newsletter, Catalog, MerchandiseReturn, RecurringPayment, Vendor, Cms), when the trigger is a recurring, well-defined business event. Follow the signature pattern:
    ```csharp
    Task<int> SendXxxMessage(TEntity entity, Store store, string languageId);
    ```

@@ -60,9 +60,9 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
 
         var host = store.LinkHost(null);
         var builder = new LiquidObjectBuilder(_mediator);
-        builder.AddStoreTokens(store, language, emailAccount);
-        builder.AddCustomerTokensIfNotNull(customer, store, host, language);
-        builder.AddOrderTokens(initialOrder, customer, store, host)
+        builder.AddStoreTokens(store, language, emailAccount)
+            .AddCustomerTokensIfNotNull(customer, store, host, language)
+            .AddOrderTokens(initialOrder, customer, store, host)
             .AddRecurringPaymentTokens(recurringPayment, language);
 
         var liquidObject = await builder.BuildAsync();
@@ -83,7 +83,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
         Order initialOrder, Customer customer, string languageId)
     {
         return await SendRecurringPaymentMessage(MessageTemplateNames.RecurringPaymentCancelledCustomerNotification,
-            recurringPayment, initialOrder, customer, languageId, false);
+            recurringPayment, initialOrder, customer, languageId, toStoreOwner: false);
     }
 
     /// <summary>
@@ -93,7 +93,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
         Order initialOrder, Customer customer, string languageId)
     {
         return await SendRecurringPaymentMessage(MessageTemplateNames.RecurringPaymentCancelledStoreOwnerNotification,
-            recurringPayment, initialOrder, customer, languageId, true);
+            recurringPayment, initialOrder, customer, languageId, toStoreOwner: true);
     }
 
     /// <summary>
@@ -103,7 +103,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
         Order initialOrder, Customer customer, string languageId)
     {
         return await SendRecurringPaymentMessage(MessageTemplateNames.RecurringPaymentFailedCustomerNotification,
-            recurringPayment, initialOrder, customer, languageId, false);
+            recurringPayment, initialOrder, customer, languageId, toStoreOwner: false);
     }
 
     /// <summary>
@@ -113,7 +113,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
         Order initialOrder, Customer customer, string languageId)
     {
         return await SendRecurringPaymentMessage(MessageTemplateNames.RecurringPaymentFailedStoreOwnerNotification,
-            recurringPayment, initialOrder, customer, languageId, true);
+            recurringPayment, initialOrder, customer, languageId, toStoreOwner: true);
     }
 
     #endregion

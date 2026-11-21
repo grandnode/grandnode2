@@ -19,9 +19,17 @@ namespace Grand.Business.Messages.Tests.Services;
 [TestClass]
 public class RecurringPaymentMessageProviderServiceTests
 {
-    private readonly Customer _customer = new() { Id = "c1", Email = "customer@example.com" };
+    private readonly Customer _customer = new() {
+        Id = "c1",
+        Email = "customer@example.com",
+        UserFields = {
+            new UserField { Key = SystemCustomerFieldNames.FirstName, Value = "Anna", StoreId = "" },
+            new UserField { Key = SystemCustomerFieldNames.LastName, Value = "Nowak", StoreId = "" }
+        }
+    };
     private readonly Order _initialOrder = new() { Id = "o1", StoreId = "store1", OrderNumber = 1042 };
-    private readonly RecurringPayment _recurringPayment = new() { Id = "rp1", StoreId = "store1", InitialOrderId = "o1" };
+    private readonly RecurringPayment _recurringPayment =
+        new() { Id = "rp1", StoreId = "store1", InitialOrderId = "o1" };
     private Mock<IMessageTemplateService> _messageTemplateServiceMock;
     private List<QueuedEmail> _queued;
     private RecurringPaymentMessageProviderService _service;
@@ -63,6 +71,42 @@ public class RecurringPaymentMessageProviderServiceTests
             });
     }
 
+    private Task<int> Send(string method)
+    {
+        return method switch {
+            nameof(RecurringPaymentMessageProviderService.SendRecurringPaymentCancelledCustomerMessage) =>
+                _service.SendRecurringPaymentCancelledCustomerMessage(_recurringPayment, _initialOrder, _customer, "en"),
+            nameof(RecurringPaymentMessageProviderService.SendRecurringPaymentCancelledStoreOwnerMessage) =>
+                _service.SendRecurringPaymentCancelledStoreOwnerMessage(_recurringPayment, _initialOrder, _customer,
+                    "en"),
+            nameof(RecurringPaymentMessageProviderService.SendRecurringPaymentFailedCustomerMessage) =>
+                _service.SendRecurringPaymentFailedCustomerMessage(_recurringPayment, _initialOrder, _customer, "en"),
+            nameof(RecurringPaymentMessageProviderService.SendRecurringPaymentFailedStoreOwnerMessage) =>
+                _service.SendRecurringPaymentFailedStoreOwnerMessage(_recurringPayment, _initialOrder, _customer, "en"),
+            _ => throw new ArgumentOutOfRangeException(nameof(method), method, null)
+        };
+    }
+
+    [TestMethod]
+    [DataRow(nameof(RecurringPaymentMessageProviderService.SendRecurringPaymentCancelledCustomerMessage),
+        "RecurringPayment.Cancelled.CustomerNotification")]
+    [DataRow(nameof(RecurringPaymentMessageProviderService.SendRecurringPaymentCancelledStoreOwnerMessage),
+        "RecurringPayment.Cancelled.StoreOwnerNotification")]
+    [DataRow(nameof(RecurringPaymentMessageProviderService.SendRecurringPaymentFailedCustomerMessage),
+        "RecurringPayment.PaymentFailed.CustomerNotification")]
+    [DataRow(nameof(RecurringPaymentMessageProviderService.SendRecurringPaymentFailedStoreOwnerMessage),
+        "RecurringPayment.PaymentFailed.StoreOwnerNotification")]
+    public async Task EachMessage_UsesItsOwnTemplate(string method, string templateName)
+    {
+        //only this one name has a template, so a method that looks up another name queues nothing
+        TemplateExists(templateName);
+
+        var result = await Send(method);
+
+        Assert.IsTrue(result > 0);
+        Assert.AreEqual(1, _queued.Count);
+    }
+
     [TestMethod]
     public async Task CancelledCustomerMessage_QueuesToTheCustomer()
     {
@@ -74,6 +118,8 @@ public class RecurringPaymentMessageProviderServiceTests
         Assert.IsTrue(result > 0);
         var email = _queued.Single();
         Assert.AreEqual("customer@example.com", email.To);
+        Assert.AreEqual("Anna Nowak", email.ToName);
+        Assert.AreEqual(_customer.GetFullName(), email.ToName);
         Assert.AreEqual("Every Months", email.Subject);
         Assert.AreEqual(Reference.Order, email.Reference);
         Assert.AreEqual("o1", email.ObjectId);
