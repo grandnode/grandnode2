@@ -2604,4 +2604,16 @@
 	<Resource Name="Checkout.RecurringPayment.NothingToPay" Area="Front">
 		<Value>An order billed in cycles must have something to pay.</Value>
 	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Days" Area="Common">
+		<Value>Days</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Months" Area="Common">
+		<Value>Months</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Weeks" Area="Common">
+		<Value>Weeks</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Years" Area="Common">
+		<Value>Years</Value>
+	</Resource>
 </Language>

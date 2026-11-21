@@ -15,6 +15,18 @@ public static class MessageTemplateNames
     public const string OrderApprovalDecided = "OrderApproval.Decided";
     public const string OrderApprovalStaffRequested = "OrderApproval.StaffRequested";
 
+    public const string RecurringPaymentCancelledCustomerNotification =
+        "RecurringPayment.Cancelled.CustomerNotification";
+
+    public const string RecurringPaymentCancelledStoreOwnerNotification =
+        "RecurringPayment.Cancelled.StoreOwnerNotification";
+
+    public const string RecurringPaymentFailedCustomerNotification =
+        "RecurringPayment.PaymentFailed.CustomerNotification";
+
+    public const string RecurringPaymentFailedStoreOwnerNotification =
+        "RecurringPayment.PaymentFailed.StoreOwnerNotification";
+
     public const string SendOrderPlacedStoreOwnerMessage = "OrderPlaced.StoreOwnerNotification";
     public const string SendOrderPaidStoreOwnerMessage = "OrderPaid.StoreOwnerNotification";
     public const string SendOrderCancelledStoreOwnerMessage = "OrderCancelled.StoreOwnerNotification";

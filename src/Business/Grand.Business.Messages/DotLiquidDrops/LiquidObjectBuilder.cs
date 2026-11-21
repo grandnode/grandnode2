@@ -94,6 +94,19 @@ public class LiquidObjectBuilder
         return this;
     }
 
+    public LiquidObjectBuilder AddRecurringPaymentTokens(RecurringPayment recurringPayment, Language language)
+    {
+        _chain.Add(async liquidObject =>
+        {
+            var liquidRecurringPayment = await _mediator.Send(new GetRecurringPaymentTokensCommand {
+                RecurringPayment = recurringPayment, Language = language
+            });
+            liquidObject.RecurringPayment = liquidRecurringPayment;
+            await _mediator.EntityTokensAdded(recurringPayment, liquidRecurringPayment, liquidObject);
+        });
+        return this;
+    }
+
     public LiquidObjectBuilder AddShipmentTokens(Shipment shipment, Order order, Store store, DomainHost host,
         Language language)
     {

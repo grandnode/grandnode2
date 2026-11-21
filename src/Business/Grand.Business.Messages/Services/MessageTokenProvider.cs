@@ -41,6 +41,7 @@ public class MessageTokenProvider : IMessageTokenProvider
             typeof(LiquidOrderItem),
             typeof(LiquidProduct),
             typeof(LiquidProductReview),
+            typeof(LiquidRecurringPayment),
             typeof(LiquidMerchandiseReturn),
             typeof(LiquidGuestOrderLink),
             typeof(LiquidShipment),

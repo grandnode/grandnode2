@@ -28,24 +28,87 @@ public class RecordRecurringPaymentCommandHandlersTests
         _mediator = new Mock<IMediator>();
     }
 
+    private RecordRecurringPaymentFailureCommandHandler FailureHandler()
+    {
+        return new RecordRecurringPaymentFailureCommandHandler(_service.Object, _paymentService.Object,
+            _orderService.Object, new Mock<ILogger<RecordRecurringPaymentFailureCommandHandler>>().Object);
+    }
+
+    private static RecordRecurringPaymentFailureCommand FailureCommand()
+    {
+        return new RecordRecurringPaymentFailureCommand {
+            RecurringPaymentId = "rp1", ProviderReference = "sub_1", CycleReference = "in_2", Reason = "declined"
+        };
+    }
+
     [TestMethod]
     public async Task FailureCommand_PassesTheReportToTheService()
     {
         _service.Setup(x => x.RecordFailure("rp1", "in_2", "declined")).ReturnsAsync(true);
-        var handler = new RecordRecurringPaymentFailureCommandHandler(_service.Object);
 
-        var result = await handler.Handle(new RecordRecurringPaymentFailureCommand {
-            RecurringPaymentId = "rp1", CycleReference = "in_2", Reason = "declined"
-        }, CancellationToken.None);
+        var result = await FailureHandler().Handle(FailureCommand(), CancellationToken.None);
 
         Assert.IsTrue(result);
         _service.Verify(x => x.RecordFailure("rp1", "in_2", "declined"), Times.Once);
+        _paymentService.Verify(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow(RecurringPaymentStatus.Cancelled)]
+    [DataRow(RecurringPaymentStatus.Completed)]
+    public async Task FailureCommand_OnAnEndedPayment_AsksTheProviderToStopWithTheReportedReference(
+        RecurringPaymentStatus status)
+    {
+        // cancelled while pending, so the shop never learnt the gateway's reference
+        _service.Setup(x => x.GetRecurringPaymentById("rp1")).ReturnsAsync(new RecurringPayment {
+            Id = "rp1", InitialOrderId = "o1", Status = status
+        });
+        _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
+            .ReturnsAsync(new CancelRecurringPaymentResult());
+
+        Assert.IsFalse(await FailureHandler().Handle(FailureCommand(), CancellationToken.None));
+
+        _paymentService.Verify(x => x.CancelRecurringPayment(It.Is<RecurringPayment>(r =>
+            r.Id == "rp1" && r.ProviderReference == "sub_1")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task FailureCommand_OnAnEndedPaymentAndProviderRefuses_NotesItOnTheInitialOrder()
+    {
+        _service.Setup(x => x.GetRecurringPaymentById("rp1")).ReturnsAsync(new RecurringPayment {
+            Id = "rp1", InitialOrderId = "o1", Status = RecurringPaymentStatus.Cancelled, ProviderReference = "sub_1"
+        });
+        var refusal = new CancelRecurringPaymentResult();
+        refusal.AddError("no way");
+        _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>())).ReturnsAsync(refusal);
+
+        await FailureHandler().Handle(FailureCommand(), CancellationToken.None);
+
+        _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n => n.OrderId == "o1" &&
+            n.Note == "The recurring payment is cancelled, but the payment gateway did not confirm it stopped charging: no way")),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task FailureCommand_ForACyclePaidAlreadyOrAnActivePayment_DoesNotAskTheProviderToStop()
+    {
+        var cancelled = new RecurringPayment { Id = "rp1", Status = RecurringPaymentStatus.Cancelled };
+        cancelled.Cycles.Add(new RecurringPaymentCycle { CycleNumber = 2, ProviderReference = "in_2" });
+        _service.Setup(x => x.GetRecurringPaymentById("rp1")).ReturnsAsync(cancelled);
+        await FailureHandler().Handle(FailureCommand(), CancellationToken.None);
+
+        _service.Setup(x => x.GetRecurringPaymentById("rp1")).ReturnsAsync(new RecurringPayment {
+            Id = "rp1", Status = RecurringPaymentStatus.PastDue
+        });
+        await FailureHandler().Handle(FailureCommand(), CancellationToken.None);
+
+        _paymentService.Verify(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()), Times.Never);
     }
 
     [TestMethod]
     public async Task FailureCommand_WithoutRecurringPaymentId_Throws()
     {
-        var handler = new RecordRecurringPaymentFailureCommandHandler(_service.Object);
+        var handler = FailureHandler();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
             handler.Handle(new RecordRecurringPaymentFailureCommand { RecurringPaymentId = "" }, CancellationToken.None));
@@ -87,13 +150,15 @@ public class RecordRecurringPaymentCommandHandlersTests
         };
     }
 
-    private void SetupClaim(int cycleNumber, RecurringPaymentStatus status = RecurringPaymentStatus.Active)
+    private void SetupClaim(int cycleNumber, RecurringPaymentStatus status = RecurringPaymentStatus.Active,
+        bool completed = false)
     {
         var claim = new RecurringCycleClaim {
             RecurringPayment = new RecurringPayment {
                 Id = "rp1", InitialOrderId = "o1", PaymentMethodSystemName = "Payments.Test", Status = status
             },
-            Cycle = new RecurringPaymentCycle { CycleNumber = cycleNumber, OrderId = "o2" }
+            Cycle = new RecurringPaymentCycle { CycleNumber = cycleNumber, OrderId = "o2" },
+            Completed = completed
         };
         _service.Setup(x => x.ClaimCycle("rp1", "sub_1", "in_2", 10, It.IsAny<DateTime>(), null)).ReturnsAsync(claim);
     }
@@ -154,7 +219,7 @@ public class RecordRecurringPaymentCommandHandlersTests
     [TestMethod]
     public async Task CycleCommand_Completed_AsksTheProviderToStop()
     {
-        SetupClaim(3, RecurringPaymentStatus.Completed);
+        SetupClaim(3, RecurringPaymentStatus.Completed, completed: true);
         _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
             .ReturnsAsync(new CancelRecurringPaymentResult());
 
@@ -163,6 +228,38 @@ public class RecordRecurringPaymentCommandHandlersTests
         Assert.IsTrue(result);
         _paymentService.Verify(x => x.CancelRecurringPayment(It.Is<RecurringPayment>(r => r.Id == "rp1")), Times.Once);
         _orderService.Verify(x => x.InsertOrderNote(It.IsAny<OrderNote>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task CycleCommand_FirstCycleClaimedAfterCancel_AsksTheProviderToStop()
+    {
+        // a payment cancelled before its first cycle was reported is still charged once at the gateway
+        SetupClaim(1, RecurringPaymentStatus.Cancelled);
+        _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
+            .ReturnsAsync(new CancelRecurringPaymentResult());
+
+        Assert.IsTrue(await CycleHandler().Handle(CycleCommand(), CancellationToken.None));
+
+        _mediator.Verify(x => x.Send(It.IsAny<PlaceRecurringCycleOrderCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _paymentService.Verify(x => x.CancelRecurringPayment(It.Is<RecurringPayment>(r => r.Id == "rp1")), Times.Once);
+        _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n => n.OrderId == "o1" && !n.DisplayToCustomer &&
+            n.Note == "Cycle 1 was charged at the payment gateway (in_2) after the recurring payment was cancelled: check whether the customer must be refunded")),
+            Times.Once);
+    }
+
+    [TestMethod]
+    public async Task CycleCommand_ChargedAfterCompleted_NotesItForARefund()
+    {
+        SetupClaim(4, RecurringPaymentStatus.Completed);
+        _paymentService.Setup(x => x.CancelRecurringPayment(It.IsAny<RecurringPayment>()))
+            .ReturnsAsync(new CancelRecurringPaymentResult());
+
+        Assert.IsTrue(await CycleHandler().Handle(CycleCommand(), CancellationToken.None));
+
+        _orderService.Verify(x => x.InsertOrderNote(It.Is<OrderNote>(n =>
+            n.Note == "Cycle 4 was charged at the payment gateway (in_2) after the recurring payment was completed: check whether the customer must be refunded")),
+            Times.Once);
     }
 
     [TestMethod]
@@ -311,7 +408,7 @@ public class RecordRecurringPaymentCommandHandlersTests
     [TestMethod]
     public async Task FailureCommand_WithoutCycleReference_Throws()
     {
-        var handler = new RecordRecurringPaymentFailureCommandHandler(_service.Object);
+        var handler = FailureHandler();
 
         await Assert.ThrowsExactlyAsync<ArgumentException>(() =>
             handler.Handle(new RecordRecurringPaymentFailureCommand { RecurringPaymentId = "rp1", CycleReference = "" },

@@ -32,7 +32,7 @@ Do not use this skill as the primary review for MongoDB queries or security; com
 6. Use DotLiquid syntax: `{{Drop.Property}}` for values, `{% if condition %}...{% endif %}` for conditions, `{% for item in Collection %}...{% endfor %}` for loops.
 
 #### Sending Messages
-7. Add a typed send method to the area interface that owns the recipient's flow, `I<Area>MessageProviderService` in `src/Business/Grand.Business.Core/Interfaces/Messages/` (Customer, Order, Newsletter, Catalog, MerchandiseReturn, Vendor, Cms), when the trigger is a recurring, well-defined business event. Follow the signature pattern:
+7. Add a typed send method to the area interface that owns the recipient's flow, `I<Area>MessageProviderService` in `src/Business/Grand.Business.Core/Interfaces/Messages/` (Customer, Order, Newsletter, Catalog, MerchandiseReturn, RecurringPayment, Vendor, Cms), when the trigger is a recurring, well-defined business event. Follow the signature pattern:
    ```csharp
    Task<int> SendXxxMessage(TEntity entity, Store store, string languageId);
    ```
@@ -94,6 +94,7 @@ Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string 
 | `INewsletterMessageProviderService` | newsletter subscription activation and deactivation |
 | `ICatalogMessageProviderService` | email a friend, wishlist, product questions and reviews, low stock, back in stock, auctions and bids |
 | `IMerchandiseReturnMessageProviderService` | merchandise return created, status changed, notes |
+| `IRecurringPaymentMessageProviderService` | recurring payment cancelled and cycle failed, for customer and store owner |
 | `IVendorMessageProviderService` | vendor application, information change, vendor reviews, contact vendor |
 | `ICmsMessageProviderService` | blog, knowledgebase article and news comments |
 
@@ -167,6 +168,7 @@ public class MessageTokensAddedEvent : INotification {
 | `LiquidShipment` | `{{Shipment.*}}` | Shipment |
 | `LiquidProduct` | `{{Product.*}}` | Product |
 | `LiquidMerchandiseReturn` | `{{MerchandiseReturn.*}}` | MerchandiseReturn |
+| `LiquidRecurringPayment` | `{{RecurringPayment.*}}` | RecurringPayment (the initial order comes from `LiquidOrder`) |
 | `LiquidGiftVoucher` | `{{GiftVoucher.*}}` | GiftVoucher |
 | `LiquidNewsLetterSubscription` | `{{NewsLetterSubscription.*}}` | NewsLetterSubscription |
 | `LiquidVendor` | `{{Vendor.*}}` | Vendor |
