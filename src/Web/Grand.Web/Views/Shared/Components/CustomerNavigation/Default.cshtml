@@ -29,6 +29,14 @@
                 </a>
             </li>
         }
+        @if (!Model.HideRecurringPayments)
+        {
+            <li class="customer-recurringpayments">
+                <a href="@Url.RouteUrl("CustomerRecurringPayments")" class="@if (Model.SelectedTab == AccountNavigationEnum.RecurringPayments) { <text>active</text> }else { <text>inactive</text> }">
+                    <i class="b-icon bi bi-arrow-repeat" aria-hidden="true"></i> <span>@Loc["Account.RecurringPayments"]</span>
+                </a>
+            </li>
+        }
         @if (!Model.HideCourses)
         {
             <li class="customer-auctions">

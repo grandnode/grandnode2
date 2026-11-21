@@ -97,6 +97,11 @@ public class CustomerSettings : ISettings
     public bool HideSubAccountsTab { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether to hide 'Recurring payments' tab on 'My account' page
+    /// </summary>
+    public bool HideRecurringPaymentsTab { get; set; }
+
+    /// <summary>
     ///     Gets or sets a value indicating whether to validate user when downloading products
     /// </summary>
     public bool DownloadableProductsValidateUser { get; set; }

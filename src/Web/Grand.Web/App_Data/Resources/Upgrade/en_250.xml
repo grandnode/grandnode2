@@ -2655,4 +2655,10 @@
 	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Completed" Area="Common">
 		<Value>Completed</Value>
 	</Resource>
+	<Resource Name="Account.RecurringPayments" Area="Front">
+		<Value>Recurring payments</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Customer.HideRecurringPaymentsTab" Area="Admin">
+		<Value>Hide 'Recurring payments' tab</Value>
+	</Resource>
 </Language>

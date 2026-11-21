@@ -20,6 +20,7 @@ public class CustomerNavigationModel : BaseModel
     public bool HideCourses { get; set; }
     public bool HideSubAccounts { get; set; }
     public bool HideOrderApprovals { get; set; }
+    public bool HideRecurringPayments { get; set; }
     public AccountNavigationEnum SelectedTab { get; set; }
 }
 
@@ -28,6 +29,7 @@ public enum AccountNavigationEnum
     Info = 0,
     Addresses = 10,
     Orders = 20,
+    RecurringPayments = 25,
     OutOfStockSubscriptions = 30,
     MerchandiseReturns = 40,
     DownloadableProducts = 50,

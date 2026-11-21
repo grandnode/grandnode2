@@ -183,6 +183,9 @@ public class CustomerSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.Customer.HideSubaccountsTab")]
         public bool HideSubAccountsTab { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Customer.HideRecurringPaymentsTab")]
+        public bool HideRecurringPaymentsTab { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Customer.HideDocumentsTab")]
         public bool HideDocumentsTab { get; set; }
         
