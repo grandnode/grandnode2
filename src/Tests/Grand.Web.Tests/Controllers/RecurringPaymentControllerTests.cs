@@ -1,6 +1,9 @@
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
+using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.Mediator;
 using Grand.Web.Common.Localization;
@@ -88,5 +91,105 @@ public class RecurringPaymentControllerTests
         _mediator.Verify(m => m.Send(
             It.Is<GetRecurringPayments>(q => q.Customer.Id == "buyer" && q.Store.Id == "s1" && q.Language.Id == "en"),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    //cancelling
+
+    private void Stored(RecurringPayment recurringPayment)
+    {
+        _recurringPaymentService.Setup(x => x.GetRecurringPaymentById(recurringPayment.Id))
+            .ReturnsAsync(recurringPayment);
+    }
+
+    private void GatewayAnswers(params string[] errors)
+    {
+        var result = new CancelRecurringPaymentResult();
+        foreach (var error in errors)
+            result.AddError(error);
+        _mediator.Setup(m => m.Send(It.IsAny<CancelRecurringPaymentCommand>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(result);
+    }
+
+    private void AssertNotCancelled()
+    {
+        _mediator.Verify(m => m.Send(It.IsAny<CancelRecurringPaymentCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Cancel_OwnPayment_SendsTheCommandWithTheCustomersEmail()
+    {
+        var recurringPayment = new RecurringPayment { Id = "rp1", CustomerId = "buyer", StoreId = "s1" };
+        Stored(recurringPayment);
+        GatewayAnswers();
+
+        var result = await _controller.Cancel("rp1");
+
+        AssertRedirectTo(result, "CustomerRecurringPayments");
+        _mediator.Verify(m => m.Send(
+            It.Is<CancelRecurringPaymentCommand>(c =>
+                c.RecurringPayment == recurringPayment && c.CancelledBy == "buyer@shop.test"),
+            It.IsAny<CancellationToken>()), Times.Once);
+        CollectionAssert.Contains(Notifications("success").ToList(), "RecurringPayment.Cancel.Success");
+    }
+
+    [TestMethod]
+    public async Task Cancel_OtherCustomersPayment_Refused()
+    {
+        Stored(new RecurringPayment { Id = "rp1", CustomerId = "someone-else", StoreId = "s1" });
+
+        var result = await _controller.Cancel("rp1");
+
+        AssertRedirectTo(result, "CustomerRecurringPayments");
+        AssertNotCancelled();
+        CollectionAssert.Contains(Notifications("error").ToList(), "RecurringPayment.Cancel.Refused");
+    }
+
+    [TestMethod]
+    public async Task Cancel_OtherStoresPayment_Refused()
+    {
+        Stored(new RecurringPayment { Id = "rp1", CustomerId = "buyer", StoreId = "s2" });
+
+        var result = await _controller.Cancel("rp1");
+
+        AssertRedirectTo(result, "CustomerRecurringPayments");
+        AssertNotCancelled();
+        CollectionAssert.Contains(Notifications("error").ToList(), "RecurringPayment.Cancel.Refused");
+    }
+
+    [TestMethod]
+    public async Task Cancel_UnknownId_Refused()
+    {
+        var result = await _controller.Cancel("missing");
+
+        AssertRedirectTo(result, "CustomerRecurringPayments");
+        AssertNotCancelled();
+        CollectionAssert.Contains(Notifications("error").ToList(), "RecurringPayment.Cancel.Refused");
+    }
+
+    [TestMethod]
+    public async Task Cancel_ProviderRefuses_ShowsTheGenericMessageNotTheProviderText()
+    {
+        Stored(new RecurringPayment { Id = "rp1", CustomerId = "buyer", StoreId = "s1" });
+        GatewayAnswers("stripe: resource_missing");
+
+        var result = await _controller.Cancel("rp1");
+
+        AssertRedirectTo(result, "CustomerRecurringPayments");
+        CollectionAssert.Contains(Notifications("error").ToList(), "RecurringPayment.Cancel.Failed");
+        Assert.IsFalse(Notifications("error").Concat(Notifications("success")).Any(x => x.Contains("stripe")));
+    }
+
+    [TestMethod]
+    public async Task Cancel_TabOff_RedirectsToCustomerInfo()
+    {
+        _customerSettings.HideRecurringPaymentsTab = true;
+        Stored(new RecurringPayment { Id = "rp1", CustomerId = "buyer", StoreId = "s1" });
+
+        var result = await _controller.Cancel("rp1");
+
+        AssertRedirectTo(result, "CustomerInfo");
+        _recurringPaymentService.Verify(x => x.GetRecurringPaymentById(It.IsAny<string>()), Times.Never);
+        AssertNotCancelled();
     }
 }

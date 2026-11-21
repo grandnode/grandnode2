@@ -2691,4 +2691,19 @@
 	<Resource Name="RecurringPayment.NoRecurringPayments" Area="Front">
 		<Value>You have no recurring payments.</Value>
 	</Resource>
+	<Resource Name="RecurringPayment.Cancel" Area="Front">
+		<Value>Cancel</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Confirm" Area="Front">
+		<Value>Cancel this recurring payment? No further payments will be taken, and it cannot be resumed.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Success" Area="Front">
+		<Value>The recurring payment has been cancelled.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Refused" Area="Front">
+		<Value>This recurring payment cannot be cancelled.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Failed" Area="Front">
+		<Value>The payment provider could not cancel this recurring payment. Please try again later or contact us.</Value>
+	</Resource>
 </Language>

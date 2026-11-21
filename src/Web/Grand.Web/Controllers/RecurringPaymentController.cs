@@ -1,3 +1,4 @@
+using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -55,5 +56,43 @@ public class RecurringPaymentController : BasePublicController
             Command = command
         });
         return View(model);
+    }
+
+    /// <param name="id">Recurring payment identifier</param>
+    [HttpPost]
+    [CustomerGroupAuthorize(SystemCustomerGroupNames.Registered)]
+    public virtual async Task<IActionResult> Cancel(string id)
+    {
+        if (_customerSettings.HideRecurringPaymentsTab)
+            return RedirectToRoute("CustomerInfo");
+
+        var customer = _contextAccessor.WorkContext.CurrentCustomer;
+        var recurringPayment = await _recurringPaymentService.GetRecurringPaymentById(id);
+        //a missing, foreign or other-store recurring payment is answered alike
+        if (recurringPayment == null || recurringPayment.CustomerId != customer.Id ||
+            recurringPayment.StoreId != _contextAccessor.StoreContext.CurrentStore.Id)
+        {
+            Error(_translationService.GetResource("RecurringPayment.Cancel.Refused"));
+            return RedirectToRoute("CustomerRecurringPayments");
+        }
+
+        var result = await _mediator.Send(new CancelRecurringPaymentCommand {
+            RecurringPayment = recurringPayment,
+            CancelledBy = customer.Email
+        });
+
+        if (result.Success)
+        {
+            Success(_translationService.GetResource("RecurringPayment.Cancel.Success"));
+        }
+        else
+        {
+            //the provider's words are for the store, not the customer
+            _logger.LogWarning("Recurring payment {RecurringPaymentId}: the customer's cancel was refused: {Errors}",
+                recurringPayment.Id, string.Join("; ", result.Errors));
+            Error(_translationService.GetResource("RecurringPayment.Cancel.Failed"));
+        }
+
+        return RedirectToRoute("CustomerRecurringPayments");
     }
 }

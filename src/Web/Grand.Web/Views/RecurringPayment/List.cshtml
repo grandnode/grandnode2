@@ -6,6 +6,10 @@
 
     //title
     pagebuilder.AddTitleParts(Loc["Account.RecurringPayments"]);
+
+    // a double click must not post the cancel twice
+    const string submitOnce = "if (this.dataset.sent) { return false; } this.dataset.sent = '1'; var f = this; setTimeout(function () { f.querySelectorAll('button[type=submit]').forEach(function (b) { b.disabled = true; }); }, 0);";
+    var confirmCancel = System.Text.Encodings.Web.JavaScriptEncoder.Default.Encode(Loc["RecurringPayment.Cancel.Confirm"].Value);
 }
 
 @section left
@@ -67,7 +71,15 @@
                                 <span>@recurringPayment.InitialOrderNumber</span>
                             }
                         </td>
-                        <td></td>
+                        <td>
+                            @if (recurringPayment.CanCancel)
+                            {
+                                <form asp-route="RecurringPaymentCancel" method="post" class="recurring-payment-cancel" onsubmit="@submitOnce">
+                                    <input type="hidden" name="id" value="@recurringPayment.Id"/>
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('@confirmCancel');">@Loc["RecurringPayment.Cancel"]</button>
+                                </form>
+                            }
+                        </td>
                     </tr>
                 }
                 </tbody>
