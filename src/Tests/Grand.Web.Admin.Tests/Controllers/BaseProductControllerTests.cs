@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain;
 using Grand.Domain.Catalog;
+using Grand.Domain.Localization;
 using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
@@ -103,6 +104,23 @@ public class BaseProductControllerTests : ProductControllerTestsBase<BaseProduct
         Assert.IsInstanceOfType<ViewResult>(result);
         _productViewModelServiceMock.Verify(
             s => s.PrepareProductModel(It.IsAny<ProductModel>(), product, false, false), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task EditGet_FillsTheTranslatedFlagOfEachLanguage()
+    {
+        var product = new Product { Id = "p1", Flag = "New" };
+        product.Locales.Add(new TranslationEntity { LanguageId = "de", LocaleKey = "Flag", LocaleValue = "Neu" });
+        _productServiceMock.Setup(p => p.GetProductById("p1", true)).ReturnsAsync(product);
+        _scopeMock.Setup(s => s.CanView(product)).ReturnsAsync(true);
+        _languageServiceMock.Setup(l => l.GetAllLanguages(true, It.IsAny<string>()))
+            .ReturnsAsync(new List<Language> { new() { Id = "de" }, new() { Id = "fr" } });
+
+        var result = (ViewResult)await _controller.Edit("p1");
+
+        var locales = ((ProductModel)result.Model!).Locales;
+        Assert.AreEqual("Neu", locales.Single(l => l.LanguageId == "de").Flag);
+        Assert.IsNull(locales.Single(l => l.LanguageId == "fr").Flag);
     }
 
     [TestMethod]

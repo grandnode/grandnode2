@@ -372,7 +372,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             Name = product.GetTranslation(x => x.Name, _contextAccessor.WorkContext.WorkingLanguage.Id),
             ShortDescription = product.GetTranslation(x => x.ShortDescription, _contextAccessor.WorkContext.WorkingLanguage.Id),
             FullDescription = product.GetTranslation(x => x.FullDescription, _contextAccessor.WorkContext.WorkingLanguage.Id),
-            Flag = product.Flag,
+            Flag = product.GetTranslation(x => x.Flag, _contextAccessor.WorkContext.WorkingLanguage.Id),
             MetaKeywords = product.GetTranslation(x => x.MetaKeywords, _contextAccessor.WorkContext.WorkingLanguage.Id),
             MetaDescription = product.GetTranslation(x => x.MetaDescription, _contextAccessor.WorkContext.WorkingLanguage.Id),
             MetaTitle = product.GetTranslation(x => x.MetaTitle, _contextAccessor.WorkContext.WorkingLanguage.Id),

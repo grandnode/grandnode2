@@ -1125,6 +1125,9 @@ public class ProductLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.MetaTitle")]
     public string MetaTitle { get; set; }
 
+    [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Flag")]
+    public string Flag { get; set; }
+
     public string LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.SeName")]
