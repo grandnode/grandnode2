@@ -33,7 +33,7 @@ public class GetOrderDetailsHandlerRecurringTests
     [TestInitialize]
     public void Init()
     {
-        _initialOrder = new Order { Id = "o1", OrderNumber = 1001, CustomerId = "buyer" };
+        _initialOrder = new Order { Id = "o1", OrderNumber = 1001, CustomerId = "buyer", StoreId = "s1" };
         _customerSettings = new CustomerSettings();
 
         var dateTimeService = new Mock<IDateTimeService>();
@@ -57,11 +57,12 @@ public class GetOrderDetailsHandlerRecurringTests
             _customerSettings);
     }
 
-    private Task<OrderDetailsModel> Details(Order order, string viewerId = "buyer")
+    private Task<OrderDetailsModel> Details(Order order, string viewerId = "buyer", string storeId = "s1")
     {
         return _handler.Handle(new GetOrderDetails {
             Order = order,
             Customer = new Customer { Id = viewerId },
+            Store = new Domain.Stores.Store { Id = storeId },
             Language = new Language { Id = "en" }
         }, CancellationToken.None);
     }
@@ -111,6 +112,16 @@ public class GetOrderDetailsHandlerRecurringTests
         _initialOrder.RecurringCycleNumber = 1;
 
         var model = await Details(_initialOrder, "owner");
+
+        Assert.IsFalse(model.ShowRecurringPaymentsLink);
+    }
+
+    [TestMethod]
+    public async Task GetOrderDetails_InitialOrder_ViewedInAnotherStore_NoTabLink()
+    {
+        _initialOrder.RecurringCycleNumber = 1;
+
+        var model = await Details(_initialOrder, storeId: "s2");
 
         Assert.IsFalse(model.ShowRecurringPaymentsLink);
     }

@@ -83,7 +83,6 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
         if (store == null)
             return false;
 
-        var recurringPayments = await _recurringPaymentService.GetCustomerRecurringPayments(customer.Id, store.Id, 0, 1);
-        return recurringPayments.TotalCount > 0;
+        return await _recurringPaymentService.HasCustomerRecurringPayments(customer.Id, store.Id);
     }
 }

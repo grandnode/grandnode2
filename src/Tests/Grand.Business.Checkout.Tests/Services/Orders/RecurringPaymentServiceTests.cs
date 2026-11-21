@@ -608,6 +608,24 @@ public class RecurringPaymentServiceTests
     }
 
     [TestMethod]
+    public async Task HasCustomerRecurringPayments_OnlyTheCustomersInTheStore()
+    {
+        await _repository.InsertAsync(new RecurringPayment { Id = "rp1", CustomerId = "c1", StoreId = "s1" });
+
+        Assert.IsTrue(await _service.HasCustomerRecurringPayments("c1", "s1"));
+        Assert.IsFalse(await _service.HasCustomerRecurringPayments("c1", "s2"));
+        Assert.IsFalse(await _service.HasCustomerRecurringPayments("c2", "s1"));
+    }
+
+    [TestMethod]
+    public async Task HasCustomerRecurringPayments_EmptyCustomerOrStore_False()
+    {
+        await _repository.InsertAsync(new RecurringPayment { CustomerId = "", StoreId = "" });
+
+        Assert.IsFalse(await _service.HasCustomerRecurringPayments("", ""));
+    }
+
+    [TestMethod]
     public async Task GetCustomerRecurringPayments_EmptyCustomerOrStore_ReturnsNothing()
     {
         await _repository.InsertAsync(new RecurringPayment { CustomerId = "", StoreId = "" });

@@ -360,11 +360,12 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
         model.RecurringCycleNumber = request.Order.RecurringCycleNumber;
         switch (request.Order.RecurringCycleNumber)
         {
-            //the tab lists the customer's own recurring payments, so a company owner viewing a sub-account's order
-            //has nowhere to go
+            //the tab lists the customer's own recurring payments in the current store, so a company owner viewing a
+            //sub-account's order, or an order placed in another store, has nowhere to go
             case 1:
                 model.ShowRecurringPaymentsLink = !_customerSettings.HideRecurringPaymentsTab &&
-                                                  request.Customer.Id == request.Order.CustomerId;
+                                                  request.Customer.Id == request.Order.CustomerId &&
+                                                  request.Store?.Id == request.Order.StoreId;
                 break;
             //a cycle order copies the initial order's customer and owner, so whoever opens one can open the other
             case > 1 when !string.IsNullOrEmpty(request.Order.InitialOrderId):

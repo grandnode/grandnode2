@@ -60,6 +60,12 @@ public interface IRecurringPaymentService
         int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
+    ///     Gets a value indicating whether a customer has a recurring payment in a store; false for an empty customer
+    ///     or store
+    /// </summary>
+    Task<bool> HasCustomerRecurringPayments(string customerId, string storeId);
+
+    /// <summary>
     ///     Gets a value indicating whether the cart holds a product billed in cycles
     /// </summary>
     Task<bool> HasRecurringProducts(IEnumerable<ShoppingCartItem> cart);

@@ -32,8 +32,7 @@ public class GetNavigationHandlerTests
     private static Mock<IRecurringPaymentService> RecurringPaymentsWith(int recurringPayments)
     {
         var recurring = new Mock<IRecurringPaymentService>();
-        recurring.Setup(x => x.GetCustomerRecurringPayments("c1", "s1", 0, 1))
-            .ReturnsAsync(new PagedList<RecurringPayment>([], 0, 1, recurringPayments));
+        recurring.Setup(x => x.HasCustomerRecurringPayments("c1", "s1")).ReturnsAsync(recurringPayments > 0);
         return recurring;
     }
 

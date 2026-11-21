@@ -79,8 +79,7 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
                 CreatedOn = _dateTimeService.ConvertToUserTime(recurringPayment.CreatedOnUtc, DateTimeKind.Utc),
                 StatusId = (int)recurringPayment.Status,
                 Status = _enumTranslationService.GetTranslationEnum(recurringPayment.Status),
-                CanCancel = recurringPayment.Status is RecurringPaymentStatus.Pending or RecurringPaymentStatus.Active
-                    or RecurringPaymentStatus.PastDue,
+                CanCancel = !recurringPayment.Status.HasEnded(),
                 IsPastDue = recurringPayment.Status == RecurringPaymentStatus.PastDue,
                 Cycle = string.Format(
                     _translationService.GetResource(RecurringCycleText.ResourceKey(recurringPayment.CycleLength,

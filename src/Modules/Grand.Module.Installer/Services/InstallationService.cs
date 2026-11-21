@@ -942,8 +942,8 @@ public partial class InstallationService : IInstallationService
             OrderBuilder<RecurringPayment>.Create().Ascending(x => x.InitialOrderId), "InitialOrderId", true);
         //the My account tab lists a customer's recurring payments in a store
         await dbContext.CreateIndex(_serviceProvider.GetRequiredService<IRepository<RecurringPayment>>(),
-            OrderBuilder<RecurringPayment>.Create().Ascending(x => x.CustomerId).Ascending(x => x.StoreId),
-            "CustomerId_StoreId");
+            OrderBuilder<RecurringPayment>.Create().Ascending(x => x.CustomerId).Ascending(x => x.StoreId)
+                .Descending(x => x.CreatedOnUtc), "CustomerId_StoreId_CreatedOnUtc");
 
         //queuemail
         await dbContext.CreateIndex(_queuedEmailRepository,

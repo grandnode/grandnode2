@@ -1,4 +1,5 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -68,9 +69,10 @@ public class RecurringPaymentController : BasePublicController
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var recurringPayment = await _recurringPaymentService.GetRecurringPaymentById(id);
-        //a missing, foreign or other-store recurring payment is answered alike
+        //a missing, foreign, other-store or ended recurring payment is answered alike
         if (recurringPayment == null || recurringPayment.CustomerId != customer.Id ||
-            recurringPayment.StoreId != _contextAccessor.StoreContext.CurrentStore.Id)
+            recurringPayment.StoreId != _contextAccessor.StoreContext.CurrentStore.Id ||
+            recurringPayment.Status.HasEnded())
         {
             Error(_translationService.GetResource("RecurringPayment.Cancel.Refused"));
             return RedirectToRoute("CustomerRecurringPayments");
@@ -78,7 +80,8 @@ public class RecurringPaymentController : BasePublicController
 
         var result = await _mediator.Send(new CancelRecurringPaymentCommand {
             RecurringPayment = recurringPayment,
-            CancelledBy = customer.Email
+            //a registered customer may have no e-mail, while the cancel must name who asked
+            CancelledBy = string.IsNullOrEmpty(customer.Email) ? customer.Id : customer.Email
         });
 
         if (result.Success)

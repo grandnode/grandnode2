@@ -236,6 +236,15 @@ public class RecurringPaymentService(
         return await repository.PagedAsync(query, pageIndex, pageSize);
     }
 
+    public virtual async Task<bool> HasCustomerRecurringPayments(string customerId, string storeId)
+    {
+        if (string.IsNullOrEmpty(customerId) || string.IsNullOrEmpty(storeId))
+            return false;
+
+        return await repository.AnyAsync(repository.Table
+            .Where(x => x.CustomerId == customerId && x.StoreId == storeId));
+    }
+
     public virtual async Task<bool> HasRecurringProducts(IEnumerable<ShoppingCartItem> cart)
     {
         ArgumentNullException.ThrowIfNull(cart);

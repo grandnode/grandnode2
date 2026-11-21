@@ -158,6 +158,34 @@ public class RecurringPaymentControllerTests
     }
 
     [TestMethod]
+    [DataRow(RecurringPaymentStatus.Cancelled)]
+    [DataRow(RecurringPaymentStatus.Completed)]
+    public async Task Cancel_EndedPayment_Refused(RecurringPaymentStatus status)
+    {
+        Stored(new RecurringPayment { Id = "rp1", CustomerId = "buyer", StoreId = "s1", Status = status });
+
+        var result = await _controller.Cancel("rp1");
+
+        AssertRedirectTo(result, "CustomerRecurringPayments");
+        AssertNotCancelled();
+        CollectionAssert.Contains(Notifications("error").ToList(), "RecurringPayment.Cancel.Refused");
+        Assert.IsFalse(Notifications("success").Any());
+    }
+
+    [TestMethod]
+    public async Task Cancel_CustomerWithoutEmail_CancelledByTheirId()
+    {
+        _customer.Email = null;
+        Stored(new RecurringPayment { Id = "rp1", CustomerId = "buyer", StoreId = "s1" });
+        GatewayAnswers();
+
+        await _controller.Cancel("rp1");
+
+        _mediator.Verify(m => m.Send(It.Is<CancelRecurringPaymentCommand>(c => c.CancelledBy == "buyer"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
     public async Task Cancel_UnknownId_Refused()
     {
         var result = await _controller.Cancel("missing");

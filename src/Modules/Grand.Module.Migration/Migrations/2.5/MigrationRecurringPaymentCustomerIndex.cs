@@ -8,7 +8,7 @@ namespace Grand.Module.Migration.Migrations._2._5;
 
 public class MigrationRecurringPaymentCustomerIndex : IMigration
 {
-    private const string IndexName = "CustomerId_StoreId";
+    private const string IndexName = "CustomerId_StoreId_CreatedOnUtc";
 
     public int Priority => 1;
     public DbVersion Version => new(2, 5);
@@ -23,10 +23,10 @@ public class MigrationRecurringPaymentCustomerIndex : IMigration
 
         try
         {
-            //the My account tab lists a customer's recurring payments in a store
+            //the My account tab lists a customer's recurring payments in a store, newest first
             await databaseContext.CreateIndex(repository,
-                OrderBuilder<RecurringPayment>.Create().Ascending(x => x.CustomerId).Ascending(x => x.StoreId),
-                IndexName);
+                OrderBuilder<RecurringPayment>.Create().Ascending(x => x.CustomerId).Ascending(x => x.StoreId)
+                    .Descending(x => x.CreatedOnUtc), IndexName);
         }
         catch (Exception ex)
         {
