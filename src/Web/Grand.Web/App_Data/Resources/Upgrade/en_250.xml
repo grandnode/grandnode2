@@ -2706,4 +2706,13 @@
 	<Resource Name="RecurringPayment.Cancel.Failed" Area="Front">
 		<Value>The payment provider could not cancel this recurring payment. Please try again later or contact us.</Value>
 	</Resource>
+	<Resource Name="Order.RecurringCycle" Area="Front">
+		<Value>Payment {0} of a recurring order</Value>
+	</Resource>
+	<Resource Name="Order.RecurringCycle.InitialOrder" Area="Front">
+		<Value>placed as order</Value>
+	</Resource>
+	<Resource Name="Order.RecurringPayment.Manage" Area="Front">
+		<Value>Manage the recurring payment</Value>
+	</Resource>
 </Language>

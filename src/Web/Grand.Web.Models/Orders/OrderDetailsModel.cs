@@ -14,6 +14,25 @@ public class OrderDetailsModel : BaseEntityModel
     public bool GuestLink { get; set; }
 
     /// <summary>
+    ///     Gets or sets the recurring payment cycle: 1 on the order the customer placed, 2 and more on the orders
+    ///     the payment provider charged afterwards, 0 on an ordinary order
+    /// </summary>
+    public int RecurringCycleNumber { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the initial order of a cycle order; empty when it cannot be opened
+    /// </summary>
+    public string InitialOrderId { get; set; }
+
+    public int InitialOrderNumber { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the order's own customer is shown the way to the recurring
+    ///     payments tab
+    /// </summary>
+    public bool ShowRecurringPaymentsLink { get; set; }
+
+    /// <summary>
     ///     Whether the order has returns, which a guest who came with the link reaches from the page
     /// </summary>
     public bool HasMerchandiseReturns { get; set; }

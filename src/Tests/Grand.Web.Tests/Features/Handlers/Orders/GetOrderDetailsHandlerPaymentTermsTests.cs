@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -48,7 +49,8 @@ public class GetOrderDetailsHandlerPaymentTermsTests
             orderService.Object, new Mock<IPictureService>().Object,
             new Mock<IOrderStatusService>().Object, new Mock<ICurrencyService>().Object,
             new Mock<IMediator>().Object, new CatalogSettings(), new OrderSettings(), new PdfSettings(),
-            new TaxSettings(), new Mock<IEnumTranslationService>().Object, new Mock<IOrderApprovalService>().Object);
+            new TaxSettings(), new Mock<IEnumTranslationService>().Object, new Mock<IOrderApprovalService>().Object,
+            new CustomerSettings());
     }
 
     private Task<OrderDetailsModel> Details(Order order)

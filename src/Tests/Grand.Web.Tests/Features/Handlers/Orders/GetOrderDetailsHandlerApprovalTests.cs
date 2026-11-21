@@ -54,7 +54,8 @@ public class GetOrderDetailsHandlerApprovalTests
             orderService.Object, new Mock<IPictureService>().Object,
             new Mock<IOrderStatusService>().Object, new Mock<ICurrencyService>().Object,
             new Mock<IMediator>().Object, new CatalogSettings(), new OrderSettings(), new PdfSettings(),
-            new TaxSettings(), new Mock<IEnumTranslationService>().Object, approvals.Object);
+            new TaxSettings(), new Mock<IEnumTranslationService>().Object, approvals.Object,
+            new CustomerSettings());
     }
 
     private Task<OrderDetailsModel> Details(string customerId)

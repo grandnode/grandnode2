@@ -91,6 +91,30 @@
                         <li class="order-status d-flex">
                             <span class="mx-1">@Loc["Order.OrderStatus"]:</span><span>@Model.OrderStatus</span>
                         </li>
+                        @if (Model.RecurringCycleNumber > 1)
+                        {
+                            <li class="order-recurring-cycle d-flex">
+                                <span class="mx-1">@string.Format(Loc["Order.RecurringCycle"].Value, Model.RecurringCycleNumber)</span>
+                                @if (Model.InitialOrderNumber > 0)
+                                {
+                                    <span class="me-1">@Loc["Order.RecurringCycle.InitialOrder"]</span>
+                                    @if (!string.IsNullOrEmpty(Model.InitialOrderId))
+                                    {
+                                        <a class="order-recurring-initial-order" href="@Url.RouteUrl("OrderDetails", new { orderId = Model.InitialOrderId })">@Model.InitialOrderNumber</a>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.InitialOrderNumber</span>
+                                    }
+                                }
+                            </li>
+                        }
+                        @if (Model.ShowRecurringPaymentsLink && !Model.GuestLink)
+                        {
+                            <li class="order-recurring-payment d-flex">
+                                <a class="mx-1" href="@Url.RouteUrl("CustomerRecurringPayments")">@Loc["Order.RecurringPayment.Manage"]</a>
+                            </li>
+                        }
                         @if (Model.OrderApprovalReasons.Any())
                         {
                             <li class="order-approval-reasons d-flex">
