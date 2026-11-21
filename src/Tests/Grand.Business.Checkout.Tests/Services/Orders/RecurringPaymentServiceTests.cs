@@ -449,49 +449,18 @@ public class RecurringPaymentServiceTests
         CollectionAssert.AreEqual(new[] { "The recurring payment was not found" }, result.Errors.ToList());
     }
 
-    [TestMethod]
-    public async Task Cancel_CycleWebhookDuringTheGatewayCall_WaitsAndIsRecordedOnCancelled()
-    {
-        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
-        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, _resourceLock);
-        var gatewayAsked = new TaskCompletionSource();
-        var gatewayAnswer = new TaskCompletionSource<CancelRecurringPaymentResult>();
-
-        var cancel = _service.Cancel(rp.Id, "jane@example.com", _ =>
-        {
-            gatewayAsked.SetResult();
-            return gatewayAnswer.Task;
-        });
-        await gatewayAsked.Task;
-        var claimTask = other.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
-        await Task.Delay(200);
-        Assert.IsFalse(claimTask.IsCompleted);
-
-        gatewayAnswer.SetResult(new CancelRecurringPaymentResult());
-        var result = await cancel;
-        var claim = await claimTask;
-
-        Assert.IsTrue(result.Success);
-        Assert.IsNotNull(claim);
-        var saved = await _service.GetRecurringPaymentById(rp.Id);
-        Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
-        Assert.AreEqual(2, saved.Cycles.Count);
-    }
-
     private static readonly TimeSpan ConcurrentTimeout = TimeSpan.FromSeconds(30);
 
     [TestMethod]
-    public async Task Cancel_GatewayCallOutlivesTheLease_KeepsACycleClaimedMeanwhile()
+    public async Task Cancel_CycleWebhookDuringTheGatewayCall_IsNotHeldUpAndIsKept()
     {
         var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
-        var shortLease = new MongoResourceLockTest(lease: TimeSpan.FromMilliseconds(300));
-        var service = new RecurringPaymentService(_repository, _productService.Object, _mediator, shortLease);
-        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, shortLease);
+        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, _resourceLock);
         Task<RecurringCycleClaim> claimTask = null;
 
-        var result = await service.Cancel(rp.Id, "jane@example.com", async _ =>
+        var result = await _service.Cancel(rp.Id, "jane@example.com", async _ =>
         {
-            //the webhook gets the key once the cancel's lease has ended
+            //the gateway has not answered yet, and the webhook must not wait for it
             claimTask = other.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
             await claimTask.WaitAsync(ConcurrentTimeout);
             return new CancelRecurringPaymentResult();
@@ -512,12 +481,10 @@ public class RecurringPaymentServiceTests
         var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
         rp.PaymentMethodSystemName = "Payments.Test";
         await _repository.UpdateAsync(rp);
-        var shortLease = new MongoResourceLockTest(lease: TimeSpan.FromMilliseconds(300));
-        var service = new RecurringPaymentService(_repository, _productService.Object, _mediator, shortLease);
-        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, shortLease);
+        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, _resourceLock);
         Task<bool> endedTask = null;
 
-        var result = await service.Cancel(rp.Id, "jane@example.com", async _ =>
+        var result = await _service.Cancel(rp.Id, "jane@example.com", async _ =>
         {
             endedTask = other.RecordEnded(rp.Id);
             await endedTask.WaitAsync(ConcurrentTimeout);
@@ -529,6 +496,27 @@ public class RecurringPaymentServiceTests
         var saved = await _service.GetRecurringPaymentById(rp.Id);
         Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
         Assert.AreEqual("Payments.Test", saved.CancelledBy);
+        Assert.AreEqual(1, Published<RecurringPaymentCancelledEvent>().Count);
+    }
+
+    [TestMethod]
+    public async Task Cancel_GatewayRefusesBecauseAnotherCancelStoppedItFirst_Succeeds()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
+        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, _resourceLock);
+
+        var result = await _service.Cancel(rp.Id, "jane@example.com", async _ =>
+        {
+            var first = await other.Cancel(rp.Id, "staff@example.com",
+                _ => Task.FromResult(new CancelRecurringPaymentResult())).WaitAsync(ConcurrentTimeout);
+            Assert.IsTrue(first.Success);
+            return Refusal("the subscription is already cancelled");
+        });
+
+        Assert.IsTrue(result.Success);
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
+        Assert.AreEqual("staff@example.com", saved.CancelledBy);
         Assert.AreEqual(1, Published<RecurringPaymentCancelledEvent>().Count);
     }
 

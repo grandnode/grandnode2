@@ -34,10 +34,10 @@ public interface IRecurringPaymentService
     Task<bool> RecordEnded(string recurringPaymentId);
 
     /// <summary>
-    ///     Cancels a recurring payment under the same lock, reading it again inside it. Unless it is Pending without a
-    ///     provider reference, stopAtGateway is called first and the payment is cancelled only when it succeeds; its
-    ///     errors are returned otherwise. stopAtGateway must not take the lock. Cancelling a Cancelled or Completed
-    ///     recurring payment succeeds and changes nothing; an unknown one returns an error
+    ///     Cancels a recurring payment, writing it under the same lock on a fresh read. Unless it is Pending without a
+    ///     provider reference, stopAtGateway is called first, outside the lock, and the payment is cancelled only when
+    ///     it succeeds; its errors are returned otherwise. Cancelling a Cancelled or Completed recurring payment, or one
+    ///     that became so during the call, succeeds and changes nothing; an unknown one returns an error
     /// </summary>
     Task<CancelRecurringPaymentResult> Cancel(string recurringPaymentId, string cancelledBy,
         Func<RecurringPayment, Task<CancelRecurringPaymentResult>> stopAtGateway);

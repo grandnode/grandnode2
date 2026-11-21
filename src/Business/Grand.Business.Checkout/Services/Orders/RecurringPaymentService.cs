@@ -145,8 +145,8 @@ public class RecurringPaymentService(
         ArgumentNullException.ThrowIfNull(stopAtGateway);
 
         RecurringPayment recurringPayment;
+        var cancelled = false;
 
-        //the gateway is asked under the lock, so a cycle reported meanwhile is recorded after the cancel and stopped again
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
@@ -162,26 +162,34 @@ public class RecurringPaymentService(
 
             //a pending payment has no reference to stop yet; the gateway may have started the subscription at checkout,
             //and the first cycle it reports, recorded on the cancelled payment, stops it
-            if (recurringPayment.Status != RecurringPaymentStatus.Pending ||
-                !string.IsNullOrEmpty(recurringPayment.ProviderReference))
+            if (recurringPayment.Status == RecurringPaymentStatus.Pending &&
+                string.IsNullOrEmpty(recurringPayment.ProviderReference))
             {
-                var result = await stopAtGateway(recurringPayment);
+                await MarkCancelled(recurringPayment, cancelledBy);
+                cancelled = true;
+            }
+        }
+
+        if (!cancelled)
+        {
+            //asked outside the lock: the call can be slow, and webhooks for this payment must not wait for it or
+            //outlive its lease; every write below is made under the lock on a fresh read
+            var result = await stopAtGateway(recurringPayment);
+
+            await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
+            {
+                recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+                //a webhook or another cancel ended it meanwhile, which also explains a refusal from the gateway
+                if (recurringPayment == null ||
+                    recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
+                    return new CancelRecurringPaymentResult();
+
                 //never cancelled while the gateway may still charge
                 if (!result.Success)
                     return result;
 
-                //the lease can end during the gateway call, and a webhook may have written meanwhile
-                recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
-                if (recurringPayment == null ||
-                    recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
-                    return new CancelRecurringPaymentResult();
+                await MarkCancelled(recurringPayment, cancelledBy);
             }
-
-            recurringPayment.Status = RecurringPaymentStatus.Cancelled;
-            recurringPayment.CancelledOnUtc = DateTime.UtcNow;
-            recurringPayment.CancelledBy = cancelledBy;
-
-            await repository.UpdateAsync(recurringPayment);
         }
 
         //event notification
@@ -189,6 +197,15 @@ public class RecurringPaymentService(
         await mediator.Publish(new RecurringPaymentCancelledEvent(recurringPayment));
 
         return new CancelRecurringPaymentResult();
+    }
+
+    private Task MarkCancelled(RecurringPayment recurringPayment, string cancelledBy)
+    {
+        recurringPayment.Status = RecurringPaymentStatus.Cancelled;
+        recurringPayment.CancelledOnUtc = DateTime.UtcNow;
+        recurringPayment.CancelledBy = cancelledBy;
+
+        return repository.UpdateAsync(recurringPayment);
     }
 
     private static string LockKey(string recurringPaymentId)
