@@ -478,6 +478,60 @@ public class RecurringPaymentServiceTests
         Assert.AreEqual(2, saved.Cycles.Count);
     }
 
+    private static readonly TimeSpan ConcurrentTimeout = TimeSpan.FromSeconds(30);
+
+    [TestMethod]
+    public async Task Cancel_GatewayCallOutlivesTheLease_KeepsACycleClaimedMeanwhile()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
+        var shortLease = new MongoResourceLockTest(lease: TimeSpan.FromMilliseconds(300));
+        var service = new RecurringPaymentService(_repository, _productService.Object, _mediator, shortLease);
+        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, shortLease);
+        Task<RecurringCycleClaim> claimTask = null;
+
+        var result = await service.Cancel(rp.Id, "jane@example.com", async _ =>
+        {
+            //the webhook gets the key once the cancel's lease has ended
+            claimTask = other.ClaimCycle(rp.Id, "sub_1", "in_2", 10, DateTime.UtcNow, null);
+            await claimTask.WaitAsync(ConcurrentTimeout);
+            return new CancelRecurringPaymentResult();
+        });
+
+        Assert.IsTrue(result.Success);
+        Assert.IsNotNull(await claimTask);
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
+        Assert.AreEqual(2, saved.Cycles.Count);
+        Assert.AreEqual(2, saved.CyclesPaid);
+        Assert.AreEqual(1, Published<RecurringPaymentCancelledEvent>().Count);
+    }
+
+    [TestMethod]
+    public async Task Cancel_EndedAtTheGatewayDuringTheCall_PublishesOnce()
+    {
+        var rp = await Insert(RecurringPaymentStatus.Active, 1, providerReference: "sub_1");
+        rp.PaymentMethodSystemName = "Payments.Test";
+        await _repository.UpdateAsync(rp);
+        var shortLease = new MongoResourceLockTest(lease: TimeSpan.FromMilliseconds(300));
+        var service = new RecurringPaymentService(_repository, _productService.Object, _mediator, shortLease);
+        var other = new RecurringPaymentService(_repository, _productService.Object, _mediator, shortLease);
+        Task<bool> endedTask = null;
+
+        var result = await service.Cancel(rp.Id, "jane@example.com", async _ =>
+        {
+            endedTask = other.RecordEnded(rp.Id);
+            await endedTask.WaitAsync(ConcurrentTimeout);
+            return new CancelRecurringPaymentResult();
+        });
+
+        Assert.IsTrue(result.Success);
+        Assert.IsTrue(await endedTask);
+        var saved = await _service.GetRecurringPaymentById(rp.Id);
+        Assert.AreEqual(RecurringPaymentStatus.Cancelled, saved.Status);
+        Assert.AreEqual("Payments.Test", saved.CancelledBy);
+        Assert.AreEqual(1, Published<RecurringPaymentCancelledEvent>().Count);
+    }
+
     private List<T> Published<T>()
     {
         return _mediatorMock.Invocations.Where(x => x.Method.Name == nameof(IMediator.Publish))

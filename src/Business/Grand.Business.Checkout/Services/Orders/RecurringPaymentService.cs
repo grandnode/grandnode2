@@ -169,6 +169,12 @@ public class RecurringPaymentService(
                 //never cancelled while the gateway may still charge
                 if (!result.Success)
                     return result;
+
+                //the lease can end during the gateway call, and a webhook may have written meanwhile
+                recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+                if (recurringPayment == null ||
+                    recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
+                    return new CancelRecurringPaymentResult();
             }
 
             recurringPayment.Status = RecurringPaymentStatus.Cancelled;
