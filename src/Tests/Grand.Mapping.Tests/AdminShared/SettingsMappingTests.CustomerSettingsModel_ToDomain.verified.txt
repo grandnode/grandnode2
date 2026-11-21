@@ -12,6 +12,7 @@
   HideNotesTab: false,
   HideDocumentsTab: false,
   HideSubAccountsTab: false,
+  HideRecurringPaymentsTab: false,
   DownloadableProductsValidateUser: false,
   NewsletterEnabled: false,
   NewsletterTickedByDefault: false,
