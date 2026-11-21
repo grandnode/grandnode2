@@ -2616,4 +2616,43 @@
 	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Years" Area="Common">
 		<Value>Years</Value>
 	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Day" Area="Common">
+		<Value>Every day</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Days" Area="Common">
+		<Value>Every {0} days</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Week" Area="Common">
+		<Value>Every week</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Weeks" Area="Common">
+		<Value>Every {0} weeks</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Month" Area="Common">
+		<Value>Every month</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Months" Area="Common">
+		<Value>Every {0} months</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Year" Area="Common">
+		<Value>Every year</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Years" Area="Common">
+		<Value>Every {0} years</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Pending" Area="Common">
+		<Value>Waiting for the first payment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Active" Area="Common">
+		<Value>Active</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.PastDue" Area="Common">
+		<Value>Payment failed</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Cancelled" Area="Common">
+		<Value>Cancelled</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Completed" Area="Common">
+		<Value>Completed</Value>
+	</Resource>
 </Language>

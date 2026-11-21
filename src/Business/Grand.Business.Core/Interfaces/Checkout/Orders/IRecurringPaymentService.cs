@@ -1,4 +1,5 @@
 using Grand.Business.Core.Utilities.Checkout;
+using Grand.Domain;
 using Grand.Domain.Orders;
 
 namespace Grand.Business.Core.Interfaces.Checkout.Orders;
@@ -51,6 +52,12 @@ public interface IRecurringPaymentService
     ///     Gets the recurring payment of the order the customer placed; null when the order is not recurring
     /// </summary>
     Task<RecurringPayment> GetRecurringPaymentByInitialOrderId(string initialOrderId);
+
+    /// <summary>
+    ///     Gets a customer's recurring payments in a store, newest first; nothing for an empty customer or store
+    /// </summary>
+    Task<IPagedList<RecurringPayment>> GetCustomerRecurringPayments(string customerId, string storeId,
+        int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets a value indicating whether the cart holds a product billed in cycles
