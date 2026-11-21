@@ -2715,4 +2715,106 @@
 	<Resource Name="Order.RecurringPayment.Manage" Area="Front">
 		<Value>Manage the recurring payment</Value>
 	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments" Area="Admin">
+		<Value>Recurring payments</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Details" Area="Admin">
+		<Value>Recurring payment details</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.BackToList" Area="Admin">
+		<Value>back to the recurring payments list</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.List.SearchCustomerEmail" Area="Admin">
+		<Value>Search by customer email</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.List.SearchStatus" Area="Admin">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.List.SearchStore" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.Customer" Area="Admin">
+		<Value>Customer</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.Store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.Status" Area="Admin">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.Cycle" Area="Admin">
+		<Value>Billed</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.CyclesPaid" Area="Admin">
+		<Value>Payments</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.NextPaymentDate" Area="Admin">
+		<Value>Next payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.PaymentMethod" Area="Admin">
+		<Value>Payment method</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.ProviderReference" Area="Admin">
+		<Value>Provider reference</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.InitialOrder" Area="Admin">
+		<Value>Initial order</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.CreatedOn" Area="Admin">
+		<Value>Created on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.LastError" Area="Admin">
+		<Value>Last error</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.LastErrorDate" Area="Admin">
+		<Value>Failed on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.CancelledOn" Area="Admin">
+		<Value>Cancelled on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.CancelledBy" Area="Admin">
+		<Value>Cancelled by</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles" Area="Admin">
+		<Value>Paid cycles</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.Empty" Area="Admin">
+		<Value>The payment provider has not reported a paid cycle yet.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.CycleNumber" Area="Admin">
+		<Value>Cycle</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.Order" Area="Admin">
+		<Value>Order</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.Amount" Area="Admin">
+		<Value>Amount</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.PaidOn" Area="Admin">
+		<Value>Paid on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cancel" Area="Admin">
+		<Value>Cancel recurring payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cancel.Confirm" Area="Admin">
+		<Value>Cancel this recurring payment? The payment provider will take no further payments, and it cannot be resumed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cancel.Success" Area="Admin">
+		<Value>The recurring payment has been cancelled.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cancel.Ended" Area="Admin">
+		<Value>This recurring payment has already ended.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.RecurringPayment" Area="Admin">
+		<Value>Recurring payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.RecurringPayment.View" Area="Admin">
+		<Value>View the recurring payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.InitialOrder" Area="Admin">
+		<Value>Recurring payment of order</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.RecurringCycleNumber" Area="Admin">
+		<Value>Cycle</Value>
+	</Resource>
 </Language>

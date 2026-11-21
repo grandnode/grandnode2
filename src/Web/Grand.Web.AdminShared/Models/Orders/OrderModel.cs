@@ -32,6 +32,26 @@ public class OrderModel : BaseEntityModel
     /// </summary>
     public bool CanDecideApproval { get; set; }
 
+    /// <summary>
+    ///     1 for the order a recurring payment started with, 2 and up for the orders of its next cycles, 0 otherwise
+    /// </summary>
+    [GrandResourceDisplayName("Admin.Orders.Fields.RecurringCycleNumber")]
+    public int RecurringCycleNumber { get; set; }
+
+    /// <summary>
+    ///     The recurring payment the order started; null for any other order, and in the vendor panel
+    /// </summary>
+    [GrandResourceDisplayName("Admin.Orders.Fields.RecurringPayment")]
+    public string RecurringPaymentId { get; set; }
+
+    /// <summary>
+    ///     The order a cycle order repeats; null when that order was deleted
+    /// </summary>
+    public string InitialOrderId { get; set; }
+
+    [GrandResourceDisplayName("Admin.Orders.Fields.InitialOrder")]
+    public int InitialOrderNumber { get; set; }
+
     //identifiers
     [GrandResourceDisplayName("Admin.Orders.Fields.ID")]
     public override string Id { get; set; }

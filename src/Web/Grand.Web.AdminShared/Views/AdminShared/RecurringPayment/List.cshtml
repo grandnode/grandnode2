@@ -1,0 +1,83 @@
+@model RecurringPaymentListModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.RecurringPayments"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+}
+<form asp-area="@area" asp-controller="RecurringPayment" asp-action="List" method="post">
+
+    @* the payment transactions list's shape: the customer's e-mail as the quick search, the status and the
+       store behind the Filters toggle. Recurring payments come from orders, so there is no primary action *@
+    <admin-page title="@Loc["Admin.Orders.RecurringPayments"]" icon="bi-arrow-repeat">
+        <admin-filters id="recurringpayment-filters" submit-id="search-recurringpayments">
+            <filters-search>
+                <admin-input asp-for="SearchCustomerEmail"/>
+            </filters-search>
+            <admin-field asp-for="SearchStatusId" asp-items="Model.AvailableStatuses"/>
+            @if (Model.ShowStoreFilter)
+            {
+                <admin-field asp-for="StoreId" asp-items="Model.AvailableStores"/>
+            }
+        </admin-filters>
+
+        <admin-card flush>
+            <admin-grid id="recurringpayments-grid"
+                        read-url="@Url.Action("List", "RecurringPayment", new { area = area })"
+                        additional-data="additionalData">
+                <grid-column field="CustomerEmail" title="@Loc["Admin.Orders.RecurringPayments.Fields.Customer"]" width="200">
+                    <cell-template>
+                        <a class="text-decoration-none" href="Edit/{{ Id }}">{{ CustomerEmail }}</a>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Status" title="@Loc["Admin.Orders.RecurringPayments.Fields.Status"]" width="110" align="Center">
+                    <cell-template>
+                        <span data-if="StatusId == 10" class="grand-chip grand-chip--green">{{ Status }}</span>
+                        <span data-if="StatusId == 20" class="grand-chip grand-chip--red">{{ Status }}</span>
+                        <span data-if="StatusId == 0" class="grand-chip grand-chip--amber">{{ Status }}</span>
+                        <span data-if="StatusId >= 30">{{ Status }}</span>
+                    </cell-template>
+                </grid-column>
+                <grid-column field="Cycle" title="@Loc["Admin.Orders.RecurringPayments.Fields.Cycle"]" width="120"/>
+                <grid-column field="CyclesPaid" title="@Loc["Admin.Orders.RecurringPayments.Fields.CyclesPaid"]" width="120" min-screen-width="750"/>
+                <grid-column field="NextPaymentDate" title="@Loc["Admin.Orders.RecurringPayments.Fields.NextPaymentDate"]" width="110" format="{0:d}" min-screen-width="1050"/>
+                <grid-column field="InitialOrderNumber" title="@Loc["Admin.Orders.RecurringPayments.Fields.InitialOrder"]" width="90">
+                    <cell-template>
+                        <a data-if="CanViewInitialOrder" class="text-decoration-none" href="@Url.Action("Edit", "Order", new { area = area })/{{ InitialOrderId }}">{{ InitialOrderNumber }}</a>
+                        <span data-else>{{ InitialOrderNumber }}</span>
+                    </cell-template>
+                </grid-column>
+                @if (Model.ShowStoreFilter)
+                {
+                    <grid-column field="StoreName" title="@Loc["Admin.Orders.RecurringPayments.Fields.Store"]" width="110" min-screen-width="1250"/>
+                }
+                <grid-column field="CreatedOn" title="@Loc["Admin.Orders.RecurringPayments.Fields.CreatedOn"]" width="110" format="{0:G}"/>
+            </admin-grid>
+        </admin-card>
+    </admin-page>
+</form>
+
+<script>
+    function additionalData() {
+        var data = {
+            SearchCustomerEmail: $('#@Html.IdFor(model => model.SearchCustomerEmail)').val(),
+            SearchStatusId: $('#@Html.IdFor(model => model.SearchStatusId)').val(),
+            StoreId: $('#@Html.IdFor(model => model.StoreId)').val()
+        };
+        addAntiForgeryToken(data);
+        return data;
+    }
+    $(document).ready(function () {
+        $('#search-recurringpayments').click(function () {
+            var grid = GrandAdmin.grids.get('#recurringpayments-grid');
+            grid.dataSource.page(1);
+            return false;
+        });
+
+        $("#@Html.IdFor(model => model.SearchCustomerEmail)").keydown(function (event) {
+            if (event.keyCode == 13) {
+                $("#search-recurringpayments").click();
+                return false;
+            }
+        });
+    });
+</script>

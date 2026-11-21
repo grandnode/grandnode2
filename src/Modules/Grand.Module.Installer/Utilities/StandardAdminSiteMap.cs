@@ -243,12 +243,21 @@ public static class StandardAdminSiteMap
                     IconClass = "bi bi-record-circle"
                 },
                 new() {
+                    SystemName = "Recurring payments",
+                    ResourceName = "Admin.Orders.RecurringPayments",
+                    PermissionNames = new List<string> { PermissionSystemName.Orders },
+                    ControllerName = "RecurringPayment",
+                    ActionName = "List",
+                    DisplayOrder = 4,
+                    IconClass = "bi bi-record-circle"
+                },
+                new() {
                     SystemName = "OrderTags",
                     ResourceName = "Admin.Orders.OrderTags",
                     PermissionNames = new List<string> { PermissionSystemName.OrderTags },
                     ControllerName = "OrderTags",
                     ActionName = "List",
-                    DisplayOrder = 4,
+                    DisplayOrder = 5,
                     IconClass = "bi bi-record-circle"
                 },
                 new() {
@@ -257,7 +266,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "CheckoutAttribute",
                     ActionName = "List",
                     PermissionNames = new List<string> { PermissionSystemName.CheckoutAttributes },
-                    DisplayOrder = 5,
+                    DisplayOrder = 6,
                     IconClass = "bi bi-record-circle"
                 },
                 new() {
@@ -266,7 +275,7 @@ public static class StandardAdminSiteMap
                     ControllerName = "OrderStatus",
                     PermissionNames = new List<string> { PermissionSystemName.OrderStatus },
                     ActionName = "Index",
-                    DisplayOrder = 6,
+                    DisplayOrder = 7,
                     IconClass = "bi bi-record-circle"
                 }
             }
