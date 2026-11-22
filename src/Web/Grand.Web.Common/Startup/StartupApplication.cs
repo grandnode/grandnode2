@@ -138,6 +138,7 @@ public class StartupApplication : IStartupApplication
 
         serviceCollection.AddScoped<IRequestTranslationService, RequestTranslationService>();
         serviceCollection.AddScoped<IRequestPermissionService, RequestPermissionService>();
+        serviceCollection.AddScoped<IStoreAccessService, StoreAccessService>();
         serviceCollection.AddScoped<IAuditEventRecorder, AuditEventRecorder>();
         serviceCollection.AddScoped<IGrandAuthenticationService, CookieAuthenticationService>();
         serviceCollection.AddScoped<IExternalSignInService, ExternalSignInService>();

@@ -1,0 +1,19 @@
+@*
+    The layout of the guest account screens (login, register, password recovery, two-factor, activation, OIDC link):
+    the usual single column when the customer may browse the store, the minimal _LayoutAuth when not.
+*@
+@using Grand.Web.Common.Security.Authorization
+@inject IStoreAccessService storeAccessService
+@{
+    Layout = await storeAccessService.GetStoreAccess() == StoreAccess.Open ? "_SingleColumn" : "_LayoutAuth";
+}
+
+@RenderBody()
+
+@section meta {
+    @await RenderSectionAsync("meta", false)
+}
+
+@section head {
+    @await RenderSectionAsync("head", false)
+}

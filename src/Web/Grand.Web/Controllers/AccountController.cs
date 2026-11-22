@@ -36,7 +36,6 @@ using Grand.Web.Common.Localization;
 namespace Grand.Web.Controllers;
 
 [DenySystemAccount]
-[StoreAccess]
 [ApiGroup(SharedKernel.Extensions.ApiConstants.ApiGroupNameV2)]
 public class AccountController : BasePublicController
 {
@@ -302,7 +301,7 @@ public class AccountController : BasePublicController
                 Store = _contextAccessor.StoreContext.CurrentStore
             });
 
-        return View(new TwoFactorLoginModel());
+        return View();
     }
 
     [IgnoreApi]
@@ -350,7 +349,7 @@ public class AccountController : BasePublicController
         await _mediator.Publish(new CustomerLoginFailedEvent(customer,
             string.IsNullOrEmpty(token) ? "two-factor code missing" : "wrong two-factor code"));
 
-        return View(new TwoFactorLoginModel());
+        return View();
     }
 
     [IgnoreApi]

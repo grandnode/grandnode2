@@ -1,8 +1,7 @@
-﻿@using Grand.Web.Common.Models
-@model RegisterModel
+﻿@model RegisterModel
 @inject IPageHeadBuilder pagebuilder
 @{
-    Layout = Model.StoreAccess == StoreAccess.Open ? "_SingleColumn" : "_LayoutAuth";
+    Layout = "_GuestAccount";
     //title
     pagebuilder.AddTitleParts(Loc["Title.Register"]);
 }

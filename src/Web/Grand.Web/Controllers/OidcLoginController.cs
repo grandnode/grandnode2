@@ -6,7 +6,6 @@ using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Mediator;
 using Grand.Web.Common.Controllers;
-using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authentication;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Common.Security.Oidc;
@@ -19,7 +18,6 @@ using System.Globalization;
 
 namespace Grand.Web.Controllers;
 
-[StoreAccess]
 public class OidcLoginController : BaseController
 {
     #region Ctor

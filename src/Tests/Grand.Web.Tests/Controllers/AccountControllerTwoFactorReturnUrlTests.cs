@@ -53,9 +53,7 @@ public class AccountControllerTwoFactorReturnUrlTests
         context.Setup(x => x.StoreContext.CurrentStore).Returns(new Domain.Stores.Store { Id = "store" });
         context.Setup(x => x.WorkContext.CurrentCustomer).Returns(new Customer());
         var settings = new CustomerSettings { TwoFactorAuthenticationEnabled = true };
-        var translation = new Mock<IRequestTranslationService>();
-        translation.Setup(x => x.GetResource(It.IsAny<string>())).Returns<string>(name => name);
-        _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object, translation.Object,
+        _controller = new AccountController(new Mock<IGrandAuthenticationService>().Object, new Mock<IRequestTranslationService>().Object,
             context.Object, _customers.Object, new Mock<IGroupService>().Object, _manager.Object, new Mock<ICountryService>().Object,
             new Mock<IMediator>().Object, new Mock<ICustomerMessageProviderService>().Object, new CaptchaSettings(), settings,
             new Mock<IGuestOrderGrantService>().Object);
@@ -81,18 +79,6 @@ public class AccountControllerTwoFactorReturnUrlTests
     {
         var result = await PassTwoFactor("/oidc/link/complete");
         Assert.AreEqual("/oidc/link/complete", ((RedirectResult)result).Url);
-    }
-
-    [TestMethod]
-    public async Task WrongCode_RendersViewWithStoreAccessModel()
-    {
-        _manager.Setup(x => x.LoginCustomer("a@b.c", "p", It.IsAny<string>(), SignInSurface.Storefront)).ReturnsAsync(CustomerLoginResults.RequiresTwoFactor);
-        await _controller.Login(new LoginModel { Email = "a@b.c", Password = "p" }, "/");
-
-        var result = await _controller.TwoFactorAuthorization("999", new Mock<ITwoFactorAuthenticationService>().Object);
-
-        //the store access filter only reaches a view that has a model to carry the value
-        Assert.IsInstanceOfType<TwoFactorLoginModel>(((ViewResult)result).Model);
     }
 
     [TestMethod]

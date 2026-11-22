@@ -1,8 +1,10 @@
-﻿@using Grand.Web.Common.Models
+﻿@using Grand.Web.Common.Security.Authorization
 @model LoginModel
 @inject IPageHeadBuilder pagebuilder
+@inject IStoreAccessService storeAccessService
 @{
-    Layout = Model.StoreAccess == StoreAccess.Open ? "_SingleColumn" : "_LayoutAuth";
+    Layout = "_GuestAccount";
+    var storeAccess = await storeAccessService.GetStoreAccess();
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Login"]);
@@ -94,7 +96,7 @@ else
                                                 <span class="form-check-label"></span>
                                                 <span class="custom-control-description">@Loc["Account.Login.Fields.RememberMe"]</span>
                                             </label>
-                                            @if (Model.StoreAccess != StoreAccess.Closed)
+                                            @if (storeAccess != StoreAccess.Closed)
                                             {
                                                 <span class="ms-3 forgot-password">
                                                     <a asp-route="PasswordRecovery">@Loc["Account.Login.ForgotPassword"]</a>
@@ -121,7 +123,7 @@ else
                         @await Component.InvokeAsync("ExternalMethods")
                     </div>
                 </div>
-                @if (Model.StoreAccess == StoreAccess.Closed)
+                @if (storeAccess == StoreAccess.Closed)
                 {
                     @* a closed store signs in staff only: registration, password recovery and guest orders lead to Store closed *@
                 }
@@ -169,7 +171,8 @@ else
                         </div>
                     </div>
                 }
-                @if (Model.DisplayGuestOrderLink && Model.StoreAccess != StoreAccess.Closed)
+                @* the guest order pages need a store the customer may browse *@
+                @if (Model.DisplayGuestOrderLink && storeAccess == StoreAccess.Open)
                 {
                     <div class="col-12 mx-lg-0 mx-auto mt-3 text-center guest-order-link">
                         <a asp-route="GuestOrder">@Loc["Account.Login.GuestOrder"]</a>

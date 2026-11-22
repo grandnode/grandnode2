@@ -1,14 +1,9 @@
 using Grand.Business.Core.Utilities.Authentication;
-using Grand.Web.Common.Models;
-using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Grand.Web.Models.Customer;
 
-public class OidcFailedModel : IStoreAccessModel
+public class OidcFailedModel
 {
-    [BindNever]
-    public StoreAccess StoreAccess { get; set; }
-
     public OidcLoginRefusal Reason { get; set; }
     public bool Mismatch { get; set; }
 
