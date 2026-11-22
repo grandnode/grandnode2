@@ -7,5 +7,6 @@ public interface IStripeCheckoutService
 {
     Task<string> CreateRedirectUrl(Order order);
     Task<IList<string>> Refund(PaymentTransaction paymentTransaction, double? amount);
+    Task<IList<string>> CancelSubscription(RecurringPayment recurringPayment);
     Task<bool> WebHookProcessPayment(string stripeSignature, string json);
 }
