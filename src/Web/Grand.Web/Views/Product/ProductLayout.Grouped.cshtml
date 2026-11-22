@@ -67,7 +67,7 @@
                             @if (!string.IsNullOrEmpty(Model.Flag))
                             {
                                 <div class="product-label">
-                                    <div class="badge text-bg-info">@Model.Flag</div>
+                                    <div class="badge text-bg-info" v-pre>@Model.Flag</div>
                                 </div>
                             }
                             <partial name="Partials/Unavailable" model="Model"/>
