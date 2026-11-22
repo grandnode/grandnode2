@@ -16,23 +16,37 @@ public interface IRecurringPaymentService
 
     /// <summary>
     ///     Records a cycle the provider reports as paid, once: under a lock, so a gateway resending the event claims
-    ///     nothing. Returns null when the recurring payment is unknown or the cycle reference was already recorded
+    ///     nothing. The cycle is recorded on a cancelled or completed recurring payment too, as the gateway took the
+    ///     money; otherwise the outcome says why nothing was recorded (unknown, cycle reference recorded already, or
+    ///     another provider reference than the one the recurring payment runs on). The first reported reference is
+    ///     recorded
     /// </summary>
     Task<RecurringCycleClaim> ClaimCycle(string recurringPaymentId, string providerReference, string cycleReference,
         double amount, DateTime paidOnUtc, DateTime? nextPaymentDateUtc);
 
     /// <summary>
-    ///     Records a cycle the provider reports as failed, under the same lock. Returns true only when the status moved
-    ///     into PastDue. Nothing is recorded for an unknown recurring payment, one that is Cancelled or Completed, or a
-    ///     cycle that was paid already
+    ///     Records a cycle the provider reports as failed, under the same lock, moving the recurring payment into
+    ///     PastDue. Nothing is recorded for an unknown recurring payment, a cycle that was paid already, another
+    ///     provider reference than the one the recurring payment runs on, or a payment that is Cancelled or Completed,
+    ///     whose missing reference is still recorded so the gateway can be stopped. The first reported reference is
+    ///     recorded
     /// </summary>
-    Task<bool> RecordFailure(string recurringPaymentId, string cycleReference, string reason);
+    Task<RecurringReportResult> RecordFailure(string recurringPaymentId, string providerReference,
+        string cycleReference, string reason);
 
     /// <summary>
-    ///     Cancels a recurring payment the provider reports as ended at the gateway, under the same lock. Returns false
-    ///     for an unknown recurring payment or one that is Cancelled or Completed
+    ///     Cancels a recurring payment the provider reports as ended at the gateway, under the same lock. Nothing is
+    ///     recorded for an unknown recurring payment, another provider reference than the one the recurring payment
+    ///     runs on, or one that is Cancelled or Completed. The first reported reference is recorded
     /// </summary>
-    Task<bool> RecordEnded(string recurringPaymentId);
+    Task<RecurringReportResult> RecordEnded(string recurringPaymentId, string providerReference);
+
+    /// <summary>
+    ///     Records the gateway's reference as soon as the provider learns it (at checkout), under the same lock, so a
+    ///     cancel made before the first paid cycle stops the gateway. A reference recorded already is kept: the
+    ///     outcome is Duplicate for the same one and OtherReference for another
+    /// </summary>
+    Task<RecurringReportResult> RecordProviderReference(string recurringPaymentId, string providerReference);
 
     /// <summary>
     ///     Cancels a recurring payment, writing it under the same lock on a fresh read. Unless it is Pending without a
