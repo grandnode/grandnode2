@@ -1,6 +1,8 @@
+@using Grand.Web.Common.Models
+@model TwoFactorLoginModel
 @inject IPageHeadBuilder pagebuilder
 @{
-    Layout = "_SingleColumn";
+    Layout = Model.StoreAccess == StoreAccess.Open ? "_SingleColumn" : "_LayoutAuth";
 
     //title
     pagebuilder.AddTitleParts(Loc["Title.Login"]);
