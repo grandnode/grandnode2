@@ -217,6 +217,7 @@ public abstract class BaseMessageTemplateController(
         model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
         foreach (var ea in await emailAccountService.GetAllEmailAccounts(scope.DefaultStoreId ?? ""))
             model.AvailableEmailAccounts.Add(ea.ToModel());
+        model.CanCopy = string.IsNullOrEmpty(scope.DefaultStoreId) || !messageTemplate.LimitedToStores;
 
         return View(model);
     }

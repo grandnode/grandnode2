@@ -84,6 +84,7 @@ public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemp
     /// <c>BaseMessageTemplateController.Edit(GET)</c>, mirroring <c>CopyTemplate</c>'s own
     /// guard exactly.
     /// </summary>
+    [BindNever]
     public bool CanCopy { get; set; }
 }
 

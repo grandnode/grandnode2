@@ -18,6 +18,7 @@ public class ServerFlagBindingTests
     [DataRow(typeof(ProductModel), nameof(ProductModel.IsReadOnly))]
     [DataRow(typeof(ContactAttributeModel), nameof(ContactAttributeModel.IsReadOnly))]
     [DataRow(typeof(MessageTemplateModel), nameof(MessageTemplateModel.IsReadOnly))]
+    [DataRow(typeof(MessageTemplateModel), nameof(MessageTemplateModel.CanCopy))]
     [DataRow(typeof(AddressAttributeModel), nameof(AddressAttributeModel.IsGlobalAttribute))]
     [DataRow(typeof(CustomerAttributeModel), nameof(CustomerAttributeModel.IsGlobalAttribute))]
     public void ServerFlag_IsNeverBound(Type model, string property)

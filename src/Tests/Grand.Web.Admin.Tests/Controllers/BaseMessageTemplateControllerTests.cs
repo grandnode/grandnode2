@@ -243,6 +243,37 @@ public class BaseMessageTemplateControllerTests
     }
 
     [TestMethod]
+    public async Task EditPost_InvalidModel_Admin_CanCopy()
+    {
+        var template = new MessageTemplate { Id = "mt-1", Name = "N", LimitedToStores = true, Stores = ["store-1"] };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+
+        var controller = CreateController();
+        controller.ModelState.AddModelError("Subject", "required");
+        var result = await controller.Edit(new MessageTemplateModel { Id = "mt-1" }, false) as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsTrue(((MessageTemplateModel)result.Model).CanCopy);
+    }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_Store_OwnTemplate_CannotCopy()
+    {
+        var template = new MessageTemplate { Id = "mt-1", Name = "N", LimitedToStores = true, Stores = ["store-1"] };
+        _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+
+        var controller = CreateController();
+        controller.ModelState.AddModelError("Subject", "required");
+        var result = await controller.Edit(new MessageTemplateModel { Id = "mt-1" }, false) as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsFalse(((MessageTemplateModel)result.Model).CanCopy);
+    }
+
+    [TestMethod]
     public async Task EditPost_Store_ForcesLimitedToStoresRegardlessOfSubmittedModel()
     {
         var template = new MessageTemplate { Id = "mt-1", LimitedToStores = true, Stores = ["store-1"], Name = "N" };
