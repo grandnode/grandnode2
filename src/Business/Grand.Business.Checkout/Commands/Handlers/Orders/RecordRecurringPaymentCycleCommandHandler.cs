@@ -1,5 +1,6 @@
 using System.Runtime.ExceptionServices;
 using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Domain.Orders;
@@ -26,7 +27,14 @@ public class RecordRecurringPaymentCycleCommandHandler(
         var claim = await recurringPaymentService.ClaimCycle(request.RecurringPaymentId, request.ProviderReference,
             request.CycleReference, request.Amount, request.PaidOnUtc, request.NextPaymentDateUtc);
         if (claim == null)
+        {
+            // a resend is the usual reason; a report on another subscription is the one staff must hear about
+            var recurringPayment = await recurringPaymentService.GetRecurringPaymentById(request.RecurringPaymentId);
+            if (recurringPayment != null && recurringPayment.HasOtherProviderReference(request.ProviderReference))
+                await RecurringPaymentGateway.NoteOtherReference(orderService, logger, recurringPayment,
+                    request.ProviderReference);
             return false;
+        }
 
         // the cycle is recorded: an aborted webhook request must not leave it half done, so nothing below is cancellable
         cancellationToken = CancellationToken.None;

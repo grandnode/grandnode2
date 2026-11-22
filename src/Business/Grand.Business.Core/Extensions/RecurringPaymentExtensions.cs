@@ -12,4 +12,14 @@ public static class RecurringPaymentExtensions
     {
         return status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed;
     }
+
+    /// <summary>
+    ///     Whether a gateway report names another reference than the one the recurring payment runs on, for example a
+    ///     second subscription started for the same order. False while either reference is unknown
+    /// </summary>
+    public static bool HasOtherProviderReference(this RecurringPayment recurringPayment, string providerReference)
+    {
+        return !string.IsNullOrEmpty(recurringPayment.ProviderReference) && !string.IsNullOrEmpty(providerReference) &&
+               recurringPayment.ProviderReference != providerReference;
+    }
 }

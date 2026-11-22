@@ -1,4 +1,5 @@
 using Grand.Business.Core.Events.Checkout.Orders;
+using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
@@ -40,7 +41,8 @@ public class RecurringPaymentService(
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
-            if (recurringPayment == null || recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference))
+            if (recurringPayment == null || recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference) ||
+                recurringPayment.HasOtherProviderReference(providerReference))
                 return null;
 
             recurringPayment.CyclesPaid++;
@@ -80,7 +82,8 @@ public class RecurringPaymentService(
         return new RecurringCycleClaim { RecurringPayment = recurringPayment, Cycle = cycle, Completed = completed };
     }
 
-    public virtual async Task<bool> RecordFailure(string recurringPaymentId, string cycleReference, string reason)
+    public virtual async Task<bool> RecordFailure(string recurringPaymentId, string providerReference,
+        string cycleReference, string reason)
     {
         ArgumentException.ThrowIfNullOrEmpty(cycleReference);
 
@@ -93,7 +96,8 @@ public class RecurringPaymentService(
             //a failure that arrives after the cycle was paid is a late, out of order event
             if (recurringPayment == null ||
                 recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed ||
-                recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference))
+                recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference) ||
+                recurringPayment.HasOtherProviderReference(providerReference))
                 return false;
 
             recurringPayment.LastError = reason;
@@ -113,15 +117,17 @@ public class RecurringPaymentService(
         return enteredPastDue;
     }
 
-    public virtual async Task<bool> RecordEnded(string recurringPaymentId)
+    public virtual async Task<bool> RecordEnded(string recurringPaymentId, string providerReference)
     {
         RecurringPayment recurringPayment;
 
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            //another subscription ending says nothing about the one this payment runs on
             if (recurringPayment == null ||
-                recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
+                recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed ||
+                recurringPayment.HasOtherProviderReference(providerReference))
                 return false;
 
             recurringPayment.Status = RecurringPaymentStatus.Cancelled;
@@ -136,6 +142,29 @@ public class RecurringPaymentService(
         await mediator.Publish(new RecurringPaymentCancelledEvent(recurringPayment));
 
         return true;
+    }
+
+    public virtual async Task<RecurringPayment> RecordProviderReference(string recurringPaymentId,
+        string providerReference)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(providerReference);
+
+        RecurringPayment recurringPayment;
+
+        await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
+        {
+            recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            if (recurringPayment == null || !string.IsNullOrEmpty(recurringPayment.ProviderReference))
+                return recurringPayment;
+
+            recurringPayment.ProviderReference = providerReference;
+            await repository.UpdateAsync(recurringPayment);
+        }
+
+        //event notification
+        await mediator.EntityUpdated(recurringPayment);
+
+        return recurringPayment;
     }
 
     public virtual async Task<CancelRecurringPaymentResult> Cancel(string recurringPaymentId, string cancelledBy,

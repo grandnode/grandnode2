@@ -33,6 +33,15 @@ internal static class RecurringPaymentGateway
                 $"The recurring payment is {recurringPayment.Status.ToString().ToLowerInvariant()}, but the payment gateway did not confirm it stopped charging: {string.Join(", ", errors)}");
     }
 
+    public static Task NoteOtherReference(IOrderService orderService, ILogger logger,
+        RecurringPayment recurringPayment, string providerReference)
+    {
+        logger.LogWarning("Recurring payment {RecurringPaymentId} runs on {ProviderReference}, but the payment gateway reported on {ReportedReference}",
+            recurringPayment.Id, recurringPayment.ProviderReference, providerReference);
+        return AddNote(orderService, logger, recurringPayment,
+            $"The payment gateway reported on {providerReference}, but the recurring payment runs on {recurringPayment.ProviderReference}, so nothing was recorded: check the payment gateway for a second subscription charging the customer");
+    }
+
     public static async Task AddNote(IOrderService orderService, ILogger logger, RecurringPayment recurringPayment,
         string note)
     {
