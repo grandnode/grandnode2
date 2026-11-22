@@ -151,8 +151,6 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         foreach (var id in selectedIds)
         {
             var idReview = id.Split(':').First();
-            var idProduct = id.Split(':').Last();
-            var product = await _productService.GetProductById(idProduct);
             var productReview = await _productReviewService.GetProductReviewById(idReview);
             if (productReview != null && (string.IsNullOrEmpty(storeId) || productReview.StoreId == storeId))
             {
@@ -160,6 +158,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
                 productReview.IsApproved = true;
                 await _productReviewService.UpdateProductReview(productReview);
                 //update product totals
+                var product = await _productService.GetProductById(productReview.ProductId);
                 await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
 
 
@@ -175,15 +174,13 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         foreach (var id in selectedIds)
         {
             var idReview = id.Split(':').First();
-            var idProduct = id.Split(':').Last();
-
-            var product = await _productService.GetProductById(idProduct);
             var productReview = await _productReviewService.GetProductReviewById(idReview);
             if (productReview != null && (string.IsNullOrEmpty(storeId) || productReview.StoreId == storeId))
             {
                 productReview.IsApproved = false;
                 await _productReviewService.UpdateProductReview(productReview);
                 //update product totals
+                var product = await _productService.GetProductById(productReview.ProductId);
                 await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
             }
         }

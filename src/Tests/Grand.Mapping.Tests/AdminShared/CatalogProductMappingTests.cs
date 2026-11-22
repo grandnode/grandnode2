@@ -320,13 +320,10 @@ public class CatalogProductMappingTests : VerifyBase
     public Task ProductReviewModel_ToDomain()
     {
         var model = new ProductReviewModel {
-            CustomerId = "cust-001",
-            ProductId = "prod-001",
             IsApproved = true,
             Title = "Great product",
             ReviewText = "Really impressed!",
-            ReplyText = "Thank you!",
-            Rating = 5
+            ReplyText = "Thank you!"
         };
         return Verify(_mapper.Map<ProductReview>(model));
     }
