@@ -1,13 +1,17 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.SharedKernel;
+using Grand.Web.Common.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer;
 
-public class LoginModel : BaseModel
+public class LoginModel : BaseModel, IStoreAccessModel
 {
+    [BindNever]
+    public StoreAccess StoreAccess { get; set; }
+
     public bool CheckoutAsGuest { get; set; }
 
     [MaxLength(FieldSizeLimits.EmailMaxLength)]

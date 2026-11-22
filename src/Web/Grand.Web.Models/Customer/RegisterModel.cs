@@ -5,13 +5,17 @@ using Grand.Web.Common.Binders;
 using Grand.Web.Common.Models;
 using Grand.Web.Models.Newsletter;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer;
 
-public class RegisterModel : BaseModel
+public class RegisterModel : BaseModel, IStoreAccessModel
 {
+    [BindNever]
+    public StoreAccess StoreAccess { get; set; }
+
     [MaxLength(FieldSizeLimits.EmailMaxLength)]
     [DataType(DataType.EmailAddress)]
     [GrandResourceDisplayName("Account.Fields.Email")]

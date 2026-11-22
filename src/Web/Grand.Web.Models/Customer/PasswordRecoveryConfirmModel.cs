@@ -1,11 +1,16 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.Models.Customer;
 
-public class PasswordRecoveryConfirmModel : BaseModel
+public class PasswordRecoveryConfirmModel : BaseModel, IStoreAccessModel
 {
+    [BindNever]
+    public StoreAccess StoreAccess { get; set; }
+
     [DataType(DataType.Password)]
     [GrandResourceDisplayName("Account.PasswordRecovery.NewPassword")]
     public string NewPassword { get; set; }
