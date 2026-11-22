@@ -3,17 +3,12 @@ using Grand.Domain.Orders;
 namespace Grand.Business.Core.Utilities.Checkout;
 
 /// <summary>
-///     A paid cycle recorded on a recurring payment
+///     A paid cycle reported on a recurring payment
 /// </summary>
-public class RecurringCycleClaim
+public class RecurringCycleClaim : RecurringReportResult
 {
     /// <summary>
-    ///     The recurring payment as saved
-    /// </summary>
-    public RecurringPayment RecurringPayment { get; init; }
-
-    /// <summary>
-    ///     The cycle that was recorded
+    ///     The cycle that was recorded; null unless the outcome is Recorded
     /// </summary>
     public RecurringPaymentCycle Cycle { get; init; }
 

@@ -1,6 +1,6 @@
 using Grand.Business.Core.Commands.Checkout.Orders;
-using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 
@@ -8,7 +8,6 @@ namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 
 public class RecordRecurringPaymentEndedCommandHandler(
     IRecurringPaymentService recurringPaymentService,
-    IOrderService orderService,
     ILogger<RecordRecurringPaymentEndedCommandHandler> logger)
     : IRequestHandler<RecordRecurringPaymentEndedCommand, bool>
 {
@@ -16,14 +15,13 @@ public class RecordRecurringPaymentEndedCommandHandler(
     {
         ArgumentException.ThrowIfNullOrEmpty(request.RecurringPaymentId);
 
-        if (await recurringPaymentService.RecordEnded(request.RecurringPaymentId, request.ProviderReference))
-            return true;
+        var report = await recurringPaymentService.RecordEnded(request.RecurringPaymentId, request.ProviderReference);
 
-        var recurringPayment = await recurringPaymentService.GetRecurringPaymentById(request.RecurringPaymentId);
-        if (recurringPayment != null && recurringPayment.HasOtherProviderReference(request.ProviderReference))
-            await RecurringPaymentGateway.NoteOtherReference(orderService, logger, recurringPayment,
-                request.ProviderReference);
+        // another subscription that ended charges nothing more, typically one the shop stopped: nothing for staff to do
+        if (report.Outcome == RecurringReportOutcome.OtherReference)
+            logger.LogInformation("Recurring payment {RecurringPaymentId} runs on {ProviderReference}; {ReportedReference} ended at the payment gateway",
+                report.RecurringPayment.Id, report.RecurringPayment.ProviderReference, request.ProviderReference);
 
-        return false;
+        return report.Outcome == RecurringReportOutcome.Recorded;
     }
 }
