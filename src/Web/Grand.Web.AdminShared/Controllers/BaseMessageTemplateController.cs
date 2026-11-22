@@ -76,7 +76,6 @@ public abstract class BaseMessageTemplateController(
                 if (existingStoreTemplate != null)
                 {
                     ModelState.AddModelError("Name", translationService.GetResource("Admin.Content.MessageTemplates.Fields.Name.AlreadyExists"));
-                    model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
                     model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
                     foreach (var ea in await emailAccountService.GetAllEmailAccounts(scope.DefaultStoreId ?? ""))
                         model.AvailableEmailAccounts.Add(ea.ToModel());
@@ -109,7 +108,6 @@ public abstract class BaseMessageTemplateController(
             return RedirectToAction("List");
         }
 
-        model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
         model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
         foreach (var ea in await emailAccountService.GetAllEmailAccounts(scope.DefaultStoreId ?? ""))
             model.AvailableEmailAccounts.Add(ea.ToModel());
@@ -217,7 +215,6 @@ public abstract class BaseMessageTemplateController(
         }
 
         model.Name = name;
-        model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
         model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
         foreach (var ea in await emailAccountService.GetAllEmailAccounts(scope.DefaultStoreId ?? ""))
             model.AvailableEmailAccounts.Add(ea.ToModel());

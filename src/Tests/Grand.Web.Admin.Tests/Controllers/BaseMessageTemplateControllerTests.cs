@@ -303,6 +303,22 @@ public class BaseMessageTemplateControllerTests
     }
 
     [TestMethod]
+    public async Task EditPost_InvalidModel_KeepsSubmittedAttachmentSwitch()
+    {
+        var template = new MessageTemplate { Id = "mt-1", Name = "N", AttachedDownloadId = "dl-1" };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+
+        var controller = CreateController();
+        controller.ModelState.AddModelError("Subject", "required");
+        var model = new MessageTemplateModel { Id = "mt-1", AttachedDownloadId = "dl-1", HasAttachedDownload = false };
+        var result = await controller.Edit(model, false) as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsFalse(((MessageTemplateModel)result.Model).HasAttachedDownload);
+    }
+
+    [TestMethod]
     public async Task Delete_HasAccessFalse_DoesNotDelete()
     {
         var template = new MessageTemplate { Id = "mt-1", LimitedToStores = true, Stores = ["store-2"] };
