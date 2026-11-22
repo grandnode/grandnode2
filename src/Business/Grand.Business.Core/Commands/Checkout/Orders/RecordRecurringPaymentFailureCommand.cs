@@ -3,8 +3,8 @@ using Grand.Mediator;
 namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 /// <summary>
-///     A payment provider reports that a cycle of a recurring payment failed. The result is true when the recurring
-///     payment became past due
+///     A payment provider reports that a cycle of a recurring payment failed. The result is true when the failure was
+///     recorded and the recurring payment is past due
 /// </summary>
 public class RecordRecurringPaymentFailureCommand : IRequest<bool>
 {

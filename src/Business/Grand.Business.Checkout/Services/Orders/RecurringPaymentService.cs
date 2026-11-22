@@ -41,9 +41,11 @@ public class RecurringPaymentService(
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
-            if (recurringPayment == null || recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference) ||
-                recurringPayment.HasOtherProviderReference(providerReference))
-                return null;
+            var refused = Refusal(recurringPayment, providerReference);
+            if (refused == null && recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference))
+                refused = RecurringReportOutcome.Duplicate;
+            if (refused.HasValue)
+                return new RecurringCycleClaim { Outcome = refused.Value, RecurringPayment = recurringPayment };
 
             recurringPayment.CyclesPaid++;
             cycle = new RecurringPaymentCycle {
@@ -56,8 +58,7 @@ public class RecurringPaymentService(
             };
             recurringPayment.Cycles.Add(cycle);
 
-            if (string.IsNullOrEmpty(recurringPayment.ProviderReference))
-                recurringPayment.ProviderReference = providerReference;
+            KeepFirstReference(recurringPayment, providerReference);
             if (nextPaymentDateUtc.HasValue)
                 recurringPayment.NextPaymentDateUtc = nextPaymentDateUtc;
 
@@ -67,7 +68,7 @@ public class RecurringPaymentService(
 
             //the gateway took the money after a cancel, so the cycle is recorded and the status is left alone
             if (recurringPayment.TotalCycles > 0 && recurringPayment.CyclesPaid == recurringPayment.TotalCycles &&
-                recurringPayment.Status is not (RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed))
+                !recurringPayment.Status.HasEnded())
             {
                 recurringPayment.Status = RecurringPaymentStatus.Completed;
                 completed = true;
@@ -79,11 +80,14 @@ public class RecurringPaymentService(
         //event notification
         await mediator.EntityUpdated(recurringPayment);
 
-        return new RecurringCycleClaim { RecurringPayment = recurringPayment, Cycle = cycle, Completed = completed };
+        return new RecurringCycleClaim {
+            Outcome = RecurringReportOutcome.Recorded, RecurringPayment = recurringPayment, Cycle = cycle,
+            Completed = completed
+        };
     }
 
-    public virtual async Task<bool> RecordFailure(string recurringPaymentId, string providerReference,
-        string cycleReference, string reason)
+    public virtual async Task<RecurringReportResult> RecordFailure(string recurringPaymentId,
+        string providerReference, string cycleReference, string reason)
     {
         ArgumentException.ThrowIfNullOrEmpty(cycleReference);
 
@@ -93,13 +97,23 @@ public class RecurringPaymentService(
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            var refused = Refusal(recurringPayment, providerReference);
             //a failure that arrives after the cycle was paid is a late, out of order event
-            if (recurringPayment == null ||
-                recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed ||
-                recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference) ||
-                recurringPayment.HasOtherProviderReference(providerReference))
-                return false;
+            if (refused == null && recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference))
+                refused = RecurringReportOutcome.Duplicate;
+            if (refused == null && recurringPayment.Status.HasEnded())
+            {
+                //the gateway still tries to charge a payment the shop ended, typically one cancelled while pending:
+                //its reference is kept so the gateway can be stopped
+                if (KeepFirstReference(recurringPayment, providerReference))
+                    await repository.UpdateAsync(recurringPayment);
+                refused = RecurringReportOutcome.Ended;
+            }
 
+            if (refused.HasValue)
+                return new RecurringReportResult { Outcome = refused.Value, RecurringPayment = recurringPayment };
+
+            KeepFirstReference(recurringPayment, providerReference);
             recurringPayment.LastError = reason;
             recurringPayment.LastErrorDateUtc = DateTime.UtcNow;
 
@@ -114,10 +128,10 @@ public class RecurringPaymentService(
         if (enteredPastDue)
             await mediator.Publish(new RecurringPaymentPastDueEvent(recurringPayment));
 
-        return enteredPastDue;
+        return new RecurringReportResult { Outcome = RecurringReportOutcome.Recorded, RecurringPayment = recurringPayment };
     }
 
-    public virtual async Task<bool> RecordEnded(string recurringPaymentId, string providerReference)
+    public virtual async Task<RecurringReportResult> RecordEnded(string recurringPaymentId, string providerReference)
     {
         RecurringPayment recurringPayment;
 
@@ -125,11 +139,13 @@ public class RecurringPaymentService(
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
             //another subscription ending says nothing about the one this payment runs on
-            if (recurringPayment == null ||
-                recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed ||
-                recurringPayment.HasOtherProviderReference(providerReference))
-                return false;
+            var refused = Refusal(recurringPayment, providerReference);
+            if (refused == null && recurringPayment.Status.HasEnded())
+                refused = RecurringReportOutcome.Ended;
+            if (refused.HasValue)
+                return new RecurringReportResult { Outcome = refused.Value, RecurringPayment = recurringPayment };
 
+            KeepFirstReference(recurringPayment, providerReference);
             recurringPayment.Status = RecurringPaymentStatus.Cancelled;
             recurringPayment.CancelledOnUtc = DateTime.UtcNow;
             recurringPayment.CancelledBy = recurringPayment.PaymentMethodSystemName;
@@ -141,10 +157,10 @@ public class RecurringPaymentService(
         await mediator.EntityUpdated(recurringPayment);
         await mediator.Publish(new RecurringPaymentCancelledEvent(recurringPayment));
 
-        return true;
+        return new RecurringReportResult { Outcome = RecurringReportOutcome.Recorded, RecurringPayment = recurringPayment };
     }
 
-    public virtual async Task<RecurringPayment> RecordProviderReference(string recurringPaymentId,
+    public virtual async Task<RecurringReportResult> RecordProviderReference(string recurringPaymentId,
         string providerReference)
     {
         ArgumentException.ThrowIfNullOrEmpty(providerReference);
@@ -154,8 +170,11 @@ public class RecurringPaymentService(
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
-            if (recurringPayment == null || !string.IsNullOrEmpty(recurringPayment.ProviderReference))
-                return recurringPayment;
+            var refused = Refusal(recurringPayment, providerReference);
+            if (refused == null && recurringPayment.ProviderReference == providerReference)
+                refused = RecurringReportOutcome.Duplicate;
+            if (refused.HasValue)
+                return new RecurringReportResult { Outcome = refused.Value, RecurringPayment = recurringPayment };
 
             recurringPayment.ProviderReference = providerReference;
             await repository.UpdateAsync(recurringPayment);
@@ -164,7 +183,28 @@ public class RecurringPaymentService(
         //event notification
         await mediator.EntityUpdated(recurringPayment);
 
-        return recurringPayment;
+        return new RecurringReportResult { Outcome = RecurringReportOutcome.Recorded, RecurringPayment = recurringPayment };
+    }
+
+    //why a report is refused whatever it reports, or null
+    private static RecurringReportOutcome? Refusal(RecurringPayment recurringPayment, string providerReference)
+    {
+        if (recurringPayment == null)
+            return RecurringReportOutcome.NotFound;
+
+        return recurringPayment.HasOtherProviderReference(providerReference)
+            ? RecurringReportOutcome.OtherReference
+            : null;
+    }
+
+    //the first reference reported is the one the payment runs on, whichever report brings it
+    private static bool KeepFirstReference(RecurringPayment recurringPayment, string providerReference)
+    {
+        if (!string.IsNullOrEmpty(recurringPayment.ProviderReference) || string.IsNullOrEmpty(providerReference))
+            return false;
+
+        recurringPayment.ProviderReference = providerReference;
+        return true;
     }
 
     public virtual async Task<CancelRecurringPaymentResult> Cancel(string recurringPaymentId, string cancelledBy,
@@ -186,11 +226,11 @@ public class RecurringPaymentService(
                 return notFound;
             }
 
-            if (recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
+            if (recurringPayment.Status.HasEnded())
                 return new CancelRecurringPaymentResult();
 
-            //a pending payment has no reference to stop yet; the gateway may have started the subscription at checkout,
-            //and the first cycle it reports, recorded on the cancelled payment, stops it
+            //a pending payment whose reference is not known yet has nothing to stop: the gateway is stopped when the
+            //provider reports the reference (RecordRecurringPaymentReferenceCommand) or a first cycle on it
             if (recurringPayment.Status == RecurringPaymentStatus.Pending &&
                 string.IsNullOrEmpty(recurringPayment.ProviderReference))
             {
@@ -209,8 +249,7 @@ public class RecurringPaymentService(
             {
                 recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
                 //a webhook or another cancel ended it meanwhile, which also explains a refusal from the gateway
-                if (recurringPayment == null ||
-                    recurringPayment.Status is RecurringPaymentStatus.Cancelled or RecurringPaymentStatus.Completed)
+                if (recurringPayment == null || recurringPayment.Status.HasEnded())
                     return new CancelRecurringPaymentResult();
 
                 //never cancelled while the gateway may still charge

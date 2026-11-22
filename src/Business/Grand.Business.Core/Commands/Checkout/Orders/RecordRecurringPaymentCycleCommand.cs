@@ -4,7 +4,8 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 /// <summary>
 ///     A payment provider reports that a cycle of a recurring payment was paid. The result is true when the cycle was
-///     recorded now and false when there was nothing to do (an unknown recurring payment, or a cycle already recorded)
+///     recorded now and false when there was nothing to do (an unknown recurring payment, a cycle already recorded, or
+///     another subscription than the one the recurring payment runs on, which is asked to stop)
 /// </summary>
 public class RecordRecurringPaymentCycleCommand : IRequest<bool>
 {

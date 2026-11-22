@@ -2,6 +2,7 @@ using Grand.Business.Core.Commands.Checkout.Orders;
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
+using Grand.Business.Core.Utilities.Checkout;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 
@@ -19,22 +20,25 @@ public class RecordRecurringPaymentReferenceCommandHandler(
         ArgumentException.ThrowIfNullOrEmpty(request.RecurringPaymentId);
         ArgumentException.ThrowIfNullOrEmpty(request.ProviderReference);
 
-        var recurringPayment = await recurringPaymentService.RecordProviderReference(request.RecurringPaymentId,
+        var report = await recurringPaymentService.RecordProviderReference(request.RecurringPaymentId,
             request.ProviderReference);
-        if (recurringPayment == null)
-            return false;
 
-        if (recurringPayment.HasOtherProviderReference(request.ProviderReference))
+        switch (report.Outcome)
         {
-            await RecurringPaymentGateway.NoteOtherReference(orderService, logger, recurringPayment,
-                request.ProviderReference);
-            return false;
+            case RecurringReportOutcome.Recorded:
+                // cancelled before the reference was known, so the cancel could not stop the gateway: it is stopped
+                // now, once, as a resend finds the reference recorded
+                if (report.RecurringPayment.Status.HasEnded())
+                    await RecurringPaymentGateway.Stop(paymentService, orderService, logger, report.RecurringPayment);
+                return true;
+            case RecurringReportOutcome.Duplicate:
+                return true;
+            case RecurringReportOutcome.OtherReference:
+                await RecurringPaymentGateway.StopOtherReference(paymentService, orderService, logger,
+                    report.RecurringPayment, request.ProviderReference, "a second subscription");
+                return false;
+            default:
+                return false;
         }
-
-        // cancelled before the reference was known, so the cancel could not stop the gateway: it is stopped now
-        if (recurringPayment.Status.HasEnded())
-            await RecurringPaymentGateway.Stop(paymentService, orderService, logger, recurringPayment);
-
-        return true;
     }
 }
