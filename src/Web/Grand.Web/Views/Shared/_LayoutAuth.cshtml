@@ -1,10 +1,11 @@
 @*
     The sign-in surface of a store the customer may not browse: guests without "Public store. Allow navigation",
     or anyone without access to a closed store. The guest account screens (login, register, password recovery,
-    two-factor, activation) and Store closed render here instead of _SingleColumn.
+    two-factor, activation) and Store closed render here instead of _SingleColumn (see _GuestAccount).
 
-    Nothing from the catalog belongs on this page - no header, menu, search box, footer or body widget zones -
-    because every one of them shows what the store is hiding behind the sign-in.
+    Nothing from the catalog belongs on this page - no header, menu, search box, footer or content widget zones -
+    because every one of them shows what the store is hiding behind the sign-in. The body start and end zones stay:
+    they carry scripts such as analytics and consent, as they do on _LayoutPopup.
 *@
 <!DOCTYPE html>
 <html use-lang="true">
@@ -31,6 +32,8 @@
 <resources asp-type="TemplateHeader"/>
 <resources asp-type="ScriptHeader"/>
 
+<vc:widget widget-zone="body_start_html_tag_after" additional-data="null"></vc:widget>
+
 <div id="app">
     <div class="page-loader-container">
         <div class="page-loader"></div>
@@ -45,6 +48,7 @@
     <partial name="Partials/Cookie"/>
     <partial name="Partials/Notifications"/>
 </div>
+<vc:widget widget-zone="body_end_html_tag_before" additional-data="null"></vc:widget>
 <resources asp-type="ScriptFooter"/>
 <resources asp-type="TemplateFooter"/>
 </body>
