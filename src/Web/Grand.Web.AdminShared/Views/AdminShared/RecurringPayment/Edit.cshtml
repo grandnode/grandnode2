@@ -1,0 +1,178 @@
+@using Grand.Domain.Orders
+@model RecurringPaymentModel
+@{
+    //page title
+    ViewBag.Title = Loc["Admin.Orders.RecurringPayments.Details"];
+    var area = ViewContext.RouteData.Values["area"]?.ToString();
+    var statusChip = Model.StatusId switch {
+        (int)RecurringPaymentStatus.Active => "grand-chip--green",
+        (int)RecurringPaymentStatus.PastDue => "grand-chip--red",
+        (int)RecurringPaymentStatus.Pending => "grand-chip--amber",
+        _ => ""
+    };
+}
+<form asp-area="@area" asp-controller="RecurringPayment" asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id"/>
+
+    @* the payment transaction screen's shell: the provider runs the schedule, so there is nothing to save and
+       Cancel, which asks first, is the one operation *@
+    <admin-page sticky
+                title="@Loc["Admin.Orders.RecurringPayments.Details"]"
+                icon="bi-arrow-repeat"
+                meta="@Model.PaymentMethodName"
+                back-url="@Url.Action("List")"
+                back-text="@Loc["Admin.Orders.RecurringPayments.BackToList"]">
+        <page-actions>
+            <audit-history entity-type="RecurringPayment" entity-id="@Model.Id"/>
+            @if (Model.CanCancel)
+            {
+                <input type="submit" name="cancelrecurringpayment" asp-action="Cancel" asp-route-id="@Model.Id"
+                       value="@Loc["Admin.Orders.RecurringPayments.Cancel"]" id="cancelrecurringpayment"
+                       class="btn btn-outline-danger" data-grand-confirm="@Loc["Admin.Orders.RecurringPayments.Cancel.Confirm"]"/>
+            }
+        </page-actions>
+
+        <admin-card>
+            <div class="grand-facts">
+                <div>
+                    <admin-label asp-for="Status" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value"><span class="grand-chip @statusChip">@Model.Status</span></div>
+                </div>
+                <div>
+                    <admin-label asp-for="CustomerEmail" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Customer", new { id = Model.CustomerId, area = area })">@Model.CustomerEmail</a>
+                    </div>
+                </div>
+                <div>
+                    <admin-label asp-for="InitialOrderNumber" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">
+                        @if (Model.CanViewInitialOrder)
+                        {
+                            <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { id = Model.InitialOrderId, area = area })">@Model.InitialOrderNumber</a>
+                        }
+                        else
+                        {
+                            @Model.InitialOrderNumber
+                        }
+                    </div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.StoreName))
+                {
+                    <div>
+                        <admin-label asp-for="StoreName" asp-display-hint="false" class="grand-fact__label"/>
+                        <div class="grand-fact__value">@Model.StoreName</div>
+                    </div>
+                }
+                <div>
+                    <admin-label asp-for="PaymentMethodName" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.PaymentMethodName</div>
+                </div>
+                @if (!string.IsNullOrEmpty(Model.ProviderReference))
+                {
+                    <div>
+                        <admin-label asp-for="ProviderReference" asp-display-hint="false" class="grand-fact__label"/>
+                        <div class="grand-fact__value">@Model.ProviderReference</div>
+                    </div>
+                }
+                <div>
+                    <admin-label asp-for="Cycle" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.Cycle</div>
+                </div>
+                <div>
+                    <admin-label asp-for="CyclesPaid" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.CyclesPaid</div>
+                </div>
+                @if (Model.NextPaymentDate.HasValue)
+                {
+                    <div>
+                        <admin-label asp-for="NextPaymentDate" asp-display-hint="false" class="grand-fact__label"/>
+                        <div class="grand-fact__value">@Model.NextPaymentDate.Value.ToString("d")</div>
+                    </div>
+                }
+                <div>
+                    <admin-label asp-for="CreatedOn" asp-display-hint="false" class="grand-fact__label"/>
+                    <div class="grand-fact__value">@Model.CreatedOn</div>
+                </div>
+                @if (Model.CancelledOn.HasValue)
+                {
+                    <div>
+                        <admin-label asp-for="CancelledOn" asp-display-hint="false" class="grand-fact__label"/>
+                        <div class="grand-fact__value">@Model.CancelledOn</div>
+                    </div>
+                    <div>
+                        <admin-label asp-for="CancelledBy" asp-display-hint="false" class="grand-fact__label"/>
+                        <div class="grand-fact__value">@Model.CancelledBy</div>
+                    </div>
+                }
+            </div>
+        </admin-card>
+
+        @if (!string.IsNullOrEmpty(Model.LastError))
+        {
+            <admin-card title="@Loc["Admin.Orders.RecurringPayments.Fields.LastError"]">
+                <div class="grand-facts">
+                    @if (Model.LastErrorDate.HasValue)
+                    {
+                        <div>
+                            <admin-label asp-for="LastErrorDate" asp-display-hint="false" class="grand-fact__label"/>
+                            <div class="grand-fact__value">@Model.LastErrorDate</div>
+                        </div>
+                    }
+                    <div>
+                        <admin-label asp-for="LastError" asp-display-hint="false" class="grand-fact__label"/>
+                        <div class="grand-fact__value">@Model.LastError</div>
+                    </div>
+                </div>
+            </admin-card>
+        }
+
+        @* every cycle the provider reported as paid, the initial order's included *@
+        <admin-card title="@Loc["Admin.Orders.RecurringPayments.Cycles"]" flush>
+            @if (Model.Cycles.Count == 0)
+            {
+                <div class="grand-empty">
+                    <i class="bi bi-arrow-repeat grand-empty__icon"></i>
+                    <div class="grand-empty__title">@Loc["Admin.Orders.RecurringPayments.Cycles.Empty"]</div>
+                </div>
+            }
+            else
+            {
+                <div class="table-responsive">
+                    <table class="table table-sm align-middle mb-0">
+                        <thead>
+                        <tr>
+                            <th>@Loc["Admin.Orders.RecurringPayments.Cycles.CycleNumber"]</th>
+                            <th>@Loc["Admin.Orders.RecurringPayments.Cycles.Order"]</th>
+                            <th class="text-end">@Loc["Admin.Orders.RecurringPayments.Cycles.Amount"]</th>
+                            <th>@Loc["Admin.Orders.RecurringPayments.Cycles.PaidOn"]</th>
+                            <th>@Loc["Admin.Orders.RecurringPayments.Fields.ProviderReference"]</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        @foreach (var cycle in Model.Cycles)
+                        {
+                            <tr>
+                                <td>@cycle.CycleNumber</td>
+                                <td>
+                                    @if (cycle.CanViewOrder)
+                                    {
+                                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { id = cycle.OrderId, area = area })">@cycle.OrderNumber</a>
+                                    }
+                                    else if (cycle.OrderNumber > 0)
+                                    {
+                                        @cycle.OrderNumber
+                                    }
+                                </td>
+                                <td class="text-end text-nowrap">@cycle.Amount</td>
+                                <td class="text-nowrap">@cycle.PaidOn</td>
+                                <td>@cycle.ProviderReference</td>
+                            </tr>
+                        }
+                        </tbody>
+                    </table>
+                </div>
+            }
+        </admin-card>
+    </admin-page>
+</form>
