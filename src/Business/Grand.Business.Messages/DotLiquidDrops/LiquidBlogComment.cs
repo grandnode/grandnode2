@@ -2,6 +2,7 @@
 using Grand.Domain.Blogs;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
+using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
 
@@ -33,7 +34,7 @@ public class LiquidBlogComment : Drop
 
     public string BlogPostURL => $"{url}/{_blogPost.SeName}";
 
-    public string BlogPostCommentText => _blogComment?.CommentText;
+    public string BlogPostCommentText => WebUtility.HtmlEncode(_blogComment?.CommentText);
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

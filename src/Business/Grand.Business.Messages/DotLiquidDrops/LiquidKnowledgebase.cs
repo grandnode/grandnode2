@@ -2,6 +2,7 @@
 using Grand.Domain.Knowledgebase;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
+using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
 
@@ -31,7 +32,7 @@ public class LiquidKnowledgebase : Drop
 
     public string ArticleTitle => _article.Name;
 
-    public string ArticleCommentText => _articleComment.CommentText;
+    public string ArticleCommentText => WebUtility.HtmlEncode(_articleComment.CommentText);
 
     public string ArticleCommentUrl => $"{url}/{_article.SeName}";
 

@@ -49,7 +49,7 @@ public class MessageProviderService : IMessageProviderService
         var email = new QueuedEmail();
         liquidObject.Email = new LiquidEmail(email.Id);
 
-        var subjectReplaced = LiquidExtensions.Render(liquidObject, subject);
+        var subjectReplaced = LiquidExtensions.RenderSubject(liquidObject, subject);
         var bodyReplaced = LiquidExtensions.Render(liquidObject, body);
 
         var attachments = new List<string>();

@@ -52,35 +52,35 @@ public class LiquidOrder : Drop
     //the due date is a calendar date, so it is shown as stored, without a time zone shift
     public string PaymentDueDate => _order.PaymentDueDateUtc?.ToString("D") ?? "";
 
-    public string CustomerFullName => $"{_order.BillingAddress.FirstName} {_order.BillingAddress.LastName}";
+    public string CustomerFullName => WebUtility.HtmlEncode($"{_order.BillingAddress.FirstName} {_order.BillingAddress.LastName}");
 
-    public string CustomerEmail => _order.BillingAddress.Email;
+    public string CustomerEmail => WebUtility.HtmlEncode(_order.BillingAddress.Email);
 
-    public string BillingAddressName => _order.BillingAddress.Name;
+    public string BillingAddressName => WebUtility.HtmlEncode(_order.BillingAddress.Name);
 
-    public string BillingFirstName => _order.BillingAddress.FirstName;
+    public string BillingFirstName => WebUtility.HtmlEncode(_order.BillingAddress.FirstName);
 
-    public string BillingLastName => _order.BillingAddress.LastName;
+    public string BillingLastName => WebUtility.HtmlEncode(_order.BillingAddress.LastName);
 
-    public string BillingPhoneNumber => _order.BillingAddress.PhoneNumber;
+    public string BillingPhoneNumber => WebUtility.HtmlEncode(_order.BillingAddress.PhoneNumber);
 
-    public string BillingEmail => _order.BillingAddress.Email;
+    public string BillingEmail => WebUtility.HtmlEncode(_order.BillingAddress.Email);
 
-    public string BillingFaxNumber => _order.BillingAddress.FaxNumber;
+    public string BillingFaxNumber => WebUtility.HtmlEncode(_order.BillingAddress.FaxNumber);
 
-    public string BillingCompany => _order.BillingAddress.Company;
+    public string BillingCompany => WebUtility.HtmlEncode(_order.BillingAddress.Company);
 
-    public string BillingVatNumber => _order.BillingAddress.VatNumber;
+    public string BillingVatNumber => WebUtility.HtmlEncode(_order.BillingAddress.VatNumber);
 
-    public string BillingAddress1 => _order.BillingAddress.Address1;
+    public string BillingAddress1 => WebUtility.HtmlEncode(_order.BillingAddress.Address1);
 
-    public string BillingAddress2 => _order.BillingAddress.Address2;
+    public string BillingAddress2 => WebUtility.HtmlEncode(_order.BillingAddress.Address2);
 
-    public string BillingCity => _order.BillingAddress.City;
+    public string BillingCity => WebUtility.HtmlEncode(_order.BillingAddress.City);
 
     public string BillingStateProvince { get; set; }
 
-    public string BillingZipPostalCode => _order.BillingAddress.ZipPostalCode;
+    public string BillingZipPostalCode => WebUtility.HtmlEncode(_order.BillingAddress.ZipPostalCode);
 
     public string BillingCountry { get; set; }
 
@@ -90,29 +90,29 @@ public class LiquidOrder : Drop
 
     public string ShippingAdditionDescription => _order.ShippingOptionAttributeDescription;
 
-    public string ShippingAddressName => _order.ShippingAddress != null ? _order.ShippingAddress.Name : "";
+    public string ShippingAddressName => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.Name : "");
 
-    public string ShippingFirstName => _order.ShippingAddress != null ? _order.ShippingAddress.FirstName : "";
+    public string ShippingFirstName => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.FirstName : "");
 
-    public string ShippingLastName => _order.ShippingAddress != null ? _order.ShippingAddress.LastName : "";
+    public string ShippingLastName => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.LastName : "");
 
-    public string ShippingPhoneNumber => _order.ShippingAddress != null ? _order.ShippingAddress.PhoneNumber : "";
+    public string ShippingPhoneNumber => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.PhoneNumber : "");
 
-    public string ShippingEmail => _order.ShippingAddress != null ? _order.ShippingAddress.Email : "";
+    public string ShippingEmail => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.Email : "");
 
-    public string ShippingFaxNumber => _order.ShippingAddress != null ? _order.ShippingAddress.FaxNumber : "";
+    public string ShippingFaxNumber => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.FaxNumber : "");
 
-    public string ShippingCompany => _order.ShippingAddress != null ? _order.ShippingAddress.Company : "";
+    public string ShippingCompany => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.Company : "");
 
-    public string ShippingAddress1 => _order.ShippingAddress != null ? _order.ShippingAddress.Address1 : "";
+    public string ShippingAddress1 => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.Address1 : "");
 
-    public string ShippingAddress2 => _order.ShippingAddress != null ? _order.ShippingAddress.Address2 : "";
+    public string ShippingAddress2 => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.Address2 : "");
 
-    public string ShippingCity => _order.ShippingAddress != null ? _order.ShippingAddress.City : "";
+    public string ShippingCity => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.City : "");
 
     public string ShippingStateProvince { get; set; }
 
-    public string ShippingZipPostalCode => _order.ShippingAddress != null ? _order.ShippingAddress.ZipPostalCode : "";
+    public string ShippingZipPostalCode => WebUtility.HtmlEncode(_order.ShippingAddress != null ? _order.ShippingAddress.ZipPostalCode : "");
 
     public string ShippingCountry { get; set; }
 
@@ -121,7 +121,7 @@ public class LiquidOrder : Drop
     public string PaymentMethod { get; set; }
 
 
-    public string VatNumber => _order.VatNumber;
+    public string VatNumber => WebUtility.HtmlEncode(_order.VatNumber);
 
     public string CreatedOn => _order.CreatedOnUtc.ToLocalTime().ToString("D");
 
@@ -137,9 +137,9 @@ public class LiquidOrder : Drop
 
     public string OrderNoteAttachmentUrl => $"{url}/download/ordernotefile/{_orderNote.Id}";
 
-    public string VendorName => _vendor?.Name;
+    public string VendorName => WebUtility.HtmlEncode(_vendor?.Name);
 
-    public string VendorEmail => _vendor?.Email;
+    public string VendorEmail => WebUtility.HtmlEncode(_vendor?.Email);
 
     public ICollection<LiquidOrderItem> OrderItems { get; }
 

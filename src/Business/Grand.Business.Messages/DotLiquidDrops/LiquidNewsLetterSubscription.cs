@@ -1,6 +1,7 @@
 ﻿using DotLiquid;
 using Grand.Domain.Messages;
 using Grand.Domain.Stores;
+using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
 
@@ -23,7 +24,7 @@ public class LiquidNewsLetterSubscription : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string Email => _subscription.Email;
+    public string Email => WebUtility.HtmlEncode(_subscription.Email);
 
     public string ActivationUrl {
         get {
