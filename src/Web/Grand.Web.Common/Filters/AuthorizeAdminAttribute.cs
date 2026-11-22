@@ -78,6 +78,11 @@ public class AuthorizeAdminAttribute : TypeFilterAttribute
                     !string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId))
                     filterContext.Result = new RedirectToRouteResult(routeName, new RouteValueDictionary());
 
+                //a sales manager sees the customers and orders of their sales employee, so they need one
+                if (await groupService.IsSalesManager(contextAccessor.WorkContext.CurrentCustomer) &&
+                    string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentCustomer.SeId))
+                    filterContext.Result = new RedirectToRouteResult(routeName, new RouteValueDictionary());
+
                 //get allowed IP addresses
                 var ipAddresses = securitySettings.AdminAreaAllowedIpAddresses;
 
