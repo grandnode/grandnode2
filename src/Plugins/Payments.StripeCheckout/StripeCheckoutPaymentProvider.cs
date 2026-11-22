@@ -12,6 +12,7 @@ namespace Payments.StripeCheckout;
 public class StripeCheckoutPaymentProvider : IPaymentProvider
 {
     private readonly IOrderService _orderService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
     private readonly IStripeCheckoutService _stripeCheckoutService;
     private readonly IRequestTranslationService _translationService;
@@ -21,10 +22,12 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     public StripeCheckoutPaymentProvider(
         IRequestTranslationService translationService,
         IOrderService orderService,
+        IRecurringPaymentService recurringPaymentService,
         StripeCheckoutPaymentSettings stripeCheckoutPaymentSettings, IStripeCheckoutService stripeCheckoutService)
     {
         _translationService = translationService;
         _orderService = orderService;
+        _recurringPaymentService = recurringPaymentService;
         _stripeCheckoutPaymentSettings = stripeCheckoutPaymentSettings;
         _stripeCheckoutService = stripeCheckoutService;
     }
@@ -173,7 +176,15 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
         if ((DateTime.UtcNow - paymentTransaction.CreatedOnUtc).TotalMinutes < 1)
             return false;
 
-        return await Task.FromResult(true);
+        //the customer completed the checkout and Stripe runs the subscription, whose first invoice is still to be
+        //reported: paying again would start a second subscription charging every cycle twice
+        var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
+        if (order != null &&
+            await _recurringPaymentService.GetRecurringPaymentByInitialOrderId(order.Id) is { } recurringPayment &&
+            !string.IsNullOrEmpty(recurringPayment.ProviderReference))
+            return false;
+
+        return true;
     }
 
     /// <summary>
@@ -227,6 +238,27 @@ public class StripeCheckoutPaymentProvider : IPaymentProvider
     public async Task<bool> SupportVoid()
     {
         return await Task.FromResult(false);
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether recurring payments are supported: a recurring order is paid with a Stripe
+    ///     subscription, whose invoices report every cycle
+    /// </summary>
+    public Task<bool> SupportRecurringPayment()
+    {
+        return Task.FromResult(true);
+    }
+
+    /// <summary>
+    ///     Cancels the Stripe subscription of a recurring payment
+    /// </summary>
+    public async Task<CancelRecurringPaymentResult> CancelRecurringPayment(RecurringPayment recurringPayment)
+    {
+        var result = new CancelRecurringPaymentResult();
+        foreach (var error in await _stripeCheckoutService.CancelSubscription(recurringPayment))
+            result.AddError(error);
+
+        return result;
     }
 
     /// <summary>

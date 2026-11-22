@@ -1,6 +1,10 @@
 ﻿using Grand.Business.Core.Commands.Checkout.Orders;
+using Grand.Business.Core.Extensions;
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Common.Configuration;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
@@ -14,9 +18,23 @@ namespace Payments.StripeCheckout.Services;
 
 public class StripeCheckoutService : IStripeCheckoutService
 {
+    private const string OrderGuidKey = "order_guid";
+    private const string RecurringPaymentIdKey = "recurring_payment_id";
+
+    //the first invoice of a subscription pays the order the customer placed, each renewal one cycle; any other
+    //(an update or a one-off invoice made in the Stripe dashboard) is not a cycle of the recurring payment
+    private const string SubscriptionCreate = "subscription_create";
+    private const string SubscriptionCycle = "subscription_cycle";
+
+    //one client for every store: it keeps the connections, and a call to Stripe never holds a webhook, a checkout or
+    //a cancel for long; no retry, so a slow Stripe costs one timeout and the webhook is resent or the action repeated
+    private static readonly IHttpClient SharedHttpClient = new SystemNetHttpClient(
+        new HttpClient { Timeout = StripeCheckoutDefaults.RequestTimeout }, 0);
+
     private readonly ILogger<StripeCheckoutService> _logger;
     private readonly IMediator _mediator;
     private readonly IPaymentTransactionService _paymentTransactionService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly ISettingService _settingService;
     private readonly StripeCheckoutPaymentSettings _stripeCheckoutPaymentSettings;
     private readonly IContextAccessor _contextAccessor;
@@ -27,6 +45,7 @@ public class StripeCheckoutService : IStripeCheckoutService
         ILogger<StripeCheckoutService> logger,
         IMediator mediator,
         IPaymentTransactionService paymentTransactionService,
+        IRecurringPaymentService recurringPaymentService,
         ISettingService settingService)
     {
         _contextAccessor = contextAccessor;
@@ -34,6 +53,7 @@ public class StripeCheckoutService : IStripeCheckoutService
         _logger = logger;
         _mediator = mediator;
         _paymentTransactionService = paymentTransactionService;
+        _recurringPaymentService = recurringPaymentService;
         _settingService = settingService;
     }
 
@@ -112,19 +132,64 @@ public class StripeCheckoutService : IStripeCheckoutService
         return (cents / 100.0).ToString("0.00", CultureInfo.InvariantCulture);
     }
 
-    public async Task<bool> WebHookProcessPayment(string stripeSignature, string json)
+    public async Task<IList<string>> CancelSubscription(RecurringPayment recurringPayment)
+    {
+        if (string.IsNullOrEmpty(recurringPayment.ProviderReference))
+            return ["The recurring payment has no Stripe subscription id. Check the Stripe dashboard and cancel the subscription there."];
+
+        //cancelled from the panel or My account, or by the shop when the cycles are paid: the key comes from the
+        //recurring payment's store, as two stores may use two Stripe accounts
+        var settings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(recurringPayment.StoreId);
+        if (string.IsNullOrEmpty(settings.ApiKey))
+            return ["The Stripe API key is not set for the store of this recurring payment."];
+
+        var subscriptionService = new SubscriptionService(CreateStripeClient(settings.ApiKey));
+        try
+        {
+            //at once and without a refund: the cycle paid last stays paid, nothing more is charged
+            var subscription = await subscriptionService.CancelAsync(recurringPayment.ProviderReference);
+            return subscription.Status == "canceled"
+                ? []
+                : [$"Stripe left subscription {subscription.Id} {subscription.Status}."];
+        }
+        catch (StripeException e)
+        {
+            //Stripe refuses to cancel a subscription twice: one it ended already is what was asked for
+            if (await IsSubscriptionCanceled(subscriptionService, recurringPayment.ProviderReference))
+                return [];
+
+            _logger.LogError(e, "Stripe subscription {SubscriptionId} could not be cancelled",
+                recurringPayment.ProviderReference);
+            return [e.StripeError?.Message ?? e.Message];
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Stripe subscription {SubscriptionId} could not be cancelled",
+                recurringPayment.ProviderReference);
+            return [$"Stripe could not be reached ({e.Message}). Try again, or cancel the subscription in the Stripe dashboard."];
+        }
+    }
+
+    private async Task<bool> IsSubscriptionCanceled(SubscriptionService subscriptionService, string subscriptionId)
     {
         try
         {
-            var stripeEvent = EventUtility.ConstructEvent(json, stripeSignature,
+            return (await subscriptionService.GetAsync(subscriptionId)).Status == "canceled";
+        }
+        catch (Exception e)
+        {
+            _logger.LogError(e, "Stripe subscription {SubscriptionId} could not be read", subscriptionId);
+            return false;
+        }
+    }
+
+    public async Task<bool> WebHookProcessPayment(string stripeSignature, string json)
+    {
+        Event stripeEvent;
+        try
+        {
+            stripeEvent = EventUtility.ConstructEvent(json, stripeSignature,
                 _stripeCheckoutPaymentSettings.WebhookEndpointSecret);
-            // Handle the event
-            if (stripeEvent.Type == EventTypes.PaymentIntentSucceeded)
-            {
-                var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
-                await CreatePaymentTransaction(paymentIntent);
-                return true;
-            }
         }
         catch (StripeException e)
         {
@@ -132,12 +197,143 @@ public class StripeCheckoutService : IStripeCheckoutService
             return false;
         }
 
+        //a recurring payment event that fails throws, so the webhook answers with an error and Stripe sends it
+        //again; the recurring payment commands record each report once
+        switch (stripeEvent.Type)
+        {
+            case EventTypes.PaymentIntentSucceeded:
+                await CreatePaymentTransaction(stripeEvent.Data.Object as PaymentIntent);
+                return true;
+            case EventTypes.CheckoutSessionCompleted:
+                await RecordSubscriptionStarted(stripeEvent.Data.Object as Session);
+                return true;
+            case EventTypes.InvoicePaid:
+                await RecordInvoicePaid(stripeEvent.Data.Object as Invoice);
+                return true;
+            case EventTypes.InvoicePaymentFailed:
+                await RecordInvoiceFailed(stripeEvent.Data.Object as Invoice);
+                return true;
+            case EventTypes.CustomerSubscriptionDeleted:
+                await RecordSubscriptionEnded(stripeEvent.Data.Object as Subscription);
+                return true;
+        }
+
         return false;
+    }
+
+    private async Task RecordSubscriptionStarted(Session session)
+    {
+        //a one-off payment has no subscription; its payment intent marks the order paid
+        if (session is not { Mode: "subscription" } || string.IsNullOrEmpty(session.SubscriptionId) ||
+            session.Metadata?.TryGetValue(RecurringPaymentIdKey, out var recurringPaymentId) != true)
+            return;
+
+        await _mediator.Send(new RecordRecurringPaymentReferenceCommand {
+            RecurringPaymentId = recurringPaymentId, ProviderReference = session.SubscriptionId
+        });
+    }
+
+    private async Task RecordInvoicePaid(Invoice invoice)
+    {
+        if (!IsRecurringCycle(invoice, out var subscription, out var recurringPaymentId))
+            return;
+
+        //in the smallest unit, as the price was created with the order total * 100
+        var amount = invoice.AmountPaid / 100.0;
+        if (invoice.BillingReason == SubscriptionCreate)
+            await MarkInitialOrderPaid(invoice, subscription.Metadata, amount);
+
+        await _mediator.Send(new RecordRecurringPaymentCycleCommand {
+            RecurringPaymentId = recurringPaymentId,
+            ProviderReference = subscription.SubscriptionId,
+            CycleReference = invoice.Id,
+            Amount = amount,
+            PaidOnUtc = invoice.StatusTransitions?.PaidAt ?? DateTime.UtcNow,
+            //the end of the period the invoice paid for is when Stripe charges the next one
+            NextPaymentDateUtc = invoice.Lines?.Data?.FirstOrDefault()?.Period?.End
+        });
+    }
+
+    private async Task MarkInitialOrderPaid(Invoice invoice, Dictionary<string, string> metadata, double amount)
+    {
+        if (metadata?.TryGetValue(OrderGuidKey, out var value) != true || !Guid.TryParse(value, out var orderGuid))
+        {
+            _logger.LogError("Stripe invoice {InvoiceId}: the subscription names no order", invoice.Id);
+            return;
+        }
+
+        var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(orderGuid);
+        if (paymentTransaction == null ||
+            !invoice.Currency.Equals(paymentTransaction.CurrencyCode, StringComparison.InvariantCultureIgnoreCase))
+        {
+            _logger.LogError("Stripe invoice {InvoiceId}: paymentTransaction is null or currency is not equal",
+                invoice.Id);
+            return;
+        }
+
+        //paid by an earlier delivery of this event, or by staff
+        if (!await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction }))
+            return;
+
+        //a refund of the order goes to the payment intent, which a subscription's invoice does not carry
+        var paymentIntentId = await GetInvoicePaymentIntentId(invoice.Id, paymentTransaction.StoreId);
+        paymentTransaction.AuthorizationTransactionId = paymentIntentId;
+        await _mediator.Send(new MarkAsPaidCommand {
+            PaymentTransaction = paymentTransaction,
+            CreatedBy = StripeCheckoutDefaults.ProviderSystemName,
+            Amount = amount,
+            Reference = paymentIntentId ?? invoice.Id
+        });
+    }
+
+    private async Task<string> GetInvoicePaymentIntentId(string invoiceId, string storeId)
+    {
+        var settings = await _settingService.LoadSetting<StripeCheckoutPaymentSettings>(storeId);
+        var payments = await new InvoicePaymentService(CreateStripeClient(settings.ApiKey))
+            .ListAsync(new InvoicePaymentListOptions { Invoice = invoiceId, Status = "paid" });
+        return payments.Data.FirstOrDefault()?.Payment?.PaymentIntentId;
+    }
+
+    private async Task RecordInvoiceFailed(Invoice invoice)
+    {
+        if (!IsRecurringCycle(invoice, out var subscription, out var recurringPaymentId))
+            return;
+
+        await _mediator.Send(new RecordRecurringPaymentFailureCommand {
+            RecurringPaymentId = recurringPaymentId,
+            ProviderReference = subscription.SubscriptionId,
+            CycleReference = invoice.Id,
+            Reason = $"Stripe could not charge invoice {invoice.Number ?? invoice.Id} (attempt {invoice.AttemptCount})"
+        });
+    }
+
+    private async Task RecordSubscriptionEnded(Subscription subscription)
+    {
+        if (subscription?.Metadata?.TryGetValue(RecurringPaymentIdKey, out var recurringPaymentId) != true)
+            return;
+
+        await _mediator.Send(new RecordRecurringPaymentEndedCommand {
+            RecurringPaymentId = recurringPaymentId, ProviderReference = subscription.Id
+        });
+    }
+
+    private static bool IsRecurringCycle(Invoice invoice, out InvoiceParentSubscriptionDetails subscription,
+        out string recurringPaymentId)
+    {
+        subscription = invoice?.Parent?.SubscriptionDetails;
+        recurringPaymentId = null;
+        return invoice?.BillingReason is SubscriptionCreate or SubscriptionCycle &&
+               !string.IsNullOrEmpty(subscription?.SubscriptionId) &&
+               subscription.Metadata?.TryGetValue(RecurringPaymentIdKey, out recurringPaymentId) == true;
     }
 
     private async Task CreatePaymentTransaction(PaymentIntent paymentIntent)
     {
-        if (paymentIntent.Metadata.TryGetValue("order_guid", out var order_guid)
+        //a subscription's payments carry no order: its invoices record them
+        if (paymentIntent.Metadata?.ContainsKey(OrderGuidKey) != true)
+            return;
+
+        if (paymentIntent.Metadata.TryGetValue(OrderGuidKey, out var order_guid)
             && Guid.TryParse(order_guid, out var orderGuid))
         {
             var paymentTransaction = await _paymentTransactionService.GetOrderByGuid(orderGuid);
@@ -175,6 +371,12 @@ public class StripeCheckoutService : IStripeCheckoutService
     {
         var storeLocation = _contextAccessor.StoreContext.CurrentHost.Url.TrimEnd('/');
 
+        //a recurring payment cancelled before the order was paid leaves an order to pay once
+        var recurringPayment = await _recurringPaymentService.GetRecurringPaymentByInitialOrderId(order.Id);
+        if (recurringPayment != null && recurringPayment.Status.HasEnded())
+            recurringPayment = null;
+
+        var metadata = new Dictionary<string, string> { { OrderGuidKey, order.OrderGuid.ToString() } };
         var options = new SessionCreateOptions {
             LineItems = [
                 new SessionLineItemOptions {
@@ -183,20 +385,37 @@ public class StripeCheckoutService : IStripeCheckoutService
                         ProductData = new SessionLineItemPriceDataProductDataOptions {
                             Name = string.Format(_stripeCheckoutPaymentSettings.Line, order.OrderNumber)
                         },
-                        Currency = order.CustomerCurrencyCode
+                        Currency = order.CustomerCurrencyCode,
+                        //every cycle charges the order total again, as each cycle order is a copy of this one
+                        Recurring = recurringPayment == null
+                            ? null
+                            : new SessionLineItemPriceDataRecurringOptions {
+                                Interval = Interval(recurringPayment.CyclePeriodId),
+                                IntervalCount = recurringPayment.CycleLength
+                            }
                     },
                     Quantity = 1
                 }
             ],
             ClientReferenceId = order.Id,
             CustomerEmail = order.CustomerEmail,
-            PaymentIntentData = new SessionPaymentIntentDataOptions {
-                Metadata = new Dictionary<string, string> { { "order_guid", order.OrderGuid.ToString() } }
-            },
-            Mode = "payment",
+            Mode = recurringPayment == null ? "payment" : "subscription",
             SuccessUrl = $"{storeLocation}/orderdetails/{order.Id}",
             CancelUrl = $"{storeLocation}/Plugins/PaymentStripeCheckout/CancelOrder/{order.Id}"
         };
+        if (recurringPayment == null)
+        {
+            options.PaymentIntentData = new SessionPaymentIntentDataOptions { Metadata = metadata };
+        }
+        else
+        {
+            //the session names the recurring payment for the subscription's reference, the subscription for its
+            //invoices; the total number of cycles stays with the shop, which cancels the subscription when the
+            //last one is paid
+            metadata[RecurringPaymentIdKey] = recurringPayment.Id;
+            options.Metadata = metadata;
+            options.SubscriptionData = new SessionSubscriptionDataOptions { Metadata = metadata };
+        }
         //the api key is store-specific, so it travels with the client - the static
         //StripeConfiguration.ApiKey is process-wide and two stores checking out at the same time
         //would overwrite each other's credentials
@@ -206,8 +425,19 @@ public class StripeCheckoutService : IStripeCheckoutService
         return session;
     }
 
+    private static string Interval(RecurringCyclePeriod period)
+    {
+        return period switch {
+            RecurringCyclePeriod.Days => "day",
+            RecurringCyclePeriod.Weeks => "week",
+            RecurringCyclePeriod.Months => "month",
+            RecurringCyclePeriod.Years => "year",
+            _ => throw new ArgumentOutOfRangeException(nameof(period), period, "Unknown recurring cycle period")
+        };
+    }
+
     protected virtual IStripeClient CreateStripeClient(string apiKey)
     {
-        return new StripeClient(apiKey);
+        return new StripeClient(apiKey, httpClient: SharedHttpClient);
     }
 }
