@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Data;
 using Grand.Domain.Customers;
@@ -22,6 +23,7 @@ public class AuthorizeApiAdminAttributeTests
 {
     private readonly Customer _customer = new();
     private Mock<IContextAccessor> _contextAccessor;
+    private Mock<IGroupService> _groupService;
     private Mock<IPermissionService> _permissionService;
 
     [TestInitialize]
@@ -30,6 +32,7 @@ public class AuthorizeApiAdminAttributeTests
         DataSettingsManager.Initialize(Path.Join(Path.GetTempPath(), "grand-api-tests-settings.json"));
         DataSettingsManager.Instance.LoadDataSettings(new DataSettings { ConnectionString = "mongodb://localhost" });
         _permissionService = new Mock<IPermissionService>();
+        _groupService = new Mock<IGroupService>();
         _contextAccessor = new Mock<IContextAccessor>();
         _contextAccessor.Setup(x => x.WorkContext.CurrentCustomer).Returns(_customer);
     }
@@ -42,6 +45,7 @@ public class AuthorizeApiAdminAttributeTests
             new ServiceCollection()
                 .AddSingleton(_permissionService.Object)
                 .AddSingleton(_contextAccessor.Object)
+                .AddSingleton(_groupService.Object)
                 .AddSingleton(new SecuritySettings())
                 .AddSingleton(new BackendAPIConfig { Enabled = apiEnabled })
                 .BuildServiceProvider(),
@@ -91,5 +95,47 @@ public class AuthorizeApiAdminAttributeTests
     {
         var context = await Run(apiEnabled: true, ignore: false, permitted: true);
         Assert.IsNull(context.Result);
+    }
+
+    [TestMethod]
+    public async Task ApiEnabled_SalesManager_Forbid()
+    {
+        //the API has no sales employee scope, so a sales manager would reach every customer and order
+        _customer.SeId = "se1";
+        _groupService.Setup(x => x.IsSalesManager(_customer)).ReturnsAsync(true);
+        var context = await Run(apiEnabled: true, ignore: false, permitted: true);
+        Assert.IsInstanceOfType<ForbidResult>(context.Result);
+    }
+
+    [TestMethod]
+    public async Task ApiEnabled_StoreManager_Forbid()
+    {
+        _groupService.Setup(x => x.IsStoreManager(_customer)).ReturnsAsync(true);
+        var context = await Run(apiEnabled: true, ignore: false, permitted: true);
+        Assert.IsInstanceOfType<ForbidResult>(context.Result);
+    }
+
+    [TestMethod]
+    public async Task ApiEnabled_StaffOfStore_Forbid()
+    {
+        _customer.StaffStoreId = "store1";
+        var context = await Run(apiEnabled: true, ignore: false, permitted: true);
+        Assert.IsInstanceOfType<ForbidResult>(context.Result);
+    }
+
+    [TestMethod]
+    public async Task ApiEnabled_Vendor_Forbid()
+    {
+        _groupService.Setup(x => x.IsVendor(_customer)).ReturnsAsync(true);
+        var context = await Run(apiEnabled: true, ignore: false, permitted: true);
+        Assert.IsInstanceOfType<ForbidResult>(context.Result);
+    }
+
+    [TestMethod]
+    public async Task ApiEnabled_VendorAccount_Forbid()
+    {
+        _customer.VendorId = "vendor1";
+        var context = await Run(apiEnabled: true, ignore: false, permitted: true);
+        Assert.IsInstanceOfType<ForbidResult>(context.Result);
     }
 }
