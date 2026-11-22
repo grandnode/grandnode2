@@ -1,6 +1,7 @@
+@using Grand.Web.Common.Models
 @model Grand.Web.Models.Customer.OidcLinkModel
 @{
-    Layout = "_SingleColumn";
+    Layout = Model.StoreAccess == StoreAccess.Open ? "_SingleColumn" : "_LayoutAuth";
 }
 <div class="page oidc-link-page">
     <div class="page-title"><h1>@Loc["Account.Oidc.Link.Title"]</h1></div>

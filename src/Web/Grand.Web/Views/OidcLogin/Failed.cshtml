@@ -1,7 +1,8 @@
+@using Grand.Web.Common.Models
 @using Grand.Business.Core.Utilities.Authentication
 @model Grand.Web.Models.Customer.OidcFailedModel
 @{
-    Layout = "_SingleColumn";
+    Layout = Model.StoreAccess == StoreAccess.Open ? "_SingleColumn" : "_LayoutAuth";
     var key = Model.Mismatch
         ? "Account.Oidc.Link.Mismatch"
         : Model.IdentityTaken
