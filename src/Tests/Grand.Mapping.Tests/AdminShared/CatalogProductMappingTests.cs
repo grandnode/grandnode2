@@ -331,6 +331,20 @@ public class CatalogProductMappingTests : VerifyBase
         return Verify(_mapper.Map<ProductReview>(model));
     }
 
+    [TestMethod]
+    public void ProductReviewModel_ToDomain_KeepsStoredFacts()
+    {
+        var review = new ProductReview { ProductId = "prod-001", CustomerId = "cust-001", Rating = 4 };
+        var model = new ProductReviewModel { ProductId = "prod-002", CustomerId = "cust-002", Rating = 1, Title = "Edited" };
+
+        _mapper.Map(model, review);
+
+        Assert.AreEqual("prod-001", review.ProductId);
+        Assert.AreEqual("cust-001", review.CustomerId);
+        Assert.AreEqual(4, review.Rating);
+        Assert.AreEqual("Edited", review.Title);
+    }
+
     // ── SpecificationAttribute ────────────────────────────────────────────────
 
     [TestMethod]
