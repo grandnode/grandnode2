@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Customers;
@@ -37,7 +38,9 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
     /// Gets or sets a value indicating whether this attribute is shared across all stores
     /// (i.e., not limited to the current store). Marked as read-only in store scope and
     /// calculated from <see cref="Stores"/> membership. Only relevant in store-scoped contexts.
+    /// Never bound: the server decides it.
     /// </summary>
+    [BindNever]
     public bool IsGlobalAttribute { get; set; }
 
     public IList<CustomerAttributeLocalizedModel> Locales { get; set; } = new List<CustomerAttributeLocalizedModel>();

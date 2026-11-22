@@ -19,7 +19,6 @@ public class ProductReviewsModel : BaseModel
 {
     public string ProductId { get; set; }
 
-    public bool CaptchaValid { get; set; }
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
     public string ProductName { get; set; }
 

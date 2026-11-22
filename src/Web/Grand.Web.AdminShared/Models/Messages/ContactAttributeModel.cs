@@ -3,6 +3,7 @@ using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Microsoft.AspNetCore.Mvc.Rendering;
 using System.ComponentModel.DataAnnotations;
 
@@ -71,7 +72,9 @@ public class ContactAttributeModel : BaseEntityModel, ILocalizedModel<ContactAtt
     /// True when the current host may view but not mutate this attribute (Store viewing a
     /// multi-store/global attribute). Always false for Admin. Populated by
     /// BaseContactAttributeController from IAdminDataScope&lt;ContactAttribute&gt;, not persisted.
+    /// Never bound: the server decides it.
     /// </summary>
+    [BindNever]
     public bool IsReadOnly { get; set; }
 }
 
