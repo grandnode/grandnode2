@@ -274,6 +274,9 @@ public class AccountController : BasePublicController
         return View(model);
     }
 
+    //the second step of Login, so available wherever Login is
+    [PublicStore(true)]
+    [ClosedStore(true)]
     [IgnoreApi]
     public async Task<IActionResult> TwoFactorAuthorization()
     {
@@ -304,6 +307,8 @@ public class AccountController : BasePublicController
         return View();
     }
 
+    [PublicStore(true)]
+    [ClosedStore(true)]
     [IgnoreApi]
     [HttpPost]
     public async Task<IActionResult> TwoFactorAuthorization(string token,

@@ -141,8 +141,10 @@ public class CommonController : BasePublicController
         return View(errors);
     }
 
+    //the language selector is on the sign-in screens of a closed store too
     [HttpGet]
     [PublicStore(true)]
+    [ClosedStore(true)]
     [DenySystemAccount]
     [PersistGuestCustomer]
     public virtual async Task<IActionResult> SetLanguage(
