@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
@@ -16,6 +17,8 @@ namespace Grand.Module.Api.Controllers;
 public class CustomerController : BaseApiController
 {
     private readonly ICustomerManagerService _customerManagerService;
+    private readonly ICustomerService _customerService;
+    private readonly IGroupService _groupService;
 
     private readonly CustomerSettings _customerSettings;
     private readonly IMediator _mediator;
@@ -25,8 +28,12 @@ public class CustomerController : BaseApiController
         IMediator mediator,
         IPermissionService permissionService,
         ICustomerManagerService customerManagerService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        ICustomerService customerService,
+        IGroupService groupService)
     {
+        _customerService = customerService;
+        _groupService = groupService;
         _mediator = mediator;
         _customerManagerService = customerManagerService;
         _customerSettings = customerSettings;
@@ -174,8 +181,13 @@ public class CustomerController : BaseApiController
 
         if (model == null || string.IsNullOrEmpty(model.Password)) return NotFound();
 
-        var changePassRequest = new ChangePasswordRequest(email, _customerSettings.DefaultPasswordFormat, model.Password);
-        await _customerManagerService.ChangePassword(changePassRequest);
+        var customer = await _customerService.GetCustomerByEmail(email);
+        if (customer == null) return NotFound();
+
+        //only administrators set the password of an administrator
+        if (await _groupService.IsAdmin(customer) && !await _groupService.IsAdmin(CurrentCustomer)) return Forbid();
+
+        await _customerManagerService.ChangePassword(customer, _customerSettings.DefaultPasswordFormat, model.Password);
 
         return Ok(true);
     }
