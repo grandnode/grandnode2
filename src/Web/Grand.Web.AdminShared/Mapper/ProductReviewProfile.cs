@@ -10,6 +10,9 @@ public class ProductReviewProfile : Profile, IAutoMapperProfile
     public ProductReviewProfile()
     {
         CreateMap<ProductReviewModel, ProductReview>()
+            .ForMember(dest => dest.ProductId, mo => mo.Ignore())
+            .ForMember(dest => dest.CustomerId, mo => mo.Ignore())
+            .ForMember(dest => dest.Rating, mo => mo.Ignore())
             .ForMember(dest => dest.HelpfulYesTotal, mo => mo.Ignore())
             .ForMember(dest => dest.HelpfulNoTotal, mo => mo.Ignore())
             .ForMember(dest => dest.CreatedOnUtc, mo => mo.Ignore())
