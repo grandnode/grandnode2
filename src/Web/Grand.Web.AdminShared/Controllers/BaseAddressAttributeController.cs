@@ -115,7 +115,6 @@ public abstract class BaseAddressAttributeController(
             return RedirectToAction("List");
         }
 
-        model.IsGlobalAttribute = false;
         return View(model);
     }
 

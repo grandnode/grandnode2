@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Common;
@@ -36,7 +37,9 @@ public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAtt
     /// Always false for Admin (global scope has no notion of "my store"). Populated by
     /// BaseAddressAttributeController from IAdminDataScope&lt;AddressAttribute&gt;.DefaultStoreId,
     /// not persisted.
+    /// Never bound: the server decides it.
     /// </summary>
+    [BindNever]
     public bool IsGlobalAttribute { get; set; }
 
     public IList<AddressAttributeLocalizedModel> Locales { get; set; } = new List<AddressAttributeLocalizedModel>();

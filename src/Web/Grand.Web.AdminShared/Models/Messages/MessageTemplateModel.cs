@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Messages;
@@ -68,7 +69,9 @@ public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemp
     /// stores), not save changes to it. Always false for Admin (unscoped, full CRUD on every
     /// template). For Store, mirrors <c>!AccessToEntityByStore(CurrentStoreId)</c> — set by
     /// <c>BaseMessageTemplateController.Edit(GET)</c>.
+    /// Never bound: the server decides it.
     /// </summary>
+    [BindNever]
     public bool IsReadOnly { get; set; }
 
     /// <summary>
@@ -81,6 +84,7 @@ public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemp
     /// <c>BaseMessageTemplateController.Edit(GET)</c>, mirroring <c>CopyTemplate</c>'s own
     /// guard exactly.
     /// </summary>
+    [BindNever]
     public bool CanCopy { get; set; }
 }
 
