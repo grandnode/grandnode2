@@ -1,12 +1,12 @@
 using Grand.Business.Core.Commands.Catalog;
 using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Catalog;
 using Grand.Mediator;
 using Grand.Web.AdminShared.Services;
-using Grand.Web.Common.Localization;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -31,7 +31,7 @@ public class ProductReviewViewModelServiceTests
 
         _service = new ProductReviewViewModelService(_productService.Object, _productReviewService.Object,
             Mock.Of<ICustomerService>(), Mock.Of<IStoreService>(), Mock.Of<IDateTimeService>(),
-            Mock.Of<IRequestTranslationService>(), _mediator.Object);
+            Mock.Of<ITranslationService>(), _mediator.Object);
     }
 
     [TestMethod]
