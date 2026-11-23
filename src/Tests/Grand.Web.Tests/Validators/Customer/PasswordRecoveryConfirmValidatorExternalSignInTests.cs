@@ -67,6 +67,29 @@ public class PasswordRecoveryConfirmValidatorExternalSignInTests
         Assert.IsTrue((await Validate()).IsValid);
     }
 
+    //the page does not tell which addresses have an account, nor what state it is in
+    [TestMethod]
+    public async Task UnknownEmail_WrongToken()
+    {
+        var result = await _validator.ValidateAsync(new PasswordRecoveryConfirmModel {
+            Email = "nobody@x.com", Token = Token, NewPassword = "N3w-password", ConfirmNewPassword = "N3w-password"
+        });
+
+        CollectionAssert.AreEqual(new[] { "Account.PasswordRecovery.WrongToken" },
+            result.Errors.Select(e => e.ErrorMessage).ToArray());
+    }
+
+    [TestMethod]
+    public async Task InactiveAccount_WrongToken()
+    {
+        _customer.Active = false;
+
+        var result = await Validate();
+
+        CollectionAssert.AreEqual(new[] { "Account.PasswordRecovery.WrongToken" },
+            result.Errors.Select(e => e.ErrorMessage).ToArray());
+    }
+
     //a link sent before the account had to sign in through the provider sets no password any more
     [TestMethod]
     public async Task ExternalSignInRequired_WrongToken()

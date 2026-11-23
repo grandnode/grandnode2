@@ -25,11 +25,12 @@ public class
     {
         var model = new PasswordRecoveryConfirmModel();
 
-        //validate token
-        if (!request.Customer.IsPasswordRecoveryTokenValid(request.Token))
+        //an address without an account reads as a wrong link, so the page does not tell which addresses have one
+        if (request.Customer == null || !request.Customer.IsPasswordRecoveryTokenValid(request.Token))
         {
             model.DisablePasswordChanging = true;
             model.Result = _translationService.GetResource("Account.PasswordRecovery.WrongToken");
+            return model;
         }
 
         //validate token expiration date
