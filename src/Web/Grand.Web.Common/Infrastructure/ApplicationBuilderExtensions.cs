@@ -225,7 +225,7 @@ public static class ApplicationBuilderExtensions
     {
         var policyCollection = new HeaderPolicyCollection()
             .AddXssProtectionBlock()
-            .AddFrameOptionsDeny()
+            .AddFrameOptionsSameOrigin()
             .AddContentTypeOptionsNoSniff()
             .AddStrictTransportSecurityMaxAgeIncludeSubDomains() // max-age = one year in seconds
             .AddReferrerPolicyStrictOriginWhenCrossOrigin()
@@ -235,7 +235,8 @@ public static class ApplicationBuilderExtensions
                 builder.AddDefaultSrc().Self();
                 builder.AddConnectSrc().From("*");
                 builder.AddFontSrc().From("*").Data();
-                builder.AddFrameAncestors().From("*");
+                //only the application frames its own pages (the admin panel opens some of them in a popup frame)
+                builder.AddFrameAncestors().Self();
                 builder.AddFrameSrc().From("*");
                 builder.AddMediaSrc().From("*");
                 builder.AddImgSrc().From("*").Data();
