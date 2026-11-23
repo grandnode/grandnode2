@@ -14,4 +14,9 @@ public abstract class BaseDiscountRulePluginController : BaseController
     protected static bool CanManage(Discount discount, Customer customer) =>
         string.IsNullOrEmpty(customer.StaffStoreId) ||
         (discount.LimitedToStores && discount.Stores.Count == 1 && discount.Stores[0] == customer.StaffStoreId);
+
+    //staff of a store see the rules of a global discount or one that includes their store, as the store panel shows it read-only
+    protected static bool CanView(Discount discount, Customer customer) =>
+        string.IsNullOrEmpty(customer.StaffStoreId) ||
+        !discount.LimitedToStores || discount.Stores.Contains(customer.StaffStoreId);
 }

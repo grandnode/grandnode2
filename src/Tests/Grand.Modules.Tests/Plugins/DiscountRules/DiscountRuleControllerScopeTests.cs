@@ -36,6 +36,12 @@ public class DiscountRuleControllerScopeTests
         return _controller.Configure(discount.Id, null, 10);
     }
 
+    private Task<IActionResult> Open(Discount discount)
+    {
+        _discountService.Setup(x => x.GetDiscountById(discount.Id)).ReturnsAsync(discount);
+        return _controller.Configure(discount.Id, null);
+    }
+
     [TestMethod]
     public async Task StoreStaff_DiscountOfAnotherStore_AccessDenied()
     {
@@ -73,5 +79,32 @@ public class DiscountRuleControllerScopeTests
 
         Assert.IsInstanceOfType<JsonResult>(result);
         _discountService.Verify(x => x.UpdateDiscount(It.IsAny<Discount>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task StoreStaff_OpenGlobalDiscount_RuleShown()
+    {
+        _customer.StaffStoreId = "store1";
+        var result = await Open(new Discount { Id = "d1" });
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+    }
+
+    [TestMethod]
+    public async Task StoreStaff_OpenDiscountSharedWithTheirStore_RuleShown()
+    {
+        _customer.StaffStoreId = "store1";
+        var result = await Open(new Discount { Id = "d1", LimitedToStores = true, Stores = ["store1", "store2"] });
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+    }
+
+    [TestMethod]
+    public async Task StoreStaff_OpenDiscountOfAnotherStore_AccessDenied()
+    {
+        _customer.StaffStoreId = "store1";
+        var result = await Open(new Discount { Id = "d1", LimitedToStores = true, Stores = ["store2"] });
+
+        Assert.AreEqual("Access denied", (result as ContentResult)?.Content);
     }
 }

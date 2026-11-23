@@ -71,7 +71,7 @@ public class DiscountRulesHasOneProductController : BaseDiscountRulePluginContro
         if (authResult != null) return authResult;
 
         var discount = await GetDiscountAsync(discountId);
-        if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
+        if (!CanView(discount, _contextAccessor.WorkContext.CurrentCustomer))
             return Content("Access denied");
 
         var restrictedProductIds = string.Empty;

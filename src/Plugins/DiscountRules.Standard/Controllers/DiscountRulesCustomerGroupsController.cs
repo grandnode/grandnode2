@@ -38,7 +38,7 @@ public class DiscountRulesCustomerGroupsController : BaseDiscountRulePluginContr
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
 
-        if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
+        if (!CanView(discount, _contextAccessor.WorkContext.CurrentCustomer))
             return Content("Access denied");
 
         DiscountRule discountRequirement = null;
