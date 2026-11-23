@@ -100,7 +100,7 @@ public class BrandController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
         if (!brand.Any()) return NotFound();
