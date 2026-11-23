@@ -53,20 +53,15 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                 ? await customerService.GetCustomerByUsername(x.Username, storeId)
                 : await customerService.GetCustomerByEmail(x.Email, storeId);
 
+            //an address without an account answers as a wrong password, so the form does not tell which addresses
+            //have one; whether an account is active is told only to someone who knows its password
             switch (customer)
             {
-                case null:
-                    context.AddFailure(
-                        translationService.GetResource("Account.Login.WrongCredentials.CustomerNotExist"));
-                    break;
-                case { Deleted: true }:
-                    context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials.Deleted"));
-                    break;
-                case { Active: false }:
-                    context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials.NotActive"));
+                case null or { Deleted: true }:
+                    context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
                     break;
                 case not null when !await groupService.IsRegistered(customer):
-                    context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
+                    context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
                     break;
                 case { CannotLoginUntilDateUtc: not null }
                     when customer!.CannotLoginUntilDateUtc.Value > DateTime.UtcNow:
@@ -80,6 +75,10 @@ public class LoginValidator : BaseGrandValidator<LoginModel>
                         {
                             context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials"));
                             await mediator.Publish(new CustomerLoginFailedEvent(customer, "wrong credentials"), _);
+                        }
+                        else if (!customer.Active)
+                        {
+                            context.AddFailure(translationService.GetResource("Account.Login.WrongCredentials.NotActive"));
                         }
                         else if (await externalSignInPolicy.PasswordSignIn(customer, SignInSurface.Storefront) is { Allowed: false } decision)
                         {

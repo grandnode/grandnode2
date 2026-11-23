@@ -457,9 +457,6 @@ public class AccountController : BasePublicController
             return RedirectToRoute("Login");
 
         var customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore.Id);
-        if (customer == null)
-            return RedirectToRoute("HomePage");
-
         var model = await _mediator.Send(new GetPasswordRecoveryConfirm { Customer = customer, Token = token });
 
         return View(model);
