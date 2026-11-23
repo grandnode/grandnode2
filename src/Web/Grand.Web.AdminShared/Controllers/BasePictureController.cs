@@ -89,58 +89,44 @@ public abstract class BasePictureController(
                 message = "Unknown content type"
             });
         fileName = fileName.Replace(" ", "");
-        var fileInfo = await mediaFileStore.GetFileInfo(fileName);
-        if (fileInfo == null)
-            try
-            {
-                var filepath = mediaFileStore.GetDirectoryInfo("");
-                if (filepath != null)
-                {
-                    await using (var stream = new FileStream(mediaFileStore.Combine(filepath.PhysicalPath, fileName),
-                                     FileMode.OpenOrCreate))
-                    {
-                        await file.CopyToAsync(stream);
-                    }
-
-                    return Json(new {
-                        success = true,
-                        imageUrl = fileName
-                    });
-                }
-
-                return Json(new {
-                    success = false,
-                    message = "Physical path not exist"
-                });
-            }
-            catch (Exception ex)
-            {
-                return Json(new {
-                    success = false,
-                    message = ex.Message
-                });
-            }
-
-        {
-            var filepath = mediaFileStore.GetDirectoryInfo("");
-            if (filepath != null)
-            {
-                await using (var stream = new FileStream(mediaFileStore.Combine(filepath.PhysicalPath, fileName),
-                                 FileMode.OpenOrCreate))
-                {
-                    await file.CopyToAsync(stream);
-                }
-
-                return Json(new {
-                    success = true,
-                    imageUrl = fileName
-                });
-            }
-
+        var filepath = mediaFileStore.GetDirectoryInfo("");
+        if (filepath == null)
             return Json(new {
                 success = false,
                 message = "Physical path not exist"
             });
+
+        //the folder is shared by every store, so an existing file (another store's logo) is never replaced
+        fileName = await FreeFileName(fileName);
+        try
+        {
+            await using (var stream = new FileStream(mediaFileStore.Combine(filepath.PhysicalPath, fileName),
+                             FileMode.CreateNew))
+            {
+                await file.CopyToAsync(stream);
+            }
+
+            return Json(new {
+                success = true,
+                imageUrl = fileName
+            });
         }
+        catch (Exception ex)
+        {
+            return Json(new {
+                success = false,
+                message = ex.Message
+            });
+        }
+    }
+
+    private async Task<string> FreeFileName(string fileName)
+    {
+        var name = Path.GetFileNameWithoutExtension(fileName);
+        var extension = Path.GetExtension(fileName);
+        var candidate = fileName;
+        for (var i = 1; await mediaFileStore.GetFileInfo(candidate) != null; i++)
+            candidate = $"{name}-{i}{extension}";
+        return candidate;
     }
 }

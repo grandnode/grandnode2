@@ -166,4 +166,35 @@ public class BasePictureControllerTests
         Assert.AreEqual("File no allowed", GetValue<string>(result, "message"));
         _mediaFileStoreMock.Verify(m => m.GetFileInfo(It.IsAny<string>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task AsyncLogoUpload_NameTaken_KeepsTheExistingFile_AndSavesUnderAFreeName()
+    {
+        _permissionServiceMock.Setup(p => p.Authorize(StandardPermission.ManageSettings)).ReturnsAsync(true);
+        var folder = Directory.CreateDirectory(Path.Join(Path.GetTempPath(), "grand-logo-" + Guid.NewGuid())).FullName;
+        try
+        {
+            await File.WriteAllTextAsync(Path.Join(folder, "logo.png"), "another store's logo");
+            var root = new Mock<IFileStoreEntry>();
+            root.Setup(r => r.PhysicalPath).Returns(folder);
+            _mediaFileStoreMock.Setup(m => m.GetDirectoryInfo("")).Returns(root.Object);
+            _mediaFileStoreMock.Setup(m => m.GetFileInfo(It.IsAny<string>()))
+                .ReturnsAsync((string name) => File.Exists(Path.Join(folder, name)) ? Mock.Of<IFileStoreEntry>() : null);
+            var file = CreateFormFile("logo.png", "image/png");
+            file.Setup(f => f.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
+                .Returns((Stream target, CancellationToken _) => target.WriteAsync("new"u8.ToArray()).AsTask());
+
+            var result = await CreateController().AsyncLogoUpload(file.Object);
+
+            Assert.IsTrue(GetValue<bool>(result, "success"));
+            Assert.AreEqual("logo-1.png", GetValue<string>(result, "imageUrl"));
+            Assert.AreEqual("another store's logo", await File.ReadAllTextAsync(Path.Join(folder, "logo.png")));
+            Assert.AreEqual("new", await File.ReadAllTextAsync(Path.Join(folder, "logo-1.png")));
+        }
+        finally
+        {
+            Directory.Delete(folder, true);
+        }
+    }
 }
+
