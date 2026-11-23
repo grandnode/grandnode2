@@ -137,4 +137,40 @@ public class LoginControllerTwoFactorTests
         Assert.AreEqual("AdminLogin", result.RouteName);
         _authentication.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
     }
+
+    [TestMethod]
+    public async Task SecondStep_TooManyWrongCodes_SignInMustStartAgain()
+    {
+        await PasswordStep();
+        var twoFactor = new Mock<ITwoFactorAuthenticationService>();
+        twoFactor.Setup(x => x.AuthenticateTwoFactor(It.IsAny<string>(), "123456", _customer, It.IsAny<TwoFactorAuthenticationType>()))
+            .ReturnsAsync(true);
+
+        for (var i = 0; i < Grand.Web.Common.Extensions.SessionExtensions.MaxWrongTwoFactorCodes; i++)
+            Assert.IsInstanceOfType<ViewResult>(await _controller.TwoFactorAuthorization("000000", twoFactor.Object));
+
+        //the right code no longer helps: the password step has to be done again
+        var result = (RedirectToRouteResult)await _controller.TwoFactorAuthorization("123456", twoFactor.Object);
+
+        Assert.AreEqual("AdminLogin", result.RouteName);
+        _authentication.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SecondStep_WrongCodesBelowTheLimit_RightCodeStillSignsIn()
+    {
+        await PasswordStep();
+        var twoFactor = new Mock<ITwoFactorAuthenticationService>();
+        twoFactor.Setup(x => x.AuthenticateTwoFactor(It.IsAny<string>(), "123456", _customer, It.IsAny<TwoFactorAuthenticationType>()))
+            .ReturnsAsync(true);
+
+        for (var i = 1; i < Grand.Web.Common.Extensions.SessionExtensions.MaxWrongTwoFactorCodes; i++)
+            await _controller.TwoFactorAuthorization("000000", twoFactor.Object);
+
+        await _controller.TwoFactorAuthorization("123456", twoFactor.Object);
+
+        _authentication.Verify(x => x.SignIn(_customer, false), Times.Once);
+        Assert.IsFalse(_session.Keys.Any());
+    }
 }
+

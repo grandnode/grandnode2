@@ -12,6 +12,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
 using Grand.Mediator;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -122,6 +123,7 @@ public abstract class BaseLoginController : BaseController
                         var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
                         //the panel's own second step: the storefront's page would sign in on the storefront
                         HttpContext.Session.SetString(TwoFactorSessionKey, userName!);
+                        HttpContext.Session.ResetWrongTwoFactorCodes(TwoFactorSessionKey);
                         return RedirectToAction(nameof(TwoFactorAuthorization), "Login", new { area = GetCurrentArea() });
                     }
             }
@@ -295,12 +297,15 @@ public abstract class BaseLoginController : BaseController
             {
                 //remove session
                 HttpContext.Session.Remove(TwoFactorSessionKey);
+                HttpContext.Session.ResetWrongTwoFactorCodes(TwoFactorSessionKey);
 
                 //sign in
                 return await SignInAction(customer, false);
             }
 
-            ModelState.AddModelError("", _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
+            ModelState.AddModelError("", HttpContext.Session.CountWrongTwoFactorCode(TwoFactorSessionKey)
+                ? _translationService.GetResource("Account.TwoFactorAuth.TooManyWrongCodes")
+                : _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
         }
 
         await _mediator.Publish(new CustomerLoginFailedEvent(customer,

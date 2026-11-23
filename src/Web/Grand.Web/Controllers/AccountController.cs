@@ -32,6 +32,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using Grand.Web.Common.Localization;
+using static Grand.Web.Common.Extensions.SessionExtensions;
 
 namespace Grand.Web.Controllers;
 
@@ -256,6 +257,7 @@ public class AccountController : BasePublicController
                 {
                     var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
                     HttpContext.Session.SetString("RequiresTwoFactor", userName);
+                    HttpContext.Session.ResetWrongTwoFactorCodes("RequiresTwoFactor");
                     //the sign-in that follows the code must still go where the login was asked to go
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         HttpContext.Session.SetString("RequiresTwoFactorReturnUrl", returnUrl);
@@ -340,6 +342,7 @@ public class AccountController : BasePublicController
             {
                 //remove session
                 HttpContext.Session.Remove("RequiresTwoFactor");
+                HttpContext.Session.ResetWrongTwoFactorCodes("RequiresTwoFactor");
                 var returnUrl = HttpContext.Session.GetString("RequiresTwoFactorReturnUrl");
                 HttpContext.Session.Remove("RequiresTwoFactorReturnUrl");
 
@@ -347,8 +350,9 @@ public class AccountController : BasePublicController
                 return await SignInAction(customer, false, returnUrl);
             }
 
-            ModelState.AddModelError("",
-                _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
+            ModelState.AddModelError("", HttpContext.Session.CountWrongTwoFactorCode("RequiresTwoFactor")
+                ? _translationService.GetResource("Account.TwoFactorAuth.TooManyWrongCodes")
+                : _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
         }
 
         await _mediator.Publish(new CustomerLoginFailedEvent(customer,
