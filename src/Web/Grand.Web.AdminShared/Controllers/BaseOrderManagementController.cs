@@ -234,6 +234,7 @@ public abstract class BaseOrderManagementController(
         return RedirectToAction("Edit", "Order", new { id });
     }
 
+    [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
     public async Task<IActionResult> EditUserFields(string id, OrderModel model)
     {
