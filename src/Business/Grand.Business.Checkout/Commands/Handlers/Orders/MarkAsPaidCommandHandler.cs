@@ -3,6 +3,7 @@ using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Data;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.SharedKernel;
@@ -16,17 +17,20 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
     private readonly IOrderService _orderService;
     private readonly IPaymentTransactionService _paymentTransactionService;
     private readonly IPaymentTransactionHistoryService _paymentTransactionHistoryService;
+    private readonly IResourceLock _resourceLock;
 
     public MarkAsPaidCommandHandler(
         IMediator mediator,
         IOrderService orderService,
         IPaymentTransactionService paymentTransactionService,
-        IPaymentTransactionHistoryService paymentTransactionHistoryService)
+        IPaymentTransactionHistoryService paymentTransactionHistoryService,
+        IResourceLock resourceLock)
     {
         _mediator = mediator;
         _orderService = orderService;
         _paymentTransactionService = paymentTransactionService;
         _paymentTransactionHistoryService = paymentTransactionHistoryService;
+        _resourceLock = resourceLock;
     }
 
     public async Task<bool> Handle(MarkAsPaidCommand request, CancellationToken cancellationToken)
@@ -34,18 +38,26 @@ public class MarkAsPaidCommandHandler : IRequestHandler<MarkAsPaidCommand, bool>
         var paymentTransaction = request.PaymentTransaction;
         ArgumentNullException.ThrowIfNull(paymentTransaction);
 
-        var canMarkOrderAsPaid =
-            await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction },
-                cancellationToken);
-        if (!canMarkOrderAsPaid)
-            throw new GrandException("You can't mark this Payment Transaction as paid");
+        double paid;
+        //two deliveries of the same gateway event, or one racing staff, would both find the payment still open and
+        //both send the order paid: the stored state is checked and changed while no other caller can do the same
+        await using (await _resourceLock.Acquire([$"PaymentTransaction:{paymentTransaction.Id}"], cancellationToken))
+        {
+            //the caller's copy may have been read before another caller marked it paid
+            var stored = await _paymentTransactionService.GetById(paymentTransaction.Id) ?? paymentTransaction;
+            var canMarkOrderAsPaid =
+                await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = stored },
+                    cancellationToken);
+            if (!canMarkOrderAsPaid)
+                throw new GrandException("You can't mark this Payment Transaction as paid");
 
-        //what the payment method reports it took, else what was still to pay
-        var paid = request.Amount ?? paymentTransaction.AmountLeftToPay();
-        paymentTransaction.TransactionStatus = TransactionStatus.Paid;
-        paymentTransaction.PaidAmount = paymentTransaction.TransactionAmount;
+            //what the payment method reports it took, else what was still to pay
+            paid = request.Amount ?? stored.AmountLeftToPay();
+            paymentTransaction.TransactionStatus = TransactionStatus.Paid;
+            paymentTransaction.PaidAmount = paymentTransaction.TransactionAmount;
 
-        await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
+            await _paymentTransactionService.UpdatePaymentTransaction(paymentTransaction);
+        }
         var order = await _orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
         ArgumentNullException.ThrowIfNull(order);
 
