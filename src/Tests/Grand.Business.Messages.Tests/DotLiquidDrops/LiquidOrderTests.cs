@@ -39,4 +39,17 @@ public class LiquidOrderTests
         Assert.AreEqual("", liquid.PaymentDueDate);
         Assert.AreEqual("", liquid.PurchaseOrderNumber);
     }
+
+    [TestMethod]
+    public void BillingAndShippingText_IsHtmlEncoded()
+    {
+        var liquid = Liquid(new Order {
+            BillingAddress = new Grand.Domain.Common.Address { FirstName = "<b>", LastName = "x" },
+            ShippingAddress = new Grand.Domain.Common.Address { City = "<i>" }
+        });
+
+        Assert.AreEqual("&lt;b&gt;", liquid.BillingFirstName);
+        Assert.AreEqual("&lt;b&gt; x", liquid.CustomerFullName);
+        Assert.AreEqual("&lt;i&gt;", liquid.ShippingCity);
+    }
 }

@@ -1,4 +1,5 @@
 ﻿using DotLiquid;
+using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
 
@@ -6,8 +7,8 @@ public class LiquidContactUs : Drop
 {
     public LiquidContactUs(string senderEmail, string senderName, string body, string attributeDescription)
     {
-        SenderEmail = senderEmail;
-        SenderName = senderName;
+        SenderEmail = WebUtility.HtmlEncode(senderEmail);
+        SenderName = WebUtility.HtmlEncode(senderName);
         Body = body;
         AttributeDescription = attributeDescription;
 

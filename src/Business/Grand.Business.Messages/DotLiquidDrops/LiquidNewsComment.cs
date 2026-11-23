@@ -2,6 +2,7 @@
 using Grand.Domain.Localization;
 using Grand.Domain.News;
 using Grand.Domain.Stores;
+using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
 
@@ -31,9 +32,9 @@ public class LiquidNewsComment : Drop
 
     public string NewsTitle => _newsItem.Title;
 
-    public string CommentText => _newsComment.CommentText;
+    public string CommentText => WebUtility.HtmlEncode(_newsComment.CommentText);
 
-    public string CommentTitle => _newsComment.CommentTitle;
+    public string CommentTitle => WebUtility.HtmlEncode(_newsComment.CommentTitle);
 
     public string NewsURL => $"{url}/{_newsItem.SeName}";
 
