@@ -260,7 +260,7 @@ public partial class InstallationService
             PasswordRegularExpression = "^.{6,}$",
             PasswordRecoveryLinkDaysValid = 7,
             PasswordLifetime = 90,
-            FailedPasswordAllowedAttempts = 0,
+            FailedPasswordAllowedAttempts = 5,
             FailedPasswordLockoutMinutes = 30,
             UserRegistrationType = UserRegistrationType.Standard,
             NotifyNewCustomerRegistration = false,

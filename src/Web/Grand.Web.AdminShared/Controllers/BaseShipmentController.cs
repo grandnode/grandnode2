@@ -634,7 +634,11 @@ public abstract class BaseShipmentController(
         if (shipment == null || !await scope.HasAccess(shipment))
             return Json(new { Result = false });
 
-        await shipmentViewModelService.InsertShipmentNote(shipment, downloadId, displayToCustomer, message);
+        if (!await shipmentViewModelService.InsertShipmentNote(shipment, downloadId, displayToCustomer, message))
+            return Json(new {
+                Result = false,
+                Message = translationService.GetResource("Admin.Orders.Shipments.ShipmentNotes.DownloadNotOfShipment")
+            });
 
         return Json(new { Result = true });
     }

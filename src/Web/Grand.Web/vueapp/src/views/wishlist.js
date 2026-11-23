@@ -17,7 +17,7 @@ registerView('wishlist', ({ model, routes, res }) => {
         }),
         methods: {
             deleteFromWishlist(id) {
-                return axios.get(`${routes.deleteItem}/${id}`)
+                return axios.post(`${routes.deleteItem}/${id}`)
                     .then(response => {
                         if (response.data.success) return this.getModel()
                         this.displayWarning(response.data.message, 'danger')

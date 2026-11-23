@@ -13,7 +13,7 @@ public interface IShipmentViewModelService
     Task<int> GetStockQty(Product product, string warehouseId);
     Task<int> GetReservedQty(Product product, string warehouseId);
     Task<IList<ShipmentModel.ShipmentNote>> PrepareShipmentNotes(Shipment shipment);
-    Task InsertShipmentNote(Shipment shipment, string downloadId, bool displayToCustomer, string message);
+    Task<bool> InsertShipmentNote(Shipment shipment, string downloadId, bool displayToCustomer, string message);
     Task DeleteShipmentNote(Shipment shipment, string id);
     Task<ShipmentListModel> PrepareShipmentListModel();
     Task<ShipmentModel> PrepareShipmentModel(Order order);

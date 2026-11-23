@@ -346,7 +346,7 @@ public class ShoppingCartController : BasePublicController
         });
     }
 
-    [HttpGet]
+    [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ClearCart()
     {
@@ -588,7 +588,7 @@ public class ShoppingCartController : BasePublicController
     }
 
     [DenySystemAccount]
-    [HttpGet]
+    [HttpPost]
     public virtual async Task<IActionResult> RemoveDiscountCoupon(string discountId)
     {
         var discount = await _discountService.GetDiscountById(discountId);
@@ -619,7 +619,7 @@ public class ShoppingCartController : BasePublicController
     }
 
     [DenySystemAccount]
-    [HttpGet]
+    [HttpPost]
     public virtual async Task<IActionResult> RemoveGiftVoucherCode(string giftVoucherId,
         [FromServices] IGiftVoucherService giftVoucherService)
     {

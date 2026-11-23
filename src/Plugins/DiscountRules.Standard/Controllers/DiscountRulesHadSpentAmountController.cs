@@ -2,6 +2,7 @@ using DiscountRules.Standard.Models;
 using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Domain.Permissions;
 using Grand.Domain.Discounts;
+using Grand.Infrastructure;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using System.Globalization;
@@ -10,14 +11,17 @@ namespace DiscountRules.Standard.Controllers;
 
 public class DiscountRulesHadSpentAmountController : BaseDiscountRulePluginController
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly IDiscountService _discountService;
     private readonly IRequestPermissionService _permissionService;
 
     public DiscountRulesHadSpentAmountController(
         IDiscountService discountService,
+        IContextAccessor contextAccessor,
         IRequestPermissionService permissionService)
     {
         _discountService = discountService;
+        _contextAccessor = contextAccessor;
         _permissionService = permissionService;
     }
 
@@ -29,6 +33,9 @@ public class DiscountRulesHadSpentAmountController : BaseDiscountRulePluginContr
         var discount = await _discountService.GetDiscountById(discountId);
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
+
+        if (!CanView(discount, _contextAccessor.WorkContext.CurrentCustomer))
+            return Content("Access denied");
 
         double spentAmountRequirement = 0;
         if (!string.IsNullOrEmpty(discountRequirementId))
@@ -63,6 +70,9 @@ public class DiscountRulesHadSpentAmountController : BaseDiscountRulePluginContr
         var discount = await _discountService.GetDiscountById(discountId);
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
+
+        if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
+            return Content("Access denied");
 
         DiscountRule discountRequirement = null;
         if (!string.IsNullOrEmpty(discountRequirementId))

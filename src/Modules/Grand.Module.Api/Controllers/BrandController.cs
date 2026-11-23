@@ -61,7 +61,7 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] BrandDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddBrandCommand { Model = model });
         return Ok(model);
@@ -75,7 +75,7 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] BrandDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateBrandCommand { Model = model });
         return Ok(model);
@@ -100,7 +100,7 @@ public class BrandController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
         if (!brand.Any()) return NotFound();
@@ -119,7 +119,7 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Brands, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
         var brand = await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(key));
         if (!brand.Any()) return NotFound();

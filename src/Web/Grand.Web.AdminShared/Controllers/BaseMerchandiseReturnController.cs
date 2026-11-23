@@ -349,8 +349,13 @@ public abstract class BaseMerchandiseReturnController(
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
         if (order == null) return Json(new { Result = false });
 
-        await merchandiseReturnViewModelService.InsertMerchandiseReturnNote(merchandiseReturn, order, downloadId,
-            displayToCustomer, message);
+        if (!await merchandiseReturnViewModelService.InsertMerchandiseReturnNote(merchandiseReturn, order, downloadId,
+                displayToCustomer, message))
+            return Json(new {
+                Result = false,
+                Message = translationService.GetResource(
+                    "Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.DownloadNotOfMerchandiseReturn")
+            });
 
         return Json(new { Result = true });
     }
