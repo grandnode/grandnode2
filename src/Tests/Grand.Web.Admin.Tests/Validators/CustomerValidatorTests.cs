@@ -184,4 +184,46 @@ public class CustomerValidatorTests
 
         Assert.IsFalse(result.Errors.Any(e => e.ErrorMessage == MustBeCurrentStoreMessage));
     }
+
+    private const string RemoveAdminMessage = "Only administrators can remove role 'Administrators'";
+
+    private void TargetIsAdministrator()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = "customer@example.com" });
+        _groupServiceMock.Setup(g => g.IsAdmin(It.Is<Customer>(c => c.Id == "customer-1"))).ReturnsAsync(true);
+    }
+
+    [TestMethod]
+    public async Task AdministratorRoleRemoved_ByNonAdministrator_Refused()
+    {
+        TargetIsAdministrator();
+
+        var result = await _validator.ValidateAsync(BuildModel(CurrentStoreId));
+
+        Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == RemoveAdminMessage));
+    }
+
+    [TestMethod]
+    public async Task AdministratorRoleRemoved_ByAdministrator_Allowed()
+    {
+        TargetIsAdministrator();
+        _groupServiceMock.Setup(g => g.IsAdmin(It.Is<Customer>(c => c.Id != "customer-1"))).ReturnsAsync(true);
+
+        var result = await _validator.ValidateAsync(BuildModel(CurrentStoreId));
+
+        Assert.IsFalse(result.Errors.Any(e => e.ErrorMessage == RemoveAdminMessage));
+    }
+
+    [TestMethod]
+    public async Task NonAdministratorEdited_ByNonAdministrator_NotAffected()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerById("customer-1"))
+            .ReturnsAsync(new Customer { Id = "customer-1", Email = "customer@example.com" });
+
+        var result = await _validator.ValidateAsync(BuildModel(CurrentStoreId));
+
+        Assert.IsFalse(result.Errors.Any(e => e.ErrorMessage == RemoveAdminMessage));
+    }
 }
+
