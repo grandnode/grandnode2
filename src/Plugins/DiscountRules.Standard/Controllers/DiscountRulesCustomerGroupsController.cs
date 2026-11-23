@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Discounts;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Permissions;
 using Grand.Domain.Discounts;
+using Grand.Infrastructure;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -11,16 +12,19 @@ namespace DiscountRules.Standard.Controllers;
 
 public class DiscountRulesCustomerGroupsController : BaseDiscountRulePluginController
 {
+    private readonly IContextAccessor _contextAccessor;
     private readonly IDiscountService _discountService;
     private readonly IGroupService _groupService;
     private readonly IRequestPermissionService _permissionService;
 
     public DiscountRulesCustomerGroupsController(
         IDiscountService discountService,
+        IContextAccessor contextAccessor,
         IGroupService groupService,
         IRequestPermissionService permissionService)
     {
         _discountService = discountService;
+        _contextAccessor = contextAccessor;
         _groupService = groupService;
         _permissionService = permissionService;
     }
@@ -33,6 +37,9 @@ public class DiscountRulesCustomerGroupsController : BaseDiscountRulePluginContr
         var discount = await _discountService.GetDiscountById(discountId);
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
+
+        if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
+            return Content("Access denied");
 
         DiscountRule discountRequirement = null;
         if (!string.IsNullOrEmpty(discountRequirementId))
@@ -73,6 +80,9 @@ public class DiscountRulesCustomerGroupsController : BaseDiscountRulePluginContr
         var discount = await _discountService.GetDiscountById(discountId);
         if (discount == null)
             throw new ArgumentException("Discount could not be loaded");
+
+        if (!CanManage(discount, _contextAccessor.WorkContext.CurrentCustomer))
+            return Content("Access denied");
 
         DiscountRule discountRequirement = null;
         if (!string.IsNullOrEmpty(discountRequirementId))
