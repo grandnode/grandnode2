@@ -32,7 +32,6 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using System.Security.Cryptography;
 using Grand.Web.Common.Localization;
-using static Grand.Web.Common.Extensions.SessionExtensions;
 
 namespace Grand.Web.Controllers;
 
@@ -257,7 +256,6 @@ public class AccountController : BasePublicController
                 {
                     var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
                     HttpContext.Session.SetString("RequiresTwoFactor", userName);
-                    HttpContext.Session.ResetWrongTwoFactorCodes("RequiresTwoFactor");
                     //the sign-in that follows the code must still go where the login was asked to go
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         HttpContext.Session.SetString("RequiresTwoFactorReturnUrl", returnUrl);
@@ -314,7 +312,7 @@ public class AccountController : BasePublicController
     [IgnoreApi]
     [HttpPost]
     public async Task<IActionResult> TwoFactorAuthorization(string token,
-        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
+        [FromServices] ITwoFactorSignInService twoFactorSignInService)
     {
         if (!_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("Login");
@@ -329,34 +327,29 @@ public class AccountController : BasePublicController
         if (customer == null)
             return RedirectToRoute("Login");
 
-        if (string.IsNullOrEmpty(token))
+        switch (await twoFactorSignInService.CheckCode(customer, token, _customerSettings.TwoFactorAuthenticationType))
         {
-            ModelState.AddModelError("",
-                _translationService.GetResource("Account.TwoFactorAuth.SecurityCodeIsRequired"));
-        }
-        else
-        {
-            var secretKey = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorSecretKey);
-            if (await twoFactorAuthenticationService.AuthenticateTwoFactor(secretKey, token, customer,
-                    _customerSettings.TwoFactorAuthenticationType))
-            {
+            case TwoFactorSignInResult.Passed:
                 //remove session
                 HttpContext.Session.Remove("RequiresTwoFactor");
-                HttpContext.Session.ResetWrongTwoFactorCodes("RequiresTwoFactor");
                 var returnUrl = HttpContext.Session.GetString("RequiresTwoFactorReturnUrl");
                 HttpContext.Session.Remove("RequiresTwoFactorReturnUrl");
 
                 //sign in
                 return await SignInAction(customer, false, returnUrl);
-            }
-
-            ModelState.AddModelError("", HttpContext.Session.CountWrongTwoFactorCode("RequiresTwoFactor")
-                ? _translationService.GetResource("Account.TwoFactorAuth.TooManyWrongCodes")
-                : _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
+            case TwoFactorSignInResult.LockedOut:
+                //the waiting sign-in is dropped: it starts again with the password once the lockout ends
+                HttpContext.Session.Remove("RequiresTwoFactor");
+                HttpContext.Session.Remove("RequiresTwoFactorReturnUrl");
+                ModelState.AddModelError("",
+                    _translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
+                break;
+            default:
+                ModelState.AddModelError("", _translationService.GetResource(string.IsNullOrEmpty(token)
+                    ? "Account.TwoFactorAuth.SecurityCodeIsRequired"
+                    : "Account.TwoFactorAuth.WrongSecurityCode"));
+                break;
         }
-
-        await _mediator.Publish(new CustomerLoginFailedEvent(customer,
-            string.IsNullOrEmpty(token) ? "two-factor code missing" : "wrong two-factor code"));
 
         return View();
     }

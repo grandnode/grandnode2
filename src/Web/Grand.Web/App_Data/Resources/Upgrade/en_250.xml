@@ -2817,7 +2817,4 @@
 	<Resource Name="Admin.Orders.Fields.RecurringCycleNumber" Area="Admin">
 		<Value>Cycle</Value>
 	</Resource>
-	<Resource Name="Account.TwoFactorAuth.TooManyWrongCodes" Area="Front">
-		<Value>Too many wrong security codes. Sign in again.</Value>
-	</Resource>
 </Language>

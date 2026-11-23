@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Infrastructure;
@@ -12,7 +13,6 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.Common.Controllers;
 using Grand.Mediator;
-using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Security.Authentication;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
@@ -123,7 +123,6 @@ public abstract class BaseLoginController : BaseController
                         var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
                         //the panel's own second step: the storefront's page would sign in on the storefront
                         HttpContext.Session.SetString(TwoFactorSessionKey, userName!);
-                        HttpContext.Session.ResetWrongTwoFactorCodes(TwoFactorSessionKey);
                         return RedirectToAction(nameof(TwoFactorAuthorization), "Login", new { area = GetCurrentArea() });
                     }
             }
@@ -269,7 +268,7 @@ public abstract class BaseLoginController : BaseController
 
     [HttpPost]
     public async Task<IActionResult> TwoFactorAuthorization(string token,
-        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
+        [FromServices] ITwoFactorSignInService twoFactorSignInService)
     {
         if (!_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute($"{GetCurrentArea()}Login");
@@ -284,32 +283,27 @@ public abstract class BaseLoginController : BaseController
         if (customer == null)
             return RedirectToRoute($"{GetCurrentArea()}Login");
 
-        if (string.IsNullOrEmpty(token))
+        switch (await twoFactorSignInService.CheckCode(customer, token, _customerSettings.TwoFactorAuthenticationType))
         {
-            ModelState.AddModelError("",
-                _translationService.GetResource("Account.TwoFactorAuth.SecurityCodeIsRequired"));
-        }
-        else
-        {
-            var secretKey = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorSecretKey);
-            if (await twoFactorAuthenticationService.AuthenticateTwoFactor(secretKey, token, customer,
-                    _customerSettings.TwoFactorAuthenticationType))
-            {
+            case TwoFactorSignInResult.Passed:
                 //remove session
                 HttpContext.Session.Remove(TwoFactorSessionKey);
-                HttpContext.Session.ResetWrongTwoFactorCodes(TwoFactorSessionKey);
 
                 //sign in
                 return await SignInAction(customer, false);
-            }
-
-            ModelState.AddModelError("", HttpContext.Session.CountWrongTwoFactorCode(TwoFactorSessionKey)
-                ? _translationService.GetResource("Account.TwoFactorAuth.TooManyWrongCodes")
-                : _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
+            case TwoFactorSignInResult.LockedOut:
+                //the waiting sign-in is dropped: it starts again with the password once the lockout ends
+                HttpContext.Session.Remove(TwoFactorSessionKey);
+                ModelState.AddModelError("",
+                    _translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
+                break;
+            default:
+                ModelState.AddModelError("", _translationService.GetResource(string.IsNullOrEmpty(token)
+                    ? "Account.TwoFactorAuth.SecurityCodeIsRequired"
+                    : "Account.TwoFactorAuth.WrongSecurityCode"));
+                break;
         }
 
-        await _mediator.Publish(new CustomerLoginFailedEvent(customer,
-            string.IsNullOrEmpty(token) ? "two-factor code missing" : "wrong two-factor code"));
         return View();
     }
 }
