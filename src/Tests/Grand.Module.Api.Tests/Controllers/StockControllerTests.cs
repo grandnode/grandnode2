@@ -35,6 +35,8 @@ public class StockControllerTests
         _permissionServiceMock = new Mock<IPermissionService>();
         _permissionServiceMock.Setup(x => x.Authorize(PermissionSystemName.StockIntegration, _customer))
             .ReturnsAsync(true);
+        _permissionServiceMock.Setup(x => x.AuthorizeAction(PermissionSystemName.StockIntegration,
+            PermissionActionName.Edit, _customer)).ReturnsAsync(true);
 
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(_customer);
@@ -60,9 +62,23 @@ public class StockControllerTests
     {
         _permissionServiceMock.Setup(x => x.Authorize(PermissionSystemName.StockIntegration, _customer))
             .ReturnsAsync(false);
+        _permissionServiceMock.Setup(x => x.AuthorizeAction(PermissionSystemName.StockIntegration,
+            PermissionActionName.Edit, _customer)).ReturnsAsync(false);
 
         Assert.IsInstanceOfType<ForbidResult>(await _controller.Apply(Request(1)));
         Assert.IsInstanceOfType<ForbidResult>(await _controller.Journal(null));
+    }
+
+    [TestMethod]
+    public async Task Apply_EditDeniedForTheGroup_Forbidden_JournalStillReadable()
+    {
+        //the group holds the permission, but its Edit action is denied, as the admin panel can set it
+        _permissionServiceMock.Setup(x => x.AuthorizeAction(PermissionSystemName.StockIntegration,
+            PermissionActionName.Edit, _customer)).ReturnsAsync(false);
+
+        Assert.IsInstanceOfType<ForbidResult>(await _controller.Apply(Request(1)));
+        Assert.IsNotInstanceOfType<ForbidResult>(await _controller.Journal(null));
+        _mediatorMock.Verify(x => x.Send(It.IsAny<ApplyStockCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]
