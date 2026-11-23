@@ -11,7 +11,8 @@ public class CustomerGroupProfile : Profile, IAutoMapperProfile
     {
         CreateMap<CustomerGroup, CustomerGroupModel>();
         CreateMap<CustomerGroupModel, CustomerGroup>()
-            .ForMember(dest => dest.Id, mo => mo.Ignore());
+            .ForMember(dest => dest.Id, mo => mo.Ignore())
+            .ForMember(dest => dest.IsSystem, mo => mo.Ignore());
     }
 
     public int Order => 0;

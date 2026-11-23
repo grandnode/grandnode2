@@ -104,14 +104,11 @@ public class CustomerGroupController : BaseApiController
         if (!customerGroup.Any()) return NotFound();
 
         var cr = customerGroup.FirstOrDefault();
-        model.ApplyTo(cr);
-        if (cr is { IsSystem: false })
-        {
-            await _mediator.Send(new UpdateCustomerGroupCommand { Model = cr });
-            return Ok();
-        }
+        if (cr!.IsSystem) return BadRequest(ModelState);
 
-        return BadRequest(ModelState);
+        model.ApplyTo(cr);
+        await _mediator.Send(new UpdateCustomerGroupCommand { Model = cr });
+        return Ok();
     }
 
     [EndpointDescription("Delete entity in CustomerGroup")]
