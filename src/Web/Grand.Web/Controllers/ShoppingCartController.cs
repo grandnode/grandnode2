@@ -346,7 +346,7 @@ public class ShoppingCartController : BasePublicController
         });
     }
 
-    [HttpGet]
+    [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ClearCart()
     {
