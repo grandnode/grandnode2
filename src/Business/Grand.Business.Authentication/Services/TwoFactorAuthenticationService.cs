@@ -6,6 +6,8 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Grand.Business.Authentication.Services;
 
@@ -35,11 +37,17 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
             case TwoFactorAuthenticationType.EmailVerification:
                 var customerToken =
                     customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
-                if (customerToken != token?.Trim())
+                if (string.IsNullOrEmpty(customerToken) || !CodesMatch(customerToken, token?.Trim()))
                     return false;
                 var validUntil =
                     customer.GetUserFieldFromEntity<DateTime>(SystemCustomerFieldNames.TwoFactorCodeValidUntil);
-                return validUntil >= DateTime.UtcNow;
+                if (validUntil < DateTime.UtcNow)
+                    return false;
+
+                //a code signs in once
+                await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.TwoFactorValidCode,
+                    string.Empty);
+                return true;
 
             case TwoFactorAuthenticationType.SMSVerification:
                 if (!_smsVerificationService.Any())
@@ -88,7 +96,12 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
 
     private static string PrepareRandomCode()
     {
-        var generator = new Random();
-        return generator.Next(0, 999999).ToString("D6");
+        return RandomNumberGenerator.GetInt32(1_000_000).ToString("D6");
+    }
+
+    private static bool CodesMatch(string expected, string given)
+    {
+        return given != null &&
+               CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(expected), Encoding.UTF8.GetBytes(given));
     }
 }
