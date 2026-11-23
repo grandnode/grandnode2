@@ -201,6 +201,25 @@ public class ApiMappingTests : VerifyBase
     }
 
     [TestMethod]
+    public void CustomerGroupDto_ToEntity_KeepsStoredIsSystem()
+    {
+        var group = new CustomerGroup { Id = "cg-1", Name = "Administrators", SystemName = "Administrators", IsSystem = true };
+        var dto = new CustomerGroupDto { Id = "cg-1", Name = "Administrators", SystemName = "Administrators", IsSystem = false };
+
+        _mapper.Map(dto, group);
+
+        Assert.IsTrue(group.IsSystem);
+    }
+
+    [TestMethod]
+    public void CustomerGroupDto_ToEntity_NewGroupIsNotSystem()
+    {
+        var dto = new CustomerGroupDto { Name = "VIP Customers", SystemName = "Vip", IsSystem = true };
+
+        Assert.IsFalse(_mapper.Map<CustomerGroup>(dto).IsSystem);
+    }
+
+    [TestMethod]
     public Task CustomerGroup_ToDto()
     {
         var entity = new CustomerGroup {

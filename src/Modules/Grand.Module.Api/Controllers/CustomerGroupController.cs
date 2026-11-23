@@ -73,17 +73,21 @@ public class CustomerGroupController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerGroupDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CustomerGroupDto model)
     {
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
         if (!await _permissionService.Authorize(PermissionSystemName.Customers)) return Forbid();
 
-        if (!model.IsSystem)
-        {
-            model = await _mediator.Send(new UpdateCustomerGroupCommand { Model = model });
-            return Ok(model);
-        }
+        var customerGroup = await _mediator.Send(new GetGenericQuery<CustomerGroupDto, CustomerGroup>(model.Id));
+        if (!customerGroup.Any()) return NotFound();
 
-        return BadRequest(ModelState);
+        if (customerGroup.FirstOrDefault()!.IsSystem) return BadRequest(ModelState);
+
+        model = await _mediator.Send(new UpdateCustomerGroupCommand { Model = model });
+        return Ok(model);
     }
 
     [EndpointDescription("Partially update entity in CustomerGroup")]
@@ -104,14 +108,11 @@ public class CustomerGroupController : BaseApiController
         if (!customerGroup.Any()) return NotFound();
 
         var cr = customerGroup.FirstOrDefault();
-        model.ApplyTo(cr);
-        if (cr is { IsSystem: false })
-        {
-            await _mediator.Send(new UpdateCustomerGroupCommand { Model = cr });
-            return Ok();
-        }
+        if (cr!.IsSystem) return BadRequest(ModelState);
 
-        return BadRequest(ModelState);
+        model.ApplyTo(cr);
+        await _mediator.Send(new UpdateCustomerGroupCommand { Model = cr });
+        return Ok();
     }
 
     [EndpointDescription("Delete entity in CustomerGroup")]

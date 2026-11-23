@@ -6,7 +6,7 @@
 }
 @* The product edit screen's shell: Save as the one primary action, and Delete in the overflow
    menu rather than beside Save. *@
-<form asp-area="@area" asp-controller="ProductReview" asp-action="Edit" method="post" asp-route-ProductId="@HtmlExtensions.HtmlEncodeSafe(Context.Request.Query["ProductId"])">
+<form asp-area="@area" asp-controller="ProductReview" asp-action="Edit" method="post">
     <admin-page sticky
                 title="@Loc["Admin.Catalog.ProductReviews.EditProductReviewDetails"]"
                 icon="bi-box"

@@ -137,6 +137,7 @@ public class CustomerGroupController : BaseAdminController
             }
 
             //If we got this far, something failed, redisplay form
+            model.IsSystem = customerGroup.IsSystem;
             return View(model);
         }
         catch (Exception exc)

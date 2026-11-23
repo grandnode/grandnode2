@@ -1,6 +1,5 @@
 ﻿@model CustomerGroupModel
-@* one card of two-column fields; IsSystem is not editable, so it reads as a fact and posts back
-   through its hidden input *@
+@* one card of two-column fields; IsSystem is not editable, so it reads as a fact and is never posted *@
 <admin-card>
     <div class="grand-fields grand-fields--2col">
         <admin-field asp-for="Name"/>
@@ -18,5 +17,4 @@
             <div class="grand-fact__value">@Model.IsSystem.ToString()</div>
         </div>
     </div>
-    <input asp-for="IsSystem" type="hidden"/>
 </admin-card>
