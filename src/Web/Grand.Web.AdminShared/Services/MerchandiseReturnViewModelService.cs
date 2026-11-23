@@ -19,6 +19,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
@@ -664,7 +665,8 @@ public class MerchandiseReturnViewModelService(
     {
         //the id comes from the request; a file uploaded for another merchandise return is refused
         if (!string.IsNullOrEmpty(downloadId) &&
-            !IsAttachmentOf(await downloadService.GetDownloadById(downloadId), merchandiseReturn))
+            !(await downloadService.GetDownloadById(downloadId)).IsAttachmentOf(DownloadType.MerchandiseReturn,
+                merchandiseReturn.Id))
             return false;
 
         var merchandiseReturnNote = new MerchandiseReturnNote {
@@ -699,14 +701,10 @@ public class MerchandiseReturnViewModelService(
         if (!string.IsNullOrEmpty(merchandiseReturnNote.DownloadId))
         {
             var attachment = await downloadService.GetDownloadById(merchandiseReturnNote.DownloadId);
-            if (IsAttachmentOf(attachment, merchandiseReturn))
+            if (attachment.IsAttachmentOf(DownloadType.MerchandiseReturn, merchandiseReturn.Id))
                 await downloadService.DeleteDownload(attachment);
         }
     }
-
-    //the notes form uploads with DownloadType.MerchandiseReturn and the return id as the reference
-    private static bool IsAttachmentOf(Download download, MerchandiseReturn merchandiseReturn) =>
-        download is { DownloadType: DownloadType.MerchandiseReturn } && download.ReferenceId == merchandiseReturn.Id;
 
     #region Fields
 

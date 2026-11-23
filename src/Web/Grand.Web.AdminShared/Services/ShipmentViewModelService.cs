@@ -13,6 +13,7 @@ using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -262,7 +263,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
     {
         //the id comes from the request; a file uploaded for another shipment is refused
         if (!string.IsNullOrEmpty(downloadId) &&
-            !IsAttachmentOf(await _downloadService.GetDownloadById(downloadId), shipment))
+            !(await _downloadService.GetDownloadById(downloadId)).IsAttachmentOf(DownloadType.Shipment, shipment.Id))
             return false;
 
         var shipmentNote = new ShipmentNote {
@@ -291,14 +292,10 @@ public class ShipmentViewModelService : IShipmentViewModelService
         if (!string.IsNullOrEmpty(shipmentNote.DownloadId))
         {
             var attachment = await _downloadService.GetDownloadById(shipmentNote.DownloadId);
-            if (IsAttachmentOf(attachment, shipment))
+            if (attachment.IsAttachmentOf(DownloadType.Shipment, shipment.Id))
                 await _downloadService.DeleteDownload(attachment);
         }
     }
-
-    //the notes form uploads with DownloadType.Shipment and the shipment id as the reference
-    private static bool IsAttachmentOf(Download download, Shipment shipment) =>
-        download is { DownloadType: DownloadType.Shipment } && download.ReferenceId == shipment.Id;
 
     public virtual async Task<(IEnumerable<Shipment> shipments, int totalCount)> PrepareShipments(
         ShipmentListModel model, int pageIndex, int pageSize)
