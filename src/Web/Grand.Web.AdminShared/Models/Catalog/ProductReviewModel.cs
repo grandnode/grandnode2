@@ -1,10 +1,13 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Grand.Web.AdminShared.Models.Catalog;
 
 public class ProductReviewModel : BaseEntityModel
 {
+    //facts of the review: shown, never bound - the stored review keeps its product, customer and rating
+    [BindNever]
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Product")]
     public string ProductId { get; set; }
 
@@ -16,6 +19,7 @@ public class ProductReviewModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Store")]
     public string StoreName { get; set; }
 
+    [BindNever]
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Customer")]
     public string CustomerId { get; set; }
 
@@ -34,6 +38,7 @@ public class ProductReviewModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Signature")]
     public string Signature { get; set; }
 
+    [BindNever]
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Rating")]
     public int Rating { get; set; }
 

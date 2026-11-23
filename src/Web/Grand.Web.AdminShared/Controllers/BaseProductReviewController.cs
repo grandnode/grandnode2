@@ -81,7 +81,7 @@ public abstract class BaseProductReviewController(
             productReview = await productReviewViewModelService.UpdateProductReview(productReview, model);
             Success(translationService.GetResource("Admin.Catalog.ProductReviews.Updated"));
             return continueEditing
-                ? RedirectToAction("Edit", new { productReview.Id, productReview.ProductId })
+                ? RedirectToAction("Edit", new { id = productReview.Id })
                 : RedirectToAction("List");
         }
 
