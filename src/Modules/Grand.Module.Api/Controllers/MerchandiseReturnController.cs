@@ -101,7 +101,7 @@ public class MerchandiseReturnController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MerchandiseReturnDto))]
     public async Task<IActionResult> Update([FromRoute] string key, [FromBody] MerchandiseReturnDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.MerchandiseReturns, CurrentCustomer))
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.MerchandiseReturns, PermissionActionName.Edit, CurrentCustomer))
             return Forbid();
 
         var error = await _mediator.Send(new UpdateMerchandiseReturnCommand { Id = key, Model = model });
@@ -119,7 +119,7 @@ public class MerchandiseReturnController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.MerchandiseReturns, CurrentCustomer))
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.MerchandiseReturns, PermissionActionName.Delete, CurrentCustomer))
             return Forbid();
 
         var error = await _mediator.Send(new DeleteMerchandiseReturnCommand { Id = key });
@@ -139,7 +139,7 @@ public class MerchandiseReturnController : BaseApiController
     public async Task<IActionResult> ChangeStatus([FromRoute] string key,
         [FromBody] MerchandiseReturnStatusChangeRequest model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.MerchandiseReturns, CurrentCustomer))
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.MerchandiseReturns, PermissionActionName.Edit, CurrentCustomer))
             return Forbid();
 
         if (model == null || !model.Status.HasValue ||

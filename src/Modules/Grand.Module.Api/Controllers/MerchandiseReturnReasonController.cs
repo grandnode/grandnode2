@@ -60,7 +60,7 @@ public class MerchandiseReturnReasonController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] MerchandiseReturnReasonDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddMerchandiseReturnReasonCommand { Model = model });
         return Ok(model);
@@ -74,7 +74,7 @@ public class MerchandiseReturnReasonController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] MerchandiseReturnReasonDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateMerchandiseReturnReasonCommand { Model = model });
         return Ok(model);
@@ -88,7 +88,7 @@ public class MerchandiseReturnReasonController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
         var reason = await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key));
         if (!reason.Any()) return NotFound();
