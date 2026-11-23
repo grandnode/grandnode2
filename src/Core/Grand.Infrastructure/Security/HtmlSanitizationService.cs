@@ -78,6 +78,8 @@ public class HtmlSanitizationService : IHtmlSanitizationService
 
         //editors emit class names for tables, images and alignment
         defaults.AllowedAttributes.Add("class");
+        //in-page anchors (a table of contents, "#section" links) need an id on the target element
+        defaults.AllowedAttributes.Add("id");
 
         defaults.AllowedSchemes.Add("mailto");
         defaults.AllowedSchemes.Add("tel");

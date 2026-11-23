@@ -64,6 +64,7 @@ public class HtmlSanitizationServiceTests
     [DataRow("<h2>Heading</h2><blockquote>quote</blockquote>")]
     [DataRow("<table class=\"table\"><tr><td>cell</td></tr></table>")]
     [DataRow("<p style=\"text-align:center\">centered</p>")]
+    [DataRow("<div id=\"specs\"><h2 id=\"dimensions\">Dimensions</h2></div><a href=\"#dimensions\">jump</a>")]
     public void ContainsDisallowedRichText_AllowsLegitimateEditorOutput(string html)
     {
         Assert.IsFalse(_service.ContainsDisallowedRichText(html), $"legitimate markup was flagged: {html}");
