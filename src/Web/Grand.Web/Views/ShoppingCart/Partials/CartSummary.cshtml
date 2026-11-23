@@ -138,9 +138,10 @@
     @await Component.InvokeAsync("Widget", new { widgetZone = "order_summary_cart_footer" })
 
     <div class="common-buttons btn-group btn-group-sm mb-3">
-        <a onclick="location.href='@(Url.RouteUrl("ClearCart"))'" class="btn btn-danger removeAll-cart-button">
+        @* belongs to clear-cart-form below, so Enter in the cart form never clears the cart *@
+        <button type="submit" form="clear-cart-form" class="btn btn-danger removeAll-cart-button">
             <span>@Loc["shoppingcart.clearcart"]</span>
-        </a>
+        </button>
         <a onclick="location.href=('@(Url.RouteUrl("ContinueShopping"))')" class="btn btn-outline-secondary continue-shopping-button">@Loc["shoppingcart.continueshopping"]</a>
     </div>
 
@@ -242,6 +243,7 @@
 </div>
 </div>
 </form>
+<form asp-route="ClearCart" method="post" id="clear-cart-form"></form>
 </div>
 <div v-else class="no-data alert alert-info text-center">
     @Loc["ShoppingCart.CartIsEmpty"]
