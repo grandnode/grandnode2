@@ -16,9 +16,11 @@
 {
     <div class="page login-page">
         <div class="alert alert-warning my-3">@Loc["Account.Login.SignedInWithoutAccess"]</div>
-        <a class="btn btn-outline-secondary" href="@Url.RouteUrl("Logout")">
-            <i class="bi bi-lock" aria-hidden="true"></i> @Loc["Account.Logout"]
-        </a>
+        <form method="post" asp-route="Logout" asp-antiforgery="true">
+            <button type="submit" class="btn btn-outline-secondary">
+                <i class="bi bi-lock" aria-hidden="true"></i> @Loc["Account.Logout"]
+            </button>
+        </form>
     </div>
 }
 else if (Model.ExternalSignInUnavailable)

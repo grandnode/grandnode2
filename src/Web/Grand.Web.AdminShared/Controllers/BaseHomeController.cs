@@ -61,6 +61,8 @@ public abstract class BaseHomeController(
         return Json(result);
     }
 
+    //a POST, so a link or an image on another site cannot sign staff out
+    [HttpPost]
     public async Task<IActionResult> Logout([FromServices] IProviderSignOut providerSignOut,
         [FromServices] IAuditEventRecorder auditEventRecorder)
     {

@@ -213,7 +213,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
             var oidcSessionId = authenticateResult?.Succeeded == true ? OidcSessionId(authenticateResult.Principal) : null;
             if (!string.IsNullOrEmpty(oidcSessionId))
                 await EndOidcSession(oidcSessionId);
-            if (authenticateResult?.Succeeded == true)
+            if (authenticateResult?.Succeeded == true && _customerSettings.SignOutOnAllDevices)
                 await ReplacePasswordToken(authenticateResult.Principal);
 
             await _httpContextAccessor.HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults

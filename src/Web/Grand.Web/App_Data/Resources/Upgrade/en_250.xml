@@ -2826,4 +2826,7 @@
 	<Resource Name="Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.DownloadNotOfMerchandiseReturn" Area="Admin">
 		<Value>The attached file was not uploaded for this merchandise return. Upload it again here.</Value>
 	</Resource>
+	<Resource Name="Admin.Settings.Customer.SignOutOnAllDevices" Area="Admin">
+		<Value>Sign out on all devices</Value>
+	</Resource>
 </Language>

@@ -18,10 +18,12 @@
 <div>
     @if (isCustomerImpersonated)
     {
-        <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("Logout")" title="@Loc["Account.ImpersonatedAs.Finish.Hint"]">
-            <i class="b-icon bi bi-door-closed" aria-hidden="true"></i>
-            <span class="text text-uppercase ms-3">@string.Format(Loc["Account.ImpersonatedAs"], contextAccessor.WorkContext.CurrentCustomer.Email ?? "GUEST")</span>
-        </a>
+        <form method="post" asp-route="Logout" asp-antiforgery="true">
+            <button type="submit" class="btn btn-outline-secondary w-100 mb-2" title="@Loc["Account.ImpersonatedAs.Finish.Hint"]">
+                <i class="b-icon bi bi-door-closed" aria-hidden="true"></i>
+                <span class="text text-uppercase ms-3">@string.Format(Loc["Account.ImpersonatedAs"], contextAccessor.WorkContext.CurrentCustomer.Email ?? "GUEST")</span>
+            </button>
+        </form>
     }
     @if (isAuthenticated)
     {
@@ -63,10 +65,12 @@
             <i class="b-icon bi bi-handbag" aria-hidden="true"></i>
             <span class="text text-uppercase ms-3">@Loc["Account.CustomerOrders"]</span>
         </a>
-        <a class="btn btn-outline-secondary w-100 mb-2" href="@Url.RouteUrl("Logout")">
-            <i class="b-icon bi bi-lock" aria-hidden="true"></i>
-            <span class="text text-uppercase ms-3">@Loc["Account.Logout"]</span>
-        </a>
+        <form method="post" asp-route="Logout" asp-antiforgery="true">
+            <button type="submit" class="btn btn-outline-secondary w-100 mb-2">
+                <i class="b-icon bi bi-lock" aria-hidden="true"></i>
+                <span class="text text-uppercase ms-3">@Loc["Account.Logout"]</span>
+            </button>
+        </form>
     }
     else
     {

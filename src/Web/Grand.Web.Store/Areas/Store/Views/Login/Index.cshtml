@@ -69,9 +69,11 @@
             @if (Model.SignedInWithoutAccess)
             {
                 <div class="alert alert-warning">@Loc["Admin.Login.SignedInWithoutAccess"]</div>
-                <a class="btn btn-outline-secondary w-100 mt-2" href="@Url.RouteUrl("Logout", new { area = "" })">
-                    <i class="bi bi-box-arrow-right" aria-hidden="true"></i> @Loc["Admin.Header.Logout"]
-                </a>
+                <form method="post" asp-route="Logout" asp-route-area="" asp-antiforgery="true">
+                    <button type="submit" class="btn btn-outline-secondary w-100 mt-2">
+                        <i class="bi bi-box-arrow-right" aria-hidden="true"></i> @Loc["Admin.Header.Logout"]
+                    </button>
+                </form>
             }
             @if (Model.ExternalSignInUnavailable)
             {
