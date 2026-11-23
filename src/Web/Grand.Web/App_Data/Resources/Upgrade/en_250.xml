@@ -2817,4 +2817,13 @@
 	<Resource Name="Admin.Orders.Fields.RecurringCycleNumber" Area="Admin">
 		<Value>Cycle</Value>
 	</Resource>
+	<Resource Name="Admin.Customers.Customers.CustomerNotes.DownloadNotOfCustomer" Area="Admin">
+		<Value>The attached file was not uploaded for this customer. Upload it again here.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Shipments.ShipmentNotes.DownloadNotOfShipment" Area="Admin">
+		<Value>The attached file was not uploaded for this shipment. Upload it again here.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.DownloadNotOfMerchandiseReturn" Area="Admin">
+		<Value>The attached file was not uploaded for this merchandise return. Upload it again here.</Value>
+	</Resource>
 </Language>
