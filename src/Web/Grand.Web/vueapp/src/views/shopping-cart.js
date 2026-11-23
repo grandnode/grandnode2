@@ -87,7 +87,7 @@ registerView('shoppingCart', ({ model, routes, res }) => {
                 }).catch(error => notifyRequestError(error, res.warning))
             },
             removeGiftVoucher(href) {
-                return axios.get(href)
+                return axios.post(href)
                     .then(response => {
                         this.cart = response.data.model
                         return this.updateTotals()
@@ -168,7 +168,7 @@ registerView('shoppingCart', ({ model, routes, res }) => {
                 }).catch(error => notifyRequestError(error, res.warning))
             },
             RemoveDiscountId(href) {
-                return axios.get(href)
+                return axios.post(href)
                     .then(response => {
                         this.cart = response.data.model
                         return this.updateTotals()
