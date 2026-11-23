@@ -266,7 +266,9 @@ public class MerchandiseReturnViewModelService(
             orderId: orderId,
             returnShippingProvider: model.SearchReturnShippingProvider ?? "",
             reasonId: model.SearchReasonId ?? "",
-            openOnly: openOnly);
+            openOnly: openOnly,
+            //the order list narrows a sales employee to their own orders the same way
+            salesEmployeeId: contextAccessor.WorkContext.CurrentCustomer.SeId ?? "");
         var merchandiseReturnModels = new List<MerchandiseReturnModel>();
         foreach (var rr in merchandiseReturns)
         {

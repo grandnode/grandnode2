@@ -1,5 +1,7 @@
 #nullable enable
 
+using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Customers;
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
@@ -15,7 +17,7 @@ public class RoutedPaymentTransactionDataScopeTests
 {
     private const string StaffStoreId = "store-1";
 
-    private GlobalAdminDataScope<PaymentTransaction> _adminScope = null!;
+    private AdminPaymentTransactionDataScope _adminScope = null!;
     private StorePaymentTransactionDataScope _storeScope = null!;
 
     [TestInitialize]
@@ -26,7 +28,8 @@ public class RoutedPaymentTransactionDataScopeTests
         var contextAccessor = new Mock<IContextAccessor>();
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
 
-        _adminScope = new GlobalAdminDataScope<PaymentTransaction>();
+        _adminScope = new AdminPaymentTransactionDataScope(contextAccessor.Object, Mock.Of<IGroupService>(),
+            Mock.Of<IOrderService>());
         _storeScope = new StorePaymentTransactionDataScope(contextAccessor.Object);
     }
 

@@ -33,6 +33,18 @@ public class GetMerchandiseReturnQueryHandlerTests
     }
 
     [TestMethod]
+    public async Task SalesEmployeeId_OnlyTheirReturns()
+    {
+        var theirs = await Insert(x => x.SeId = "se-1");
+        await Insert(x => x.SeId = "se-2");
+        await Insert();
+
+        var result = await _handler.Handle(new GetMerchandiseReturnQuery { SalesEmployeeId = "se-1" }, default);
+
+        Assert.AreEqual(theirs.Id, result.Single().Id);
+    }
+
+    [TestMethod]
     public async Task ReturnShippingProvider_OnlyThatMethod()
     {
         var parcel = await Insert(x => x.ReturnShipping = new MerchandiseReturnShipping {
