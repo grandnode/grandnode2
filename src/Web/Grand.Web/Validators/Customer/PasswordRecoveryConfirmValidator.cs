@@ -41,35 +41,22 @@ public class PasswordRecoveryConfirmValidator : BaseGrandValidator<PasswordRecov
         {
             var customer = await customerService.GetCustomerByEmail(x.Email, storeId);
 
-            switch (customer)
+            //an address without an account that may sign in reads as a wrong link, as in the panels, so the page does
+            //not tell which addresses have one; so does a link sent before the account had to sign in through the provider
+            if (customer is not { Deleted: false, Active: true } ||
+                customer.CannotLoginUntilDateUtc > DateTime.UtcNow ||
+                !await groupService.IsRegistered(customer) ||
+                !customer.IsPasswordRecoveryTokenValid(x.Token) ||
+                !(await externalSignInPolicy.PasswordSignIn(customer, SignInSurface.Storefront)).Allowed)
             {
-                case null:
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.EmailNotFound"));
-                    break;
-                case { Deleted: true }:
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.Deleted"));
-                    break;
-                case { Active: false }:
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.NotActive"));
-                    break;
-                case { CannotLoginUntilDateUtc: not null }
-                    when customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow:
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.LockedOut"));
-                    break;
-                case not null when !await groupService.IsRegistered(customer):
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.NotRegistered"));
-                    break;
+                context.AddFailure(translationService.GetResource("Account.PasswordRecovery.WrongToken"));
+                return;
             }
 
-            //a link sent before the account had to sign in through the provider reads as a wrong link
-            if (customer is not null && (!customer.IsPasswordRecoveryTokenValid(x.Token) ||
-                                         !(await externalSignInPolicy.PasswordSignIn(customer, SignInSurface.Storefront)).Allowed))
-                context.AddFailure(translationService.GetResource("Account.PasswordRecovery.WrongToken"));
-
-            if (customer is not null && customer.IsPasswordRecoveryLinkExpired(customerSettings))
+            if (customer.IsPasswordRecoveryLinkExpired(customerSettings))
                 context.AddFailure(translationService.GetResource("Account.PasswordRecovery.LinkExpired"));
 
-            if (customer is not null && customerSettings.UnduplicatedPasswordsNumber > 0)
+            if (customerSettings.UnduplicatedPasswordsNumber > 0)
             {
                 //get some of previous passwords
                 var previousPasswords =

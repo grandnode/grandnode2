@@ -14,10 +14,12 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
@@ -264,7 +266,9 @@ public class MerchandiseReturnViewModelService(
             orderId: orderId,
             returnShippingProvider: model.SearchReturnShippingProvider ?? "",
             reasonId: model.SearchReasonId ?? "",
-            openOnly: openOnly);
+            openOnly: openOnly,
+            //the order list narrows a sales employee to their own orders the same way
+            salesEmployeeId: contextAccessor.WorkContext.CurrentCustomer.SeId ?? "");
         var merchandiseReturnModels = new List<MerchandiseReturnModel>();
         foreach (var rr in merchandiseReturns)
         {
@@ -658,9 +662,15 @@ public class MerchandiseReturnViewModelService(
         return merchandiseReturnNoteModels;
     }
 
-    public virtual async Task InsertMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, Order order,
+    public virtual async Task<bool> InsertMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, Order order,
         string downloadId, bool displayToCustomer, string message)
     {
+        //the id comes from the request; a file uploaded for another merchandise return is refused
+        if (!string.IsNullOrEmpty(downloadId) &&
+            !(await downloadService.GetDownloadById(downloadId)).IsAttachmentOf(DownloadType.MerchandiseReturn,
+                merchandiseReturn.Id))
+            return false;
+
         var merchandiseReturnNote = new MerchandiseReturnNote {
             DisplayToCustomer = displayToCustomer,
             Note = message,
@@ -674,6 +684,8 @@ public class MerchandiseReturnViewModelService(
             //email
             await merchandiseReturnMessageProviderService.SendNewMerchandiseReturnNoteAddedCustomerMessage(merchandiseReturn,
                 merchandiseReturnNote, order);
+
+        return true;
     }
 
     public virtual async Task DeleteMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, string id)
@@ -691,7 +703,7 @@ public class MerchandiseReturnViewModelService(
         if (!string.IsNullOrEmpty(merchandiseReturnNote.DownloadId))
         {
             var attachment = await downloadService.GetDownloadById(merchandiseReturnNote.DownloadId);
-            if (attachment != null)
+            if (attachment.IsAttachmentOf(DownloadType.MerchandiseReturn, merchandiseReturn.Id))
                 await downloadService.DeleteDownload(attachment);
         }
     }

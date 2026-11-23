@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Stores;
@@ -102,15 +103,21 @@ public class LoginControllerTwoFactorTests
         Assert.IsInstanceOfType<ViewResult>(result);
     }
 
+    private static Mock<ITwoFactorSignInService> CodeAnswers(TwoFactorSignInResult result)
+    {
+        var twoFactor = new Mock<ITwoFactorSignInService>();
+        twoFactor.Setup(x => x.CheckCode(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<TwoFactorAuthenticationType>()))
+            .ReturnsAsync(result);
+        return twoFactor;
+    }
+
     [TestMethod]
     public async Task SecondStep_ValidCode_SignsInToThePanel()
     {
         await PasswordStep();
-        var twoFactor = new Mock<ITwoFactorAuthenticationService>();
-        twoFactor.Setup(x => x.AuthenticateTwoFactor(It.IsAny<string>(), "123456", _customer, It.IsAny<TwoFactorAuthenticationType>()))
-            .ReturnsAsync(true);
 
-        var result = (RedirectToRouteResult)await _controller.TwoFactorAuthorization("123456", twoFactor.Object);
+        var result = (RedirectToRouteResult)await _controller.TwoFactorAuthorization("123456",
+            CodeAnswers(TwoFactorSignInResult.Passed).Object);
 
         Assert.AreEqual("AdminIndex", result.RouteName);
         _authentication.Verify(x => x.SignIn(_customer, false), Times.Once);
@@ -122,7 +129,8 @@ public class LoginControllerTwoFactorTests
     {
         await PasswordStep();
 
-        var result = await _controller.TwoFactorAuthorization("000000", new Mock<ITwoFactorAuthenticationService>().Object);
+        var result = await _controller.TwoFactorAuthorization("000000",
+            CodeAnswers(TwoFactorSignInResult.WrongCode).Object);
 
         Assert.IsInstanceOfType<ViewResult>(result);
         _authentication.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
@@ -132,7 +140,23 @@ public class LoginControllerTwoFactorTests
     public async Task SecondStep_WithoutPasswordStep_BackToThePanelLogin()
     {
         var result = (RedirectToRouteResult)await _controller.TwoFactorAuthorization("123456",
-            new Mock<ITwoFactorAuthenticationService>().Object);
+            CodeAnswers(TwoFactorSignInResult.Passed).Object);
+
+        Assert.AreEqual("AdminLogin", result.RouteName);
+        _authentication.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SecondStep_LockedOut_SignInMustStartAgain()
+    {
+        await PasswordStep();
+
+        Assert.IsInstanceOfType<ViewResult>(await _controller.TwoFactorAuthorization("000000",
+            CodeAnswers(TwoFactorSignInResult.LockedOut).Object));
+
+        //the waiting sign-in is gone: even a code that passes goes back to the password step
+        var result = (RedirectToRouteResult)await _controller.TwoFactorAuthorization("123456",
+            CodeAnswers(TwoFactorSignInResult.Passed).Object);
 
         Assert.AreEqual("AdminLogin", result.RouteName);
         _authentication.Verify(x => x.SignIn(It.IsAny<Customer>(), It.IsAny<bool>()), Times.Never);

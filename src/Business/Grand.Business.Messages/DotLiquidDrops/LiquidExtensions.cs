@@ -1,6 +1,7 @@
 ﻿using DotLiquid;
 using DotLiquid.NamingConventions;
 using Grand.Domain.Messages;
+using System.Net;
 using System.Reflection;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
@@ -26,5 +27,13 @@ public static class LiquidExtensions
         var replaced = template.Render(hash);
 
         return replaced;
+    }
+
+    /// <summary>
+    ///     Renders a subject line: tokens are HTML-encoded for the body, and a subject is plain text
+    /// </summary>
+    public static string RenderSubject(LiquidObject liquidObject, string source)
+    {
+        return WebUtility.HtmlDecode(Render(liquidObject, source));
     }
 }

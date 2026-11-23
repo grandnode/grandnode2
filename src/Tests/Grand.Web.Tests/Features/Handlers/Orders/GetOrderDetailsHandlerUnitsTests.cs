@@ -13,6 +13,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
+using Grand.Infrastructure.Security;
 using Grand.Mediator;
 using Grand.Web.Common.Localization;
 using Grand.Web.Features.Handlers.Orders;
@@ -56,7 +57,7 @@ public class GetOrderDetailsHandlerUnitsTests
             new Mock<IOrderStatusService>().Object, new Mock<ICurrencyService>().Object,
             new Mock<IMediator>().Object, new CatalogSettings(), new OrderSettings(), new PdfSettings(),
             new TaxSettings(), new Mock<IEnumTranslationService>().Object, new Mock<IOrderApprovalService>().Object,
-            new CustomerSettings());
+            new CustomerSettings(), new Mock<IHtmlSanitizationService>().Object);
     }
 
     private void Shipped(DateTime? shippedDateUtc, ShipmentItem item)

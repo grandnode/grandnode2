@@ -1,7 +1,5 @@
 ﻿using FluentValidation;
-using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Common;
-using Grand.Infrastructure;
 using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.SharedKernel.Captcha;
@@ -16,38 +14,15 @@ public class PasswordRecoveryValidator : BaseGrandValidator<PasswordRecoveryMode
     public PasswordRecoveryValidator(
         IEnumerable<IValidatorConsumer<PasswordRecoveryModel>> validators,
         IEnumerable<IValidatorConsumer<ICaptchaValidModel>> validatorsCaptcha,
-        ICustomerService customerService, CaptchaSettings captchaSettings,
+        CaptchaSettings captchaSettings,
         IHttpContextAccessor contextAccessor, IGoogleReCaptchaValidator googleReCaptchaValidator,
-        IRequestTranslationService translationService,
-        IContextAccessor workContextAccessor)
+        IRequestTranslationService translationService)
         : base(validators)
     {
-        var storeId = workContextAccessor.StoreContext.CurrentStore.Id;
-
+        //nothing about the account behind the address: the page answers the same whether or not it has one
         RuleFor(x => x.Email).NotEmpty()
             .WithMessage(translationService.GetResource("Account.PasswordRecovery.Email.Required"));
         RuleFor(x => x.Email).EmailAddress().WithMessage(translationService.GetResource("Common.WrongEmail"));
-        RuleFor(x => x).CustomAsync(async (x, context, _) =>
-        {
-            var customer = await customerService.GetCustomerByEmail(x.Email, storeId);
-
-            switch (customer)
-            {
-                case null:
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.EmailNotFound"));
-                    break;
-                case { Deleted: true }:
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.Deleted"));
-                    break;
-                case { Active: false }:
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.NotActive"));
-                    break;
-                case { CannotLoginUntilDateUtc: not null }
-                    when customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow:
-                    context.AddFailure(translationService.GetResource("Account.PasswordRecovery.LockedOut"));
-                    break;
-            }
-        });
         if (captchaSettings.Enabled && captchaSettings.ShowOnPasswordRecoveryPage)
         {
             RuleFor(x => x.Captcha).NotNull().WithMessage(translationService.GetResource("Account.Captcha.Required"));

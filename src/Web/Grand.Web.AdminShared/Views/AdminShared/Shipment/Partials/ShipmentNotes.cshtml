@@ -100,6 +100,11 @@
                 url: "@(Url.Action("ShipmentNoteAdd", "Shipment", new { area = area }))",
                 data: postData,
                 success: function (data) {
+                    if (!data.Result) {
+                        alert(data.Message || 'Failed to add shipment note.');
+                        $('#addShipmentNote').attr('disabled', false);
+                        return;
+                    }
                     var grid = GrandAdmin.grids.get("#shipmentnotes-grid");
                     grid.dataSource.read();
                     $('#addShipmentNote').attr('disabled', false);

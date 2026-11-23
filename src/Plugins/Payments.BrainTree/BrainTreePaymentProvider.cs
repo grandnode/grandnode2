@@ -20,6 +20,9 @@ namespace Payments.BrainTree;
 
 public class BrainTreePaymentProvider : IPaymentProvider
 {
+    private static readonly string[] CardSessionKeys =
+        ["CardNonce", "CardholderName", "CardNumber", "ExpireMonth", "ExpireYear", "CardCode"];
+
     private readonly BrainTreePaymentSettings _brainTreePaymentSettings;
     private readonly IContextAccessor _contextAccessor;
     private readonly ICurrencyService _currencyService;
@@ -139,22 +142,25 @@ public class BrainTreePaymentProvider : IPaymentProvider
             Amount = Convert.ToDecimal(paymentTransaction.TransactionAmount)
         };
 
+        var session = _httpContextAccessor.HttpContext!.Session;
         if (_brainTreePaymentSettings.Use3DS)
         {
-            transactionRequest.PaymentMethodNonce =
-                _httpContextAccessor.HttpContext!.Session.GetString("CardNonce")!;
+            transactionRequest.PaymentMethodNonce = session.GetString("CardNonce")!;
         }
         else
         {
             //transaction credit card request
             var transactionCreditCardRequest = new TransactionCreditCardRequest {
-                Number = _httpContextAccessor.HttpContext!.Session.GetString("CardNumber")!,
-                CVV = _httpContextAccessor.HttpContext.Session.GetString("CardCode")!,
-                ExpirationDate = _httpContextAccessor.HttpContext.Session.GetString("ExpireMonth")! + "/" +
-                                 _httpContextAccessor.HttpContext.Session.GetString("ExpireYear")!
+                Number = session.GetString("CardNumber")!,
+                CVV = session.GetString("CardCode")!,
+                ExpirationDate = session.GetString("ExpireMonth")! + "/" + session.GetString("ExpireYear")!
             };
             transactionRequest.CreditCard = transactionCreditCardRequest;
         }
+
+        //card data is used once, so it leaves the session before the gateway is called, whatever the result
+        foreach (var key in CardSessionKeys)
+            session.Remove(key);
 
         //address request
         var addressRequest = new AddressRequest {

@@ -35,7 +35,7 @@ public class StockController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Apply([FromBody] StockApplyRequestDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.StockIntegration, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.StockIntegration, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         if (model?.Lines == null || model.Lines.Count > MaxLines || model.Lines.Any(x => x == null))
             return BadRequest($"A stock write holds at most {MaxLines} lines, none of them empty.");

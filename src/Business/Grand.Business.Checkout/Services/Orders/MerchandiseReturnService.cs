@@ -97,7 +97,8 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         string customerId = "",
         string orderItemId = "", string vendorId = "", string ownerId = "", MerchandiseReturnStatus? rs = null,
         int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
-        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false)
+        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false,
+        string salesEmployeeId = "")
     {
         var model = new GetMerchandiseReturnQuery {
             CreatedFromUtc = createdFromUtc,
@@ -113,7 +114,8 @@ public class MerchandiseReturnService : IMerchandiseReturnService
             OrderId = orderId,
             ReturnShippingProvider = returnShippingProvider,
             ReasonId = reasonId,
-            OpenOnly = openOnly
+            OpenOnly = openOnly,
+            SalesEmployeeId = salesEmployeeId
         };
 
         return await _mediator.Send(model);

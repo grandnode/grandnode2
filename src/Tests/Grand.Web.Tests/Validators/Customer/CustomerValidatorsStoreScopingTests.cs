@@ -95,22 +95,6 @@ public class CustomerValidatorsStoreScopingTests
     }
 
     [TestMethod]
-    public async Task PasswordRecoveryValidator_ScopesEmailLookupToCurrentStore()
-    {
-        var customerService = new Mock<ICustomerService>();
-        var validator = new PasswordRecoveryValidator(
-            new List<IValidatorConsumer<PasswordRecoveryModel>>(),
-            new List<IValidatorConsumer<ICaptchaValidModel>>(),
-            customerService.Object, new Grand.Domain.Common.CaptchaSettings(),
-            new Mock<IHttpContextAccessor>().Object, new Mock<IGoogleReCaptchaValidator>().Object,
-            Translation().Object, Context());
-
-        await validator.ValidateAsync(new PasswordRecoveryModel { Email = "u@x.com" });
-
-        customerService.Verify(c => c.GetCustomerByEmail(It.IsAny<string>(), StoreId), Times.AtLeastOnce);
-    }
-
-    [TestMethod]
     public async Task PasswordRecoveryConfirmValidator_ScopesEmailLookupToCurrentStore()
     {
         var customerService = new Mock<ICustomerService>();

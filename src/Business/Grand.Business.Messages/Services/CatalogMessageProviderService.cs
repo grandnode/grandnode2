@@ -178,7 +178,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
             var subject = messageTemplate.GetTranslation(mt => mt.Subject, languageId);
             var body = messageTemplate.GetTranslation(mt => mt.Body, languageId);
 
-            var subjectReplaced = LiquidExtensions.Render(liquidObject, subject);
+            var subjectReplaced = LiquidExtensions.RenderSubject(liquidObject, subject);
             var bodyReplaced = LiquidExtensions.Render(liquidObject, body);
 
             await _mediator.Send(new InsertContactUsCommand {

@@ -6,6 +6,7 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ namespace Grand.Web.Admin.Controllers;
 public class CustomerNoteController(
     ICustomerService customerService,
     ICustomerNoteViewModelService customerNoteViewModelService,
+    IRequestTranslationService translationService,
     IAdminDataScope<Customer> scope)
     : BaseCustomerScopedController(customerService, scope)
 {
@@ -41,7 +43,13 @@ public class CustomerNoteController(
         var (_, denied) = await LoadAuthorizedCustomer(customerId);
         if (denied != null) return Json(new { Result = false });
 
-        await customerNoteViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title, message);
+        if (!await customerNoteViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title,
+                message))
+            return Json(new {
+                Result = false,
+                Message = translationService.GetResource("Admin.Customers.Customers.CustomerNotes.DownloadNotOfCustomer")
+            });
+
         return Json(new { Result = true });
     }
 

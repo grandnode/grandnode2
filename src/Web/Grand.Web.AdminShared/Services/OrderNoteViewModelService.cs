@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Media;
 using Grand.Domain.Orders;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 
@@ -46,7 +47,7 @@ public class OrderNoteViewModelService(
     {
         //the id comes from the request; a file uploaded for another order is refused
         if (!string.IsNullOrEmpty(downloadId) &&
-            !IsAttachmentOf(await downloadService.GetDownloadById(downloadId), order))
+            !(await downloadService.GetDownloadById(downloadId)).IsAttachmentOf(DownloadType.Order, order.Id))
             return false;
 
         var orderNote = new OrderNote {
@@ -77,12 +78,8 @@ public class OrderNoteViewModelService(
         if (!string.IsNullOrEmpty(orderNote.DownloadId))
         {
             var attachment = await downloadService.GetDownloadById(orderNote.DownloadId);
-            if (IsAttachmentOf(attachment, order))
+            if (attachment.IsAttachmentOf(DownloadType.Order, order.Id))
                 await downloadService.DeleteDownload(attachment);
         }
     }
-
-    //the notes form uploads with DownloadType.Order and the order id as the reference
-    private static bool IsAttachmentOf(Download download, Order order) =>
-        download is { DownloadType: DownloadType.Order } && download.ReferenceId == order.Id;
 }

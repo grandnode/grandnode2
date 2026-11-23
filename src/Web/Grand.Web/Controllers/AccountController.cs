@@ -312,7 +312,7 @@ public class AccountController : BasePublicController
     [IgnoreApi]
     [HttpPost]
     public async Task<IActionResult> TwoFactorAuthorization(string token,
-        [FromServices] ITwoFactorAuthenticationService twoFactorAuthenticationService)
+        [FromServices] ITwoFactorSignInService twoFactorSignInService)
     {
         if (!_customerSettings.TwoFactorAuthenticationEnabled)
             return RedirectToRoute("Login");
@@ -327,17 +327,9 @@ public class AccountController : BasePublicController
         if (customer == null)
             return RedirectToRoute("Login");
 
-        if (string.IsNullOrEmpty(token))
+        switch (await twoFactorSignInService.CheckCode(customer, token, _customerSettings.TwoFactorAuthenticationType))
         {
-            ModelState.AddModelError("",
-                _translationService.GetResource("Account.TwoFactorAuth.SecurityCodeIsRequired"));
-        }
-        else
-        {
-            var secretKey = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorSecretKey);
-            if (await twoFactorAuthenticationService.AuthenticateTwoFactor(secretKey, token, customer,
-                    _customerSettings.TwoFactorAuthenticationType))
-            {
+            case TwoFactorSignInResult.Passed:
                 //remove session
                 HttpContext.Session.Remove("RequiresTwoFactor");
                 var returnUrl = HttpContext.Session.GetString("RequiresTwoFactorReturnUrl");
@@ -345,14 +337,19 @@ public class AccountController : BasePublicController
 
                 //sign in
                 return await SignInAction(customer, false, returnUrl);
-            }
-
-            ModelState.AddModelError("",
-                _translationService.GetResource("Account.TwoFactorAuth.WrongSecurityCode"));
+            case TwoFactorSignInResult.LockedOut:
+                //the waiting sign-in is dropped: it starts again with the password once the lockout ends
+                HttpContext.Session.Remove("RequiresTwoFactor");
+                HttpContext.Session.Remove("RequiresTwoFactorReturnUrl");
+                ModelState.AddModelError("",
+                    _translationService.GetResource("Account.Login.WrongCredentials.LockedOut"));
+                break;
+            default:
+                ModelState.AddModelError("", _translationService.GetResource(string.IsNullOrEmpty(token)
+                    ? "Account.TwoFactorAuth.SecurityCodeIsRequired"
+                    : "Account.TwoFactorAuth.WrongSecurityCode"));
+                break;
         }
-
-        await _mediator.Publish(new CustomerLoginFailedEvent(customer,
-            string.IsNullOrEmpty(token) ? "two-factor code missing" : "wrong two-factor code"));
 
         return View();
     }
@@ -460,9 +457,6 @@ public class AccountController : BasePublicController
             return RedirectToRoute("Login");
 
         var customer = await _customerService.GetCustomerByEmail(email, _contextAccessor.StoreContext.CurrentStore.Id);
-        if (customer == null)
-            return RedirectToRoute("HomePage");
-
         var model = await _mediator.Send(new GetPasswordRecoveryConfirm { Customer = customer, Token = token });
 
         return View(model);

@@ -138,6 +138,8 @@ public abstract class BasePaymentTransactionController(
             PaymentMethodSystemName = model.PaymentMethodSystemName,
             PurchaseOrderNumber = model.PurchaseOrderNumber,
             OverdueOnly = model.OverdueOnly,
+            //the order list narrows a sales employee to their own orders the same way
+            SalesEmployeeId = contextAccessor.WorkContext.CurrentCustomer.SeId,
             PageIndex = command.Page - 1,
             PageSize = command.PageSize,
             //the payment of an order searched for by its number is shown whatever state its checkout left it in

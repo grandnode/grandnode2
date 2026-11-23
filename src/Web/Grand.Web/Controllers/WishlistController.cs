@@ -188,7 +188,7 @@ public class WishlistController : BasePublicController
     }
 
     [DenySystemAccount]
-    [HttpGet]
+    [HttpPost]
     public virtual async Task<IActionResult> DeleteItemFromWishlist(string shoppingCartId)
     {
         if (!await _permissionService.Authorize(StandardPermission.EnableShoppingCart))

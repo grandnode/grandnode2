@@ -157,12 +157,12 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddBundleProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddBundleProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddBundleProductModel();
         var result = await _controller.BundleProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("store-1", model.SearchStoreId);
@@ -173,12 +173,12 @@ public class BaseProductBundleControllerTests : ProductControllerTestsBase<BaseP
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddBundleProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddBundleProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddBundleProductModel { SearchStoreId = "explicit" };
         var result = await _controller.BundleProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("explicit", model.SearchStoreId);

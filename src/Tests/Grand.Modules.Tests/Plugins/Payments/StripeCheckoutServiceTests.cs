@@ -441,9 +441,13 @@ public class StripeCheckoutServiceTests
         _mediator.Verify(x => x.Send(It.IsAny<MarkAsPaidCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
-    private PaymentTransaction SetupInitialPayment(bool canMarkPaid = true)
+    private PaymentTransaction SetupInitialPayment(bool canMarkPaid = true, double amount = 19.99,
+        string paymentMethod = StripeCheckoutDefaults.ProviderSystemName)
     {
-        var transaction = new PaymentTransaction { Id = "t1", StoreId = "s2", CurrencyCode = "USD" };
+        var transaction = new PaymentTransaction {
+            Id = "t1", StoreId = "s2", CurrencyCode = "USD", TransactionAmount = amount,
+            PaymentMethodSystemName = paymentMethod
+        };
         _paymentTransactionService.Setup(x => x.GetOrderByGuid(Order().OrderGuid)).ReturnsAsync(transaction);
         _mediator.Setup(x => x.Send(It.IsAny<CanMarkPaymentTransactionAsPaidQuery>(), It.IsAny<CancellationToken>()))
             .ReturnsAsync(canMarkPaid);
@@ -471,6 +475,66 @@ public class StripeCheckoutServiceTests
             c.CreatedBy == StripeCheckoutDefaults.ProviderSystemName), It.IsAny<CancellationToken>()), Times.Once);
         _mediator.Verify(x => x.Send(It.Is<RecordRecurringPaymentCycleCommand>(c => c.CycleReference == "in_2"),
             It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    //a smaller payment (an amount changed in the dashboard) leaves the order unpaid for staff to check
+    [TestMethod]
+    public async Task WebHook_InvoicePaidForTheSubscriptionStart_LessThanTheOrder_OrderLeftUnpaid()
+    {
+        SetupInitialPayment(amount: 25);
+
+        Assert.IsTrue(await Deliver("invoice.paid", InvoiceJson("subscription_create")));
+
+        _mediator.Verify(x => x.Send(It.IsAny<MarkAsPaidCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+        _mediator.Verify(x => x.Send(It.IsAny<RecordRecurringPaymentCycleCommand>(), It.IsAny<CancellationToken>()),
+            Times.Once);
+    }
+
+    private const string PaymentIntentOfTheOrder =
+        """{"id":"pi_5","object":"payment_intent","amount":1999,"currency":"usd","metadata":{"order_guid":"11111111-1111-1111-1111-111111111111"}}""";
+
+    [TestMethod]
+    public async Task WebHook_PaymentIntentPaysTheOrder_MarksItPaid()
+    {
+        var transaction = SetupInitialPayment();
+
+        Assert.IsTrue(await Deliver("payment_intent.succeeded", PaymentIntentOfTheOrder));
+
+        Assert.AreEqual("pi_5", transaction.AuthorizationTransactionId);
+        _mediator.Verify(x => x.Send(It.Is<MarkAsPaidCommand>(c =>
+            c.PaymentTransaction == transaction && c.Amount == 19.99 && c.Reference == "pi_5"),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    //Stripe rounds the order total * 100 to a whole cent, so it may take one cent less
+    [TestMethod]
+    public async Task WebHook_PaymentIntentOneCentLessByRounding_MarksItPaid()
+    {
+        SetupInitialPayment(amount: 20);
+
+        Assert.IsTrue(await Deliver("payment_intent.succeeded", PaymentIntentOfTheOrder));
+
+        _mediator.Verify(x => x.Send(It.IsAny<MarkAsPaidCommand>(), It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task WebHook_PaymentIntentLessThanTheOrder_OrderLeftUnpaid()
+    {
+        SetupInitialPayment(amount: 25);
+
+        Assert.IsTrue(await Deliver("payment_intent.succeeded", PaymentIntentOfTheOrder));
+
+        _mediator.Verify(x => x.Send(It.IsAny<MarkAsPaidCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task WebHook_PaymentIntentForAnOrderPaidWithAnotherMethod_OrderLeftUnpaid()
+    {
+        SetupInitialPayment(paymentMethod: "Payments.CashOnDelivery");
+
+        Assert.IsTrue(await Deliver("payment_intent.succeeded", PaymentIntentOfTheOrder));
+
+        _mediator.Verify(x => x.Send(It.IsAny<MarkAsPaidCommand>(), It.IsAny<CancellationToken>()), Times.Never);
     }
 
     [TestMethod]

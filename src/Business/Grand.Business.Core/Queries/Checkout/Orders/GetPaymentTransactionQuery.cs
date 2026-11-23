@@ -26,4 +26,7 @@ public class GetPaymentTransactionQuery : IRequest<IPagedList<PaymentTransaction
 
     /// <summary>Only the payments of orders bought on credit and past their due date.</summary>
     public bool OverdueOnly { get; set; }
+
+    /// <summary>Only the payments of this sales employee's orders.</summary>
+    public string SalesEmployeeId { get; set; }
 }

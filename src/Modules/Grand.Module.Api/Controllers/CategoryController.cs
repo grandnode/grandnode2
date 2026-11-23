@@ -63,7 +63,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CategoryDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddCategoryCommand { Model = model });
         return Ok(model);
@@ -77,7 +77,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] CategoryDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateCategoryCommand { Model = model });
         return Ok(model);
@@ -95,7 +95,7 @@ public class CategoryController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
         if (!category.Any()) return NotFound();
@@ -114,7 +114,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
         var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
         if (!category.Any()) return NotFound();

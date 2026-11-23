@@ -60,7 +60,7 @@ public interface IMerchandiseReturnViewModelService
     Task<IList<MerchandiseReturnModel.MerchandiseReturnNote>> PrepareMerchandiseReturnNotes(
         MerchandiseReturn merchandiseReturn);
 
-    Task InsertMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, Order order, string downloadId,
+    Task<bool> InsertMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, Order order, string downloadId,
         bool displayToCustomer, string message);
 
     Task DeleteMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, string id);

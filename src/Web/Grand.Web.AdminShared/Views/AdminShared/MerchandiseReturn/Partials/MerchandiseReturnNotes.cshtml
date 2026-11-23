@@ -101,6 +101,11 @@
                 url: "@(Url.Action("MerchandiseReturnNoteAdd", "MerchandiseReturn", new { area = area }))",
                 data: postData,
                 success: function (data) {
+                    if (!data.Result) {
+                        alert(data.Message || '@Loc["Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.AddFailed"]');
+                        $('#addMerchandiseReturnNote').attr('disabled', false);
+                        return;
+                    }
                     var grid = GrandAdmin.grids.get("#merchandisereturnnotes-grid");
                     grid.dataSource.read();
                     $('#addMerchandiseReturnNote').attr('disabled', false);

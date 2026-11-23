@@ -17,6 +17,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
+using Grand.Infrastructure.Security;
 using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
@@ -31,6 +32,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
 {
     private readonly CatalogSettings _catalogSettings;
     private readonly CustomerSettings _customerSettings;
+    private readonly IHtmlSanitizationService _htmlSanitizationService;
     private readonly ICurrencyService _currencyService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IGiftVoucherService _giftVoucherService;
@@ -72,8 +74,10 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
         TaxSettings taxSettings, 
         IEnumTranslationService enumTranslationService,
         IOrderApprovalService orderApprovalService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        IHtmlSanitizationService htmlSanitizationService)
     {
+        _htmlSanitizationService = htmlSanitizationService;
         _customerSettings = customerSettings;
         _orderApprovalService = orderApprovalService;
         _dateTimeService = dateTimeService;
@@ -403,7 +407,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
                 Id = orderNote.Id,
                 OrderId = orderNote.OrderId,
                 HasDownload = !string.IsNullOrEmpty(orderNote.DownloadId),
-                Note = orderNote.Note,
+                Note = _htmlSanitizationService.NoteHtml(orderNote.Note, orderNote.CreatedByCustomer),
                 CreatedOn = _dateTimeService.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc)
             });
     }

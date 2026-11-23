@@ -271,6 +271,9 @@ public class StripeCheckoutService : IStripeCheckoutService
             return;
         }
 
+        if (!PaysTheOrder(paymentTransaction, invoice.AmountPaid, invoice.Id))
+            return;
+
         //paid by an earlier delivery of this event, or by staff
         if (!await _mediator.Send(new CanMarkPaymentTransactionAsPaidQuery { PaymentTransaction = paymentTransaction }))
             return;
@@ -317,6 +320,31 @@ public class StripeCheckoutService : IStripeCheckoutService
         });
     }
 
+    /// <summary>
+    ///     Whether a payment Stripe reports pays the order: the order is paid with Stripe, and Stripe took what was left
+    ///     to pay. A payment the order did not ask for, or a smaller one (an amount changed in the dashboard), leaves it
+    ///     unpaid for staff to check.
+    /// </summary>
+    /// <param name="amountInSmallestUnit">What Stripe took, in the smallest unit of the currency</param>
+    private bool PaysTheOrder(PaymentTransaction paymentTransaction, long amountInSmallestUnit, string stripeId)
+    {
+        if (paymentTransaction.PaymentMethodSystemName != StripeCheckoutDefaults.ProviderSystemName)
+        {
+            _logger.LogError("Stripe {StripeId}: order {OrderCode} is paid with {PaymentMethod}, not with Stripe",
+                stripeId, paymentTransaction.OrderCode, paymentTransaction.PaymentMethodSystemName);
+            return false;
+        }
+
+        //the session asks for the order total * 100, which Stripe rounds to a whole unit: one unit less is the rounding
+        var dueInSmallestUnit = (long)Math.Round(paymentTransaction.AmountLeftToPay() * 100);
+        if (amountInSmallestUnit >= dueInSmallestUnit - 1)
+            return true;
+
+        _logger.LogError("Stripe {StripeId}: took {Paid} of the {Due} order {OrderCode} has left to pay; the order stays unpaid",
+            stripeId, amountInSmallestUnit / 100.0, dueInSmallestUnit / 100.0, paymentTransaction.OrderCode);
+        return false;
+    }
+
     private static bool IsRecurringCycle(Invoice invoice, out InvoiceParentSubscriptionDetails subscription,
         out string recurringPaymentId)
     {
@@ -344,6 +372,9 @@ public class StripeCheckoutService : IStripeCheckoutService
                 _logger.LogError("paymentTransaction is null or currency is not equal");
                 return;
             }
+
+            if (!PaysTheOrder(paymentTransaction, paymentIntent.Amount, paymentIntent.Id))
+                return;
 
             try
             {

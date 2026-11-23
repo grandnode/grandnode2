@@ -105,6 +105,11 @@
                 url: "@(Url.Action("CustomerNoteAdd", "CustomerNote", new { area = Constants.AreaAdmin }))",
                 data: postData,
                 success: function (data) {
+                    if (!data.Result) {
+                        alert(data.Message || 'Failed to add customer note.');
+                        $('#addCustomerNote').attr('disabled', false);
+                        return;
+                    }
                     var grid = GrandAdmin.grids.get("#customernotes-grid");
                     grid.dataSource.read();
                     $('#addCustomerNote').attr('disabled', false);

@@ -142,14 +142,15 @@ public class StartupApplication : IStartupApplication
 
         // IAdminDataScope<PaymentTransaction>: registered once here for the same reason as
         // Product/Category/Collection/Order above — see RoutedPaymentTransactionDataScope's doc
-        // comment. No Vendor scope: PaymentTransaction has no Vendor screen.
-        services.AddScoped<GlobalAdminDataScope<PaymentTransaction>>();
+        // comment. No Vendor scope: PaymentTransaction has no Vendor screen. Admin narrows a sales manager to the
+        // payments of their own orders.
+        services.AddScoped<AdminPaymentTransactionDataScope>();
         services.AddScoped<StorePaymentTransactionDataScope>();
         services.AddScoped<IAdminDataScope<PaymentTransaction>, RoutedPaymentTransactionDataScope>();
 
-        // IAdminDataScope<MerchandiseReturn>: Admin reuses the generic GlobalAdminDataScope directly (no
-        // bespoke Admin scope - confirmed no restriction exists despite the entity's SeId field, spec §2.1).
-        services.AddScoped<GlobalAdminDataScope<MerchandiseReturn>>();
+        // IAdminDataScope<MerchandiseReturn>: Admin narrows a sales manager to the returns of their own orders, by the
+        // SeId the return copies from its order.
+        services.AddScoped<AdminMerchandiseReturnDataScope>();
         services.AddScoped<StoreMerchandiseReturnDataScope>();
         services.AddScoped<VendorMerchandiseReturnDataScope>();
         services.AddScoped<IAdminDataScope<MerchandiseReturn>, RoutedMerchandiseReturnDataScope>();

@@ -29,6 +29,8 @@ public class CustomerGroupControllerTests
         var customer = new Customer { Id = "admin" };
         var permissionService = new Mock<IPermissionService>();
         permissionService.Setup(p => p.Authorize(PermissionSystemName.Customers, customer)).ReturnsAsync(true);
+        permissionService.Setup(p => p.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit,
+            customer)).ReturnsAsync(true);
 
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(customer);
