@@ -178,8 +178,6 @@ public class BasePictureControllerTests
             var root = new Mock<IFileStoreEntry>();
             root.Setup(r => r.PhysicalPath).Returns(folder);
             _mediaFileStoreMock.Setup(m => m.GetDirectoryInfo("")).Returns(root.Object);
-            _mediaFileStoreMock.Setup(m => m.GetFileInfo(It.IsAny<string>()))
-                .ReturnsAsync((string name) => File.Exists(Path.Join(folder, name)) ? Mock.Of<IFileStoreEntry>() : null);
             var file = CreateFormFile("logo.png", "image/png");
             file.Setup(f => f.CopyToAsync(It.IsAny<Stream>(), It.IsAny<CancellationToken>()))
                 .Returns((Stream target, CancellationToken _) => target.WriteAsync("new"u8.ToArray()).AsTask());

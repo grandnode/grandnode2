@@ -97,36 +97,34 @@ public abstract class BasePictureController(
             });
 
         //the folder is shared by every store, so an existing file (another store's logo) is never replaced
-        fileName = await FreeFileName(fileName);
-        try
+        var (stream, savedName) = CreateUnderFreeName(filepath.PhysicalPath, fileName);
+        await using (stream)
         {
-            await using (var stream = new FileStream(mediaFileStore.Combine(filepath.PhysicalPath, fileName),
-                             FileMode.CreateNew))
-            {
-                await file.CopyToAsync(stream);
-            }
+            await file.CopyToAsync(stream);
+        }
 
-            return Json(new {
-                success = true,
-                imageUrl = fileName
-            });
-        }
-        catch (Exception ex)
-        {
-            return Json(new {
-                success = false,
-                message = ex.Message
-            });
-        }
+        return Json(new {
+            success = true,
+            imageUrl = savedName
+        });
     }
 
-    private async Task<string> FreeFileName(string fileName)
+    //CreateNew refuses a taken name, also one taken by an upload running at the same time, so the next is tried
+    private (FileStream stream, string fileName) CreateUnderFreeName(string folder, string fileName)
     {
         var name = Path.GetFileNameWithoutExtension(fileName);
         var extension = Path.GetExtension(fileName);
-        var candidate = fileName;
-        for (var i = 1; await mediaFileStore.GetFileInfo(candidate) != null; i++)
-            candidate = $"{name}-{i}{extension}";
-        return candidate;
+        for (var i = 0; ; i++)
+        {
+            var candidate = i == 0 ? fileName : $"{name}-{i}{extension}";
+            var path = mediaFileStore.Combine(folder, candidate);
+            try
+            {
+                return (new FileStream(path, FileMode.CreateNew), candidate);
+            }
+            catch (IOException) when (System.IO.File.Exists(path))
+            {
+            }
+        }
     }
 }
