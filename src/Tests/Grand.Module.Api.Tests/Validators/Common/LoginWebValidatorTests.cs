@@ -1,3 +1,4 @@
+using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
@@ -6,6 +7,7 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
 using Grand.Infrastructure.Validators;
+using Grand.Mediator;
 using Grand.Module.Api.Models.Common;
 using Grand.Module.Api.Validators.Common;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,12 +24,14 @@ public class LoginWebValidatorTests
     private Mock<ICustomerService> _customerServiceMock;
     private Mock<ICustomerManagerService> _customerManagerServiceMock;
     private Mock<IContextAccessor> _contextAccessorMock;
+    private Mock<IMediator> _mediatorMock;
 
     [TestInitialize]
     public void Init()
     {
         _customerServiceMock = new Mock<ICustomerService>();
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
+        _mediatorMock = new Mock<IMediator>();
 
         var storeContextMock = new Mock<IStoreContext>();
         storeContextMock.Setup(s => s.CurrentStore).Returns(new Store { Id = StoreId });
@@ -40,7 +44,8 @@ public class LoginWebValidatorTests
             new FrontendAPIConfig { Enabled = apiEnabled },
             _customerServiceMock.Object,
             _customerManagerServiceMock.Object,
-            _contextAccessorMock.Object);
+            _contextAccessorMock.Object,
+            _mediatorMock.Object);
 
     private static LoginWebModel ValidModel() => new() {
         Email = "user@x.com",
@@ -96,4 +101,46 @@ public class LoginWebValidatorTests
 
         Assert.IsTrue(result.Errors.Any(e => e.ErrorMessage == "Customer not exist or password is wrong"));
     }
+
+    [TestMethod]
+    public async Task LockedOutAccount_Fails_WithoutCheckingThePassword()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Active = true, CannotLoginUntilDateUtc = DateTime.UtcNow.AddMinutes(5) });
+
+        var result = await CreateValidator(apiEnabled: true).ValidateAsync(ValidModel());
+
+        Assert.IsFalse(result.IsValid);
+        _customerManagerServiceMock.Verify(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<SignInSurface>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task WrongPassword_CountsAsAFailedLogin()
+    {
+        var customer = new Customer { Active = true };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(customer);
+        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<SignInSurface>())).ReturnsAsync(CustomerLoginResults.WrongPassword);
+
+        var result = await CreateValidator(apiEnabled: true).ValidateAsync(ValidModel());
+
+        Assert.IsFalse(result.IsValid);
+        _mediatorMock.Verify(m => m.Publish(It.Is<CustomerLoginFailedEvent>(e => e.Customer == customer),
+            It.IsAny<CancellationToken>()), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task PasswordNotBase64_Fails()
+    {
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Active = true });
+
+        var result = await CreateValidator(apiEnabled: true)
+            .ValidateAsync(new LoginWebModel { Email = "user@x.com", Password = "not base64!" });
+
+        Assert.IsFalse(result.IsValid);
+    }
 }
+
