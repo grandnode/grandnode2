@@ -9,6 +9,7 @@ using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -37,6 +38,7 @@ public class RefundCommandHandlerTests
         _orderMessageProviderServiceMock = new Mock<IOrderMessageProviderService>();
         _paymentServiceMock = new Mock<IPaymentService>();
         _loggerMock = new Mock<ILogger<RefundCommandHandler>>();
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanRefundQuery>(), default)).ReturnsAsync(true);
 
         _handler = new RefundCommandHandler(_mediatorMock.Object, _paymentServiceMock.Object,
             _paymentTransactionMock.Object, _orderServiceMock.Object, _orderMessageProviderServiceMock.Object,
@@ -78,6 +80,20 @@ public class RefundCommandHandlerTests
         //Assert
         _historyMock.Verify(x => x.Record(transaction, It.IsAny<Order>(), PaymentTransactionEntryType.Refund, 100,
             "staff@shop.com", null, null), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task Handle_CannotRefund_Throws_AndRefundsNothing()
+    {
+        //Arrange: part of the payment was refunded already, so a full refund would count it twice
+        var transaction = new PaymentTransaction { TransactionAmount = 100, PaidAmount = 100, RefundedAmount = 30 };
+        _mediatorMock.Setup(x => x.Send(It.IsAny<CanRefundQuery>(), default)).ReturnsAsync(false);
+
+        //Act & Assert
+        await Assert.ThrowsExactlyAsync<GrandException>(() =>
+            _handler.Handle(new RefundCommand { PaymentTransaction = transaction }, CancellationToken.None));
+        _paymentServiceMock.Verify(x => x.Refund(It.IsAny<RefundPaymentRequest>()), Times.Never);
+        _paymentTransactionMock.Verify(x => x.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
     }
 
     [TestMethod]
