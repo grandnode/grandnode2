@@ -40,11 +40,13 @@ public interface IMerchandiseReturnService
     /// <param name="returnShippingProvider">System name of the return shipping provider; empty for any</param>
     /// <param name="reasonId">A return reason one of the items has; empty for any</param>
     /// <param name="openOnly">Only the returns still handled: pending, accepted or received</param>
+    /// <param name="salesEmployeeId">Only the returns of this sales employee's orders; empty for any</param>
     /// <returns>Merchandise returns</returns>
     Task<IPagedList<MerchandiseReturn>> SearchMerchandiseReturns(string storeId = "", string customerId = "",
         string orderItemId = "", string vendorId = "", string ownerId = "", MerchandiseReturnStatus? rs = null,
         int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
-        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false);
+        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false,
+        string salesEmployeeId = "");
 
     /// <summary>
     ///     Inserts a merchandise return

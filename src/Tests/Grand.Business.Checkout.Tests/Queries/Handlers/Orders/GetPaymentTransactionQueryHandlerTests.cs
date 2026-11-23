@@ -59,6 +59,23 @@ public class GetPaymentTransactionQueryHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_BySalesEmployee_OnlyTheirOrders()
+    {
+        var theirs = Guid.NewGuid();
+        var others = Guid.NewGuid();
+        await _orderRepository.Collection.InsertOneAsync(new Order { OrderGuid = theirs, SeId = "se-1" });
+        await _orderRepository.Collection.InsertOneAsync(new Order { OrderGuid = others, SeId = "se-2" });
+        await _repository.Collection.InsertOneAsync(new PaymentTransaction { OrderGuid = theirs });
+        await _repository.Collection.InsertOneAsync(new PaymentTransaction { OrderGuid = others });
+
+        var result = await _handler.Handle(new GetPaymentTransactionQuery { SalesEmployeeId = "se-1" },
+            CancellationToken.None);
+
+        Assert.AreEqual(1, result.Count);
+        Assert.AreEqual(theirs, result[0].OrderGuid);
+    }
+
+    [TestMethod]
     public async Task Handle_ByPurchaseOrderNumber_MatchesTrimmedOrderInStore()
     {
         var inStore = Guid.NewGuid();
