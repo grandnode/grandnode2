@@ -22,6 +22,7 @@ using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
 using Grand.Web.Common.Security.ExternalRegistration;
 using Grand.Web.Common.Security.Oidc;
+using Grand.Web.Common.Startup;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Customers;
@@ -30,6 +31,7 @@ using Grand.Web.Models.Customer;
 using Grand.Web.Services;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using System.Security.Cryptography;
 using Grand.Web.Common.Localization;
 
@@ -427,6 +429,7 @@ public class AccountController : BasePublicController
         return View(model);
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [PublicStore(true)]
     public virtual async Task<ActionResult<PasswordRecoveryModel>> PasswordRecovery(PasswordRecoveryModel model,

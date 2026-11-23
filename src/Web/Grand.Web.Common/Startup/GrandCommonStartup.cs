@@ -101,6 +101,13 @@ public class GrandCommonStartup : IStartupApplication
                 RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "",
                     _ => new FixedWindowRateLimiterOptions
                         { PermitLimit = 5, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
+            //a visitor sending a form that mails the store or keeps what they sent: counted per form, so a
+            //customer reviewing several products is not stopped by the contact message they sent before
+            options.AddPolicy(StorefrontFormRateLimitPolicy, context =>
+                RateLimitPartition.GetFixedWindowLimiter(
+                    $"{context.Connection.RemoteIpAddress}|{context.GetEndpoint()?.DisplayName}",
+                    _ => new FixedWindowRateLimiterOptions
+                        { PermitLimit = 10, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
         });
     }
 
@@ -108,6 +115,11 @@ public class GrandCommonStartup : IStartupApplication
     ///     The rate limiter policy of the page where guests ask for the link to their order
     /// </summary>
     public const string GuestOrderRateLimitPolicy = "GuestOrder";
+
+    /// <summary>
+    ///     The rate limiter policy of the storefront forms that send a message or keep what the visitor sent
+    /// </summary>
+    public const string StorefrontFormRateLimitPolicy = "StorefrontForm";
 
     /// <summary>
     ///     Configure the using of added middleware

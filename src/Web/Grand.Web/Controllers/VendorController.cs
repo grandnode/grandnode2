@@ -15,12 +15,14 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
 using Grand.Web.Common.Security.Captcha;
+using Grand.Web.Common.Startup;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Models.Vendors;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Grand.Web.Controllers;
 
@@ -194,6 +196,7 @@ public class VendorController : BasePublicController
         return View(model);
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ContactVendor(ContactVendorModel model)

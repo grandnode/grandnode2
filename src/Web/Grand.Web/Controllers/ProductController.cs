@@ -17,6 +17,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Security.Captcha;
+using Grand.Web.Common.Startup;
 using Grand.Web.Events;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -24,6 +25,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
@@ -143,6 +145,7 @@ public class ProductController : BasePublicController
 
     #region Email a friend
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ProductEmailAFriend(ProductEmailAFriendModel model)
@@ -187,6 +190,7 @@ public class ProductController : BasePublicController
 
     #region Ask question
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model)
@@ -413,6 +417,7 @@ public class ProductController : BasePublicController
         });
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     public virtual async Task<IActionResult> UploadFileProductAttribute(string attributeId, string productId, IFormFile file,
         [FromServices] IDownloadService downloadService)
@@ -584,6 +589,7 @@ public class ProductController : BasePublicController
 
     #region Product reviews
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ProductReviews(
