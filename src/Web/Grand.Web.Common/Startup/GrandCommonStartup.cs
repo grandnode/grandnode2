@@ -98,17 +98,23 @@ public class GrandCommonStartup : IStartupApplication
                     "Too many requests. Please try again later.", cancellationToken));
             //a guest asking for the link to an order: guessing order codes and e-mail addresses takes many tries
             options.AddPolicy(GuestOrderRateLimitPolicy, context =>
-                RateLimitPartition.GetFixedWindowLimiter(context.Connection.RemoteIpAddress?.ToString() ?? "",
-                    _ => new FixedWindowRateLimiterOptions
-                        { PermitLimit = 5, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
+                FixedWindow(context.Connection.RemoteIpAddress?.ToString() ?? "",
+                    securityConfig.GuestOrderRateLimitPermits, securityConfig.GuestOrderRateLimitWindowMinutes));
             //a visitor sending a form that mails the store or keeps what they sent: counted per form, so a
             //customer reviewing several products is not stopped by the contact message they sent before
             options.AddPolicy(StorefrontFormRateLimitPolicy, context =>
-                RateLimitPartition.GetFixedWindowLimiter(
-                    $"{context.Connection.RemoteIpAddress}|{context.GetEndpoint()?.DisplayName}",
-                    _ => new FixedWindowRateLimiterOptions
-                        { PermitLimit = 10, Window = TimeSpan.FromMinutes(10), QueueLimit = 0 }));
+                FixedWindow($"{context.Connection.RemoteIpAddress}|{context.GetEndpoint()?.DisplayName}",
+                    securityConfig.StorefrontFormRateLimitPermits, securityConfig.StorefrontFormRateLimitWindowMinutes));
         });
+    }
+
+    internal static RateLimitPartition<string> FixedWindow(string key, int permits, int windowMinutes)
+    {
+        //the limiter refuses a zero limit or window, so a zero turns the limit off
+        return permits > 0 && windowMinutes > 0
+            ? RateLimitPartition.GetFixedWindowLimiter(key, _ => new FixedWindowRateLimiterOptions
+                { PermitLimit = permits, Window = TimeSpan.FromMinutes(windowMinutes), QueueLimit = 0 })
+            : RateLimitPartition.GetNoLimiter(key);
     }
 
     /// <summary>

@@ -118,4 +118,25 @@ public class SecurityConfig
     ///     goes back to accepting raw, unsanitized HTML the moment this is false. Re-enable as soon as possible.
     /// </summary>
     public bool EnableHtmlSanitization { get; set; } = true;
+
+    /// <summary>
+    ///     How many times one IP address may ask for the link to a guest order within the window. Default 5; 0 = no limit
+    /// </summary>
+    public int GuestOrderRateLimitPermits { get; set; } = 5;
+
+    /// <summary>
+    ///     The window of the guest-order limit, in minutes. Default 10
+    /// </summary>
+    public int GuestOrderRateLimitWindowMinutes { get; set; } = 10;
+
+    /// <summary>
+    ///     How many times one IP address may send one storefront form (contact, reviews, comments, newsletter,
+    ///     password recovery, attribute uploads) within the window. Default 10; 0 = no limit
+    /// </summary>
+    public int StorefrontFormRateLimitPermits { get; set; } = 10;
+
+    /// <summary>
+    ///     The window of the storefront form limit, in minutes. Default 10
+    /// </summary>
+    public int StorefrontFormRateLimitWindowMinutes { get; set; } = 10;
 }
