@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
+using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
@@ -16,13 +17,16 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
     private readonly IEnumerable<ISMSVerificationService> _smsVerificationService;
     private readonly TwoFactorAuthenticator _twoFactorAuthentication;
     private readonly ICustomerService _customerService;
+    private readonly IResourceLock _resourceLock;
 
     public TwoFactorAuthenticationService(
         ICustomerService customerService,
-        IEnumerable<ISMSVerificationService> smsVerificationService)
+        IEnumerable<ISMSVerificationService> smsVerificationService,
+        IResourceLock resourceLock)
     {
         _customerService = customerService;
         _smsVerificationService = smsVerificationService;
+        _resourceLock = resourceLock;
         _twoFactorAuthentication = new TwoFactorAuthenticator();
     }
 
@@ -35,19 +39,7 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
                 return _twoFactorAuthentication.ValidateTwoFactorPIN(secretKey, token.Trim());
 
             case TwoFactorAuthenticationType.EmailVerification:
-                var customerToken =
-                    customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
-                if (string.IsNullOrEmpty(customerToken) || !CodesMatch(customerToken, token?.Trim()))
-                    return false;
-                var validUntil =
-                    customer.GetUserFieldFromEntity<DateTime>(SystemCustomerFieldNames.TwoFactorCodeValidUntil);
-                if (validUntil < DateTime.UtcNow)
-                    return false;
-
-                //a code signs in once
-                await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.TwoFactorValidCode,
-                    string.Empty);
-                return true;
+                return await UseEmailCode(customer, token?.Trim());
 
             case TwoFactorAuthenticationType.SMSVerification:
                 if (!_smsVerificationService.Any())
@@ -92,6 +84,26 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
         }
 
         return model;
+    }
+
+    //a code signs in once: it is read again and cleared under a lock, so two requests with it cannot both pass
+    private async Task<bool> UseEmailCode(Customer customer, string token)
+    {
+        await using var _ = await _resourceLock.Acquire([$"TwoFactorCode:{customer.Id}"]);
+
+        var current = await _customerService.GetCustomerById(customer.Id);
+        if (current == null)
+            return false;
+
+        var customerToken = current.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
+        if (string.IsNullOrEmpty(customerToken) || !CodesMatch(customerToken, token))
+            return false;
+        var validUntil = current.GetUserFieldFromEntity<DateTime>(SystemCustomerFieldNames.TwoFactorCodeValidUntil);
+        if (validUntil < DateTime.UtcNow)
+            return false;
+
+        await _customerService.UpdateUserField(current, SystemCustomerFieldNames.TwoFactorValidCode, string.Empty);
+        return true;
     }
 
     private static string PrepareRandomCode()
