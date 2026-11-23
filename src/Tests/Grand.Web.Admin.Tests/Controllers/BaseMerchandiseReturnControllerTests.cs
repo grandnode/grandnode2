@@ -575,6 +575,8 @@ public class BaseMerchandiseReturnControllerTests
         _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
         _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
         _orderServiceMock.Setup(o => o.GetOrderById("o1")).ReturnsAsync(order);
+        _merchandiseReturnViewModelServiceMock
+            .Setup(v => v.InsertMerchandiseReturnNote(entity, order, "download-1", true, "msg")).ReturnsAsync(true);
 
         var result = await _controller.MerchandiseReturnNoteAdd("mr1", "download-1", true, "msg");
 
@@ -583,6 +585,21 @@ public class BaseMerchandiseReturnControllerTests
         _orderServiceMock.Verify(o => o.GetOrderById("o1"), Times.Once);
         _merchandiseReturnViewModelServiceMock.Verify(
             v => v.InsertMerchandiseReturnNote(entity, order, "download-1", true, "msg"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task NoteAdd_FileOfAnotherReturn_ReturnsJsonResultFalse()
+    {
+        var entity = new MerchandiseReturn { Id = "mr1", OrderId = "o1" };
+        _merchandiseReturnServiceMock.Setup(s => s.GetMerchandiseReturnById("mr1")).ReturnsAsync(entity);
+        _scopeMock.Setup(s => s.HasAccess(entity)).ReturnsAsync(true);
+        _orderServiceMock.Setup(o => o.GetOrderById("o1")).ReturnsAsync(new Order { Id = "o1" });
+
+        //the view-model service refuses the download: it was not uploaded for this return
+        var result = await _controller.MerchandiseReturnNoteAdd("mr1", "download-x", false, "msg");
+
+        var json = result as JsonResult;
+        Assert.IsFalse((bool)json.Value.GetType().GetProperty("Result").GetValue(json.Value));
     }
 
     [TestMethod]

@@ -12,6 +12,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
+using Grand.Infrastructure.Security;
 using Grand.Mediator;
 using Grand.Web.Common.Localization;
 using Grand.Web.Features.Handlers.Orders;
@@ -55,7 +56,7 @@ public class GetOrderDetailsHandlerApprovalTests
             new Mock<IOrderStatusService>().Object, new Mock<ICurrencyService>().Object,
             new Mock<IMediator>().Object, new CatalogSettings(), new OrderSettings(), new PdfSettings(),
             new TaxSettings(), new Mock<IEnumTranslationService>().Object, approvals.Object,
-            new CustomerSettings());
+            new CustomerSettings(), new Mock<IHtmlSanitizationService>().Object);
     }
 
     private Task<OrderDetailsModel> Details(string customerId)

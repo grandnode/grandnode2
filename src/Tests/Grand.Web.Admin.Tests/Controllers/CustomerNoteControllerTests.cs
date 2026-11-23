@@ -12,6 +12,7 @@ public class CustomerNoteControllerTests : CustomerControllerTestsBase<CustomerN
     protected override CustomerNoteController CreateController() => new(
         CustomerServiceMock.Object,
         CustomerNoteViewModelServiceMock.Object,
+        TranslationServiceMock.Object,
         ScopeMock.Object);
 
     [TestMethod]

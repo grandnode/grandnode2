@@ -63,7 +63,7 @@ public class ProductAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] ProductAttributeDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddProductAttributeCommand { Model = model });
         return Ok(model);
@@ -77,7 +77,7 @@ public class ProductAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Put([FromBody] ProductAttributeDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new UpdateProductAttributeCommand { Model = model });
         return Ok(model);
@@ -95,7 +95,7 @@ public class ProductAttributeController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(key));
         if (!productAttribute.Any()) return NotFound();
@@ -114,7 +114,7 @@ public class ProductAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
         var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(key));
         if (!productAttribute.Any()) return NotFound();
