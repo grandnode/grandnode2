@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
@@ -29,6 +30,7 @@ public class ShipmentViewModelServiceTests
     private Mock<IWarehouseService> _warehouseServiceMock;
     private Mock<IMeasureService> _measureServiceMock;
     private Mock<IAdminDataScope<Shipment>> _scopeMock;
+    private Mock<IDownloadService> _downloadServiceMock;
     private ShipmentViewModelService _service;
 
     [TestInitialize]
@@ -40,6 +42,7 @@ public class ShipmentViewModelServiceTests
         _warehouseServiceMock = new Mock<IWarehouseService>();
         _measureServiceMock = new Mock<IMeasureService>();
         _scopeMock = new Mock<IAdminDataScope<Shipment>>();
+        _downloadServiceMock = new Mock<IDownloadService>();
 
         _measureServiceMock.Setup(m => m.GetMeasureWeightById(It.IsAny<string>())).ReturnsAsync((MeasureWeight)null);
         _measureServiceMock.Setup(m => m.GetMeasureDimensionById(It.IsAny<string>()))
@@ -62,7 +65,7 @@ public class ShipmentViewModelServiceTests
             new Mock<IDateTimeService>().Object,
             new Mock<ICountryService>().Object,
             _translationServiceMock.Object,
-            new Mock<IDownloadService>().Object,
+            _downloadServiceMock.Object,
             new Mock<IShippingService>().Object,
             new Mock<IStockQuantityService>().Object,
             new MeasureSettings(),
@@ -286,5 +289,43 @@ public class ShipmentViewModelServiceTests
         // Assert
         Assert.IsNotNull(shipment);
         Assert.IsNull(shipment.VendorId);
+    }
+
+    [TestMethod]
+    public async Task InsertShipmentNote_FileUploadedForThisShipment_Saved()
+    {
+        var shipment = new Shipment { Id = "s1" };
+        _downloadServiceMock.Setup(d => d.GetDownloadById("d1"))
+            .ReturnsAsync(new Download { DownloadType = DownloadType.Shipment, ReferenceId = "s1" });
+
+        Assert.IsTrue(await _service.InsertShipmentNote(shipment, "d1", false, "msg"));
+        _shipmentServiceMock.Verify(s => s.InsertShipmentNote(It.Is<ShipmentNote>(n => n.DownloadId == "d1")), Times.Once);
+    }
+
+    [TestMethod]
+    [DataRow(DownloadType.Shipment, "s2")]
+    [DataRow(DownloadType.Product, "s1")]
+    public async Task InsertShipmentNote_FileOfAnotherRecord_Refused(DownloadType type, string referenceId)
+    {
+        var shipment = new Shipment { Id = "s1" };
+        _downloadServiceMock.Setup(d => d.GetDownloadById("d1"))
+            .ReturnsAsync(new Download { DownloadType = type, ReferenceId = referenceId });
+
+        Assert.IsFalse(await _service.InsertShipmentNote(shipment, "d1", false, "msg"));
+        _shipmentServiceMock.Verify(s => s.InsertShipmentNote(It.IsAny<ShipmentNote>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task DeleteShipmentNote_KeepsAFileOfAnotherRecord()
+    {
+        var shipment = new Shipment { Id = "s1" };
+        var foreign = new Download { DownloadType = DownloadType.Product, ReferenceId = "p1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentNotes("s1"))
+            .ReturnsAsync(new List<ShipmentNote> { new() { Id = "n1", ShipmentId = "s1", DownloadId = "d1" } });
+        _downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(foreign);
+
+        await _service.DeleteShipmentNote(shipment, "n1");
+
+        _downloadServiceMock.Verify(d => d.DeleteDownload(It.IsAny<Download>()), Times.Never);
     }
 }

@@ -39,23 +39,47 @@ public class CustomerNoteViewModelServiceTests
     [TestMethod]
     public async Task InsertCustomerNote_InsertsNoteWithMappedFields()
     {
-        var note = await _customerNoteViewModelService.InsertCustomerNote("c1", "d1", false, "title", "message");
+        _downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(new Download
+            { Id = "d1", DownloadType = DownloadType.Customer, ReferenceId = "c1" });
 
-        Assert.AreEqual("c1", note.CustomerId);
-        Assert.AreEqual("d1", note.DownloadId);
-        Assert.AreEqual("title", note.Title);
-        Assert.AreEqual("message", note.Note);
-        Assert.IsFalse(note.DisplayToCustomer);
-        _customerNoteServiceMock.Verify(
-            c => c.InsertCustomerNote(It.Is<CustomerNote>(x => x.CustomerId == "c1" && x.Title == "title")),
+        var result = await _customerNoteViewModelService.InsertCustomerNote("c1", "d1", false, "title", "message");
+
+        Assert.IsTrue(result);
+        _customerNoteServiceMock.Verify(c => c.InsertCustomerNote(It.Is<CustomerNote>(x =>
+                x.CustomerId == "c1" && x.DownloadId == "d1" && x.Title == "title" && x.Note == "message" &&
+                !x.DisplayToCustomer)),
             Times.Once);
+    }
+
+    [TestMethod]
+    public async Task InsertCustomerNote_FileOfAnotherRecord_Refused_NothingInserted()
+    {
+        _downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(new Download
+            { Id = "d1", DownloadType = DownloadType.Product, ReferenceId = "c1" });
+
+        var result = await _customerNoteViewModelService.InsertCustomerNote("c1", "d1", false, "title", "message");
+
+        Assert.IsFalse(result);
+        _customerNoteServiceMock.Verify(c => c.InsertCustomerNote(It.IsAny<CustomerNote>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task InsertCustomerNote_FileOfAnotherCustomer_Refused_NothingInserted()
+    {
+        _downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(new Download
+            { Id = "d1", DownloadType = DownloadType.Customer, ReferenceId = "c2" });
+
+        var result = await _customerNoteViewModelService.InsertCustomerNote("c1", "d1", false, "title", "message");
+
+        Assert.IsFalse(result);
+        _customerNoteServiceMock.Verify(c => c.InsertCustomerNote(It.IsAny<CustomerNote>()), Times.Never);
     }
 
     [TestMethod]
     public async Task DeleteCustomerNote_DeletesNoteAndAttachment()
     {
         var note = new CustomerNote { Id = "n1", CustomerId = "c1", DownloadId = "d1" };
-        var download = new Download { Id = "d1" };
+        var download = new Download { Id = "d1", DownloadType = DownloadType.Customer, ReferenceId = "c1" };
         _customerNoteServiceMock.Setup(c => c.GetCustomerNote("n1")).ReturnsAsync(note);
         _customerNoteServiceMock.Setup(c => c.DeleteCustomerNote(It.IsAny<CustomerNote>())).Returns(Task.CompletedTask);
         _downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(download);
@@ -65,6 +89,21 @@ public class CustomerNoteViewModelServiceTests
 
         _customerNoteServiceMock.Verify(c => c.DeleteCustomerNote(note), Times.Once);
         _downloadServiceMock.Verify(d => d.DeleteDownload(download), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task DeleteCustomerNote_FileOfAnotherRecord_NoteDeleted_FileKept()
+    {
+        var note = new CustomerNote { Id = "n1", CustomerId = "c1", DownloadId = "d1" };
+        _customerNoteServiceMock.Setup(c => c.GetCustomerNote("n1")).ReturnsAsync(note);
+        _customerNoteServiceMock.Setup(c => c.DeleteCustomerNote(It.IsAny<CustomerNote>())).Returns(Task.CompletedTask);
+        _downloadServiceMock.Setup(d => d.GetDownloadById("d1")).ReturnsAsync(new Download
+            { Id = "d1", DownloadType = DownloadType.Product, ReferenceId = "p1" });
+
+        await _customerNoteViewModelService.DeleteCustomerNote("n1", "c1");
+
+        _customerNoteServiceMock.Verify(c => c.DeleteCustomerNote(note), Times.Once);
+        _downloadServiceMock.Verify(d => d.DeleteDownload(It.IsAny<Download>()), Times.Never);
     }
 
     [TestMethod]

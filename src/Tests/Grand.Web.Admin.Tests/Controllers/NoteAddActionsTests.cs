@@ -1,5 +1,7 @@
 ﻿using Grand.Web.Admin.Controllers;
+using Grand.Domain.Permissions;
 using Grand.Web.AdminShared.Controllers;
+using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 
@@ -22,5 +24,17 @@ public class NoteAddActionsTests
 
         Assert.IsNotNull(method);
         Assert.IsTrue(method.IsDefined(typeof(HttpPostAttribute), true), $"{controller.Name}.{action}");
+    }
+
+    // Changing the user fields of an order is an edit, so a group whose order permission denies Edit may not do it
+    [TestMethod]
+    public void OrderEditUserFields_RequiresTheEditAction()
+    {
+        var method = typeof(BaseOrderManagementController).GetMethod("EditUserFields")!;
+        var attribute = (PermissionAuthorizeActionAttribute)Attribute.GetCustomAttribute(method,
+            typeof(PermissionAuthorizeActionAttribute));
+
+        Assert.IsNotNull(attribute);
+        Assert.AreEqual(PermissionActionName.Edit, attribute.PermissionAction);
     }
 }

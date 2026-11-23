@@ -17,7 +17,8 @@ public class CustomerValidator : BaseGrandValidator<CustomerDto>
         IEnumerable<IValidatorConsumer<CustomerDto>> validators,
         ITranslationService translationService,
         IContextAccessor contextAccessor, ICountryService countryService,
-        ICustomerService customerService, IStoreService storeService, CustomerSettings customerSettings)
+        ICustomerService customerService, IStoreService storeService, CustomerSettings customerSettings,
+        IGroupService groupService)
         : base(validators)
     {
         var languageId = contextAccessor.WorkingLanguageId();
@@ -39,6 +40,21 @@ public class CustomerValidator : BaseGrandValidator<CustomerDto>
             var customer = await customerService.GetCustomerByGuid(x.CustomerGuid);
             return customer == null || customer.Id == x.Id;
         }).WithMessage(translationService.GetResource("Api.Customers.Customer.Fields.Guid.Exists", languageId));
+
+        //only administrators manage administrators: give the role, or change an administrator's account
+        RuleFor(x => x).MustAsync(async (x, _) =>
+        {
+            if (await groupService.IsAdmin(contextAccessor.WorkContext.CurrentCustomer))
+                return true;
+
+            var administrators =
+                await groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Administrators);
+            if (administrators != null && x.Groups != null && x.Groups.Contains(administrators.Id))
+                return false;
+
+            var existing = string.IsNullOrEmpty(x.Id) ? null : await customerService.GetCustomerById(x.Id);
+            return existing == null || !await groupService.IsAdmin(existing);
+        }).WithMessage("Only administrators can assign role 'Administrators' or change an administrator");
 
         RuleFor(x => x).MustAsync(async (x, _) =>
         {

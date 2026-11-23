@@ -9,9 +9,11 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Directory;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Orders;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -256,9 +258,14 @@ public class ShipmentViewModelService : IShipmentViewModelService
         return shipmentNoteModels;
     }
 
-    public virtual async Task InsertShipmentNote(Shipment shipment, string downloadId, bool displayToCustomer,
+    public virtual async Task<bool> InsertShipmentNote(Shipment shipment, string downloadId, bool displayToCustomer,
         string message)
     {
+        //the id comes from the request; a file uploaded for another shipment is refused
+        if (!string.IsNullOrEmpty(downloadId) &&
+            !(await _downloadService.GetDownloadById(downloadId)).IsAttachmentOf(DownloadType.Shipment, shipment.Id))
+            return false;
+
         var shipmentNote = new ShipmentNote {
             DisplayToCustomer = displayToCustomer,
             Note = message,
@@ -269,6 +276,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
 
         //new shipment note notification
         // TODO
+        return true;
     }
 
     public virtual async Task DeleteShipmentNote(Shipment shipment, string id)
@@ -284,7 +292,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         if (!string.IsNullOrEmpty(shipmentNote.DownloadId))
         {
             var attachment = await _downloadService.GetDownloadById(shipmentNote.DownloadId);
-            if (attachment != null)
+            if (attachment.IsAttachmentOf(DownloadType.Shipment, shipment.Id))
                 await _downloadService.DeleteDownload(attachment);
         }
     }

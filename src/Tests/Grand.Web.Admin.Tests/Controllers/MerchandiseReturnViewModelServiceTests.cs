@@ -19,6 +19,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
@@ -300,7 +301,8 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static MerchandiseReturnViewModelService Build(ICustomerService customerService,
-        IContextAccessor contextAccessor)
+        IContextAccessor contextAccessor, IDownloadService downloadService = null,
+        IMerchandiseReturnService merchandiseReturnService = null)
     {
         var orderServiceMock = new Mock<IOrderService>();
         var productServiceMock = new Mock<IProductService>();
@@ -335,13 +337,13 @@ public class MerchandiseReturnViewModelServiceTests
             dateTimeServiceMock.Object,
             translationServiceMock.Object,
             merchandiseReturnMessageProviderServiceMock.Object,
-            merchandiseReturnServiceMock.Object,
+            merchandiseReturnService ?? merchandiseReturnServiceMock.Object,
             priceFormatterMock.Object,
             addressSettings,
             countryServiceMock.Object,
             addressAttributeServiceMock.Object,
             addressAttributeParserMock.Object,
-            downloadServiceMock.Object,
+            downloadService ?? downloadServiceMock.Object,
             orderSettings,
             enumTranslationServiceMock.Object,
             contextAccessor,
@@ -1468,4 +1470,27 @@ public class MerchandiseReturnViewModelServiceTests
 
         mocks.Refunds.Verify(x => x.ResolveRefund("r1", false, "john@shop.com"), Times.Once);
     }
+
+    [TestMethod]
+    [DataRow(DownloadType.MerchandiseReturn, "mr1", true)]
+    [DataRow(DownloadType.MerchandiseReturn, "mr2", false)]
+    [DataRow(DownloadType.Order, "mr1", false)]
+    public async Task InsertMerchandiseReturnNote_SavesOnlyAFileUploadedForThisReturn(DownloadType type,
+        string referenceId, bool saved)
+    {
+        var downloads = new Mock<IDownloadService>();
+        downloads.Setup(d => d.GetDownloadById("d1"))
+            .ReturnsAsync(new Download { DownloadType = type, ReferenceId = referenceId });
+        var returns = new Mock<IMerchandiseReturnService>();
+        var service = Build(new Mock<ICustomerService>().Object, new Mock<IContextAccessor>().Object,
+            downloads.Object, returns.Object);
+
+        var result = await service.InsertMerchandiseReturnNote(new MerchandiseReturn { Id = "mr1" }, new Order(),
+            "d1", false, "msg");
+
+        Assert.AreEqual(saved, result);
+        returns.Verify(r => r.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()),
+            saved ? Times.Once() : Times.Never());
+    }
 }
+

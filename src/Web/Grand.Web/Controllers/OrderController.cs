@@ -153,7 +153,7 @@ public class OrderController : BasePublicController
     }
 
     //My account / Order details page / Cancel Unpaid Order
-    [HttpGet]
+    [HttpPost]
     public virtual async Task<IActionResult> CancelOrder(string orderId)
     {
         var (order, _, _) = await CustomerOrder(await _orderService.GetOrderById(orderId));
