@@ -14,6 +14,7 @@ using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Directory;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
@@ -658,9 +659,14 @@ public class MerchandiseReturnViewModelService(
         return merchandiseReturnNoteModels;
     }
 
-    public virtual async Task InsertMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, Order order,
+    public virtual async Task<bool> InsertMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, Order order,
         string downloadId, bool displayToCustomer, string message)
     {
+        //the id comes from the request; a file uploaded for another merchandise return is refused
+        if (!string.IsNullOrEmpty(downloadId) &&
+            !IsAttachmentOf(await downloadService.GetDownloadById(downloadId), merchandiseReturn))
+            return false;
+
         var merchandiseReturnNote = new MerchandiseReturnNote {
             DisplayToCustomer = displayToCustomer,
             Note = message,
@@ -674,6 +680,8 @@ public class MerchandiseReturnViewModelService(
             //email
             await merchandiseReturnMessageProviderService.SendNewMerchandiseReturnNoteAddedCustomerMessage(merchandiseReturn,
                 merchandiseReturnNote, order);
+
+        return true;
     }
 
     public virtual async Task DeleteMerchandiseReturnNote(MerchandiseReturn merchandiseReturn, string id)
@@ -691,10 +699,14 @@ public class MerchandiseReturnViewModelService(
         if (!string.IsNullOrEmpty(merchandiseReturnNote.DownloadId))
         {
             var attachment = await downloadService.GetDownloadById(merchandiseReturnNote.DownloadId);
-            if (attachment != null)
+            if (IsAttachmentOf(attachment, merchandiseReturn))
                 await downloadService.DeleteDownload(attachment);
         }
     }
+
+    //the notes form uploads with DownloadType.MerchandiseReturn and the return id as the reference
+    private static bool IsAttachmentOf(Download download, MerchandiseReturn merchandiseReturn) =>
+        download is { DownloadType: DownloadType.MerchandiseReturn } && download.ReferenceId == merchandiseReturn.Id;
 
     #region Fields
 

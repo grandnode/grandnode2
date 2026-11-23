@@ -833,6 +833,8 @@ public class BaseShipmentControllerTests
         var shipment = new Shipment { Id = "s1", OrderId = "o1" };
         _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
         _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+        _shipmentViewModelServiceMock.Setup(v => v.InsertShipmentNote(shipment, "download-1", true, "hello"))
+            .ReturnsAsync(true);
 
         var result = await _controller.ShipmentNoteAdd("s1", "download-1", true, "hello");
 
@@ -844,6 +846,20 @@ public class BaseShipmentControllerTests
         Assert.AreEqual(true, resultProperty.GetValue(value));
         _shipmentViewModelServiceMock.Verify(
             v => v.InsertShipmentNote(shipment, "download-1", true, "hello"), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task ShipmentNoteAdd_FileOfAnotherShipment_ReturnsResultFalse()
+    {
+        var shipment = new Shipment { Id = "s1", OrderId = "o1" };
+        _shipmentServiceMock.Setup(s => s.GetShipmentById("s1")).ReturnsAsync(shipment);
+        _scopeMock.Setup(s => s.HasAccess(shipment)).ReturnsAsync(true);
+
+        //the view-model service refuses the download: it was not uploaded for this shipment
+        var result = await _controller.ShipmentNoteAdd("s1", "download-x", true, "hello");
+
+        var value = (result as JsonResult)!.Value;
+        Assert.AreEqual(false, value.GetType().GetProperty("Result")!.GetValue(value));
     }
 
     [TestMethod]
