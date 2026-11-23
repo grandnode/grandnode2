@@ -76,7 +76,6 @@ public abstract class BaseMessageTemplateController(
                 if (existingStoreTemplate != null)
                 {
                     ModelState.AddModelError("Name", translationService.GetResource("Admin.Content.MessageTemplates.Fields.Name.AlreadyExists"));
-                    model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
                     model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
                     foreach (var ea in await emailAccountService.GetAllEmailAccounts(scope.DefaultStoreId ?? ""))
                         model.AvailableEmailAccounts.Add(ea.ToModel());
@@ -109,7 +108,6 @@ public abstract class BaseMessageTemplateController(
             return RedirectToAction("List");
         }
 
-        model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
         model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
         foreach (var ea in await emailAccountService.GetAllEmailAccounts(scope.DefaultStoreId ?? ""))
             model.AvailableEmailAccounts.Add(ea.ToModel());
@@ -178,10 +176,13 @@ public abstract class BaseMessageTemplateController(
             return RedirectToAction("List");
 
         var prevAttachment = messageTemplate.AttachedDownloadId;
+        //the name is the key the template is sent by: set on create, never changed by the edit form
+        var name = messageTemplate.Name;
 
         if (ModelState.IsValid)
         {
             messageTemplate = model.ToEntity(messageTemplate);
+            messageTemplate.Name = name;
             if (!model.HasAttachedDownload)
                 messageTemplate.AttachedDownloadId = "";
             if (model.SendImmediately)
@@ -213,7 +214,7 @@ public abstract class BaseMessageTemplateController(
             return RedirectToAction("List");
         }
 
-        model.HasAttachedDownload = !string.IsNullOrEmpty(model.AttachedDownloadId);
+        model.Name = name;
         model.AllowedTokens = messageTokenProvider.GetListOfAllowedTokens();
         foreach (var ea in await emailAccountService.GetAllEmailAccounts(scope.DefaultStoreId ?? ""))
             model.AvailableEmailAccounts.Add(ea.ToModel());
