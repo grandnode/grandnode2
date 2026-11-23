@@ -25,6 +25,7 @@ public class LoginWebValidatorTests
     private Mock<ICustomerManagerService> _customerManagerServiceMock;
     private Mock<IContextAccessor> _contextAccessorMock;
     private Mock<IMediator> _mediatorMock;
+    private CustomerSettings _customerSettings;
 
     [TestInitialize]
     public void Init()
@@ -32,6 +33,7 @@ public class LoginWebValidatorTests
         _customerServiceMock = new Mock<ICustomerService>();
         _customerManagerServiceMock = new Mock<ICustomerManagerService>();
         _mediatorMock = new Mock<IMediator>();
+        _customerSettings = new CustomerSettings();
 
         var storeContextMock = new Mock<IStoreContext>();
         storeContextMock.Setup(s => s.CurrentStore).Returns(new Store { Id = StoreId });
@@ -42,6 +44,7 @@ public class LoginWebValidatorTests
     private LoginWebValidator CreateValidator(bool apiEnabled) =>
         new(new List<IValidatorConsumer<LoginWebModel>>(),
             new FrontendAPIConfig { Enabled = apiEnabled },
+            _customerSettings,
             _customerServiceMock.Object,
             _customerManagerServiceMock.Object,
             _contextAccessorMock.Object,
@@ -142,5 +145,34 @@ public class LoginWebValidatorTests
 
         Assert.IsFalse(result.IsValid);
     }
-}
 
+    [TestMethod]
+    public async Task ValidCredentials_ClearsTheFailedAttempts()
+    {
+        var customer = new Customer { Active = true, FailedLoginAttempts = 2 };
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(customer);
+        _customerManagerServiceMock.Setup(m => m.LoginCustomer(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<SignInSurface>())).ReturnsAsync(CustomerLoginResults.Successful);
+
+        var result = await CreateValidator(apiEnabled: true).ValidateAsync(ValidModel());
+
+        Assert.IsTrue(result.IsValid);
+        Assert.AreEqual(0, customer.FailedLoginAttempts);
+        _customerServiceMock.Verify(c => c.UpdateCustomerLastLoginDate(customer), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UsernamesEnabled_SignsInWithTheUsernameOfTheCustomerFoundByEmail()
+    {
+        _customerSettings.UsernamesEnabled = true;
+        _customerServiceMock.Setup(c => c.GetCustomerByEmail(It.IsAny<string>(), It.IsAny<string>()))
+            .ReturnsAsync(new Customer { Active = true, Username = "user1" });
+        _customerManagerServiceMock.Setup(m => m.LoginCustomer("user1", "secret", StoreId,
+            SignInSurface.FrontendApi)).ReturnsAsync(CustomerLoginResults.Successful);
+
+        var result = await CreateValidator(apiEnabled: true).ValidateAsync(ValidModel());
+
+        Assert.IsTrue(result.IsValid);
+    }
+}

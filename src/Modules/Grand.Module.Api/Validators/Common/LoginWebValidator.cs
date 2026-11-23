@@ -16,6 +16,7 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
     public LoginWebValidator(
         IEnumerable<IValidatorConsumer<LoginWebModel>> validators,
         FrontendAPIConfig apiConfig,
+        CustomerSettings customerSettings,
         ICustomerService customerService,
         ICustomerManagerService customerManagerService,
         IContextAccessor contextAccessor,
@@ -51,13 +52,23 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
                             return false;
                         }
 
-                        var result = await customerManagerService.LoginCustomer(x.Email, password, storeId,
+                        //LoginCustomer looks the customer up by username when usernames are enabled
+                        var result = await customerManagerService.LoginCustomer(
+                            customerSettings.UsernamesEnabled ? customer.Username : x.Email, password, storeId,
                             SignInSurface.FrontendApi);
                         //counted like a wrong password on the login page, so lockout applies to this sign-in too
                         if (result == CustomerLoginResults.WrongPassword)
                             await mediator.Publish(new CustomerLoginFailedEvent(customer, "wrong credentials"),
                                 cancellationToken);
-                        return result == CustomerLoginResults.Successful;
+                        if (result != CustomerLoginResults.Successful)
+                            return false;
+
+                        //a successful sign-in clears the failed attempts, as the login page's does
+                        customer.FailedLoginAttempts = 0;
+                        customer.CannotLoginUntilDateUtc = null;
+                        customer.LastLoginDateUtc = DateTime.UtcNow;
+                        await customerService.UpdateCustomerLastLoginDate(customer);
+                        return true;
                     }
                 }
 
