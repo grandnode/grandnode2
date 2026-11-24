@@ -92,9 +92,10 @@ you only need the first one:
 | `src/Web/Grand.Web.Admin`, `Grand.Web.Store`, `Grand.Web.Vendor` | one panel on its own, with its own configuration (see below) | only to try an installation that hosts a panel separately from the storefront |
 | `src/Aspire/Aspire.AppHost` | two `Grand.Web` instances with MongoDB and Redis containers and the Aspire dashboard | only to test several instances sharing a cache, or to look at the telemetry; needs Docker |
 
-In the solution the standalone panels are under `Web/Standalone panels` and
-their launch profiles are named `... panel only`, so the IDE's run list says what
-they are.
+In the solution these projects are under `Web/Panels`. They hold the panels'
+code, which `Grand.Web` references, so that is where admin changes go; their own
+launch profiles are named `... panel only`, so the IDE's run list says what
+starting one of them does.
 
 A standalone panel does not share anything with `Grand.Web` on disk. It reads
 `App_Data/Settings.cfg` from its own project directory, so until you copy that
