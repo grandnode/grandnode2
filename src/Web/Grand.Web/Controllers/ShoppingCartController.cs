@@ -20,6 +20,7 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Common.Startup;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
@@ -27,6 +28,7 @@ using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Grand.Web.Controllers;
 
@@ -193,6 +195,7 @@ public class ShoppingCartController : BasePublicController
         });
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [DenySystemAccount]
     [HttpPost]
     public virtual async Task<IActionResult> UploadFileCheckoutAttribute(string attributeId, IFormFile file,

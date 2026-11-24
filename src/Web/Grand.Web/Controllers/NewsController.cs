@@ -9,6 +9,7 @@ using Grand.Web.Commands.Models.News;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Common.Startup;
 using Grand.Web.Events;
 using Grand.Web.Features.Models.News;
 using Grand.Web.Models.News;
@@ -16,6 +17,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Grand.Web.Controllers;
 
@@ -103,6 +105,7 @@ public class NewsController : BasePublicController
         return View(model);
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> NewsCommentAdd(AddNewsCommentModel model)
