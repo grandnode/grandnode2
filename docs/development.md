@@ -97,6 +97,13 @@ code, which `Grand.Web` references, so that is where admin changes go; their own
 launch profiles are named `... panel only`, so the IDE's run list says what
 starting one of them does.
 
+`Aspire.AppHost` is deliberately not in `GrandNode.slnx`. When a solution
+contains an Aspire AppHost, Visual Studio makes it the startup project even if
+another project comes first, so with it in the solution F5 started Aspire instead
+of `Grand.Web`. Build the solution first, then start it with
+`dotnet run --project src/Aspire/Aspire.AppHost`, or open
+`src/Aspire/Aspire.AppHost/Aspire.AppHost.csproj` in the IDE.
+
 A standalone panel does not share anything with `Grand.Web` on disk. It reads
 `App_Data/Settings.cfg` from its own project directory, so until you copy that
 file over from `src/Web/Grand.Web/App_Data` it treats the database as not
