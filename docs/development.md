@@ -89,12 +89,18 @@ you only need the first one:
 | Project | What it runs | When to start it |
 | --- | --- | --- |
 | `src/Web/Grand.Web` | the storefront and the Admin (`/admin`), Store (`/store`) and Vendor (`/vendor`) panels in one process | always - this is the application |
-| `src/Web/Grand.Web.Admin`, `Grand.Web.Store`, `Grand.Web.Vendor` | one panel on its own, against the same database | only to try an installation that hosts a panel separately from the storefront |
+| `src/Web/Grand.Web.Admin`, `Grand.Web.Store`, `Grand.Web.Vendor` | one panel on its own, with its own configuration (see below) | only to try an installation that hosts a panel separately from the storefront |
 | `src/Aspire/Aspire.AppHost` | two `Grand.Web` instances with MongoDB and Redis containers and the Aspire dashboard | only to test several instances sharing a cache, or to look at the telemetry; needs Docker |
 
 In the solution the standalone panels are under `Web/Standalone panels` and
 their launch profiles are named `... panel only`, so the IDE's run list says what
 they are.
+
+A standalone panel does not share anything with `Grand.Web` on disk. It reads
+`App_Data/Settings.cfg` from its own project directory, so until you copy that
+file over from `src/Web/Grand.Web/App_Data` it treats the database as not
+installed. Plugins are not copied into its output either, so it runs without
+them.
 
 `Grand.Web` does not reference the plugins - they install themselves into its
 output directory when *they* are built. So build the solution once
@@ -105,7 +111,8 @@ The `GrandNode (Kestrel)` profile listens on <https://localhost:5001> and
 <http://localhost:5000>; the Visual Studio `GrandNode (IIS Express)` profile uses
 <https://localhost:44350>.
 
-> **Set `ASPNETCORE_ENVIRONMENT=Development`.** Both launch profiles already do.
+> **Set `ASPNETCORE_ENVIRONMENT=Development`.** Both `GrandNode` launch profiles already do;
+> the `Docker` profile does not.
 > If you start the application without it, the static web assets manifest is not
 > consulted, every file served from `_content/...` returns 404 and the admin
 > panel loads with no CSS and no JavaScript at all. It looks like a broken
