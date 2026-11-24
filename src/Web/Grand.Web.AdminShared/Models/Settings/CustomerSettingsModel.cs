@@ -80,6 +80,9 @@ public class CustomerSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.Customer.FailedPasswordLockoutMinutes")]
         public int FailedPasswordLockoutMinutes { get; set; }
 
+        [GrandResourceDisplayName("Admin.Settings.Customer.SignOutOnAllDevices")]
+        public bool SignOutOnAllDevices { get; set; }
+
         [GrandResourceDisplayName("Admin.Settings.Customer.NewsletterEnabled")]
         public bool NewsletterEnabled { get; set; }
 

@@ -213,6 +213,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
             var oidcSessionId = authenticateResult?.Succeeded == true ? OidcSessionId(authenticateResult.Principal) : null;
             if (!string.IsNullOrEmpty(oidcSessionId))
                 await EndOidcSession(oidcSessionId);
+            if (authenticateResult?.Succeeded == true && _customerSettings.SignOutOnAllDevices)
+                await ReplacePasswordToken(authenticateResult.Principal);
 
             await _httpContextAccessor.HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults
                 .AuthenticationScheme);
@@ -291,16 +293,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private async Task<bool> IsValidCustomer(Customer customer, ClaimsPrincipal principal)
     {
         var passwordToken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
-        if (!string.IsNullOrEmpty(passwordToken))
-        {
-            var tokenClaim = principal
-                .FindFirst(claim =>
-                    claim.Type == ClaimTypes.UserData &&
-                    claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
-
-            if (tokenClaim == null || tokenClaim.Value != passwordToken)
-                return false;
-        }
+        if (!string.IsNullOrEmpty(passwordToken) && PasswordTokenOf(principal) != passwordToken)
+            return false;
 
         if (!customer.Active || customer.Deleted || !await _groupService.IsRegistered(customer))
             return false;
@@ -318,6 +312,27 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         //in ProviderOnly only a break-glass account (password on the Admin panel) keeps a plain cookie
         return (await _externalSignInPolicy.PasswordSignIn(customer, SignInSurface.AdminPanel)).Allowed;
     }
+
+    /// <summary>
+    ///     The cookie is a ticket the server keeps no record of, so a copy taken before the sign-out would still be
+    ///     accepted: the token it carries is replaced, which ends every sign-in of the account, on other devices too
+    /// </summary>
+    private async Task ReplacePasswordToken(ClaimsPrincipal principal)
+    {
+        var customer = await RetrieveCustomer(principal);
+        var passwordToken = customer?.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
+        //an old cookie, whose token was replaced already, does not end the sign-ins made after it
+        if (string.IsNullOrEmpty(passwordToken) || PasswordTokenOf(principal) != passwordToken)
+            return;
+
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordToken,
+            Guid.NewGuid().ToString());
+    }
+
+    private string PasswordTokenOf(ClaimsPrincipal principal) =>
+        principal.FindFirst(claim =>
+            claim.Type == ClaimTypes.UserData &&
+            claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))?.Value;
 
     private async Task EndOidcSession(string sessionId)
     {

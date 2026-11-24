@@ -171,6 +171,11 @@ public class CustomerSettings : ISettings
     public int FailedPasswordLockoutMinutes { get; set; }
 
     /// <summary>
+    ///     Gets or sets a value indicating whether signing out ends every sign-in of the account, on other devices too
+    /// </summary>
+    public bool SignOutOnAllDevices { get; set; }
+
+    /// <summary>
     ///     Gets or sets a number of days for password expiration
     /// </summary>
     public int PasswordLifetime { get; set; }
