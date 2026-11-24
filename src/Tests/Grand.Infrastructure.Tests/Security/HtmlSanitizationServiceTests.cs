@@ -70,6 +70,46 @@ public class HtmlSanitizationServiceTests
     }
 
     [TestMethod]
+    public void ContainsDisallowedRichText_FlagsIdByDefault()
+    {
+        //the storefront scripts look elements and globals up by id, so content must not be able to take one over
+        Assert.IsTrue(_service.ContainsDisallowedRichText("<span id=\"vmorder\"></span>"));
+    }
+
+    [TestMethod]
+    public void ContainsDisallowedRichText_AllowsConfiguredAttributes()
+    {
+        var service = new HtmlSanitizationService(new SecurityConfig {
+            SanitizerAllowedAttributes = ["class", " ID "]
+        });
+
+        Assert.IsFalse(service.ContainsDisallowedRichText(
+            "<div id=\"specs\" class=\"x\"><h2 id=\"dimensions\">Dimensions</h2></div><a href=\"#dimensions\">jump</a>"));
+    }
+
+    [TestMethod]
+    public void ContainsDisallowedRichText_FlagsClassWhenAttributeListIsConfiguredEmpty()
+    {
+        var service = new HtmlSanitizationService(new SecurityConfig { SanitizerAllowedAttributes = [] });
+
+        Assert.IsTrue(service.ContainsDisallowedRichText("<table class=\"table\"><tr><td>cell</td></tr></table>"));
+    }
+
+    /// <summary>
+    ///     Allowing "id" must not let a Vue binding of it through: database content rendered inside an island would
+    ///     otherwise be compiled as a template expression.
+    /// </summary>
+    [TestMethod]
+    [DataRow("<div :id=\"x\">y</div>")]
+    [DataRow("<div v-bind:id=\"x\">y</div>")]
+    public void ContainsDisallowedRichText_FlagsVueBoundId_EvenWhenIdIsAllowed(string payload)
+    {
+        var service = new HtmlSanitizationService(new SecurityConfig { SanitizerAllowedAttributes = ["id"] });
+
+        Assert.IsTrue(service.ContainsDisallowedRichText(payload), $"payload was not flagged: {payload}");
+    }
+
+    [TestMethod]
     public void ContainsDisallowedRichText_AllowsIframeFromAllowedHost()
     {
         Assert.IsFalse(_service.ContainsDisallowedRichText(
