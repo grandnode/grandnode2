@@ -1,0 +1,38 @@
+#OpenTelemetry Collector started by the AppHost when Observability:Grafana is true. It sends everything the apps
+#export to both the Aspire dashboard and Grafana. ASPIRE_ENDPOINT, ASPIRE_API_KEY and the receivers' TLS come from
+#the Aspire integration, GRAFANA_OTLP_ENDPOINT from ObservabilityConfiguration.
+receivers:
+  otlp:
+    protocols:
+      grpc:
+        endpoint: 0.0.0.0:4317
+      http:
+        endpoint: 0.0.0.0:4318
+
+processors:
+  batch:
+
+exporters:
+  otlp_grpc/aspire:
+    endpoint: ${env:ASPIRE_ENDPOINT}
+    headers:
+      x-otlp-api-key: ${env:ASPIRE_API_KEY}
+  otlp_grpc/grafana:
+    endpoint: ${env:GRAFANA_OTLP_ENDPOINT}
+    tls:
+      insecure: true
+
+service:
+  pipelines:
+    traces:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_grpc/aspire, otlp_grpc/grafana]
+    metrics:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_grpc/aspire, otlp_grpc/grafana]
+    logs:
+      receivers: [otlp]
+      processors: [batch]
+      exporters: [otlp_grpc/aspire, otlp_grpc/grafana]

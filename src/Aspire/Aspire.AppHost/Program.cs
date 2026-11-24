@@ -7,6 +7,7 @@ var mongodb = mongo.AddDatabase("Mongodb");
 
 var redis = builder.AddRedis("redis").WithLifetime(ContainerLifetime.Persistent);
 
+builder.AddGrafanaObservability();
 builder.ConfigureGrandWebProject(mongodb, redis);
 
 await builder.Build().RunAsync();

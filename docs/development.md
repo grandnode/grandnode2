@@ -105,3 +105,25 @@ writes the connection string to `src/Web/Grand.Web/App_Data/Settings.cfg`, which
 is not tracked by git - delete that file to run the installer again against a
 fresh database.
 
+## Telemetry in Grafana
+
+`src/Aspire/Aspire.AppHost` sends the traces, metrics and logs of the
+applications it starts to the Aspire dashboard. To see them in Grafana as well,
+set `Observability:Grafana` to `true` in its `appsettings.json`, or start it with
+the environment variable set:
+
+```bash
+Observability__Grafana=true dotnet run --project src/Aspire/Aspire.AppHost
+```
+
+The AppHost then starts two more containers: an OpenTelemetry Collector, which
+receives what the applications export and sends it on to both the dashboard and
+Grafana, and `grafana/otel-lgtm` - Grafana with Tempo (traces), Prometheus
+(metrics) and Loki (logs). The `grafana` resource in the dashboard links to the
+Grafana UI. Its data survives a restart in the `grandnode-grafana` volume.
+
+The collector's pipeline is `src/Aspire/Aspire.AppHost/otel-collector.yaml`.
+Outside Aspire, point an installation at your own collector with the `Telemetry`
+section of `App_Data/appsettings.json` or the standard `OTEL_EXPORTER_OTLP_*`
+environment variables.
+
