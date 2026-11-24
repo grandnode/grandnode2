@@ -1,7 +1,7 @@
 {
   "$schema": "https://json.schemastore.org/launchsettings.json",
   "profiles": {
-    "https": {
+    "Two instances + Redis (https)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -14,7 +14,7 @@
         "ASPIRE_ALLOW_UNSECURED_TRANSPORT": "true"
       }
     },
-    "http": {
+    "Two instances + Redis (http)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,

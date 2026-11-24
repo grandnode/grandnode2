@@ -8,7 +8,7 @@
     }
   },
   "profiles": {
-    "Grand.Web.Vendor": {
+    "Vendor panel only (Kestrel)": {
       "commandName": "Project",
       "dotnetRunMessages": true,
       "launchBrowser": true,
@@ -18,7 +18,7 @@
         "ASPNETCORE_ENVIRONMENT": "Development"
       }
     },
-    "IIS Express": {
+    "Vendor panel only (IIS Express)": {
       "commandName": "IISExpress",
       "launchBrowser": true,
       "launchUrl": "vendor",
