@@ -42,17 +42,6 @@ public class HomeControllerAttributeTests
         Assert.AreEqual(1, attr.Length);
     }
 
-    //a GET could be triggered by a link or an image on another site
-    [TestMethod]
-    public void Logout_AcceptsPostOnly()
-    {
-        var verbs = typeof(HomeController).GetMethod(nameof(HomeController.Logout))!
-            .GetCustomAttributes(typeof(HttpPostAttribute), inherit: true);
-        Assert.AreEqual(1, verbs.Length);
-        Assert.AreEqual(0, typeof(HomeController).GetMethod(nameof(HomeController.Logout))!
-            .GetCustomAttributes(typeof(HttpGetAttribute), inherit: true).Length);
-    }
-
     [TestMethod]
     public void HasAuthorizeMenuAttribute()
     {

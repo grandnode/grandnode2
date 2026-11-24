@@ -12,7 +12,6 @@ public class StateChangingActionVerbTests
     [TestMethod]
     [DataRow(typeof(OrderController), nameof(OrderController.CancelOrder))]
     [DataRow(typeof(ShoppingCartController), nameof(ShoppingCartController.ClearCart))]
-    [DataRow(typeof(AccountController), nameof(AccountController.Logout))]
     public void Action_AcceptsPostOnly(Type controller, string action)
     {
         var method = controller.GetMethod(action, BindingFlags.Public | BindingFlags.Instance)!;

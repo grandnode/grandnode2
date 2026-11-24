@@ -175,9 +175,7 @@
                                         </li>
                                     }
                                     <li>
-                                        @* signing out is a POST, so a link on another site cannot sign staff out *@
-                                        <form id="panel-logout-form" method="post" asp-area="@Constants.AreaAdmin" asp-controller="Home" asp-action="Logout" asp-antiforgery="true" class="d-none"></form>
-                                        <a href="#" onclick="document.getElementById('panel-logout-form').submit(); return false;">
+                                        <a href="@Url.Action("Logout", "Home", new { area = Constants.AreaAdmin }, null)">
                                             <i class="bi bi-box-arrow-right"></i> @Loc["Admin.Header.Logout"]
                                         </a>
                                     </li>

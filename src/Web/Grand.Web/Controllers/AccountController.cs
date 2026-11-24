@@ -374,8 +374,6 @@ public class AccountController : BasePublicController
         return Redirect(returnUrl);
     }
 
-    //a POST, so a link or an image on another site cannot sign the customer out
-    [HttpPost]
     //available even when a store is closed
     [ClosedStore(true)]
     //available even when navigation is not allowed
