@@ -103,6 +103,16 @@ public class SecurityConfig
     public string[] SanitizerAllowedIframeHosts { get; set; }
 
     /// <summary>
+    ///     Attributes allowed in rich-text content on top of the HtmlSanitizer defaults (href, src, alt, title, style
+    ///     and the other formatting attributes). Event handlers (on*), data-* and Vue directives must never be listed:
+    ///     the content is rendered unencoded inside Vue islands.
+    ///     Leave unset to fall back to the built-in defaults (class and the iframe embed attributes); set to [] to allow
+    ///     none of them. "id" is not a default: the storefront scripts look elements and globals up by id, and content
+    ///     can take those names over.
+    /// </summary>
+    public string[] SanitizerAllowedAttributes { get; set; }
+
+    /// <summary>
     ///     Hosts on the internal network that picture URLs in Excel imports may point to. Any other host must resolve to
     ///     a public address, because the URL is written by whoever prepared the import file and would otherwise let it
     ///     reach services only the server can see. A listed host may also use a port other than 80/443.

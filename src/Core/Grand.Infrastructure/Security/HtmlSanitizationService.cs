@@ -32,6 +32,15 @@ public class HtmlSanitizationService : IHtmlSanitizationService
     ];
 
     /// <summary>
+    ///     Attributes allowed on top of the library defaults when the configuration does not name any: editors emit
+    ///     class names for tables, images and alignment, and the rest are what a video embed carries.
+    /// </summary>
+    private static readonly string[] DefaultAllowedAttributes =
+    [
+        "class", "allowfullscreen", "frameborder", "allow", "loading"
+    ];
+
+    /// <summary>
     ///     Tags that are in the library defaults but have no place in store content: they either collect input or
     ///     submit it somewhere. A form rendered inside the admin panel is a credible phishing surface.
     /// </summary>
@@ -51,7 +60,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         //must fail closed (sanitize), not open (accept anything)
         _enabled = securityConfig?.EnableHtmlSanitization ?? true;
         _allowedIframeHosts = ResolveAllowedIframeHosts(securityConfig);
-        _richTextOptions = BuildRichTextOptions();
+        _richTextOptions = BuildRichTextOptions(ResolveAllowedAttributes(securityConfig));
     }
 
     /// <summary>
@@ -61,7 +70,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
     ///     sets, not the library defaults), so every allowlist a plain `new HtmlSanitizer()` would carry has to
     ///     be copied across explicitly, not just the ones this class customizes.
     /// </summary>
-    private static HtmlSanitizerOptions BuildRichTextOptions()
+    private static HtmlSanitizerOptions BuildRichTextOptions(string[] allowedAttributes)
     {
         var defaults = new HtmlSanitizer();
 
@@ -71,15 +80,8 @@ public class HtmlSanitizationService : IHtmlSanitizationService
 
         //framed media, restricted to allowlisted hosts by OnFilterUrl below
         defaults.AllowedTags.Add("iframe");
-        defaults.AllowedAttributes.Add("allowfullscreen");
-        defaults.AllowedAttributes.Add("frameborder");
-        defaults.AllowedAttributes.Add("allow");
-        defaults.AllowedAttributes.Add("loading");
 
-        //editors emit class names for tables, images and alignment
-        defaults.AllowedAttributes.Add("class");
-        //in-page anchors (a table of contents, "#section" links) need an id on the target element
-        defaults.AllowedAttributes.Add("id");
+        foreach (var attribute in allowedAttributes) defaults.AllowedAttributes.Add(attribute);
 
         defaults.AllowedSchemes.Add("mailto");
         defaults.AllowedSchemes.Add("tel");
@@ -212,6 +214,17 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         return securityConfig.SanitizerAllowedIframeHosts
             .Where(host => !string.IsNullOrWhiteSpace(host))
             .Select(host => host.Trim())
+            .ToArray();
+    }
+
+    private static string[] ResolveAllowedAttributes(SecurityConfig securityConfig)
+    {
+        //absent configuration means "use the defaults"; a configured but empty list means "none on top of the library's"
+        if (securityConfig?.SanitizerAllowedAttributes is null) return DefaultAllowedAttributes;
+
+        return securityConfig.SanitizerAllowedAttributes
+            .Where(attribute => !string.IsNullOrWhiteSpace(attribute))
+            .Select(attribute => attribute.Trim().ToLowerInvariant())
             .ToArray();
     }
 
