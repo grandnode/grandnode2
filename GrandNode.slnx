@@ -97,6 +97,7 @@
     <Project Path="src/Web/Grand.Web.Vendor/Grand.Web.Vendor.csproj" />
   </Folder>
   <Folder Name="/Aspire/">
+    <Project Path="src/Aspire/Aspire.AppHost/Aspire.AppHost.csproj" />
     <Project Path="src/Aspire/Aspire.ServiceDefaults/Aspire.ServiceDefaults.csproj" />
   </Folder>
 </Solution>
