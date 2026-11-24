@@ -11,11 +11,13 @@ using Grand.Web.Commands.Models.Contact;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Startup;
 using Grand.Web.Events;
 using Grand.Web.Models.Contact;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.Web.Common.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Grand.Web.Controllers;
 
@@ -58,6 +60,7 @@ public class ContactController : BasePublicController
         return View(model);
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [ClosedStore(true)]
     [DenySystemAccount]
@@ -115,6 +118,7 @@ public class ContactController : BasePublicController
         });
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> UploadFileContactAttribute(string attributeId, IFormFile file,

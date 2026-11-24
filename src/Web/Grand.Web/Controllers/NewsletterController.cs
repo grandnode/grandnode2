@@ -2,9 +2,11 @@
 using Grand.Web.Commands.Models.Newsletter;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Startup;
 using Grand.Web.Models.Newsletter;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Grand.Web.Controllers;
 
@@ -19,6 +21,7 @@ public class NewsletterController : BasePublicController
         _mediator = mediator;
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     public virtual async Task<IActionResult> SubscribeNewsletter(string email, bool subscribe)
     {
