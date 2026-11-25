@@ -111,12 +111,12 @@ public class HtmlSanitizationService : IHtmlSanitizationService
 
         var disallowedContentSeen = false;
 
-        void MarkDisallowed(object sender, EventArgs e)
+        void MarkDisallowed(object? sender, EventArgs e)
         {
             disallowedContentSeen = true;
         }
 
-        void OnFilterUrl(object sender, FilterUrlEventArgs e)
+        void OnFilterUrl(object? sender, FilterUrlEventArgs e)
         {
             var url = e.SanitizedUrl ?? e.OriginalUrl;
             if (string.IsNullOrWhiteSpace(url)) return;
@@ -175,7 +175,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
 
         var disallowedContentSeen = false;
 
-        void MarkDisallowed(object sender, EventArgs e)
+        void MarkDisallowed(object? sender, EventArgs e)
         {
             disallowedContentSeen = true;
         }
@@ -201,12 +201,12 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         return disallowedContentSeen;
     }
 
-    private static bool HasOwnAttributes(AngleSharp.Dom.IElement element)
+    private static bool HasOwnAttributes(AngleSharp.Dom.IElement? element)
     {
         return element is not null && element.Attributes.Length > 0;
     }
 
-    private static string[] ResolveAllowedIframeHosts(SecurityConfig securityConfig)
+    private static string[] ResolveAllowedIframeHosts(SecurityConfig? securityConfig)
     {
         //absent configuration means "use the defaults"; a configured but empty list means "frame nothing"
         if (securityConfig?.SanitizerAllowedIframeHosts is null) return DefaultAllowedIframeHosts;
@@ -217,7 +217,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
             .ToArray();
     }
 
-    private static string[] ResolveAllowedAttributes(SecurityConfig securityConfig)
+    private static string[] ResolveAllowedAttributes(SecurityConfig? securityConfig)
     {
         //absent configuration means "use the defaults"; a configured but empty list means "none on top of the library's"
         if (securityConfig?.SanitizerAllowedAttributes is null) return DefaultAllowedAttributes;

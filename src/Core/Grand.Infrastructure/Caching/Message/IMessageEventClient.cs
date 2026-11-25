@@ -2,5 +2,5 @@
 
 public interface IMessageEventClient : IMessageEvent
 {
-    string ClientId { get; set; }
+    string? ClientId { get; set; }
 }

@@ -54,7 +54,7 @@ public static class PluginLoader
             //assemblies it never ships, and it would fail here although it works at runtime.
             //Every assembly is loaded before any type is resolved, so the order of the files does not matter
             var pluginCode = assemblies.Where(x => x == main || IsPluginCode(x)).ToList();
-            Type pluginType = null;
+            Type? pluginType = null;
             foreach (var assembly in pluginCode)
             {
                 var types = assembly.GetTypes();

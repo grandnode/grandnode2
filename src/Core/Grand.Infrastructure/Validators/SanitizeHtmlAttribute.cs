@@ -17,11 +17,11 @@ namespace Grand.Infrastructure.Validators;
 [AttributeUsage(AttributeTargets.Property)]
 public class SanitizeHtmlAttribute() : ValidationAttribute("{0} contains HTML markup that is not allowed.")
 {
-    protected override ValidationResult IsValid(object value, ValidationContext validationContext)
+    protected override ValidationResult? IsValid(object? value, ValidationContext validationContext)
     {
         if (value is not string html || string.IsNullOrWhiteSpace(html)) return ValidationResult.Success;
 
-        var sanitizationService = (IHtmlSanitizationService)validationContext
+        var sanitizationService = (IHtmlSanitizationService?)validationContext
             .GetService(typeof(IHtmlSanitizationService));
 
         if (sanitizationService is null)

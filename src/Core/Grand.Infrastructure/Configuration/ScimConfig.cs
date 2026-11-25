@@ -10,7 +10,7 @@ public class ScimConfig
     private const int DefaultMaxResults = 100;
 
     /// <summary>Bearer token the identity provider sends; keep it out of source control (env var Scim__Token or a secret store)</summary>
-    public string Token { get; set; }
+    public string? Token { get; set; }
 
     /// <summary>
     ///     True: the SCIM externalId of a user is its OpenID Connect subject, and every SCIM write links the account to it,
@@ -32,12 +32,13 @@ public class ScimConfig
     public bool TokenUsable => !string.IsNullOrEmpty(Token) && Token.Length >= MinTokenLength;
 
     /// <summary>The e-mail is in one of <see cref="TakeOverDomains" /> (case-insensitive, exact domain)</summary>
-    public bool IsTakeOverDomain(string email)
+    public bool IsTakeOverDomain(string? email)
     {
-        var at = email?.Trim().LastIndexOf('@') ?? -1;
-        if (at < 1 || TakeOverDomains == null)
+        var trimmed = email?.Trim();
+        var at = trimmed?.LastIndexOf('@') ?? -1;
+        if (trimmed == null || at < 1 || TakeOverDomains == null)
             return false;
-        var domain = email.Trim()[(at + 1)..];
+        var domain = trimmed[(at + 1)..];
         return TakeOverDomains.Any(x =>
             !string.IsNullOrWhiteSpace(x) &&
             string.Equals(x.Trim().TrimStart('@'), domain, StringComparison.OrdinalIgnoreCase));

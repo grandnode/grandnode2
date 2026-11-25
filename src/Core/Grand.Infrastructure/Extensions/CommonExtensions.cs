@@ -38,7 +38,7 @@ public static class CommonExtensions
 
         var query = QueryHelpers.ParseQuery(queryString);
 
-        var items = query.SelectMany(x => x.Value, (col, val) => new KeyValuePair<string, string>(col.Key, val))
+        var items = query.SelectMany(x => x.Value, (col, val) => new KeyValuePair<string, string>(col.Key, val ?? string.Empty))
             .ToList();
 
         items.RemoveAll(x => x.Key == key);

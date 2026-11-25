@@ -27,4 +27,7 @@
     <InternalsVisibleTo Include="Grand.Web.Admin.Tests" />
     <InternalsVisibleTo Include="Grand.Web.Common.Tests" />
   </ItemGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 </Project>

@@ -54,5 +54,5 @@ public interface IWorkContextSetter
     ///    Initialize the work context
     /// </summary>
     /// <returns></returns>
-    Task<IWorkContext> InitializeWorkContext(string storeId = null);
+    Task<IWorkContext> InitializeWorkContext(string? storeId = null);
 }

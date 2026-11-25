@@ -33,7 +33,7 @@ public static class PluginManifestReader
     /// <exception cref="IOException">The file cannot be opened or read</exception>
     /// <exception cref="UnauthorizedAccessException">The file cannot be opened</exception>
     /// <exception cref="BadImageFormatException">The attribute cannot be decoded</exception>
-    public static PluginManifest Read(string assemblyPath)
+    public static PluginManifest? Read(string assemblyPath)
     {
         using var stream = File.OpenRead(assemblyPath);
         using var peReader = new PEReader(stream);
@@ -48,14 +48,15 @@ public static class PluginManifestReader
             if (!IsPluginInfoAttribute(reader, attribute.Constructor))
                 continue;
 
-            var named = new Dictionary<string, string>(StringComparer.Ordinal);
+            var named = new Dictionary<string, string?>(StringComparer.Ordinal);
             foreach (var argument in attribute.DecodeValue(provider).NamedArguments)
                 if (!named.TryAdd(argument.Name!, argument.Value as string))
                     throw new BadImageFormatException(
                         $"The PluginInfo attribute of '{Path.GetFileName(assemblyPath)}' sets {argument.Name} more than once.");
 
+            //a manifest without a system name is rejected by the scanner, as one with an empty name is
             return new PluginManifest(
-                named.GetValueOrDefault(nameof(PluginInfoAttribute.SystemName)),
+                named.GetValueOrDefault(nameof(PluginInfoAttribute.SystemName)) ?? string.Empty,
                 named.GetValueOrDefault(nameof(PluginInfoAttribute.FriendlyName)),
                 named.GetValueOrDefault(nameof(PluginInfoAttribute.Group)),
                 named.GetValueOrDefault(nameof(PluginInfoAttribute.Author)),
@@ -82,7 +83,7 @@ public static class PluginManifestReader
         }
     }
 
-    private static Version GetCoreReference(MetadataReader reader)
+    private static Version? GetCoreReference(MetadataReader reader)
     {
         foreach (var handle in reader.AssemblyReferences)
         {

@@ -2,6 +2,6 @@
 
 public class MigrationResult
 {
-    public IBaseMigration Migration;
+    public IBaseMigration? Migration;
     public bool Success;
 }

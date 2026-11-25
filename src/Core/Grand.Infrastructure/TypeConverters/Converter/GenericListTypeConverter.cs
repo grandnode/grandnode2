@@ -42,7 +42,7 @@ public class GenericListTypeConverter<T> : TypeConverter
     /// <param name="context">Context</param>
     /// <param name="sourceType">Source type</param>
     /// <returns>Result</returns>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
     {
         if (sourceType != typeof(string)) return base.CanConvertFrom(context, sourceType);
         var items = GetStringArray(sourceType.ToString());
@@ -56,7 +56,7 @@ public class GenericListTypeConverter<T> : TypeConverter
     /// <param name="culture">Culture</param>
     /// <param name="value">Value</param>
     /// <returns>Result</returns>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
     {
         if (value is not string strValue) return base.ConvertFrom(context, culture, value);
         var items = GetStringArray(strValue);
@@ -78,7 +78,7 @@ public class GenericListTypeConverter<T> : TypeConverter
     /// <param name="value">Value</param>
     /// <param name="destinationType">Destination type</param>
     /// <returns>Result</returns>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value,
         Type destinationType)
     {
         if (destinationType != typeof(string)) return base.ConvertTo(context, culture, value, destinationType);

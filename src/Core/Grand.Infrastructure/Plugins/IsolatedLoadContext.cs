@@ -33,7 +33,8 @@ public sealed class IsolatedLoadContext : AssemblyLoadContext
         ArgumentNullException.ThrowIfNull(hostAssemblyNames);
 
         _resolver = new AssemblyDependencyResolver(mainAssemblyPath);
-        _folder = Path.GetDirectoryName(Path.GetFullPath(mainAssemblyPath));
+        _folder = Path.GetDirectoryName(Path.GetFullPath(mainAssemblyPath)) ??
+                  throw new ArgumentException("The main assembly path names no folder", nameof(mainAssemblyPath));
         _hostAssemblyNames = hostAssemblyNames;
     }
 
@@ -41,7 +42,7 @@ public sealed class IsolatedLoadContext : AssemblyLoadContext
     ///     Null hands the name to the default context: an assembly the application provides, or one it has
     ///     already loaded, is never loaded a second time.
     /// </summary>
-    protected override Assembly Load(AssemblyName assemblyName)
+    protected override Assembly? Load(AssemblyName assemblyName)
     {
         var name = assemblyName.Name;
         if (string.IsNullOrEmpty(name) || _hostAssemblyNames.Contains(name) || IsLoadedInDefault(name))

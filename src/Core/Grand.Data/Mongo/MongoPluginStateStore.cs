@@ -13,7 +13,7 @@ public sealed class MongoPluginStateStore : IPluginStateStore
 {
     private static readonly UpdateOptions Upsert = new() { IsUpsert = true };
 
-    private readonly Func<string> _connectionString;
+    private readonly Func<string?> _connectionString;
     private readonly Lock _lock = new();
     private Func<IMongoClient>? _shared;
     private MongoClient? _ownClient;
@@ -21,7 +21,7 @@ public sealed class MongoPluginStateStore : IPluginStateStore
     private IMongoCollection<BsonDocument>? _collection;
 
     /// <param name="connectionString">Read on every call: the installation sets it while the application runs</param>
-    public MongoPluginStateStore(Func<string> connectionString)
+    public MongoPluginStateStore(Func<string?> connectionString)
     {
         ArgumentNullException.ThrowIfNull(connectionString);
         _connectionString = connectionString;
@@ -111,7 +111,7 @@ public sealed class MongoPluginStateStore : IPluginStateStore
             Collection().BulkWrite(writes);
     }
 
-    private static BsonValue ValueOf(string value)
+    private static BsonValue ValueOf(string? value)
     {
         return value == null ? BsonNull.Value : new BsonString(value);
     }

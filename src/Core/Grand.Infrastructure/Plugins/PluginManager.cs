@@ -42,15 +42,15 @@ public static class PluginManager
 
     #region Fields
 
-    private static DirectoryInfo _copyFolder;
-    private static DirectoryInfo _pluginFolder;
-    private static ExtensionsConfig _config;
-    private static ILogger _logger;
+    private static DirectoryInfo? _copyFolder;
+    private static DirectoryInfo? _pluginFolder;
+    private static ExtensionsConfig? _config;
+    private static ILogger? _logger;
 
     //what LoadForInstall needs to load a plugin as Load would have
-    private static Func<string, string, ISet<string>, AssemblyLoadContext> _createContext;
-    private static ISet<string> _hostAssemblyNames;
-    private static Func<PluginCandidate, DirectoryInfo> _prepareFolder;
+    private static Func<string, string, ISet<string>, AssemblyLoadContext>? _createContext;
+    private static ISet<string>? _hostAssemblyNames;
+    private static Func<PluginCandidate, DirectoryInfo>? _prepareFolder;
     private static bool _useLiteDb;
 
     #endregion
@@ -60,17 +60,20 @@ public static class PluginManager
     /// <summary>
     ///     Returns a collection of all referenced plugin assemblies that have been shadow copied
     /// </summary>
-    public static IEnumerable<PluginInfo> ReferencedPlugins { get; set; }
+    public static IEnumerable<PluginInfo>? ReferencedPlugins { get; set; }
 
     /// <summary>
     ///     Where the plugins are recorded as installed; set before <see cref="Load" />
     /// </summary>
-    public static IPluginStateStore StateStore { get; internal set; }
+    public static IPluginStateStore? StateStore { get; internal set; }
+
+    private static IPluginStateStore RequiredStateStore =>
+        StateStore ?? throw new InvalidOperationException("PluginManager.StateStore is not set");
 
     /// <summary>
     ///     What <see cref="Load" /> saw on disk; null until plugins are loaded
     /// </summary>
-    internal static PluginLoadSnapshot LoadSnapshot { get; set; }
+    internal static PluginLoadSnapshot? LoadSnapshot { get; set; }
 
     /// <summary>
     ///     Whether this application records the plugins in the database: only the storefront does. The admin, store
@@ -114,7 +117,7 @@ public static class PluginManager
         {
             ArgumentNullException.ThrowIfNull(mvcCoreBuilder);
 
-            _logger = mvcCoreBuilder.Services.BuildServiceProvider().GetService<ILoggerFactory>()
+            _logger = mvcCoreBuilder.Services.BuildServiceProvider().GetRequiredService<ILoggerFactory>()
                 .CreateLogger("PluginManager");
 
             _pluginFolder = new DirectoryInfo(Path.Combine(hostEnvironment.ContentRootPath, CommonPath.Plugins));
@@ -124,9 +127,9 @@ public static class PluginManager
             //storefront takes its file over: the admin, store and vendor applications kept files of their own
             RecordsPluginState = hostEnvironment.ApplicationName == StorefrontApplicationName;
             var installedByConfiguration = !string.IsNullOrEmpty(_config.InstalledPlugins);
-            var installedPluginSystemNames = installedByConfiguration
+            var installedPluginSystemNames = !string.IsNullOrEmpty(_config.InstalledPlugins)
                 ? _config.InstalledPlugins.Split(",").Select(x => x.Trim()).ToList()
-                : ReadInstalledPlugins(StateStore,
+                : ReadInstalledPlugins(RequiredStateStore,
                     RecordsPluginState ? PluginPaths.Instance.InstalledPluginsFile : null, _logger);
 
             _logger.LogInformation("Creating shadow copy folder and querying for dlls");
@@ -185,7 +188,10 @@ public static class PluginManager
 
             _createContext = createContext;
             _hostAssemblyNames = hostAssemblyNames;
-            _prepareFolder = _config.PluginShadowCopy ? ShadowCopyFolder : candidate => candidate.Folder;
+            var copyFolder = _copyFolder;
+            _prepareFolder = _config.PluginShadowCopy
+                ? candidate => ShadowCopyFolder(candidate, copyFolder)
+                : candidate => candidate.Folder;
             _useLiteDb = dbConfig.UseLiteDb;
 
             foreach (var candidate in scan.Plugins)
@@ -209,7 +215,8 @@ public static class PluginManager
                     continue;
                 }
 
-                var plugin = PluginLoader.Load(candidate, true, ContextFactory(candidate), _prepareFolder);
+                var plugin = PluginLoader.Load(candidate, true, ContextFactory(candidate, createContext, hostAssemblyNames),
+                    _prepareFolder);
                 referencedPlugins.Add(plugin);
 
                 //controllers and views only for an installed plugin - an uninstalled one must not be routable
@@ -224,7 +231,8 @@ public static class PluginManager
                     }
                 }
 
-                if (plugin.LoadError != null)
+                //a plugin without a load error has its type; checked so the registration below cannot get null
+                if (plugin.LoadError != null || plugin.PluginType == null)
                 {
                     _logger.LogError("Plugin folder {PluginFolder} could not be loaded: {LoadError}",
                         candidate.Folder.Name, plugin.LoadError);
@@ -268,11 +276,12 @@ public static class PluginManager
         {
             var candidate = plugin.Candidate;
             if (plugin.ReferencedAssembly != null || plugin.LoadError != null || candidate == null ||
-                _createContext == null)
+                _createContext == null || _hostAssemblyNames == null || _prepareFolder == null)
                 return plugin;
 
             _logger?.LogInformation("Loading plugin {PluginSystemName} to install it", plugin.SystemName);
-            var loaded = PluginLoader.Load(candidate, plugin.Installed, ContextFactory(candidate), _prepareFolder);
+            var loaded = PluginLoader.Load(candidate, plugin.Installed,
+                ContextFactory(candidate, _createContext, _hostAssemblyNames), _prepareFolder);
             //warming here races with concurrent LiteDB reads: every entity mapper lives in one shared
             //BsonMapper.Global dictionary, read without a lock, so a request reading any type while these few
             //inserts run can fail. Accepted: the window is a few inserts during an admin-initiated install, and
@@ -304,7 +313,7 @@ public static class PluginManager
     /// </summary>
     /// <param name="typeAssembly">Type</param>
     /// <returns>Plugin descriptor if exists; otherwise null</returns>
-    public static PluginInfo FindPlugin(Type typeAssembly)
+    public static PluginInfo? FindPlugin(Type typeAssembly)
     {
         ArgumentNullException.ThrowIfNull(typeAssembly);
 
@@ -317,7 +326,7 @@ public static class PluginManager
     /// </summary>
     /// <param name="assembly">Assembly</param>
     /// <returns>Plugin descriptor if exists; otherwise null</returns>
-    public static PluginInfo FindPlugin(Assembly assembly)
+    public static PluginInfo? FindPlugin(Assembly assembly)
     {
         ArgumentNullException.ThrowIfNull(assembly);
 
@@ -338,7 +347,7 @@ public static class PluginManager
     ///     The plugin whose own load context holds the assembly; null for an assembly of the default context or
     ///     of a context no plugin owns
     /// </summary>
-    internal static PluginInfo OwnerOf(Assembly assembly, IEnumerable<PluginInfo> plugins)
+    internal static PluginInfo? OwnerOf(Assembly assembly, IEnumerable<PluginInfo>? plugins)
     {
         var context = AssemblyLoadContext.GetLoadContext(assembly);
         if (context == null || context == AssemblyLoadContext.Default || plugins == null)
@@ -353,7 +362,7 @@ public static class PluginManager
     /// </summary>
     public static async Task ClearPlugins()
     {
-        await StateStore.Clear();
+        await RequiredStateStore.Clear();
 
         var filePath = PluginPaths.Instance.InstalledPluginsFile;
         if (File.Exists(filePath))
@@ -377,9 +386,12 @@ public static class PluginManager
         var loadedOnUtc = DateTime.UtcNow;
         try
         {
-            StateStore.SaveLoadResults(plugins.Where(x => !string.IsNullOrEmpty(x.SystemName))
-                .Select(x => new PluginState(x.SystemName, x.FriendlyName, x.Version,
-                    x.FolderName ?? x.OriginalAssemblyFile?.Directory?.Name, RejectionOf(x), loadedOnUtc)));
+            var states = new List<PluginState>();
+            foreach (var x in plugins)
+                if (!string.IsNullOrEmpty(x.SystemName))
+                    states.Add(new PluginState(x.SystemName, x.FriendlyName, x.Version,
+                        x.FolderName ?? x.OriginalAssemblyFile?.Directory?.Name, RejectionOf(x), loadedOnUtc));
+            StateStore.SaveLoadResults(states);
         }
         catch (Exception ex)
         {
@@ -402,8 +414,8 @@ public static class PluginManager
     ///     The database could not be read, or the file to take over is not valid: an empty list would deactivate
     ///     every plugin
     /// </exception>
-    internal static List<string> ReadInstalledPlugins(IPluginStateStore store, string installedPluginsFile,
-        ILogger logger)
+    internal static List<string> ReadInstalledPlugins(IPluginStateStore store, string? installedPluginsFile,
+        ILogger? logger)
     {
         ArgumentNullException.ThrowIfNull(store);
 
@@ -423,16 +435,16 @@ public static class PluginManager
         }
     }
 
-    private static void TakeFileOver(IPluginStateStore store, string installedPluginsFile, ILogger logger)
+    private static void TakeFileOver(IPluginStateStore store, string installedPluginsFile, ILogger? logger)
     {
         try
         {
-            IList<string> fromFile = null;
+            IList<string>? fromFile = null;
             //a blank entry named no plugin in the file either
             if (store.ImportInstalled(() => fromFile = PluginExtensions.ParseInstalledPluginsFile(installedPluginsFile)
                     .Where(x => !string.IsNullOrWhiteSpace(x)).ToList()))
                 logger?.LogInformation("Installed plugins taken over from {InstalledPluginsFile}: {SystemNames}",
-                    installedPluginsFile, string.Join(", ", fromFile));
+                    installedPluginsFile, string.Join(", ", fromFile ?? []));
             else
                 logger?.LogWarning(
                     "{InstalledPluginsFile} ignored: the database lists the installed plugins already",
@@ -451,7 +463,7 @@ public static class PluginManager
     ///     The database has the list now; the file is kept under another name, never read again. A file that cannot
     ///     be renamed (a read-only App_Data) is ignored on every start that follows, so it must not stop this one.
     /// </summary>
-    private static void RenameTakenOverFile(string installedPluginsFile, ILogger logger)
+    private static void RenameTakenOverFile(string installedPluginsFile, ILogger? logger)
     {
         try
         {
@@ -471,7 +483,7 @@ public static class PluginManager
     /// <summary>
     ///     Why the plugin is not running: its load error, or a version it was not built for
     /// </summary>
-    private static string RejectionOf(PluginInfo plugin)
+    private static string? RejectionOf(PluginInfo plugin)
     {
         if (plugin.LoadError != null)
             return plugin.LoadError;
@@ -489,21 +501,21 @@ public static class PluginManager
     {
         var trusted = AppContext.GetData("TRUSTED_PLATFORM_ASSEMBLIES") as string ?? string.Empty;
         var names = trusted.Split(Path.PathSeparator, StringSplitOptions.RemoveEmptyEntries)
-            .Select(Path.GetFileNameWithoutExtension)
+            .Select(x => Path.GetFileNameWithoutExtension(x))
             .ToHashSet(StringComparer.OrdinalIgnoreCase);
         names.UnionWith(AssemblyLoadContext.Default.Assemblies
             .Select(x => x.GetName().Name)
-            .Where(x => !string.IsNullOrEmpty(x)));
+            .OfType<string>()
+            .Where(x => x.Length > 0));
         return names;
     }
 
     /// <summary>
     ///     Creates the candidate's own context once its folder is prepared and its main assembly path is known
     /// </summary>
-    private static Func<string, AssemblyLoadContext> ContextFactory(PluginCandidate candidate)
+    private static Func<string, AssemblyLoadContext> ContextFactory(PluginCandidate candidate,
+        Func<string, string, ISet<string>, AssemblyLoadContext> createContext, ISet<string> hostAssemblyNames)
     {
-        var createContext = _createContext;
-        var hostAssemblyNames = _hostAssemblyNames;
         return mainAssemblyPath => createContext(candidate.Manifest.SystemName, mainAssemblyPath, hostAssemblyNames);
     }
 
@@ -512,10 +524,13 @@ public static class PluginManager
     ///     build while requests read them (see <see cref="LiteDBMapperWarmup" />), and requests are running here:
     ///     see the accepted race at the call site. Returns the error, if any.
     /// </summary>
-    private static string WarmLiteDbMappers(PluginInfo plugin)
+    private static string? WarmLiteDbMappers(PluginInfo plugin)
     {
         try
         {
+            if (plugin.LoadContext == null)
+                return $"Plugin {plugin.SystemName} has no load context";
+
             var assemblies = plugin.LoadContext.Assemblies
                 .Where(x => plugin.AssemblyNames.Contains(x.GetName().Name, StringComparer.OrdinalIgnoreCase))
                 .ToList();
@@ -534,10 +549,10 @@ public static class PluginManager
     ///     size or last write time differs from the copy's. Only this plugin's copy is touched.
     /// </summary>
     /// <returns>The folder to load the plugin from</returns>
-    private static DirectoryInfo ShadowCopyFolder(PluginCandidate candidate)
+    private static DirectoryInfo ShadowCopyFolder(PluginCandidate candidate, DirectoryInfo copyFolder)
     {
         var source = candidate.Folder;
-        var target = new DirectoryInfo(Path.Combine(_copyFolder.FullName, source.Name));
+        var target = new DirectoryInfo(Path.Combine(copyFolder.FullName, source.Name));
 
         var copies = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
         foreach (var file in source.GetFiles("*", SearchOption.AllDirectories))
@@ -559,7 +574,7 @@ public static class PluginManager
             }
             catch (Exception ex) when (ex is IOException or UnauthorizedAccessException)
             {
-                _logger.LogWarning(ex, "Stale shadow copy {FullName} could not be deleted", stale.FullName);
+                _logger?.LogWarning(ex, "Stale shadow copy {FullName} could not be deleted", stale.FullName);
             }
 
         return target;
@@ -575,7 +590,7 @@ public static class PluginManager
         {
             //a copy in use (another process still running from it, or a debugger) cannot be overwritten, but it
             //can be renamed, which frees its name; the renamed file is removed as stale by a later start
-            _logger.LogInformation("{FullName} is locked, attempting to rename", copy.FullName);
+            _logger?.LogInformation("{FullName} is locked, attempting to rename", copy.FullName);
             File.Move(copy.FullName, copy.FullName + "." + Guid.NewGuid().ToString("N") + ".old");
             File.Copy(source.FullName, copy.FullName, true);
         }
@@ -587,12 +602,15 @@ public static class PluginManager
     /// <summary>
     ///     Adds the plugin's controllers and views; returns the error when its parts cannot be read
     /// </summary>
-    private static string AddApplicationPart(IMvcCoreBuilder mvcCoreBuilder, PluginInfo plugin)
+    private static string? AddApplicationPart(IMvcCoreBuilder mvcCoreBuilder, PluginInfo plugin)
     {
         try
         {
             //we can now register the plugin definition
-            _logger.LogInformation("Adding to ApplicationParts: '{0}'", plugin.SystemName);
+            if (plugin.ReferencedAssembly == null)
+                return $"Plugin {plugin.SystemName} has no assembly";
+
+            _logger?.LogInformation("Adding to ApplicationParts: '{0}'", plugin.SystemName);
 
             //related parts are read first, so a failure adds nothing
             var relatedParts = RelatedAssemblyAttribute.GetRelatedAssemblies(plugin.ReferencedAssembly, false)

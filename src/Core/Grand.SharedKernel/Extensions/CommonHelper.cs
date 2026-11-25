@@ -142,7 +142,7 @@ public static class CommonHelper
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    public static bool IsSimpleType(Type type)
+    public static bool IsSimpleType(Type? type)
     {
         if (type == null)
             return true;

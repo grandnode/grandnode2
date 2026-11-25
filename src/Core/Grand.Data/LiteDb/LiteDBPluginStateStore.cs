@@ -9,12 +9,12 @@ namespace Grand.Data.LiteDb;
 /// </summary>
 public sealed class LiteDBPluginStateStore : IPluginStateStore
 {
-    private readonly Func<string> _connectionString;
+    private readonly Func<string?> _connectionString;
     private readonly Lock _lock = new();
     private Func<LiteDatabase>? _shared;
 
     /// <param name="connectionString">Read on every call: the installation sets it while the application runs</param>
-    public LiteDBPluginStateStore(Func<string> connectionString)
+    public LiteDBPluginStateStore(Func<string?> connectionString)
     {
         ArgumentNullException.ThrowIfNull(connectionString);
         _connectionString = connectionString;

@@ -14,7 +14,7 @@ public static class AppConfigExtensions
     ///     The media path is the content root, one of its parents, or App_Data: the media root is served
     ///     at "/", so it would publish appsettings.json and Settings.cfg
     /// </exception>
-    public static string GetMediaRootPath(this AppConfig appConfig, string contentRootPath)
+    public static string? GetMediaRootPath(this AppConfig appConfig, string contentRootPath)
     {
         ArgumentNullException.ThrowIfNull(appConfig);
 
