@@ -37,6 +37,7 @@ public class AdminImportWindowTagHelperTests
         workContextMock.Setup(x => x.WorkingLanguage).Returns(new Language { Id = "lang1" });
         _contextAccessorMock = new Mock<IContextAccessor>();
         _contextAccessorMock.Setup(x => x.WorkContext).Returns(workContextMock.Object);
+        _contextAccessorMock.Setup(x => x.CurrentWorkContext).Returns(workContextMock.Object);
         _translationServiceMock = new Mock<ITranslationService>();
         _htmlHelperMock = new Mock<IHtmlHelper>();
         _htmlHelperMock

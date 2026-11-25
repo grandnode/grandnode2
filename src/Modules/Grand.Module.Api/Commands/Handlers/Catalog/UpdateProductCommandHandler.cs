@@ -62,7 +62,7 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
                 new StockChange([], "", stockChanged ? product.StockQuantity : 0, stockChanged,
                     InventoryMovementType.Api,
                     new StockSource("Api", product.Id, Reference: product.Sku ?? "",
-                        CustomerId: _contextAccessor.WorkContext?.CurrentCustomer?.Id ?? "")) {
+                        CustomerId: _contextAccessor.WorkContext.CurrentCustomer.Id ?? "")) {
                     ReservedQuantity = reservedChanged ? product.ReservedQuantity : null
                 }
             ]);

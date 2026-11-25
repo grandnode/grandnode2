@@ -20,17 +20,18 @@ public class DatePickerDropDownsTagHelper : TagHelper
         _translationService = translationService;
     }
 
-    [ViewContext] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] public ViewContext ViewContext { get; set; } = null!;
 
-    [HtmlAttributeName("PartialViewName")] public string PartialViewName { get; set; }
+    [HtmlAttributeName("PartialViewName")] public string? PartialViewName { get; set; }
 
-    [HtmlAttributeName("Attribute")] public string Attribute { get; set; }
+    [HtmlAttributeName("Attribute")] public string? Attribute { get; set; }
 
-    [HtmlAttributeName("control-day")] public string ControlId_Day { get; set; }
+    [HtmlAttributeName("control-day")] public string? ControlId_Day { get; set; }
 
-    [HtmlAttributeName("control-month")] public string ControlId_Month { get; set; }
+    [HtmlAttributeName("control-month")] public string? ControlId_Month { get; set; }
 
-    [HtmlAttributeName("control-year")] public string ControlId_Year { get; set; }
+    [HtmlAttributeName("control-year")] public string? ControlId_Year { get; set; }
 
     [HtmlAttributeName("begin-year")] public int Begin_Year { get; set; }
 
@@ -44,7 +45,8 @@ public class DatePickerDropDownsTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext tagHelperContext, TagHelperOutput output)
     {
-        (_htmlHelper as IViewContextAware).Contextualize(ViewContext);
+        if (_htmlHelper is IViewContextAware viewContextAware)
+            viewContextAware.Contextualize(ViewContext);
 
         output.TagName = "div";
         output.TagMode = TagMode.StartTagAndEndTag;

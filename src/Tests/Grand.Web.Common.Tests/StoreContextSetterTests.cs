@@ -36,11 +36,11 @@ public class StoreContextSetterTests
     }
 
     [TestMethod]
-    public async Task InitializeStoreContext_NoStore_LoadsNoSettings()
+    public async Task InitializeStoreContext_NoStore_ThrowsAndLoadsNoSettings()
     {
-        var storeContext = await _setter.InitializeStoreContext("missing");
+        //a request always has a store; without any there is no store context to build
+        await Assert.ThrowsExactlyAsync<Exception>(() => _setter.InitializeStoreContext("missing"));
 
-        Assert.IsNull(storeContext.CurrentStore);
         _settingServiceMock.Verify(s => s.LoadStoreSettings(It.IsAny<string>()), Times.Never);
     }
 }

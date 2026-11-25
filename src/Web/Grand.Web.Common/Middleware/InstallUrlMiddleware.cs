@@ -54,7 +54,7 @@ public class InstallUrlMiddleware
         }
         else
         {
-            if (!version.DataBaseVersion.Equals(GrandVersion.SupportedDBVersion))
+            if (!string.Equals(version.DataBaseVersion, GrandVersion.SupportedDBVersion))
             {
                 await context.Response.WriteAsync("The database version is not supported in this software version. " +
                                                   $"Supported version: {GrandVersion.SupportedDBVersion} , your version: {version.DataBaseVersion}");

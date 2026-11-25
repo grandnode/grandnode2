@@ -21,7 +21,7 @@ public class ContextLoggingMiddleware
     {
         var workContext = contextAccessor.WorkContext;
         var storeContext = contextAccessor.StoreContext;
-        Activity activity = Activity.Current;
+        Activity? activity = Activity.Current;
         if (activity != null)
         {
             activity.AddTag(CustomerPropertyName, workContext?.CurrentCustomer?.Email);

@@ -7,17 +7,17 @@ namespace Grand.Web.Common.Page;
 /// </summary>
 public interface IPageHeadBuilder
 {
-    string EditPageUrl { get; set; }
+    string? EditPageUrl { get; set; }
     void AddTitleParts(string part);
     void AppendTitleParts(string part);
-    string GenerateTitle(bool addDefaultTitle);
+    string? GenerateTitle(bool addDefaultTitle);
     void AddMetaDescriptionParts(string part);
     void AppendMetaDescriptionParts(string part);
-    string GenerateMetaDescription();
+    string? GenerateMetaDescription();
 
     void AddMetaKeywordParts(string part);
     void AppendMetaKeywordParts(string part);
-    string GenerateMetaKeywords();
+    string? GenerateMetaKeywords();
 
     void AddCanonicalUrlParts(string part);
     void AppendCanonicalUrlParts(string part);

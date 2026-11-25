@@ -20,7 +20,7 @@ public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
 
     public OidcProtectedResourceRegistry(OidcResourceServerConfig config,
         IEnumerable<IOidcProtectedResourceProvider> providers,
-        IEnumerable<IOidcDisabledPathProvider> disabledPaths = null)
+        IEnumerable<IOidcDisabledPathProvider>? disabledPaths = null)
     {
         if (config is not { Enabled: true })
             return;
@@ -30,7 +30,7 @@ public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
             try
             {
                 _disabledPrefixes.AddRange((provider.GetDisabledPaths() ?? []).Select(OidcPath.Normalize)
-                    .Where(x => x != null));
+                    .OfType<string>());
             }
             catch (Exception ex)
             {
@@ -55,7 +55,7 @@ public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
             }
 
             foreach (var resource in resources)
-                Add(resource, provider.GetType().FullName);
+                Add(resource, provider.GetType().FullName ?? provider.GetType().Name);
         }
 
         _resources = _entries.Select(x => x.Resource).ToList().AsReadOnly();
@@ -65,7 +65,7 @@ public class OidcProtectedResourceRegistry : IOidcProtectedResourceRegistry
     public IReadOnlyList<string> Errors => _errors;
     public IReadOnlyList<OidcProtectedResource> Withdrawn => _withdrawn;
 
-    public OidcProtectedResource Match(PathString path)
+    public OidcProtectedResource? Match(PathString path)
     {
         foreach (var (prefix, resource) in _entries)
             if (OidcPath.Covers(prefix, path))

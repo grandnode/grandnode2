@@ -45,7 +45,7 @@ public interface ISlugService
     /// </summary>
     /// <param name="slug">Slug</param>
     /// <returns>Found URL Entity</returns>
-    Task<EntityUrl?> GetBySlugCached(string slug);
+    Task<EntityUrl?> GetBySlugCached(string? slug);
 
     /// <summary>
     ///     Gets all URL Entity
@@ -65,7 +65,7 @@ public interface ISlugService
     /// <param name="entityName">Entity name</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Found slug</returns>
-    Task<string> GetActiveSlug(string entityId, string entityName, string languageId);
+    Task<string> GetActiveSlug(string? entityId, string? entityName, string? languageId);
 
     /// <summary>
     ///     Save slug

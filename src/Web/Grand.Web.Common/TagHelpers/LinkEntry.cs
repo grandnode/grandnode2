@@ -12,41 +12,37 @@ public class LinkEntry
         _builder.TagRenderMode = TagRenderMode.SelfClosing;
     }
 
-    public string Condition { get; set; }
+    public string? Condition { get; set; }
 
     private int _priority { get; set; }
 
-    public string Rel {
+    public string? Rel {
         get {
-            string value;
-            _builder.Attributes.TryGetValue("rel", out value);
+            _builder.Attributes.TryGetValue("rel", out var value);
             return value;
         }
         set => SetAttribute("rel", value);
     }
 
-    public string Type {
+    public string? Type {
         get {
-            string value;
-            _builder.Attributes.TryGetValue("type", out value);
+            _builder.Attributes.TryGetValue("type", out var value);
             return value;
         }
         set => SetAttribute("type", value);
     }
 
-    public string Title {
+    public string? Title {
         get {
-            string value;
-            _builder.Attributes.TryGetValue("title", out value);
+            _builder.Attributes.TryGetValue("title", out var value);
             return value;
         }
         set => SetAttribute("title", value);
     }
 
-    public string Href {
+    public string? Href {
         get {
-            string value;
-            _builder.Attributes.TryGetValue("href", out value);
+            _builder.Attributes.TryGetValue("href", out var value);
             return value;
         }
         set => SetAttribute("href", value);
@@ -79,7 +75,7 @@ public class LinkEntry
         return this;
     }
 
-    public LinkEntry SetAttribute(string name, string value)
+    public LinkEntry SetAttribute(string name, string? value)
     {
         _builder.MergeAttribute(name, value, true);
         return this;

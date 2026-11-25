@@ -16,8 +16,8 @@ public static class OidcChallengeWriter
     /// <summary>Retry-After of the 503 answered while the authorization server is unreachable</summary>
     public const int RetryAfterSeconds = 30;
 
-    public static async Task Write(HttpContext context, OidcAuthenticationFailure failure, string resourceMetadataUrl,
-        string scope)
+    public static async Task Write(HttpContext context, OidcAuthenticationFailure? failure, string? resourceMetadataUrl,
+        string? scope)
     {
         var status = failure?.Kind switch {
             OidcFailureKind.Forbidden or OidcFailureKind.InsufficientScope => StatusCodes.Status403Forbidden,
@@ -46,11 +46,11 @@ public static class OidcChallengeWriter
 
         //written directly: IProblemDetailsService picks MVC's writer first on controller endpoints, and that writer
         //writes nothing for controllers without [ApiController] while still reporting the body as written
-        await context.Response.WriteAsJsonAsync(problem, (JsonSerializerOptions)null, "application/problem+json");
+        await context.Response.WriteAsJsonAsync(problem, (JsonSerializerOptions?)null, "application/problem+json");
     }
 
     /// <param name="scope">Scopes of the initial 401 (no failure); a failure carries its own</param>
-    public static string BuildHeader(OidcAuthenticationFailure failure, string resourceMetadataUrl, string scope)
+    public static string BuildHeader(OidcAuthenticationFailure? failure, string? resourceMetadataUrl, string? scope)
     {
         var parameters = new List<string>();
         if (failure != null)

@@ -22,7 +22,7 @@ public interface IOidcSessionService
     Task End(string sessionId, OidcSessionEndReason reason);
 
     /// <summary>Ends the open sessions with the provider session id (and the subject, when given); returns them</summary>
-    Task<IList<OidcSession>> EndBySid(string subject, string sid);
+    Task<IList<OidcSession>> EndBySid(string? subject, string sid);
 
     /// <summary>Ends every open session of the subject; returns them</summary>
     Task<IList<OidcSession>> EndBySubject(string subject);

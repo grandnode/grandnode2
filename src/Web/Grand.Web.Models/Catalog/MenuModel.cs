@@ -23,22 +23,22 @@ public class MenuModel : BaseModel
 
     public class MenuPageModel : BaseEntityModel
     {
-        public string Name { get; set; }
-        public string SeName { get; set; }
+        public string? Name { get; set; }
+        public string? SeName { get; set; }
     }
 
     public class MenuBrandModel : BaseEntityModel
     {
-        public string Name { get; set; }
-        public string Icon { get; set; }
-        public string SeName { get; set; }
+        public string? Name { get; set; }
+        public string? Icon { get; set; }
+        public string? SeName { get; set; }
     }
 
     public class MenuCollectionModel : BaseEntityModel
     {
-        public string Name { get; set; }
-        public string Icon { get; set; }
-        public string SeName { get; set; }
+        public string? Name { get; set; }
+        public string? Icon { get; set; }
+        public string? SeName { get; set; }
     }
 
 
@@ -46,7 +46,7 @@ public class MenuModel : BaseModel
     {
         public int Level { get; set; }
         public bool ResponsiveMobileMenu { get; set; }
-        public CategorySimpleModel Category { get; set; }
+        public CategorySimpleModel? Category { get; set; }
     }
 
     #endregion

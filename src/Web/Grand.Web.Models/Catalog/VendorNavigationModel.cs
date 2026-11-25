@@ -11,7 +11,7 @@ public class VendorNavigationModel : BaseModel
 
 public class VendorBriefInfoModel : BaseEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

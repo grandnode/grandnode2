@@ -252,7 +252,7 @@ public class OidcSessionService : IOidcSessionService
         _logger.LogInformation("OpenID Connect session {SessionId} ended: {Reason}", sessionId, reason);
     }
 
-    public virtual async Task<IList<OidcSession>> EndBySid(string subject, string sid)
+    public virtual async Task<IList<OidcSession>> EndBySid(string? subject, string sid)
     {
         ArgumentException.ThrowIfNullOrEmpty(sid);
         var query = _sessionRepository.Table.Where(x => x.Sid == sid && x.EndedUtc == null);

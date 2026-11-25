@@ -30,10 +30,12 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
         CancellationToken cancellationToken)
     {
         var isValid = false;
-        string captchaChallengeValue;
-        string captchaResponseValue;
-        string gCaptchaResponseValue;
-        if (_contextAccessor.HttpContext!.Request.HasJsonContentType())
+        string? captchaChallengeValue;
+        string? captchaResponseValue;
+        string? gCaptchaResponseValue;
+        var httpContext = _contextAccessor.HttpContext ??
+                          throw new InvalidOperationException("A captcha is validated within a request");
+        if (httpContext.Request.HasJsonContentType())
         {
             captchaChallengeValue = captcha.ReCaptchaChallengeField;
             captchaResponseValue = captcha.ReCaptchaResponseField;
@@ -43,7 +45,7 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
         }
         else
         {
-            var form = await _contextAccessor.HttpContext!.Request.ReadFormAsync(cancellationToken);
+            var form = await httpContext.Request.ReadFormAsync(cancellationToken);
             captchaChallengeValue = form[ChallengeFieldKey];
             captchaResponseValue = form[ResponseFieldKey];
             gCaptchaResponseValue = string.Empty;
@@ -60,12 +62,14 @@ public class CaptchaValidator : BaseGrandValidator<ICaptchaValidModel>
             string.IsNullOrEmpty(gCaptchaResponseValue)) return (false, "Captcha response value is null");
         //Captcha validate request
         var recaptchaResponse = await _googleReCaptchaValidator.Validate(
-            !StringValues.IsNullOrEmpty(captchaResponseValue)
-                ? captchaResponseValue
-                : gCaptchaResponseValue, cancellationToken);
-        isValid = recaptchaResponse.Success;
+            (!string.IsNullOrEmpty(captchaResponseValue) ? captchaResponseValue : gCaptchaResponseValue) ?? "",
+            cancellationToken);
+        //no answer from Google, as outside a request, is a failed check
+        isValid = recaptchaResponse?.Success == true;
 
-        return isValid ? (true, string.Empty) : (false, string.Join(',', recaptchaResponse.ErrorCodes));
+        return isValid
+            ? (true, string.Empty)
+            : (false, string.Join(',', recaptchaResponse?.ErrorCodes ?? []));
     }
 
     #region Constants

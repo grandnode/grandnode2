@@ -162,7 +162,7 @@ public class PermissionService : IPermissionService
     /// <param name="permission">Permission</param>
     /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    public virtual async Task<bool> Authorize(Permission permission, Customer customer)
+    public virtual async Task<bool> Authorize(Permission permission, Customer? customer)
     {
         if (permission == null)
             return false;
@@ -179,7 +179,7 @@ public class PermissionService : IPermissionService
     /// <param name="permissionSystemName">Permission system name</param>
     /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    public virtual async Task<bool> Authorize(string? permissionSystemName, Customer customer)
+    public virtual async Task<bool> Authorize(string? permissionSystemName, Customer? customer)
     {
         if (string.IsNullOrEmpty(permissionSystemName))
             return false;

@@ -51,7 +51,7 @@ internal static class ExpressionMetadataProvider
                     viewDataInfo.Container.GetType(),
                     viewDataInfo.Container);
 
-            if (viewDataInfo.PropertyInfo != null)
+            if (viewDataInfo is { PropertyInfo: not null, Container: not null })
             {
                 // We've identified a property access, which provides us with accurate metadata.
                 var containerMetadata = metadataProvider.GetMetadataForType(viewDataInfo.Container.GetType());

@@ -15,7 +15,7 @@ public class GuestCookieCustomerResolver(
 {
     public int Order => RequestCustomerResolverOrder.GuestCookie;
 
-    public async Task<Customer> Resolve()
+    public async Task<Customer?> Resolve()
     {
         var cookie = await authenticationService.GetCustomerGuid();
         //transition, removed in 2.6: a cookie written before it was protected still finds its existing guest

@@ -15,21 +15,21 @@ public class MiniWishlistModel : BaseModel
 
     public class WishlistItemModel : BaseEntityModel
     {
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
-        public string ProductSeName { get; set; }
-        public string ProductUrl { get; set; }
-        public string Sku { get; set; }
+        public string? ProductSeName { get; set; }
+        public string? ProductUrl { get; set; }
+        public string? Sku { get; set; }
 
         public int Quantity { get; set; }
 
-        public string UnitPrice { get; set; }
+        public string? UnitPrice { get; set; }
         public double UnitPriceValue { get; set; }
         public double TaxRate { get; set; }
 
-        public string AttributeInfo { get; set; }
+        public string? AttributeInfo { get; set; }
 
         public PictureModel Picture { get; set; } = new();
     }

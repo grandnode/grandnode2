@@ -52,7 +52,7 @@ public interface IPermissionService
     /// <param name="permission">Permission</param>
     /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    Task<bool> Authorize(Permission permission, Customer customer);
+    Task<bool> Authorize(Permission permission, Customer? customer);
 
     /// <summary>
     ///     Authorize permission
@@ -60,7 +60,7 @@ public interface IPermissionService
     /// <param name="permissionSystemName">Permission system name</param>
     /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    Task<bool> Authorize(string permissionSystemName, Customer customer);
+    Task<bool> Authorize(string permissionSystemName, Customer? customer);
 
     /// <summary>
     ///     Gets a permission actions

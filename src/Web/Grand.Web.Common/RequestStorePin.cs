@@ -24,6 +24,6 @@ public static class RequestStorePin
     /// <summary>
     ///     The pinned store id, or null when the request is not pinned
     /// </summary>
-    public static string Get(HttpContext context) =>
+    public static string? Get(HttpContext context) =>
         context?.Items.TryGetValue(ItemKey, out var storeId) == true ? storeId as string : null;
 }

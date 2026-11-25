@@ -66,9 +66,9 @@ public class PageHeadBuilder : IPageHeadBuilder
         _title.Insert(0, part);
     }
 
-    public virtual string GenerateTitle(bool addDefaultTitle)
+    public virtual string? GenerateTitle(bool addDefaultTitle)
     {
-        string result;
+        string? result;
         var titleParts = string.Join(_seoSettings.PageTitleSeparator, _title.AsEnumerable().Reverse().ToList());
         if (!string.IsNullOrEmpty(titleParts))
         {
@@ -103,7 +103,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         _metaDescription.Insert(0, part);
     }
 
-    public virtual string GenerateMetaDescription()
+    public virtual string? GenerateMetaDescription()
     {
         var description = string.Join(", ", _metaDescription.AsEnumerable().Reverse().ToList());
         var result = !string.IsNullOrEmpty(description) ? description : _seoSettings.DefaultMetaDescription;
@@ -126,7 +126,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         _metaKeyword.Insert(0, part);
     }
 
-    public virtual string GenerateMetaKeywords()
+    public virtual string? GenerateMetaKeywords()
     {
         var keyword = string.Join(", ", _metaKeyword.AsEnumerable().Reverse().ToList());
         var result = !string.IsNullOrEmpty(keyword) ? keyword : _seoSettings.DefaultMetaKeywords;
@@ -215,7 +215,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result;
     }
 
-    public virtual string EditPageUrl { get; set; }
+    public virtual string? EditPageUrl { get; set; }
 
     #endregion
 }

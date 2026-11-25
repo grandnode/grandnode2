@@ -40,7 +40,7 @@ public class PermissionAuthorizeActionAttribute : Attribute, IAsyncAuthorization
         var contextAccessor = context.HttpContext.RequestServices.GetRequiredService<IContextAccessor>();
 
         //check whether current customer has access to a public store
-        var customer = contextAccessor.WorkContext?.CurrentCustomer;
+        var customer = contextAccessor.WorkContext.CurrentCustomer;
         if (customer != null &&
             await permissionService.AuthorizeAction(permissionAuthorize.Permission, PermissionAction, customer))
             return;

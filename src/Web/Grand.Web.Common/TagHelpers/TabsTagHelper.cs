@@ -21,13 +21,14 @@ public class TabsTagHelper : TagHelper
     internal const string ItemsKey = "Grand.Web.Common.Tabs.Items";
     private const string CounterKey = "Grand.Web.Common.Tabs.Counter";
 
-    [HtmlAttributeName("content-class")] public string ContentClass { get; set; }
+    [HtmlAttributeName("content-class")] public string? ContentClass { get; set; }
 
     /// <summary>center | end (BootstrapVue also accepted "right")</summary>
     [HtmlAttributeName("align")]
-    public string Align { get; set; }
+    public string? Align { get; set; }
 
-    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; } = null!;
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -90,7 +91,7 @@ public class TabsTagHelper : TagHelper
         };
     }
 
-    private static string Class(string value)
+    private static string Class(string? value)
     {
         return string.IsNullOrEmpty(value) ? "" : " " + value;
     }
@@ -106,7 +107,7 @@ public class TabsTagHelper : TagHelper
 [HtmlTargetElement("gn-tab", ParentTag = "gn-tabs")]
 public class TabTagHelper : TagHelper
 {
-    [HtmlAttributeName("title")] public string Title { get; set; }
+    [HtmlAttributeName("title")] public string? Title { get; set; }
 
     /// <summary>Marks the initially selected tab; the first tab wins when none is set.</summary>
     [HtmlAttributeName("active")]
@@ -114,13 +115,14 @@ public class TabTagHelper : TagHelper
 
     /// <summary>Id for the pane; the nav button gets "&lt;id&gt;-tab".</summary>
     [HtmlAttributeName("id")]
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     /// <summary>Vue expression bound to the nav button's click, e.g. "askquestion.getCaptcha()".</summary>
     [HtmlAttributeName("on-click")]
-    public string OnClick { get; set; }
+    public string? OnClick { get; set; }
 
-    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; } = null!;
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -139,9 +141,9 @@ public class TabTagHelper : TagHelper
 
 internal class TabItem
 {
-    public string Title { get; set; }
+    public string? Title { get; set; }
     public bool Active { get; set; }
-    public string Id { get; set; }
-    public string OnClick { get; set; }
-    public string Content { get; set; }
+    public string? Id { get; set; }
+    public string? OnClick { get; set; }
+    public string? Content { get; set; }
 }

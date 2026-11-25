@@ -1,5 +1,6 @@
 using Grand.Business.Core.Interfaces.Common.Localization;
 using Grand.Infrastructure;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Web.Common.TagHelpers.Admin;
 
@@ -14,10 +15,11 @@ internal static class AdminText
     ///     a 2.4 development database that never imported en_240.xml, for instance. A component
     ///     shows readable English rather than a raw resource key.
     /// </summary>
-    public static string Resource(ITranslationService translationService, IContextAccessor contextAccessor,
-        string key, string fallback)
+    [return: NotNullIfNotNull(nameof(fallback))]
+    public static string? Resource(ITranslationService translationService, IContextAccessor contextAccessor,
+        string key, string? fallback)
     {
-        var languageId = contextAccessor?.WorkContext?.WorkingLanguage?.Id;
+        var languageId = contextAccessor?.CurrentWorkContext?.WorkingLanguage?.Id;
         if (languageId is null) return fallback;
         var value = translationService.GetResource(key, languageId, string.Empty, true);
         return string.IsNullOrEmpty(value) ? fallback : value;

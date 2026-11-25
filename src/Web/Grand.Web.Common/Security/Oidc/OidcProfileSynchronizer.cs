@@ -27,7 +27,7 @@ public class OidcProfileSynchronizer(
         await SyncEmail(customer, identity, storeId);
     }
 
-    private async Task SyncUserField(Customer customer, string key, string value)
+    private async Task SyncUserField(Customer customer, string key, string? value)
     {
         if (string.IsNullOrEmpty(value))
             return;

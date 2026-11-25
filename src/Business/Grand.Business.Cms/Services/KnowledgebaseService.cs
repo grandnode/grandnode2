@@ -282,7 +282,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// <param name="customerGroupIds">Customer groups the articles must be visible to</param>
     /// <returns>List of public knowledge base articles</returns>
     public virtual async Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles(string storeId,
-        IList<string> customerGroupIds)
+        IList<string>? customerGroupIds)
     {
         var query = from p in _knowledgebaseArticleRepository.Table
                     select p;

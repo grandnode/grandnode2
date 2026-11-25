@@ -28,7 +28,7 @@ public class OidcRequestCustomerResolver : IRequestCustomerResolver
 
     public int Order => ResolverOrder;
 
-    public async Task<Customer> Resolve()
+    public async Task<Customer?> Resolve()
     {
         var httpContext = _httpContextAccessor.HttpContext;
         //the decision the Bearer scheme forwards by: a protected path, and no token or one an identity provider signed

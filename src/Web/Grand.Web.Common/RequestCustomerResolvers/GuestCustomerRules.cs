@@ -11,7 +11,7 @@ public static class GuestCustomerRules
     /// <summary>
     ///     The cookie holds a GUID in the format the store writes ("D"), never Guid.Empty
     /// </summary>
-    public static bool TryParseCookie(string value, out Guid customerGuid)
+    public static bool TryParseCookie(string? value, out Guid customerGuid)
     {
         return Guid.TryParseExact(value, "D", out customerGuid) && customerGuid != Guid.Empty;
     }

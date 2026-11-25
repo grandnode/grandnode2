@@ -48,7 +48,7 @@ public class ExternalRegistrationContext : IExternalRegistrationContext
         return new ClaimsPrincipal(new ClaimsIdentity(claims, AuthenticationType));
     }
 
-    public async Task<ExternalRegistrationIdentity> GetPending()
+    public async Task<ExternalRegistrationIdentity?> GetPending()
     {
         var result = await HttpContext.AuthenticateAsync(GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme);
         var principal = result.Succeeded ? result.Principal : null;

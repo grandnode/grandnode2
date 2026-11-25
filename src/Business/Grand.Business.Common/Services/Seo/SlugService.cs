@@ -117,7 +117,7 @@ public class SlugService : ISlugService
     /// </summary>
     /// <param name="slug">Slug</param>
     /// <returns>Found URL Entity</returns>
-    public virtual async Task<EntityUrl?> GetBySlugCached(string slug)
+    public virtual async Task<EntityUrl?> GetBySlugCached(string? slug)
     {
         if (string.IsNullOrEmpty(slug))
             return null;
@@ -165,7 +165,7 @@ public class SlugService : ISlugService
     /// <param name="entityName">Entity name</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Found slug</returns>
-    public virtual async Task<string> GetActiveSlug(string entityId, string entityName, string languageId)
+    public virtual async Task<string> GetActiveSlug(string? entityId, string? entityName, string? languageId)
     {
         var key = string.Format(CacheKey.URLEntity_ACTIVE_BY_ID_NAME_LANGUAGE_KEY, entityId, entityName, languageId);
         return await _cacheBase.GetAsync(key, async () =>

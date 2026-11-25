@@ -6,7 +6,7 @@ namespace Grand.Web.Models.Knowledgebase;
 public class AddKnowledgebaseArticleCommentModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Knowledgebase.Article.CommentText")]
-    public string CommentText { get; set; }
+    public string? CommentText { get; set; }
 
     public bool DisplayCaptcha { get; set; }
 }

@@ -26,7 +26,7 @@ public static class StoreExtensions
     /// <param name="store">Store</param>
     /// <param name="host">Host</param>
     /// <returns>DomainHost</returns>
-    public static DomainHost? HostValue(this Store store, string host)
+    public static DomainHost? HostValue(this Store store, string? host)
     {
         ArgumentNullException.ThrowIfNull(store);
         return string.IsNullOrEmpty(host)

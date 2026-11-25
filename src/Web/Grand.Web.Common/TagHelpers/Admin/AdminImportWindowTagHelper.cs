@@ -34,39 +34,40 @@ public class AdminImportWindowTagHelper : TagHelper
         _contextAccessor = contextAccessor;
     }
 
-    [ViewContext] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] public ViewContext ViewContext { get; set; } = null!;
 
     /// <summary>Id of the window element; defaults to "{file-name}-window".</summary>
     [HtmlAttributeName("id")]
-    public string WindowId { get; set; }
+    public string? WindowId { get; set; }
 
     /// <summary>Id of the toolbar button that opens it.</summary>
     [HtmlAttributeName("button-id")]
-    public string ButtonId { get; set; }
+    public string? ButtonId { get; set; }
 
     /// <summary>Title of the window.</summary>
     [HtmlAttributeName("title")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>Controller the form posts to; defaults to the current one.</summary>
     [HtmlAttributeName("controller")]
-    public string Controller { get; set; }
+    public string? Controller { get; set; }
 
-    [HtmlAttributeName("action")] public string Action { get; set; }
+    [HtmlAttributeName("action")] public string? Action { get; set; }
 
     /// <summary>Route id of the edited record, for an import that belongs to one.</summary>
     [HtmlAttributeName("route-id")]
-    public string RouteId { get; set; }
+    public string? RouteId { get; set; }
 
     /// <summary>Posted name of the file field - part of the server contract.</summary>
     [HtmlAttributeName("file-name")]
-    public string FileName { get; set; }
+    public string? FileName { get; set; }
 
     /// <summary>Element id of the file field; defaults to the posted name.</summary>
     [HtmlAttributeName("file-id")]
-    public string FileId { get; set; }
+    public string? FileId { get; set; }
 
-    [HtmlAttributeName("file-label")] public string FileLabel { get; set; }
+    [HtmlAttributeName("file-label")] public string? FileLabel { get; set; }
 
     /// <summary>
     ///     Resource key of the label, for a resource an existing installation may not have
@@ -75,18 +76,18 @@ public class AdminImportWindowTagHelper : TagHelper
     ///     <see cref="AdminCultureTagHelper" /> makes for the widget texts.
     /// </summary>
     [HtmlAttributeName("file-label-key")]
-    public string FileLabelKey { get; set; }
+    public string? FileLabelKey { get; set; }
 
-    [HtmlAttributeName("accept")] public string Accept { get; set; }
+    [HtmlAttributeName("accept")] public string? Accept { get; set; }
 
-    [HtmlAttributeName("submit-text")] public string SubmitText { get; set; }
+    [HtmlAttributeName("submit-text")] public string? SubmitText { get; set; }
 
-    [HtmlAttributeName("submit-id")] public string SubmitId { get; set; }
+    [HtmlAttributeName("submit-id")] public string? SubmitId { get; set; }
 
-    private string ResolveFileLabel()
+    private string? ResolveFileLabel()
     {
         if (string.IsNullOrEmpty(FileLabelKey)) return FileLabel;
-        var languageId = _contextAccessor?.WorkContext?.WorkingLanguage?.Id;
+        var languageId = _contextAccessor?.CurrentWorkContext?.WorkingLanguage?.Id;
         var resource = string.IsNullOrEmpty(languageId)
             ? null
             : _translationService.GetResource(FileLabelKey, languageId, string.Empty, true);

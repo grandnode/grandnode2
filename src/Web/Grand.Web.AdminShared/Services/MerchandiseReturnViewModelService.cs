@@ -549,7 +549,7 @@ public class MerchandiseReturnViewModelService(
     /// </summary>
     private async Task<bool> RefundsPayments()
     {
-        var customer = contextAccessor.WorkContext?.CurrentCustomer;
+        var customer = contextAccessor.WorkContext.CurrentCustomer;
         return customer != null && await actionPermissionService.AuthorizeAction(
             PermissionSystemName.PaymentTransactions, PermissionActionName.Edit, customer);
     }

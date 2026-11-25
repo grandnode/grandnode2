@@ -30,7 +30,7 @@ public class ScriptTagHelper : TagHelper
     [HtmlAttributeName(LocationAttributeName)]
     public ScriptLocation Location { get; set; }
 
-    [HtmlAttributeName(SrcAttributeName)] public string Src { get; set; }
+    [HtmlAttributeName(SrcAttributeName)] public string? Src { get; set; }
 
     [HtmlAttributeName(OrderAttributeName)]
     public int DisplayOrder { get; set; }

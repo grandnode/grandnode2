@@ -48,8 +48,10 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
 
     //the sitemap is public content: it lists what a guest can see. The task runs without a request,
     //so the audience is passed explicitly instead of coming from the (absent) work context
-    private string[] _guestGroupIds;
-    private GetSitemapXmlCommand _request;
+    private string[] _guestGroupIds = [];
+
+    //set first in Handle; the helpers run only from it
+    private GetSitemapXmlCommand _request = null!;
     private CancellationToken _cancellationToken;
 
     public GetSitemapXmlCommandHandler(
@@ -299,7 +301,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         var products = new List<SitemapUrl>();
         //a large catalog is read in batches of the few fields an entry needs, never as whole documents at once
         IList<SitemapProduct> batch;
-        string afterId = null;
+        string? afterId = null;
         do
         {
             _cancellationToken.ThrowIfCancellationRequested();
@@ -411,7 +413,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
                 DateTime.UtcNow));
     }
 
-    private string XmlEncode(string str)
+    private string? XmlEncode(string? str)
     {
         if (str == null)
             return null;
@@ -480,7 +482,7 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
     /// </summary>
     private class SitemapUrl
     {
-        public SitemapUrl(string location, string image, UpdateFrequency frequency, DateTime updatedOn)
+        public SitemapUrl(string? location, string? image, UpdateFrequency frequency, DateTime updatedOn)
         {
             Location = location;
             Image = image;
@@ -491,12 +493,12 @@ public class GetSitemapXmlCommandHandler : IRequestHandler<GetSitemapXmlCommand,
         /// <summary>
         ///     Gets or sets URL of the page
         /// </summary>
-        public string Location { get; }
+        public string? Location { get; }
 
         /// <summary>
         ///     Gets or sets URL of the image
         /// </summary>
-        public string Image { get; }
+        public string? Image { get; }
 
         /// <summary>
         ///     Gets or sets a value indicating how frequently the page is likely to change

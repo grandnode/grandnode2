@@ -43,15 +43,15 @@ public class LinkTagHelper : TagHelper
     [HtmlAttributeName(AppendVersionAttributeName)]
     public bool? AppendVersion { get; set; }
 
-    public string Rel { get; set; }
+    public string? Rel { get; set; }
 
-    [HtmlAttributeName(SrcAttributeName)] public string Src { get; set; }
+    [HtmlAttributeName(SrcAttributeName)] public string? Src { get; set; }
 
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
-    public string Type { get; set; }
+    public string? Type { get; set; }
 
-    public string Condition { get; set; }
+    public string? Condition { get; set; }
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {

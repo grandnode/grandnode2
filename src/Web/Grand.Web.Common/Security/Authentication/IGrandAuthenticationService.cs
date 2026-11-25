@@ -38,19 +38,19 @@ public interface IGrandAuthenticationService
     ///     Get authenticated customer
     /// </summary>
     /// <returns>Customer</returns>
-    Task<Customer> GetAuthenticatedCustomer();
+    Task<Customer?> GetAuthenticatedCustomer();
 
     /// <summary>
     ///     Get customer guid
     /// </summary>
     /// <returns>Customer</returns>
-    Task<string> GetCustomerGuid();
+    Task<string?> GetCustomerGuid();
 
     /// <summary>
     ///     The customer guid of a guest cookie written before the cookie was protected (a bare GUID); null otherwise.
     ///     Transition only, removed in 2.6
     /// </summary>
-    Task<string> GetLegacyCustomerGuid() => Task.FromResult<string>(null);
+    Task<string?> GetLegacyCustomerGuid() => Task.FromResult<string?>(null);
 
     /// <summary>
     ///     Set customer guid

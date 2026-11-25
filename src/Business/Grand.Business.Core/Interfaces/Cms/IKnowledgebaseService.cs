@@ -87,7 +87,7 @@ public interface IKnowledgebaseService
     /// <param name="storeId">Store ident</param>
     /// <param name="customerGroupIds">Customer groups the articles must be visible to</param>
     /// <returns>List of public knowledge base articles</returns>
-    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles(string storeId, IList<string> customerGroupIds);
+    Task<List<KnowledgebaseArticle>> GetPublicKnowledgebaseArticles(string storeId, IList<string>? customerGroupIds);
 
     /// <summary>
     ///     Gets homepage knowledge base articles

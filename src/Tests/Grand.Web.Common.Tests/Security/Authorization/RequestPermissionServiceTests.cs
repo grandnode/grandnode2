@@ -27,7 +27,7 @@ public class RequestPermissionServiceTests
     public async Task Authorize_SystemName_UsesCustomerOfTheRequest()
     {
         var customer = new Customer();
-        _contextAccessorMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(customer);
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext.CurrentCustomer).Returns(customer);
         _permissionServiceMock.Setup(x => x.Authorize("ManageProducts", customer)).ReturnsAsync(true);
 
         Assert.IsTrue(await _service.Authorize("ManageProducts"));
@@ -38,7 +38,7 @@ public class RequestPermissionServiceTests
     {
         var customer = new Customer();
         var permission = new Permission { SystemName = "ManageProducts" };
-        _contextAccessorMock.Setup(c => c.WorkContext.CurrentCustomer).Returns(customer);
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext.CurrentCustomer).Returns(customer);
         _permissionServiceMock.Setup(x => x.Authorize(permission, customer)).ReturnsAsync(true);
 
         Assert.IsTrue(await _service.Authorize(permission));
@@ -47,7 +47,7 @@ public class RequestPermissionServiceTests
     [TestMethod]
     public async Task Authorize_WithoutWorkContext_PassesNoCustomer()
     {
-        _contextAccessorMock.Setup(c => c.WorkContext).Returns((IWorkContext)null);
+        _contextAccessorMock.Setup(c => c.CurrentWorkContext).Returns((IWorkContext)null);
 
         Assert.IsFalse(await _service.Authorize("ManageProducts"));
         Assert.IsFalse(await _service.Authorize(new Permission { SystemName = "ManageProducts" }));

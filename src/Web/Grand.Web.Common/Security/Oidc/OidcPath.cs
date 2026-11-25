@@ -7,7 +7,7 @@ public static class OidcPath
     /// <summary>
     ///     "/api/" -> "/api"; null when empty, relative or the site root (a root prefix would capture the storefront)
     /// </summary>
-    public static string Normalize(string prefix)
+    public static string? Normalize(string? prefix)
     {
         var trimmed = prefix?.Trim();
         if (string.IsNullOrEmpty(trimmed) || !trimmed.StartsWith('/'))

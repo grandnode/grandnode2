@@ -17,7 +17,7 @@ public class SiteMap
         _permissionService = permissionService;
     }
 
-    public SiteMapNode RootNode { get; set; }
+    public SiteMapNode? RootNode { get; set; }
 
     public virtual async Task Load()
     {
