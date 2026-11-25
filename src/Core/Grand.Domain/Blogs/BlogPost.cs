@@ -14,7 +14,7 @@ public class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     ///     Gets or sets the blog post title
     /// </summary>
     [AuditName]
-    public string? Title { get; set; }
+    public string Title { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the picture identifier
@@ -24,7 +24,7 @@ public class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the blog post body
     /// </summary>
-    public string? Body { get; set; }
+    public string Body { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the blog post overview. If specified, then it's used on the blog page instead of the "Body"

@@ -8,7 +8,7 @@ public class SpecificationAttributeOptionFilter
     /// <summary>
     ///     Gets or sets the specification attribute identifier
     /// </summary>
-    public string? SpecificationAttributeId { get; set; }
+    public string SpecificationAttributeId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the specification attribute name

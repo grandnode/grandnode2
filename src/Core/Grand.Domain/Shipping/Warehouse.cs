@@ -12,12 +12,12 @@ public class Warehouse : BaseEntity
     /// <summary>
     ///     Gets or sets the warehouse code
     /// </summary>
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the warehouse name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the admin comment

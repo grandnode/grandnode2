@@ -8,7 +8,7 @@ public class CustomerGroup : BaseEntity
     /// <summary>
     ///     Gets or sets the customer group name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether the customer group is marked as free shiping

@@ -8,7 +8,7 @@ public class UserField
     /// <summary>
     ///     Gets or sets the key
     /// </summary>
-    public string? Key { get; set; }
+    public string Key { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the value

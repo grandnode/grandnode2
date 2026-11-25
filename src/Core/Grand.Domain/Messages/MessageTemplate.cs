@@ -22,12 +22,12 @@ public class MessageTemplate : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the subject
     /// </summary>
-    public string? Subject { get; set; }
+    public string Subject { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the body
     /// </summary>
-    public string? Body { get; set; }
+    public string Body { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether the template is active

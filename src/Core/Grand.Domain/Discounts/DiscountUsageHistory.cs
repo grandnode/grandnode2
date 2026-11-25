@@ -30,7 +30,7 @@ public class DiscountUsageHistory : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the canceled identifier

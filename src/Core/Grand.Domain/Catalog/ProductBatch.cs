@@ -8,7 +8,7 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class ProductBatch : BaseEntity
 {
-    public string? ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     The combination of a product stocked by attributes

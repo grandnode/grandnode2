@@ -18,7 +18,7 @@ public class NewsItem : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     ///     Gets or sets the news title
     /// </summary>
     [AuditName]
-    public string? Title { get; set; }
+    public string Title { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the picture identifier
@@ -28,12 +28,12 @@ public class NewsItem : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the short text
     /// </summary>
-    public string? Short { get; set; }
+    public string Short { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the full text
     /// </summary>
-    public string? Full { get; set; }
+    public string Full { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether the news item is published

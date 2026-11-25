@@ -12,12 +12,12 @@ public class Currency : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the currency code
     /// </summary>
-    public string? CurrencyCode { get; set; }
+    public string CurrencyCode { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the rate

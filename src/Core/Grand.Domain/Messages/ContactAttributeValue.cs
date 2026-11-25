@@ -17,7 +17,7 @@ public class ContactAttributeValue : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the checkout attribute name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the color RGB value (used with "Color squares" attribute type)

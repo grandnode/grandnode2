@@ -7,7 +7,7 @@ namespace Grand.Domain.Messages;
 /// </summary>
 public class CampaignHistory : BaseEntity
 {
-    public string? CampaignId { get; set; }
+    public string CampaignId { get; set; } = null!;
 
     [AuditName]
     public string? Email { get; set; }

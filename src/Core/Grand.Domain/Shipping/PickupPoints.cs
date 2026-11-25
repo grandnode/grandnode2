@@ -12,7 +12,7 @@ public class PickupPoint : BaseEntity
     /// <summary>
     ///     Gets or sets the point name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the description

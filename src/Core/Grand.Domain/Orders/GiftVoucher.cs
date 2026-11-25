@@ -35,7 +35,7 @@ public class GiftVoucher : BaseEntity
     ///     Gets or sets a gift voucher coupon code
     /// </summary>
     [AuditName]
-    public string? Code { get; set; }
+    public string Code { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a recipient name

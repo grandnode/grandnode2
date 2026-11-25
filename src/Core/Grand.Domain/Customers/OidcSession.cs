@@ -6,7 +6,7 @@ namespace Grand.Domain.Customers;
 /// </summary>
 public class OidcSession : BaseEntity
 {
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>The store of the sign-in</summary>
     public string? StoreId { get; set; }

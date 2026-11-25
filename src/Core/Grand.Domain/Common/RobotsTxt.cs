@@ -5,7 +5,7 @@ public class RobotsTxt : BaseEntity
     /// <summary>
     ///     Gets or sets the name of robots.txt
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the text of robots.txt

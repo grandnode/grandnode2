@@ -10,7 +10,7 @@ public class PaymentTransactionEntry : BaseEntity
 {
     [AuditReference(typeof(PaymentTransaction))]
     [AuditOwner]
-    public string? PaymentTransactionId { get; set; }
+    public string PaymentTransactionId { get; set; } = null!;
 
     public PaymentTransactionEntryType EntryType { get; set; }
 

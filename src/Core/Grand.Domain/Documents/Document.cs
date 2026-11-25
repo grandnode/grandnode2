@@ -14,12 +14,12 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the document number
     /// </summary>
-    public string? Number { get; set; }
+    public string Number { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the sales employee identifier

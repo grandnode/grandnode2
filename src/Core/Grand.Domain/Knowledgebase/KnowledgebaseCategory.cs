@@ -69,7 +69,7 @@ public class KnowledgebaseCategory : BaseEntity, ITreeNode, ITranslationEntity, 
     /// <summary>
     ///     Gets or sets name of the category
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets parent category Id

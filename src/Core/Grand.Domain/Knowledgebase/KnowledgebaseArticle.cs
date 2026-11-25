@@ -84,7 +84,7 @@ public class KnowledgebaseArticle : BaseEntity, ITreeNode, ITranslationEntity, I
     /// <summary>
     ///     Gets or sets title of the article
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets parent category Id

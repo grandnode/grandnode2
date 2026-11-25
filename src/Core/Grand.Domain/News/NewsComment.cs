@@ -24,19 +24,19 @@ public class NewsComment : SubBaseEntity
     ///     Gets or sets the news item identifier
     /// </summary>
     [AuditReference(typeof(NewsItem))]
-    public string? NewsItemId { get; set; }
+    public string NewsItemId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string? StoreId { get; set; }
+    public string StoreId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the date and time of instance creation

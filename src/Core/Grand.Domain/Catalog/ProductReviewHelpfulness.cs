@@ -8,7 +8,7 @@ public class ProductReviewHelpfulness : SubBaseEntity
     /// <summary>
     ///     Gets or sets the product review identifier
     /// </summary>
-    public string? ProductReviewId { get; set; }
+    public string ProductReviewId { get; set; } = null!;
 
     /// <summary>
     ///     A value indicating whether a review a helpful
@@ -18,5 +18,5 @@ public class ProductReviewHelpfulness : SubBaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 }

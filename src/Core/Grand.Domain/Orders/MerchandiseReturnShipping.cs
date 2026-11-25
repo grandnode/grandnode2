@@ -94,7 +94,7 @@ public class ReturnDropOffPoint
     /// <summary>
     ///     Gets or sets the provider's identifier of the point
     /// </summary>
-    public string? Id { get; set; }
+    public string Id { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the name

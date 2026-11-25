@@ -14,7 +14,7 @@ public class Store : BaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the store name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the store shortcut
@@ -24,7 +24,7 @@ public class Store : BaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the store URL, including the scheme
     /// </summary>
-    public string? Url { get; set; }
+    public string Url { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the account told about the store's order approvals; it does not limit who may decide them

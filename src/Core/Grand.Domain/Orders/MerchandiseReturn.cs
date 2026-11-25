@@ -29,7 +29,7 @@ public class MerchandiseReturn : BaseEntity
     ///     Gets or sets the order item identifier
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string? OrderId { get; set; }
+    public string OrderId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the owner item identifier

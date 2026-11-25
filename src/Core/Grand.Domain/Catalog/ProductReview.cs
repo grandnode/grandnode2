@@ -38,12 +38,12 @@ public class ProductReview : BaseEntity
     ///     Gets or sets the title
     /// </summary>
     [AuditName]
-    public string? Title { get; set; }
+    public string Title { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the review text
     /// </summary>
-    public string? ReviewText { get; set; }
+    public string ReviewText { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the reply text

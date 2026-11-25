@@ -9,7 +9,7 @@ public class BlogCategory : BaseEntity, IStoreLinkEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the blog category name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the blog category sename

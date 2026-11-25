@@ -7,7 +7,7 @@ public class CourseLesson : BaseEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the short description
@@ -28,13 +28,13 @@ public class CourseLesson : BaseEntity
     ///     Gets or sets the course ident
     /// </summary>
     [AuditReference(typeof(Course))]
-    public string? CourseId { get; set; }
+    public string CourseId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the subject ident
     /// </summary>
     [AuditReference(typeof(CourseSubject))]
-    public string? SubjectId { get; set; }
+    public string SubjectId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the video file

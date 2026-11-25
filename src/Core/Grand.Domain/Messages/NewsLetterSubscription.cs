@@ -27,7 +27,7 @@ public class NewsLetterSubscription : BaseEntity, IHistory
     ///     Gets or sets the subcriber email
     /// </summary>
     [AuditName]
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether subscription is active

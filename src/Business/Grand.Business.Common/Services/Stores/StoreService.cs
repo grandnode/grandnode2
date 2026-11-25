@@ -61,7 +61,7 @@ public class StoreService : IStoreService
     /// </summary>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Store</returns>
-    public virtual Task<Store> GetStoreById(string storeId)
+    public virtual Task<Store?> GetStoreById(string storeId)
     {
         var key = string.Format(CacheKey.STORES_BY_ID_KEY, storeId);
         return _cacheBase.GetAsync(key, () => _storeRepository.GetByIdAsync(storeId));

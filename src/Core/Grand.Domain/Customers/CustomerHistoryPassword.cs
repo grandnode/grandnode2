@@ -8,7 +8,7 @@ public class CustomerHistoryPassword : BaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the password

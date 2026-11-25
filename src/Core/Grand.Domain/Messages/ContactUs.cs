@@ -32,12 +32,12 @@ public class ContactUs : BaseEntity
     ///     Gets or sets the email
     /// </summary>
     [AuditName]
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets full name
     /// </summary>
-    public string? FullName { get; set; }
+    public string FullName { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the subject
@@ -47,7 +47,7 @@ public class ContactUs : BaseEntity
     /// <summary>
     ///     Gets or sets enquiry
     /// </summary>
-    public string? Enquiry { get; set; }
+    public string Enquiry { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the email account identifier

@@ -8,12 +8,12 @@ public class CustomerReservationsHelper : BaseEntity
     /// <summary>
     ///     Gets or sets customer identifier
     /// </summary>
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets shopping cart identifier
     /// </summary>
-    public string? ShoppingCartItemId { get; set; }
+    public string ShoppingCartItemId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets reservation identifier

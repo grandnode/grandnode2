@@ -6,7 +6,7 @@ namespace Grand.Domain.Customers;
 public class UserApi : BaseEntity
 {
     [AuditName]
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
     public string? Password { get; set; }
     public string? PrivateKey { get; set; }
     public bool IsActive { get; set; }

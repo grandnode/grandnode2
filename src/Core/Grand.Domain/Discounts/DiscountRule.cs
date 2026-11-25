@@ -11,7 +11,7 @@ public class DiscountRule : SubBaseEntity
     ///     Gets or sets the discount requirement rule system name
     /// </summary>
     [AuditName]
-    public string? DiscountRequirementRuleSystemName { get; set; }
+    public string DiscountRequirementRuleSystemName { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the metadata

@@ -12,12 +12,12 @@ public class EmailAccount : BaseEntity
     ///     Gets or sets an email address
     /// </summary>
     [AuditName]
-    public string? Email { get; set; }
+    public string Email { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets an email display name
     /// </summary>
-    public string? DisplayName { get; set; }
+    public string DisplayName { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets an email host

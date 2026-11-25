@@ -8,7 +8,7 @@ public class Setting : BaseEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the store for which this setting is valid. 0 is set when the setting is for all stores

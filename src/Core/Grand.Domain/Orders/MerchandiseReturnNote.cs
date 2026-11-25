@@ -12,7 +12,7 @@ public class MerchandiseReturnNote : BaseEntity
     /// </summary>
     [AuditReference(typeof(MerchandiseReturn))]
     [AuditOwner]
-    public string? MerchandiseReturnId { get; set; }
+    public string MerchandiseReturnId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the title

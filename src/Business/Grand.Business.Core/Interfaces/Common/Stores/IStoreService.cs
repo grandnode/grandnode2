@@ -20,7 +20,7 @@ public interface IStoreService
     /// </summary>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Store</returns>
-    Task<Store> GetStoreById(string storeId);
+    Task<Store?> GetStoreById(string storeId);
 
     /// <summary>
     ///     Inserts a store

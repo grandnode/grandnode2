@@ -5,7 +5,7 @@ public class SalesEmployee : BaseEntity
     /// <summary>
     ///     Gets or sets the sales employee name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the sales employee email

@@ -12,7 +12,7 @@ public class Language : BaseEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string? Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the language culture
@@ -22,7 +22,7 @@ public class Language : BaseEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the unique SEO code
     /// </summary>
-    public string? UniqueSeoCode { get; set; }
+    public string UniqueSeoCode { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the flag image file name
