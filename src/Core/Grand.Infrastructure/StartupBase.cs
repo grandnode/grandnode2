@@ -205,6 +205,9 @@ public static class StartupBase
         var mvcCoreBuilder = services.AddMvcCore(options =>
         {
             options.Filters.AddService<ValidationFilter>();
+            //validation rules live in FluentValidation validators - a non-nullable reference property
+            //must not become an implicit [Required] just because its project has nullable enabled
+            options.SuppressImplicitRequiredAttributeForNonNullableReferenceTypes = true;
             var frontConfig = new FrontendAPIConfig();
             configuration.GetSection("FrontendAPI").Bind(frontConfig);
             if (frontConfig.JsonContentType)
