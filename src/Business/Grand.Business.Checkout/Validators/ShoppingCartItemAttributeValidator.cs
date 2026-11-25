@@ -61,7 +61,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
                             value with {
                                 Product = associatedProduct, ShoppingCartItem = new ShoppingCartItem {
                                     ShoppingCartTypeId = value.ShoppingCartItem.ShoppingCartTypeId,
-                                    StoreId = value.ShoppingCartItem.Id,
+                                    StoreId = value.ShoppingCartItem.StoreId,
                                     Quantity = totalQty,
                                     WarehouseId = value.ShoppingCartItem.WarehouseId,
                                     Attributes = value.ShoppingCartItem.Attributes
