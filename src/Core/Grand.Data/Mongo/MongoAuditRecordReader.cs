@@ -10,8 +10,8 @@ namespace Grand.Data.Mongo;
 /// </summary>
 public class MongoAuditRecordReader(Func<IMongoDatabase> database) : IAuditRecordReader
 {
-    public async Task<IDictionary<string, string>> Read(Type entityType, string value, string key = null,
-        string field = null)
+    public async Task<IDictionary<string, string>?> Read(Type entityType, string value, string? key = null,
+        string? field = null)
     {
         var find = database().GetCollection<BsonDocument>(entityType.Name)
             .Find(new BsonDocument(key ?? "_id", Match(value, key)));
@@ -22,7 +22,7 @@ public class MongoAuditRecordReader(Func<IMongoDatabase> database) : IAuditRecor
     }
 
     public async Task<IDictionary<string, IDictionary<string, string>>> ReadMany(Type entityType,
-        IReadOnlyCollection<string> values, string key = null, string field = null)
+        IReadOnlyCollection<string> values, string? key = null, string? field = null)
     {
         var name = key ?? "_id";
         var find = database().GetCollection<BsonDocument>(entityType.Name)
@@ -41,7 +41,7 @@ public class MongoAuditRecordReader(Func<IMongoDatabase> database) : IAuditRecor
     }
 
     //a key other than the id may hold a number, stored as one
-    private static BsonValue Match(string value, string key)
+    private static BsonValue Match(string value, string? key)
     {
         return key != null && int.TryParse(value, out var number) ? number : value;
     }

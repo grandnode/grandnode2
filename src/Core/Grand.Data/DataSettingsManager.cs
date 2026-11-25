@@ -7,14 +7,14 @@ namespace Grand.Data;
 /// </summary>
 public sealed class DataSettingsManager
 {
-    private static DataSettingsManager _instance;
+    private static DataSettingsManager? _instance;
     private static readonly Lock _lock = new();
 
     public static DataSettingsManager Instance => _instance ?? throw new InvalidOperationException("DataSettingsManager has not been initialized. Call Initialize first.");
 
     private readonly string _settingsPath;
 
-    private DataSettings _dataSettings;
+    private DataSettings? _dataSettings;
 
     private bool? _databaseIsInstalled;
 
@@ -48,7 +48,8 @@ public sealed class DataSettingsManager
         try
         {
             var text = File.ReadAllText(_settingsPath);
-            _dataSettings = JsonSerializer.Deserialize<DataSettings>(text);
+            //a file holding the literal "null" reads as no settings, the same as a missing file
+            _dataSettings = JsonSerializer.Deserialize<DataSettings>(text) ?? new DataSettings();
         }
         catch
         {

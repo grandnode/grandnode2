@@ -18,16 +18,24 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     private const string UpdatedByField = "UpdatedBy";
 
     private readonly IAuditInfoProvider _auditInfoProvider;
+    private readonly ILiteCollection<T>? _collection;
+    private readonly LiteDatabase? _database;
 
     /// <summary>
     ///     Gets the collection
     /// </summary>
-    protected ILiteCollection<T> Collection { get; init; }
+    protected ILiteCollection<T> Collection {
+        get => _collection ?? throw NotConfigured();
+        init => _collection = value;
+    }
     
     /// <summary>
     ///     Mongo Database
     /// </summary>
-    protected LiteDatabase Database { get; init; }
+    protected LiteDatabase Database {
+        get => _database ?? throw NotConfigured();
+        init => _database = value;
+    }
     
     #endregion
 
@@ -68,11 +76,19 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     #region Methods
 
     /// <summary>
+    ///     A repository created before the database was configured has no collection to work on
+    /// </summary>
+    private static InvalidOperationException NotConfigured()
+    {
+        return new InvalidOperationException($"The {typeof(T).Name} repository has no database - the connection string is not configured");
+    }
+
+    /// <summary>
     ///     Get entity by identifier
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    public virtual T GetById(string id)
+    public virtual T? GetById(string id)
     {
         return Collection.Find(e => e.Id == id).FirstOrDefault();
     }
@@ -82,7 +98,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    public virtual async Task<T> GetByIdAsync(string id)
+    public virtual async Task<T?> GetByIdAsync(string id)
     {
         return await Task.FromResult(GetById(id));
     }
@@ -92,7 +108,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     /// <param name="predicate"></param>
     /// <returns>Entity</returns>
-    public virtual Task<T> GetOneAsync(Expression<Func<T, bool>> predicate)
+    public virtual Task<T?> GetOneAsync(Expression<Func<T, bool>> predicate)
     {
         var visitor = new ToLowerInvariantVisitor();
         //WORKAROUND Issue #479 - Method ToLowerInvariant() in String are not supported when convert to BsonExpression
@@ -462,7 +478,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Executes the query and returns its first result, or the default value when nothing matches
     /// </summary>
-    public virtual Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+    public virtual Task<TResult?> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query);
@@ -517,7 +533,7 @@ public class LiteDBRepository<T> : IRepository<T> where T : BaseEntity
     {
         if (Equals(Field, null)) throw new NullReferenceException("Field is required");
 
-        MemberExpression expr = null;
+        MemberExpression? expr = null;
 
         switch (Field.Body)
         {

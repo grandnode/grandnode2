@@ -15,10 +15,10 @@ public sealed class MongoPluginStateStore : IPluginStateStore
 
     private readonly Func<string> _connectionString;
     private readonly Lock _lock = new();
-    private Func<IMongoClient> _shared;
-    private MongoClient _ownClient;
-    private string _currentConnectionString;
-    private IMongoCollection<BsonDocument> _collection;
+    private Func<IMongoClient>? _shared;
+    private MongoClient? _ownClient;
+    private string? _currentConnectionString;
+    private IMongoCollection<BsonDocument>? _collection;
 
     /// <param name="connectionString">Read on every call: the installation sets it while the application runs</param>
     public MongoPluginStateStore(Func<string> connectionString)

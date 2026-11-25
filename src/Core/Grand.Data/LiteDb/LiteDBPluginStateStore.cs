@@ -11,7 +11,7 @@ public sealed class LiteDBPluginStateStore : IPluginStateStore
 {
     private readonly Func<string> _connectionString;
     private readonly Lock _lock = new();
-    private Func<LiteDatabase> _shared;
+    private Func<LiteDatabase>? _shared;
 
     /// <param name="connectionString">Read on every call: the installation sets it while the application runs</param>
     public LiteDBPluginStateStore(Func<string> connectionString)

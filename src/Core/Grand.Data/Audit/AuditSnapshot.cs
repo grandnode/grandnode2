@@ -1,6 +1,7 @@
 using Grand.Domain;
 using Grand.Domain.Configuration;
 using MongoDB.Bson;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Data.Audit;
 
@@ -30,7 +31,8 @@ public static class AuditSnapshot
         return Flatten(entity.ToBsonDocument(entityType), entityType == typeof(Setting));
     }
 
-    public static IDictionary<string, string> Flatten(BsonDocument document, bool isSetting)
+    [return: NotNullIfNotNull(nameof(document))]
+    public static IDictionary<string, string>? Flatten(BsonDocument? document, bool isSetting)
     {
         if (document == null)
             return null;
@@ -101,7 +103,7 @@ public static class AuditSnapshot
         return !HasId(document, out _) && document.TryGetValue("Key", out var key) && key.IsString && key.AsString != "";
     }
 
-    private static BsonDocument TryParse(string json)
+    private static BsonDocument? TryParse(string json)
     {
         try
         {
@@ -129,6 +131,7 @@ public static class AuditSnapshot
             return value.ToUniversalTime().ToString("yyyy-MM-dd'T'HH:mm:ss'Z'");
         if (value.IsBsonArray)
             return value.ToJson();
-        return value.ToString();
+        //object.ToString may return null by contract; no BsonValue does
+        return value.ToString() ?? string.Empty;
     }
 }

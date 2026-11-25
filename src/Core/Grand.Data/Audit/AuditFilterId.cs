@@ -1,4 +1,5 @@
 using Grand.Domain;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq.Expressions;
 using System.Reflection;
 
@@ -12,7 +13,7 @@ public static class AuditFilterId
     /// <summary>
     ///     Recognises <c>x => x.Id == value</c> (either operand order) and evaluates the value
     /// </summary>
-    public static bool TryGetId<T>(Expression<Func<T, bool>> filter, out string id) where T : BaseEntity
+    public static bool TryGetId<T>(Expression<Func<T, bool>> filter, [NotNullWhen(true)] out string? id) where T : BaseEntity
     {
         id = null;
         if (filter?.Body is not BinaryExpression { NodeType: ExpressionType.Equal } equal)
@@ -29,12 +30,12 @@ public static class AuditFilterId
     /// <summary>
     ///     The dotted member path of <c>x => x.A.B</c>, or null when the expression is not a plain member chain
     /// </summary>
-    public static string MemberPath<T, TField>(Expression<Func<T, TField>> expression)
+    public static string? MemberPath<T, TField>(Expression<Func<T, TField>> expression)
     {
         return MemberPath((LambdaExpression)expression);
     }
 
-    public static string MemberPath(LambdaExpression expression)
+    public static string? MemberPath(LambdaExpression expression)
     {
         var names = new Stack<string>();
         var current = StripConvert(expression.Body);
@@ -50,7 +51,7 @@ public static class AuditFilterId
     /// <summary>
     ///     The member paths an update builder sets
     /// </summary>
-    public static IList<string> MemberPaths<T>(UpdateBuilder<T> builder)
+    public static IList<string?> MemberPaths<T>(UpdateBuilder<T> builder)
     {
         return builder.ExpressionFields.Select(f => MemberPath(f.Expression)).ToList();
     }
@@ -61,14 +62,15 @@ public static class AuditFilterId
                && StripConvert(member.Expression) == parameter;
     }
 
-    private static Expression StripConvert(Expression expression)
+    [return: NotNullIfNotNull(nameof(expression))]
+    private static Expression? StripConvert(Expression? expression)
     {
         while (expression is UnaryExpression { NodeType: ExpressionType.Convert or ExpressionType.ConvertChecked } unary)
             expression = unary.Operand;
         return expression;
     }
 
-    private static bool TryEvaluate(Expression expression, out string value)
+    private static bool TryEvaluate(Expression expression, [NotNullWhen(true)] out string? value)
     {
         value = null;
         if (!TryEvaluateObject(StripConvert(expression), out var result))
@@ -79,7 +81,7 @@ public static class AuditFilterId
     }
 
     //constants and captured variables only, without compiling the expression
-    private static bool TryEvaluateObject(Expression expression, out object value)
+    private static bool TryEvaluateObject(Expression expression, out object? value)
     {
         value = null;
         switch (expression)
@@ -88,7 +90,7 @@ public static class AuditFilterId
                 value = constant.Value;
                 return true;
             case MemberExpression member:
-                object target = null;
+                object? target = null;
                 if (member.Expression != null && !TryEvaluateObject(StripConvert(member.Expression), out target))
                     return false;
                 if (member.Expression != null && target == null)

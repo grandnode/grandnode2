@@ -73,8 +73,8 @@ public sealed class RepositoryAudit<T>(IAuditTracker tracker, Func<IReadOnlyColl
     }
 
     //an unreadable expression means "any field may have changed"
-    private static IReadOnlyCollection<string> Paths(IList<string> paths)
+    private static IReadOnlyCollection<string>? Paths(IList<string?> paths)
     {
-        return paths.Count == 0 || paths.Any(p => p == null) ? null : paths.ToList();
+        return paths.Count == 0 || paths.Any(p => p == null) ? null : paths.OfType<string>().ToList();
     }
 }
