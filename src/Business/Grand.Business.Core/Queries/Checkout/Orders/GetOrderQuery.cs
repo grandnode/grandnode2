@@ -18,19 +18,19 @@ public class GetOrderQuery : IRequest<IPagedList<Order>>
     public string BillingCountryId { get; set; } = "";
     public string OwnerId { get; set; } = "";
     public string SalesEmployeeId { get; set; } = "";
-    public string PaymentMethodSystemName { get; set; } = null;
+    public string? PaymentMethodSystemName { get; set; } = null;
     public DateTime? CreatedFromUtc { get; set; } = null;
     public DateTime? CreatedToUtc { get; set; } = null;
     public int? Os { get; set; } = null;
     public PaymentStatus? Ps { get; set; } = null;
     public ShippingStatus? Ss { get; set; } = null;
-    public string BillingEmail { get; set; } = null;
+    public string? BillingEmail { get; set; } = null;
     public string BillingLastName { get; set; } = "";
-    public string OrderGuid { get; set; } = null;
-    public string OrderCode { get; set; } = null;
+    public string? OrderGuid { get; set; } = null;
+    public string? OrderCode { get; set; } = null;
     public int PageIndex { get; set; } = 0;
     public int PageSize { get; set; } = int.MaxValue;
     public string OrderTagId { get; set; } = "";
-    public string PurchaseOrderNumber { get; set; } = null;
+    public string? PurchaseOrderNumber { get; set; } = null;
     public bool OverdueOnly { get; set; }
 }

@@ -60,12 +60,12 @@ public interface IOrderReportService
     /// <returns>Result</returns>
     Task<OrderAverageReportLine> GetOrderAverageReportLine(string storeId = "",
         string customerId = "", string vendorId = "", string salesEmployeeId = "",
-        string billingCountryId = "", string orderId = "", string paymentMethodSystemName = null,
+        string billingCountryId = "", string orderId = "", string? paymentMethodSystemName = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
-        string billingEmail = null, string billingLastName = "",
+        string? billingEmail = null, string billingLastName = "",
         bool ignoreCancelledOrders = false,
-        string tagId = null);
+        string? tagId = null);
 
 
     /// <summary>

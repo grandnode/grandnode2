@@ -14,7 +14,7 @@ public interface IWarehouseLocationService
     ///     The locations of the warehouses by display order and code
     /// </summary>
     /// <param name="warehouseIds">The warehouses; null for all of them</param>
-    Task<IPagedList<WarehouseLocation>> GetLocations(IList<string> warehouseIds = null, int pageIndex = 0,
+    Task<IPagedList<WarehouseLocation>> GetLocations(IList<string>? warehouseIds = null, int pageIndex = 0,
         int pageSize = int.MaxValue);
 
     /// <summary>

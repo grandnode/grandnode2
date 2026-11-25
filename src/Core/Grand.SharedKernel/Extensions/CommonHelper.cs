@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -82,7 +83,8 @@ public static class CommonHelper
     /// <param name="maxLength">Maximum length</param>
     /// <param name="postfix">A string to add to the end if the original string was shorten</param>
     /// <returns>Input string if its lengh is OK; otherwise, truncated input string</returns>
-    public static string EnsureMaximumLength(string str, int maxLength, string? postfix = null)
+    [return: NotNullIfNotNull(nameof(str))]
+    public static string? EnsureMaximumLength(string? str, int maxLength, string? postfix = null)
     {
         if (string.IsNullOrEmpty(str))
             return str;

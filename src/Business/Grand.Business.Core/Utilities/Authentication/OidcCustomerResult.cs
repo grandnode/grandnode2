@@ -7,18 +7,18 @@ namespace Grand.Business.Core.Utilities.Authentication;
 /// </summary>
 public class OidcCustomerResult
 {
-    private OidcCustomerResult(Customer customer, OidcFailureKind? failure, string description)
+    private OidcCustomerResult(Customer? customer, OidcFailureKind? failure, string? description)
     {
         Customer = customer;
         Failure = failure;
         Description = description;
     }
 
-    public Customer Customer { get; }
+    public Customer? Customer { get; }
     public OidcFailureKind? Failure { get; }
 
     /// <summary>Fixed, token-independent text safe for error_description</summary>
-    public string Description { get; }
+    public string? Description { get; }
 
     public bool Succeeded => Customer != null;
 

@@ -6,6 +6,6 @@ namespace Grand.Business.Core.Queries.Catalog;
 
 public class GetRecommendedProductsQuery : IRequest<IList<Product>>
 {
-    public string StoreId { get; set; }
-    public Customer Customer { get; set; }
+    public string? StoreId { get; set; }
+    public Customer? Customer { get; set; }
 }

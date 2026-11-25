@@ -48,21 +48,21 @@ public sealed record UnitSearch
     /// <summary>
     ///     The number, compared without case
     /// </summary>
-    public string Number { get; init; }
+    public string? Number { get; init; }
 
     /// <summary>
     ///     The number is the start of the numbers found
     /// </summary>
     public bool Prefix { get; init; }
 
-    public string ProductId { get; init; }
+    public string? ProductId { get; init; }
     public SerialNumberStatus? Status { get; init; }
-    public string WarehouseId { get; init; }
+    public string? WarehouseId { get; init; }
 
     /// <summary>
     ///     The store of the units' warehouses; null for every store
     /// </summary>
-    public string StoreId { get; init; }
+    public string? StoreId { get; init; }
 
     public BatchExpiryStatus? ExpiryStatus { get; init; }
 
@@ -99,7 +99,7 @@ public sealed record BatchRecipient(
     string CustomerEmail,
     int Quantity,
     DateTime ShippedOnUtc,
-    string StoreId = null);
+    string? StoreId = null);
 
 /// <summary>
 ///     One stock bucket of a product tracking units: its stock and the part of it batches or serial numbers hold
@@ -127,7 +127,7 @@ public interface IProductUnitService
     /// </summary>
     /// <param name="productId">The product</param>
     /// <param name="combinationId">Only this combination; null for the whole product</param>
-    Task<int> AssignedQuantity(string productId, string combinationId = null);
+    Task<int> AssignedQuantity(string productId, string? combinationId = null);
 
     /// <summary>
     ///     The units assigned to stock kept in the warehouse, of every product

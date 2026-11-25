@@ -2,37 +2,37 @@
 
 public class ProductDto
 {
-    public string Id { get; set; }
+    public string? Id { get; set; }
     public int? ProductTypeId { get; set; }
-    public string ParentGroupedProductId { get; set; }
+    public string? ParentGroupedProductId { get; set; }
     public bool? VisibleIndividually { get; set; }
-    public string Name { get; set; }
-    public string SeName { get; set; }
-    public string ShortDescription { get; set; }
-    public string FullDescription { get; set; }
-    public string AdminComment { get; set; }
-    public string ProductLayoutId { get; set; }
-    public string BrandId { get; set; }
-    public string VendorId { get; set; }
+    public string? Name { get; set; }
+    public string? SeName { get; set; }
+    public string? ShortDescription { get; set; }
+    public string? FullDescription { get; set; }
+    public string? AdminComment { get; set; }
+    public string? ProductLayoutId { get; set; }
+    public string? BrandId { get; set; }
+    public string? VendorId { get; set; }
     public bool? ShowOnHomePage { get; set; }
     public bool? BestSeller { get; set; }
-    public string MetaKeywords { get; set; }
-    public string MetaDescription { get; set; }
-    public string MetaTitle { get; set; }
+    public string? MetaKeywords { get; set; }
+    public string? MetaDescription { get; set; }
+    public string? MetaTitle { get; set; }
     public bool? AllowCustomerReviews { get; set; }
     public int? ApprovedRatingSum { get; set; }
     public int? NotApprovedRatingSum { get; set; }
     public int? ApprovedTotalReviews { get; set; }
     public int? NotApprovedTotalReviews { get; set; }
-    public string ExternalId { get; set; }
-    public string Sku { get; set; }
-    public string Mpn { get; set; }
-    public string Gtin { get; set; }
+    public string? ExternalId { get; set; }
+    public string? Sku { get; set; }
+    public string? Mpn { get; set; }
+    public string? Gtin { get; set; }
     public bool? IsGiftVoucher { get; set; }
     public int? GiftVoucherTypeId { get; set; }
     public double? OverGiftAmount { get; set; }
     public bool? RequireOtherProducts { get; set; }
-    public string RequiredProductIds { get; set; }
+    public string? RequiredProductIds { get; set; }
     public bool? AutoAddRequiredProducts { get; set; }
     public bool? IsDownload { get; set; }
     public bool? UnlimitedDownloads { get; set; }
@@ -41,7 +41,7 @@ public class ProductDto
     public int? DownloadActivationTypeId { get; set; }
     public bool? HasSampleDownload { get; set; }
     public bool? HasUserAgreement { get; set; }
-    public string UserAgreementText { get; set; }
+    public string? UserAgreementText { get; set; }
     public bool? IsRecurring { get; set; }
     public int? RecurringCycleLength { get; set; }
     public int? RecurringCyclePeriodId { get; set; }
@@ -53,13 +53,13 @@ public class ProductDto
     public bool? IsFreeShipping { get; set; }
     public bool? ShipSeparately { get; set; }
     public double? AdditionalShippingCharge { get; set; }
-    public string DeliveryDateId { get; set; }
+    public string? DeliveryDateId { get; set; }
     public bool? IsTaxExempt { get; set; }
-    public string TaxCategoryId { get; set; }
+    public string? TaxCategoryId { get; set; }
     public bool? IsTele { get; set; }
     public int? ManageInventoryMethodId { get; set; }
     public bool? UseMultipleWarehouses { get; set; }
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
     public int? StockQuantity { get; set; }
     public int? ReservedQuantity { get; set; }
     public bool? StockAvailability { get; set; }
@@ -72,7 +72,7 @@ public class ProductDto
     public bool? AllowOutOfStockSubscriptions { get; set; }
     public int? OrderMinimumQuantity { get; set; }
     public int? OrderMaximumQuantity { get; set; }
-    public string AllowedQuantities { get; set; }
+    public string? AllowedQuantities { get; set; }
     public bool? NotReturnable { get; set; }
     public bool? DisableBuyButton { get; set; }
     public bool? DisableWishlistButton { get; set; }
@@ -88,11 +88,11 @@ public class ProductDto
     public double? MaxEnteredPrice { get; set; }
     public bool? BasePriceEnabled { get; set; }
     public double? BasePriceAmount { get; set; }
-    public string BasePriceUnitId { get; set; }
+    public string? BasePriceUnitId { get; set; }
     public double? BasePriceBaseAmount { get; set; }
-    public string BasePriceBaseUnitId { get; set; }
-    public string UnitId { get; set; }
-    public string CourseId { get; set; }
+    public string? BasePriceBaseUnitId { get; set; }
+    public string? UnitId { get; set; }
+    public string? CourseId { get; set; }
     public bool? MarkAsNew { get; set; }
     public DateTime? MarkAsNewStartDateTimeUtc { get; set; }
     public DateTime? MarkAsNewEndDateTimeUtc { get; set; }
@@ -110,13 +110,13 @@ public class ProductDto
     public int? Sold { get; set; }
     public long? Viewed { get; set; }
     public int? OnSale { get; set; }
-    public string Flag { get; set; }
-    public string CategoryIds { get; set; }
-    public string CollectionIds { get; set; }
-    public string Picture1 { get; set; }
-    public string Picture2 { get; set; }
-    public string Picture3 { get; set; }
+    public string? Flag { get; set; }
+    public string? CategoryIds { get; set; }
+    public string? CollectionIds { get; set; }
+    public string? Picture1 { get; set; }
+    public string? Picture2 { get; set; }
+    public string? Picture3 { get; set; }
 
     /// <summary>Row import only: when present it replaces Picture1..3</summary>
-    public IList<string> PictureUrls { get; set; }
+    public IList<string>? PictureUrls { get; set; }
 }

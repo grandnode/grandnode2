@@ -15,5 +15,5 @@ public class AppliedGiftVoucher
     /// <summary>
     ///     Gets the gift voucher
     /// </summary>
-    public GiftVoucher GiftVoucher { get; set; }
+    public GiftVoucher? GiftVoucher { get; set; }
 }

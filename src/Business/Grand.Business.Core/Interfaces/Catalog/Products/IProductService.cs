@@ -110,7 +110,7 @@ public interface IProductService
     /// <param name="ignoreAcl">Ignore acl</param>
     /// <param name="ignoreStore">Ignore store</param>
     /// <returns>Product number</returns>
-    int GetCategoryProductNumber(Customer customer, IList<string> categoryIds = null, string storeId = "",
+    int GetCategoryProductNumber(Customer customer, IList<string>? categoryIds = null, string storeId = "",
         bool ignoreAcl = true, bool ignoreStore = true);
 
     /// <summary>
@@ -162,7 +162,7 @@ public interface IProductService
         bool loadFilterableSpecificationAttributeOptionIds = false,
         int pageIndex = 0,
         int pageSize = int.MaxValue,
-        IList<string> categoryIds = null,
+        IList<string>? categoryIds = null,
         string brandId = "",
         string collectionId = "",
                 string vendorId = "",
@@ -175,13 +175,13 @@ public interface IProductService
         double? priceMin = null,
         double? priceMax = null,
         string productTag = "",
-        string keywords = null,
+        string? keywords = null,
         bool searchDescriptions = false,
         bool searchSku = true,
         bool searchProductTags = false,
         string languageId = "",
-        IList<string> filteredSpecs = null,
-        IList<string> specificationOptions = null,
+        IList<string>? filteredSpecs = null,
+        IList<string>? specificationOptions = null,
         ProductSortingEnum orderBy = ProductSortingEnum.Position,
                 bool? overridePublished = null);
 

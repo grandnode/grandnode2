@@ -38,7 +38,7 @@ public interface IPictureService
     /// <param name="targetSize">The target picture size (longest side)</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Picture URL</returns>
-    Task<string> GetDefaultPictureUrl(int targetSize = 0, string storeLocation = null);
+    Task<string> GetDefaultPictureUrl(int targetSize = 0, string? storeLocation = null);
 
     /// <summary>
     ///     Get a picture URL
@@ -51,7 +51,7 @@ public interface IPictureService
     Task<string> GetPictureUrl(string pictureId,
         int targetSize = 0,
         bool showDefaultPicture = true,
-        string storeLocation = null);
+        string? storeLocation = null);
 
     /// <summary>
     ///     Get a picture URL
@@ -64,7 +64,7 @@ public interface IPictureService
     Task<string> GetPictureUrl(Picture picture,
         int targetSize = 0,
         bool showDefaultPicture = true,
-        string storeLocation = null);
+        string? storeLocation = null);
 
     /// <summary>
     ///     Get a picture local path
@@ -129,7 +129,7 @@ public interface IPictureService
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
     Task<Picture> InsertPicture(byte[] pictureBinary, string mimeType, string seoFilename,
-        string altAttribute = null, string titleAttribute = null,
+        string? altAttribute = null, string? titleAttribute = null,
         bool isNew = true, Reference reference = Reference.None, string objectId = "", bool validateBinary = false);
 
     /// <summary>
@@ -147,8 +147,8 @@ public interface IPictureService
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
     Task<Picture> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
-        string seoFilename, string altAttribute = null, string titleAttribute = null,
-        string style = null, string extraField = null,
+        string seoFilename, string? altAttribute = null, string? titleAttribute = null,
+        string? style = null, string? extraField = null,
         bool isNew = true, bool validateBinary = true);
 
     /// <summary>

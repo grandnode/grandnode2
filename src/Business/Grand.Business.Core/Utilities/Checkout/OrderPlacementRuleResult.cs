@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Utilities.Checkout;
 /// <param name="Decision">What the rule decides</param>
 /// <param name="Reason">Plain text shown to the buyer and to whoever decides the approval</param>
 /// <param name="StoreDecides">The store decides the approval, also for a sub-account's order</param>
-public record OrderPlacementRuleResult(OrderPlacementDecision Decision, string Reason, bool StoreDecides = false)
+public record OrderPlacementRuleResult(OrderPlacementDecision Decision, string? Reason, bool StoreDecides = false)
 {
     public static OrderPlacementRuleResult Allow()
     {

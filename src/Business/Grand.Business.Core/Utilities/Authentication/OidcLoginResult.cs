@@ -38,7 +38,7 @@ public enum OidcLinkResult
 /// </summary>
 public class OidcLoginResult
 {
-    private OidcLoginResult(OidcLoginOutcome outcome, Customer customer, OidcLoginRefusal refusal)
+    private OidcLoginResult(OidcLoginOutcome outcome, Customer? customer, OidcLoginRefusal refusal)
     {
         Outcome = outcome;
         Customer = customer;
@@ -48,7 +48,7 @@ public class OidcLoginResult
     public OidcLoginOutcome Outcome { get; }
 
     /// <summary>The customer to sign in (SignIn) or the account to connect (LinkRequired)</summary>
-    public Customer Customer { get; }
+    public Customer? Customer { get; }
 
     public OidcLoginRefusal Refusal { get; }
 

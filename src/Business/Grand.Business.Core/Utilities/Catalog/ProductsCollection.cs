@@ -4,5 +4,5 @@ namespace Grand.Business.Core.Utilities.Catalog;
 
 public class ProductsCollection : ProductCollection
 {
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 }

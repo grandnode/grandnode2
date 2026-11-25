@@ -41,7 +41,7 @@ public interface IFileStore
     /// <remarks>
     ///     Results are grouped by entry type, where directories are followed by files.
     /// </remarks>
-    IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false,
+    IList<IFileStoreEntry> GetDirectoryContent(string? path = null, bool includeSubDirectories = false,
         bool listDirectories = true, bool listFiles = true);
 
     /// <summary>
@@ -158,7 +158,7 @@ public static class IFileStoreExtensions
     /// <param name="fileStore">The <see cref="IFileStore" />.</param>
     /// <param name="paths">The path parts to combine.</param>
     /// <returns>The full combined path.</returns>
-    public static string Combine(this IFileStore fileStore, params ReadOnlySpan<string> paths)
+    public static string? Combine(this IFileStore fileStore, params ReadOnlySpan<string> paths)
     {
         if (paths.Length == 0)
             return null;
@@ -185,7 +185,7 @@ public static class IFileStoreExtensions
     ///     Backslash is converted to forward slash and any leading or trailing slashes
     ///     are removed.
     /// </remarks>
-    public static string NormalizePath(this IFileStore fileStore, string path)
+    public static string? NormalizePath(this IFileStore fileStore, string path)
     {
         return path?.Replace('\\', '/').Trim('/', ' ');
     }

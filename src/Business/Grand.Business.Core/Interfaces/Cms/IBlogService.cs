@@ -30,7 +30,7 @@ public interface IBlogService
     /// <returns>Blog posts</returns>
     Task<IPagedList<BlogPost>> GetAllBlogPosts(string storeId,
         DateTime? dateFrom = null, DateTime? dateTo = null,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string tag = null,
+        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string? tag = null,
         string blogPostName = "", string categoryId = "");
 
     /// <summary>

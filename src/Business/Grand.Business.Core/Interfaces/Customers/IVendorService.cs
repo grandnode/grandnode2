@@ -108,7 +108,7 @@ public interface IVendorService
     /// <returns>Reviews</returns>
     Task<IPagedList<VendorReview>> GetAllVendorReviews(string customerId, bool? approved,
         DateTime? fromUtc = null, DateTime? toUtc = null,
-        string message = null, string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue);
+        string? message = null, string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets vendor review
@@ -129,7 +129,7 @@ public interface IVendorService
     /// <param name="vendorId">Vendor identifier; "" to load all records</param>
     /// <param name="keywords">Keywords</param>
     /// <returns>Vendors</returns>
-    Task<IList<Vendor>> SearchVendors(string vendorId = "", string keywords = null);
+    Task<IList<Vendor>> SearchVendors(string vendorId = "", string? keywords = null);
 
     #endregion
 }

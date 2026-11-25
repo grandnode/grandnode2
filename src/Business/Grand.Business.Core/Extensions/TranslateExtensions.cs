@@ -19,8 +19,8 @@ public static class TranslateExtensions
     /// <param name="languageId">Language identifier</param>
     /// <param name="returnDefaultValue">A value indicating whether to return default value (if translation is not found)</param>
     /// <returns>Translation property</returns>
-    public static string GetTranslation<T>(this T entity,
-        Expression<Func<T, string>> keySelector, string languageId,
+    public static string? GetTranslation<T>(this T entity,
+        Expression<Func<T, string?>> keySelector, string languageId,
         bool returnDefaultValue = true)
         where T : ParentEntity, ITranslationEntity
     {
@@ -33,7 +33,7 @@ public static class TranslateExtensions
         if (propInfo == null)
             throw new ArgumentException($"Expression '{keySelector}' refers to a field, not a property.");
 
-        string result = default;
+        string? result = default;
         var resultStr = string.Empty;
 
         var localeKey = propInfo.Name;
@@ -51,7 +51,7 @@ public static class TranslateExtensions
             }
 
         //set default value if required
-        if (string.IsNullOrEmpty(resultStr) && returnDefaultValue) result = (string)propInfo.GetValue(entity);
+        if (string.IsNullOrEmpty(resultStr) && returnDefaultValue) result = (string?)propInfo.GetValue(entity);
         return result;
     }
 

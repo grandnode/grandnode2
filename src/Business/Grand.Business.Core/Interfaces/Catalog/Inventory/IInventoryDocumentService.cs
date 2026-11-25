@@ -10,19 +10,19 @@ public sealed record InventoryDocumentSearch
 {
     public InventoryDocumentType? Type { get; init; }
     public InventoryDocumentStatus? Status { get; init; }
-    public string WarehouseId { get; init; }
+    public string? WarehouseId { get; init; }
 
     /// <summary>
     ///     The store of the documents' warehouses; null for every store
     /// </summary>
-    public string StoreId { get; init; }
+    public string? StoreId { get; init; }
 
-    public string Number { get; init; }
+    public string? Number { get; init; }
 
     /// <summary>
     ///     Only the return receipts of this merchandise return
     /// </summary>
-    public string MerchandiseReturnId { get; init; }
+    public string? MerchandiseReturnId { get; init; }
     public DateTime? FromUtc { get; init; }
     public DateTime? ToUtc { get; init; }
 }
@@ -124,7 +124,7 @@ public interface IInventoryDocumentService
     ///     receive, named twice, or scrapping less than none or more than is left refuses the whole receipt
     /// </param>
     Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(string merchandiseReturnId,
-        string customerId, IList<ReturnReceiptInspection> inspection = null);
+        string customerId, IList<ReturnReceiptInspection>? inspection = null);
 
     /// <summary>
     ///     The return receipts of a merchandise return, and whether CreateReturnReceipt has anything left to put on a

@@ -18,8 +18,8 @@ public interface IShippingService
     /// <param name="storeId">Store ident</param>
     /// <param name="cart">Cart</param>
     /// <returns>Shipping rate  methods</returns>
-    Task<IList<IShippingRateCalculationProvider>> LoadActiveShippingRateCalculationProviders(Customer customer = null,
-        string storeId = "", IList<ShoppingCartItem> cart = null);
+    Task<IList<IShippingRateCalculationProvider>> LoadActiveShippingRateCalculationProviders(Customer? customer = null,
+        string storeId = "", IList<ShoppingCartItem>? cart = null);
 
     /// <summary>
     ///     Load Shipping rate  provider by system name
@@ -34,7 +34,7 @@ public interface IShippingService
     /// <param name="customer">Customer</param>
     /// <param name="storeId">Store ident</param>
     /// <returns>Shipping rate  providers</returns>
-    IList<IShippingRateCalculationProvider> LoadAllShippingRateCalculationProviders(Customer customer = null,
+    IList<IShippingRateCalculationProvider> LoadAllShippingRateCalculationProviders(Customer? customer = null,
         string storeId = "");
 
     /// <summary>
@@ -62,5 +62,5 @@ public interface IShippingService
     /// <returns>Shipping options</returns>
     Task<GetShippingOptionResponse> GetShippingOptions(Customer customer, IList<ShoppingCartItem> cart,
         Address shippingAddress,
-        string allowedShippingRateMethodSystemName = "", Store store = null);
+        string allowedShippingRateMethodSystemName = "", Store? store = null);
 }

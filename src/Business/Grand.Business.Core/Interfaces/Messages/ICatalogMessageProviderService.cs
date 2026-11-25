@@ -22,7 +22,7 @@ public interface ICatalogMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendProductEmailAFriendMessage(Customer customer, Store store, string languageId,
-        Product product, string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null);
+        Product product, string customerEmail, string friendsEmail, string personalMessage, DomainHost? host = null);
 
     /// <summary>
     ///     Sends wishlist "email a friend" message
@@ -38,7 +38,7 @@ public interface ICatalogMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendWishlistEmailAFriendMessage(Customer customer, Store store, string languageId,
-        string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null);
+        string customerEmail, string friendsEmail, string personalMessage, DomainHost? host = null);
 
     /// <summary>
     ///     Sends "email a friend" message
@@ -49,7 +49,7 @@ public interface ICatalogMessageProviderService
     /// </param>
     Task<int> SendProductQuestionMessage(Customer customer, Store store, string languageId,
         Product product, string customerEmail, string fullName, string phone, string message, string ipaddress,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends a product review notification message to a store owner
@@ -63,7 +63,7 @@ public interface ICatalogMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendProductReviewMessage(Product product, ProductReview productReview, Store store, string languageId,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends a "quantity below" notification to a store owner

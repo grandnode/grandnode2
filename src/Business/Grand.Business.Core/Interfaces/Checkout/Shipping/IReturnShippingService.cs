@@ -22,7 +22,7 @@ public interface IReturnShippingService
     /// <summary>
     ///     Loads the providers allowed in the store and for the customer, active or not, by priority
     /// </summary>
-    IList<IReturnShippingProvider> LoadAllProviders(Customer customer = null, string storeId = "");
+    IList<IReturnShippingProvider> LoadAllProviders(Customer? customer = null, string storeId = "");
 
     /// <summary>
     ///     Gets the options offered for every vendor of the submitted items, with what the customer pays for all

@@ -6,10 +6,10 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 public class ReOrderCommand : IRequest<IList<string>>
 {
-    public Order Order { get; set; }
+    public Order? Order { get; set; }
 
     /// <summary>
     ///     Language the returned warnings are written in
     /// </summary>
-    public Language Language { get; set; }
+    public Language? Language { get; set; }
 }

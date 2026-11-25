@@ -17,7 +17,7 @@ public interface ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId, DomainHost host = null);
+    Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends a welcome message to a customer
@@ -29,7 +29,7 @@ public interface ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendCustomerWelcomeMessage(Customer customer, Store store, string languageId, DomainHost host = null);
+    Task<int> SendCustomerWelcomeMessage(Customer customer, Store store, string languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends an email validation message to a customer
@@ -42,7 +42,7 @@ public interface ICustomerMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendCustomerEmailValidationMessage(Customer customer, Store store, string languageId,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends password recovery message to a customer
@@ -55,7 +55,7 @@ public interface ICustomerMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendCustomerPasswordRecoveryMessage(Customer customer, Store store, string languageId,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends a new customer note added notification to a customer
@@ -78,7 +78,7 @@ public interface ICustomerMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendCustomerEmailTokenValidationMessage(Customer customer, Store store, string languageId,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends a "customer delete" notification to a store owner
@@ -89,7 +89,7 @@ public interface ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string languageId, DomainHost host = null);
+    Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends "contact us" message
@@ -110,7 +110,7 @@ public interface ICustomerMessageProviderService
     /// </param>
     Task<int> SendContactUsMessage(Customer customer, Store store, string languageId, string senderEmail,
         string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes,
-        string ipaddress, DomainHost host = null);
+        string ipaddress, DomainHost? host = null);
 
     /// <summary>
     ///     Sends an 'Order approval requested' message to the approver
@@ -125,7 +125,7 @@ public interface ICustomerMessageProviderService
     /// </param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendOrderApprovalRequestedMessage(OrderApproval approval, Customer buyer, Customer approver,
-        Store store, string languageId, DomainHost host = null);
+        Store store, string languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends an 'Order approval decided' message to the buyer
@@ -139,7 +139,7 @@ public interface ICustomerMessageProviderService
     /// </param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendOrderApprovalDecidedMessage(OrderApproval approval, Customer buyer, Store store,
-        string languageId, DomainHost host = null);
+        string languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends an 'Order approval decided' message to the given address, for a buyer who has none of their own

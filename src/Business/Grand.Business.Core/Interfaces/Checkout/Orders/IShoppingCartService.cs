@@ -18,7 +18,7 @@ public interface IShoppingCartService
     /// <param name="storeId">Store identifier; pass null to load all records</param>
     /// <param name="shoppingCartType">Shopping cart type; pass null to load all records</param>
     /// <returns>Shopping Cart</returns>
-    Task<IList<ShoppingCartItem>> GetShoppingCart(Customer customer, string storeId = null,
+    Task<IList<ShoppingCartItem>> GetShoppingCart(Customer customer, string? storeId = null,
         params ShoppingCartType[] shoppingCartType);
 
     /// <summary>
@@ -36,8 +36,8 @@ public interface IShoppingCartService
     Task<ShoppingCartItem> FindShoppingCartItem(IList<ShoppingCartItem> shoppingCart,
         ShoppingCartType shoppingCartType,
         string productId,
-        string warehouseId = null,
-        IList<CustomAttribute> attributes = null,
+        string? warehouseId = null,
+        IList<CustomAttribute>? attributes = null,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null,
         DateTime? rentalEndDate = null);
@@ -63,14 +63,14 @@ public interface IShoppingCartService
     /// <param name="validator">ShoppingCartValidatorOptions</param>
     /// <returns>(warnings, shoppingCartItem)</returns>
     Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer, Language language,
-        string productId, ShoppingCartType shoppingCartType, string storeId, string warehouseId = null,
-        IList<CustomAttribute> attributes = null,
+        string productId, ShoppingCartType shoppingCartType, string storeId, string? warehouseId = null,
+        IList<CustomAttribute>? attributes = null,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
         int quantity = 1,
         bool automaticallyAddRequiredProductsIfEnabled = true, string reservationId = "", string parameter = "",
         string duration = "",
-        ShoppingCartValidatorOptions validator = null);
+        ShoppingCartValidatorOptions? validator = null);
 
     /// <summary>
     ///     Updates the shopping cart item

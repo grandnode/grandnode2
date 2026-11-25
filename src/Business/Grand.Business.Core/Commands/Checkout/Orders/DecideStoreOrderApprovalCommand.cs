@@ -11,9 +11,9 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 /// </summary>
 public class DecideStoreOrderApprovalCommand : IRequest<bool>
 {
-    public Order Order { get; set; }
-    public Customer DecidedBy { get; set; }
+    public Order? Order { get; set; }
+    public Customer? DecidedBy { get; set; }
     public bool Approve { get; set; }
-    public string Comment { get; set; }
-    public Language Language { get; set; }
+    public string? Comment { get; set; }
+    public Language? Language { get; set; }
 }

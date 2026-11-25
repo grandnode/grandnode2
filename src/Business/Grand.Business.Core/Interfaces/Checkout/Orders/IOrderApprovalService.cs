@@ -57,8 +57,8 @@ public interface IOrderApprovalService
     /// <param name="decidedByCustomerId">Who decided; null when nobody did</param>
     /// <param name="decisionComment">The approver's comment</param>
     /// <returns>Whether this call closed the request</returns>
-    Task<bool> Close(OrderApproval approval, OrderApprovalStatus status, string decidedByCustomerId = null,
-        string decisionComment = null);
+    Task<bool> Close(OrderApproval approval, OrderApprovalStatus status, string? decidedByCustomerId = null,
+        string? decisionComment = null);
 
     /// <summary>
     ///     Makes a request closed by <see cref="Close" /> pending again, when what should follow the close has failed

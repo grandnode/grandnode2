@@ -41,7 +41,7 @@ public interface ISettingService
     /// <param name="storeId">Store identifier</param>
     /// <param name="defaultValue">Default value</param>
     /// <returns>Setting value</returns>
-    Task<T> GetSettingByKey<T>(string key, T defaultValue = default, string storeId = "");
+    Task<T?> GetSettingByKey<T>(string key, T? defaultValue = default, string storeId = "");
 
     /// <summary>
     ///     Set setting value

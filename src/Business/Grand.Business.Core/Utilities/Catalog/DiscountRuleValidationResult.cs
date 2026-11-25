@@ -14,5 +14,5 @@ public class DiscountRuleValidationResult
     ///     Gets or sets an error for a customer that should be visible when a coupon code is entered (in case if "IsValid" is
     ///     set to "false")
     /// </summary>
-    public string UserError { get; set; }
+    public string? UserError { get; set; }
 }

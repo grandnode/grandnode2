@@ -18,7 +18,7 @@ public interface IPaymentService
     /// <param name="storeId">Store ident</param>
     /// <param name="filterByCountryId">Specified country</param>
     /// <returns>Payment methods</returns>
-    Task<IList<IPaymentProvider>> LoadActivePaymentMethods(Customer customer = null, string storeId = "",
+    Task<IList<IPaymentProvider>> LoadActivePaymentMethods(Customer? customer = null, string storeId = "",
         string filterByCountryId = "");
 
     /// <summary>
@@ -35,7 +35,7 @@ public interface IPaymentService
     /// <param name="customer">Customer</param>
     /// <param name="filterByCountryId">Specified country</param>
     /// <returns>Payment providers</returns>
-    Task<IList<IPaymentProvider>> LoadAllPaymentMethods(Customer customer = null, string storeId = "",
+    Task<IList<IPaymentProvider>> LoadAllPaymentMethods(Customer? customer = null, string storeId = "",
         string filterByCountryId = "");
 
     /// <summary>

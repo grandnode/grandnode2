@@ -6,6 +6,6 @@ namespace Grand.Business.Core.Commands.System.Common;
 
 public class GetSitemapXmlCommand : IRequest<string>
 {
-    public Store Store { get; set; }
-    public Language Language { get; set; }
+    public Store? Store { get; set; }
+    public Language? Language { get; set; }
 }

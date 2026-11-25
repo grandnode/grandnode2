@@ -7,10 +7,10 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 public class AddCustomerReservationCommand : IRequest<bool>
 {
-    public Customer Customer { get; set; }
-    public Product Product { get; set; }
+    public Customer? Customer { get; set; }
+    public Product? Product { get; set; }
     public DateTime? RentalStartDate { get; set; }
     public DateTime? RentalEndDate { get; set; }
-    public ShoppingCartItem ShoppingCartItem { get; set; }
-    public string ReservationId { get; set; }
+    public ShoppingCartItem? ShoppingCartItem { get; set; }
+    public string? ReservationId { get; set; }
 }

@@ -31,8 +31,8 @@ public interface IMerchandiseReturnWorkflowService
     /// <param name="status">The new status</param>
     /// <param name="customerNote">A note shown to the customer with the change, e.g. why the return was rejected</param>
     /// <param name="changedBy">Who changed it, as the staff note names them (e.g. the e-mail); null for the system</param>
-    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string customerNote = null,
-        string changedBy = null);
+    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string? customerNote = null,
+        string? changedBy = null);
 
     /// <summary>
     ///     Changes the status as the other overload does, when allowed says yes to the return as stored
@@ -79,7 +79,7 @@ public interface IMerchandiseReturnWorkflowService
     /// </summary>
     /// <param name="merchandiseReturnId">Merchandise return identifier</param>
     /// <param name="changedBy">Who posted the receipt, as the staff note names them; null for the system</param>
-    Task MarkReceived(string merchandiseReturnId, string changedBy = null);
+    Task MarkReceived(string merchandiseReturnId, string? changedBy = null);
 
     /// <summary>
     ///     Whether staff may mark the return received by hand: a posted return receipt took the goods in already (it

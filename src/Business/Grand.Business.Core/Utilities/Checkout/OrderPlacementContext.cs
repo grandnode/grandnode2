@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Utilities.Checkout;
 public class OrderPlacementContext
 {
     private readonly Func<Task<double?>> _getTotal;
-    private Task<double?> _total;
+    private Task<double?>? _total;
 
     public OrderPlacementContext(IList<ShoppingCartItem> cart, CalculationContext calculation, Language language,
         string paymentMethodSystemName, Func<Task<double?>> getTotal)

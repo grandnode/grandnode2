@@ -35,5 +35,5 @@ public interface IMerchandiseReturnLabelService
     /// </param>
     /// <returns>null when saved, else a key of MerchandiseReturnErrors (ShippingChangeNotAllowed when not allowed)</returns>
     Task<string> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply,
-        Func<MerchandiseReturn, bool> allowed = null);
+        Func<MerchandiseReturn, bool>? allowed = null);
 }

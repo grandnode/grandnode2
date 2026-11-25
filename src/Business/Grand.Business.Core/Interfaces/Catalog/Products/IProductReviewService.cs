@@ -41,7 +41,7 @@ public interface IProductReviewService
     /// <returns>Reviews</returns>
     Task<IPagedList<ProductReview>> GetAllProductReviews(string customerId, bool? approved = null,
         DateTime? fromUtc = null, DateTime? toUtc = null,
-        string message = null, string storeId = "", string productId = "", int pageIndex = 0,
+        string? message = null, string storeId = "", string productId = "", int pageIndex = 0,
         int pageSize = int.MaxValue);
 
     /// <summary>

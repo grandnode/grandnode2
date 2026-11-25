@@ -18,7 +18,7 @@ public class EmailSubscribedEvent : INotification
         return ReferenceEquals(this, other) || Equals(other.Email, Email);
     }
 
-    public override bool Equals(object obj)
+    public override bool Equals(object? obj)
     {
         if (ReferenceEquals(null, obj))
             return false;

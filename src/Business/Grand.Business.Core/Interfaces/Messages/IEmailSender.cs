@@ -33,8 +33,8 @@ public interface IEmailSender
     /// </param>
     Task SendEmail(EmailAccount emailAccount, string subject, string body,
         string fromAddress, string fromName, string toAddress, string toName,
-        string replyToAddress = null, string replyToName = null,
-        IEnumerable<string> bcc = null, IEnumerable<string> cc = null,
-        string attachmentFilePath = null, string attachmentFileName = null,
-        IEnumerable<string> attachedDownloads = null, CancellationToken cancellationToken = default);
+        string? replyToAddress = null, string? replyToName = null,
+        IEnumerable<string>? bcc = null, IEnumerable<string>? cc = null,
+        string? attachmentFilePath = null, string? attachmentFileName = null,
+        IEnumerable<string>? attachedDownloads = null, CancellationToken cancellationToken = default);
 }

@@ -35,12 +35,12 @@ public sealed record CampaignRecipient
     /// <summary>
     ///     Recipient's customer account; null renders no customer and shopping cart tokens
     /// </summary>
-    public Customer Customer { get; init; }
+    public Customer? Customer { get; init; }
 
     /// <summary>
     ///     Currency the shopping cart prices are rendered in
     /// </summary>
-    public Currency Currency { get; init; }
+    public Currency? Currency { get; init; }
 
     /// <summary>
     ///     Whether the shopping cart prices include tax
@@ -50,10 +50,10 @@ public sealed record CampaignRecipient
     /// <summary>
     ///     Newsletter subscription; null renders no subscription tokens
     /// </summary>
-    public NewsLetterSubscription Subscription { get; init; }
+    public NewsLetterSubscription? Subscription { get; init; }
 
     /// <summary>
     ///     Identifier of the queued email the message is sent as; null renders no email tokens
     /// </summary>
-    public string QueuedEmailId { get; init; }
+    public string? QueuedEmailId { get; init; }
 }

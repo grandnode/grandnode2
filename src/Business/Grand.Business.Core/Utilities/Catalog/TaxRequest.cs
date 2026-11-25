@@ -13,27 +13,27 @@ public class TaxRequest
     /// <summary>
     ///     Gets or sets a product
     /// </summary>
-    public Product Product { get; set; }
+    public Product? Product { get; set; }
 
     /// <summary>
     ///     Gets or sets a customer
     /// </summary>
-    public Customer Customer { get; set; }
+    public Customer? Customer { get; set; }
 
     /// <summary>
     ///     Gets or sets an address
     /// </summary>
-    public Address Address { get; set; }
+    public Address? Address { get; set; }
 
     /// <summary>
     ///     Gets or sets the store in which the tax is being calculated
     /// </summary>
-    public Store Store { get; set; }
+    public Store? Store { get; set; }
 
     /// <summary>
     ///     Gets or sets a tax category identifier
     /// </summary>
-    public string TaxCategoryId { get; set; }
+    public string? TaxCategoryId { get; set; }
 
     /// <summary>
     ///     Gets or sets a price

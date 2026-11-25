@@ -8,11 +8,11 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 /// </summary>
 public class RecordRecurringPaymentEndedCommand : IRequest<bool>
 {
-    public string RecurringPaymentId { get; set; }
+    public string? RecurringPaymentId { get; set; }
 
     /// <summary>
     ///     The provider's reference of what ended (for example the subscription id), so the end of another
     ///     subscription started for the same order does not cancel the one the recurring payment runs on
     /// </summary>
-    public string ProviderReference { get; set; }
+    public string? ProviderReference { get; set; }
 }

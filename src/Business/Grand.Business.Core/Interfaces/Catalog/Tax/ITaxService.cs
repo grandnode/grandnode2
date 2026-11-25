@@ -33,7 +33,7 @@ public interface ITaxService
     /// <param name="customer">Customer</param>
     /// <param name="storeId">Store ident</param>
     /// <returns>Tax providers</returns>
-    IList<ITaxProvider> LoadAllTaxProviders(Customer customer = null, string storeId = "");
+    IList<ITaxProvider> LoadAllTaxProviders(Customer? customer = null, string storeId = "");
 
 
     /// <summary>

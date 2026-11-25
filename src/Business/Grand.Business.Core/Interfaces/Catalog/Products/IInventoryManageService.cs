@@ -22,7 +22,7 @@ public interface IInventoryManageService
     /// <param name="quantityToChange">Quantity to increase or decrease</param>
     /// <param name="attributes">Attributes</param>
     /// <param name="warehouseId">Warehouse ident</param>
-    Task AdjustReserved(Product product, int quantityToChange, IList<CustomAttribute> attributes = null,
+    Task AdjustReserved(Product product, int quantityToChange, IList<CustomAttribute>? attributes = null,
         string warehouseId = "");
 
 

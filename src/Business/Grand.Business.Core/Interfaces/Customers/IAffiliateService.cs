@@ -26,8 +26,8 @@ public interface IAffiliateService
     ///     Gets all affiliates
     /// </summary>
     /// <returns>Affiliates</returns>
-    Task<IPagedList<Affiliate>> GetAllAffiliates(string friendlyUrlName = null,
-        string firstName = null, string lastName = null,
+    Task<IPagedList<Affiliate>> GetAllAffiliates(string? friendlyUrlName = null,
+        string? firstName = null, string? lastName = null,
         bool loadOnlyWithOrders = false,
         DateTime? ordersCreatedFromUtc = null, DateTime? ordersCreatedToUtc = null,
         int pageIndex = 0, int pageSize = int.MaxValue,

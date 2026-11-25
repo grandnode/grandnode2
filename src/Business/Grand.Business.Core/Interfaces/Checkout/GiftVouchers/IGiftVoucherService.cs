@@ -30,8 +30,8 @@ public interface IGiftVoucherService
     /// <returns>Gift vouchers</returns>
     Task<IPagedList<GiftVoucher>> GetAllGiftVouchers(string purchasedWithOrderItemId = "",
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
-        bool? isGiftVoucherActivated = null, string giftVoucherCouponCode = null,
-        string recipientName = null,
+        bool? isGiftVoucherActivated = null, string? giftVoucherCouponCode = null,
+        string? recipientName = null,
         int pageIndex = 0, int pageSize = int.MaxValue, string storeId = "");
 
 

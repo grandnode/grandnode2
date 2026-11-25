@@ -20,7 +20,7 @@ public interface IOrderMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendOrderPlacedVendorMessage(Order order, Customer customer, Vendor vendor, string languageId,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends an order placed notification to a store owner
@@ -33,7 +33,7 @@ public interface IOrderMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer customer, string languageId,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends an order paid notification to a store owner
@@ -55,7 +55,7 @@ public interface IOrderMessageProviderService
     /// </param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendOrderPaidCustomerMessage(Order order, Customer customer, string languageId,
-        string invoiceDownloadId = null);
+        string? invoiceDownloadId = null);
 
     /// <summary>
     ///     Sends an order paid notification to a vendor
@@ -80,7 +80,7 @@ public interface IOrderMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string languageId,
-        string invoiceDownloadId = null, DomainHost host = null);
+        string? invoiceDownloadId = null, DomainHost? host = null);
 
     /// <summary>
     ///     Sends a shipment sent notification to a customer
@@ -109,7 +109,7 @@ public interface IOrderMessageProviderService
     /// </param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendOrderCompletedCustomerMessage(Order order, Customer customer, string languageId,
-        string invoiceDownloadId = null);
+        string? invoiceDownloadId = null);
 
     /// <summary>
     ///     Sends an order cancelled notification to a customer
@@ -183,7 +183,7 @@ public interface IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendNewOrderNoteAddedCustomerMessage(Order order, OrderNote orderNote, DomainHost host = null);
+    Task<int> SendNewOrderNoteAddedCustomerMessage(Order order, OrderNote orderNote, DomainHost? host = null);
 
     /// <summary>
     ///     Sends a gift voucher notification
@@ -203,5 +203,5 @@ public interface IOrderMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendGuestOrderLinkCustomerMessage(Order order, string token, DomainHost host = null);
+    Task<int> SendGuestOrderLinkCustomerMessage(Order order, string token, DomainHost? host = null);
 }

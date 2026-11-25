@@ -20,7 +20,7 @@ public enum OidcRefreshOutcome
 
 /// <param name="Outcome">The answer of the provider</param>
 /// <param name="RefreshToken">The rotated refresh token, or null when the provider keeps the old one</param>
-public sealed record OidcRefreshResult(OidcRefreshOutcome Outcome, string RefreshToken = null)
+public sealed record OidcRefreshResult(OidcRefreshOutcome Outcome, string? RefreshToken = null)
 {
     public static OidcRefreshResult Refreshed(string refreshToken) => new(OidcRefreshOutcome.Refreshed, refreshToken);
     public static OidcRefreshResult Refused() => new(OidcRefreshOutcome.Refused);

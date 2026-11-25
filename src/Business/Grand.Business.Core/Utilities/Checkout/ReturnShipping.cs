@@ -9,24 +9,24 @@ namespace Grand.Business.Core.Utilities.Checkout;
 /// </summary>
 public class ReturnShippingRequest
 {
-    public Order Order { get; set; }
-    public Customer Customer { get; set; }
-    public string StoreId { get; set; }
+    public Order? Order { get; set; }
+    public Customer? Customer { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     The vendor the items are sent back to; empty for the store
     /// </summary>
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     public IList<(OrderItem OrderItem, int Quantity)> Items { get; set; } = [];
 
     /// <summary>
     ///     The address the parcel is sent to
     /// </summary>
-    public Address ReturnAddress { get; set; }
+    public Address? ReturnAddress { get; set; }
 
-    public Address PickupAddress { get; set; }
-    public string LanguageId { get; set; }
+    public Address? PickupAddress { get; set; }
+    public string? LanguageId { get; set; }
 }
 
 /// <summary>
@@ -34,9 +34,9 @@ public class ReturnShippingRequest
 /// </summary>
 public class ReturnShippingOption
 {
-    public string Code { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public string? Code { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     The cost of the option, in the primary store currency, before the store's return fee rules
@@ -76,7 +76,7 @@ public class ReturnShippingValidationResult
     /// </summary>
     public double? Cost { get; set; }
 
-    public ReturnDropOffPoint DropOffPoint { get; set; }
+    public ReturnDropOffPoint? DropOffPoint { get; set; }
     public Dictionary<string, string> ProviderData { get; set; } = new();
 }
 
@@ -86,11 +86,11 @@ public class ReturnShippingValidationResult
 public class ReturnLabelResult
 {
     public bool Success { get; set; }
-    public string Error { get; set; }
-    public string TrackingNumber { get; set; }
-    public string ReturnCode { get; set; }
-    public ReturnLabelFile LabelFile { get; set; }
-    public string Instructions { get; set; }
+    public string? Error { get; set; }
+    public string? TrackingNumber { get; set; }
+    public string? ReturnCode { get; set; }
+    public ReturnLabelFile? LabelFile { get; set; }
+    public string? Instructions { get; set; }
     public Dictionary<string, string> ProviderData { get; set; } = new();
 }
 
@@ -104,8 +104,8 @@ public record ReturnLabelFile(byte[] Content, string ContentType, string FileNam
 /// </summary>
 public class ReturnShippingChoice
 {
-    public string ProviderSystemName { get; set; }
-    public string OptionCode { get; set; }
+    public string? ProviderSystemName { get; set; }
+    public string? OptionCode { get; set; }
 
     /// <summary>
     ///     The fields posted under the "returnshipping." prefix, prefix stripped
@@ -118,10 +118,10 @@ public class ReturnShippingChoice
 /// </summary>
 public class ReturnShippingOffer
 {
-    public string ProviderSystemName { get; set; }
-    public string OptionCode { get; set; }
-    public string Name { get; set; }
-    public string Description { get; set; }
+    public string? ProviderSystemName { get; set; }
+    public string? OptionCode { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     What the customer pays for all parcels, in the primary store currency
@@ -140,7 +140,7 @@ public class ReturnShippingOffer
     public int Parcels { get; set; }
 
     public bool HasForm { get; set; }
-    public string FormRouteName { get; set; }
+    public string? FormRouteName { get; set; }
 }
 
 /// <summary>

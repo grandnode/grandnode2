@@ -5,5 +5,5 @@ namespace Grand.Business.Core.Queries.Catalog;
 
 public class GetVendorByIdQuery : IRequest<Vendor>
 {
-    public string Id { get; set; }
+    public string? Id { get; set; }
 }

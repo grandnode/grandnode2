@@ -33,7 +33,7 @@ public record ScimUserView(
     DateTime? LastModified);
 
 /// <param name="Detail">Why the operation was refused, for the SCIM error; never an e-mail or another personal value</param>
-public record ScimUserResult(ScimOutcome Outcome, ScimUserView User = null, string Detail = null);
+public record ScimUserResult(ScimOutcome Outcome, ScimUserView? User = null, string? Detail = null);
 
 /// <summary>The attributes of a SCIM group that GrandNode keeps; members are SCIM user ids (customer ids)</summary>
 public record ScimGroupData(string DisplayName, string ExternalId, IList<string> MemberIds);
@@ -47,7 +47,7 @@ public record ScimGroupView(
     DateTime? LastModified);
 
 /// <param name="Detail">Why the operation was refused, for the SCIM error</param>
-public record ScimGroupResult(ScimOutcome Outcome, ScimGroupView Group = null, string Detail = null);
+public record ScimGroupResult(ScimOutcome Outcome, ScimGroupView? Group = null, string? Detail = null);
 
 public record ScimPage<T>(IList<T> Items, int Total);
 

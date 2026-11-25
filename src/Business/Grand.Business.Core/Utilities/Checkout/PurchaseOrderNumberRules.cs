@@ -18,7 +18,7 @@ public static class PurchaseOrderNumberRules
     /// </summary>
     /// <param name="value">Number entered by the buyer</param>
     /// <param name="mode">Purchase order number mode</param>
-    public static string Normalize(string value, PurchaseOrderNumberMode mode)
+    public static string? Normalize(string value, PurchaseOrderNumberMode mode)
     {
         if (mode == PurchaseOrderNumberMode.Disabled || string.IsNullOrWhiteSpace(value))
             return null;
@@ -32,7 +32,7 @@ public static class PurchaseOrderNumberRules
     /// <param name="normalized">Number returned by <see cref="Normalize" /></param>
     /// <param name="mode">Purchase order number mode</param>
     /// <returns>Resource key of the error; null when the number is valid</returns>
-    public static string Validate(string normalized, PurchaseOrderNumberMode mode)
+    public static string? Validate(string normalized, PurchaseOrderNumberMode mode)
     {
         if (normalized == null)
             return mode == PurchaseOrderNumberMode.Required ? "Checkout.PurchaseOrderNumber.Required" : null;

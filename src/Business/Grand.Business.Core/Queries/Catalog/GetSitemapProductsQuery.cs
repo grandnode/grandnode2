@@ -8,14 +8,14 @@ namespace Grand.Business.Core.Queries.Catalog;
 /// </summary>
 public class GetSitemapProductsQuery : IRequest<IList<SitemapProduct>>
 {
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
     public IList<string> CustomerGroupIds { get; set; } = [];
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     /// <summary>
     ///     Id of the last product of the previous batch; null for the first batch
     /// </summary>
-    public string AfterId { get; set; }
+    public string? AfterId { get; set; }
 
     public int PageSize { get; set; } = 1000;
 }

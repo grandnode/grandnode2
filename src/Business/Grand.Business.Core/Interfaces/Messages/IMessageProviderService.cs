@@ -29,9 +29,9 @@ public interface IMessageProviderService
     Task<int> SendNotification(MessageTemplate messageTemplate,
         EmailAccount emailAccount, string languageId, LiquidObject liquidObject,
         string toEmailAddress, string toName,
-        string attachmentFilePath = null, string attachmentFileName = null,
-        IEnumerable<string> attachedDownloads = null,
-        string replyToEmailAddress = null, string replyToName = null,
-        string fromEmail = null, string fromName = null, string subject = null,
-        Reference reference = Reference.None, string objectId = "", string invoiceDownloadId = null);
+        string? attachmentFilePath = null, string? attachmentFileName = null,
+        IEnumerable<string>? attachedDownloads = null,
+        string? replyToEmailAddress = null, string? replyToName = null,
+        string? fromEmail = null, string? fromName = null, string? subject = null,
+        Reference reference = Reference.None, string objectId = "", string? invoiceDownloadId = null);
 }

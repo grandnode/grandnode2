@@ -13,7 +13,7 @@ public interface IWidgetService
     /// <param name="storeId">Store ident</param>
     /// <param name="customer">Customer</param>
     /// <returns>Widgets</returns>
-    IList<IWidgetProvider> LoadActiveWidgets(string storeId = "", Customer customer = null);
+    IList<IWidgetProvider> LoadActiveWidgets(string storeId = "", Customer? customer = null);
 
     /// <summary>
     ///     Load active widgets
@@ -23,7 +23,7 @@ public interface IWidgetService
     /// <param name="customer">Customer</param>
     /// <returns>Widgets</returns>
     Task<IList<IWidgetProvider>> LoadActiveWidgetsByWidgetZone(string widgetZone, string storeId = "",
-        Customer customer = null);
+        Customer? customer = null);
 
     /// <summary>
     ///     Load widget by system name
@@ -38,5 +38,5 @@ public interface IWidgetService
     /// <param name="storeId">Store ident</param>
     /// <param name="customer">Customer</param>
     /// <returns>Widgets</returns>
-    IList<IWidgetProvider> LoadAllWidgets(string storeId = "", Customer customer = null);
+    IList<IWidgetProvider> LoadAllWidgets(string storeId = "", Customer? customer = null);
 }

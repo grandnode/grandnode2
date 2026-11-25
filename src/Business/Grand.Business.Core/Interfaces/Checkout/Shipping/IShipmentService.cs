@@ -30,8 +30,8 @@ public interface IShipmentService
     Task<IPagedList<Shipment>> GetAllShipments(string storeId = "", string vendorId = "", string warehouseId = "",
         string shippingCountryId = "",
         int shippingStateId = 0,
-        string shippingCity = null,
-        string trackingNumber = null,
+        string? shippingCity = null,
+        string? trackingNumber = null,
         bool loadNotShipped = false,
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int pageIndex = 0, int pageSize = int.MaxValue);

@@ -13,11 +13,11 @@ public class CheckoutClaim
     /// <summary>
     ///     The identifier the order is inserted with
     /// </summary>
-    public string OrderId { get; init; }
+    public string? OrderId { get; init; }
 
-    public string OrderCode { get; init; }
-    public string CustomerId { get; init; }
-    public string StoreId { get; init; }
+    public string? OrderCode { get; init; }
+    public string? CustomerId { get; init; }
+    public string? StoreId { get; init; }
 
     /// <summary>
     ///     Everything the order spends was taken; when false, nothing is held

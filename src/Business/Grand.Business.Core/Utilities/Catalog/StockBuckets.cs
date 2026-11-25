@@ -26,7 +26,7 @@ public static class StockBuckets
 
         var entries = new List<InventoryJournal>();
 
-        void Add(string combinationId, IList<CustomAttribute> attributes, string warehouseId, int stock)
+        void Add(string combinationId, IList<CustomAttribute> attributes, string? warehouseId, int stock)
         {
             if (stock == 0)
                 return;
@@ -155,7 +155,8 @@ public static class StockBuckets
             .Concat(product.ProductWarehouseInventory.Select(x => x.WarehouseId))
             .Concat(product.ProductAttributeCombinations.SelectMany(x => x.WarehouseInventory)
                 .Select(x => x.WarehouseId))
-            .Where(x => !string.IsNullOrEmpty(x))
+            .OfType<string>()
+            .Where(x => x.Length > 0)
             .Distinct();
     }
 }

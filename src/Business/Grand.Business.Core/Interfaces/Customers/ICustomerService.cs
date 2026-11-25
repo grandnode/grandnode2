@@ -49,13 +49,13 @@ public interface ICustomerService
     Task<IPagedList<Customer>> GetAllCustomers(DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, string affiliateId = "", string vendorId = "", string storeId = "",
         string ownerId = "",
-        string salesEmployeeId = "", string[] customerGroupIds = null, string[] customerTagIds = null,
-        string email = null, string username = null,
-        string firstName = null, string lastName = null,
-        string company = null, string phone = null, string zipPostalCode = null,
+        string salesEmployeeId = "", string[]? customerGroupIds = null, string[]? customerTagIds = null,
+        string? email = null, string? username = null,
+        string? firstName = null, string? lastName = null,
+        string? company = null, string? phone = null, string? zipPostalCode = null,
         bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-        int pageIndex = 0, int pageSize = int.MaxValue, Expression<Func<Customer, object>> orderBySelector = null,
-        string[] excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false);
+        int pageIndex = 0, int pageSize = int.MaxValue, Expression<Func<Customer, object>>? orderBySelector = null,
+        string[]? excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false);
 
 
     /// <summary>

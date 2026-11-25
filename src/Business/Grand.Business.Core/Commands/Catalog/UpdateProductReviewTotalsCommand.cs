@@ -5,5 +5,5 @@ namespace Grand.Business.Core.Commands.Catalog;
 
 public class UpdateProductReviewTotalsCommand : IRequest<bool>
 {
-    public Product Product { get; set; }
+    public Product? Product { get; set; }
 }

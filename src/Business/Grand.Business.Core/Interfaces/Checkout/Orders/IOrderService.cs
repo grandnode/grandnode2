@@ -103,12 +103,12 @@ public interface IOrderService
         string vendorId = "", string customerId = "",
         string productId = "", string affiliateId = "", string warehouseId = "",
         string billingCountryId = "", string ownerId = "", string salesEmployeeId = "",
-        string paymentMethodSystemName = null,
+        string? paymentMethodSystemName = null,
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
-        string billingEmail = null, string billingLastName = "", string orderGuid = null,
-        string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "",
-        string purchaseOrderNumber = null, bool overdueOnly = false);
+        string? billingEmail = null, string billingLastName = "", string? orderGuid = null,
+        string? orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "",
+        string? purchaseOrderNumber = null, bool overdueOnly = false);
 
     /// <summary>
     ///     Inserts an order

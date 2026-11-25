@@ -9,7 +9,7 @@ namespace Grand.Business.Core.Queries.Checkout.Orders;
 /// </summary>
 public class GetReturnableQuantitiesQuery : IRequest<IReadOnlyDictionary<string, int>>
 {
-    public Order Order { get; set; }
+    public Order? Order { get; set; }
 
     /// <summary>
     ///     For staff: only what was delivered less what the other returns take. The return period and products marked

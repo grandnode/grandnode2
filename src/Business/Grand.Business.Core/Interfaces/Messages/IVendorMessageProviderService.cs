@@ -19,7 +19,7 @@ public interface IVendorMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendNewVendorAccountApplyStoreOwnerMessage(Customer customer, Vendor vendor, Store store,
-        string languageId, DomainHost host = null);
+        string languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends 'Vendor information change' message to a store owner
@@ -41,7 +41,7 @@ public interface IVendorMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendVendorReviewMessage(VendorReview vendorReview, Store store, string languageId,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends "contact vendor" message
@@ -60,5 +60,5 @@ public interface IVendorMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId,
-        string senderEmail, string senderName, string subject, string body, string ipaddress, DomainHost host = null);
+        string senderEmail, string senderName, string subject, string body, string ipaddress, DomainHost? host = null);
 }
