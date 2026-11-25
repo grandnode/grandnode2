@@ -28,7 +28,7 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
     ///     Valid
     /// </summary>
     /// <param name="principal">Principal of the validated token</param>
-    public virtual async Task<bool> Valid(ClaimsPrincipal principal)
+    public virtual async Task<bool> Valid(ClaimsPrincipal? principal)
     {
         if (principal == null) return await Task.FromResult(false);
 

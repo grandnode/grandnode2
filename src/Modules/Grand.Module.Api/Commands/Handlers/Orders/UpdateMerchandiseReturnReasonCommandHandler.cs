@@ -19,7 +19,8 @@ public class UpdateMerchandiseReturnReasonCommandHandler
     public async Task<MerchandiseReturnReasonDto> Handle(UpdateMerchandiseReturnReasonCommand request,
         CancellationToken cancellationToken)
     {
-        var reason = await _merchandiseReturnService.GetMerchandiseReturnReasonById(request.Model.Id);
+        var reason = await _merchandiseReturnService.GetMerchandiseReturnReasonById(request.Model.Id) ??
+            throw new ArgumentException("No merchandise return reason has the id", nameof(request));
         reason = request.Model.ToEntity(reason);
         await _merchandiseReturnService.UpdateMerchandiseReturnReason(reason);
         return reason.ToModel();

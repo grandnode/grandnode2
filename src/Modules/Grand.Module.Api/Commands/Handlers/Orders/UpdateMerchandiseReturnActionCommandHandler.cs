@@ -19,7 +19,8 @@ public class UpdateMerchandiseReturnActionCommandHandler
     public async Task<MerchandiseReturnActionDto> Handle(UpdateMerchandiseReturnActionCommand request,
         CancellationToken cancellationToken)
     {
-        var action = await _merchandiseReturnService.GetMerchandiseReturnActionById(request.Model.Id);
+        var action = await _merchandiseReturnService.GetMerchandiseReturnActionById(request.Model.Id) ??
+            throw new ArgumentException("No merchandise return action has the id", nameof(request));
         action = request.Model.ToEntity(action);
         await _merchandiseReturnService.UpdateMerchandiseReturnAction(action);
         return action.ToModel();

@@ -17,7 +17,7 @@ public interface ICustomerManagerService
     /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
     /// <param name="surface">Where the password is used: the sign-in policy decides per surface</param>
     /// <returns>Result</returns>
-    Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, string storeId = "",
+    Task<CustomerLoginResults> LoginCustomer(string? usernameOrEmail, string password, string storeId = "",
         SignInSurface surface = SignInSurface.Storefront);
 
     /// <summary>

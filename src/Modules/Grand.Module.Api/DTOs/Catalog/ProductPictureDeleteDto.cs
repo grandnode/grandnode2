@@ -2,5 +2,5 @@
 
 public class ProductPictureDeleteDto
 {
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 }

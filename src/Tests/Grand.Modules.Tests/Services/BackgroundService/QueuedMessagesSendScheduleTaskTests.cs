@@ -36,7 +36,7 @@ public class QueuedMessagesSendScheduleTaskTests
             It.IsAny<DateTime?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(),
             It.IsAny<int>(), It.IsAny<string>(),
             It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(() => new PagedList<QueuedEmail>
-            { new() { Bcc = "bcc", CC = "cc", EmailAccountId = "id" } });
+            { new() { Bcc = "bcc", CC = "cc", EmailAccountId = "id", From = "store@shop.example", To = "customer@shop.example" } });
         _emailAccountServiceMock.Setup(c => c.GetEmailAccountById(It.IsAny<string>())).ReturnsAsync(new EmailAccount());
 
         await _task.Execute(CancellationToken.None);
@@ -56,7 +56,7 @@ public class QueuedMessagesSendScheduleTaskTests
             It.IsAny<DateTime?>(), It.IsAny<bool>(), It.IsAny<bool>(), It.IsAny<int>(), It.IsAny<bool>(),
             It.IsAny<int>(), It.IsAny<string>(),
             It.IsAny<int>(), It.IsAny<int>())).ReturnsAsync(() => new PagedList<QueuedEmail>
-            { new() { Bcc = "bcc", CC = "cc", EmailAccountId = "id" } });
+            { new() { Bcc = "bcc", CC = "cc", EmailAccountId = "id", From = "store@shop.example", To = "customer@shop.example" } });
         _emailAccountServiceMock.Setup(c => c.GetEmailAccountById(It.IsAny<string>())).ReturnsAsync(new EmailAccount());
         _emailSenderMock.Setup(c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(),
             It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()
@@ -76,9 +76,9 @@ public class QueuedMessagesSendScheduleTaskTests
     [TestMethod]
     public async Task Execute_CancelledAfterTheFirstMail_LeavesTheRestQueuedWithUnchangedTries()
     {
-        var first = new QueuedEmail { Id = "1", EmailAccountId = "id" };
-        var second = new QueuedEmail { Id = "2", EmailAccountId = "id", SentTries = 1 };
-        var third = new QueuedEmail { Id = "3", EmailAccountId = "id" };
+        var first = new QueuedEmail { Id = "1", EmailAccountId = "id", From = "store@shop.example", To = "customer@shop.example" };
+        var second = new QueuedEmail { Id = "2", EmailAccountId = "id", From = "store@shop.example", To = "customer@shop.example", SentTries = 1 };
+        var third = new QueuedEmail { Id = "3", EmailAccountId = "id", From = "store@shop.example", To = "customer@shop.example" };
         SetupQueue(first, second, third);
         using var cts = new CancellationTokenSource();
         _emailSenderMock.Setup(c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(),
@@ -106,7 +106,7 @@ public class QueuedMessagesSendScheduleTaskTests
     [TestMethod]
     public async Task Execute_CancelledMidSend_DoesNotCountTheInterruptedTry()
     {
-        var queuedEmail = new QueuedEmail { Id = "1", EmailAccountId = "id", SentTries = 2 };
+        var queuedEmail = new QueuedEmail { Id = "1", EmailAccountId = "id", From = "store@shop.example", To = "customer@shop.example", SentTries = 2 };
         SetupQueue(queuedEmail);
         using var cts = new CancellationTokenSource();
         _emailSenderMock.Setup(c => c.SendEmail(It.IsAny<EmailAccount>(), It.IsAny<string>(), It.IsAny<string>(),
@@ -131,7 +131,7 @@ public class QueuedMessagesSendScheduleTaskTests
     public async Task Execute_EmailWithInvoice_SendsItWithTheOtherAttachments()
     {
         var attachments = await SentAttachments(new QueuedEmail {
-            EmailAccountId = "id", InvoiceDownloadId = "invoice", AttachedDownloads = ["template-attachment"]
+            EmailAccountId = "id", From = "store@shop.example", To = "customer@shop.example", InvoiceDownloadId = "invoice", AttachedDownloads = ["template-attachment"]
         });
 
         CollectionAssert.AreEqual(new[] { "template-attachment", "invoice" }, attachments);
@@ -141,7 +141,7 @@ public class QueuedMessagesSendScheduleTaskTests
     public async Task Execute_EmailWithoutInvoice_SendsOnlyTheOtherAttachments()
     {
         var attachments = await SentAttachments(new QueuedEmail {
-            EmailAccountId = "id", AttachedDownloads = ["template-attachment"]
+            EmailAccountId = "id", From = "store@shop.example", To = "customer@shop.example", AttachedDownloads = ["template-attachment"]
         });
 
         CollectionAssert.AreEqual(new[] { "template-attachment" }, attachments);

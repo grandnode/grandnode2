@@ -37,10 +37,10 @@ public class ProductController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Products, CurrentCustomer)) return Forbid();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        return Ok(product.FirstOrDefault());
+        return Ok(product);
     }
 
     [EndpointDescription("Get entities from Product")]
@@ -98,10 +98,10 @@ public class ProductController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pr = product.FirstOrDefault();
+        var pr = product;
         model.ApplyTo(pr);
         await _mediator.Send(new UpdateProductCommand { Model = pr });
         return Ok();
@@ -117,10 +117,10 @@ public class ProductController : BaseApiController
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Products, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        await _mediator.Send(new DeleteProductCommand { Model = product.FirstOrDefault() });
+        await _mediator.Send(new DeleteProductCommand { Model = product });
 
         return Ok();
     }
@@ -138,12 +138,12 @@ public class ProductController : BaseApiController
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Products, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
         if (model == null) return BadRequest();
 
-        if (!await _mediator.Send(new UpdateProductStockCommand { Product = product.FirstOrDefault(), WarehouseId = model.WarehouseId, Stock = model.Stock }))
+        if (!await _mediator.Send(new UpdateProductStockCommand { Product = product, WarehouseId = model.WarehouseId, Stock = model.Stock }))
             return BadRequest(InventoryTracking.StockDocumentsOnlyMessage);
 
         return Ok(true);
@@ -164,16 +164,16 @@ public class ProductController : BaseApiController
 
         if (productCategory == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x =>
+        var pc = product.ProductCategories.FirstOrDefault(x =>
             x.CategoryId == productCategory.CategoryId);
         if (pc != null) return BadRequest("Product category mapping found with the specified CategoryId");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductCategoryCommand { Product = product.FirstOrDefault(), Model = productCategory });
+            var result = await _mediator.Send(new AddProductCategoryCommand { Product = product, Model = productCategory });
             return Ok(result);
         }
 
@@ -193,16 +193,16 @@ public class ProductController : BaseApiController
 
         if (productCategory == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x =>
+        var pc = product.ProductCategories.FirstOrDefault(x =>
             x.CategoryId == productCategory.CategoryId);
         if (pc == null) return BadRequest("No product category mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductCategoryCommand { Product = product.FirstOrDefault(), Model = productCategory });
+            var result = await _mediator.Send(new UpdateProductCategoryCommand { Product = product, Model = productCategory });
             return Ok(result);
         }
 
@@ -222,18 +222,18 @@ public class ProductController : BaseApiController
 
         if (model == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
         var categoryId = model.CategoryId;
         if (!string.IsNullOrEmpty(categoryId))
         {
-            var pc = product.FirstOrDefault()!.ProductCategories.FirstOrDefault(x => x.CategoryId == categoryId);
+            var pc = product.ProductCategories.FirstOrDefault(x => x.CategoryId == categoryId);
             if (pc == null) return BadRequest("No product category mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
-                _ = await _mediator.Send(new DeleteProductCategoryCommand { Product = product.FirstOrDefault(), CategoryId = categoryId });
+                _ = await _mediator.Send(new DeleteProductCategoryCommand { Product = product, CategoryId = categoryId });
                 return Ok(true);
             }
 
@@ -260,15 +260,15 @@ public class ProductController : BaseApiController
 
         if (productCollection == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
+        var pm = product.ProductCollections.FirstOrDefault(x => x.CollectionId == productCollection.CollectionId);
         if (pm != null) return BadRequest("Product collection mapping found with the specified CollectionId");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductCollectionCommand { Product = product.FirstOrDefault(), Model = productCollection });
+            var result = await _mediator.Send(new AddProductCollectionCommand { Product = product, Model = productCollection });
             return Ok(result);
         }
 
@@ -288,16 +288,16 @@ public class ProductController : BaseApiController
 
         if (productCollection == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x =>
+        var pm = product.ProductCollections.FirstOrDefault(x =>
             x.CollectionId == productCollection.CollectionId);
         if (pm == null) return BadRequest("No product collection mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductCollectionCommand { Product = product.FirstOrDefault(), Model = productCollection });
+            var result = await _mediator.Send(new UpdateProductCollectionCommand { Product = product, Model = productCollection });
             return Ok(result);
         }
 
@@ -317,18 +317,18 @@ public class ProductController : BaseApiController
 
         if (model == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
         var collectionId = model.CollectionId;
         if (!string.IsNullOrEmpty(collectionId))
         {
-            var pm = product.FirstOrDefault()!.ProductCollections.FirstOrDefault(x => x.CollectionId == collectionId);
+            var pm = product.ProductCollections.FirstOrDefault(x => x.CollectionId == collectionId);
             if (pm == null) return BadRequest("No product collection mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
-                await _mediator.Send(new DeleteProductCollectionCommand { Product = product.FirstOrDefault(), CollectionId = collectionId });
+                await _mediator.Send(new DeleteProductCollectionCommand { Product = product, CollectionId = collectionId });
                 return Ok(true);
             }
 
@@ -355,15 +355,15 @@ public class ProductController : BaseApiController
 
         if (productPicture == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
+        var pp = product.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
         if (pp != null) return BadRequest("Product picture mapping found with the specified pictureid");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductPictureCommand { Product = product.FirstOrDefault(), Model = productPicture });
+            var result = await _mediator.Send(new AddProductPictureCommand { Product = product, Model = productPicture });
             return Ok(result);
         }
 
@@ -383,15 +383,15 @@ public class ProductController : BaseApiController
 
         if (productPicture == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
+        var pp = product.ProductPictures.FirstOrDefault(x => x.PictureId == productPicture.PictureId);
         if (pp == null) return BadRequest("No product picture mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductPictureCommand { Product = product.FirstOrDefault(), Model = productPicture });
+            var result = await _mediator.Send(new UpdateProductPictureCommand { Product = product, Model = productPicture });
             return Ok(result);
         }
 
@@ -411,18 +411,18 @@ public class ProductController : BaseApiController
 
         if (model == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
         var pictureId = model.PictureId;
         if (!string.IsNullOrEmpty(pictureId))
         {
-            var pp = product.FirstOrDefault()!.ProductPictures.FirstOrDefault(x => x.PictureId == pictureId);
+            var pp = product.ProductPictures.FirstOrDefault(x => x.PictureId == pictureId);
             if (pp == null) return BadRequest("No product picture mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new DeleteProductPictureCommand { Product = product.FirstOrDefault(), PictureId = pictureId });
+                var result = await _mediator.Send(new DeleteProductPictureCommand { Product = product, PictureId = pictureId });
                 return Ok(result);
             }
 
@@ -449,16 +449,16 @@ public class ProductController : BaseApiController
 
         if (productSpecification == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x =>
+        var psa = product.ProductSpecificationAttributes.FirstOrDefault(x =>
             x.Id == productSpecification.Id);
         if (psa != null) return BadRequest("Product specification mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductSpecificationCommand { Product = product.FirstOrDefault(), Model = productSpecification });
+            var result = await _mediator.Send(new AddProductSpecificationCommand { Product = product, Model = productSpecification });
             return Ok(result);
         }
 
@@ -478,16 +478,16 @@ public class ProductController : BaseApiController
 
         if (productSpecification == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x =>
+        var psa = product.ProductSpecificationAttributes.FirstOrDefault(x =>
             x.Id == productSpecification.Id);
         if (psa == null) return BadRequest("No product specification mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductSpecificationCommand { Product = product.FirstOrDefault(), Model = productSpecification });
+            var result = await _mediator.Send(new UpdateProductSpecificationCommand { Product = product, Model = productSpecification });
             return Ok(result);
         }
 
@@ -507,19 +507,19 @@ public class ProductController : BaseApiController
 
         if (model == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
         var specificationId = model.Id;
         if (!string.IsNullOrEmpty(specificationId))
         {
-            var psa = product.FirstOrDefault()!.ProductSpecificationAttributes.FirstOrDefault(x =>
+            var psa = product.ProductSpecificationAttributes.FirstOrDefault(x =>
                 x.Id == specificationId);
             if (psa == null) return BadRequest("No product specification mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new DeleteProductSpecificationCommand { Product = product.FirstOrDefault(), Id = specificationId });
+                var result = await _mediator.Send(new DeleteProductSpecificationCommand { Product = product, Id = specificationId });
                 return Ok(result);
             }
 
@@ -546,15 +546,15 @@ public class ProductController : BaseApiController
 
         if (productTierPrice == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
+        var pt = product.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
         if (pt != null) return BadRequest("Product tier price mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductTierPriceCommand { Product = product.FirstOrDefault(), Model = productTierPrice });
+            var result = await _mediator.Send(new AddProductTierPriceCommand { Product = product, Model = productTierPrice });
             return Ok(result);
         }
 
@@ -574,15 +574,15 @@ public class ProductController : BaseApiController
 
         if (productTierPrice == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
+        var pt = product.TierPrices.FirstOrDefault(x => x.Id == productTierPrice.Id);
         if (pt == null) return BadRequest("No product tier price mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductTierPriceCommand { Product = product.FirstOrDefault(), Model = productTierPrice });
+            var result = await _mediator.Send(new UpdateProductTierPriceCommand { Product = product, Model = productTierPrice });
             return Ok(result);
         }
 
@@ -602,18 +602,18 @@ public class ProductController : BaseApiController
 
         if (model == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
         var tierPriceId = model.Id;
         if (!string.IsNullOrEmpty(tierPriceId))
         {
-            var pt = product.FirstOrDefault()!.TierPrices.FirstOrDefault(x => x.Id == tierPriceId);
+            var pt = product.TierPrices.FirstOrDefault(x => x.Id == tierPriceId);
             if (pt == null) return BadRequest("No product tier price mapping found with the specified id");
 
             if (ModelState.IsValid)
             {
-                var result = await _mediator.Send(new DeleteProductTierPriceCommand { Product = product.FirstOrDefault(), Id = tierPriceId });
+                var result = await _mediator.Send(new DeleteProductTierPriceCommand { Product = product, Id = tierPriceId });
                 return Ok(result);
             }
 
@@ -640,16 +640,16 @@ public class ProductController : BaseApiController
 
         if (productAttributeMapping == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x =>
+        var pam = product.ProductAttributeMappings.FirstOrDefault(x =>
             x.Id == productAttributeMapping.Id);
         if (pam != null) return BadRequest("Product attribute mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new AddProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = productAttributeMapping });
+            var result = await _mediator.Send(new AddProductAttributeMappingCommand { Product = product, Model = productAttributeMapping });
             return Ok(result);
         }
 
@@ -669,16 +669,16 @@ public class ProductController : BaseApiController
 
         if (productAttributeMapping == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
-        var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x =>
+        var pam = product.ProductAttributeMappings.FirstOrDefault(x =>
             x.Id == productAttributeMapping.Id);
         if (pam == null) return BadRequest("No product attribute mapping found with the specified id");
 
         if (ModelState.IsValid)
         {
-            var result = await _mediator.Send(new UpdateProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = productAttributeMapping });
+            var result = await _mediator.Send(new UpdateProductAttributeMappingCommand { Product = product, Model = productAttributeMapping });
             return Ok(result);
         }
 
@@ -698,18 +698,18 @@ public class ProductController : BaseApiController
 
         if (model == null) return BadRequest();
 
-        var product = await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key));
-        if (!product.Any()) return NotFound();
+        var product = (await _mediator.Send(new GetGenericQuery<ProductDto, Product>(key))).FirstOrDefault();
+        if (product == null) return NotFound();
 
         var attrId = model.Id;
         if (string.IsNullOrEmpty(attrId)) return NotFound();
 
-        var pam = product.FirstOrDefault()!.ProductAttributeMappings.FirstOrDefault(x => x.Id == attrId);
+        var pam = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == attrId);
         if (pam == null) return BadRequest("No product attribute mapping found with the specified id");
 
         if (!ModelState.IsValid) return BadRequest(ModelState);
 
-        var result = await _mediator.Send(new DeleteProductAttributeMappingCommand { Product = product.FirstOrDefault(), Model = pam });
+        var result = await _mediator.Send(new DeleteProductAttributeMappingCommand { Product = product, Model = pam });
         return Ok(result);
     }
 

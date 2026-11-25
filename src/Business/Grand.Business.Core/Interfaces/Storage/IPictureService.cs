@@ -80,7 +80,7 @@ public interface IPictureService
     /// </summary>
     /// <param name="pictureId">Picture identifier</param>
     /// <returns>Picture</returns>
-    Task<Picture?> GetPictureById(string pictureId);
+    Task<Picture?> GetPictureById(string? pictureId);
 
     /// <summary>
     ///     Deletes a picture
@@ -128,9 +128,9 @@ public interface IPictureService
     /// <param name="objectId">Object id for reference</param>
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
-    Task<Picture> InsertPicture(byte[] pictureBinary, string mimeType, string? seoFilename,
+    Task<Picture> InsertPicture(byte[] pictureBinary, string? mimeType, string? seoFilename,
         string? altAttribute = null, string? titleAttribute = null,
-        bool isNew = true, Reference reference = Reference.None, string objectId = "", bool validateBinary = false);
+        bool isNew = true, Reference reference = Reference.None, string? objectId = "", bool validateBinary = false);
 
     /// <summary>
     ///     Updates the picture
@@ -146,8 +146,8 @@ public interface IPictureService
     /// <param name="isNew">A value indicating whether the picture is new</param>
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
-    Task<Picture?> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
-        string seoFilename, string? altAttribute = null, string? titleAttribute = null,
+    Task<Picture?> UpdatePicture(string pictureId, byte[]? pictureBinary, string? mimeType,
+        string? seoFilename, string? altAttribute = null, string? titleAttribute = null,
         string? style = null, string? extraField = null,
         bool isNew = true, bool validateBinary = true);
 
@@ -173,7 +173,7 @@ public interface IPictureService
     /// <param name="picture">The picture</param>
     /// <param name="seoFilename">The SEO filename</param>
     /// <returns>Picture</returns>
-    Task<Picture> SetSeoFilename(Picture picture, string seoFilename);
+    Task<Picture> SetSeoFilename(Picture picture, string? seoFilename);
 
     /// <summary>
     ///     Validates input picture dimensions

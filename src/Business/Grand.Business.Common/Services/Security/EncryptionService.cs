@@ -160,7 +160,7 @@ public class EncryptionService : IEncryptionService
         return parts.Length != 5 || !int.TryParse(parts[2], out var iterations) || iterations < Iterations;
     }
 
-    public virtual bool IsHashedPassword(string storedPassword)
+    public virtual bool IsHashedPassword(string? storedPassword)
     {
         return IsPbkdf2Hash(storedPassword);
     }

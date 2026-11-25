@@ -89,10 +89,10 @@ public class GetStockJournalQueryHandler(
             .ToDictionary(x => x.Id);
 
         return entries.Select(x => ToDto(x, products.GetValueOrDefault(x.ProductId),
-            warehouses.GetValueOrDefault(x.WarehouseId))).ToList();
+            x.WarehouseId != null ? warehouses.GetValueOrDefault(x.WarehouseId) : null)).ToList();
     }
 
-    private static StockJournalEntryDto ToDto(InventoryJournal entry, Product product, Warehouse warehouse)
+    private static StockJournalEntryDto ToDto(InventoryJournal entry, Product? product, Warehouse? warehouse)
     {
         var sku = product?.Sku ?? "";
         if (product != null && !string.IsNullOrEmpty(entry.CombinationId))

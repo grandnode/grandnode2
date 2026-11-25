@@ -29,7 +29,7 @@ public class ScimAuthorizeFilter(
             return;
         }
 
-        string authorization = context.HttpContext.Request.Headers.Authorization;
+        string? authorization = context.HttpContext.Request.Headers.Authorization;
         if (authorization == null || !authorization.StartsWith(Scheme, StringComparison.OrdinalIgnoreCase) ||
             !Matches(authorization[Scheme.Length..].Trim(), config.Token))
         {

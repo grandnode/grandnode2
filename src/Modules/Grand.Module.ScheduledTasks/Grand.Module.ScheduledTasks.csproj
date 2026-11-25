@@ -38,4 +38,7 @@
         <OutputPath>..\..\Web\Grand.Web\Modules\Grand.Module.ScheduledTasks\</OutputPath>
         <OutDir>$(OutputPath)</OutDir>
     </PropertyGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 </Project>

@@ -5,9 +5,9 @@ namespace Grand.Module.Api.DTOs.Shipping;
 
 public class WarehouseDto : BaseApiEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     [NoHtml]
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     The stock of this warehouse belongs to an external system (ERP/WMS); it changes only through the stock

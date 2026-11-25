@@ -405,7 +405,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="pictureId">Picture identifier</param>
     /// <returns>Picture</returns>
-    public virtual async Task<Picture?> GetPictureById(string pictureId)
+    public virtual async Task<Picture?> GetPictureById(string? pictureId)
     {
         var pictureKey = string.Format(CacheKey.PICTURE_BY_ID, pictureId);
         return await _cacheBase.GetAsync(pictureKey, async () =>
@@ -517,9 +517,9 @@ public class PictureService : IPictureService
     /// <param name="objectId">Object id for reference</param>
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
-    public virtual async Task<Picture> InsertPicture(byte[] pictureBinary, string mimeType, string? seoFilename,
+    public virtual async Task<Picture> InsertPicture(byte[] pictureBinary, string? mimeType, string? seoFilename,
         string? altAttribute = null, string? titleAttribute = null,
-        bool isNew = true, Reference reference = Reference.None, string objectId = "", bool validateBinary = false)
+        bool isNew = true, Reference reference = Reference.None, string? objectId = "", bool validateBinary = false)
     {
         mimeType = CommonHelper.EnsureNotNull(mimeType);
         mimeType = CommonHelper.EnsureMaximumLength(mimeType, 20);
@@ -564,8 +564,8 @@ public class PictureService : IPictureService
     /// <param name="isNew">A value indicating whether the picture is new</param>
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
-    public virtual async Task<Picture?> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
-        string seoFilename, string? altAttribute = null, string? titleAttribute = null,
+    public virtual async Task<Picture?> UpdatePicture(string pictureId, byte[]? pictureBinary, string? mimeType,
+        string? seoFilename, string? altAttribute = null, string? titleAttribute = null,
         string? style = null, string? extraField = null,
         bool isNew = true, bool validateBinary = true)
     {
@@ -689,7 +689,7 @@ public class PictureService : IPictureService
     /// <param name="picture">The picture</param>
     /// <param name="seoFilename">The SEO filename</param>
     /// <returns>Picture</returns>
-    public virtual async Task<Picture> SetSeoFilename(Picture picture, string seoFilename)
+    public virtual async Task<Picture> SetSeoFilename(Picture picture, string? seoFilename)
     {
         if (picture == null)
             throw new ArgumentException("No picture found with the specified id");

@@ -232,7 +232,7 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="email">Email</param>
     /// <returns>Customer</returns>
-    public virtual async Task<Customer?> GetCustomerByEmail(string email, string storeId = "")
+    public virtual async Task<Customer?> GetCustomerByEmail(string? email, string storeId = "")
     {
         if (string.IsNullOrWhiteSpace(email))
             return null;
@@ -283,7 +283,7 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="username">Username</param>
     /// <returns>Customer</returns>
-    public virtual async Task<Customer?> GetCustomerByUsername(string username, string storeId = "")
+    public virtual async Task<Customer?> GetCustomerByUsername(string? username, string storeId = "")
     {
         if (string.IsNullOrWhiteSpace(username))
             return null;

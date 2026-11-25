@@ -16,6 +16,7 @@ public class AddProductTierPriceCommandHandler : IRequestHandler<AddProductTierP
 
     public async Task<bool> Handle(AddProductTierPriceCommand request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
         var tierPrice = request.Model.ToEntity();
         await _productService.InsertTierPrice(tierPrice, request.Product.Id);
 

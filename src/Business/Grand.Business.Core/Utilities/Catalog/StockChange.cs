@@ -18,7 +18,7 @@ public sealed record StockSource(
     string? PositionId = "",
     string? Reference = "",
     string CustomerId = "",
-    string Comment = "");
+    string? Comment = "");
 
 /// <summary>
 ///     A change of one stock bucket: the product, its combination, or either of them in one warehouse

@@ -1,5 +1,6 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
+using Grand.SharedKernel;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Module.ScheduledTasks.BackgroundServices;
@@ -49,13 +50,15 @@ public class QueuedMessagesSendScheduleTask : IScheduleTask
 
             try
             {
-                var emailAccount = await _emailAccountService.GetEmailAccountById(queuedEmail.EmailAccountId);
+                //a message that cannot be sent counts as a failed try, as any other sending error
+                var emailAccount = await _emailAccountService.GetEmailAccountById(queuedEmail.EmailAccountId) ??
+                                   throw new GrandException("The email account of the message does not exist");
                 await _emailSender.SendEmail(emailAccount,
-                    queuedEmail.Subject,
-                    queuedEmail.Body,
-                    queuedEmail.From,
+                    queuedEmail.Subject ?? "",
+                    queuedEmail.Body ?? "",
+                    queuedEmail.From ?? throw new GrandException("The message has no sender address"),
                     queuedEmail.FromName,
-                    queuedEmail.To,
+                    queuedEmail.To ?? throw new GrandException("The message has no recipient address"),
                     queuedEmail.ToName,
                     queuedEmail.ReplyTo,
                     queuedEmail.ReplyToName,

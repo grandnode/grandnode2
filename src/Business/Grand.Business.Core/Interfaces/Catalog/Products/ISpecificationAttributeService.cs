@@ -15,7 +15,7 @@ public interface ISpecificationAttributeService
     /// </summary>
     /// <param name="specificationAttributeId">The specification attribute identifier</param>
     /// <returns>Specification attribute</returns>
-    Task<SpecificationAttribute?> GetSpecificationAttributeById(string specificationAttributeId);
+    Task<SpecificationAttribute?> GetSpecificationAttributeById(string? specificationAttributeId);
 
     /// <summary>
     ///     Gets a specification attribute by se-name

@@ -16,7 +16,9 @@ public class UpdateProductPictureCommandHandler : IRequestHandler<UpdateProductP
 
     public async Task<bool> Handle(UpdateProductPictureCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productService.GetProductById(request.Product.Id);
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
+        var product = await _productService.GetProductById(request.Product.Id) ??
+            throw new ArgumentException("No product has the id", nameof(request));
         var pp = product.ProductPictures.FirstOrDefault(x => x.PictureId == request.Model.PictureId);
         if (pp != null)
         {

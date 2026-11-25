@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class DeleteProductCategoryCommand : IRequest<bool>
 {
-    public ProductDto Product { get; set; }
-    public string CategoryId { get; set; }
+    public required ProductDto Product { get; set; }
+    public required string CategoryId { get; set; }
 }

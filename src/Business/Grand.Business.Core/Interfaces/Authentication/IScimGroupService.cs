@@ -16,7 +16,7 @@ public interface IScimGroupService
     Task<ScimGroupResult> Get(string id);
 
     /// <summary>The groups, optionally those with the display name or the externalId (exact, display name case-insensitive)</summary>
-    Task<ScimPage<ScimGroupView>> List(string displayName, string externalId, int skip, int take);
+    Task<ScimPage<ScimGroupView>> List(string? displayName, string? externalId, int skip, int take);
 
     Task<ScimOutcome> Delete(string id);
 
@@ -24,7 +24,7 @@ public interface IScimGroupService
     Task<ScimGroupResult> ModifyMembers(string id, IList<string> add, IList<string> remove, bool replaceAll);
 
     /// <summary>Changes the name and the externalId only (null keeps the value)</summary>
-    Task<ScimGroupResult> Rename(string id, string displayName, string externalId);
+    Task<ScimGroupResult> Rename(string id, string? displayName, string? externalId);
 
     Task<IList<ScimGroupMapping>> GetMappings();
 

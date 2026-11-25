@@ -36,7 +36,7 @@ public class ApplyStockCommandHandlerTests
     [TestMethod]
     public async Task Handle_MissingKey_Rejected()
     {
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { ProductId = "p1", Mode = "Set", Quantity = 3 }]
         }, default);
 
@@ -47,7 +47,7 @@ public class ApplyStockCommandHandlerTests
     [TestMethod]
     public async Task Handle_InvalidMode_Rejected()
     {
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", ProductId = "p1", Mode = "Adjust", Quantity = 3 }]
         }, default);
 
@@ -58,7 +58,7 @@ public class ApplyStockCommandHandlerTests
     [TestMethod]
     public async Task Handle_ProductIdAndSku_Rejected()
     {
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", ProductId = "p1", Sku = "s1", Mode = "Set", Quantity = 3 }]
         }, default);
 
@@ -75,7 +75,7 @@ public class ApplyStockCommandHandlerTests
             InventoryTrackingModeId = InventoryTrackingMode.SerialNumber
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", ProductId = "p1", Mode = "Set", Quantity = 3 }]
         }, default);
 
@@ -94,7 +94,7 @@ public class ApplyStockCommandHandlerTests
             InventoryTrackingModeId = InventoryTrackingMode.SerialNumber
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto {
                 Key = "k1", ProductId = "p1", Mode = "Change", Quantity = 2, SerialNumbers = ["s1"]
             }]
@@ -113,7 +113,7 @@ public class ApplyStockCommandHandlerTests
             InventoryTrackingModeId = InventoryTrackingMode.Batch
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", ProductId = "p1", Mode = "Change", Quantity = 3 }]
         }, default);
 
@@ -128,7 +128,7 @@ public class ApplyStockCommandHandlerTests
             Id = "p1", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, WarehouseId = "w1"
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", ProductId = "p1", WarehouseId = "w2", Mode = "Change", Quantity = 1 }]
         }, default);
 
@@ -165,7 +165,7 @@ public class ApplyStockCommandHandlerTests
         _stockMovementServiceMock.Setup(x => x.Apply("p1", It.IsAny<IReadOnlyList<StockChange>>()))
             .ReturnsAsync([StockErrors.AlreadyApplied]);
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", ProductId = "p1", Mode = "Set", Quantity = 10 }]
         }, default);
 
@@ -180,7 +180,7 @@ public class ApplyStockCommandHandlerTests
             Id = "p1", ManageInventoryMethodId = ManageInventoryMethod.ManageStock, StockQuantity = 10
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [
                 new StockApplyLineDto { Key = "k1", ProductId = "p1", Mode = "Set", Quantity = 10 },
                 new StockApplyLineDto { ProductId = "p1", Mode = "Set", Quantity = 20 }
@@ -200,7 +200,7 @@ public class ApplyStockCommandHandlerTests
             Id = "p1", Sku = "S-1", ManageInventoryMethodId = ManageInventoryMethod.ManageStock
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", Sku = " S-1 ", Mode = "Change", Quantity = 2 }]
         }, default);
 
@@ -222,7 +222,7 @@ public class ApplyStockCommandHandlerTests
             }
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", Sku = "C-1", Mode = "Set", Quantity = 4 }]
         }, default);
 
@@ -243,7 +243,7 @@ public class ApplyStockCommandHandlerTests
             ProductAttributeCombinations = { new ProductAttributeCombination { Id = "c1", Sku = "S-1" } }
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", Sku = "S-1", Mode = "Change", Quantity = 1 }]
         }, default);
 
@@ -255,7 +255,7 @@ public class ApplyStockCommandHandlerTests
     [TestMethod]
     public async Task Handle_UnknownSku_Rejected()
     {
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", Sku = "NONE", Mode = "Change", Quantity = 1 }]
         }, default);
 
@@ -273,7 +273,7 @@ public class ApplyStockCommandHandlerTests
             ProductWarehouseInventory = { new ProductWarehouseInventory { WarehouseId = "w1", StockQuantity = 7 } }
         });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", ProductId = "p1", WarehouseCode = "WH-1", Mode = "Set", Quantity = 7 }]
         }, default);
 
@@ -289,7 +289,7 @@ public class ApplyStockCommandHandlerTests
         await _productRepositoryMock.Object.InsertAsync(new Product
             { Id = "p1", ManageInventoryMethodId = ManageInventoryMethod.ManageStock });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = [new StockApplyLineDto { Key = "k1", ProductId = "p1", WarehouseCode = "NONE", Mode = "Set", Quantity = 1 }]
         }, default);
 
@@ -303,7 +303,7 @@ public class ApplyStockCommandHandlerTests
             await _productRepositoryMock.Object.InsertAsync(new Product
                 { Id = $"p{i}", Sku = $"S-{i}", ManageInventoryMethodId = ManageInventoryMethod.ManageStock });
 
-        var result = await _handler.Handle(new ApplyStockCommand {
+        var result = await _handler.Handle(new ApplyStockCommand { CustomerId = "c1",
             Lines = Enumerable.Range(0, 50).Select(i => new StockApplyLineDto
                 { Key = $"k{i}", Sku = $"S-{i}", Mode = "Change", Quantity = 1 }).ToList()
         }, default);

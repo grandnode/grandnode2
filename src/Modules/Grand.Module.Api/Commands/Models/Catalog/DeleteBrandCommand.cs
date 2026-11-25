@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class DeleteBrandCommand : IRequest<bool>
 {
-    public BrandDto Model { get; set; }
+    public required BrandDto Model { get; set; }
 }

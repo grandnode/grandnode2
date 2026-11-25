@@ -32,10 +32,10 @@ public class DeliveryDateController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings, CurrentCustomer)) return Forbid();
 
-        var deliverydate = await _mediator.Send(new GetGenericQuery<DeliveryDateDto, DeliveryDate>(key));
-        if (!deliverydate.Any()) return NotFound();
+        var deliverydate = (await _mediator.Send(new GetGenericQuery<DeliveryDateDto, DeliveryDate>(key))).FirstOrDefault();
+        if (deliverydate == null) return NotFound();
 
-        return Ok(deliverydate.FirstOrDefault());
+        return Ok(deliverydate);
     }
 
     [EndpointDescription("Get entities from Delivery Date")]

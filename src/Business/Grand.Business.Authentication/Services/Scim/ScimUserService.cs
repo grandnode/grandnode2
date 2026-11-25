@@ -173,7 +173,7 @@ public class ScimUserService(
             : new ScimUserResult(ScimOutcome.NotFound);
     }
 
-    public virtual async Task<ScimPage<ScimUserView>> List(string userName, string externalId, int skip, int take)
+    public virtual async Task<ScimPage<ScimUserView>> List(string? userName, string? externalId, int skip, int take)
     {
         var query = users.Table.Where(x => !x.Deprovisioned);
         if (!string.IsNullOrEmpty(externalId))

@@ -135,7 +135,7 @@ public interface ICatalogMessageProviderService
     /// <param name="product">Auction</param>
     /// <param name="bid">Bid</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string? languageId, Bid bid);
+    Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string? languageId, Bid? bid);
 
     /// <summary>
     ///     Send outbid notification to a customer

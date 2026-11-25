@@ -16,7 +16,8 @@ public class DeleteProductPictureCommandHandler : IRequestHandler<DeleteProductP
 
     public async Task<bool> Handle(DeleteProductPictureCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productService.GetProductById(request.Product.Id);
+        var product = await _productService.GetProductById(request.Product.Id) ??
+            throw new ArgumentException("No product has the id", nameof(request));
 
         var productPicture = product.ProductPictures.FirstOrDefault(x => x.PictureId == request.PictureId);
         if (productPicture == null)

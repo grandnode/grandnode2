@@ -214,6 +214,8 @@ public partial class InstallationService
         //search engine names
         foreach (var page in lpages)
         {
+            if (string.IsNullOrEmpty(page.SystemName))
+                continue;
             var seName = page.SystemName.ToLowerInvariant();
             await _entityUrlRepository.InsertAsync(new EntityUrl {
                 EntityId = page.Id,

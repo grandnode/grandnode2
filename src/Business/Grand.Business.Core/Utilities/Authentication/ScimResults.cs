@@ -15,7 +15,7 @@ public enum ScimOutcome
 }
 
 /// <summary>The attributes of a SCIM user that GrandNode keeps</summary>
-public record ScimUserData(string UserName, string ExternalId, string Email, string GivenName, string FamilyName, bool Active);
+public record ScimUserData(string? UserName, string? ExternalId, string? Email, string? GivenName, string? FamilyName, bool Active);
 
 public record ScimGroupRef(string Id, string? DisplayName);
 
@@ -36,7 +36,7 @@ public record ScimUserView(
 public record ScimUserResult(ScimOutcome Outcome, ScimUserView? User = null, string? Detail = null);
 
 /// <summary>The attributes of a SCIM group that GrandNode keeps; members are SCIM user ids (customer ids)</summary>
-public record ScimGroupData(string DisplayName, string ExternalId, IList<string> MemberIds);
+public record ScimGroupData(string? DisplayName, string? ExternalId, IList<string> MemberIds);
 
 public record ScimGroupView(
     string Id,

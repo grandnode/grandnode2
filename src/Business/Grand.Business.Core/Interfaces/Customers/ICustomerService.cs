@@ -114,7 +114,7 @@ public interface ICustomerService
     /// <param name="email">Email</param>
     /// <param name="storeId">Store identifier (optional)</param>
     /// <returns>Customer</returns>
-    Task<Customer?> GetCustomerByEmail(string email, string storeId = "");
+    Task<Customer?> GetCustomerByEmail(string? email, string storeId = "");
 
     /// <summary>
     ///     Get customer by system group
@@ -131,7 +131,7 @@ public interface ICustomerService
     /// <param name="username">Username</param>
     /// <param name="storeId">Store identifier (optional)</param>
     /// <returns>Customer</returns>
-    Task<Customer?> GetCustomerByUsername(string username, string storeId = "");
+    Task<Customer?> GetCustomerByUsername(string? username, string storeId = "");
 
     /// <summary>
     ///     Insert a guest customer

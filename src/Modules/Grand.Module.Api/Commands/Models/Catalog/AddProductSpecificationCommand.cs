@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class AddProductSpecificationCommand : IRequest<bool>
 {
-    public ProductDto Product { get; set; }
-    public ProductSpecificationAttributeDto Model { get; set; }
+    public required ProductDto Product { get; set; }
+    public required ProductSpecificationAttributeDto Model { get; set; }
 }

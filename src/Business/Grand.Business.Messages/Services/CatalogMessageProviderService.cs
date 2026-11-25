@@ -531,7 +531,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
         return 0;
     }
 
-    public virtual async Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string? languageId, Bid bid)
+    public virtual async Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string? languageId, Bid? bid)
     {
         ArgumentNullException.ThrowIfNull(product);
 

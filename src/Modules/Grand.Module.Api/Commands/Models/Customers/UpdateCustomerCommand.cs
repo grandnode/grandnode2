@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Customers;
 
 public class UpdateCustomerCommand : IRequest<CustomerDto>
 {
-    public CustomerDto Model { get; set; }
+    public required CustomerDto Model { get; set; }
 }

@@ -16,6 +16,7 @@ public class AddProductCategoryCommandHandler : IRequestHandler<AddProductCatego
 
     public async Task<bool> Handle(AddProductCategoryCommand request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
         var productCategory = new ProductCategory {
             CategoryId = request.Model.CategoryId,
             IsFeaturedProduct = request.Model.IsFeaturedProduct

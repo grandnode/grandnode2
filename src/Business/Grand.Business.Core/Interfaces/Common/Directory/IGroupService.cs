@@ -91,7 +91,7 @@ public interface IGroupService
     /// </summary>
     /// <param name="customerGroupId">Customer group identifier</param>
     /// <returns>Customer group</returns>
-    Task<CustomerGroup?> GetCustomerGroupById(string customerGroupId);
+    Task<CustomerGroup?> GetCustomerGroupById(string? customerGroupId);
 
     /// <summary>
     ///     Gets a customer group

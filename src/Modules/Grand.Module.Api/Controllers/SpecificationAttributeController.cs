@@ -34,10 +34,10 @@ public class SpecificationAttributeController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.SpecificationAttributes, CurrentCustomer)) return Forbid();
 
-        var specificationAttribute = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key));
-        if (!specificationAttribute.Any()) return NotFound();
+        var specificationAttribute = (await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key))).FirstOrDefault();
+        if (specificationAttribute == null) return NotFound();
 
-        return Ok(specificationAttribute.FirstOrDefault());
+        return Ok(specificationAttribute);
     }
 
     [EndpointDescription("Get entities from SpecificationAttribute")]
@@ -95,10 +95,10 @@ public class SpecificationAttributeController : BaseApiController
 
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.SpecificationAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var specification = await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key));
-        if (!specification.Any()) return NotFound();
+        var specification = (await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key))).FirstOrDefault();
+        if (specification == null) return NotFound();
 
-        var spec = specification.FirstOrDefault();
+        var spec = specification;
         model.ApplyTo(spec);
         await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = spec });
         return Ok();
@@ -115,10 +115,10 @@ public class SpecificationAttributeController : BaseApiController
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.SpecificationAttributes, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
         var specification =
-            await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key));
-        if (!specification.Any()) return NotFound();
+            (await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(key))).FirstOrDefault();
+        if (specification == null) return NotFound();
 
-        await _mediator.Send(new DeleteSpecificationAttributeCommand { Model = specification.FirstOrDefault() });
+        await _mediator.Send(new DeleteSpecificationAttributeCommand { Model = specification });
 
         return Ok();
     }

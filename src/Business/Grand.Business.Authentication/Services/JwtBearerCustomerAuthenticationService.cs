@@ -32,7 +32,7 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
         _oidcLoginConfig = oidcLoginConfig;
     }
 
-    public async Task<bool> Valid(ClaimsPrincipal principal)
+    public async Task<bool> Valid(ClaimsPrincipal? principal)
     {
         if (principal == null) return false;
         var customerId = principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;

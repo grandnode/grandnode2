@@ -136,9 +136,9 @@ public class CustomerController : BaseApiController
         var customer = await _mediator.Send(new GetCustomerQuery { Email = email });
         if (customer == null) return NotFound();
 
-        address = await _mediator.Send(new UpdateCustomerAddressCommand { Customer = customer, Address = address });
+        var updated = await _mediator.Send(new UpdateCustomerAddressCommand { Customer = customer, Address = address });
 
-        return Ok(address);
+        return Ok(updated);
     }
 
     //api/Customer/email/DeleteAddress

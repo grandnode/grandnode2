@@ -28,7 +28,8 @@ public class UpdateCollectionCommandHandler : IRequestHandler<UpdateCollectionCo
 
     public async Task<CollectionDto> Handle(UpdateCollectionCommand request, CancellationToken cancellationToken)
     {
-        var collection = await _collectionService.GetCollectionById(request.Model.Id);
+        var collection = await _collectionService.GetCollectionById(request.Model.Id) ??
+            throw new ArgumentException("No collection has the id", nameof(request));
         var prevPictureId = collection.PictureId;
         collection = request.Model.ToEntity(collection);
         request.Model.SeName = await _seNameService.ValidateSeName(collection, request.Model.SeName, collection.Name, true);

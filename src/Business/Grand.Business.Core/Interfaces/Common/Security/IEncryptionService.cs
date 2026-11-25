@@ -55,7 +55,7 @@ public interface IEncryptionService
     ///     <see cref="HashPassword" />. Use it to pick the verification path for records whose password format is
     ///     not tracked in a separate field (e.g. API users), instead of inferring it from other columns.
     /// </summary>
-    bool IsHashedPassword(string storedPassword);
+    bool IsHashedPassword(string? storedPassword);
 
     /// <summary>
     ///     Encrypt text (legacy TripleDES). Retained only to verify pre-existing reversibly-encrypted values

@@ -36,6 +36,8 @@ public class EndAuctionsTaskTests
         _messageProviderMock = new Mock<ICatalogMessageProviderService>();
         _shoppingCartMock = new Mock<IShoppingCartService>();
         _customerServiceMock = new Mock<ICustomerService>();
+        //the customer of the highest bid
+        _customerServiceMock.Setup(c => c.GetCustomerById(It.IsAny<string>())).ReturnsAsync(new Customer());
         _loggerMock = new Mock<ILogger<EndAuctionsTask>>();
         _settings = new LanguageSettings { DefaultAdminLanguageId = "admin-lang" };
         _languageServiceMock = new Mock<ILanguageService>();

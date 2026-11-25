@@ -10,17 +10,17 @@ public class StockApplyLineDto
     /// <summary>
     ///     The idempotency key; required, at most 100 characters. A retried call with the same key is not applied again
     /// </summary>
-    public string Key { get; set; }
+    public string? Key { get; set; }
 
     /// <summary>
     ///     The product by id; exactly one of ProductId and Sku
     /// </summary>
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     /// <summary>
     ///     The product or combination by SKU; exactly one of ProductId and Sku
     /// </summary>
-    public string Sku { get; set; }
+    public string? Sku { get; set; }
 
     /// <summary>
     ///     With ProductId, the attributes of a product stocked by attributes
@@ -30,17 +30,17 @@ public class StockApplyLineDto
     /// <summary>
     ///     The warehouse by id; at most one of WarehouseId and WarehouseCode
     /// </summary>
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     The warehouse by code; at most one of WarehouseId and WarehouseCode
     /// </summary>
-    public string WarehouseCode { get; set; }
+    public string? WarehouseCode { get; set; }
 
     /// <summary>
     ///     "Set" or "Change"
     /// </summary>
-    public string Mode { get; set; }
+    public string? Mode { get; set; }
 
     /// <summary>
     ///     The target for Set, the signed difference for Change
@@ -50,7 +50,7 @@ public class StockApplyLineDto
     /// <summary>
     ///     A batch-tracked product: the batch the line moves
     /// </summary>
-    public string BatchNumber { get; set; }
+    public string? BatchNumber { get; set; }
 
     /// <summary>
     ///     A batch received: its expiry date
@@ -65,10 +65,10 @@ public class StockApplyLineDto
     /// <summary>
     ///     The reference of the journal entry; the SKU when empty
     /// </summary>
-    public string Reference { get; set; }
+    public string? Reference { get; set; }
 
     /// <summary>
     ///     The comment of the journal entry
     /// </summary>
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 }

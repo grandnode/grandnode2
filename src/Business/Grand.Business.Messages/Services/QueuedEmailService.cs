@@ -190,10 +190,10 @@ public class QueuedEmailService : IQueuedEmailService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Email item list</returns>
-    public virtual async Task<IPagedList<QueuedEmail>> SearchEmails(string fromEmail,
-        string toEmail, string text, DateTime? createdFromUtc, DateTime? createdToUtc,
+    public virtual async Task<IPagedList<QueuedEmail>> SearchEmails(string? fromEmail,
+        string? toEmail, string? text, DateTime? createdFromUtc, DateTime? createdToUtc,
         bool loadNotSentItemsOnly, bool loadOnlyItemsToBeSent, int maxSendTries,
-        bool loadNewest, int referenceId = -1, string objectId = "", int pageIndex = 0, int pageSize = int.MaxValue)
+        bool loadNewest, int referenceId = -1, string? objectId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
         fromEmail = (fromEmail ?? string.Empty).Trim();
         toEmail = (toEmail ?? string.Empty).Trim();

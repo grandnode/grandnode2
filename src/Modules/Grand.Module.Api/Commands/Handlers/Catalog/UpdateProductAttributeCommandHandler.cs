@@ -18,7 +18,8 @@ public class UpdateProductAttributeCommandHandler : IRequestHandler<UpdateProduc
     public async Task<ProductAttributeDto> Handle(UpdateProductAttributeCommand request,
         CancellationToken cancellationToken)
     {
-        var productAttribute = await _productAttributeService.GetProductAttributeById(request.Model.Id);
+        var productAttribute = await _productAttributeService.GetProductAttributeById(request.Model.Id) ??
+            throw new ArgumentException("No product attribute has the id", nameof(request));
 
         productAttribute = request.Model.ToEntity(productAttribute);
         await _productAttributeService.UpdateProductAttribute(productAttribute);

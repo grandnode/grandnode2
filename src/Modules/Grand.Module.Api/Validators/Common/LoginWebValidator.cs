@@ -45,7 +45,7 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
                         string password;
                         try
                         {
-                            password = Encoding.UTF8.GetString(Convert.FromBase64String(x.Password));
+                            password = Encoding.UTF8.GetString(Convert.FromBase64String(x.Password ?? ""));
                         }
                         catch (FormatException)
                         {

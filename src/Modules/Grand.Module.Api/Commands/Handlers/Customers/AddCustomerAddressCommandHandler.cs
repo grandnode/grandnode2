@@ -17,6 +17,7 @@ public class AddCustomerAddressCommandHandler : IRequestHandler<AddCustomerAddre
 
     public async Task<AddressDto> Handle(AddCustomerAddressCommand request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Customer.Id);
         var address = request.Address.ToEntity();
         address.Id = "";
         await _customerService.InsertAddress(address, request.Customer.Id);

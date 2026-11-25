@@ -46,10 +46,10 @@ public class MerchandiseReturnReasonController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
 
-        var reason = await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key));
-        if (!reason.Any()) return NotFound();
+        var reason = (await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key))).FirstOrDefault();
+        if (reason == null) return NotFound();
 
-        return Ok(reason.FirstOrDefault());
+        return Ok(reason);
     }
 
     [EndpointDescription("Add new entity to MerchandiseReturnReason")]
@@ -90,10 +90,10 @@ public class MerchandiseReturnReasonController : BaseApiController
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var reason = await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key));
-        if (!reason.Any()) return NotFound();
+        var reason = (await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key))).FirstOrDefault();
+        if (reason == null) return NotFound();
 
-        await _mediator.Send(new DeleteMerchandiseReturnReasonCommand { Model = reason.FirstOrDefault() });
+        await _mediator.Send(new DeleteMerchandiseReturnReasonCommand { Model = reason });
         return Ok();
     }
 }

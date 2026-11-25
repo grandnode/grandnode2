@@ -30,7 +30,7 @@ public class GroupService : IGroupService
     /// </summary>
     /// <param name="customerGroupId">Customer group identifier</param>
     /// <returns>Customer group</returns>
-    public virtual Task<CustomerGroup?> GetCustomerGroupById(string customerGroupId)
+    public virtual Task<CustomerGroup?> GetCustomerGroupById(string? customerGroupId)
     {
         if (string.IsNullOrWhiteSpace(customerGroupId))
             return Task.FromResult<CustomerGroup?>(null);

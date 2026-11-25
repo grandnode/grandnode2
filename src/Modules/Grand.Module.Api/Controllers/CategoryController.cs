@@ -36,10 +36,10 @@ public class CategoryController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
 
-        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
-        if (!category.Any()) return NotFound();
+        var category = (await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key))).FirstOrDefault();
+        if (category == null) return NotFound();
 
-        return Ok(category.FirstOrDefault());
+        return Ok(category);
     }
 
     [EndpointDescription("Get entities from Category")]
@@ -97,10 +97,10 @@ public class CategoryController : BaseApiController
 
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
-        if (!category.Any()) return NotFound();
+        var category = (await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key))).FirstOrDefault();
+        if (category == null) return NotFound();
 
-        var cat = category.FirstOrDefault();
+        var cat = category;
         model.ApplyTo(cat);
         await _mediator.Send(new UpdateCategoryCommand { Model = cat });
         return Ok();
@@ -116,10 +116,10 @@ public class CategoryController : BaseApiController
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
-        if (!category.Any()) return NotFound();
+        var category = (await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key))).FirstOrDefault();
+        if (category == null) return NotFound();
 
-        await _mediator.Send(new DeleteCategoryCommand { Model = category.FirstOrDefault() });
+        await _mediator.Send(new DeleteCategoryCommand { Model = category });
         return Ok();
     }
 }

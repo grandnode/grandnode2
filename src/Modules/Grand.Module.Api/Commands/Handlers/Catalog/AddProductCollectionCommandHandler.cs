@@ -16,6 +16,7 @@ public class AddProductCollectionCommandHandler : IRequestHandler<AddProductColl
 
     public async Task<bool> Handle(AddProductCollectionCommand request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
         var productCollection = new ProductCollection {
             CollectionId = request.Model.CollectionId,
             IsFeaturedProduct = request.Model.IsFeaturedProduct

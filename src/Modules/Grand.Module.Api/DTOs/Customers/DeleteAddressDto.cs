@@ -2,5 +2,5 @@
 
 public class DeleteAddressDto
 {
-    public string AddressId { get; set; }
+    public string? AddressId { get; set; }
 }

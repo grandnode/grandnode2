@@ -85,7 +85,7 @@ public interface IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnActionId">Merchandise return action identifier</param>
     /// <returns>Merchandise return action</returns>
-    Task<MerchandiseReturnAction?> GetMerchandiseReturnActionById(string merchandiseReturnActionId);
+    Task<MerchandiseReturnAction?> GetMerchandiseReturnActionById(string? merchandiseReturnActionId);
 
     /// <summary>
     ///     Inserts a merchandise return action
@@ -117,7 +117,7 @@ public interface IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnReasonId">Merchandise return reason identifier</param>
     /// <returns>Merchandise return reasons</returns>
-    Task<MerchandiseReturnReason?> GetMerchandiseReturnReasonById(string merchandiseReturnReasonId);
+    Task<MerchandiseReturnReason?> GetMerchandiseReturnReasonById(string? merchandiseReturnReasonId);
 
     /// <summary>
     ///     Inserts a merchandise return reasons

@@ -4,7 +4,7 @@ using Grand.Module.Api.Commands.Models.Orders;
 
 namespace Grand.Module.Api.Commands.Handlers.Orders;
 
-public class DeleteMerchandiseReturnCommandHandler : IRequestHandler<DeleteMerchandiseReturnCommand, string>
+public class DeleteMerchandiseReturnCommandHandler : IRequestHandler<DeleteMerchandiseReturnCommand, string?>
 {
     private readonly IMerchandiseReturnWorkflowService _merchandiseReturnWorkflowService;
 
@@ -13,7 +13,7 @@ public class DeleteMerchandiseReturnCommandHandler : IRequestHandler<DeleteMerch
         _merchandiseReturnWorkflowService = merchandiseReturnWorkflowService;
     }
 
-    public Task<string> Handle(DeleteMerchandiseReturnCommand request, CancellationToken cancellationToken)
+    public Task<string?> Handle(DeleteMerchandiseReturnCommand request, CancellationToken cancellationToken)
     {
         return _merchandiseReturnWorkflowService.Delete(request.Id);
     }

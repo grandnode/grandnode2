@@ -52,7 +52,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     /// </summary>
     /// <param name="specificationAttributeId">The specification attribute identifier</param>
     /// <returns>Specification attribute</returns>
-    public virtual async Task<SpecificationAttribute?> GetSpecificationAttributeById(string specificationAttributeId)
+    public virtual async Task<SpecificationAttribute?> GetSpecificationAttributeById(string? specificationAttributeId)
     {
         var key = string.Format(CacheKey.SPECIFICATION_BY_ID_KEY, specificationAttributeId);
         return await _cacheBase.GetAsync(key,

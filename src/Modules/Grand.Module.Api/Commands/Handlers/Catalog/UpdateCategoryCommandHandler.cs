@@ -28,7 +28,8 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
 
     public async Task<CategoryDto> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = await _categoryService.GetCategoryById(request.Model.Id);
+        var category = await _categoryService.GetCategoryById(request.Model.Id) ??
+            throw new ArgumentException("No category has the id", nameof(request));
         var prevPictureId = category.PictureId;
         category = request.Model.ToEntity(category);
         request.Model.SeName = await _seNameService.ValidateSeName(category, request.Model.SeName, category.Name, true);

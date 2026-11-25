@@ -73,10 +73,10 @@ public interface IQueuedEmailService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Queued emails</returns>
-    Task<IPagedList<QueuedEmail>> SearchEmails(string fromEmail,
-        string toEmail, string text, DateTime? createdFromUtc, DateTime? createdToUtc,
+    Task<IPagedList<QueuedEmail>> SearchEmails(string? fromEmail,
+        string? toEmail, string? text, DateTime? createdFromUtc, DateTime? createdToUtc,
         bool loadNotSentItemsOnly, bool loadOnlyItemsToBeSent, int maxSendTries,
-        bool loadNewest, int referenceId = -1, string objectId = "",
+        bool loadNewest, int referenceId = -1, string? objectId = "",
         int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>

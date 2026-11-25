@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Grand.Infrastructure.Configuration;
 
 /// <summary>
@@ -29,6 +31,7 @@ public class ScimConfig
     public int MaxResults { get; set; } = DefaultMaxResults;
 
     /// <summary>A token shorter than 32 characters is a configuration mistake: the endpoint refuses every request</summary>
+    [MemberNotNullWhen(true, nameof(Token))]
     public bool TokenUsable => !string.IsNullOrEmpty(Token) && Token.Length >= MinTokenLength;
 
     /// <summary>The e-mail is in one of <see cref="TakeOverDomains" /> (case-insensitive, exact domain)</summary>

@@ -32,10 +32,10 @@ public class PictureController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Pictures, CurrentCustomer)) return Forbid();
 
-        var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key));
-        if (picture == null || !picture.Any()) return NotFound();
+        var picture = (await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key))).FirstOrDefault();
+        if (picture == null) return NotFound();
 
-        return Ok(picture.FirstOrDefault());
+        return Ok(picture);
     }
 
     [EndpointDescription("Add new entity in Picture")]
@@ -76,10 +76,10 @@ public class PictureController : BaseApiController
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Pictures, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var picture = await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key));
-        if (picture == null || !picture.Any()) return NotFound();
+        var picture = (await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(key))).FirstOrDefault();
+        if (picture == null) return NotFound();
 
-        await _mediator.Send(new DeletePictureCommand { PictureDto = picture.FirstOrDefault() });
+        await _mediator.Send(new DeletePictureCommand { PictureDto = picture });
         return Ok();
     }
 }

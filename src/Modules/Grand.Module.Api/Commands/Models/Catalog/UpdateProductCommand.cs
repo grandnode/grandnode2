@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class UpdateProductCommand : IRequest<ProductDto>
 {
-    public ProductDto Model { get; set; }
+    public required ProductDto Model { get; set; }
 }

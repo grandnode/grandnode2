@@ -21,7 +21,8 @@ public class
         CancellationToken cancellationToken)
     {
         var specificationAttribute =
-            await _specificationAttributeService.GetSpecificationAttributeById(request.Model.Id);
+            await _specificationAttributeService.GetSpecificationAttributeById(request.Model.Id) ??
+            throw new ArgumentException("No specification attribute has the id", nameof(request));
         foreach (var option in specificationAttribute.SpecificationAttributeOptions)
             if (request.Model.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == option.Id) == null)
                 await _specificationAttributeService.DeleteSpecificationAttributeOption(option);

@@ -39,7 +39,8 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
     public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         //product
-        var product = await _productService.GetProductById(request.Model.Id);
+        var product = await _productService.GetProductById(request.Model.Id) ??
+            throw new ArgumentException("No product has the id", nameof(request));
         var prevStockQuantity = product.StockQuantity;
         var prevReservedQuantity = product.ReservedQuantity;
         var prevPublished = product.Published;

@@ -146,7 +146,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnActionId">Merchandise return action identifier</param>
     /// <returns>Merchandise return action</returns>
-    public virtual Task<MerchandiseReturnAction?> GetMerchandiseReturnActionById(string merchandiseReturnActionId)
+    public virtual Task<MerchandiseReturnAction?> GetMerchandiseReturnActionById(string? merchandiseReturnActionId)
     {
         return _merchandiseReturnActionRepository.GetByIdAsync(merchandiseReturnActionId);
     }
@@ -297,7 +297,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnReasonId">Merchandise return reasons identifier</param>
     /// <returns>Merchandise return reasons</returns>
-    public virtual Task<MerchandiseReturnReason?> GetMerchandiseReturnReasonById(string merchandiseReturnReasonId)
+    public virtual Task<MerchandiseReturnReason?> GetMerchandiseReturnReasonById(string? merchandiseReturnReasonId)
     {
         return _merchandiseReturnReasonRepository.GetByIdAsync(merchandiseReturnReasonId);
     }

@@ -74,7 +74,7 @@ public class ScimGroupService(
         return group == null ? new ScimGroupResult(ScimOutcome.NotFound) : new ScimGroupResult(ScimOutcome.Ok, View(group));
     }
 
-    public virtual async Task<ScimPage<ScimGroupView>> List(string displayName, string externalId, int skip, int take)
+    public virtual async Task<ScimPage<ScimGroupView>> List(string? displayName, string? externalId, int skip, int take)
     {
         var query = groups.Table;
         if (!string.IsNullOrEmpty(externalId))
@@ -114,7 +114,7 @@ public class ScimGroupService(
         return await ChangeMembers(group, await ManagedOnly(add), remove ?? [], replaceAll);
     }
 
-    public virtual async Task<ScimGroupResult> Rename(string id, string displayName, string externalId)
+    public virtual async Task<ScimGroupResult> Rename(string id, string? displayName, string? externalId)
     {
         var group = await Load(id);
         if (group == null)
@@ -227,7 +227,7 @@ public class ScimGroupService(
         group.IsSystem && group.SystemName == systemName;
 
     //display names may repeat (Entra allows it); the provider's id of a group may not
-    private async Task<bool> ExternalIdTaken(string externalId, string? exceptId) =>
+    private async Task<bool> ExternalIdTaken(string? externalId, string? exceptId) =>
         !string.IsNullOrEmpty(externalId) &&
         await groups.AnyAsync(groups.Table.Where(x => x.Id != exceptId && x.ExternalId == externalId));
 

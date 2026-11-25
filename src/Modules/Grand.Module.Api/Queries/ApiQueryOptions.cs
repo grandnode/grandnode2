@@ -196,12 +196,12 @@ public static class ApiQueryOptions
             return [];
         }
 
-        public Type ResolveType(string typeName)
+        public Type? ResolveType(string typeName)
         {
             return null;
         }
 
-        public Type ResolveTypeBySimpleName(string simpleTypeName)
+        public Type? ResolveTypeBySimpleName(string simpleTypeName)
         {
             return null;
         }

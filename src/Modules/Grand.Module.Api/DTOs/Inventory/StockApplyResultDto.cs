@@ -5,17 +5,17 @@ namespace Grand.Module.Api.DTOs.Inventory;
 /// </summary>
 public class StockApplyResultDto
 {
-    public string Key { get; set; }
+    public string? Key { get; set; }
 
     /// <summary>
     ///     "Applied", "AlreadyApplied" or "Rejected"
     /// </summary>
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
     /// <summary>
     ///     Why the line was rejected; empty otherwise
     /// </summary>
-    public string Error { get; set; }
+    public string? Error { get; set; }
 
     /// <summary>
     ///     The bucket's stock after the line; empty when rejected

@@ -32,10 +32,10 @@ public class PickupPointController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings, CurrentCustomer)) return Forbid();
 
-        var points = await _mediator.Send(new GetGenericQuery<PickupPointDto, PickupPoint>(key));
-        if (!points.Any()) return NotFound();
+        var points = (await _mediator.Send(new GetGenericQuery<PickupPointDto, PickupPoint>(key))).FirstOrDefault();
+        if (points == null) return NotFound();
 
-        return Ok(points.FirstOrDefault());
+        return Ok(points);
     }
 
     [EndpointDescription("Get entities from PickupPoint")]

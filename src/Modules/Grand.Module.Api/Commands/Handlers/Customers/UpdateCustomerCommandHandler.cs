@@ -23,7 +23,8 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
 
     public async Task<CustomerDto> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var customer = await _customerService.GetCustomerById(request.Model.Id);
+        var customer = await _customerService.GetCustomerById(request.Model.Id) ??
+            throw new ArgumentException("No customer has the id", nameof(request));
         customer = request.Model.ToEntity(customer);
         await _customerService.UpdateCustomer(customer);
         await SaveCustomerAttributes(request.Model, customer);
@@ -69,7 +70,7 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
             var group = await _groupService.GetCustomerGroupById(item);
             if (group != null)
             {
-                customer.Groups.Remove(customer.Groups.FirstOrDefault(x => x == item));
+                customer.Groups.Remove(item);
                 await _customerService.DeleteCustomerGroupInCustomer(group, customer.Id);
             }
         }

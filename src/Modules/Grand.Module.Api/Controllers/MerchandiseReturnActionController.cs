@@ -46,10 +46,10 @@ public class MerchandiseReturnActionController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
 
-        var action = await _mediator.Send(new GetGenericQuery<MerchandiseReturnActionDto, MerchandiseReturnAction>(key));
-        if (!action.Any()) return NotFound();
+        var action = (await _mediator.Send(new GetGenericQuery<MerchandiseReturnActionDto, MerchandiseReturnAction>(key))).FirstOrDefault();
+        if (action == null) return NotFound();
 
-        return Ok(action.FirstOrDefault());
+        return Ok(action);
     }
 
     [EndpointDescription("Add new entity to MerchandiseReturnAction")]
@@ -90,10 +90,10 @@ public class MerchandiseReturnActionController : BaseApiController
     {
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var action = await _mediator.Send(new GetGenericQuery<MerchandiseReturnActionDto, MerchandiseReturnAction>(key));
-        if (!action.Any()) return NotFound();
+        var action = (await _mediator.Send(new GetGenericQuery<MerchandiseReturnActionDto, MerchandiseReturnAction>(key))).FirstOrDefault();
+        if (action == null) return NotFound();
 
-        await _mediator.Send(new DeleteMerchandiseReturnActionCommand { Model = action.FirstOrDefault() });
+        await _mediator.Send(new DeleteMerchandiseReturnActionCommand { Model = action });
         return Ok();
     }
 }

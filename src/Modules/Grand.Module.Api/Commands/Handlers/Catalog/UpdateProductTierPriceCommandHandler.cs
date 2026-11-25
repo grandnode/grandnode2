@@ -16,7 +16,8 @@ public class UpdateProductTierPriceCommandHandler : IRequestHandler<UpdateProduc
 
     public async Task<bool> Handle(UpdateProductTierPriceCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productService.GetProductById(request.Product.Id, true);
+        var product = await _productService.GetProductById(request.Product.Id, true) ??
+            throw new ArgumentException("No product has the id", nameof(request));
         var tierPrice = request.Model.ToEntity();
         await _productService.UpdateTierPrice(tierPrice, product.Id);
 

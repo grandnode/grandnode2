@@ -28,7 +28,8 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, Bra
 
     public async Task<BrandDto> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
     {
-        var brand = await _brandService.GetBrandById(request.Model.Id);
+        var brand = await _brandService.GetBrandById(request.Model.Id) ??
+            throw new ArgumentException("No brand has the id", nameof(request));
         var prevPictureId = brand.PictureId;
         brand = request.Model.ToEntity(brand);
         request.Model.SeName = await _seNameService.ValidateSeName(brand, request.Model.SeName, brand.Name, true);

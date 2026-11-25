@@ -6,7 +6,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Customers;
 
-public class UpdateCustomerAddressCommandHandler : IRequestHandler<UpdateCustomerAddressCommand, AddressDto>
+public class UpdateCustomerAddressCommandHandler : IRequestHandler<UpdateCustomerAddressCommand, AddressDto?>
 {
     private readonly ICustomerService _customerService;
 
@@ -15,8 +15,9 @@ public class UpdateCustomerAddressCommandHandler : IRequestHandler<UpdateCustome
         _customerService = customerService;
     }
 
-    public async Task<AddressDto> Handle(UpdateCustomerAddressCommand request, CancellationToken cancellationToken)
+    public async Task<AddressDto?> Handle(UpdateCustomerAddressCommand request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Customer.Id);
         var customer = await _customerService.GetCustomerById(request.Customer.Id);
         if (customer != null)
         {
