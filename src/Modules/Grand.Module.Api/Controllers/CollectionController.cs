@@ -37,7 +37,7 @@ public class CollectionController : BaseApiController
         var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
         if (!collection.Any()) return NotFound();
 
-        return Ok(collection);
+        return Ok(collection.FirstOrDefault());
     }
 
     [EndpointDescription("Get entities from Collection")]
