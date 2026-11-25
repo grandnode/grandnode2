@@ -12,7 +12,7 @@ public class RecordRecurringPaymentReferenceCommand : IRequest<bool>
     /// <summary>
     ///     The recurring payment the provider was given as gateway metadata
     /// </summary>
-    public string? RecurringPaymentId { get; set; }
+    public required string RecurringPaymentId { get; set; }
 
     /// <summary>
     ///     The provider's reference of the recurring payment (for example the subscription id)

@@ -13,7 +13,7 @@ namespace Grand.Business.Core.Queries.Catalog;
 /// </summary>
 public class GetShoppingCartItemsSubTotalQuery : IRequest<double>
 {
-    public Customer? Customer { get; set; }
-    public Store? Store { get; set; }
+    public required Customer Customer { get; set; }
+    public required Store Store { get; set; }
     public IList<ShoppingCartItem> Items { get; set; } = new List<ShoppingCartItem>();
 }

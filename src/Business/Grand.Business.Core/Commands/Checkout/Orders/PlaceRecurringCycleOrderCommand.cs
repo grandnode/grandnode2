@@ -12,10 +12,10 @@ public class PlaceRecurringCycleOrderCommand : IRequest<Order>
     /// <summary>
     ///     The recurring payment the cycle belongs to
     /// </summary>
-    public RecurringPayment? RecurringPayment { get; set; }
+    public required RecurringPayment RecurringPayment { get; set; }
 
     /// <summary>
     ///     The cycle the gateway reported, already claimed: its order identifier is the one the order is inserted with
     /// </summary>
-    public RecurringPaymentCycle? Cycle { get; set; }
+    public required RecurringPaymentCycle Cycle { get; set; }
 }

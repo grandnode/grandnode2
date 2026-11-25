@@ -5,6 +5,6 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 public class UpdateOrderItemCommand : IRequest<bool>
 {
-    public Order? Order { get; set; }
-    public OrderItem? OrderItem { get; set; }
+    public required Order Order { get; set; }
+    public required OrderItem OrderItem { get; set; }
 }

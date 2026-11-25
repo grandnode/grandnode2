@@ -6,6 +6,6 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 public class ValidateMinShoppingCartSubtotalAmountCommand : IRequest<bool>
 {
-    public IList<ShoppingCartItem>? Cart { get; set; }
-    public CalculationContext? Context { get; set; }
+    public required IList<ShoppingCartItem> Cart { get; set; }
+    public required CalculationContext Context { get; set; }
 }

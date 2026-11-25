@@ -10,7 +10,7 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 /// </summary>
 public class CancelRecurringPaymentCommand : IRequest<CancelRecurringPaymentResult>
 {
-    public RecurringPayment? RecurringPayment { get; set; }
+    public required RecurringPayment RecurringPayment { get; set; }
 
     /// <summary>
     ///     Who cancelled it: the customer's e-mail, the staff name, or the reason

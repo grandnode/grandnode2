@@ -6,7 +6,7 @@ namespace Grand.Business.Core.Commands.Catalog;
 
 public class SendOutBidCustomerCommand : IRequest<bool>
 {
-    public Product? Product { get; set; }
-    public Bid? Bid { get; set; }
-    public Language? Language { get; set; }
+    public required Product Product { get; set; }
+    public required Bid Bid { get; set; }
+    public required Language Language { get; set; }
 }

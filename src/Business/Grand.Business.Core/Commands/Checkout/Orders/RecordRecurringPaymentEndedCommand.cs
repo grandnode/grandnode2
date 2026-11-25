@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 /// </summary>
 public class RecordRecurringPaymentEndedCommand : IRequest<bool>
 {
-    public string? RecurringPaymentId { get; set; }
+    public required string RecurringPaymentId { get; set; }
 
     /// <summary>
     ///     The provider's reference of what ended (for example the subscription id), so the end of another

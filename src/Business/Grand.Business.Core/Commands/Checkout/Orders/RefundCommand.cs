@@ -5,6 +5,6 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 public class RefundCommand : IRequest<IList<string>>
 {
-    public PaymentTransaction? PaymentTransaction { get; set; }
+    public required PaymentTransaction PaymentTransaction { get; set; }
     public string? CreatedBy { get; set; }
 }

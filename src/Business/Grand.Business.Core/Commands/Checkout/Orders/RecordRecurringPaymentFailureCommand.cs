@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 /// </summary>
 public class RecordRecurringPaymentFailureCommand : IRequest<bool>
 {
-    public string? RecurringPaymentId { get; set; }
+    public required string RecurringPaymentId { get; set; }
 
     /// <summary>
     ///     The provider's reference of the recurring payment (for example the subscription id), used to stop the

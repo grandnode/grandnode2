@@ -11,17 +11,17 @@ public class PlaceOrderCommand : IRequest<PlaceOrderResult>
     /// <summary>
     ///     Customer, store, working currency and tax display the order is calculated for (required)
     /// </summary>
-    public CalculationContext? Context { get; set; }
+    public required CalculationContext Context { get; set; }
 
     /// <summary>
     ///     Language used when the customer has no published language of their own (required)
     /// </summary>
-    public Language? Language { get; set; }
+    public required Language Language { get; set; }
 
     /// <summary>
     ///     Store address used for file download links in the checkout attribute description (required)
     /// </summary>
-    public DomainHost? Host { get; set; }
+    public required DomainHost Host { get; set; }
 
     /// <summary>
     ///     Staff member who places the order while impersonating the customer, if any

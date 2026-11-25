@@ -7,12 +7,12 @@ namespace Grand.Business.Core.Commands.Messages.Common;
 
 public class OrderNotificationCommand : IRequest
 {
-    public Order? Order { get; set; }
+    public required Order Order { get; set; }
 
     /// <summary>
     ///     Customer the order was placed for
     /// </summary>
-    public Customer? Customer { get; set; }
+    public required Customer Customer { get; set; }
 
     /// <summary>
     ///     Staff member who placed the order while impersonating the customer, if any

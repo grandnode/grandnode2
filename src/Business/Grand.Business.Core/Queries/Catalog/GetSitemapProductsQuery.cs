@@ -10,7 +10,7 @@ public class GetSitemapProductsQuery : IRequest<IList<SitemapProduct>>
 {
     public string? StoreId { get; set; }
     public IList<string> CustomerGroupIds { get; set; } = [];
-    public string? LanguageId { get; set; }
+    public required string LanguageId { get; set; }
 
     /// <summary>
     ///     Id of the last product of the previous batch; null for the first batch

@@ -71,7 +71,9 @@ public class PlaceOrderCommandHandlerTests
     public async Task Handle_WithoutContext_ReturnsError()
     {
         //Act
-        var result = await _handler.Handle(new PlaceOrderCommand(), CancellationToken.None);
+        //null! only here: the handler's guard against a caller outside nullable checking is what is tested
+        var result = await _handler.Handle(new PlaceOrderCommand { Context = null!, Language = null!, Host = null! },
+            CancellationToken.None);
 
         //Assert
         Assert.IsNotEmpty(result.Errors);
@@ -84,7 +86,9 @@ public class PlaceOrderCommandHandlerTests
         //Arrange
         var command = new PlaceOrderCommand {
             Context = new CalculationContext(new Customer(), new Store(), new Currency(), TaxDisplayType.IncludingTax),
-            Host = new DomainHost { Url = "https://shop.example/" }
+            Host = new DomainHost { Url = "https://shop.example/" },
+            //null! only here: the handler's guard against a caller outside nullable checking is what is tested
+            Language = null!
         };
 
         //Act
@@ -101,7 +105,9 @@ public class PlaceOrderCommandHandlerTests
         //Arrange
         var command = new PlaceOrderCommand {
             Context = new CalculationContext(new Customer(), new Store(), new Currency(), TaxDisplayType.IncludingTax),
-            Language = new Language { Id = "pl" }
+            Language = new Language { Id = "pl" },
+            //null! only here: the handler's guard against a caller outside nullable checking is what is tested
+            Host = null!
         };
 
         //Act

@@ -5,5 +5,5 @@ namespace Grand.Business.Core.Queries.Checkout.Orders;
 
 public class CanCancelOrderQuery : IRequest<bool>
 {
-    public Order? Order { get; set; }
+    public required Order Order { get; set; }
 }

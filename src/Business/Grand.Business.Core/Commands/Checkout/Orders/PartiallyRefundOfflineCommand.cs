@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 public class PartiallyRefundOfflineCommand : IRequest<bool>
 {
-    public PaymentTransaction? PaymentTransaction { get; set; }
+    public required PaymentTransaction PaymentTransaction { get; set; }
     public double AmountToRefund { get; set; }
     public string? CreatedBy { get; set; }
     public string? Reference { get; set; }
