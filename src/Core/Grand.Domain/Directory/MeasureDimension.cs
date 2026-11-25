@@ -8,12 +8,12 @@ public class MeasureDimension : BaseEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the system keyword
     /// </summary>
-    public string SystemKeyword { get; set; }
+    public string? SystemKeyword { get; set; }
 
     /// <summary>
     ///     Gets or sets the ratio

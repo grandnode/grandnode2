@@ -14,23 +14,23 @@ public class Store : BaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the store name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the store shortcut
     /// </summary>
-    public string Shortcut { get; set; }
+    public string? Shortcut { get; set; }
 
     /// <summary>
     ///     Gets or sets the store URL, including the scheme
     /// </summary>
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>
     ///     Gets or sets the account told about the store's order approvals; it does not limit who may decide them
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string OwnerCustomerId { get; set; }
+    public string? OwnerCustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the list of domains
@@ -42,25 +42,25 @@ public class Store : BaseEntity, ITranslationEntity
     ///     display order
     /// </summary>
     [AuditReference(typeof(Language))]
-    public string DefaultLanguageId { get; set; }
+    public string? DefaultLanguageId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the default waregouse for this store
     /// </summary>
     [AuditReference(typeof(Warehouse))]
-    public string DefaultWarehouseId { get; set; }
+    public string? DefaultWarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the default country for this store
     /// </summary>
     [AuditReference(typeof(Country))]
-    public string DefaultCountryId { get; set; }
+    public string? DefaultCountryId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the default currency for this store
     /// </summary>
     [AuditReference(typeof(Currency))]
-    public string DefaultCurrencyId { get; set; }
+    public string? DefaultCurrencyId { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order
@@ -70,37 +70,37 @@ public class Store : BaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the company name
     /// </summary>
-    public string CompanyName { get; set; }
+    public string? CompanyName { get; set; }
 
     /// <summary>
     ///     Gets or sets the company registration number
     /// </summary>
-    public string CompanyRegNo { get; set; }
+    public string? CompanyRegNo { get; set; }
 
     /// <summary>
     ///     Gets or sets the company address
     /// </summary>
-    public string CompanyAddress { get; set; }
+    public string? CompanyAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets the store phone number
     /// </summary>
-    public string CompanyPhoneNumber { get; set; }
+    public string? CompanyPhoneNumber { get; set; }
 
     /// <summary>
     ///     Gets or sets the company VAT (used in Europe Union countries)
     /// </summary>
-    public string CompanyVat { get; set; }
+    public string? CompanyVat { get; set; }
 
     /// <summary>
     ///     Gets or sets the company email
     /// </summary>
-    public string CompanyEmail { get; set; }
+    public string? CompanyEmail { get; set; }
 
     /// <summary>
     ///     Gets or sets the company opening hours
     /// </summary>
-    public string CompanyHours { get; set; }
+    public string? CompanyHours { get; set; }
 
 
     public BankAccount BankAccount { get; set; } = new();

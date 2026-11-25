@@ -12,17 +12,17 @@ public class EmailAccount : BaseEntity
     ///     Gets or sets an email address
     /// </summary>
     [AuditName]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     ///     Gets or sets an email display name
     /// </summary>
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 
     /// <summary>
     ///     Gets or sets an email host
     /// </summary>
-    public string Host { get; set; }
+    public string? Host { get; set; }
 
     /// <summary>
     ///     Gets or sets an email port
@@ -32,12 +32,12 @@ public class EmailAccount : BaseEntity
     /// <summary>
     ///     Gets or sets an email user name
     /// </summary>
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     /// <summary>
     ///     Gets or sets an email password
     /// </summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     /// <summary>
     ///     Gets or sets a value that the remote certificate is invalid according to the validation procedure.
@@ -55,5 +55,5 @@ public class EmailAccount : BaseEntity
     ///     An empty string means this is a global/shared email account.
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 }

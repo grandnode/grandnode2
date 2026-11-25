@@ -12,22 +12,22 @@ public class Language : BaseEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the language culture
     /// </summary>
-    public string LanguageCulture { get; set; }
+    public string? LanguageCulture { get; set; }
 
     /// <summary>
     ///     Gets or sets the unique SEO code
     /// </summary>
-    public string UniqueSeoCode { get; set; }
+    public string? UniqueSeoCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the flag image file name
     /// </summary>
-    public string FlagImageFileName { get; set; }
+    public string? FlagImageFileName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the language supports "Right-to-left"
@@ -39,7 +39,7 @@ public class Language : BaseEntity, IStoreLinkEntity
     ///     display order
     /// </summary>
     [AuditReference(typeof(Currency))]
-    public string DefaultCurrencyId { get; set; }
+    public string? DefaultCurrencyId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the language is published

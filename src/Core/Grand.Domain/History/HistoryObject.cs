@@ -2,5 +2,5 @@
 
 public class HistoryObject : BaseEntity
 {
-    public BaseEntity Object { get; set; }
+    public BaseEntity? Object { get; set; }
 }

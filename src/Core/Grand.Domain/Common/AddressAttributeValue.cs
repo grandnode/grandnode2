@@ -12,12 +12,12 @@ public class AddressAttributeValue : BaseEntity, ITranslationEntity
     ///     Gets or sets the address attribute identifier
     /// </summary>
     [AuditReference(typeof(AddressAttribute))]
-    public string AddressAttributeId { get; set; }
+    public string? AddressAttributeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the checkout attribute name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the value is pre-selected

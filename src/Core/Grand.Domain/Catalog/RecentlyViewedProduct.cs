@@ -2,6 +2,6 @@
 
 public class RecentlyViewedProduct : BaseEntity
 {
-    public string CustomerId { get; set; }
-    public string ProductId { get; set; }
+    public string? CustomerId { get; set; }
+    public string? ProductId { get; set; }
 }

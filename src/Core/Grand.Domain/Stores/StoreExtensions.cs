@@ -15,7 +15,7 @@ public static class StoreExtensions
         if (string.IsNullOrEmpty(host))
             return false;
 
-        var contains = store.Domains.FirstOrDefault(x => x.HostName.Equals(host, StringComparison.OrdinalIgnoreCase)) !=
+        var contains = store.Domains.FirstOrDefault(x => string.Equals(x.HostName, host, StringComparison.OrdinalIgnoreCase)) !=
                        null;
         return contains;
     }
@@ -26,12 +26,12 @@ public static class StoreExtensions
     /// <param name="store">Store</param>
     /// <param name="host">Host</param>
     /// <returns>DomainHost</returns>
-    public static DomainHost HostValue(this Store store, string host)
+    public static DomainHost? HostValue(this Store store, string host)
     {
         ArgumentNullException.ThrowIfNull(store);
         return string.IsNullOrEmpty(host)
             ? null
-            : store.Domains.FirstOrDefault(x => x.HostName.Equals(host, StringComparison.OrdinalIgnoreCase));
+            : store.Domains.FirstOrDefault(x => string.Equals(x.HostName, host, StringComparison.OrdinalIgnoreCase));
     }
 
     /// <summary>
@@ -56,12 +56,12 @@ public static class StoreExtensions
     /// <param name="store">Store</param>
     /// <param name="host">Host the request was made to; null when there is no request</param>
     /// <returns>DomainHost</returns>
-    public static DomainHost LinkHost(this Store store, DomainHost host)
+    public static DomainHost LinkHost(this Store store, DomainHost? host)
     {
         ArgumentNullException.ThrowIfNull(store);
         var domain = string.IsNullOrEmpty(host?.HostName)
             ? null
-            : store.Domains?.FirstOrDefault(x => x.HostName.Equals(host.HostName, StringComparison.OrdinalIgnoreCase));
+            : store.Domains?.FirstOrDefault(x => string.Equals(x.HostName, host.HostName, StringComparison.OrdinalIgnoreCase));
         return domain ?? store.PrimaryHost();
     }
 }

@@ -10,35 +10,35 @@ namespace Grand.Domain.Shipping;
 /// </summary>
 public class Shipment : BaseEntity
 {
-    private ICollection<ShipmentItem> _shipmentItems;
+    private ICollection<ShipmentItem>? _shipmentItems;
 
     /// <summary>
     ///     Gets or sets the order identifier
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor identifier
     /// </summary>
     [AuditReference(typeof(Vendor))]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the sales employee identifier
     /// </summary>
-    public string SeId { get; set; }
+    public string? SeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the tracking number of this shipment
     /// </summary>
-    public string TrackingNumber { get; set; }
+    public string? TrackingNumber { get; set; }
 
     /// <summary>
     ///     Gets or sets the total weight of this shipment
@@ -58,7 +58,7 @@ public class Shipment : BaseEntity
     /// <summary>
     ///     Gets or sets the admin comment
     /// </summary>
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     Gets the shipment number

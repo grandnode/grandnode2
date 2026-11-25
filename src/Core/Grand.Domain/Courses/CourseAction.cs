@@ -9,19 +9,19 @@ public class CourseAction : BaseEntity
     ///     Gets or sets the customer ident
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the course ident
     /// </summary>
     [AuditReference(typeof(Course))]
-    public string CourseId { get; set; }
+    public string? CourseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the lesson ident
     /// </summary>
     [AuditReference(typeof(CourseLesson))]
-    public string LessonId { get; set; }
+    public string? LessonId { get; set; }
 
     /// <summary>
     ///     Gets or sets the finished

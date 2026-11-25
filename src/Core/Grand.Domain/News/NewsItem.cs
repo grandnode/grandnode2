@@ -12,28 +12,28 @@ namespace Grand.Domain.News;
 /// </summary>
 public class NewsItem : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationEntity, IGroupLinkEntity
 {
-    private ICollection<NewsComment> _newsComments;
+    private ICollection<NewsComment>? _newsComments;
 
     /// <summary>
     ///     Gets or sets the news title
     /// </summary>
     [AuditName]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     ///     Gets or sets the picture identifier
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the short text
     /// </summary>
-    public string Short { get; set; }
+    public string? Short { get; set; }
 
     /// <summary>
     ///     Gets or sets the full text
     /// </summary>
-    public string Full { get; set; }
+    public string? Full { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the news item is published
@@ -66,17 +66,17 @@ public class NewsItem : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the meta keywords
     /// </summary>
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta description
     /// </summary>
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta title
     /// </summary>
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets the news comments
@@ -97,7 +97,7 @@ public class NewsItem : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the sename
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores

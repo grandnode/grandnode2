@@ -8,24 +8,24 @@ public class AuditChange
     /// <summary>
     ///     Gets or sets the field path, e.g. Price or TierPrices[id=…].Quantity
     /// </summary>
-    public string Path { get; set; }
+    public string? Path { get; set; }
 
     /// <summary>
     ///     Gets or sets the names of the list elements the path runs through, outermost first (an empty name where an
     ///     element has none), e.g. "Color family" for ProductSpecificationAttributes[id=…].DisplayOrder; null when
     ///     the path runs through no named element
     /// </summary>
-    public IList<string> ElementNames { get; set; }
+    public IList<string>? ElementNames { get; set; }
 
     /// <summary>
     ///     Gets or sets the value before the change (null when masked or when the field was added)
     /// </summary>
-    public string OldValue { get; set; }
+    public string? OldValue { get; set; }
 
     /// <summary>
     ///     Gets or sets the value after the change (null when masked or when the field was removed)
     /// </summary>
-    public string NewValue { get; set; }
+    public string? NewValue { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the values are hidden because the field is sensitive

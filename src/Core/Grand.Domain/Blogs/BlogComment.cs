@@ -13,29 +13,29 @@ public class BlogComment : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the comment text
     /// </summary>
     [AuditName]
-    public string CommentText { get; set; }
+    public string? CommentText { get; set; }
 
     /// <summary>
     ///     Gets or sets the blog post title
     /// </summary>
-    public string BlogPostTitle { get; set; }
+    public string? BlogPostTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets the blog post identifier
     /// </summary>
     [AuditReference(typeof(BlogPost))]
     [AuditOwner]
-    public string BlogPostId { get; set; }
+    public string? BlogPostId { get; set; }
 }

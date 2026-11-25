@@ -8,19 +8,19 @@ namespace Grand.Domain.Vendors;
 /// </summary>
 public class VendorReview : BaseEntity
 {
-    private ICollection<VendorReviewHelpfulness> _vendorReviewHelpfulnessEntries;
+    private ICollection<VendorReviewHelpfulness>? _vendorReviewHelpfulnessEntries;
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor identifier
     /// </summary>
     [AuditReference(typeof(Vendor))]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the content is approved
@@ -31,12 +31,12 @@ public class VendorReview : BaseEntity
     ///     Gets or sets the title
     /// </summary>
     [AuditName]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     ///     Gets or sets the review text
     /// </summary>
-    public string ReviewText { get; set; }
+    public string? ReviewText { get; set; }
 
     /// <summary>
     ///     Review rating

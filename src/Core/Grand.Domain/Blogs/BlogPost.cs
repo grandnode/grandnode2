@@ -14,22 +14,22 @@ public class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     ///     Gets or sets the blog post title
     /// </summary>
     [AuditName]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     ///     Gets or sets the picture identifier
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the blog post body
     /// </summary>
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     /// <summary>
     ///     Gets or sets the blog post overview. If specified, then it's used on the blog page instead of the "Body"
     /// </summary>
-    public string BodyOverview { get; set; }
+    public string? BodyOverview { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the blog post comments are allowed
@@ -47,7 +47,7 @@ public class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the blog tags
     /// </summary>
-    public string Tags { get; set; }
+    public string? Tags { get; set; }
 
     /// <summary>
     ///     Gets or sets the blog post start date and time
@@ -62,22 +62,22 @@ public class BlogPost : BaseEntity, ISlugEntity, IStoreLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the meta keywords
     /// </summary>
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta description
     /// </summary>
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta title
     /// </summary>
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets the sename
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores

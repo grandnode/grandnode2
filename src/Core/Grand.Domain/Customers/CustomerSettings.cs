@@ -43,7 +43,7 @@ public class CustomerSettings : ISettings
     /// <summary>
     ///     Gets or sets a regular expression for password validation
     /// </summary>
-    public string PasswordRegularExpression { get; set; }
+    public string? PasswordRegularExpression { get; set; }
 
     /// <summary>
     ///     Gets or sets a number of passwords that should not be the same as the previous one; 0 if the customer can use the

@@ -8,79 +8,79 @@ public class Address : SubBaseEntity
     /// <summary>
     ///     Gets or sets the name of address
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the first name
     /// </summary>
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
 
     /// <summary>
     ///     Gets or sets the last name
     /// </summary>
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
 
     /// <summary>
     ///     Gets or sets the email
     /// </summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     ///     Gets or sets the company
     /// </summary>
-    public string Company { get; set; }
+    public string? Company { get; set; }
 
     /// <summary>
     ///     Gets or sets the vat numer
     /// </summary>
-    public string VatNumber { get; set; }
+    public string? VatNumber { get; set; }
 
     /// <summary>
     ///     Gets or sets the country identifier
     /// </summary>
     [AuditReference(typeof(Country))]
-    public string CountryId { get; set; }
+    public string? CountryId { get; set; }
 
     /// <summary>
     ///     Gets or sets the state/province identifier
     /// </summary>
     [AuditReference(typeof(Country), nameof(Country.StateProvinces), Owner = nameof(CountryId))]
-    public string StateProvinceId { get; set; }
+    public string? StateProvinceId { get; set; }
 
     /// <summary>
     ///     Gets or sets the city
     /// </summary>
-    public string City { get; set; }
+    public string? City { get; set; }
 
     /// <summary>
     ///     Gets or sets the address 1
     /// </summary>
-    public string Address1 { get; set; }
+    public string? Address1 { get; set; }
 
     /// <summary>
     ///     Gets or sets the address 2
     /// </summary>
-    public string Address2 { get; set; }
+    public string? Address2 { get; set; }
 
     /// <summary>
     ///     Gets or sets the zip/postal code
     /// </summary>
-    public string ZipPostalCode { get; set; }
+    public string? ZipPostalCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the phone number
     /// </summary>
-    public string PhoneNumber { get; set; }
+    public string? PhoneNumber { get; set; }
 
     /// <summary>
     ///     Gets or sets the fax number
     /// </summary>
-    public string FaxNumber { get; set; }
+    public string? FaxNumber { get; set; }
 
     /// <summary>
     ///     Gets or sets the note
     /// </summary>
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
     /// <summary>
     ///     Gets or sets the custom attributes (see "AddressAttribute" entity for more info)

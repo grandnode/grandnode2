@@ -10,12 +10,12 @@ namespace Grand.Domain.Customers;
 /// </summary>
 public class CustomerAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity
 {
-    private ICollection<CustomerAttributeValue> _customerAttributeValues;
+    private ICollection<CustomerAttributeValue>? _customerAttributeValues;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the attribute is required

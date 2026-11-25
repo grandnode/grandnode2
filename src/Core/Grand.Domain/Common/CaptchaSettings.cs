@@ -85,17 +85,17 @@ public class CaptchaSettings : ISettings
     /// <summary>
     ///     reCAPTCHA public key
     /// </summary>
-    public string ReCaptchaPublicKey { get; set; }
+    public string? ReCaptchaPublicKey { get; set; }
 
     /// <summary>
     ///     reCAPTCHA private key
     /// </summary>
-    public string ReCaptchaPrivateKey { get; set; }
+    public string? ReCaptchaPrivateKey { get; set; }
 
     /// <summary>
     ///     reCAPTCHA theme
     /// </summary>
-    public string ReCaptchaTheme { get; set; }
+    public string? ReCaptchaTheme { get; set; }
 
     /// <summary>
     ///     reCAPTCHA score
@@ -110,7 +110,7 @@ public class CaptchaSettings : ISettings
     /// <summary>
     ///     reCAPTCHA language
     /// </summary>
-    public string ReCaptchaLanguage { get; set; }
+    public string? ReCaptchaLanguage { get; set; }
 }
 
 /// <summary>

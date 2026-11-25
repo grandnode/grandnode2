@@ -5,17 +5,17 @@ public class SalesEmployee : BaseEntity
     /// <summary>
     ///     Gets or sets the sales employee name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the sales employee email
     /// </summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     ///     Gets or sets the sales employee phone
     /// </summary>
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     /// <summary>
     ///     Gets or sets the sales employee active

@@ -12,12 +12,12 @@ public class Currency : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the currency code
     /// </summary>
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the rate
@@ -27,12 +27,12 @@ public class Currency : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the display locale
     /// </summary>
-    public string DisplayLocale { get; set; }
+    public string? DisplayLocale { get; set; }
 
     /// <summary>
     ///     Gets or sets the custom formatting
     /// </summary>
-    public string CustomFormatting { get; set; }
+    public string? CustomFormatting { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is published

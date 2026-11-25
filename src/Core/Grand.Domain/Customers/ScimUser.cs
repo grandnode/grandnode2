@@ -11,18 +11,18 @@ namespace Grand.Domain.Customers;
 public class ScimUser : BaseEntity
 {
     /// <summary>The identity provider's id of the user (with Scim:ExternalIdIsSubject also its OpenID Connect subject)</summary>
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     /// <summary>Customer groups SCIM gave the account</summary>
     public List<string> GrantedGroupIds { get; set; } = [];
 
     /// <summary>Staff store SCIM set on the account; empty when SCIM set none</summary>
     [AuditReference(typeof(Store))]
-    public string GrantedStaffStoreId { get; set; }
+    public string? GrantedStaffStoreId { get; set; }
 
     /// <summary>Vendor SCIM set on the account; empty when SCIM set none</summary>
     [AuditReference(typeof(Vendor))]
-    public string GrantedVendorId { get; set; }
+    public string? GrantedVendorId { get; set; }
 
     /// <summary>The account was deactivated by SCIM, so SCIM may activate it again (never an account disabled by hand)</summary>
     public bool DeactivatedByScim { get; set; }

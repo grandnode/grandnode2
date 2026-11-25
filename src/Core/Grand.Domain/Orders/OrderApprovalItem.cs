@@ -13,17 +13,17 @@ public class OrderApprovalItem : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Product))]
     [AuditName]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     /// <summary>
     ///     Gets or sets the product name
     /// </summary>
-    public string ProductName { get; set; }
+    public string? ProductName { get; set; }
 
     /// <summary>
     ///     Gets or sets the product SKU
     /// </summary>
-    public string Sku { get; set; }
+    public string? Sku { get; set; }
 
     /// <summary>
     ///     Gets or sets the quantity
@@ -33,15 +33,15 @@ public class OrderApprovalItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the formatted attributes
     /// </summary>
-    public string AttributeDescription { get; set; }
+    public string? AttributeDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the formatted unit price, in the buyer's currency
     /// </summary>
-    public string UnitPrice { get; set; }
+    public string? UnitPrice { get; set; }
 
     /// <summary>
     ///     Gets or sets the formatted line total, in the buyer's currency
     /// </summary>
-    public string LineTotal { get; set; }
+    public string? LineTotal { get; set; }
 }

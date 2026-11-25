@@ -10,12 +10,12 @@ namespace Grand.Domain.Common;
 /// </summary>
 public class AddressAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity
 {
-    private ICollection<AddressAttributeValue> _addressAttributeValues;
+    private ICollection<AddressAttributeValue>? _addressAttributeValues;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the attribute is required

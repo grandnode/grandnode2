@@ -9,25 +9,25 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class ProductReview : BaseEntity
 {
-    private ICollection<ProductReviewHelpfulness> _productReviewHelpfulnessEntries;
+    private ICollection<ProductReviewHelpfulness>? _productReviewHelpfulnessEntries;
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the product identifier
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the content is approved
@@ -38,22 +38,22 @@ public class ProductReview : BaseEntity
     ///     Gets or sets the title
     /// </summary>
     [AuditName]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     ///     Gets or sets the review text
     /// </summary>
-    public string ReviewText { get; set; }
+    public string? ReviewText { get; set; }
 
     /// <summary>
     ///     Gets or sets the reply text
     /// </summary>
-    public string ReplyText { get; set; }
+    public string? ReplyText { get; set; }
 
     /// <summary>
     ///     Gets or sets the Signature (for response text)
     /// </summary>
-    public string Signature { get; set; }
+    public string? Signature { get; set; }
 
     /// <summary>
     ///     Gets or sets the review was confirmed by purchased

@@ -11,7 +11,7 @@ public class TaxCategory : BaseEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order
@@ -22,5 +22,5 @@ public class TaxCategory : BaseEntity
     ///     Gets or sets the store identifier (empty = available to all stores)
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 }

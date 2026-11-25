@@ -13,7 +13,7 @@ public class OrderApproval : BaseEntity
     ///     Gets or sets the store identifier the order belongs to
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets who decides the request
@@ -24,7 +24,7 @@ public class OrderApproval : BaseEntity
     ///     Gets or sets the identifier of the company owner; every company read is scoped by it. Null when the store decides.
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CompanyOwnerId { get; set; }
+    public string? CompanyOwnerId { get; set; }
 
     /// <summary>
     ///     Gets or sets why the order needs an approval, in the buyer's language
@@ -35,7 +35,7 @@ public class OrderApproval : BaseEntity
     ///     Gets or sets the buyer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the status
@@ -60,7 +60,7 @@ public class OrderApproval : BaseEntity
     /// <summary>
     ///     Gets or sets the buyer's currency code, for display
     /// </summary>
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the date and time of the decision
@@ -71,21 +71,21 @@ public class OrderApproval : BaseEntity
     ///     Gets or sets the identifier of the customer who decided
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string DecidedByCustomerId { get; set; }
+    public string? DecidedByCustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the approver's comment
     /// </summary>
-    public string DecisionComment { get; set; }
+    public string? DecisionComment { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the write that closed the request; tells concurrent callers which one won
     /// </summary>
-    public string CloseId { get; set; }
+    public string? CloseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the identifier of the order awaiting the decision; set at creation
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 }

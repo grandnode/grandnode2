@@ -90,7 +90,7 @@ public static class CustomerExtensions
     /// <param name="customer">Source</param>
     /// <param name="customerNameFormat"></param>
     /// <returns>Formatted text</returns>
-    public static string FormatUserName(this Customer customer, CustomerNameFormat customerNameFormat)
+    public static string? FormatUserName(this Customer customer, CustomerNameFormat customerNameFormat)
     {
         if (customer == null)
             return string.Empty;

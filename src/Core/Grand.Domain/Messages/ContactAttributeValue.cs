@@ -12,17 +12,17 @@ public class ContactAttributeValue : SubBaseEntity, ITranslationEntity
     ///     Gets or sets the checkout attribute mapping identifier
     /// </summary>
     [AuditReference(typeof(ContactAttribute))]
-    public string ContactAttributeId { get; set; }
+    public string? ContactAttributeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the checkout attribute name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the color RGB value (used with "Color squares" attribute type)
     /// </summary>
-    public string ColorSquaresRgb { get; set; }
+    public string? ColorSquaresRgb { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the value is pre-selected

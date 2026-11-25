@@ -43,9 +43,9 @@ public static class GiftVoucherExtensions
     /// <param name="senderName">Sender name</param>
     /// <param name="senderEmail">Sender email</param>
     /// <param name="giftVoucherMessage">Message</param>
-    public static void GetGiftVoucherAttribute(IList<CustomAttribute> customAttributes, out string recipientName,
-        out string recipientEmail, out string senderName,
-        out string senderEmail, out string giftVoucherMessage)
+    public static void GetGiftVoucherAttribute(IList<CustomAttribute> customAttributes, out string? recipientName,
+        out string? recipientEmail, out string? senderName,
+        out string? senderEmail, out string? giftVoucherMessage)
     {
         customAttributes ??= new List<CustomAttribute>();
 

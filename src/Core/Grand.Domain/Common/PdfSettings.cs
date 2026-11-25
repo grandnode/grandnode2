@@ -7,7 +7,7 @@ public class PdfSettings : ISettings
     /// <summary>
     ///     PDF logo picture identifier
     /// </summary>
-    public string LogoPictureId { get; set; }
+    public string? LogoPictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to disallow customers to print PDF invoices for pedning orders
@@ -17,12 +17,12 @@ public class PdfSettings : ISettings
     /// <summary>
     ///     Gets or sets the text that will appear at the top of invoices
     /// </summary>
-    public string InvoiceHeaderText { get; set; }
+    public string? InvoiceHeaderText { get; set; }
 
     /// <summary>
     ///     Gets or sets the text that will appear at the bottom of invoices
     /// </summary>
-    public string InvoiceFooterText { get; set; }
+    public string? InvoiceFooterText { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether an order PDF lists the batches and serial numbers its shipments

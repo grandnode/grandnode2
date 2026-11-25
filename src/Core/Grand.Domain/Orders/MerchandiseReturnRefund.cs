@@ -33,7 +33,7 @@ public class MerchandiseReturnRefund
     ///     Gets or sets the payment transaction refunded
     /// </summary>
     [AuditReference(typeof(PaymentTransaction))]
-    public string PaymentTransactionId { get; set; }
+    public string? PaymentTransactionId { get; set; }
 
     /// <summary>
     ///     Gets or sets whether the payment answered the refund with errors: it may have given the money back before it
@@ -44,7 +44,7 @@ public class MerchandiseReturnRefund
     /// <summary>
     ///     Gets or sets who refunded, as the staff note names them
     /// </summary>
-    public string RefundedBy { get; set; }
+    public string? RefundedBy { get; set; }
 
     /// <summary>
     ///     Gets or sets when the refund was started

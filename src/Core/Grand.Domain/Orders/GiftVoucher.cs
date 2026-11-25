@@ -9,7 +9,7 @@ namespace Grand.Domain.Orders;
 /// </summary>
 public class GiftVoucher : BaseEntity
 {
-    private ICollection<GiftVoucherUsageHistory> _giftVoucherUsageHistory;
+    private ICollection<GiftVoucherUsageHistory>? _giftVoucherUsageHistory;
 
     /// <summary>
     ///     Gets or sets the gift voucher type identifier
@@ -24,7 +24,7 @@ public class GiftVoucher : BaseEntity
     /// <summary>
     ///     Gets or sets the currency code
     /// </summary>
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether gift voucher is activated
@@ -35,32 +35,32 @@ public class GiftVoucher : BaseEntity
     ///     Gets or sets a gift voucher coupon code
     /// </summary>
     [AuditName]
-    public string Code { get; set; }
+    public string? Code { get; set; }
 
     /// <summary>
     ///     Gets or sets a recipient name
     /// </summary>
-    public string RecipientName { get; set; }
+    public string? RecipientName { get; set; }
 
     /// <summary>
     ///     Gets or sets a recipient email
     /// </summary>
-    public string RecipientEmail { get; set; }
+    public string? RecipientEmail { get; set; }
 
     /// <summary>
     ///     Gets or sets a sender name
     /// </summary>
-    public string SenderName { get; set; }
+    public string? SenderName { get; set; }
 
     /// <summary>
     ///     Gets or sets a sender email
     /// </summary>
-    public string SenderEmail { get; set; }
+    public string? SenderEmail { get; set; }
 
     /// <summary>
     ///     Gets or sets a message
     /// </summary>
-    public string Message { get; set; }
+    public string? Message { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether recipient is notified
@@ -71,7 +71,7 @@ public class GiftVoucher : BaseEntity
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the date and time of instance creation
@@ -89,5 +89,5 @@ public class GiftVoucher : BaseEntity
     /// <summary>
     ///     Gets or sets the associated order item
     /// </summary>
-    public virtual OrderItem PurchasedWithOrderItem { get; set; }
+    public virtual OrderItem? PurchasedWithOrderItem { get; set; }
 }

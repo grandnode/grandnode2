@@ -21,29 +21,29 @@ public class OrderItem : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Product))]
     [AuditName]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     /// <summary>
     ///     Gets or sets the sku product identifier
     /// </summary>
-    public string Sku { get; set; }
+    public string? Sku { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor identifier
     /// </summary>
     [AuditReference(typeof(Vendor))]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
     [AuditReference(typeof(Warehouse))]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the sales employee identifier
     /// </summary>
-    public string SeId { get; set; }
+    public string? SeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the quantity
@@ -138,7 +138,7 @@ public class OrderItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the attribute description
     /// </summary>
-    public string AttributeDescription { get; set; }
+    public string? AttributeDescription { get; set; }
 
     public IList<CustomAttribute> Attributes { get; set; } = new List<CustomAttribute>();
 
@@ -155,7 +155,7 @@ public class OrderItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets a license download identifier (in case this is a downloadable product)
     /// </summary>
-    public string LicenseDownloadId { get; set; }
+    public string? LicenseDownloadId { get; set; }
 
     /// <summary>
     ///     Gets or sets the total weight of one item
@@ -185,5 +185,5 @@ public class OrderItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets owner cid
     /// </summary>
-    public string cId { get; set; }
+    public string? cId { get; set; }
 }

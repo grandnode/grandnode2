@@ -12,23 +12,23 @@ public class MerchandiseReturnNote : BaseEntity
     /// </summary>
     [AuditReference(typeof(MerchandiseReturn))]
     [AuditOwner]
-    public string MerchandiseReturnId { get; set; }
+    public string? MerchandiseReturnId { get; set; }
 
     /// <summary>
     ///     Gets or sets the title
     /// </summary>
     [AuditName]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     ///     Gets or sets the note
     /// </summary>
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
     /// <summary>
     ///     Gets or sets the attached file (download) identifier
     /// </summary>
-    public string DownloadId { get; set; }
+    public string? DownloadId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether a customer can see a note

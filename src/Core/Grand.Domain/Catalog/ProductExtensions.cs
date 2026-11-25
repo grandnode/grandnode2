@@ -18,7 +18,7 @@ public static class ProductExtensions
     /// <param name="currencyCode"></param>
     /// <param name="quantity">Quantity</param>
     /// <returns>Price</returns>
-    public static TierPrice GetPreferredTierPrice(this Product product, Customer customer, string storeId,
+    public static TierPrice? GetPreferredTierPrice(this Product product, Customer customer, string storeId,
         string currencyCode, int quantity)
     {
         if (!product.TierPrices.Any())
@@ -82,8 +82,8 @@ public static class ProductExtensions
     /// <param name="sku">SKU</param>
     /// <param name="mpn">MPN</param>
     /// <param name="gtin">GTIN</param>
-    private static void GetSkuMpnGtin(this Product product, IList<CustomAttribute> attributes,
-        out string sku, out string mpn, out string gtin)
+    private static void GetSkuMpnGtin(this Product product, IList<CustomAttribute>? attributes,
+        out string? sku, out string? mpn, out string? gtin)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -117,7 +117,7 @@ public static class ProductExtensions
     /// <param name="customAttributes">Attributes</param>
     /// <param name="ignoreNonCombinableAttributes">A value indicating whether we should ignore non-combinable attributes</param>
     /// <returns>Found product attribute combination</returns>
-    public static ProductAttributeCombination FindProductAttributeCombination(this Product product,
+    public static ProductAttributeCombination? FindProductAttributeCombination(this Product product,
         IList<CustomAttribute> customAttributes, bool ignoreNonCombinableAttributes = true)
     {
         ArgumentNullException.ThrowIfNull(product);
@@ -188,9 +188,9 @@ public static class ProductExtensions
     /// <param name="customAttributes">Attributes </param>
     /// <param name="productAttributeMappingId">Product attribute mapping identifier</param>
     /// <returns>Product attribute values</returns>
-    public static IList<string> ParseValues(IList<CustomAttribute> customAttributes, string productAttributeMappingId)
+    public static IList<string?> ParseValues(IList<CustomAttribute> customAttributes, string productAttributeMappingId)
     {
-        var selectedValues = new List<string>();
+        var selectedValues = new List<string?>();
         if (customAttributes == null || !customAttributes.Any())
             return selectedValues;
 
@@ -259,7 +259,7 @@ public static class ProductExtensions
                     {
                         foreach (var str1 in values1Str)
                         {
-                            var hasValue = values2Str.Any(str2 => str1.Trim() == str2.Trim());
+                            var hasValue = values2Str.Any(str2 => str1?.Trim() == str2?.Trim());
                             if (hasValue) continue;
                             attributesEqual = false;
                             break;
@@ -333,7 +333,7 @@ public static class ProductExtensions
     /// </summary>
     /// <param name="product">Product</param>
     /// <returns>Attribute combinations</returns>
-    public static IList<IEnumerable<CustomAttribute>> GenerateAllCombinations(this Product product)
+    public static IList<IEnumerable<CustomAttribute>>? GenerateAllCombinations(this Product product)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -360,7 +360,7 @@ public static class ProductExtensions
     /// <param name="product">Product</param>
     /// <param name="attributes">Attributes</param>
     /// <returns>SKU</returns>
-    public static string FormatSku(this Product product, IList<CustomAttribute> attributes = null)
+    public static string? FormatSku(this Product product, IList<CustomAttribute>? attributes = null)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -375,7 +375,7 @@ public static class ProductExtensions
     /// <param name="product">Product</param>
     /// <param name="attributes">Attributes</param>
     /// <returns>Collection part number</returns>
-    public static string FormatMpn(this Product product, IList<CustomAttribute> attributes = null)
+    public static string? FormatMpn(this Product product, IList<CustomAttribute>? attributes = null)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -390,7 +390,7 @@ public static class ProductExtensions
     /// <param name="product">Product</param>
     /// <param name="attributes">Attributes</param>
     /// <returns>GTIN</returns>
-    public static string FormatGtin(this Product product, IList<CustomAttribute> attributes = null)
+    public static string? FormatGtin(this Product product, IList<CustomAttribute>? attributes = null)
     {
         ArgumentNullException.ThrowIfNull(product);
 

@@ -6,16 +6,16 @@ namespace Grand.Domain.Customers;
 /// </summary>
 public class OidcSession : BaseEntity
 {
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>The store of the sign-in</summary>
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>Provider subject (sub)</summary>
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     /// <summary>Provider session id (sid) from the ID token; empty when the provider sends none</summary>
-    public string Sid { get; set; }
+    public string? Sid { get; set; }
 
     public DateTime CreatedUtc { get; set; }
     public DateTime LastActivityUtc { get; set; }
@@ -24,10 +24,10 @@ public class OidcSession : BaseEntity
     public DateTime LastValidatedUtc { get; set; }
 
     /// <summary>Refresh token protected with Data Protection; cleared when the session ends</summary>
-    public string ProtectedRefreshToken { get; set; }
+    public string? ProtectedRefreshToken { get; set; }
 
     /// <summary>Holder of the refresh in progress (one at a time on every instance); empty when none</summary>
-    public string RefreshLeaseId { get; set; }
+    public string? RefreshLeaseId { get; set; }
 
     /// <summary>The lease lapses at this time, so a holder that died does not block the next refresh</summary>
     public DateTime? RefreshLeaseUntilUtc { get; set; }

@@ -8,12 +8,12 @@ public class CustomerHistoryPassword : BaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the password
     /// </summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     /// <summary>
     ///     Gets or sets the password format identifier
@@ -23,5 +23,5 @@ public class CustomerHistoryPassword : BaseEntity
     /// <summary>
     ///     Gets or sets the password salt
     /// </summary>
-    public string PasswordSalt { get; set; }
+    public string? PasswordSalt { get; set; }
 }

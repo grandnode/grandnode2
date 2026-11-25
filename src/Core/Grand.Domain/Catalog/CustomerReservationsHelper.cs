@@ -8,15 +8,15 @@ public class CustomerReservationsHelper : BaseEntity
     /// <summary>
     ///     Gets or sets customer identifier
     /// </summary>
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets shopping cart identifier
     /// </summary>
-    public string ShoppingCartItemId { get; set; }
+    public string? ShoppingCartItemId { get; set; }
 
     /// <summary>
     ///     Gets or sets reservation identifier
     /// </summary>
-    public string ReservationId { get; set; }
+    public string? ReservationId { get; set; }
 }

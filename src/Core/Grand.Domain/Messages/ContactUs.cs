@@ -15,56 +15,56 @@ public class ContactUs : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the IP address
     /// </summary>
-    public string IpAddress { get; set; }
+    public string? IpAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets the email
     /// </summary>
     [AuditName]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     ///     Gets or sets full name
     /// </summary>
-    public string FullName { get; set; }
+    public string? FullName { get; set; }
 
     /// <summary>
     ///     Gets or sets the subject
     /// </summary>
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     /// <summary>
     ///     Gets or sets enquiry
     /// </summary>
-    public string Enquiry { get; set; }
+    public string? Enquiry { get; set; }
 
     /// <summary>
     ///     Gets or sets the email account identifier
     /// </summary>
     [AuditReference(typeof(EmailAccount))]
-    public string EmailAccountId { get; set; }
+    public string? EmailAccountId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor identifier
     /// </summary>
     [AuditReference(typeof(Vendor))]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the contact attribute description
     /// </summary>
-    public string ContactAttributeDescription { get; set; }
+    public string? ContactAttributeDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the custom attributes (see "AddressAttribute" entity for more info)

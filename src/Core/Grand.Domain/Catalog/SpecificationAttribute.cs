@@ -9,17 +9,17 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class SpecificationAttribute : BaseEntity, IStoreLinkEntity, ITranslationEntity
 {
-    private ICollection<SpecificationAttributeOption> _specificationAttributeOptions;
+    private ICollection<SpecificationAttributeOption>? _specificationAttributeOptions;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the sename
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order

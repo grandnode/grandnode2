@@ -15,13 +15,13 @@ public class Bid : BaseEntity
     ///     Gets or sets the product identifier
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
     [AuditReference(typeof(Warehouse))]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the bid date
@@ -32,7 +32,7 @@ public class Bid : BaseEntity
     ///     Gets or sets the customer id
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets Amount
@@ -43,14 +43,14 @@ public class Bid : BaseEntity
     ///     Gets or sets Order Id
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     /// <summary>
     ///     /
     ///     Gets or sets Store Id
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets buy it now

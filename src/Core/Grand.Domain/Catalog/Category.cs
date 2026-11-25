@@ -13,55 +13,55 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationEntity, IStoreLinkEntity
 {
-    private ICollection<string> _appliedDiscounts;
+    private ICollection<string>? _appliedDiscounts;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
 
     /// <summary>
     ///     Gets or sets the bottom description
     /// </summary>
-    public string BottomDescription { get; set; }
+    public string? BottomDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of used category layout identifier
     /// </summary>
     [AuditReference(typeof(CategoryLayout))]
-    public string CategoryLayoutId { get; set; }
+    public string? CategoryLayoutId { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta keywords
     /// </summary>
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta description
     /// </summary>
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta title
     /// </summary>
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets the parent category identifier
     /// </summary>
     [AuditReference(typeof(Category))]
-    public string ParentCategoryId { get; set; }
+    public string? ParentCategoryId { get; set; }
 
     /// <summary>
     ///     Gets or sets the picture identifier
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the page size
@@ -76,7 +76,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the available customer selectable page size options
     /// </summary>
-    public string PageSizeOptions { get; set; }
+    public string? PageSizeOptions { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to show the category on home page
@@ -116,22 +116,22 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the ExternalId
     /// </summary>
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     /// <summary>
     ///     Gets or sets the flag
     /// </summary>
-    public string Flag { get; set; }
+    public string? Flag { get; set; }
 
     /// <summary>
     ///     Gets or sets the flag style
     /// </summary>
-    public string FlagStyle { get; set; }
+    public string? FlagStyle { get; set; }
 
     /// <summary>
     ///     Gets or sets the Icon
     /// </summary>
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     /// <summary>
     ///     Gets or sets the Default sort
@@ -163,7 +163,7 @@ public class Category : BaseEntity, ISlugEntity, IGroupLinkEntity, ITranslationE
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores

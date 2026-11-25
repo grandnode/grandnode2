@@ -12,17 +12,17 @@ public class ProductAttribute : BaseEntity, IStoreLinkEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the sename
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public IList<PredefinedProductAttributeValue> PredefinedProductAttributeValues { get; set; } =
         new List<PredefinedProductAttributeValue>();

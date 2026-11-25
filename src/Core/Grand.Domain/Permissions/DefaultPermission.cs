@@ -8,7 +8,7 @@ public class DefaultPermission
     /// <summary>
     ///     Gets or sets the customer group system name
     /// </summary>
-    public string CustomerGroupSystemName { get; set; }
+    public string? CustomerGroupSystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the permissions

@@ -13,24 +13,24 @@ public class DiscountUsageHistory : BaseEntity
     ///     Gets or sets the discount identifier
     /// </summary>
     [AuditReference(typeof(Discount))]
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
 
     /// <summary>
     ///     Gets or sets the discount coupon code
     /// </summary>
-    public string CouponCode { get; set; }
+    public string? CouponCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the order identifier
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the canceled identifier

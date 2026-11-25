@@ -12,7 +12,7 @@ public class ProductCategory : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Category))]
     [AuditName]
-    public string CategoryId { get; set; }
+    public string? CategoryId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the product is featured

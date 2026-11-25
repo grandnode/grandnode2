@@ -13,13 +13,13 @@ public class LoyaltyPointsHistory : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier in which these loyalty points were awarded or redeemed
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the points redeemed/added
@@ -39,8 +39,8 @@ public class LoyaltyPointsHistory : BaseEntity
     /// <summary>
     ///     Gets or sets the message
     /// </summary>
-    public string Message { get; set; }
+    public string? Message { get; set; }
 
     [AuditReference(typeof(Order))]
-    public string UsedWithOrderId { get; set; }
+    public string? UsedWithOrderId { get; set; }
 }

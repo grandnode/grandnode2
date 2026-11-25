@@ -17,30 +17,30 @@ public class MerchandiseReturn : BaseEntity
     /// <summary>
     ///     Gets or sets the ExternalId
     /// </summary>
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the order item identifier
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets the owner item identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string OwnerId { get; set; }
+    public string? OwnerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the sales employee identifier
     /// </summary>
-    public string SeId { get; set; }
+    public string? SeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the merchandise return items
@@ -51,23 +51,23 @@ public class MerchandiseReturn : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor item identifier
     /// </summary>
     [AuditReference(typeof(Vendor))]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer comments
     /// </summary>
-    public string CustomerComments { get; set; }
+    public string? CustomerComments { get; set; }
 
     /// <summary>
     ///     Gets or sets the staff notes
     /// </summary>
-    public string StaffNotes { get; set; }
+    public string? StaffNotes { get; set; }
 
     /// <summary>
     ///     Gets or sets the return status identifier
@@ -90,17 +90,17 @@ public class MerchandiseReturn : BaseEntity
     /// <summary>
     ///     Gets or sets the pickup address
     /// </summary>
-    public Address PickupAddress { get; set; }
+    public Address? PickupAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets how the items are sent back; null when no return shipping was chosen
     /// </summary>
-    public MerchandiseReturnShipping ReturnShipping { get; set; }
+    public MerchandiseReturnShipping? ReturnShipping { get; set; }
 
     /// <summary>
     ///     Gets or sets the money given back for the return; null until a refund is started
     /// </summary>
-    public MerchandiseReturnRefund Refund { get; set; }
+    public MerchandiseReturnRefund? Refund { get; set; }
 
     /// <summary>
     ///     Gets or sets the statuses the return reached after it was submitted, oldest first; empty for a return
