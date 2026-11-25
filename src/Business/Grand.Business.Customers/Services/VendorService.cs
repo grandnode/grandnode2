@@ -50,7 +50,7 @@ public class VendorService : IVendorService
     /// </summary>
     /// <param name="vendorId">Vendor identifier</param>
     /// <returns>Vendor</returns>
-    public virtual async Task<Vendor> GetVendorById(string vendorId)
+    public virtual async Task<Vendor?> GetVendorById(string vendorId)
     {
         var key = string.Format(CacheKey.VENDOR_BY_ID_KEY, vendorId);
         return await _cacheBase.GetAsync(key, () => _vendorRepository.GetByIdAsync(vendorId));
@@ -126,7 +126,7 @@ public class VendorService : IVendorService
     /// <param name="vendorId">Vendor ident</param>
     /// <param name="vendorNoteId">The vendor note identifier</param>
     /// <returns>Vendor note</returns>
-    public virtual async Task<VendorNote> GetVendorNoteById(string vendorId, string vendorNoteId)
+    public virtual async Task<VendorNote?> GetVendorNoteById(string vendorId, string vendorNoteId)
     {
         if (string.IsNullOrEmpty(vendorNoteId))
             return null;
@@ -194,7 +194,7 @@ public class VendorService : IVendorService
     /// <returns>Reviews</returns>
     public virtual async Task<IPagedList<VendorReview>> GetAllVendorReviews(string customerId, bool? approved,
         DateTime? fromUtc = null, DateTime? toUtc = null,
-        string message = null, string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue)
+        string? message = null, string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = from p in _vendorReviewRepository.Table
             select p;
@@ -308,7 +308,7 @@ public class VendorService : IVendorService
     /// </summary>
     /// <param name="vendorReviewId">Vendor review identifier</param>
     /// <returns>Vendor review</returns>
-    public virtual Task<VendorReview> GetVendorReviewById(string vendorReviewId)
+    public virtual Task<VendorReview?> GetVendorReviewById(string vendorReviewId)
     {
         return _vendorReviewRepository.GetByIdAsync(vendorReviewId);
     }
@@ -322,7 +322,7 @@ public class VendorService : IVendorService
     /// <returns>Vendors</returns>
     public virtual async Task<IList<Vendor>> SearchVendors(
         string vendorId = "",
-        string keywords = null)
+        string? keywords = null)
     {
         //vendors
         var query = from p in _vendorRepository.Table

@@ -7,7 +7,7 @@ public interface IDiscountProviderLoader
     /// </summary>
     /// <param name="ruleSystemName">Rule system name</param>
     /// <returns>Discount provider</returns>
-    IDiscountProvider LoadDiscountProviderByRuleSystemName(string ruleSystemName);
+    IDiscountProvider? LoadDiscountProviderByRuleSystemName(string? ruleSystemName);
 
     /// <summary>
     ///     Loads all available discount providers
@@ -27,5 +27,5 @@ public interface IDiscountProviderLoader
     /// </summary>
     /// <param name="systemName"></param>
     /// <returns></returns>
-    IDiscountAmountProvider LoadDiscountAmountProviderBySystemName(string systemName);
+    IDiscountAmountProvider? LoadDiscountAmountProviderBySystemName(string? systemName);
 }

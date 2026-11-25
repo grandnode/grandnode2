@@ -13,6 +13,7 @@ using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure.Extensions;
 using Grand.Mediator;
+using Grand.SharedKernel;
 
 namespace Grand.Business.Marketing.Services.Campaigns;
 
@@ -87,7 +88,7 @@ public class CampaignService(
     /// </summary>
     /// <param name="campaignId">Campaign identifier</param>
     /// <returns>Campaign</returns>
-    public virtual Task<Campaign> GetCampaignById(string campaignId)
+    public virtual Task<Campaign?> GetCampaignById(string campaignId)
     {
         return campaignRepository.GetByIdAsync(campaignId);
     }
@@ -190,7 +191,7 @@ public class CampaignService(
             //tags
             if (campaign.CustomerTags.Count > 0)
                 foreach (var item in campaign.CustomerTags)
-                    query = query.Where(x => x.CustomerTags.Contains(item));
+                    query = query.Where(x => x.CustomerTags != null && x.CustomerTags.Contains(item));
             //roles
             if (campaign.CustomerGroups.Count > 0)
                 foreach (var item in campaign.CustomerGroups)
@@ -198,7 +199,7 @@ public class CampaignService(
             //categories news
             if (campaign.NewsletterCategories.Count > 0)
                 foreach (var item in campaign.NewsletterCategories)
-                    query = query.Where(x => x.NewsletterCategories.Contains(item));
+                    query = query.Where(x => x.NewsletterCategories != null && x.NewsletterCategories.Contains(item));
             model = await newsLetterSubscriptionRepository.PagedAsync(
                 query.Select(x => new NewsLetterSubscription {
                     CustomerId = x.CustomerId, Email = x.Email,
@@ -239,18 +240,21 @@ public class CampaignService(
 
         var totalEmailsSent = 0;
         var language = await languageService.GetLanguageById(campaign.LanguageId) ??
-                       (await languageService.GetAllLanguages()).FirstOrDefault();
+                       (await languageService.GetAllLanguages()).FirstOrDefault() ??
+                       throw new GrandException("No language is configured to send the campaign in");
 
         var store = await storeService.GetStoreById(campaign.StoreId) ??
-                    (await storeService.GetAllStores()).FirstOrDefault();
+                    (await storeService.GetAllStores()).FirstOrDefault() ??
+                    throw new GrandException("No store is configured to send the campaign from");
 
         foreach (var subscription in subscriptions)
         {
-            Customer customer = null;
+            Customer? customer = null;
 
             if (!string.IsNullOrEmpty(subscription.CustomerId))
                 customer = await customerRepository.GetByIdAsync(subscription.CustomerId);
-            customer ??= customerRepository.Table.FirstOrDefault(x => x.Email == subscription.Email.ToLowerInvariant());
+            if (subscription.Email != null)
+                customer ??= customerRepository.Table.FirstOrDefault(x => x.Email == subscription.Email.ToLowerInvariant());
 
             //ignore deleted or inactive customers when sending newsletter campaigns
             if (customer != null && (!customer.Active || customer.Deleted))
@@ -302,10 +306,12 @@ public class CampaignService(
         ArgumentNullException.ThrowIfNull(emailAccount);
 
         var language = await languageService.GetLanguageById(campaign.LanguageId) ??
-                       (await languageService.GetAllLanguages()).FirstOrDefault();
+                       (await languageService.GetAllLanguages()).FirstOrDefault() ??
+                       throw new GrandException("No language is configured to send the campaign in");
 
         var store = await storeService.GetStoreById(campaign.StoreId) ??
-                    (await storeService.GetAllStores()).FirstOrDefault();
+                    (await storeService.GetAllStores()).FirstOrDefault() ??
+                    throw new GrandException("No store is configured to send the campaign from");
 
         var customer = customerRepository.Table.FirstOrDefault(x => x.Email == email.ToLowerInvariant());
         var (subject, body) = await campaignMessageRenderer.Render(campaign, new CampaignRecipient {
@@ -319,16 +325,17 @@ public class CampaignService(
 
     private class CampaignCustomerHelp
     {
-        public string CustomerId { get; set; }
-        public string CustomerEmail { get; set; }
-        public string Email { get; set; }
+        public string? CustomerId { get; set; }
+        public string? CustomerEmail { get; set; }
+        //projected from NewsLetterSubscription.Email, which every subscription has
+        public string Email { get; set; } = null!;
         public DateTime CreatedOnUtc { get; set; }
         public DateTime LastActivityDateUtc { get; set; }
         public DateTime? LastPurchaseDateUtc { get; set; }
         public bool HasShoppingCartItems { get; set; }
         public bool IsHasOrders { get; }
-        public ICollection<string> CustomerTags { get; set; }
-        public ICollection<string> NewsletterCategories { get; set; }
+        public ICollection<string>? CustomerTags { get; set; }
+        public ICollection<string>? NewsletterCategories { get; set; }
         public ICollection<string> CustomerGroups { get; set; } = new List<string>();
         public Guid NewsLetterSubscriptionGuid { get; set; }
     }

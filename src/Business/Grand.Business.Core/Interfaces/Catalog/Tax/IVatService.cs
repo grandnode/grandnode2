@@ -10,7 +10,7 @@ public interface IVatService
     /// </summary>
     /// <param name="fullVatNumber">Two letter ISO code of a country and VAT number (e.g. GB 111 1111 111)</param>
     /// <returns>VAT Number status</returns>
-    Task<(VatNumberStatus status, string name, string address, Exception exception)> GetVatNumberStatus(
+    Task<(VatNumberStatus status, string? name, string? address, Exception? exception)> GetVatNumberStatus(
         string fullVatNumber);
 
     /// <summary>
@@ -19,7 +19,7 @@ public interface IVatService
     /// <param name="twoLetterIsoCode">Two letter ISO code of a country</param>
     /// <param name="vatNumber">VAT number</param>
     /// <returns>VAT Number status</returns>
-    Task<(VatNumberStatus status, string name, string address, Exception exception)> GetVatNumberStatus(
+    Task<(VatNumberStatus status, string? name, string? address, Exception? exception)> GetVatNumberStatus(
         string twoLetterIsoCode, string vatNumber);
 
 
@@ -29,7 +29,7 @@ public interface IVatService
     /// <param name="twoLetterIsoCode">Two letter ISO code of a country</param>
     /// <param name="vatNumber">VAT number</param>
     /// <returns>VAT number status</returns>
-    Task<(VatNumberStatus status, string name, string address, Exception exception)> DoVatCheck(string twoLetterIsoCode,
+    Task<(VatNumberStatus status, string? name, string? address, Exception? exception)> DoVatCheck(string twoLetterIsoCode,
         string vatNumber);
 
     /// <summary>

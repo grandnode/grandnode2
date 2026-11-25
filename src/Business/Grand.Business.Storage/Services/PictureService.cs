@@ -73,7 +73,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="mimeType">Mime type</param>
     /// <returns>File extension</returns>
-    private static string GetFileExtensionFromMimeType(string mimeType)
+    private static string? GetFileExtensionFromMimeType(string? mimeType)
     {
         if (mimeType == null)
             return null;
@@ -102,7 +102,7 @@ public class PictureService : IPictureService
     /// <param name="pictureId">Picture identifier</param>
     /// <param name="mimeType">MIME type</param>
     /// <returns>Picture binary</returns>
-    protected async Task<byte[]> LoadPictureFromFile(string pictureId, string mimeType)
+    protected async Task<byte[]> LoadPictureFromFile(string pictureId, string? mimeType)
     {
         var lastPart = GetFileExtensionFromMimeType(mimeType);
         var fileName = $"{pictureId}_0.{lastPart}";
@@ -122,7 +122,7 @@ public class PictureService : IPictureService
     {
         var filter = $"{picture.Id}*.*";
         var thumbDirectoryPath = _mediaFileStore.GetDirectoryInfo(ImageThumbPath);
-        if (thumbDirectoryPath == null) return Task.CompletedTask;
+        if (thumbDirectoryPath?.PhysicalPath == null) return Task.CompletedTask;
         var currentFiles = Directory.GetFiles(thumbDirectoryPath.PhysicalPath, filter, SearchOption.AllDirectories);
         foreach (var currentFileName in currentFiles)
             try
@@ -143,7 +143,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="thumbFileName">Filename</param>
     /// <returns>Local picture physical path</returns>
-    protected virtual async Task<string> GetThumbPhysicalPath(string thumbFileName)
+    protected virtual async Task<string?> GetThumbPhysicalPath(string thumbFileName)
     {
         var thumbFile = _mediaFileStore.Combine(ImageThumbPath, thumbFileName);
         var fileInfo = await _mediaFileStore.GetFileInfo(thumbFile);
@@ -156,7 +156,7 @@ public class PictureService : IPictureService
     /// <param name="thumbFileName">Filename</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Local picture thumb path</returns>
-    protected virtual string GetThumbUrl(string thumbFileName, string storeLocation = null)
+    protected virtual string? GetThumbUrl(string thumbFileName, string? storeLocation = null)
     {
         var thumbPath = _mediaFileStore.Combine(ImageThumbPath, thumbFileName);
         if (string.IsNullOrEmpty(storeLocation))
@@ -170,7 +170,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="fileName">Filename</param>
     /// <returns>Physical picture path</returns>
-    protected virtual async Task<string> GetPicturePhysicalPath(string fileName)
+    protected virtual async Task<string?> GetPicturePhysicalPath(string fileName)
     {
         var fileInfo = await _mediaFileStore.GetFileInfo(_mediaFileStore.Combine(ImagePath, fileName));
         return fileInfo?.PhysicalPath;
@@ -182,12 +182,12 @@ public class PictureService : IPictureService
     /// <param name="picture">Picture</param>
     /// <param name="fromDb">Load from database; otherwise, from file system</param>
     /// <returns>Picture binary</returns>
-    public virtual async Task<byte[]> LoadPictureBinary(Picture picture, bool fromDb)
+    public virtual async Task<byte[]?> LoadPictureBinary(Picture picture, bool fromDb)
     {
         ArgumentNullException.ThrowIfNull(picture);
 
         var result = fromDb
-            ? (await _pictureRepository.GetByIdAsync(picture.Id)).PictureBinary
+            ? (await _pictureRepository.GetByIdAsync(picture.Id))?.PictureBinary
             : await LoadPictureFromFile(picture.Id, picture.MimeType);
 
         return result;
@@ -198,7 +198,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="thumbFileName">Thumb file name</param>
     /// <param name="binary">Picture binary</param>
-    protected virtual async Task SaveThumb(string thumbFileName, byte[] binary)
+    protected virtual async Task SaveThumb(string thumbFileName, byte[]? binary)
     {
         try
         {
@@ -235,7 +235,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="picture">Picture</param>
     /// <returns>Picture binary</returns>
-    public virtual async Task<byte[]> LoadPictureBinary(Picture picture)
+    public virtual async Task<byte[]?> LoadPictureBinary(Picture picture)
     {
         return await LoadPictureBinary(picture, _storageSettings.PictureStoreInDb);
     }
@@ -245,7 +245,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="name">Name</param>
     /// <returns>Result</returns>
-    public virtual string GetPictureSeName(string name)
+    public virtual string? GetPictureSeName(string? name)
     {
         return SeoExtensions.GenerateSlug(name, true, false, false);
     }
@@ -256,7 +256,7 @@ public class PictureService : IPictureService
     /// <param name="targetSize">The target picture size (longest side)</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Picture URL</returns>
-    public virtual async Task<string> GetDefaultPictureUrl(int targetSize = 0, string storeLocation = null)
+    public virtual async Task<string?> GetDefaultPictureUrl(int targetSize = 0, string? storeLocation = null)
     {
         var filePath = await GetPicturePhysicalPath(_mediaSettings.DefaultImageName);
         if (string.IsNullOrEmpty(filePath)) return _mediaFileStore.Combine(ImagePath, "no-image.png");
@@ -289,10 +289,10 @@ public class PictureService : IPictureService
     /// <param name="showDefaultPicture">A value indicating whether the default picture is shown</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Picture URL</returns>
-    public virtual async Task<string> GetPictureUrl(string pictureId,
+    public virtual async Task<string?> GetPictureUrl(string pictureId,
         int targetSize = 0,
         bool showDefaultPicture = true,
-        string storeLocation = null)
+        string? storeLocation = null)
     {
         var pictureKey = string.Format(CacheKey.PICTURE_BY_KEY, pictureId, targetSize, showDefaultPicture,
             storeLocation);
@@ -311,10 +311,10 @@ public class PictureService : IPictureService
     /// <param name="showDefaultPicture">A value indicating whether the default picture is shown</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Picture URL</returns>
-    public virtual async Task<string> GetPictureUrl(Picture picture,
+    public virtual async Task<string?> GetPictureUrl(Picture? picture,
         int targetSize = 0,
         bool showDefaultPicture = true,
-        string storeLocation = null)
+        string? storeLocation = null)
     {
         if (picture == null)
             return showDefaultPicture ? await GetDefaultPictureUrl(targetSize, storeLocation) : string.Empty;
@@ -386,7 +386,7 @@ public class PictureService : IPictureService
     /// <param name="targetSize">The target picture size (longest side)</param>
     /// <param name="showDefaultPicture">A value indicating whether the default picture is shown</param>
     /// <returns></returns>
-    public virtual async Task<string> GetThumbPhysicalPath(Picture picture, int targetSize = 0,
+    public virtual async Task<string?> GetThumbPhysicalPath(Picture? picture, int targetSize = 0,
         bool showDefaultPicture = true)
     {
         var url = await GetPictureUrl(picture, targetSize, showDefaultPicture);
@@ -405,7 +405,7 @@ public class PictureService : IPictureService
     /// </summary>
     /// <param name="pictureId">Picture identifier</param>
     /// <returns>Picture</returns>
-    public virtual async Task<Picture> GetPictureById(string pictureId)
+    public virtual async Task<Picture?> GetPictureById(string pictureId)
     {
         var pictureKey = string.Format(CacheKey.PICTURE_BY_ID, pictureId);
         return await _cacheBase.GetAsync(pictureKey, async () =>
@@ -517,8 +517,8 @@ public class PictureService : IPictureService
     /// <param name="objectId">Object id for reference</param>
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
-    public virtual async Task<Picture> InsertPicture(byte[] pictureBinary, string mimeType, string seoFilename,
-        string altAttribute = null, string titleAttribute = null,
+    public virtual async Task<Picture> InsertPicture(byte[] pictureBinary, string mimeType, string? seoFilename,
+        string? altAttribute = null, string? titleAttribute = null,
         bool isNew = true, Reference reference = Reference.None, string objectId = "", bool validateBinary = false)
     {
         mimeType = CommonHelper.EnsureNotNull(mimeType);
@@ -564,9 +564,9 @@ public class PictureService : IPictureService
     /// <param name="isNew">A value indicating whether the picture is new</param>
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
-    public virtual async Task<Picture> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
-        string seoFilename, string altAttribute = null, string titleAttribute = null,
-        string style = null, string extraField = null,
+    public virtual async Task<Picture?> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
+        string seoFilename, string? altAttribute = null, string? titleAttribute = null,
+        string? style = null, string? extraField = null,
         bool isNew = true, bool validateBinary = true)
     {
         mimeType = CommonHelper.EnsureNotNull(mimeType);
@@ -769,7 +769,7 @@ public class PictureService : IPictureService
     }
 
 
-    private static SKEncodedImageFormat EncodedImageFormat(string mimetype)
+    private static SKEncodedImageFormat EncodedImageFormat(string? mimetype)
     {
         const SKEncodedImageFormat defaultFormat = SKEncodedImageFormat.Jpeg;
         if (string.IsNullOrEmpty(mimetype))
@@ -805,7 +805,7 @@ public class PictureService : IPictureService
         return mimetype.Contains("ico") ? SKEncodedImageFormat.Ico : defaultFormat;
     }
 
-    private byte[] ApplyResize(SKBitmap image, SKEncodedImageFormat format, int targetSize)
+    private byte[]? ApplyResize(SKBitmap image, SKEncodedImageFormat format, int targetSize)
     {
         ArgumentNullException.ThrowIfNull(image);
 

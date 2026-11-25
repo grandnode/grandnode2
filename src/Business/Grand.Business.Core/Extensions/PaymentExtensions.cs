@@ -49,7 +49,7 @@ public static class PaymentExtensions
     /// <param name="paymentMethod">Payment method, or null when it is no longer installed</param>
     /// <param name="order">Order</param>
     /// <returns>Payment method name</returns>
-    public static string? GetPaymentMethodName(this IPaymentProvider paymentMethod, Order order)
+    public static string? GetPaymentMethodName(this IPaymentProvider? paymentMethod, Order order)
     {
         ArgumentNullException.ThrowIfNull(order);
 

@@ -8,7 +8,7 @@ namespace Grand.Business.Messages.Commands.Tokens;
 
 public class GetStoreTokensCommand : IRequest<LiquidStore>
 {
-    public Store Store { get; set; }
-    public Language Language { get; set; }
-    public EmailAccount EmailAccount { get; set; }
+    public required Store Store { get; set; }
+    public required Language Language { get; set; }
+    public required EmailAccount EmailAccount { get; set; }
 }

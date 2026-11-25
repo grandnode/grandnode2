@@ -12,51 +12,51 @@ public class LiquidOrderApproval : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string BuyerName { get; set; }
+    public string? BuyerName { get; set; }
 
-    public string BuyerEmail { get; set; }
+    public string? BuyerEmail { get; set; }
 
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
     /// <summary>
     ///     The order total, already formatted in the buyer's currency
     /// </summary>
-    public string Total { get; set; }
+    public string? Total { get; set; }
 
     /// <summary>
     ///     The cart lines as an HTML table; every value is HTML-encoded
     /// </summary>
-    public string ItemsHtml { get; set; }
+    public string? ItemsHtml { get; set; }
 
     /// <summary>
     ///     The approver's comment; HTML-encoded
     /// </summary>
-    public string DecisionComment { get; set; }
+    public string? DecisionComment { get; set; }
 
     /// <summary>
     ///     Absolute link to the approval request
     /// </summary>
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>
     ///     Number of the order awaiting the decision; empty when the order no longer exists
     /// </summary>
-    public string OrderNumber { get; set; }
+    public string? OrderNumber { get; set; }
 
     /// <summary>
     ///     Absolute link to the order in the buyer's account
     /// </summary>
-    public string OrderUrl { get; set; }
+    public string? OrderUrl { get; set; }
 
     /// <summary>
     ///     Why the order needs an approval, as an HTML list; every value is HTML-encoded. Empty when there is no reason.
     /// </summary>
-    public string ReasonsHtml { get; set; }
+    public string? ReasonsHtml { get; set; }
 
     /// <summary>
     ///     Absolute link to the order in the back office panel the recipient works in; empty for a message to the buyer
     /// </summary>
-    public string PanelUrl { get; set; }
+    public string? PanelUrl { get; set; }
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

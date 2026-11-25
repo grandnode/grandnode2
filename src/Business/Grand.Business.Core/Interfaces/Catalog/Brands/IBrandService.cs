@@ -27,7 +27,7 @@ public interface IBrandService
     /// </summary>
     /// <param name="brandId">Brand identifier</param>
     /// <returns>Brand</returns>
-    Task<Brand> GetBrandById(string brandId);
+    Task<Brand?> GetBrandById(string brandId);
 
     /// <summary>
     ///     Inserts a new brand

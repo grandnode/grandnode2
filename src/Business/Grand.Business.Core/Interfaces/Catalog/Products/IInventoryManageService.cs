@@ -23,7 +23,7 @@ public interface IInventoryManageService
     /// <param name="attributes">Attributes</param>
     /// <param name="warehouseId">Warehouse ident</param>
     Task AdjustReserved(Product product, int quantityToChange, IList<CustomAttribute>? attributes = null,
-        string warehouseId = "");
+        string? warehouseId = "");
 
 
     /// <summary>
@@ -42,7 +42,7 @@ public interface IInventoryManageService
     /// <param name="attributes">Attributes</param>
     /// <param name="warehouseId">Warehouse ident</param>
     /// <returns>False when the stock is short; nothing is reserved then</returns>
-    Task<bool> TryReserve(Product product, int quantity, IList<CustomAttribute> attributes, string warehouseId);
+    Task<bool> TryReserve(Product product, int quantity, IList<CustomAttribute> attributes, string? warehouseId);
 
     /// <summary>
     ///     Gives back a quantity reserved for an order that was never placed; the low-stock action the reservation
@@ -52,7 +52,7 @@ public interface IInventoryManageService
     /// <param name="quantity">Quantity to give back</param>
     /// <param name="attributes">Attributes</param>
     /// <param name="warehouseId">Warehouse ident</param>
-    Task CancelReservation(Product product, int quantity, IList<CustomAttribute> attributes, string warehouseId);
+    Task CancelReservation(Product product, int quantity, IList<CustomAttribute> attributes, string? warehouseId);
 
     /// <summary>
     ///     Reverse booked inventory

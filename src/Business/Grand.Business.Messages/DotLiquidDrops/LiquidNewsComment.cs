@@ -8,7 +8,7 @@ namespace Grand.Business.Messages.DotLiquidDrops;
 
 public class LiquidNewsComment : Drop
 {
-    private readonly DomainHost _host;
+    private readonly DomainHost? _host;
     private readonly Language _language;
     private readonly NewsComment _newsComment;
     private readonly NewsItem _newsItem;
@@ -30,11 +30,11 @@ public class LiquidNewsComment : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string NewsTitle => _newsItem.Title;
+    public string? NewsTitle => _newsItem.Title;
 
-    public string CommentText => WebUtility.HtmlEncode(_newsComment.CommentText);
+    public string? CommentText => WebUtility.HtmlEncode(_newsComment.CommentText);
 
-    public string CommentTitle => WebUtility.HtmlEncode(_newsComment.CommentTitle);
+    public string? CommentTitle => WebUtility.HtmlEncode(_newsComment.CommentTitle);
 
     public string NewsURL => $"{url}/{_newsItem.SeName}";
 

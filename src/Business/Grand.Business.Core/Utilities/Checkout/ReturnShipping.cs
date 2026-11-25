@@ -9,14 +9,14 @@ namespace Grand.Business.Core.Utilities.Checkout;
 /// </summary>
 public class ReturnShippingRequest
 {
-    public Order? Order { get; set; }
+    public required Order Order { get; set; }
     public Customer? Customer { get; set; }
     public string? StoreId { get; set; }
 
     /// <summary>
     ///     The vendor the items are sent back to; empty for the store
     /// </summary>
-    public string? VendorId { get; set; }
+    public required string VendorId { get; set; }
 
     public IList<(OrderItem OrderItem, int Quantity)> Items { get; set; } = [];
 
@@ -34,7 +34,7 @@ public class ReturnShippingRequest
 /// </summary>
 public class ReturnShippingOption
 {
-    public string? Code { get; set; }
+    public required string Code { get; set; }
     public string? Name { get; set; }
     public string? Description { get; set; }
 

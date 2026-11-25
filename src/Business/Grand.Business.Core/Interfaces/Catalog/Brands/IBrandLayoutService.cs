@@ -15,7 +15,7 @@ public interface IBrandLayoutService
     /// </summary>
     /// <param name="brandLayoutId">Brand layout id</param>
     /// <returns>Brand layout</returns>
-    Task<BrandLayout> GetBrandLayoutById(string brandLayoutId);
+    Task<BrandLayout?> GetBrandLayoutById(string brandLayoutId);
 
     /// <summary>
     ///     Inserts a new brand layout

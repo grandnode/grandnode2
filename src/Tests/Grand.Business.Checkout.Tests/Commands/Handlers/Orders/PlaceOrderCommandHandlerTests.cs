@@ -154,6 +154,8 @@ public class PlaceOrderCommandHandlerTests
         var context = new CalculationContext(customer, store, new Currency { CurrencyCode = "EUR", Rate = 1 },
             TaxDisplayType.IncludingTax);
         var details = new PlaceOrderContainer {
+            Host = new DomainHost(),
+            WorkingLanguage = new Language(),
             Context = context,
             Customer = customer,
             Store = store,
@@ -173,7 +175,7 @@ public class PlaceOrderCommandHandlerTests
         var claims = new Mock<ICheckoutClaimService>();
         claims.Setup(x => x.Claim(It.IsAny<PlaceOrderContainer>(), It.IsAny<string>()))
             .Callback(() => calls.Add("claim"))
-            .ReturnsAsync((PlaceOrderContainer d, string _) => new CheckoutClaim { OrderId = d.OrderId, Succeeded = true });
+            .ReturnsAsync((PlaceOrderContainer d, string _) => new CheckoutClaim { CustomerId = "", OrderCode = "", StoreId = "", OrderId = d.OrderId, Succeeded = true });
         var orders = new Mock<IOrderService>();
         var inventory = new Mock<IInventoryManageService>();
         var giftVouchers = new Mock<IGiftVoucherService>();
@@ -214,7 +216,7 @@ public class PlaceOrderCommandHandlerTests
     {
         var (handler, claims, orders, _, _, _, details, _) = ClaimSetup();
         claims.Setup(x => x.Claim(It.IsAny<PlaceOrderContainer>(), It.IsAny<string>()))
-            .ReturnsAsync(new CheckoutClaim { Succeeded = false });
+            .ReturnsAsync(new CheckoutClaim { CustomerId = "", OrderCode = "", OrderId = "", StoreId = "", Succeeded = false });
 
         var result = await handler.Handle(ClaimCommand(details), CancellationToken.None);
 
@@ -228,7 +230,7 @@ public class PlaceOrderCommandHandlerTests
     {
         var (handler, claims, _, _, _, _, details, _) = ClaimSetup();
         claims.Setup(x => x.Claim(It.IsAny<PlaceOrderContainer>(), It.IsAny<string>()))
-            .ReturnsAsync(new CheckoutClaim { Succeeded = false });
+            .ReturnsAsync(new CheckoutClaim { CustomerId = "", OrderCode = "", OrderId = "", StoreId = "", Succeeded = false });
 
         await handler.Handle(ClaimCommand(details), CancellationToken.None);
 

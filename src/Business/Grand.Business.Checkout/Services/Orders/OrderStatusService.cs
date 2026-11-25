@@ -38,12 +38,12 @@ public class OrderStatusService : IOrderStatusService
         return orderStatuses;
     }
 
-    public virtual async Task<OrderStatus> GetById(string id)
+    public virtual async Task<OrderStatus?> GetById(string id)
     {
         return (await GetAll()).FirstOrDefault(x => x.Id == id);
     }
 
-    public virtual async Task<OrderStatus> GetByStatusId(int statusId)
+    public virtual async Task<OrderStatus?> GetByStatusId(int statusId)
     {
         return (await GetAll()).FirstOrDefault(x => x.StatusId == statusId);
     }

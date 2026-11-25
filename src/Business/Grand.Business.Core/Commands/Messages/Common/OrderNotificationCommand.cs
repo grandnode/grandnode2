@@ -12,7 +12,7 @@ public class OrderNotificationCommand : IRequest
     /// <summary>
     ///     Customer the order was placed for
     /// </summary>
-    public required Customer Customer { get; set; }
+    public required Customer? Customer { get; set; }
 
     /// <summary>
     ///     Staff member who placed the order while impersonating the customer, if any

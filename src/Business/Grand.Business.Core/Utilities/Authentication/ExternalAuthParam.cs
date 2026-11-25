@@ -10,12 +10,12 @@ public class ExternalAuthParam
     /// <summary>
     ///     Gets or sets the external authentication provider's system name
     /// </summary>
-    public string? ProviderSystemName { get; set; }
+    public required string ProviderSystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets user id
     /// </summary>
-    public string? Identifier { get; set; }
+    public required string Identifier { get; set; }
 
     /// <summary>
     ///     Gets or sets user name

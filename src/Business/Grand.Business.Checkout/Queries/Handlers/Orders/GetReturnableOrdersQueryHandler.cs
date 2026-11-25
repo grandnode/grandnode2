@@ -51,7 +51,7 @@ public class GetReturnableOrdersQueryHandler : IRequestHandler<GetReturnableOrde
 
         var orderIds = orders.Select(x => x.Id).ToList();
         var delivered = await _shipmentRepository.ToListAsync(_shipmentRepository.Table
-            .Where(x => orderIds.Contains(x.OrderId) && x.DeliveryDateUtc != null), cancellationToken);
+            .Where(x => x.OrderId != null && orderIds.Contains(x.OrderId) && x.DeliveryDateUtc != null), cancellationToken);
         //nothing delivered, nothing to return: an order list of recent orders stops here
         if (delivered.Count == 0)
             return returnable;
@@ -64,20 +64,21 @@ public class GetReturnableOrdersQueryHandler : IRequestHandler<GetReturnableOrde
             merchandiseReturns.Where(x => x.OrderId == order.Id).ToList(), days, fromDelivery, utcNow));
 
         var productIds = orders.SelectMany(order => order.OrderItems.Where(item => left[order.Id][item.Id] > 0))
-            .Select(x => x.ProductId).Distinct().ToList();
+            .Select(x => x.ProductId).OfType<string>().Distinct().ToList();
         if (productIds.Count == 0)
             return returnable;
 
         var products = (await _productRepository.ToListAsync(_productRepository.Table
                 .Where(x => productIds.Contains(x.Id)), cancellationToken))
-            .ToDictionary(x => x.Id);
+            .ToDictionary(x => x.Id, Product? (x) => x);
         //a product not in the catalog any more may be in its archive
         foreach (var productId in productIds.Where(x => !products.ContainsKey(x)))
             products[productId] = await _productService.GetProductByIdIncludeArch(productId);
 
         foreach (var order in orders)
             if (order.OrderItems.Any(item =>
-                    left[order.Id][item.Id] > 0 && ReturnableQuantities.MayBeReturned(products[item.ProductId])))
+                    left[order.Id][item.Id] > 0 && item.ProductId != null &&
+                    ReturnableQuantities.MayBeReturned(products.GetValueOrDefault(item.ProductId))))
                 returnable.Add(order.Id);
 
         return returnable;

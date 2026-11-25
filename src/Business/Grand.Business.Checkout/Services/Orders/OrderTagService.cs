@@ -73,7 +73,7 @@ public class OrderTagService : IOrderTagService
     /// </summary>
     /// <param name="orderTagId">Order's tag identifier</param>
     /// <returns>Order's tag</returns>
-    public virtual Task<OrderTag> GetOrderTagById(string orderTagId)
+    public virtual Task<OrderTag?> GetOrderTagById(string orderTagId)
     {
         return _orderTagRepository.GetByIdAsync(orderTagId);
     }
@@ -83,7 +83,7 @@ public class OrderTagService : IOrderTagService
     /// </summary>
     /// <param name="name">Order's tag name</param>
     /// <returns>Order's tag</returns>
-    public virtual Task<OrderTag> GetOrderTagByName(string name)
+    public virtual Task<OrderTag?> GetOrderTagByName(string name)
     {
         return _orderTagRepository.GetOneAsync(x => x.Name == name);
     }
@@ -145,6 +145,9 @@ public class OrderTagService : IOrderTagService
         await _orderRepository.AddToCollectionField(orderId, x => x.OrderTags, orderTagId);
 
         var orderTag = await GetOrderTagById(orderTagId);
+        if (orderTag == null)
+            return;
+
         //update product tag
         await _orderTagRepository.UpdateField(orderTagId, x => x.Count, orderTag.Count + 1);
 
@@ -162,6 +165,9 @@ public class OrderTagService : IOrderTagService
         await _orderRepository.RemoveCollectionFieldItem(orderId, x => x.OrderTags, y => y == orderTagId);
 
         var orderTag = await GetOrderTagById(orderTagId);
+        if (orderTag == null)
+            return;
+
         //update product tag
         await _orderTagRepository.UpdateField(orderTagId, x => x.Count, orderTag.Count - 1);
 

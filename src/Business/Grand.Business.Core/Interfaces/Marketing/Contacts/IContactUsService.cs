@@ -40,7 +40,7 @@ public interface IContactUsService
     /// </summary>
     /// <param name="contactUsId">ContactUs item identifier</param>
     /// <returns>ContactUs item</returns>
-    Task<ContactUs> GetContactUsById(string contactUsId);
+    Task<ContactUs?> GetContactUsById(string contactUsId);
 
     /// <summary>
     ///     Inserts a contactus item

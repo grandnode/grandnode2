@@ -57,8 +57,8 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendProductEmailAFriendMessage(Customer customer, Store store, string languageId,
-        Product product, string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null)
+    public virtual async Task<int> SendProductEmailAFriendMessage(Customer customer, Store store, string? languageId,
+        Product product, string customerEmail, string friendsEmail, string personalMessage, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(product);
@@ -104,8 +104,8 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendWishlistEmailAFriendMessage(Customer customer, Store store, string languageId,
-        string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null)
+    public virtual async Task<int> SendWishlistEmailAFriendMessage(Customer customer, Store store, string? languageId,
+        string customerEmail, string friendsEmail, string personalMessage, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -145,9 +145,9 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendProductQuestionMessage(Customer customer, Store store, string languageId,
+    public virtual async Task<int> SendProductQuestionMessage(Customer customer, Store store, string? languageId,
         Product product, string customerEmail, string fullName, string phone, string message, string ipaddress,
-            DomainHost host = null)
+            DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(product);
@@ -178,8 +178,8 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
             var subject = messageTemplate.GetTranslation(mt => mt.Subject, languageId);
             var body = messageTemplate.GetTranslation(mt => mt.Body, languageId);
 
-            var subjectReplaced = LiquidExtensions.RenderSubject(liquidObject, subject);
-            var bodyReplaced = LiquidExtensions.Render(liquidObject, body);
+            var subjectReplaced = LiquidExtensions.RenderSubject(liquidObject, subject ?? "");
+            var bodyReplaced = LiquidExtensions.Render(liquidObject, body ?? "");
 
             await _mediator.Send(new InsertContactUsCommand {
                 CustomerId = customer.Id,
@@ -224,7 +224,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendProductReviewMessage(Product product, ProductReview productReview,
-        Store store, string languageId, DomainHost host = null)
+        Store store, string? languageId, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(productReview);
 
@@ -263,7 +263,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     /// <param name="product">Product</param>
     /// <param name="languageId">Message language identifier</param>
     public virtual async Task<int> SendBatchesExpiringStoreOwnerMessage(Store store, IList<ExpiringBatch> batches,
-        string languageId)
+        string? languageId)
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(batches);
@@ -284,7 +284,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
             liquidObject, emailAccount.Email, emailAccount.DisplayName);
     }
 
-    public virtual async Task<int> SendQuantityBelowStoreOwnerMessage(Product product, string languageId)
+    public virtual async Task<int> SendQuantityBelowStoreOwnerMessage(Product product, string? languageId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -321,7 +321,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     /// <param name="combination">Attribute combination</param>
     /// <param name="languageId">Message language identifier</param>
     public virtual async Task<int> SendQuantityBelowStoreOwnerMessage(Product product,
-        ProductAttributeCombination combination, string languageId)
+        ProductAttributeCombination combination, string? languageId)
     {
         ArgumentNullException.ThrowIfNull(combination);
 
@@ -361,7 +361,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     /// <param name="subscription">Subscription</param>
     /// <param name="languageId">Message language identifier</param>
     public virtual async Task<int> SendBackInStockMessage(Customer customer, Product product,
-        OutOfStockSubscription subscription, string languageId)
+        OutOfStockSubscription subscription, string? languageId)
     {
         ArgumentNullException.ThrowIfNull(subscription);
 
@@ -393,7 +393,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
             reference: Reference.Customer, objectId: customer?.Id);
     }
 
-    public virtual async Task<int> SendAuctionWinEndedCustomerMessage(Product product, string languageId, Bid bid)
+    public virtual async Task<int> SendAuctionWinEndedCustomerMessage(Product product, string? languageId, Bid bid)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -430,7 +430,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
             reference: Reference.Customer, objectId: customer.Id);
     }
 
-    public virtual async Task<int> SendAuctionEndedLostCustomerMessage(Product product, string languageId, Bid bid)
+    public virtual async Task<int> SendAuctionEndedLostCustomerMessage(Product product, string? languageId, Bid bid)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -483,8 +483,8 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
         return 0;
     }
 
-    public virtual async Task<int> SendAuctionEndedBinCustomerMessage(Product product, string customerId,
-        string languageId, string storeId)
+    public virtual async Task<int> SendAuctionEndedBinCustomerMessage(Product product, string? customerId,
+        string? languageId, string? storeId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -531,13 +531,13 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
         return 0;
     }
 
-    public virtual async Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string languageId, Bid bid)
+    public virtual async Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string? languageId, Bid bid)
     {
         ArgumentNullException.ThrowIfNull(product);
 
         var builder = new LiquidObjectBuilder(_mediator);
-        MessageTemplate messageTemplate;
-        EmailAccount emailAccount;
+        MessageTemplate? messageTemplate;
+        EmailAccount? emailAccount;
 
         if (bid != null)
         {
@@ -588,7 +588,7 @@ public class CatalogMessageProviderService : ICatalogMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <param name="product">Product</param>
     /// <param name="bid"></param>
-    public virtual async Task<int> SendOutBidCustomerMessage(Product product, string languageId, Bid bid)
+    public virtual async Task<int> SendOutBidCustomerMessage(Product product, string? languageId, Bid bid)
     {
         ArgumentNullException.ThrowIfNull(product);
 

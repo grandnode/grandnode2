@@ -25,4 +25,4 @@ public class GetSitemapProductsQuery : IRequest<IList<SitemapProduct>>
 /// </summary>
 /// <param name="SeName">Search engine name in the requested language, or the default one</param>
 /// <param name="PictureId">The first product picture; null when the product has none</param>
-public record SitemapProduct(string Id, string SeName, string PictureId, DateTime UpdatedOnUtc);
+public record SitemapProduct(string Id, string? SeName, string? PictureId, DateTime UpdatedOnUtc);

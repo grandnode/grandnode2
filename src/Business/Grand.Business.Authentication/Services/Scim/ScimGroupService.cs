@@ -82,7 +82,7 @@ public class ScimGroupService(
         if (!string.IsNullOrEmpty(displayName))
         {
             var lowered = displayName.Trim().ToLowerInvariant();
-            query = query.Where(x => x.DisplayName.ToLower() == lowered);
+            query = query.Where(x => x.DisplayName != null && x.DisplayName.ToLower() == lowered);
         }
 
         var total = await groups.CountAsync(query);
@@ -129,7 +129,10 @@ public class ScimGroupService(
         await groups.UpdateField(group.Id, x => x.DisplayName, name);
         if (externalId != null)
             await groups.UpdateField(group.Id, x => x.ExternalId, externalId);
+        //deleted by another request meanwhile
         var renamed = await groups.GetByIdAsync(group.Id);
+        if (renamed == null)
+            return new ScimGroupResult(ScimOutcome.NotFound);
         await mediator.EntityUpdated(renamed);
         return new ScimGroupResult(ScimOutcome.Ok, View(renamed));
     }
@@ -154,7 +157,7 @@ public class ScimGroupService(
         if (!string.IsNullOrEmpty(customerGroupId))
         {
             var customerGroup = await groupService.GetCustomerGroupById(customerGroupId);
-            if (!await ValidTarget(customerGroup, staffStoreId, vendorId))
+            if (customerGroup == null || !await ValidTarget(customerGroup, staffStoreId, vendorId))
                 return ScimOutcome.Invalid;
             target = customerGroup.Id;
             store = IsSystemGroup(customerGroup, SystemCustomerGroupNames.StoreManager) ? staffStoreId : "";
@@ -164,7 +167,10 @@ public class ScimGroupService(
         await groups.UpdateField(group.Id, x => x.CustomerGroupId, target);
         await groups.UpdateField(group.Id, x => x.StaffStoreId, store);
         await groups.UpdateField(group.Id, x => x.VendorId, vendor);
+        //deleted by another request meanwhile
         var mapped = await groups.GetByIdAsync(group.Id);
+        if (mapped == null)
+            return ScimOutcome.NotFound;
         await mediator.EntityUpdated(mapped);
         await roleSync.SyncMembers(mapped.Members);
         logger.LogInformation("SCIM group {GroupId} mapped to customer group {CustomerGroupId}", group.Id, target);
@@ -193,7 +199,10 @@ public class ScimGroupService(
         }
 
         var changed = before.Except(after).Concat(after.Except(before)).ToList();
+        //deleted by another request meanwhile
         var stored = await groups.GetByIdAsync(group.Id);
+        if (stored == null)
+            return new ScimGroupResult(ScimOutcome.NotFound);
         await mediator.EntityUpdated(stored);
         await roleSync.SyncMembers(changed);
         return new ScimGroupResult(ScimOutcome.Ok, View(stored));
@@ -218,7 +227,7 @@ public class ScimGroupService(
         group.IsSystem && group.SystemName == systemName;
 
     //display names may repeat (Entra allows it); the provider's id of a group may not
-    private async Task<bool> ExternalIdTaken(string externalId, string exceptId) =>
+    private async Task<bool> ExternalIdTaken(string externalId, string? exceptId) =>
         !string.IsNullOrEmpty(externalId) &&
         await groups.AnyAsync(groups.Table.Where(x => x.Id != exceptId && x.ExternalId == externalId));
 
@@ -232,7 +241,7 @@ public class ScimGroupService(
             .ToList();
     }
 
-    private async Task<ScimGroup> Load(string id) => string.IsNullOrEmpty(id) ? null : await groups.GetByIdAsync(id);
+    private async Task<ScimGroup?> Load(string id) => string.IsNullOrEmpty(id) ? null : await groups.GetByIdAsync(id);
 
     private static ScimGroupView View(ScimGroup group) =>
         new(group.Id, group.DisplayName, string.IsNullOrEmpty(group.ExternalId) ? null : group.ExternalId,

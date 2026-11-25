@@ -27,11 +27,11 @@ public interface IMessageProviderService
     /// <param name="invoiceDownloadId">Download of the invoice; the queued email owns it and deletes it with itself</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendNotification(MessageTemplate messageTemplate,
-        EmailAccount emailAccount, string languageId, LiquidObject liquidObject,
-        string toEmailAddress, string toName,
+        EmailAccount emailAccount, string? languageId, LiquidObject liquidObject,
+        string? toEmailAddress, string? toName,
         string? attachmentFilePath = null, string? attachmentFileName = null,
         IEnumerable<string>? attachedDownloads = null,
         string? replyToEmailAddress = null, string? replyToName = null,
         string? fromEmail = null, string? fromName = null, string? subject = null,
-        Reference reference = Reference.None, string objectId = "", string? invoiceDownloadId = null);
+        Reference reference = Reference.None, string? objectId = "", string? invoiceDownloadId = null);
 }

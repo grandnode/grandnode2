@@ -80,6 +80,9 @@ public class CancelOrderCommandHandler : IRequestHandler<CancelOrderCommand, boo
         foreach (var orderItem in request.Order.OrderItems)
         {
             var product = await _productService.GetProductById(orderItem.ProductId);
+            //a product deleted meanwhile has no stock to give back
+            if (product == null)
+                continue;
             await _inventoryManageService.AdjustReserved(product, orderItem.Quantity - orderItem.CancelQty,
                 orderItem.Attributes, orderItem.WarehouseId);
         }

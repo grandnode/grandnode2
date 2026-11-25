@@ -10,7 +10,7 @@ public interface IDeliveryDateService
     /// </summary>
     /// <param name="deliveryDateId">The delivery date identifier</param>
     /// <returns>Delivery date</returns>
-    Task<DeliveryDate> GetDeliveryDateById(string deliveryDateId);
+    Task<DeliveryDate?> GetDeliveryDateById(string deliveryDateId);
 
     /// <summary>
     ///     Gets all delivery dates

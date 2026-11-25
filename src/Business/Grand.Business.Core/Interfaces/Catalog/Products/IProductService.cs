@@ -32,14 +32,14 @@ public interface IProductService
     /// <param name="productId">Product identifier</param>
     /// <param name="fromDb">get data from db (not from cache)</param>
     /// <returns>Product</returns>
-    Task<Product> GetProductById(string productId, bool fromDb = false);
+    Task<Product?> GetProductById(string? productId, bool fromDb = false);
 
     /// <summary>
     ///     Gets product from product or product deleted
     /// </summary>
     /// <param name="productId">Product identifier</param>
     /// <returns>Product</returns>
-    Task<Product> GetProductByIdIncludeArch(string productId);
+    Task<Product?> GetProductByIdIncludeArch(string? productId);
 
     /// <summary>
     ///     Gets products by identifier
@@ -217,7 +217,7 @@ public interface IProductService
     /// </summary>
     /// <param name="sku">SKU</param>
     /// <returns>Product</returns>
-    Task<Product> GetProductBySku(string sku);
+    Task<Product?> GetProductBySku(string? sku);
 
     #endregion
 

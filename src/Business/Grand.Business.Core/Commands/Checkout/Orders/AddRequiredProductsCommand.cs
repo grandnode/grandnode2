@@ -11,7 +11,7 @@ public class AddRequiredProductsCommand : IRequest<bool>
     public required Customer Customer { get; set; }
     public ShoppingCartType ShoppingCartType { get; set; }
     public required Product Product { get; set; }
-    public required string StoreId { get; set; }
+    public required string? StoreId { get; set; }
 
     /// <summary>
     ///     Language the cart warnings are written in

@@ -14,7 +14,7 @@ public interface INewsService
     /// </summary>
     /// <param name="newsId">The news identifier</param>
     /// <returns>News</returns>
-    Task<NewsItem> GetNewsById(string newsId);
+    Task<NewsItem?> GetNewsById(string newsId);
 
     /// <summary>
     ///     Gets all news

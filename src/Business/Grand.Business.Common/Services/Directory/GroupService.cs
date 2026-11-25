@@ -30,10 +30,10 @@ public class GroupService : IGroupService
     /// </summary>
     /// <param name="customerGroupId">Customer group identifier</param>
     /// <returns>Customer group</returns>
-    public virtual Task<CustomerGroup> GetCustomerGroupById(string customerGroupId)
+    public virtual Task<CustomerGroup?> GetCustomerGroupById(string customerGroupId)
     {
         if (string.IsNullOrWhiteSpace(customerGroupId))
-            return Task.FromResult<CustomerGroup>(null);
+            return Task.FromResult<CustomerGroup?>(null);
 
         var key = string.Format(CacheKey.CUSTOMERGROUPS_BY_KEY, customerGroupId);
         return _cacheBase.GetAsync(key, () => _customerGroupRepository.GetByIdAsync(customerGroupId));
@@ -44,7 +44,7 @@ public class GroupService : IGroupService
     /// </summary>
     /// <param name="systemName">Customer group system name</param>
     /// <returns>Customer group</returns>
-    public virtual async Task<CustomerGroup> GetCustomerGroupBySystemName(string systemName)
+    public virtual async Task<CustomerGroup?> GetCustomerGroupBySystemName(string systemName)
     {
         var key = string.Format(CacheKey.CUSTOMERGROUPS_BY_SYSTEMNAME_KEY, systemName);
         return await _cacheBase.GetAsync(key, async () =>

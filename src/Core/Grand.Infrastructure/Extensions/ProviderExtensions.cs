@@ -15,7 +15,7 @@ public static class ProviderExtensions
         return store == null || IsAuthenticateStore(method, store.Id);
     }
 
-    public static bool IsAuthenticateStore(this IProvider method, string storeId)
+    public static bool IsAuthenticateStore(this IProvider method, string? storeId)
     {
         ArgumentNullException.ThrowIfNull(method);
 
@@ -28,7 +28,7 @@ public static class ProviderExtensions
         return method.LimitedToStores.Contains(storeId);
     }
 
-    public static bool IsAuthenticateGroup(this IProvider method, Customer customer)
+    public static bool IsAuthenticateGroup(this IProvider method, Customer? customer)
     {
         ArgumentNullException.ThrowIfNull(method);
 

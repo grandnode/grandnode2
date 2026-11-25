@@ -90,7 +90,7 @@ public class CourseService : ICourseService
         return await Task.FromResult(q1.Concat(q2).ToList());
     }
 
-    public virtual Task<Course> GetById(string id)
+    public virtual Task<Course?> GetById(string id)
     {
         return _courseRepository.GetByIdAsync(id);
     }

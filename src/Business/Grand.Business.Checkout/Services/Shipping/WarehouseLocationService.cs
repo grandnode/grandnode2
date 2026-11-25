@@ -10,12 +10,12 @@ namespace Grand.Business.Checkout.Services.Shipping;
 public class WarehouseLocationService(IRepository<WarehouseLocation> locationRepository, IMediator mediator)
     : IWarehouseLocationService
 {
-    public Task<WarehouseLocation> GetLocationById(string id)
+    public Task<WarehouseLocation?> GetLocationById(string id)
     {
         return locationRepository.GetByIdAsync(id);
     }
 
-    public Task<IPagedList<WarehouseLocation>> GetLocations(IList<string> warehouseIds = null, int pageIndex = 0,
+    public Task<IPagedList<WarehouseLocation>> GetLocations(IList<string>? warehouseIds = null, int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var query = locationRepository.Table;

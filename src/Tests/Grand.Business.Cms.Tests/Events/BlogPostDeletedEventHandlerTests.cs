@@ -24,7 +24,8 @@ public class BlogPostDeletedEventHandlerTests
     [TestMethod]
     public async Task Handle_InvokeSlugService()
     {
-        await _handler.Handle(new EntityDeleted<BlogPost>(new BlogPost()), default);
+        _slugServiceMock.Setup(c => c.GetBySlug("post")).ReturnsAsync(new EntityUrl { Slug = "post" });
+        await _handler.Handle(new EntityDeleted<BlogPost>(new BlogPost { SeName = "post" }), default);
         _slugServiceMock.Verify(c => c.DeleteEntityUrl(It.IsAny<EntityUrl>()), Times.Once);
     }
 }

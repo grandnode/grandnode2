@@ -41,7 +41,7 @@ public interface ICountryService
     /// </summary>
     /// <param name="countryId">Country identifier</param>
     /// <returns>Country</returns>
-    Task<Country> GetCountryById(string countryId);
+    Task<Country?> GetCountryById(string? countryId);
 
     /// <summary>
     ///     Get countries by identifiers
@@ -55,14 +55,14 @@ public interface ICountryService
     /// </summary>
     /// <param name="twoLetterIsoCode">Country two letter ISO code</param>
     /// <returns>Country</returns>
-    Task<Country> GetCountryByTwoLetterIsoCode(string twoLetterIsoCode);
+    Task<Country?> GetCountryByTwoLetterIsoCode(string twoLetterIsoCode);
 
     /// <summary>
     ///     Gets a country by three letter ISO code
     /// </summary>
     /// <param name="threeLetterIsoCode">Country three letter ISO code</param>
     /// <returns>Country</returns>
-    Task<Country> GetCountryByThreeLetterIsoCode(string threeLetterIsoCode);
+    Task<Country?> GetCountryByThreeLetterIsoCode(string threeLetterIsoCode);
 
     /// <summary>
     ///     Inserts a country
@@ -90,7 +90,7 @@ public interface ICountryService
     /// <param name="countryId">Country identifier</param>
     /// <param name="languageId">Language identifier.</param>
     /// <returns>States</returns>
-    Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId, string languageId = "");
+    Task<IList<StateProvince>?> GetStateProvincesByCountryId(string countryId, string languageId = "");
 
     /// <summary>
     ///     Inserts a state/province

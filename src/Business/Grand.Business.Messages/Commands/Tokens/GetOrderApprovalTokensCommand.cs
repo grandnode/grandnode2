@@ -9,14 +9,14 @@ namespace Grand.Business.Messages.Commands.Tokens;
 
 public class GetOrderApprovalTokensCommand : IRequest<LiquidOrderApproval>
 {
-    public OrderApproval Approval { get; set; }
-    public Customer Buyer { get; set; }
-    public Store Store { get; set; }
-    public DomainHost Host { get; set; }
-    public Language Language { get; set; }
+    public required OrderApproval Approval { get; set; }
+    public required Customer Buyer { get; set; }
+    public required Store Store { get; set; }
+    public DomainHost? Host { get; set; }
+    public required Language Language { get; set; }
 
     /// <summary>
     ///     The back office panel the recipient works in; empty for a message to the buyer
     /// </summary>
-    public string PanelArea { get; set; }
+    public string? PanelArea { get; set; }
 }

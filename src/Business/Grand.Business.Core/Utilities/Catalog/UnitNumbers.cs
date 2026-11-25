@@ -10,7 +10,7 @@ public static class UnitNumbers
     /// <summary>
     ///     What two numbers are compared by: trimmed and upper-cased
     /// </summary>
-    public static string Key(string number)
+    public static string Key(string? number)
     {
         return number?.Trim().ToUpperInvariant() ?? "";
     }

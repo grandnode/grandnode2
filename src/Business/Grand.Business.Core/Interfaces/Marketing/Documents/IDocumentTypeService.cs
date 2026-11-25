@@ -9,7 +9,7 @@ public interface IDocumentTypeService
     /// </summary>
     /// <param name="id">document type identifier</param>
     /// <returns>Document type</returns>
-    Task<DocumentType> GetById(string id);
+    Task<DocumentType?> GetById(string id);
 
     /// <summary>
     ///     Gets all document types

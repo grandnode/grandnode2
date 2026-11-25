@@ -22,7 +22,7 @@ public class LiquidGuestOrderLink : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string OrderCode => _order.Code;
+    public string? OrderCode => _order.Code;
 
     public string Url => $"{url}/guestorder/access?token={WebUtility.UrlEncode(_token)}";
 

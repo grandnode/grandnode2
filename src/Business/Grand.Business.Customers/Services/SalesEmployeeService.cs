@@ -25,7 +25,7 @@ public class SalesEmployeeService : ISalesEmployeeService
     /// </summary>
     /// <param name="salesEmployeeId">The sales employee identifier</param>
     /// <returns>SalesEmployee</returns>
-    public virtual Task<SalesEmployee> GetSalesEmployeeById(string salesEmployeeId)
+    public virtual Task<SalesEmployee?> GetSalesEmployeeById(string salesEmployeeId)
     {
         var key = string.Format(CacheKey.SALESEMPLOYEE_BY_ID_KEY, salesEmployeeId);
         return _cacheBase.GetAsync(key, () => _salesEmployeeRepository.GetByIdAsync(salesEmployeeId));

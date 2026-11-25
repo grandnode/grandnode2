@@ -52,7 +52,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     /// </summary>
     /// <param name="specificationAttributeId">The specification attribute identifier</param>
     /// <returns>Specification attribute</returns>
-    public virtual async Task<SpecificationAttribute> GetSpecificationAttributeById(string specificationAttributeId)
+    public virtual async Task<SpecificationAttribute?> GetSpecificationAttributeById(string specificationAttributeId)
     {
         var key = string.Format(CacheKey.SPECIFICATION_BY_ID_KEY, specificationAttributeId);
         return await _cacheBase.GetAsync(key,
@@ -64,10 +64,10 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     /// </summary>
     /// <param name="sename">Se-name</param>
     /// <returns>Specification attribute</returns>
-    public virtual async Task<SpecificationAttribute> GetSpecificationAttributeBySeName(string sename)
+    public virtual async Task<SpecificationAttribute?> GetSpecificationAttributeBySeName(string sename)
     {
         if (string.IsNullOrEmpty(sename))
-            return await Task.FromResult<SpecificationAttribute>(null);
+            return await Task.FromResult<SpecificationAttribute?>(null);
 
         sename = sename.ToLowerInvariant();
 
@@ -157,11 +157,11 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     /// </summary>
     /// <param name="specificationAttributeOptionId">The specification attribute option identifier</param>
     /// <returns>Specification attribute option</returns>
-    public virtual async Task<SpecificationAttribute> GetSpecificationAttributeByOptionId(
+    public virtual async Task<SpecificationAttribute?> GetSpecificationAttributeByOptionId(
         string specificationAttributeOptionId)
     {
         if (string.IsNullOrEmpty(specificationAttributeOptionId))
-            return await Task.FromResult<SpecificationAttribute>(null);
+            return await Task.FromResult<SpecificationAttribute?>(null);
 
         var key = string.Format(CacheKey.SPECIFICATION_BY_OPTIONID_KEY, specificationAttributeOptionId);
         return await _cacheBase.GetAsync(key, async () =>
@@ -186,9 +186,9 @@ public class SpecificationAttributeService : ISpecificationAttributeService
         await _productRepository.RemoveCollectionFieldItem(string.Empty, x => x.ProductSpecificationAttributes, z => z.SpecificationAttributeOptionId == specificationAttributeOption.Id);
 
         var specificationAttribute = await GetSpecificationAttributeByOptionId(specificationAttributeOption.Id);
-        var sao = specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x =>
+        var sao = specificationAttribute?.SpecificationAttributeOptions.FirstOrDefault(x =>
             x.Id == specificationAttributeOption.Id);
-        if (sao == null)
+        if (specificationAttribute == null || sao == null)
             throw new ArgumentException("No specification attribute option found with the specified id");
 
         specificationAttribute.SpecificationAttributeOptions.Remove(sao);

@@ -13,7 +13,7 @@ public interface IGiftVoucherService
     /// </summary>
     /// <param name="giftVoucherId">Gift voucher identifier</param>
     /// <returns>Gift voucher entry</returns>
-    Task<GiftVoucher> GetGiftVoucherById(string giftVoucherId);
+    Task<GiftVoucher?> GetGiftVoucherById(string? giftVoucherId);
 
     /// <summary>
     ///     Gets all gift vouchers

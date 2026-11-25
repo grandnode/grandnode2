@@ -21,7 +21,7 @@ public class UserApiService : IUserApiService
     ///     Get user api by id
     /// </summary>
     /// <param name="id">id</param>
-    public virtual Task<UserApi> GetUserById(string id)
+    public virtual Task<UserApi?> GetUserById(string id)
     {
         return _userRepository.GetByIdAsync(id);
     }
@@ -30,7 +30,7 @@ public class UserApiService : IUserApiService
     ///     Get user api by email
     /// </summary>
     /// <param name="email">email</param>
-    public virtual async Task<UserApi> GetUserByEmail(string email)
+    public virtual async Task<UserApi?> GetUserByEmail(string email)
     {
         return await _userRepository.FirstOrDefaultAsync(
             _userRepository.Table.Where(x => x.Email == email.ToLowerInvariant()));

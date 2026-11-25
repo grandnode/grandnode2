@@ -7,7 +7,7 @@ namespace Grand.Business.Core.Interfaces.Authentication;
 public interface IOidcTokenRevocationService
 {
     /// <summary>Tokens of the subject issued until now are refused</summary>
-    Task RevokeTokens(string subject);
+    Task RevokeTokens(string? subject);
 
     /// <summary>The token of the subject issued at <paramref name="issuedUtc" /> is refused</summary>
     Task<bool> IsRevoked(string subject, DateTime issuedUtc);

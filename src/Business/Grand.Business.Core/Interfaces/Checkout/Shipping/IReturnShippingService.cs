@@ -17,7 +17,7 @@ public interface IReturnShippingService
     /// <summary>
     ///     Loads a provider by system name
     /// </summary>
-    IReturnShippingProvider LoadProviderBySystemName(string systemName);
+    IReturnShippingProvider? LoadProviderBySystemName(string? systemName);
 
     /// <summary>
     ///     Loads the providers allowed in the store and for the customer, active or not, by priority
@@ -34,10 +34,10 @@ public interface IReturnShippingService
     ///     Validates the choice for every vendor of the submitted items; the keys of ByVendor are those of the returns
     ///     a submit creates
     /// </summary>
-    Task<ReturnShippingResolution> Resolve(MerchandiseReturnSubmitRequest request, ReturnShippingChoice choice);
+    Task<ReturnShippingResolution> Resolve(MerchandiseReturnSubmitRequest request, ReturnShippingChoice? choice);
 
     /// <summary>
     ///     Gets the address the items of a vendor (empty for the store) are sent back to
     /// </summary>
-    Task<Address> GetReturnAddress(string storeId, string vendorId);
+    Task<Address?> GetReturnAddress(string storeId, string vendorId);
 }

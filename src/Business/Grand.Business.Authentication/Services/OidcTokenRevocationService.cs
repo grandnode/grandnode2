@@ -15,7 +15,7 @@ namespace Grand.Business.Authentication.Services;
 public class OidcTokenRevocationService(IRepository<OidcTokenRevocation> revocationRepository)
     : IOidcTokenRevocationService
 {
-    public async Task RevokeTokens(string subject)
+    public async Task RevokeTokens(string? subject)
     {
         ArgumentException.ThrowIfNullOrEmpty(subject);
         var id = RevocationId(subject);

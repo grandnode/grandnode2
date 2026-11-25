@@ -61,8 +61,8 @@ public class MerchandiseReturnRefundService(
         return quote;
     }
 
-    public async Task<string> Refund(string merchandiseReturnId, double amount, bool offline,
-        string refundedBy = null)
+    public async Task<string?> Refund(string merchandiseReturnId, double amount, bool offline,
+        string? refundedBy = null)
     {
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null)
@@ -70,12 +70,13 @@ public class MerchandiseReturnRefundService(
 
         return await UnderRefundLock(merchandiseReturn, async () =>
         {
+            //a start without an error carries the refund and its payment
             var start = await Start(merchandiseReturn, amount, offline, refundedBy);
-            if (start.Error != null)
-                return start.Error;
+            if (start is not { Transaction: { } transaction, Refund: { } refund })
+                return start.Error ?? MerchandiseReturnErrors.NotFound;
 
-            var errors = await PayBack(merchandiseReturn, start.Transaction, start.Refund);
-            var saved = await Finish(merchandiseReturn, start.Refund, errors);
+            var errors = await PayBack(merchandiseReturn, transaction, refund);
+            var saved = await Finish(merchandiseReturn, refund, errors);
 
             //the payment may have given the money back before it failed: the staff check it and say so
             if (errors.Count > 0)
@@ -89,7 +90,7 @@ public class MerchandiseReturnRefundService(
         });
     }
 
-    public async Task<string> ResolveRefund(string merchandiseReturnId, bool wentBack, string checkedBy = null)
+    public async Task<string?> ResolveRefund(string merchandiseReturnId, bool wentBack, string? checkedBy = null)
     {
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null)
@@ -98,7 +99,7 @@ public class MerchandiseReturnRefundService(
         var by = string.IsNullOrWhiteSpace(checkedBy) ? null : checkedBy.Trim();
         return await UnderRefundLock(merchandiseReturn, async () =>
         {
-            MerchandiseReturnRefund refunded = null;
+            MerchandiseReturnRefund? refunded = null;
             var error = await UnderOrderLock(merchandiseReturn, async stored =>
             {
                 var refund = stored.Refund;
@@ -138,7 +139,7 @@ public class MerchandiseReturnRefundService(
     ///     for the lock, or one asked again after a crash, finds it there and pays nothing twice
     /// </summary>
     private async Task<RefundStart> Start(MerchandiseReturn merchandiseReturn, double amount, bool offline,
-        string refundedBy)
+        string? refundedBy)
     {
         var start = new RefundStart();
         start.Error = await UnderOrderLock(merchandiseReturn, async stored =>
@@ -156,6 +157,8 @@ public class MerchandiseReturnRefundService(
             var (quote, transaction, rounding) = await Quote(stored, order);
             if (quote.Error != null)
                 return quote.Error;
+            if (transaction == null)
+                return MerchandiseReturnErrors.RefundNotAllowed;
 
             //checked before the rounding as well, which cannot take NaN, infinity or amounts beyond a decimal
             if (double.IsNaN(amount) || amount <= 0 || amount > quote.MaxAmount)
@@ -187,7 +190,7 @@ public class MerchandiseReturnRefundService(
     ///     What the refund comes to now: the items less the return shipping cost, at most what is left to refund of
     ///     the order's payment
     /// </summary>
-    private async Task<(MerchandiseReturnRefundQuote Quote, PaymentTransaction Transaction, Rounding Rounding)> Quote(
+    private async Task<(MerchandiseReturnRefundQuote Quote, PaymentTransaction? Transaction, Rounding Rounding)> Quote(
         MerchandiseReturn merchandiseReturn, Order order)
     {
         var quote = new MerchandiseReturnRefundQuote { CurrencyCode = order.CustomerCurrencyCode };
@@ -327,7 +330,7 @@ public class MerchandiseReturnRefundService(
     ///     A refunded return is done: a note on the order, and the return completed, which tells the customer
     /// </summary>
     private async Task Complete(MerchandiseReturn merchandiseReturn, MerchandiseReturnRefund refund,
-        string changedBy)
+        string? changedBy)
     {
         try
         {
@@ -364,7 +367,7 @@ public class MerchandiseReturnRefundService(
     /// <summary>
     ///     The order's returns other than the one given that are refunded, being refunded or waiting for their check
     /// </summary>
-    private async Task<List<MerchandiseReturn>> RefundedReturns(Order order, string merchandiseReturnId)
+    private async Task<List<MerchandiseReturn>> RefundedReturns(Order order, string? merchandiseReturnId)
     {
         return (await mediator.Send(new GetMerchandiseReturnQuery { OrderId = order.Id }))
             .Where(x => x.Id != merchandiseReturnId && x.Refund != null)
@@ -391,9 +394,9 @@ public class MerchandiseReturnRefundService(
     private static double Left(PaymentTransaction transaction, IEnumerable<MerchandiseReturn> refunded,
         Rounding rounding)
     {
-        var underWay = refunded
-            .Where(x => x.Refund.RefundedOnUtc == null && x.Refund.PaymentTransactionId == transaction.Id)
-            .Sum(x => x.Refund.Amount);
+        var underWay = refunded.Select(x => x.Refund).OfType<MerchandiseReturnRefund>()
+            .Where(x => x.RefundedOnUtc == null && x.PaymentTransactionId == transaction.Id)
+            .Sum(x => x.Amount);
         return rounding.Round(transaction.TransactionAmount - transaction.RefundedAmount - underWay);
     }
 
@@ -417,7 +420,7 @@ public class MerchandiseReturnRefundService(
     ///     is short; a provider slower than it may let a second refund of the order start, which still finds the first
     ///     under way and keeps its amount off what is left
     /// </summary>
-    private async Task<string> UnderRefundLock(MerchandiseReturn merchandiseReturn, Func<Task<string>> refund)
+    private async Task<string?> UnderRefundLock(MerchandiseReturn merchandiseReturn, Func<Task<string?>> refund)
     {
         try
         {
@@ -439,8 +442,8 @@ public class MerchandiseReturnRefundService(
     ///     Runs the change on the return as stored once the lock of its order is held, which every writer of the
     ///     order's returns holds. Always taken inside the refund lock, never the other way round
     /// </summary>
-    private async Task<string> UnderOrderLock(MerchandiseReturn merchandiseReturn,
-        Func<MerchandiseReturn, Task<string>> change)
+    private async Task<string?> UnderOrderLock(MerchandiseReturn merchandiseReturn,
+        Func<MerchandiseReturn, Task<string?>> change)
     {
         try
         {
@@ -463,9 +466,9 @@ public class MerchandiseReturnRefundService(
 
     private sealed class RefundStart
     {
-        public string Error { get; set; }
-        public MerchandiseReturnRefund Refund { get; set; }
-        public PaymentTransaction Transaction { get; set; }
+        public string? Error { get; set; }
+        public MerchandiseReturnRefund? Refund { get; set; }
+        public PaymentTransaction? Transaction { get; set; }
     }
 
     /// <summary>

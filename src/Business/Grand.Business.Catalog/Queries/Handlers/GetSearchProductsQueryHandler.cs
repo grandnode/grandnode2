@@ -60,7 +60,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         var allowedCustomerGroupsIds = request.CustomerGroupIds?.ToArray()
                                        ?? (request.ShowHidden || _accessControlConfig.IgnoreAcl
                                            ? []
-                                           : request.Customer.GetCustomerGroupIds());
+                                           : request.Customer?.GetCustomerGroupIds() ?? []);
 
         var search = TextSearchTerms(request);
         if (search != null)
@@ -84,7 +84,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     }
 
     private async Task<(IPagedList<Product> products, IList<string> filterableSpecificationAttributeOptionIds)> Search(
-        GetSearchProductsQuery request, string[] allowedCustomerGroupsIds, string search,
+        GetSearchProductsQuery request, string[] allowedCustomerGroupsIds, string? search,
         CancellationToken cancellationToken)
     {
         // Build base query; a text search narrows the candidates to products with a whole query word,
@@ -166,13 +166,13 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
     /// </summary>
     private string ListingSummaryHash(GetSearchProductsQuery request, string[] allowedCustomerGroupsIds)
     {
-        static string[] Set(IEnumerable<string> values)
+        static string[] Set(IEnumerable<string>? values)
         {
             return values?.Order(StringComparer.Ordinal).ToArray() ?? [];
         }
 
         //JSON keeps the fields apart - a separator inside a tag or an id is escaped - and formats numbers invariantly
-        var filters = JsonSerializer.Serialize(new object[] {
+        var filters = JsonSerializer.Serialize(new object?[] {
             Set(request.CategoryIds), request.FeaturedProducts, request.BrandId, request.CollectionId,
             request.StoreId, request.VendorId, request.WarehouseId, request.ProductType,
             request.VisibleIndividuallyOnly, request.MarkedAsNewOnly, request.ShowOnHomePage,
@@ -258,7 +258,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         IQueryable<Product> query,
         IQueryable<Product> querySpecification)
     {
-        var specAttributeMapping = await BuildSpecificationAttributeMapping(request.FilteredSpecs, querySpecification);
+        var specAttributeMapping = await BuildSpecificationAttributeMapping(request.FilteredSpecs ?? [], querySpecification);
 
         // Apply filters for each specification attribute
         foreach (var item in specAttributeMapping.Dictionary)
@@ -266,7 +266,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
             query = query.Where(x => x.ProductSpecificationAttributes.Any(y =>
                 y.SpecificationAttributeId == item.Key &&
                 y.AllowFiltering &&
-                item.Value.Contains(y.SpecificationAttributeOptionId)));
+                y.SpecificationAttributeOptionId != null && item.Value.Contains(y.SpecificationAttributeOptionId)));
         }
 
         return (query, specAttributeMapping.QuerySpecification);
@@ -301,8 +301,9 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
 
     private static IQueryable<Product> ApplySpecificationOptions(GetSearchProductsQuery request, IQueryable<Product> query)
     {
+        var options = request.SpecificationOptions ?? [];
         return query.Where(x => x.ProductSpecificationAttributes.Any(y =>
-            request.SpecificationOptions.Contains(y.SpecificationAttributeOptionId)));
+            y.SpecificationAttributeOptionId != null && options.Contains(y.SpecificationAttributeOptionId)));
     }
 
     private bool ShouldLoadFilterableSpecifications(GetSearchProductsQuery request)
@@ -326,7 +327,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
             .Select(x => x.SpecificationAttributeOptionId)
             .Distinct();
 
-        return await _productRepository.ToListAsync(optionIds, cancellationToken);
+        return (await _productRepository.ToListAsync(optionIds, cancellationToken)).OfType<string>().ToList();
     }
 
     private IQueryable<Product> FilterQueryable(GetSearchProductsQuery request, IQueryable<Product> query, string[] allowedCustomerGroupsIds)
@@ -357,9 +358,9 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         if (request.CategoryIds != null && request.CategoryIds.Any())
         {
             if (request.FeaturedProducts.HasValue)
-                query = query.Where(x => x.ProductCategories.Any(y => request.CategoryIds.Contains(y.CategoryId) && y.IsFeaturedProduct == request.FeaturedProducts));
+                query = query.Where(x => x.ProductCategories.Any(y => y.CategoryId != null && request.CategoryIds.Contains(y.CategoryId) && y.IsFeaturedProduct == request.FeaturedProducts));
             else
-                query = query.Where(x => x.ProductCategories.Any(y => request.CategoryIds.Contains(y.CategoryId)));
+                query = query.Where(x => x.ProductCategories.Any(y => y.CategoryId != null && request.CategoryIds.Contains(y.CategoryId)));
         }
         return query;
     }
@@ -457,7 +458,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         return query;
     }
 
-    private string TextSearchTerms(GetSearchProductsQuery request)
+    private string? TextSearchTerms(GetSearchProductsQuery request)
     {
         //staff search by fragments and partial SKUs. The text index does not cover descriptions
         if (!_databaseConfig.UseProductTextSearch || request.ShowHidden || request.SearchDescriptions ||
@@ -487,7 +488,7 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         {
             //a SKU search finds a product by its own SKU and by the SKU of any of its attribute combinations
             if (!request.SearchDescriptions)
-                query = query.Where(p => p.Name.ToLower().Contains(request.Keywords.ToLower()) || p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.ProductAttributeCombinations.Any(c => c.Sku != null && c.Sku.ToLower().Contains(request.Keywords.ToLower()))));
+                query = query.Where(p => (p.Name != null && p.Name.ToLower().Contains(request.Keywords.ToLower())) || p.Locales.Any(x => x.LocaleKey == "Name" && x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.ProductAttributeCombinations.Any(c => c.Sku != null && c.Sku.ToLower().Contains(request.Keywords.ToLower()))));
             else
                 query = query.Where(p => (p.Name != null && p.Name.ToLower().Contains(request.Keywords.ToLower())) || (p.ShortDescription != null && p.ShortDescription.ToLower().Contains(request.Keywords.ToLower())) || (p.FullDescription != null && p.FullDescription.ToLower().Contains(request.Keywords.ToLower())) || p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.Sku != null && p.Sku.ToLower().Contains(request.Keywords.ToLower())) || (request.SearchSku && p.ProductAttributeCombinations.Any(c => c.Sku != null && c.Sku.ToLower().Contains(request.Keywords.ToLower()))));
         }

@@ -65,7 +65,7 @@ public class AmazonPictureService : PictureService
 
     private readonly AmazonConfig _config;
     private readonly string _bucketName;
-    private readonly string _distributionDomainName;
+    private readonly string? _distributionDomainName;
     private bool _bucketExist;
     private readonly IAmazonS3 _s3Client;
 
@@ -137,7 +137,7 @@ public class AmazonPictureService : PictureService
     /// </summary>
     /// <param name="thumbFileName">Filename</param>
     /// <returns>Local picture thumb path</returns>
-    protected override async Task<string> GetThumbPhysicalPath(string thumbFileName)
+    protected override async Task<string?> GetThumbPhysicalPath(string thumbFileName)
     {
         if (!await GeneratedThumbExists(thumbFileName))
             return null;
@@ -173,7 +173,7 @@ public class AmazonPictureService : PictureService
     /// <param name="thumbFileName">Filename</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Local picture thumb path</returns>
-    protected override string GetThumbUrl(string thumbFileName, string storeLocation = null)
+    protected override string GetThumbUrl(string thumbFileName, string? storeLocation = null)
     {
         return string.IsNullOrEmpty(_distributionDomainName)
             ? $"https://{_bucketName}.s3.amazonAws.com/{thumbFileName}"
@@ -185,11 +185,11 @@ public class AmazonPictureService : PictureService
     /// </summary>
     /// <param name="thumbFileName">Thumb file name</param>
     /// <param name="binary">Picture binary</param>
-    protected override async Task SaveThumb(string thumbFileName, byte[] binary)
+    protected override async Task SaveThumb(string thumbFileName, byte[]? binary)
     {
         await CheckBucketExists();
 
-        using (Stream stream = new MemoryStream(binary))
+        using (Stream stream = new MemoryStream(binary ?? []))
         {
             var putObjectRequest = new PutObjectRequest {
                 BucketName = _bucketName,

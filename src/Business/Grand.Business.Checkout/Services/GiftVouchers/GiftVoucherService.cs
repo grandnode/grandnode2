@@ -46,7 +46,7 @@ public class GiftVoucherService : IGiftVoucherService
     /// </summary>
     /// <param name="giftVoucherId">Gift voucher identifier</param>
     /// <returns>Gift voucher entry</returns>
-    public virtual Task<GiftVoucher> GetGiftVoucherById(string giftVoucherId)
+    public virtual Task<GiftVoucher?> GetGiftVoucherById(string? giftVoucherId)
     {
         return _giftVoucherRepository.GetByIdAsync(giftVoucherId);
     }
@@ -66,14 +66,14 @@ public class GiftVoucherService : IGiftVoucherService
     /// <returns>Gift vouchers</returns>
     public virtual async Task<IPagedList<GiftVoucher>> GetAllGiftVouchers(string purchasedWithOrderItemId = "",
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
-        bool? isGiftVoucherActivated = null, string giftVoucherCouponCode = null,
-        string recipientName = null,
+        bool? isGiftVoucherActivated = null, string? giftVoucherCouponCode = null,
+        string? recipientName = null,
         int pageIndex = 0, int pageSize = int.MaxValue, string storeId = "")
     {
         var model = new GetGiftVoucherQuery {
             CreatedFromUtc = createdFromUtc,
             CreatedToUtc = createdToUtc,
-            Code = giftVoucherCouponCode,
+            Code = giftVoucherCouponCode ?? "",
             IsGiftVoucherActivated = isGiftVoucherActivated,
             PageIndex = pageIndex,
             PageSize = pageSize,

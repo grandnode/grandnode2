@@ -48,7 +48,7 @@ public class PricingService : IPricingService
         public double Price { get; set; }
         public double AppliedDiscountAmount { get; set; }
         public IList<ApplyDiscount> AppliedDiscounts { get; set; } = new List<ApplyDiscount>();
-        public TierPrice PreferredTierPrice { get; set; }
+        public TierPrice? PreferredTierPrice { get; set; }
     }
 
     #endregion
@@ -78,7 +78,7 @@ public class PricingService : IPricingService
     /// <param name="quantity">Shopping cart item quantity</param>
     /// <returns>Final price</returns>
     public virtual async
-        Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice
+        Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice?
             preferredTierPrice)>
         GetFinalPrice(
             Product product,
@@ -107,7 +107,7 @@ public class PricingService : IPricingService
     /// <param name="rentalEndDate">Rental period end date (for rental products)</param>
     /// <returns>Final price</returns>
     public virtual async
-        Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice
+        Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice?
             preferredTierPrice)>
         GetFinalPrice(
             Product product,

@@ -43,7 +43,7 @@ public class NewsService : INewsService
     /// </summary>
     /// <param name="newsId">The news identifier</param>
     /// <returns>News</returns>
-    public virtual Task<NewsItem> GetNewsById(string newsId)
+    public virtual Task<NewsItem?> GetNewsById(string newsId)
     {
         return _newsItemRepository.GetByIdAsync(newsId);
     }

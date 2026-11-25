@@ -19,14 +19,14 @@ public interface IShippingService
     /// <param name="cart">Cart</param>
     /// <returns>Shipping rate  methods</returns>
     Task<IList<IShippingRateCalculationProvider>> LoadActiveShippingRateCalculationProviders(Customer? customer = null,
-        string storeId = "", IList<ShoppingCartItem>? cart = null);
+        string? storeId = "", IList<ShoppingCartItem>? cart = null);
 
     /// <summary>
     ///     Load Shipping rate  provider by system name
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found Shipping rate  provider</returns>
-    IShippingRateCalculationProvider LoadShippingRateCalculationProviderBySystemName(string systemName);
+    IShippingRateCalculationProvider? LoadShippingRateCalculationProviderBySystemName(string systemName);
 
     /// <summary>
     ///     Load all Shipping rate  providers
@@ -35,7 +35,7 @@ public interface IShippingService
     /// <param name="storeId">Store ident</param>
     /// <returns>Shipping rate  providers</returns>
     IList<IShippingRateCalculationProvider> LoadAllShippingRateCalculationProviders(Customer? customer = null,
-        string storeId = "");
+        string? storeId = "");
 
     /// <summary>
     ///     Create shipment packages (requests) from shopping cart
@@ -46,7 +46,7 @@ public interface IShippingService
     /// <param name="store">Store</param>
     /// <returns>Shipment packages</returns>
     Task<GetShippingOptionRequest> CreateShippingOptionRequests(Customer customer,
-        IList<ShoppingCartItem> cart, Address shippingAddress, Store store);
+        IList<ShoppingCartItem> cart, Address? shippingAddress, Store? store);
 
     /// <summary>
     ///     Gets available shipping options

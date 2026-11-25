@@ -76,7 +76,7 @@ public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAt
                 existing?.Id ?? "", key, errors, warnings);
 
         var isNew = existing == null;
-        var attribute = existing ?? new SpecificationAttribute { Name = dto.Name };
+        var attribute = existing ?? new SpecificationAttribute { Name = dto.Name ?? "" };
         if (!string.IsNullOrEmpty(dto.Name)) attribute.Name = dto.Name;
         if (dto.DisplayOrder.HasValue) attribute.DisplayOrder = dto.DisplayOrder.Value;
         if (seName != null) attribute.SeName = seName;
@@ -89,7 +89,7 @@ public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAt
             if (option == null)
             {
                 option = new SpecificationAttributeOption {
-                    Name = optionDto.Name,
+                    Name = optionDto.Name ?? "",
                     SeName = GetSeName(optionDto.Name)
                 };
                 attribute.SpecificationAttributeOptions.Add(option);
@@ -115,7 +115,7 @@ public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAt
     ///     By Id, else by SeName normalized as a new attribute's is, else (best effort) by the SeName its Name would get,
     ///     accepted only when the stored name is the same (any case)
     /// </summary>
-    private async Task<(SpecificationAttribute attribute, bool matchedByName)> Find(SpecificationAttributeDto dto)
+    private async Task<(SpecificationAttribute? attribute, bool matchedByName)> Find(SpecificationAttributeDto dto)
     {
         if (!string.IsNullOrEmpty(dto.Id))
             return (await _specificationAttributeService.GetSpecificationAttributeById(dto.Id), false);
@@ -132,7 +132,7 @@ public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAt
             : (null, false);
     }
 
-    private async Task<SpecificationAttribute> FindBySeName(string seName)
+    private async Task<SpecificationAttribute?> FindBySeName(string seName)
     {
         return string.IsNullOrEmpty(seName)
             ? null
@@ -140,9 +140,9 @@ public class SpecificationAttributeImportDataObject : IRowImport<SpecificationAt
     }
 
     //same normalization as the panel's specification attribute controller
-    private string GetSeName(string name)
+    private string GetSeName(string? name)
     {
-        return SeoExtensions.GetSeName(name, _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
+        return SeoExtensions.GetSeName(name ?? "", _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
             _seoSettings.SeoCharConversion);
     }
 }

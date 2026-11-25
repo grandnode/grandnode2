@@ -28,12 +28,12 @@ public class RecurringPaymentService(
         await mediator.EntityInserted(recurringPayment);
     }
 
-    public virtual async Task<RecurringCycleClaim> ClaimCycle(string recurringPaymentId, string providerReference,
+    public virtual async Task<RecurringCycleClaim> ClaimCycle(string recurringPaymentId, string? providerReference,
         string cycleReference, double amount, DateTime paidOnUtc, DateTime? nextPaymentDateUtc)
     {
         ArgumentException.ThrowIfNullOrEmpty(cycleReference);
 
-        RecurringPayment recurringPayment;
+        RecurringPayment? recurringPayment;
         RecurringPaymentCycle cycle;
         var completed = false;
 
@@ -41,6 +41,8 @@ public class RecurringPaymentService(
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            if (recurringPayment == null)
+                return new RecurringCycleClaim { Outcome = RecurringReportOutcome.NotFound };
             var refused = Refusal(recurringPayment, providerReference);
             if (refused == null && recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference))
                 refused = RecurringReportOutcome.Duplicate;
@@ -87,16 +89,18 @@ public class RecurringPaymentService(
     }
 
     public virtual async Task<RecurringReportResult> RecordFailure(string recurringPaymentId,
-        string providerReference, string cycleReference, string reason)
+        string? providerReference, string cycleReference, string? reason)
     {
         ArgumentException.ThrowIfNullOrEmpty(cycleReference);
 
-        RecurringPayment recurringPayment;
+        RecurringPayment? recurringPayment;
         bool enteredPastDue;
 
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            if (recurringPayment == null)
+                return new RecurringReportResult { Outcome = RecurringReportOutcome.NotFound };
             var refused = Refusal(recurringPayment, providerReference);
             //a failure that arrives after the cycle was paid is a late, out of order event
             if (refused == null && recurringPayment.Cycles.Any(x => x.ProviderReference == cycleReference))
@@ -131,14 +135,16 @@ public class RecurringPaymentService(
         return new RecurringReportResult { Outcome = RecurringReportOutcome.Recorded, RecurringPayment = recurringPayment };
     }
 
-    public virtual async Task<RecurringReportResult> RecordEnded(string recurringPaymentId, string providerReference)
+    public virtual async Task<RecurringReportResult> RecordEnded(string recurringPaymentId, string? providerReference)
     {
-        RecurringPayment recurringPayment;
+        RecurringPayment? recurringPayment;
 
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
             //another subscription ending says nothing about the one this payment runs on
+            if (recurringPayment == null)
+                return new RecurringReportResult { Outcome = RecurringReportOutcome.NotFound };
             var refused = Refusal(recurringPayment, providerReference);
             if (refused == null && recurringPayment.Status.HasEnded())
                 refused = RecurringReportOutcome.Ended;
@@ -161,15 +167,17 @@ public class RecurringPaymentService(
     }
 
     public virtual async Task<RecurringReportResult> RecordProviderReference(string recurringPaymentId,
-        string providerReference)
+        string? providerReference)
     {
         ArgumentException.ThrowIfNullOrEmpty(providerReference);
 
-        RecurringPayment recurringPayment;
+        RecurringPayment? recurringPayment;
 
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
+            if (recurringPayment == null)
+                return new RecurringReportResult { Outcome = RecurringReportOutcome.NotFound };
             var refused = Refusal(recurringPayment, providerReference);
             if (refused == null && recurringPayment.ProviderReference == providerReference)
                 refused = RecurringReportOutcome.Duplicate;
@@ -186,19 +194,16 @@ public class RecurringPaymentService(
         return new RecurringReportResult { Outcome = RecurringReportOutcome.Recorded, RecurringPayment = recurringPayment };
     }
 
-    //why a report is refused whatever it reports, or null
-    private static RecurringReportOutcome? Refusal(RecurringPayment recurringPayment, string providerReference)
+    //why a report of a payment found is refused whatever it reports, or null
+    private static RecurringReportOutcome? Refusal(RecurringPayment recurringPayment, string? providerReference)
     {
-        if (recurringPayment == null)
-            return RecurringReportOutcome.NotFound;
-
         return recurringPayment.HasOtherProviderReference(providerReference)
             ? RecurringReportOutcome.OtherReference
             : null;
     }
 
     //the first reference reported is the one the payment runs on, whichever report brings it
-    private static bool KeepFirstReference(RecurringPayment recurringPayment, string providerReference)
+    private static bool KeepFirstReference(RecurringPayment recurringPayment, string? providerReference)
     {
         if (!string.IsNullOrEmpty(recurringPayment.ProviderReference) || string.IsNullOrEmpty(providerReference))
             return false;
@@ -213,7 +218,7 @@ public class RecurringPaymentService(
         ArgumentException.ThrowIfNullOrEmpty(cancelledBy);
         ArgumentNullException.ThrowIfNull(stopAtGateway);
 
-        RecurringPayment recurringPayment;
+        RecurringPayment? recurringPayment;
         var cancelled = false;
 
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
@@ -281,12 +286,12 @@ public class RecurringPaymentService(
         return $"{nameof(RecurringPayment)}:{recurringPaymentId}";
     }
 
-    public virtual Task<RecurringPayment> GetRecurringPaymentById(string id)
+    public virtual Task<RecurringPayment?> GetRecurringPaymentById(string id)
     {
         return repository.GetByIdAsync(id);
     }
 
-    public virtual Task<RecurringPayment> GetRecurringPaymentByInitialOrderId(string initialOrderId)
+    public virtual Task<RecurringPayment?> GetRecurringPaymentByInitialOrderId(string initialOrderId)
     {
         return repository.GetOneAsync(x => x.InitialOrderId == initialOrderId);
     }

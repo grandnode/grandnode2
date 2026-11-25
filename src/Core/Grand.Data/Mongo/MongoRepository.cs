@@ -82,7 +82,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    public virtual T? GetById(string id)
+    public virtual T? GetById(string? id)
     {
         return Collection.Find(e => e.Id == id).FirstOrDefault();
     }
@@ -92,7 +92,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    public virtual async Task<T?> GetByIdAsync(string id)
+    public virtual async Task<T?> GetByIdAsync(string? id)
     {
         return await Collection.Find(e => e.Id == id).FirstOrDefaultAsync();
     }

@@ -13,10 +13,10 @@ namespace Grand.Business.Core.Utilities.Catalog;
 /// <param name="CustomerId">who caused it; empty for the system</param>
 /// <param name="Comment">the comment of the entry</param>
 public sealed record StockSource(
-    string ObjectType = "",
-    string ObjectId = "",
-    string PositionId = "",
-    string Reference = "",
+    string? ObjectType = "",
+    string? ObjectId = "",
+    string? PositionId = "",
+    string? Reference = "",
     string CustomerId = "",
     string Comment = "");
 
@@ -31,7 +31,7 @@ public sealed record StockSource(
 /// <param name="Source">the source the journal entry names</param>
 public sealed record StockChange(
     IList<CustomAttribute> Attributes,
-    string WarehouseId,
+    string? WarehouseId,
     int Quantity,
     bool SetTo,
     InventoryMovementType MovementType,

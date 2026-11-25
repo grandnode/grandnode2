@@ -15,5 +15,5 @@ public interface IJwtBearerAuthenticationService
     ///     Get error message
     /// </summary>
     /// <returns></returns>
-    Task<string> ErrorMessage();
+    Task<string?> ErrorMessage();
 }

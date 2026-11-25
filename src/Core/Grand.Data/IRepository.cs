@@ -19,14 +19,14 @@ public interface IRepository<T> where T : BaseEntity
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    T? GetById(string id);
+    T? GetById(string? id);
 
     /// <summary>
     ///     Get async entity by identifier
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    Task<T?> GetByIdAsync(string id);
+    Task<T?> GetByIdAsync(string? id);
 
     /// <summary>
     ///     Get entity by identifier

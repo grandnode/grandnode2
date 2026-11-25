@@ -43,7 +43,7 @@ public class DeliveryDateService : IDeliveryDateService
     /// </summary>
     /// <param name="deliveryDateId">The delivery date identifier</param>
     /// <returns>Delivery date</returns>
-    public virtual Task<DeliveryDate> GetDeliveryDateById(string deliveryDateId)
+    public virtual Task<DeliveryDate?> GetDeliveryDateById(string deliveryDateId)
     {
         var key = string.Format(CacheKey.DELIVERYDATE_BY_ID_KEY, deliveryDateId);
         return _cacheBase.GetAsync(key, () => _deliveryDateRepository.GetByIdAsync(deliveryDateId));

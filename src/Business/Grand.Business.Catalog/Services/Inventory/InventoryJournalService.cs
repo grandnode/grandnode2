@@ -23,8 +23,8 @@ public class InventoryJournalService(
         //an entry written before entries named their store belongs to no store, like a shared warehouse
         if (storeIds != null)
             query = storeIds.Contains("")
-                ? query.Where(x => storeIds.Contains(x.StoreId) || x.StoreId == null)
-                : query.Where(x => storeIds.Contains(x.StoreId));
+                ? query.Where(x => x.StoreId != null && storeIds.Contains(x.StoreId) || x.StoreId == null)
+                : query.Where(x => x.StoreId != null && storeIds.Contains(x.StoreId));
 
         return inventoryJournalRepository.PagedAsync(
             query.OrderByDescending(x => x.CreateDateUtc).ThenByDescending(x => x.StockRevision), pageIndex,

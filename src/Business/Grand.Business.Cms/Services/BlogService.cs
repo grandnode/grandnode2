@@ -50,7 +50,7 @@ public class BlogService : IBlogService
     /// </summary>
     /// <param name="blogPostId">Blog post identifier</param>
     /// <returns>Blog post</returns>
-    public virtual Task<BlogPost> GetBlogPostById(string blogPostId)
+    public virtual Task<BlogPost?> GetBlogPostById(string blogPostId)
     {
         return _blogPostRepository.GetByIdAsync(blogPostId);
     }
@@ -70,7 +70,7 @@ public class BlogService : IBlogService
     /// <returns>Blog posts</returns>
     public virtual async Task<IPagedList<BlogPost>> GetAllBlogPosts(string storeId,
         DateTime? dateFrom = null, DateTime? dateTo = null,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string tag = null,
+        int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string? tag = null,
         string blogPostName = "", string categoryId = "")
     {
         var query = await BuildBlogPostQuery(storeId, dateFrom, dateTo, showHidden, blogPostName, categoryId);
@@ -130,7 +130,7 @@ public class BlogService : IBlogService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Blog posts</returns>
     public virtual async Task<IPagedList<BlogPost>> GetAllBlogPostsByTag(string storeId,
-        string tag = "",
+        string? tag = "",
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         tag = tag?.Trim();
@@ -162,7 +162,7 @@ public class BlogService : IBlogService
             foreach (var tag in tags)
             {
                 var foundBlogPostTag =
-                    blogPostTags.FirstOrDefault(bpt => bpt.Name.Equals(tag, StringComparison.OrdinalIgnoreCase));
+                    blogPostTags.FirstOrDefault(bpt => string.Equals(bpt.Name, tag, StringComparison.OrdinalIgnoreCase));
                 if (foundBlogPostTag == null)
                 {
                     foundBlogPostTag = new BlogPostTag {
@@ -244,7 +244,7 @@ public class BlogService : IBlogService
     /// </summary>
     /// <param name="blogCommentId">Blog comment identifier</param>
     /// <returns>Blog comment</returns>
-    public virtual Task<BlogComment> GetBlogCommentById(string blogCommentId)
+    public virtual Task<BlogComment?> GetBlogCommentById(string blogCommentId)
     {
         return _blogCommentRepository.GetByIdAsync(blogCommentId);
     }
@@ -275,7 +275,7 @@ public class BlogService : IBlogService
         var comments = query.ToList();
         //sort by passed identifiers
         var sortedComments = commentIds.Select(id => comments.FirstOrDefault(comment => comment.Id == id))
-            .Where(comment => comment != null)
+            .OfType<BlogComment>()
             .ToList();
         
         return await Task.FromResult(sortedComments);
@@ -309,7 +309,7 @@ public class BlogService : IBlogService
     /// </summary>
     /// <param name="blogCategoryId">Blog category id</param>
     /// <returns></returns>
-    public virtual Task<BlogCategory> GetBlogCategoryById(string blogCategoryId)
+    public virtual Task<BlogCategory?> GetBlogCategoryById(string blogCategoryId)
     {
         return _blogCategoryRepository.GetByIdAsync(blogCategoryId);
     }
@@ -330,7 +330,7 @@ public class BlogService : IBlogService
     /// </summary>
     /// <param name="blogCategorySeName">Blog category se-name</param>
     /// <returns></returns>
-    public virtual async Task<BlogCategory> GetBlogCategoryBySeName(string blogCategorySeName)
+    public virtual async Task<BlogCategory?> GetBlogCategoryBySeName(string blogCategorySeName)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(blogCategorySeName);
 
@@ -407,7 +407,7 @@ public class BlogService : IBlogService
     /// </summary>
     /// <param name="id">id</param>
     /// <returns>Blog product</returns>
-    public virtual Task<BlogProduct> GetBlogProductById(string id)
+    public virtual Task<BlogProduct?> GetBlogProductById(string id)
     {
         return _blogProductRepository.GetByIdAsync(id);
     }

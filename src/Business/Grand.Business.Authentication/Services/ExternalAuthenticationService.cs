@@ -70,7 +70,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <param name="language">Working language of the request</param>
     /// <returns>Result of an authentication</returns>
     protected virtual async Task<ExternalAuthResult> AuthenticateExistingUser(Customer associatedUser,
-        Customer currentLoggedInUser, Customer customer, string storeId, Language language)
+        Customer? currentLoggedInUser, Customer customer, string storeId, Language language)
     {
         //log in guest user
         if (currentLoggedInUser == null)
@@ -92,7 +92,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <param name="storeId">Store identifier</param>
     /// <param name="language">Working language of the request</param>
     /// <returns>Result of an authentication</returns>
-    protected virtual async Task<ExternalAuthResult> AuthenticateNewUser(Customer currentLoggedInUser,
+    protected virtual async Task<ExternalAuthResult> AuthenticateNewUser(Customer? currentLoggedInUser,
         ExternalAuthParam parameters, Customer customer, string storeId, Language language)
     {
         //associate external account with logged-in user
@@ -122,8 +122,11 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     ///     Whether another customer has the provider's e-mail as their e-mail or, with usernames enabled, as their
     ///     username; registration stores the provider's e-mail in both fields
     /// </summary>
-    private async Task<bool> IsEmailOrUsernameTaken(string email, string storeId)
+    private async Task<bool> IsEmailOrUsernameTaken(string? email, string storeId)
     {
+        //a provider that gives no e-mail takes nothing over; registration then asks for it
+        if (string.IsNullOrWhiteSpace(email))
+            return false;
         return await _customerService.GetCustomerByEmail(email, storeId) != null ||
                (_customerSettings.UsernamesEnabled &&
                 await _customerService.GetCustomerByUsername(email, storeId) != null);
@@ -144,9 +147,12 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
             _customerSettings.UserRegistrationType is UserRegistrationType.Standard
                 or UserRegistrationType.EmailValidation;
 
+        //Authenticate registers only with the provider's e-mail
+        var email = parameters.Email ?? throw new ArgumentException("The provider gave no e-mail", nameof(parameters));
+
         //create registration request
         var registrationRequest = new RegistrationRequest(customer,
-            parameters.Email, parameters.Email,
+            email, email,
             CommonHelper.GenerateRandomDigitCode(20),
             PasswordFormat.Hashed,
             storeId,
@@ -214,7 +220,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found external authentication provider</returns>
-    public virtual IExternalAuthenticationProvider LoadAuthenticationProviderBySystemName(string systemName)
+    public virtual IExternalAuthenticationProvider? LoadAuthenticationProviderBySystemName(string systemName)
     {
         return _externalAuthenticationProviders.FirstOrDefault(x =>
             x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
@@ -312,13 +318,13 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// </summary>
     /// <param name="parameters">External authentication parameters</param>
     /// <returns>Customer</returns>
-    public virtual async Task<Customer> GetCustomer(ExternalAuthParam parameters)
+    public virtual async Task<Customer?> GetCustomer(ExternalAuthParam parameters)
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
         var associationRecord = (from q in _externalAuthenticationRecordRepository.Table
             where q.ExternalIdentifier == parameters.Identifier
-                  && q.ProviderSystemName.ToLowerInvariant() == parameters.ProviderSystemName.ToLowerInvariant()
+                  && q.ProviderSystemName != null && q.ProviderSystemName.ToLowerInvariant() == parameters.ProviderSystemName.ToLowerInvariant()
             select q).FirstOrDefault();
 
         if (associationRecord == null)

@@ -7,6 +7,6 @@ namespace Grand.Business.Messages.Commands.Tokens;
 
 public class GetVendorTokensCommand : IRequest<LiquidVendor>
 {
-    public Vendor Vendor { get; set; }
-    public Language Language { get; set; }
+    public required Vendor Vendor { get; set; }
+    public required Language Language { get; set; }
 }

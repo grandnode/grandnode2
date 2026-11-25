@@ -157,7 +157,7 @@ public static class ProductExtensions
     /// <param name="customAttributes">Attributes</param>
     /// <returns>Product attribute values</returns>
     public static IList<ProductAttributeValue> ParseProductAttributeValues(this Product product,
-        IList<CustomAttribute> customAttributes)
+        IList<CustomAttribute>? customAttributes)
     {
         var values = new List<ProductAttributeValue>();
         if (customAttributes == null || !customAttributes.Any())

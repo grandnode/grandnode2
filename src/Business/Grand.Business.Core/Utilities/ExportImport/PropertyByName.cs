@@ -11,7 +11,7 @@ public class PropertyByName<T>
     /// </summary>
     /// <param name="propertyName">Property name</param>
     /// <param name="func">Feature property access</param>
-    public PropertyByName(string propertyName, Func<T, object>? func = null)
+    public PropertyByName(string propertyName, Func<T, object?>? func = null)
     {
         PropertyName = propertyName;
         GetProperty = func;
@@ -27,7 +27,7 @@ public class PropertyByName<T>
     /// <summary>
     ///     Feature property access
     /// </summary>
-    public Func<T, object>? GetProperty { get; private set; }
+    public Func<T, object?>? GetProperty { get; private set; }
 
     /// <summary>
     ///     Property name

@@ -17,16 +17,16 @@ public enum ScimOutcome
 /// <summary>The attributes of a SCIM user that GrandNode keeps</summary>
 public record ScimUserData(string UserName, string ExternalId, string Email, string GivenName, string FamilyName, bool Active);
 
-public record ScimGroupRef(string Id, string DisplayName);
+public record ScimGroupRef(string Id, string? DisplayName);
 
 /// <summary>A SCIM user as the endpoint returns it (id = customer id)</summary>
 public record ScimUserView(
     string Id,
-    string ExternalId,
-    string UserName,
-    string Email,
-    string GivenName,
-    string FamilyName,
+    string? ExternalId,
+    string? UserName,
+    string? Email,
+    string? GivenName,
+    string? FamilyName,
     bool Active,
     IList<ScimGroupRef> Groups,
     DateTime Created,
@@ -40,8 +40,8 @@ public record ScimGroupData(string DisplayName, string ExternalId, IList<string>
 
 public record ScimGroupView(
     string Id,
-    string DisplayName,
-    string ExternalId,
+    string? DisplayName,
+    string? ExternalId,
     IList<string> MemberIds,
     DateTime Created,
     DateTime? LastModified);
@@ -54,8 +54,8 @@ public record ScimPage<T>(IList<T> Items, int Total);
 /// <summary>A group received from the identity provider and the role an administrator mapped to it</summary>
 public record ScimGroupMapping(
     string GroupId,
-    string DisplayName,
+    string? DisplayName,
     int MemberCount,
-    string CustomerGroupId,
-    string StaffStoreId,
-    string VendorId);
+    string? CustomerGroupId,
+    string? StaffStoreId,
+    string? VendorId);

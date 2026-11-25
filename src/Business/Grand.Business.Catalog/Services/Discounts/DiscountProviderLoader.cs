@@ -19,7 +19,7 @@ public class DiscountProviderLoader : IDiscountProviderLoader
     /// </summary>
     /// <param name="ruleSystemName">Rule system name</param>
     /// <returns>Found discount</returns>
-    public virtual IDiscountProvider LoadDiscountProviderByRuleSystemName(string ruleSystemName)
+    public virtual IDiscountProvider? LoadDiscountProviderByRuleSystemName(string? ruleSystemName)
     {
         var discountPlugins = LoadAllDiscountProviders();
         foreach (var discountPlugin in discountPlugins)
@@ -57,7 +57,7 @@ public class DiscountProviderLoader : IDiscountProviderLoader
     /// </summary>
     /// <param name="systemName"></param>
     /// <returns></returns>
-    public virtual IDiscountAmountProvider LoadDiscountAmountProviderBySystemName(string systemName)
+    public virtual IDiscountAmountProvider? LoadDiscountAmountProviderBySystemName(string? systemName)
     {
         return _discountAmountProviders.FirstOrDefault(x =>
             x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));

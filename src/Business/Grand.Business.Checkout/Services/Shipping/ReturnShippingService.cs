@@ -21,7 +21,7 @@ public class ReturnShippingService(
     ICustomerService customerService,
     ILogger<ReturnShippingService> logger) : IReturnShippingService
 {
-    public async Task<IList<IReturnShippingProvider>> LoadActiveProviders(Customer customer, string storeId)
+    public async Task<IList<IReturnShippingProvider>> LoadActiveProviders(Customer? customer, string? storeId)
     {
         var settings = await settingService.LoadSetting<ReturnShippingProviderSettings>(storeId);
         return LoadAllProviders(customer, storeId)
@@ -30,13 +30,13 @@ public class ReturnShippingService(
             .ToList();
     }
 
-    public IReturnShippingProvider LoadProviderBySystemName(string systemName)
+    public IReturnShippingProvider? LoadProviderBySystemName(string? systemName)
     {
         return returnShippingProviders.FirstOrDefault(x =>
             string.Equals(x.SystemName, systemName, StringComparison.OrdinalIgnoreCase));
     }
 
-    public IList<IReturnShippingProvider> LoadAllProviders(Customer customer = null, string storeId = "")
+    public IList<IReturnShippingProvider> LoadAllProviders(Customer? customer = null, string? storeId = "")
     {
         return returnShippingProviders
             .Where(x => x.IsAuthenticateStore(storeId) && x.IsAuthenticateGroup(customer))
@@ -61,7 +61,7 @@ public class ReturnShippingService(
     }
 
     public async Task<ReturnShippingResolution> Resolve(MerchandiseReturnSubmitRequest request,
-        ReturnShippingChoice choice)
+        ReturnShippingChoice? choice)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -101,12 +101,12 @@ public class ReturnShippingService(
         {
             var group = groups[i];
             var option = chosen.Options[i];
-            ReturnShippingValidationResult validation = null;
+            ReturnShippingValidationResult? validation = null;
             if (option.HasForm)
                 try
                 {
                     validation = await chosen.Provider.ValidateForm(group.Request, option.Code,
-                        choice.Form ?? new Dictionary<string, string>());
+                        choice?.Form ?? new Dictionary<string, string>());
                 }
                 catch (Exception ex)
                 {
@@ -143,7 +143,7 @@ public class ReturnShippingService(
         return resolution;
     }
 
-    public async Task<Address> GetReturnAddress(string storeId, string vendorId)
+    public async Task<Address?> GetReturnAddress(string? storeId, string vendorId)
     {
         //a copy: the address is kept with each return, and a change of the vendor or the settings must not reach it
         if (!string.IsNullOrEmpty(vendorId))
@@ -163,7 +163,7 @@ public class ReturnShippingService(
     /// <summary>
     ///     The submitted items by vendor, grouped as the submit groups them into returns
     /// </summary>
-    private async Task<IList<VendorGroup>> VendorGroups(MerchandiseReturnSubmitRequest request, Customer customer)
+    private async Task<IList<VendorGroup>> VendorGroups(MerchandiseReturnSubmitRequest request, Customer? customer)
     {
         var items = request.Items.Where(x => x.Quantity > 0).ToList();
         var vendorItems = request.Order.OrderItems
@@ -199,7 +199,7 @@ public class ReturnShippingService(
     /// <summary>
     ///     The options every vendor group is offered, with the option of each group in the order of the groups
     /// </summary>
-    private async Task<IList<ProviderOffer>> Offers(string storeId, IList<VendorGroup> groups,
+    private async Task<IList<ProviderOffer>> Offers(string? storeId, IList<VendorGroup> groups,
         IList<IReturnShippingProvider> providers)
     {
         if (providers.Count == 0)
@@ -232,8 +232,8 @@ public class ReturnShippingService(
             foreach (var first in groupOptions[0])
             {
                 var options = groupOptions.Select(x => x.FirstOrDefault(option => option.Code == first.Code))
-                    .ToList();
-                if (options.Any(x => x == null))
+                    .OfType<ReturnShippingOption>().ToList();
+                if (options.Count < groupOptions.Count)
                     continue;
 
                 offers.Add(new ProviderOffer(provider, options, new ReturnShippingOffer {
@@ -265,7 +265,7 @@ public class ReturnShippingService(
         return MerchandiseReturnShippingExtensions.CustomerCost(1, fees, group.AnyFreeReason) > 0;
     }
 
-    private static Address Copy(Address address)
+    private static Address? Copy(Address? address)
     {
         if (address == null)
             return null;

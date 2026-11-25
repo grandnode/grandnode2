@@ -35,7 +35,7 @@ public class OrderApprovalService : IOrderApprovalService
 
     #region Methods
 
-    public virtual async Task<OrderApproval> GetById(string id, string companyOwnerId)
+    public virtual async Task<OrderApproval?> GetById(string id, string companyOwnerId)
     {
         if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(companyOwnerId))
             return null;
@@ -44,7 +44,7 @@ public class OrderApprovalService : IOrderApprovalService
             _repository.Table.Where(x => x.Id == id && x.CompanyOwnerId == companyOwnerId));
     }
 
-    public virtual async Task<OrderApproval> GetByOrderId(string orderId)
+    public virtual async Task<OrderApproval?> GetByOrderId(string orderId)
     {
         if (string.IsNullOrEmpty(orderId))
             return null;
@@ -90,7 +90,7 @@ public class OrderApprovalService : IOrderApprovalService
     }
 
     public virtual async Task<bool> Close(OrderApproval approval, OrderApprovalStatus status,
-        string decidedByCustomerId = null, string decisionComment = null)
+        string? decidedByCustomerId = null, string? decisionComment = null)
     {
         ArgumentNullException.ThrowIfNull(approval);
 
@@ -138,7 +138,7 @@ public class OrderApprovalService : IOrderApprovalService
         await _mediator.EntityUpdated(approval);
     }
 
-    public virtual bool IsPaymentMethodAllowed(string paymentMethodSystemName)
+    public virtual bool IsPaymentMethodAllowed(string? paymentMethodSystemName)
     {
         return !string.IsNullOrEmpty(paymentMethodSystemName) &&
                _approvalSettings.PaymentMethodSystemNames?.Contains(paymentMethodSystemName,

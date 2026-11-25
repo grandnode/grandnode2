@@ -52,7 +52,7 @@ public static class MerchandiseReturnShippingExtensions
     ///     name, a recipient), the street, the zip code with the city, the country; empty parts are left out
     /// </summary>
     public static async Task<string> AddressLine(ICountryService countryService, string? address1,
-        string? zipPostalCode, string? city, string? countryId, params string[] leading)
+        string? zipPostalCode, string? city, string? countryId, params string?[] leading)
     {
         var country = string.IsNullOrEmpty(countryId) ? null : await countryService.GetCountryById(countryId);
         var zipAndCity = string.Join(" ", new[] { zipPostalCode, city }.Where(x => !string.IsNullOrEmpty(x)));
@@ -64,7 +64,7 @@ public static class MerchandiseReturnShippingExtensions
     ///     An address on one line, as every text and page of a merchandise return writes it; no address gives the
     ///     leading parts alone
     /// </summary>
-    public static Task<string> AddressLine(ICountryService countryService, Address? address, params string[] leading)
+    public static Task<string> AddressLine(ICountryService countryService, Address? address, params string?[] leading)
     {
         return AddressLine(countryService, address?.Address1, address?.ZipPostalCode, address?.City,
             address?.CountryId, leading);

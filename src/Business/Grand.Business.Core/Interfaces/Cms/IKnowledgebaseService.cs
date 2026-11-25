@@ -11,7 +11,7 @@ public interface IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base category</returns>
-    Task<KnowledgebaseCategory> GetKnowledgebaseCategory(string id);
+    Task<KnowledgebaseCategory?> GetKnowledgebaseCategory(string id);
 
     /// <summary>
     ///     Gets public knowledge base category
@@ -19,7 +19,7 @@ public interface IKnowledgebaseService
     /// <param name="id"></param>
     /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>knowledge base category</returns>
-    Task<KnowledgebaseCategory> GetPublicKnowledgebaseCategory(string id, CatalogAccess access);
+    Task<KnowledgebaseCategory?> GetPublicKnowledgebaseCategory(string id, CatalogAccess access);
 
     /// <summary>
     ///     Gets knowledge base categories
@@ -57,7 +57,7 @@ public interface IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base article</returns>
-    Task<KnowledgebaseArticle> GetKnowledgebaseArticle(string id);
+    Task<KnowledgebaseArticle?> GetKnowledgebaseArticle(string id);
 
     /// <summary>
     ///     Gets public knowledge base article
@@ -65,7 +65,7 @@ public interface IKnowledgebaseService
     /// <param name="id"></param>
     /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>knowledge base article</returns>
-    Task<KnowledgebaseArticle> GetPublicKnowledgebaseArticle(string id, CatalogAccess access);
+    Task<KnowledgebaseArticle?> GetPublicKnowledgebaseArticle(string id, CatalogAccess access);
 
     /// <summary>
     ///     Gets every knowledge base article, unpublished and group- or store-limited ones included

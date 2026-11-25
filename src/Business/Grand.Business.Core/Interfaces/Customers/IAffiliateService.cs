@@ -13,14 +13,14 @@ public interface IAffiliateService
     /// </summary>
     /// <param name="affiliateId">Affiliate identifier</param>
     /// <returns>Affiliate</returns>
-    Task<Affiliate> GetAffiliateById(string affiliateId);
+    Task<Affiliate?> GetAffiliateById(string affiliateId);
 
     /// <summary>
     ///     Gets an affiliate by url name
     /// </summary>
     /// <param name="friendlyUrlName">Friendly url name</param>
     /// <returns>Affiliate</returns>
-    Task<Affiliate> GetAffiliateByFriendlyUrlName(string friendlyUrlName);
+    Task<Affiliate?> GetAffiliateByFriendlyUrlName(string friendlyUrlName);
 
     /// <summary>
     ///     Gets all affiliates

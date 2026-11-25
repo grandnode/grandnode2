@@ -10,7 +10,7 @@ public interface IWarehouseService
     /// </summary>
     /// <param name="warehouseId">The warehouse identifier</param>
     /// <returns>Warehouse</returns>
-    Task<Warehouse> GetWarehouseById(string warehouseId);
+    Task<Warehouse?> GetWarehouseById(string warehouseId);
 
     /// <summary>
     ///     Gets all warehouses

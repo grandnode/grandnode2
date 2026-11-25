@@ -18,7 +18,7 @@ public interface IPdfService
     ///     be printed
     /// </param>
     /// <returns>A download ident</returns>
-    Task<string> SaveOrderToBinary(Order order, string languageId, string vendorId = "");
+    Task<string> SaveOrderToBinary(Order order, string? languageId, string vendorId = "");
 
     /// <summary>
     ///     Print orders to PDF
@@ -31,7 +31,7 @@ public interface IPdfService
     ///     be printed
     /// </param>
     /// <param name="cancellationToken">Stops the work before the PDF is generated</param>
-    Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string languageId = "", string vendorId = "",
+    Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string? languageId = "", string vendorId = "",
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -41,7 +41,7 @@ public interface IPdfService
     /// <param name="shipments">Shipments</param>
     /// <param name="languageId">Language identifier; 0 to use a language used when placing an order</param>
     /// <param name="cancellationToken">Stops the work before the PDF is generated</param>
-    Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string languageId = "",
+    Task PrintPackagingSlipsToPdf(Stream stream, IList<Shipment> shipments, string? languageId = "",
         CancellationToken cancellationToken = default);
 
     /// <summary>
@@ -54,5 +54,5 @@ public interface IPdfService
     /// <param name="languageId">Language identifier; empty to use the language the order was placed in</param>
     /// <param name="cancellationToken">Stops the work before the PDF is generated</param>
     Task PrintMerchandiseReturnToPdf(Stream stream, MerchandiseReturn merchandiseReturn, Order order,
-        string languageId = "", CancellationToken cancellationToken = default);
+        string? languageId = "", CancellationToken cancellationToken = default);
 }

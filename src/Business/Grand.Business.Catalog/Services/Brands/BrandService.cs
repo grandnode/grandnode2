@@ -96,7 +96,7 @@ public class BrandService : IBrandService
     /// </summary>
     /// <param name="brandId">Brand id</param>
     /// <returns>Brand</returns>
-    public virtual Task<Brand> GetBrandById(string brandId)
+    public virtual Task<Brand?> GetBrandById(string brandId)
     {
         var key = string.Format(CacheKey.BRANDS_BY_ID_KEY, brandId);
         return _cacheBase.GetAsync(key, () => _brandRepository.GetByIdAsync(brandId));

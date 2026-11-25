@@ -54,7 +54,7 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
     /// <param name="showInAdmin">Show in admin</param>
     /// <returns>Attributes</returns>
     public virtual async Task<string> FormatAttributes(Product product, IList<CustomAttribute> customAttributes,
-        CalculationContext context, Language language, DomainHost host,
+        CalculationContext? context, Language? language, DomainHost host,
         string separator = "<br />", bool htmlEncode = true, bool renderPrices = true,
         bool renderProductAttributes = true, bool renderGiftVoucherAttributes = true,
         bool allowHyperlinks = true, bool showInAdmin = false)
@@ -137,7 +137,7 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
     }
 
     private async Task<StringBuilder> PrepareFormattedAttribute(Product product,
-        IList<CustomAttribute> customAttributes, CalculationContext context, string langId,
+        IList<CustomAttribute> customAttributes, CalculationContext? context, string langId,
         DomainHost host, string separator, bool htmlEncode, bool renderPrices,
         bool allowHyperlinks, bool showInAdmin)
     {
@@ -217,7 +217,7 @@ public class ProductAttributeFormatter : IProductAttributeFormatter
                             formattedAttribute =
                                 $"{productAttribute.GetTranslation(a => a.Name, langId)}: {attributeValue.GetTranslation(a => a.Name, langId)}";
 
-                            if (renderPrices)
+                            if (renderPrices && context != null)
                             {
                                 var attributeValuePriceAdjustment =
                                     await _pricingService.GetProductAttributeValuePriceAdjustment(attributeValue,

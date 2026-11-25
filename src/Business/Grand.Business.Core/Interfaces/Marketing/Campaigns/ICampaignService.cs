@@ -37,7 +37,7 @@ public interface ICampaignService
     /// </summary>
     /// <param name="campaignId">Campaign identifier</param>
     /// <returns>Campaign</returns>
-    Task<Campaign> GetCampaignById(string campaignId);
+    Task<Campaign?> GetCampaignById(string campaignId);
 
     /// <summary>
     ///     Gets all campaigns

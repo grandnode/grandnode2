@@ -25,7 +25,7 @@ public class MerchandiseReturnLabelService(
     /// </summary>
     protected virtual TimeSpan ProviderTimeout => TimeSpan.FromSeconds(IReturnShippingProvider.LabelCallTimeoutSeconds);
 
-    public Task<string> CreateLabel(string merchandiseReturnId)
+    public Task<string?> CreateLabel(string merchandiseReturnId)
     {
         return UnderLabelLock(merchandiseReturnId, async stored =>
         {
@@ -55,7 +55,7 @@ public class MerchandiseReturnLabelService(
         var error = await UnderLabelLock(merchandiseReturnId, stored =>
             stored.ReturnShipping?.LabelStatus == ReturnLabelStatus.Created
                 ? CancelProviderLabel(stored)
-                : Task.FromResult<string>(null));
+                : Task.FromResult<string?>(null));
 
         //best effort: the status of the return is changed already, whatever happens to its label
         if (error != null)
@@ -63,27 +63,31 @@ public class MerchandiseReturnLabelService(
                 merchandiseReturnId, error);
     }
 
-    public Task<string> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply,
-        Func<MerchandiseReturn, bool> allowed = null)
+    public Task<string?> UpdateShipping(string merchandiseReturnId, Action<MerchandiseReturnShipping> apply,
+        Func<MerchandiseReturn, bool>? allowed = null)
     {
         ArgumentNullException.ThrowIfNull(apply);
         return UnderLabelLock(merchandiseReturnId, stored =>
             stored.ReturnShipping == null
-                ? Task.FromResult(MerchandiseReturnErrors.NotFound)
+                ? Task.FromResult<string?>(MerchandiseReturnErrors.NotFound)
                 : SaveUnderOrderLock(stored, current =>
                 {
                     //nothing is saved when the change is no longer allowed, and the caller is told
                     if (allowed != null && !allowed(current))
-                        return Task.FromResult(MerchandiseReturnErrors.ShippingChangeNotAllowed);
+                        return Task.FromResult<string?>(MerchandiseReturnErrors.ShippingChangeNotAllowed);
+                    //read again under the lock: the shipping may be gone meanwhile
+                    if (current.ReturnShipping == null)
+                        return Task.FromResult<string?>(MerchandiseReturnErrors.NotFound);
                     apply(current.ReturnShipping);
-                    return Task.FromResult<string>(null);
+                    return Task.FromResult<string?>(null);
                 }));
     }
 
-    private async Task<string> CreateInstructions(MerchandiseReturn stored)
+    private async Task<string?> CreateInstructions(MerchandiseReturn stored)
     {
+        //RequestLabel gives a result or an error
         var (result, error) = await RequestLabel(stored);
-        if (error != null)
+        if (result == null)
         {
             await InsertStaffNote(stored, $"The return instructions were not created: {error}");
             return null;
@@ -91,22 +95,27 @@ public class MerchandiseReturnLabelService(
 
         return await SaveUnderOrderLock(stored, current =>
         {
+            if (current.ReturnShipping == null)
+                return Task.FromResult<string?>(MerchandiseReturnErrors.NotFound);
             current.ReturnShipping.Instructions = result.Instructions;
             current.ReturnShipping.ReturnCode = result.ReturnCode ?? current.ReturnShipping.ReturnCode;
-            return Task.FromResult<string>(null);
+            return Task.FromResult<string?>(null);
         });
     }
 
-    private async Task<string> CreateProviderLabel(MerchandiseReturn stored)
+    private async Task<string?> CreateProviderLabel(MerchandiseReturn stored)
     {
         var (result, error) = await RequestLabel(stored);
 
-        MerchandiseReturn saved = null;
+        MerchandiseReturn? saved = null;
         var saveError = await SaveUnderOrderLock(stored, async current =>
         {
             var shipping = current.ReturnShipping;
+            if (shipping == null)
+                return MerchandiseReturnErrors.NotFound;
             saved = current;
-            if (error != null)
+            //RequestLabel gives a result or an error
+            if (result == null)
             {
                 //the return stays as it is; the label is retried from the panel or by the customer
                 shipping.LabelStatus = ReturnLabelStatus.Failed;
@@ -128,8 +137,11 @@ public class MerchandiseReturnLabelService(
         });
         if (saveError != null)
             return saveError;
+        //saved by the change above, which ran when no error came back
+        if (saved == null)
+            return MerchandiseReturnErrors.NotFound;
 
-        if (error != null)
+        if (result == null)
         {
             await InsertStaffNote(saved, $"The return label was not created: {error}");
             return null;
@@ -148,9 +160,9 @@ public class MerchandiseReturnLabelService(
         return null;
     }
 
-    private async Task<string> CancelProviderLabel(MerchandiseReturn stored)
+    private async Task<string?> CancelProviderLabel(MerchandiseReturn stored)
     {
-        var systemName = stored.ReturnShipping.ProviderSystemName;
+        var systemName = stored.ReturnShipping?.ProviderSystemName;
         var provider = returnShippingService.LoadProviderBySystemName(systemName);
         string reason;
         if (provider == null)
@@ -161,15 +173,16 @@ public class MerchandiseReturnLabelService(
         }
         else
         {
-            Task<bool> call = null;
+            Task<bool>? call = null;
             try
             {
                 call = provider.CancelLabel(stored);
                 if (await call.WaitAsync(ProviderTimeout))
                     return await SaveUnderOrderLock(stored, current =>
                     {
-                        current.ReturnShipping.LabelStatus = ReturnLabelStatus.Cancelled;
-                        return Task.FromResult<string>(null);
+                        if (current.ReturnShipping != null)
+                            current.ReturnShipping.LabelStatus = ReturnLabelStatus.Cancelled;
+                        return Task.FromResult<string?>(null);
                     });
 
                 logger.LogWarning("Return shipping provider {SystemName} did not cancel the label of merchandise " +
@@ -198,9 +211,9 @@ public class MerchandiseReturnLabelService(
     ///     Asks the provider for the label; a provider that is missing, fails, throws or does not answer in time gives
     ///     the error instead
     /// </summary>
-    private async Task<(ReturnLabelResult Result, string Error)> RequestLabel(MerchandiseReturn stored)
+    private async Task<(ReturnLabelResult? Result, string? Error)> RequestLabel(MerchandiseReturn stored)
     {
-        var systemName = stored.ReturnShipping.ProviderSystemName;
+        var systemName = stored.ReturnShipping?.ProviderSystemName;
         var provider = returnShippingService.LoadProviderBySystemName(systemName);
         if (provider == null)
         {
@@ -209,7 +222,7 @@ public class MerchandiseReturnLabelService(
             return (null, ProviderNotInstalled);
         }
 
-        Task<ReturnLabelResult> call = null;
+        Task<ReturnLabelResult>? call = null;
         try
         {
             call = provider.CreateLabel(stored);
@@ -268,7 +281,7 @@ public class MerchandiseReturnLabelService(
     ///     that held the lock before is seen. The provider is called under this lock only, so the order's returns can
     ///     still be changed meanwhile
     /// </summary>
-    private async Task<string> UnderLabelLock(string merchandiseReturnId, Func<MerchandiseReturn, Task<string>> change)
+    private async Task<string?> UnderLabelLock(string merchandiseReturnId, Func<MerchandiseReturn, Task<string?>> change)
     {
         try
         {
@@ -295,8 +308,8 @@ public class MerchandiseReturnLabelService(
     ///     the return never writes back the shipping it read before. Always taken inside the label lock, never the
     ///     other way round. An error apply gives leaves the return unsaved
     /// </summary>
-    private async Task<string> SaveUnderOrderLock(MerchandiseReturn stored,
-        Func<MerchandiseReturn, Task<string>> apply)
+    private async Task<string?> SaveUnderOrderLock(MerchandiseReturn stored,
+        Func<MerchandiseReturn, Task<string?>> apply)
     {
         try
         {

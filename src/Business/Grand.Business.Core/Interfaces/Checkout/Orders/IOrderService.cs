@@ -17,7 +17,7 @@ public interface IOrderService
     /// </summary>
     /// <param name="orderItemGuid">Order item identifier</param>
     /// <returns>Order item</returns>
-    Task<OrderItem> GetOrderItemByGuid(Guid orderItemGuid);
+    Task<OrderItem?> GetOrderItemByGuid(Guid orderItemGuid);
 
     #endregion
 
@@ -28,21 +28,21 @@ public interface IOrderService
     /// </summary>
     /// <param name="orderId">The order identifier</param>
     /// <returns>Order</returns>
-    Task<Order> GetOrderById(string orderId);
+    Task<Order?> GetOrderById(string? orderId);
 
     /// <summary>
     ///     Gets an order
     /// </summary>
     /// <param name="orderItemId">The order item identifier</param>
     /// <returns>Order</returns>
-    Task<Order> GetOrderByOrderItemId(string orderItemId);
+    Task<Order?> GetOrderByOrderItemId(string orderItemId);
 
     /// <summary>
     ///     Gets an order
     /// </summary>
     /// <param name="orderNumber">The order number</param>
     /// <returns>Order</returns>
-    Task<Order> GetOrderByNumber(int orderNumber);
+    Task<Order?> GetOrderByNumber(int orderNumber);
 
     /// <summary>
     ///     Gets orders by code
@@ -63,7 +63,7 @@ public interface IOrderService
     /// </summary>
     /// <param name="orderGuid">The order identifier</param>
     /// <returns>Order</returns>
-    Task<Order> GetOrderByGuid(Guid orderGuid);
+    Task<Order?> GetOrderByGuid(Guid orderGuid);
 
     /// <summary>
     ///     Search orders
@@ -160,7 +160,7 @@ public interface IOrderService
     /// </summary>
     /// <param name="orderNoteId">Order note identifier</param>
     /// <returns>OrderNote</returns>
-    Task<OrderNote> GetOrderNote(string orderNoteId);
+    Task<OrderNote?> GetOrderNote(string orderNoteId);
 
 
     /// <summary>

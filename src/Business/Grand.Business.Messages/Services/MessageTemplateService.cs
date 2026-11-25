@@ -91,7 +91,7 @@ public class MessageTemplateService : IMessageTemplateService
     /// </summary>
     /// <param name="messageTemplateId">Message template identifier</param>
     /// <returns>Message template</returns>
-    public virtual Task<MessageTemplate> GetMessageTemplateById(string messageTemplateId)
+    public virtual Task<MessageTemplate?> GetMessageTemplateById(string messageTemplateId)
     {
         return _messageTemplateRepository.GetByIdAsync(messageTemplateId);
     }
@@ -104,7 +104,7 @@ public class MessageTemplateService : IMessageTemplateService
     /// <returns>
     ///     The template a store overrode this name with, if it has one; otherwise the template shared by every store
     /// </returns>
-    public virtual async Task<MessageTemplate> GetMessageTemplateByName(string messageTemplateName, string storeId)
+    public virtual async Task<MessageTemplate?> GetMessageTemplateByName(string messageTemplateName, string? storeId)
     {
         if (string.IsNullOrWhiteSpace(messageTemplateName))
             throw new ArgumentException(null, nameof(messageTemplateName));
@@ -152,7 +152,7 @@ public class MessageTemplateService : IMessageTemplateService
         if (!string.IsNullOrEmpty(keywords))
         {
             var lowerKeywords = keywords.ToLower();
-            query = query.Where(t => t.Name.ToLower().Contains(lowerKeywords) ||
+            query = query.Where(t => t.Name != null && t.Name.ToLower().Contains(lowerKeywords) ||
                                      (t.Subject != null && t.Subject.Contains(lowerKeywords, StringComparison.CurrentCultureIgnoreCase)));
         }
 

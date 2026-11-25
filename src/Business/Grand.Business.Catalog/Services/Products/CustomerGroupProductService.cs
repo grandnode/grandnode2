@@ -92,7 +92,7 @@ public class CustomerGroupProductService : ICustomerGroupProductService
     /// <param name="customerGroupId">Customer group id</param>
     /// <param name="productId">Product id</param>
     /// <returns>Customer group product</returns>
-    public virtual async Task<CustomerGroupProduct> GetCustomerGroupProduct(string customerGroupId, string productId)
+    public virtual async Task<CustomerGroupProduct?> GetCustomerGroupProduct(string customerGroupId, string productId)
     {
         return await _customerGroupProductRepository.FirstOrDefaultAsync(_customerGroupProductRepository.Table
             .Where(x => x.CustomerGroupId == customerGroupId && x.ProductId == productId)
@@ -104,7 +104,7 @@ public class CustomerGroupProductService : ICustomerGroupProductService
     /// </summary>
     /// <param name="id">Ident</param>
     /// <returns>Customer group product</returns>
-    public virtual async Task<CustomerGroupProduct> GetCustomerGroupProductById(string id)
+    public virtual async Task<CustomerGroupProduct?> GetCustomerGroupProductById(string id)
     {
         var query = from cr in _customerGroupProductRepository.Table
             where cr.Id == id

@@ -31,7 +31,7 @@ public interface IMessageTemplateService
     /// </summary>
     /// <param name="messageTemplateId">Message template identifier</param>
     /// <returns>Message template</returns>
-    Task<MessageTemplate> GetMessageTemplateById(string messageTemplateId);
+    Task<MessageTemplate?> GetMessageTemplateById(string messageTemplateId);
 
     /// <summary>
     ///     Gets a message template by name
@@ -39,7 +39,7 @@ public interface IMessageTemplateService
     /// <param name="messageTemplateName">Message template name</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Message template</returns>
-    Task<MessageTemplate> GetMessageTemplateByName(string messageTemplateName, string storeId);
+    Task<MessageTemplate?> GetMessageTemplateByName(string messageTemplateName, string? storeId);
 
     /// <summary>
     ///     Gets all message templates

@@ -23,7 +23,7 @@ public class RecurringPaymentRuleProvider : IOrderPlacementRuleProvider
         _translationService = translationService;
     }
 
-    public string ConfigurationUrl => null;
+    public string? ConfigurationUrl => null;
     public string SystemName => "OrderPlacementRule.RecurringPayment";
     public string FriendlyName => SystemName;
     public int Priority => 0;

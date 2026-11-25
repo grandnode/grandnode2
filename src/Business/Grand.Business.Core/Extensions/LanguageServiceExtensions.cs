@@ -16,7 +16,7 @@ public static class LanguageServiceExtensions
     /// <param name="store">Store whose languages are the fallback; null for all stores</param>
     /// <returns>The language, or null when no language exists at all</returns>
     public static async Task<Language?> GetLanguageOrStoreDefault(this ILanguageService languageService,
-        string languageId, Store store)
+        string? languageId, Store? store)
     {
         if (!string.IsNullOrEmpty(languageId))
         {

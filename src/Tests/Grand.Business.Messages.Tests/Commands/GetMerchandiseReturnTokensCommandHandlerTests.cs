@@ -44,6 +44,7 @@ public class GetMerchandiseReturnTokensCommandHandlerTests
             MerchandiseReturn = merchandiseReturn,
             Order = new Order { CustomerCurrencyCode = "EUR" },
             Store = new Store { Url = "https://store.example/" },
+            Host = new DomainHost { Url = "https://store.example/" },
             Language = new Language { Id = "en" },
             StatusNote = statusNote
         }, default);

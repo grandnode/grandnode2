@@ -10,9 +10,12 @@ using Grand.Data;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
+using Grand.Domain.Directory;
 using Grand.Domain.Discounts;
+using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
+using Grand.Domain.Tax;
 using Microsoft.Extensions.Logging;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
@@ -58,10 +61,15 @@ public class CheckoutClaimServiceTests
             .ReturnsAsync(new LoyaltyPointsHistory());
 
         _attributes = [new CustomAttribute { Key = "a", Value = "b" }];
+        var customer = new Customer { Id = "c1" };
+        var store = new Store { Id = "s1" };
         _details = new PlaceOrderContainer {
+            Context = new CalculationContext(customer, store, new Currency(), TaxDisplayType.IncludingTax),
+            Host = new DomainHost(),
+            WorkingLanguage = new Language(),
             OrderId = "o1",
-            Customer = new Customer { Id = "c1" },
-            Store = new Store { Id = "s1" },
+            Customer = customer,
+            Store = store,
             Cart = [new ShoppingCartItem { ProductId = "p1", Quantity = 2, WarehouseId = "w1", Attributes = _attributes }],
             AppliedDiscounts = [new ApplyDiscount { DiscountId = "d1", CouponCode = "COUPON" }],
             AppliedGiftVouchers = [

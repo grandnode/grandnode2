@@ -14,6 +14,7 @@ using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Events.Orders;
@@ -109,7 +110,8 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
             ? await GetApprovers(buyer, buyer.OwnerId, order.StoreId)
             : [];
         var companyDecides = approvers.Count > 0;
-        var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode);
+        var currency = await _currencyService.GetCurrencyByCode(order.CustomerCurrencyCode) ??
+                       throw new GrandException($"The currency {order.CustomerCurrencyCode} of the order does not exist");
 
         var approval = new OrderApproval {
             StoreId = order.StoreId,
@@ -128,7 +130,8 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
 
         await _orderApprovalService.Insert(approval);
 
-        var store = await _storeService.GetStoreById(order.StoreId);
+        var store = await _storeService.GetStoreById(order.StoreId) ??
+                    throw new GrandException($"The store {order.StoreId} of the order does not exist");
         if (!companyDecides)
         {
             await NotifyStore(approval, order, buyer, store);
@@ -172,10 +175,10 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
     ///     The order's sales employee as well: that record does not prove its person can open the panel, so they are
     ///     never the only one told. Never the buyer: nobody decides their own order.
     /// </summary>
-    private async Task<List<(string Email, string Name, string PanelArea)>> GetStoreRecipients(Order order,
+    private async Task<List<(string? Email, string? Name, string PanelArea)>> GetStoreRecipients(Order order,
         Customer buyer, Store store)
     {
-        var recipients = new List<(string Email, string Name, string PanelArea)> {
+        var recipients = new List<(string? Email, string? Name, string PanelArea)> {
             await GetOwnerRecipient(buyer, store)
         };
 
@@ -191,7 +194,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         return recipients;
     }
 
-    private async Task<(string Email, string Name, string PanelArea)> GetOwnerRecipient(Customer buyer, Store store)
+    private async Task<(string? Email, string? Name, string PanelArea)> GetOwnerRecipient(Customer buyer, Store store)
     {
         if (!string.IsNullOrEmpty(store.OwnerCustomerId) && store.OwnerCustomerId != buyer.Id)
         {
@@ -260,7 +263,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
     private static readonly System.Text.RegularExpressions.Regex Tag = new("<[^>]*>",
         System.Text.RegularExpressions.RegexOptions.Compiled);
 
-    private static string ToPlainText(string html)
+    private static string? ToPlainText(string? html)
     {
         if (string.IsNullOrWhiteSpace(html))
             return html;
@@ -276,7 +279,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
     ///     The company owner and every active approver sub-account of the store that has an e-mail address;
     ///     never the buyer
     /// </summary>
-    private async Task<IList<Customer>> GetApprovers(Customer buyer, string companyOwnerId, string storeId)
+    private async Task<IList<Customer>> GetApprovers(Customer buyer, string companyOwnerId, string? storeId)
     {
         var approvers = new List<Customer>();
 
@@ -284,7 +287,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
         if (owner is { Active: true, Deleted: false })
             approvers.Add(owner);
 
-        var subAccounts = await _customerService.GetAllCustomers(ownerId: companyOwnerId, storeId: storeId);
+        var subAccounts = await _customerService.GetAllCustomers(ownerId: companyOwnerId, storeId: storeId ?? "");
         approvers.AddRange(subAccounts.Where(x => x.SubAccountRole == SubAccountRole.Approver && x is { Active: true, Deleted: false }));
 
         return approvers

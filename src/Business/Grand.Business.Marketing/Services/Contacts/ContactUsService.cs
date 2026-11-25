@@ -88,7 +88,7 @@ public class ContactUsService : IContactUsService
     /// </summary>
     /// <param name="contactUsId">ContactUs item identifier</param>
     /// <returns>ContactUs item</returns>
-    public virtual Task<ContactUs> GetContactUsById(string contactUsId)
+    public virtual Task<ContactUs?> GetContactUsById(string contactUsId)
     {
         return _contactusRepository.GetByIdAsync(contactUsId);
     }

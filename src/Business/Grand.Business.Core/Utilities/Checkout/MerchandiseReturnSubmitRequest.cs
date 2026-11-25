@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Utilities.Checkout;
 /// </summary>
 public class MerchandiseReturnSubmitRequest
 {
-    public Order? Order { get; set; }
+    public required Order Order { get; set; }
     public string? StoreId { get; set; }
     public string? CustomerId { get; set; }
     public string? OwnerId { get; set; }

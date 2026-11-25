@@ -9,4 +9,7 @@
   <ItemGroup>
     <PackageReference Include="MailKit" />
   </ItemGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 </Project>

@@ -13,7 +13,7 @@ public interface ISlugService
     /// </summary>
     /// <param name="urlEntityId">URL entity identifier</param>
     /// <returns>URL Entity</returns>
-    Task<EntityUrl> GetEntityUrlById(string urlEntityId);
+    Task<EntityUrl?> GetEntityUrlById(string urlEntityId);
 
     /// <summary>
     ///     Inserts an URL Entity
@@ -38,14 +38,14 @@ public interface ISlugService
     /// </summary>
     /// <param name="slug">Slug</param>
     /// <returns>Found URL Entity</returns>
-    Task<EntityUrl> GetBySlug(string slug);
+    Task<EntityUrl?> GetBySlug(string? slug);
 
     /// <summary>
     ///     Find URL Entity (cached version).
     /// </summary>
     /// <param name="slug">Slug</param>
     /// <returns>Found URL Entity</returns>
-    Task<EntityUrl> GetBySlugCached(string slug);
+    Task<EntityUrl?> GetBySlugCached(string slug);
 
     /// <summary>
     ///     Gets all URL Entity
@@ -74,5 +74,5 @@ public interface ISlugService
     /// <param name="entity">Entity</param>
     /// <param name="slug">Slug</param>
     /// <param name="languageId">Language ID</param>
-    Task SaveSlug<T>(T entity, string slug, string languageId) where T : BaseEntity, ISlugEntity;
+    Task SaveSlug<T>(T entity, string? slug, string languageId) where T : BaseEntity, ISlugEntity;
 }

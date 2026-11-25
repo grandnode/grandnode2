@@ -6,6 +6,6 @@ namespace Grand.Business.Messages.Commands.Tokens;
 
 public class GetAuctionTokensCommand : IRequest<LiquidAuctions>
 {
-    public Product Product { get; set; }
-    public Bid Bid { get; set; }
+    public required Product Product { get; set; }
+    public required Bid Bid { get; set; }
 }

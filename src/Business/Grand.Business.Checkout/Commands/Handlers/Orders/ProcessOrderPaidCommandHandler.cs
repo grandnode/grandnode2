@@ -68,7 +68,7 @@ public class ProcessOrderPaidCommandHandler : IRequestHandler<ProcessOrderPaidCo
 
             //the order's store, not the current one: a scheduled task or another store's admin marks it paid too
             var orderSettings = await _settingService.LoadSetting<OrderSettings>(order.StoreId);
-            string invoiceDownloadId = null;
+            string? invoiceDownloadId = null;
 
             try
             {

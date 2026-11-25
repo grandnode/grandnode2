@@ -43,7 +43,7 @@ public class WarehouseService : IWarehouseService
     /// </summary>
     /// <param name="warehouseId">The warehouse identifier</param>
     /// <returns>Warehouse</returns>
-    public virtual Task<Warehouse> GetWarehouseById(string warehouseId)
+    public virtual Task<Warehouse?> GetWarehouseById(string warehouseId)
     {
         var key = string.Format(CacheKey.WAREHOUSES_BY_ID_KEY, warehouseId);
         return _cacheBase.GetAsync(key, () => _warehouseRepository.GetByIdAsync(warehouseId));

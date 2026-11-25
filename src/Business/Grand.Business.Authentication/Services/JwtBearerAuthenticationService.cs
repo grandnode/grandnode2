@@ -12,9 +12,9 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
     private readonly ICustomerService _customerService;
     private readonly IUserApiService _userApiService;
     private readonly OidcLoginConfig _oidcLoginConfig;
-    private string _email;
+    private string? _email;
 
-    private string _errorMessage;
+    private string? _errorMessage;
 
     public JwtBearerAuthenticationService(
         ICustomerService customerService, IUserApiService userApiService, OidcLoginConfig oidcLoginConfig)
@@ -76,7 +76,7 @@ public class JwtBearerAuthenticationService : IJwtBearerAuthenticationService
     ///     Get error message
     /// </summary>
     /// <returns></returns>
-    public virtual Task<string> ErrorMessage()
+    public virtual Task<string?> ErrorMessage()
     {
         return Task.FromResult(_errorMessage);
     }

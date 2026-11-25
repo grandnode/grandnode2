@@ -32,7 +32,7 @@ public interface IEmailSender
     ///     not cancelled: the server may already have accepted it
     /// </param>
     Task SendEmail(EmailAccount emailAccount, string subject, string body,
-        string fromAddress, string fromName, string toAddress, string toName,
+        string fromAddress, string? fromName, string toAddress, string? toName,
         string? replyToAddress = null, string? replyToName = null,
         IEnumerable<string>? bcc = null, IEnumerable<string>? cc = null,
         string? attachmentFilePath = null, string? attachmentFileName = null,

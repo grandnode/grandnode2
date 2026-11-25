@@ -13,7 +13,7 @@ namespace Grand.Business.Common.Services.Seo;
 
 public class SeNameService(ISlugService slugService, ILanguageService languageService, SeoSettings seoSettings) : ISeNameService
 {
-    public async Task<string> ValidateSeName<T>(T entity, string seName, string name, bool ensureNotEmpty) where T : BaseEntity, ISlugEntity
+    public async Task<string?> ValidateSeName<T>(T entity, string? seName, string? name, bool ensureNotEmpty) where T : BaseEntity, ISlugEntity
     {
         ArgumentNullException.ThrowIfNull(entity);
 
@@ -40,12 +40,11 @@ public class SeNameService(ISlugService slugService, ILanguageService languageSe
         {
             var entityUrl = await slugService.GetBySlug(tempSeName);
             var reserved1 = entityUrl != null && !(entityUrl.EntityId == entity.Id &&
-                                                   entityUrl.EntityName.Equals(entityName,
-                                                       StringComparison.OrdinalIgnoreCase));
+                                                   string.Equals(entityUrl.EntityName, entityName, StringComparison.OrdinalIgnoreCase));
 
             var reserved2 = seoSettings.ReservedEntityUrlSlugs?.Contains(tempSeName, StringComparer.OrdinalIgnoreCase) ?? false;
             var reserved3 = (await languageService.GetAllLanguages(true)).Any(language =>
-                language.UniqueSeoCode.Equals(tempSeName, StringComparison.OrdinalIgnoreCase));
+                string.Equals(language.UniqueSeoCode, tempSeName, StringComparison.OrdinalIgnoreCase));
 
             if (!reserved1 && !reserved2 && !reserved3)
                 break;
@@ -134,8 +133,9 @@ public class SeNameService(ISlugService slugService, ILanguageService languageSe
             //save translation entities
             foreach (var locale in translationEntity.Locales
                          .Where(x => x.LocaleKey == nameof(ISlugEntity.SeName) 
-                                     && !x.LocaleValue.Equals(entity.SeName, StringComparison.InvariantCulture)))
+                                     && !string.Equals(x.LocaleValue, entity.SeName, StringComparison.InvariantCulture)))
             {
+                if (locale.LanguageId == null) continue;
                 await slugService.SaveSlug(entity, locale.LocaleValue, locale.LanguageId);
             }
         }
@@ -146,7 +146,7 @@ public class SeNameService(ISlugService slugService, ILanguageService languageSe
         return obj.GetProperty(propertyName) != null;
     }
 
-    private string GetSeName(string name)
+    private string? GetSeName(string? name)
     {
         return SeoExtensions.GenerateSlug(name, seoSettings.ConvertNonWesternChars, seoSettings.AllowUnicodeCharsInUrls,
             seoSettings.AllowSlashChar, seoSettings.SeoCharConversion);

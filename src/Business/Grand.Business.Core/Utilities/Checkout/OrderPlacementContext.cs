@@ -12,7 +12,7 @@ public class OrderPlacementContext
     private Task<double?>? _total;
 
     public OrderPlacementContext(IList<ShoppingCartItem> cart, CalculationContext calculation, Language language,
-        string paymentMethodSystemName, Func<Task<double?>> getTotal)
+        string? paymentMethodSystemName, Func<Task<double?>> getTotal)
     {
         Cart = cart;
         Calculation = calculation;
@@ -39,7 +39,7 @@ public class OrderPlacementContext
     /// <summary>
     ///     Gets the chosen payment method; null until the buyer has chosen one
     /// </summary>
-    public string PaymentMethodSystemName { get; }
+    public string? PaymentMethodSystemName { get; }
 
     /// <summary>
     ///     Gets the order total in the primary store currency; null until shipping is chosen.

@@ -99,7 +99,7 @@ public class ProductService : IProductService
     /// <param name="productId">Product identifier</param>
     /// <param name="fromDb">get data from db (not from cache)</param>
     /// <returns>Product</returns>
-    public virtual async Task<Product> GetProductById(string productId, bool fromDb = false)
+    public virtual async Task<Product?> GetProductById(string? productId, bool fromDb = false)
     {
         if (string.IsNullOrEmpty(productId))
             return null;
@@ -116,7 +116,7 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="productId">Product identifier</param>
     /// <returns>Product</returns>
-    public virtual async Task<Product> GetProductByIdIncludeArch(string productId)
+    public virtual async Task<Product?> GetProductByIdIncludeArch(string? productId)
     {
         if (string.IsNullOrEmpty(productId))
             return null;
@@ -140,14 +140,14 @@ public class ProductService : IProductService
 
         //cached products are taken as they are; only the misses are read from the database, with one
         //query per batch, so a cold cache costs one round trip instead of one per identifier
-        var resolved = new Dictionary<string, Product>();
+        var resolved = new Dictionary<string, Product?>();
         var missing = new List<string>();
         foreach (var id in productIds)
         {
             if (string.IsNullOrEmpty(id) || resolved.ContainsKey(id))
                 continue;
 
-            if (_cacheBase.TryGet(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id), out Product cached))
+            if (_cacheBase.TryGet(string.Format(CacheKey.PRODUCTS_BY_ID_KEY, id), out Product? cached))
                 resolved[id] = cached;
             else
             {
@@ -223,9 +223,10 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        var oldProduct = await _productRepository.GetByIdAsync(product.Id);
+        var oldProduct = await _productRepository.GetByIdAsync(product.Id) ??
+                         throw new ArgumentException("The product to update does not exist", nameof(product));
         //the batches and serial numbers assigned stay where they are: nothing else may break them
-        if (oldProduct != null && await _productUnitService.TrackingChangeRefused(oldProduct, product) is { } refused)
+        if (await _productUnitService.TrackingChangeRefused(oldProduct, product) is { } refused)
             throw new InvalidOperationException(refused);
         //update
         var update = UpdateBuilder<Product>.Create()
@@ -485,7 +486,7 @@ public class ProductService : IProductService
     /// <param name="ignoreAcl">Ignore acl</param>
     /// <param name="ignoreStore">Ignore store</param>
     /// <returns>Product number</returns>
-    public virtual int GetCategoryProductNumber(Customer customer, IList<string> categoryIds = null,
+    public virtual int GetCategoryProductNumber(Customer customer, IList<string>? categoryIds = null,
         string storeId = "", bool ignoreAcl = true, bool ignoreStore = true)
     {
         //validate "categoryIds" parameter
@@ -499,7 +500,7 @@ public class ProductService : IProductService
 
         ////category filtering
         if (categoryIds != null && categoryIds.Any())
-            query = query.Where(p => p.ProductCategories.Any(x => categoryIds.Contains(x.CategoryId)));
+            query = query.Where(p => p.ProductCategories.Any(x => x.CategoryId != null && categoryIds.Contains(x.CategoryId)));
 
         if (!ignoreAcl)
         {
@@ -569,7 +570,7 @@ public class ProductService : IProductService
             bool loadFilterableSpecificationAttributeOptionIds = false,
             int pageIndex = 0,
             int pageSize = int.MaxValue,
-            IList<string> categoryIds = null,
+            IList<string>? categoryIds = null,
             string brandId = "",
             string collectionId = "",
                         string vendorId = "",
@@ -582,13 +583,13 @@ public class ProductService : IProductService
             double? priceMin = null,
             double? priceMax = null,
             string productTag = "",
-            string keywords = null,
+            string? keywords = null,
             bool searchDescriptions = false,
             bool searchSku = true,
             bool searchProductTags = false,
             string languageId = "",
-            IList<string> filteredSpecs = null,
-            IList<string> specificationOptions = null,
+            IList<string>? filteredSpecs = null,
+            IList<string>? specificationOptions = null,
             ProductSortingEnum orderBy = ProductSortingEnum.Position,
                         bool? overridePublished = null)
     {
@@ -697,7 +698,7 @@ public class ProductService : IProductService
     /// </summary>
     /// <param name="sku">SKU</param>
     /// <returns>Product</returns>
-    public virtual async Task<Product> GetProductBySku(string sku)
+    public virtual async Task<Product?> GetProductBySku(string? sku)
     {
         if (string.IsNullOrEmpty(sku))
             return null;
@@ -785,6 +786,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(similarProduct);
 
+        ArgumentException.ThrowIfNullOrEmpty(similarProduct.ProductId1);
         await _productRepository.AddToCollectionField(similarProduct.ProductId1, x => x.SimilarProducts, similarProduct);
 
         await _mediator.Publish(new ProductChangedEvent(similarProduct.ProductId1));
@@ -801,6 +803,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(similarProduct);
 
+        ArgumentException.ThrowIfNullOrEmpty(similarProduct.ProductId1);
         await _productRepository.UpdateCollectionFieldItem(similarProduct.ProductId1, x => x.SimilarProducts, z => z.Id == similarProduct.Id, similarProduct);
 
         await _mediator.Publish(new ProductChangedEvent(similarProduct.ProductId1));
@@ -817,6 +820,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(similarProduct);
 
+        ArgumentException.ThrowIfNullOrEmpty(similarProduct.ProductId1);
         await _productRepository.RemoveCollectionFieldItem(similarProduct.ProductId1, x => x.SimilarProducts, z => z.Id == similarProduct.Id);
 
         await _mediator.Publish(new ProductChangedEvent(similarProduct.ProductId1));
@@ -892,6 +896,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(crossSellProduct);
 
+        ArgumentException.ThrowIfNullOrEmpty(crossSellProduct.ProductId1);
         await _productRepository.AddToCollectionField(crossSellProduct.ProductId1, x => x.CrossSellProduct,
             crossSellProduct.ProductId2);
 
@@ -909,6 +914,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(crossSellProduct);
 
+        ArgumentException.ThrowIfNullOrEmpty(crossSellProduct.ProductId1);
         await _productRepository.RemoveCollectionFieldItem(crossSellProduct.ProductId1, x => x.CrossSellProduct, y => y == crossSellProduct.ProductId2);
 
         await _mediator.Publish(new ProductChangedEvent(crossSellProduct.ProductId1));
@@ -941,7 +947,7 @@ public class ProductService : IProductService
 
         var cartProductIds = new List<string>();
         foreach (var sci in cart)
-            if (!cartProductIds.Contains(sci.ProductId))
+            if (sci.ProductId != null && !cartProductIds.Contains(sci.ProductId))
                 cartProductIds.Add(sci.ProductId);
 
         foreach (var sci in cart)
@@ -1075,6 +1081,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPrice);
 
+        ArgumentException.ThrowIfNullOrEmpty(productPrice.ProductId);
         await _productRepository.AddToCollectionField(productPrice.ProductId, x => x.ProductPrices, productPrice);
 
         await _mediator.Publish(new ProductChangedEvent(productPrice.ProductId));
@@ -1091,6 +1098,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPrice);
 
+        ArgumentException.ThrowIfNullOrEmpty(productPrice.ProductId);
         await _productRepository.UpdateCollectionFieldItem(productPrice.ProductId, x => x.ProductPrices, z => z.Id == productPrice.Id, productPrice);
 
         await _mediator.Publish(new ProductChangedEvent(productPrice.ProductId));
@@ -1107,6 +1115,7 @@ public class ProductService : IProductService
     {
         ArgumentNullException.ThrowIfNull(productPrice);
 
+        ArgumentException.ThrowIfNullOrEmpty(productPrice.ProductId);
         await _productRepository.RemoveCollectionFieldItem(productPrice.ProductId, x => x.ProductPrices, x => x.Id == productPrice.Id);
 
         await _mediator.Publish(new ProductChangedEvent(productPrice.ProductId));
@@ -1238,7 +1247,7 @@ public class ProductService : IProductService
         {
             var product = await _productRepository.GetByIdAsync(productId);
             var row = product?.ProductWarehouseInventory.FirstOrDefault(x => x.Id == pwi.Id);
-            if (row == null)
+            if (product == null || row == null)
                 return;
 
             if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock && product.UseMultipleWarehouses)

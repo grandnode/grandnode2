@@ -15,7 +15,7 @@ public interface INewsletterMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendNewsLetterSubscriptionActivationMessage(NewsLetterSubscription subscription,
-        string languageId, DomainHost? host = null);
+        string? languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends a newsletter subscription deactivation message
@@ -27,5 +27,5 @@ public interface INewsletterMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendNewsLetterSubscriptionDeactivationMessage(NewsLetterSubscription subscription,
-        string languageId, DomainHost? host = null);
+        string? languageId, DomainHost? host = null);
 }

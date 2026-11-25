@@ -17,12 +17,12 @@ public class CourseActionService : ICourseActionService
         _mediator = mediator;
     }
 
-    public virtual Task<CourseAction> GetById(string id)
+    public virtual Task<CourseAction?> GetById(string id)
     {
         return _courseActionRepository.GetByIdAsync(id);
     }
 
-    public virtual async Task<CourseAction> GetCourseAction(string customerId, string lessonId)
+    public virtual async Task<CourseAction?> GetCourseAction(string customerId, string lessonId)
     {
         var query = from a in _courseActionRepository.Table
             where a.CustomerId == customerId && a.LessonId == lessonId

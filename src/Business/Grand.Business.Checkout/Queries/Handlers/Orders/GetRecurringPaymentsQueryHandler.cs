@@ -40,7 +40,7 @@ public class GetRecurringPaymentsQueryHandler : IRequestHandler<GetRecurringPaym
             var email = request.CustomerEmail.Trim().ToLowerInvariant();
             var customerIds = await _customerRepository.ToListAsync(
                 _customerRepository.Table.Where(c => c.Email == email).Select(c => c.Id), cancellationToken);
-            query = query.Where(x => customerIds.Contains(x.CustomerId));
+            query = query.Where(x => x.CustomerId != null && customerIds.Contains(x.CustomerId));
         }
 
         //the sales employee is on the order, the same one the order list narrows by
@@ -49,7 +49,7 @@ public class GetRecurringPaymentsQueryHandler : IRequestHandler<GetRecurringPaym
             var orderIds = await _orderRepository.ToListAsync(
                 _orderRepository.Table.Where(o => o.SeId == request.SalesEmployeeId && o.RecurringCycleNumber == 1)
                     .Select(o => o.Id), cancellationToken);
-            query = query.Where(x => orderIds.Contains(x.InitialOrderId));
+            query = query.Where(x => x.InitialOrderId != null && orderIds.Contains(x.InitialOrderId));
         }
 
         query = query.OrderByDescending(x => x.CreatedOnUtc);

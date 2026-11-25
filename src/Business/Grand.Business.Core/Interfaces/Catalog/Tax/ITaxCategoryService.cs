@@ -19,7 +19,7 @@ public interface ITaxCategoryService
     /// </summary>
     /// <param name="taxCategoryId">Tax category identifier</param>
     /// <returns>Tax category</returns>
-    Task<TaxCategory> GetTaxCategoryById(string taxCategoryId);
+    Task<TaxCategory?> GetTaxCategoryById(string taxCategoryId);
 
     /// <summary>
     ///     Inserts a tax category

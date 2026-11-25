@@ -41,19 +41,19 @@ public class
         var liquidMerchandiseReturn = new LiquidMerchandiseReturn(request.MerchandiseReturn, request.Store,
             request.Host, request.Order, request.MerchandiseReturnNote);
 
-        var country = await _countryService.GetCountryById(request.MerchandiseReturn.PickupAddress.CountryId);
+        var country = await _countryService.GetCountryById(request.MerchandiseReturn.PickupAddress?.CountryId);
 
         liquidMerchandiseReturn.Status = request.MerchandiseReturn.MerchandiseReturnStatus.ToString();
 
         liquidMerchandiseReturn.PickupAddressStateProvince =
-            !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress.StateProvinceId)
+            !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress?.StateProvinceId)
                 ? country?.StateProvinces
-                    .FirstOrDefault(x => x.Id == request.MerchandiseReturn.PickupAddress.StateProvinceId)
+                    .FirstOrDefault(x => x.Id == request.MerchandiseReturn.PickupAddress?.StateProvinceId)
                     ?.GetTranslation(x => x.Name, request.Language.Id)
                 : "";
 
         liquidMerchandiseReturn.PickupAddressCountry =
-            !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress.CountryId)
+            !string.IsNullOrEmpty(request.MerchandiseReturn.PickupAddress?.CountryId)
                 ? country?.GetTranslation(x => x.Name, request.Language.Id)
                 : "";
 

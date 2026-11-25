@@ -85,13 +85,13 @@ public class CustomerService : ICustomerService
     public virtual async Task<IPagedList<Customer>> GetAllCustomers(DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, string affiliateId = "", string vendorId = "", string storeId = "",
         string ownerId = "",
-        string salesEmployeeId = "", string[] customerGroupIds = null, string[] customerTagIds = null,
-        string email = null, string username = null,
-        string firstName = null, string lastName = null,
-        string company = null, string phone = null, string zipPostalCode = null,
+        string salesEmployeeId = "", string[]? customerGroupIds = null, string[]? customerTagIds = null,
+        string? email = null, string? username = null,
+        string? firstName = null, string? lastName = null,
+        string? company = null, string? phone = null, string? zipPostalCode = null,
         bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-        int pageIndex = 0, int pageSize = 2147483647, Expression<Func<Customer, object>> orderBySelector = null,
-        string[] excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false)
+        int pageIndex = 0, int pageSize = 2147483647, Expression<Func<Customer, object>>? orderBySelector = null,
+        string[]? excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false)
     {
         var queryModel = new GetCustomerQuery {
             CreatedFromUtc = createdFromUtc,
@@ -188,10 +188,10 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="customerId">Customer identifier</param>
     /// <returns>A customer</returns>
-    public virtual Task<Customer> GetCustomerById(string customerId)
+    public virtual Task<Customer?> GetCustomerById(string? customerId)
     {
         return string.IsNullOrWhiteSpace(customerId)
-            ? Task.FromResult<Customer>(null)
+            ? Task.FromResult<Customer?>(null)
             : _customerRepository.GetByIdAsync(customerId);
     }
 
@@ -211,7 +211,7 @@ public class CustomerService : ICustomerService
         var customers = query.ToList();
         //sort by passed identifiers
         var sortedCustomers = customerIds.Select(id => customers.FirstOrDefault(customer => customer.Id == id))
-            .Where(customer => customer != null)
+            .OfType<Customer>()
             .ToList();
         
         return await Task.FromResult(sortedCustomers);
@@ -222,7 +222,7 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="customerGuid">Customer GUID</param>
     /// <returns>A customer</returns>
-    public virtual async Task<Customer> GetCustomerByGuid(Guid customerGuid)
+    public virtual async Task<Customer?> GetCustomerByGuid(Guid customerGuid)
     {
         return await _customerRepository.GetOneAsync(x => x.CustomerGuid == customerGuid);
     }
@@ -232,7 +232,7 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="email">Email</param>
     /// <returns>Customer</returns>
-    public virtual async Task<Customer> GetCustomerByEmail(string email, string storeId = "")
+    public virtual async Task<Customer?> GetCustomerByEmail(string email, string storeId = "")
     {
         if (string.IsNullOrWhiteSpace(email))
             return null;
@@ -268,10 +268,10 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Customer</returns>
-    public virtual Task<Customer> GetCustomerBySystemName(string systemName)
+    public virtual Task<Customer?> GetCustomerBySystemName(string systemName)
     {
         if (string.IsNullOrWhiteSpace(systemName))
-            return Task.FromResult<Customer>(null);
+            return Task.FromResult<Customer?>(null);
 
         var key = string.Format(CacheKey.CUSTOMER_BY_SYSTEMNAME_BY_KEY, systemName);
 
@@ -283,7 +283,7 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="username">Username</param>
     /// <returns>Customer</returns>
-    public virtual async Task<Customer> GetCustomerByUsername(string username, string storeId = "")
+    public virtual async Task<Customer?> GetCustomerByUsername(string username, string storeId = "")
     {
         if (string.IsNullOrWhiteSpace(username))
             return null;
@@ -377,7 +377,7 @@ public class CustomerService : ICustomerService
     /// <param name="customerId">Customer ident</param>
     /// <param name="expression">Expression</param>
     /// <param name="value">value</param>
-    public virtual async Task UpdateCustomerField<T>(string customerId,
+    public virtual async Task UpdateCustomerField<T>(string? customerId,
         Expression<Func<Customer, T>> expression, T value)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(customerId);
@@ -422,14 +422,14 @@ public class CustomerService : ICustomerService
     /// <param name="key">Key</param>
     /// <param name="value">Value</param>
     /// <param name="storeId">Store identifier; pass "" if this attribute will be available for all stores</param>
-    public virtual async Task UpdateUserField<TPropType>(Customer customer, string key, TPropType value, string storeId = "")
+    public virtual async Task UpdateUserField<TPropType>(Customer customer, string key, TPropType? value, string? storeId = "")
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(key);
 
         var props = customer.UserFields.Where(x => string.IsNullOrEmpty(storeId) || x.StoreId == storeId);
 
-        var prop = props.FirstOrDefault(ga => ga.Key.Equals(key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
+        var prop = props.FirstOrDefault(ga => string.Equals(ga.Key, key, StringComparison.OrdinalIgnoreCase)); //should be culture invariant
 
         var valueStr = CommonHelper.To<string>(value);
 
@@ -623,7 +623,7 @@ public class CustomerService : ICustomerService
     /// <param name="clearLoyaltyPoints">A value indicating whether to clear "Use loyalty points" flag</param>
     /// <param name="clearShipping">A value indicating whether to clear selected shipping method</param>
     /// <param name="clearPayment">A value indicating whether to clear selected payment method</param>
-    public virtual async Task ResetCheckoutData(Customer customer, string storeId,
+    public virtual async Task ResetCheckoutData(Customer customer, string? storeId,
         bool clearCouponCodes = false, bool clearCheckoutAttributes = false,
         bool clearLoyaltyPoints = true, bool clearShipping = true, bool clearPayment = true)
     {

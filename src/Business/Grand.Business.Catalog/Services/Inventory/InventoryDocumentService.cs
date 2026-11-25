@@ -37,16 +37,16 @@ public class InventoryDocumentService(
     /// </summary>
     public const int MaxLines = 5000;
 
-    public async Task<(InventoryDocument Document, IList<string> Errors)> CreateStockCount(string warehouseId,
+    public async Task<(InventoryDocument? Document, IList<string> Errors)> CreateStockCount(string warehouseId,
         IList<string> categoryIds, IList<string> brandIds, string customerId)
     {
         ArgumentException.ThrowIfNullOrEmpty(warehouseId);
 
         var query = productRepository.Table.Where(StockBuckets.KeptIn(warehouseId));
         if (categoryIds is { Count: > 0 })
-            query = query.Where(x => x.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
+            query = query.Where(x => x.ProductCategories.Any(c => c.CategoryId != null && categoryIds.Contains(c.CategoryId)));
         if (brandIds is { Count: > 0 })
-            query = query.Where(x => brandIds.Contains(x.BrandId));
+            query = query.Where(x => x.BrandId != null && brandIds.Contains(x.BrandId));
         query = query.OrderBy(x => x.Id);
 
         var document = new InventoryDocument {
@@ -105,18 +105,19 @@ public class InventoryDocumentService(
         var shipped = new Dictionary<string, (int, List<string>, List<ShipmentItemBatch>)>();
         foreach (var item in (await shipmentService.GetShipmentsByOrder(orderId)).SelectMany(x => x.ShipmentItems))
         {
-            var (quantity, serialNumbers, batches) = shipped.GetValueOrDefault(item.OrderItemId,
+            var orderItemId = item.OrderItemId ?? "";
+            var (quantity, serialNumbers, batches) = shipped.GetValueOrDefault(orderItemId,
                 (0, new List<string>(), new List<ShipmentItemBatch>()));
             serialNumbers.AddRange(item.SerialNumbers ?? []);
             batches.AddRange(item.Batches ?? []);
-            shipped[item.OrderItemId] = (quantity + item.Quantity, serialNumbers, batches);
+            shipped[orderItemId] = (quantity + item.Quantity, serialNumbers, batches);
         }
 
         return shipped;
     }
 
-    public async Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(
-        string merchandiseReturnId, string customerId, IList<ReturnReceiptInspection> inspection = null)
+    public async Task<(InventoryDocument? Document, IList<string> Errors)> CreateReturnReceipt(
+        string merchandiseReturnId, string customerId, IList<ReturnReceiptInspection>? inspection = null)
     {
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null)
@@ -129,9 +130,9 @@ public class InventoryDocumentService(
         inspection ??= [];
         //what the form posted is checked against what is left, never trusted: another return's item, an item named
         //twice or more scrapped than came back refuses the receipt
-        var left = leftToReceive.GroupBy(x => (x.ReturnItemId, x.ProductId))
+        var left = leftToReceive.GroupBy(x => ((string?)x.ReturnItemId, x.ProductId))
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
-        if (inspection.GroupBy(x => (x.ReturnItemId, x.ProductId)).Any(x => x.Count() > 1) ||
+        if (inspection.GroupBy(x => ((string?)x.ReturnItemId, x.ProductId)).Any(x => x.Count() > 1) ||
             inspection.Any(x => !left.TryGetValue((x.ReturnItemId, x.ProductId), out var quantity) ||
                                 x.ScrapQuantity < 0 || x.ScrapQuantity > quantity))
             return (null, [InventoryDocumentErrors.InspectionQuantity]);
@@ -141,7 +142,7 @@ public class InventoryDocumentService(
             MerchandiseReturnId = merchandiseReturn.Id,
             CreatedBy = customerId
         };
-        Dictionary<string, (int Quantity, List<string> SerialNumbers, List<ShipmentItemBatch> Batches)> shipped = null;
+        Dictionary<string, (int Quantity, List<string> SerialNumbers, List<ShipmentItemBatch> Batches)>? shipped = null;
         foreach (var item in leftToReceive)
         {
             var line = new InventoryDocumentLine {
@@ -226,11 +227,11 @@ public class InventoryDocumentService(
     /// <summary>
     ///     What a merchandise return gives back, by product: a returned bundle gives back its products
     /// </summary>
-    private async Task<IList<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
-            string WarehouseId)>>
+    private async Task<IList<(string ReturnItemId, string? ProductId, IList<CustomAttribute> Attributes, int Quantity,
+            string? WarehouseId)>>
         Returned(MerchandiseReturn merchandiseReturn)
     {
-        var returned = new List<(string, string, IList<CustomAttribute>, int, string)>();
+        var returned = new List<(string, string?, IList<CustomAttribute>, int, string?)>();
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
         if (order == null)
             return returned;
@@ -260,8 +261,8 @@ public class InventoryDocumentService(
     /// </summary>
     /// <param name="merchandiseReturnId">The merchandise return</param>
     /// <param name="exceptDocumentId">A document left out</param>
-    private async Task<Dictionary<(string, string), int>> Received(string merchandiseReturnId,
-        string exceptDocumentId)
+    private async Task<Dictionary<(string?, string?), int>> Received(string merchandiseReturnId,
+        string? exceptDocumentId)
     {
         var receipts = await inventoryDocumentRepository.ToListAsync(inventoryDocumentRepository.Table.Where(x =>
             x.DocumentTypeId == InventoryDocumentType.ReturnReceipt && x.MerchandiseReturnId == merchandiseReturnId &&
@@ -275,11 +276,11 @@ public class InventoryDocumentService(
     ///     What a merchandise return gives back and no return receipt of it takes in yet, posted or draft, with the
     ///     quantity left of each
     /// </summary>
-    private async Task<IList<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
-            string WarehouseId)>>
+    private async Task<IList<(string ReturnItemId, string? ProductId, IList<CustomAttribute> Attributes, int Quantity,
+            string? WarehouseId)>>
         LeftToReceive(string merchandiseReturnId,
-            IEnumerable<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
-                string WarehouseId)> returned)
+            IEnumerable<(string ReturnItemId, string? ProductId, IList<CustomAttribute> Attributes, int Quantity,
+                string? WarehouseId)> returned)
     {
         var received = await Received(merchandiseReturnId, null);
         return returned
@@ -334,7 +335,7 @@ public class InventoryDocumentService(
     public async Task<IList<string>> Post(string id, string customerId)
     {
         //every line is checked before the first write
-        InventoryDocument document;
+        InventoryDocument? document;
         await using (await resourceLock.Acquire([DocumentLockKey(id)]))
         {
             document = await inventoryDocumentRepository.GetByIdAsync(id);
@@ -358,14 +359,19 @@ public class InventoryDocumentService(
         //too, and posting again continues after the products booked
         foreach (var productLines in document.Lines.GroupBy(x => x.ProductId))
         {
+            //a document is checked before it is posted: each of its lines names a product
+            if (productLines.Key is not { } productId)
+                return [StockErrors.ProductNotFound];
             await using var _ = await resourceLock.Acquire(Keys(DocumentLockKey(id),
-                ProductStockLock.Key(productLines.Key)));
+                ProductStockLock.Key(productId)));
             if (await Changed(document))
                 return [InventoryDocumentErrors.ChangedWhilePosting];
             if (!await ReturnReceivable(document))
                 return [InventoryDocumentErrors.ReturnNotReceivable];
 
-            var product = await productRepository.GetByIdAsync(productLines.Key);
+            var product = await productRepository.GetByIdAsync(productId);
+            if (product == null)
+                return [StockErrors.ProductNotFound];
             var booked = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
                 .Where(x => x.ObjectType == nameof(InventoryDocument) && x.ObjectId == document.Id &&
                             x.ProductId == productLines.Key)
@@ -412,7 +418,7 @@ public class InventoryDocumentService(
     /// <summary>
     ///     The lock key of the merchandise return's order for a receipt of one; null for any other document
     /// </summary>
-    private async Task<string> ReturnLockKey(InventoryDocument document)
+    private async Task<string?> ReturnLockKey(InventoryDocument document)
     {
         if (!OfMerchandiseReturn(document))
             return null;
@@ -449,7 +455,7 @@ public class InventoryDocumentService(
 
         var ids = receipts.Select(x => x.Id).ToList();
         return ids.Count > 0 && await inventoryJournalRepository.AnyAsync(inventoryJournalRepository.Table
-            .Where(x => x.ObjectType == nameof(InventoryDocument) && ids.Contains(x.ObjectId)));
+            .Where(x => x.ObjectType == nameof(InventoryDocument) && x.ObjectId != null && ids.Contains(x.ObjectId)));
     }
 
     /// <summary>
@@ -468,14 +474,14 @@ public class InventoryDocumentService(
     ///     The stock changes a line books
     /// </summary>
     private static IEnumerable<StockChange> Changes(InventoryDocument document, InventoryDocumentLine line,
-        string customerId, Product product)
+        string customerId, Product? product)
     {
         var serialTracked = product != null && InventoryTracking.Tracked(product) &&
                             product.InventoryTrackingModeId == InventoryTrackingMode.SerialNumber;
         var source = new StockSource(nameof(InventoryDocument), document.Id, line.Id, document.Number, customerId,
             line.Comment ?? document.Comment ?? "");
         //the units a line names; the ledger books them for a product tracking them and ignores them otherwise
-        StockChange Change(string warehouseId, int quantity, InventoryMovementType movementType) =>
+        StockChange Change(string? warehouseId, int quantity, InventoryMovementType movementType) =>
             new(line.Attributes, warehouseId, quantity, false, movementType, source) {
                 BatchNumber = string.IsNullOrWhiteSpace(line.BatchNumber) ? null : line.BatchNumber.Trim(),
                 ExpiryDateUtc = line.ExpiryDateUtc,
@@ -525,7 +531,7 @@ public class InventoryDocumentService(
         }
     }
 
-    public Task<InventoryDocument> GetById(string id)
+    public Task<InventoryDocument?> GetById(string id)
     {
         return inventoryDocumentRepository.GetByIdAsync(id);
     }
@@ -545,7 +551,7 @@ public class InventoryDocumentService(
         if (search.StoreId != null)
             query = query.Where(x => x.StoreId == search.StoreId);
         if (!string.IsNullOrEmpty(search.Number))
-            query = query.Where(x => x.Number.Contains(search.Number));
+            query = query.Where(x => x.Number != null && x.Number.Contains(search.Number));
         if (!string.IsNullOrEmpty(search.MerchandiseReturnId))
             query = query.Where(x => x.MerchandiseReturnId == search.MerchandiseReturnId);
         if (search.FromUtc.HasValue)
@@ -700,10 +706,10 @@ public class InventoryDocumentService(
         if (merchandiseReturn != null && await ReturnQuantityExceeded(document, merchandiseReturn))
             Add(InventoryDocumentErrors.ReturnQuantityExceeded);
 
-        var products = new Dictionary<string, Product>();
+        var products = new Dictionary<string, Product?>();
         foreach (var line in document.Lines)
         {
-            Product product = null;
+            Product? product = null;
             if (!string.IsNullOrEmpty(line.ProductId) && !products.TryGetValue(line.ProductId, out product))
                 products[line.ProductId] = product = await productRepository.GetByIdAsync(line.ProductId);
             if (product == null)
@@ -785,7 +791,7 @@ public class InventoryDocumentService(
     ///     and only units shipped without a number may come back without one
     /// </summary>
     private async Task<IList<string>> ReturnedUnitErrors(InventoryDocument document,
-        MerchandiseReturn merchandiseReturn, Dictionary<string, Product> products)
+        MerchandiseReturn merchandiseReturn, Dictionary<string, Product?> products)
     {
         var errors = new List<string>();
         if (!document.Lines.Any(x => products.GetValueOrDefault(x.ProductId ?? "") is { } product &&
@@ -852,7 +858,7 @@ public class InventoryDocumentService(
     private async Task<bool> ReturnQuantityExceeded(InventoryDocument document, MerchandiseReturn merchandiseReturn)
     {
         var returned = (await Returned(merchandiseReturn))
-            .GroupBy(x => (x.ReturnItemId, x.ProductId))
+            .GroupBy(x => ((string?)x.ReturnItemId, x.ProductId))
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
         var received = await Received(merchandiseReturn.Id, document.Id);
         foreach (var line in document.Lines.Where(x => !string.IsNullOrEmpty(x.MerchandiseReturnItemId)))
@@ -862,7 +868,7 @@ public class InventoryDocumentService(
         return received.Any(x => x.Value > returned.GetValueOrDefault(x.Key));
     }
 
-    private async Task<string> StoreOf(string warehouseId)
+    private async Task<string> StoreOf(string? warehouseId)
     {
         return string.IsNullOrEmpty(warehouseId)
             ? ""
@@ -891,7 +897,7 @@ public class InventoryDocumentService(
         var positions = await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
             .Where(x => x.ObjectType == nameof(InventoryDocument) && x.ObjectId == documentId)
             .Select(x => x.PositionId));
-        return positions.ToHashSet();
+        return positions.OfType<string>().ToHashSet();
     }
 
     private static string DocumentLockKey(string documentId)
@@ -916,7 +922,7 @@ public class InventoryDocumentService(
         return string.Join("|", (attributes ?? []).Select(x => $"{x.Key}={x.Value}").Order(StringComparer.Ordinal));
     }
 
-    private static bool SameBooking(InventoryDocumentLine stored, InventoryDocumentLine line)
+    private static bool SameBooking(InventoryDocumentLine stored, InventoryDocumentLine? line)
     {
         return line != null && line.ProductId == stored.ProductId && line.Quantity == stored.Quantity &&
                line.CountedQuantity == stored.CountedQuantity && line.UnitCost == stored.UnitCost &&

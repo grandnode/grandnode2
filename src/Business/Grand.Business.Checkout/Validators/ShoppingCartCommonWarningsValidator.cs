@@ -17,7 +17,7 @@ public record ShoppingCartCommonWarningsValidatorRecord(
     DateTime? RentalStartDate,
     DateTime? RentalEndDate,
     int Quantity,
-    string ReservationId,
+    string? ReservationId,
     Language Language);
 
 public class ShoppingCartCommonWarningsValidator : AbstractValidator<ShoppingCartCommonWarningsValidatorRecord>

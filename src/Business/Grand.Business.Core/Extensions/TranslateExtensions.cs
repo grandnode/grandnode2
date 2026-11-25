@@ -20,7 +20,7 @@ public static class TranslateExtensions
     /// <param name="returnDefaultValue">A value indicating whether to return default value (if translation is not found)</param>
     /// <returns>Translation property</returns>
     public static string? GetTranslation<T>(this T entity,
-        Expression<Func<T, string?>> keySelector, string languageId,
+        Expression<Func<T, string?>> keySelector, string? languageId,
         bool returnDefaultValue = true)
         where T : ParentEntity, ITranslationEntity
     {

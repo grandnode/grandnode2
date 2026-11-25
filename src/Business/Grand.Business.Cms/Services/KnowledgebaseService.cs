@@ -50,7 +50,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     }
 
     //null group ids skip the group filter, an empty store id the store filter
-    private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query, string[] allowedCustomerGroupsIds,
+    private IQueryable<T> ApplyStandardFilter<T>(IQueryable<T> query, string[]? allowedCustomerGroupsIds,
         string storeId) where T : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     {
         if (allowedCustomerGroupsIds != null && !_accessControlConfig.IgnoreAcl)
@@ -118,7 +118,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base category</returns>
-    public virtual async Task<KnowledgebaseCategory> GetKnowledgebaseCategory(string id)
+    public virtual async Task<KnowledgebaseCategory?> GetKnowledgebaseCategory(string id)
     {
         return await _knowledgebaseCategoryRepository.GetOneAsync(x => x.Id == id);
     }
@@ -128,7 +128,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base category</returns>
-    public virtual async Task<KnowledgebaseCategory> GetPublicKnowledgebaseCategory(string id, CatalogAccess access)
+    public virtual async Task<KnowledgebaseCategory?> GetPublicKnowledgebaseCategory(string id, CatalogAccess access)
     {
         var key = GetCacheKey(CacheKey.KNOWLEDGEBASE_CATEGORY_BY_ID, access, id);
 
@@ -172,7 +172,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base article</returns>
-    public virtual Task<KnowledgebaseArticle> GetKnowledgebaseArticle(string id)
+    public virtual Task<KnowledgebaseArticle?> GetKnowledgebaseArticle(string id)
     {
         return _knowledgebaseArticleRepository.GetByIdAsync(id);
     }
@@ -298,7 +298,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets knowledge base article if it is published etc
     /// </summary>
     /// <returns>knowledge base article</returns>
-    public virtual async Task<KnowledgebaseArticle> GetPublicKnowledgebaseArticle(string id, CatalogAccess access)
+    public virtual async Task<KnowledgebaseArticle?> GetPublicKnowledgebaseArticle(string id, CatalogAccess access)
     {
         var key = GetCacheKey(CacheKey.ARTICLE_BY_ID, access, id);
 
@@ -355,7 +355,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = query.Where(p =>
                 p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
-                || p.Name.ToLower().Contains(keyword.ToLower()) || p.Content.ToLower().Contains(keyword.ToLower()));
+                || p.Name.ToLower().Contains(keyword.ToLower()) || p.Content != null && p.Content.ToLower().Contains(keyword.ToLower()));
 
             query = ApplyStandardFilter(query, access);
             query = query.OrderBy(x => x.DisplayOrder);
@@ -381,7 +381,7 @@ public class KnowledgebaseService : IKnowledgebaseService
 
             query = query.Where(p =>
                 p.Locales.Any(x => x.LocaleValue != null && x.LocaleValue.ToLower().Contains(keyword.ToLower()))
-                || p.Name.ToLower().Contains(keyword.ToLower()) || p.Description.ToLower().Contains(keyword.ToLower()));
+                || p.Name.ToLower().Contains(keyword.ToLower()) || p.Description != null && p.Description.ToLower().Contains(keyword.ToLower()));
 
             query = ApplyStandardFilter(query, access);
             query = query.OrderBy(x => x.DisplayOrder);
@@ -452,7 +452,7 @@ public class KnowledgebaseService : IKnowledgebaseService
             .ToDictionary(x => x.Id);
 
         //keep the order the articles were related in; ids of deleted articles are skipped
-        var toReturn = article.RelatedArticles.Select(related.GetValueOrDefault).Where(x => x != null);
+        var toReturn = article.RelatedArticles.Select(related.GetValueOrDefault).OfType<KnowledgebaseArticle>();
         return new PagedList<KnowledgebaseArticle>(toReturn, pageIndex, pageSize);
     }
 
@@ -505,7 +505,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// </summary>
     /// <param name="articleId">Article identifier</param>
     /// <returns>Article comment</returns>
-    public virtual Task<KnowledgebaseArticleComment> GetArticleCommentById(string articleId)
+    public virtual Task<KnowledgebaseArticleComment?> GetArticleCommentById(string articleId)
     {
         return _articleCommentRepository.GetByIdAsync(articleId);
     }
@@ -525,7 +525,7 @@ public class KnowledgebaseService : IKnowledgebaseService
         var comments = query.ToList();
         //sort by passed identifiers
         var sortedComments = commentIds.Select(id => comments.FirstOrDefault(x => x.Id == id))
-            .Where(comment => comment != null)
+            .OfType<KnowledgebaseArticleComment>()
             .ToList();
 
         return await Task.FromResult(sortedComments);

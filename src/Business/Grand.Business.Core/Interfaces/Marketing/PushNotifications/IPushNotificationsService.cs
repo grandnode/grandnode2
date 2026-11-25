@@ -21,7 +21,7 @@ public interface IPushNotificationsService
     ///     Gets push receiver
     /// </summary>
     /// <param name="customerId"></param>
-    Task<PushRegistration> GetPushReceiverByCustomerId(string customerId);
+    Task<PushRegistration?> GetPushReceiverByCustomerId(string customerId);
 
     /// <summary>
     ///     Gets all push receivers
@@ -32,7 +32,7 @@ public interface IPushNotificationsService
     ///     Gets all push receivers
     /// </summary>
     /// <param name="id"></param>
-    Task<PushRegistration> GetPushReceiver(string id);
+    Task<PushRegistration?> GetPushReceiver(string id);
 
     /// <summary>
     ///     Gets number of customers that accepted push notifications permission popup

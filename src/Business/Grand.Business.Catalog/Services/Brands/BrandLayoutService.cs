@@ -62,7 +62,7 @@ public class BrandLayoutService : IBrandLayoutService
     /// </summary>
     /// <param name="brandLayoutId">Brand layout</param>
     /// <returns>Brand layout</returns>
-    public virtual Task<BrandLayout> GetBrandLayoutById(string brandLayoutId)
+    public virtual Task<BrandLayout?> GetBrandLayoutById(string brandLayoutId)
     {
         var key = string.Format(CacheKey.BRAND_LAYOUT_BY_ID_KEY, brandLayoutId);
         return _cacheBase.GetAsync(key, () => _brandLayoutRepository.GetByIdAsync(brandLayoutId));

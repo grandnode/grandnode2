@@ -19,18 +19,18 @@ public class ImportHtmlGuard
     }
 
     /// <summary>Fields that may hold rich text (descriptions)</summary>
-    public IEnumerable<string> RichTextErrors(params (string Field, string Value)[] fields)
+    public IEnumerable<string> RichTextErrors(params (string Field, string? Value)[] fields)
     {
         return Errors(fields, _htmlSanitizationService.ContainsDisallowedRichText);
     }
 
     /// <summary>Fields that must be plain text (names, SEO fields)</summary>
-    public IEnumerable<string> PlainTextErrors(params (string Field, string Value)[] fields)
+    public IEnumerable<string> PlainTextErrors(params (string Field, string? Value)[] fields)
     {
         return Errors(fields, _htmlSanitizationService.ContainsMarkup);
     }
 
-    private IEnumerable<string> Errors((string Field, string Value)[] fields, Func<string, bool> isDisallowed)
+    private IEnumerable<string> Errors((string Field, string? Value)[] fields, Func<string, bool> isDisallowed)
     {
         if (!_securityConfig.EnableHtmlSanitization)
             yield break;

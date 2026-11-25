@@ -1,4 +1,5 @@
 using Grand.Domain.Customers;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Business.Core.Utilities.Authentication;
 
@@ -20,6 +21,7 @@ public class OidcCustomerResult
     /// <summary>Fixed, token-independent text safe for error_description</summary>
     public string? Description { get; }
 
+    [MemberNotNullWhen(true, nameof(Customer))]
     public bool Succeeded => Customer != null;
 
     public static OidcCustomerResult Success(Customer customer) => new(customer, null, null);

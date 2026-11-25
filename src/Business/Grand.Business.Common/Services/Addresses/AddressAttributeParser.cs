@@ -121,7 +121,7 @@ public class AddressAttributeParser : IAddressAttributeParser
             {
                 if (a1.Id != a2.Id) continue;
                 var valuesStr = customAttributes.Where(x => x.Key == a1.Id).Select(x => x.Value);
-                if (valuesStr.Any(str1 => !string.IsNullOrEmpty(str1.Trim()))) found = true;
+                if (valuesStr.Any(str1 => !string.IsNullOrEmpty(str1?.Trim()))) found = true;
             }
 
             //if not found
@@ -141,8 +141,8 @@ public class AddressAttributeParser : IAddressAttributeParser
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <returns>Attributes</returns>
     public virtual async Task<string> FormatAttributes(
-        Language language,
-        IList<CustomAttribute> customAttributes,
+        Language? language,
+        IList<CustomAttribute>? customAttributes,
         string separator = "<br />",
         bool htmlEncode = true)
     {
@@ -167,7 +167,7 @@ public class AddressAttributeParser : IAddressAttributeParser
                         case AttributeControlType.MultilineTextbox:
                         {
                             //multiline text box
-                            var attributeName = attribute.GetTranslation(a => a.Name, language.Id);
+                            var attributeName = attribute.GetTranslation(a => a.Name, language?.Id);
                             //encode (if required)
                             if (htmlEncode)
                                 attributeName = WebUtility.HtmlEncode(attributeName);
@@ -181,7 +181,7 @@ public class AddressAttributeParser : IAddressAttributeParser
                         default:
                         {
                             //other attributes (text box, datepicker)
-                            formattedAttribute = $"{attribute.GetTranslation(a => a.Name, language.Id)}: {valueStr}";
+                            formattedAttribute = $"{attribute.GetTranslation(a => a.Name, language?.Id)}: {valueStr}";
                             //encode (if required)
                             if (htmlEncode)
                                 formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);
@@ -195,7 +195,7 @@ public class AddressAttributeParser : IAddressAttributeParser
                     var attributeValue = attribute.AddressAttributeValues.FirstOrDefault(x => x.Id == attributeValueId);
                     if (attributeValue != null)
                         formattedAttribute =
-                            $"{attribute.GetTranslation(a => a.Name, language.Id)}: {attributeValue.GetTranslation(a => a.Name, language.Id)}";
+                            $"{attribute.GetTranslation(a => a.Name, language?.Id)}: {attributeValue.GetTranslation(a => a.Name, language?.Id)}";
                     //encode (if required)
                     if (htmlEncode)
                         formattedAttribute = WebUtility.HtmlEncode(formattedAttribute);

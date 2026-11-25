@@ -5,7 +5,7 @@ using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
-public class GetVendorByIdQueryHandler : IRequestHandler<GetVendorByIdQuery, Vendor>
+public class GetVendorByIdQueryHandler : IRequestHandler<GetVendorByIdQuery, Vendor?>
 {
     private readonly IRepository<Vendor> _vendorRepository;
 
@@ -14,10 +14,10 @@ public class GetVendorByIdQueryHandler : IRequestHandler<GetVendorByIdQuery, Ven
         _vendorRepository = vendorRepository;
     }
 
-    public Task<Vendor> Handle(GetVendorByIdQuery request, CancellationToken cancellationToken)
+    public Task<Vendor?> Handle(GetVendorByIdQuery request, CancellationToken cancellationToken)
     {
         return string.IsNullOrWhiteSpace(request.Id)
-            ? Task.FromResult<Vendor>(null)
+            ? Task.FromResult<Vendor?>(null)
             : _vendorRepository.GetByIdAsync(request.Id);
     }
 }

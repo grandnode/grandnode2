@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Queries.Catalog;
 public class GetSearchProductsQuery : IRequest<(IPagedList<Product> products, IList<string>
     filterableSpecificationAttributeOptionIds)>
 {
-    public required Customer Customer { get; set; }
+    public required Customer? Customer { get; set; }
 
     /// <summary>
     ///     Customer groups the ACL filter uses instead of the groups of <see cref="Customer" />;

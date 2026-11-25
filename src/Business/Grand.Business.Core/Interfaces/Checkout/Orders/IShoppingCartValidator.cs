@@ -117,7 +117,7 @@ public interface IShoppingCartValidator
     /// <returns>Warnings</returns>
     Task<IList<string>> CheckCommonWarnings(Customer customer, IList<ShoppingCartItem> currentCart, Product product,
         ShoppingCartType shoppingCartType, DateTime? rentalStartDate, DateTime? rentalEndDate, int quantity,
-        string reservationId, Language language);
+        string? reservationId, Language language);
 
     /// <summary>
     ///     Validates required products (products which require some other products to be added to the cart)
@@ -130,5 +130,5 @@ public interface IShoppingCartValidator
     /// <returns>Warnings</returns>
     Task<IList<string>> GetRequiredProductWarnings(Customer customer,
         ShoppingCartItem shoppingCartItem, Product product,
-        string storeId, Language language);
+        string? storeId, Language language);
 }

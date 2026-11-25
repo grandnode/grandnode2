@@ -40,7 +40,7 @@ public sealed record CampaignRecipient
     /// <summary>
     ///     Currency the shopping cart prices are rendered in
     /// </summary>
-    public Currency? Currency { get; init; }
+    public required Currency Currency { get; init; }
 
     /// <summary>
     ///     Whether the shopping cart prices include tax

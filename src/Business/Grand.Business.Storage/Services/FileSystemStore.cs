@@ -14,16 +14,16 @@ public class FileSystemStore : IFileStore
         _fileSystemPath = Path.GetFullPath(fileSystemPath);
     }
 
-    public Task<IFileStoreEntry> GetFileInfo(string path)
+    public Task<IFileStoreEntry?> GetFileInfo(string path)
     {
         var physicalPath = GetPhysicalPath(path);
 
         var fileInfo = new PhysicalFileInfo(new FileInfo(physicalPath));
 
-        return Task.FromResult<IFileStoreEntry>(fileInfo.Exists ? new FileSystemStoreEntry(path, fileInfo) : null);
+        return Task.FromResult<IFileStoreEntry?>(fileInfo.Exists ? new FileSystemStoreEntry(path, fileInfo) : null);
     }
 
-    public IFileStoreEntry GetDirectoryInfo(string path)
+    public IFileStoreEntry? GetDirectoryInfo(string path)
     {
         var physicalPath = GetPhysicalPath(path);
 
@@ -32,16 +32,16 @@ public class FileSystemStore : IFileStore
         return directoryInfo.Exists ? new FileSystemStoreEntry(path, directoryInfo) : null;
     }
 
-    public Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath)
+    public Task<PhysicalDirectoryInfo?> GetPhysicalDirectoryInfo(string directoryPath)
     {
         var physicalPath = GetPhysicalPath(directoryPath);
 
         var directoryInfo = new PhysicalDirectoryInfo(new DirectoryInfo(physicalPath));
 
-        return directoryInfo.Exists ? Task.FromResult(directoryInfo) : Task.FromResult<PhysicalDirectoryInfo>(null);
+        return Task.FromResult<PhysicalDirectoryInfo?>(directoryInfo.Exists ? directoryInfo : null);
     }
 
-    public IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false,
+    public IList<IFileStoreEntry> GetDirectoryContent(string? path = null, bool includeSubDirectories = false,
         bool listDirectories = true, bool listFiles = true)
     {
         var physicalPath = GetPhysicalPath(path);
@@ -215,7 +215,8 @@ public class FileSystemStore : IFileStore
 
         // Create directory path if it doesn't exist.
         var physicalDirectoryPath = Path.GetDirectoryName(physicalPath);
-        Directory.CreateDirectory(physicalDirectoryPath);
+        if (physicalDirectoryPath != null)
+            Directory.CreateDirectory(physicalDirectoryPath);
 
         var fileInfo = new FileInfo(physicalPath);
         await using var outputStream = fileInfo.Create();
@@ -246,7 +247,7 @@ public class FileSystemStore : IFileStore
     /// <param name="path">The relative path within the file store.</param>
     /// <returns></returns>
     /// <remarks>The resulting physical path is verified to be inside designated root file system path.</remarks>
-    private string GetPhysicalPath(string path)
+    private string GetPhysicalPath(string? path)
     {
         path = this.NormalizePath(path);
 

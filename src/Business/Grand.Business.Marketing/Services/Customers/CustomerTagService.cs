@@ -80,7 +80,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     /// <param name="customerTagId">Customer tag identifier</param>
     /// <returns>Customer tag</returns>
-    public virtual Task<CustomerTag> GetCustomerTagById(string customerTagId)
+    public virtual Task<CustomerTag?> GetCustomerTagById(string customerTagId)
     {
         return _customerTagRepository.GetByIdAsync(customerTagId);
     }
@@ -90,7 +90,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     /// <param name="name">Customer tag name</param>
     /// <returns>Customer tag</returns>
-    public virtual async Task<CustomerTag> GetCustomerTagByName(string name)
+    public virtual async Task<CustomerTag?> GetCustomerTagByName(string name)
     {
         var query = from pt in _customerTagRepository.Table
             where pt.Name == name
@@ -205,7 +205,7 @@ public class CustomerTagService : ICustomerTagService
     /// <param name="customerTagId">Customer tag id</param>
     /// <param name="productId">Product id</param>
     /// <returns>Customer tag product</returns>
-    public virtual async Task<CustomerTagProduct> GetCustomerTagProduct(string customerTagId, string productId)
+    public virtual async Task<CustomerTagProduct?> GetCustomerTagProduct(string customerTagId, string productId)
     {
         var query = from cr in _customerTagProductRepository.Table
             where cr.CustomerTagId == customerTagId && cr.ProductId == productId
@@ -219,7 +219,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     /// <param name="id">id</param>
     /// <returns>Customer tag product</returns>
-    public virtual Task<CustomerTagProduct> GetCustomerTagProductById(string id)
+    public virtual Task<CustomerTagProduct?> GetCustomerTagProductById(string id)
     {
         return _customerTagProductRepository.GetByIdAsync(id);
     }

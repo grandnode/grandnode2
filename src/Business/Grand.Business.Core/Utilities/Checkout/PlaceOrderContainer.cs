@@ -22,23 +22,26 @@ public class PlaceOrderContainer
     /// <summary>
     ///     Customer, store, working currency and tax display the order totals are calculated for
     /// </summary>
-    public CalculationContext? Context { get; set; }
+    public required CalculationContext Context { get; set; }
 
-    public Customer? Customer { get; set; }
-    public Store? Store { get; set; }
-    public Language? Language { get; set; }
+    public required Customer Customer { get; set; }
+    public required Store Store { get; set; }
+
+    //set by PreparePlaceOrderDetails, the one place a container is filled, before anything reads it
+    public Language Language { get; set; } = null!;
 
     /// <summary>
     ///     Language of the request placing the order, used for the attribute descriptions
     /// </summary>
-    public Language? WorkingLanguage { get; set; }
+    public required Language WorkingLanguage { get; set; }
 
     /// <summary>
     ///     Store address used for file download links in the attribute descriptions
     /// </summary>
-    public DomainHost? Host { get; set; }
+    public required DomainHost Host { get; set; }
 
-    public Currency? Currency { get; set; }
+    //set by PreparePlaceOrderDetails, the one place a container is filled, before anything reads it
+    public Currency Currency { get; set; } = null!;
     public string? AffiliateId { get; set; }
     public TaxDisplayType TaxDisplayType { get; set; }
     public double CurrencyRate { get; set; }

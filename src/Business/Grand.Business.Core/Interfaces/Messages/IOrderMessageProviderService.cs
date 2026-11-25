@@ -19,7 +19,7 @@ public interface IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendOrderPlacedVendorMessage(Order order, Customer customer, Vendor vendor, string languageId,
+    Task<int> SendOrderPlacedVendorMessage(Order order, Customer? customer, Vendor vendor, string? languageId,
         DomainHost? host = null);
 
     /// <summary>
@@ -32,7 +32,7 @@ public interface IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer customer, string languageId,
+    Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer? customer, string? languageId,
         DomainHost? host = null);
 
     /// <summary>
@@ -42,7 +42,7 @@ public interface IOrderMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderPaidStoreOwnerMessage(Order order, Customer customer, string languageId);
+    Task<int> SendOrderPaidStoreOwnerMessage(Order order, Customer? customer, string? languageId);
 
     /// <summary>
     ///     Sends an order paid notification to a customer
@@ -54,7 +54,7 @@ public interface IOrderMessageProviderService
     ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderPaidCustomerMessage(Order order, Customer customer, string languageId,
+    Task<int> SendOrderPaidCustomerMessage(Order order, Customer? customer, string? languageId,
         string? invoiceDownloadId = null);
 
     /// <summary>
@@ -64,7 +64,7 @@ public interface IOrderMessageProviderService
     /// <param name="vendor">Vendor instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderPaidVendorMessage(Order order, Vendor vendor, string languageId);
+    Task<int> SendOrderPaidVendorMessage(Order order, Vendor vendor, string? languageId);
 
     /// <summary>
     ///     Sends an order placed notification to a customer
@@ -79,7 +79,7 @@ public interface IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string languageId,
+    Task<int> SendOrderPlacedCustomerMessage(Order order, Customer? customer, string? languageId,
         string? invoiceDownloadId = null, DomainHost? host = null);
 
     /// <summary>
@@ -108,7 +108,7 @@ public interface IOrderMessageProviderService
     ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderCompletedCustomerMessage(Order order, Customer customer, string languageId,
+    Task<int> SendOrderCompletedCustomerMessage(Order order, Customer? customer, string? languageId,
         string? invoiceDownloadId = null);
 
     /// <summary>
@@ -118,7 +118,7 @@ public interface IOrderMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderCancelledCustomerMessage(Order order, Customer customer, string languageId);
+    Task<int> SendOrderCancelledCustomerMessage(Order order, Customer? customer, string? languageId);
 
     /// <summary>
     ///     Sends an order cancelled notification to a store owner
@@ -127,7 +127,7 @@ public interface IOrderMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderCancelledStoreOwnerMessage(Order order, Customer customer, string languageId);
+    Task<int> SendOrderCancelledStoreOwnerMessage(Order order, Customer? customer, string? languageId);
 
     /// <summary>
     ///     Sends an order cancel notification to a vendor
@@ -136,7 +136,7 @@ public interface IOrderMessageProviderService
     /// <param name="vendor">Vendor instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderCancelledVendorMessage(Order order, Vendor vendor, string languageId);
+    Task<int> SendOrderCancelledVendorMessage(Order order, Vendor vendor, string? languageId);
 
     /// <summary>
     ///     Sends an order refunded notification to a store owner
@@ -145,7 +145,7 @@ public interface IOrderMessageProviderService
     /// <param name="refundedAmount">Amount refunded</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderRefundedStoreOwnerMessage(Order order, double refundedAmount, string languageId);
+    Task<int> SendOrderRefundedStoreOwnerMessage(Order order, double refundedAmount, string? languageId);
 
     /// <summary>
     ///     Sends an order refunded notification to a customer
@@ -154,7 +154,7 @@ public interface IOrderMessageProviderService
     /// <param name="refundedAmount">Amount refunded</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOrderRefundedCustomerMessage(Order order, double refundedAmount, string languageId);
+    Task<int> SendOrderRefundedCustomerMessage(Order order, double refundedAmount, string? languageId);
 
     /// <summary>
     ///     Reminds a customer that the payment of an order bought on credit falls due
@@ -163,7 +163,7 @@ public interface IOrderMessageProviderService
     /// <param name="customer">Customer</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendPaymentDueReminderCustomerMessage(Order order, Customer customer, string languageId);
+    Task<int> SendPaymentDueReminderCustomerMessage(Order order, Customer? customer, string? languageId);
 
     /// <summary>
     ///     Tells a customer that the payment of an order bought on credit is overdue
@@ -172,7 +172,7 @@ public interface IOrderMessageProviderService
     /// <param name="customer">Customer</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendPaymentOverdueCustomerMessage(Order order, Customer customer, string languageId);
+    Task<int> SendPaymentOverdueCustomerMessage(Order order, Customer? customer, string? languageId);
 
     /// <summary>
     ///     Sends a new order note added notification to a customer
@@ -192,7 +192,7 @@ public interface IOrderMessageProviderService
     /// <param name="order">Order</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order order, string languageId);
+    Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order order, string? languageId);
 
     /// <summary>
     ///     Sends the e-mail address of an order placed without an account the link that opens the order

@@ -98,7 +98,7 @@ public class ProductUnitService(
         var key = UnitNumbers.Key(search.Number);
         if (key != "")
             query = search.Prefix
-                ? query.Where(x => x.NumberKey.StartsWith(key))
+                ? query.Where(x => x.NumberKey != null && x.NumberKey.StartsWith(key))
                 : query.Where(x => x.NumberKey == key);
         if (!string.IsNullOrEmpty(search.ProductId))
             query = query.Where(x => x.ProductId == search.ProductId);
@@ -121,7 +121,7 @@ public class ProductUnitService(
         var key = UnitNumbers.Key(search.Number);
         if (key != "")
             query = search.Prefix
-                ? query.Where(x => x.NumberKey.StartsWith(key))
+                ? query.Where(x => x.NumberKey != null && x.NumberKey.StartsWith(key))
                 : query.Where(x => x.NumberKey == key);
         if (!string.IsNullOrEmpty(search.ProductId))
             query = query.Where(x => x.ProductId == search.ProductId);
@@ -147,12 +147,12 @@ public class ProductUnitService(
             pageIndex, pageSize);
     }
 
-    public Task<ProductSerialNumber> GetSerialNumber(string id)
+    public Task<ProductSerialNumber?> GetSerialNumber(string id)
     {
         return serialNumberRepository.GetByIdAsync(id);
     }
 
-    public Task<ProductBatch> GetBatch(string id)
+    public Task<ProductBatch?> GetBatch(string id)
     {
         return batchRepository.GetByIdAsync(id);
     }
@@ -234,7 +234,7 @@ public class ProductUnitService(
                 units.Add(new ShippedUnitView(number, true, 1, null, comment));
             }
 
-            var product = products.GetValueOrDefault(item.ProductId);
+            var product = products.GetValueOrDefault(item.ProductId ?? "");
             //the batch of the bucket the item shipped from: the same number in another warehouse is another batch
             var warehouseId = product == null ? null : StockBuckets.UnitWarehouse(product, item.WarehouseId);
             var combinationId = product?.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes
@@ -272,7 +272,7 @@ public class ProductUnitService(
         var query = journalRepository.Table.Where(x =>
             x.ProductId == serialNumber.ProductId && x.SerialNumbers.Contains(serialNumber.Number));
         if (warehouseIds != null)
-            query = query.Where(x => warehouseIds.Contains(x.WarehouseId));
+            query = query.Where(x => x.WarehouseId != null && warehouseIds.Contains(x.WarehouseId));
         return journalRepository.PagedAsync(query.OrderByDescending(x => x.StockRevision), pageIndex, pageSize);
     }
 
@@ -299,8 +299,8 @@ public class ProductUnitService(
 
         return new PagedList<BatchRecipient>(entries.Select(entry =>
         {
-            var shipment = shipments.GetValueOrDefault(entry.ObjectId);
-            var order = shipment == null ? null : orders.GetValueOrDefault(shipment.OrderId);
+            var shipment = shipments.GetValueOrDefault(entry.ObjectId ?? "");
+            var order = shipment == null ? null : orders.GetValueOrDefault(shipment.OrderId ?? "");
             return new BatchRecipient(entry.ObjectId, shipment?.ShipmentNumber ?? 0, shipment?.OrderId,
                 order?.OrderNumber ?? 0, order?.CustomerId, order?.CustomerEmail, entry.OutQty - entry.InQty,
                 shipment?.CreatedOnUtc ?? entry.CreateDateUtc, order?.StoreId);
@@ -346,7 +346,7 @@ public class ProductUnitService(
             .GroupBy(x => (x.CombinationId ?? "", x.WarehouseId ?? ""))
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
 
-        IEnumerable<string> warehouses = product.UseMultipleWarehouses ? StockBuckets.Warehouses(product) : [product.WarehouseId];
+        IEnumerable<string> warehouses = product.UseMultipleWarehouses ? StockBuckets.Warehouses(product) : [product.WarehouseId ?? ""];
         foreach (var warehouseId in warehouses)
         foreach (var (combinationId, attributes, stock) in StockBuckets.In(product, warehouseId))
         {
@@ -364,8 +364,8 @@ public class ProductUnitService(
     /// </summary>
     private sealed class UnitCount
     {
-        public string CombinationId { get; set; }
-        public string WarehouseId { get; set; }
+        public string? CombinationId { get; set; }
+        public string? WarehouseId { get; set; }
         public int Quantity { get; set; }
     }
 
@@ -416,7 +416,7 @@ public class ProductUnitService(
             if (product == null)
                 continue;
 
-            string error;
+            string? error;
             if (InventoryTracking.Tracked(product))
             {
                 if (product.WarrantyMonths > 0)
@@ -443,12 +443,16 @@ public class ProductUnitService(
     ///     item is checked against what those leave; the changes of an item without errors join them
     /// </summary>
     /// <param name="booked">The changes of the items checked so far, by product</param>
-    private async Task<string> LedgerError(Product product, List<StockChange> changes,
+    private async Task<string?> LedgerError(Product product, List<StockChange> changes,
         Dictionary<string, List<StockChange>> booked)
     {
         List<StockChange> all = [..booked.GetValueOrDefault(product.Id) ?? [], ..changes];
         //read again for every check: the ledger works the changes out on the product it is given
-        var errors = await stockLedger.Check(await productRepository.GetByIdAsync(product.Id), all);
+        //deleted meanwhile
+        var current = await productRepository.GetByIdAsync(product.Id);
+        if (current == null)
+            return StockErrors.ProductNotFound;
+        var errors = await stockLedger.Check(current, all);
         if (errors.Count > 0)
             return errors[0];
 
@@ -480,7 +484,7 @@ public class ProductUnitService(
     /// <summary>
     ///     The batches a shipment item names cover its quantity at most: the rest comes from the stock without one
     /// </summary>
-    private static string BatchError(ShipmentItem item)
+    private static string? BatchError(ShipmentItem item)
     {
         return (item.Batches ?? []).Where(x => x.Quantity > 0).Sum(x => x.Quantity) > item.Quantity
             ? UnitErrors.BatchQuantityExceeded
@@ -491,7 +495,7 @@ public class ProductUnitService(
     ///     A serial number is named once a shipment; a known one is named as it was received
     /// </summary>
     /// <param name="named">The serial numbers the shipment's items named so far, by product</param>
-    private async Task<string> SerialNumberError(Product product, ShipmentItem item,
+    private async Task<string?> SerialNumberError(Product product, ShipmentItem item,
         Dictionary<string, HashSet<string>> named)
     {
         var numbers = item.SerialNumbers ?? [];
@@ -513,10 +517,10 @@ public class ProductUnitService(
     ///     The products of a bundle, and those associated with the attributes chosen, ship from their stock without
     ///     units: never one tracking serial numbers, and one tracking batches only while the ledger books it
     /// </summary>
-    private async Task<string> TrackedChildError(Product product, Shipment shipment, ShipmentItem item,
+    private async Task<string?> TrackedChildError(Product product, Shipment shipment, ShipmentItem item,
         Dictionary<string, List<StockChange>> booked)
     {
-        var children = new List<(string ProductId, int Quantity)>();
+        var children = new List<(string? ProductId, int Quantity)>();
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
             children.AddRange(product.BundleProducts.Select(x => (x.ProductId, x.Quantity * item.Quantity)));
         children.AddRange(product.ParseProductAttributeValues(item.Attributes ?? [])
@@ -533,7 +537,7 @@ public class ProductUnitService(
 
             //booked as the booking books it: the item's attributes and warehouse, the child's quantity
             var childItem = new ShipmentItem {
-                Id = item.Id, Attributes = item.Attributes, Quantity = quantity, WarehouseId = item.WarehouseId
+                Id = item.Id, Attributes = item.Attributes ?? [], Quantity = quantity, WarehouseId = item.WarehouseId
             };
             if (await LedgerError(child, ShipmentStock.Changes(child, shipment, childItem), booked) != null)
                 return UnitErrors.TrackedBundleChild;
@@ -542,7 +546,7 @@ public class ProductUnitService(
         return null;
     }
 
-    public async Task<int> AssignedQuantity(string productId, string combinationId = null)
+    public async Task<int> AssignedQuantity(string productId, string? combinationId = null)
     {
         var batches = batchRepository.Table.Where(x => x.ProductId == productId && x.Quantity != 0);
         var serialNumbers = serialNumberRepository.Table.Where(x =>
@@ -574,7 +578,7 @@ public class ProductUnitService(
             .ToList();
     }
 
-    public async Task<string> TrackingChangeRefused(Product stored, Product changed)
+    public async Task<string?> TrackingChangeRefused(Product stored, Product changed)
     {
         ArgumentNullException.ThrowIfNull(stored);
         ArgumentNullException.ThrowIfNull(changed);

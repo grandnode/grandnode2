@@ -40,7 +40,7 @@ public class CollectionSchemaProperty : ISchemaProperty<Collection>
         return properties;
     }
 
-    protected virtual async Task<string> GetPictures(string pictureId)
+    protected virtual async Task<string?> GetPictures(string pictureId)
     {
         var picture = await _pictureService.GetPictureById(pictureId);
         return await _pictureService.GetThumbPhysicalPath(picture);

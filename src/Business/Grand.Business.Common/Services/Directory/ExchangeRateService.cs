@@ -37,7 +37,7 @@ public class ExchangeRateService : IExchangeRateService
     ///     Load active exchange rate provider
     /// </summary>
     /// <returns>Active exchange rate provider</returns>
-    public virtual IExchangeRateProvider LoadActiveExchangeRateProvider()
+    public virtual IExchangeRateProvider? LoadActiveExchangeRateProvider()
     {
         var exchangeRateProvider =
             LoadExchangeRateProviderBySystemName(_currencySettings.ActiveExchangeRateProviderSystemName) ??
@@ -50,7 +50,7 @@ public class ExchangeRateService : IExchangeRateService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found exchange rate provider</returns>
-    public virtual IExchangeRateProvider LoadExchangeRateProviderBySystemName(string systemName)
+    public virtual IExchangeRateProvider? LoadExchangeRateProviderBySystemName(string? systemName)
     {
         return _exchangeRateProvider.FirstOrDefault(x => x.SystemName == systemName);
     }

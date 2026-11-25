@@ -9,7 +9,7 @@ public class FileSystemStoreEntry : IFileStoreEntry
 {
     private readonly IFileInfo _fileInfo;
 
-    internal FileSystemStoreEntry(string path, IFileInfo fileInfo)
+    internal FileSystemStoreEntry(string? path, IFileInfo fileInfo)
     {
         _fileInfo = fileInfo ?? throw new ArgumentNullException(nameof(fileInfo));
         Path = path ?? throw new ArgumentNullException(nameof(path));
@@ -19,7 +19,7 @@ public class FileSystemStoreEntry : IFileStoreEntry
 
     public string Name => _fileInfo.Name;
     public string DirectoryPath => Path[..^Name.Length].TrimEnd('/');
-    public string PhysicalPath => _fileInfo.PhysicalPath;
+    public string? PhysicalPath => _fileInfo.PhysicalPath;
     public DateTime LastModifiedUtc => _fileInfo.LastModified.UtcDateTime;
     public long Length => _fileInfo.Length;
     public bool IsDirectory => _fileInfo.IsDirectory;

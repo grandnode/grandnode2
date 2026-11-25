@@ -28,7 +28,7 @@ public interface IProductAttributeFormatter
     /// <param name="showInAdmin">Show in admin</param>
     /// <returns>Attributes</returns>
     Task<string> FormatAttributes(Product product, IList<CustomAttribute> customAttributes,
-        CalculationContext context, Language language, DomainHost host,
+        CalculationContext? context, Language? language, DomainHost host,
         string separator = "<br />", bool htmlEncode = true, bool renderPrices = true,
         bool renderProductAttributes = true, bool renderGiftVoucherAttributes = true,
         bool allowHyperlinks = true, bool showInAdmin = false);

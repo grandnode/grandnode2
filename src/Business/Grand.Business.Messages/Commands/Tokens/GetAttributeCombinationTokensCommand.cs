@@ -8,8 +8,8 @@ namespace Grand.Business.Messages.Commands.Tokens;
 
 public class GetAttributeCombinationTokensCommand : IRequest<LiquidAttributeCombination>
 {
-    public Product Product { get; set; }
-    public ProductAttributeCombination Combination { get; set; }
-    public Language Language { get; set; }
-    public DomainHost Host { get; set; }
+    public required Product Product { get; set; }
+    public required ProductAttributeCombination Combination { get; set; }
+    public required Language Language { get; set; }
+    public required DomainHost Host { get; set; }
 }

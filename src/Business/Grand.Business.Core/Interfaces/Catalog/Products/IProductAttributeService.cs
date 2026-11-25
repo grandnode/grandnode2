@@ -30,7 +30,7 @@ public interface IProductAttributeService
     /// </summary>
     /// <param name="productAttributeId">Product attribute identifier</param>
     /// <returns>Product attribute </returns>
-    Task<ProductAttribute> GetProductAttributeById(string productAttributeId);
+    Task<ProductAttribute?> GetProductAttributeById(string? productAttributeId);
 
     /// <summary>
     ///     Inserts a product attribute

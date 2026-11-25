@@ -36,7 +36,7 @@ public class UpdateOrderItemCommandHandler : IRequestHandler<UpdateOrderItemComm
         ArgumentNullException.ThrowIfNull(request.OrderItem);
 
         var originalOrder = await _orderService.GetOrderById(request.Order.Id);
-        var originalOrderItem = originalOrder.OrderItems.FirstOrDefault(x => x.Id == request.OrderItem.Id);
+        var originalOrderItem = originalOrder?.OrderItems.FirstOrDefault(x => x.Id == request.OrderItem.Id);
         if (originalOrderItem != null)
         {
             request.Order.OrderSubtotalExclTax += request.OrderItem.PriceExclTax - originalOrderItem.PriceExclTax;
@@ -54,8 +54,10 @@ public class UpdateOrderItemCommandHandler : IRequestHandler<UpdateOrderItemComm
             {
                 var qtyDifference = originalOrderItem.Quantity - request.OrderItem.Quantity;
                 var product = await _productService.GetProductById(request.OrderItem.ProductId);
-                await _inventoryManageService.AdjustReserved(product, qtyDifference, request.OrderItem.Attributes,
-                    request.OrderItem.WarehouseId);
+                //a product deleted meanwhile has no stock to adjust
+                if (product != null)
+                    await _inventoryManageService.AdjustReserved(product, qtyDifference, request.OrderItem.Attributes,
+                        request.OrderItem.WarehouseId);
 
                 if (request.Order.ShippingStatusId == ShippingStatus.PartiallyShipped)
                 {

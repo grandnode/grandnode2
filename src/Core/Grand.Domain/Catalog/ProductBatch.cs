@@ -30,12 +30,12 @@ public class ProductBatch : BaseEntity
     /// <summary>
     ///     The batch number as entered
     /// </summary>
-    public string? Number { get; set; }
+    public string Number { get; set; } = null!;
 
     /// <summary>
     ///     The number trimmed and upper-cased: what lookups and the unique index compare
     /// </summary>
-    public string? NumberKey { get; set; }
+    public string NumberKey { get; set; } = null!;
 
     /// <summary>
     ///     The expiry date, a date without time

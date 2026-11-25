@@ -56,7 +56,7 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="storeId">Store identifier; pass null to load all records</param>
     /// <param name="shoppingCartType">Shopping cart type; pass null to load all records</param>
     /// <returns>Shopping Cart</returns>
-    public virtual async Task<IList<ShoppingCartItem>> GetShoppingCart(Customer customer, string storeId = null,
+    public virtual async Task<IList<ShoppingCartItem>> GetShoppingCart(Customer customer, string? storeId = null,
         params ShoppingCartType[] shoppingCartType)
     {
         ArgumentNullException.ThrowIfNull(customer);
@@ -94,11 +94,11 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="rentalEndDate">Rental end date</param>
     /// <param name="productId"></param>
     /// <returns>Found shopping cart item</returns>
-    public virtual async Task<ShoppingCartItem> FindShoppingCartItem(IList<ShoppingCartItem> shoppingCart,
+    public virtual async Task<ShoppingCartItem?> FindShoppingCartItem(IList<ShoppingCartItem> shoppingCart,
         ShoppingCartType shoppingCartType,
         string productId,
-        string warehouseId = null,
-        IList<CustomAttribute> attributes = null,
+        string? warehouseId = null,
+        IList<CustomAttribute>? attributes = null,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null,
         DateTime? rentalEndDate = null)
@@ -110,14 +110,15 @@ public class ShoppingCartService : IShoppingCartService
             if (sci.ProductId != productId || sci.WarehouseId != warehouseId) continue;
             //attributes
             var product = await _productService.GetProductById(sci.ProductId);
+            if (product == null) continue;
             var attributesEqual =
-                ProductExtensions.AreProductAttributesEqual(product, sci.Attributes, attributes, false);
+                ProductExtensions.AreProductAttributesEqual(product, sci.Attributes, attributes ?? [], false);
             if (product.ProductTypeId == ProductType.BundledProduct)
                 foreach (var bundle in product.BundleProducts)
                 {
                     var p1 = await _productService.GetProductById(bundle.ProductId);
                     if (p1 == null) continue;
-                    if (!ProductExtensions.AreProductAttributesEqual(p1, sci.Attributes, attributes, false))
+                    if (!ProductExtensions.AreProductAttributesEqual(p1, sci.Attributes, attributes ?? [], false))
                         attributesEqual = false;
                 }
 
@@ -125,7 +126,7 @@ public class ShoppingCartService : IShoppingCartService
             var giftVoucherInfoSame = true;
             if (product.IsGiftVoucher)
             {
-                GiftVoucherExtensions.GetGiftVoucherAttribute(attributes,
+                GiftVoucherExtensions.GetGiftVoucherAttribute(attributes ?? [],
                     out var giftVoucherRecipientName1, out _,
                     out var giftVoucherSenderName1, out _, out _);
 
@@ -184,15 +185,15 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="duration">Duration for reservation</param>
     /// <param name="validator">ShoppingCartValidatorOptions</param>
     /// <returns>(warnings, shoppingCartItem)</returns>
-    public virtual async Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer,
-        Language language, string productId,
-        ShoppingCartType shoppingCartType, string storeId,
-        string warehouseId = null, IList<CustomAttribute> attributes = null,
+    public virtual async Task<(IList<string> warnings, ShoppingCartItem? shoppingCartItem)> AddToCart(Customer customer,
+        Language language, string? productId,
+        ShoppingCartType shoppingCartType, string? storeId,
+        string? warehouseId = null, IList<CustomAttribute>? attributes = null,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
         int quantity = 1, bool automaticallyAddRequiredProductsIfEnabled = true,
-        string reservationId = "", string parameter = "", string duration = "",
-        ShoppingCartValidatorOptions validator = null)
+        string? reservationId = "", string? parameter = "", string? duration = "",
+        ShoppingCartValidatorOptions? validator = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -214,20 +215,20 @@ public class ShoppingCartService : IShoppingCartService
             return (warnings, null);
 
         var shoppingCartItem = await FindShoppingCartItem(cart,
-            shoppingCartType, productId, warehouseId, attributes, customerEnteredPrice,
+            shoppingCartType, product.Id, warehouseId, attributes, customerEnteredPrice,
             rentalStartDate, rentalEndDate);
 
         var update = shoppingCartItem != null && product.ProductTypeId != ProductType.Reservation
                                               && string.IsNullOrEmpty(product.AllowedQuantities);
 
-        if (update) shoppingCartItem.Quantity += quantity;
+        if (update && shoppingCartItem != null) shoppingCartItem.Quantity += quantity;
         else
             shoppingCartItem = new ShoppingCartItem {
                 ShoppingCartTypeId = shoppingCartType,
                 StoreId = storeId,
                 WarehouseId = warehouseId,
-                ProductId = productId,
-                Attributes = attributes,
+                ProductId = product.Id,
+                Attributes = attributes ?? [],
                 EnteredPrice = customerEnteredPrice,
                 Quantity = quantity,
                 RentalStartDateUtc = rentalStartDate,
@@ -247,7 +248,7 @@ public class ShoppingCartService : IShoppingCartService
                 language));
 
         if (warnings.Any()) return (warnings, shoppingCartItem);
-        if (update) await UpdateExistingShoppingCartItem(shoppingCartItem, customer, attributes);
+        if (update) await UpdateExistingShoppingCartItem(shoppingCartItem, customer, attributes ?? []);
         else
             shoppingCartItem = await InsertNewItem(customer, product, shoppingCartItem, language,
                 automaticallyAddRequiredProductsIfEnabled);
@@ -333,6 +334,7 @@ public class ShoppingCartService : IShoppingCartService
         if (quantity > 0)
         {
             var product = await _productService.GetProductById(shoppingCartItem.ProductId);
+            ArgumentNullException.ThrowIfNull(product);
             shoppingCartItem.Quantity = quantity;
             shoppingCartItem.WarehouseId = warehouseId;
             shoppingCartItem.Attributes = attributes;
@@ -384,7 +386,9 @@ public class ShoppingCartService : IShoppingCartService
         if (resetCheckoutData) await _customerService.ResetCheckoutData(customer, shoppingCartItem.StoreId);
 
         //delete item
-        customer.ShoppingCartItems.Remove(customer.ShoppingCartItems.FirstOrDefault(x => x.Id == shoppingCartItem.Id));
+        var item = customer.ShoppingCartItems.FirstOrDefault(x => x.Id == shoppingCartItem.Id);
+        if (item != null)
+            customer.ShoppingCartItems.Remove(item);
         await _customerService.DeleteShoppingCartItem(customer.Id, shoppingCartItem);
 
         //event notification

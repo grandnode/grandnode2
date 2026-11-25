@@ -40,7 +40,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
     ///     toStoreOwner is set
     /// </summary>
     protected virtual async Task<int> SendRecurringPaymentMessage(string templateName,
-        RecurringPayment recurringPayment, Order initialOrder, Customer customer, string languageId,
+        RecurringPayment recurringPayment, Order initialOrder, Customer? customer, string? languageId,
         bool toStoreOwner)
     {
         ArgumentNullException.ThrowIfNull(recurringPayment);
@@ -68,8 +68,8 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
         var liquidObject = await builder.BuildAsync();
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
-        var toEmail = toStoreOwner ? emailAccount.Email : customer.Email;
-        var toName = toStoreOwner ? emailAccount.DisplayName : customer.GetFullName();
+        var toEmail = toStoreOwner ? emailAccount.Email : customer?.Email;
+        var toName = toStoreOwner ? emailAccount.DisplayName : customer?.GetFullName();
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             language.Id, liquidObject,
             toEmail, toName,
@@ -80,7 +80,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
     ///     Sends a 'Recurring payment cancelled' message to the customer
     /// </summary>
     public virtual async Task<int> SendRecurringPaymentCancelledCustomerMessage(RecurringPayment recurringPayment,
-        Order initialOrder, Customer customer, string languageId)
+        Order initialOrder, Customer? customer, string? languageId)
     {
         return await SendRecurringPaymentMessage(MessageTemplateNames.RecurringPaymentCancelledCustomerNotification,
             recurringPayment, initialOrder, customer, languageId, toStoreOwner: false);
@@ -90,7 +90,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
     ///     Sends a 'Recurring payment cancelled' message to the store owner
     /// </summary>
     public virtual async Task<int> SendRecurringPaymentCancelledStoreOwnerMessage(RecurringPayment recurringPayment,
-        Order initialOrder, Customer customer, string languageId)
+        Order initialOrder, Customer? customer, string? languageId)
     {
         return await SendRecurringPaymentMessage(MessageTemplateNames.RecurringPaymentCancelledStoreOwnerNotification,
             recurringPayment, initialOrder, customer, languageId, toStoreOwner: true);
@@ -100,7 +100,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
     ///     Sends a 'Recurring payment failed' message to the customer
     /// </summary>
     public virtual async Task<int> SendRecurringPaymentFailedCustomerMessage(RecurringPayment recurringPayment,
-        Order initialOrder, Customer customer, string languageId)
+        Order initialOrder, Customer? customer, string? languageId)
     {
         return await SendRecurringPaymentMessage(MessageTemplateNames.RecurringPaymentFailedCustomerNotification,
             recurringPayment, initialOrder, customer, languageId, toStoreOwner: false);
@@ -110,7 +110,7 @@ public class RecurringPaymentMessageProviderService : IRecurringPaymentMessagePr
     ///     Sends a 'Recurring payment failed' message to the store owner
     /// </summary>
     public virtual async Task<int> SendRecurringPaymentFailedStoreOwnerMessage(RecurringPayment recurringPayment,
-        Order initialOrder, Customer customer, string languageId)
+        Order initialOrder, Customer? customer, string? languageId)
     {
         return await SendRecurringPaymentMessage(MessageTemplateNames.RecurringPaymentFailedStoreOwnerNotification,
             recurringPayment, initialOrder, customer, languageId, toStoreOwner: true);

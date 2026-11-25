@@ -9,7 +9,7 @@ public static class OrderItemWarehouse
     ///     The warehouse an order item is served from: the one chosen in the cart, else the store's default, else the
     ///     product's own when it is kept in a single warehouse
     /// </summary>
-    public static string Resolve(ShoppingCartItem item, Product product, string storeDefaultWarehouseId)
+    public static string? Resolve(ShoppingCartItem item, Product product, string? storeDefaultWarehouseId)
     {
         var warehouseId = !string.IsNullOrEmpty(item.WarehouseId)
             ? item.WarehouseId

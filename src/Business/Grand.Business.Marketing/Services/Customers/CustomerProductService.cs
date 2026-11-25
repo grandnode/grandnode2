@@ -39,7 +39,7 @@ public class CustomerProductService : ICustomerProductService
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Customer product price</returns>
-    public virtual Task<CustomerProductPrice> GetCustomerProductPriceById(string id)
+    public virtual Task<CustomerProductPrice?> GetCustomerProductPriceById(string id)
     {
         return _customerProductPriceRepository.GetByIdAsync(id);
     }
@@ -61,9 +61,8 @@ public class CustomerProductService : ICustomerProductService
             return pp == null ? (null, false) : (pp, true);
         });
 
-        if (!productPrice.Item2)
-            return null;
-        return productPrice.pp.Price;
+        //no price stored for the customer: pp is null exactly when Item2 is false
+        return productPrice.pp?.Price;
     }
 
     /// <summary>
@@ -126,7 +125,7 @@ public class CustomerProductService : ICustomerProductService
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Customer product</returns>
-    public virtual async Task<CustomerProduct> GetCustomerProduct(string id)
+    public virtual async Task<CustomerProduct?> GetCustomerProduct(string id)
     {
         return await _customerProductRepository.GetByIdAsync(id);
     }
@@ -137,7 +136,7 @@ public class CustomerProductService : ICustomerProductService
     /// <param name="customerId">Customer Identifier</param>
     /// <param name="productId">Product Identifier</param>
     /// <returns>Customer product</returns>
-    public virtual async Task<CustomerProduct> GetCustomerProduct(string customerId, string productId)
+    public virtual async Task<CustomerProduct?> GetCustomerProduct(string customerId, string productId)
     {
         var query = from pp in _customerProductRepository.Table
             where pp.CustomerId == customerId && pp.ProductId == productId

@@ -34,7 +34,7 @@ public interface ICollectionService
     /// </summary>
     /// <param name="collectionId">Collection identifier</param>
     /// <returns>Collection</returns>
-    Task<Collection> GetCollectionById(string collectionId);
+    Task<Collection?> GetCollectionById(string? collectionId);
 
     /// <summary>
     ///     Inserts a new collection

@@ -30,7 +30,7 @@ public interface IWidgetService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found widget</returns>
-    IWidgetProvider LoadWidgetBySystemName(string systemName);
+    IWidgetProvider? LoadWidgetBySystemName(string systemName);
 
     /// <summary>
     ///     Load all widgets

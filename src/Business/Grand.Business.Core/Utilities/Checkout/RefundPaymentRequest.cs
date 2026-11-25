@@ -10,7 +10,7 @@ public class RefundPaymentRequest
     /// <summary>
     ///     Gets or sets an payment transaction
     /// </summary>
-    public PaymentTransaction? PaymentTransaction { get; set; }
+    public required PaymentTransaction PaymentTransaction { get; set; }
 
     /// <summary>
     ///     Gets or sets an amount

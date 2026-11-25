@@ -64,7 +64,7 @@ public class TaxCategoryService : ITaxCategoryService
     /// </summary>
     /// <param name="taxCategoryId">Tax category identifier</param>
     /// <returns>Tax category</returns>
-    public virtual Task<TaxCategory> GetTaxCategoryById(string taxCategoryId)
+    public virtual Task<TaxCategory?> GetTaxCategoryById(string taxCategoryId)
     {
         var key = string.Format(CacheKey.TAXCATEGORIES_BY_ID_KEY, taxCategoryId);
         return _cacheBase.GetAsync(key, () => _taxCategoryRepository.GetByIdAsync(taxCategoryId));

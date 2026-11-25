@@ -55,7 +55,7 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
         return liquidOrderApproval;
     }
 
-    private static string BuyerName(Customer buyer, Address billingAddress)
+    private static string BuyerName(Customer buyer, Address? billingAddress)
     {
         var name = buyer.GetFullName();
         return string.IsNullOrWhiteSpace(name)
@@ -63,7 +63,7 @@ public class GetOrderApprovalTokensCommandHandler : IRequestHandler<GetOrderAppr
             : name;
     }
 
-    private static string Encode(string value)
+    private static string Encode(string? value)
     {
         return WebUtility.HtmlEncode(value ?? string.Empty);
     }

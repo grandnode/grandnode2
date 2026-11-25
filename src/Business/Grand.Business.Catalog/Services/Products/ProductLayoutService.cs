@@ -62,7 +62,7 @@ public class ProductLayoutService : IProductLayoutService
     /// </summary>
     /// <param name="productLayoutId">Product layout identifier</param>
     /// <returns>Product layout</returns>
-    public virtual Task<ProductLayout> GetProductLayoutById(string productLayoutId)
+    public virtual Task<ProductLayout?> GetProductLayoutById(string productLayoutId)
     {
         var key = string.Format(CacheKey.PRODUCT_LAYOUT_BY_ID_KEY, productLayoutId);
         return _cacheBase.GetAsync(key, () => _productLayoutRepository.GetByIdAsync(productLayoutId));

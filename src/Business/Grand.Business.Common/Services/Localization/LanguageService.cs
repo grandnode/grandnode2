@@ -75,7 +75,7 @@ public class LanguageService : ILanguageService
     /// </summary>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Language</returns>
-    public virtual Task<Language> GetLanguageById(string languageId)
+    public virtual Task<Language?> GetLanguageById(string? languageId)
     {
         var key = string.Format(CacheKey.LANGUAGES_BY_ID_KEY, languageId);
         return _cacheBase.GetAsync(key, () => _languageRepository.GetByIdAsync(languageId));
@@ -86,7 +86,7 @@ public class LanguageService : ILanguageService
     /// </summary>
     /// <param name="languageCode">Language code</param>
     /// <returns>Language</returns>
-    public virtual async Task<Language> GetLanguageByCode(string languageCode)
+    public virtual async Task<Language?> GetLanguageByCode(string languageCode)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(languageCode);
 

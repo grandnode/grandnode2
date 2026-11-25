@@ -28,7 +28,7 @@ public interface IQueuedEmailService
     /// </summary>
     /// <param name="invoiceDownloadId">Download identifier of the invoice</param>
     /// <returns>Download identifier of the copy; null when there is no invoice to copy</returns>
-    Task<string> CopyInvoiceDownload(string invoiceDownloadId);
+    Task<string?> CopyInvoiceDownload(string invoiceDownloadId);
 
     /// <summary>
     ///     Deleted a customer emails and their invoices
@@ -47,7 +47,7 @@ public interface IQueuedEmailService
     /// </summary>
     /// <param name="queuedEmailId">Queued email identifier</param>
     /// <returns>Queued email</returns>
-    Task<QueuedEmail> GetQueuedEmailById(string queuedEmailId);
+    Task<QueuedEmail?> GetQueuedEmailById(string queuedEmailId);
 
     /// <summary>
     ///     Get queued emails by identifiers

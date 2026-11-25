@@ -98,7 +98,7 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
         //the product was read from the database, not the cache, so a dry run can change it in memory freely
         var changes = new Changes();
         foreach (var attributeDto in attributeDtos)
-            MergeMapping(product, attributes[attributeDto.Attribute], attributeDto, changes, warnings);
+            MergeMapping(product, attributes[attributeDto.Attribute ?? ""], attributeDto, changes, warnings);
 
         //the storefront matches a combination only when it names every selectable, combinable mapping
         var combinable = product.ProductAttributeMappings.Where(m => IsSelectable(m) && m.Combination).ToList();
@@ -119,7 +119,7 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
         return new ImportRowResult(row, ImportRowStatus.Updated, product.Id, key, errors, warnings);
     }
 
-    private async Task<Product> FindProduct(ProductVariantsDto dto, List<string> errors)
+    private async Task<Product?> FindProduct(ProductVariantsDto dto, List<string> errors)
     {
         if (!string.IsNullOrEmpty(dto.ProductId))
         {
@@ -149,11 +149,11 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
     {
         var keys = attributeDtos.Select(a => a.Attribute)
             .Concat(combinationDtos.SelectMany(c => c.Values?.Keys ?? []))
-            .Where(k => !string.IsNullOrEmpty(k))
+            .OfType<string>().Where(k => k.Length > 0)
             .Distinct();
 
         var resolved = new Dictionary<string, ProductAttribute>();
-        IList<ProductAttribute> all = null;
+        IList<ProductAttribute>? all = null;
         foreach (var attributeKey in keys)
         {
             var attribute = await _productAttributeService.GetProductAttributeById(attributeKey);
@@ -185,7 +185,7 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
         {
             var attribute = attributes.Values.FirstOrDefault(a => a.Id == mapping.ProductAttributeId) ??
                             await _productAttributeService.GetProductAttributeById(mapping.ProductAttributeId);
-            names[mapping.Id] = attribute?.Name ?? mapping.ProductAttributeId;
+            names[mapping.Id] = attribute?.Name ?? mapping.ProductAttributeId ?? "";
         }
 
         return names;
@@ -234,7 +234,7 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
             var value = mapping.ProductAttributeValues
                 .FirstOrDefault(v => string.Equals(v.Name, valueDto.Name, StringComparison.OrdinalIgnoreCase));
             var isNew = value == null;
-            if (isNew)
+            if (value == null)
             {
                 value = new ProductAttributeValue {
                     Name = valueDto.Name,
@@ -262,7 +262,7 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
     }
 
     /// <returns>The (mapping, value) pairs of the combination, or null when it was skipped</returns>
-    private static List<CustomAttribute> MergeCombination(Product product, int number,
+    private static List<CustomAttribute>? MergeCombination(Product product, int number,
         ProductVariantCombinationDto dto,
         Dictionary<string, ProductAttribute> attributes, Changes changes, List<string> warnings)
     {
@@ -416,7 +416,7 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
         return true;
     }
 
-    private static bool Assign(string provided, string current, Action<string> set)
+    private static bool Assign(string? provided, string? current, Action<string> set)
     {
         if (provided == null || provided == current)
             return false;
@@ -431,9 +431,9 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
     }
 
     //same normalization as the product attribute import
-    private string GetSeName(string name)
+    private string GetSeName(string? name)
     {
-        return SeoExtensions.GetSeName(name, _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
+        return SeoExtensions.GetSeName(name ?? "", _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
             _seoSettings.SeoCharConversion);
     }
 

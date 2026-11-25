@@ -16,8 +16,8 @@ namespace Grand.Business.Core.Interfaces.Catalog.Inventory;
 /// <param name="Available">false when the date is before the bucket's history starts</param>
 public sealed record StockAtDateRow(
     string ProductId,
-    string ProductName,
-    string Sku,
+    string? ProductName,
+    string? Sku,
     string CombinationId,
     IList<CustomAttribute> Attributes,
     int Stock,

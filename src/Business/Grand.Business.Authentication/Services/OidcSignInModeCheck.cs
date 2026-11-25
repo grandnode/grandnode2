@@ -8,7 +8,7 @@ namespace Grand.Business.Authentication.Services;
 /// </summary>
 public static class OidcSignInModeCheck
 {
-    public static string Problem(OidcLoginConfig config, OidcResourceServerConfig resourceServer)
+    public static string? Problem(OidcLoginConfig config, OidcResourceServerConfig resourceServer)
     {
         if (config is not { ProviderOnly: true })
             return null;

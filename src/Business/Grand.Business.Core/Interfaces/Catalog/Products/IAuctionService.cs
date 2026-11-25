@@ -52,14 +52,14 @@ public interface IAuctionService
     /// </summary>
     /// <param name="id">Id</param>
     /// <returns>Bid</returns>
-    Task<Bid> GetBid(string id);
+    Task<Bid?> GetBid(string id);
 
     /// <summary>
     ///     Get latest bid for product Id
     /// </summary>
     /// <param name="productId">productId</param>
     /// <returns>Bid</returns>
-    Task<Bid> GetLatestBid(string productId);
+    Task<Bid?> GetLatestBid(string productId);
 
     /// <summary>
     ///     Updates highest bid
@@ -67,7 +67,7 @@ public interface IAuctionService
     /// <param name="product"></param>
     /// <param name="bid"></param>
     /// <param name="bidder"></param>
-    Task UpdateHighestBid(Product product, double bid, string bidder);
+    Task UpdateHighestBid(Product product, double bid, string? bidder);
 
     /// <summary>
     ///     Updates auction ended

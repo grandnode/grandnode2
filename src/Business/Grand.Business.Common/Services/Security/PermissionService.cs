@@ -96,7 +96,7 @@ public class PermissionService : IPermissionService
     /// </summary>
     /// <param name="permissionId">Permission identifier</param>
     /// <returns>Permission</returns>
-    public virtual Task<Permission> GetPermissionById(string permissionId)
+    public virtual Task<Permission?> GetPermissionById(string permissionId)
     {
         return _permissionRepository.GetByIdAsync(permissionId);
     }
@@ -106,10 +106,10 @@ public class PermissionService : IPermissionService
     /// </summary>
     /// <param name="systemName">Permission system name</param>
     /// <returns>Permission</returns>
-    public virtual async Task<Permission> GetPermissionBySystemName(string systemName)
+    public virtual async Task<Permission?> GetPermissionBySystemName(string systemName)
     {
         if (string.IsNullOrWhiteSpace(systemName))
-            return await Task.FromResult<Permission>(null);
+            return await Task.FromResult<Permission?>(null);
 
         var query = from pr in _permissionRepository.Table
             where pr.SystemName == systemName
@@ -179,7 +179,7 @@ public class PermissionService : IPermissionService
     /// <param name="permissionSystemName">Permission system name</param>
     /// <param name="customer">Customer</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    public virtual async Task<bool> Authorize(string permissionSystemName, Customer customer)
+    public virtual async Task<bool> Authorize(string? permissionSystemName, Customer customer)
     {
         if (string.IsNullOrEmpty(permissionSystemName))
             return false;

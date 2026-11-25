@@ -94,7 +94,7 @@ public class QueuedEmailService : IQueuedEmailService
     /// </summary>
     /// <param name="invoiceDownloadId">Download identifier of the invoice</param>
     /// <returns>Download identifier of the copy; null when there is no invoice to copy</returns>
-    public virtual async Task<string> CopyInvoiceDownload(string invoiceDownloadId)
+    public virtual async Task<string?> CopyInvoiceDownload(string invoiceDownloadId)
     {
         var invoice = await _downloadService.GetDownloadById(invoiceDownloadId);
         if (invoice == null)
@@ -137,7 +137,7 @@ public class QueuedEmailService : IQueuedEmailService
             return;
 
         await DeleteInvoiceEmails(_queuedEmailRepository.Table.Where(x =>
-            x.Reference == Reference.Order && ids.Contains(x.ObjectId)));
+            x.Reference == Reference.Order && x.ObjectId != null && ids.Contains(x.ObjectId)));
     }
 
     /// <summary>
@@ -145,7 +145,7 @@ public class QueuedEmailService : IQueuedEmailService
     /// </summary>
     /// <param name="queuedEmailId">Queued email identifier</param>
     /// <returns>Queued email</returns>
-    public virtual Task<QueuedEmail> GetQueuedEmailById(string queuedEmailId)
+    public virtual Task<QueuedEmail?> GetQueuedEmailById(string queuedEmailId)
     {
         return _queuedEmailRepository.GetByIdAsync(queuedEmailId);
     }
@@ -167,7 +167,7 @@ public class QueuedEmailService : IQueuedEmailService
         //sort by passed identifiers
         var sortedQueuedEmails =
             queuedEmailIds.Select(id => queuedEmails.FirstOrDefault(email => email.Id == id))
-                .Where(queuedEmail => queuedEmail != null)
+                .OfType<QueuedEmail>()
                 .ToList();
         
         return await Task.FromResult(sortedQueuedEmails);
@@ -202,12 +202,12 @@ public class QueuedEmailService : IQueuedEmailService
             select p;
 
         if (!string.IsNullOrEmpty(fromEmail))
-            query = query.Where(qe => qe.From.ToLower().Contains(fromEmail.ToLower()));
+            query = query.Where(qe => qe.From != null && qe.From.ToLower().Contains(fromEmail.ToLower()));
         if (!string.IsNullOrEmpty(toEmail))
-            query = query.Where(qe => qe.To.ToLower().Contains(toEmail.ToLower()));
+            query = query.Where(qe => qe.To != null && qe.To.ToLower().Contains(toEmail.ToLower()));
         if (!string.IsNullOrEmpty(text))
             query = query.Where(qe =>
-                qe.Subject.ToLower().Contains(text.ToLower()) || qe.Body.ToLower().Contains(text.ToLower()));
+                qe.Subject != null && qe.Subject.ToLower().Contains(text.ToLower()) || qe.Body != null && qe.Body.ToLower().Contains(text.ToLower()));
 
         if (createdFromUtc.HasValue)
             query = query.Where(qe => qe.CreatedOnUtc >= createdFromUtc.Value);
@@ -261,7 +261,7 @@ public class QueuedEmailService : IQueuedEmailService
         await _queuedEmailRepository.DeleteAsync(invoiceEmails);
     }
 
-    private async Task DeleteInvoices(IEnumerable<string> invoiceDownloadIds)
+    private async Task DeleteInvoices(IEnumerable<string?> invoiceDownloadIds)
     {
         foreach (var invoiceDownloadId in invoiceDownloadIds)
             try

@@ -13,7 +13,7 @@ public interface IVendorService
     /// </summary>
     /// <param name="vendorId">Vendor identifier</param>
     /// <returns>Vendor</returns>
-    Task<Vendor> GetVendorById(string vendorId);
+    Task<Vendor?> GetVendorById(string vendorId);
 
     /// <summary>
     ///     Gets all vendors
@@ -51,7 +51,7 @@ public interface IVendorService
     /// <param name="vendorId">The vendor identifier</param>
     /// <param name="vendorNoteId">The vendor note identifier</param>
     /// <returns>Vendor note</returns>
-    Task<VendorNote> GetVendorNoteById(string vendorId, string vendorNoteId);
+    Task<VendorNote?> GetVendorNoteById(string vendorId, string vendorNoteId);
 
     /// <summary>
     ///     Insert a vendor note
@@ -115,7 +115,7 @@ public interface IVendorService
     /// </summary>
     /// <param name="vendorReviewId">Vendor review identifier</param>
     /// <returns>Vendor review</returns>
-    Task<VendorReview> GetVendorReviewById(string vendorReviewId);
+    Task<VendorReview?> GetVendorReviewById(string vendorReviewId);
 
     /// <summary>
     ///     Deletes a vendor review

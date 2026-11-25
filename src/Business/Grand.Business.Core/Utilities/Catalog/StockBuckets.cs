@@ -125,7 +125,7 @@ public static class StockBuckets
     ///     of its batches and serial numbers: a product kept in one warehouse has all its stock there, whatever
     ///     warehouse a shipment or order item names
     /// </summary>
-    public static string UnitWarehouse(Product product, string warehouseId)
+    public static string UnitWarehouse(Product product, string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -136,7 +136,7 @@ public static class StockBuckets
     ///     The product is kept in one warehouse other than this one, so its stock is not booked here; a product naming
     ///     no warehouse is booked anywhere
     /// </summary>
-    public static bool KeptElsewhere(Product product, string warehouseId)
+    public static bool KeptElsewhere(Product product, string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 

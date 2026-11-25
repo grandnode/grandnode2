@@ -33,7 +33,7 @@ public interface IShoppingCartService
     /// <param name="rentalStartDate">Rental start date</param>
     /// <param name="rentalEndDate">Rental end date</param>
     /// <returns>Found shopping cart item</returns>
-    Task<ShoppingCartItem> FindShoppingCartItem(IList<ShoppingCartItem> shoppingCart,
+    Task<ShoppingCartItem?> FindShoppingCartItem(IList<ShoppingCartItem> shoppingCart,
         ShoppingCartType shoppingCartType,
         string productId,
         string? warehouseId = null,
@@ -62,14 +62,14 @@ public interface IShoppingCartService
     /// <param name="duration">Duration for reservation</param>
     /// <param name="validator">ShoppingCartValidatorOptions</param>
     /// <returns>(warnings, shoppingCartItem)</returns>
-    Task<(IList<string> warnings, ShoppingCartItem shoppingCartItem)> AddToCart(Customer customer, Language language,
-        string productId, ShoppingCartType shoppingCartType, string storeId, string? warehouseId = null,
+    Task<(IList<string> warnings, ShoppingCartItem? shoppingCartItem)> AddToCart(Customer customer, Language language,
+        string? productId, ShoppingCartType shoppingCartType, string? storeId, string? warehouseId = null,
         IList<CustomAttribute>? attributes = null,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
         int quantity = 1,
-        bool automaticallyAddRequiredProductsIfEnabled = true, string reservationId = "", string parameter = "",
-        string duration = "",
+        bool automaticallyAddRequiredProductsIfEnabled = true, string? reservationId = "", string? parameter = "",
+        string? duration = "",
         ShoppingCartValidatorOptions? validator = null);
 
     /// <summary>

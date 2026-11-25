@@ -5,7 +5,7 @@ using Grand.Mediator;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
-public class GetProductArchByIdQueryHandler : IRequestHandler<GetProductArchByIdQuery, Product>
+public class GetProductArchByIdQueryHandler : IRequestHandler<GetProductArchByIdQuery, Product?>
 {
     private readonly IRepository<ProductDeleted> _productDeletedRepository;
 
@@ -14,7 +14,7 @@ public class GetProductArchByIdQueryHandler : IRequestHandler<GetProductArchById
         _productDeletedRepository = productDeletedRepository;
     }
 
-    public async Task<Product> Handle(GetProductArchByIdQuery request, CancellationToken cancellationToken)
+    public async Task<Product?> Handle(GetProductArchByIdQuery request, CancellationToken cancellationToken)
     {
         return await _productDeletedRepository.GetByIdAsync(request.Id);
     }

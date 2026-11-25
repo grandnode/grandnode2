@@ -91,6 +91,9 @@ public class CustomerManagerService : ICustomerManagerService
         var customer = _customerSettings.UsernamesEnabled
             ? await _customerService.GetCustomerByUsername(usernameOrEmail, storeId)
             : await _customerService.GetCustomerByEmail(usernameOrEmail, storeId);
+        //the login validators refuse an unknown account first; answered like a wrong password all the same
+        if (customer == null)
+            return CustomerLoginResults.WrongPassword;
 
         var isValid = _encryptionService.VerifyPassword(password, customer.PasswordFormatId, customer.Password,
             customer.PasswordSalt, _customerSettings.HashedPasswordFormat);
@@ -185,7 +188,7 @@ public class CustomerManagerService : ICustomerManagerService
         //remove from 'Guests' role
         var guestGroup = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
         var guestExists = request.Customer.Groups.FirstOrDefault(cr => cr == guestGroup?.Id);
-        if (guestExists != null)
+        if (guestGroup != null && guestExists != null)
         {
             request.Customer.Groups.Remove(guestGroup.Id);
             await _customerService.DeleteCustomerGroupInCustomer(guestGroup, request.Customer.Id);
@@ -203,7 +206,8 @@ public class CustomerManagerService : ICustomerManagerService
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var customer = await _customerService.GetCustomerByEmail(request.Email, storeId);
+        var customer = await _customerService.GetCustomerByEmail(request.Email, storeId) ??
+                       throw new ArgumentNullException(nameof(request), "No customer has the e-mail");
 
         await ChangePassword(customer, request.PasswordFormat, request.NewPassword);
     }

@@ -13,7 +13,7 @@ public interface IBlogService
     /// </summary>
     /// <param name="blogPostId">Blog post identifier</param>
     /// <returns>Blog post</returns>
-    Task<BlogPost> GetBlogPostById(string blogPostId);
+    Task<BlogPost?> GetBlogPostById(string blogPostId);
 
     /// <summary>
     ///     Gets all blog posts
@@ -85,7 +85,7 @@ public interface IBlogService
     /// </summary>
     /// <param name="blogCommentId">Blog comment identifier</param>
     /// <returns>Blog comment</returns>
-    Task<BlogComment> GetBlogCommentById(string blogCommentId);
+    Task<BlogComment?> GetBlogCommentById(string blogCommentId);
 
     Task<IList<BlogComment>> GetBlogCommentsByBlogPostId(string blogPostId);
 
@@ -102,7 +102,7 @@ public interface IBlogService
     /// </summary>
     /// <param name="blogCategoryId">Blog category id</param>
     /// <returns></returns>
-    Task<BlogCategory> GetBlogCategoryById(string blogCategoryId);
+    Task<BlogCategory?> GetBlogCategoryById(string blogCategoryId);
 
     /// <summary>
     ///     Get categories by post id
@@ -116,7 +116,7 @@ public interface IBlogService
     /// </summary>
     /// <param name="blogCategorySeName">Blog category se name</param>
     /// <returns></returns>
-    Task<BlogCategory> GetBlogCategoryBySeName(string blogCategorySeName);
+    Task<BlogCategory?> GetBlogCategoryBySeName(string blogCategorySeName);
 
     /// <summary>
     ///     Get all blog categories
@@ -147,7 +147,7 @@ public interface IBlogService
     /// </summary>
     /// <param name="id">id</param>
     /// <returns>Blog product</returns>
-    Task<BlogProduct> GetBlogProductById(string id);
+    Task<BlogProduct?> GetBlogProductById(string id);
 
     /// <summary>
     ///     Insert an blog product

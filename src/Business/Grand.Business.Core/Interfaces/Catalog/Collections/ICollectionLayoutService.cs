@@ -15,7 +15,7 @@ public interface ICollectionLayoutService
     /// </summary>
     /// <param name="collectionLayoutId">Collection layout id</param>
     /// <returns>Collection layout</returns>
-    Task<CollectionLayout> GetCollectionLayoutById(string collectionLayoutId);
+    Task<CollectionLayout?> GetCollectionLayoutById(string collectionLayoutId);
 
     /// <summary>
     ///     Inserts a new collection layout

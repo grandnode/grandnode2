@@ -92,7 +92,7 @@ public class OrderReportService : IOrderReportService
         if (string.IsNullOrEmpty(vendorId))
         {
             var report = (from oq in query
-                    group oq by oq.BillingAddress.CountryId
+                    group oq by oq.BillingAddress != null ? oq.BillingAddress.CountryId : null
                     into result
                     select new {
                         CountryId = result.Key,
@@ -114,7 +114,7 @@ public class OrderReportService : IOrderReportService
             from item in p.OrderItems
             select new {
                 item.VendorId, OrderId = p.Id,
-                p.BillingAddress.CountryId,
+                CountryId = p.BillingAddress != null ? p.BillingAddress.CountryId : null,
                 item.PriceInclTax,
                 p.CurrencyRate
             };
@@ -241,11 +241,11 @@ public class OrderReportService : IOrderReportService
     public virtual async Task<OrderAverageReportLine> GetOrderAverageReportLine(string storeId = "",
         string customerId = "",
         string vendorId = "", string salesEmployeeId = "", string billingCountryId = "",
-        string orderId = "", string paymentMethodSystemName = null,
+        string orderId = "", string? paymentMethodSystemName = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         DateTime? startTimeUtc = null, DateTime? endTimeUtc = null,
-        string billingEmail = null, string billingLastName = "", bool ignoreCancelledOrders = false,
-        string tagId = null)
+        string? billingEmail = null, string billingLastName = "", bool ignoreCancelledOrders = false,
+        string? tagId = null)
     {
         var builderquery = from p in _orderRepository.Table
             select p;
@@ -491,13 +491,13 @@ public class OrderReportService : IOrderReportService
         //each item returned, with the return it belongs to
         var returned = returns.SelectMany(x => x.MerchandiseReturnItems.Select(item =>
             (Return: x.Id, Item: item, Vendor: x.VendorId ?? "", x.OrderId))).ToList();
-        IEnumerable<(string Key, string Name, string Return, int Quantity)> keyed = groupBy switch {
+        IEnumerable<(string Key, string? Name, string Return, int Quantity)> keyed = groupBy switch {
             //a return item from before reasons were kept by identifier is counted by the text the customer chose
             MerchandiseReturnReportGrouping.Reason => returned.Select(x =>
                 (string.IsNullOrEmpty(x.Item.ReasonId) ? x.Item.ReasonForReturn?.Trim() ?? "" : x.Item.ReasonId,
                     x.Item.ReasonForReturn?.Trim(), x.Return, x.Item.Quantity)),
             MerchandiseReturnReportGrouping.Vendor => returned.Select(x =>
-                (x.Vendor, (string)null, x.Return, x.Item.Quantity)),
+                (x.Vendor, (string?)null, x.Return, x.Item.Quantity)),
             _ => await ByProduct(returned.Select(x => (x.OrderId, x.Item.OrderItemId, x.Return, x.Item.Quantity))
                 .ToList())
         };
@@ -515,10 +515,10 @@ public class OrderReportService : IOrderReportService
 
         if (groupBy == MerchandiseReturnReportGrouping.Product && page.Count > 0)
         {
-            var sold = await SoldQuantities(page.Select(x => x.Key).ToList(), createdFromUtc, createdToUtc, storeId,
-                vendorId);
+            var sold = await SoldQuantities(page.Select(x => x.Key).OfType<string>().ToList(), createdFromUtc,
+                createdToUtc, storeId, vendorId);
             foreach (var line in page)
-                line.SoldQuantity = sold.GetValueOrDefault(line.Key);
+                line.SoldQuantity = line.Key != null ? sold.GetValueOrDefault(line.Key) : 0;
         }
 
         return page;
@@ -527,8 +527,8 @@ public class OrderReportService : IOrderReportService
     /// <summary>
     ///     The product of each item returned, read from the orders of the returns
     /// </summary>
-    private async Task<IEnumerable<(string Key, string Name, string Return, int Quantity)>> ByProduct(
-        IList<(string OrderId, string OrderItemId, string Return, int Quantity)> returned)
+    private async Task<IEnumerable<(string Key, string? Name, string Return, int Quantity)>> ByProduct(
+        IList<(string OrderId, string? OrderItemId, string Return, int Quantity)> returned)
     {
         var orderIds = returned.Select(x => x.OrderId).Distinct().ToList();
         var orders = await _orderRepository.ToListAsync(_orderRepository.Table
@@ -536,8 +536,11 @@ public class OrderReportService : IOrderReportService
             .Select(x => new { x.OrderItems }));
         var products = orders.SelectMany(x => x.OrderItems).GroupBy(x => x.Id)
             .ToDictionary(x => x.Key, x => x.First().ProductId);
-        return returned.Where(x => products.ContainsKey(x.OrderItemId))
-            .Select(x => (products[x.OrderItemId], (string)null, x.Return, x.Quantity));
+        var keyed = new List<(string Key, string? Name, string Return, int Quantity)>();
+        foreach (var x in returned)
+            if (x.OrderItemId != null && products.TryGetValue(x.OrderItemId, out var productId))
+                keyed.Add((productId ?? "", null, x.Return, x.Quantity));
+        return keyed;
     }
 
     /// <summary>
@@ -554,7 +557,7 @@ public class OrderReportService : IOrderReportService
 
         var items = from o in orders
             from item in o.OrderItems
-            where productIds.Contains(item.ProductId)
+            where item.ProductId != null && productIds.Contains(item.ProductId)
             select new { item.ProductId, item.VendorId, item.Quantity };
         if (!string.IsNullOrEmpty(vendorId))
             items = items.Where(x => x.VendorId == vendorId);

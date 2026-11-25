@@ -58,7 +58,7 @@ public class ShippingService : IShippingService
     /// <param name="cart">Cart</param>
     /// <returns>Shipping rate  methods</returns>
     public virtual async Task<IList<IShippingRateCalculationProvider>> LoadActiveShippingRateCalculationProviders(
-        Customer customer = null, string storeId = "", IList<ShoppingCartItem> cart = null)
+        Customer? customer = null, string? storeId = "", IList<ShoppingCartItem>? cart = null)
     {
         var shippingMethods = LoadAllShippingRateCalculationProviders(customer, storeId)
             .Where(provider =>
@@ -68,7 +68,7 @@ public class ShippingService : IShippingService
 
         var availableShippingMethods = new List<IShippingRateCalculationProvider>();
         foreach (var sm in shippingMethods)
-            if (!await sm.HideShipmentMethods(cart))
+            if (cart == null || !await sm.HideShipmentMethods(cart))
                 availableShippingMethods.Add(sm);
         return availableShippingMethods;
     }
@@ -78,7 +78,7 @@ public class ShippingService : IShippingService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found Shipping rate  method</returns>
-    public virtual IShippingRateCalculationProvider LoadShippingRateCalculationProviderBySystemName(string systemName)
+    public virtual IShippingRateCalculationProvider? LoadShippingRateCalculationProviderBySystemName(string systemName)
     {
         return _shippingRateCalculationProvider.FirstOrDefault(x => x.SystemName == systemName);
     }
@@ -90,7 +90,7 @@ public class ShippingService : IShippingService
     /// <param name="storeId">Store ident</param>
     /// <returns>Shipping rate  methods</returns>
     public virtual IList<IShippingRateCalculationProvider> LoadAllShippingRateCalculationProviders(
-        Customer customer = null, string storeId = "")
+        Customer? customer = null, string? storeId = "")
     {
         return _shippingRateCalculationProvider
             .Where(x =>
@@ -112,7 +112,7 @@ public class ShippingService : IShippingService
     /// <param name="store">Store</param>
     /// <returns>Shipment packages (requests)</returns>
     public virtual async Task<GetShippingOptionRequest> CreateShippingOptionRequests(Customer customer,
-        IList<ShoppingCartItem> cart, Address shippingAddress, Store store)
+        IList<ShoppingCartItem> cart, Address? shippingAddress, Store? store)
     {
         var request = new GetShippingOptionRequest {
             //store
@@ -163,7 +163,7 @@ public class ShippingService : IShippingService
     public virtual async Task<GetShippingOptionResponse> GetShippingOptions(Customer customer,
         IList<ShoppingCartItem> cart,
         Address shippingAddress, string allowedShippingRateMethodSystemName = "",
-        Store store = null)
+        Store? store = null)
     {
         ArgumentNullException.ThrowIfNull(cart);
 

@@ -61,7 +61,7 @@ public class OidcLoginConfig
 
     public bool ProviderOnly => SignInMode == OidcSignInMode.ProviderOnly;
 
-    public bool IsBreakGlass(string email)
+    public bool IsBreakGlass(string? email)
     {
         if (string.IsNullOrWhiteSpace(email) || BreakGlassAccounts == null)
             return false;

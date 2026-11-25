@@ -8,11 +8,11 @@ internal static class ExportPictures
     ///     an entity without a picture exports an empty cell instead of the default picture's path, which an import would
     ///     read back as a picture to download. A cancelled token stops before the next picture.
     /// </summary>
-    public static async Task<Dictionary<string, string>> Preload(IEnumerable<string> pictureIds,
-        Func<string, Task<string>> getPicture, CancellationToken cancellationToken = default)
+    public static async Task<Dictionary<string, string?>> Preload(IEnumerable<string?> pictureIds,
+        Func<string, Task<string?>> getPicture, CancellationToken cancellationToken = default)
     {
-        var pictures = new Dictionary<string, string>();
-        foreach (var pictureId in pictureIds.Where(x => !string.IsNullOrEmpty(x)).Distinct())
+        var pictures = new Dictionary<string, string?>();
+        foreach (var pictureId in pictureIds.OfType<string>().Where(x => x.Length > 0).Distinct())
         {
             cancellationToken.ThrowIfCancellationRequested();
             pictures[pictureId] = await getPicture(pictureId);

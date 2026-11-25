@@ -58,11 +58,10 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
         if (!canPartiallyRefund)
             throw new GrandException("Cannot do partial refund for order.");
 
-        var request = new RefundPaymentRequest();
-        RefundPaymentResult result = null;
+        var request = new RefundPaymentRequest { PaymentTransaction = paymentTransaction };
+        RefundPaymentResult? result = null;
         try
         {
-            request.PaymentTransaction = paymentTransaction;
             request.AmountToRefund = amountToRefund;
             request.IsPartialRefund = true;
 
@@ -70,7 +69,8 @@ public class PartiallyRefundCommandHandler : IRequestHandler<PartiallyRefundComm
 
             if (result.Success)
             {
-                paymentTransaction = await _paymentTransactionService.GetById(paymentTransaction.Id);
+                paymentTransaction = await _paymentTransactionService.GetById(paymentTransaction.Id) ??
+                                     throw new GrandException("The payment transaction was deleted while it was processed");
                 paymentTransaction.RefundedAmount += amountToRefund;
                 //a provider that gives no status leaves the one the refunded amount comes to, as the offline partial
                 //refund sets it: a transaction left pending could not be refunded again

@@ -13,9 +13,9 @@ public class LiquidAttributeCombination : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string Formatted { get; set; }
+    public string? Formatted { get; set; }
 
-    public string SKU { get; set; }
+    public string? SKU { get; set; }
 
     public string StockQuantity => _combination.StockQuantity.ToString();
 

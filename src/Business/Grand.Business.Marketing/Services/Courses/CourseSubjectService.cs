@@ -39,7 +39,7 @@ public class CourseSubjectService : ICourseSubjectService
         return await _courseSubjectRepository.ToListAsync(query);
     }
 
-    public virtual Task<CourseSubject> GetById(string id)
+    public virtual Task<CourseSubject?> GetById(string id)
     {
         return _courseSubjectRepository.GetByIdAsync(id);
     }
