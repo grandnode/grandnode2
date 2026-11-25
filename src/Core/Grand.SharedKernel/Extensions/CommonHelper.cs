@@ -82,7 +82,7 @@ public static class CommonHelper
     /// <param name="maxLength">Maximum length</param>
     /// <param name="postfix">A string to add to the end if the original string was shorten</param>
     /// <returns>Input string if its lengh is OK; otherwise, truncated input string</returns>
-    public static string EnsureMaximumLength(string str, int maxLength, string postfix = null)
+    public static string EnsureMaximumLength(string str, int maxLength, string? postfix = null)
     {
         if (string.IsNullOrEmpty(str))
             return str;
@@ -170,7 +170,7 @@ public static class CommonHelper
     /// <param name="value">The value to convert.</param>
     /// <param name="destinationType">The type to convert the value to.</param>
     /// <returns>The converted value.</returns>
-    public static object To(object value, Type destinationType)
+    public static object? To(object value, Type destinationType)
     {
         return To(value, destinationType, CultureInfo.InvariantCulture);
     }
@@ -182,7 +182,7 @@ public static class CommonHelper
     /// <param name="destinationType">The type to convert the value to.</param>
     /// <param name="culture">Culture</param>
     /// <returns>The converted value.</returns>
-    public static object To(object value, Type destinationType, CultureInfo culture)
+    public static object? To(object value, Type destinationType, CultureInfo culture)
     {
         if (value != null)
         {
@@ -212,9 +212,9 @@ public static class CommonHelper
     /// <param name="value">The value to convert.</param>
     /// <typeparam name="T">The type to convert the value to.</typeparam>
     /// <returns>The converted value.</returns>
-    public static T To<T>(object value)
+    public static T? To<T>(object value)
     {
-        return (T)To(value, typeof(T));
+        return (T?)To(value, typeof(T));
     }
 
     /// <summary>
