@@ -7,6 +7,7 @@ using Grand.Business.Core.Interfaces.Marketing.Documents;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Catalog;
 using Grand.Domain.Customers;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
 using Grand.SharedKernel.Attributes;
@@ -72,9 +73,7 @@ public class DownloadController : BasePublicController
             return Content("Sample download is not available any more.");
 
         if (download.UseDownloadUrl)
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         if (download.DownloadBinary == null)
             return Content("Download data is not available any more.");
@@ -152,15 +151,17 @@ public class DownloadController : BasePublicController
 
         if (download.UseDownloadUrl)
         {
+            //a download that delivers nothing does not use up an allowed download
+            if (string.IsNullOrEmpty(download.DownloadUrl))
+                return Content("Download data is not available any more.");
+
             //increase download
             if (order.OrderItems.FirstOrDefault(x => x.Id == orderItem.Id) is { } urlDownloadedItem)
                 urlDownloadedItem.DownloadCount++;
             await _orderService.UpdateOrder(order);
 
             //return result
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return new RedirectResult(download.DownloadUrl);
         }
 
         //binary download
@@ -247,9 +248,7 @@ public class DownloadController : BasePublicController
             return Content("Download is not available any more.");
 
         if (download.UseDownloadUrl)
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //binary download
         if (download.DownloadBinary == null)
@@ -278,9 +277,7 @@ public class DownloadController : BasePublicController
             return Challenge();
 
         if (download.UseDownloadUrl)
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //binary download
         if (download.DownloadBinary == null)
@@ -318,9 +315,7 @@ public class DownloadController : BasePublicController
             return Content("Download is not available any more.");
 
         if (download.UseDownloadUrl)
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //binary download
         if (download.DownloadBinary == null)
@@ -363,9 +358,7 @@ public class DownloadController : BasePublicController
             return Content("Download is not available any more.");
 
         if (download.UseDownloadUrl)
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //binary download
         if (download.DownloadBinary == null)
@@ -399,9 +392,7 @@ public class DownloadController : BasePublicController
             return Content("Download is not available any more.");
 
         if (download.UseDownloadUrl)
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //binary download
         if (download.DownloadBinary == null)
@@ -448,9 +439,7 @@ public class DownloadController : BasePublicController
             return Content("Download is not available any more.");
 
         if (download.UseDownloadUrl)
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //binary download
         if (download.DownloadBinary == null)
@@ -484,9 +473,7 @@ public class DownloadController : BasePublicController
             return Content("Download is not available any more.");
 
         if (download.UseDownloadUrl)
-            return string.IsNullOrEmpty(download.DownloadUrl)
-                ? Content("Download data is not available any more.")
-                : new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //binary download
         if (download.DownloadBinary == null)
@@ -499,5 +486,12 @@ public class DownloadController : BasePublicController
             : "application/octet-stream";
         return new FileContentResult(download.DownloadBinary, contentType)
             { FileDownloadName = fileName + download.Extension };
+    }
+
+    private IActionResult RedirectToDownloadUrl(Download download)
+    {
+        return string.IsNullOrEmpty(download.DownloadUrl)
+            ? Content("Download data is not available any more.")
+            : new RedirectResult(download.DownloadUrl);
     }
 }
