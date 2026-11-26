@@ -3,6 +3,7 @@ using Grand.Infrastructure.Models;
 using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Shipping;
 
@@ -41,9 +42,11 @@ public class PickupPointModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.PickupFee")]
     public double PickupFee { get; set; }
 
+    [UIHint("DoubleNullableN6")]
     [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Latitude")]
     public double? Latitude { get; set; }
 
+    [UIHint("DoubleNullableN6")]
     [GrandResourceDisplayName("Admin.Configuration.Shipping.PickupPoint.Fields.Longitude")]
     public double? Longitude { get; set; }
 }
