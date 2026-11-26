@@ -100,7 +100,9 @@ public class PageService : IPageService
 
         var storeId = access.StoreId;
         var ignoreAcl = access.ShowHidden || _accessControlConfig.IgnoreAcl;
-        var allowedCustomerGroupsIds = ignoreAcl || access.ShowHidden ? Array.Empty<string>() : access.Customer.GetCustomerGroupIds();
+        var allowedCustomerGroupsIds = !ignoreAcl && access.Customer is { } customer
+            ? customer.GetCustomerGroupIds()
+            : Array.Empty<string>();
         var key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, access.ShowHidden,
             string.Join(",", allowedCustomerGroupsIds));
         return await _cacheBase.GetAsync(key, async () =>

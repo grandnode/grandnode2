@@ -70,7 +70,7 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
         foreach (var recurringPayment in recurringPayments)
         {
             var order = orders.GetValueOrDefault(recurringPayment.InitialOrderId ?? "");
-            var canViewOrder = order is { Deleted: false };
+            var viewableOrder = order is { Deleted: false } ? order : null;
             //the date the provider reported means nothing once it stopped charging
             var charging = recurringPayment.Status is RecurringPaymentStatus.Active or RecurringPaymentStatus.PastDue;
 
@@ -94,11 +94,9 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
                     : null,
                 InitialOrderId = recurringPayment.InitialOrderId,
                 InitialOrderNumber = order?.OrderNumber ?? 0,
-                CanViewInitialOrder = canViewOrder,
-                Products = order is { Deleted: false }
-                    ? order.OrderItems.Select(x => x.ProductId).OfType<string>().Where(products.ContainsKey)
-                        .Select(id => products[id].GetTranslation(p => p.Name, request.Language.Id)).OfType<string>().ToList()
-                    : []
+                CanViewInitialOrder = viewableOrder != null,
+                Products = viewableOrder?.OrderItems.Select(x => x.ProductId).OfType<string>().Where(products.ContainsKey)
+                    .Select(id => products[id].GetTranslation(p => p.Name, request.Language.Id)).OfType<string>().ToList() ?? []
             });
         }
 

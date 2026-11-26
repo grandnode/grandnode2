@@ -126,11 +126,12 @@ public static class PluginManager
             //the configured list wins; neither the database nor the file of an older version is read then. Only the
             //storefront takes its file over: the admin, store and vendor applications kept files of their own
             RecordsPluginState = hostEnvironment.ApplicationName == StorefrontApplicationName;
-            var installedByConfiguration = !string.IsNullOrEmpty(_config.InstalledPlugins);
-            var installedPluginSystemNames = !string.IsNullOrEmpty(_config.InstalledPlugins)
-                ? _config.InstalledPlugins.Split(",").Select(x => x.Trim()).ToList()
-                : ReadInstalledPlugins(RequiredStateStore,
-                    RecordsPluginState ? PluginPaths.Instance.InstalledPluginsFile : null, _logger);
+            var configuredPluginSystemNames = string.IsNullOrEmpty(_config.InstalledPlugins)
+                ? null
+                : _config.InstalledPlugins.Split(",").Select(x => x.Trim()).ToList();
+            var installedByConfiguration = configuredPluginSystemNames != null;
+            var installedPluginSystemNames = configuredPluginSystemNames ?? ReadInstalledPlugins(RequiredStateStore,
+                RecordsPluginState ? PluginPaths.Instance.InstalledPluginsFile : null, _logger);
 
             _logger.LogInformation("Creating shadow copy folder and querying for dlls");
             Directory.CreateDirectory(_pluginFolder.FullName);
