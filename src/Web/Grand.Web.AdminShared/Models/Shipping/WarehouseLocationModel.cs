@@ -7,13 +7,13 @@ namespace Grand.Web.AdminShared.Models.Shipping;
 public class WarehouseLocationModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Shipping.WarehouseLocations.Fields.Warehouse")]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.WarehouseLocations.Fields.Code")]
-    public string Code { get; set; }
+    public string? Code { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.WarehouseLocations.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.WarehouseLocations.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -21,7 +21,7 @@ public class WarehouseLocationModel : BaseEntityModel
     /// <summary>
     ///     The warehouse's name, for the list
     /// </summary>
-    public string Warehouse { get; set; }
+    public string? Warehouse { get; set; }
 
     public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
 }
@@ -29,7 +29,7 @@ public class WarehouseLocationModel : BaseEntityModel
 public class WarehouseLocationListModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Shipping.WarehouseLocations.Fields.Warehouse")]
-    public string SearchWarehouseId { get; set; }
+    public string? SearchWarehouseId { get; set; }
 
     public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
 }

@@ -10,10 +10,10 @@ public class SpecificationAttributeModel : BaseEntityModel, ILocalizedModel<Spec
     IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -24,15 +24,15 @@ public class SpecificationAttributeModel : BaseEntityModel, ILocalizedModel<Spec
     //Store acl
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     public class UsedByProductModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.Product")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.OptionName")]
-        public string OptionName { get; set; }
+        public string? OptionName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.UsedByProducts.Published")]
         public bool Published { get; set; }
@@ -42,7 +42,7 @@ public class SpecificationAttributeModel : BaseEntityModel, ILocalizedModel<Spec
 public class SpecificationAttributeLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

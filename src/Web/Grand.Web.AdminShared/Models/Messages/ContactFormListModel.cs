@@ -17,10 +17,10 @@ public class ContactFormListModel : BaseModel
 
     [GrandResourceDisplayName("Admin.System.ContactForm.List.Email")]
 
-    public string SearchEmail { get; set; }
+    public string? SearchEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.System.ContactForm.List.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 }

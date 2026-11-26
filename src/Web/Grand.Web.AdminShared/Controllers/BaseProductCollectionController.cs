@@ -37,7 +37,7 @@ public abstract class BaseProductCollectionController(
         // Vendor's original ProductCollectionInsert/Update/Delete (below) had no ownership check at all
         // - only List checked - letting any store manager or vendor mutate another party's
         // product-collection mappings by id.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productCollectionsModel = await productCollectionViewModelService.PrepareProductCollectionModel(product);
@@ -54,7 +54,7 @@ public abstract class BaseProductCollectionController(
     public async Task<IActionResult> ProductCollectionInsert(ProductModel.ProductCollectionModel model)
     {
         var product = await productService.GetProductById(model.ProductId);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -76,7 +76,7 @@ public abstract class BaseProductCollectionController(
     public async Task<IActionResult> ProductCollectionUpdate(ProductModel.ProductCollectionModel model)
     {
         var product = await productService.GetProductById(model.ProductId);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -98,7 +98,7 @@ public abstract class BaseProductCollectionController(
     public async Task<IActionResult> ProductCollectionDelete(ProductModel.ProductCollectionModel model)
     {
         var product = await productService.GetProductById(model.ProductId);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)

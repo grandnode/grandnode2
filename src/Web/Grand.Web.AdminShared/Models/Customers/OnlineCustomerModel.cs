@@ -6,14 +6,14 @@ namespace Grand.Web.AdminShared.Models.Customers;
 public class OnlineCustomerModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Dashboards.OnlineCustomers.Fields.CustomerInfo")]
-    public string CustomerInfo { get; set; }
+    public string? CustomerInfo { get; set; }
 
     [GrandResourceDisplayName("Admin.Dashboards.OnlineCustomers.Fields.IPAddress")]
-    public string LastIpAddress { get; set; }
+    public string? LastIpAddress { get; set; }
 
     [GrandResourceDisplayName("Admin.Dashboards.OnlineCustomers.Fields.LastActivityDate")]
     public DateTime LastActivityDate { get; set; }
 
     [GrandResourceDisplayName("Admin.Dashboards.OnlineCustomers.Fields.LastVisitedPage")]
-    public string LastVisitedPage { get; set; }
+    public string? LastVisitedPage { get; set; }
 }

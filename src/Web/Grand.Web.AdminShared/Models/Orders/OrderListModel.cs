@@ -15,13 +15,13 @@ public class OrderListModel : BaseModel
     [UIHint("DateNullable")]
     public DateTime? EndDate { get; set; }
 
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.BillingEmail")]
-    public string BillingEmail { get; set; }
+    public string? BillingEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.BillingLastName")]
-    public string BillingLastName { get; set; }
+    public string? BillingLastName { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.OrderStatus")]
     public int OrderStatusId { get; set; }
@@ -33,40 +33,40 @@ public class OrderListModel : BaseModel
     public int? ShippingStatusId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.PaymentMethod")]
-    public string PaymentMethodSystemName { get; set; }
+    public string? PaymentMethodSystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.Vendor")]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.Warehouse")]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.Product")]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.BillingCountry")]
-    public string BillingCountryId { get; set; }
+    public string? BillingCountryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.OrderNotes")]
 
-    public string OrderNotes { get; set; }
+    public string? OrderNotes { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.OrderGuid")]
 
-    public string OrderGuid { get; set; }
+    public string? OrderGuid { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.GoDirectlyToNumber")]
 
-    public string GoDirectlyToNumber { get; set; }
+    public string? GoDirectlyToNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.OrderTagId")]
-    public string OrderTag { get; set; }
+    public string? OrderTag { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.PurchaseOrderNumber")]
-    public string PurchaseOrderNumber { get; set; }
+    public string? PurchaseOrderNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.List.OverdueOnly")]
     public bool OverdueOnly { get; set; }

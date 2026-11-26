@@ -24,7 +24,7 @@ public class BestCustomersReportModel : BaseModel
     [GrandResourceDisplayName("Admin.Reports.Customers.BestBy.ShippingStatus")]
     public int ShippingStatusId { get; set; }
 
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> AvailableOrderStatuses { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailablePaymentStatuses { get; set; } = new List<SelectListItem>();

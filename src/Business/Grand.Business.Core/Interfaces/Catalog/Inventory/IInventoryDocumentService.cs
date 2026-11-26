@@ -68,14 +68,14 @@ public sealed record ReturnItemInspected(string? ReturnItemId, int Restocked, in
 ///     the rest goes back on stock
 /// </summary>
 /// <param name="Comment">Why, written on every line of the item and product; null for none</param>
-public sealed record ReturnReceiptInspection(string ReturnItemId, string ProductId, int ScrapQuantity, string Comment);
+public sealed record ReturnReceiptInspection(string? ReturnItemId, string? ProductId, int ScrapQuantity, string? Comment);
 
 /// <summary>
 ///     Inventory documents: drafts that are edited freely, and posting, which books their stock and freezes them
 /// </summary>
 public interface IInventoryDocumentService
 {
-    Task<InventoryDocument?> GetById(string id);
+    Task<InventoryDocument?> GetById(string? id);
 
     Task<IPagedList<InventoryDocument>> Search(InventoryDocumentSearch search, int pageIndex = 0,
         int pageSize = int.MaxValue);
@@ -130,7 +130,7 @@ public interface IInventoryDocumentService
     ///     The return receipts of a merchandise return, and whether CreateReturnReceipt has anything left to put on a
     ///     new one
     /// </summary>
-    Task<MerchandiseReturnReceipts> GetReturnReceipts(string merchandiseReturnId);
+    Task<MerchandiseReturnReceipts> GetReturnReceipts(string? merchandiseReturnId);
 
     /// <summary>
     ///     Whether goods of the merchandise return came in: a return receipt of it is posted, or a posting of one

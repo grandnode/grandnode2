@@ -10,7 +10,7 @@ namespace Grand.Web.AdminShared.Models.Catalog;
 
 public class ProductAttributeCombinationModel : BaseModel
 {
-    public string Id { get; set; }
+    public string? Id { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.StockQuantity")]
     public int StockQuantity { get; set; }
@@ -31,31 +31,31 @@ public class ProductAttributeCombinationModel : BaseModel
     public bool AllowOutOfStockOrders { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Text")]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Sku")]
-    public string Sku { get; set; }
+    public string? Sku { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Mpn")]
-    public string Mpn { get; set; }
+    public string? Mpn { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Gtin")]
-    public string Gtin { get; set; }
+    public string? Gtin { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.OverriddenPrice")]
     [UIHint("DoubleNullable")]
     public double? OverriddenPrice { get; set; }
 
-    public string PrimaryStoreCurrencyCode { get; set; }
+    public string? PrimaryStoreCurrencyCode { get; set; }
 
     [GrandResourceDisplayName(
         "Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.NotifyAdminForQuantityBelow")]
     public int NotifyAdminForQuantityBelow { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.AttributeCombinations.Fields.Picture")]
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
-    public string PictureThumbnailUrl { get; set; }
+    public string? PictureThumbnailUrl { get; set; }
 
     public IList<ProductModel.ProductPictureModel> ProductPictureModels { get; set; } =
         new List<ProductModel.ProductPictureModel>();
@@ -63,12 +63,12 @@ public class ProductAttributeCombinationModel : BaseModel
     public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
 
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-    public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+    public IList<CustomAttributeModel> SelectedAttributes { get; set; } = new List<CustomAttributeModel>();
 
     public IList<string> Warnings { get; set; } = new List<string>();
 
-    public string ProductId { get; set; }
-    public string Attributes { get; set; }
+    public string? ProductId { get; set; }
+    public string? Attributes { get; set; }
 
     public bool UseMultipleWarehouses { get; set; }
 
@@ -78,9 +78,9 @@ public class ProductAttributeCombinationModel : BaseModel
 
     public class ProductAttributeModel : BaseEntityModel
     {
-        public string ProductAttributeId { get; set; }
-        public string Name { get; set; }
-        public string TextPrompt { get; set; }
+        public string? ProductAttributeId { get; set; }
+        public string? Name { get; set; }
+        public string? TextPrompt { get; set; }
         public bool IsRequired { get; set; }
         public AttributeControlType AttributeControlType { get; set; }
         public IList<ProductAttributeValueModel> Values { get; set; } = new List<ProductAttributeValueModel>();
@@ -88,7 +88,7 @@ public class ProductAttributeCombinationModel : BaseModel
 
     public class ProductAttributeValueModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public bool IsPreSelected { get; set; }
     }
@@ -97,9 +97,9 @@ public class ProductAttributeCombinationModel : BaseModel
     {
         [GrandResourceDisplayName(
             "Admin.Catalog.Products.ProductAttributes.AttributeCombination.WarehouseInventory.Fields.Warehouse")]
-        public string WarehouseId { get; set; }
+        public string? WarehouseId { get; set; }
 
-        public string WarehouseName { get; set; }
+        public string? WarehouseName { get; set; }
 
         [GrandResourceDisplayName(
             "Admin.Catalog.Products.ProductAttributes.AttributeCombination.WarehouseInventory.Fields.WarehouseUsed")]

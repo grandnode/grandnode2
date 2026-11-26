@@ -173,11 +173,13 @@ public class ProductAttributeMappingViewModelService(
 
     public virtual async Task InsertProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+
         //insert mapping
         var productAttributeMapping = model.ToEntity();
         //predefined values
         var predefinedValues = (await productAttributeService.GetProductAttributeById(model.ProductAttributeId))
-            .PredefinedProductAttributeValues;
+            ?.PredefinedProductAttributeValues ?? [];
         foreach (var predefinedValue in predefinedValues)
         {
             var pav = predefinedValue.ToEntity();
@@ -207,7 +209,7 @@ public class ProductAttributeMappingViewModelService(
             if (productAttributeMapping != null)
             {
                 productAttributeMapping = model.ToEntity(productAttributeMapping);
-                await productAttributeService.UpdateProductAttributeMapping(productAttributeMapping, model.ProductId);
+                await productAttributeService.UpdateProductAttributeMapping(productAttributeMapping, product.Id);
             }
         }
     }
@@ -232,6 +234,8 @@ public class ProductAttributeMappingViewModelService(
     public virtual async Task UpdateProductAttributeValidationRulesModel(
         ProductAttributeMapping productAttributeMapping, ProductModel.ProductAttributeMappingModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+
         productAttributeMapping.ValidationMinLength = model.ValidationMinLength;
         productAttributeMapping.ValidationMaxLength = model.ValidationMaxLength;
         productAttributeMapping.ValidationFileAllowedExtensions = model.ValidationFileAllowedExtensions;
@@ -264,7 +268,7 @@ public class ProductAttributeMappingViewModelService(
             var attributeModel = new ProductAttributeConditionModel.ProductAttributeModel {
                 Id = attribute.Id,
                 ProductAttributeId = attribute.ProductAttributeId,
-                Name = pam.Name,
+                Name = pam?.Name,
                 TextPrompt = attribute.TextPrompt,
                 IsRequired = attribute.IsRequired,
                 AttributeControlType = attribute.AttributeControlTypeId
@@ -338,6 +342,8 @@ public class ProductAttributeMappingViewModelService(
     public virtual async Task UpdateProductAttributeConditionModel(Product product,
         ProductAttributeMapping productAttributeMapping, ProductAttributeConditionModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+
         var customAttributes = new List<CustomAttribute>();
         if (model.EnableCondition)
         {
@@ -440,7 +446,7 @@ public class ProductAttributeMappingViewModelService(
         var items = new List<ProductModel.ProductAttributeValueModel>();
         foreach (var x in productAttributeMapping.ProductAttributeValues.OrderBy(x => x.DisplayOrder))
         {
-            Product associatedProduct = null;
+            Product? associatedProduct = null;
             if (x.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)
                 associatedProduct = await productService.GetProductById(x.AssociatedProductId);
 
@@ -517,6 +523,9 @@ public class ProductAttributeMappingViewModelService(
 
     public virtual async Task InsertProductAttributeValueModel(ProductModel.ProductAttributeValueModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductAttributeMappingId);
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+
         var pav = new ProductAttributeValue {
             AttributeValueTypeId = model.AttributeValueTypeId,
             AssociatedProductId = model.AssociatedProductId,
@@ -539,6 +548,9 @@ public class ProductAttributeMappingViewModelService(
     public virtual async Task UpdateProductAttributeValueModel(ProductAttributeValue pav,
         ProductModel.ProductAttributeValueModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductAttributeMappingId);
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+
         pav.AttributeValueTypeId = model.AttributeValueTypeId;
         pav.AssociatedProductId = model.AssociatedProductId;
         pav.Name = model.Name;

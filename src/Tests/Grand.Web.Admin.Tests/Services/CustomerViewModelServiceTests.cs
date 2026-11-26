@@ -394,7 +394,7 @@ public class CustomerViewModelServiceTests
     }
 
     [TestMethod]
-    public async Task PrepareCustomerListModel_RegisteredGroupMissing_NullSearchGroupId()
+    public async Task PrepareCustomerListModel_RegisteredGroupMissing_NoSearchGroupId()
     {
         _groupServiceMock.Setup(g => g.GetCustomerGroupBySystemName(It.IsAny<string>()))
             .ReturnsAsync(new CustomerGroup { Id = "reg" });
@@ -406,9 +406,8 @@ public class CustomerViewModelServiceTests
 
         var model = await _customerViewModelService.PrepareCustomerListModel();
 
-        //registered group is not among the available groups -> the search id resolves to null
-        Assert.AreEqual(1, model.SearchCustomerGroupIds.Count);
-        Assert.IsNull(model.SearchCustomerGroupIds.First());
+        //registered group is not among the available groups -> no group is searched by
+        Assert.AreEqual(0, model.SearchCustomerGroupIds.Count);
         Assert.IsFalse(model.AvailableCustomerGroups.Any(x => x.Selected));
     }
 

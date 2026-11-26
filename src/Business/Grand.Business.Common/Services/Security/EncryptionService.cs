@@ -127,7 +127,7 @@ public class EncryptionService : IEncryptionService
             Pbkdf2Prefix, "1", iterations.ToString(), Convert.ToBase64String(salt), Convert.ToBase64String(hash));
     }
 
-    public virtual bool VerifyPassword(string enteredPassword, PasswordFormat passwordFormat, string? storedPassword,
+    public virtual bool VerifyPassword(string? enteredPassword, PasswordFormat passwordFormat, string? storedPassword,
         string? storedSalt, HashedPasswordFormat legacyHashedFormat)
     {
         if (enteredPassword == null || storedPassword == null)

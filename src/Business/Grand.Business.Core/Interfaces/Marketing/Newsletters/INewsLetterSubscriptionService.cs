@@ -52,7 +52,7 @@ public interface INewsLetterSubscriptionService
     /// <param name="email">The newsletter subscription email</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByEmailAndStoreId(string email, string storeId);
+    Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByEmailAndStoreId(string? email, string storeId);
 
 
     /// <summary>

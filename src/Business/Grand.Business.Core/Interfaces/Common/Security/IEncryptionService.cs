@@ -41,7 +41,7 @@ public interface IEncryptionService
     /// <param name="storedSalt">Stored salt (<c>Customer.PasswordSalt</c>); ignored for PBKDF2</param>
     /// <param name="legacyHashedFormat">Hash algorithm used by legacy SHA hashes (global setting)</param>
     /// <returns>True when the password matches</returns>
-    bool VerifyPassword(string enteredPassword, PasswordFormat passwordFormat, string? storedPassword,
+    bool VerifyPassword(string? enteredPassword, PasswordFormat passwordFormat, string? storedPassword,
         string? storedSalt, HashedPasswordFormat legacyHashedFormat);
 
     /// <summary>

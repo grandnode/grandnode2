@@ -19,7 +19,7 @@ public static class UnitNumbers
     ///     The numbers of a text, one per line, or separated by commas or semicolons; trimmed, in order, empty ones left
     ///     out
     /// </summary>
-    public static IList<string> Parse(string text)
+    public static IList<string> Parse(string? text)
     {
         return string.IsNullOrEmpty(text)
             ? []

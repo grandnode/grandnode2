@@ -50,7 +50,7 @@ public class PageService : IPageService
     /// </summary>
     /// <param name="pageId">The page identifier</param>
     /// <returns>Page</returns>
-    public virtual Task<Page?> GetPageById(string pageId)
+    public virtual Task<Page?> GetPageById(string? pageId)
     {
         var key = string.Format(CacheKey.PAGES_BY_ID_KEY, pageId);
         return _cacheBase.GetAsync(key, () => _pageRepository.GetByIdAsync(pageId));

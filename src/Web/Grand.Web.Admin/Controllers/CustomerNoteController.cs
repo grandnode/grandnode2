@@ -27,8 +27,9 @@ public class CustomerNoteController(
     [HttpPost]
     public async Task<IActionResult> CustomerNotesSelect(string customerId, DataSourceRequest command)
     {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) throw new ArgumentException("No customer found with the specified id");
+        var _Access = await LoadAuthorizedCustomer(customerId);
+        if (_Access.IsDenied) throw new ArgumentException("No customer found with the specified id");
+        var _ = _Access.Entity;
 
         var customerNoteModels = await customerNoteViewModelService.PrepareCustomerNoteList(customerId);
         var gridModel = new DataSourceResult { Data = customerNoteModels, Total = customerNoteModels.Count };
@@ -40,8 +41,9 @@ public class CustomerNoteController(
     public async Task<IActionResult> CustomerNoteAdd(string customerId, string downloadId, bool displayToCustomer,
         string title, string message)
     {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) return Json(new { Result = false });
+        var _Access = await LoadAuthorizedCustomer(customerId);
+        if (_Access.IsDenied) return Json(new { Result = false });
+        var _ = _Access.Entity;
 
         if (!await customerNoteViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title,
                 message))
@@ -57,8 +59,9 @@ public class CustomerNoteController(
     [HttpPost]
     public async Task<IActionResult> CustomerNoteDelete(string id, string customerId)
     {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) throw new ArgumentException("No customer found with the specified id");
+        var _Access = await LoadAuthorizedCustomer(customerId);
+        if (_Access.IsDenied) throw new ArgumentException("No customer found with the specified id");
+        var _ = _Access.Entity;
 
         await customerNoteViewModelService.DeleteCustomerNote(id, customerId);
         return new JsonResult("");

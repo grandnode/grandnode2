@@ -10,20 +10,20 @@ public class LanguageModel : BaseEntityModel, IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.LanguageCulture")]
 
-    public string LanguageCulture { get; set; }
+    public string? LanguageCulture { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.UniqueSeoCode")]
 
-    public string UniqueSeoCode { get; set; }
+    public string? UniqueSeoCode { get; set; }
 
     //flags
     [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.FlagImageFileName")]
 
-    public string FlagImageFileName { get; set; }
+    public string? FlagImageFileName { get; set; }
 
     public IList<string> FlagFileNames { get; set; } = new List<string>();
 
@@ -33,7 +33,7 @@ public class LanguageModel : BaseEntityModel, IStoreLinkModel
     //default currency
     [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.DefaultCurrency")]
 
-    public string DefaultCurrencyId { get; set; }
+    public string? DefaultCurrencyId { get; set; }
 
     public IList<SelectListItem> AvailableCurrencies { get; set; } = new List<SelectListItem>();
 
@@ -49,5 +49,5 @@ public class LanguageModel : BaseEntityModel, IStoreLinkModel
     //Store acl
     [GrandResourceDisplayName("Admin.Configuration.Languages.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }

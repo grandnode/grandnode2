@@ -26,17 +26,17 @@ public abstract class BaseCustomerScopedController(
 
     /// <summary>Loads the customer and checks the scope. Both a missing and an out-of-scope customer
     /// redirect to the customer list, whichever controller the action lives on.</summary>
-    protected async Task<(Customer? customer, IActionResult? denied)> LoadAuthorizedCustomer(string id)
+    protected async Task<Access<Customer>> LoadAuthorizedCustomer(string? id)
     {
         var customer = await customerService.GetCustomerById(id);
-        if (customer == null) return (null, RedirectToAction("List", "Customer"));
-        if (!await scope.HasAccess(customer)) return (null, RedirectToAction("List", "Customer"));
-        return (customer, null);
+        if (customer == null) return Access<Customer>.Deny(RedirectToAction("List", "Customer"));
+        if (!await scope.HasAccess(customer)) return Access<Customer>.Deny(RedirectToAction("List", "Customer"));
+        return Access<Customer>.Allow(customer);
     }
 
     /// <summary>Non-redirecting ownership check for actions that soft-deny with an empty JSON
     /// result instead of a redirect (e.g. UpdateProductPrice/DeleteProductPrice).</summary>
-    protected async Task<bool> HasAccessToCustomer(string customerId)
+    protected async Task<bool> HasAccessToCustomer(string? customerId)
     {
         var customer = await customerService.GetCustomerById(customerId);
         return customer != null && await scope.HasAccess(customer);

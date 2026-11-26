@@ -60,7 +60,7 @@ public interface ISpecificationAttributeService
     /// </summary>
     /// <param name="specificationAttributeOption">The specification attribute option</param>
     /// <returns>Specification attribute option</returns>
-    Task<SpecificationAttribute?> GetSpecificationAttributeByOptionId(string specificationAttributeOption);
+    Task<SpecificationAttribute?> GetSpecificationAttributeByOptionId(string? specificationAttributeOption);
 
     /// <summary>
     ///     Deletes a specification attribute option

@@ -189,7 +189,8 @@ public class KnowledgebaseViewModelService : IKnowledgebaseViewModelService
 
     public virtual async Task InsertKnowledgebaseRelatedArticle(KnowledgebaseArticleModel.AddRelatedArticleModel model)
     {
-        var article = await _knowledgebaseService.GetKnowledgebaseArticle(model.ArticleId);
+        var article = await _knowledgebaseService.GetKnowledgebaseArticle(model.ArticleId)
+                      ?? throw new ArgumentException("No knowledgebase article found with the specified id");
 
         foreach (var id in model.SelectedArticlesIds)
             if (id != article.Id)

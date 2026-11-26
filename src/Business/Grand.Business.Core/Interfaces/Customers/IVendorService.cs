@@ -13,7 +13,7 @@ public interface IVendorService
     /// </summary>
     /// <param name="vendorId">Vendor identifier</param>
     /// <returns>Vendor</returns>
-    Task<Vendor?> GetVendorById(string vendorId);
+    Task<Vendor?> GetVendorById(string? vendorId);
 
     /// <summary>
     ///     Gets all vendors
@@ -108,14 +108,14 @@ public interface IVendorService
     /// <returns>Reviews</returns>
     Task<IPagedList<VendorReview>> GetAllVendorReviews(string customerId, bool? approved,
         DateTime? fromUtc = null, DateTime? toUtc = null,
-        string? message = null, string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue);
+        string? message = null, string? vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets vendor review
     /// </summary>
     /// <param name="vendorReviewId">Vendor review identifier</param>
     /// <returns>Vendor review</returns>
-    Task<VendorReview?> GetVendorReviewById(string vendorReviewId);
+    Task<VendorReview?> GetVendorReviewById(string? vendorReviewId);
 
     /// <summary>
     ///     Deletes a vendor review

@@ -24,7 +24,7 @@ public class LocalizedEditorTagHelper : TagHelper
     [HtmlAttributeName("localized-template")]
     public Func<int, HelperResult>? LocalizedTemplate { get; set; }
 
-    [HtmlAttributeName("language-ids")] public List<string>? LanguagesIds { get; set; }
+    [HtmlAttributeName("language-ids")] public List<string?>? LanguagesIds { get; set; }
 
     private static TagBuilder Item(IHtmlContent label, bool active)
     {

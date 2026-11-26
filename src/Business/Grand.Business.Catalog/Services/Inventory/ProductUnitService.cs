@@ -147,12 +147,12 @@ public class ProductUnitService(
             pageIndex, pageSize);
     }
 
-    public Task<ProductSerialNumber?> GetSerialNumber(string id)
+    public Task<ProductSerialNumber?> GetSerialNumber(string? id)
     {
         return serialNumberRepository.GetByIdAsync(id);
     }
 
-    public Task<ProductBatch?> GetBatch(string id)
+    public Task<ProductBatch?> GetBatch(string? id)
     {
         return batchRepository.GetByIdAsync(id);
     }
@@ -264,7 +264,7 @@ public class ProductUnitService(
             pageSize);
     }
 
-    public Task<IPagedList<InventoryJournal>> History(ProductSerialNumber serialNumber, IList<string> warehouseIds,
+    public Task<IPagedList<InventoryJournal>> History(ProductSerialNumber serialNumber, IList<string>? warehouseIds,
         int pageIndex, int pageSize)
     {
         ArgumentNullException.ThrowIfNull(serialNumber);
@@ -370,11 +370,11 @@ public class ProductUnitService(
     }
 
     public async Task<IList<BatchAllocation>> ProposeBatches(Product product, IList<CustomAttribute> attributes,
-        string warehouseId, int quantity, DateTime today)
+        string? warehouseId, int quantity, DateTime today)
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        var (combinationId, stock) = Bucket(product, attributes, warehouseId);
+        var (combinationId, stock) = Bucket(product, attributes, warehouseId ?? "");
         var batches = (await Batches(product.Id, combinationId, StockBuckets.UnitWarehouse(product, warehouseId)))
             .Where(x => x.Quantity > 0).ToList();
         var warningDays = BatchExpiry.WarningDays(product, await settingService.LoadSetting<InventorySettings>());

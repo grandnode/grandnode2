@@ -47,7 +47,7 @@ public class AffiliateService : IAffiliateService
     /// </summary>
     /// <param name="affiliateId">Affiliate identifier</param>
     /// <returns>Affiliate</returns>
-    public virtual Task<Affiliate?> GetAffiliateById(string affiliateId)
+    public virtual Task<Affiliate?> GetAffiliateById(string? affiliateId)
     {
         return _affiliateRepository.GetByIdAsync(affiliateId);
     }

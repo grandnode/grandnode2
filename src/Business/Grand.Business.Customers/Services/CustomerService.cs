@@ -85,7 +85,7 @@ public class CustomerService : ICustomerService
     public virtual async Task<IPagedList<Customer>> GetAllCustomers(DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, string affiliateId = "", string vendorId = "", string storeId = "",
         string ownerId = "",
-        string salesEmployeeId = "", string[]? customerGroupIds = null, string[]? customerTagIds = null,
+        string? salesEmployeeId = "", string[]? customerGroupIds = null, string[]? customerTagIds = null,
         string? email = null, string? username = null,
         string? firstName = null, string? lastName = null,
         string? company = null, string? phone = null, string? zipPostalCode = null,
@@ -100,7 +100,7 @@ public class CustomerService : ICustomerService
             VendorId = vendorId,
             StoreId = storeId,
             OwnerId = ownerId,
-            SalesEmployeeId = salesEmployeeId,
+            SalesEmployeeId = salesEmployeeId ?? "",
             CustomerGroupIds = customerGroupIds,
             CustomerTagIds = customerTagIds,
             Email = email,
@@ -135,7 +135,7 @@ public class CustomerService : ICustomerService
     /// <param name="pageSize">Page size</param>
     /// <returns>Customers</returns>
     public virtual async Task<IPagedList<Customer>> GetOnlineCustomers(DateTime lastActivityFromUtc,
-        string[] customerGroupIds, string storeId = "", string salesEmployeeId = "", int pageIndex = 0,
+        string[]? customerGroupIds, string? storeId = "", string? salesEmployeeId = "", int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var query = from p in _customerRepository.Table
@@ -232,7 +232,7 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="email">Email</param>
     /// <returns>Customer</returns>
-    public virtual async Task<Customer?> GetCustomerByEmail(string? email, string storeId = "")
+    public virtual async Task<Customer?> GetCustomerByEmail(string? email, string? storeId = "")
     {
         if (string.IsNullOrWhiteSpace(email))
             return null;
@@ -283,7 +283,7 @@ public class CustomerService : ICustomerService
     /// </summary>
     /// <param name="username">Username</param>
     /// <returns>Customer</returns>
-    public virtual async Task<Customer?> GetCustomerByUsername(string? username, string storeId = "")
+    public virtual async Task<Customer?> GetCustomerByUsername(string? username, string? storeId = "")
     {
         if (string.IsNullOrWhiteSpace(username))
             return null;

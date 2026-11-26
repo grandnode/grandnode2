@@ -12,7 +12,7 @@ public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAtt
 {
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.IsRequired")]
     public bool IsRequired { get; set; }
@@ -22,7 +22,7 @@ public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAtt
 
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.AttributeControlType")]
 
-    public string AttributeControlTypeName { get; set; }
+    public string? AttributeControlTypeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -30,7 +30,7 @@ public class AddressAttributeModel : BaseEntityModel, ILocalizedModel<AddressAtt
     //Store acl
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     /// <summary>
     /// True when this attribute is not exclusively assigned to the current host's single store.
@@ -49,7 +49,7 @@ public class AddressAttributeLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

@@ -34,7 +34,7 @@ public static class CommonHelper
     /// </summary>
     /// <param name="email">Email to verify</param>
     /// <returns>true if the string is a valid e-mail address and false if it's not</returns>
-    public static bool IsValidEmail(string? email)
+    public static bool IsValidEmail([NotNullWhen(true)] string? email)
     {
         if (string.IsNullOrEmpty(email))
             return false;

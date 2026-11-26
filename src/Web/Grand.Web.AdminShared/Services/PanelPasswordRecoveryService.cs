@@ -30,7 +30,7 @@ public class PanelPasswordRecoveryService(
     public const string AreaStore = "Store";
     public const string AreaVendor = "Vendor";
 
-    public async Task SendRecoveryMessage(string email, string area)
+    public async Task SendRecoveryMessage(string? email, string area)
     {
         var customer = await GetPanelCustomer(email, area);
         if (customer == null)
@@ -48,17 +48,18 @@ public class PanelPasswordRecoveryService(
             contextAccessor.StoreContext.CurrentStore, contextAccessor.WorkContext.WorkingLanguage.Id);
     }
 
-    public async Task<string> ValidateToken(string email, string token, string area)
+    public async Task<string?> ValidateToken(string? email, string? token, string area)
     {
         var customer = await GetPanelCustomer(email, area);
         return CheckToken(customer, token);
     }
 
-    public async Task<string> ResetPassword(string email, string token, string area, string newPassword)
+    public async Task<string?> ResetPassword(string? email, string? token, string area, string newPassword)
     {
         var customer = await GetPanelCustomer(email, area);
         var error = CheckToken(customer, token);
-        if (error != null)
+        //CheckToken answers a missing account with an error too
+        if (error != null || customer == null)
             return error;
 
         if (customerSettings.UnduplicatedPasswordsNumber > 0)
@@ -79,7 +80,7 @@ public class PanelPasswordRecoveryService(
         return null;
     }
 
-    private string CheckToken(Customer customer, string token)
+    private string? CheckToken(Customer? customer, string? token)
     {
         //an unknown account reads as a wrong link, so the page does not tell which emails exist
         if (customer == null || string.IsNullOrEmpty(token) || !customer.IsPasswordRecoveryTokenValid(token))
@@ -95,7 +96,7 @@ public class PanelPasswordRecoveryService(
     ///     AuthorizeAdminAttribute, AuthorizeStoreAttribute and AuthorizeVendorAttribute; the lookup is the one
     ///     the panels' LoginValidator uses.
     /// </summary>
-    private async Task<Customer> GetPanelCustomer(string email, string area)
+    private async Task<Customer?> GetPanelCustomer(string? email, string area)
     {
         if (string.IsNullOrWhiteSpace(email))
             return null;

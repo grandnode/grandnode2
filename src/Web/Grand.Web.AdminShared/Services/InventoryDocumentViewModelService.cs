@@ -24,7 +24,7 @@ public interface IInventoryDocumentViewModelService
     /// <summary>
     ///     The model of a document; with a null document, of a new one of the model's type
     /// </summary>
-    Task PrepareModel(InventoryDocumentModel model, InventoryDocument document, int linesPage = 1);
+    Task PrepareModel(InventoryDocumentModel model, InventoryDocument? document, int linesPage = 1);
 
     /// <summary>
     ///     The warehouses the current user may put on a document
@@ -41,7 +41,7 @@ public interface IInventoryDocumentViewModelService
     ///     The products of the panel whose name or SKU holds the text, among those the document can book: their
     ///     stock managed, and for an assignment their batches or serial numbers tracked
     /// </summary>
-    Task<IList<InventoryDocumentProductModel>> SearchProducts(InventoryDocument document, string keywords);
+    Task<IList<InventoryDocumentProductModel>> SearchProducts(InventoryDocument document, string? keywords);
 
     /// <summary>
     ///     The combinations of a product stocked by attributes, with their stock in the document's warehouse; none for
@@ -54,14 +54,14 @@ public interface IInventoryDocumentViewModelService
     ///     new line, a receipt's priced at the product's cost
     /// </summary>
     /// <returns>The translated errors, and the line added to last</returns>
-    Task<(IList<string> Errors, string LineId)> AddLines(InventoryDocument document, InventoryDocumentModel model);
+    Task<(IList<string> Errors, string? LineId)> AddLines(InventoryDocument document, InventoryDocumentModel model);
 
     /// <summary>
     ///     Adds the products chosen in the bulk popup, one of each and one of each combination; a product the document
     ///     cannot book, or the panel may not reach, is left out
     /// </summary>
     /// <returns>The names of the products left out, and the line added to last</returns>
-    Task<(IList<string> LeftOut, string LineId)> AddProducts(InventoryDocument document, IList<string> productIds);
+    Task<(IList<string> LeftOut, string? LineId)> AddProducts(InventoryDocument document, IList<string> productIds);
 
     /// <summary>
     ///     The translated messages of the keys a service returned
@@ -146,7 +146,7 @@ public class InventoryDocumentViewModelService(
         return usable;
     }
 
-    public async Task PrepareModel(InventoryDocumentModel model, InventoryDocument document, int linesPage = 1)
+    public async Task PrepareModel(InventoryDocumentModel model, InventoryDocument? document, int linesPage = 1)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -256,7 +256,7 @@ public class InventoryDocumentViewModelService(
     /// <summary>
     ///     The name of the one warehouse the product is kept in, when a draft books it in another; posting refuses it
     /// </summary>
-    private async Task<string> KeptInWarehouse(InventoryDocument document, Product product)
+    private async Task<string?> KeptInWarehouse(InventoryDocument document, Product? product)
     {
         if (product == null || document.StatusId == InventoryDocumentStatus.Posted ||
             string.IsNullOrEmpty(document.WarehouseId) || !StockBuckets.KeptElsewhere(product, document.WarehouseId))
@@ -276,7 +276,7 @@ public class InventoryDocumentViewModelService(
     }
 
     public async Task<IList<InventoryDocumentProductModel>> SearchProducts(InventoryDocument document,
-        string keywords)
+        string? keywords)
     {
         ArgumentNullException.ThrowIfNull(document);
 
@@ -332,7 +332,7 @@ public class InventoryDocumentViewModelService(
         }).ToList();
     }
 
-    public async Task<(IList<string> Errors, string LineId)> AddLines(InventoryDocument document,
+    public async Task<(IList<string> Errors, string? LineId)> AddLines(InventoryDocument document,
         InventoryDocumentModel model)
     {
         ArgumentNullException.ThrowIfNull(document);
@@ -346,7 +346,7 @@ public class InventoryDocumentViewModelService(
         if (!Fits(document, product))
             return ([translationService.GetResource(InventoryDocumentErrors.UnitsNotTracked)], null);
 
-        InventoryDocumentLine added = null;
+        InventoryDocumentLine? added = null;
         //an adjustment takes stock out as well as in; every other document names what it moves
         var negative = document.DocumentTypeId == InventoryDocumentType.Adjustment;
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes)
@@ -367,14 +367,14 @@ public class InventoryDocumentViewModelService(
         return ([], added?.Id);
     }
 
-    public async Task<(IList<string> LeftOut, string LineId)> AddProducts(InventoryDocument document,
+    public async Task<(IList<string> LeftOut, string? LineId)> AddProducts(InventoryDocument document,
         IList<string> productIds)
     {
         ArgumentNullException.ThrowIfNull(document);
         ArgumentNullException.ThrowIfNull(productIds);
 
         var leftOut = new List<string>();
-        InventoryDocumentLine added = null;
+        InventoryDocumentLine? added = null;
         foreach (var productId in productIds.Distinct())
         {
             var product = await productService.GetProductById(productId);
@@ -401,7 +401,7 @@ public class InventoryDocumentViewModelService(
     ///     is told apart only on its own line, so a product tracking them takes a new one
     /// </summary>
     private static InventoryDocumentLine AddLine(InventoryDocument document, Product product,
-        ProductAttributeCombination combination, int quantity)
+        ProductAttributeCombination? combination, int quantity)
     {
         var line = InventoryTracking.Tracked(product)
             ? null
@@ -467,7 +467,7 @@ public class InventoryDocumentViewModelService(
     ///     A stock count expects the stock the bucket holds now in the document's warehouse; other documents expect
     ///     nothing
     /// </summary>
-    private static int? Expected(InventoryDocument document, Product product, ProductAttributeCombination combination)
+    private static int? Expected(InventoryDocument document, Product product, ProductAttributeCombination? combination)
     {
         return document.DocumentTypeId == InventoryDocumentType.StockCount
             ? StockOf(document, product, combination)
@@ -477,7 +477,7 @@ public class InventoryDocumentViewModelService(
     /// <summary>
     ///     The stock the bucket holds now in the document's warehouse
     /// </summary>
-    private static int StockOf(InventoryDocument document, Product product, ProductAttributeCombination combination)
+    private static int StockOf(InventoryDocument document, Product product, ProductAttributeCombination? combination)
     {
         if (!product.UseMultipleWarehouses)
             return combination?.StockQuantity ?? product.StockQuantity;

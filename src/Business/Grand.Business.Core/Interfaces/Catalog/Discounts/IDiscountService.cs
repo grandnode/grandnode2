@@ -30,8 +30,8 @@ public interface IDiscountService
     ///     Gets discounts query
     /// </summary>
     /// <returns>Discounts</returns>
-    Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string storeId = "", string currencyCode = "",
-        string couponCode = "", string discountName = "");
+    Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string? storeId = "", string? currencyCode = "",
+        string? couponCode = "", string? discountName = "");
 
     /// <summary>
     ///     Inserts a new discount

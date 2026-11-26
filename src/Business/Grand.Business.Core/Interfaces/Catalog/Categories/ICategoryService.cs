@@ -16,7 +16,7 @@ public interface ICategoryService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Categories</returns>
-    Task<IPagedList<Category>> GetAllCategories(string? parentId, string categoryName, CatalogAccess access,
+    Task<IPagedList<Category>> GetAllCategories(string? parentId, string? categoryName, CatalogAccess access,
         int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
@@ -82,7 +82,7 @@ public interface ICategoryService
     /// <param name="separator">Separator</param>
     /// <param name="languageId">Language id for localization</param>
     /// <returns>Formatted breadcrumb</returns>
-    Task<string?> GetFormattedBreadCrumb(Category category, string separator = ">>", string languageId = "");
+    Task<string?> GetFormattedBreadCrumb(Category? category, string separator = ">>", string languageId = "");
 
     /// <summary>
     ///     Get formatted category breadcrumb

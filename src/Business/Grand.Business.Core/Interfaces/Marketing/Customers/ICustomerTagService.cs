@@ -90,7 +90,7 @@ public interface ICustomerTagService
     /// <param name="customerTagId">Customer tag id</param>
     /// <param name="productId">Product id</param>
     /// <returns>Customer tag product</returns>
-    Task<CustomerTagProduct?> GetCustomerTagProduct(string customerTagId, string productId);
+    Task<CustomerTagProduct?> GetCustomerTagProduct(string? customerTagId, string? productId);
 
     /// <summary>
     ///     Gets customer tag product

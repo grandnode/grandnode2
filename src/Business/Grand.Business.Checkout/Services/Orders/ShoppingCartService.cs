@@ -317,10 +317,10 @@ public class ShoppingCartService : IShoppingCartService
     /// <param name="sciId"></param>
     /// <returns>Warnings</returns>
     public virtual async Task<IList<string>> UpdateShoppingCartItem(Customer customer, Language language,
-        string shoppingCartItemId, string warehouseId, IList<CustomAttribute> attributes,
+        string shoppingCartItemId, string? warehouseId, IList<CustomAttribute> attributes,
         double? customerEnteredPrice = null,
         DateTime? rentalStartDate = null, DateTime? rentalEndDate = null,
-        int quantity = 1, bool resetCheckoutData = true, string reservationId = "", string sciId = "")
+        int quantity = 1, bool resetCheckoutData = true, string? reservationId = "", string sciId = "")
     {
         ArgumentNullException.ThrowIfNull(customer);
 

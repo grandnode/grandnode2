@@ -2,6 +2,7 @@
 
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
@@ -20,14 +21,14 @@ public class VendorOrderDataScope(IContextAccessor contextAccessor) : IAdminData
 {
     public Task<bool> HasAccess(Order entity) =>
         Task.FromResult(entity is not null &&
-            entity.OrderItems.Any(i => i.VendorId == contextAccessor.WorkContext.CurrentVendor.Id));
+            entity.OrderItems.Any(i => i.VendorId == contextAccessor.WorkContext.PanelVendor().Id));
 
     public IEnumerable<OrderItem> FilterOrderItems(IEnumerable<OrderItem> orderItems) =>
-        orderItems.Where(i => i.VendorId == contextAccessor.WorkContext.CurrentVendor.Id);
+        orderItems.Where(i => i.VendorId == contextAccessor.WorkContext.PanelVendor().Id);
 
     public string? DefaultStoreId => null;
     public string ResourceKeyPrefix => "Vendor";
     public bool ShowStoreSelector => false;
-    public string? DefaultVendorId => contextAccessor.WorkContext.CurrentVendor.Id;
+    public string? DefaultVendorId => contextAccessor.WorkContext.PanelVendor().Id;
     public bool CanFeatureOnHomepage => false;
 }

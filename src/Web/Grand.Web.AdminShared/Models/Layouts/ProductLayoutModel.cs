@@ -7,11 +7,11 @@ public class ProductLayoutModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Product.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Product.ViewPath")]
 
-    public string ViewPath { get; set; }
+    public string? ViewPath { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Product.DisplayOrder")]
     public int DisplayOrder { get; set; }

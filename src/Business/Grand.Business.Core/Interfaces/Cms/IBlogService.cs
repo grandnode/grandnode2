@@ -13,7 +13,7 @@ public interface IBlogService
     /// </summary>
     /// <param name="blogPostId">Blog post identifier</param>
     /// <returns>Blog post</returns>
-    Task<BlogPost?> GetBlogPostById(string blogPostId);
+    Task<BlogPost?> GetBlogPostById(string? blogPostId);
 
     /// <summary>
     ///     Gets all blog posts
@@ -28,10 +28,10 @@ public interface IBlogService
     /// <param name="blogPostName">Blog post name</param>
     /// <param name="categoryId">Category id</param>
     /// <returns>Blog posts</returns>
-    Task<IPagedList<BlogPost>> GetAllBlogPosts(string storeId,
+    Task<IPagedList<BlogPost>> GetAllBlogPosts(string? storeId,
         DateTime? dateFrom = null, DateTime? dateTo = null,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string? tag = null,
-        string blogPostName = "", string categoryId = "");
+        string? blogPostName = "", string categoryId = "");
 
     /// <summary>
     ///     Gets all blog posts
@@ -102,7 +102,7 @@ public interface IBlogService
     /// </summary>
     /// <param name="blogCategoryId">Blog category id</param>
     /// <returns></returns>
-    Task<BlogCategory?> GetBlogCategoryById(string blogCategoryId);
+    Task<BlogCategory?> GetBlogCategoryById(string? blogCategoryId);
 
     /// <summary>
     ///     Get categories by post id
@@ -147,7 +147,7 @@ public interface IBlogService
     /// </summary>
     /// <param name="id">id</param>
     /// <returns>Blog product</returns>
-    Task<BlogProduct?> GetBlogProductById(string id);
+    Task<BlogProduct?> GetBlogProductById(string? id);
 
     /// <summary>
     ///     Insert an blog product

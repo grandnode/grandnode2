@@ -12,14 +12,14 @@ public interface ITaxCategoryService
     /// </summary>
     /// <param name="storeId">Store identifier; pass empty to return all</param>
     /// <returns>Tax categories</returns>
-    Task<IList<TaxCategory>> GetAllTaxCategories(string storeId = "");
+    Task<IList<TaxCategory>> GetAllTaxCategories(string? storeId = "");
 
     /// <summary>
     ///     Gets a tax category
     /// </summary>
     /// <param name="taxCategoryId">Tax category identifier</param>
     /// <returns>Tax category</returns>
-    Task<TaxCategory?> GetTaxCategoryById(string taxCategoryId);
+    Task<TaxCategory?> GetTaxCategoryById(string? taxCategoryId);
 
     /// <summary>
     ///     Inserts a tax category

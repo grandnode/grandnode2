@@ -13,14 +13,14 @@ public interface IPermissionService
     /// </summary>
     /// <param name="permissionId">Permission identifier</param>
     /// <returns>Permission</returns>
-    Task<Permission?> GetPermissionById(string permissionId);
+    Task<Permission?> GetPermissionById(string? permissionId);
 
     /// <summary>
     ///     Gets a permission
     /// </summary>
     /// <param name="systemName">Permission system name</param>
     /// <returns>Permission</returns>
-    Task<Permission?> GetPermissionBySystemName(string systemName);
+    Task<Permission?> GetPermissionBySystemName(string? systemName);
 
     /// <summary>
     ///     Gets all permissions

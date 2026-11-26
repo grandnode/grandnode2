@@ -41,7 +41,7 @@ public interface IProductReviewService
     /// <returns>Reviews</returns>
     Task<IPagedList<ProductReview>> GetAllProductReviews(string? customerId, bool? approved = null,
         DateTime? fromUtc = null, DateTime? toUtc = null,
-        string? message = null, string? storeId = "", string productId = "", int pageIndex = 0,
+        string? message = null, string? storeId = "", string? productId = "", int pageIndex = 0,
         int pageSize = int.MaxValue);
 
     /// <summary>
@@ -49,5 +49,5 @@ public interface IProductReviewService
     /// </summary>
     /// <param name="productReviewId">Product review identifier</param>
     /// <returns>Product review</returns>
-    Task<ProductReview?> GetProductReviewById(string productReviewId);
+    Task<ProductReview?> GetProductReviewById(string? productReviewId);
 }

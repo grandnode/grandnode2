@@ -5,13 +5,13 @@ namespace Grand.Web.AdminShared.Interfaces;
 
 public interface ICategoryViewModelService
 {
-    Task<CategoryListModel> PrepareCategoryListModel(string storeId);
+    Task<CategoryListModel> PrepareCategoryListModel(string? storeId);
 
     Task<(IEnumerable<CategoryModel> categoryListModel, int totalCount)> PrepareCategoryListModel(
         CategoryListModel model, int pageIndex, int pageSize);
 
-    Task<CategoryModel> PrepareCategoryModel(string storeId);
-    Task<CategoryModel> PrepareCategoryModel(CategoryModel model, Category category, string storeId);
+    Task<CategoryModel> PrepareCategoryModel(string? storeId);
+    Task<CategoryModel> PrepareCategoryModel(CategoryModel model, Category? category, string? storeId);
     Task<Category> InsertCategoryModel(CategoryModel model);
     Task<Category> UpdateCategoryModel(Category category, CategoryModel model);
     Task DeleteCategory(Category category);
@@ -20,8 +20,8 @@ public interface ICategoryViewModelService
         PrepareCategoryProductModel(string categoryId, int pageIndex, int pageSize);
 
     Task<ProductCategory> UpdateProductCategoryModel(CategoryModel.CategoryProductModel model);
-    Task DeleteProductCategoryModel(string id, string productId);
-    Task<CategoryModel.AddCategoryProductModel> PrepareAddCategoryProductModel(string storeId);
+    Task DeleteProductCategoryModel(string? id, string? productId);
+    Task<CategoryModel.AddCategoryProductModel> PrepareAddCategoryProductModel(string? storeId);
     Task InsertCategoryProductModel(CategoryModel.AddCategoryProductModel model);
 
     Task<(IList<ProductModel> products, int totalCount)> PrepareProductModel(

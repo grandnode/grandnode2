@@ -5,8 +5,8 @@ namespace Grand.Web.AdminShared.Models.Plugins;
 
 public class MiscPluginModel : BaseModel
 {
-    public string FriendlyName { get; set; }
+    public string? FriendlyName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Misc.Fields.Configure")]
-    public string ConfigurationUrl { get; set; }
+    public string? ConfigurationUrl { get; set; }
 }

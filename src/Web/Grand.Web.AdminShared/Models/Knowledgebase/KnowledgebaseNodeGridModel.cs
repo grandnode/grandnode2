@@ -8,7 +8,7 @@ namespace Grand.Web.AdminShared.Models.Knowledgebase;
 /// </summary>
 public class KnowledgebaseNodeGridModel : BaseEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public bool IsCategory { get; set; }
 
     /// <summary>Subcategories and articles of a category; a row without children has nothing to expand.</summary>

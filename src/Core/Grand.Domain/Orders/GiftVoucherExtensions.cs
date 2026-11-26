@@ -20,8 +20,8 @@ public static class GiftVoucherExtensions
     /// <param name="giftVoucherMessage">Message</param>
     /// <returns>Attributes</returns>
     public static IList<CustomAttribute> AddGiftVoucherAttribute(IList<CustomAttribute> customAttributes,
-        string recipientName,
-        string recipientEmail, string senderName, string senderEmail, string giftVoucherMessage)
+        string? recipientName,
+        string? recipientEmail, string? senderName, string? senderEmail, string? giftVoucherMessage)
     {
         customAttributes ??= new List<CustomAttribute>();
 

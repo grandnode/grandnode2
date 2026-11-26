@@ -70,7 +70,7 @@ public class ProductAttributeService : IProductAttributeService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Product attributes</returns>
-    public virtual async Task<IPagedList<ProductAttribute>> GetAllProductAttributes(string storeId = "", int pageIndex = 0,
+    public virtual async Task<IPagedList<ProductAttribute>> GetAllProductAttributes(string? storeId = "", int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var key = string.Format(CacheKey.PRODUCTATTRIBUTES_ALL_KEY, storeId, pageIndex, pageSize);

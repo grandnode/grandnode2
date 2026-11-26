@@ -51,7 +51,7 @@ public abstract class BaseTaxCategoryController(
     {
         var categories = await taxCategoryService.GetAllTaxCategories(scope.DefaultStoreId ?? "");
 
-        Dictionary<string, string>? storeMap = null;
+        Dictionary<string, string?>? storeMap = null;
         if (scope.ShowStoreSelector)
             storeMap = (await storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut);
 

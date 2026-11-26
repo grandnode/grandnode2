@@ -535,7 +535,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="giftVoucher">Gift voucher</param>
     /// <param name="order">Order</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order order, string? languageId)
+    public virtual async Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order? order, string? languageId)
     {
         ArgumentNullException.ThrowIfNull(giftVoucher);
 

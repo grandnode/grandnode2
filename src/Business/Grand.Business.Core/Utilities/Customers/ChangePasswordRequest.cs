@@ -14,7 +14,7 @@ public class ChangePasswordRequest
     /// <param name="newPasswordFormat">Password format</param>
     /// <param name="newPassword">New password</param>
     /// <param name="oldPassword">Old password</param>
-    public ChangePasswordRequest(string email,
+    public ChangePasswordRequest(string? email,
         PasswordFormat newPasswordFormat, string newPassword, string oldPassword = "")
     {
         Email = email;
@@ -24,9 +24,9 @@ public class ChangePasswordRequest
     }
 
     /// <summary>
-    ///     Email
+    ///     Email; the account is looked up by it, so none matches no account
     /// </summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     ///     Password format

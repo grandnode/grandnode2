@@ -49,7 +49,7 @@ public interface IOrderService
     /// </summary>
     /// <param name="code">The order code</param>
     /// <returns>Order</returns>
-    Task<IList<Order>> GetOrdersByCode(string code);
+    Task<IList<Order>> GetOrdersByCode(string? code);
 
     /// <summary>
     ///     Get orders by identifiers
@@ -99,15 +99,15 @@ public interface IOrderService
     /// <param name="purchaseOrderNumber">Buyer's purchase order number, matched exactly; null to load all orders</param>
     /// <param name="overdueOnly">Load only orders bought on credit whose payment is overdue</param>
     /// <returns>Orders</returns>
-    Task<IPagedList<Order>> SearchOrders(string storeId = "",
-        string vendorId = "", string customerId = "",
-        string productId = "", string affiliateId = "", string warehouseId = "",
-        string billingCountryId = "", string ownerId = "", string salesEmployeeId = "",
+    Task<IPagedList<Order>> SearchOrders(string? storeId = "",
+        string? vendorId = "", string? customerId = "",
+        string? productId = "", string? affiliateId = "", string? warehouseId = "",
+        string? billingCountryId = "", string? ownerId = "", string? salesEmployeeId = "",
         string? paymentMethodSystemName = null,
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
-        string? billingEmail = null, string billingLastName = "", string? orderGuid = null,
-        string? orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "",
+        string? billingEmail = null, string? billingLastName = "", string? orderGuid = null,
+        string? orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string? orderTagId = "",
         string? purchaseOrderNumber = null, bool overdueOnly = false);
 
     /// <summary>
@@ -129,7 +129,7 @@ public interface IOrderService
     /// <param name="order">The order</param>
     /// <param name="purchaseOrderNumber">Purchase order number</param>
     /// <param name="paymentDueDateUtc">Payment due date (a calendar day, UTC), or null when the order is paid at once</param>
-    Task UpdatePaymentTerms(Order order, string purchaseOrderNumber, DateTime? paymentDueDateUtc);
+    Task UpdatePaymentTerms(Order order, string? purchaseOrderNumber, DateTime? paymentDueDateUtc);
 
     #endregion
 

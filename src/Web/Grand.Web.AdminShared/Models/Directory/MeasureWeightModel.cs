@@ -6,10 +6,10 @@ namespace Grand.Web.AdminShared.Models.Directory;
 public class MeasureWeightModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Measures.Weights.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Measures.Weights.Fields.SystemKeyword")]
-    public string SystemKeyword { get; set; }
+    public string? SystemKeyword { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Measures.Weights.Fields.Ratio")]
     public double Ratio { get; set; }

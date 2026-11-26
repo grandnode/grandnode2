@@ -213,8 +213,9 @@ public abstract class BaseCustomerController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Edit(string id)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         var model = new CustomerModel();
         await customerViewModelService.PrepareCustomerModel(model, customer, false);
@@ -227,8 +228,9 @@ public abstract class BaseCustomerController(
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(model.Id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(model.Id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         await ApplyPostConstraints(model);
         CheckTwoFactorEnabledWarning(customer, model);
@@ -270,8 +272,9 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> Delete(string id)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         if (customer.Id == contextAccessor.WorkContext.CurrentCustomer.Id)
         {
@@ -306,8 +309,9 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> MarkVatNumberAsValid(string id)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
             (int)Grand.Domain.Tax.VatNumberStatus.Valid);
@@ -318,8 +322,9 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> MarkVatNumberAsInvalid(string id)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
             (int)Grand.Domain.Tax.VatNumberStatus.Invalid);
@@ -330,8 +335,9 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> SendWelcomeMessage(string id)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         await customerMessageProviderService.SendCustomerWelcomeMessage(customer, contextAccessor.StoreContext.CurrentStore,
             contextAccessor.WorkContext.WorkingLanguage.Id);
@@ -343,8 +349,9 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> ReSendActivationMessage(string id)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken,
             Guid.NewGuid().ToString());
@@ -357,8 +364,9 @@ public abstract class BaseCustomerController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> SendEmail(CustomerModel.SendEmailModel model)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(model.Id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(model.Id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         try
         {
@@ -395,7 +403,7 @@ public abstract class BaseCustomerController(
     public async Task<IActionResult> ExternalAuthenticationDelete(string id, string customerId,
         [FromServices] IOidcLinkService linkService)
     {
-        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        var customer = (await LoadAuthorizedCustomer(customerId)).Entity;
         if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
         if (!await linkService.Remove(customer, id))

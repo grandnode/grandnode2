@@ -158,7 +158,7 @@ public class SpecificationAttributeService : ISpecificationAttributeService
     /// <param name="specificationAttributeOptionId">The specification attribute option identifier</param>
     /// <returns>Specification attribute option</returns>
     public virtual async Task<SpecificationAttribute?> GetSpecificationAttributeByOptionId(
-        string specificationAttributeOptionId)
+        string? specificationAttributeOptionId)
     {
         if (string.IsNullOrEmpty(specificationAttributeOptionId))
             return await Task.FromResult<SpecificationAttribute?>(null);

@@ -56,7 +56,7 @@ public class ProductPriceViewModelService(
                                  string.IsNullOrWhiteSpace(x.StoreId)).OrderBy(x => x.StoreId).ThenBy(x => x.Quantity)
                      .ThenBy(x => x.CustomerGroupId))
         {
-            string storeName;
+            string? storeName;
             if (!string.IsNullOrEmpty(x.StoreId))
             {
                 var store = await storeService.GetStoreById(x.StoreId);

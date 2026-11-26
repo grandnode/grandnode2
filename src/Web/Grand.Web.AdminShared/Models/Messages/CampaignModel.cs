@@ -9,23 +9,23 @@ public class CampaignModel : BaseEntityModel
 {
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.Subject")]
 
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.Body")]
 
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.Language")]
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     public IList<SelectListItem> AvailableLanguages { get; set; } = new List<SelectListItem>();
 
@@ -75,7 +75,7 @@ public class CampaignModel : BaseEntityModel
     public IList<string> NewsletterCategories { get; set; } = new List<string>();
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.NewsletterCategory")]
-    public IList<SelectListItem> AvailableNewsletterCategories { get; set; }
+    public IList<SelectListItem>? AvailableNewsletterCategories { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.CustomerGroups")]
     public IList<SelectListItem> AvailableCustomerGroups { get; set; } = new List<SelectListItem>();
@@ -86,14 +86,14 @@ public class CampaignModel : BaseEntityModel
 
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.AllowedTokens")]
-    public string[] AllowedTokens { get; set; }
+    public string[] AllowedTokens { get; set; } = [];
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.EmailAccount")]
-    public string EmailAccountId { get; set; }
+    public string? EmailAccountId { get; set; }
 
     public IList<EmailAccountModel> AvailableEmailAccounts { get; set; } = new List<EmailAccountModel>();
 
     [GrandResourceDisplayName("admin.marketing.Campaigns.Fields.TestEmail")]
 
-    public string TestEmail { get; set; }
+    public string? TestEmail { get; set; }
 }

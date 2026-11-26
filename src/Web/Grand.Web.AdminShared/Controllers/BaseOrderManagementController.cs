@@ -48,8 +48,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> CancelOrder(string id)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         if (!await mediator.Send(new CanCancelOrderQuery { Order = order }))
         {
@@ -76,8 +77,9 @@ public abstract class BaseOrderManagementController(
         //this is loaded into a popup: a redirect would put a whole page inside it
         const string refused = "DecideApprovalRefused";
 
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return View(refused);
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return View(refused);
+        var order = orderAccess.Entity;
 
         var model = await OrderViewModelService.PrepareOrderApprovalDecisionModel(order);
         if (model == null)
@@ -90,8 +92,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> DecideApproval(string id, bool? approve, string comment)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         //the decision must be explicit: a missing value is never read as a rejection or an approval
         var decided = approve.HasValue && await mediator.Send(new DecideStoreOrderApprovalCommand {
@@ -103,7 +106,7 @@ public abstract class BaseOrderManagementController(
         });
 
         if (decided)
-            Success(TranslationService.GetResource(approve.Value
+            Success(TranslationService.GetResource(approve == true
                 ? "Admin.Orders.Approval.Approved"
                 : "Admin.Orders.Approval.Rejected"));
         else
@@ -116,8 +119,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> SaveOrderTags(OrderModel orderModel)
     {
-        var (order, denied) = await LoadAuthorizedOrder(orderModel.Id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(orderModel.Id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         try
         {
@@ -137,8 +141,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> ChangeOrderStatus(string id, OrderModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         //an order leaves Awaiting approval through the approver's decision, the buyer's withdrawal or a cancel,
         //which also close its approval request; only the checkout puts an order into that status
@@ -186,8 +191,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> EditOrderTotals(string id, OrderModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         order.OrderSubtotalInclTax = model.OrderSubtotalInclTaxValue;
         order.OrderSubtotalExclTax = model.OrderSubtotalExclTaxValue;
@@ -217,8 +223,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> EditShippingMethod(string id, OrderModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         order.ShippingMethod = model.ShippingMethod;
         await OrderService.UpdateOrder(order);
@@ -238,8 +245,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> EditUserFields(string id, OrderModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         order.UserFields = model.UserFields;
         await OrderService.UpdateOrder(order);
@@ -257,8 +265,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> Delete(OrderDeleteModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrder(model.Id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(model.Id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         if (ModelState.IsValid)
         {
@@ -278,8 +287,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> SaveOrderItem(string id, OrderItemsModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
         {
@@ -347,8 +357,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> DeleteOrderItem(string id, string orderItemId)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
@@ -363,8 +374,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> CancelOrderItem(string id, string orderItemId)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
@@ -380,8 +392,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> ResetDownloadCount(string id, string orderItemId)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
@@ -398,8 +411,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> ActivateDownloadItem(string id, string orderItemId)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
@@ -426,8 +440,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> OrderItemUpdate(string orderId, OrderModel.OrderItemModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrderForGrid(orderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         if (order.OrderStatusId == (int)OrderStatusSystem.Cancelled)
             return GridError("You can't edit position when order is canceled");
@@ -444,8 +459,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> OrderItemDelete(string orderId, OrderModel.OrderItemModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrderForGrid(orderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.Id);
         if (orderItem == null) return GridError("No order item found with the specified id");
@@ -459,8 +475,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> OrderItemCancel(string orderId, string orderItemId)
     {
-        var (order, denied) = await LoadAuthorizedOrderForGrid(orderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrderForGrid(orderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId);
         if (orderItem == null) return GridError("No order item found with the specified id");
@@ -473,11 +490,11 @@ public abstract class BaseOrderManagementController(
     ///     <see cref="LoadAuthorizedOrder" /> for the grid endpoints: a denial is an Errors answer the
     ///     grid can show, never a redirect an XHR would follow into an HTML page.
     /// </summary>
-    private async Task<(Order order, IActionResult denied)> LoadAuthorizedOrderForGrid(string orderId)
+    private async Task<Access<Order>> LoadAuthorizedOrderForGrid(string? orderId)
     {
         var order = await OrderService.GetOrderById(orderId);
-        if (order == null || !await Scope.HasAccess(order)) return (null, GridError("Access denied"));
-        return (order, null);
+        if (order == null || !await Scope.HasAccess(order)) return Access<Order>.Deny(GridError("Access denied"));
+        return Access<Order>.Allow(order);
     }
 
     private JsonResult GridError(string message) =>
@@ -491,13 +508,14 @@ public abstract class BaseOrderManagementController(
     public async Task<IActionResult> UploadLicenseFilePopup(string id, string orderItemId,
         [FromServices] Grand.Business.Core.Interfaces.Catalog.Products.IProductService productService)
     {
-        var (order, denied) = await LoadAuthorizedOrder(id);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(id);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == orderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
         var product = await productService.GetProductByIdIncludeArch(orderItem.ProductId);
-        if (!product.IsDownload) throw new ArgumentException("Product is not downloadable");
+        if (product is not { IsDownload: true }) throw new ArgumentException("Product is not downloadable");
 
         var model = new OrderModel.UploadLicenseModel {
             LicenseDownloadId = !string.IsNullOrEmpty(orderItem.LicenseDownloadId) ? orderItem.LicenseDownloadId : "",
@@ -511,8 +529,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> UploadLicenseFilePopup(OrderModel.UploadLicenseModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(model.OrderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
@@ -527,8 +546,9 @@ public abstract class BaseOrderManagementController(
     [HttpPost]
     public async Task<IActionResult> DeleteLicenseFilePopup(OrderModel.UploadLicenseModel model)
     {
-        var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(model.OrderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == model.OrderItemId)
             ?? throw new ArgumentException("No order item found with the specified id");
@@ -545,8 +565,9 @@ public abstract class BaseOrderManagementController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> AddProductToOrder(string orderId)
     {
-        var (order, denied) = await LoadAuthorizedOrder(orderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(orderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var model = await orderProductViewModelService.PrepareAddOrderProductModel(order);
         return View(model);
@@ -558,8 +579,9 @@ public abstract class BaseOrderManagementController(
         Grand.Web.Common.DataSource.DataSourceRequest command, OrderModel.AddOrderProductModel model,
         [FromServices] Grand.Business.Core.Interfaces.Catalog.Products.IProductService productService)
     {
-        var (order, denied) = await LoadAuthorizedOrderForGrid(model.OrderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrderForGrid(model.OrderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var categoryIds = new List<string>();
         if (!string.IsNullOrEmpty(model.SearchCategoryId)) categoryIds.Add(model.SearchCategoryId);
@@ -587,8 +609,9 @@ public abstract class BaseOrderManagementController(
     public async Task<IActionResult> AddProductToOrderDetails(string orderId, string productId,
         [FromServices] IProductService productService, [FromServices] IAclService aclService)
     {
-        var (order, denied) = await LoadAuthorizedOrder(orderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(orderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
         var product = await LoadProductForOrder(order, productId, productService, aclService);
         if (product == null) return ProductNotInOrderStore(orderId);
 
@@ -601,8 +624,9 @@ public abstract class BaseOrderManagementController(
     public async Task<IActionResult> AddProductToOrderDetails(AddProductToOrderModel model,
         [FromServices] IProductService productService, [FromServices] IAclService aclService)
     {
-        var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(model.OrderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
         var product = await LoadProductForOrder(order, model.ProductId, productService, aclService);
         if (product == null) return ProductNotInOrderStore(model.OrderId);
 
@@ -615,7 +639,7 @@ public abstract class BaseOrderManagementController(
     }
 
     // A product id put into the URL by hand must not bring in a product the order's store doesn't sell.
-    private static async Task<Product> LoadProductForOrder(Order order, string productId,
+    private static async Task<Product?> LoadProductForOrder(Order order, string productId,
         IProductService productService, IAclService aclService)
     {
         var product = await productService.GetProductById(productId);
@@ -635,8 +659,9 @@ public abstract class BaseOrderManagementController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> AddressEdit(string addressId, string orderId, bool billingAddress)
     {
-        var (order, denied) = await LoadAuthorizedOrder(orderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(orderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var address = billingAddress ? order.BillingAddress : order.ShippingAddress;
         if (address == null) return RedirectToAction("Edit", "Order", new { id = orderId });
@@ -652,8 +677,9 @@ public abstract class BaseOrderManagementController(
         [FromServices] Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeService addressAttributeService,
         [FromServices] Grand.Business.Core.Interfaces.Common.Addresses.IAddressAttributeParser addressAttributeParser)
     {
-        var (order, denied) = await LoadAuthorizedOrder(model.OrderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(model.OrderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var address = model.BillingAddress ? order.BillingAddress : order.ShippingAddress;
         if (address == null) return RedirectToAction("Edit", "Order", new { id = model.OrderId });

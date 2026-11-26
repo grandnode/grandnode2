@@ -192,7 +192,7 @@ public interface IOrderMessageProviderService
     /// <param name="order">Order</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order order, string? languageId);
+    Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order? order, string? languageId);
 
     /// <summary>
     ///     Sends the e-mail address of an order placed without an account the link that opens the order

@@ -15,7 +15,7 @@ public interface ICustomerProductService
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Customer product price</returns>
-    Task<CustomerProductPrice?> GetCustomerProductPriceById(string id);
+    Task<CustomerProductPrice?> GetCustomerProductPriceById(string? id);
 
     /// <summary>
     ///     Gets a price
@@ -30,7 +30,7 @@ public interface ICustomerProductService
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Customer product</returns>
-    Task<CustomerProduct?> GetCustomerProduct(string id);
+    Task<CustomerProduct?> GetCustomerProduct(string? id);
 
     /// <summary>
     ///     Gets a customer product

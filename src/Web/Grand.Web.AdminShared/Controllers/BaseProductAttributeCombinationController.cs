@@ -40,7 +40,7 @@ public abstract class BaseProductAttributeCombinationController(
         // that returned a plain hardcoded string ("This is not your product" / "Product not exists")
         // rather than a resource key. scope.HasAccess plus the scope.ResourceKeyPrefix-qualified resource
         // key normalizes all three to the convention used throughout this file.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
@@ -95,7 +95,7 @@ public abstract class BaseProductAttributeCombinationController(
         // though this action returns a View inside a magnificPopup modal (not a grid), which would render
         // raw JSON as page content on denial - using Content(...) instead, consistent with the
         // EditAttributeValues GET popup correction in region "Product attribute values" above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var model = await productAttributeCombinationViewModelService.PrepareProductAttributeCombinationModel(product, id);
@@ -195,8 +195,8 @@ public abstract class BaseProductAttributeCombinationController(
     /// <param name="product">Product</param>
     /// <param name="combinationId">The combination; null for every combination of the product</param>
     /// <returns>The error message, or null</returns>
-    private async Task<string> UnitsAssigned(IProductUnitService productUnitService, Product product,
-        string combinationId = null)
+    private async Task<string?> UnitsAssigned(IProductUnitService productUnitService, Product product,
+        string? combinationId = null)
     {
         if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByAttributes ||
             !InventoryTracking.Tracked(product))
@@ -229,7 +229,7 @@ public abstract class BaseProductAttributeCombinationController(
         // does not implement that marker interface, so merging Vendor's Insert/Update as-is would silently
         // drop vendor ownership enforcement. scope.HasAccess replaces it uniformly across all four actions
         // (no-op for Admin, equivalent-or-stronger for Store/Vendor).
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 

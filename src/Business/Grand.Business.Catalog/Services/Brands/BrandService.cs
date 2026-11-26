@@ -53,7 +53,7 @@ public class BrandService : IBrandService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Brands</returns>
-    public virtual async Task<IPagedList<Brand>> GetAllBrands(string brandName,
+    public virtual async Task<IPagedList<Brand>> GetAllBrands(string? brandName,
         CatalogAccess access,
         int pageIndex = 0,
         int pageSize = int.MaxValue)

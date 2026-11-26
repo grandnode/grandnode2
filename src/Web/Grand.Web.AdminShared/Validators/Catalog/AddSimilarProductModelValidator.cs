@@ -18,7 +18,7 @@ public class AddSimilarProductModelValidator : BaseStoreAccessValidator<ProductM
         _productService = productService;
     }
 
-    protected override async Task<Product> GetEntity(ProductModel.AddSimilarProductModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.AddSimilarProductModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

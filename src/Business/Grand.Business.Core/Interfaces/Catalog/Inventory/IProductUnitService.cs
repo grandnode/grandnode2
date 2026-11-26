@@ -154,7 +154,7 @@ public interface IProductUnitService
     /// <param name="today">The date in the store's time zone</param>
     /// <returns>Every batch holding stock and the stock without a batch, in that order, with what is taken</returns>
     Task<IList<BatchAllocation>> ProposeBatches(Product product, IList<CustomAttribute> attributes,
-        string warehouseId, int quantity, DateTime today);
+        string? warehouseId, int quantity, DateTime today);
 
     /// <summary>
     ///     Checks the units every item of a shipment not stored yet names, against the units stored now, and fixes the
@@ -168,9 +168,9 @@ public interface IProductUnitService
 
     Task<IPagedList<ProductBatch>> SearchBatches(UnitSearch search, int pageIndex = 0, int pageSize = int.MaxValue);
 
-    Task<ProductSerialNumber?> GetSerialNumber(string id);
+    Task<ProductSerialNumber?> GetSerialNumber(string? id);
 
-    Task<ProductBatch?> GetBatch(string id);
+    Task<ProductBatch?> GetBatch(string? id);
 
     /// <summary>
     ///     Saves what the back office tells about the batch: its location, supplier, dates and comments; never its
@@ -202,7 +202,7 @@ public interface IProductUnitService
     /// <param name="warehouseIds">The warehouses whose entries are read; null for every warehouse it passed through</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    Task<IPagedList<InventoryJournal>> History(ProductSerialNumber serialNumber, IList<string> warehouseIds,
+    Task<IPagedList<InventoryJournal>> History(ProductSerialNumber serialNumber, IList<string>? warehouseIds,
         int pageIndex, int pageSize);
 
     /// <summary>

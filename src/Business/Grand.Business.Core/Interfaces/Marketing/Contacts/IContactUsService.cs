@@ -32,7 +32,7 @@ public interface IContactUsService
     /// <param name="pageSize">Page size</param>
     /// <returns>ContactUs items</returns>
     Task<IPagedList<ContactUs>> GetAllContactUs(DateTime? fromUtc = null, DateTime? toUtc = null,
-        string email = "", string vendorId = "", string customerId = "", string storeId = "",
+        string? email = "", string vendorId = "", string customerId = "", string? storeId = "",
         int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>

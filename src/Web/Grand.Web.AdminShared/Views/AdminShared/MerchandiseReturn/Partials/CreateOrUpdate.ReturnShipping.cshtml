@@ -1,6 +1,8 @@
 @model MerchandiseReturnModel
 @{
     var shipping = Model.ReturnShipping;
+    //TabInfo renders this partial only for a return sent back by a carrier
+    if (shipping == null) return;
     var prefix = Scope.ResourceKeyPrefix;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }

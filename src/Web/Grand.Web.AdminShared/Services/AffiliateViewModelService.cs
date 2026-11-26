@@ -74,7 +74,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
                     ? ""
                     : affiliate.FriendlyUrlName.ToLowerInvariant();
                 model.Active = affiliate.Active;
-                model.Address = await affiliate.Address.ToModel(_countryService);
+                if (affiliate.Address != null) model.Address = await affiliate.Address.ToModel(_countryService);
             }
         }
 
@@ -105,7 +105,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
                 { Text = _translationService.GetResource("Admin.Address.SelectCountry"), Value = "" });
             foreach (var c in await _countryService.GetAllCountries(showHidden: true))
                 model.Address.AvailableCountries.Add(new SelectListItem {
-                    Text = c.Name, Value = c.Id, Selected = affiliate != null && c.Id == affiliate.Address.CountryId
+                    Text = c.Name, Value = c.Id, Selected = affiliate != null && c.Id == affiliate.Address?.CountryId
                 });
 
             var states = !string.IsNullOrEmpty(model.Address.CountryId)
@@ -116,7 +116,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
                 foreach (var s in states)
                     model.Address.AvailableStates.Add(new SelectListItem {
                         Text = s.Name, Value = s.Id,
-                        Selected = affiliate != null && s.Id == affiliate.Address.StateProvinceId
+                        Selected = affiliate != null && s.Id == affiliate.Address?.StateProvinceId
                     });
         }
     }
@@ -142,6 +142,9 @@ public class AffiliateViewModelService : IAffiliateViewModelService
 
     public virtual async Task<Affiliate> InsertAffiliateModel(AffiliateModel model)
     {
+        //the validator requires the name
+        ArgumentException.ThrowIfNullOrEmpty(model.Name);
+
         var affiliate = new Affiliate {
             Active = model.Active,
             AdminComment = model.AdminComment,
@@ -158,13 +161,18 @@ public class AffiliateViewModelService : IAffiliateViewModelService
 
     public virtual async Task<Affiliate> UpdateAffiliateModel(AffiliateModel model, Affiliate affiliate)
     {
+        //the validator requires the name
+        ArgumentException.ThrowIfNullOrEmpty(model.Name);
+
         affiliate.Active = model.Active;
         affiliate.AdminComment = model.AdminComment;
         affiliate.Name = model.Name;
         //validate friendly URL name
         var friendlyUrlName = await ValidateFriendlyUrlName(affiliate, model.FriendlyUrlName, model.Name);
         affiliate.FriendlyUrlName = friendlyUrlName.ToLowerInvariant();
-        affiliate.Address = model.Address.ToEntity(affiliate.Address);
+        affiliate.Address = affiliate.Address != null
+            ? model.Address.ToEntity(affiliate.Address)
+            : model.Address.ToEntity();
         await _affiliateService.UpdateAffiliate(affiliate);
         return affiliate;
     }
@@ -244,7 +252,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
     /// <param name="affiliateService"></param>
     /// <param name="name"></param>
     /// <returns>Valid friendly name</returns>
-    private async Task<string> ValidateFriendlyUrlName(Affiliate affiliate, string friendlyUrlName, string name)
+    private async Task<string> ValidateFriendlyUrlName(Affiliate affiliate, string? friendlyUrlName, string name)
     {
         ArgumentNullException.ThrowIfNull(affiliate);
 

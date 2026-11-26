@@ -2,5 +2,5 @@
 
 public interface ISlugModelLocal
 {
-    string SeName { get; set; }
+    string? SeName { get; set; }
 }

@@ -61,7 +61,7 @@ public interface IMerchandiseReturnWorkflowService
     ///     where a receipt would take the goods in
     /// </param>
     Task<string?> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string? customerNote,
-        string? changedBy, Func<MerchandiseReturn, bool> allowed, bool withoutReturnReceipts);
+        string? changedBy, Func<MerchandiseReturn, bool>? allowed, bool withoutReturnReceipts);
 
     /// <summary>
     ///     Saves the fields set by apply; the status stays as stored, it changes only through ChangeStatus

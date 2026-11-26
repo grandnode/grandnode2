@@ -17,7 +17,7 @@ public interface ICollectionService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Collections</returns>
-    Task<IPagedList<Collection>> GetAllCollections(string collectionName,
+    Task<IPagedList<Collection>> GetAllCollections(string? collectionName,
         CatalogAccess access,
         int pageIndex = 0,
         int pageSize = int.MaxValue);

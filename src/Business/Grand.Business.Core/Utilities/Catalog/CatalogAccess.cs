@@ -12,7 +12,7 @@ namespace Grand.Business.Core.Utilities.Catalog;
 /// </summary>
 public sealed record CatalogAccess
 {
-    private CatalogAccess(Customer? customer, string storeId)
+    private CatalogAccess(Customer? customer, string? storeId)
     {
         Customer = customer;
         StoreId = storeId ?? "";
@@ -46,7 +46,7 @@ public sealed record CatalogAccess
     /// <summary>
     ///     The published records the customer's groups may see in the store
     /// </summary>
-    public static CatalogAccess For(Customer customer, string storeId)
+    public static CatalogAccess For(Customer customer, string? storeId)
     {
         ArgumentNullException.ThrowIfNull(customer);
         return new CatalogAccess(customer, storeId);
@@ -55,7 +55,7 @@ public sealed record CatalogAccess
     /// <summary>
     ///     Every record, hidden and group-limited ones included; a store id leaves out those limited to other stores
     /// </summary>
-    public static CatalogAccess IncludingHidden(string storeId = "")
+    public static CatalogAccess IncludingHidden(string? storeId = "")
     {
         return new CatalogAccess(null, storeId);
     }

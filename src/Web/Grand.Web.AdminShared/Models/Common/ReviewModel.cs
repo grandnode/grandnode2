@@ -9,11 +9,11 @@ public class ReviewModel : BaseEntityModel
     ///     Gets or sets the title
     /// </summary>
     [GrandResourceDisplayName("Admin.Customers.Customers.Reviews.Title")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     ///     Gets or sets the review text
     /// </summary>
     [GrandResourceDisplayName("Admin.Customers.Customers.Reviews.Review")]
-    public string ReviewText { get; set; }
+    public string? ReviewText { get; set; }
 }

@@ -42,7 +42,7 @@ public class BaseShipmentControllerTests
         : BaseShipmentController(shipmentViewModelService, orderService, translationService,
             contextAccessor, pdfService, shipmentService, dateTimeService, mediator, scope, orderScope)
     {
-        public Task<(Shipment shipment, IActionResult denied)> LoadAuthorizedShipmentPublic(string id) =>
+        public Task<Access<Shipment>> LoadAuthorizedShipmentPublic(string id) =>
             LoadAuthorizedShipment(id);
     }
 

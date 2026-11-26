@@ -58,7 +58,7 @@ public class ShippingMethodService : IShippingMethodService
     /// </summary>
     /// <param name="shippingMethodId">The shipping method identifier</param>
     /// <returns>Shipping method</returns>
-    public virtual Task<ShippingMethod?> GetShippingMethodById(string shippingMethodId)
+    public virtual Task<ShippingMethod?> GetShippingMethodById(string? shippingMethodId)
     {
         var key = string.Format(CacheKey.SHIPPINGMETHOD_BY_ID_KEY, shippingMethodId);
         return _cacheBase.GetAsync(key, () => _shippingMethodRepository.GetByIdAsync(shippingMethodId));

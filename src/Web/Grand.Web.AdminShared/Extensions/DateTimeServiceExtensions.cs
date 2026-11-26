@@ -28,7 +28,7 @@ public static class DateTimeServiceExtensions
         return options;
     }
 
-    private static SelectListItem AddUnlistedZone(IDateTimeService dateTimeService, string timeZoneId,
+    private static SelectListItem? AddUnlistedZone(IDateTimeService dateTimeService, string timeZoneId,
         List<SelectListItem> options)
     {
         if (string.IsNullOrEmpty(timeZoneId)) return null;

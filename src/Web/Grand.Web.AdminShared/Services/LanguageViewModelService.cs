@@ -43,7 +43,7 @@ public class LanguageViewModelService : ILanguageViewModelService
         var filepath = Path.Combine(_hostingEnvironment.WebRootPath, "assets/images/flags");
         model.FlagFileNames = Directory
             .EnumerateFiles(filepath, "*.png", SearchOption.TopDirectoryOnly)
-            .Select(Path.GetFileName)
+            .Select(x => Path.GetFileName(x))
             .ToList();
     }
 
@@ -80,6 +80,9 @@ public class LanguageViewModelService : ILanguageViewModelService
 
     public virtual async Task<(bool error, string message)> InsertLanguageResourceModel(LanguageResourceModel model)
     {
+        //the resource is added on a language's page, which posts its id
+        ArgumentException.ThrowIfNullOrEmpty(model.LanguageId);
+
         if (model.Name != null)
             model.Name = model.Name.Trim();
         if (model.Value != null)
@@ -113,9 +116,10 @@ public class LanguageViewModelService : ILanguageViewModelService
             model.Name = model.Name.Trim();
         if (model.Value != null)
             model.Value = model.Value.Trim();
-        var resource = await _translationService.GetTranslateResourceById(model.Id);
+        var resource = await _translationService.GetTranslateResourceById(model.Id)
+                       ?? throw new ArgumentException("No resource found with the specified id");
         // if the resourceName changed, ensure it isn't being used by another resource
-        if (!resource.Name.Equals(model.Name, StringComparison.OrdinalIgnoreCase))
+        if (!string.Equals(resource.Name, model.Name, StringComparison.OrdinalIgnoreCase))
         {
             var res = await _translationService.GetTranslateResourceByName(model.Name, model.LanguageId);
             if (res != null && res.Id != resource.Id)
@@ -153,10 +157,10 @@ public class LanguageViewModelService : ILanguageViewModelService
         {
             if (!string.IsNullOrEmpty(model.ResourceName))
                 resources = resources.Where(x =>
-                    x.Name.ToLowerInvariant().Contains(model.ResourceName.ToLowerInvariant()));
+                    x.Name != null && x.Name.ToLowerInvariant().Contains(model.ResourceName.ToLowerInvariant()));
             if (!string.IsNullOrEmpty(model.ResourceValue))
                 resources = resources.Where(x =>
-                    x.Value.ToLowerInvariant().Contains(model.ResourceValue.ToLowerInvariant()));
+                    x.Value != null && x.Value.ToLowerInvariant().Contains(model.ResourceValue.ToLowerInvariant()));
         }
 
         resources = resources.AsQueryable();

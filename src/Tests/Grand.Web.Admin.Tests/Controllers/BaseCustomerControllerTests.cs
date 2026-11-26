@@ -30,7 +30,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
             customerAttributeParser, customerAttributeService, customerMessageProviderService, groupService,
             translationService, contextAccessor, customerSettings, scope)
     {
-        public Task<(Customer, IActionResult)> LoadAuthorizedCustomerPublic(string id) => LoadAuthorizedCustomer(id);
+        public Task<Access<Customer>> LoadAuthorizedCustomerPublic(string id) => LoadAuthorizedCustomer(id);
     }
 
     protected override TestCustomerController CreateController() => new(

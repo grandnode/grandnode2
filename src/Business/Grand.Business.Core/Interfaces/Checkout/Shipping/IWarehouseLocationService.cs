@@ -8,7 +8,7 @@ namespace Grand.Business.Core.Interfaces.Checkout.Shipping;
 /// </summary>
 public interface IWarehouseLocationService
 {
-    Task<WarehouseLocation?> GetLocationById(string id);
+    Task<WarehouseLocation?> GetLocationById(string? id);
 
     /// <summary>
     ///     The locations of the warehouses by display order and code

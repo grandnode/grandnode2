@@ -10,7 +10,7 @@ public interface IDeliveryDateService
     /// </summary>
     /// <param name="deliveryDateId">The delivery date identifier</param>
     /// <returns>Delivery date</returns>
-    Task<DeliveryDate?> GetDeliveryDateById(string deliveryDateId);
+    Task<DeliveryDate?> GetDeliveryDateById(string? deliveryDateId);
 
     /// <summary>
     ///     Gets all delivery dates
@@ -19,7 +19,7 @@ public interface IDeliveryDateService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Delivery dates</returns>
-    Task<IPagedList<DeliveryDate>> GetAllDeliveryDates(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<DeliveryDate>> GetAllDeliveryDates(string? storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Inserts a delivery date

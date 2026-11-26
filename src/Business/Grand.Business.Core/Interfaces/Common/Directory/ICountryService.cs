@@ -55,7 +55,7 @@ public interface ICountryService
     /// </summary>
     /// <param name="twoLetterIsoCode">Country two letter ISO code</param>
     /// <returns>Country</returns>
-    Task<Country?> GetCountryByTwoLetterIsoCode(string twoLetterIsoCode);
+    Task<Country?> GetCountryByTwoLetterIsoCode(string? twoLetterIsoCode);
 
     /// <summary>
     ///     Gets a country by three letter ISO code

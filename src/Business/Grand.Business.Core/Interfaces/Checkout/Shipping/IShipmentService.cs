@@ -27,8 +27,8 @@ public interface IShipmentService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Shipments</returns>
-    Task<IPagedList<Shipment>> GetAllShipments(string storeId = "", string vendorId = "", string warehouseId = "",
-        string shippingCountryId = "",
+    Task<IPagedList<Shipment>> GetAllShipments(string? storeId = "", string? vendorId = "", string? warehouseId = "",
+        string? shippingCountryId = "",
         int shippingStateId = 0,
         string? shippingCity = null,
         string? trackingNumber = null,

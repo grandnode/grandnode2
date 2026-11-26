@@ -50,7 +50,7 @@ public class BlogService : IBlogService
     /// </summary>
     /// <param name="blogPostId">Blog post identifier</param>
     /// <returns>Blog post</returns>
-    public virtual Task<BlogPost?> GetBlogPostById(string blogPostId)
+    public virtual Task<BlogPost?> GetBlogPostById(string? blogPostId)
     {
         return _blogPostRepository.GetByIdAsync(blogPostId);
     }
@@ -68,10 +68,10 @@ public class BlogService : IBlogService
     /// <param name="blogPostName">Blog post name</param>
     /// <param name="categoryId">Category ident</param>
     /// <returns>Blog posts</returns>
-    public virtual async Task<IPagedList<BlogPost>> GetAllBlogPosts(string storeId,
+    public virtual async Task<IPagedList<BlogPost>> GetAllBlogPosts(string? storeId,
         DateTime? dateFrom = null, DateTime? dateTo = null,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false, string? tag = null,
-        string blogPostName = "", string categoryId = "")
+        string? blogPostName = "", string categoryId = "")
     {
         var query = await BuildBlogPostQuery(storeId, dateFrom, dateTo, showHidden, blogPostName, categoryId);
         if (!string.IsNullOrEmpty(tag)) query = query.Where(x => x.Tags != null && x.Tags.Contains(tag));
@@ -79,8 +79,8 @@ public class BlogService : IBlogService
         return await _blogPostRepository.PagedAsync(query.OrderByDescending(b => b.CreatedOnUtc), pageIndex, pageSize);
     }
 
-    private async Task<IQueryable<BlogPost>> BuildBlogPostQuery(string storeId, DateTime? dateFrom,
-        DateTime? dateTo, bool showHidden, string blogPostName, string categoryId)
+    private async Task<IQueryable<BlogPost>> BuildBlogPostQuery(string? storeId, DateTime? dateFrom,
+        DateTime? dateTo, bool showHidden, string? blogPostName, string categoryId)
     {
         var query = from p in _blogPostRepository.Table
             select p;
@@ -309,7 +309,7 @@ public class BlogService : IBlogService
     /// </summary>
     /// <param name="blogCategoryId">Blog category id</param>
     /// <returns></returns>
-    public virtual Task<BlogCategory?> GetBlogCategoryById(string blogCategoryId)
+    public virtual Task<BlogCategory?> GetBlogCategoryById(string? blogCategoryId)
     {
         return _blogCategoryRepository.GetByIdAsync(blogCategoryId);
     }
@@ -407,7 +407,7 @@ public class BlogService : IBlogService
     /// </summary>
     /// <param name="id">id</param>
     /// <returns>Blog product</returns>
-    public virtual Task<BlogProduct?> GetBlogProductById(string id)
+    public virtual Task<BlogProduct?> GetBlogProductById(string? id)
     {
         return _blogProductRepository.GetByIdAsync(id);
     }

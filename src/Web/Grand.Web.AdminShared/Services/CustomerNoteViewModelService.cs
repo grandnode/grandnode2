@@ -62,13 +62,11 @@ public class CustomerNoteViewModelService(
         await customerNoteService.InsertCustomerNote(customerNote);
 
         //new customer note notification
-        if (displayToCustomer)
-        {
+        if (displayToCustomer && await customerService.GetCustomerById(customerId) is { } customer)
             //email
             await customerMessageProviderService.SendNewCustomerNoteMessage(customerNote,
-                await customerService.GetCustomerById(customerId), contextAccessor.StoreContext.CurrentStore,
+                customer, contextAccessor.StoreContext.CurrentStore,
                 contextAccessor.WorkContext.WorkingLanguage.Id);
-        }
 
         return true;
     }

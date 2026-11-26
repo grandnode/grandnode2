@@ -179,7 +179,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// <param name="email">The newsletter subscription email</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    public virtual async Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByEmailAndStoreId(string email,
+    public virtual async Task<NewsLetterSubscription?> GetNewsLetterSubscriptionByEmailAndStoreId(string? email,
         string storeId)
     {
         if (!CommonHelper.IsValidEmail(email))

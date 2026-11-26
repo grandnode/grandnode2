@@ -17,7 +17,7 @@ public interface IBrandService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Brands</returns>
-    Task<IPagedList<Brand>> GetAllBrands(string brandName,
+    Task<IPagedList<Brand>> GetAllBrands(string? brandName,
         CatalogAccess access,
         int pageIndex = 0,
         int pageSize = int.MaxValue);

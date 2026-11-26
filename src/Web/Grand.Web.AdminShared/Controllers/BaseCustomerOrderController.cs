@@ -27,8 +27,9 @@ public abstract class BaseCustomerOrderController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+            var _Access = await LoadAuthorizedCustomer(customerId);
+            if (_Access.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
+            var _ = _Access.Entity;
         }
         else if (!await permissionService.Authorize(StandardPermission.ManageOrders))
         {
@@ -47,7 +48,7 @@ public abstract class BaseCustomerOrderController(
     [HttpPost]
     public async Task<IActionResult> OrderDetails(string orderId)
     {
-        Order order;
+        Order? order;
         if (Scope.DefaultStoreId is null)
         {
             if (!await permissionService.Authorize(StandardPermission.ManageOrders))

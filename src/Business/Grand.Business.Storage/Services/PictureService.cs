@@ -289,7 +289,7 @@ public class PictureService : IPictureService
     /// <param name="showDefaultPicture">A value indicating whether the default picture is shown</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Picture URL</returns>
-    public virtual async Task<string?> GetPictureUrl(string pictureId,
+    public virtual async Task<string?> GetPictureUrl(string? pictureId,
         int targetSize = 0,
         bool showDefaultPicture = true,
         string? storeLocation = null)

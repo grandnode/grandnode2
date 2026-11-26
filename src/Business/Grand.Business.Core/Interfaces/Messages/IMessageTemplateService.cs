@@ -31,7 +31,7 @@ public interface IMessageTemplateService
     /// </summary>
     /// <param name="messageTemplateId">Message template identifier</param>
     /// <returns>Message template</returns>
-    Task<MessageTemplate?> GetMessageTemplateById(string messageTemplateId);
+    Task<MessageTemplate?> GetMessageTemplateById(string? messageTemplateId);
 
     /// <summary>
     ///     Gets a message template by name
@@ -49,7 +49,7 @@ public interface IMessageTemplateService
     /// <param name="pageIndex">Page index (0-based)</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Paged list of message templates</returns>
-    Task<IPagedList<MessageTemplate>> GetAllMessageTemplates(string storeId, string keywords = "", int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<MessageTemplate>> GetAllMessageTemplates(string storeId, string? keywords = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Create a copy of message template with all depended data

@@ -14,7 +14,7 @@ public interface INewsService
     /// </summary>
     /// <param name="newsId">The news identifier</param>
     /// <returns>News</returns>
-    Task<NewsItem?> GetNewsById(string newsId);
+    Task<NewsItem?> GetNewsById(string? newsId);
 
     /// <summary>
     ///     Gets all news
@@ -29,7 +29,7 @@ public interface INewsService
     /// <param name="newsTitle">News title</param>
     /// <returns>News items</returns>
     Task<IPagedList<NewsItem>> GetAllNews(CatalogAccess access,
-        int pageIndex = 0, int pageSize = int.MaxValue, bool includeUnpublished = false, string newsTitle = "");
+        int pageIndex = 0, int pageSize = int.MaxValue, bool includeUnpublished = false, string? newsTitle = "");
 
     /// <summary>
     ///     Inserts a news item

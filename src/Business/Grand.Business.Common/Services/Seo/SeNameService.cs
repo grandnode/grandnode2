@@ -61,7 +61,7 @@ public class SeNameService(ISlugService slugService, ILanguageService languageSe
         return seName;
     }
 
-    public async Task<List<TranslationEntity>> TranslationSeNameProperties<T, TE>(IList<T> list, TE entity, Expression<Func<T, string>> keySelector)
+    public async Task<List<TranslationEntity>> TranslationSeNameProperties<T, TE>(IList<T> list, TE entity, Expression<Func<T, string?>> keySelector)
         where T : ILocalizedModelLocal where TE : BaseEntity, ISlugEntity
     {
         var local = new List<TranslationEntity>();

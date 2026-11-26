@@ -47,7 +47,7 @@ public class TranslationService : ITranslationService
     /// </summary>
     /// <param name="translateResourceId">Translate resource identifier</param>
     /// <returns>Translate resource</returns>
-    public virtual Task<TranslationResource?> GetTranslateResourceById(string translateResourceId)
+    public virtual Task<TranslationResource?> GetTranslateResourceById(string? translateResourceId)
     {
         return _translationRepository.GetByIdAsync(translateResourceId);
     }
@@ -58,7 +58,7 @@ public class TranslationService : ITranslationService
     /// <param name="name">A string representing a name</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Translate resource</returns>
-    public virtual async Task<TranslationResource?> GetTranslateResourceByName(string name, string languageId)
+    public virtual async Task<TranslationResource?> GetTranslateResourceByName(string? name, string? languageId)
     {
         var query = from lsr in _translationRepository.Table
                     orderby lsr.Name

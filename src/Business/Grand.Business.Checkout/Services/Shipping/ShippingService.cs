@@ -78,7 +78,7 @@ public class ShippingService : IShippingService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found Shipping rate  method</returns>
-    public virtual IShippingRateCalculationProvider? LoadShippingRateCalculationProviderBySystemName(string systemName)
+    public virtual IShippingRateCalculationProvider? LoadShippingRateCalculationProviderBySystemName(string? systemName)
     {
         return _shippingRateCalculationProvider.FirstOrDefault(x => x.SystemName == systemName);
     }

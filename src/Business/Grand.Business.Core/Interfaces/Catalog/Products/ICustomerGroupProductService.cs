@@ -17,7 +17,7 @@ public interface ICustomerGroupProductService
     /// <param name="customerGroupId">Customer group id</param>
     /// <param name="productId">Product id</param>
     /// <returns>Customer group product</returns>
-    Task<CustomerGroupProduct?> GetCustomerGroupProduct(string customerGroupId, string productId);
+    Task<CustomerGroupProduct?> GetCustomerGroupProduct(string? customerGroupId, string? productId);
 
     /// <summary>
     ///     Gets customer groups product

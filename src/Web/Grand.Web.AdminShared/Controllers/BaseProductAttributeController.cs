@@ -146,7 +146,7 @@ public abstract class BaseProductAttributeController(
     public async Task<IActionResult> UsedByProducts(DataSourceRequest command, string productAttributeId)
     {
         var productAttribute = await productAttributeService.GetProductAttributeById(productAttributeId);
-        if (!await scope.CanView(productAttribute))
+        if (productAttribute == null || !await scope.CanView(productAttribute))
             return RedirectToAction("List");
 
         var products = await productService.GetProductsByProductAttributeId(
@@ -168,7 +168,7 @@ public abstract class BaseProductAttributeController(
     public async Task<IActionResult> PredefinedProductAttributeValueList(string productAttributeId, DataSourceRequest command)
     {
         var productAttribute = await productAttributeService.GetProductAttributeById(productAttributeId);
-        if (!await scope.CanView(productAttribute))
+        if (productAttribute == null || !await scope.CanView(productAttribute))
             return View("AccessDenied", translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         var values = productAttribute.PredefinedProductAttributeValues;
@@ -213,7 +213,7 @@ public abstract class BaseProductAttributeController(
     public async Task<IActionResult> PredefinedProductAttributeValueEditPopup(string id, string productAttributeId)
     {
         var productAttribute = await productAttributeService.GetProductAttributeById(productAttributeId);
-        if (!await scope.CanView(productAttribute))
+        if (productAttribute == null || !await scope.CanView(productAttribute))
             return View("AccessDenied", translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         var ppav = productAttribute.PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == id);
@@ -233,7 +233,7 @@ public abstract class BaseProductAttributeController(
     public async Task<IActionResult> PredefinedProductAttributeValueEditPopup(PredefinedProductAttributeValueModel model)
     {
         var productAttribute = await productAttributeService.GetProductAttributeById(model.ProductAttributeId);
-        if (!await scope.HasAccess(productAttribute))
+        if (productAttribute == null || !await scope.HasAccess(productAttribute))
             return View("AccessDenied", translationService.GetResource("admin.Catalog.attributes.productattributes.permissions"));
 
         var ppav = productAttribute.PredefinedProductAttributeValues.FirstOrDefault(x => x.Id == model.Id);

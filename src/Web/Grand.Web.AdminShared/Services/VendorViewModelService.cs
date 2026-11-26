@@ -34,7 +34,7 @@ public class VendorViewModelService(
     ISeNameService seNameService)
     : IVendorViewModelService
 {
-    public virtual async Task PrepareDiscountModel(VendorModel model, Vendor vendor, bool excludeProperties)
+    public virtual async Task PrepareDiscountModel(VendorModel model, Vendor? vendor, bool excludeProperties)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -76,7 +76,7 @@ public class VendorViewModelService(
         }
     }
 
-    public virtual async Task PrepareVendorAddressModel(VendorModel model, Vendor vendor)
+    public virtual async Task PrepareVendorAddressModel(VendorModel model, Vendor? vendor)
     {
         model.Address ??= new AddressModel();
 
@@ -311,6 +311,10 @@ public class VendorViewModelService(
 
     public virtual async Task<VendorReview> UpdateVendorReviewModel(VendorReview vendorReview, VendorReviewModel model)
     {
+        //the validator requires both
+        ArgumentException.ThrowIfNullOrEmpty(model.Title);
+        ArgumentException.ThrowIfNullOrEmpty(model.ReviewText);
+
         vendorReview.Title = model.Title;
         vendorReview.ReviewText = model.ReviewText;
         vendorReview.IsApproved = model.IsApproved;
@@ -319,7 +323,7 @@ public class VendorViewModelService(
 
         var vendor = await vendorService.GetVendorById(vendorReview.VendorId);
         //update vendor totals
-        await vendorService.UpdateVendorReviewTotals(vendor);
+        if (vendor != null) await vendorService.UpdateVendorReviewTotals(vendor);
         return vendorReview;
     }
 
@@ -328,7 +332,7 @@ public class VendorViewModelService(
         await vendorService.DeleteVendorReview(vendorReview);
         var vendor = await vendorService.GetVendorById(vendorReview.VendorId);
         //update vendor totals
-        await vendorService.UpdateVendorReviewTotals(vendor);
+        if (vendor != null) await vendorService.UpdateVendorReviewTotals(vendor);
     }
 
     public virtual async Task ApproveVendorReviews(IEnumerable<string> selectedIds, IAdminDataScope<VendorReview> scope)
@@ -343,7 +347,7 @@ public class VendorViewModelService(
             var previousIsApproved = vendorReview.IsApproved;
             vendorReview.IsApproved = true;
             await vendorService.UpdateVendorReview(vendorReview);
-            await vendorService.UpdateVendorReviewTotals(vendor);
+            if (vendor != null) await vendorService.UpdateVendorReviewTotals(vendor);
 
             //raise event (only if it wasn't approved before)
             if (!previousIsApproved)
@@ -362,7 +366,7 @@ public class VendorViewModelService(
             var vendor = await vendorService.GetVendorById(vendorReview.VendorId);
             vendorReview.IsApproved = false;
             await vendorService.UpdateVendorReview(vendorReview);
-            await vendorService.UpdateVendorReviewTotals(vendor);
+            if (vendor != null) await vendorService.UpdateVendorReviewTotals(vendor);
         }
     }
 }

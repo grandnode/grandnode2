@@ -7,11 +7,11 @@ public class PaymentMethodModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Payment.Methods.Fields.FriendlyName")]
 
-    public string FriendlyName { get; set; }
+    public string? FriendlyName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Payment.Methods.Fields.SystemName")]
 
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Payment.Methods.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -20,7 +20,7 @@ public class PaymentMethodModel : BaseModel
     public bool IsActive { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Payment.Methods.Fields.Logo")]
-    public string LogoUrl { get; set; }
+    public string? LogoUrl { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Payment.Methods.Fields.SupportCapture")]
     public bool SupportCapture { get; set; }
@@ -35,5 +35,5 @@ public class PaymentMethodModel : BaseModel
     public bool SupportVoid { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Payment.Methods.Fields.Configure")]
-    public string ConfigurationUrl { get; set; }
+    public string? ConfigurationUrl { get; set; }
 }

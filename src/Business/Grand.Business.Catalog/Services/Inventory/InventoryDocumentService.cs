@@ -291,7 +291,7 @@ public class InventoryDocumentService(
             .ToList();
     }
 
-    public async Task<MerchandiseReturnReceipts> GetReturnReceipts(string merchandiseReturnId)
+    public async Task<MerchandiseReturnReceipts> GetReturnReceipts(string? merchandiseReturnId)
     {
         ArgumentException.ThrowIfNullOrEmpty(merchandiseReturnId);
 
@@ -531,7 +531,7 @@ public class InventoryDocumentService(
         }
     }
 
-    public Task<InventoryDocument?> GetById(string id)
+    public Task<InventoryDocument?> GetById(string? id)
     {
         return inventoryDocumentRepository.GetByIdAsync(id);
     }

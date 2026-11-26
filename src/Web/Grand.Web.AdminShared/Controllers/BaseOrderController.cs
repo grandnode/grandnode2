@@ -40,12 +40,12 @@ public abstract class BaseOrderController(
     /// both Admin's and Store's original controllers (every action in both files redirects to
     /// "List", never "Edit", on either condition). Not a behavior change — every call site below
     /// still individually returns RedirectToAction("List") exactly as both originals did.</summary>
-    protected async Task<(Order order, IActionResult denied)> LoadAuthorizedOrder(string id)
+    protected async Task<Access<Order>> LoadAuthorizedOrder(string? id)
     {
         var order = await orderService.GetOrderById(id);
-        if (order == null) return (null, RedirectToAction("List"));
-        if (!await scope.HasAccess(order)) return (null, RedirectToAction("List"));
-        return (order, null);
+        if (order == null) return Access<Order>.Deny(RedirectToAction("List"));
+        if (!await scope.HasAccess(order)) return Access<Order>.Deny(RedirectToAction("List"));
+        return Access<Order>.Allow(order);
     }
 
     #region Order list
@@ -53,7 +53,7 @@ public abstract class BaseOrderController(
     public IActionResult Index() => RedirectToAction("List");
 
     public async Task<IActionResult> List(int? orderStatusId = null, int? paymentStatusId = null,
-        int? shippingStatusId = null, DateTime? startDate = null, string code = null)
+        int? shippingStatusId = null, DateTime? startDate = null, string? code = null)
     {
         var model = await orderViewModelService.PrepareOrderListModel(orderStatusId, paymentStatusId,
             shippingStatusId, startDate, scope.DefaultStoreId ?? "", code);
@@ -97,8 +97,9 @@ public abstract class BaseOrderController(
     [AuditExport("Order")]
     public async Task<IActionResult> PdfInvoice(string orderId)
     {
-        var (order, denied) = await LoadAuthorizedOrder(orderId);
-        if (denied != null) return denied;
+        var orderAccess = await LoadAuthorizedOrder(orderId);
+        if (orderAccess.IsDenied) return orderAccess.Denied;
+        var order = orderAccess.Entity;
 
         var orders = new List<Order> { order };
         byte[] bytes;
@@ -199,7 +200,7 @@ public abstract class BaseOrderController(
     [HttpPost]
     public async Task<IActionResult> GoToOrderId(OrderListModel model)
     {
-        Order order = null;
+        Order? order = null;
         int.TryParse(model.GoDirectlyToNumber, out var orderNumber);
         if (orderNumber > 0) order = await orderService.GetOrderByNumber(orderNumber);
         else

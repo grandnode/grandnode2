@@ -11,7 +11,7 @@ public interface IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base category</returns>
-    Task<KnowledgebaseCategory?> GetKnowledgebaseCategory(string id);
+    Task<KnowledgebaseCategory?> GetKnowledgebaseCategory(string? id);
 
     /// <summary>
     ///     Gets public knowledge base category
@@ -57,7 +57,7 @@ public interface IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base article</returns>
-    Task<KnowledgebaseArticle?> GetKnowledgebaseArticle(string id);
+    Task<KnowledgebaseArticle?> GetKnowledgebaseArticle(string? id);
 
     /// <summary>
     ///     Gets public knowledge base article

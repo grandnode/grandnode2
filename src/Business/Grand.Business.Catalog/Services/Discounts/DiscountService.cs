@@ -87,9 +87,9 @@ public class DiscountService : IDiscountService
         return filteredDiscounts.ToList();
     }
 
-    public virtual async Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string storeId = "",
-        string currencyCode = "",
-        string couponCode = "", string discountName = "")
+    public virtual async Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string? storeId = "",
+        string? currencyCode = "",
+        string? couponCode = "", string? discountName = "")
     {
         var query = _discountRepository.Table.AsQueryable();
 

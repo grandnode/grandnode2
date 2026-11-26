@@ -22,28 +22,28 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Email")]
 
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Description")]
     [SanitizeHtml]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [UIHint("Picture")]
     [GrandResourceDisplayName("Admin.Vendors.Fields.Picture")]
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public List<SelectListItem> AvailableStores { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.AdminComment")]
     [NoHtml]
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Active")]
     public bool Active { get; set; }
@@ -56,19 +56,19 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaKeywords")]
     [NoHtml]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaDescription")]
     [NoHtml]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaTitle")]
     [NoHtml]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.SeName")]
 
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.PageSize")]
     public int PageSize { get; set; }
@@ -77,7 +77,7 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
     public bool AllowCustomersToSelectPageSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.PageSizeOptions")]
-    public string PageSizeOptions { get; set; }
+    public string? PageSizeOptions { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.AssociatedCustomerEmails")]
     public IList<AssociatedCustomerInfo> AssociatedCustomers { get; set; }
@@ -87,10 +87,10 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
     //vendor notes
     [GrandResourceDisplayName("Admin.Vendors.VendorNotes.Fields.Note")]
 
-    public string AddVendorNoteMessage { get; set; }
+    public string? AddVendorNoteMessage { get; set; }
 
-    public List<DiscountModel> AvailableDiscounts { get; set; }
-    public string[] SelectedDiscountIds { get; set; }
+    public List<DiscountModel>? AvailableDiscounts { get; set; }
+    public string[] SelectedDiscountIds { get; set; } = [];
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Commission")]
     public double? Commission { get; set; }
@@ -101,16 +101,16 @@ public class VendorModel : BaseEntityModel, ILocalizedModel<VendorLocalizedModel
 
     public class AssociatedCustomerInfo : BaseEntityModel
     {
-        public string Email { get; set; }
+        public string? Email { get; set; }
     }
 
 
     public class VendorNote : BaseEntityModel
     {
-        public string VendorId { get; set; }
+        public string? VendorId { get; set; }
 
         [GrandResourceDisplayName("Admin.Vendors.VendorNotes.Fields.Note")]
-        public string Note { get; set; }
+        public string? Note { get; set; }
 
         [GrandResourceDisplayName("Admin.Vendors.VendorNotes.Fields.CreatedOn")]
         public DateTime CreatedOn { get; set; }
@@ -123,27 +123,27 @@ public class VendorLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 {
     [GrandResourceDisplayName("Admin.Vendors.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.Description")]
     [SanitizeHtml]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaKeywords")]
     [NoHtml]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaDescription")]
     [NoHtml]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.MetaTitle")]
     [NoHtml]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Vendors.Fields.SeName")]
 
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

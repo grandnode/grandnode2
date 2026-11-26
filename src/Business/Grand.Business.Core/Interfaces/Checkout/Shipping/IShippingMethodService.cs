@@ -10,7 +10,7 @@ public interface IShippingMethodService
     /// </summary>
     /// <param name="shippingMethodId">The shipping method identifier</param>
     /// <returns>Shipping method</returns>
-    Task<ShippingMethod?> GetShippingMethodById(string shippingMethodId);
+    Task<ShippingMethod?> GetShippingMethodById(string? shippingMethodId);
 
 
     /// <summary>

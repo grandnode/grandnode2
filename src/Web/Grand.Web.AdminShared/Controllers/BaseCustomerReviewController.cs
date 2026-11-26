@@ -26,8 +26,9 @@ public abstract class BaseCustomerReviewController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+            var _Access = await LoadAuthorizedCustomer(customerId);
+            if (_Access.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
+            var _ = _Access.Entity;
         }
 
         var productReviews = await productReviewService.GetAllProductReviews(customerId, null,

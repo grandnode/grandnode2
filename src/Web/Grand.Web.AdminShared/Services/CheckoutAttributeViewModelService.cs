@@ -27,7 +27,7 @@ public class CheckoutAttributeViewModelService(
     IEnumTranslationService enumTranslationService)
     : ICheckoutAttributeViewModelService
 {
-    public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel(string storeId = "")
+    public virtual async Task<IEnumerable<CheckoutAttributeModel>> PrepareCheckoutAttributeListModel(string? storeId = "")
     {
         var checkoutAttributes = await checkoutAttributeService.GetAllCheckoutAttributes(CatalogAccess.IncludingHidden(storeId));
         return checkoutAttributes.Select((Func<CheckoutAttribute, CheckoutAttributeModel>)(x =>
@@ -42,8 +42,8 @@ public class CheckoutAttributeViewModelService(
         string checkoutAttributeId)
     {
         var checkoutAttribute = await checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
-        var values = checkoutAttribute.CheckoutAttributeValues;
-        return values.Select(x => new CheckoutAttributeValueModel {
+        if (checkoutAttribute == null) return [];
+        return checkoutAttribute.CheckoutAttributeValues.Select(x => new CheckoutAttributeValueModel {
             Id = x.Id,
             CheckoutAttributeId = x.CheckoutAttributeId,
             Name = checkoutAttribute.AttributeControlTypeId != AttributeControlType.ColorSquares
@@ -70,12 +70,13 @@ public class CheckoutAttributeViewModelService(
     public virtual async Task<CheckoutAttributeValueModel> PrepareCheckoutAttributeValueModel(
         string checkoutAttributeId)
     {
-        var checkoutAttribute = await checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId);
+        var checkoutAttribute = await checkoutAttributeService.GetCheckoutAttributeById(checkoutAttributeId)
+                                ?? throw new ArgumentException("No checkout attribute found with the specified id");
         var model = new CheckoutAttributeValueModel {
             CheckoutAttributeId = checkoutAttributeId,
             PrimaryStoreCurrencyCode = (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))
-                .CurrencyCode,
-            BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId)).Name,
+                ?.CurrencyCode,
+            BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name,
             //color squares
             DisplayColorSquaresRgb = checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares,
             ColorSquaresRgb = "#000000"
@@ -90,8 +91,8 @@ public class CheckoutAttributeViewModelService(
         var model = checkoutAttributeValue.ToModel();
         model.DisplayColorSquaresRgb = checkoutAttribute.AttributeControlTypeId == AttributeControlType.ColorSquares;
         model.PrimaryStoreCurrencyCode =
-            (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId)).CurrencyCode;
-        model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId)).Name;
+            (await currencyService.GetCurrencyById(currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode;
+        model.BaseWeightIn = (await measureService.GetMeasureWeightById(measureSettings.BaseWeightId))?.Name;
 
         return model;
     }
@@ -133,7 +134,7 @@ public class CheckoutAttributeViewModelService(
 
     #region Utilities
 
-    public virtual async Task PrepareTaxCategories(CheckoutAttributeModel model, CheckoutAttribute checkoutAttribute,
+    public virtual async Task PrepareTaxCategories(CheckoutAttributeModel model, CheckoutAttribute? checkoutAttribute,
         bool excludeProperties)
     {
         ArgumentNullException.ThrowIfNull(model);
@@ -151,7 +152,7 @@ public class CheckoutAttributeViewModelService(
     }
 
     public virtual async Task PrepareConditionAttributes(CheckoutAttributeModel model,
-        CheckoutAttribute checkoutAttribute)
+        CheckoutAttribute? checkoutAttribute)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -220,7 +221,7 @@ public class CheckoutAttributeViewModelService(
                         var selectedAttribute = model.ConditionModel.ConditionAttributes
                             .FirstOrDefault(x => x.Id == model.ConditionModel.SelectedAttributeId);
                         var selectedValues = selectedAttribute?.Values.Where(x => x.Selected).Select(x => x.Value);
-                        if (selectedValues.Any())
+                        if (selectedValues != null && selectedValues.Any())
                             foreach (var value in selectedValues)
                                 conditionAttributes = checkoutAttributeParser
                                     .AddCheckoutAttribute(conditionAttributes, attribute, value).ToList();

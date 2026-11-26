@@ -13,7 +13,7 @@ public interface IPageService
     /// </summary>
     /// <param name="pageId">The page identifier</param>
     /// <returns>Page</returns>
-    Task<Page?> GetPageById(string pageId);
+    Task<Page?> GetPageById(string? pageId);
 
     /// <summary>
     ///     Gets a page

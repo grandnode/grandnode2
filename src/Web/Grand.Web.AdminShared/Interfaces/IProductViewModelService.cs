@@ -5,7 +5,7 @@ namespace Grand.Web.AdminShared.Interfaces;
 
 public interface IProductViewModelService
 {
-    Task PrepareProductModel(ProductModel model, Product product, bool setPredefinedValues, bool excludeProperties);
+    Task PrepareProductModel(ProductModel model, Product? product, bool setPredefinedValues, bool excludeProperties);
 
     Task PrepareProductReviewModel(ProductReviewModel model, ProductReview productReview, bool excludeProperties,
         bool formatReviewText);
@@ -14,14 +14,14 @@ public interface IProductViewModelService
     ///     The error to show when the form changes stock while stock changes only through inventory documents; null
     ///     when the change is allowed
     /// </summary>
-    Task<string> StockChangeRefused(ProductModel model);
+    Task<string?> StockChangeRefused(ProductModel model);
 
     /// <summary>
     ///     Why the form may not change the product's tracking, inventory method or warehouses: batches or serial
     ///     numbers are assigned, with their quantity; null when it may
     /// </summary>
     /// <param name="product">The product as stored; null for a new one</param>
-    Task<string> TrackingChangeRefused(Product product, ProductModel model);
+    Task<string?> TrackingChangeRefused(Product? product, ProductModel model);
 
     Task SaveProductWarehouseInventory(Product product, IList<ProductModel.ProductWarehouseInventoryModel> model);
     Task<ProductListModel> PrepareProductListModel();

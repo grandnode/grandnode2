@@ -220,7 +220,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found external authentication provider</returns>
-    public virtual IExternalAuthenticationProvider? LoadAuthenticationProviderBySystemName(string systemName)
+    public virtual IExternalAuthenticationProvider? LoadAuthenticationProviderBySystemName(string? systemName)
     {
         return _externalAuthenticationProviders.FirstOrDefault(x =>
             x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));

@@ -39,7 +39,7 @@ public class CustomerProductService : ICustomerProductService
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Customer product price</returns>
-    public virtual Task<CustomerProductPrice?> GetCustomerProductPriceById(string id)
+    public virtual Task<CustomerProductPrice?> GetCustomerProductPriceById(string? id)
     {
         return _customerProductPriceRepository.GetByIdAsync(id);
     }
@@ -125,7 +125,7 @@ public class CustomerProductService : ICustomerProductService
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Customer product</returns>
-    public virtual async Task<CustomerProduct?> GetCustomerProduct(string id)
+    public virtual async Task<CustomerProduct?> GetCustomerProduct(string? id)
     {
         return await _customerProductRepository.GetByIdAsync(id);
     }

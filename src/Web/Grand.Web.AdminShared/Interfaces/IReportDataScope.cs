@@ -6,7 +6,7 @@ public interface IReportDataScope
     /// <summary>Store id to force into report queries. "" (all stores) for Admin when the caller
     /// supplies no explicit store filter; the current staff store for Store; "" (not store-scoped)
     /// for Vendor.</summary>
-    string StoreId { get; }
+    string? StoreId { get; }
 
     /// <summary>Vendor id to force into report queries. "" for Admin/Store (unless the caller
     /// supplies an explicit vendor filter — Admin only); the current vendor's id for Vendor.</summary>

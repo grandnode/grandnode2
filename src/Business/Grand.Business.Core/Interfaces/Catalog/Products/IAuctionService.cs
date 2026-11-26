@@ -52,7 +52,7 @@ public interface IAuctionService
     /// </summary>
     /// <param name="id">Id</param>
     /// <returns>Bid</returns>
-    Task<Bid?> GetBid(string id);
+    Task<Bid?> GetBid(string? id);
 
     /// <summary>
     ///     Get latest bid for product Id

@@ -26,7 +26,7 @@ public interface IShippingService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found Shipping rate  provider</returns>
-    IShippingRateCalculationProvider? LoadShippingRateCalculationProviderBySystemName(string systemName);
+    IShippingRateCalculationProvider? LoadShippingRateCalculationProviderBySystemName(string? systemName);
 
     /// <summary>
     ///     Load all Shipping rate  providers

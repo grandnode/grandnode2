@@ -42,7 +42,7 @@ public class ProductAttributeCombinationViewModelService(
     ///     Whether the product's stock lies in a warehouse managed by an external system: as stored, or as the popup makes
     ///     it, so ticking such a warehouse with a new stock is refused too
     /// </summary>
-    private async Task<bool> ExternallyManaged(Product product, ProductAttributeCombinationModel model = null)
+    private async Task<bool> ExternallyManaged(Product product, ProductAttributeCombinationModel? model = null)
     {
         if (product == null)
             return false;
@@ -50,7 +50,7 @@ public class ProductAttributeCombinationViewModelService(
         var externallyManagedWarehouseIds = await warehouseService.ExternallyManagedWarehouseIds();
         return InventoryTracking.ExternallyManaged(product, externallyManagedWarehouseIds) ||
                (product.UseMultipleWarehouses && model != null && model.WarehouseInventoryModels.Any(x =>
-                   x.WarehouseUsed && externallyManagedWarehouseIds.Contains(x.WarehouseId)));
+                   x.WarehouseUsed && x.WarehouseId != null && externallyManagedWarehouseIds.Contains(x.WarehouseId)));
     }
 
     public virtual async Task PrepareAddProductAttributeCombinationModel(ProductAttributeCombinationModel model,
@@ -73,7 +73,7 @@ public class ProductAttributeCombinationViewModelService(
                 var attributeModel = new ProductAttributeCombinationModel.ProductAttributeModel {
                     Id = attribute.Id,
                     ProductAttributeId = attribute.ProductAttributeId,
-                    Name = productAttribute.Name,
+                    Name = productAttribute?.Name,
                     TextPrompt = attribute.TextPrompt,
                     IsRequired = attribute.IsRequired,
                     AttributeControlType = attribute.AttributeControlTypeId
@@ -223,13 +223,13 @@ public class ProductAttributeCombinationViewModelService(
                 return new[] {
                     StockFormChange.Of(combination.Attributes, "", model.StockQuantity, model.OriginalStockQuantity,
                         model.ReservedQuantity, model.OriginalReservedQuantity, source)
-                }.Where(x => x != null).ToList();
+                }.OfType<StockChange>().ToList();
 
             return model.WarehouseInventoryModels
                 .Select(x => StockFormChange.Of(combination.Attributes, x.WarehouseId,
                     x.WarehouseUsed ? x.StockQuantity : 0, x.OriginalStockQuantity,
                     x.WarehouseUsed ? x.ReservedQuantity : 0, x.OriginalReservedQuantity, source))
-                .Where(x => x != null).ToList();
+                .OfType<StockChange>().ToList();
         }
 
         //the server is the guard, not the read-only fields
@@ -457,7 +457,7 @@ public class ProductAttributeCombinationViewModelService(
         foreach (var x in product.ProductAttributeCombinations.Where(x => x.Id == productAttributeCombinationId)
                      .SelectMany(x => x.TierPrices))
         {
-            string storeName;
+            string? storeName;
             if (!string.IsNullOrEmpty(x.StoreId))
             {
                 var store = await storeService.GetStoreById(x.StoreId);
@@ -472,7 +472,7 @@ public class ProductAttributeCombinationViewModelService(
                 Id = x.Id,
                 CustomerGroupId = x.CustomerGroupId,
                 CustomerGroup = !string.IsNullOrEmpty(x.CustomerGroupId)
-                    ? (await groupService.GetCustomerGroupById(x.CustomerGroupId)).Name
+                    ? (await groupService.GetCustomerGroupById(x.CustomerGroupId))?.Name
                     : translationService.GetResource("Admin.Catalog.Products.TierPrices.Fields.CustomerGroup.All"),
                 StoreId = x.StoreId,
                 Store = storeName,

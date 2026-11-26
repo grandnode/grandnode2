@@ -33,12 +33,12 @@ public abstract class BaseVendorReviewController(
     /// or not authorized" pattern found in both original controllers. Not a behavior change — every
     /// call site below still individually returns RedirectToAction("List") exactly as the
     /// originals did.</summary>
-    private async Task<(VendorReview vendorReview, IActionResult denied)> LoadAuthorizedVendorReview(string id)
+    private async Task<Access<VendorReview>> LoadAuthorizedVendorReview(string? id)
     {
         var vendorReview = await vendorService.GetVendorReviewById(id);
-        if (vendorReview == null) return (null, RedirectToAction("List"));
-        if (!await scope.HasAccess(vendorReview)) return (null, RedirectToAction("List"));
-        return (vendorReview, null);
+        if (vendorReview == null) return Access<VendorReview>.Deny(RedirectToAction("List"));
+        if (!await scope.HasAccess(vendorReview)) return Access<VendorReview>.Deny(RedirectToAction("List"));
+        return Access<VendorReview>.Allow(vendorReview);
     }
 
     #region VendorReviews
@@ -77,8 +77,9 @@ public abstract class BaseVendorReviewController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Edit(string id)
     {
-        var (vendorReview, denied) = await LoadAuthorizedVendorReview(id);
-        if (denied != null) return denied;
+        var vendorReviewAccess = await LoadAuthorizedVendorReview(id);
+        if (vendorReviewAccess.IsDenied) return vendorReviewAccess.Denied;
+        var vendorReview = vendorReviewAccess.Entity;
 
         var model = new VendorReviewModel();
         await vendorViewModelService.PrepareVendorReviewModel(model, vendorReview, false, false);
@@ -90,8 +91,9 @@ public abstract class BaseVendorReviewController(
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Edit(VendorReviewModel model, bool continueEditing)
     {
-        var (vendorReview, denied) = await LoadAuthorizedVendorReview(model.Id);
-        if (denied != null) return denied;
+        var vendorReviewAccess = await LoadAuthorizedVendorReview(model.Id);
+        if (vendorReviewAccess.IsDenied) return vendorReviewAccess.Denied;
+        var vendorReview = vendorReviewAccess.Entity;
 
         if (ModelState.IsValid)
         {
@@ -111,8 +113,9 @@ public abstract class BaseVendorReviewController(
     [HttpPost]
     public async Task<IActionResult> Delete(string id)
     {
-        var (vendorReview, denied) = await LoadAuthorizedVendorReview(id);
-        if (denied != null) return denied;
+        var vendorReviewAccess = await LoadAuthorizedVendorReview(id);
+        if (vendorReviewAccess.IsDenied) return vendorReviewAccess.Denied;
+        var vendorReview = vendorReviewAccess.Entity;
 
         if (ModelState.IsValid)
         {

@@ -66,7 +66,7 @@ public interface IExternalAuthenticationService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found external authentication method</returns>
-    IExternalAuthenticationProvider? LoadAuthenticationProviderBySystemName(string systemName);
+    IExternalAuthenticationProvider? LoadAuthenticationProviderBySystemName(string? systemName);
 
     /// <summary>
     ///     Load all external authentication providers independently from status

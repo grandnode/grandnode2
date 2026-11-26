@@ -20,7 +20,7 @@ public abstract class BaseHomeControllerWithSetLanguage(
     public async Task<IActionResult> SetLanguage(string langid,
         [FromServices] ILanguageService languageService,
         [FromServices] ICustomerService customerService,
-        string returnUrl = "")
+        string? returnUrl = "")
     {
         var language = await languageService.GetLanguageById(langid);
         if (language != null)

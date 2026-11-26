@@ -205,7 +205,7 @@ public class CustomerTagService : ICustomerTagService
     /// <param name="customerTagId">Customer tag id</param>
     /// <param name="productId">Product id</param>
     /// <returns>Customer tag product</returns>
-    public virtual async Task<CustomerTagProduct?> GetCustomerTagProduct(string customerTagId, string productId)
+    public virtual async Task<CustomerTagProduct?> GetCustomerTagProduct(string? customerTagId, string? productId)
     {
         var query = from cr in _customerTagProductRepository.Table
             where cr.CustomerTagId == customerTagId && cr.ProductId == productId

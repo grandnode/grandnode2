@@ -14,7 +14,7 @@ public static class PaymentServiceExtensions
     /// <param name="storeId">The store whose methods are listed; empty for the methods of every store</param>
     /// <returns>Select list items whose value is the method's system name</returns>
     public static async Task<IList<SelectListItem>> PaymentMethodSelectList(this IPaymentService paymentService,
-        IRequestTranslationService translationService, string storeId)
+        IRequestTranslationService translationService, string? storeId)
     {
         var items = new List<SelectListItem> {
             new() { Text = translationService.GetResource("Admin.Common.All"), Value = " " }

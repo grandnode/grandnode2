@@ -14,21 +14,21 @@ public enum FileManagerError
 }
 
 /// <summary>A folder or a file, its path relative to the root of the file manager</summary>
-public record FileManagerEntry(string Name, string Path, bool IsFolder, string Url, string Kind, long Size, DateTime ModifiedUtc);
+public record FileManagerEntry(string Name, string Path, bool IsFolder, string? Url, string Kind, long Size, DateTime ModifiedUtc);
 
 /// <summary>One step of the breadcrumb, the root first</summary>
 public record FileManagerCrumb(string Name, string Path);
 
 public record FileManagerListing(
     FileManagerError Error,
-    string Path,
+    string? Path,
     IReadOnlyList<FileManagerCrumb> Crumbs,
     IReadOnlyList<FileManagerEntry> Entries)
 {
     public static FileManagerListing Failed(FileManagerError error) => new(error, null, [], []);
 }
 
-public record FileManagerResult(FileManagerError Error, FileManagerEntry Entry = null)
+public record FileManagerResult(FileManagerError Error, FileManagerEntry? Entry = null)
 {
     public static readonly FileManagerResult Done = new(FileManagerError.None);
 }

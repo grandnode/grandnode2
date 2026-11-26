@@ -41,7 +41,7 @@ public abstract class BaseProductPriceController(
         // original checked access only on List/Insert (ProductPriceUpdate/ProductPriceDelete had no check
         // at all), and Vendor's original checked access only on List (ProductPriceInsert/Update/Delete had
         // no check at all) - both let another party's product prices be updated/deleted by id.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var items = new List<ProductModel.ProductPriceModel>();
@@ -179,7 +179,7 @@ public abstract class BaseProductPriceController(
         // TierPriceDelete had NO ownership check at all, so a vendor could create/update/delete a tier
         // price on any product (not just their own) by posting a known productId. Applying scope.HasAccess
         // uniformly on every mutating action below closes that.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         // PrepareTierPriceModel(product) now reads scope internally (Task 9); scope.DefaultStoreId

@@ -12,7 +12,7 @@ public interface ITranslationService
     /// </summary>
     /// <param name="translateResourceId">Translate resource identifier</param>
     /// <returns>Translate resource</returns>
-    Task<TranslationResource?> GetTranslateResourceById(string translateResourceId);
+    Task<TranslationResource?> GetTranslateResourceById(string? translateResourceId);
 
     /// <summary>
     ///     Gets a translate resource
@@ -20,7 +20,7 @@ public interface ITranslationService
     /// <param name="name">A string representing a resource name</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Translate resource</returns>
-    Task<TranslationResource?> GetTranslateResourceByName(string name, string languageId);
+    Task<TranslationResource?> GetTranslateResourceByName(string? name, string? languageId);
 
     /// <summary>
     ///     Gets all translate resources by language identifier

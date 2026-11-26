@@ -65,7 +65,7 @@ public class CategoryService : ICategoryService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Categories</returns>
-    public virtual async Task<IPagedList<Category>> GetAllCategories(string? parentId, string categoryName,
+    public virtual async Task<IPagedList<Category>> GetAllCategories(string? parentId, string? categoryName,
         CatalogAccess access, int pageIndex = 0, int pageSize = int.MaxValue)
     {
         ArgumentNullException.ThrowIfNull(access);
@@ -266,7 +266,7 @@ public class CategoryService : ICategoryService
     /// <param name="separator">Separator</param>
     /// <param name="languageId">Language ID</param>
     /// <returns>Formatted breadcrumb</returns>
-    public virtual async Task<string?> GetFormattedBreadCrumb(Category category, string separator = ">>",
+    public virtual async Task<string?> GetFormattedBreadCrumb(Category? category, string separator = ">>",
         string languageId = "")
     {
         var result = string.Empty;

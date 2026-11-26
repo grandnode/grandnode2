@@ -61,7 +61,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         _enumTranslationService = enumTranslationService;
     }
 
-    public virtual async Task<CategoryListModel> PrepareCategoryListModel(string storeId)
+    public virtual async Task<CategoryListModel> PrepareCategoryListModel(string? storeId)
     {
         var model = new CategoryListModel();
         model.AvailableStores.Add(new SelectListItem
@@ -93,7 +93,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         return (categoryListModel, categories.TotalCount);
     }
 
-    public virtual async Task<CategoryModel> PrepareCategoryModel(string storeId)
+    public virtual async Task<CategoryModel> PrepareCategoryModel(string? storeId)
     {
         var model = new CategoryModel();
         //sort options
@@ -112,8 +112,8 @@ public class CategoryViewModelService : ICategoryViewModelService
         return model;
     }
 
-    public virtual async Task<CategoryModel> PrepareCategoryModel(CategoryModel model, Category category,
-        string storeId)
+    public virtual async Task<CategoryModel> PrepareCategoryModel(CategoryModel model, Category? category,
+        string? storeId)
     {
         //sort options
         PrepareSortOptionsModel(model);
@@ -219,7 +219,8 @@ public class CategoryViewModelService : ICategoryViewModelService
 
     public virtual async Task<ProductCategory> UpdateProductCategoryModel(CategoryModel.CategoryProductModel model)
     {
-        var product = await _productService.GetProductById(model.ProductId);
+        var product = await _productService.GetProductById(model.ProductId)
+                      ?? throw new ArgumentException("No product found with the specified id");
         var productCategory = product.ProductCategories.FirstOrDefault(x => x.Id == model.Id);
         if (productCategory == null)
             throw new ArgumentException("No product category mapping found with the specified id");
@@ -230,7 +231,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         return productCategory;
     }
 
-    public virtual async Task DeleteProductCategoryModel(string id, string productId)
+    public virtual async Task DeleteProductCategoryModel(string? id, string? productId)
     {
         var product = await _productService.GetProductById(productId);
         if (product == null)
@@ -242,7 +243,7 @@ public class CategoryViewModelService : ICategoryViewModelService
         await _productCategoryService.DeleteProductCategory(productCategory, product.Id);
     }
 
-    public virtual async Task<CategoryModel.AddCategoryProductModel> PrepareAddCategoryProductModel(string storeId)
+    public virtual async Task<CategoryModel.AddCategoryProductModel> PrepareAddCategoryProductModel(string? storeId)
     {
         var model = new CategoryModel.AddCategoryProductModel();
         //stores
@@ -302,7 +303,7 @@ public class CategoryViewModelService : ICategoryViewModelService
             });
     }
 
-    protected virtual async Task PrepareDiscountModel(CategoryModel model, Category category, bool excludeProperties, string storeId)
+    protected virtual async Task PrepareDiscountModel(CategoryModel model, Category? category, bool excludeProperties, string? storeId)
     {
         ArgumentNullException.ThrowIfNull(model);
 

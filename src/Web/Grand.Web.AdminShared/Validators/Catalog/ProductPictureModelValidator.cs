@@ -18,7 +18,7 @@ public class ProductPictureModelValidator : BaseStoreAccessValidator<ProductMode
     {
         _productService = productService;
     }
-    protected override async Task<Product> GetEntity(ProductModel.ProductPictureModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.ProductPictureModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

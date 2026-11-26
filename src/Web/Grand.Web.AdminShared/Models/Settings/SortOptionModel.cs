@@ -8,7 +8,7 @@ public class SortOptionModel
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.SortOptions.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.SortOptions.IsActive")]
     public bool IsActive { get; set; }

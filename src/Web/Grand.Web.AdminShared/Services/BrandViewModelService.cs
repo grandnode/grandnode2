@@ -76,7 +76,7 @@ public class BrandViewModelService : IBrandViewModelService
     }
 
 
-    public virtual async Task PrepareDiscountModel(BrandModel model, Brand brand, bool excludeProperties)
+    public virtual async Task PrepareDiscountModel(BrandModel model, Brand? brand, bool excludeProperties)
     {
         ArgumentNullException.ThrowIfNull(model);
 

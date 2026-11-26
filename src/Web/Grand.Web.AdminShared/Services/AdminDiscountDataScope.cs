@@ -28,7 +28,8 @@ public class AdminDiscountDataScope(IContextAccessor contextAccessor, IGroupServ
         //warning, applied by the caller) for a store manager; only mutating one they don't
         //exclusively own is denied
         if (!entity.LimitedToStores ||
-            (entity.Stores.Contains(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) &&
+            (contextAccessor.WorkContext.CurrentCustomer.StaffStoreId is { } staffStoreId &&
+             entity.Stores.Contains(staffStoreId) &&
              entity.Stores.Count > 1))
             return true;
 

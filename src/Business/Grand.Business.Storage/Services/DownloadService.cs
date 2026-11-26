@@ -45,7 +45,7 @@ public class DownloadService : IDownloadService
     /// </summary>
     /// <param name="downloadId">Download identifier</param>
     /// <returns>Download</returns>
-    public virtual async Task<Download?> GetDownloadById(string downloadId)
+    public virtual async Task<Download?> GetDownloadById(string? downloadId)
     {
         if (string.IsNullOrEmpty(downloadId))
             return null;

@@ -152,7 +152,7 @@ public class CountryService : ICountryService
     /// </summary>
     /// <param name="twoLetterIsoCode">Country two letter ISO code</param>
     /// <returns>Country</returns>
-    public virtual async Task<Country?> GetCountryByTwoLetterIsoCode(string twoLetterIsoCode)
+    public virtual async Task<Country?> GetCountryByTwoLetterIsoCode(string? twoLetterIsoCode)
     {
         var key = string.Format(CacheKey.COUNTRIES_BY_TWOLETTER, twoLetterIsoCode);
         return await _cacheBase.GetAsync(key, async () =>

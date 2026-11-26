@@ -24,7 +24,7 @@ public class OidcLoginProvider(OidcLoginConfig config, IAuthenticationSchemeProv
     /// </summary>
     public Task<string> GetPublicViewComponentName() => Task.FromResult("OidcLogin");
 
-    public async Task<string?> GetSignInPath(string returnUrl) =>
+    public async Task<string?> GetSignInPath(string? returnUrl) =>
         await authenticationSchemeProvider.GetSchemeAsync(OidcLoginDefaults.AuthenticationScheme) == null
             ? null
             : OidcLoginDefaults.LoginPath + "?returnUrl=" + Uri.EscapeDataString(returnUrl ?? "/");

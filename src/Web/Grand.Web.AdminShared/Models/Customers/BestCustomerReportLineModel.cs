@@ -5,13 +5,13 @@ namespace Grand.Web.AdminShared.Models.Customers;
 
 public class BestCustomerReportLineModel : BaseModel
 {
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.Customers.BestBy.Fields.Customer")]
-    public string CustomerName { get; set; }
+    public string? CustomerName { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.Customers.BestBy.Fields.OrderTotal")]
-    public string OrderTotal { get; set; }
+    public string? OrderTotal { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.Customers.BestBy.Fields.OrderCount")]
     public double OrderCount { get; set; }

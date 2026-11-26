@@ -59,9 +59,9 @@ public class ShipmentService : IShipmentService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Shipments</returns>
-    public virtual async Task<IPagedList<Shipment>> GetAllShipments(string storeId = "", string vendorId = "",
-        string warehouseId = "",
-        string shippingCountryId = "",
+    public virtual async Task<IPagedList<Shipment>> GetAllShipments(string? storeId = "", string? vendorId = "",
+        string? warehouseId = "",
+        string? shippingCountryId = "",
         int shippingStateId = 0,
         string? shippingCity = null,
         string? trackingNumber = null,

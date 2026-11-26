@@ -68,8 +68,8 @@ public class CustomerManagerService : ICustomerManagerService
 
     #region Methods
 
-    public virtual bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword,
-        string passwordSalt)
+    public virtual bool PasswordMatch(PasswordFormat passwordFormat, string? oldPassword, string newPassword,
+        string? passwordSalt)
     {
         //oldPassword is the stored credential, newPassword is the plain-text candidate being checked against it
         return _encryptionService.VerifyPassword(newPassword, passwordFormat, oldPassword, passwordSalt,
@@ -85,7 +85,7 @@ public class CustomerManagerService : ICustomerManagerService
     /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
     /// <param name="surface">Where the password is used: the sign-in policy decides per surface</param>
     /// <returns>Result</returns>
-    public virtual async Task<CustomerLoginResults> LoginCustomer(string? usernameOrEmail, string password,
+    public virtual async Task<CustomerLoginResults> LoginCustomer(string? usernameOrEmail, string? password,
         string storeId = "", SignInSurface surface = SignInSurface.Storefront)
     {
         var customer = _customerSettings.UsernamesEnabled
@@ -108,7 +108,8 @@ public class CustomerManagerService : ICustomerManagerService
             _logger.LogWarning("Break-glass password sign-in of customer {CustomerId} on the Admin panel", customer.Id);
 
         //transparently migrate weak/legacy hashes (SHA-x, Clear, Encrypted) to the modern PBKDF2 format
-        if (_encryptionService.PasswordHashNeedsUpgrade(customer.PasswordFormatId, customer.Password))
+        //the password matched, so it was given
+        if (password != null && _encryptionService.PasswordHashNeedsUpgrade(customer.PasswordFormatId, customer.Password))
         {
             try
             {
@@ -202,7 +203,7 @@ public class CustomerManagerService : ICustomerManagerService
     ///     Change password
     /// </summary>
     /// <param name="request">Request</param>
-    public virtual async Task ChangePassword(ChangePasswordRequest request, string storeId = "")
+    public virtual async Task ChangePassword(ChangePasswordRequest request, string? storeId = "")
     {
         ArgumentNullException.ThrowIfNull(request);
 

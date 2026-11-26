@@ -12,7 +12,7 @@ public static class AclMappingExtension
     /// <param name="entity">Entity</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    public static bool AccessToEntityByStore<T>(this T entity, string storeId) where T : BaseEntity, IStoreLinkEntity
+    public static bool AccessToEntityByStore<T>(this T entity, string? storeId) where T : BaseEntity, IStoreLinkEntity
     {
         if (entity == null)
             return false;

@@ -20,6 +20,7 @@ public class LanguageValidator : BaseGrandValidator<LanguageModel>
             {
                 try
                 {
+                    if (x == null) return false;
                     //create a CultureInfo object
                     var culture = new CultureInfo(x);
                     return culture != null;

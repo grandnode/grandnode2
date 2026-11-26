@@ -64,7 +64,7 @@ public class OrderReportService : IOrderReportService
     /// <param name="startTimeUtc">Start date</param>
     /// <param name="endTimeUtc">End date</param>
     /// <returns>Result</returns>
-    public virtual async Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId = "", string vendorId = "",
+    public virtual async Task<IList<OrderByCountryReportLine>> GetCountryReport(string? storeId = "", string vendorId = "",
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null, DateTime? startTimeUtc = null, DateTime? endTimeUtc = null)
     {
         var query = from p in _orderRepository.Table
@@ -156,7 +156,7 @@ public class OrderReportService : IOrderReportService
     /// <param name="startTimeUtc">Start date</param>
     /// <param name="endTimeUtc">End date</param>
     /// <returns>Result</returns>
-    public virtual async Task<IList<OrderByTimeReportLine>> GetOrderByTimeReport(string storeId,
+    public virtual async Task<IList<OrderByTimeReportLine>> GetOrderByTimeReport(string? storeId,
         DateTime? startTimeUtc = null,
         DateTime? endTimeUtc = null)
     {
@@ -238,7 +238,7 @@ public class OrderReportService : IOrderReportService
     /// <param name="ignoreCancelledOrders">A value indicating whether to ignore cancelled orders</param>
     /// <param name="tagId">Tag ident.</param>
     /// <returns>Result</returns>
-    public virtual async Task<OrderAverageReportLine> GetOrderAverageReportLine(string storeId = "",
+    public virtual async Task<OrderAverageReportLine> GetOrderAverageReportLine(string? storeId = "",
         string customerId = "",
         string vendorId = "", string salesEmployeeId = "", string billingCountryId = "",
         string orderId = "", string? paymentMethodSystemName = null,
@@ -327,7 +327,7 @@ public class OrderReportService : IOrderReportService
     /// <param name="storeId">Store identifier</param>
     /// <param name="os">Order status</param>
     /// <returns>Result</returns>
-    public virtual async Task<OrderAverageReportLineSummary> OrderAverageReport(string storeId, int os)
+    public virtual async Task<OrderAverageReportLineSummary> OrderAverageReport(string? storeId, int os)
     {
         var item = new OrderAverageReportLineSummary {
             OrderStatus = os
@@ -411,7 +411,7 @@ public class OrderReportService : IOrderReportService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Result</returns>
     public virtual async Task<IPagedList<BestsellersReportLine>> BestSellersReport(
-        string storeId = "", string vendorId = "",
+        string? storeId = "", string vendorId = "",
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         string billingCountryId = "",
@@ -575,7 +575,7 @@ public class OrderReportService : IOrderReportService
     /// <param name="storeId">Store ident</param>
     /// <param name="salesEmployeeId">Sales employee ident</param>
     /// <returns>ReportPeriodOrder</returns>
-    public virtual async Task<ReportPeriodOrder> GetOrderPeriodReport(int days, string storeId = "",
+    public virtual async Task<ReportPeriodOrder> GetOrderPeriodReport(int days, string? storeId = "",
         string salesEmployeeId = "")
     {
         var currentdate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day);
@@ -636,7 +636,7 @@ public class OrderReportService : IOrderReportService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Products</returns>
-    public virtual async Task<IPagedList<Product>> ProductsNeverSold(string storeId = "", string vendorId = "",
+    public virtual async Task<IPagedList<Product>> ProductsNeverSold(string? storeId = "", string vendorId = "",
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {

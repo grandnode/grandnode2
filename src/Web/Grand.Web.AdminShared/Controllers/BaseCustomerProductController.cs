@@ -26,8 +26,9 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+            var _Access = await LoadAuthorizedCustomer(customerId);
+            if (_Access.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
+            var _ = _Access.Entity;
         }
 
         var (productPriceModels, totalCount) =
@@ -42,8 +43,9 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+            var _Access = await LoadAuthorizedCustomer(customerId);
+            if (_Access.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
+            var _ = _Access.Entity;
         }
 
         var (productModels, totalCount) =
@@ -57,8 +59,9 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return denied;
+            var _Access = await LoadAuthorizedCustomer(customerId);
+            if (_Access.IsDenied) return _Access.Denied;
+            var _ = _Access.Entity;
         }
 
         var model = await customerProductViewModelService.PrepareCustomerModelAddProductModel();
@@ -81,8 +84,9 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Content("");
+            var _Access = await LoadAuthorizedCustomer(customerId);
+            if (_Access.IsDenied) return Content("");
+            var _ = _Access.Entity;
         }
 
         if (model.SelectedProductIds != null)

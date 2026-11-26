@@ -96,7 +96,7 @@ public class PermissionService : IPermissionService
     /// </summary>
     /// <param name="permissionId">Permission identifier</param>
     /// <returns>Permission</returns>
-    public virtual Task<Permission?> GetPermissionById(string permissionId)
+    public virtual Task<Permission?> GetPermissionById(string? permissionId)
     {
         return _permissionRepository.GetByIdAsync(permissionId);
     }
@@ -106,7 +106,7 @@ public class PermissionService : IPermissionService
     /// </summary>
     /// <param name="systemName">Permission system name</param>
     /// <returns>Permission</returns>
-    public virtual async Task<Permission?> GetPermissionBySystemName(string systemName)
+    public virtual async Task<Permission?> GetPermissionBySystemName(string? systemName)
     {
         if (string.IsNullOrWhiteSpace(systemName))
             return await Task.FromResult<Permission?>(null);

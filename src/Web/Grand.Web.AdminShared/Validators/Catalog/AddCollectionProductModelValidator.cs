@@ -17,7 +17,7 @@ public class AddCollectionProductModelValidator : BaseStoreAccessValidator<Colle
     {
         _collectionService = collectionService;
     }
-    protected override async Task<Collection> GetEntity(CollectionModel.AddCollectionProductModel model)
+    protected override async Task<Collection?> GetEntity(CollectionModel.AddCollectionProductModel model)
     {
         return await _collectionService.GetCollectionById(model.CollectionId);
     }

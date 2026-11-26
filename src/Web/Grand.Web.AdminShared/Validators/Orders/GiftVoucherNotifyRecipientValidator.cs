@@ -17,6 +17,12 @@ public class GiftVoucherNotifyRecipientValidator : BaseGrandValidator<GiftVouche
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var giftVoucher = await giftVoucherService.GetGiftVoucherById(x.Id);
+            if (giftVoucher == null)
+            {
+                context.AddFailure("No gift voucher found with the specified id");
+                return;
+            }
+
             if (giftVoucher.GiftVoucherTypeId == GiftVoucherType.Physical)
                 context.AddFailure("Only virtual type gift voucher can notify recipient");
 

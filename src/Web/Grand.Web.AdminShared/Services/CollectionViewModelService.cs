@@ -92,7 +92,7 @@ public class CollectionViewModelService : ICollectionViewModelService
     }
 
 
-    public virtual async Task PrepareDiscountModel(CollectionModel model, Collection collection, bool excludeProperties)
+    public virtual async Task PrepareDiscountModel(CollectionModel model, Collection? collection, bool excludeProperties)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -227,7 +227,7 @@ public class CollectionViewModelService : ICollectionViewModelService
                 Id = x.Id,
                 CollectionId = x.CollectionId,
                 ProductId = x.ProductId,
-                ProductName = (await _productService.GetProductById(x.ProductId)).Name,
+                ProductName = (await _productService.GetProductById(x.ProductId))?.Name,
                 IsFeaturedProduct = x.IsFeaturedProduct,
                 DisplayOrder = x.DisplayOrder
             });
@@ -236,6 +236,8 @@ public class CollectionViewModelService : ICollectionViewModelService
 
     public virtual async Task ProductUpdate(CollectionModel.CollectionProductModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+
         var product = await _productService.GetProductById(model.ProductId);
         if (product == null)
             throw new ArgumentException("No product found with the specified id");
@@ -250,7 +252,7 @@ public class CollectionViewModelService : ICollectionViewModelService
         await _productCollectionService.UpdateProductCollection(productCollection, model.ProductId);
     }
 
-    public virtual async Task ProductDelete(string id, string productId)
+    public virtual async Task ProductDelete(string? id, string? productId)
     {
         var product = await _productService.GetProductById(productId);
         if (product == null)

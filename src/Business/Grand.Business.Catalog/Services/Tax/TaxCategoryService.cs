@@ -47,7 +47,7 @@ public class TaxCategoryService : ITaxCategoryService
     /// </summary>
     /// <param name="storeId">Store identifier; pass empty to return all</param>
     /// <returns>Tax categories</returns>
-    public virtual async Task<IList<TaxCategory>> GetAllTaxCategories(string storeId = "")
+    public virtual async Task<IList<TaxCategory>> GetAllTaxCategories(string? storeId = "")
     {
         var key = string.Format(CacheKey.TAXCATEGORIES_ALL_KEY, storeId);
         return await _cacheBase.GetAsync(key, async () =>
@@ -64,7 +64,7 @@ public class TaxCategoryService : ITaxCategoryService
     /// </summary>
     /// <param name="taxCategoryId">Tax category identifier</param>
     /// <returns>Tax category</returns>
-    public virtual Task<TaxCategory?> GetTaxCategoryById(string taxCategoryId)
+    public virtual Task<TaxCategory?> GetTaxCategoryById(string? taxCategoryId)
     {
         var key = string.Format(CacheKey.TAXCATEGORIES_BY_ID_KEY, taxCategoryId);
         return _cacheBase.GetAsync(key, () => _taxCategoryRepository.GetByIdAsync(taxCategoryId));

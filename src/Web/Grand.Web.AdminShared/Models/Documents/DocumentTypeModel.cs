@@ -8,11 +8,11 @@ public class DocumentTypeModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Documents.Type.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Documents.Type.Fields.Description")]
     [SanitizeHtml]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [GrandResourceDisplayName("Admin.Documents.Type.Fields.DisplayOrder")]
 

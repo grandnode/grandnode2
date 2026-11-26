@@ -17,42 +17,42 @@ public class CustomerModel : BaseEntityModel
     public bool UsernamesEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Username")]
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Owner")]
-    public string Owner { get; set; }
+    public string? Owner { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Password")]
     [DataType(DataType.Password)]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.CustomerGroups")]
-    public string[] CustomerGroups { get; set; }
+    public string[]? CustomerGroups { get; set; }
 
     //customer groups
-    public string CustomerGroupNames { get; set; }
+    public string? CustomerGroupNames { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.CustomerTags")]
-    public string CustomerTags { get; set; }
+    public string? CustomerTags { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Vendor")]
     [UIHint("Vendor")]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.SeId")]
-    public string SeId { get; set; }
+    public string? SeId { get; set; }
 
     public IList<SelectListItem> AvailableSalesEmployees { get; set; } = new List<SelectListItem>();
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.StaffStore")]
-    public string StaffStoreId { get; set; }
+    public string? StaffStoreId { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
@@ -60,17 +60,17 @@ public class CustomerModel : BaseEntityModel
     public bool GenderEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Gender")]
-    public string Gender { get; set; }
+    public string? Gender { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.FirstName")]
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.LastName")]
 
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.FullName")]
-    public string FullName { get; set; }
+    public string? FullName { get; set; }
 
     public bool DateOfBirthEnabled { get; set; }
 
@@ -81,59 +81,59 @@ public class CustomerModel : BaseEntityModel
     public bool CompanyEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Company")]
-    public string Company { get; set; }
+    public string? Company { get; set; }
 
     public bool StreetAddressEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.StreetAddress")]
-    public string StreetAddress { get; set; }
+    public string? StreetAddress { get; set; }
 
     public bool StreetAddress2Enabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.StreetAddress2")]
-    public string StreetAddress2 { get; set; }
+    public string? StreetAddress2 { get; set; }
 
     public bool ZipPostalCodeEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.ZipPostalCode")]
-    public string ZipPostalCode { get; set; }
+    public string? ZipPostalCode { get; set; }
 
     public bool CityEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.City")]
-    public string City { get; set; }
+    public string? City { get; set; }
 
     public bool CountryEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Country")]
-    public string CountryId { get; set; }
+    public string? CountryId { get; set; }
 
     public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
 
     public bool StateProvinceEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.StateProvince")]
-    public string StateProvinceId { get; set; }
+    public string? StateProvinceId { get; set; }
 
     public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
 
     public bool PhoneEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Phone")]
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     public bool FaxEnabled { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Fax")]
-    public string Fax { get; set; }
+    public string? Fax { get; set; }
 
     public List<CustomerAttributeModel> CustomerAttributes { get; set; } = new();
 
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-    public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+    public IList<CustomAttributeModel> SelectedAttributes { get; set; } = new List<CustomAttributeModel>();
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.AdminComment")]
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     //trade credit of a company owner; amounts in the primary store currency
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.CreditLimit")]
@@ -143,7 +143,7 @@ public class CustomerModel : BaseEntityModel
     public int? PaymentTermDays { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.OutstandingAmount")]
-    public string OutstandingAmount { get; set; }
+    public string? OutstandingAmount { get; set; }
 
     public bool HasOverdue { get; set; }
 
@@ -160,18 +160,18 @@ public class CustomerModel : BaseEntityModel
     public bool Active { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Affiliate")]
-    public string AffiliateId { get; set; }
+    public string? AffiliateId { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Affiliate")]
-    public string AffiliateName { get; set; }
+    public string? AffiliateName { get; set; }
 
     public IList<CustomAttribute> Attributes { get; set; } = new List<CustomAttribute>();
 
     //EU VAT
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.VatNumber")]
-    public string VatNumber { get; set; }
+    public string? VatNumber { get; set; }
 
-    public string VatNumberStatusNote { get; set; }
+    public string? VatNumberStatusNote { get; set; }
 
     public bool DisplayVatNumber { get; set; }
 
@@ -187,17 +187,17 @@ public class CustomerModel : BaseEntityModel
 
     //IP adderss
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.IPAddress")]
-    public string LastIpAddress { get; set; }
+    public string? LastIpAddress { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.LastVisitedPage")]
-    public string LastVisitedPage { get; set; }
+    public string? LastVisitedPage { get; set; }
 
     //newsletter subscriptions (per store)
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Newsletter")]
     public List<StoreModel> AvailableNewsletterSubscriptionStores { get; set; } = new();
 
     [GrandResourceDisplayName("Admin.Customers.Customers.Fields.Newsletter")]
-    public string[] SelectedNewsletterSubscriptionStoreIds { get; set; }
+    public string[] SelectedNewsletterSubscriptionStoreIds { get; set; } = [];
 
     //loyalty points history
     public bool DisplayLoyaltyPointsHistory { get; set; }
@@ -207,10 +207,10 @@ public class CustomerModel : BaseEntityModel
 
     [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.AddLoyaltyPointsMessage")]
     [NoHtml]
-    public string AddLoyaltyPointsMessage { get; set; }
+    public string? AddLoyaltyPointsMessage { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.AddLoyaltyPointsStore")]
-    public string AddLoyaltyPointsStoreId { get; set; }
+    public string? AddLoyaltyPointsStoreId { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.AddLoyaltyPointsStore")]
     public IList<SelectListItem> LoyaltyPointsAvailableStores { get; set; } = new List<SelectListItem>();
@@ -231,9 +231,9 @@ public class CustomerModel : BaseEntityModel
         new List<AssociatedExternalAuthModel>();
 
     //sub-accounts - display only, rebuilt from the entity on every render and never read back on save
-    public string OwnerCustomerId { get; set; }
+    public string? OwnerCustomerId { get; set; }
 
-    public string OwnerCustomerEmail { get; set; }
+    public string? OwnerCustomerEmail { get; set; }
 
     public IList<SubAccountModel> SubAccounts { get; set; } = new List<SubAccountModel>();
 
@@ -242,49 +242,49 @@ public class CustomerModel : BaseEntityModel
     public bool AddCustomerNoteDisplayToCustomer { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerNotes.Fields.Title")]
-    public string AddCustomerTitle { get; set; }
+    public string? AddCustomerTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerNotes.Fields.Note")]
-    public string AddCustomerNoteMessage { get; set; }
+    public string? AddCustomerNoteMessage { get; set; }
 
     public bool AddCustomerNoteHasDownload { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerNotes.Fields.Download")]
     [UIHint("Download")]
-    public string AddCustomerNoteDownloadId { get; set; }
+    public string? AddCustomerNoteDownloadId { get; set; }
 
     #region Nested classes
 
     public class AssociatedExternalAuthModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth.Fields.Email")]
-        public string Email { get; set; }
+        public string? Email { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth.Fields.ExternalIdentifier")]
-        public string ExternalIdentifier { get; set; }
+        public string? ExternalIdentifier { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.AssociatedExternalAuth.Fields.AuthMethodName")]
-        public string AuthMethodName { get; set; }
+        public string? AuthMethodName { get; set; }
     }
 
     public class SubAccountModel : BaseEntityModel
     {
-        public string Email { get; set; }
-        public string FullName { get; set; }
+        public string? Email { get; set; }
+        public string? FullName { get; set; }
         public bool Active { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.SubAccounts.Role")]
-        public string Role { get; set; }
+        public string? Role { get; set; }
 
         //formatted in the primary store currency; empty when the account has no limit
         [GrandResourceDisplayName("Admin.Customers.Customers.SubAccounts.OrderApprovalLimit")]
-        public string OrderApprovalLimit { get; set; }
+        public string? OrderApprovalLimit { get; set; }
     }
 
     public class LoyaltyPointsHistoryModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.Store")]
-        public string StoreName { get; set; }
+        public string? StoreName { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.Points")]
         public int Points { get; set; }
@@ -293,7 +293,7 @@ public class CustomerModel : BaseEntityModel
         public int PointsBalance { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.Message")]
-        public string Message { get; set; }
+        public string? Message { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.LoyaltyPoints.Fields.Date")]
         public DateTime CreatedOn { get; set; }
@@ -301,14 +301,14 @@ public class CustomerModel : BaseEntityModel
 
     public class SendEmailModel : BaseModel
     {
-        public string Id { get; set; }
+        public string? Id { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.SendEmail.Subject")]
-        public string Subject { get; set; }
+        public string? Subject { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.SendEmail.Body")]
         [NoHtml]
-        public string Body { get; set; }
+        public string? Body { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.SendEmail.SendImmediately")]
         public bool SendImmediately { get; set; }
@@ -321,34 +321,34 @@ public class CustomerModel : BaseEntityModel
     public class OrderModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.ID")]
-        public override string Id { get; set; }
+        public override string? Id { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.ID")]
         public int OrderNumber { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.Code")]
-        public string OrderCode { get; set; }
+        public string? OrderCode { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.OrderStatus")]
-        public string OrderStatus { get; set; }
+        public string? OrderStatus { get; set; }
 
         public int OrderStatusId { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.PaymentStatus")]
-        public string PaymentStatus { get; set; }
+        public string? PaymentStatus { get; set; }
 
         public int PaymentStatusId { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.ShippingStatus")]
-        public string ShippingStatus { get; set; }
+        public string? ShippingStatus { get; set; }
 
         public int ShippingStatusId { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.OrderTotal")]
-        public string OrderTotal { get; set; }
+        public string? OrderTotal { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.Store")]
-        public string StoreName { get; set; }
+        public string? StoreName { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.Orders.CreatedOn")]
         public DateTime CreatedOn { get; set; }
@@ -357,48 +357,48 @@ public class CustomerModel : BaseEntityModel
     public class ProductModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Customers.Customers.PersonalizedProduct.ProductName")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.PersonalizedProduct.DisplayOrder")]
         public int DisplayOrder { get; set; }
 
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
     }
 
     public class ProductPriceModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Customers.Customers.ProductPrice.ProductName")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.ProductPrice.Price")]
         public double Price { get; set; }
 
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
     }
 
     public class AddProductModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
 
-        public string SearchProductName { get; set; }
+        public string? SearchProductName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
         [UIHint("Category")]
-        public string SearchCategoryId { get; set; }
+        public string? SearchCategoryId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
         [UIHint("Brand")]
-        public string SearchBrandId { get; set; }
+        public string? SearchBrandId { get; set; }
 
         [UIHint("Collection")]
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-        public string SearchCollectionId { get; set; }
+        public string? SearchCollectionId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-        public string SearchStoreId { get; set; }
+        public string? SearchStoreId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-        public string SearchVendorId { get; set; }
+        public string? SearchVendorId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
@@ -407,23 +407,23 @@ public class CustomerModel : BaseEntityModel
         public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
         public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
 
-        public string CustomerId { get; set; }
+        public string? CustomerId { get; set; }
 
-        public string[] SelectedProductIds { get; set; }
+        public string[] SelectedProductIds { get; set; } = [];
     }
 
     public class OutOfStockSubscriptionModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Customers.Customers.OutOfStockSubscriptions.Store")]
-        public string StoreName { get; set; }
+        public string? StoreName { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.OutOfStockSubscriptions.Product")]
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.OutOfStockSubscriptions.Product")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
-        public string AttributeDescription { get; set; }
+        public string? AttributeDescription { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.Customers.OutOfStockSubscriptions.CreatedOn")]
         public DateTime CreatedOn { get; set; }
@@ -431,14 +431,14 @@ public class CustomerModel : BaseEntityModel
 
     public class CustomerAttributeModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public bool IsRequired { get; set; }
 
         /// <summary>
         ///     Default value for textboxes
         /// </summary>
-        public string DefaultValue { get; set; }
+        public string? DefaultValue { get; set; }
 
         public AttributeControlType AttributeControlType { get; set; }
 
@@ -447,26 +447,26 @@ public class CustomerModel : BaseEntityModel
 
     public class CustomerAttributeValueModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public bool IsPreSelected { get; set; }
     }
 
     public class CustomerNote : BaseEntityModel
     {
-        public string CustomerId { get; set; }
+        public string? CustomerId { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerNotes.Fields.DisplayToCustomer")]
         public bool DisplayToCustomer { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerNotes.Fields.Title")]
-        public string Title { get; set; }
+        public string? Title { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerNotes.Fields.Note")]
-        public string Note { get; set; }
+        public string? Note { get; set; }
 
         [GrandResourceDisplayName("Admin.Customers.CustomerNotes.Fields.Download")]
-        public string DownloadId { get; set; }
+        public string? DownloadId { get; set; }
 
         public Guid DownloadGuid { get; set; }
 

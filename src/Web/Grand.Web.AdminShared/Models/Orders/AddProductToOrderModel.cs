@@ -12,10 +12,10 @@ public record AddProductToOrderModel(
     int Quantity,
     int TaxRate)
 {
-    public GiftvoucherModel Giftvoucher { get; set; }
+    public GiftvoucherModel? Giftvoucher { get; set; }
 
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-    public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+    public IList<CustomAttributeModel> SelectedAttributes { get; set; } = new List<CustomAttributeModel>();
 }
 
 public record GiftvoucherModel(

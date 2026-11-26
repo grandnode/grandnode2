@@ -38,7 +38,7 @@ public abstract class BaseProductReservationController(
         // tabs must load; the mutating actions below keep the strict HasAccess. History:
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct checks;
         // Admin's original had no check at all - normalized to scope.HasAccess for all three hosts.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         //a product shared with other stores is shown read-only; its bids and reservations carry
@@ -125,9 +125,11 @@ public abstract class BaseProductReservationController(
         var _minutesFrom = model.StartTime.Minute;
         var _hourTo = model.EndTime.Hour;
         var _minutesTo = model.EndTime.Minute;
-        var _dateFrom = new DateTime(model.StartDate.Value.Year, model.StartDate.Value.Month, model.StartDate.Value.Day,
+        var startDate = model.StartDate ?? throw new ArgumentException("The start date is required");
+        var endDate = model.EndDate ?? throw new ArgumentException("The end date is required");
+        var _dateFrom = new DateTime(startDate.Year, startDate.Month, startDate.Day,
             0, 0, 0, 0);
-        var _dateTo = new DateTime(model.EndDate.Value.Year, model.EndDate.Value.Month, model.EndDate.Value.Day, 23, 59,
+        var _dateTo = new DateTime(endDate.Year, endDate.Month, endDate.Day, 23, 59,
             59, 999);
         if ((IntervalUnit)model.IntervalUnit == IntervalUnit.Day)
         {

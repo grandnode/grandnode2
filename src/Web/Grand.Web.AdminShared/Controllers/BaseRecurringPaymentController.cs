@@ -45,23 +45,24 @@ public abstract class BaseRecurringPaymentController(
     IContextAccessor contextAccessor)
     : BaseController
 {
+    protected sealed record AuthorizedRecurringPayment(RecurringPayment RecurringPayment, Order InitialOrder);
+
     /// <summary>A missing recurring payment and one the panel may not see are answered alike</summary>
-    protected async Task<(RecurringPayment recurringPayment, Order initialOrder, IActionResult denied)>
-        LoadAuthorizedRecurringPayment(string id)
+    protected async Task<Access<AuthorizedRecurringPayment>> LoadAuthorizedRecurringPayment(string id)
     {
         var recurringPayment = await recurringPaymentService.GetRecurringPaymentById(id);
-        if (recurringPayment == null) return (null, null, RedirectToAction("List"));
+        if (recurringPayment == null) return Access<AuthorizedRecurringPayment>.Deny(RedirectToAction("List"));
         if (scope.DefaultStoreId is not null && recurringPayment.StoreId != scope.DefaultStoreId)
-            return (null, null, RedirectToAction("List"));
+            return Access<AuthorizedRecurringPayment>.Deny(RedirectToAction("List"));
 
         //a deleted order is kept, so a missing one is a broken record and is shown to no one
         var initialOrder = string.IsNullOrEmpty(recurringPayment.InitialOrderId)
             ? null
             : await orderService.GetOrderById(recurringPayment.InitialOrderId);
         if (initialOrder == null || !await scope.HasAccess(initialOrder))
-            return (null, null, RedirectToAction("List"));
+            return Access<AuthorizedRecurringPayment>.Deny(RedirectToAction("List"));
 
-        return (recurringPayment, initialOrder, null);
+        return Access<AuthorizedRecurringPayment>.Allow(new AuthorizedRecurringPayment(recurringPayment, initialOrder));
     }
 
     #region List
@@ -102,10 +103,10 @@ public abstract class BaseRecurringPaymentController(
         });
 
         var orders = (await orderService.GetOrdersByIds(recurringPayments.Select(x => x.InitialOrderId)
-                .Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray()))
+                .OfType<string>().Where(x => x.Length > 0).Distinct().ToArray()))
             .ToDictionary(x => x.Id);
         var customers = (await customerService.GetCustomersByIds(recurringPayments.Select(x => x.CustomerId)
-                .Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray()))
+                .OfType<string>().Where(x => x.Length > 0).Distinct().ToArray()))
             .ToDictionary(x => x.Id);
         var stores = await storeService.GetAllStores();
 
@@ -123,8 +124,9 @@ public abstract class BaseRecurringPaymentController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Edit(string id)
     {
-        var (recurringPayment, initialOrder, denied) = await LoadAuthorizedRecurringPayment(id);
-        if (denied != null) return denied;
+        var recurringPaymentAccess = await LoadAuthorizedRecurringPayment(id);
+        if (recurringPaymentAccess.IsDenied) return recurringPaymentAccess.Denied;
+        var (recurringPayment, initialOrder) = recurringPaymentAccess.Entity;
 
         var customer = await customerService.GetCustomerById(recurringPayment.CustomerId);
         var model = PrepareRecurringPaymentModel(recurringPayment, initialOrder, customer,
@@ -140,7 +142,7 @@ public abstract class BaseRecurringPaymentController(
         model.CancelledBy = recurringPayment.CancelledBy;
 
         var cycleOrders = (await orderService.GetOrdersByIds(recurringPayment.Cycles.Select(x => x.OrderId)
-                .Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray()))
+                .OfType<string>().Where(x => x.Length > 0).Distinct().ToArray()))
             .ToDictionary(x => x.Id);
         foreach (var cycle in recurringPayment.Cycles.OrderBy(x => x.CycleNumber))
         {
@@ -164,8 +166,9 @@ public abstract class BaseRecurringPaymentController(
     [HttpPost]
     public async Task<IActionResult> Cancel(string id)
     {
-        var (recurringPayment, _, denied) = await LoadAuthorizedRecurringPayment(id);
-        if (denied != null) return denied;
+        var recurringPaymentAccess = await LoadAuthorizedRecurringPayment(id);
+        if (recurringPaymentAccess.IsDenied) return recurringPaymentAccess.Denied;
+        var recurringPayment = recurringPaymentAccess.Entity.RecurringPayment;
 
         if (recurringPayment.Status.HasEnded())
         {
@@ -189,8 +192,8 @@ public abstract class BaseRecurringPaymentController(
 
     #endregion
 
-    private RecurringPaymentModel PrepareRecurringPaymentModel(RecurringPayment recurringPayment, Order initialOrder,
-        Customer customer, IList<Store> stores)
+    private RecurringPaymentModel PrepareRecurringPaymentModel(RecurringPayment recurringPayment, Order? initialOrder,
+        Customer? customer, IList<Store> stores)
     {
         //the date the provider reported means nothing once it stopped charging
         var charging = recurringPayment.Status is RecurringPaymentStatus.Active or RecurringPaymentStatus.PastDue;

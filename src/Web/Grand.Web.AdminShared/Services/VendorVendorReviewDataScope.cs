@@ -2,6 +2,7 @@
 
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
@@ -21,12 +22,12 @@ public class VendorVendorReviewDataScope(IContextAccessor contextAccessor) : IAd
 {
     public Task<bool> HasAccess(VendorReview entity) =>
         Task.FromResult(entity is not null &&
-            !string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentVendor.Id) &&
-            entity.VendorId == contextAccessor.WorkContext.CurrentVendor.Id);
+            !string.IsNullOrEmpty(contextAccessor.WorkContext.PanelVendor().Id) &&
+            entity.VendorId == contextAccessor.WorkContext.PanelVendor().Id);
 
     public string? DefaultStoreId => null;
     public string ResourceKeyPrefix => "Vendor";
     public bool ShowStoreSelector => false;
-    public string? DefaultVendorId => contextAccessor.WorkContext.CurrentVendor.Id;
+    public string? DefaultVendorId => contextAccessor.WorkContext.PanelVendor().Id;
     public bool CanFeatureOnHomepage => false;
 }

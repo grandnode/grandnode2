@@ -50,8 +50,9 @@ public abstract class BaseCustomerManagementController(
     [HttpPost]
     public async Task<IActionResult> Impersonate(string id, [FromServices] IAuditEventRecorder auditEventRecorder)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         if (!await permissionService.Authorize(StandardPermission.AllowCustomerImpersonation))
         {
@@ -75,8 +76,9 @@ public abstract class BaseCustomerManagementController(
     [HttpPost]
     public async Task<IActionResult> RemoveAffiliate(string id)
     {
-        var (customer, denied) = await LoadAuthorizedCustomer(id);
-        if (customer is null) return denied!;
+        var customerAccess = await LoadAuthorizedCustomer(id);
+        if (customerAccess.IsDenied) return customerAccess.Denied;
+        var customer = customerAccess.Entity;
 
         customer.AffiliateId = "";
         await CustomerService.UpdateCustomerField(customer.Id, x => x.AffiliateId, customer.AffiliateId);

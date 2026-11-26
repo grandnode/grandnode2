@@ -118,7 +118,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base category</returns>
-    public virtual async Task<KnowledgebaseCategory?> GetKnowledgebaseCategory(string id)
+    public virtual async Task<KnowledgebaseCategory?> GetKnowledgebaseCategory(string? id)
     {
         return await _knowledgebaseCategoryRepository.GetOneAsync(x => x.Id == id);
     }
@@ -172,7 +172,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>knowledge base article</returns>
-    public virtual Task<KnowledgebaseArticle?> GetKnowledgebaseArticle(string id)
+    public virtual Task<KnowledgebaseArticle?> GetKnowledgebaseArticle(string? id)
     {
         return _knowledgebaseArticleRepository.GetByIdAsync(id);
     }

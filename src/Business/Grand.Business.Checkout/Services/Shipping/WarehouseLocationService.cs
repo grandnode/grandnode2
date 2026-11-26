@@ -10,7 +10,7 @@ namespace Grand.Business.Checkout.Services.Shipping;
 public class WarehouseLocationService(IRepository<WarehouseLocation> locationRepository, IMediator mediator)
     : IWarehouseLocationService
 {
-    public Task<WarehouseLocation?> GetLocationById(string id)
+    public Task<WarehouseLocation?> GetLocationById(string? id)
     {
         return locationRepository.GetByIdAsync(id);
     }

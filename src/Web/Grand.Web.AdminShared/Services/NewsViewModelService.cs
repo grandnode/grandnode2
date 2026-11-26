@@ -111,7 +111,7 @@ public class NewsViewModelService : INewsViewModelService
         {
             //filter comments by news item
             var newsItem = await _newsService.GetNewsById(filterByNewsItemId);
-            comments = newsItem.NewsComments.OrderBy(bc => bc.CreatedOnUtc).ToList();
+            comments = newsItem == null ? [] : newsItem.NewsComments.OrderBy(bc => bc.CreatedOnUtc).ToList();
         }
         else
         {
@@ -129,7 +129,7 @@ public class NewsViewModelService : INewsViewModelService
                 CustomerId = newsComment.CustomerId
             };
             var customer = await _customerService.GetCustomerById(newsComment.CustomerId);
-            commentModel.CustomerInfo = !string.IsNullOrEmpty(customer.Email)
+            commentModel.CustomerInfo = !string.IsNullOrEmpty(customer?.Email)
                 ? customer.Email
                 : _translationService.GetResource("Admin.Customers.Guest");
             commentModel.CreatedOn = _dateTimeService.ConvertToUserTime(newsComment.CreatedOnUtc, DateTimeKind.Utc);
@@ -143,7 +143,8 @@ public class NewsViewModelService : INewsViewModelService
 
     public virtual async Task CommentDelete(NewsComment model)
     {
-        var newsItem = await _newsService.GetNewsById(model.NewsItemId);
+        var newsItem = await _newsService.GetNewsById(model.NewsItemId)
+                       ?? throw new ArgumentException("No news found with the specified id");
         var comment = newsItem.NewsComments.FirstOrDefault(x => x.Id == model.Id);
         if (comment == null)
             throw new ArgumentException("No comment found with the specified id");

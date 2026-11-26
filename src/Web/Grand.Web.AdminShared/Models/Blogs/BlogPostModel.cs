@@ -10,26 +10,26 @@ namespace Grand.Web.AdminShared.Models.Blogs;
 public class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel>, IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Title")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [UIHint("Picture")]
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Picture")]
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Body")]
     [SanitizeHtml]
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.BodyOverview")]
     [SanitizeHtml]
-    public string BodyOverview { get; set; }
+    public string? BodyOverview { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.AllowComments")]
     public bool AllowComments { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Tags")]
 
-    public string Tags { get; set; }
+    public string? Tags { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Comments")]
     public int Comments { get; set; }
@@ -48,19 +48,19 @@ public class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaKeywords")]
     [NoHtml]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaDescription")]
     [NoHtml]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaTitle")]
     [NoHtml]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.SeName")]
 
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.CreatedOn")]
     public DateTime CreatedOn { get; set; }
@@ -70,37 +70,37 @@ public class BlogPostModel : BaseEntityModel, ILocalizedModel<BlogLocalizedModel
     //Store acl
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }
 
 public class BlogLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 {
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Title")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.BodyOverview")]
     [SanitizeHtml]
-    public string BodyOverview { get; set; }
+    public string? BodyOverview { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.Body")]
     [SanitizeHtml]
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaKeywords")]
     [NoHtml]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaDescription")]
     [NoHtml]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.MetaTitle")]
     [NoHtml]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Blog.BlogPosts.Fields.SeName")]
 
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

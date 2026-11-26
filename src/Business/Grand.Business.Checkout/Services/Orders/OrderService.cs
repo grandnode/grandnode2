@@ -99,7 +99,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="code">The order code</param>
     /// <returns>Order</returns>
-    public virtual async Task<IList<Order>> GetOrdersByCode(string code)
+    public virtual async Task<IList<Order>> GetOrdersByCode(string? code)
     {
         if (string.IsNullOrEmpty(code))
             return new List<Order>();
@@ -174,40 +174,40 @@ public class OrderService : IOrderService
     /// <param name="pageSize">Page size</param>
     /// <param name="orderTagId">Order tag identifier</param>
     /// <returns>Orders</returns>
-    public virtual async Task<IPagedList<Order>> SearchOrders(string storeId = "",
-        string vendorId = "", string customerId = "",
-        string productId = "", string affiliateId = "", string warehouseId = "",
-        string billingCountryId = "", string ownerId = "", string salesEmployeeId = "",
+    public virtual async Task<IPagedList<Order>> SearchOrders(string? storeId = "",
+        string? vendorId = "", string? customerId = "",
+        string? productId = "", string? affiliateId = "", string? warehouseId = "",
+        string? billingCountryId = "", string? ownerId = "", string? salesEmployeeId = "",
         string? paymentMethodSystemName = null,
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
-        string? billingEmail = null, string billingLastName = "", string? orderGuid = null,
-        string? orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "",
+        string? billingEmail = null, string? billingLastName = "", string? orderGuid = null,
+        string? orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string? orderTagId = "",
         string? purchaseOrderNumber = null, bool overdueOnly = false)
     {
         var queryModel = new GetOrderQuery {
-            AffiliateId = affiliateId,
-            BillingCountryId = billingCountryId,
+            AffiliateId = affiliateId ?? "",
+            BillingCountryId = billingCountryId ?? "",
             BillingEmail = billingEmail,
-            BillingLastName = billingLastName,
+            BillingLastName = billingLastName ?? "",
             CreatedFromUtc = createdFromUtc,
             CreatedToUtc = createdToUtc,
-            CustomerId = customerId,
+            CustomerId = customerId ?? "",
             OrderGuid = orderGuid,
             OrderCode = orderCode,
             Os = os,
             PageIndex = pageIndex,
             PageSize = pageSize,
             PaymentMethodSystemName = paymentMethodSystemName,
-            ProductId = productId,
+            ProductId = productId ?? "",
             Ps = ps,
             Ss = ss,
-            StoreId = storeId,
-            VendorId = vendorId,
-            WarehouseId = warehouseId,
-            OrderTagId = orderTagId,
-            OwnerId = ownerId,
-            SalesEmployeeId = salesEmployeeId,
+            StoreId = storeId ?? "",
+            VendorId = vendorId ?? "",
+            WarehouseId = warehouseId ?? "",
+            OrderTagId = orderTagId ?? "",
+            OwnerId = ownerId ?? "",
+            SalesEmployeeId = salesEmployeeId ?? "",
             PurchaseOrderNumber = purchaseOrderNumber,
             OverdueOnly = overdueOnly
         };
@@ -264,7 +264,7 @@ public class OrderService : IOrderService
     /// <param name="order">The order</param>
     /// <param name="purchaseOrderNumber">Purchase order number</param>
     /// <param name="paymentDueDateUtc">Payment due date (a calendar day, UTC), or null when the order is paid at once</param>
-    public virtual async Task UpdatePaymentTerms(Order order, string purchaseOrderNumber, DateTime? paymentDueDateUtc)
+    public virtual async Task UpdatePaymentTerms(Order order, string? purchaseOrderNumber, DateTime? paymentDueDateUtc)
     {
         ArgumentNullException.ThrowIfNull(order);
 

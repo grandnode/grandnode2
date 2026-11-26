@@ -31,7 +31,7 @@ public interface IPdfService
     ///     be printed
     /// </param>
     /// <param name="cancellationToken">Stops the work before the PDF is generated</param>
-    Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string? languageId = "", string vendorId = "",
+    Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string? languageId = "", string? vendorId = "",
         CancellationToken cancellationToken = default);
 
     /// <summary>

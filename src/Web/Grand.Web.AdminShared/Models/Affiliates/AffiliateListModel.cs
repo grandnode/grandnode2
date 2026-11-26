@@ -8,15 +8,15 @@ public class AffiliateListModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Affiliates.List.SearchFirstName")]
 
-    public string SearchFirstName { get; set; }
+    public string? SearchFirstName { get; set; }
 
     [GrandResourceDisplayName("Admin.Affiliates.List.SearchLastName")]
 
-    public string SearchLastName { get; set; }
+    public string? SearchLastName { get; set; }
 
     [GrandResourceDisplayName("Admin.Affiliates.List.SearchFriendlyUrlName")]
 
-    public string SearchFriendlyUrlName { get; set; }
+    public string? SearchFriendlyUrlName { get; set; }
 
     [GrandResourceDisplayName("Admin.Affiliates.List.LoadOnlyWithOrders")]
     public bool LoadOnlyWithOrders { get; set; }

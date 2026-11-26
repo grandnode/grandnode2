@@ -80,7 +80,7 @@ public class PdfService : IPdfService
     }
 
     public async Task PrintOrdersToPdf(Stream stream, IList<Order> orders, string? languageId = "",
-        string vendorId = "", CancellationToken cancellationToken = default)
+        string? vendorId = "", CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(stream);
         ArgumentNullException.ThrowIfNull(orders);
@@ -136,7 +136,7 @@ public class PdfService : IPdfService
         return download.Id;
     }
 
-    private async Task ComposeOrder(PdfComposer pdf, Order order, string vendorId, Dictionary<string, byte[]?> logos)
+    private async Task ComposeOrder(PdfComposer pdf, Order order, string? vendorId, Dictionary<string, byte[]?> logos)
     {
         //an order without a language prints the untranslated texts
         var lang = order.CustomerLanguageId ?? string.Empty;

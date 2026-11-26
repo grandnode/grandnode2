@@ -7,7 +7,7 @@ namespace Grand.Web.AdminShared.Models.Settings;
 
 public class SalesSettingsModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
     public OrderSettingsModel OrderSettings { get; set; } = new();
     public ShoppingCartSettingsModel ShoppingCartSettings { get; set; } = new();
     public LoyaltyPointsSettingsModel LoyaltyPointsSettings { get; set; } = new();
@@ -82,7 +82,7 @@ public class SalesSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.Order.CompleteOrderWhenDelivered")]
         public bool CompleteOrderWhenDelivered { get; set; }
 
-        public string PrimaryStoreCurrencyCode { get; set; }
+        public string? PrimaryStoreCurrencyCode { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Order.UserCanCancelUnpaidOrder")]
         public bool UserCanCancelUnpaidOrder { get; set; }
@@ -190,7 +190,7 @@ public class SalesSettingsModel : BaseModel
         public bool RoundPrices { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.ShoppingCart.ReservationDateFormat")]
-        public string ReservationDateFormat { get; set; }
+        public string? ReservationDateFormat { get; set; }
     }
 
     public class LoyaltyPointsSettingsModel : BaseModel
@@ -224,7 +224,7 @@ public class SalesSettingsModel : BaseModel
         [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.DisplayHowMuchWillBeEarned")]
         public bool DisplayHowMuchWillBeEarned { get; set; }
 
-        public string PrimaryStoreCurrencyCode { get; set; }
+        public string? PrimaryStoreCurrencyCode { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.LoyaltyPoints.PointsAccumulatedForAllStores")]
         public bool PointsAccumulatedForAllStores { get; set; }

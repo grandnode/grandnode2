@@ -12,14 +12,14 @@ public class KnowledgebaseArticleModel : BaseEntityModel, ILocalizedModel<Knowle
     IGroupLinkModel, IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Content")]
-    public string Content { get; set; }
+    public string? Content { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.ParentCategoryId")]
-    public string ParentCategoryId { get; set; }
+    public string? ParentCategoryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -29,18 +29,18 @@ public class KnowledgebaseArticleModel : BaseEntityModel, ILocalizedModel<Knowle
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.ShowOnHomepage")]
     public bool ShowOnHomepage { get; set; }
@@ -53,23 +53,23 @@ public class KnowledgebaseArticleModel : BaseEntityModel, ILocalizedModel<Knowle
     //ACL
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.LimitedToGroups")]
-    public string[] CustomerGroups { get; set; }
+    public string[]? CustomerGroups { get; set; }
 
     public IList<KnowledgebaseArticleLocalizedModel> Locales { get; set; } =
         new List<KnowledgebaseArticleLocalizedModel>();
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     public class AddRelatedArticleModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Related.SearchArticleName")]
-        public string SearchArticleName { get; set; }
+        public string? SearchArticleName { get; set; }
 
-        public string ArticleId { get; set; }
+        public string? ArticleId { get; set; }
 
-        public string[] SelectedArticlesIds { get; set; }
+        public string[] SelectedArticlesIds { get; set; } = [];
 
         public IList<SelectListItem> AvailableArticles { get; set; } = new List<SelectListItem>();
     }
@@ -78,26 +78,26 @@ public class KnowledgebaseArticleModel : BaseEntityModel, ILocalizedModel<Knowle
 public class KnowledgebaseArticleLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 {
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.Content")]
-    public string Content { get; set; }
+    public string? Content { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

@@ -166,7 +166,7 @@ public abstract class BaseMerchandiseReturnController(
                 Success(TranslationService.GetResource(
                     $"{Scope.ResourceKeyPrefix}.Orders.MerchandiseReturns.Updated"));
                 return continueEditing
-                    ? RedirectToAction("Edit", new { id = updated.Id })
+                    ? RedirectToAction("Edit", new { id = merchandiseReturn.Id })
                     : RedirectToAction("List");
             }
 

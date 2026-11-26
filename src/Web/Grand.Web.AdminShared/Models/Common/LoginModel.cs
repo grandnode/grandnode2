@@ -9,16 +9,16 @@ public class LoginModel : BaseModel
 {
     [DataType(DataType.EmailAddress)]
     [GrandResourceDisplayName("Account.Login.Fields.Email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     public bool UsernamesEnabled { get; set; }
 
     [GrandResourceDisplayName("Account.Login.Fields.UserName")]
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     [DataType(DataType.Password)]
     [GrandResourceDisplayName("Account.Login.Fields.Password")]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     [GrandResourceDisplayName("Account.Login.Fields.RememberMe")]
     public bool RememberMe { get; set; }
@@ -42,7 +42,7 @@ public class LoginModel : BaseModel
 
     public class ExternalSignInButton
     {
-        public string Name { get; set; }
-        public string Url { get; set; }
+        public string? Name { get; set; }
+        public required string Url { get; set; }
     }
 }

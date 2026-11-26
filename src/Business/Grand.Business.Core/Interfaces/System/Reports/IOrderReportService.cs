@@ -22,7 +22,7 @@ public interface IOrderReportService
     /// <param name="startTimeUtc">Start date</param>
     /// <param name="endTimeUtc">End date</param>
     /// <returns>Result</returns>
-    Task<IList<OrderByCountryReportLine>> GetCountryReport(string storeId = "",
+    Task<IList<OrderByCountryReportLine>> GetCountryReport(string? storeId = "",
         string vendorId = "", int? os = null,
         PaymentStatus? ps = null, ShippingStatus? ss = null,
         DateTime? startTimeUtc = null, DateTime? endTimeUtc = null);
@@ -35,7 +35,7 @@ public interface IOrderReportService
     /// <param name="startTimeUtc">Start date</param>
     /// <param name="endTimeUtc">End date</param>
     /// <returns>Result</returns>
-    Task<IList<OrderByTimeReportLine>> GetOrderByTimeReport(string storeId = "", DateTime? startTimeUtc = null,
+    Task<IList<OrderByTimeReportLine>> GetOrderByTimeReport(string? storeId = "", DateTime? startTimeUtc = null,
         DateTime? endTimeUtc = null);
 
     /// <summary>
@@ -58,7 +58,7 @@ public interface IOrderReportService
     /// <param name="ignoreCancelledOrders">A value indicating whether to ignore cancelled orders</param>
     /// <param name="tagId">Tag ident</param>
     /// <returns>Result</returns>
-    Task<OrderAverageReportLine> GetOrderAverageReportLine(string storeId = "",
+    Task<OrderAverageReportLine> GetOrderAverageReportLine(string? storeId = "",
         string customerId = "", string vendorId = "", string salesEmployeeId = "",
         string billingCountryId = "", string orderId = "", string? paymentMethodSystemName = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
@@ -74,7 +74,7 @@ public interface IOrderReportService
     /// <param name="storeId">Store identifier</param>
     /// <param name="os">Order status</param>
     /// <returns>Result</returns>
-    Task<OrderAverageReportLineSummary> OrderAverageReport(string storeId, int os);
+    Task<OrderAverageReportLineSummary> OrderAverageReport(string? storeId, int os);
 
     /// <summary>
     ///     Get best sellers report
@@ -93,7 +93,7 @@ public interface IOrderReportService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Result</returns>
     Task<IPagedList<BestsellersReportLine>> BestSellersReport(
-        string storeId = "", string vendorId = "",
+        string? storeId = "", string vendorId = "",
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         string billingCountryId = "",
@@ -125,7 +125,7 @@ public interface IOrderReportService
     /// <param name="storeId">Store ident</param>
     /// <param name="salesEmployeeId">Sales employee ident</param>
     /// <returns>ReportPeriodOrder</returns>
-    Task<ReportPeriodOrder> GetOrderPeriodReport(int days, string storeId = "", string salesEmployeeId = "");
+    Task<ReportPeriodOrder> GetOrderPeriodReport(int days, string? storeId = "", string salesEmployeeId = "");
 
     /// <summary>
     ///     Gets a list of products (identifiers) purchased by other customers who purchased a specified product
@@ -149,7 +149,7 @@ public interface IOrderReportService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Products</returns>
-    Task<IPagedList<Product>> ProductsNeverSold(string storeId = "", string vendorId = "",
+    Task<IPagedList<Product>> ProductsNeverSold(string? storeId = "", string vendorId = "",
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
 }

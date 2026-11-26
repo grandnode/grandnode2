@@ -7,16 +7,16 @@ namespace Grand.Web.AdminShared.Models.Catalog;
 public class SpecificationAttributeOptionModel : BaseEntityModel,
     ILocalizedModel<SpecificationAttributeOptionLocalizedModel>
 {
-    public string SpecificationAttributeId { get; set; }
+    public string? SpecificationAttributeId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.ColorSquaresRgb")]
-    public string ColorSquaresRgb { get; set; }
+    public string? ColorSquaresRgb { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.EnableColorSquaresRgb")]
     public bool EnableColorSquaresRgb { get; set; }
@@ -36,7 +36,7 @@ public class SpecificationAttributeOptionLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Catalog.Attributes.SpecificationAttributes.Options.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

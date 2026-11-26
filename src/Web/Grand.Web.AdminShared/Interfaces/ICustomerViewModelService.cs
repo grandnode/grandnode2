@@ -8,10 +8,10 @@ public interface ICustomerViewModelService
     Task<CustomerListModel> PrepareCustomerListModel();
 
     Task<(IEnumerable<CustomerModel> customerModelList, int totalCount)> PrepareCustomerList(CustomerListModel model,
-        string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize,
+        string[] searchCustomerGroupIds, string[]? searchCustomerTagIds, int pageIndex, int pageSize,
         string storeId = "");
 
-    Task PrepareCustomerModel(CustomerModel model, Customer customer, bool excludeProperties);
+    Task PrepareCustomerModel(CustomerModel model, Customer? customer, bool excludeProperties);
     Task<Customer> InsertCustomerModel(CustomerModel model);
     Task<Customer> UpdateCustomerModel(Customer customer, CustomerModel model);
     Task DeleteCustomer(Customer customer);

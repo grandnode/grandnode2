@@ -33,7 +33,7 @@ public class BaseOrderControllerTests
         : BaseOrderController(orderViewModelService, orderService, translationService,
             contextAccessor, pdfService, scope)
     {
-        public Task<(Order order, IActionResult denied)> LoadAuthorizedOrderPublic(string id) =>
+        public Task<Access<Order>> LoadAuthorizedOrderPublic(string id) =>
             LoadAuthorizedOrder(id);
     }
 

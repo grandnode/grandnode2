@@ -12,7 +12,7 @@ public interface IDownloadService
     /// </summary>
     /// <param name="downloadId">Download identifier</param>
     /// <returns>Download</returns>
-    Task<Download?> GetDownloadById(string downloadId);
+    Task<Download?> GetDownloadById(string? downloadId);
 
     /// <summary>
     ///     Gets a download by GUID

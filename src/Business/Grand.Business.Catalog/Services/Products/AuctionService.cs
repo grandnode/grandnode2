@@ -30,7 +30,7 @@ public class AuctionService : IAuctionService
         _mediator = mediator;
     }
 
-    public virtual Task<Bid?> GetBid(string id)
+    public virtual Task<Bid?> GetBid(string? id)
     {
         return _bidRepository.GetByIdAsync(id);
     }

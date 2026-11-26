@@ -15,8 +15,8 @@ public class VendorReviewListModel : BaseModel
     public DateTime? CreatedOnTo { get; set; }
 
     [GrandResourceDisplayName("Admin.VendorReviews.List.SearchText")]
-    public string SearchText { get; set; }
+    public string? SearchText { get; set; }
 
     [GrandResourceDisplayName("Admin.VendorReviews.List.SearchVendor")]
-    public string SearchVendorId { get; set; }
+    public string? SearchVendorId { get; set; }
 }
