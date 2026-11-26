@@ -98,9 +98,10 @@ public class OutOfStockSubscriptionController : BasePublicController
     [HttpPost]
     public virtual async Task<IActionResult> SubscribePopup(ProductModel model)
     {
+        //the product may have been deleted while the page was open
         var product = await _productService.GetProductById(model.ProductId);
         if (product == null)
-            throw new ArgumentException("No product found with the specified id");
+            return NotFound();
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var warehouseId = _shoppingCartSettings.AllowToSelectWarehouse ? model.WarehouseId :

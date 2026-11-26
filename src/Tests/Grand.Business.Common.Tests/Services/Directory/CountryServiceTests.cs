@@ -171,6 +171,15 @@ public class CountryServiceTests
     }
 
     [TestMethod]
+    public async Task GetStateProvincesByCountryId_UnknownCountry_ReturnsNoStates()
+    {
+        var result = await _countryService.GetStateProvincesByCountryId("0123456789abcdef01234567");
+
+        Assert.IsNotNull(result);
+        Assert.AreEqual(0, result.Count);
+    }
+
+    [TestMethod]
     public async Task InsertStateProvinceTest()
     {
         //Arrange
