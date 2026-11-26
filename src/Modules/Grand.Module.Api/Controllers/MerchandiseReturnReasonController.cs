@@ -75,15 +75,13 @@ public class MerchandiseReturnReasonController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] MerchandiseReturnReasonDto model)
     {
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
         if (string.IsNullOrEmpty(model.Id))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
-
-        if (!(await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(model.Id))).Any()) return NotFound();
-
-        model = await _mediator.Send(new UpdateMerchandiseReturnReasonCommand { Model = model });
-        return Ok(model);
+        var updated = await _mediator.Send(new UpdateMerchandiseReturnReasonCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Delete entity in MerchandiseReturnReason")]

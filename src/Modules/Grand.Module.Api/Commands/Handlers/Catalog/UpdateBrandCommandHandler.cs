@@ -8,7 +8,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
-public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, BrandDto>
+public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, BrandDto?>
 {
     private readonly IBrandService _brandService;
     private readonly IPictureService _pictureService;
@@ -26,10 +26,11 @@ public class UpdateBrandCommandHandler : IRequestHandler<UpdateBrandCommand, Bra
         _seNameService = seNameService;
     }
 
-    public async Task<BrandDto> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
+    public async Task<BrandDto?> Handle(UpdateBrandCommand request, CancellationToken cancellationToken)
     {
-        var brand = await _brandService.GetBrandById(request.Model.Id) ??
-            throw new ArgumentException("No brand has the id", nameof(request));
+        var brand = await _brandService.GetBrandById(request.Model.Id);
+        if (brand == null)
+            return null;
         var prevPictureId = brand.PictureId;
         brand = request.Model.ToEntity(brand);
         request.Model.SeName = await _seNameService.ValidateSeName(brand, request.Model.SeName, brand.Name, true);

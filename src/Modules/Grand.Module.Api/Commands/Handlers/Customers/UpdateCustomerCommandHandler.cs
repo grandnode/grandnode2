@@ -8,7 +8,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Customers;
 
-public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, CustomerDto>
+public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerCommand, CustomerDto?>
 {
     private readonly ICustomerService _customerService;
     private readonly IGroupService _groupService;
@@ -21,10 +21,11 @@ public class UpdateCustomerCommandHandler : IRequestHandler<UpdateCustomerComman
         _groupService = groupService;
     }
 
-    public async Task<CustomerDto> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
+    public async Task<CustomerDto?> Handle(UpdateCustomerCommand request, CancellationToken cancellationToken)
     {
-        var customer = await _customerService.GetCustomerById(request.Model.Id) ??
-            throw new ArgumentException("No customer has the id", nameof(request));
+        var customer = await _customerService.GetCustomerById(request.Model.Id);
+        if (customer == null)
+            return null;
         customer = request.Model.ToEntity(customer);
         await _customerService.UpdateCustomer(customer);
         await SaveCustomerAttributes(request.Model, customer);

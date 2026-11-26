@@ -3,7 +3,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Models.Catalog;
 
-public class UpdateSpecificationAttributeCommand : IRequest<SpecificationAttributeDto>
+public class UpdateSpecificationAttributeCommand : IRequest<SpecificationAttributeDto?>
 {
     public required SpecificationAttributeDto Model { get; set; }
 }

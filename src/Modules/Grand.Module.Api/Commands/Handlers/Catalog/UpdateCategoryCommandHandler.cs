@@ -8,7 +8,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
-public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, CategoryDto>
+public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryCommand, CategoryDto?>
 {
     private readonly ICategoryService _categoryService;
     private readonly IPictureService _pictureService;
@@ -26,10 +26,11 @@ public class UpdateCategoryCommandHandler : IRequestHandler<UpdateCategoryComman
         _seNameService = seNameService;
     }
 
-    public async Task<CategoryDto> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
+    public async Task<CategoryDto?> Handle(UpdateCategoryCommand request, CancellationToken cancellationToken)
     {
-        var category = await _categoryService.GetCategoryById(request.Model.Id) ??
-            throw new ArgumentException("No category has the id", nameof(request));
+        var category = await _categoryService.GetCategoryById(request.Model.Id);
+        if (category == null)
+            return null;
         var prevPictureId = category.PictureId;
         category = request.Model.ToEntity(category);
         request.Model.SeName = await _seNameService.ValidateSeName(category, request.Model.SeName, category.Name, true);

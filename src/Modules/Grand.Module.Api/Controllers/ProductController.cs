@@ -79,14 +79,12 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] ProductDto model)
     {
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Products, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
         if (string.IsNullOrEmpty(model.Id))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Products, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
-
-        if (!(await _mediator.Send(new GetGenericQuery<ProductDto, Product>(model.Id))).Any()) return NotFound();
-
-        await _mediator.Send(new UpdateProductCommand { Model = model });
+        if (await _mediator.Send(new UpdateProductCommand { Model = model }) == null) return NotFound();
         return Ok();
     }
 

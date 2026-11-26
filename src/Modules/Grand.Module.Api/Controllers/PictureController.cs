@@ -61,15 +61,13 @@ public class PictureController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] PictureDto model)
     {
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Pictures, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
         if (string.IsNullOrEmpty(model.Id))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Pictures, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
-
-        if (!(await _mediator.Send(new GetGenericQuery<PictureDto, Picture>(model.Id))).Any()) return NotFound();
-
         var result = await _mediator.Send(new UpdatePictureCommand { Model = model });
-        return Ok(result);
+        return result ? Ok(result) : NotFound();
     }
 
     [EndpointDescription("Delete entity in Picture")]

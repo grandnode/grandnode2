@@ -79,15 +79,13 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CustomerDto model)
     {
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
         if (string.IsNullOrEmpty(model.Id))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
-
-        if (await _customerService.GetCustomerById(model.Id) == null) return NotFound();
-
-        model = await _mediator.Send(new UpdateCustomerCommand { Model = model });
-        return Ok(model);
+        var updated = await _mediator.Send(new UpdateCustomerCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Delete entity from Customer")]

@@ -76,15 +76,13 @@ public class SpecificationAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] SpecificationAttributeDto model)
     {
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.SpecificationAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
         if (string.IsNullOrEmpty(model.Id))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.AuthorizeAction(PermissionSystemName.SpecificationAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
-
-        if (!(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(model.Id))).Any()) return NotFound();
-
-        model = await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = model });
-        return Ok(model);
+        var updated = await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Partially update entity in SpecificationAttribute")]

@@ -78,15 +78,13 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CategoryDto model)
     {
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
         if (string.IsNullOrEmpty(model.Id))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
-
-        if (!(await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(model.Id))).Any()) return NotFound();
-
-        model = await _mediator.Send(new UpdateCategoryCommand { Model = model });
-        return Ok(model);
+        var updated = await _mediator.Send(new UpdateCategoryCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Update entity in Category (delta)")]

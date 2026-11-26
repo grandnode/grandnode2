@@ -75,15 +75,13 @@ public class MerchandiseReturnActionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] MerchandiseReturnActionDto model)
     {
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
         if (string.IsNullOrEmpty(model.Id))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
-
-        if (!(await _mediator.Send(new GetGenericQuery<MerchandiseReturnActionDto, MerchandiseReturnAction>(model.Id))).Any()) return NotFound();
-
-        model = await _mediator.Send(new UpdateMerchandiseReturnActionCommand { Model = model });
-        return Ok(model);
+        var updated = await _mediator.Send(new UpdateMerchandiseReturnActionCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Delete entity in MerchandiseReturnAction")]

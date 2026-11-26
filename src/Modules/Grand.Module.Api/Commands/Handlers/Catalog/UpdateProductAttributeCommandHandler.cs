@@ -6,7 +6,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
-public class UpdateProductAttributeCommandHandler : IRequestHandler<UpdateProductAttributeCommand, ProductAttributeDto>
+public class UpdateProductAttributeCommandHandler : IRequestHandler<UpdateProductAttributeCommand, ProductAttributeDto?>
 {
     private readonly IProductAttributeService _productAttributeService;
 
@@ -15,11 +15,12 @@ public class UpdateProductAttributeCommandHandler : IRequestHandler<UpdateProduc
         _productAttributeService = productAttributeService;
     }
 
-    public async Task<ProductAttributeDto> Handle(UpdateProductAttributeCommand request,
+    public async Task<ProductAttributeDto?> Handle(UpdateProductAttributeCommand request,
         CancellationToken cancellationToken)
     {
-        var productAttribute = await _productAttributeService.GetProductAttributeById(request.Model.Id) ??
-            throw new ArgumentException("No product attribute has the id", nameof(request));
+        var productAttribute = await _productAttributeService.GetProductAttributeById(request.Model.Id);
+        if (productAttribute == null)
+            return null;
 
         productAttribute = request.Model.ToEntity(productAttribute);
         await _productAttributeService.UpdateProductAttribute(productAttribute);

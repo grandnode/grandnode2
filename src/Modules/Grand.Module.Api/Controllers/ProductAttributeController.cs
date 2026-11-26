@@ -78,15 +78,13 @@ public class ProductAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] ProductAttributeDto model)
     {
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
         if (string.IsNullOrEmpty(model.Id))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
-
-        if (!(await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(model.Id))).Any()) return NotFound();
-
-        model = await _mediator.Send(new UpdateProductAttributeCommand { Model = model });
-        return Ok(model);
+        var updated = await _mediator.Send(new UpdateProductAttributeCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Partially update entity in ProductAttribute")]
@@ -108,8 +106,8 @@ public class ProductAttributeController : BaseApiController
 
         var pa = productAttribute;
         model.ApplyTo(pa);
-        pa = await _mediator.Send(new UpdateProductAttributeCommand { Model = pa });
-        return Ok(pa);
+        var updated = await _mediator.Send(new UpdateProductAttributeCommand { Model = pa });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Delete entity from ProductAttribute")]

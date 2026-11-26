@@ -12,7 +12,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
-public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto>
+public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand, ProductDto?>
 {
     private readonly IContextAccessor _contextAccessor;
     private readonly IMediator _mediator;
@@ -36,11 +36,12 @@ public class UpdateProductCommandHandler : IRequestHandler<UpdateProductCommand,
         _seNameService = seNameService;
     }
 
-    public async Task<ProductDto> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
+    public async Task<ProductDto?> Handle(UpdateProductCommand request, CancellationToken cancellationToken)
     {
         //product
-        var product = await _productService.GetProductById(request.Model.Id) ??
-            throw new ArgumentException("No product has the id", nameof(request));
+        var product = await _productService.GetProductById(request.Model.Id);
+        if (product == null)
+            return null;
         var prevStockQuantity = product.StockQuantity;
         var prevReservedQuantity = product.ReservedQuantity;
         var prevPublished = product.Published;
