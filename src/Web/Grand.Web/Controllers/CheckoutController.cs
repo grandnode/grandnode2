@@ -504,7 +504,10 @@ public class CheckoutController : BasePublicController
                 "", store.Id);
 
             //validate customer's input
-            var warnings = (await ValidateShippingForm(model)).ToList();
+            var shippingMethod =
+                _shippingService.LoadShippingRateCalculationProviderBySystemName(shippingRateProviderSystemName)
+                ?? throw new Exception("Shipping method is not selected");
+            var warnings = (await shippingMethod.ValidateShippingForm(model.ShippingOption, model.Data)).ToList();
 
             //find it
             //performance optimization. try cache first
@@ -549,7 +552,11 @@ public class CheckoutController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> GetShippingFormPartialView(string shippingOption)
     {
-        var routeName = await GetShippingComputation(shippingOption).GetControllerRouteName();
+        var shippingMethod = GetShippingComputation(shippingOption);
+        if (shippingMethod == null)
+            return Content("");
+
+        var routeName = await shippingMethod.GetControllerRouteName();
         if (string.IsNullOrEmpty(routeName))
             return Content("");
 
@@ -869,26 +876,13 @@ public class CheckoutController : BasePublicController
     #region Utilities
 
     [NonAction]
-    protected IShippingRateCalculationProvider GetShippingComputation(string? input)
+    protected IShippingRateCalculationProvider? GetShippingComputation(string? input)
     {
-        if (string.IsNullOrEmpty(input))
-            throw new Exception("Shipping method is not selected");
-        var shippingMethodName = input.Split([":"], StringSplitOptions.RemoveEmptyEntries)[1];
-        var shippingMethod = _shippingService.LoadShippingRateCalculationProviderBySystemName(shippingMethodName);
-        if (shippingMethod == null)
-            throw new Exception("Shipping method is not selected");
-
-        return shippingMethod;
-    }
-
-    [NonAction]
-    private async Task<IList<string>> ValidateShippingForm(CheckoutShippingMethodModel model)
-    {
-        if (string.IsNullOrEmpty(model.ShippingOption))
-            throw new Exception("Shipping method is not selected");
-        var warnings = (await GetShippingComputation(model.ShippingOption)
-            .ValidateShippingForm(model.ShippingOption, model.Data)).ToList();
-        return warnings;
+        //the option is posted as "name:provider"
+        var parts = input?.Split([":"], StringSplitOptions.RemoveEmptyEntries);
+        return parts is { Length: >= 2 }
+            ? _shippingService.LoadShippingRateCalculationProviderBySystemName(parts[1])
+            : null;
     }
 
     private static IList<string> SerializeModelState(ModelStateDictionary modelState)
