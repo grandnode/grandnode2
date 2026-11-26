@@ -11,7 +11,7 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Pages;
 
-public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
+public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel?>
 {
     private readonly IAclService _aclService;
     private readonly IDateTimeService _dateTimeService;
@@ -30,7 +30,7 @@ public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
         _dateTimeService = dateTimeService;
     }
 
-    public async Task<PageModel> Handle(GetPageBlock request, CancellationToken cancellationToken)
+    public async Task<PageModel?> Handle(GetPageBlock request, CancellationToken cancellationToken)
     {
         //load by store
         var page = string.IsNullOrEmpty(request.PageId)
@@ -57,7 +57,7 @@ public class GetPageBlockHandler : IRequestHandler<GetPageBlock, PageModel>
     }
     
     private PageModel ToModel(Page entity, Language language,
-        string password = "")
+        string? password = "")
     {
         var model = new PageModel {
             Id = entity.Id,

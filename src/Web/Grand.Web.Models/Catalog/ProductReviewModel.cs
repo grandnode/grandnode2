@@ -26,7 +26,7 @@ public class ProductReviewsModel : BaseModel
 
     public IList<ProductReviewModel> Items { get; set; } = new List<ProductReviewModel>();
     public AddProductReviewModel AddProductReview { get; set; } = new();
-    public ProductReviewOverviewModel? ProductReviewOverviewModel { get; set; }
+    public ProductReviewOverviewModel ProductReviewOverviewModel { get; set; } = new();
 }
 
 public class ProductReviewModel : BaseEntityModel
@@ -39,7 +39,7 @@ public class ProductReviewModel : BaseEntityModel
     public string? Signature { get; set; }
     public bool ConfirmedPurchase { get; set; }
     public int Rating { get; set; }
-    public ProductReviewHelpfulnessModel? Helpfulness { get; set; }
+    public ProductReviewHelpfulnessModel Helpfulness { get; set; } = new();
     public string? WrittenOnStr { get; set; }
 }
 

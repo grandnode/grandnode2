@@ -11,7 +11,7 @@ public interface IOidcSessionService
     ///     Records a new session and returns its id; the refresh token is kept (protected) only for a back-office account.
     ///     Null when a back-office account brings no refresh token: such a session could never be revalidated
     /// </summary>
-    Task<string?> Start(Customer customer, string subject, string sid, string refreshToken, string storeId);
+    Task<string?> Start(Customer customer, string subject, string? sid, string? refreshToken, string storeId);
 
     /// <summary>
     ///     The session may continue: not ended, of this customer, and for a back-office account within the idle and

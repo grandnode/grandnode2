@@ -4,8 +4,8 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Models.Customers;
 
-public class GetSubAccount : IRequest<SubAccountEditModel>
+public class GetSubAccount : IRequest<SubAccountEditModel?>
 {
-    public Customer CurrentCustomer { get; set; }
-    public string CustomerId { get; set; }
+    public required Customer CurrentCustomer { get; set; }
+    public required string CustomerId { get; set; }
 }

@@ -215,8 +215,8 @@ public class AccountController : BasePublicController
     /// <summary>
     ///     The sign-in address of the first active provider that can sign in, or null. Only a local return url is passed on.
     /// </summary>
-    private async Task<string> ProviderSignInUrl(IExternalAuthenticationService externalAuthenticationService,
-        string returnUrl)
+    private async Task<string?> ProviderSignInUrl(IExternalAuthenticationService externalAuthenticationService,
+        string? returnUrl)
     {
         var local = !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : null;
         var providers = externalAuthenticationService.LoadActiveAuthenticationProviders(
@@ -248,15 +248,18 @@ public class AccountController : BasePublicController
             {
                 case CustomerLoginResults.Successful:
                 {
-                    var customer = _customerSettings.UsernamesEnabled
-                        ? await _customerService.GetCustomerByUsername(model.Username, _contextAccessor.StoreContext.CurrentStore.Id)
-                        : await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id);
+                    var customer = (_customerSettings.UsernamesEnabled
+                                       ? await _customerService.GetCustomerByUsername(model.Username, _contextAccessor.StoreContext.CurrentStore.Id)
+                                       : await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id))
+                                   ?? throw new InvalidOperationException("The customer who signed in could not be loaded");
                     //sign in
                     return await SignInAction(customer, model.RememberMe, returnUrl);
                 }
                 case CustomerLoginResults.RequiresTwoFactor:
                 {
                     var userName = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
+                    //the customer signed in with it
+                    ArgumentException.ThrowIfNullOrEmpty(userName);
                     HttpContext.Session.SetString("RequiresTwoFactor", userName);
                     //the sign-in that follows the code must still go where the login was asked to go
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
@@ -358,7 +361,7 @@ public class AccountController : BasePublicController
 
     [IgnoreApi]
     private async Task<IActionResult> SignInAction(Customer customer, bool createPersistentCookie = false,
-        string returnUrl = null)
+        string? returnUrl = null)
     {
         //raise event       
         await _mediator.Publish(new CustomerLoggedInEvent(customer,
@@ -476,7 +479,10 @@ public class AccountController : BasePublicController
 
         if (!ModelState.IsValid) return View(model);
 
-        var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id);
+        var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id)
+                       ?? throw new ArgumentException("No customer has the e-mail");
+        //the validator requires the new password
+        ArgumentException.ThrowIfNullOrEmpty(model.NewPassword);
 
         await _customerManagerService.ChangePassword(new ChangePasswordRequest(model.Email,
             _customerSettings.DefaultPasswordFormat, model.NewPassword), _contextAccessor.StoreContext.CurrentStore.Id);
@@ -500,7 +506,7 @@ public class AccountController : BasePublicController
         [FromServices] IExternalRegistrationContext externalRegistrationContext,
         [FromServices] IExternalAuthenticationService externalAuthenticationService,
         [FromServices] OidcLoginConfig oidcLoginConfig,
-        string returnUrl = null)
+        string? returnUrl = null)
     {
         //check whether registration is allowed; with AutoProvision the provider creates accounts whatever the store's type
         if (_customerSettings.UserRegistrationType == UserRegistrationType.Disabled &&
@@ -536,7 +542,7 @@ public class AccountController : BasePublicController
         return View(model);
     }
 
-    private static void PrepareExternalRegistration(RegisterModel model, ExternalRegistrationIdentity pending,
+    private static void PrepareExternalRegistration(RegisterModel model, ExternalRegistrationIdentity? pending,
         IExternalAuthenticationService externalAuthenticationService)
     {
         model.ExternalRegistration = pending != null;
@@ -583,9 +589,15 @@ public class AccountController : BasePublicController
             if (_customerSettings.UsernamesEnabled && model.Username != null) model.Username = model.Username.Trim();
 
             var isApproved = registrationType == UserRegistrationType.Standard;
+            var username = _customerSettings.UsernamesEnabled ? model.Username : model.Email;
+            var password = connects ? Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)) : model.Password;
+            //the validator requires them
+            ArgumentException.ThrowIfNullOrEmpty(model.Email);
+            ArgumentException.ThrowIfNullOrEmpty(username);
+            ArgumentException.ThrowIfNullOrEmpty(password);
             var registrationRequest = new RegistrationRequest(_contextAccessor.WorkContext.CurrentCustomer, model.Email,
-                _customerSettings.UsernamesEnabled ? model.Username : model.Email,
-                connects ? Convert.ToBase64String(RandomNumberGenerator.GetBytes(32)) : model.Password,
+                username,
+                password,
                 _customerSettings.DefaultPasswordFormat, _contextAccessor.StoreContext.CurrentStore.Id, isApproved);
             await _customerManagerService.RegisterCustomer(registrationRequest);
 
@@ -656,7 +668,8 @@ public class AccountController : BasePublicController
                         host: _contextAccessor.StoreContext.CurrentHost);
 
                     var redirectUrl = Url.RouteUrl("RegisterResult",
-                        new { resultId = (int)UserRegistrationType.Standard }, HttpContext.Request.Scheme);
+                                          new { resultId = (int)UserRegistrationType.Standard }, HttpContext.Request.Scheme)
+                                      ?? throw new InvalidOperationException("The RegisterResult route is not registered");
                     if (!string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl))
                         redirectUrl = CommonExtensions.ModifyQueryString(redirectUrl, "returnurl", returnUrl);
 
@@ -673,7 +686,7 @@ public class AccountController : BasePublicController
             //a registration that connected the provider identity signs in once more through the provider: its session is
             //still open, so it answers without a prompt and the callback starts a session-backed cookie the provider controls
             if (connected && isApproved &&
-                externalAuthenticationService.LoadAuthenticationProviderBySystemName(pending.ProviderSystemName)
+                externalAuthenticationService.LoadAuthenticationProviderBySystemName(pending?.ProviderSystemName)
                     is IExternalSignInPathProvider signInPathProvider)
             {
                 //only the Standard arm approves, and it redirects to an absolute url; the provider accepts local urls only
@@ -1118,9 +1131,12 @@ public class AccountController : BasePublicController
 
         if (!ModelState.IsValid) return View(model);
 
+        //the validator requires the new password
+        ArgumentException.ThrowIfNullOrEmpty(model.NewPassword);
         await _customerManagerService.ChangePassword(_contextAccessor.WorkContext.CurrentCustomer,
             _customerSettings.DefaultPasswordFormat, model.NewPassword);
-        var customer = await _customerService.GetCustomerById(_contextAccessor.WorkContext.CurrentCustomer.Id);
+        var customer = await _customerService.GetCustomerById(_contextAccessor.WorkContext.CurrentCustomer.Id)
+                       ?? _contextAccessor.WorkContext.CurrentCustomer;
 
         //sign in
         await _authenticationService.SignIn(customer, true);
@@ -1315,7 +1331,7 @@ public class AccountController : BasePublicController
     ///     Null when the current customer may manage sub-accounts, otherwise the result to return. Every
     ///     sub-account action goes through it, so hiding the tab switches the feature off and not only the link.
     /// </summary>
-    private async Task<IActionResult> SubAccountsDenied()
+    private async Task<IActionResult?> SubAccountsDenied()
     {
         if (!await _groupService.IsOwner(_contextAccessor.WorkContext.CurrentCustomer))
             return Challenge();

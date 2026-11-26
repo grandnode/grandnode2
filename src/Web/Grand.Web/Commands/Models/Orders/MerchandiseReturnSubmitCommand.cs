@@ -10,14 +10,14 @@ namespace Grand.Web.Commands.Models.Orders;
 
 public class MerchandiseReturnSubmitCommand : IRequest<MerchandiseReturnSubmitResult>
 {
-    public MerchandiseReturnModel Model { get; set; }
-    public Order Order { get; set; }
-    public Address Address { get; set; }
+    public required MerchandiseReturnModel Model { get; set; }
+    public required Order Order { get; set; }
+    public Address? Address { get; set; }
 
     /// <summary>
     ///     The customer the return is saved for: the one placing it, or the guest of the order a grant opened
     /// </summary>
-    public Customer Customer { get; set; }
+    public required Customer Customer { get; set; }
 
     /// <summary>
     ///     The fields posted with the form; those of the chosen return method's form go under the "returnshipping."

@@ -102,7 +102,7 @@ public class GetAddToCartHandler : IRequestHandler<GetAddToCart, AddToCartModel>
                                              request.Duration);
         }
 
-        if (request.CartType != ShoppingCartType.Auctions)
+        if (request.CartType != ShoppingCartType.Auctions && request.ShoppingCartItem != null)
         {
             model.ItemQuantity = request.Quantity;
 

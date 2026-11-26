@@ -30,7 +30,7 @@
             x.Name,
             Text = x.CurrencyCode,
             Value = Url.RouteUrl("ChangeCurrency", new { currencyCode = x.CurrencyCode, returnUrl }),
-            Selected = x.Id.Equals(contextAccessor.WorkContext.WorkingCurrency.Id)
+            Selected = x.Id == contextAccessor.WorkContext.WorkingCurrency.Id
         });
         <div class="dropdown btn-group me-2">
         <button type="button" class="btn btn-secondary dropdown-toggle" data-bs-toggle="dropdown" aria-expanded="false">@currencies.FirstOrDefault(x => x.Selected)?.Text</button>

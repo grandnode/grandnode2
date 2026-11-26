@@ -10,6 +10,6 @@ public class CategoryNavigationModel : BaseModel
     public class CategoryLineModel : BaseModel
     {
         public string? CurrentCategoryId { get; set; }
-        public CategorySimpleModel? Category { get; set; }
+        public required CategorySimpleModel Category { get; set; }
     }
 }

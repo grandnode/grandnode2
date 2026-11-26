@@ -1,5 +1,6 @@
 ﻿using Grand.Domain.Catalog;
 using Grand.Domain.Payments;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Domain.Orders;
 
@@ -12,7 +13,8 @@ public static class OrderExtensions
     /// <param name="orderItem">Order item to check</param>
     /// <param name="product">Product</param>
     /// <returns>True if download is allowed; otherwise, false.</returns>
-    public static bool IsDownloadAllowed(this Order order, OrderItem orderItem, Product? product)
+    public static bool IsDownloadAllowed([NotNullWhen(true)] this Order? order, OrderItem orderItem,
+        [NotNullWhen(true)] Product? product)
     {
         if (orderItem == null)
             return false;
@@ -76,7 +78,8 @@ public static class OrderExtensions
     /// <param name="orderItem">Order item to check</param>
     /// <param name="product">Product</param>
     /// <returns>True if license download is allowed; otherwise, false.</returns>
-    public static bool IsLicenseDownloadAllowed(this Order order, OrderItem orderItem, Product? product)
+    public static bool IsLicenseDownloadAllowed([NotNullWhen(true)] this Order? order, OrderItem orderItem,
+        [NotNullWhen(true)] Product? product)
     {
         if (orderItem == null)
             return false;

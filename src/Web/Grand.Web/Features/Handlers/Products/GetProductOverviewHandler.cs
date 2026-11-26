@@ -111,8 +111,8 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
         if (request.PreparePictureModel)
         {
             var pictureModels = await PreparePictureModel(product, model.Name, pictureSize);
-            model.DefaultPictureModel = pictureModels.FirstOrDefault();
-            if (pictureModels.Count > 1) model.SecondPictureModel = pictureModels.ElementAtOrDefault(1);
+            model.DefaultPictureModel = pictureModels.FirstOrDefault() ?? new PictureModel();
+            if (pictureModels.Count > 1) model.SecondPictureModel = pictureModels[1];
         }
 
         //specs
@@ -142,7 +142,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
     ///     that show a quantity box - there the script appends whatever the customer
     ///     entered instead.
     /// </summary>
-    private string BuildAddToCartUrl(string productId, ShoppingCartType cartType, bool showQty,
+    private string? BuildAddToCartUrl(string productId, ShoppingCartType cartType, bool showQty,
         bool forceRedirection)
     {
         var values = new RouteValueDictionary {
@@ -160,7 +160,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
     ///     SEO-friendly URLs is carried over. Without the HttpContext there are no
     ///     ambient route values and every link would fall back to the default language.
     /// </summary>
-    private string GetPath(string routeName, RouteValueDictionary values)
+    private string? GetPath(string routeName, RouteValueDictionary values)
     {
         var httpContext = _httpContextAccessor.HttpContext;
         return httpContext != null
@@ -256,7 +256,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
                     {
                         //find a minimum possible price
                         double? minPossiblePrice = null;
-                        Product minPriceProduct = null;
+                        Product? minPriceProduct = null;
                         foreach (var associatedProduct in associatedProducts)
                         {
                             //calculate for the maximum quantity (in case if we have tier prices)
@@ -269,7 +269,8 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
                             minPossiblePrice = tmpPrice;
                         }
 
-                        if (minPriceProduct is { EnteredPrice: false })
+                        //both are set together
+                        if (minPriceProduct is { EnteredPrice: false } && minPossiblePrice is { } minPrice)
                         {
                             if (minPriceProduct.CallForPrice)
                             {
@@ -280,7 +281,7 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
                             {
                                 //calculate prices
                                 var finalPrice = (await _taxService.GetProductPrice(minPriceProduct,
-                                        minPossiblePrice.Value, priceIncludesTax,
+                                        minPrice, priceIncludesTax,
                                         _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore))
                                     .productprice;
 
@@ -464,13 +465,13 @@ public class GetProductOverviewHandler : IRequestHandler<GetProductOverview, IEn
         #endregion
     }
 
-    private async Task<IList<PictureModel>> PreparePictureModel(Product product, string name, int pictureSize)
+    private async Task<IList<PictureModel>> PreparePictureModel(Product product, string? name, int pictureSize)
     {
         #region Prepare product picture
 
         var result = new List<PictureModel>();
 
-        async Task<PictureModel> PreparePictureModel(ProductPicture productpicture)
+        async Task<PictureModel> PreparePictureModel(ProductPicture? productpicture)
         {
             var picture =
                 productpicture != null ? await _pictureService.GetPictureById(productpicture.PictureId) : null;

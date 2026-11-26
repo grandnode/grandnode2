@@ -64,7 +64,7 @@ public class GetCategorySimpleHandler : IRequestHandler<GetCategorySimple, IList
         {
             var categories = new List<Category>();
 
-            async Task PrepareCategories(string categoryId)
+            async Task PrepareCategories(string? categoryId)
             {
                 var parentCategories = await _categoryService.GetAllCategories(categoryId, categoryName: "",
                     access: CatalogAccess.For(request.Customer, request.Store.Id));

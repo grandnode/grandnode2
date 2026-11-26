@@ -14,7 +14,7 @@ public class ShipmentDetailsModel : BaseEntityModel
     public bool ShowSku { get; set; }
     public IList<ShipmentItemModel> Items { get; set; } = new List<ShipmentItemModel>();
     public IList<ShipmentNote> ShipmentNotes { get; set; } = new List<ShipmentNote>();
-    public OrderModel? Order { get; set; }
+    public OrderModel Order { get; set; } = new();
 
     #region Nested Classes
 

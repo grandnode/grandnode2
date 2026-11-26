@@ -242,7 +242,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     /// <param name="customer">Customer whose groups the provider may be limited to</param>
     /// <param name="store">Store the provider may be limited to</param>
     /// <returns>True if is available; otherwise false</returns>
-    public virtual bool AuthenticationProviderIsAvailable(string systemName, Customer customer, Store store)
+    public virtual bool AuthenticationProviderIsAvailable(string? systemName, Customer customer, Store store)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(store);

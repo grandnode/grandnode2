@@ -36,12 +36,12 @@ public class GuestOrderGrantService(
             DateTimeOffset.UtcNow + LinkLifetime);
     }
 
-    public string LinkOrderId(string token, string storeId)
+    public string? LinkOrderId(string token, string storeId)
     {
         return OrderId(dataProtectionProvider, LinkPurpose, token, storeId);
     }
 
-    public async Task<Customer> GuestOfOrder(Order order, string storeId)
+    public async Task<Customer?> GuestOfOrder(Order? order, string storeId)
     {
         if (order == null || order.Deleted || order.StoreId != storeId)
             return null;
@@ -66,7 +66,7 @@ public class GuestOrderGrantService(
             options);
     }
 
-    public string GrantedOrderId(string storeId)
+    public string? GrantedOrderId(string storeId)
     {
         if (!httpContextAccessor.HttpContext!.Request.Cookies.TryGetValue(CookieName, out var cookie))
             return null;
@@ -74,7 +74,7 @@ public class GuestOrderGrantService(
         return OrderId(dataProtectionProvider, GrantPurpose, cookie, storeId);
     }
 
-    public async Task<Customer> GrantedGuest(Order order, Customer visitor, string storeId)
+    public async Task<Customer?> GrantedGuest(Order? order, Customer? visitor, string storeId)
     {
         if (order == null || GrantedOrderId(storeId) != order.Id ||
             !Allowed ||
@@ -84,7 +84,7 @@ public class GuestOrderGrantService(
         return await GuestOfOrder(order, storeId);
     }
 
-    public async Task<(Customer Customer, bool GuestLink)> OrderCustomer(Order order, Customer visitor, string storeId)
+    public async Task<(Customer? Customer, bool GuestLink)> OrderCustomer(Order order, Customer visitor, string storeId)
     {
         if (visitor != null && await order.Access(visitor, groupService))
             return (visitor, false);
@@ -103,7 +103,7 @@ public class GuestOrderGrantService(
         return $"{order.Id}|{order.StoreId}";
     }
 
-    private static string OrderId(IDataProtectionProvider provider, string purpose, string token, string storeId)
+    private static string? OrderId(IDataProtectionProvider provider, string purpose, string token, string storeId)
     {
         if (string.IsNullOrEmpty(token))
             return null;

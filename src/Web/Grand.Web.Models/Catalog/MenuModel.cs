@@ -46,7 +46,7 @@ public class MenuModel : BaseModel
     {
         public int Level { get; set; }
         public bool ResponsiveMobileMenu { get; set; }
-        public CategorySimpleModel? Category { get; set; }
+        public required CategorySimpleModel Category { get; set; }
     }
 
     #endregion

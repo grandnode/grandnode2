@@ -81,7 +81,7 @@ public interface IExternalAuthenticationService
     /// <param name="customer">Customer whose groups the provider may be limited to</param>
     /// <param name="store">Store the provider may be limited to</param>
     /// <returns>True if is available; otherwise false</returns>
-    bool AuthenticationProviderIsAvailable(string systemName, Customer customer, Store store);
+    bool AuthenticationProviderIsAvailable(string? systemName, Customer customer, Store store);
 
     #endregion
 }

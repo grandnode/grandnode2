@@ -77,7 +77,7 @@ public interface IShoppingCartValidator
     /// <param name="validateAmount">A value indicating whether to validate subtotal/total attributes</param>
     /// <returns>Warnings</returns>
     Task<IList<string>> GetShoppingCartWarnings(IList<ShoppingCartItem> shoppingCart,
-        IList<CustomAttribute> checkoutAttributes, CalculationContext context, Language language,
+        IList<CustomAttribute>? checkoutAttributes, CalculationContext context, Language language,
         bool validateCheckoutAttributes, bool validateAmount);
 
     /// <summary>

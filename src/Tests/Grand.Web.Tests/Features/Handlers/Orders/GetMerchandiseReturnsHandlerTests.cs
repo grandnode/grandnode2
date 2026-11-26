@@ -34,7 +34,7 @@ public class GetMerchandiseReturnsHandlerTests
             mediator.Object, new Mock<IEnumTranslationService>().Object);
 
         //Act
-        await handler.Handle(new GetMerchandiseReturns {
+        await handler.Handle(new GetMerchandiseReturns { Currency = new Grand.Domain.Directory.Currency(), Language = new Grand.Domain.Localization.Language(),
             Customer = new Customer { Id = "g1" }, OrderId = "o1", Store = new Domain.Stores.Store { Id = "s1" }
         }, CancellationToken.None);
 

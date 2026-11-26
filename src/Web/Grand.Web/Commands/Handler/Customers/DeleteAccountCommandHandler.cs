@@ -36,7 +36,8 @@ public class DeleteAccountCommandHandler : IRequestHandler<DeleteAccountCommand,
             _languageSettings.DefaultAdminLanguageId, host: request.Host);
 
         //delete emails
-        await _queuedEmailService.DeleteCustomerEmail(request.Customer.Email);
+        if (!string.IsNullOrEmpty(request.Customer.Email))
+            await _queuedEmailService.DeleteCustomerEmail(request.Customer.Email);
 
         //delete newsletter subscription
         var newsletter =

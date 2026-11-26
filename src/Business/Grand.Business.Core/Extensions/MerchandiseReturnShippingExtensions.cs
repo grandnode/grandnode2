@@ -1,6 +1,7 @@
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Common;
 using Grand.Domain.Orders;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Business.Core.Extensions;
 
@@ -15,7 +16,7 @@ public static class MerchandiseReturnShippingExtensions
     ///     Whether the customer types in the tracking number: they chose to send the parcel themselves, and the
     ///     return is not received, rejected or cancelled yet
     /// </summary>
-    public static bool CustomerEntersTrackingNumber(this MerchandiseReturn merchandiseReturn)
+    public static bool CustomerEntersTrackingNumber([NotNullWhen(true)] this MerchandiseReturn? merchandiseReturn)
     {
         return merchandiseReturn != null
                && string.Equals(merchandiseReturn.ReturnShipping?.ProviderSystemName, SendYourselfSystemName,
@@ -28,7 +29,7 @@ public static class MerchandiseReturnShippingExtensions
     ///     Whether the customer is told how to send the parcel back (the instructions, the return code, the label):
     ///     the return is not received, rejected or cancelled yet, and its label was not cancelled
     /// </summary>
-    public static bool CustomerSendsBack(this MerchandiseReturn merchandiseReturn)
+    public static bool CustomerSendsBack([NotNullWhen(true)] this MerchandiseReturn? merchandiseReturn)
     {
         return merchandiseReturn?.ReturnShipping != null
                && merchandiseReturn.ReturnShipping.LabelStatus != ReturnLabelStatus.Cancelled

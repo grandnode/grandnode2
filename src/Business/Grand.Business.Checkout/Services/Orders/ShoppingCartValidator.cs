@@ -130,7 +130,7 @@ public class ShoppingCartValidator : IShoppingCartValidator
     }
 
     public virtual async Task<IList<string>> GetShoppingCartWarnings(IList<ShoppingCartItem> shoppingCart,
-        IList<CustomAttribute> checkoutAttributes, CalculationContext context, Language language,
+        IList<CustomAttribute>? checkoutAttributes, CalculationContext context, Language language,
         bool validateCheckoutAttributes, bool validateAmount)
     {
         ArgumentNullException.ThrowIfNull(context);

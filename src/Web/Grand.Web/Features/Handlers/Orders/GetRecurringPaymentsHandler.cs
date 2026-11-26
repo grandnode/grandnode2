@@ -53,7 +53,7 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
         model.PagingContext.LoadPagedList(recurringPayments);
 
         var orders = new Dictionary<string, Order>();
-        var orderIds = recurringPayments.Select(x => x.InitialOrderId).Where(x => !string.IsNullOrEmpty(x))
+        var orderIds = recurringPayments.Select(x => x.InitialOrderId).OfType<string>().Where(x => x.Length > 0)
             .Distinct().ToArray();
         if (orderIds.Length > 0)
             foreach (var order in await _orderService.GetOrdersByIds(orderIds))
@@ -62,7 +62,7 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
         //a deleted order is not opened, so its products are not listed either
         var products = new Dictionary<string, Product>();
         var productIds = orders.Values.Where(x => !x.Deleted).SelectMany(x => x.OrderItems)
-            .Select(x => x.ProductId).Distinct().ToArray();
+            .Select(x => x.ProductId).OfType<string>().Distinct().ToArray();
         if (productIds.Length > 0)
             foreach (var product in await _productService.GetProductsByIds(productIds, CatalogAccess.IncludingHidden()))
                 products[product.Id] = product;
@@ -95,9 +95,9 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
                 InitialOrderId = recurringPayment.InitialOrderId,
                 InitialOrderNumber = order?.OrderNumber ?? 0,
                 CanViewInitialOrder = canViewOrder,
-                Products = canViewOrder
-                    ? order.OrderItems.Where(x => products.ContainsKey(x.ProductId))
-                        .Select(x => products[x.ProductId].GetTranslation(p => p.Name, request.Language.Id)).ToList()
+                Products = order is { Deleted: false }
+                    ? order.OrderItems.Select(x => x.ProductId).OfType<string>().Where(products.ContainsKey)
+                        .Select(id => products[id].GetTranslation(p => p.Name, request.Language.Id)).OfType<string>().ToList()
                     : []
             });
         }

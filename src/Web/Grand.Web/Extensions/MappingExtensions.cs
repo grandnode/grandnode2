@@ -8,6 +8,7 @@ using Grand.Web.Models.Catalog;
 using Grand.Web.Models.Common;
 using Grand.Web.Models.Course;
 using Grand.Web.Models.Vendors;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 
 namespace Grand.Web.Extensions;
@@ -15,7 +16,8 @@ namespace Grand.Web.Extensions;
 public static class MappingExtensions
 {
     //category
-    public static CategoryModel ToModel(this Category entity, Language language)
+    [return: NotNullIfNotNull(nameof(entity))]
+    public static CategoryModel? ToModel(this Category? entity, Language language)
     {
         if (entity == null)
             return null;
@@ -39,7 +41,8 @@ public static class MappingExtensions
     }
 
     //brand
-    public static BrandModel ToModel(this Brand entity, Language language)
+    [return: NotNullIfNotNull(nameof(entity))]
+    public static BrandModel? ToModel(this Brand? entity, Language language)
     {
         if (entity == null)
             return null;
@@ -60,7 +63,8 @@ public static class MappingExtensions
     }
 
     //collection
-    public static CollectionModel ToModel(this Collection entity, Language language)
+    [return: NotNullIfNotNull(nameof(entity))]
+    public static CollectionModel? ToModel(this Collection? entity, Language language)
     {
         if (entity == null)
             return null;
@@ -81,7 +85,8 @@ public static class MappingExtensions
     }
 
     //course
-    public static CourseModel ToModel(this Course entity, Language language)
+    [return: NotNullIfNotNull(nameof(entity))]
+    public static CourseModel? ToModel(this Course? entity, Language language)
     {
         if (entity == null)
             return null;
@@ -100,7 +105,8 @@ public static class MappingExtensions
         return model;
     }
     
-    public static Address ToEntity(this AddressModel model, Customer customer, AddressSettings addressSettings,
+    [return: NotNullIfNotNull(nameof(model))]
+    public static Address? ToEntity(this AddressModel? model, Customer customer, AddressSettings addressSettings,
         bool trimFields = true)
     {
         if (model == null)
@@ -112,7 +118,8 @@ public static class MappingExtensions
         return entity;
     }
 
-    public static Address ToEntity(this AddressModel model, bool trimFields = true)
+    [return: NotNullIfNotNull(nameof(model))]
+    public static Address? ToEntity(this AddressModel? model, bool trimFields = true)
     {
         if (model == null)
             return null;
@@ -219,12 +226,14 @@ public static class MappingExtensions
         return destination;
     }
 
-    public static void ParseReservationDates(this Product product, string reservationDatepickerFrom,
-        string reservationDatepickerTo,
+    public static void ParseReservationDates(this Product product, string? reservationDatepickerFrom,
+        string? reservationDatepickerTo,
         out DateTime? startDate, out DateTime? endDate)
     {
         startDate = null;
         endDate = null;
+        if (reservationDatepickerFrom == null || reservationDatepickerTo == null)
+            return;
 
         try
         {

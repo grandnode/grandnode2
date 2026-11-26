@@ -155,7 +155,9 @@ public class CourseController : BasePublicController
             return Content("No download record found with the specified id");
 
         if (download.UseDownloadUrl)
-            return new RedirectResult(download.DownloadUrl);
+            return string.IsNullOrEmpty(download.DownloadUrl)
+                ? Content("Download data is not available any more.")
+                : new RedirectResult(download.DownloadUrl);
 
         //use stored data
         if (download.DownloadBinary == null)
@@ -191,7 +193,9 @@ public class CourseController : BasePublicController
             return Content("No download record found with the specified id");
 
         if (download.UseDownloadUrl)
-            return new RedirectResult(download.DownloadUrl);
+            return string.IsNullOrEmpty(download.DownloadUrl)
+                ? Content("Download data is not available any more.")
+                : new RedirectResult(download.DownloadUrl);
 
         //use stored data
         if (download.DownloadBinary == null)

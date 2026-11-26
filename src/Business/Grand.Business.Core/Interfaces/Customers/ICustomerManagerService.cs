@@ -34,7 +34,7 @@ public interface ICustomerManagerService
     /// <param name="newPassword"></param>
     /// <param name="passwordSalt"></param>
     /// <returns></returns>
-    bool PasswordMatch(PasswordFormat passwordFormat, string? oldPassword, string newPassword, string? passwordSalt);
+    bool PasswordMatch(PasswordFormat passwordFormat, string? oldPassword, string? newPassword, string? passwordSalt);
 
     /// <summary>
     ///     Change password

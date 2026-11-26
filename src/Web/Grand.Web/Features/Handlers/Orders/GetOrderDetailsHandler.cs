@@ -52,7 +52,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
     private readonly IRequestTranslationService _translationService;
     private readonly IEnumTranslationService _enumTranslationService;
     
-    private Currency _orderCurrency;
+    private Currency? _orderCurrency;
 
     public GetOrderDetailsHandler(
         IDateTimeService dateTimeService,
@@ -341,7 +341,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
         {
             var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
             model.GiftVouchers.Add(new OrderDetailsModel.GiftVoucher {
-                CouponCode = giftVoucher.Code,
+                CouponCode = giftVoucher?.Code,
                 Amount = _priceFormatter.FormatPrice(-gcuh.UsedValue, _orderCurrency)
             });
         }
@@ -422,7 +422,9 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
             : [];
         foreach (var orderItem in request.Order.OrderItems)
         {
-            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            //archived products are kept, so a missing one is a broken record
+            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId)
+                          ?? throw new InvalidOperationException($"Product {orderItem.ProductId} of order item {orderItem.Id} is missing");
             var orderItemModel = new OrderDetailsModel.OrderItemModel {
                 Id = orderItem.Id,
                 OrderItemGuid = orderItem.OrderItemGuid,
@@ -490,7 +492,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
     }
 
     private async Task<PictureModel> PrepareOrderItemPicture(Product product, IList<CustomAttribute> attributes,
-        string productName)
+        string? productName)
     {
         var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
         return new PictureModel {

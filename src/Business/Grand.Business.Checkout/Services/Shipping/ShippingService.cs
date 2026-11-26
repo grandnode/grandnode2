@@ -162,7 +162,7 @@ public class ShippingService : IShippingService
     /// <returns>Shipping options</returns>
     public virtual async Task<GetShippingOptionResponse> GetShippingOptions(Customer customer,
         IList<ShoppingCartItem> cart,
-        Address shippingAddress, string allowedShippingRateMethodSystemName = "",
+        Address? shippingAddress, string allowedShippingRateMethodSystemName = "",
         Store? store = null)
     {
         ArgumentNullException.ThrowIfNull(cart);

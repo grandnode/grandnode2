@@ -5,5 +5,5 @@ namespace Grand.Web.Commands.Models.Newsletter;
 
 public class SubscriptionCategoryCommand : IRequest<(string message, bool success)>
 {
-    public NewsletterCategoryModel Model { get; set; }
+    public required NewsletterCategoryModel Model { get; set; }
 }

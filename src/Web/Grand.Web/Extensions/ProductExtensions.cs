@@ -13,7 +13,7 @@ public static class ProductExtensions
     /// <summary>
     ///     The schema.org ItemAvailability URL of an availability, for microdata and JSON-LD
     /// </summary>
-    public static string ToSchemaOrgUrl(this ProductAvailability? availability)
+    public static string? ToSchemaOrgUrl(this ProductAvailability? availability)
     {
         return availability.HasValue ? "https://schema.org/" + availability.Value : null;
     }
@@ -26,13 +26,13 @@ public static class ProductExtensions
     /// <param name="productService">Product service</param>
     /// <param name="pictureService">Picture service</param>
     /// <returns>Picture</returns>
-    public static async Task<Picture> GetProductPicture(this Product product, IList<CustomAttribute> attributes,
+    public static async Task<Picture?> GetProductPicture(this Product product, IList<CustomAttribute> attributes,
         IProductService productService, IPictureService pictureService)
     {
         ArgumentNullException.ThrowIfNull(product);
         ArgumentNullException.ThrowIfNull(pictureService);
 
-        Picture picture = null;
+        Picture? picture = null;
 
         if (attributes != null && attributes.Any())
         {

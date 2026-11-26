@@ -61,6 +61,6 @@ public interface IShippingService
     /// <param name="store">Load records allowed only in a specified store; pass "" to load all records</param>
     /// <returns>Shipping options</returns>
     Task<GetShippingOptionResponse> GetShippingOptions(Customer customer, IList<ShoppingCartItem> cart,
-        Address shippingAddress,
+        Address? shippingAddress,
         string allowedShippingRateMethodSystemName = "", Store? store = null);
 }

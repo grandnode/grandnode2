@@ -70,7 +70,7 @@ public class KnowledgebaseService : IKnowledgebaseService
         return query;
     }
 
-    private string GetCacheKey(string format, CatalogAccess access, params object[] additionalParams)
+    private string GetCacheKey(string format, CatalogAccess access, params object?[] additionalParams)
     {
         ArgumentNullException.ThrowIfNull(access);
         //groups only matter with the ACL on; "*" keeps reads including hidden records apart from a customer with no groups
@@ -298,7 +298,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     ///     Gets knowledge base article if it is published etc
     /// </summary>
     /// <returns>knowledge base article</returns>
-    public virtual async Task<KnowledgebaseArticle?> GetPublicKnowledgebaseArticle(string id, CatalogAccess access)
+    public virtual async Task<KnowledgebaseArticle?> GetPublicKnowledgebaseArticle(string? id, CatalogAccess access)
     {
         var key = GetCacheKey(CacheKey.ARTICLE_BY_ID, access, id);
 

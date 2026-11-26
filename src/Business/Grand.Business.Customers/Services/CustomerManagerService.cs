@@ -68,7 +68,7 @@ public class CustomerManagerService : ICustomerManagerService
 
     #region Methods
 
-    public virtual bool PasswordMatch(PasswordFormat passwordFormat, string? oldPassword, string newPassword,
+    public virtual bool PasswordMatch(PasswordFormat passwordFormat, string? oldPassword, string? newPassword,
         string? passwordSalt)
     {
         //oldPassword is the stored credential, newPassword is the plain-text candidate being checked against it

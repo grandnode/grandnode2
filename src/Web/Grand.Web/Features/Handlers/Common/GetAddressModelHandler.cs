@@ -59,12 +59,12 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
     }
 
     private async Task PrepareAddressModel(AddressModel model,
-        Address address, bool excludeProperties,
-        Func<IList<Country>> loadCountries = null,
+        Address? address, bool excludeProperties,
+        Func<IList<Country>>? loadCountries = null,
         bool prePopulateWithCustomerFields = false,
-        Customer customer = null,
-        Language language = null,
-        Domain.Stores.Store store = null)
+        Customer? customer = null,
+        Language? language = null,
+        Domain.Stores.Store? store = null)
     {
         if (!excludeProperties && address != null)
         {
@@ -76,13 +76,13 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
             model.Company = address.Company;
             model.VatNumber = address.VatNumber;
             model.CountryId = address.CountryId;
-            Country country = null;
+            Country? country = null;
             if (!string.IsNullOrEmpty(address.CountryId))
                 country = await _countryService.GetCountryById(address.CountryId);
             model.CountryName = country?.GetTranslation(x => x.Name, language?.Id);
 
             model.StateProvinceId = address.StateProvinceId;
-            StateProvince state = null;
+            StateProvince? state = null;
             if (!string.IsNullOrEmpty(address.StateProvinceId) && country != null)
                 state = country.StateProvinces.FirstOrDefault(x => x.Id == address.StateProvinceId);
             model.StateProvinceName = state?.GetTranslation(x => x.Name, language?.Id);
@@ -138,7 +138,7 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
             if (_addressSettings.StateProvinceEnabled)
             {
                 var states = await _countryService
-                    .GetStateProvincesByCountryId(model.CountryId, language?.Id);
+                    .GetStateProvincesByCountryId(model.CountryId, language?.Id) ?? [];
 
                 model.AvailableStates.Add(new SelectListItem { Text = _translationService.GetResource("Address.SelectState"), Value = "" });
 
@@ -177,8 +177,8 @@ public class GetAddressModelHandler : IRequestHandler<GetAddressModel, AddressMo
         model.AddressTypeEnabled = _addressSettings.AddressTypeEnabled;
     }
 
-    private async Task PrepareCustomAddressAttributes(AddressModel model, Address address,
-        Language language, IList<CustomAttribute> overrideAttributes, string storeId)
+    private async Task PrepareCustomAddressAttributes(AddressModel model, Address? address,
+        Language language, IList<CustomAttribute>? overrideAttributes, string? storeId)
     {
         var attributes = await _addressAttributeService.GetAllAddressAttributes(storeId ?? string.Empty);
         foreach (var attribute in attributes)

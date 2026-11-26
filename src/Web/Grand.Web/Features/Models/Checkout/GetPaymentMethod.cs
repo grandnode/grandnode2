@@ -11,11 +11,11 @@ namespace Grand.Web.Features.Models.Checkout;
 
 public class GetPaymentMethod : IRequest<CheckoutPaymentMethodModel>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Currency Currency { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Currency Currency { get; set; }
     public TaxDisplayType TaxDisplayType { get; set; }
-    public Language Language { get; set; }
-    public IList<ShoppingCartItem> Cart { get; set; }
-    public string FilterByCountryId { get; set; }
+    public required Language Language { get; set; }
+    public required IList<ShoppingCartItem> Cart { get; set; }
+    public string? FilterByCountryId { get; set; }
 }

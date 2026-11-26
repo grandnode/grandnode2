@@ -130,15 +130,17 @@ public class GetConfirmOrderHandler : IRequestHandler<GetConfirmOrder, CheckoutC
             }
             else
             {
-                var pickup = await _mediator.Send(new GetPickupPointById { Id = pickupPoint });
+                var pickup = string.IsNullOrEmpty(pickupPoint)
+                    ? null
+                    : await _mediator.Send(new GetPickupPointById { Id = pickupPoint });
                 if (pickup != null)
                 {
-                    var country = await _countryService.GetCountryById(pickup.Address.CountryId);
+                    var country = await _countryService.GetCountryById(pickup.Address?.CountryId);
                     model.OrderReviewData.PickupAddress = new AddressModel {
-                        Address1 = pickup.Address.Address1,
-                        City = pickup.Address.City,
+                        Address1 = pickup.Address?.Address1,
+                        City = pickup.Address?.City,
                         CountryName = country != null ? country.Name : string.Empty,
-                        ZipPostalCode = pickup.Address.ZipPostalCode
+                        ZipPostalCode = pickup.Address?.ZipPostalCode
                     };
                 }
             }

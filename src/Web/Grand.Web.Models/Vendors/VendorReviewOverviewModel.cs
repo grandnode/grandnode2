@@ -24,7 +24,7 @@ public class VendorReviewsModel : BaseModel
 
     public IList<VendorReviewModel> Items { get; set; } = new List<VendorReviewModel>();
     public AddVendorReviewModel AddVendorReview { get; set; } = new();
-    public VendorReviewOverviewModel? VendorReviewOverview { get; set; }
+    public VendorReviewOverviewModel VendorReviewOverview { get; set; } = new();
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
 }
 
@@ -40,7 +40,7 @@ public class VendorReviewModel : BaseEntityModel
 
     public int Rating { get; set; }
 
-    public VendorReviewHelpfulnessModel? Helpfulness { get; set; }
+    public VendorReviewHelpfulnessModel Helpfulness { get; set; } = new();
 
     public string? WrittenOnStr { get; set; }
 }

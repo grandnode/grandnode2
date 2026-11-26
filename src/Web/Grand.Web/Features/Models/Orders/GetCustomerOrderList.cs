@@ -9,9 +9,9 @@ namespace Grand.Web.Features.Models.Orders;
 
 public class GetCustomerOrderList : IRequest<CustomerOrderListModel>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Language Language { get; set; }
-    public Currency Currency { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Language Language { get; set; }
+    public required Currency Currency { get; set; }
     public OrderPagingModel Command { get; set; } = new();
 }

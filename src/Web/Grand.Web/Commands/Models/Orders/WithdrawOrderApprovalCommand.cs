@@ -8,12 +8,12 @@ namespace Grand.Web.Commands.Models.Orders;
 /// </summary>
 public class WithdrawOrderApprovalCommand : IRequest<bool>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public string ApprovalId { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public string? ApprovalId { get; set; }
 
     /// <summary>
     ///     Withdraws the request of this order, which the store decides, instead of the company's request ApprovalId
     /// </summary>
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 }

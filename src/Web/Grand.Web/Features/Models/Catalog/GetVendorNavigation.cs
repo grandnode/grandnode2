@@ -6,5 +6,5 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetVendorNavigation : IRequest<VendorNavigationModel>
 {
-    public Language Language { get; set; }
+    public required Language Language { get; set; }
 }

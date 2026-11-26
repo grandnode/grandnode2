@@ -24,5 +24,5 @@ public interface IHtmlSanitizationService
     ///     text: meta titles, meta keywords, meta descriptions, admin comments, attribute names.
     /// </summary>
     /// <param name="text">Untrusted text; may be null</param>
-    bool ContainsMarkup(string text);
+    bool ContainsMarkup(string? text);
 }

@@ -65,7 +65,7 @@ public interface IKnowledgebaseService
     /// <param name="id"></param>
     /// <param name="access">Whose view: the customer's groups and the store limit the result</param>
     /// <returns>knowledge base article</returns>
-    Task<KnowledgebaseArticle?> GetPublicKnowledgebaseArticle(string id, CatalogAccess access);
+    Task<KnowledgebaseArticle?> GetPublicKnowledgebaseArticle(string? id, CatalogAccess access);
 
     /// <summary>
     ///     Gets every knowledge base article, unpublished and group- or store-limited ones included

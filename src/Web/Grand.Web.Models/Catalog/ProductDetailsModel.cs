@@ -29,9 +29,9 @@ public class ProductDetailsModel : BaseEntityModel
     public string? Mpn { get; set; }
     public bool ShowGtin { get; set; }
     public string? Gtin { get; set; }
-    public BrandBriefInfoModel BrandModel { get; set; } = new();
+    public BrandBriefInfoModel? BrandModel { get; set; }
     public bool ShowVendor { get; set; }
-    public VendorBriefInfoModel VendorModel { get; set; } = new();
+    public VendorBriefInfoModel? VendorModel { get; set; }
     public bool HasSampleDownload { get; set; }
     public GiftVoucherModel GiftVoucher { get; set; } = new();
     public bool IsShipEnabled { get; set; }
@@ -62,7 +62,7 @@ public class ProductDetailsModel : BaseEntityModel
     public bool DisplayOutOfStockSubscription { get; set; }
     public bool EmailAFriendEnabled { get; set; }
     public bool AskQuestionOnProduct { get; set; }
-    public ProductAskQuestionSimpleModel? ProductAskQuestion { get; set; }
+    public ProductAskQuestionSimpleModel ProductAskQuestion { get; set; } = new();
     public bool CompareProductsEnabled { get; set; }
     public string? PageShareCode { get; set; }
     public ProductPriceModel ProductPrice { get; set; } = new();

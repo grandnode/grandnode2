@@ -20,7 +20,7 @@ public class VatService : IVatService
     /// <param name="fullVatNumber">Two letter ISO code of a country and VAT number (e.g. GB 111 1111 111)</param>
     /// <returns>VAT Number status</returns>
     public virtual async Task<(VatNumberStatus status, string? name, string? address, Exception? exception)>
-        GetVatNumberStatus(string fullVatNumber)
+        GetVatNumberStatus(string? fullVatNumber)
     {
         var name = string.Empty;
         var address = string.Empty;

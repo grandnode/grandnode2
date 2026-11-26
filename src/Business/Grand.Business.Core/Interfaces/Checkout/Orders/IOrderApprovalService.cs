@@ -14,7 +14,7 @@ public interface IOrderApprovalService
     /// <param name="id">Approval identifier</param>
     /// <param name="companyOwnerId">Identifier of the company owner the approval must belong to</param>
     /// <returns>Approval; null when it does not exist or belongs to another company</returns>
-    Task<OrderApproval?> GetById(string id, string companyOwnerId);
+    Task<OrderApproval?> GetById(string? id, string companyOwnerId);
 
     /// <summary>
     ///     Gets the approval request of an order

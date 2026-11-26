@@ -37,13 +37,13 @@ public class GetVendorAddressHandler : IRequestHandler<GetVendorAddress, VendorA
         {
             model.Company = request.Address.Company;
             model.CountryId = request.Address.CountryId;
-            Country country = null;
+            Country? country = null;
             if (!string.IsNullOrEmpty(request.Address.CountryId))
                 country = await _countryService.GetCountryById(request.Address.CountryId);
             model.CountryName = country?.GetTranslation(x => x.Name, request.Language.Id);
 
             model.StateProvinceId = request.Address.StateProvinceId;
-            StateProvince state = null;
+            StateProvince? state = null;
             if (!string.IsNullOrEmpty(request.Address.StateProvinceId) && country != null)
                 state = country.StateProvinces.FirstOrDefault(x => x.Id == request.Address.StateProvinceId);
             model.StateProvinceName = state?.GetTranslation(x => x.Name, request.Language.Id);
@@ -93,7 +93,7 @@ public class GetVendorAddressHandler : IRequestHandler<GetVendorAddress, VendorA
             {
                 var states = await _countryService
                     .GetStateProvincesByCountryId(!string.IsNullOrEmpty(model.CountryId) ? model.CountryId : "",
-                        request.Language.Id);
+                        request.Language.Id) ?? [];
 
                 model.AvailableStates.Add(new SelectListItem
                     { Text = _translationService.GetResource("Address.SelectState"), Value = "" });

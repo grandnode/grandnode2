@@ -14,7 +14,7 @@ public static class OrderApprovalLimitText
     ///     Parses the text with the current culture. Empty means no limit (null); returns false for text that is
     ///     not a finite, non-negative number.
     /// </summary>
-    public static bool TryParse(string text, out double? limit)
+    public static bool TryParse(string? text, out double? limit)
     {
         limit = null;
         if (string.IsNullOrWhiteSpace(text))

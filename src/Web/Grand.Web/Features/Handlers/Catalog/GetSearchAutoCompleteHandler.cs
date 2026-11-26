@@ -155,8 +155,8 @@ public class GetSearchAutoCompleteHandler : IRequestHandler<GetSearchAutoComplet
                 PriceWithDiscount = price.PriceWithDiscount,
                 Url = $"{storeurl}/{item.SeName}"
             });
-            categories.AddRange(item.ProductCategories.Select(category => category.CategoryId));
-            brands.Add(item.BrandId);
+            categories.AddRange(item.ProductCategories.Select(category => category.CategoryId).OfType<string>());
+            if (item.BrandId != null) brands.Add(item.BrandId);
         }
 
         foreach (var item in brands.Distinct())

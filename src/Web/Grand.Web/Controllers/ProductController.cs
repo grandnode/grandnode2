@@ -96,8 +96,9 @@ public class ProductController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> RelatedProducts(string productId, int? productThumbPictureSize)
     {
-        var productIds = (await _productService.GetProductById(productId)).RelatedProducts.OrderBy(x => x.DisplayOrder)
-            .Select(x => x.ProductId2).ToArray();
+        //a product deleted meanwhile has none
+        var productIds = ((await _productService.GetProductById(productId))?.RelatedProducts ?? []).OrderBy(x => x.DisplayOrder)
+            .Select(x => x.ProductId2).OfType<string>().ToArray();
 
         //load products
         var products = await _productService.GetProductsByIds(productIds, _contextAccessor.CatalogAccess());

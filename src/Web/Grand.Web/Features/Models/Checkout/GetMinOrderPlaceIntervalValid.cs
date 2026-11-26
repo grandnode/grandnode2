@@ -6,6 +6,6 @@ namespace Grand.Web.Features.Models.Checkout;
 
 public class GetMinOrderPlaceIntervalValid : IRequest<bool>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
 }

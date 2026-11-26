@@ -58,7 +58,7 @@ public interface ITranslationService
     ///     found and default value is set to empty string
     /// </param>
     /// <returns>A string representing the requested resource string.</returns>
-    string GetResource(string resourceKey, string? languageId, string defaultValue = "",
+    string GetResource(string resourceKey, string? languageId, string? defaultValue = "",
         bool returnEmptyIfNotFound = false);
 
     /// <summary>

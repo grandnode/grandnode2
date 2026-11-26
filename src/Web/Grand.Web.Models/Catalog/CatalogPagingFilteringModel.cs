@@ -63,15 +63,17 @@ public class CatalogPagingFilteringModel : BasePageableModel
 
         #region Utilities
 
-        protected virtual string ExcludeQueryStringParams(string url)
+        protected virtual string ExcludeQueryStringParams(string? url)
         {
             //comma separated list of parameters to exclude
             const string excludedQueryStringParams = "pagenumber";
             var excludedQueryStringParamsSplitted =
                 excludedQueryStringParams.Split([','], StringSplitOptions.RemoveEmptyEntries);
+            //ModifyQueryString answers a missing url with ""
+            var result = url ?? "";
             foreach (var exclude in excludedQueryStringParamsSplitted)
-                url = CommonExtensions.ModifyQueryString(url, exclude, null);
-            return url;
+                result = CommonExtensions.ModifyQueryString(result, exclude, null);
+            return result;
         }
 
         protected virtual string GenerateFilteredSpecQueryParam(IList<string> optionIds)
@@ -88,9 +90,11 @@ public class CatalogPagingFilteringModel : BasePageableModel
         #region Methods
 
         public virtual async Task<List<string>> GetAlreadyFilteredSpecOptionIds
-            (IQueryCollection query, ISpecificationAttributeService specificationAttributeService)
+            (IQueryCollection? query, ISpecificationAttributeService specificationAttributeService)
         {
             var result = new List<string>();
+            if (query == null)
+                return result;
 
             foreach (var item in query)
             {
@@ -113,7 +117,7 @@ public class CatalogPagingFilteringModel : BasePageableModel
         public virtual async Task PrepareSpecsFilters(IList<string> alreadyFilteredSpecOptionIds,
             IEnumerable<string> filterableSpecificationAttributeOptionIds,
             ISpecificationAttributeService specificationAttributeService,
-            string url, string langId)
+            string? url, string langId)
         {
             Enabled = false;
 

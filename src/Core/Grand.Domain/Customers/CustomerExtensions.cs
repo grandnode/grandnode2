@@ -90,7 +90,7 @@ public static class CustomerExtensions
     /// <param name="customer">Source</param>
     /// <param name="customerNameFormat"></param>
     /// <returns>Formatted text</returns>
-    public static string? FormatUserName(this Customer customer, CustomerNameFormat customerNameFormat)
+    public static string? FormatUserName(this Customer? customer, CustomerNameFormat customerNameFormat)
     {
         if (customer == null)
             return string.Empty;
@@ -196,7 +196,7 @@ public static class CustomerExtensions
     /// <param name="customer">Customer</param>
     /// <param name="token">Token to validate</param>
     /// <returns>Result</returns>
-    public static bool IsPasswordRecoveryTokenValid(this Customer customer, string token)
+    public static bool IsPasswordRecoveryTokenValid(this Customer customer, string? token)
     {
         ArgumentNullException.ThrowIfNull(customer);
 

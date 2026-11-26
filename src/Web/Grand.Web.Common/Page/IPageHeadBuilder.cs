@@ -8,26 +8,26 @@ namespace Grand.Web.Common.Page;
 public interface IPageHeadBuilder
 {
     string? EditPageUrl { get; set; }
-    void AddTitleParts(string part);
+    void AddTitleParts(string? part);
     void AppendTitleParts(string part);
     string? GenerateTitle(bool addDefaultTitle);
-    void AddMetaDescriptionParts(string part);
+    void AddMetaDescriptionParts(string? part);
     void AppendMetaDescriptionParts(string part);
     string? GenerateMetaDescription();
 
-    void AddMetaKeywordParts(string part);
+    void AddMetaKeywordParts(string? part);
     void AppendMetaKeywordParts(string part);
     string? GenerateMetaKeywords();
 
-    void AddCanonicalUrlParts(string part);
+    void AddCanonicalUrlParts(string? part);
     void AppendCanonicalUrlParts(string part);
     string GenerateCanonicalUrls();
 
-    void AddHeadCustomParts(string part);
+    void AddHeadCustomParts(string? part);
     void AppendHeadCustomParts(string part);
     string GenerateHeadCustom();
 
-    void AddPageCssClassParts(string part);
+    void AddPageCssClassParts(string? part);
     void AppendPageCssClassParts(string part);
     string GeneratePageCssClasses();
 }

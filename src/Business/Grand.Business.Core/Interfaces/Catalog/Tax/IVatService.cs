@@ -11,7 +11,7 @@ public interface IVatService
     /// <param name="fullVatNumber">Two letter ISO code of a country and VAT number (e.g. GB 111 1111 111)</param>
     /// <returns>VAT Number status</returns>
     Task<(VatNumberStatus status, string? name, string? address, Exception? exception)> GetVatNumberStatus(
-        string fullVatNumber);
+        string? fullVatNumber);
 
     /// <summary>
     ///     Gets VAT Number status

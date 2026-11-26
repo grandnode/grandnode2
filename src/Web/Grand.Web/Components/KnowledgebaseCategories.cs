@@ -50,7 +50,7 @@ public class KnowledgebaseCategories : BaseViewComponent
     }
 
     public void FillChildNodes(KnowledgebaseCategoryModel parentNode, List<KnowledgebaseCategory> nodes,
-        string currentCategoryId)
+        string? currentCategoryId)
     {
         var children = nodes.Where(x => x.ParentCategoryId == parentNode.Id);
         foreach (var child in children)
@@ -68,7 +68,7 @@ public class KnowledgebaseCategories : BaseViewComponent
 
             FillChildNodes(newNode, nodes, currentCategoryId);
 
-            parentNode.Children.Add(newNode);
+            (parentNode.Children ??= []).Add(newNode);
         }
     }
 

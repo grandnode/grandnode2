@@ -72,7 +72,7 @@ public class OutOfStockSubscriptionService : IOutOfStockSubscriptionService
     /// <param name="warehouseId">Warehouse identifier</param>
     /// <returns>Subscriptions</returns>
     public virtual async Task<OutOfStockSubscription?> FindSubscription(string customerId, string productId,
-        IList<CustomAttribute> attributes, string storeId, string warehouseId)
+        IList<CustomAttribute>? attributes, string storeId, string? warehouseId)
     {
         var query = from biss in _outOfStockSubscriptionRepository.Table
             orderby biss.CreatedOnUtc descending

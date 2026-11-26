@@ -8,7 +8,7 @@ public class CheckoutShippingMethodModel : BaseModel
     public IList<ShippingMethodModel> ShippingMethods { get; set; } = new List<ShippingMethodModel>();
 
     public string? ShippingOption { get; set; }
-    public IDictionary<string, string>? Data { get; set; }
+    public IDictionary<string, string> Data { get; set; } = new Dictionary<string, string>();
     public IList<string> Warnings { get; set; } = new List<string>();
 
     #region Nested classes

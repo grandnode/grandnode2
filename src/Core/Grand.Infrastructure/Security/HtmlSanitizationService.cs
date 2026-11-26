@@ -168,7 +168,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         return disallowedContentSeen;
     }
 
-    public bool ContainsMarkup(string text)
+    public bool ContainsMarkup(string? text)
     {
         if (string.IsNullOrWhiteSpace(text)) return false;
         if (!_enabled) return false;

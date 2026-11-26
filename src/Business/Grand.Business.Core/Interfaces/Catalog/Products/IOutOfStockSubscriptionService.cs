@@ -30,7 +30,7 @@ public interface IOutOfStockSubscriptionService
     /// <param name="warehouseId">Warehouse identifier</param>
     /// <returns>Subscriptions</returns>
     Task<OutOfStockSubscription?> FindSubscription(string customerId, string productId,
-        IList<CustomAttribute> attributes, string storeId, string warehouseId);
+        IList<CustomAttribute>? attributes, string storeId, string? warehouseId);
 
     /// <summary>
     ///     Gets a subscription

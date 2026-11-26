@@ -192,7 +192,7 @@ public abstract class BaseController : Controller
     ///     Display "Edit" (manage) link (in public store)
     /// </summary>
     /// <param name="editPageUrl">Edit page URL</param>
-    protected virtual void DisplayEditLink(string editPageUrl)
+    protected virtual void DisplayEditLink(string? editPageUrl)
     {
         HttpContext.RequestServices.GetRequiredService<IPageHeadBuilder>().EditPageUrl = editPageUrl;
     }

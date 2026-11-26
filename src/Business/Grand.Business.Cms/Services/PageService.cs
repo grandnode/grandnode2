@@ -64,7 +64,7 @@ public class PageService : IPageService
     /// <returns>
     ///     The page a store overrode this system name with, if it has one; otherwise the page shared by every store
     /// </returns>
-    public virtual async Task<Page?> GetPageBySystemName(string systemName, string storeId)
+    public virtual async Task<Page?> GetPageBySystemName(string? systemName, string storeId)
     {
         if (string.IsNullOrEmpty(systemName))
             return null;

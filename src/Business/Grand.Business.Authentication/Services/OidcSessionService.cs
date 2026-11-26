@@ -63,7 +63,7 @@ public class OidcSessionService : IOidcSessionService
         _logger = logger;
     }
 
-    public virtual async Task<string?> Start(Customer customer, string subject, string sid, string refreshToken, string storeId)
+    public virtual async Task<string?> Start(Customer customer, string subject, string? sid, string? refreshToken, string storeId)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentException.ThrowIfNullOrEmpty(subject);

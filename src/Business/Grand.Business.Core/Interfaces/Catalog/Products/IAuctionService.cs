@@ -91,7 +91,7 @@ public interface IAuctionService
     /// <param name="warehouseId"></param>
     /// <param name="language"></param>
     /// <param name="amount"></param>
-    Task NewBid(Customer customer, Product product, Store store, Language language, string warehouseId, double amount);
+    Task NewBid(Customer customer, Product product, Store store, Language language, string? warehouseId, double amount);
 
     /// <summary>
     ///     Cancel bid for product

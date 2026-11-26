@@ -8,7 +8,7 @@ internal static class OrderApprovalBuyerName
     /// <summary>
     ///     Gets the name an approver recognizes the buyer by: the full name and the e-mail, whichever exist
     /// </summary>
-    public static string For(Customer buyer)
+    public static string? For(Customer? buyer)
     {
         if (buyer == null) return null;
 

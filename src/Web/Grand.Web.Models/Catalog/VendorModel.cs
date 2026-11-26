@@ -17,6 +17,6 @@ public class VendorModel : BaseEntityModel
     public VendorAddressModel Address { get; set; } = new();
     public PictureModel? PictureModel { get; set; }
     public CatalogPagingFilteringModel PagingFilteringContext { get; set; } = new();
-    public VendorReviewOverviewModel? VendorReviewOverview { get; set; }
+    public VendorReviewOverviewModel VendorReviewOverview { get; set; } = new();
     public IList<ProductOverviewModel> Products { get; set; } = new List<ProductOverviewModel>();
 }

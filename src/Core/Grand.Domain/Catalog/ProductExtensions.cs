@@ -188,7 +188,7 @@ public static class ProductExtensions
     /// <param name="customAttributes">Attributes </param>
     /// <param name="productAttributeMappingId">Product attribute mapping identifier</param>
     /// <returns>Product attribute values</returns>
-    public static IList<string?> ParseValues(IList<CustomAttribute> customAttributes, string productAttributeMappingId)
+    public static IList<string?> ParseValues(IList<CustomAttribute>? customAttributes, string productAttributeMappingId)
     {
         var selectedValues = new List<string?>();
         if (customAttributes == null || !customAttributes.Any())
@@ -204,7 +204,7 @@ public static class ProductExtensions
     /// <param name="productAttributeMapping">Product attribute mapping</param>
     /// <param name="value">Value</param>
     /// <returns>Attributes</returns>
-    public static IList<CustomAttribute> AddProductAttribute(IList<CustomAttribute> customAttributes,
+    public static IList<CustomAttribute> AddProductAttribute(IList<CustomAttribute>? customAttributes,
         ProductAttributeMapping productAttributeMapping, string value)
     {
         customAttributes ??= new List<CustomAttribute>();

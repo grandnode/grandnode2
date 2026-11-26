@@ -35,7 +35,7 @@ public class OrderApprovalService : IOrderApprovalService
 
     #region Methods
 
-    public virtual async Task<OrderApproval?> GetById(string id, string companyOwnerId)
+    public virtual async Task<OrderApproval?> GetById(string? id, string companyOwnerId)
     {
         if (string.IsNullOrEmpty(id) || string.IsNullOrEmpty(companyOwnerId))
             return null;

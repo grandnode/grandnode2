@@ -1,4 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk.Web">
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+  </PropertyGroup>
 	<Import Project="..\..\Build\Grand.Common.props" />
 	<PropertyGroup>
 		<!--The common language runtime (CLR) supports two types of garbage collection:

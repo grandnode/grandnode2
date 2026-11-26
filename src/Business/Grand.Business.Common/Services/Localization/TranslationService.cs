@@ -142,7 +142,7 @@ public class TranslationService : ITranslationService
     ///     found and default value is set to empty string
     /// </param>
     /// <returns>A string representing the requested resource string.</returns>
-    public virtual string GetResource(string name, string? languageId, string defaultValue = "",
+    public virtual string GetResource(string name, string? languageId, string? defaultValue = "",
         bool returnEmptyIfNotFound = false)
     {
         //a record without a language (an order placed before it was stored) reads the untranslated text

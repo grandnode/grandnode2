@@ -7,6 +7,6 @@ namespace Grand.Web.Features.Models.Products;
 
 public class GetProductSpecification : IRequest<IList<ProductSpecificationModel>>
 {
-    public Product Product { get; set; }
-    public Language Language { get; set; }
+    public required Product Product { get; set; }
+    public required Language Language { get; set; }
 }

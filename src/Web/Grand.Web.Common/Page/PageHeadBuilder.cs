@@ -50,7 +50,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         }
     }
 
-    public virtual void AddTitleParts(string part)
+    public virtual void AddTitleParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -87,7 +87,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result;
     }
 
-    public virtual void AddMetaDescriptionParts(string part)
+    public virtual void AddMetaDescriptionParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -110,7 +110,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result;
     }
 
-    public virtual void AddMetaKeywordParts(string part)
+    public virtual void AddMetaKeywordParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -133,7 +133,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result;
     }
 
-    public virtual void AddCanonicalUrlParts(string part)
+    public virtual void AddCanonicalUrlParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -161,7 +161,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result.ToString();
     }
 
-    public virtual void AddHeadCustomParts(string part)
+    public virtual void AddHeadCustomParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -193,7 +193,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result.ToString();
     }
 
-    public virtual void AddPageCssClassParts(string part)
+    public virtual void AddPageCssClassParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;

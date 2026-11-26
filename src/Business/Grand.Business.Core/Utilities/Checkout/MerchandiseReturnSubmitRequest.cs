@@ -32,7 +32,7 @@ public class MerchandiseReturnSubmitRequest
 /// <summary>
 ///     One order item of a merchandise return request
 /// </summary>
-public record MerchandiseReturnSubmitItem(string OrderItemId, int Quantity, string ReasonId, string ActionId);
+public record MerchandiseReturnSubmitItem(string OrderItemId, int Quantity, string? ReasonId, string? ActionId);
 
 /// <summary>
 ///     The merchandise returns created, one for each vendor of the items; none, and why, when Error is set or

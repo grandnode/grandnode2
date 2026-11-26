@@ -50,7 +50,7 @@ public interface IShipmentService
     /// </summary>
     /// <param name="shipmentId">Shipment identifier</param>
     /// <returns>Shipment</returns>
-    Task<Shipment?> GetShipmentById(string shipmentId);
+    Task<Shipment?> GetShipmentById(string? shipmentId);
 
     /// <summary>
     ///     Inserts a shipment

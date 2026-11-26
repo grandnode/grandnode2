@@ -6,5 +6,5 @@ namespace Grand.Web.Features.Models.Customers;
 
 public class GetNotes : IRequest<CustomerNotesModel>
 {
-    public Customer Customer { get; set; }
+    public required Customer Customer { get; set; }
 }

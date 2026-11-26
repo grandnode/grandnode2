@@ -44,7 +44,7 @@ public class AddBlogCommentValidator : BaseGrandValidator<AddBlogCommentModel>
             if (blogPost is not { AllowComments: true })
                 context.AddFailure(translationService.GetResource("Blog.Comments.NotAllowed"));
 
-            if (!aclService.Authorize(blogPost, contextAccessor.StoreContext.CurrentStore.Id))
+            if (blogPost != null && !aclService.Authorize(blogPost, contextAccessor.StoreContext.CurrentStore.Id))
                 context.AddFailure(translationService.GetResource("Blog.Comments.NotAllowed"));
 
             if (blogPost == null ||

@@ -57,6 +57,8 @@ public class GetMerchandiseReturnsHandler : IRequestHandler<GetMerchandiseReturn
         foreach (var merchandiseReturn in merchandiseReturns)
         {
             var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
+            //a return whose order is gone is not listed
+            if (order == null) continue;
             double total = 0;
             foreach (var rrItem in merchandiseReturn.MerchandiseReturnItems)
             {

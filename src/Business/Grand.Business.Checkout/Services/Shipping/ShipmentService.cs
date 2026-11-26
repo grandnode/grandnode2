@@ -117,7 +117,7 @@ public class ShipmentService : IShipmentService
     /// </summary>
     /// <param name="shipmentId">Shipment identifier</param>
     /// <returns>Shipment</returns>
-    public virtual Task<Shipment?> GetShipmentById(string shipmentId)
+    public virtual Task<Shipment?> GetShipmentById(string? shipmentId)
     {
         return _shipmentRepository.GetByIdAsync(shipmentId);
     }

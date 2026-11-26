@@ -12,7 +12,7 @@ public interface IReturnShippingService
     /// <summary>
     ///     Loads the providers active in the store and allowed for the customer, by priority
     /// </summary>
-    Task<IList<IReturnShippingProvider>> LoadActiveProviders(Customer customer, string storeId);
+    Task<IList<IReturnShippingProvider>> LoadActiveProviders(Customer? customer, string? storeId);
 
     /// <summary>
     ///     Loads a provider by system name

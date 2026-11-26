@@ -131,7 +131,7 @@ public class AuctionService : IAuctionService
     /// <param name="language"></param>
     /// <param name="amount"></param>
     public virtual async Task NewBid(Customer customer, Product product, Store store, Language language,
-        string warehouseId, double amount)
+        string? warehouseId, double amount)
     {
         var latest = await GetLatestBid(product.Id);
         await InsertBid(new Bid {

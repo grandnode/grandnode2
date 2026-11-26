@@ -17,7 +17,7 @@ public class OidcProfileSynchronizer(
     OidcLoginConfig loginConfig,
     ILogger<OidcProfileSynchronizer> logger)
 {
-    public async Task Sync(Customer customer, ExternalRegistrationIdentity identity, string storeId)
+    public async Task Sync(Customer? customer, ExternalRegistrationIdentity identity, string storeId)
     {
         if (!loginConfig.ProviderOnly || customer == null || identity == null)
             return;
