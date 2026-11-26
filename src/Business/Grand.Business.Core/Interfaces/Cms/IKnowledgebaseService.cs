@@ -151,7 +151,7 @@ public interface IKnowledgebaseService
     /// <param name="name"></param>
     /// <param name="pageIndex"></param>
     /// <param name="pageSize"></param>
-    Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByName(string name, int pageIndex = 0,
+    Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByName(string? name, int pageIndex = 0,
         int pageSize = int.MaxValue);
 
     /// <summary>

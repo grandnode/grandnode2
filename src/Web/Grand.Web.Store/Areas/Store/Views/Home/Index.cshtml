@@ -1,3 +1,4 @@
+@using Grand.Web.AdminShared.Extensions
 @using Grand.Business.Core.Interfaces.Catalog.Prices
 @using Grand.Business.Core.Interfaces.Common.Directory
 @using Grand.Web.Common.Security.Authorization
@@ -16,7 +17,7 @@
     //page title
     ViewBag.Title = Loc["Admin.Dashboard"];
     //every figure below is limited to the store the manager works for
-    var staffStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    var staffStoreId = contextAccessor.WorkContext.PanelStoreId();
     var canAccessReports = await permissionService.Authorize(StandardPermission.ManageReports);
     var canManageOrders = await permissionService.Authorize(StandardPermission.ManageOrders);
     var customersOnline = 0;

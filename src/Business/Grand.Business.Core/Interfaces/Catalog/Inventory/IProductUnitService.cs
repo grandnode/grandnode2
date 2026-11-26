@@ -233,7 +233,7 @@ public interface IProductUnitService
     /// </summary>
     /// <param name="storeId">The store of their warehouses; null for every store</param>
     /// <param name="today">The date in the store's time zone</param>
-    Task<(int Expiring, int Expired)> ExpiryCounts(string storeId, DateTime today);
+    Task<(int Expiring, int Expired)> ExpiryCounts(string? storeId, DateTime today);
 
     /// <summary>
     ///     Why the change of a product is refused: switching tracking off or to the other mode, or changing the

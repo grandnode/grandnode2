@@ -77,7 +77,7 @@ public class ProductUnitService(
         }
     }
 
-    public async Task<(int Expiring, int Expired)> ExpiryCounts(string storeId, DateTime today)
+    public async Task<(int Expiring, int Expired)> ExpiryCounts(string? storeId, DateTime today)
     {
         var date = DateTime.SpecifyKind(today.Date, DateTimeKind.Utc);
         var warningEnd = date.AddDays((await settingService.LoadSetting<InventorySettings>()).ExpiryWarningDays);

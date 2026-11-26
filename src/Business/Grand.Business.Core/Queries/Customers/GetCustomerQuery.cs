@@ -40,5 +40,5 @@ public class GetCustomerQuery : IRequest<IPagedList<Customer>>
     public ShoppingCartType? Sct { get; set; } = null;
     public int PageIndex { get; set; } = 0;
     public int PageSize { get; set; } = int.MaxValue;
-    public Expression<Func<Customer, object>>? OrderBySelector { get; set; } = null;
+    public Expression<Func<Customer, object?>>? OrderBySelector { get; set; } = null;
 }

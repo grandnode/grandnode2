@@ -77,6 +77,8 @@ public class ApiUserController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
+            //the validator requires the password
+            ArgumentException.ThrowIfNullOrEmpty(model.Password);
             var userapi = model.ToEntity();
             var keys = HashPassword(model.Password);
             userapi.Password = keys.hashpassword;

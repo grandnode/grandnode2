@@ -25,7 +25,7 @@ public class MenuViewModelService : IMenuViewModelService
         }).ToList();
     }
 
-    public virtual async Task<AdminSiteMap?> GetMenuById(string id)
+    public virtual async Task<AdminSiteMap?> GetMenuById(string? id)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(id);
 
@@ -33,7 +33,7 @@ public class MenuViewModelService : IMenuViewModelService
         return sitemap.Select(rootNode => FindAdminSiteMapById(rootNode, id)).FirstOrDefault(result => result != null);
     }
 
-    public virtual async Task<AdminSiteMap?> FindParentNodeById(string id)
+    public virtual async Task<AdminSiteMap?> FindParentNodeById(string? id)
     {
         var node = await GetMenuById(id);
         if (node == null) return null;
@@ -134,7 +134,7 @@ public class MenuViewModelService : IMenuViewModelService
                 .FirstOrDefault(result => result != null);
     }
 
-    private static AdminSiteMap? FindParentNodeById(AdminSiteMap? rootNode, string childId)
+    private static AdminSiteMap? FindParentNodeById(AdminSiteMap? rootNode, string? childId)
     {
         if (rootNode == null) return null;
         if (rootNode.Id == childId) return rootNode;

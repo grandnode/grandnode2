@@ -18,7 +18,7 @@ public interface IOrderTagService
     /// </summary>
     /// <param name="orderTagId">order's tag identifier</param>
     /// <returns>order's tag</returns>
-    Task<OrderTag?> GetOrderTagById(string orderTagId);
+    Task<OrderTag?> GetOrderTagById(string? orderTagId);
 
     /// <summary>
     ///     Gets order tag by name

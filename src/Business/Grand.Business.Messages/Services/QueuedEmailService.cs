@@ -94,7 +94,7 @@ public class QueuedEmailService : IQueuedEmailService
     /// </summary>
     /// <param name="invoiceDownloadId">Download identifier of the invoice</param>
     /// <returns>Download identifier of the copy; null when there is no invoice to copy</returns>
-    public virtual async Task<string?> CopyInvoiceDownload(string invoiceDownloadId)
+    public virtual async Task<string?> CopyInvoiceDownload(string? invoiceDownloadId)
     {
         var invoice = await _downloadService.GetDownloadById(invoiceDownloadId);
         if (invoice == null)
@@ -145,7 +145,7 @@ public class QueuedEmailService : IQueuedEmailService
     /// </summary>
     /// <param name="queuedEmailId">Queued email identifier</param>
     /// <returns>Queued email</returns>
-    public virtual Task<QueuedEmail?> GetQueuedEmailById(string queuedEmailId)
+    public virtual Task<QueuedEmail?> GetQueuedEmailById(string? queuedEmailId)
     {
         return _queuedEmailRepository.GetByIdAsync(queuedEmailId);
     }

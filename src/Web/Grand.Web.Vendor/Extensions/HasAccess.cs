@@ -2,6 +2,7 @@
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 
 namespace Grand.Web.Vendor.Extensions;
 
@@ -19,14 +20,14 @@ public static class HasAccess
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        return product.VendorId == workContext.CurrentVendor.Id;
+        return product.VendorId == workContext.PanelVendor().Id;
     }
 
     public static bool HasAccessToOrder(this IWorkContext workContext, Order order)
     {
         ArgumentNullException.ThrowIfNull(order);
 
-        var hasVendorProducts = order.OrderItems.Any(orderItem => orderItem.VendorId == workContext.CurrentVendor.Id);
+        var hasVendorProducts = order.OrderItems.Any(orderItem => orderItem.VendorId == workContext.PanelVendor().Id);
         return hasVendorProducts;
     }
 
@@ -34,13 +35,13 @@ public static class HasAccess
     {
         ArgumentNullException.ThrowIfNull(orderItem);
 
-        return orderItem.VendorId == workContext.CurrentVendor.Id;
+        return orderItem.VendorId == workContext.PanelVendor().Id;
     }
 
     public static bool HasAccessToShipment(this IWorkContext workContext, Shipment shipment)
     {
         ArgumentNullException.ThrowIfNull(shipment);
 
-        return shipment.VendorId == workContext.CurrentVendor.Id;
+        return shipment.VendorId == workContext.PanelVendor().Id;
     }
 }

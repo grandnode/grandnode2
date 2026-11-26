@@ -104,7 +104,7 @@ public class CustomerGroupProductService : ICustomerGroupProductService
     /// </summary>
     /// <param name="id">Ident</param>
     /// <returns>Customer group product</returns>
-    public virtual async Task<CustomerGroupProduct?> GetCustomerGroupProductById(string id)
+    public virtual async Task<CustomerGroupProduct?> GetCustomerGroupProductById(string? id)
     {
         var query = from cr in _customerGroupProductRepository.Table
             where cr.Id == id

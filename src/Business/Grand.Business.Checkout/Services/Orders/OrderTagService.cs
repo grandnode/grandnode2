@@ -73,7 +73,7 @@ public class OrderTagService : IOrderTagService
     /// </summary>
     /// <param name="orderTagId">Order's tag identifier</param>
     /// <returns>Order's tag</returns>
-    public virtual Task<OrderTag?> GetOrderTagById(string orderTagId)
+    public virtual Task<OrderTag?> GetOrderTagById(string? orderTagId)
     {
         return _orderTagRepository.GetByIdAsync(orderTagId);
     }

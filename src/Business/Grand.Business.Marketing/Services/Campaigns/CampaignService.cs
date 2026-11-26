@@ -88,7 +88,7 @@ public class CampaignService(
     /// </summary>
     /// <param name="campaignId">Campaign identifier</param>
     /// <returns>Campaign</returns>
-    public virtual Task<Campaign?> GetCampaignById(string campaignId)
+    public virtual Task<Campaign?> GetCampaignById(string? campaignId)
     {
         return campaignRepository.GetByIdAsync(campaignId);
     }

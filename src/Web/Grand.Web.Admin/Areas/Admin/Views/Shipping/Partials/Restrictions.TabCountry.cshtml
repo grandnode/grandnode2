@@ -51,7 +51,7 @@
                         </td>
                         @foreach (var sm in Model.AvailableShippingMethods)
                         {
-                            var restricted = Model.Restricted.ContainsKey(c.Id) && Model.Restricted[c.Id][sm.Id];
+                            var restricted = c.Id != null && sm.Id != null && Model.Restricted.TryGetValue(c.Id, out var byShippingMethod) && byShippingMethod[sm.Id];
                             var checkedValue = restricted ? "checked" : null;
                             <td class="text-center">
                                 <input id="restrict_@(sm.Id)" class="restrict_@(sm.Id) form-check-input" type="checkbox" value="@(c.Id)" name="restrict_@(sm.Id)" @checkedValue />

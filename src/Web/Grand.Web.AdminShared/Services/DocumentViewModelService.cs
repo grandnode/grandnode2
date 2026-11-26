@@ -80,8 +80,8 @@ public class DocumentViewModelService : IDocumentViewModelService
         return (documentListModel, documents.TotalCount);
     }
 
-    public virtual async Task<DocumentModel> PrepareDocumentModel(DocumentModel documentModel, Document document,
-        SimpleDocumentModel simpleModel)
+    public virtual async Task<DocumentModel> PrepareDocumentModel(DocumentModel? documentModel, Document? document,
+        SimpleDocumentModel? simpleModel)
     {
         var model = documentModel ?? new DocumentModel { Published = true };
         if (document != null)

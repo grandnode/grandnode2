@@ -83,7 +83,7 @@ public class ProductTagService : IProductTagService
     /// </summary>
     /// <param name="productTagId">Product tag identifier</param>
     /// <returns>Product tag</returns>
-    public virtual Task<ProductTag?> GetProductTagById(string productTagId)
+    public virtual Task<ProductTag?> GetProductTagById(string? productTagId)
     {
         return _productTagRepository.GetByIdAsync(productTagId);
     }

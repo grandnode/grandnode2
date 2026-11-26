@@ -69,8 +69,8 @@ public class WidgetController : BaseAdminController
 
             var url = widget.ConfigurationUrl;
             if (string.IsNullOrEmpty(url))
-                url = PluginManager.ReferencedPlugins.FirstOrDefault(x =>
-                        x.SystemName.Equals(widget.SystemName, StringComparison.OrdinalIgnoreCase))
+                url = PluginManager.ReferencedPlugins?.FirstOrDefault(x =>
+                        string.Equals(x.SystemName, widget.SystemName, StringComparison.OrdinalIgnoreCase))
                     ?.Instance<IPlugin>(_serviceProvider)?.ConfigurationUrl();
             tmp.ConfigurationUrl = url;
 
@@ -90,7 +90,8 @@ public class WidgetController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> WidgetUpdate(WidgetModel model)
     {
-        var widget = _widgetService.LoadWidgetBySystemName(model.SystemName);
+        var widget = _widgetService.LoadWidgetBySystemName(model.SystemName)
+                     ?? throw new ArgumentException("No widget found with the specified system name");
         if (widget.IsWidgetActive(_widgetSettings))
         {
             if (!model.IsActive)

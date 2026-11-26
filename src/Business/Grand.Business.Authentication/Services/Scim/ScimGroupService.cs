@@ -68,7 +68,7 @@ public class ScimGroupService(
         return await ChangeMembers(group, await ManagedOnly(data.MemberIds), [], true);
     }
 
-    public virtual async Task<ScimGroupResult> Get(string id)
+    public virtual async Task<ScimGroupResult> Get(string? id)
     {
         var group = await Load(id);
         return group == null ? new ScimGroupResult(ScimOutcome.NotFound) : new ScimGroupResult(ScimOutcome.Ok, View(group));
@@ -146,7 +146,7 @@ public class ScimGroupService(
     public virtual async Task<IList<CustomerGroup>> GetMappableGroups() =>
         (await groupService.GetAllCustomerGroups(showHidden: true)).Where(ScimRoleSync.IsMappable).ToList();
 
-    public virtual async Task<ScimOutcome> SetMapping(string groupId, string customerGroupId, string staffStoreId,
+    public virtual async Task<ScimOutcome> SetMapping(string groupId, string? customerGroupId, string staffStoreId,
         string vendorId)
     {
         var group = await Load(groupId);
@@ -241,7 +241,7 @@ public class ScimGroupService(
             .ToList();
     }
 
-    private async Task<ScimGroup?> Load(string id) => string.IsNullOrEmpty(id) ? null : await groups.GetByIdAsync(id);
+    private async Task<ScimGroup?> Load(string? id) => string.IsNullOrEmpty(id) ? null : await groups.GetByIdAsync(id);
 
     private static ScimGroupView View(ScimGroup group) =>
         new(group.Id, group.DisplayName, string.IsNullOrEmpty(group.ExternalId) ? null : group.ExternalId,

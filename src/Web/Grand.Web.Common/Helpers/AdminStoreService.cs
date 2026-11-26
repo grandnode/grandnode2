@@ -7,7 +7,7 @@ namespace Grand.Web.Common.Helpers;
 
 public interface IAdminStoreService
 {
-    Task<string?> GetActiveStore();
+    Task<string> GetActiveStore();
 }
 
 public class AdminStoreService : IAdminStoreService
@@ -21,11 +21,11 @@ public class AdminStoreService : IAdminStoreService
         _contextAccessor = contextAccessor;
     }
 
-    public async Task<string?> GetActiveStore()
+    public async Task<string> GetActiveStore()
     {
         var stores = await _storeService.GetAllStores();
         if (stores.Count < 2)
-            return stores.FirstOrDefault()?.Id;
+            return stores.FirstOrDefault()?.Id ?? "";
 
         var storeId = _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration);
         //empty scope means "all stores" - settings are loaded from/saved to the global scope

@@ -144,7 +144,8 @@ public class PushNotificationsController(
     [HttpPost]
     public async Task<IActionResult> DeleteReceiver(string id)
     {
-        var receiver = await pushNotificationsService.GetPushReceiver(id);
+        var receiver = await pushNotificationsService.GetPushReceiver(id)
+            ?? throw new ArgumentException("No push receiver found with the specified id");
         await pushNotificationsService.DeletePushReceiver(receiver);
         return new JsonResult("");
     }

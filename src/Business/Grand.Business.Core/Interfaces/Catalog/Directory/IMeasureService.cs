@@ -146,7 +146,7 @@ public interface IMeasureService
     /// </summary>
     /// <param name="measureUnitId">Measure unit identifier</param>
     /// <returns>Measure dimension</returns>
-    Task<MeasureUnit?> GetMeasureUnitById(string measureUnitId);
+    Task<MeasureUnit?> GetMeasureUnitById(string? measureUnitId);
 
     /// <summary>
     ///     Gets all measure units

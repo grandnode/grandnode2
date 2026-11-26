@@ -54,7 +54,7 @@ public interface ICustomerService
         string? firstName = null, string? lastName = null,
         string? company = null, string? phone = null, string? zipPostalCode = null,
         bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-        int pageIndex = 0, int pageSize = int.MaxValue, Expression<Func<Customer, object>>? orderBySelector = null,
+        int pageIndex = 0, int pageSize = int.MaxValue, Expression<Func<Customer, object?>>? orderBySelector = null,
         string[]? excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false);
 
 
@@ -82,8 +82,8 @@ public interface ICustomerService
     /// <param name="storeId">Store ident</param>
     /// <param name="salesEmployeeId">Sales employee ident</param>
     /// <returns>Int</returns>
-    Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string storeId = "",
-        string salesEmployeeId = "");
+    Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string? storeId = "",
+        string? salesEmployeeId = "");
 
     /// <summary>
     ///     Gets a customer

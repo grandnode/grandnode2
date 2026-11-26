@@ -100,7 +100,7 @@ public interface IPictureService
     /// <param name="pictureId">Picture identifier</param>
     /// <param name="pictureBinary">Picture binary</param>
     /// <param name="mimeType">MIME type</param>
-    Task SavePictureInFile(string pictureId, byte[] pictureBinary, string mimeType);
+    Task SavePictureInFile(string pictureId, byte[] pictureBinary, string? mimeType);
 
     /// <summary>
     ///     Clear Pictures stored in Assets/Images/Thumbs

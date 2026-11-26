@@ -29,7 +29,7 @@ public class ScheduleTaskService : IScheduleTaskService
     /// </summary>
     /// <param name="taskId">Task identifier</param>
     /// <returns>Task</returns>
-    public virtual Task<ScheduleTask?> GetTaskById(string taskId)
+    public virtual Task<ScheduleTask?> GetTaskById(string? taskId)
     {
         return _taskRepository.GetByIdAsync(taskId);
     }

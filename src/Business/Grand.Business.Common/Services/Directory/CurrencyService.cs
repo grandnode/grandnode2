@@ -109,7 +109,7 @@ public class CurrencyService : ICurrencyService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="storeId">Load records allowed only in a specified store; pass "" to load all records</param>
     /// <returns>Currencies</returns>
-    public virtual async Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string storeId = "")
+    public virtual async Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string? storeId = "")
     {
         var key = string.Format(CacheKey.CURRENCIES_ALL_KEY, showHidden);
         var currencies = await _cacheBase.GetAsync(key, async () =>

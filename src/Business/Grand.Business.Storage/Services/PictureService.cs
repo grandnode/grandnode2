@@ -667,7 +667,7 @@ public class PictureService : IPictureService
     /// <param name="pictureId">Picture identifier</param>
     /// <param name="pictureBinary">Picture binary</param>
     /// <param name="mimeType">MIME type</param>
-    public virtual async Task SavePictureInFile(string pictureId, byte[] pictureBinary, string mimeType)
+    public virtual async Task SavePictureInFile(string pictureId, byte[] pictureBinary, string? mimeType)
     {
         var lastPart = GetFileExtensionFromMimeType(mimeType);
         var fileName = $"{pictureId}_0.{lastPart}";

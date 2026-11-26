@@ -138,7 +138,7 @@ public class MessageTemplateService : IMessageTemplateService
     /// <param name="pageIndex">Page index (0-based)</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Paged list of message templates</returns>
-    public virtual async Task<IPagedList<MessageTemplate>> GetAllMessageTemplates(string storeId, string? keywords = "", int pageIndex = 0, int pageSize = int.MaxValue)
+    public virtual async Task<IPagedList<MessageTemplate>> GetAllMessageTemplates(string? storeId, string? keywords = "", int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = from p in _messageTemplateRepository.Table
             select p;

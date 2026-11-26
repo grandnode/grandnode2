@@ -104,7 +104,7 @@ public class HtmlSanitizationService : IHtmlSanitizationService
         };
     }
 
-    public bool ContainsDisallowedRichText(string html)
+    public bool ContainsDisallowedRichText(string? html)
     {
         if (string.IsNullOrWhiteSpace(html)) return false;
         if (!_enabled) return false;

@@ -6,7 +6,7 @@ namespace Grand.Web.Admin.Infrastructure;
 
 public class AdminAreaViewFactory : IAreaViewFactory
 {
-    private readonly IThemeContext _themeContext;
+    private readonly IThemeContext? _themeContext;
 
     public AdminAreaViewFactory(IThemeContextFactory themeContextFactory)
     {

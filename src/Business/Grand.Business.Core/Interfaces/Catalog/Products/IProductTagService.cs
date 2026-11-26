@@ -18,7 +18,7 @@ public interface IProductTagService
     /// </summary>
     /// <param name="productTagId">Product tag identifier</param>
     /// <returns>Product tag</returns>
-    Task<ProductTag?> GetProductTagById(string productTagId);
+    Task<ProductTag?> GetProductTagById(string? productTagId);
 
     /// <summary>
     ///     Gets product tag by name

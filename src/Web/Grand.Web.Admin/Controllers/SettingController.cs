@@ -171,12 +171,12 @@ public class SettingController(
         //system-wide, whatever store scope the page shows: a store-scoped row would never be read
         var inventorySettings = await settingService.LoadSetting<InventorySettings>();
         inventorySettings.StockChangesOnlyThroughDocuments = model.Inventory.StockChangesOnlyThroughDocuments;
-        inventorySettings.ReceiptNumberPrefix = model.Inventory.ReceiptNumberPrefix;
-        inventorySettings.TransferNumberPrefix = model.Inventory.TransferNumberPrefix;
-        inventorySettings.AdjustmentNumberPrefix = model.Inventory.AdjustmentNumberPrefix;
-        inventorySettings.StockCountNumberPrefix = model.Inventory.StockCountNumberPrefix;
-        inventorySettings.ReturnReceiptNumberPrefix = model.Inventory.ReturnReceiptNumberPrefix;
-        inventorySettings.AssignmentNumberPrefix = model.Inventory.AssignmentNumberPrefix;
+        inventorySettings.ReceiptNumberPrefix = model.Inventory.ReceiptNumberPrefix ?? "";
+        inventorySettings.TransferNumberPrefix = model.Inventory.TransferNumberPrefix ?? "";
+        inventorySettings.AdjustmentNumberPrefix = model.Inventory.AdjustmentNumberPrefix ?? "";
+        inventorySettings.StockCountNumberPrefix = model.Inventory.StockCountNumberPrefix ?? "";
+        inventorySettings.ReturnReceiptNumberPrefix = model.Inventory.ReturnReceiptNumberPrefix ?? "";
+        inventorySettings.AssignmentNumberPrefix = model.Inventory.AssignmentNumberPrefix ?? "";
         inventorySettings.ExpiryWarningDays = Math.Max(0, model.Inventory.ExpiryWarningDays);
         await settingService.SaveSetting(inventorySettings, "");
 
@@ -425,7 +425,8 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnReasonDelete(string id)
     {
-        var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(id);
+        var rrr = await merchandiseReturnService.GetMerchandiseReturnReasonById(id)
+            ?? throw new ArgumentException("No merchandise return reason found with the specified id");
         await merchandiseReturnService.DeleteMerchandiseReturnReason(rrr);
 
         Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnReasons.Deleted"));
@@ -543,7 +544,8 @@ public class SettingController(
     [HttpPost]
     public async Task<IActionResult> MerchandiseReturnActionDelete(string id)
     {
-        var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(id);
+        var rra = await merchandiseReturnService.GetMerchandiseReturnActionById(id)
+            ?? throw new ArgumentException("No merchandise return action found with the specified id");
         await merchandiseReturnService.DeleteMerchandiseReturnAction(rra);
 
         Success(translationService.GetResource("Admin.Settings.Order.MerchandiseReturnActions.Deleted"));

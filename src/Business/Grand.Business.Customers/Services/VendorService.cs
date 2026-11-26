@@ -64,7 +64,7 @@ public class VendorService : IVendorService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Vendors</returns>
-    public virtual async Task<IPagedList<Vendor>> GetAllVendors(string name = "",
+    public virtual async Task<IPagedList<Vendor>> GetAllVendors(string? name = "",
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false)
     {
         var query = from p in _vendorRepository.Table

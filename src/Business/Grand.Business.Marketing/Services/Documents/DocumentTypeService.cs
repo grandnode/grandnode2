@@ -35,7 +35,7 @@ public class DocumentTypeService : IDocumentTypeService
         return await _documentTypeRepository.ToListAsync(query);
     }
 
-    public virtual Task<DocumentType?> GetById(string id)
+    public virtual Task<DocumentType?> GetById(string? id)
     {
         return _documentTypeRepository.GetByIdAsync(id);
     }

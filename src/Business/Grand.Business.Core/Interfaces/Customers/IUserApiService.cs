@@ -10,7 +10,7 @@ public interface IUserApiService
     ///     Get user api by id
     /// </summary>
     /// <param name="id">id</param>
-    Task<UserApi?> GetUserById(string id);
+    Task<UserApi?> GetUserById(string? id);
 
     /// <summary>
     ///     Get user api by email

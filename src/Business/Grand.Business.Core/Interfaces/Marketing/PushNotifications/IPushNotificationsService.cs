@@ -76,7 +76,7 @@ public interface IPushNotificationsService
     /// <param name="clickUrl"></param>
     /// <param name="cancellationToken">Cancels the request to the push service</param>
     /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
-    Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl, string clickUrl,
+    Task<(bool, string)> SendPushNotification(string? title, string? text, string? pictureUrl, string? clickUrl,
         List<string>? registrationIds = null, CancellationToken cancellationToken = default);
 
     /// <summary>

@@ -78,7 +78,7 @@ public class WidgetService : IWidgetService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found widget</returns>
-    public virtual IWidgetProvider? LoadWidgetBySystemName(string systemName)
+    public virtual IWidgetProvider? LoadWidgetBySystemName(string? systemName)
     {
         return _widgetProviders.FirstOrDefault(x =>
             x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));

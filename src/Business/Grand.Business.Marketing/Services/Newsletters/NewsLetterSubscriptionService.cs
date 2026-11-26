@@ -152,7 +152,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// </summary>
     /// <param name="newsLetterSubscriptionId">The newsletter subscription identifier</param>
     /// <returns>NewsLetter subscription</returns>
-    public virtual Task<NewsLetterSubscription?> GetNewsLetterSubscriptionById(string newsLetterSubscriptionId)
+    public virtual Task<NewsLetterSubscription?> GetNewsLetterSubscriptionById(string? newsLetterSubscriptionId)
     {
         return _subscriptionRepository.GetByIdAsync(newsLetterSubscriptionId);
     }
@@ -222,7 +222,7 @@ public class NewsLetterSubscriptionService : INewsLetterSubscriptionService
     /// <param name="pageSize">Page size</param>
     /// <returns>NewsLetterSubscription entities</returns>
     public virtual async Task<IPagedList<NewsLetterSubscription>> GetAllNewsLetterSubscriptions(string? email = null,
-        string storeId = "", bool? isActive = null, string[]? categoryIds = null,
+        string? storeId = "", bool? isActive = null, string[]? categoryIds = null,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
         //do not filter by customer group

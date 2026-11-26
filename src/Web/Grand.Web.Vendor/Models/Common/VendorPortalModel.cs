@@ -1,3 +1,3 @@
 ﻿namespace Grand.Web.Vendor.Models.Common;
 
-public record VendorPortalModel(string Title, string Body);
+public record VendorPortalModel(string? Title, string? Body);

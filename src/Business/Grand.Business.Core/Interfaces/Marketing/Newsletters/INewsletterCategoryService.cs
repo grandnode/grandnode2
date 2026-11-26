@@ -27,7 +27,7 @@ public interface INewsletterCategoryService
     /// </summary>
     /// <param name="id">newsletter category</param>
     /// <returns>NewsletterCategory</returns>
-    Task<NewsletterCategory?> GetNewsletterCategoryById(string id);
+    Task<NewsletterCategory?> GetNewsletterCategoryById(string? id);
 
     /// <summary>
     ///     Gets all newsletter categories

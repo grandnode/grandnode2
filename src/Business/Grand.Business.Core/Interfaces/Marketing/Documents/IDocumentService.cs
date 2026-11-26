@@ -11,7 +11,7 @@ public interface IDocumentService
     /// </summary>
     /// <param name="id">document identifier</param>
     /// <returns>Document</returns>
-    Task<Document?> GetById(string id);
+    Task<Document?> GetById(string? id);
 
     /// <summary>
     ///     Gets all documents

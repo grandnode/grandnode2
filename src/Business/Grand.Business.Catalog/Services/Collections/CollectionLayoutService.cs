@@ -62,7 +62,7 @@ public class CollectionLayoutService : ICollectionLayoutService
     /// </summary>
     /// <param name="collectionLayoutId">Collection layout id</param>
     /// <returns>Collection layout</returns>
-    public virtual Task<CollectionLayout?> GetCollectionLayoutById(string collectionLayoutId)
+    public virtual Task<CollectionLayout?> GetCollectionLayoutById(string? collectionLayoutId)
     {
         var key = string.Format(CacheKey.COLLECTION_LAYOUT_BY_ID_KEY, collectionLayoutId);
         return _cacheBase.GetAsync(key, () => _collectionLayoutRepository.GetByIdAsync(collectionLayoutId));

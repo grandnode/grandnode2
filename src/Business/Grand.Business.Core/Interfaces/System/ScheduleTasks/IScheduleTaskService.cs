@@ -9,7 +9,7 @@ public interface IScheduleTaskService
     /// </summary>
     /// <param name="taskId">Task identifier</param>
     /// <returns>Task</returns>
-    Task<ScheduleTask?> GetTaskById(string taskId);
+    Task<ScheduleTask?> GetTaskById(string? taskId);
 
     /// <summary>
     ///     Gets a task by its type

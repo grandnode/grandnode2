@@ -55,7 +55,7 @@ public interface ISlugService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>URL Entity</returns>
-    Task<IPagedList<EntityUrl>> GetAllEntityUrl(string slug = "", bool? active = null, int pageIndex = 0,
+    Task<IPagedList<EntityUrl>> GetAllEntityUrl(string? slug = "", bool? active = null, int pageIndex = 0,
         int pageSize = int.MaxValue);
 
     /// <summary>

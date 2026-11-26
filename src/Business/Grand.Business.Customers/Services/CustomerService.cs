@@ -90,7 +90,7 @@ public class CustomerService : ICustomerService
         string? firstName = null, string? lastName = null,
         string? company = null, string? phone = null, string? zipPostalCode = null,
         bool loadOnlyWithShoppingCart = false, ShoppingCartType? sct = null,
-        int pageIndex = 0, int pageSize = 2147483647, Expression<Func<Customer, object>>? orderBySelector = null,
+        int pageIndex = 0, int pageSize = 2147483647, Expression<Func<Customer, object?>>? orderBySelector = null,
         string[]? excludedCustomerGroupIds = null, bool excludeVendorAndStaffAccounts = false)
     {
         var queryModel = new GetCustomerQuery {
@@ -164,8 +164,8 @@ public class CustomerService : ICustomerService
     /// <param name="storeId">Store ident</param>
     /// <param name="salesEmployeeId">Sales employee ident</param>
     /// <returns>Int</returns>
-    public virtual async Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string storeId = "",
-        string salesEmployeeId = "")
+    public virtual async Task<int> GetCountOnlineShoppingCart(DateTime lastActivityFromUtc, string? storeId = "",
+        string? salesEmployeeId = "")
     {
         var query = from p in _customerRepository.Table
             select p;

@@ -111,6 +111,6 @@ public interface IGroupService
     ///     Gets all customer groups
     /// </summary>
     /// <returns>Customer groups</returns>
-    Task<IPagedList<CustomerGroup>> GetAllCustomerGroups(string name = "", int pageIndex = 0,
+    Task<IPagedList<CustomerGroup>> GetAllCustomerGroups(string? name = "", int pageIndex = 0,
         int pageSize = int.MaxValue, bool showHidden = false);
 }

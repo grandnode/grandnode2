@@ -144,8 +144,8 @@ public class PushNotificationsService : IPushNotificationsService
     /// <param name="clickUrl"></param>
     /// <param name="cancellationToken">Cancels the request to the push service</param>
     /// <returns>Bool indicating whether message was sent successfully and string result to display</returns>
-    public virtual async Task<(bool, string)> SendPushNotification(string title, string text, string pictureUrl,
-        string clickUrl, List<string>? registrationIds = null, CancellationToken cancellationToken = default)
+    public virtual async Task<(bool, string)> SendPushNotification(string? title, string? text, string? pictureUrl,
+        string? clickUrl, List<string>? registrationIds = null, CancellationToken cancellationToken = default)
     {
         List<string> ids;
         if (registrationIds != null && registrationIds.Any())
@@ -191,8 +191,8 @@ public class PushNotificationsService : IPushNotificationsService
         }
     }
 
-    private async Task<(bool success, string result, int delivered)> SendBatch(string title, string text,
-        string pictureUrl, string clickUrl, string[] registrationIds, CancellationToken cancellationToken)
+    private async Task<(bool success, string result, int delivered)> SendBatch(string? title, string? text,
+        string? pictureUrl, string? clickUrl, string[] registrationIds, CancellationToken cancellationToken)
     {
         var data = new {
             registration_ids = registrationIds,

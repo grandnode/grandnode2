@@ -21,7 +21,7 @@ public class UserApiService : IUserApiService
     ///     Get user api by id
     /// </summary>
     /// <param name="id">id</param>
-    public virtual Task<UserApi?> GetUserById(string id)
+    public virtual Task<UserApi?> GetUserById(string? id)
     {
         return _userRepository.GetByIdAsync(id);
     }

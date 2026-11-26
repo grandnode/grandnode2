@@ -24,7 +24,7 @@ public interface ICustomerGroupProductService
     /// </summary>
     /// <param name="id">id</param>
     /// <returns>Customer group product</returns>
-    Task<CustomerGroupProduct?> GetCustomerGroupProductById(string id);
+    Task<CustomerGroupProduct?> GetCustomerGroupProductById(string? id);
 
     /// <summary>
     ///     Inserts a customer group product

@@ -32,7 +32,7 @@ public interface ICustomerTagService
     /// </summary>
     /// <param name="customerTagId">Customer tag identifier</param>
     /// <returns>Product tag</returns>
-    Task<CustomerTag?> GetCustomerTagById(string customerTagId);
+    Task<CustomerTag?> GetCustomerTagById(string? customerTagId);
 
     /// <summary>
     ///     Gets customer tag by name
@@ -97,7 +97,7 @@ public interface ICustomerTagService
     /// </summary>
     /// <param name="id">id</param>
     /// <returns>Customer tag product</returns>
-    Task<CustomerTagProduct?> GetCustomerTagProductById(string id);
+    Task<CustomerTagProduct?> GetCustomerTagProductById(string? id);
 
     /// <summary>
     ///     Inserts a customer tag product

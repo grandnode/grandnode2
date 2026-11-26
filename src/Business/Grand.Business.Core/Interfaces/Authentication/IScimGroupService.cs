@@ -13,7 +13,7 @@ public interface IScimGroupService
 
     Task<ScimGroupResult> Replace(string id, ScimGroupData data);
 
-    Task<ScimGroupResult> Get(string id);
+    Task<ScimGroupResult> Get(string? id);
 
     /// <summary>The groups, optionally those with the display name or the externalId (exact, display name case-insensitive)</summary>
     Task<ScimPage<ScimGroupView>> List(string? displayName, string? externalId, int skip, int take);
@@ -35,5 +35,5 @@ public interface IScimGroupService
     ///     Maps the group to a customer group (Administrators; StoreManager with a store; Vendors with a vendor; a custom group);
     ///     an empty customer group removes the mapping. Invalid for any other target
     /// </summary>
-    Task<ScimOutcome> SetMapping(string groupId, string customerGroupId, string staffStoreId, string vendorId);
+    Task<ScimOutcome> SetMapping(string groupId, string? customerGroupId, string staffStoreId, string vendorId);
 }

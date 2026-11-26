@@ -63,7 +63,7 @@ public class PageLayoutService : IPageLayoutService
     /// </summary>
     /// <param name="pageLayoutId">Page layout identifier</param>
     /// <returns>Page layout</returns>
-    public virtual Task<PageLayout?> GetPageLayoutById(string pageLayoutId)
+    public virtual Task<PageLayout?> GetPageLayoutById(string? pageLayoutId)
     {
         var key = string.Format(CacheKey.PAGE_LAYOUT_BY_ID_KEY, pageLayoutId);
         return _cacheBase.GetAsync(key, () => _pageLayoutRepository.GetByIdAsync(pageLayoutId));

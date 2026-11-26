@@ -142,7 +142,7 @@ public class SlugService : ISlugService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>URL Entity</returns>
-    public virtual async Task<IPagedList<EntityUrl>> GetAllEntityUrl(string slug = "", bool? active = null,
+    public virtual async Task<IPagedList<EntityUrl>> GetAllEntityUrl(string? slug = "", bool? active = null,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = from p in _urlEntityRepository.Table

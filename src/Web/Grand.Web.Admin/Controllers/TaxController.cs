@@ -68,13 +68,12 @@ public class TaxController(
             var tmp = tax.ToModel();
             var url = tax.ConfigurationUrl;
             if (string.IsNullOrEmpty(url))
-                url = PluginManager.ReferencedPlugins.FirstOrDefault(x =>
-                        x.SystemName.Equals(tax.SystemName, StringComparison.OrdinalIgnoreCase))
+                url = PluginManager.ReferencedPlugins?.FirstOrDefault(x =>
+                        string.Equals(x.SystemName, tax.SystemName, StringComparison.OrdinalIgnoreCase))
                     ?.Instance<IPlugin>(serviceProvider)?.ConfigurationUrl();
             tmp.ConfigurationUrl = url;
 
-            tmp.IsPrimaryTaxProvider = tmp.SystemName.Equals(taxProviderSettings.ActiveTaxProviderSystemName,
-                StringComparison.OrdinalIgnoreCase);
+            tmp.IsPrimaryTaxProvider = string.Equals(tmp.SystemName, taxProviderSettings.ActiveTaxProviderSystemName, StringComparison.OrdinalIgnoreCase);
             taxProvidersModel.Add(tmp);
         }
 
@@ -154,7 +153,7 @@ public class TaxController(
         if (states?.Count > 0)
             foreach (var s in states)
                 model.DefaultTaxAddress.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == defaultAddress.StateProvinceId });
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == defaultAddress?.StateProvinceId });
 
         model.DefaultTaxAddress.CountryEnabled = true;
         model.DefaultTaxAddress.StateProvinceEnabled = true;

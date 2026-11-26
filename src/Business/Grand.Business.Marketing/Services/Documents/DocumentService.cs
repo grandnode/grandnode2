@@ -65,7 +65,7 @@ public class DocumentService : IDocumentService
     }
 
 
-    public virtual Task<Document?> GetById(string id)
+    public virtual Task<Document?> GetById(string? id)
     {
         return _documentRepository.GetByIdAsync(id);
     }

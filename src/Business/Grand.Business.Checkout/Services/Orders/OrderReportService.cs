@@ -576,7 +576,7 @@ public class OrderReportService : IOrderReportService
     /// <param name="salesEmployeeId">Sales employee ident</param>
     /// <returns>ReportPeriodOrder</returns>
     public virtual async Task<ReportPeriodOrder> GetOrderPeriodReport(int days, string? storeId = "",
-        string salesEmployeeId = "")
+        string? salesEmployeeId = "")
     {
         var currentdate = new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day);
         var date = days != 0

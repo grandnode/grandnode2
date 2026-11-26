@@ -39,7 +39,7 @@ public interface ICurrencyService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="storeId">Load records allowed only in a specified store; pass "" to load all records</param>
     /// <returns>Currencies</returns>
-    Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string storeId = "");
+    Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string? storeId = "");
 
     /// <summary>
     ///     Inserts a currency

@@ -80,7 +80,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     /// <param name="customerTagId">Customer tag identifier</param>
     /// <returns>Customer tag</returns>
-    public virtual Task<CustomerTag?> GetCustomerTagById(string customerTagId)
+    public virtual Task<CustomerTag?> GetCustomerTagById(string? customerTagId)
     {
         return _customerTagRepository.GetByIdAsync(customerTagId);
     }
@@ -219,7 +219,7 @@ public class CustomerTagService : ICustomerTagService
     /// </summary>
     /// <param name="id">id</param>
     /// <returns>Customer tag product</returns>
-    public virtual Task<CustomerTagProduct?> GetCustomerTagProductById(string id)
+    public virtual Task<CustomerTagProduct?> GetCustomerTagProductById(string? id)
     {
         return _customerTagProductRepository.GetByIdAsync(id);
     }

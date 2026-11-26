@@ -416,7 +416,7 @@ public class KnowledgebaseService : IKnowledgebaseService
     /// <param name="name"></param>
     /// <param name="pageIndex"></param>
     /// <param name="pageSize"></param>
-    public virtual async Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByName(string name,
+    public virtual async Task<IPagedList<KnowledgebaseArticle>> GetKnowledgebaseArticlesByName(string? name,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = from p in _knowledgebaseArticleRepository.Table

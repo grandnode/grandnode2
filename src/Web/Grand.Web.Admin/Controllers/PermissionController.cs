@@ -63,10 +63,12 @@ public class PermissionController : BaseAdminController
         foreach (var pr in permissionRecords)
         foreach (var cr in customerGroups)
         {
-            var allowed = pr.CustomerGroups.Count(x => x == cr.Id) > 0;
-            if (!model.Allowed.ContainsKey(pr.SystemName))
-                model.Allowed[pr.SystemName] = new Dictionary<string, bool>();
-            model.Allowed[pr.SystemName][cr.Id] = allowed;
+            //a record or a group without a key has no cell in the grid
+            if (pr.SystemName is not { } systemName || cr.Id is not { } groupId) continue;
+            var allowed = pr.CustomerGroups.Count(x => x == groupId) > 0;
+            if (!model.Allowed.ContainsKey(systemName))
+                model.Allowed[systemName] = new Dictionary<string, bool>();
+            model.Allowed[systemName][groupId] = allowed;
         }
 
         return View(model);
@@ -102,7 +104,8 @@ public class PermissionController : BaseAdminController
     {
         if (!ModelState.IsValid) return View(model);
 
-        var permission = await _permissionService.GetPermissionById(model.Id);
+        var permission = await _permissionService.GetPermissionById(model.Id)
+            ?? throw new ArgumentException("No permission found with the specified id");
         permission = model.ToEntity(permission);
         await _permissionService.UpdatePermission(permission);
         return Content("");
@@ -122,7 +125,7 @@ public class PermissionController : BaseAdminController
                 permissionIds != null ? permissionIds.ToList() : new List<string>();
             foreach (var pr in permissionRecords)
             {
-                var allow = permissionRecordSystemNamesToRestrict.Contains(pr.SystemName);
+                var allow = pr.SystemName != null && permissionRecordSystemNamesToRestrict.Contains(pr.SystemName);
                 if (allow)
                 {
                     if (pr.CustomerGroups.FirstOrDefault(x => x == cr.Id) == null)
@@ -164,7 +167,7 @@ public class PermissionController : BaseAdminController
         model.PermissionName = _translationService.GetResource(permissionRecord.GetTranslationPermissionName(), _contextAccessor.WorkContext.WorkingLanguage.Id);
 
         model.DeniedActions = (await _permissionService.GetPermissionActions(systemName, customeGroupId))
-            .Select(x => x.Action).ToList();
+            .Select(x => x.Action).OfType<string>().ToList();
 
         return View(model);
     }

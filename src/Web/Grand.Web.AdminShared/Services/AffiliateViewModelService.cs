@@ -53,7 +53,7 @@ public class AffiliateViewModelService : IAffiliateViewModelService
         _enumTranslationService = enumTranslationService;
     }
 
-    public virtual async Task PrepareAffiliateModel(AffiliateModel model, Affiliate affiliate, bool excludeProperties,
+    public virtual async Task PrepareAffiliateModel(AffiliateModel model, Affiliate? affiliate, bool excludeProperties,
         bool prepareEntireAddressModel = true)
     {
         ArgumentNullException.ThrowIfNull(model);

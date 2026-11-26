@@ -85,7 +85,7 @@ public class AdminStoreServiceTests
     }
 
     [TestMethod]
-    public async Task GetActiveStore_ShouldReturnNull_WhenNoStoresExist()
+    public async Task GetActiveStore_ShouldReturnGlobalScope_WhenNoStoresExist()
     {
         _storeServiceMock.Setup(s => s.GetAllStores()).ReturnsAsync(new List<Store>());
 
@@ -93,7 +93,7 @@ public class AdminStoreServiceTests
         var result = await _adminStoreService.GetActiveStore();
 
         // Assert
-        Assert.IsNull(result);
+        Assert.AreEqual("", result);
     }
 
     [TestMethod]

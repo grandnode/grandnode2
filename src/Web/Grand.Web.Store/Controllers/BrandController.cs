@@ -29,7 +29,7 @@ public class BrandController(
     protected override void EditWarningCheck(Brand brand)
     {
         if (!brand.LimitedToStores ||
-            (brand.Stores.Contains(Scope.DefaultStoreId) &&
+            (Scope.DefaultStoreId is { } defaultStoreId && brand.Stores.Contains(defaultStoreId) &&
              brand.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Catalog.Brands.Permissions"));
     }

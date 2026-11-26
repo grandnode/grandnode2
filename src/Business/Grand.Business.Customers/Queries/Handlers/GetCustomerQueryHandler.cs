@@ -99,7 +99,7 @@ public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IPagedL
         return await _customerRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
     }
 
-    private static string? GetName(Expression<Func<Customer, object>> exp)
+    private static string? GetName(Expression<Func<Customer, object?>> exp)
     {
         if (exp.Body is MemberExpression body) return body.Member.Name;
         var expBody = (UnaryExpression)exp.Body;

@@ -62,7 +62,7 @@ public class GroupService : IGroupService
     /// <param name="name"></param>
     /// <param name="pageIndex"></param>
     /// <returns>Customer groups</returns>
-    public virtual async Task<IPagedList<CustomerGroup>> GetAllCustomerGroups(string name = "", int pageIndex = 0,
+    public virtual async Task<IPagedList<CustomerGroup>> GetAllCustomerGroups(string? name = "", int pageIndex = 0,
         int pageSize = int.MaxValue, bool showHidden = false)
     {
         var query = from m in _customerGroupRepository.Table

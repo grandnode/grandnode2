@@ -244,7 +244,7 @@ public class SearchController : BaseSearchController
             model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.CustomerGroupSizeLimit);
 
-        var gridModel = await DataSourceResultHelper.GetSearchResult(customerGroupId, groups, store => Task.FromResult(store.Name));
+        var gridModel = await DataSourceResultHelper.GetSearchResult(customerGroupId, groups, store => Task.FromResult<string?>(store.Name));
         return Json(gridModel);
     }
 
@@ -256,10 +256,10 @@ public class SearchController : BaseSearchController
         if (!string.IsNullOrEmpty(staffStoreId))
             stores = stores.Where(x => x.Id == staffStoreId).ToList();
 
-        if (model.GetNameFilterValue() != null)
-            stores = stores.Where(x => x.Name.Contains(model.GetNameFilterValue(), StringComparison.InvariantCultureIgnoreCase)).ToList();
+        if (model.GetNameFilterValue() is { } storeName)
+            stores = stores.Where(x => x.Name.Contains(storeName, StringComparison.InvariantCultureIgnoreCase)).ToList();
 
-        var gridModel = await DataSourceResultHelper.GetSearchResult(storeId, stores, store => Task.FromResult(store.Name));
+        var gridModel = await DataSourceResultHelper.GetSearchResult(storeId, stores, store => Task.FromResult<string?>(store.Name));
         return Json(gridModel);
     }
 
@@ -270,7 +270,7 @@ public class SearchController : BaseSearchController
             model.GetNameFilterValue(),
             pageSize: _adminSearchSettings.VendorSizeLimit, showHidden: true);
 
-        var gridModel = await DataSourceResultHelper.GetSearchResult(vendorId, vendors, vendor => Task.FromResult(vendor.Name));
+        var gridModel = await DataSourceResultHelper.GetSearchResult(vendorId, vendors, vendor => Task.FromResult<string?>(vendor.Name));
         return Json(gridModel);
     }
 }

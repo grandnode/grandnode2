@@ -74,7 +74,7 @@ public class NewsletterCategoryService : INewsletterCategoryService
     /// </summary>
     /// <param name="id">newsletter category</param>
     /// <returns>NewsletterCategory</returns>
-    public virtual Task<NewsletterCategory?> GetNewsletterCategoryById(string id)
+    public virtual Task<NewsletterCategory?> GetNewsletterCategoryById(string? id)
     {
         return _newsletterCategoryRepository.GetByIdAsync(id);
     }

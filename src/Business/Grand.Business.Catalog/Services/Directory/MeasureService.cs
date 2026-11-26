@@ -360,7 +360,7 @@ public class MeasureService : IMeasureService
     /// </summary>
     /// <param name="measureUnitId">Measure unit identifier</param>
     /// <returns>Measure dimension</returns>
-    public virtual Task<MeasureUnit?> GetMeasureUnitById(string measureUnitId)
+    public virtual Task<MeasureUnit?> GetMeasureUnitById(string? measureUnitId)
     {
         var key = string.Format(CacheKey.MEASUREUNITS_BY_ID_KEY, measureUnitId);
         return _cacheBase.GetAsync(key, () => _measureUnitRepository.GetByIdAsync(measureUnitId));

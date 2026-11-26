@@ -1,3 +1,4 @@
+@using Grand.Web.AdminShared.Extensions
 @inject IContextAccessor contextAccessor
 @{
     //page title
@@ -12,7 +13,7 @@
             <h1 class="grand-dashboard__title">@Loc["Vendor.Dashboard"]</h1>
             <p class="grand-dashboard__subtitle">
                 <i class="bi bi-person-badge" aria-hidden="true"></i>
-                <span>@contextAccessor.WorkContext.CurrentVendor.Name</span>
+                <span>@contextAccessor.WorkContext.PanelVendor().Name</span>
             </p>
         </div>
         <button type="button" id="dashboard-report-range" class="btn grand-dashboard__range" title="@Loc["Vendor.Dashboard.Summary"]">

@@ -20,7 +20,7 @@ public abstract class BaseSearchController(
     IContextAccessor contextAccessor)
     : BaseController
 {
-    protected virtual string PickerStoreId => "";
+    protected virtual string? PickerStoreId => "";
 
     protected Customer CurrentCustomer => contextAccessor.WorkContext.CurrentCustomer;
 

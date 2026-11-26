@@ -18,7 +18,7 @@ public interface IPageLayoutService
     /// </summary>
     /// <param name="pageLayoutId">Page layout identifier</param>
     /// <returns>Page layout</returns>
-    Task<PageLayout?> GetPageLayoutById(string pageLayoutId);
+    Task<PageLayout?> GetPageLayoutById(string? pageLayoutId);
 
     /// <summary>
     ///     Inserts page layout
