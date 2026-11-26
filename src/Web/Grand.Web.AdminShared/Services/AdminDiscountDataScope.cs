@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Discounts;
 using Grand.Infrastructure;

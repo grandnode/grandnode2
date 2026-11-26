@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Common.Addresses;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;

@@ -1,5 +1,5 @@
 ﻿@model List<string>
 @*"0" is the "all" entry: it cannot be combined with another value and an empty selection
     falls back to it - the rule the Kendo select/change handlers carried*@
-@Html.ListBoxFor(model => model, (IEnumerable<SelectListItem>)ViewData["SelectList"],
+@Html.ListBoxFor(model => model, (IEnumerable<SelectListItem>?)ViewData["SelectList"],
     new { data_grand_select = "{\"mode\":\"multiple\",\"emptyValue\":\"0\"}" })

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;

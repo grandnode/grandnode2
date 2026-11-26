@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Grand.Business.Core.Interfaces.Common.Stores;
+﻿using Grand.Business.Core.Interfaces.Common.Stores;
 using Grand.Data;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;

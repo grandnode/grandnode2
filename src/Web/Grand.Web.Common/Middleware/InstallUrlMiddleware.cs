@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Grand.Data;
+﻿using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Caching;

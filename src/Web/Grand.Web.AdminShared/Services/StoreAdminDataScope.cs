@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;

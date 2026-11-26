@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Messages;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;

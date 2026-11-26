@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Interfaces.Common.Stores;
