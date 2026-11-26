@@ -77,9 +77,7 @@ public abstract class BaseVendorReviewController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Edit(string id)
     {
-        var vendorReviewAccess = await LoadAuthorizedVendorReview(id);
-        if (vendorReviewAccess.IsDenied) return vendorReviewAccess.Denied;
-        var vendorReview = vendorReviewAccess.Entity;
+        if (!(await LoadAuthorizedVendorReview(id)).TryGet(out var vendorReview, out var denied)) return denied;
 
         var model = new VendorReviewModel();
         await vendorViewModelService.PrepareVendorReviewModel(model, vendorReview, false, false);
@@ -91,9 +89,7 @@ public abstract class BaseVendorReviewController(
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Edit(VendorReviewModel model, bool continueEditing)
     {
-        var vendorReviewAccess = await LoadAuthorizedVendorReview(model.Id);
-        if (vendorReviewAccess.IsDenied) return vendorReviewAccess.Denied;
-        var vendorReview = vendorReviewAccess.Entity;
+        if (!(await LoadAuthorizedVendorReview(model.Id)).TryGet(out var vendorReview, out var denied)) return denied;
 
         if (ModelState.IsValid)
         {
@@ -113,9 +109,7 @@ public abstract class BaseVendorReviewController(
     [HttpPost]
     public async Task<IActionResult> Delete(string id)
     {
-        var vendorReviewAccess = await LoadAuthorizedVendorReview(id);
-        if (vendorReviewAccess.IsDenied) return vendorReviewAccess.Denied;
-        var vendorReview = vendorReviewAccess.Entity;
+        if (!(await LoadAuthorizedVendorReview(id)).TryGet(out var vendorReview, out var denied)) return denied;
 
         if (ModelState.IsValid)
         {

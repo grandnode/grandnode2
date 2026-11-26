@@ -97,9 +97,7 @@ public abstract class BaseOrderController(
     [AuditExport("Order")]
     public async Task<IActionResult> PdfInvoice(string orderId)
     {
-        var orderAccess = await LoadAuthorizedOrder(orderId);
-        if (orderAccess.IsDenied) return orderAccess.Denied;
-        var order = orderAccess.Entity;
+        if (!(await LoadAuthorizedOrder(orderId)).TryGet(out var order, out var denied)) return denied;
 
         var orders = new List<Order> { order };
         byte[] bytes;

@@ -124,9 +124,8 @@ public abstract class BaseRecurringPaymentController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Edit(string id)
     {
-        var recurringPaymentAccess = await LoadAuthorizedRecurringPayment(id);
-        if (recurringPaymentAccess.IsDenied) return recurringPaymentAccess.Denied;
-        var (recurringPayment, initialOrder) = recurringPaymentAccess.Entity;
+        if (!(await LoadAuthorizedRecurringPayment(id)).TryGet(out var authorized, out var denied)) return denied;
+        var (recurringPayment, initialOrder) = authorized;
 
         var customer = await customerService.GetCustomerById(recurringPayment.CustomerId);
         var model = PrepareRecurringPaymentModel(recurringPayment, initialOrder, customer,
@@ -166,9 +165,8 @@ public abstract class BaseRecurringPaymentController(
     [HttpPost]
     public async Task<IActionResult> Cancel(string id)
     {
-        var recurringPaymentAccess = await LoadAuthorizedRecurringPayment(id);
-        if (recurringPaymentAccess.IsDenied) return recurringPaymentAccess.Denied;
-        var recurringPayment = recurringPaymentAccess.Entity.RecurringPayment;
+        if (!(await LoadAuthorizedRecurringPayment(id)).TryGet(out var authorized, out var denied)) return denied;
+        var recurringPayment = authorized.RecurringPayment;
 
         if (recurringPayment.Status.HasEnded())
         {

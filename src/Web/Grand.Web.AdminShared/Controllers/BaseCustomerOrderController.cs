@@ -25,8 +25,7 @@ public abstract class BaseCustomerOrderController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var customerAccess = await LoadAuthorizedCustomer(customerId);
-            if (customerAccess.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
+            if ((await LoadAuthorizedCustomer(customerId)).IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
         else if (!await permissionService.Authorize(StandardPermission.ManageOrders))
         {

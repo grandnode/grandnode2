@@ -29,9 +29,10 @@ public sealed class Access<T> where T : class
 
     public static Access<T> Deny(IActionResult denied) => new(null, denied);
 
-    public void Deconstruct(out T? entity, out IActionResult? denied)
+    public bool TryGet([NotNullWhen(true)] out T? entity, [NotNullWhen(false)] out IActionResult? denied)
     {
         entity = Entity;
         denied = Denied;
+        return !IsDenied;
     }
 }

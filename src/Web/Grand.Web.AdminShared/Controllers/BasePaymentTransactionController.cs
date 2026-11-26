@@ -211,9 +211,7 @@ public abstract class BasePaymentTransactionController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Edit(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         var order = await orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
 
@@ -313,9 +311,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> CapturePaymentTransaction(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         try
         {
@@ -336,9 +332,7 @@ public abstract class BasePaymentTransactionController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> MarkAsPaidPopup(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         return View(PrepareOfflinePopupModel(paymentTransaction));
     }
@@ -347,9 +341,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> MarkAsPaidPopup(string id, PaymentTransactionModel model)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         try
         {
@@ -371,9 +363,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> RefundPaymentTransaction(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         try
         {
@@ -393,9 +383,7 @@ public abstract class BasePaymentTransactionController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> RefundOfflinePopup(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         return View(PrepareOfflinePopupModel(paymentTransaction));
     }
@@ -404,9 +392,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> RefundOfflinePopup(string id, PaymentTransactionModel model)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         try
         {
@@ -437,9 +423,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> VoidPaymentTransaction(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         try
         {
@@ -460,9 +444,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> VoidPaymentTransactionOffline(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         try
         {
@@ -483,9 +465,7 @@ public abstract class BasePaymentTransactionController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> PartiallyRefundPopup(string id, bool online)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         var model = new PaymentTransactionModel {
             Id = paymentTransaction.Id,
@@ -501,9 +481,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> PartiallyRefundPopup(string id, bool online, PaymentTransactionModel model)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         model.Online = online;
         try
@@ -553,9 +531,7 @@ public abstract class BasePaymentTransactionController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> PartiallyPaidPopup(string id, bool online)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         var model = new PaymentTransactionModel {
             Id = paymentTransaction.Id,
@@ -570,9 +546,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> PartiallyPaidPopup(string id, bool online, PaymentTransactionModel model)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         try
         {
@@ -611,9 +585,7 @@ public abstract class BasePaymentTransactionController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> PaymentTermsPopup(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         var order = await orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
         if (!HasPaymentTerms(order))
@@ -631,9 +603,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> PaymentTermsPopup(string id, PaymentTransactionModel model)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         var order = await orderService.GetOrderByGuid(paymentTransaction.OrderGuid);
         if (!HasPaymentTerms(order))
@@ -675,9 +645,7 @@ public abstract class BasePaymentTransactionController(
     [HttpPost]
     public async Task<IActionResult> Delete(string id)
     {
-        var paymentTransactionAccess = await LoadAuthorizedPaymentTransaction(id);
-        if (paymentTransactionAccess.IsDenied) return paymentTransactionAccess.Denied;
-        var paymentTransaction = paymentTransactionAccess.Entity;
+        if (!(await LoadAuthorizedPaymentTransaction(id)).TryGet(out var paymentTransaction, out var denied)) return denied;
 
         if (!await mediator.Send(new CanDeletePaymentTransactionQuery { PaymentTransaction = paymentTransaction }))
         {

@@ -211,9 +211,7 @@ public abstract class BaseCustomerController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> Edit(string id)
     {
-        var customerAccess = await LoadAuthorizedCustomer(id);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(id)).TryGet(out var customer, out var denied)) return denied;
 
         var model = new CustomerModel();
         await customerViewModelService.PrepareCustomerModel(model, customer, false);
@@ -226,9 +224,7 @@ public abstract class BaseCustomerController(
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> Edit(CustomerModel model, bool continueEditing)
     {
-        var customerAccess = await LoadAuthorizedCustomer(model.Id);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(model.Id)).TryGet(out var customer, out var denied)) return denied;
 
         await ApplyPostConstraints(model);
         CheckTwoFactorEnabledWarning(customer, model);
@@ -270,9 +266,7 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> Delete(string id)
     {
-        var customerAccess = await LoadAuthorizedCustomer(id);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(id)).TryGet(out var customer, out var denied)) return denied;
 
         if (customer.Id == contextAccessor.WorkContext.CurrentCustomer.Id)
         {
@@ -307,9 +301,7 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> MarkVatNumberAsValid(string id)
     {
-        var customerAccess = await LoadAuthorizedCustomer(id);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(id)).TryGet(out var customer, out var denied)) return denied;
 
         await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
             (int)Grand.Domain.Tax.VatNumberStatus.Valid);
@@ -320,9 +312,7 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> MarkVatNumberAsInvalid(string id)
     {
-        var customerAccess = await LoadAuthorizedCustomer(id);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(id)).TryGet(out var customer, out var denied)) return denied;
 
         await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.VatNumberStatusId,
             (int)Grand.Domain.Tax.VatNumberStatus.Invalid);
@@ -333,9 +323,7 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> SendWelcomeMessage(string id)
     {
-        var customerAccess = await LoadAuthorizedCustomer(id);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(id)).TryGet(out var customer, out var denied)) return denied;
 
         await customerMessageProviderService.SendCustomerWelcomeMessage(customer, contextAccessor.StoreContext.CurrentStore,
             contextAccessor.WorkContext.WorkingLanguage.Id);
@@ -347,9 +335,7 @@ public abstract class BaseCustomerController(
     [HttpPost]
     public async Task<IActionResult> ReSendActivationMessage(string id)
     {
-        var customerAccess = await LoadAuthorizedCustomer(id);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(id)).TryGet(out var customer, out var denied)) return denied;
 
         await CustomerService.UpdateUserField(customer, SystemCustomerFieldNames.AccountActivationToken,
             Guid.NewGuid().ToString());
@@ -362,9 +348,7 @@ public abstract class BaseCustomerController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> SendEmail(CustomerModel.SendEmailModel model)
     {
-        var customerAccess = await LoadAuthorizedCustomer(model.Id);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(model.Id)).TryGet(out var customer, out var denied)) return denied;
 
         try
         {

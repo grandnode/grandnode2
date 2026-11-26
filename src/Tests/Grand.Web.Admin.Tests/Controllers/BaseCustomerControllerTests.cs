@@ -212,7 +212,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
     {
         CustomerServiceMock.Setup(s => s.GetCustomerById("missing")).ReturnsAsync((Customer)null);
 
-        var (customer, denied) = await Controller.LoadAuthorizedCustomerPublic("missing");
+        (await Controller.LoadAuthorizedCustomerPublic("missing")).TryGet(out var customer, out var denied);
 
         Assert.IsNull(customer);
         var redirect = denied as RedirectToActionResult;
@@ -229,7 +229,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
         CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
         ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(false);
 
-        var (result, denied) = await Controller.LoadAuthorizedCustomerPublic("c1");
+        (await Controller.LoadAuthorizedCustomerPublic("c1")).TryGet(out var result, out var denied);
 
         Assert.IsNull(result);
         var redirect = denied as RedirectToActionResult;
@@ -244,7 +244,7 @@ public class BaseCustomerControllerTests : CustomerControllerTestsBase<BaseCusto
         CustomerServiceMock.Setup(s => s.GetCustomerById("c1")).ReturnsAsync(customer);
         ScopeMock.Setup(s => s.HasAccess(customer)).ReturnsAsync(true);
 
-        var (result, denied) = await Controller.LoadAuthorizedCustomerPublic("c1");
+        (await Controller.LoadAuthorizedCustomerPublic("c1")).TryGet(out var result, out var denied);
 
         Assert.AreSame(customer, result);
         Assert.IsNull(denied);

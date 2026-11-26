@@ -54,9 +54,7 @@ public abstract class BaseCustomerAddressController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> AddressCreate(string customerId)
     {
-        var customerAccess = await LoadAuthorizedCustomer(customerId);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(customerId)).TryGet(out var customer, out var denied)) return denied;
 
         var model = new CustomerAddressModel();
         await customerAddressViewModelService.PrepareAddressModel(model, null, customer, false);
@@ -67,9 +65,7 @@ public abstract class BaseCustomerAddressController(
     [HttpPost]
     public async Task<IActionResult> AddressCreate(CustomerAddressModel model)
     {
-        var customerAccess = await LoadAuthorizedCustomer(model.CustomerId);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(model.CustomerId)).TryGet(out var customer, out var denied)) return denied;
 
         if (ModelState.IsValid)
         {
@@ -87,9 +83,7 @@ public abstract class BaseCustomerAddressController(
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     public async Task<IActionResult> AddressEdit(string addressId, string customerId)
     {
-        var customerAccess = await LoadAuthorizedCustomer(customerId);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(customerId)).TryGet(out var customer, out var denied)) return denied;
 
         var address = customer.Addresses.FirstOrDefault(x => x.Id == addressId);
         if (address == null) return RedirectToAction("Edit", "Customer", new { id = customer.Id });
@@ -103,9 +97,7 @@ public abstract class BaseCustomerAddressController(
     [HttpPost]
     public async Task<IActionResult> AddressEdit(CustomerAddressModel model)
     {
-        var customerAccess = await LoadAuthorizedCustomer(model.CustomerId);
-        if (customerAccess.IsDenied) return customerAccess.Denied;
-        var customer = customerAccess.Entity;
+        if (!(await LoadAuthorizedCustomer(model.CustomerId)).TryGet(out var customer, out var denied)) return denied;
 
         var address = customer.Addresses.FirstOrDefault(x => x.Id == model.Address.Id);
         if (address == null) return RedirectToAction("Edit", "Customer", new { id = customer.Id });
