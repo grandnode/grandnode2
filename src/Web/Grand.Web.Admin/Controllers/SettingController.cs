@@ -714,13 +714,14 @@ public class SettingController(
         //security settings
         var securitySettings = await settingService.LoadSetting<SecuritySettings>(storeScope);
 
-        securitySettings.AdminAreaAllowedIpAddresses ??= [];
-        securitySettings.AdminAreaAllowedIpAddresses.Clear();
-        if (!string.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
-            foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split([','],
-                         StringSplitOptions.RemoveEmptyEntries))
-                if (!string.IsNullOrWhiteSpace(s))
-                    securitySettings.AdminAreaAllowedIpAddresses.Add(s.Trim());
+        var allowedIpAddresses = (model.SecuritySettings.AdminAreaAllowedIpAddresses ?? "")
+            .Split([','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        //a list without the address the admin saves from would shut them out of the admin panel at once: keep the old one
+        var currentIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        if (allowedIpAddresses.Count > 0 && !allowedIpAddresses.Contains(currentIp, StringComparer.OrdinalIgnoreCase))
+            Error(string.Format(translationService.GetResource("Admin.Settings.GeneralCommon.AdminAreaAllowedIpAddresses.WithoutOwn"), currentIp));
+        else
+            securitySettings.AdminAreaAllowedIpAddresses = allowedIpAddresses;
 
         await settingService.SaveSetting(securitySettings);
 
