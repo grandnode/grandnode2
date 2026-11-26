@@ -71,7 +71,7 @@ public class ShippingMethodService : IShippingMethodService
     /// <param name="customer"></param>
     /// <param name="storeId">The store identifier to filter by</param>
     /// <returns>Shipping methods</returns>
-    public virtual async Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "",
+    public virtual async Task<IList<ShippingMethod>> GetAllShippingMethods(string? filterByCountryId = "",
         Customer? customer = null, string? storeId = "")
     {
         var query = _shippingMethodRepository.Table;
