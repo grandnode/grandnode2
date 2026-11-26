@@ -208,7 +208,7 @@ public class CustomerManagerService : ICustomerManagerService
         ArgumentNullException.ThrowIfNull(request);
 
         var customer = await _customerService.GetCustomerByEmail(request.Email, storeId) ??
-                       throw new ArgumentNullException(nameof(request), "No customer has the e-mail");
+                       throw new GrandException("No customer has the e-mail");
 
         await ChangePassword(customer, request.PasswordFormat, request.NewPassword);
     }
