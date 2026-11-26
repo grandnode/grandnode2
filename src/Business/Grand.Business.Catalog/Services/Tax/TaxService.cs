@@ -530,8 +530,11 @@ public class TaxService : ITaxService
             return false;
 
         var country = await _countryService.GetCountryById(address.CountryId);
-        //an unknown country is outside the VAT zone
-        if (country?.SubjectToVat != true)
+        //a country that no longer exists gives no exemption
+        if (country == null)
+            return false;
+
+        if (!country.SubjectToVat)
             // VAT not chargeable if shipping outside VAT zone
             return true;
 
