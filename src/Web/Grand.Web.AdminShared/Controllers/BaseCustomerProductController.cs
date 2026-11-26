@@ -24,9 +24,8 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var _Access = await LoadAuthorizedCustomer(customerId);
-            if (_Access.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
-            var _ = _Access.Entity;
+            var customerAccess = await LoadAuthorizedCustomer(customerId);
+            if (customerAccess.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
 
         var (productPriceModels, totalCount) =
@@ -41,9 +40,8 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var _Access = await LoadAuthorizedCustomer(customerId);
-            if (_Access.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
-            var _ = _Access.Entity;
+            var customerAccess = await LoadAuthorizedCustomer(customerId);
+            if (customerAccess.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
 
         var (productModels, totalCount) =
@@ -57,9 +55,8 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var _Access = await LoadAuthorizedCustomer(customerId);
-            if (_Access.IsDenied) return _Access.Denied;
-            var _ = _Access.Entity;
+            var customerAccess = await LoadAuthorizedCustomer(customerId);
+            if (customerAccess.IsDenied) return customerAccess.Denied;
         }
 
         var model = await customerProductViewModelService.PrepareCustomerModelAddProductModel();
@@ -82,9 +79,8 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var _Access = await LoadAuthorizedCustomer(customerId);
-            if (_Access.IsDenied) return Content("");
-            var _ = _Access.Entity;
+            var customerAccess = await LoadAuthorizedCustomer(customerId);
+            if (customerAccess.IsDenied) return Content("");
         }
 
         if (model.SelectedProductIds != null)

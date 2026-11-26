@@ -142,9 +142,9 @@ public class RecurringPaymentService(
         await using (await resourceLock.Acquire([LockKey(recurringPaymentId)]))
         {
             recurringPayment = await repository.GetByIdAsync(recurringPaymentId);
-            //another subscription ending says nothing about the one this payment runs on
             if (recurringPayment == null)
                 return new RecurringReportResult { Outcome = RecurringReportOutcome.NotFound };
+            //another subscription ending says nothing about the one this payment runs on
             var refused = Refusal(recurringPayment, providerReference);
             if (refused == null && recurringPayment.Status.HasEnded())
                 refused = RecurringReportOutcome.Ended;

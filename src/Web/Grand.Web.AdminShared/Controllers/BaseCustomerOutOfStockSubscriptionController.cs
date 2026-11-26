@@ -20,9 +20,8 @@ public abstract class BaseCustomerOutOfStockSubscriptionController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var _Access = await LoadAuthorizedCustomer(customerId);
-            if (_Access.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
-            var _ = _Access.Entity;
+            var customerAccess = await LoadAuthorizedCustomer(customerId);
+            if (customerAccess.IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
 
         var (outOfStockSubscriptionModels, totalCount) =
