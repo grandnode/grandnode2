@@ -76,9 +76,15 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CustomerDto model)
     {
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
+        if (await _customerService.GetCustomerById(model.Id) == null) return NotFound();
 
         model = await _mediator.Send(new UpdateCustomerCommand { Model = model });
         return Ok(model);

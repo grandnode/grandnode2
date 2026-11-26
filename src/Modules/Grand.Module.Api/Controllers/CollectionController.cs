@@ -73,9 +73,15 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CollectionDto model)
     {
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Collections, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
+        if (!(await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(model.Id))).Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateCollectionCommand { Model = model });
         return Ok(model);

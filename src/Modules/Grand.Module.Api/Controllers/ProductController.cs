@@ -76,9 +76,15 @@ public class ProductController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] ProductDto model)
     {
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Products, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
+        if (!(await _mediator.Send(new GetGenericQuery<ProductDto, Product>(model.Id))).Any()) return NotFound();
 
         await _mediator.Send(new UpdateProductCommand { Model = model });
         return Ok();

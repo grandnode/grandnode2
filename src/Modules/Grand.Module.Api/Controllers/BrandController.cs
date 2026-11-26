@@ -73,9 +73,15 @@ public class BrandController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(BrandDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] BrandDto model)
     {
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Brands, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
+        if (!(await _mediator.Send(new GetGenericQuery<BrandDto, Brand>(model.Id))).Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateBrandCommand { Model = model });
         return Ok(model);

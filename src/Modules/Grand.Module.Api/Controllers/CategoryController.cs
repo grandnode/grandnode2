@@ -75,9 +75,15 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CategoryDto model)
     {
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
+        if (!(await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(model.Id))).Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateCategoryCommand { Model = model });
         return Ok(model);

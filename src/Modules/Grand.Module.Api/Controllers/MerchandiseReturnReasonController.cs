@@ -72,9 +72,15 @@ public class MerchandiseReturnReasonController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MerchandiseReturnReasonDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] MerchandiseReturnReasonDto model)
     {
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
+        if (!(await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(model.Id))).Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateMerchandiseReturnReasonCommand { Model = model });
         return Ok(model);

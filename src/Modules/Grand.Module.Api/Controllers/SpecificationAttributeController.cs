@@ -73,9 +73,15 @@ public class SpecificationAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(SpecificationAttributeDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] SpecificationAttributeDto model)
     {
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
         if (!await _permissionService.AuthorizeAction(PermissionSystemName.SpecificationAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
+
+        if (!(await _mediator.Send(new GetGenericQuery<SpecificationAttributeDto, SpecificationAttribute>(model.Id))).Any()) return NotFound();
 
         model = await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = model });
         return Ok(model);
