@@ -121,7 +121,7 @@ public class AuditEventRecorder(
     //the staff member behind the request, also while impersonating a customer
     private Customer? CurrentStaff()
     {
-        var workContext = contextAccessor.WorkContext;
+        var workContext = contextAccessor.CurrentWorkContext;
         return workContext?.OriginalCustomerIfImpersonated ?? workContext?.CurrentCustomer;
     }
 

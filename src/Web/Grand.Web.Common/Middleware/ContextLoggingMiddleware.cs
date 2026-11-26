@@ -19,8 +19,8 @@ public class ContextLoggingMiddleware
 
     public async Task InvokeAsync(HttpContext context, IContextAccessor contextAccessor)
     {
-        var workContext = contextAccessor.WorkContext;
-        var storeContext = contextAccessor.StoreContext;
+        var workContext = contextAccessor.CurrentWorkContext;
+        var storeContext = contextAccessor.CurrentStoreContext;
         Activity? activity = Activity.Current;
         if (activity != null)
         {

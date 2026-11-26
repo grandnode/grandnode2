@@ -37,7 +37,7 @@ public class AuditScopeFilterTests
         _workContext = new Mock<IWorkContext>();
         _workContext.SetupGet(w => w.CurrentCustomer).Returns(Staff);
         _contextAccessor = new Mock<IContextAccessor>();
-        _contextAccessor.SetupGet(c => c.WorkContext).Returns(_workContext.Object);
+        _contextAccessor.SetupGet(c => c.CurrentWorkContext).Returns(_workContext.Object);
     }
 
     private async Task Run(string area, bool authenticated = true, object[] metadata = null, bool throws = false)
@@ -76,6 +76,18 @@ public class AuditScopeFilterTests
 
         _tracker.Verify(t => t.Activate(It.IsAny<AuditActor>()), Times.Never);
         _tracker.Verify(t => t.CompleteAsync(), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task RequestWithoutWorkContext_NotActivated()
+    {
+        //the installer runs before ContextMiddleware has a store to set a work context for
+        _contextAccessor.SetupGet(c => c.CurrentWorkContext).Returns((IWorkContext)null);
+        _contextAccessor.SetupGet(c => c.WorkContext).Throws(new InvalidOperationException("No work context is set"));
+
+        await Run(null, authenticated: false);
+
+        _tracker.Verify(t => t.Activate(It.IsAny<AuditActor>()), Times.Never);
     }
 
     [TestMethod]
