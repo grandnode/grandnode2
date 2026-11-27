@@ -103,7 +103,7 @@ public class CollectionController : BaseApiController
         if (collection == null) return NotFound();
 
         var man = collection;
-        model.ApplyTo(man);
+        if (!TryApplyPatch(model, man)) return BadRequest(ModelState);
         await _mediator.Send(new UpdateCollectionCommand { Model = man });
         return Ok();
     }

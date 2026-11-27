@@ -110,7 +110,7 @@ public class BrandController : BaseApiController
         if (brand == null) return NotFound();
 
         var man = brand;
-        model.ApplyTo(man);
+        if (!TryApplyPatch(model, man)) return BadRequest(ModelState);
         await _mediator.Send(new UpdateBrandCommand { Model = man });
         return Ok();
     }

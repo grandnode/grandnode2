@@ -106,7 +106,7 @@ public class ProductController : BaseApiController
         if (product == null) return NotFound();
 
         var pr = product;
-        model.ApplyTo(pr);
+        if (!TryApplyPatch(model, pr)) return BadRequest(ModelState);
         await _mediator.Send(new UpdateProductCommand { Model = pr });
         return Ok();
     }

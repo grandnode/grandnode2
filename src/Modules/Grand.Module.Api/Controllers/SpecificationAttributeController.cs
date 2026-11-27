@@ -103,7 +103,7 @@ public class SpecificationAttributeController : BaseApiController
         if (specification == null) return NotFound();
 
         var spec = specification;
-        model.ApplyTo(spec);
+        if (!TryApplyPatch(model, spec)) return BadRequest(ModelState);
         await _mediator.Send(new UpdateSpecificationAttributeCommand { Model = spec });
         return Ok();
     }

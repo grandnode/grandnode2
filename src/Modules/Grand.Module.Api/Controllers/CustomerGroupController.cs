@@ -110,7 +110,7 @@ public class CustomerGroupController : BaseApiController
         var cr = customerGroup;
         if (cr!.IsSystem) return BadRequest(ModelState);
 
-        model.ApplyTo(cr);
+        if (!TryApplyPatch(model, cr)) return BadRequest(ModelState);
         await _mediator.Send(new UpdateCustomerGroupCommand { Model = cr });
         return Ok();
     }

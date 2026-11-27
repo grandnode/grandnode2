@@ -105,7 +105,7 @@ public class ProductAttributeController : BaseApiController
         if (productAttribute == null) return NotFound();
 
         var pa = productAttribute;
-        model.ApplyTo(pa);
+        if (!TryApplyPatch(model, pa)) return BadRequest(ModelState);
         var updated = await _mediator.Send(new UpdateProductAttributeCommand { Model = pa });
         return updated == null ? NotFound() : Ok(updated);
     }
