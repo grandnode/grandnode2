@@ -42,7 +42,7 @@ public class AuditEventRecorderTests
         _workContext = new Mock<IWorkContext>();
         _workContext.SetupGet(w => w.CurrentCustomer).Returns(Staff);
         var contextAccessor = new Mock<IContextAccessor>();
-        contextAccessor.SetupGet(c => c.WorkContext).Returns(_workContext.Object);
+        contextAccessor.SetupGet(c => c.CurrentWorkContext).Returns(_workContext.Object);
         _config = new AuditConfig();
         _httpContext = new DefaultHttpContext { TraceIdentifier = "trace-1" };
         _httpContext.Connection.RemoteIpAddress = IPAddress.Parse("10.0.0.1");

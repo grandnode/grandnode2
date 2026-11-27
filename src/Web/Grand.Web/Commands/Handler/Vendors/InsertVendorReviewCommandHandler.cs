@@ -33,6 +33,10 @@ public class InsertVendorReviewCommandHandler : IRequestHandler<InsertVendorRevi
 
     public async Task<VendorReview> Handle(InsertVendorReviewCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires them
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.AddVendorReview.Title);
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.AddVendorReview.ReviewText);
+
         //save review
         var rating = request.Model.AddVendorReview.Rating;
         if (rating is < 1 or > 5)

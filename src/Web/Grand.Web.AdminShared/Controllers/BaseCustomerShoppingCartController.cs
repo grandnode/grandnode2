@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
@@ -20,7 +18,7 @@ public abstract class BaseCustomerShoppingCartController(
     [HttpPost]
     public async Task<IActionResult> GetCartList(string customerId, int cartTypeId)
     {
-        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        var customer = (await LoadAuthorizedCustomer(customerId)).Entity;
         if (customer is null) return Json(new DataSourceResult { Data = null, Total = 0 });
 
         var cart = await customerShoppingCartViewModelService.PrepareShoppingCartItemModel(customer, cartTypeId);
@@ -32,7 +30,7 @@ public abstract class BaseCustomerShoppingCartController(
     [HttpPost]
     public async Task<IActionResult> UpdateCart(string id, string customerId, double? unitPriceValue)
     {
-        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        var customer = (await LoadAuthorizedCustomer(customerId)).Entity;
         if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
         var warnings = await customerShoppingCartViewModelService.UpdateCart(customer, id, unitPriceValue);
@@ -44,7 +42,7 @@ public abstract class BaseCustomerShoppingCartController(
     [HttpPost]
     public async Task<IActionResult> DeleteCart(string id, string customerId)
     {
-        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        var customer = (await LoadAuthorizedCustomer(customerId)).Entity;
         if (customer is null) throw new ArgumentException("No customer found with the specified id", nameof(customerId));
 
         await customerShoppingCartViewModelService.DeleteCart(customer, id);

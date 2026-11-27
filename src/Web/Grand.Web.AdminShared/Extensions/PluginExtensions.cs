@@ -10,7 +10,7 @@ public static class PluginExtensions
     /// <param name="pluginDescriptor">Plugin</param>
     /// <param name="pathBase">Request path base (empty when the application is hosted at the root)</param>
     /// <returns>URL such as /Plugins/Payments.CashOnDelivery/logo.jpg, or null when the plugin has no logo</returns>
-    public static string GetLogoUrl(this PluginInfo pluginDescriptor, string pathBase)
+    public static string? GetLogoUrl(this PluginInfo pluginDescriptor, string pathBase)
     {
         if (pluginDescriptor.OriginalAssemblyFile?.Directory == null) return null;
         //no scheme or host: the store's configured url can differ from the one the panel was opened on

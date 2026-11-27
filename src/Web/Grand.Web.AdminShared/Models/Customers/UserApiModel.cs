@@ -6,10 +6,10 @@ namespace Grand.Web.AdminShared.Models.Customers;
 public class UserApiModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.System.UserApi.Email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     [GrandResourceDisplayName("Admin.System.UserApi.Password")]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     [GrandResourceDisplayName("Admin.System.UserApi.IsActive")]
     public bool IsActive { get; set; }

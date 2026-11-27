@@ -4,5 +4,5 @@ namespace Grand.Domain.Tax;
 
 public class TaxProviderSettings : ISettings
 {
-    public string ActiveTaxProviderSystemName { get; set; }
+    public string? ActiveTaxProviderSystemName { get; set; }
 }

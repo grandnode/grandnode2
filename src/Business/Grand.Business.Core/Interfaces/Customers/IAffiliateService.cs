@@ -13,21 +13,21 @@ public interface IAffiliateService
     /// </summary>
     /// <param name="affiliateId">Affiliate identifier</param>
     /// <returns>Affiliate</returns>
-    Task<Affiliate> GetAffiliateById(string affiliateId);
+    Task<Affiliate?> GetAffiliateById(string? affiliateId);
 
     /// <summary>
     ///     Gets an affiliate by url name
     /// </summary>
     /// <param name="friendlyUrlName">Friendly url name</param>
     /// <returns>Affiliate</returns>
-    Task<Affiliate> GetAffiliateByFriendlyUrlName(string friendlyUrlName);
+    Task<Affiliate?> GetAffiliateByFriendlyUrlName(string friendlyUrlName);
 
     /// <summary>
     ///     Gets all affiliates
     /// </summary>
     /// <returns>Affiliates</returns>
-    Task<IPagedList<Affiliate>> GetAllAffiliates(string friendlyUrlName = null,
-        string firstName = null, string lastName = null,
+    Task<IPagedList<Affiliate>> GetAllAffiliates(string? friendlyUrlName = null,
+        string? firstName = null, string? lastName = null,
         bool loadOnlyWithOrders = false,
         DateTime? ordersCreatedFromUtc = null, DateTime? ordersCreatedToUtc = null,
         int pageIndex = 0, int pageSize = int.MaxValue,

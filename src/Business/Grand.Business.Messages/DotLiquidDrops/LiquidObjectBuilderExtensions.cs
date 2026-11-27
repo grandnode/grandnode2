@@ -6,12 +6,14 @@ namespace Grand.Business.Messages.DotLiquidDrops;
 
 internal static class LiquidObjectBuilderExtensions
 {
-    public static void AddCustomerTokensIfNotNull(this LiquidObjectBuilder builder, Customer customer, Store store,
-        DomainHost host, Language language)
+    public static LiquidObjectBuilder AddCustomerTokensIfNotNull(this LiquidObjectBuilder builder,
+        Customer? customer, Store store, DomainHost host, Language language)
     {
         if (customer != null)
         {
             builder.AddCustomerTokens(customer, store, host, language);
         }
+
+        return builder;
     }
 }

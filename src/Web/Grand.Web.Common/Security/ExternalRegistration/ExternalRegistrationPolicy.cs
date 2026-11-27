@@ -21,5 +21,5 @@ public static class ExternalRegistrationPolicy
     ///     that password - otherwise whoever holds the identity would keep the account once the owner of the address
     ///     activates it, even after a password reset.
     /// </summary>
-    public static bool ConnectsAtRegistration(ExternalRegistrationIdentity pending) => pending is { EmailVerified: true };
+    public static bool ConnectsAtRegistration(ExternalRegistrationIdentity? pending) => pending is { EmailVerified: true };
 }

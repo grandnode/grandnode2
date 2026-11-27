@@ -10,7 +10,7 @@ public class SeoSettings : ISettings
     /// <summary>
     ///     Page title separator
     /// </summary>
-    public string PageTitleSeparator { get; set; }
+    public string? PageTitleSeparator { get; set; }
 
     /// <summary>
     ///     Page itle SEO adjustment
@@ -20,17 +20,17 @@ public class SeoSettings : ISettings
     /// <summary>
     ///     Default title
     /// </summary>
-    public string DefaultTitle { get; set; }
+    public string? DefaultTitle { get; set; }
 
     /// <summary>
     ///     Default META keywords
     /// </summary>
-    public string DefaultMetaKeywords { get; set; }
+    public string? DefaultMetaKeywords { get; set; }
 
     /// <summary>
     ///     Default META description
     /// </summary>
-    public string DefaultMetaDescription { get; set; }
+    public string? DefaultMetaDescription { get; set; }
 
     /// <summary>
     ///     A value indicating whether product META descriptions will be generated automatically (if not entered)
@@ -45,7 +45,7 @@ public class SeoSettings : ISettings
     /// <summary>
     ///     A value indicating to conver non-wetern chars to western ones
     /// </summary>
-    public string SeoCharConversion { get; set; }
+    public string? SeoCharConversion { get; set; }
 
     /// <summary>
     ///     A value indicating whether unicode chars are allowed
@@ -75,7 +75,7 @@ public class SeoSettings : ISettings
     /// <summary>
     ///     Gets or sets a picture identifier of the store picture. If 0, then the default one will be used
     /// </summary>
-    public string StorePictureId { get; set; }
+    public string? StorePictureId { get; set; }
 
     /// <summary>
     ///     Slugs (sename) reserved for some other needs
@@ -85,5 +85,5 @@ public class SeoSettings : ISettings
     /// <summary>
     ///     Custom tags in the head section
     /// </summary>
-    public string CustomHeadTags { get; set; }
+    public string? CustomHeadTags { get; set; }
 }

@@ -39,7 +39,7 @@ public class ProductPictureViewModelService(
         return items;
     }
 
-    public virtual async Task<(ProductModel.ProductPictureModel model, Picture Picture)> PrepareProductPictureModel(
+    public virtual async Task<(ProductModel.ProductPictureModel model, Picture? Picture)> PrepareProductPictureModel(
         Product product, ProductPicture productPicture)
     {
         var picture = await pictureService.GetPictureById(productPicture.PictureId);
@@ -77,7 +77,8 @@ public class ProductPictureViewModelService(
 
     public virtual async Task UpdateProductPicture(ProductModel.ProductPictureModel model)
     {
-        var product = await productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true)
+                      ?? throw new ArgumentException("No product found with the specified id");
 
         var productPicture = product.ProductPictures.FirstOrDefault(x => x.Id == model.Id);
         if (productPicture == null)
@@ -101,7 +102,8 @@ public class ProductPictureViewModelService(
 
     public virtual async Task DeleteProductPicture(ProductModel.ProductPictureModel model)
     {
-        var product = await productService.GetProductById(model.ProductId, true);
+        var product = await productService.GetProductById(model.ProductId, true)
+                      ?? throw new ArgumentException("No product found with the specified id");
 
         var productPicture = product.ProductPictures.FirstOrDefault(x => x.Id == model.Id);
         if (productPicture == null)

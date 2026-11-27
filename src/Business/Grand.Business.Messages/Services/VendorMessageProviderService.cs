@@ -55,7 +55,7 @@ public class VendorMessageProviderService : IVendorMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendNewVendorAccountApplyStoreOwnerMessage(Customer customer, Vendor vendor,
-        Store store, string languageId, DomainHost host = null)
+        Store store, string? languageId, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(vendor);
@@ -92,7 +92,7 @@ public class VendorMessageProviderService : IVendorMessageProviderService
     /// <param name="vendor">Vendor</param>
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendVendorInformationChangeMessage(Vendor vendor, Store store, string languageId)
+    public virtual async Task<int> SendVendorInformationChangeMessage(Vendor vendor, Store store, string? languageId)
     {
         ArgumentNullException.ThrowIfNull(vendor);
 
@@ -129,7 +129,7 @@ public class VendorMessageProviderService : IVendorMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendVendorReviewMessage(VendorReview vendorReview, Store store,
-        string languageId, DomainHost host = null)
+        string? languageId, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(vendorReview);
 
@@ -184,8 +184,8 @@ public class VendorMessageProviderService : IVendorMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor,
-        string languageId, string senderEmail,
-        string senderName, string subject, string body, string ipaddress, DomainHost host = null)
+        string? languageId, string senderEmail,
+        string senderName, string subject, string body, string ipaddress, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(vendor);
 
@@ -198,8 +198,8 @@ public class VendorMessageProviderService : IVendorMessageProviderService
         //email account
         var emailAccount = await _messageLookupService.GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-        string fromEmail;
-        string fromName;
+        string? fromEmail;
+        string? fromName;
         senderName = WebUtility.HtmlEncode(senderName);
         senderEmail = WebUtility.HtmlEncode(senderEmail);
 

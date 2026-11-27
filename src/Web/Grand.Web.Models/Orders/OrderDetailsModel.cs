@@ -14,6 +14,25 @@ public class OrderDetailsModel : BaseEntityModel
     public bool GuestLink { get; set; }
 
     /// <summary>
+    ///     Gets or sets the recurring payment cycle: 1 on the order the customer placed, 2 and more on the orders
+    ///     the payment provider charged afterwards, 0 on an ordinary order
+    /// </summary>
+    public int RecurringCycleNumber { get; set; }
+
+    /// <summary>
+    ///     Gets or sets the initial order of a cycle order; empty when it cannot be opened
+    /// </summary>
+    public string? InitialOrderId { get; set; }
+
+    public int InitialOrderNumber { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether the order's own customer is shown the way to the recurring
+    ///     payments tab
+    /// </summary>
+    public bool ShowRecurringPaymentsLink { get; set; }
+
+    /// <summary>
     ///     Whether the order has returns, which a guest who came with the link reaches from the page
     /// </summary>
     public bool HasMerchandiseReturns { get; set; }
@@ -28,7 +47,7 @@ public class OrderDetailsModel : BaseEntityModel
     /// <summary>
     ///     The store's note on its decision
     /// </summary>
-    public string OrderApprovalComment { get; set; }
+    public string? OrderApprovalComment { get; set; }
 
     /// <summary>
     ///     The buyer can withdraw a request the store has not decided yet
@@ -37,7 +56,7 @@ public class OrderDetailsModel : BaseEntityModel
 
     public DateTime CreatedOn { get; set; }
 
-    public string OrderStatus { get; set; }
+    public string? OrderStatus { get; set; }
 
     public bool IsReOrderAllowed { get; set; }
 
@@ -46,41 +65,41 @@ public class OrderDetailsModel : BaseEntityModel
     public bool IsShippable { get; set; }
     public bool PickUpInStore { get; set; }
     public AddressModel PickupAddress { get; set; } = new();
-    public string ShippingStatus { get; set; }
+    public string? ShippingStatus { get; set; }
     public AddressModel ShippingAddress { get; set; } = new();
-    public string ShippingMethod { get; set; }
-    public string ShippingAdditionDescription { get; set; }
+    public string? ShippingMethod { get; set; }
+    public string? ShippingAdditionDescription { get; set; }
     public IList<ShipmentBriefModel> Shipments { get; set; } = new List<ShipmentBriefModel>();
 
     public AddressModel BillingAddress { get; set; } = new();
 
-    public string VatNumber { get; set; }
+    public string? VatNumber { get; set; }
     public int OrderNumber { get; set; }
-    public string OrderCode { get; set; }
-    public string PurchaseOrderNumber { get; set; }
+    public string? OrderCode { get; set; }
+    public string? PurchaseOrderNumber { get; set; }
     public DateTime? PaymentDueDate { get; set; }
     public bool IsPaymentOverdue { get; set; }
-    public string PaymentMethod { get; set; }
-    public string PaymentMethodStatus { get; set; }
+    public string? PaymentMethod { get; set; }
+    public string? PaymentMethodStatus { get; set; }
     public bool CanRePostProcessPayment { get; set; }
     public Dictionary<string, object> CustomValues { get; set; } = new();
     public bool OrderIncludingTax { get; set; }
-    public string OrderSubtotal { get; set; }
-    public string OrderSubTotalDiscount { get; set; }
-    public string OrderShipping { get; set; }
-    public string PaymentMethodAdditionalFee { get; set; }
-    public string CheckoutAttributeInfo { get; set; }
+    public string? OrderSubtotal { get; set; }
+    public string? OrderSubTotalDiscount { get; set; }
+    public string? OrderShipping { get; set; }
+    public string? PaymentMethodAdditionalFee { get; set; }
+    public string? CheckoutAttributeInfo { get; set; }
 
     public bool PricesIncludeTax { get; set; }
-    public string Tax { get; set; }
+    public string? Tax { get; set; }
     public IList<TaxRate> TaxRates { get; set; } = new List<TaxRate>();
     public bool DisplayTax { get; set; }
     public bool DisplayTaxRates { get; set; }
 
-    public string OrderTotalDiscount { get; set; }
+    public string? OrderTotalDiscount { get; set; }
     public int RedeemedLoyaltyPoints { get; set; }
-    public string RedeemedLoyaltyPointsAmount { get; set; }
-    public string OrderTotal { get; set; }
+    public string? RedeemedLoyaltyPointsAmount { get; set; }
+    public string? OrderTotal { get; set; }
 
     public IList<GiftVoucher> GiftVouchers { get; set; } = new List<GiftVoucher>();
 
@@ -106,50 +125,50 @@ public class OrderDetailsModel : BaseEntityModel
         public DateTime? WarrantyUntil { get; set; }
 
         public Guid OrderItemGuid { get; set; }
-        public string Sku { get; set; }
-        public string ProductId { get; set; }
-        public string ProductName { get; set; }
-        public string ProductSeName { get; set; }
+        public string? Sku { get; set; }
+        public string? ProductId { get; set; }
+        public string? ProductName { get; set; }
+        public string? ProductSeName { get; set; }
         public PictureModel Picture { get; set; } = new();
-        public string UnitPrice { get; set; }
+        public string? UnitPrice { get; set; }
         public bool UnitPriceIncludingTax { get; set; }
         public double UnitPriceValue { get; set; }
-        public string UnitPriceWithoutDiscount { get; set; }
+        public string? UnitPriceWithoutDiscount { get; set; }
         public double UnitPriceWithoutDiscountValue { get; set; }
-        public string SubTotal { get; set; }
-        public string Discount { get; set; }
+        public string? SubTotal { get; set; }
+        public string? Discount { get; set; }
         public int Quantity { get; set; }
-        public string AttributeInfo { get; set; }
-        public string RentalInfo { get; set; }
+        public string? AttributeInfo { get; set; }
+        public string? RentalInfo { get; set; }
 
         //downloadable product properties
-        public string DownloadId { get; set; }
-        public string LicenseId { get; set; }
+        public string? DownloadId { get; set; }
+        public string? LicenseId { get; set; }
     }
 
     public class TaxRate : BaseModel
     {
-        public string Rate { get; set; }
-        public string Value { get; set; }
+        public string? Rate { get; set; }
+        public string? Value { get; set; }
     }
 
     public class GiftVoucher : BaseModel
     {
-        public string CouponCode { get; set; }
-        public string Amount { get; set; }
+        public string? CouponCode { get; set; }
+        public string? Amount { get; set; }
     }
 
     public class OrderNote : BaseEntityModel
     {
         public bool HasDownload { get; set; }
-        public string Note { get; set; }
+        public string? Note { get; set; }
         public DateTime CreatedOn { get; set; }
-        public string OrderId { get; set; }
+        public string? OrderId { get; set; }
     }
 
     public class ShipmentBriefModel : BaseEntityModel
     {
-        public string TrackingNumber { get; set; }
+        public string? TrackingNumber { get; set; }
         public int ShipmentNumber { get; set; }
         public DateTime? ShippedDate { get; set; }
         public DateTime? DeliveryDate { get; set; }

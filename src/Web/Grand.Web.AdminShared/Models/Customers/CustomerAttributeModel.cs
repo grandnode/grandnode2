@@ -2,6 +2,7 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.Common.Link;
 using Grand.Web.Common.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Customers;
@@ -10,7 +11,7 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
     IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.IsRequired")]
     public bool IsRequired { get; set; }
@@ -23,7 +24,7 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
 
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.AttributeControlType")]
 
-    public string AttributeControlTypeName { get; set; }
+    public string? AttributeControlTypeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -31,13 +32,15 @@ public class CustomerAttributeModel : BaseEntityModel, ILocalizedModel<CustomerA
     //Store acl
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     /// <summary>
     /// Gets or sets a value indicating whether this attribute is shared across all stores
     /// (i.e., not limited to the current store). Marked as read-only in store scope and
     /// calculated from <see cref="Stores"/> membership. Only relevant in store-scoped contexts.
+    /// Never bound: the server decides it.
     /// </summary>
+    [BindNever]
     public bool IsGlobalAttribute { get; set; }
 
     public IList<CustomerAttributeLocalizedModel> Locales { get; set; } = new List<CustomerAttributeLocalizedModel>();
@@ -47,7 +50,7 @@ public class CustomerAttributeLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

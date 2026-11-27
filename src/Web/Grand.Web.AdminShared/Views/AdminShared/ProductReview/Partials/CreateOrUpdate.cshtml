@@ -1,7 +1,6 @@
 ﻿@model ProductReviewModel
 <div asp-validation-summary="All"></div>
 <input asp-for="Id" type="hidden"/>
-<input asp-for="ProductId" type="hidden"/>
 <partial name="Partials/WidgetZone.DetailsTop" model="Model"/>
 @* What the customer wrote and the reply are editable; who, where, when and the rating are
    facts of the review, so they read as facts rather than as labels posing as controls. *@

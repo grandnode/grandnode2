@@ -1,7 +1,6 @@
-#nullable enable
-
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
@@ -11,7 +10,7 @@ public class VendorProductDataScope(IContextAccessor contextAccessor) : IAdminDa
     public Task<bool> HasAccess(Product entity)
     {
         if (entity is null) return Task.FromResult(false);
-        return Task.FromResult(entity.VendorId == contextAccessor.WorkContext.CurrentVendor.Id);
+        return Task.FromResult(entity.VendorId == contextAccessor.WorkContext.PanelVendor().Id);
     }
 
     public string? DefaultStoreId => null;
@@ -20,7 +19,7 @@ public class VendorProductDataScope(IContextAccessor contextAccessor) : IAdminDa
 
     public bool ShowStoreSelector => false;
 
-    public string? DefaultVendorId => contextAccessor.WorkContext.CurrentVendor.Id;
+    public string? DefaultVendorId => contextAccessor.WorkContext.PanelVendor().Id;
 
     public bool CanFeatureOnHomepage => false;
 }

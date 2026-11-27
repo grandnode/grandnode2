@@ -6,7 +6,7 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetChildCategoryIds : IRequest<IList<string>>
 {
-    public string ParentCategoryId { get; set; }
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
+    public required string ParentCategoryId { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
 }

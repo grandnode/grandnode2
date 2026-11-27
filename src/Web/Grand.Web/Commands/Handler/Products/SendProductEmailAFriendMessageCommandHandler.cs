@@ -16,6 +16,10 @@ public class SendProductEmailAFriendMessageCommandHandler : IRequestHandler<Send
 
     public async Task<bool> Handle(SendProductEmailAFriendMessageCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires them
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.YourEmailAddress);
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.FriendEmail);
+
         await _catalogMessageProviderService.SendProductEmailAFriendMessage(request.Customer, request.Store,
             request.Language.Id, request.Product,
             request.Model.YourEmailAddress, request.Model.FriendEmail,

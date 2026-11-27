@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Customers;
 using Grand.Domain.Customers;
@@ -16,6 +17,8 @@ namespace Grand.Module.Api.Controllers;
 public class CustomerController : BaseApiController
 {
     private readonly ICustomerManagerService _customerManagerService;
+    private readonly ICustomerService _customerService;
+    private readonly IGroupService _groupService;
 
     private readonly CustomerSettings _customerSettings;
     private readonly IMediator _mediator;
@@ -25,8 +28,12 @@ public class CustomerController : BaseApiController
         IMediator mediator,
         IPermissionService permissionService,
         ICustomerManagerService customerManagerService,
-        CustomerSettings customerSettings)
+        CustomerSettings customerSettings,
+        ICustomerService customerService,
+        IGroupService groupService)
     {
+        _customerService = customerService;
+        _groupService = groupService;
         _mediator = mediator;
         _customerManagerService = customerManagerService;
         _customerSettings = customerSettings;
@@ -57,7 +64,7 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CustomerDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddCustomerCommand { Model = model });
         return Ok(model);
@@ -69,12 +76,16 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CustomerDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CustomerDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        model = await _mediator.Send(new UpdateCustomerCommand { Model = model });
-        return Ok(model);
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
+        var updated = await _mediator.Send(new UpdateCustomerCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Delete entity from Customer")]
@@ -85,7 +96,7 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string email)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
         var customer = await _mediator.Send(new GetCustomerQuery { Email = email });
         if (customer == null) return NotFound();
@@ -105,7 +116,7 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> AddAddress([FromRoute] string email, [FromBody] AddressDto address)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         var customer = await _mediator.Send(new GetCustomerQuery { Email = email });
         if (customer == null) return NotFound();
@@ -124,14 +135,14 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> UpdateAddress([FromRoute] string email, [FromBody] AddressDto address)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         var customer = await _mediator.Send(new GetCustomerQuery { Email = email });
         if (customer == null) return NotFound();
 
-        address = await _mediator.Send(new UpdateCustomerAddressCommand { Customer = customer, Address = address });
+        var updated = await _mediator.Send(new UpdateCustomerAddressCommand { Customer = customer, Address = address });
 
-        return Ok(address);
+        return Ok(updated);
     }
 
     //api/Customer/email/DeleteAddress
@@ -144,7 +155,7 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> DeleteAddress([FromRoute] string email, [FromBody] DeleteAddressDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         if (model == null || string.IsNullOrEmpty(model.AddressId)) return NotFound();
 
@@ -170,12 +181,17 @@ public class CustomerController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> SetPassword([FromRoute] string email, [FromBody] PasswordDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Customers, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Customers, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         if (model == null || string.IsNullOrEmpty(model.Password)) return NotFound();
 
-        var changePassRequest = new ChangePasswordRequest(email, _customerSettings.DefaultPasswordFormat, model.Password);
-        await _customerManagerService.ChangePassword(changePassRequest);
+        var customer = await _customerService.GetCustomerByEmail(email);
+        if (customer == null) return NotFound();
+
+        //only administrators set the password of an administrator
+        if (await _groupService.IsAdmin(customer) && !await _groupService.IsAdmin(CurrentCustomer)) return Forbid();
+
+        await _customerManagerService.ChangePassword(customer, _customerSettings.DefaultPasswordFormat, model.Password);
 
         return Ok(true);
     }

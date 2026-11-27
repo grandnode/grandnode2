@@ -59,7 +59,8 @@ public class MenuController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> ChildItem(string parentId)
     {
-        var model = await _menuViewModelService.GetMenuById(parentId);
+        var model = await _menuViewModelService.GetMenuById(parentId)
+            ?? throw new ArgumentException("No menu found with the specified id");
         var gridModel = new DataSourceResult {
             Data = model.ChildNodes,
             Total = model.ChildNodes.Count

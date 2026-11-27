@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Orders;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Services;
@@ -21,14 +22,14 @@ public class RoutedMerchandiseReturnDataScopeTests
         var httpContextAccessorMock = new Mock<IHttpContextAccessor>();
         httpContextAccessorMock.Setup(a => a.HttpContext).Returns(httpContext);
         return new RoutedMerchandiseReturnDataScope(httpContextAccessorMock.Object,
-            (GlobalAdminDataScope<MerchandiseReturn>)admin, (StoreMerchandiseReturnDataScope)store,
+            (AdminMerchandiseReturnDataScope)admin, (StoreMerchandiseReturnDataScope)store,
             (VendorMerchandiseReturnDataScope)vendor);
     }
 
     [TestMethod]
-    public void AdminArea_ResolvesToGlobalScope()
+    public void AdminArea_ResolvesToAdminScope()
     {
-        var global = new GlobalAdminDataScope<MerchandiseReturn>();
+        var global = new AdminMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>(), Mock.Of<IGroupService>());
         var routed = Build("Admin", global, new StoreMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>()),
             new VendorMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>()));
 
@@ -44,7 +45,7 @@ public class RoutedMerchandiseReturnDataScopeTests
         var contextAccessorMock = new Mock<Grand.Infrastructure.IContextAccessor>();
         contextAccessorMock.Setup(c => c.WorkContext).Returns(workContext.Object);
 
-        var routed = Build("Store", new GlobalAdminDataScope<MerchandiseReturn>(),
+        var routed = Build("Store", new AdminMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>(), Mock.Of<IGroupService>()),
             new StoreMerchandiseReturnDataScope(contextAccessorMock.Object),
             new VendorMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>()));
 
@@ -59,7 +60,7 @@ public class RoutedMerchandiseReturnDataScopeTests
         var contextAccessorMock = new Mock<Grand.Infrastructure.IContextAccessor>();
         contextAccessorMock.Setup(c => c.WorkContext).Returns(workContext.Object);
 
-        var routed = Build("Vendor", new GlobalAdminDataScope<MerchandiseReturn>(),
+        var routed = Build("Vendor", new AdminMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>(), Mock.Of<IGroupService>()),
             new StoreMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>()),
             new VendorMerchandiseReturnDataScope(contextAccessorMock.Object));
 
@@ -69,7 +70,7 @@ public class RoutedMerchandiseReturnDataScopeTests
     [TestMethod]
     public void UnrecognizedOrMissingArea_ThrowsFailClosed()
     {
-        var admin = new GlobalAdminDataScope<MerchandiseReturn>();
+        var admin = new AdminMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>(), Mock.Of<IGroupService>());
         var store = new StoreMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>());
         var vendor = new VendorMerchandiseReturnDataScope(Mock.Of<Grand.Infrastructure.IContextAccessor>());
 

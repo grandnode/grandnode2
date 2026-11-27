@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Payments;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -22,7 +20,7 @@ namespace Grand.Web.AdminShared.Services;
 /// </summary>
 public class RoutedPaymentTransactionDataScope(
     IHttpContextAccessor httpContextAccessor,
-    GlobalAdminDataScope<PaymentTransaction> adminScope,
+    AdminPaymentTransactionDataScope adminScope,
     StorePaymentTransactionDataScope storeScope) : IAdminDataScope<PaymentTransaction>
 {
     private IAdminDataScope<PaymentTransaction> Resolved

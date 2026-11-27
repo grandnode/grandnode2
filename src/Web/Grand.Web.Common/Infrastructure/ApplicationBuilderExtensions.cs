@@ -32,7 +32,7 @@ public static class ApplicationBuilderExtensions
 
     internal static bool IsApiRequest(HttpRequest request)
     {
-        string authHeader = request.Headers[HeaderNames.Authorization];
+        string? authHeader = request.Headers[HeaderNames.Authorization];
         return authHeader != null &&
                authHeader.StartsWith(JwtBearerDefaults.AuthenticationScheme + " ", StringComparison.OrdinalIgnoreCase);
     }
@@ -142,8 +142,9 @@ public static class ApplicationBuilderExtensions
             var endpointProviders = typeSearcher.ClassesOfType<IEndpointProvider>();
             var instances = endpointProviders
                 .Where(PluginExtensions.OnlyInstalledPlugins)
-                .Select(endpointProvider => (IEndpointProvider)Activator.CreateInstance(endpointProvider))
-                .OrderByDescending(endpointProvider => endpointProvider!.Priority);
+                .Select(endpointProvider => Activator.CreateInstance(endpointProvider))
+                .OfType<IEndpointProvider>()
+                .OrderByDescending(endpointProvider => endpointProvider.Priority);
 
             foreach (var endpointProvider in instances)
                 endpointProvider.RegisterEndpoint(endpoints);
@@ -225,7 +226,7 @@ public static class ApplicationBuilderExtensions
     {
         var policyCollection = new HeaderPolicyCollection()
             .AddXssProtectionBlock()
-            .AddFrameOptionsDeny()
+            .AddFrameOptionsSameOrigin()
             .AddContentTypeOptionsNoSniff()
             .AddStrictTransportSecurityMaxAgeIncludeSubDomains() // max-age = one year in seconds
             .AddReferrerPolicyStrictOriginWhenCrossOrigin()
@@ -235,7 +236,8 @@ public static class ApplicationBuilderExtensions
                 builder.AddDefaultSrc().Self();
                 builder.AddConnectSrc().From("*");
                 builder.AddFontSrc().From("*").Data();
-                builder.AddFrameAncestors().From("*");
+                //only the application frames its own pages (the admin panel opens some of them in a popup frame)
+                builder.AddFrameAncestors().Self();
                 builder.AddFrameSrc().From("*");
                 builder.AddMediaSrc().From("*");
                 builder.AddImgSrc().From("*").Data();

@@ -1,39 +1,44 @@
 ﻿using Grand.Infrastructure.ModelBinding;
 using Grand.Infrastructure.Models;
+using Microsoft.AspNetCore.Mvc.ModelBinding;
 
 namespace Grand.Web.AdminShared.Models.Catalog;
 
 public class ProductReviewModel : BaseEntityModel
 {
+    //facts of the review: shown, never bound - the stored review keeps its product, customer and rating
+    [BindNever]
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Product")]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Product")]
-    public string ProductName { get; set; }
+    public string? ProductName { get; set; }
 
     public string Ids => Id + ":" + ProductId;
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Store")]
-    public string StoreName { get; set; }
+    public string? StoreName { get; set; }
+
+    [BindNever]
+    [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Customer")]
+    public string? CustomerId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Customer")]
-    public string CustomerId { get; set; }
-
-    [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Customer")]
-    public string CustomerInfo { get; set; }
+    public string? CustomerInfo { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Title")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.ReviewText")]
-    public string ReviewText { get; set; }
+    public string? ReviewText { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.ReplyText")]
-    public string ReplyText { get; set; }
+    public string? ReplyText { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Signature")]
-    public string Signature { get; set; }
+    public string? Signature { get; set; }
 
+    [BindNever]
     [GrandResourceDisplayName("Admin.Catalog.ProductReviews.Fields.Rating")]
     public int Rating { get; set; }
 

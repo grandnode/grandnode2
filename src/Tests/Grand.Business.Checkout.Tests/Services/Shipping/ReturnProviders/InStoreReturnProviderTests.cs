@@ -53,7 +53,7 @@ public class InStoreReturnProviderTests
     public async Task InStore_StoreReturnWithPoints_OffersOptionWithForm()
     {
         var options = await _provider.GetReturnOptions(new ReturnShippingRequest
-            { StoreId = "s1", VendorId = "", LanguageId = "l1" });
+            { Order = new Order(), StoreId = "s1", VendorId = "", LanguageId = "l1" });
 
         Assert.AreEqual(1, options.Count);
         Assert.AreEqual("instore", options[0].Code);
@@ -65,7 +65,7 @@ public class InStoreReturnProviderTests
     [TestMethod]
     public async Task InStore_VendorReturn_NoOption()
     {
-        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { StoreId = "s1", VendorId = "v1" });
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { Order = new Order(), StoreId = "s1", VendorId = "v1" });
 
         Assert.AreEqual(0, options.Count);
     }
@@ -73,7 +73,7 @@ public class InStoreReturnProviderTests
     [TestMethod]
     public async Task InStore_NoActivePoints_NoOption()
     {
-        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { StoreId = "s2", VendorId = "" });
+        var options = await _provider.GetReturnOptions(new ReturnShippingRequest { Order = new Order(), StoreId = "s2", VendorId = "" });
 
         Assert.AreEqual(0, options.Count);
     }
@@ -81,7 +81,7 @@ public class InStoreReturnProviderTests
     [TestMethod]
     public async Task InStore_ValidateForm_PointOfOtherStore_Error()
     {
-        var result = await _provider.ValidateForm(new ReturnShippingRequest { StoreId = "s2", LanguageId = "l1" },
+        var result = await _provider.ValidateForm(new ReturnShippingRequest { Order = new Order(), VendorId = "", StoreId = "s2", LanguageId = "l1" },
             "instore", new Dictionary<string, string> { ["pickupPointId"] = "p1" });
 
         Assert.AreEqual(1, result.Errors.Count);
@@ -92,7 +92,7 @@ public class InStoreReturnProviderTests
     [TestMethod]
     public async Task InStore_ValidateForm_NoPoint_Error()
     {
-        var result = await _provider.ValidateForm(new ReturnShippingRequest { StoreId = "s1", LanguageId = "l1" },
+        var result = await _provider.ValidateForm(new ReturnShippingRequest { Order = new Order(), VendorId = "", StoreId = "s1", LanguageId = "l1" },
             "instore", new Dictionary<string, string>());
 
         Assert.AreEqual(1, result.Errors.Count);
@@ -101,7 +101,7 @@ public class InStoreReturnProviderTests
     [TestMethod]
     public async Task InStore_ValidateForm_SnapshotHasWarehouse()
     {
-        var result = await _provider.ValidateForm(new ReturnShippingRequest { StoreId = "s1", LanguageId = "l1" },
+        var result = await _provider.ValidateForm(new ReturnShippingRequest { Order = new Order(), VendorId = "", StoreId = "s1", LanguageId = "l1" },
             "instore", new Dictionary<string, string> { ["pickupPointId"] = "p1" });
 
         Assert.AreEqual(0, result.Errors.Count);

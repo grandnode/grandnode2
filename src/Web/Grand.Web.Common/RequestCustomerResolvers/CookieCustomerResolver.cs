@@ -13,7 +13,7 @@ public sealed class CookieCustomerResolver(IGrandAuthenticationService authentic
 {
     public int Order => RequestCustomerResolverOrder.Cookie;
 
-    public async Task<Customer> Resolve()
+    public async Task<Customer?> Resolve()
     {
         return await authenticationService.GetAuthenticatedCustomer();
     }

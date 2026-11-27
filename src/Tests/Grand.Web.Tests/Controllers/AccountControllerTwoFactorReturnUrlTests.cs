@@ -1,5 +1,6 @@
 using Grand.Business.Core.Events.Customers;
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
@@ -68,9 +69,9 @@ public class AccountControllerTwoFactorReturnUrlTests
     {
         _manager.Setup(x => x.LoginCustomer("a@b.c", "p", It.IsAny<string>(), SignInSurface.Storefront)).ReturnsAsync(CustomerLoginResults.RequiresTwoFactor);
         await _controller.Login(new LoginModel { Email = "a@b.c", Password = "p" }, returnUrl);
-        var twoFactor = new Mock<ITwoFactorAuthenticationService>();
-        twoFactor.Setup(x => x.AuthenticateTwoFactor(It.IsAny<string>(), "123", _customer, It.IsAny<TwoFactorAuthenticationType>()))
-            .ReturnsAsync(true);
+        var twoFactor = new Mock<ITwoFactorSignInService>();
+        twoFactor.Setup(x => x.CheckCode(_customer, "123", It.IsAny<TwoFactorAuthenticationType>()))
+            .ReturnsAsync(TwoFactorSignInResult.Passed);
         return await _controller.TwoFactorAuthorization("123", twoFactor.Object);
     }
 

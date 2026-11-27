@@ -7,7 +7,7 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Customers;
 
-public class GetSubAccountHandler : IRequestHandler<GetSubAccount, SubAccountEditModel>
+public class GetSubAccountHandler : IRequestHandler<GetSubAccount, SubAccountEditModel?>
 {
     private readonly ICustomerService _customerService;
 
@@ -16,7 +16,7 @@ public class GetSubAccountHandler : IRequestHandler<GetSubAccount, SubAccountEdi
         _customerService = customerService;
     }
 
-    public async Task<SubAccountEditModel> Handle(GetSubAccount request, CancellationToken cancellationToken)
+    public async Task<SubAccountEditModel?> Handle(GetSubAccount request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request.CurrentCustomer);
 

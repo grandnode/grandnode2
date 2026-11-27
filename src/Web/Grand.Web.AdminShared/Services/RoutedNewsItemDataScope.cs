@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.News;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;

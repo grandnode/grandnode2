@@ -8,34 +8,34 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class ProductBatch : BaseEntity
 {
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     The combination of a product stocked by attributes
     /// </summary>
-    public string CombinationId { get; set; }
+    public string? CombinationId { get; set; }
 
     public IList<CustomAttribute> Attributes { get; set; } = new List<CustomAttribute>();
 
     /// <summary>
     ///     The warehouse of the bucket, as the inventory journal names it; empty for a product without one
     /// </summary>
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     The store of the warehouse; empty for a shared warehouse
     /// </summary>
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     The batch number as entered
     /// </summary>
-    public string Number { get; set; }
+    public string Number { get; set; } = null!;
 
     /// <summary>
     ///     The number trimmed and upper-cased: what lookups and the unique index compare
     /// </summary>
-    public string NumberKey { get; set; }
+    public string NumberKey { get; set; } = null!;
 
     /// <summary>
     ///     The expiry date, a date without time
@@ -54,7 +54,7 @@ public class ProductBatch : BaseEntity
     /// <summary>
     ///     The receipt that brought the batch in
     /// </summary>
-    public string ReceiptDocumentId { get; set; }
+    public string? ReceiptDocumentId { get; set; }
 
     /// <summary>
     ///     The stock revision of the last inventory journal entry that changed the record; an entry not newer than
@@ -72,29 +72,29 @@ public class ProductBatch : BaseEntity
     /// <summary>
     ///     The place in the batch's warehouse where it is kept
     /// </summary>
-    public string LocationId { get; set; }
+    public string? LocationId { get; set; }
 
     /// <summary>
     ///     The production date, a date without time
     /// </summary>
     public DateTime? ManufacturedOnUtc { get; set; }
 
-    public string Supplier { get; set; }
+    public string? Supplier { get; set; }
 
     /// <summary>
     ///     The number the supplier or manufacturer gave the batch
     /// </summary>
-    public string SupplierBatchNumber { get; set; }
+    public string? SupplierBatchNumber { get; set; }
 
     /// <summary>
     ///     The certificate of analysis or conformity the batch came with
     /// </summary>
-    public string CertificateNumber { get; set; }
+    public string? CertificateNumber { get; set; }
 
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     Shown to the customers who received units of the batch
     /// </summary>
-    public string CustomerComment { get; set; }
+    public string? CustomerComment { get; set; }
 }

@@ -62,7 +62,7 @@ public class DiscountService : IDiscountService
     /// </summary>
     /// <param name="discountId">Discount identifier</param>
     /// <returns>Discount</returns>
-    public virtual Task<Discount> GetDiscountById(string discountId)
+    public virtual Task<Discount?> GetDiscountById(string? discountId)
     {
         var key = string.Format(CacheKey.DISCOUNTS_BY_ID_KEY, discountId);
         return _cacheBase.GetAsync(key, () => _discountRepository.GetByIdAsync(discountId));
@@ -87,9 +87,9 @@ public class DiscountService : IDiscountService
         return filteredDiscounts.ToList();
     }
 
-    public virtual async Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string storeId = "",
-        string currencyCode = "",
-        string couponCode = "", string discountName = "")
+    public virtual async Task<IList<Discount>> GetDiscountsQuery(DiscountType? discountType, string? storeId = "",
+        string? currencyCode = "",
+        string? couponCode = "", string? discountName = "")
     {
         var query = _discountRepository.Table.AsQueryable();
 
@@ -170,7 +170,7 @@ public class DiscountService : IDiscountService
     /// <param name="couponCode">Coupon code</param>
     /// <param name="showHidden">A value that indicates if it should shows hidden records</param>
     /// <returns>Discount</returns>
-    public virtual async Task<Discount> GetDiscountByCouponCode(string couponCode, bool showHidden = false)
+    public virtual async Task<Discount?> GetDiscountByCouponCode(string couponCode, bool showHidden = false)
     {
         if (string.IsNullOrWhiteSpace(couponCode))
             return null;
@@ -208,7 +208,7 @@ public class DiscountService : IDiscountService
     ///     Gets a discount
     /// </summary>
     /// <returns>Discount</returns>
-    public virtual Task<DiscountCoupon> GetDiscountCodeById(string id)
+    public virtual Task<DiscountCoupon?> GetDiscountCodeById(string id)
     {
         return _discountCouponRepository.GetByIdAsync(id);
     }
@@ -218,7 +218,7 @@ public class DiscountService : IDiscountService
     /// </summary>
     /// <param name="couponCode">Coupon code</param>
     /// <returns></returns>
-    public virtual async Task<DiscountCoupon> GetDiscountCodeByCode(string couponCode)
+    public virtual async Task<DiscountCoupon?> GetDiscountCodeByCode(string couponCode)
     {
         return await _discountCouponRepository.GetOneAsync(x => x.CouponCode == couponCode);
     }
@@ -253,7 +253,7 @@ public class DiscountService : IDiscountService
     /// </summary>
     /// <param name="couponCode"></param>
     /// <param name="used"></param>
-    public virtual async Task DiscountCouponSetAsUsed(string couponCode, bool used)
+    public virtual async Task DiscountCouponSetAsUsed(string? couponCode, bool used)
     {
         if (string.IsNullOrEmpty(couponCode))
             return;
@@ -297,7 +297,7 @@ public class DiscountService : IDiscountService
     /// </summary>
     /// <param name="discountUsageHistoryId">Discount usage history record identifier</param>
     /// <returns>Discount usage history</returns>
-    public virtual Task<DiscountUsageHistory> GetDiscountUsageHistoryById(string discountUsageHistoryId)
+    public virtual Task<DiscountUsageHistory?> GetDiscountUsageHistoryById(string discountUsageHistoryId)
     {
         return _discountUsageHistoryRepository.GetByIdAsync(discountUsageHistoryId);
     }
@@ -368,6 +368,9 @@ public class DiscountService : IDiscountService
 
         if (singleUseCoupon)
         {
+            //a single-use coupon is recorded with its code
+            if (discountUsageHistory.CouponCode == null)
+                return false;
             var coupon = await GetDiscountCodeByCode(discountUsageHistory.CouponCode);
             if (coupon == null || coupon.DiscountId != discount.Id || coupon.Used)
                 return false;
@@ -380,6 +383,7 @@ public class DiscountService : IDiscountService
     public virtual async Task ReleaseDiscountUsageHistory(DiscountUsageHistory discountUsageHistory)
     {
         ArgumentNullException.ThrowIfNull(discountUsageHistory);
+        ArgumentException.ThrowIfNullOrEmpty(discountUsageHistory.DiscountId);
 
         await using var _ = await _resourceLock.Acquire([LockKey(discountUsageHistory.DiscountId)]);
 
@@ -396,7 +400,7 @@ public class DiscountService : IDiscountService
     /// <param name="customer">Customer</param>
     /// <param name="product">Product</param>
     public virtual async Task<double> GetDiscountAmount(Discount discount, Customer customer, Currency currency,
-        Product product, double amount)
+        Product? product, double amount)
     {
         ArgumentNullException.ThrowIfNull(discount);
 
@@ -436,7 +440,7 @@ public class DiscountService : IDiscountService
     /// <param name="amount">Amount</param>
     /// <returns>Preferred discount</returns>
     public virtual async Task<(List<ApplyDiscount> appliedDiscount, double discountAmount)> GetPreferredDiscount(
-        IList<ApplyDiscount> discounts, Customer customer, Currency currency, Product product,
+        IList<ApplyDiscount> discounts, Customer customer, Currency currency, Product? product,
         double amount)
     {
         ArgumentNullException.ThrowIfNull(discounts);
@@ -449,7 +453,10 @@ public class DiscountService : IDiscountService
         //check simple discounts
         foreach (var applieddiscount in discounts)
         {
+            //a discount deleted meanwhile gives nothing
             var discount = await GetDiscountById(applieddiscount.DiscountId);
+            if (discount == null)
+                continue;
             var currentDiscountValue = await GetDiscountAmount(discount, customer, currency, product, amount);
             if (!(currentDiscountValue > discountAmount)) continue;
             discountAmount = currentDiscountValue;
@@ -465,7 +472,8 @@ public class DiscountService : IDiscountService
             foreach (var item in cumulativeDiscounts)
             {
                 var discount = await GetDiscountById(item.DiscountId);
-                cumulativeDiscountAmount += await GetDiscountAmount(discount, customer, currency, product, amount);
+                if (discount != null)
+                    cumulativeDiscountAmount += await GetDiscountAmount(discount, customer, currency, product, amount);
             }
 
             if (!(cumulativeDiscountAmount > discountAmount)) return (appliedDiscount, discountAmount);

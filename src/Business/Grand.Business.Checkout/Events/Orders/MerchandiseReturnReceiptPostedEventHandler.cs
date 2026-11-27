@@ -32,7 +32,7 @@ public class MerchandiseReturnReceiptPostedEventHandler : INotificationHandler<E
             return;
 
         //the staff note names who posted the receipt; one whose account is gone by the id it had
-        string postedBy = null;
+        string? postedBy = null;
         if (!string.IsNullOrEmpty(document.PostedBy))
             postedBy = (await _customerService.GetCustomerById(document.PostedBy))?.StatusChangedBy()
                        ?? $"staff ({document.PostedBy})";

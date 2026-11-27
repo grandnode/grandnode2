@@ -11,14 +11,14 @@ public class GiftVoucherUsageHistory : SubBaseEntity
     ///     Gets or sets the gift voucher identifier
     /// </summary>
     [AuditReference(typeof(GiftVoucher))]
-    public string GiftVoucherId { get; set; }
+    public string GiftVoucherId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the order identifier
     /// </summary>
     [AuditReference(typeof(Order))]
     [AuditName]
-    public string UsedWithOrderId { get; set; }
+    public string? UsedWithOrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets the used value (amount)

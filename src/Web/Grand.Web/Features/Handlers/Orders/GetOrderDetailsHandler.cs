@@ -11,11 +11,13 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
+using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Domain.Shipping;
 using Grand.Domain.Tax;
+using Grand.Infrastructure.Security;
 using Grand.Web.Common.Localization;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
@@ -29,6 +31,8 @@ namespace Grand.Web.Features.Handlers.Orders;
 public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDetailsModel>
 {
     private readonly CatalogSettings _catalogSettings;
+    private readonly CustomerSettings _customerSettings;
+    private readonly IHtmlSanitizationService _htmlSanitizationService;
     private readonly ICurrencyService _currencyService;
     private readonly IDateTimeService _dateTimeService;
     private readonly IGiftVoucherService _giftVoucherService;
@@ -48,7 +52,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
     private readonly IRequestTranslationService _translationService;
     private readonly IEnumTranslationService _enumTranslationService;
     
-    private Currency _orderCurrency;
+    private Currency? _orderCurrency;
 
     public GetOrderDetailsHandler(
         IDateTimeService dateTimeService,
@@ -69,8 +73,12 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
         PdfSettings pdfSettings,
         TaxSettings taxSettings, 
         IEnumTranslationService enumTranslationService,
-        IOrderApprovalService orderApprovalService)
+        IOrderApprovalService orderApprovalService,
+        CustomerSettings customerSettings,
+        IHtmlSanitizationService htmlSanitizationService)
     {
+        _htmlSanitizationService = htmlSanitizationService;
+        _customerSettings = customerSettings;
         _orderApprovalService = orderApprovalService;
         _dateTimeService = dateTimeService;
         _productService = productService;
@@ -153,6 +161,9 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
 
         //a request the store decides: the storefront's approvals screen only carries the company's
         await PrepareOrderApproval(request, model);
+
+        //the link between a cycle order and the order the customer placed
+        await PrepareRecurringPayment(request, model);
 
         //allow cancel order
         if (_orderSettings.UserCanCancelUnpaidOrder)
@@ -330,7 +341,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
         {
             var giftVoucher = await _giftVoucherService.GetGiftVoucherById(gcuh.GiftVoucherId);
             model.GiftVouchers.Add(new OrderDetailsModel.GiftVoucher {
-                CouponCode = giftVoucher.Code,
+                CouponCode = giftVoucher?.Code,
                 Amount = _priceFormatter.FormatPrice(-gcuh.UsedValue, _orderCurrency)
             });
         }
@@ -346,6 +357,30 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
         }
 
         return Task.CompletedTask;
+    }
+
+    private async Task PrepareRecurringPayment(GetOrderDetails request, OrderDetailsModel model)
+    {
+        model.RecurringCycleNumber = request.Order.RecurringCycleNumber;
+        switch (request.Order.RecurringCycleNumber)
+        {
+            //the tab lists the customer's own recurring payments in the current store, so a company owner viewing a
+            //sub-account's order, or an order placed in another store, has nowhere to go
+            case 1:
+                model.ShowRecurringPaymentsLink = !_customerSettings.HideRecurringPaymentsTab &&
+                                                  request.Customer.Id == request.Order.CustomerId &&
+                                                  request.Store?.Id == request.Order.StoreId;
+                break;
+            //a cycle order copies the initial order's customer and owner, so whoever opens one can open the other
+            case > 1 when !string.IsNullOrEmpty(request.Order.InitialOrderId):
+                var initialOrder = await _orderService.GetOrderById(request.Order.InitialOrderId);
+                if (initialOrder == null)
+                    break;
+                model.InitialOrderNumber = initialOrder.OrderNumber;
+                if (!initialOrder.Deleted)
+                    model.InitialOrderId = initialOrder.Id;
+                break;
+        }
     }
 
     private async Task PrepareOrderApproval(GetOrderDetails request, OrderDetailsModel model)
@@ -372,7 +407,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
                 Id = orderNote.Id,
                 OrderId = orderNote.OrderId,
                 HasDownload = !string.IsNullOrEmpty(orderNote.DownloadId),
-                Note = orderNote.Note,
+                Note = _htmlSanitizationService.NoteHtml(orderNote.Note, orderNote.CreatedByCustomer),
                 CreatedOn = _dateTimeService.ConvertToUserTime(orderNote.CreatedOnUtc, DateTimeKind.Utc)
             });
     }
@@ -387,7 +422,9 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
             : [];
         foreach (var orderItem in request.Order.OrderItems)
         {
-            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            //archived products are kept, so a missing one is a broken record
+            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId)
+                          ?? throw new InvalidOperationException($"Product {orderItem.ProductId} of order item {orderItem.Id} is missing");
             var orderItemModel = new OrderDetailsModel.OrderItemModel {
                 Id = orderItem.Id,
                 OrderItemGuid = orderItem.OrderItemGuid,
@@ -455,7 +492,7 @@ public class GetOrderDetailsHandler : IRequestHandler<GetOrderDetails, OrderDeta
     }
 
     private async Task<PictureModel> PrepareOrderItemPicture(Product product, IList<CustomAttribute> attributes,
-        string productName)
+        string? productName)
     {
         var sciPicture = await product.GetProductPicture(attributes, _productService, _pictureService);
         return new PictureModel {

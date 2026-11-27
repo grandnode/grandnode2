@@ -6,7 +6,7 @@ namespace Grand.Web.AdminShared.Models.Courses;
 public class CourseLevelModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Courses.Level.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Courses.Level.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }

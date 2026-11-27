@@ -133,7 +133,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
     ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by its stored
     ///     name (any case) - more than one brand of that name is an error
     /// </summary>
-    private async Task<(Brand brand, bool matchedByName, string error)> FindBrand(BrandDto dto, ImportMode mode)
+    private async Task<(Brand? brand, bool matchedByName, string? error)> FindBrand(BrandDto dto, ImportMode mode)
     {
         if (!string.IsNullOrEmpty(dto.Id))
             return (await _brandService.GetBrandById(dto.Id), false, null);
@@ -153,7 +153,7 @@ public class BrandImportDataObject : IImportDataObject<BrandDto>, IRowImport<Bra
         return (found, found != null, error);
     }
 
-    private async Task UpdateBrandData(Brand brand, DownloadedImage image)
+    private async Task UpdateBrandData(Brand brand, DownloadedImage? image)
     {
         if (string.IsNullOrEmpty(brand.BrandLayoutId))
         {

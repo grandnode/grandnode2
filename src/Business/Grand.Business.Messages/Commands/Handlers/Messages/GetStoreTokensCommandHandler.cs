@@ -19,7 +19,7 @@ public class GetStoreTokensCommandHandler : IRequestHandler<GetStoreTokensComman
     {
         //the message's store, not the current one: a scheduled task or another store's admin sends it too
         var storeInformationSettings =
-            await _settingService.LoadSetting<StoreInformationSettings>(request.Store?.Id);
+            await _settingService.LoadSetting<StoreInformationSettings>(request.Store.Id);
         return new LiquidStore(request.Store, request.Language, request.EmailAccount) {
             TwitterLink = storeInformationSettings.TwitterLink,
             FacebookLink = storeInformationSettings.FacebookLink,

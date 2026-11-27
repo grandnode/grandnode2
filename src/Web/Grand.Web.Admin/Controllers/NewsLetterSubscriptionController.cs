@@ -149,7 +149,10 @@ public class NewsLetterSubscriptionController : BaseAdminController
     {
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-        var subscription = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionById(model.Id);
+        var subscription = await _newsLetterSubscriptionService.GetNewsLetterSubscriptionById(model.Id)
+            ?? throw new ArgumentException("No news letter subscription found with the specified id");
+        //the validator requires the email
+        ArgumentException.ThrowIfNullOrEmpty(model.Email);
         subscription.Email = model.Email;
         subscription.Active = model.Active;
         await _newsLetterSubscriptionService.UpdateNewsLetterSubscription(subscription);

@@ -46,12 +46,12 @@ public static class PluginFolderScanner
 {
     private static readonly string[] IgnoredFolders = ["bin", "TempUploads"];
 
-    private sealed record ScannedFile(string Path, string Name, PluginManifest Manifest);
+    private sealed record ScannedFile(string Path, string Name, PluginManifest? Manifest);
 
     /// <summary>
     ///     Never throws because of one folder or file: what cannot be read becomes a problem of its folder.
     /// </summary>
-    public static PluginScanResult Scan(DirectoryInfo pluginsFolder, string skipPattern, ISet<string> hostAssemblyNames)
+    public static PluginScanResult Scan(DirectoryInfo pluginsFolder, string? skipPattern, ISet<string> hostAssemblyNames)
     {
         var problems = new List<PluginLoadProblem>();
         var warnings = new List<string>();
@@ -81,7 +81,10 @@ public static class PluginFolderScanner
             if (files == null)
                 continue;
 
-            var manifests = files.Where(x => x.Manifest != null).ToList();
+            var manifests = new List<(ScannedFile File, PluginManifest Manifest)>();
+            foreach (var file in files)
+                if (file.Manifest != null)
+                    manifests.Add((file, file.Manifest));
 
             if (manifests.Count == 0)
                 continue;
@@ -89,13 +92,12 @@ public static class PluginFolderScanner
             if (manifests.Count > 1)
             {
                 problems.Add(new PluginLoadProblem(folder.Name,
-                    $"The folder contains {manifests.Count} plugin assemblies ({string.Join(", ", manifests.Select(x => x.Name))}); only one is allowed.",
+                    $"The folder contains {manifests.Count} plugin assemblies ({string.Join(", ", manifests.Select(x => x.File.Name))}); only one is allowed.",
                     manifests.Select(x => x.Manifest.SystemName).Where(x => !string.IsNullOrWhiteSpace(x)).ToList()));
                 continue;
             }
 
-            var main = manifests[0];
-            var manifest = main.Manifest;
+            var (main, manifest) = manifests[0];
             if (string.IsNullOrWhiteSpace(manifest.SystemName))
             {
                 problems.Add(new PluginLoadProblem(folder.Name, "has no SystemName"));
@@ -122,7 +124,7 @@ public static class PluginFolderScanner
     ///     Returns the folder's assemblies, or null when the folder or one of its files cannot be read; the
     ///     folder is then a problem, since the unread file may be the plugin itself or one it needs.
     /// </summary>
-    private static List<ScannedFile> ScanFolder(DirectoryInfo folder, string skipPattern,
+    private static List<ScannedFile>? ScanFolder(DirectoryInfo folder, string? skipPattern,
         ISet<string> hostAssemblyNames, List<string> warnings, List<PluginLoadProblem> problems)
     {
         FileInfo[] dlls;
@@ -165,7 +167,7 @@ public static class PluginFolderScanner
         return result;
     }
 
-    private static ScannedFile ScanFile(DirectoryInfo folder, FileInfo file, ISet<string> hostAssemblyNames,
+    private static ScannedFile? ScanFile(DirectoryInfo folder, FileInfo file, ISet<string> hostAssemblyNames,
         List<string> warnings)
     {
         if (!PluginManifestReader.IsManagedAssembly(file.FullName))
@@ -201,7 +203,7 @@ public static class PluginFolderScanner
     internal static bool IsReadFailure(Exception ex) =>
         ex is IOException or UnauthorizedAccessException or BadImageFormatException;
 
-    internal static bool IsSkipped(string fileName, string skipPattern) =>
+    internal static bool IsSkipped(string fileName, string? skipPattern) =>
         !string.IsNullOrEmpty(skipPattern) && Matches(fileName, skipPattern);
 
     private static bool Matches(string fileName, string pattern)

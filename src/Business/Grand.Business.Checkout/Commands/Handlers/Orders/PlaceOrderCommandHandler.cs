@@ -66,6 +66,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
     private readonly IProductAttributeFormatter _productAttributeFormatter;
     private readonly IProductReservationService _productReservationService;
     private readonly IProductService _productService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly ISalesEmployeeService _salesEmployeeService;
     private readonly ShippingSettings _shippingSettings;
     private readonly ShoppingCartSettings _shoppingCartSettings;
@@ -107,6 +108,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         IOrderApprovalService orderApprovalService,
         IOrderPlacementService orderPlacementService,
         ICheckoutClaimService checkoutClaimService,
+        IRecurringPaymentService recurringPaymentService,
         ITranslationService translationService,
         ShippingSettings shippingSettings,
         ShoppingCartSettings shoppingCartSettings,
@@ -147,6 +149,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         _orderApprovalService = orderApprovalService;
         _orderPlacementService = orderPlacementService;
         _checkoutClaimService = checkoutClaimService;
+        _recurringPaymentService = recurringPaymentService;
         _translationService = translationService;
         _shippingSettings = shippingSettings;
         _shoppingCartSettings = shoppingCartSettings;
@@ -223,7 +226,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             var paymentTransaction = await PreparePaymentTransaction(details);
 
             //what the order spends is taken before the payment, so no payment is taken for what is already gone
-            var claim = await _checkoutClaimService.Claim(details, paymentTransaction.OrderCode);
+            var orderCode = paymentTransaction.OrderCode ??
+                            throw new GrandException("The order code was not prepared");
+            var claim = await _checkoutClaimService.Claim(details, orderCode);
             if (!claim.Succeeded)
             {
                 var changed = _translationService.GetResource("ShoppingCart.ChangedDuringCheckout",
@@ -253,6 +258,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                     //from here on what was claimed belongs to the order
                     orderInserted = true;
                     await CompleteOrderDetails(details, result.PlacedOrder);
+                    //after the cart is cleared, so a failed write cannot lead to a second paid order; still before the
+                    //provider's post-process step, which starts the gateway's schedule for it
+                    if (details.IsRecurring)
+                        await InsertRecurringPayment(result.PlacedOrder, details.Customer.Id);
                     result.PaymentTransaction = paymentTransaction;
 
                     #endregion
@@ -322,6 +331,20 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         return result;
     }
 
+    private Task InsertRecurringPayment(Order order, string customerId)
+    {
+        return _recurringPaymentService.InsertRecurringPayment(new RecurringPayment {
+            StoreId = order.StoreId,
+            CustomerId = customerId,
+            InitialOrderId = order.Id,
+            PaymentMethodSystemName = order.PaymentMethodSystemName,
+            CycleLength = order.RecurringCycleLength,
+            CyclePeriodId = order.RecurringCyclePeriodId,
+            TotalCycles = order.RecurringTotalCycles,
+            Status = RecurringPaymentStatus.Pending
+        });
+    }
+
     protected virtual async Task<ProcessPaymentResult> ProcessPayment(PlaceOrderContainer details,
         PaymentTransaction paymentTransaction)
     {
@@ -385,7 +408,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         paymentTransaction.TransactionAmount = details.OrderTotal;
         paymentTransaction.CurrencyRate = details.CurrencyRate;
         paymentTransaction.CurrencyCode = details.Currency.CurrencyCode;
-        paymentTransaction.CustomerEmail = details.Customer.BillingAddress.Email;
+        paymentTransaction.CustomerEmail = details.Customer.BillingAddress?.Email;
         paymentTransaction.Temp = true;
 
         if (update)
@@ -497,10 +520,10 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             throw new GrandException("Anonymous checkout is not allowed");
 
         //billing address
-        if (details.Customer.BillingAddress == null)
-            throw new GrandException("Billing address is not provided");
+        var billingAddress = details.Customer.BillingAddress ??
+                             throw new GrandException("Billing address is not provided");
 
-        if (!CommonHelper.IsValidEmail(details.Customer.BillingAddress.Email))
+        if (!CommonHelper.IsValidEmail(billingAddress.Email))
             throw new GrandException("Email is not valid");
 
         //affiliate
@@ -517,22 +540,21 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                 details.Store.Id));
         var customerCurrency = currencyTmp is { Published: true } ? currencyTmp : details.Context.Currency;
         details.Currency = customerCurrency;
-        var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency();
+        var primaryStoreCurrency = await _currencyService.GetPrimaryStoreCurrency() ??
+                                   throw new GrandException("The primary store currency is not set");
         details.CurrencyRate = Math.Round(customerCurrency.Rate / primaryStoreCurrency.Rate, 6);
         details.PrimaryCurrencyCode = primaryStoreCurrency.CurrencyCode;
 
         //customer language
-        details.Language = await _languageService.GetLanguageById(
+        var language = await _languageService.GetLanguageById(
             details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LanguageId,
                 details.Store.Id));
+        details.Language = language is { Published: true } ? language : command.Language;
 
-        if (details.Language is not { Published: true })
-            details.Language = command.Language;
-
-        details.BillingAddress = details.Customer.BillingAddress;
-        if (!string.IsNullOrEmpty(details.BillingAddress.CountryId))
+        details.BillingAddress = billingAddress;
+        if (!string.IsNullOrEmpty(billingAddress.CountryId))
         {
-            var country = await _countryService.GetCountryById(details.BillingAddress.CountryId);
+            var country = await _countryService.GetCountryById(billingAddress.CountryId);
             if (country is { AllowsBilling: false })
                 throw new GrandException($"Country '{country.Name}' is not allowed for billing");
         }
@@ -540,7 +562,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //checkout attributes
         details.CheckoutAttributes =
             details.Customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes,
-                details.Store.Id);
+                details.Store.Id) ?? [];
         details.CheckoutAttributeDescription =
             await _checkoutAttributeFormatter.FormatAttributes(details.CheckoutAttributes, details.Context,
                 details.WorkingLanguage, details.Host);
@@ -563,7 +585,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         //validate individual cart items
         foreach (var sci in details.Cart)
         {
-            var product = await _productService.GetProductById(sci.ProductId);
+            var product = await _productService.GetProductById(sci.ProductId) ??
+                          throw new GrandException($"The product {sci.ProductId} of the cart does not exist");
             var sciWarnings = await _shoppingCartValidator.GetShoppingCartItemWarnings(details.Customer, sci, product,
                 new ShoppingCartValidatorOptions(), details.WorkingLanguage);
             if (sciWarnings.Any())
@@ -732,7 +755,8 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         var orderItems = new List<PreparedOrderItem>();
         foreach (var sc in details.Cart)
         {
-            var product = await _productService.GetProductById(sc.ProductId);
+            var product = await _productService.GetProductById(sc.ProductId) ??
+                          throw new GrandException($"The product {sc.ProductId} of the cart does not exist");
             orderItems.Add(new PreparedOrderItem(sc, product, await PrepareOrderItem(sc, product, details)));
         }
 
@@ -821,7 +845,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         return orderItem;
     }
 
-    private static string ReservationInfo(ShoppingCartItem sc, Product product)
+    private static string? ReservationInfo(ShoppingCartItem sc, Product product)
     {
         var reservationInfo = "";
         if (product.ProductTypeId == ProductType.Reservation)
@@ -883,10 +907,11 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             if (!string.IsNullOrEmpty(sc.ReservationId))
             {
                 var reservation = await _productReservationService.GetProductReservation(sc.ReservationId);
-                reservationsToUpdate.Add(reservation);
+                if (reservation != null)
+                    reservationsToUpdate.Add(reservation);
             }
 
-            if (!sc.RentalStartDateUtc.HasValue || !sc.RentalEndDateUtc.HasValue) continue;
+            if (product == null || !sc.RentalStartDateUtc.HasValue || !sc.RentalEndDateUtc.HasValue) continue;
             var reservations =
                 await _productReservationService.GetProductReservationsByProductId(product.Id, true, null);
             var groupToBook = reservations.FindGroupToBook(product, sc.RentalStartDateUtc.Value,
@@ -906,7 +931,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             reservationsToUpdate.AddRange(temp);
         }
 
-        var reserved = await _productReservationService.GetCustomerReservationsHelpers(order.CustomerId);
+        var reserved = await _productReservationService.GetCustomerReservationsHelpers(details.Customer.Id);
         foreach (var res in reserved) await _productReservationService.DeleteCustomerReservationsHelper(res);
 
         foreach (var resToUpdate in reservationsToUpdate)
@@ -1008,7 +1033,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             PaymentMethodSystemName = paymentTransaction.PaymentMethodSystemName,
             PaymentOptionAttribute =
                 details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PaymentOptionAttribute,
-                    paymentTransaction.StoreId),
+                    details.Store.Id),
             PaymentStatusId = paymentStatus,
             PaidAmount = processPaymentResult.PaidAmount,
             PaidDateUtc = processPaymentResult.PaidAmount > 0 ? DateTime.UtcNow : null,
@@ -1029,17 +1054,18 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             CustomerEmail = details.Customer.Email,
             ShippingOptionAttributeDescription =
                 details.Customer.GetUserFieldFromEntity<string>(
-                    SystemCustomerFieldNames.ShippingOptionAttributeDescription, paymentTransaction.StoreId),
+                    SystemCustomerFieldNames.ShippingOptionAttributeDescription, details.Store.Id),
             ShippingOptionAttribute =
                 details.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ShippingOptionAttribute,
-                    paymentTransaction.StoreId),
+                    details.Store.Id),
             RedeemedLoyaltyPoints = details.RedeemedLoyaltyPoints,
             RedeemedLoyaltyPointsAmount = details.RedeemedLoyaltyPointsAmount,
             LoyaltyPointsWereAdded = details.RedeemedLoyaltyPoints > 0,
             IsRecurring = details.IsRecurring,
             RecurringCycleLength = details.RecurringCycleLength,
             RecurringCyclePeriodId = details.RecurringCyclePeriodId,
-            RecurringTotalCycles = details.RecurringTotalCycles
+            RecurringTotalCycles = details.RecurringTotalCycles,
+            RecurringCycleNumber = details.IsRecurring ? 1 : 0
         };
 
         foreach (var item in details.Taxes) order.OrderTaxes.Add(item);
@@ -1062,7 +1088,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
             order.OrderItems.Add(orderItem);
 
             //gift vouchers
-            if (product.IsGiftVoucher) await GenerateGiftVoucher(details, sc, order, orderItem, product);
+            if (product is { IsGiftVoucher: true }) await GenerateGiftVoucher(details, sc, order, orderItem, product);
 
             //update auction ended
             await UpdateAuctionEnded(sc, product, order);
@@ -1098,9 +1124,9 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         await UpdateBids(order, details);
 
         //clear shopping cart
-        await _customerService.ClearShoppingCartItem(order.CustomerId, details.Cart);
+        await _customerService.ClearShoppingCartItem(details.Customer.Id, details.Cart);
 
         //reset checkout data
-        await _customerService.ResetCheckoutData(details.Customer, order.StoreId, true, true);
+        await _customerService.ResetCheckoutData(details.Customer, details.Store.Id, true, true);
     }
 }

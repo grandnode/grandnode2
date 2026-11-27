@@ -6,7 +6,7 @@ public abstract class BasePlugin : IPlugin
     ///     Gets a configuration page URL
     /// </summary>
     /// <returns></returns>
-    public virtual string ConfigurationUrl()
+    public virtual string? ConfigurationUrl()
     {
         return null;
     }
@@ -14,14 +14,14 @@ public abstract class BasePlugin : IPlugin
     /// <summary>
     ///     Gets or sets the plugin info
     /// </summary>
-    public virtual PluginInfo PluginInfo { get; set; }
+    public virtual PluginInfo? PluginInfo { get; set; }
 
     /// <summary>
     ///     Install plugin
     /// </summary>
     public virtual async Task Install()
     {
-        await PluginExtensions.MarkPluginAsInstalled(PluginInfo.SystemName);
+        await PluginExtensions.MarkPluginAsInstalled(SystemName);
     }
 
     /// <summary>
@@ -29,6 +29,9 @@ public abstract class BasePlugin : IPlugin
     /// </summary>
     public virtual async Task Uninstall()
     {
-        await PluginExtensions.MarkPluginAsUninstalled(PluginInfo.SystemName);
+        await PluginExtensions.MarkPluginAsUninstalled(SystemName);
     }
+
+    private string SystemName => PluginInfo?.SystemName ??
+                                 throw new InvalidOperationException($"{GetType().Name} has no plugin info");
 }

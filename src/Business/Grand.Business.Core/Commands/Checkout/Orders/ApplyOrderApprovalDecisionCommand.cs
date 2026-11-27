@@ -12,14 +12,14 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 /// </summary>
 public class ApplyOrderApprovalDecisionCommand : IRequest<bool>
 {
-    public OrderApproval Approval { get; set; }
-    public Customer DecidedBy { get; set; }
+    public required OrderApproval Approval { get; set; }
+    public required Customer DecidedBy { get; set; }
     public bool Approve { get; set; }
-    public string Comment { get; set; }
-    public Language Language { get; set; }
+    public string? Comment { get; set; }
+    public Language? Language { get; set; }
 
     /// <summary>
     ///     Host of the storefront request; empty in a back office panel, links then use the store's primary domain
     /// </summary>
-    public DomainHost Host { get; set; }
+    public DomainHost? Host { get; set; }
 }

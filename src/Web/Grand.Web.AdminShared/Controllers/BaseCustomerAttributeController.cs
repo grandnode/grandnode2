@@ -109,7 +109,6 @@ public abstract class BaseCustomerAttributeController(
             return RedirectToAction("List");
         }
 
-        model.IsGlobalAttribute = false;
         return View(model);
     }
 

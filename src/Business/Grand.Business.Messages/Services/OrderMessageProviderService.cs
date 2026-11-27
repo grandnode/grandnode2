@@ -56,8 +56,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer customer, string languageId,
-        DomainHost host = null)
+    public virtual async Task<int> SendOrderPlacedStoreOwnerMessage(Order order, Customer? customer, string? languageId,
+        DomainHost? host = null)
     {
         return await SendOrderStoreOwnerMessage(MessageTemplateNames.SendOrderPlacedStoreOwnerMessage, order, customer,
             languageId, host: host);
@@ -69,7 +69,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendOrderPaidStoreOwnerMessage(Order order, Customer customer, string languageId)
+    public virtual async Task<int> SendOrderPaidStoreOwnerMessage(Order order, Customer? customer, string? languageId)
     {
         return await SendOrderStoreOwnerMessage(MessageTemplateNames.SendOrderPaidStoreOwnerMessage, order, customer,
             languageId);
@@ -82,8 +82,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    public virtual async Task<int> SendOrderCancelledStoreOwnerMessage(Order order, Customer customer,
-        string languageId)
+    public virtual async Task<int> SendOrderCancelledStoreOwnerMessage(Order order, Customer? customer,
+        string? languageId)
     {
         return await SendOrderStoreOwnerMessage(MessageTemplateNames.SendOrderCancelledStoreOwnerMessage, order,
             customer, languageId);
@@ -94,7 +94,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="refundedAmount">Amount refunded</param>
     /// <param name="languageId">Message language identifier</param>
     public virtual async Task<int> SendOrderRefundedStoreOwnerMessage(Order order, double refundedAmount,
-        string languageId)
+        string? languageId)
     {
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = order.CustomerId });
         return await SendOrderStoreOwnerMessage(MessageTemplateNames.SendOrderRefundedStoreOwnerMessage, order,
@@ -112,8 +112,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    private async Task<int> SendOrderStoreOwnerMessage(string template, Order order, Customer customer,
-        string languageId, double refundedAmount = 0, DomainHost host = null)
+    private async Task<int> SendOrderStoreOwnerMessage(string template, Order order, Customer? customer,
+        string? languageId, double refundedAmount = 0, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -157,8 +157,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendOrderPlacedCustomerMessage(Order order, Customer customer, string languageId,
-        string invoiceDownloadId = null, DomainHost host = null)
+    public virtual async Task<int> SendOrderPlacedCustomerMessage(Order order, Customer? customer, string? languageId,
+        string? invoiceDownloadId = null, DomainHost? host = null)
     {
         return await SendOrderInvoiceMessage(MessageTemplateNames.SendOrderPlacedCustomerMessage, order, customer,
             languageId, invoiceDownloadId, host);
@@ -173,8 +173,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="invoiceDownloadId">
     ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
-    public virtual async Task<int> SendOrderPaidCustomerMessage(Order order, Customer customer, string languageId,
-        string invoiceDownloadId = null)
+    public virtual async Task<int> SendOrderPaidCustomerMessage(Order order, Customer? customer, string? languageId,
+        string? invoiceDownloadId = null)
     {
         return await SendOrderInvoiceMessage(MessageTemplateNames.SendOrderPaidCustomerMessage, order, customer,
             languageId, invoiceDownloadId);
@@ -189,8 +189,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="invoiceDownloadId">
     ///     Download of the invoice to attach. The queued email takes ownership of it; it is deleted when no email is queued
     /// </param>
-    public virtual async Task<int> SendOrderCompletedCustomerMessage(Order order, Customer customer, string languageId,
-        string invoiceDownloadId = null)
+    public virtual async Task<int> SendOrderCompletedCustomerMessage(Order order, Customer? customer, string? languageId,
+        string? invoiceDownloadId = null)
     {
         return await SendOrderInvoiceMessage(MessageTemplateNames.SendOrderCompletedCustomerMessage, order, customer,
             languageId, invoiceDownloadId);
@@ -202,7 +202,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="customer">Customer instance</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendOrderCancelledCustomerMessage(Order order, Customer customer, string languageId)
+    public virtual async Task<int> SendOrderCancelledCustomerMessage(Order order, Customer? customer, string? languageId)
     {
         return await SendOrderCustomerMessage(MessageTemplateNames.SendOrderCancelledCustomerMessage, order, customer,
             languageId);
@@ -216,7 +216,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
     public virtual async Task<int> SendOrderRefundedCustomerMessage(Order order, double refundedAmount,
-        string languageId)
+        string? languageId)
     {
         var customer = await _mediator.Send(new GetCustomerByIdQuery { Id = order.CustomerId });
         return await SendOrderCustomerMessage(MessageTemplateNames.SendOrderRefundedCustomerMessage, order, customer,
@@ -230,8 +230,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="customer">Customer</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    public virtual async Task<int> SendPaymentDueReminderCustomerMessage(Order order, Customer customer,
-        string languageId)
+    public virtual async Task<int> SendPaymentDueReminderCustomerMessage(Order order, Customer? customer,
+        string? languageId)
     {
         return await SendOrderCustomerMessage(MessageTemplateNames.SendPaymentDueReminderCustomerMessage, order,
             customer, languageId);
@@ -244,8 +244,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="customer">Customer</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    public virtual async Task<int> SendPaymentOverdueCustomerMessage(Order order, Customer customer,
-        string languageId)
+    public virtual async Task<int> SendPaymentOverdueCustomerMessage(Order order, Customer? customer,
+        string? languageId)
     {
         return await SendOrderCustomerMessage(MessageTemplateNames.SendPaymentOverdueCustomerMessage, order,
             customer, languageId);
@@ -254,8 +254,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <summary>
     ///     Sends an order notification with an invoice to a customer
     /// </summary>
-    private async Task<int> SendOrderInvoiceMessage(string message, Order order, Customer customer, string languageId,
-        string invoiceDownloadId, DomainHost host = null)
+    private async Task<int> SendOrderInvoiceMessage(string message, Order order, Customer? customer, string? languageId,
+        string? invoiceDownloadId, DomainHost? host = null)
     {
         var queuedEmails = 0;
         try
@@ -272,7 +272,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
         }
     }
 
-    private async Task DeleteUnusedInvoice(string invoiceDownloadId)
+    private async Task DeleteUnusedInvoice(string? invoiceDownloadId)
     {
         try
         {
@@ -297,8 +297,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    private async Task<int> SendOrderCustomerMessage(string message, Order order, Customer customer, string languageId,
-        string invoiceDownloadId = null, double refundedAmount = 0, DomainHost host = null)
+    private async Task<int> SendOrderCustomerMessage(string message, Order order, Customer? customer, string? languageId,
+        string? invoiceDownloadId = null, double refundedAmount = 0, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -322,8 +322,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
-        var toEmail = order.BillingAddress.Email;
-        var toName = $"{order.BillingAddress.FirstName} {order.BillingAddress.LastName}";
+        var toEmail = order.BillingAddress?.Email;
+        var toName = $"{order.BillingAddress?.FirstName} {order.BillingAddress?.LastName}";
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             languageId, liquidObject,
             toEmail, toName,
@@ -340,8 +340,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendOrderPlacedVendorMessage(Order order, Customer customer, Vendor vendor,
-        string languageId, DomainHost host = null)
+    public virtual async Task<int> SendOrderPlacedVendorMessage(Order order, Customer? customer, Vendor vendor,
+        string? languageId, DomainHost? host = null)
     {
         return await SendOrderVendorMessage(MessageTemplateNames.SendOrderPlacedVendorMessage, order, vendor,
             languageId, host: host);
@@ -353,7 +353,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="vendor">Vendor instance</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendOrderPaidVendorMessage(Order order, Vendor vendor, string languageId)
+    public virtual async Task<int> SendOrderPaidVendorMessage(Order order, Vendor vendor, string? languageId)
     {
         return await SendOrderVendorMessage(MessageTemplateNames.SendOrderPaidVendorMessage, order, vendor, languageId);
     }
@@ -364,7 +364,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="order">Order instance</param>
     /// <param name="vendor">Vendor instance</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendOrderCancelledVendorMessage(Order order, Vendor vendor, string languageId)
+    public virtual async Task<int> SendOrderCancelledVendorMessage(Order order, Vendor vendor, string? languageId)
     {
         return await SendOrderVendorMessage(MessageTemplateNames.SendOrderCancelledVendorMessage, order, vendor,
             languageId);
@@ -380,8 +380,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    private async Task<int> SendOrderVendorMessage(string message, Order order, Vendor vendor, string languageId,
-        DomainHost host = null)
+    private async Task<int> SendOrderVendorMessage(string message, Order order, Vendor vendor, string? languageId,
+        DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(order);
         ArgumentNullException.ThrowIfNull(vendor);
@@ -475,8 +475,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
-        var toEmail = order.BillingAddress.Email;
-        var toName = $"{order.BillingAddress.FirstName} {order.BillingAddress.LastName}";
+        var toEmail = order.BillingAddress?.Email;
+        var toName = $"{order.BillingAddress?.FirstName} {order.BillingAddress?.LastName}";
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             language.Id, liquidObject,
             toEmail, toName,
@@ -492,7 +492,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendNewOrderNoteAddedCustomerMessage(Order order, OrderNote orderNote,
-        DomainHost host = null)
+        DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(orderNote);
         ArgumentNullException.ThrowIfNull(order);
@@ -521,8 +521,8 @@ public class OrderMessageProviderService : IOrderMessageProviderService
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
-        var toEmail = order.BillingAddress.Email;
-        var toName = $"{order.BillingAddress.FirstName} {order.BillingAddress.LastName}";
+        var toEmail = order.BillingAddress?.Email;
+        var toName = $"{order.BillingAddress?.FirstName} {order.BillingAddress?.LastName}";
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             language.Id, liquidObject,
             toEmail, toName,
@@ -535,15 +535,15 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="giftVoucher">Gift voucher</param>
     /// <param name="order">Order</param>
     /// <param name="languageId">Message language identifier</param>
-    public virtual async Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order order, string languageId)
+    public virtual async Task<int> SendGiftVoucherMessage(GiftVoucher giftVoucher, Order? order, string? languageId)
     {
         ArgumentNullException.ThrowIfNull(giftVoucher);
 
         var store = await _messageLookupService.GetStore(order?.StoreId);
 
-        var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store?.Id);
+        var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
 
-        var messageTemplate = await _messageLookupService.GetMessageTemplate("GiftVoucher.Notification", store?.Id);
+        var messageTemplate = await _messageLookupService.GetMessageTemplate("GiftVoucher.Notification", store.Id);
         if (messageTemplate == null)
             return 0;
 
@@ -570,7 +570,7 @@ public class OrderMessageProviderService : IOrderMessageProviderService
     /// <param name="token">The protected token the link carries</param>
     /// <param name="host">Host of the storefront request</param>
     public virtual async Task<int> SendGuestOrderLinkCustomerMessage(Order order, string token,
-        DomainHost host = null)
+        DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(order);
 

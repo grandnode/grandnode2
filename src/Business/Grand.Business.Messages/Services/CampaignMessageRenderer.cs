@@ -34,7 +34,7 @@ public class CampaignMessageRenderer(IMediator mediator) : ICampaignMessageRende
             liquidObject.Email = new LiquidEmail(recipient.QueuedEmailId);
 
         var body = LiquidExtensions.Render(liquidObject, campaign.Body);
-        var subject = LiquidExtensions.Render(liquidObject, campaign.Subject);
+        var subject = LiquidExtensions.RenderSubject(liquidObject, campaign.Subject);
 
         return new CampaignMessage(subject, body);
     }

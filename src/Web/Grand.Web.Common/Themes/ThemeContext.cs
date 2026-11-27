@@ -8,7 +8,7 @@ public class ThemeContext : ThemeContextBase
 {
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly StoreInformationSettings _storeInformationSettings;
-    private string _themeName;
+    private string? _themeName;
 
     public ThemeContext(IHttpContextAccessor contextAccessor, ICookieOptionsFactory cookieOptionsFactory,
         StoreInformationSettings storeInformationSettings) : base(contextAccessor, cookieOptionsFactory)
@@ -19,7 +19,7 @@ public class ThemeContext : ThemeContextBase
 
     public override string AreaName => "";
 
-    public override string GetCurrentTheme()
+    public override string? GetCurrentTheme()
     {
         if (!string.IsNullOrEmpty(_themeName))
             return _themeName;

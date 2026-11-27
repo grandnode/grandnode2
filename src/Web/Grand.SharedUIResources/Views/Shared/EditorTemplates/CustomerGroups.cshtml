@@ -5,9 +5,9 @@
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     var warnings = true;
-    if (ViewData["DisableIgnoreAclWarnings"] != null)
+    if (ViewData["DisableIgnoreAclWarnings"] is bool disableWarnings)
     {
-        warnings = !(bool)ViewData["DisableIgnoreAclWarnings"];
+        warnings = !disableWarnings;
     }
     var options = JsonSerializer.Serialize(new {
         mode = "multiple",

@@ -24,7 +24,7 @@ public class SlugRouteTransformer : DynamicRouteValueTransformer
         _config = config;
     }
 
-    private async ValueTask<string> GetSeName(string entityId, string entityName, string languageId)
+    private async ValueTask<string> GetSeName(string? entityId, string? entityName, string? languageId)
     {
         var result = string.Empty;
         if (!string.IsNullOrEmpty(languageId))
@@ -35,6 +35,8 @@ public class SlugRouteTransformer : DynamicRouteValueTransformer
         return result;
     }
 
+    //null skips the route: the endpoint matcher (DynamicControllerEndpointMatcherPolicy) treats it so, though the
+    //signature of the base class does not say it
     public override async ValueTask<RouteValueDictionary> TransformAsync(HttpContext context,
         RouteValueDictionary values)
     {
@@ -46,7 +48,7 @@ public class SlugRouteTransformer : DynamicRouteValueTransformer
 
         //no URL Entity found
         if (entityUrl == null)
-            return null;
+            return null!;
 
         //if URL Entity is not active find the latest one
         if (!entityUrl.IsActive)
@@ -54,7 +56,7 @@ public class SlugRouteTransformer : DynamicRouteValueTransformer
             var activeSlug =
                 await _slugService.GetActiveSlug(entityUrl.EntityId, entityUrl.EntityName, entityUrl.LanguageId);
             if (string.IsNullOrEmpty(activeSlug))
-                return null;
+                return null!;
 
             values["controller"] = "Common";
             values["action"] = "InternalRedirect";

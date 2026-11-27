@@ -58,7 +58,7 @@ public class CustomerReportService : ICustomerReportService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Report</returns>
-    public virtual async Task<IPagedList<BestCustomerReportLine>> GetBestCustomersReport(string storeId = "", string vendorId = "",
+    public virtual async Task<IPagedList<BestCustomerReportLine>> GetBestCustomersReport(string? storeId = "", string vendorId = "",
         DateTime? createdFromUtc = null,
         DateTime? createdToUtc = null, int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
         int orderBy = 0,
@@ -153,7 +153,7 @@ public class CustomerReportService : ICustomerReportService
     /// <param name="storeId">Store ident</param>
     /// <param name="days">Customers registered in the last days</param>
     /// <returns>Number of registered customers</returns>
-    public virtual async Task<int> GetRegisteredCustomersReport(string storeId, int days)
+    public virtual async Task<int> GetRegisteredCustomersReport(string? storeId, int days)
     {
         var date = DateTime.UtcNow.AddDays(-days);
 
@@ -180,7 +180,7 @@ public class CustomerReportService : ICustomerReportService
     /// <param name="startTimeUtc">Start date</param>
     /// <param name="endTimeUtc">End date</param>
     /// <returns>Result</returns>
-    public virtual async Task<IList<CustomerByTimeReportLine>> GetCustomerByTimeReport(string storeId,
+    public virtual async Task<IList<CustomerByTimeReportLine>> GetCustomerByTimeReport(string? storeId,
         DateTime? startTimeUtc = null,
         DateTime? endTimeUtc = null)
 

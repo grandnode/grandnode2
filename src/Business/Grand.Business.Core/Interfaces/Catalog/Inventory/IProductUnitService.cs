@@ -14,7 +14,7 @@ namespace Grand.Business.Core.Interfaces.Catalog.Inventory;
 /// <param name="Available">The quantity the batch holds in the warehouse</param>
 /// <param name="Quantity">The quantity proposed from it</param>
 public sealed record BatchAllocation(
-    string Number,
+    string? Number,
     DateTime? ExpiryDateUtc,
     BatchExpiryStatus? Status,
     int Available,
@@ -23,7 +23,7 @@ public sealed record BatchAllocation(
 /// <summary>
 ///     Why the units of a shipment item cannot be shipped
 /// </summary>
-public sealed record ShipmentUnitError(string ShipmentItemId, string ProductName, string ErrorKey);
+public sealed record ShipmentUnitError(string ShipmentItemId, string? ProductName, string ErrorKey);
 
 /// <summary>
 ///     A batch or serial number a shipment item shipped, as its customer is told about it
@@ -34,11 +34,11 @@ public sealed record ShipmentUnitError(string ShipmentItemId, string ProductName
 /// <param name="ExpiryDateUtc">The batch's expiry date</param>
 /// <param name="CustomerComment">What the store tells the customer about the unit; empty when its record is gone</param>
 public sealed record ShippedUnitView(
-    string Number,
+    string? Number,
     bool IsSerialNumber,
     int Quantity,
     DateTime? ExpiryDateUtc,
-    string CustomerComment);
+    string? CustomerComment);
 
 /// <summary>
 ///     The filter of the batch and serial number screens; an empty field filters nothing
@@ -48,21 +48,21 @@ public sealed record UnitSearch
     /// <summary>
     ///     The number, compared without case
     /// </summary>
-    public string Number { get; init; }
+    public string? Number { get; init; }
 
     /// <summary>
     ///     The number is the start of the numbers found
     /// </summary>
     public bool Prefix { get; init; }
 
-    public string ProductId { get; init; }
+    public string? ProductId { get; init; }
     public SerialNumberStatus? Status { get; init; }
-    public string WarehouseId { get; init; }
+    public string? WarehouseId { get; init; }
 
     /// <summary>
     ///     The store of the units' warehouses; null for every store
     /// </summary>
-    public string StoreId { get; init; }
+    public string? StoreId { get; init; }
 
     public BatchExpiryStatus? ExpiryStatus { get; init; }
 
@@ -82,8 +82,8 @@ public sealed record UnitSearch
 /// </summary>
 public sealed record ExpiringBatch(
     ProductBatch Batch,
-    string ProductName,
-    string Sku,
+    string? ProductName,
+    string? Sku,
     string WarehouseName,
     BatchExpiryStatus Status);
 
@@ -91,15 +91,15 @@ public sealed record ExpiringBatch(
 ///     A shipment that shipped units of a batch: who received them, and the store of their order
 /// </summary>
 public sealed record BatchRecipient(
-    string ShipmentId,
+    string? ShipmentId,
     int ShipmentNumber,
-    string OrderId,
+    string? OrderId,
     int OrderNumber,
-    string CustomerId,
-    string CustomerEmail,
+    string? CustomerId,
+    string? CustomerEmail,
     int Quantity,
     DateTime ShippedOnUtc,
-    string StoreId = null);
+    string? StoreId = null);
 
 /// <summary>
 ///     One stock bucket of a product tracking units: its stock and the part of it batches or serial numbers hold
@@ -127,7 +127,7 @@ public interface IProductUnitService
     /// </summary>
     /// <param name="productId">The product</param>
     /// <param name="combinationId">Only this combination; null for the whole product</param>
-    Task<int> AssignedQuantity(string productId, string combinationId = null);
+    Task<int> AssignedQuantity(string productId, string? combinationId = null);
 
     /// <summary>
     ///     The units assigned to stock kept in the warehouse, of every product
@@ -154,7 +154,7 @@ public interface IProductUnitService
     /// <param name="today">The date in the store's time zone</param>
     /// <returns>Every batch holding stock and the stock without a batch, in that order, with what is taken</returns>
     Task<IList<BatchAllocation>> ProposeBatches(Product product, IList<CustomAttribute> attributes,
-        string warehouseId, int quantity, DateTime today);
+        string? warehouseId, int quantity, DateTime today);
 
     /// <summary>
     ///     Checks the units every item of a shipment not stored yet names, against the units stored now, and fixes the
@@ -168,9 +168,9 @@ public interface IProductUnitService
 
     Task<IPagedList<ProductBatch>> SearchBatches(UnitSearch search, int pageIndex = 0, int pageSize = int.MaxValue);
 
-    Task<ProductSerialNumber> GetSerialNumber(string id);
+    Task<ProductSerialNumber?> GetSerialNumber(string? id);
 
-    Task<ProductBatch> GetBatch(string id);
+    Task<ProductBatch?> GetBatch(string? id);
 
     /// <summary>
     ///     Saves what the back office tells about the batch: its location, supplier, dates and comments; never its
@@ -202,7 +202,7 @@ public interface IProductUnitService
     /// <param name="warehouseIds">The warehouses whose entries are read; null for every warehouse it passed through</param>
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
-    Task<IPagedList<InventoryJournal>> History(ProductSerialNumber serialNumber, IList<string> warehouseIds,
+    Task<IPagedList<InventoryJournal>> History(ProductSerialNumber serialNumber, IList<string>? warehouseIds,
         int pageIndex, int pageSize);
 
     /// <summary>
@@ -233,7 +233,7 @@ public interface IProductUnitService
     /// </summary>
     /// <param name="storeId">The store of their warehouses; null for every store</param>
     /// <param name="today">The date in the store's time zone</param>
-    Task<(int Expiring, int Expired)> ExpiryCounts(string storeId, DateTime today);
+    Task<(int Expiring, int Expired)> ExpiryCounts(string? storeId, DateTime today);
 
     /// <summary>
     ///     Why the change of a product is refused: switching tracking off or to the other mode, or changing the
@@ -242,5 +242,5 @@ public interface IProductUnitService
     /// <param name="stored">The product as stored</param>
     /// <param name="changed">The product as it is to be saved</param>
     /// <returns>The key of the error, or null</returns>
-    Task<string> TrackingChangeRefused(Product stored, Product changed);
+    Task<string?> TrackingChangeRefused(Product stored, Product changed);
 }

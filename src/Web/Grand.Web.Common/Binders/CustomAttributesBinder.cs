@@ -24,10 +24,10 @@ public class CustomAttributesBinder : IModelBinder
         return Task.CompletedTask;
     }
 
-    private static string GetKey(string key)
+    private static string? GetKey(string key)
     {
         var regex = new Regex("\\[(?<Value>\\w+)\\]", RegexOptions.Compiled, TimeSpan.FromSeconds(1));
-        string value = null;
+        string? value = null;
         var match = regex.Match(key);
         if (match.Success) value = match.Groups["Value"].Value;
 

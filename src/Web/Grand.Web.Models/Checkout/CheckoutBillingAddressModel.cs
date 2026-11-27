@@ -8,5 +8,5 @@ public class CheckoutBillingAddressModel : BaseModel
     public IList<AddressModel> ExistingAddresses { get; set; } = new List<AddressModel>();
     public AddressModel BillingNewAddress { get; set; } = new();
     public bool NewAddressPreselected { get; set; }
-    public string BillingAddressId { get; set; }
+    public string? BillingAddressId { get; set; }
 }

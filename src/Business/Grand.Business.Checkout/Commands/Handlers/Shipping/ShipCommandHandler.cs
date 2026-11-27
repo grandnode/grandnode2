@@ -50,7 +50,7 @@ public class ShipCommandHandler : IRequestHandler<ShipCommand, bool>
         }
         else
         {
-            var shipments = await _shipmentService.GetShipmentsByOrder(request.Shipment.OrderId);
+            var shipments = await _shipmentService.GetShipmentsByOrder(order.Id);
             order.ShippingStatusId = shipments.All(x => x.ShippedDateUtc != null)
                 ? ShippingStatus.Shipped
                 : ShippingStatus.PartiallyShipped;

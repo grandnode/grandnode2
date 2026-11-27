@@ -12,17 +12,17 @@ public class Warehouse : BaseEntity
     /// <summary>
     ///     Gets or sets the warehouse code
     /// </summary>
-    public string Code { get; set; }
+    public string Code { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the warehouse name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the admin comment
     /// </summary>
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     Gets or sets the latitude of the GeoCoordinate.
@@ -48,7 +48,7 @@ public class Warehouse : BaseEntity
     ///     Gets or sets the store identifier. Empty means available to all stores.
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the stock of this warehouse belongs to an external system (ERP/WMS).

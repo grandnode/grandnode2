@@ -1,7 +1,6 @@
-#nullable enable
-
 using Grand.Domain.Orders;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
@@ -22,11 +21,11 @@ public class VendorMerchandiseReturnDataScope(IContextAccessor contextAccessor)
 {
     public Task<bool> HasAccess(MerchandiseReturn entity) =>
         Task.FromResult(entity is not null &&
-            entity.VendorId == contextAccessor.WorkContext.CurrentVendor.Id);
+            entity.VendorId == contextAccessor.WorkContext.PanelVendor().Id);
 
     public string? DefaultStoreId => null;
     public string ResourceKeyPrefix => "Vendor";
     public bool ShowStoreSelector => false;
-    public string? DefaultVendorId => contextAccessor.WorkContext.CurrentVendor.Id;
+    public string? DefaultVendorId => contextAccessor.WorkContext.PanelVendor().Id;
     public bool CanFeatureOnHomepage => false;
 }

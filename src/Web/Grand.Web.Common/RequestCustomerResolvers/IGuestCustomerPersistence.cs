@@ -11,7 +11,7 @@ public interface IGuestCustomerPersistence
     /// <summary>
     ///     The unsaved guest of this request; null once saved or when the customer came from the database
     /// </summary>
-    Customer Transient { get; }
+    Customer? Transient { get; }
 
     Task SetTransient(Customer customer);
 
@@ -26,5 +26,5 @@ public interface IGuestCustomerPersistence
     ///     Saves a guest for a returned cookie whose GUID no customer has. Returns the saved guest, the guest a
     ///     parallel request saved first, or null when the GUID turned out to belong to a customer that is not a guest
     /// </summary>
-    Task<Customer> Promote(Customer guest);
+    Task<Customer?> Promote(Customer guest);
 }

@@ -66,6 +66,25 @@ public class CustomerMappingTests : VerifyBase
         return Verify(_mapper.Map<CustomerGroup>(model));
     }
 
+    [TestMethod]
+    public void CustomerGroupModel_ToDomain_KeepsStoredIsSystem()
+    {
+        var group = new CustomerGroup { Id = "cg-001", Name = "Administrators", SystemName = "Administrators", IsSystem = true };
+        var model = new CustomerGroupModel { Id = "cg-001", Name = "Administrators", SystemName = "Administrators", IsSystem = false };
+
+        _mapper.Map(model, group);
+
+        Assert.IsTrue(group.IsSystem);
+    }
+
+    [TestMethod]
+    public void CustomerGroupModel_ToDomain_NewGroupIsNotSystem()
+    {
+        var model = new CustomerGroupModel { Name = "VIP Customers", SystemName = "vip", IsSystem = true };
+
+        Assert.IsFalse(_mapper.Map<CustomerGroup>(model).IsSystem);
+    }
+
     // ── CustomerAttribute ─────────────────────────────────────────────────────
 
     [TestMethod]

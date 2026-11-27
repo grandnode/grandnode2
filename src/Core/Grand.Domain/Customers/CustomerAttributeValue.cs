@@ -12,12 +12,12 @@ public class CustomerAttributeValue : SubBaseEntity, ITranslationEntity
     ///     Gets or sets the customer attribute identifier
     /// </summary>
     [AuditReference(typeof(CustomerAttribute))]
-    public string CustomerAttributeId { get; set; }
+    public string? CustomerAttributeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the checkout attribute name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether the value is pre-selected

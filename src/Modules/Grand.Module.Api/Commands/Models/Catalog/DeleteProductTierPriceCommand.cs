@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class DeleteProductTierPriceCommand : IRequest<bool>
 {
-    public ProductDto Product { get; set; }
-    public string Id { get; set; }
+    public required ProductDto Product { get; set; }
+    public required string Id { get; set; }
 }

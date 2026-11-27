@@ -13,7 +13,7 @@ public interface ILoyaltyPointsService
     /// <param name="customerId">Customer identifier</param>
     /// <param name="storeId">Store identifier; pass </param>
     /// <returns>Balance</returns>
-    Task<int> GetLoyaltyPointsBalance(string customerId, string storeId);
+    Task<int> GetLoyaltyPointsBalance(string customerId, string? storeId);
 
     /// <summary>
     ///     Add loyalty points history record
@@ -24,7 +24,7 @@ public interface ILoyaltyPointsService
     /// <param name="message">Message</param>
     /// <param name="usedWithOrderId">the order for which points were redeemed as a payment</param>
     /// <param name="usedAmount">Used amount</param>
-    Task<LoyaltyPointsHistory> AddLoyaltyPointsHistory(string customerId, int points, string storeId,
+    Task<LoyaltyPointsHistory> AddLoyaltyPointsHistory(string customerId, int points, string? storeId,
         string message = "",
         string usedWithOrderId = "", double usedAmount = 0);
 
@@ -38,7 +38,7 @@ public interface ILoyaltyPointsService
     /// <param name="usedWithOrderId">the order for which points are redeemed as a payment</param>
     /// <param name="usedAmount">Used amount</param>
     /// <returns>The history record, or null when the balance is short</returns>
-    Task<LoyaltyPointsHistory> TryRedeemLoyaltyPoints(string customerId, int points, string storeId,
+    Task<LoyaltyPointsHistory?> TryRedeemLoyaltyPoints(string customerId, int points, string? storeId,
         string message, string usedWithOrderId, double usedAmount);
 
     /// <summary>
@@ -48,6 +48,6 @@ public interface ILoyaltyPointsService
     /// <param name="storeId">Store ident</param>
     /// <param name="showAll">A value indicating whether to show for all store(filter by current store if possible)</param>
     /// <returns>Loyalty point history records</returns>
-    Task<IList<LoyaltyPointsHistory>> GetLoyaltyPointsHistory(string customerId = "", string storeId = "",
+    Task<IList<LoyaltyPointsHistory>> GetLoyaltyPointsHistory(string customerId = "", string? storeId = "",
         bool showAll = false);
 }

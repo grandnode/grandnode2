@@ -80,7 +80,8 @@ public class MeasureController : BaseAdminController
     {
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-        var weight = await _measureService.GetMeasureWeightById(model.Id);
+        var weight = await _measureService.GetMeasureWeightById(model.Id)
+            ?? throw new ArgumentException("No measure weight found with the specified id");
         weight = model.ToEntity(weight);
         await _measureService.UpdateMeasureWeight(weight);
 
@@ -161,7 +162,8 @@ public class MeasureController : BaseAdminController
     {
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-        var dimension = await _measureService.GetMeasureDimensionById(model.Id);
+        var dimension = await _measureService.GetMeasureDimensionById(model.Id)
+            ?? throw new ArgumentException("No measure dimension found with the specified id");
         dimension = model.ToEntity(dimension);
         await _measureService.UpdateMeasureDimension(dimension);
 
@@ -243,7 +245,8 @@ public class MeasureController : BaseAdminController
     {
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-        var unit = await _measureService.GetMeasureUnitById(model.Id);
+        var unit = await _measureService.GetMeasureUnitById(model.Id)
+            ?? throw new ArgumentException("No measure unit found with the specified id");
         unit = model.ToEntity(unit);
         await _measureService.UpdateMeasureUnit(unit);
 

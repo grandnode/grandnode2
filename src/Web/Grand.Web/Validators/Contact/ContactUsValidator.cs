@@ -91,7 +91,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
                 if (a1.Id != a2.Id) continue;
                 var attributeValuesStr = customAttributes.Where(x => x.Key == a1.Id).Select(x => x.Value).ToList();
                 foreach (var str1 in attributeValuesStr)
-                    if (!string.IsNullOrEmpty(str1.Trim()))
+                    if (!string.IsNullOrEmpty(str1?.Trim()))
                     {
                         found = true;
                         break;
@@ -102,7 +102,7 @@ public class ContactUsValidator : BaseGrandValidator<ContactUsModel>
             if (!found)
                 warnings.Add(
                     !string.IsNullOrEmpty(a2.GetTranslation(a => a.TextPrompt, _contextAccessor.WorkContext.WorkingLanguage.Id))
-                        ? a2.GetTranslation(a => a.TextPrompt, _contextAccessor.WorkContext.WorkingLanguage.Id)
+                        ? a2.GetTranslation(a => a.TextPrompt, _contextAccessor.WorkContext.WorkingLanguage.Id) ?? ""
                         : string.Format(_translationService.GetResource("ContactUs.SelectAttribute"),
                             a2.GetTranslation(a => a.Name, _contextAccessor.WorkContext.WorkingLanguage.Id)));
         }

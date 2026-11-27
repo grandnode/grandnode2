@@ -52,6 +52,8 @@ public class CountryViewModelService : ICountryViewModelService
 
     public virtual async Task<StateProvince> InsertStateProvinceModel(StateProvinceModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.CountryId);
+
         var sp = model.ToEntity();
         await _countryService.InsertStateProvince(sp, model.CountryId);
         return sp;
@@ -59,6 +61,8 @@ public class CountryViewModelService : ICountryViewModelService
 
     public virtual async Task<StateProvince> UpdateStateProvinceModel(StateProvince sp, StateProvinceModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.CountryId);
+
         sp = model.ToEntity(sp);
         await _countryService.UpdateStateProvince(sp, model.CountryId);
         return sp;

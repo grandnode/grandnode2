@@ -30,12 +30,12 @@ public class AuctionService : IAuctionService
         _mediator = mediator;
     }
 
-    public virtual Task<Bid> GetBid(string id)
+    public virtual Task<Bid?> GetBid(string? id)
     {
         return _bidRepository.GetByIdAsync(id);
     }
 
-    public virtual async Task<Bid> GetLatestBid(string productId)
+    public virtual async Task<Bid?> GetLatestBid(string productId)
     {
         var bid = _bidRepository.Table
             .Where(x => x.ProductId == productId)
@@ -87,10 +87,10 @@ public class AuctionService : IAuctionService
         var highestBid = bids.MaxBy(x => x.Amount);
         if (productToUpdate != null)
             await UpdateHighestBid(productToUpdate, highestBid?.Amount ?? 0,
-                highestBid != null ? highestBid.CustomerId : "");
+                highestBid?.CustomerId ?? "");
     }
 
-    public virtual async Task UpdateHighestBid(Product product, double bid, string highestBidder)
+    public virtual async Task UpdateHighestBid(Product product, double bid, string? highestBidder)
     {
         product.HighestBid = bid;
         product.HighestBidder = highestBidder;
@@ -131,7 +131,7 @@ public class AuctionService : IAuctionService
     /// <param name="language"></param>
     /// <param name="amount"></param>
     public virtual async Task NewBid(Customer customer, Product product, Store store, Language language,
-        string warehouseId, double amount)
+        string? warehouseId, double amount)
     {
         var latest = await GetLatestBid(product.Id);
         await InsertBid(new Bid {

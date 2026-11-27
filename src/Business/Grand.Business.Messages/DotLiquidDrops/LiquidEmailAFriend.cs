@@ -1,4 +1,5 @@
 ﻿using DotLiquid;
+using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
 
@@ -7,8 +8,8 @@ public class LiquidEmailAFriend : Drop
     public LiquidEmailAFriend(string personalMessage, string customerEmail, string friendsEmail)
     {
         PersonalMessage = personalMessage;
-        Email = customerEmail;
-        FriendsEmail = friendsEmail;
+        Email = WebUtility.HtmlEncode(customerEmail);
+        FriendsEmail = WebUtility.HtmlEncode(friendsEmail);
 
         AdditionalTokens = new Dictionary<string, string>();
     }

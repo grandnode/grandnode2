@@ -2,5 +2,5 @@
 
 public class DiscountCouponModel
 {
-    public string DiscountCouponCode { get; set; }
+    public string? DiscountCouponCode { get; set; }
 }

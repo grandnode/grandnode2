@@ -15,5 +15,5 @@ public interface IOidcProtectedResourceRegistry
     IReadOnlyList<OidcProtectedResource> Withdrawn { get; }
 
     /// <summary>The resource covering the path, or null</summary>
-    OidcProtectedResource Match(PathString path);
+    OidcProtectedResource? Match(PathString path);
 }

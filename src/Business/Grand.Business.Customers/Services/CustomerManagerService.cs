@@ -68,8 +68,8 @@ public class CustomerManagerService : ICustomerManagerService
 
     #region Methods
 
-    public virtual bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword,
-        string passwordSalt)
+    public virtual bool PasswordMatch(PasswordFormat passwordFormat, string? oldPassword, string? newPassword,
+        string? passwordSalt)
     {
         //oldPassword is the stored credential, newPassword is the plain-text candidate being checked against it
         return _encryptionService.VerifyPassword(newPassword, passwordFormat, oldPassword, passwordSalt,
@@ -85,12 +85,15 @@ public class CustomerManagerService : ICustomerManagerService
     /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
     /// <param name="surface">Where the password is used: the sign-in policy decides per surface</param>
     /// <returns>Result</returns>
-    public virtual async Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password,
+    public virtual async Task<CustomerLoginResults> LoginCustomer(string? usernameOrEmail, string? password,
         string storeId = "", SignInSurface surface = SignInSurface.Storefront)
     {
         var customer = _customerSettings.UsernamesEnabled
             ? await _customerService.GetCustomerByUsername(usernameOrEmail, storeId)
             : await _customerService.GetCustomerByEmail(usernameOrEmail, storeId);
+        //the login validators refuse an unknown account first; answered like a wrong password all the same
+        if (customer == null)
+            return CustomerLoginResults.WrongPassword;
 
         var isValid = _encryptionService.VerifyPassword(password, customer.PasswordFormatId, customer.Password,
             customer.PasswordSalt, _customerSettings.HashedPasswordFormat);
@@ -105,7 +108,8 @@ public class CustomerManagerService : ICustomerManagerService
             _logger.LogWarning("Break-glass password sign-in of customer {CustomerId} on the Admin panel", customer.Id);
 
         //transparently migrate weak/legacy hashes (SHA-x, Clear, Encrypted) to the modern PBKDF2 format
-        if (_encryptionService.PasswordHashNeedsUpgrade(customer.PasswordFormatId, customer.Password))
+        //the password matched, so it was given
+        if (password != null && _encryptionService.PasswordHashNeedsUpgrade(customer.PasswordFormatId, customer.Password))
         {
             try
             {
@@ -185,7 +189,7 @@ public class CustomerManagerService : ICustomerManagerService
         //remove from 'Guests' role
         var guestGroup = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Guests);
         var guestExists = request.Customer.Groups.FirstOrDefault(cr => cr == guestGroup?.Id);
-        if (guestExists != null)
+        if (guestGroup != null && guestExists != null)
         {
             request.Customer.Groups.Remove(guestGroup.Id);
             await _customerService.DeleteCustomerGroupInCustomer(guestGroup, request.Customer.Id);
@@ -199,11 +203,12 @@ public class CustomerManagerService : ICustomerManagerService
     ///     Change password
     /// </summary>
     /// <param name="request">Request</param>
-    public virtual async Task ChangePassword(ChangePasswordRequest request, string storeId = "")
+    public virtual async Task ChangePassword(ChangePasswordRequest request, string? storeId = "")
     {
         ArgumentNullException.ThrowIfNull(request);
 
-        var customer = await _customerService.GetCustomerByEmail(request.Email, storeId);
+        var customer = await _customerService.GetCustomerByEmail(request.Email, storeId) ??
+                       throw new GrandException("No customer has the e-mail");
 
         await ChangePassword(customer, request.PasswordFormat, request.NewPassword);
     }

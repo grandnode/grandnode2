@@ -9,30 +9,30 @@ public class OrderApprovalSummary
     /// <summary>
     ///     Gets or sets the sub total
     /// </summary>
-    public string SubTotal { get; set; }
+    public string? SubTotal { get; set; }
 
     /// <summary>
     ///     Gets or sets the discount
     /// </summary>
-    public string Discount { get; set; }
+    public string? Discount { get; set; }
 
     /// <summary>
     ///     Gets or sets the shipping method name
     /// </summary>
-    public string ShippingMethod { get; set; }
+    public string? ShippingMethod { get; set; }
 
     /// <summary>
     ///     Gets or sets the shipping cost
     /// </summary>
-    public string Shipping { get; set; }
+    public string? Shipping { get; set; }
 
     /// <summary>
     ///     Gets or sets the tax
     /// </summary>
-    public string Tax { get; set; }
+    public string? Tax { get; set; }
 
     /// <summary>
     ///     Gets or sets the order total
     /// </summary>
-    public string Total { get; set; }
+    public string? Total { get; set; }
 }

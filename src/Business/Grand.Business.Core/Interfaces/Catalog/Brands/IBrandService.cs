@@ -17,7 +17,7 @@ public interface IBrandService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Brands</returns>
-    Task<IPagedList<Brand>> GetAllBrands(string brandName,
+    Task<IPagedList<Brand>> GetAllBrands(string? brandName,
         CatalogAccess access,
         int pageIndex = 0,
         int pageSize = int.MaxValue);
@@ -27,7 +27,7 @@ public interface IBrandService
     /// </summary>
     /// <param name="brandId">Brand identifier</param>
     /// <returns>Brand</returns>
-    Task<Brand> GetBrandById(string brandId);
+    Task<Brand?> GetBrandById(string? brandId);
 
     /// <summary>
     ///     Inserts a new brand

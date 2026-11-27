@@ -27,6 +27,8 @@ public class InsertContactUsCommandHandlerTests
         var command = new InsertContactUsCommand {
             ContactAttributeDescription = "d",
             Email = "grand@gmail.com",
+            FullName = "John Doe",
+            Enquiry = "Question",
             ContactAttributes = new List<CustomAttribute>()
         };
 

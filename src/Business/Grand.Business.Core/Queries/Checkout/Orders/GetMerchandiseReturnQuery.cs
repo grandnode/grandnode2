@@ -26,4 +26,7 @@ public class GetMerchandiseReturnQuery : IRequest<IPagedList<MerchandiseReturn>>
 
     //only the returns still being handled: pending, accepted or received
     public bool OpenOnly { get; set; }
+
+    /// <summary>Only the returns of this sales employee's orders.</summary>
+    public string SalesEmployeeId { get; set; } = "";
 }

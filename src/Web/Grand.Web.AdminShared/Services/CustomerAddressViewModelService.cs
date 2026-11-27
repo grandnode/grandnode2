@@ -78,7 +78,7 @@ public class CustomerAddressViewModelService(
         return address;
     }
 
-    public virtual async Task PrepareAddressModel(CustomerAddressModel model, Address address, Customer customer,
+    public virtual async Task PrepareAddressModel(CustomerAddressModel model, Address? address, Customer customer,
         bool excludeProperties)
     {
         ArgumentNullException.ThrowIfNull(customer);

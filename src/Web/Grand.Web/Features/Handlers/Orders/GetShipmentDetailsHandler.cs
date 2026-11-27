@@ -5,6 +5,8 @@ using Grand.Business.Core.Interfaces.Checkout.Shipping;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Catalog;
 using Grand.Domain.Shipping;
+using Grand.Infrastructure.Security;
+using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Common;
 using Grand.Web.Features.Models.Orders;
 using Grand.Web.Models.Orders;
@@ -19,6 +21,7 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
     private readonly IMediator _mediator;
     private readonly IProductService _productService;
     private readonly IProductUnitService _productUnitService;
+    private readonly IHtmlSanitizationService _htmlSanitizationService;
     private readonly IShipmentService _shipmentService;
     private readonly ShippingProviderSettings _shippingProviderSettings;
     private readonly IShippingService _shippingService;
@@ -34,8 +37,10 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
         ShippingSettings shippingSettings,
         CatalogSettings catalogSettings,
         ShippingProviderSettings shippingProviderSettings,
-        IProductUnitService productUnitService)
+        IProductUnitService productUnitService,
+        IHtmlSanitizationService htmlSanitizationService)
     {
+        _htmlSanitizationService = htmlSanitizationService;
         _productUnitService = productUnitService;
         _dateTimeService = dateTimeService;
         _productService = productService;
@@ -102,7 +107,9 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
             var orderItem = request.Order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
             if (orderItem == null)
                 continue;
-            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            //archived products are kept, so a missing one is a broken record
+            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId)
+                          ?? throw new InvalidOperationException($"Product {orderItem.ProductId} of order item {orderItem.Id} is missing");
             var shipmentItemModel = new ShipmentDetailsModel.ShipmentItemModel {
                 Id = shipmentItem.Id,
                 Sku = product.FormatSku(orderItem.Attributes),
@@ -147,7 +154,7 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
                 Id = shipmentNote.Id,
                 ShipmentId = shipmentNote.ShipmentId,
                 HasDownload = !string.IsNullOrEmpty(shipmentNote.DownloadId),
-                Note = shipmentNote.Note,
+                Note = _htmlSanitizationService.NoteHtml(shipmentNote.Note, shipmentNote.CreatedByCustomer),
                 CreatedOn = _dateTimeService.ConvertToUserTime(shipmentNote.CreatedOnUtc, DateTimeKind.Utc)
             });
         return notes;

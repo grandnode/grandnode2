@@ -7,7 +7,7 @@ namespace Grand.Web.Models.Checkout;
 public class CheckoutConfirmModel : BaseModel
 {
     public bool TermsOfServiceOnOrderConfirmPage { get; set; }
-    public string MinOrderTotalWarning { get; set; }
+    public string? MinOrderTotalWarning { get; set; }
 
     /// <summary>
     ///     An order placement rule requires an approval: the order is placed at once and waits for a decision
@@ -17,7 +17,7 @@ public class CheckoutConfirmModel : BaseModel
     /// <summary>
     ///     Tells the buyer the order goes for approval, and why
     /// </summary>
-    public string OrderApprovalMessage { get; set; }
+    public string? OrderApprovalMessage { get; set; }
 
     /// <summary>
     ///     An order placement rule blocks the order: it cannot be confirmed
@@ -27,12 +27,12 @@ public class CheckoutConfirmModel : BaseModel
     /// <summary>
     ///     Tells the buyer why the order cannot be placed
     /// </summary>
-    public string OrderPlacementBlockedMessage { get; set; }
+    public string? OrderPlacementBlockedMessage { get; set; }
 
     /// <summary>
     ///     Label of the confirm button when the order needs an approval
     /// </summary>
-    public string OrderApprovalButtonText { get; set; }
+    public string? OrderApprovalButtonText { get; set; }
 
     /// <summary>
     ///     Whether the confirm step asks for the buyer's purchase order number
@@ -55,9 +55,9 @@ public class CheckoutConfirmModel : BaseModel
         public AddressModel ShippingAddress { get; set; } = new();
         public bool SelectedPickUpInStore { get; set; }
         public AddressModel PickupAddress { get; set; } = new();
-        public string ShippingMethod { get; set; }
-        public string ShippingAdditionDescription { get; set; }
+        public string? ShippingMethod { get; set; }
+        public string? ShippingAdditionDescription { get; set; }
 
-        public string PaymentMethod { get; set; }
+        public string? PaymentMethod { get; set; }
     }
 }

@@ -12,12 +12,12 @@ public interface IMessageLookupService
     /// <summary>
     ///     Gets the store by identifier, or the first store when it does not exist
     /// </summary>
-    Task<Store> GetStore(string storeId);
+    Task<Store> GetStore(string? storeId);
 
     /// <summary>
     ///     Gets an active message template by name, or null when it is missing or inactive
     /// </summary>
-    Task<MessageTemplate> GetMessageTemplate(string messageTemplateName, string storeId);
+    Task<MessageTemplate?> GetMessageTemplate(string messageTemplateName, string? storeId);
 
     /// <summary>
     ///     Gets the email account of the message template, falling back to the default and then to any account
@@ -27,5 +27,5 @@ public interface IMessageLookupService
     /// <summary>
     ///     Gets the language if published, else a published language of the store, else any language
     /// </summary>
-    Task<Language> EnsureLanguageIsActive(string languageId, string storeId);
+    Task<Language> EnsureLanguageIsActive(string? languageId, string storeId);
 }

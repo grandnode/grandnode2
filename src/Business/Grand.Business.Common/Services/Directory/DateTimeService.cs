@@ -11,7 +11,7 @@ namespace Grand.Business.Common.Services.Directory;
 public class DateTimeService : IDateTimeService
 {
     private readonly DateTimeSettings _dateTimeSettings;
-    private TimeZoneInfo _timeZoneInfo;
+    private TimeZoneInfo? _timeZoneInfo;
 
     /// <summary>
     ///     Ctor

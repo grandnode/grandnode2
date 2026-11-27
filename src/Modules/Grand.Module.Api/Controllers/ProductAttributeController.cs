@@ -36,10 +36,10 @@ public class ProductAttributeController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
 
-        var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(key));
-        if (!productAttribute.Any()) return NotFound();
+        var productAttribute = (await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(key))).FirstOrDefault();
+        if (productAttribute == null) return NotFound();
 
-        return Ok(productAttribute.FirstOrDefault());
+        return Ok(productAttribute);
     }
 
     [EndpointDescription("Get entities from ProductAttribute")]
@@ -63,7 +63,7 @@ public class ProductAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] ProductAttributeDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddProductAttributeCommand { Model = model });
         return Ok(model);
@@ -75,12 +75,16 @@ public class ProductAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(ProductAttributeDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] ProductAttributeDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        model = await _mediator.Send(new UpdateProductAttributeCommand { Model = model });
-        return Ok(model);
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
+        var updated = await _mediator.Send(new UpdateProductAttributeCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Partially update entity in ProductAttribute")]
@@ -95,15 +99,15 @@ public class ProductAttributeController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(key));
-        if (!productAttribute.Any()) return NotFound();
+        var productAttribute = (await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(key))).FirstOrDefault();
+        if (productAttribute == null) return NotFound();
 
-        var pa = productAttribute.FirstOrDefault();
+        var pa = productAttribute;
         model.ApplyTo(pa);
-        pa = await _mediator.Send(new UpdateProductAttributeCommand { Model = pa });
-        return Ok(pa);
+        var updated = await _mediator.Send(new UpdateProductAttributeCommand { Model = pa });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Delete entity from ProductAttribute")]
@@ -114,12 +118,12 @@ public class ProductAttributeController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.ProductAttributes, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.ProductAttributes, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var productAttribute = await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(key));
-        if (!productAttribute.Any()) return NotFound();
+        var productAttribute = (await _mediator.Send(new GetGenericQuery<ProductAttributeDto, ProductAttribute>(key))).FirstOrDefault();
+        if (productAttribute == null) return NotFound();
 
-        await _mediator.Send(new DeleteProductAttributeCommand { Model = productAttribute.FirstOrDefault() });
+        await _mediator.Send(new DeleteProductAttributeCommand { Model = productAttribute });
         return Ok();
     }
 }

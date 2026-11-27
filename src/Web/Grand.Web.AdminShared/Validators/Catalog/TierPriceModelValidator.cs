@@ -18,7 +18,7 @@ public class TierPriceModelValidator : BaseStoreAccessValidator<ProductModel.Tie
     {
         _productService = productService;
     }
-    protected override async Task<Product> GetEntity(ProductModel.TierPriceModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.TierPriceModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }
@@ -36,7 +36,7 @@ public class TierPriceDeleteModelValidator : BaseStoreAccessValidator<ProductMod
     {
         _productService = productService;
     }
-    protected override async Task<Product> GetEntity(ProductModel.TierPriceDeleteModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.TierPriceDeleteModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

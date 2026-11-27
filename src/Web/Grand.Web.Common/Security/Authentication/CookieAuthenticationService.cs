@@ -110,7 +110,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         await SignIn(customer, isPersistent, await CurrentOidcSessionIdOf(customer));
     }
 
-    private async Task<string> CurrentOidcSessionIdOf(Customer customer)
+    private async Task<string?> CurrentOidcSessionIdOf(Customer customer)
     {
         if (_httpContextAccessor.HttpContext == null || string.IsNullOrEmpty(customer.Id))
             return null;
@@ -133,7 +133,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     /// <param name="customer">Customer</param>
     /// <param name="isPersistent">Whether the authentication session is persisted across multiple requests</param>
     /// <param name="oidcSessionId">Id of the OidcSession; null or empty = an ordinary sign-in</param>
-    public virtual async Task SignIn(Customer customer, bool isPersistent, string oidcSessionId)
+    public virtual async Task SignIn(Customer customer, bool isPersistent, string? oidcSessionId)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -213,6 +213,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
             var oidcSessionId = authenticateResult?.Succeeded == true ? OidcSessionId(authenticateResult.Principal) : null;
             if (!string.IsNullOrEmpty(oidcSessionId))
                 await EndOidcSession(oidcSessionId);
+            if (authenticateResult?.Succeeded == true && _customerSettings.SignOutOnAllDevices)
+                await ReplacePasswordToken(authenticateResult.Principal);
 
             await _httpContextAccessor.HttpContext.SignOutAsync(GrandCookieAuthenticationDefaults
                 .AuthenticationScheme);
@@ -239,9 +241,13 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     ///     Get an authenticated customer
     /// </summary>
     /// <returns>Customer</returns>
-    public virtual async Task<Customer> GetAuthenticatedCustomer()
+    public virtual async Task<Customer?> GetAuthenticatedCustomer()
     {
-        var authenticateResult = await _httpContextAccessor.HttpContext.AuthenticateAsync(GrandCookieAuthenticationDefaults.AuthenticationScheme);
+        var httpContext = _httpContextAccessor.HttpContext;
+        if (httpContext == null)
+            return null;
+
+        var authenticateResult = await httpContext.AuthenticateAsync(GrandCookieAuthenticationDefaults.AuthenticationScheme);
         if (!authenticateResult.Succeeded)
             return null;
 
@@ -252,7 +258,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         return customer;
     }
 
-    private async Task<Customer> RetrieveCustomer(ClaimsPrincipal principal)
+    private async Task<Customer?> RetrieveCustomer(ClaimsPrincipal principal)
     {
         //prefer the stable customer id - unambiguous even with per-store customer identity
         var customerId = principal.FindFirst(claim =>
@@ -291,16 +297,8 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     private async Task<bool> IsValidCustomer(Customer customer, ClaimsPrincipal principal)
     {
         var passwordToken = customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
-        if (!string.IsNullOrEmpty(passwordToken))
-        {
-            var tokenClaim = principal
-                .FindFirst(claim =>
-                    claim.Type == ClaimTypes.UserData &&
-                    claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase));
-
-            if (tokenClaim == null || tokenClaim.Value != passwordToken)
-                return false;
-        }
+        if (!string.IsNullOrEmpty(passwordToken) && PasswordTokenOf(principal) != passwordToken)
+            return false;
 
         if (!customer.Active || customer.Deleted || !await _groupService.IsRegistered(customer))
             return false;
@@ -319,6 +317,27 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         return (await _externalSignInPolicy.PasswordSignIn(customer, SignInSurface.AdminPanel)).Allowed;
     }
 
+    /// <summary>
+    ///     The cookie is a ticket the server keeps no record of, so a copy taken before the sign-out would still be
+    ///     accepted: the token it carries is replaced, which ends every sign-in of the account, on other devices too
+    /// </summary>
+    private async Task ReplacePasswordToken(ClaimsPrincipal principal)
+    {
+        var customer = await RetrieveCustomer(principal);
+        var passwordToken = customer?.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken);
+        //an old cookie, whose token was replaced already, does not end the sign-ins made after it
+        if (customer == null || string.IsNullOrEmpty(passwordToken) || PasswordTokenOf(principal) != passwordToken)
+            return;
+
+        await _customerService.UpdateUserField(customer, SystemCustomerFieldNames.PasswordToken,
+            Guid.NewGuid().ToString());
+    }
+
+    private string? PasswordTokenOf(ClaimsPrincipal principal) =>
+        principal.FindFirst(claim =>
+            claim.Type == ClaimTypes.UserData &&
+            claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))?.Value;
+
     private async Task EndOidcSession(string sessionId)
     {
         try
@@ -332,7 +351,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
         }
     }
 
-    private string OidcSessionId(ClaimsPrincipal principal) =>
+    private string? OidcSessionId(ClaimsPrincipal? principal) =>
         principal?.FindFirst(claim =>
             claim.Type == OidcSessionDefaults.SessionIdClaimType &&
             claim.Issuer.Equals(_securityConfig.CookieClaimsIssuer, StringComparison.InvariantCultureIgnoreCase))?.Value;
@@ -341,20 +360,20 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     ///     Get customer cookie
     /// </summary>
     /// <returns>String value of cookie</returns>
-    public virtual Task<string> GetCustomerGuid()
+    public virtual Task<string?> GetCustomerGuid()
     {
         var cookie = _httpContextAccessor.HttpContext?.Request.Cookies[CustomerCookieName];
         if (string.IsNullOrEmpty(cookie))
-            return Task.FromResult<string>(null);
+            return Task.FromResult<string?>(null);
 
         try
         {
-            return Task.FromResult(_customerCookieProtector.Unprotect(cookie));
+            return Task.FromResult<string?>(_customerCookieProtector.Unprotect(cookie));
         }
         catch (CryptographicException)
         {
             //not issued by the store (a bare GUID included), or protected with a key that is gone
-            return Task.FromResult<string>(null);
+            return Task.FromResult<string?>(null);
         }
     }
 
@@ -362,7 +381,7 @@ public class CookieAuthenticationService : IGrandAuthenticationService
     ///     The bare GUID of a guest cookie written before the cookie was protected; null otherwise.
     ///     Transition only, removed in 2.6
     /// </summary>
-    public virtual Task<string> GetLegacyCustomerGuid()
+    public virtual Task<string?> GetLegacyCustomerGuid()
     {
         var cookie = _httpContextAccessor.HttpContext?.Request.Cookies[CustomerCookieName];
         return Task.FromResult(GuestCustomerRules.TryParseCookie(cookie, out _) ? cookie : null);

@@ -18,7 +18,7 @@ public class OidcSignOutProvider(
     IContextAccessor contextAccessor,
     ILogger<OidcSignOutProvider> logger) : IExternalSignOutProvider
 {
-    public async Task<string> GetSignOutUrl(string postLogoutRedirectUri)
+    public async Task<string?> GetSignOutUrl(string postLogoutRedirectUri)
     {
         //called before the local sign-out: the customer is still the signed-in one
         if (!externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName,
@@ -36,7 +36,7 @@ public class OidcSignOutProvider(
                 return null;
 
             var separator = configuration.EndSessionEndpoint.Contains('?') ? '&' : '?';
-            return $"{configuration.EndSessionEndpoint}{separator}client_id={Uri.EscapeDataString(config.ClientId)}" +
+            return $"{configuration.EndSessionEndpoint}{separator}client_id={Uri.EscapeDataString(config.ClientId ?? "")}" +
                    $"&post_logout_redirect_uri={Uri.EscapeDataString(postLogoutRedirectUri)}";
         }
         catch (Exception ex)

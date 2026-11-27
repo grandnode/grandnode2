@@ -6,8 +6,11 @@ public static class ModelStateExtensions
 {
     public static object SerializeErrors(this ModelStateDictionary modelStateDictionary)
     {
-        return modelStateDictionary.Where(entry => entry.Value != null && entry.Value.Errors.Any())
-            .ToDictionary(entry => entry.Key, entry => SerializeModelState(entry.Value));
+        var errors = new Dictionary<string, Dictionary<string, object>>();
+        foreach (var (key, entry) in modelStateDictionary)
+            if (entry is { Errors.Count: > 0 })
+                errors[key] = SerializeModelState(entry);
+        return errors;
     }
 
     private static Dictionary<string, object> SerializeModelState(ModelStateEntry modelState)
@@ -19,7 +22,7 @@ public static class ModelStateExtensions
         return dictionary;
     }
 
-    public static object ToDataSourceResult(this ModelStateDictionary modelState)
+    public static object? ToDataSourceResult(this ModelStateDictionary modelState)
     {
         return !modelState.IsValid ? modelState.SerializeErrors() : null;
     }

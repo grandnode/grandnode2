@@ -8,6 +8,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Extensions.Mapping.Settings;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Models.Payments;
 using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
@@ -27,7 +28,7 @@ public class PaymentController(
     IRequestTranslationService translationService,
     IContextAccessor contextAccessor) : BaseStoreController
 {
-    private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => contextAccessor.WorkContext.PanelStoreId();
 
     #region Payment methods
 

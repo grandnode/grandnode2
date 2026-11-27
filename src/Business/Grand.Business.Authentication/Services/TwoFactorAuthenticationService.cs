@@ -2,10 +2,13 @@
 using Grand.Business.Core.Interfaces.Authentication;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Utilities.Authentication;
+using Grand.Data;
 using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Grand.Business.Authentication.Services;
 
@@ -14,38 +17,36 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
     private readonly IEnumerable<ISMSVerificationService> _smsVerificationService;
     private readonly TwoFactorAuthenticator _twoFactorAuthentication;
     private readonly ICustomerService _customerService;
+    private readonly IResourceLock _resourceLock;
 
     public TwoFactorAuthenticationService(
         ICustomerService customerService,
-        IEnumerable<ISMSVerificationService> smsVerificationService)
+        IEnumerable<ISMSVerificationService> smsVerificationService,
+        IResourceLock resourceLock)
     {
         _customerService = customerService;
         _smsVerificationService = smsVerificationService;
+        _resourceLock = resourceLock;
         _twoFactorAuthentication = new TwoFactorAuthenticator();
     }
 
-    public virtual async Task<bool> AuthenticateTwoFactor(string secretKey, string token, Customer customer,
+    public virtual async Task<bool> AuthenticateTwoFactor(string? secretKey, string? token, Customer customer,
         TwoFactorAuthenticationType twoFactorAuthenticationType)
     {
         switch (twoFactorAuthenticationType)
         {
             case TwoFactorAuthenticationType.AppVerification:
-                return _twoFactorAuthentication.ValidateTwoFactorPIN(secretKey, token.Trim());
+                //an account without a secret key has no authenticator app set up; no code proves nothing
+                return secretKey != null && token != null &&
+                       _twoFactorAuthentication.ValidateTwoFactorPIN(secretKey, token.Trim());
 
             case TwoFactorAuthenticationType.EmailVerification:
-                var customerToken =
-                    customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
-                if (customerToken != token?.Trim())
-                    return false;
-                var validUntil =
-                    customer.GetUserFieldFromEntity<DateTime>(SystemCustomerFieldNames.TwoFactorCodeValidUntil);
-                return validUntil >= DateTime.UtcNow;
+                return await UseEmailCode(customer, token?.Trim());
 
             case TwoFactorAuthenticationType.SMSVerification:
-                if (!_smsVerificationService.Any())
-                    throw new Exception("ISMSVerificationService not registered in DI container");
-                var smsVerificationService = _smsVerificationService.FirstOrDefault();
-                return await smsVerificationService!.Authenticate(secretKey, token.Trim(), customer);
+                var smsVerificationService = _smsVerificationService.FirstOrDefault() ??
+                                             throw new Exception("ISMSVerificationService not registered in DI container");
+                return await smsVerificationService.Authenticate(secretKey, token?.Trim(), customer);
             default:
                 return false;
         }
@@ -86,9 +87,34 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
         return model;
     }
 
+    //a code signs in once: it is read again and cleared under a lock, so two requests with it cannot both pass
+    private async Task<bool> UseEmailCode(Customer customer, string? token)
+    {
+        await using var _ = await _resourceLock.Acquire([$"TwoFactorCode:{customer.Id}"]);
+
+        var current = await _customerService.GetCustomerById(customer.Id);
+        if (current == null)
+            return false;
+
+        var customerToken = current.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
+        if (string.IsNullOrEmpty(customerToken) || !CodesMatch(customerToken, token))
+            return false;
+        var validUntil = current.GetUserFieldFromEntity<DateTime>(SystemCustomerFieldNames.TwoFactorCodeValidUntil);
+        if (validUntil < DateTime.UtcNow)
+            return false;
+
+        await _customerService.UpdateUserField(current, SystemCustomerFieldNames.TwoFactorValidCode, string.Empty);
+        return true;
+    }
+
     private static string PrepareRandomCode()
     {
-        var generator = new Random();
-        return generator.Next(0, 999999).ToString("D6");
+        return RandomNumberGenerator.GetInt32(1_000_000).ToString("D6");
+    }
+
+    private static bool CodesMatch(string expected, string? given)
+    {
+        return given != null &&
+               CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(expected), Encoding.UTF8.GetBytes(given));
     }
 }

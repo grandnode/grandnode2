@@ -17,6 +17,7 @@ using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.RequestCustomerResolvers;
 using Grand.Web.Common.Security.Captcha;
+using Grand.Web.Common.Startup;
 using Grand.Web.Events;
 using Grand.Web.Extensions;
 using Grand.Web.Features.Models.Catalog;
@@ -24,6 +25,7 @@ using Grand.Web.Features.Models.Products;
 using Grand.Web.Models.Catalog;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.AspNetCore.RateLimiting;
 using Microsoft.Extensions.Logging;
 using Grand.SharedKernel.Attributes;
 using Grand.SharedKernel.Extensions;
@@ -94,8 +96,9 @@ public class ProductController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> RelatedProducts(string productId, int? productThumbPictureSize)
     {
-        var productIds = (await _productService.GetProductById(productId)).RelatedProducts.OrderBy(x => x.DisplayOrder)
-            .Select(x => x.ProductId2).ToArray();
+        //a product deleted meanwhile has none
+        var productIds = ((await _productService.GetProductById(productId))?.RelatedProducts ?? []).OrderBy(x => x.DisplayOrder)
+            .Select(x => x.ProductId2).OfType<string>().ToArray();
 
         //load products
         var products = await _productService.GetProductsByIds(productIds, _contextAccessor.CatalogAccess());
@@ -143,6 +146,7 @@ public class ProductController : BasePublicController
 
     #region Email a friend
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ProductEmailAFriend(ProductEmailAFriendModel model)
@@ -187,6 +191,7 @@ public class ProductController : BasePublicController
 
     #region Ask question
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> AskQuestionOnProduct(ProductAskQuestionSimpleModel model)
@@ -413,6 +418,7 @@ public class ProductController : BasePublicController
         });
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     public virtual async Task<IActionResult> UploadFileProductAttribute(string attributeId, string productId, IFormFile file,
         [FromServices] IDownloadService downloadService)
@@ -584,6 +590,7 @@ public class ProductController : BasePublicController
 
     #region Product reviews
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ProductReviews(
@@ -665,9 +672,10 @@ public class ProductController : BasePublicController
         [FromServices] IGroupService groupService,
         [FromServices] IProductReviewService productReviewService)
     {
+        //the review may have been deleted while the page was open
         var productReview = await productReviewService.GetProductReviewById(productReviewId);
         if (productReview == null)
-            throw new ArgumentException("No product review found with the specified id");
+            return NotFound();
 
         if (await groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) &&
             !_catalogSettings.AllowAnonymousUsersToReviewProduct)

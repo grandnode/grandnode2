@@ -49,8 +49,8 @@ public class CmsMessageProviderService : ICmsMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string languageId,
-        DomainHost host = null)
+    public virtual async Task<int> SendBlogCommentMessage(BlogPost blogPost, BlogComment blogComment, string? languageId,
+        DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(blogComment);
 
@@ -95,7 +95,7 @@ public class CmsMessageProviderService : ICmsMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendArticleCommentMessage(KnowledgebaseArticle article,
-        KnowledgebaseArticleComment articleComment, string languageId, DomainHost host = null)
+        KnowledgebaseArticleComment articleComment, string? languageId, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(articleComment);
 
@@ -137,8 +137,8 @@ public class CmsMessageProviderService : ICmsMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string languageId,
-        DomainHost host = null)
+    public virtual async Task<int> SendNewsCommentMessage(NewsItem newsItem, NewsComment newsComment, string? languageId,
+        DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(newsComment);
 

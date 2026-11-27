@@ -7,6 +7,6 @@ namespace Grand.Web.Features.Models.Customers;
 
 public class GetCourses : IRequest<CoursesModel>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
 }

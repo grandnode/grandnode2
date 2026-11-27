@@ -6,15 +6,15 @@ namespace Grand.Web.AdminShared.Models.Directory;
 
 public class StateProvinceModel : BaseEntityModel, ILocalizedModel<StateProvinceLocalizedModel>
 {
-    public string CountryId { get; set; }
+    public string? CountryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Abbreviation")]
 
-    public string Abbreviation { get; set; }
+    public string? Abbreviation { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Published")]
     public bool Published { get; set; }
@@ -29,7 +29,7 @@ public class StateProvinceLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Configuration.Countries.States.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

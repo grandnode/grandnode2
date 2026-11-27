@@ -119,7 +119,7 @@ public class QueuedEmailController : BaseAdminController
         var model = email.ToModel();
         model.PriorityName = _enumTranslationService.GetTranslationEnum(email.PriorityId);
         model.CreatedOn = _dateTimeService.ConvertToUserTime(email.CreatedOnUtc, DateTimeKind.Utc);
-        model.EmailAccountName = (await _emailAccountService.GetEmailAccountById(email.EmailAccountId)).DisplayName;
+        model.EmailAccountName = (await _emailAccountService.GetEmailAccountById(email.EmailAccountId))?.DisplayName;
         if (email.SentOnUtc.HasValue)
             model.SentOn = _dateTimeService.ConvertToUserTime(email.SentOnUtc.Value, DateTimeKind.Utc);
         if (email.ReadOnUtc.HasValue)

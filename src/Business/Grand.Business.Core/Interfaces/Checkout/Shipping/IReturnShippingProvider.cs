@@ -52,5 +52,5 @@ public interface IReturnShippingProvider : IProvider
     /// <summary>
     ///     Gets a shipment tracker; null when the provider tracks nothing
     /// </summary>
-    IShipmentTracker ShipmentTracker { get; }
+    IShipmentTracker? ShipmentTracker { get; }
 }

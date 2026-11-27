@@ -35,7 +35,8 @@ public class GetPersonalizedProductsQueryHandlerTests
     [TestMethod]
     public async Task HandleTest()
     {
-        await handler.Handle(new GetPersonalizedProductsQuery { Customer = new Customer() }, CancellationToken.None);
+        await handler.Handle(new GetPersonalizedProductsQuery { Customer = new Customer(), StoreId = "" },
+            CancellationToken.None);
         _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()),
             Times.Once);
     }
@@ -44,7 +45,8 @@ public class GetPersonalizedProductsQueryHandlerTests
     public async Task Handle_WithoutCustomer_ThrowsBeforeCaching()
     {
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
-            handler.Handle(new GetPersonalizedProductsQuery { ProductsNumber = 1 },
+            //null! only here: the handler's guard against a caller outside nullable checking is what is tested
+            handler.Handle(new GetPersonalizedProductsQuery { ProductsNumber = 1, Customer = null!, StoreId = "" },
                 CancellationToken.None));
         _casheManagerMock.Verify(c => c.GetAsync(It.IsAny<string>(), It.IsAny<Func<Task<List<Product>>>>()),
             Times.Never);

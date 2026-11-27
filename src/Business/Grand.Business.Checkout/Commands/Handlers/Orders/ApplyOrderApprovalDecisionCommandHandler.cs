@@ -8,6 +8,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.Extensions.Logging;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
@@ -99,7 +100,8 @@ public class ApplyOrderApprovalDecisionCommandHandler : IRequestHandler<ApplyOrd
                 return;
 
             // the buyer reads it: in the language the order was placed in, not the approver's
-            var store = await _storeService.GetStoreById(approval.StoreId);
+            var store = await _storeService.GetStoreById(approval.StoreId) ??
+                        throw new GrandException($"The store {approval.StoreId} of the order approval does not exist");
             var languageId = string.IsNullOrEmpty(order.CustomerLanguageId)
                 ? request.Language?.Id
                 : order.CustomerLanguageId;
@@ -116,7 +118,7 @@ public class ApplyOrderApprovalDecisionCommandHandler : IRequestHandler<ApplyOrd
         return true;
     }
 
-    private async Task ContinueApproved(Order order, Customer buyer, ApplyOrderApprovalDecisionCommand request,
+    private async Task ContinueApproved(Order order, Customer? buyer, ApplyOrderApprovalDecisionCommand request,
         CancellationToken cancellationToken)
     {
         await Guard(order.Id, "order status check",
@@ -149,7 +151,7 @@ public class ApplyOrderApprovalDecisionCommandHandler : IRequestHandler<ApplyOrd
         }
     }
 
-    private static string NormalizeComment(string comment)
+    private static string? NormalizeComment(string? comment)
     {
         if (string.IsNullOrWhiteSpace(comment))
             return null;

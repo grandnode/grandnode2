@@ -58,13 +58,14 @@ public class PageNavigationTagHelper : TagHelper
         _htmlHelper = htmlHelper;
     }
 
-    [ViewContext] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] public ViewContext ViewContext { get; set; } = null!;
 
     [HtmlAttributeName(QueryParamAttributeName)]
     public string QueryParam { get; set; } = "page";
 
     [HtmlAttributeName(PaginationParamAttributeName)]
-    public IPageableModel Pagination { get; set; }
+    public IPageableModel? Pagination { get; set; }
 
     [HtmlAttributeName(ShowTotalSummaryParamAttributeName)]
     public bool ShowTotalSummary { get; set; }
@@ -116,32 +117,33 @@ public class PageNavigationTagHelper : TagHelper
         return Task.CompletedTask;
     }
 
-    public virtual string GenerateHtmlString()
+    public virtual string? GenerateHtmlString()
     {
-        if (Pagination.TotalItems == 0)
+        //no pagination given, nothing to page
+        if (Pagination is not { } pagination || pagination.TotalItems == 0)
             return null;
 
         var links = new StringBuilder();
-        if (ShowTotalSummary && Pagination.TotalPages > 0)
+        if (ShowTotalSummary && pagination.TotalPages > 0)
         {
             links.Append("<li class=\"total-summary\">");
             links.Append(string.Format(_translationService.GetResource("Pager.CurrentPage"),
-                Pagination.PageIndex + 1, Pagination.TotalPages, Pagination.TotalItems));
+                pagination.PageIndex + 1, pagination.TotalPages, pagination.TotalItems));
             links.Append("</li>");
         }
 
-        if (ShowPagerItems && Pagination.TotalPages > 1)
+        if (ShowPagerItems && pagination.TotalPages > 1)
         {
             if (ShowFirst)
                 //first page
-                if (Pagination.PageIndex >= 3 && Pagination.TotalPages > IndividualPagesDisplayedCount)
+                if (pagination.PageIndex >= 3 && pagination.TotalPages > IndividualPagesDisplayedCount)
                     links.Append(CreatePageLink(1, _translationService.GetResource("Pager.First"),
                         "first-page page-item"));
 
             if (ShowPrevious)
                 //previous page
-                if (Pagination.PageIndex > 0)
-                    links.Append(CreatePageLink(Pagination.PageIndex,
+                if (pagination.PageIndex > 0)
+                    links.Append(CreatePageLink(pagination.PageIndex,
                         _translationService.GetResource("Pager.Previous"), "previous-page page-item"));
 
             if (ShowIndividualPages)
@@ -150,7 +152,7 @@ public class PageNavigationTagHelper : TagHelper
                 var firstIndividualPageIndex = GetFirstIndividualPageIndex();
                 var lastIndividualPageIndex = GetLastIndividualPageIndex();
                 for (var i = firstIndividualPageIndex; i <= lastIndividualPageIndex; i++)
-                    if (Pagination.PageIndex == i)
+                    if (pagination.PageIndex == i)
                         links.Append(
                             $"<li class=\"current-page page-item\"><a class=\"page-link\">{i + 1}</a></li>");
                     else
@@ -159,15 +161,15 @@ public class PageNavigationTagHelper : TagHelper
 
             if (ShowNext)
                 //next page
-                if (Pagination.PageIndex + 1 < Pagination.TotalPages)
-                    links.Append(CreatePageLink(Pagination.PageIndex + 2,
+                if (pagination.PageIndex + 1 < pagination.TotalPages)
+                    links.Append(CreatePageLink(pagination.PageIndex + 2,
                         _translationService.GetResource("Pager.Next"), "next-page page-item"));
 
             if (ShowLast)
                 //last page
-                if (Pagination.PageIndex + 3 < Pagination.TotalPages &&
-                    Pagination.TotalPages > IndividualPagesDisplayedCount)
-                    links.Append(CreatePageLink(Pagination.TotalPages,
+                if (pagination.PageIndex + 3 < pagination.TotalPages &&
+                    pagination.TotalPages > IndividualPagesDisplayedCount)
+                    links.Append(CreatePageLink(pagination.TotalPages,
                         _translationService.GetResource("Pager.Last"), "last-page page-item"));
         }
 
@@ -240,27 +242,31 @@ public class PageNavigationTagHelper : TagHelper
 
     protected virtual int GetFirstIndividualPageIndex()
     {
-        if (Pagination.TotalPages < IndividualPagesDisplayedCount ||
-            Pagination.PageIndex - IndividualPagesDisplayedCount / 2 < 0)
+        if (Pagination is not { } pagination)
+            return 0;
+        if (pagination.TotalPages < IndividualPagesDisplayedCount ||
+            pagination.PageIndex - IndividualPagesDisplayedCount / 2 < 0)
             return 0;
 
-        if (Pagination.PageIndex + IndividualPagesDisplayedCount / 2 >= Pagination.TotalPages)
-            return Pagination.TotalPages - IndividualPagesDisplayedCount;
+        if (pagination.PageIndex + IndividualPagesDisplayedCount / 2 >= pagination.TotalPages)
+            return pagination.TotalPages - IndividualPagesDisplayedCount;
 
-        return Pagination.PageIndex - IndividualPagesDisplayedCount / 2;
+        return pagination.PageIndex - IndividualPagesDisplayedCount / 2;
     }
 
     protected virtual int GetLastIndividualPageIndex()
     {
+        if (Pagination is not { } pagination)
+            return 0;
         var num = IndividualPagesDisplayedCount / 2;
         if (IndividualPagesDisplayedCount % 2 == 0) num--;
 
-        if (Pagination.TotalPages < IndividualPagesDisplayedCount ||
-            Pagination.PageIndex + num >= Pagination.TotalPages)
-            return Pagination.TotalPages - 1;
+        if (pagination.TotalPages < IndividualPagesDisplayedCount ||
+            pagination.PageIndex + num >= pagination.TotalPages)
+            return pagination.TotalPages - 1;
 
-        if (Pagination.PageIndex - IndividualPagesDisplayedCount / 2 < 0) return IndividualPagesDisplayedCount - 1;
+        if (pagination.PageIndex - IndividualPagesDisplayedCount / 2 < 0) return IndividualPagesDisplayedCount - 1;
 
-        return Pagination.PageIndex + num;
+        return pagination.PageIndex + num;
     }
 }

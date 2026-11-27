@@ -7,7 +7,7 @@ namespace Grand.Business.Authentication.Services.Scim;
 internal static class ScimProtection
 {
     /// <summary>Why SCIM must leave the account alone; null when it may manage it</summary>
-    public static string Refusal(Customer customer, OidcLoginConfig loginConfig)
+    public static string? Refusal(Customer customer, OidcLoginConfig loginConfig)
     {
         if (customer.Deleted)
             return "The account is deleted";

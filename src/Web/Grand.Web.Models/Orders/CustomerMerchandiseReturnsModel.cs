@@ -9,7 +9,7 @@ public class CustomerMerchandiseReturnsModel : BaseModel
     /// <summary>
     ///     The order a guest may still return items of; null shows no button
     /// </summary>
-    public string ReturnOrderId { get; set; }
+    public string? ReturnOrderId { get; set; }
 
     /// <summary>
     ///     Shown to a guest who came with a return link, who has no account pages to go to
@@ -21,15 +21,15 @@ public class CustomerMerchandiseReturnsModel : BaseModel
     public class MerchandiseReturnModel : BaseEntityModel
     {
         public int ReturnNumber { get; set; }
-        public string MerchandiseReturnStatus { get; set; }
+        public string? MerchandiseReturnStatus { get; set; }
         public DateTime CreatedOn { get; set; }
         public int ProductsCount { get; set; }
-        public string ReturnTotal { get; set; }
+        public string? ReturnTotal { get; set; }
 
         /// <summary>
         ///     The name of the return method; empty when the return has none
         /// </summary>
-        public string ReturnShippingMethod { get; set; }
+        public string? ReturnShippingMethod { get; set; }
     }
 
     #endregion

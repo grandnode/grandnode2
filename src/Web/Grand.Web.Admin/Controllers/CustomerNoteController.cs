@@ -6,6 +6,7 @@ using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Localization;
 using Grand.Web.Common.Security.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
@@ -18,6 +19,7 @@ namespace Grand.Web.Admin.Controllers;
 public class CustomerNoteController(
     ICustomerService customerService,
     ICustomerNoteViewModelService customerNoteViewModelService,
+    IRequestTranslationService translationService,
     IAdminDataScope<Customer> scope)
     : BaseCustomerScopedController(customerService, scope)
 {
@@ -25,8 +27,7 @@ public class CustomerNoteController(
     [HttpPost]
     public async Task<IActionResult> CustomerNotesSelect(string customerId, DataSourceRequest command)
     {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) throw new ArgumentException("No customer found with the specified id");
+        if ((await LoadAuthorizedCustomer(customerId)).IsDenied) throw new ArgumentException("No customer found with the specified id");
 
         var customerNoteModels = await customerNoteViewModelService.PrepareCustomerNoteList(customerId);
         var gridModel = new DataSourceResult { Data = customerNoteModels, Total = customerNoteModels.Count };
@@ -38,10 +39,15 @@ public class CustomerNoteController(
     public async Task<IActionResult> CustomerNoteAdd(string customerId, string downloadId, bool displayToCustomer,
         string title, string message)
     {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) return Json(new { Result = false });
+        if ((await LoadAuthorizedCustomer(customerId)).IsDenied) return Json(new { Result = false });
 
-        await customerNoteViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title, message);
+        if (!await customerNoteViewModelService.InsertCustomerNote(customerId, downloadId, displayToCustomer, title,
+                message))
+            return Json(new {
+                Result = false,
+                Message = translationService.GetResource("Admin.Customers.Customers.CustomerNotes.DownloadNotOfCustomer")
+            });
+
         return Json(new { Result = true });
     }
 
@@ -49,8 +55,7 @@ public class CustomerNoteController(
     [HttpPost]
     public async Task<IActionResult> CustomerNoteDelete(string id, string customerId)
     {
-        var (_, denied) = await LoadAuthorizedCustomer(customerId);
-        if (denied != null) throw new ArgumentException("No customer found with the specified id");
+        if ((await LoadAuthorizedCustomer(customerId)).IsDenied) throw new ArgumentException("No customer found with the specified id");
 
         await customerNoteViewModelService.DeleteCustomerNote(id, customerId);
         return new JsonResult("");

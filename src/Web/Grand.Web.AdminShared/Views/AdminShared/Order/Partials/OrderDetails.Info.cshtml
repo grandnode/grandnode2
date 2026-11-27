@@ -20,7 +20,7 @@
     {
         var tag = orderTags[i];
         orderTagsSB.Append("'");
-        orderTagsSB.Append(JavaScriptEncoder.Default.Encode(tag.Name));
+        orderTagsSB.Append(JavaScriptEncoder.Default.Encode(tag.Name ?? ""));
         orderTagsSB.Append("'");
         if (i != orderTags.Count - 1)
         {
@@ -178,6 +178,35 @@
             <div>
                 <admin-label asp-for="Code" asp-display-hint="false" class="grand-fact__label"/>
                 <div class="grand-fact__value">@Model.Code</div>
+            </div>
+        }
+        @if (!string.IsNullOrEmpty(Model.RecurringPaymentId))
+        {
+            <div>
+                <admin-label asp-for="RecurringPaymentId" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">
+                    <a class="text-decoration-none" href="@Url.Action("Edit", "RecurringPayment", new { id = Model.RecurringPaymentId, area = area })">@Loc["Admin.Orders.Fields.RecurringPayment.View"]</a>
+                </div>
+            </div>
+        }
+        @if (Model.InitialOrderNumber > 0)
+        {
+            <div>
+                <admin-label asp-for="InitialOrderNumber" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">
+                    @if (!string.IsNullOrEmpty(Model.InitialOrderId))
+                    {
+                        <a class="text-decoration-none" href="@Url.Action("Edit", "Order", new { id = Model.InitialOrderId, area = area })">@Model.InitialOrderNumber</a>
+                    }
+                    else
+                    {
+                        @Model.InitialOrderNumber
+                    }
+                </div>
+            </div>
+            <div>
+                <admin-label asp-for="RecurringCycleNumber" asp-display-hint="false" class="grand-fact__label"/>
+                <div class="grand-fact__value">@Model.RecurringCycleNumber</div>
             </div>
         }
         @if (!string.IsNullOrEmpty(Model.PurchaseOrderNumber))

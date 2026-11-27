@@ -106,7 +106,9 @@ public sealed class StockLedger(
             var bucket = Locate(product, null, change.Attributes, change.WarehouseId, out var error);
             if (bucket == null)
             {
-                errors.Add(error);
+                //Locate names the error of every change it finds no bucket for
+                if (error != null)
+                    errors.Add(error);
                 continue;
             }
 
@@ -211,7 +213,7 @@ public sealed class StockLedger(
     ///     of the current one starts again with its stored stock
     /// </summary>
     public async Task Reopen(Product product, ManageInventoryMethod previousMethod, bool previousMultipleWarehouses,
-        string previousWarehouseId, string customerId)
+        string? previousWarehouseId, string customerId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -298,7 +300,7 @@ public sealed class StockLedger(
     ///     Applies the entries whose product write was lost, with their units, to the product and the units read
     /// </summary>
     /// <returns>Whether an entry was applied, and the units read for a product tracking them, or null</returns>
-    private async Task<(bool Repaired, UnitSet Units)> RepairWithUnits(Product product,
+    private async Task<(bool Repaired, UnitSet? Units)> RepairWithUnits(Product product,
         IReadOnlyList<StockChange> changes)
     {
         var pending = await Pending(product);
@@ -335,7 +337,7 @@ public sealed class StockLedger(
         return (await inventoryJournalRepository.ToListAsync(inventoryJournalRepository.Table
                 .Where(x => x.ProductId == product.Id && keys.Contains(x.IdempotencyKey))
                 .Select(x => x.IdempotencyKey)))
-            .ToHashSet();
+            .OfType<string>().ToHashSet();
     }
 
     /// <summary>
@@ -374,8 +376,8 @@ public sealed class StockLedger(
     /// <summary>
     ///     The bucket a change applies to, by the product's inventory method; a missing warehouse row is created
     /// </summary>
-    private static Bucket Locate(Product product, string combinationId, IList<CustomAttribute> attributes,
-        string warehouseId, out string error)
+    private static Bucket? Locate(Product product, string? combinationId, IList<CustomAttribute> attributes,
+        string? warehouseId, out string? error)
     {
         error = null;
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStock)
@@ -440,7 +442,7 @@ public sealed class StockLedger(
     ///     Every bucket the product has under the given inventory method, warehouse mode and warehouse
     /// </summary>
     private static IEnumerable<Bucket> Buckets(Product product, ManageInventoryMethod method, bool multipleWarehouses,
-        string warehouseId)
+        string? warehouseId)
     {
         switch (method)
         {
@@ -449,7 +451,7 @@ public sealed class StockLedger(
                 break;
             case ManageInventoryMethod.ManageStock:
                 foreach (var row in product.ProductWarehouseInventory)
-                    yield return new Bucket(row, null, row.WarehouseId, row.WarehouseId);
+                    yield return new Bucket(row, null, row.WarehouseId ?? "", row.WarehouseId ?? "");
                 break;
             case ManageInventoryMethod.ManageStockByAttributes:
                 foreach (var combination in product.ProductAttributeCombinations)
@@ -457,7 +459,7 @@ public sealed class StockLedger(
                         yield return new Bucket(combination, combination, "", warehouseId ?? "");
                     else
                         foreach (var row in combination.WarehouseInventory)
-                            yield return new Bucket(row, combination, row.WarehouseId, row.WarehouseId);
+                            yield return new Bucket(row, combination, row.WarehouseId ?? "", row.WarehouseId ?? "");
                 break;
         }
     }
@@ -490,7 +492,7 @@ public sealed class StockLedger(
 
     /// <param name="units">The change whose units the entry names; null for a product tracking none</param>
     private static InventoryJournal Entry(Product product, Bucket bucket, int delta,
-        InventoryMovementType movementType, StockSource source, StockChange units = null)
+        InventoryMovementType movementType, StockSource source, StockChange? units = null)
     {
         return new InventoryJournal {
             BatchNumber = string.IsNullOrWhiteSpace(units?.BatchNumber) ? null : units.BatchNumber.Trim(),
@@ -519,12 +521,13 @@ public sealed class StockLedger(
         var warehouseStores = new Dictionary<string, string>();
         foreach (var entry in entries)
         {
-            if (!warehouseStores.TryGetValue(entry.WarehouseId, out var storeId))
+            var warehouseId = entry.WarehouseId ?? "";
+            if (!warehouseStores.TryGetValue(warehouseId, out var storeId))
             {
-                storeId = string.IsNullOrEmpty(entry.WarehouseId)
+                storeId = warehouseId == ""
                     ? ""
-                    : (await warehouseService.GetWarehouseById(entry.WarehouseId))?.StoreId ?? "";
-                warehouseStores[entry.WarehouseId] = storeId;
+                    : (await warehouseService.GetWarehouseById(warehouseId))?.StoreId ?? "";
+                warehouseStores[warehouseId] = storeId;
             }
 
             entry.StoreId = storeId;
@@ -572,12 +575,12 @@ public sealed class StockLedger(
             [("", "")] = product.StockQuantity - product.ReservedQuantity
         };
         foreach (var row in product.ProductWarehouseInventory)
-            available[("", row.WarehouseId)] = row.StockQuantity - row.ReservedQuantity;
+            available[("", row.WarehouseId ?? "")] = row.StockQuantity - row.ReservedQuantity;
         foreach (var combination in product.ProductAttributeCombinations)
         {
             available[(combination.Id, "")] = combination.StockQuantity - combination.ReservedQuantity;
             foreach (var row in combination.WarehouseInventory)
-                available[(combination.Id, row.WarehouseId)] = row.StockQuantity - row.ReservedQuantity;
+                available[(combination.Id, row.WarehouseId ?? "")] = row.StockQuantity - row.ReservedQuantity;
         }
 
         return available;
@@ -615,7 +618,7 @@ public sealed class StockLedger(
     /// <param name="combination">the combination, for a product stocked by attributes</param>
     /// <param name="rowWarehouseId">the warehouse of a row; empty for a product or combination</param>
     /// <param name="warehouseId">the warehouse the journal entry names</param>
-    private sealed class Bucket(object target, ProductAttributeCombination combination, string rowWarehouseId,
+    private sealed class Bucket(object target, ProductAttributeCombination? combination, string rowWarehouseId,
         string warehouseId)
     {
         public (string, string) Key => (CombinationId, rowWarehouseId);

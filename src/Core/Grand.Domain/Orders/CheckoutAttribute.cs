@@ -14,17 +14,17 @@ namespace Grand.Domain.Orders;
 /// </summary>
 public class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntity, IGroupLinkEntity
 {
-    private ICollection<CheckoutAttributeValue> _checkoutAttributeValues;
+    private ICollection<CheckoutAttributeValue>? _checkoutAttributeValues;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the text prompt
     /// </summary>
-    public string TextPrompt { get; set; }
+    public string? TextPrompt { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is required
@@ -45,7 +45,7 @@ public class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntit
     ///     Gets or sets the tax category identifier
     /// </summary>
     [AuditReference(typeof(TaxCategory))]
-    public string TaxCategoryId { get; set; }
+    public string? TaxCategoryId { get; set; }
 
     /// <summary>
     ///     Gets or sets the attribute control type identifier
@@ -72,7 +72,7 @@ public class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntit
     /// <summary>
     ///     Gets or sets the validation rule for file allowed extensions (for file upload)
     /// </summary>
-    public string ValidationFileAllowedExtensions { get; set; }
+    public string? ValidationFileAllowedExtensions { get; set; }
 
     /// <summary>
     ///     Gets or sets the validation rule for file maximum size in kilobytes (for file upload)
@@ -82,7 +82,7 @@ public class CheckoutAttribute : BaseEntity, ITranslationEntity, IStoreLinkEntit
     /// <summary>
     ///     Gets or sets the default value (for textbox and multiline textbox)
     /// </summary>
-    public string DefaultValue { get; set; }
+    public string? DefaultValue { get; set; }
 
     /// <summary>
     ///     Gets or sets a condition (depending on other attribute) when this attribute should be enabled (visible).

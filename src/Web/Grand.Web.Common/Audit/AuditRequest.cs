@@ -16,13 +16,13 @@ public static class AuditRequest
     /// <summary>
     ///     The source of a panel, API or SCIM request: an [AuditSource] mark wins over the area. Null otherwise.
     /// </summary>
-    public static AuditSource? StaffSource(IEnumerable<object> endpointMetadata, RouteValueDictionary routeValues)
+    public static AuditSource? StaffSource(IEnumerable<object>? endpointMetadata, RouteValueDictionary? routeValues)
     {
         var marked = endpointMetadata?.OfType<AuditSourceAttribute>().LastOrDefault();
         if (marked != null)
             return marked.Source;
 
-        return routeValues?["area"] as string switch {
+        return (routeValues?["area"] as string) switch {
             "Admin" => AuditSource.Admin,
             "Store" => AuditSource.Store,
             "Vendor" => AuditSource.Vendor,
@@ -30,8 +30,8 @@ public static class AuditRequest
         };
     }
 
-    public static AuditActor Actor(HttpContext httpContext, RouteValueDictionary routeValues, AuditSource source,
-        string customerId, string email, string impersonatedCustomerId, string storeId, string vendorId)
+    public static AuditActor Actor(HttpContext? httpContext, RouteValueDictionary? routeValues, AuditSource source,
+        string? customerId, string? email, string? impersonatedCustomerId, string? storeId, string? vendorId)
     {
         return new AuditActor(
             source,
@@ -42,7 +42,7 @@ public static class AuditRequest
             vendorId,
             httpContext?.Connection.RemoteIpAddress?.ToString(),
             httpContext?.Request.Headers.UserAgent.ToString(),
-            httpContext == null ? null : $"{source} / {routeValues["controller"]} / {routeValues["action"]}",
+            httpContext == null ? null : $"{source} / {routeValues?["controller"]} / {routeValues?["action"]}",
             httpContext == null ? null : Activity.Current?.TraceId.ToString() ?? httpContext.TraceIdentifier);
     }
 }

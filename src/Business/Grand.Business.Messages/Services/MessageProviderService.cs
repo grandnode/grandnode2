@@ -27,13 +27,13 @@ public class MessageProviderService : IMessageProviderService
     #region Methods
 
     public virtual async Task<int> SendNotification(MessageTemplate messageTemplate,
-        EmailAccount emailAccount, string languageId, LiquidObject liquidObject,
-        string toEmailAddress, string toName,
-        string attachmentFilePath = null, string attachmentFileName = null,
-        IEnumerable<string> attachedDownloads = null,
-        string replyToEmailAddress = null, string replyToName = null,
-        string fromEmail = null, string fromName = null, string subject = null,
-        Reference reference = Reference.None, string objectId = "", string invoiceDownloadId = null)
+        EmailAccount emailAccount, string? languageId, LiquidObject liquidObject,
+        string? toEmailAddress, string? toName,
+        string? attachmentFilePath = null, string? attachmentFileName = null,
+        IEnumerable<string>? attachedDownloads = null,
+        string? replyToEmailAddress = null, string? replyToName = null,
+        string? fromEmail = null, string? fromName = null, string? subject = null,
+        Reference reference = Reference.None, string? objectId = "", string? invoiceDownloadId = null)
     {
         if (string.IsNullOrEmpty(toEmailAddress))
             return 0;
@@ -49,8 +49,8 @@ public class MessageProviderService : IMessageProviderService
         var email = new QueuedEmail();
         liquidObject.Email = new LiquidEmail(email.Id);
 
-        var subjectReplaced = LiquidExtensions.Render(liquidObject, subject);
-        var bodyReplaced = LiquidExtensions.Render(liquidObject, body);
+        var subjectReplaced = LiquidExtensions.RenderSubject(liquidObject, subject ?? "");
+        var bodyReplaced = LiquidExtensions.Render(liquidObject, body ?? "");
 
         var attachments = new List<string>();
         if (attachedDownloads != null)

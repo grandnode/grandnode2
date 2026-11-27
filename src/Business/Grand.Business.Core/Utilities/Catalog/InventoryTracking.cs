@@ -51,8 +51,8 @@ public static class InventoryTracking
         if (!product.UseMultipleWarehouses)
             return externallyManagedWarehouseIds.Contains(product.WarehouseId ?? "");
 
-        return product.ProductWarehouseInventory.Any(x => externallyManagedWarehouseIds.Contains(x.WarehouseId)) ||
+        return product.ProductWarehouseInventory.Any(x => externallyManagedWarehouseIds.Contains(x.WarehouseId ?? "")) ||
                product.ProductAttributeCombinations.Any(combination =>
-                   combination.WarehouseInventory.Any(x => externallyManagedWarehouseIds.Contains(x.WarehouseId)));
+                   combination.WarehouseInventory.Any(x => externallyManagedWarehouseIds.Contains(x.WarehouseId ?? "")));
     }
 }

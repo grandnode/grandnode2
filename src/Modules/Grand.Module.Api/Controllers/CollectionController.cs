@@ -34,8 +34,8 @@ public class CollectionController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
 
-        var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
-        if (!collection.Any()) return NotFound();
+        var collection = (await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key))).FirstOrDefault();
+        if (collection == null) return NotFound();
 
         return Ok(collection);
     }
@@ -61,7 +61,7 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CollectionDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Collections, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddCollectionCommand { Model = model });
         return Ok(model);
@@ -73,12 +73,16 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CollectionDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CollectionDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Collections, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        model = await _mediator.Send(new UpdateCollectionCommand { Model = model });
-        return Ok(model);
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
+        var updated = await _mediator.Send(new UpdateCollectionCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Partially update entity in Collection")]
@@ -93,12 +97,12 @@ public class CollectionController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Collections, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
-        if (!collection.Any()) return NotFound();
+        var collection = (await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key))).FirstOrDefault();
+        if (collection == null) return NotFound();
 
-        var man = collection.FirstOrDefault();
+        var man = collection;
         model.ApplyTo(man);
         await _mediator.Send(new UpdateCollectionCommand { Model = man });
         return Ok();
@@ -112,12 +116,12 @@ public class CollectionController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Collections, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Collections, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var collection = await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key));
-        if (!collection.Any()) return NotFound();
+        var collection = (await _mediator.Send(new GetGenericQuery<CollectionDto, Collection>(key))).FirstOrDefault();
+        if (collection == null) return NotFound();
 
-        await _mediator.Send(new DeleteCollectionCommand { Model = collection.FirstOrDefault() });
+        await _mediator.Send(new DeleteCollectionCommand { Model = collection });
 
         return Ok();
     }

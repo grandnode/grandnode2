@@ -6,7 +6,7 @@ namespace Grand.Web.Common.Binders;
 
 public class CustomAttributesBinderProvider : IModelBinderProvider
 {
-    public IModelBinder GetBinder(ModelBinderProviderContext context)
+    public IModelBinder? GetBinder(ModelBinderProviderContext context)
     {
         ArgumentNullException.ThrowIfNull(context);
         return context.Metadata.ModelType == typeof(IList<CustomAttributeModel>)

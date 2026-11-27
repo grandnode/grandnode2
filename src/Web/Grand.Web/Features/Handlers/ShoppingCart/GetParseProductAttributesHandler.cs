@@ -28,7 +28,7 @@ public class GetParseProductAttributesHandler : IRequestHandler<GetParseProductA
             foreach (var bundle in request.Product.BundleProducts)
             {
                 var bp = await _productService.GetProductById(bundle.ProductId);
-                if (bp.ProductAttributeMappings.Any())
+                if (bp != null && bp.ProductAttributeMappings.Any())
                     productAttributes.AddRange(bp.ProductAttributeMappings);
             }
 
@@ -40,7 +40,7 @@ public class GetParseProductAttributesHandler : IRequestHandler<GetParseProductA
                 case AttributeControlType.ColorSquares:
                 case AttributeControlType.ImageSquares:
                     {
-                        var ctrlAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        var ctrlAttributes = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(ctrlAttributes))
                             customAttributes = ProductExtensions.AddProductAttribute(customAttributes,
                                 attribute, ctrlAttributes).ToList();
@@ -48,7 +48,7 @@ public class GetParseProductAttributesHandler : IRequestHandler<GetParseProductA
                     break;
                 case AttributeControlType.Checkboxes:
                     {
-                        var cblAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        var cblAttributes = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(cblAttributes))
                             foreach (var item in cblAttributes.Split(','))
                                 if (!string.IsNullOrEmpty(item))
@@ -73,7 +73,7 @@ public class GetParseProductAttributesHandler : IRequestHandler<GetParseProductA
                 case AttributeControlType.Datepicker:
                 case AttributeControlType.FileUpload:
                     {
-                        var ctrlAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        var ctrlAttributes = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(ctrlAttributes))
                         {
                             var enteredText = ctrlAttributes.Trim();

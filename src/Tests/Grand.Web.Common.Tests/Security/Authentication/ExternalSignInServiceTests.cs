@@ -38,7 +38,8 @@ public class ExternalSignInServiceTests
             .Setup(s => s.Authenticate(It.IsAny<ExternalAuthParam>(), It.IsAny<Customer>(), It.IsAny<Store>(),
                 It.IsAny<Language>()))
             .ReturnsAsync(result);
-        return _service.Authenticate(new ExternalAuthParam(), new Customer(), new Store(), new Language { Id = "lang1" },
+        return _service.Authenticate(new ExternalAuthParam { ProviderSystemName = "provider", Identifier = "1" },
+            new Customer(), new Store(), new Language { Id = "lang1" },
             returnUrl);
     }
 

@@ -12,13 +12,13 @@ public class CustomerGroupProduct : BaseEntity
     ///     Gets or sets the customer group id
     /// </summary>
     [AuditReference(typeof(CustomerGroup))]
-    public string CustomerGroupId { get; set; }
+    public string? CustomerGroupId { get; set; }
 
     /// <summary>
     ///     Gets or sets the product Id
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the display order

@@ -22,7 +22,7 @@ public interface IFileStoreEntry
     /// <summary>
     ///     Gets the full path of the file store entry's containing directory within the file store.
     /// </summary>
-    string PhysicalPath { get; }
+    string? PhysicalPath { get; }
 
     /// <summary>
     ///     Gets the length of the file (0 if the file story entry is a directory).

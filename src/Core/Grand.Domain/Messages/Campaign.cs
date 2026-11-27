@@ -10,36 +10,36 @@ namespace Grand.Domain.Messages;
 /// </summary>
 public class Campaign : BaseEntity
 {
-    private ICollection<string> _customerGroups;
-    private ICollection<string> _customerTags;
-    private ICollection<string> _newsletterCategories;
+    private ICollection<string>? _customerGroups;
+    private ICollection<string>? _customerTags;
+    private ICollection<string>? _newsletterCategories;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the subject
     /// </summary>
-    public string Subject { get; set; }
+    public string Subject { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the body
     /// </summary>
-    public string Body { get; set; }
+    public string Body { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the lang identifier
     /// </summary>
     [AuditReference(typeof(Language))]
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     public DateTime? CustomerCreatedDateFrom { get; set; }
     public DateTime? CustomerCreatedDateTo { get; set; }
@@ -56,7 +56,7 @@ public class Campaign : BaseEntity
     ///     Gets or sets the used email account identifier
     /// </summary>
     [AuditReference(typeof(EmailAccount))]
-    public string EmailAccountId { get; set; }
+    public string? EmailAccountId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer tags

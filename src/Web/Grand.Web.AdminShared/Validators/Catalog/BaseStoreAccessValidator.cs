@@ -33,7 +33,7 @@ namespace Grand.Web.AdminShared.Validators.Catalog
                 }).WithMessage(_translationService.GetResource(GetPermissionsResourceKey));
             }
         }
-        protected abstract Task<TEntity> GetEntity(TModel model);
+        protected abstract Task<TEntity?> GetEntity(TModel model);
         protected abstract string GetPermissionsResourceKey { get; }
     }
 }

@@ -21,29 +21,29 @@ public class GridCommandsTagHelper : TagHelper
     public bool Edit { get; set; }
     public bool Destroy { get; set; }
     public int? Width { get; set; }
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     ///     Condition (admin.grid.js expression syntax) that shows Edit and Delete for a row,
     ///     e.g. "StoreId == '' || StoreId == 'abc'". The server still checks ownership.
     ///     <see cref="EditVisibleIf" /> and <see cref="DestroyVisibleIf" /> apply on top of it.
     /// </summary>
-    public string VisibleIf { get; set; }
+    public string? VisibleIf { get; set; }
 
     /// <summary>
     ///     Condition that shows Edit for a row, on top of <see cref="VisibleIf" />, when Edit and
     ///     Delete follow different rules.
     /// </summary>
-    public string EditVisibleIf { get; set; }
+    public string? EditVisibleIf { get; set; }
 
     /// <summary>Condition that shows Delete for a row, on top of <see cref="VisibleIf" />.</summary>
-    public string DestroyVisibleIf { get; set; }
+    public string? DestroyVisibleIf { get; set; }
 
     /// <summary>
     ///     Text shown (muted, small) in place of the buttons of a row that got none, so an empty
     ///     cell does not look like something failed to load.
     /// </summary>
-    public string EmptyText { get; set; }
+    public string? EmptyText { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -68,17 +68,17 @@ public class GridCommandsTagHelper : TagHelper
 [HtmlTargetElement("grid-command", ParentTag = "grid-commands", TagStructure = TagStructure.WithoutEndTag)]
 public class GridCommandTagHelper : TagHelper
 {
-    public string Name { get; set; }
-    public string Text { get; set; }
+    public string? Name { get; set; }
+    public string? Text { get; set; }
 
     /// <summary>Global function called with (dataItem, event, grid).</summary>
-    public string Click { get; set; }
+    public string? Click { get; set; }
 
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
-    [HtmlAttributeName("class")] public string ClassName { get; set; }
+    [HtmlAttributeName("class")] public string? ClassName { get; set; }
 
-    public string VisibleIf { get; set; }
+    public string? VisibleIf { get; set; }
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
@@ -108,7 +108,7 @@ public class GridToolbarCreateTagHelper : TagHelper
     }
 
     /// <summary>Button text; defaults to Admin.Common.AddNewRecord.</summary>
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
@@ -133,7 +133,7 @@ public class GridToolbarSaveTagHelper : TagHelper
     }
 
     /// <summary>Button text; defaults to Admin.Common.SaveChanges.</summary>
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
@@ -160,7 +160,7 @@ public class GridToolbarCancelTagHelper : TagHelper
     }
 
     /// <summary>Button text; defaults to Admin.Common.Grid.CancelChanges.</summary>
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
@@ -181,7 +181,7 @@ internal static class GridToolbarText
     /// </summary>
     public static string Get(IRequestTranslationService translationService, IContextAccessor contextAccessor, string key, string fallback)
     {
-        var languageId = contextAccessor.WorkContext?.WorkingLanguage?.Id;
+        var languageId = contextAccessor.CurrentWorkContext?.WorkingLanguage?.Id;
         var value = languageId is null ? null : translationService.GetResource(key, languageId, string.Empty, true);
         return string.IsNullOrEmpty(value) ? fallback : value;
     }
@@ -191,13 +191,15 @@ internal static class GridToolbarText
 [HtmlTargetElement("grid-text", ParentTag = "admin-grid", Attributes = "name", TagStructure = TagStructure.WithoutEndTag)]
 public class GridTextTagHelper : TagHelper
 {
-    public string Name { get; set; }
-    public string Value { get; set; }
+    //the element matches only with a name, so it is always set
+    public string Name { get; set; } = null!;
+    public string? Value { get; set; }
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {
-        var builder = (GridBuilder)context.Items[AdminGridTagHelper.ContextKey];
-        builder.Texts[Name] = Value ?? string.Empty;
+        //the parent admin-grid puts its builder into the context
+        if (context.Items[AdminGridTagHelper.ContextKey] is GridBuilder builder)
+            builder.Texts[Name] = Value ?? string.Empty;
         output.SuppressOutput();
     }
 }
@@ -218,15 +220,15 @@ public class GridDetailTagHelper : TagHelper
         _urlHelperFactory = urlHelperFactory;
     }
 
-    public string ReadUrl { get; set; }
+    public string? ReadUrl { get; set; }
 
     /// <summary>Destroy URL of the detail rows; the master row parameters are appended like for read.</summary>
-    public string DestroyUrl { get; set; }
+    public string? DestroyUrl { get; set; }
 
-    public string Controller { get; set; }
-    public string ReadAction { get; set; }
-    public string Param { get; set; }
-    public string Key { get; set; }
+    public string? Controller { get; set; }
+    public string? ReadAction { get; set; }
+    public string? Param { get; set; }
+    public string? Key { get; set; }
     public GridPager Pager { get; set; } = GridPager.Compact;
     public int? PageSize { get; set; }
 
@@ -234,7 +236,7 @@ public class GridDetailTagHelper : TagHelper
     public bool ConfirmDestroy { get; set; }
 
     /// <summary>Condition (admin.grid.js expression syntax) on the master row that shows its expander.</summary>
-    public string VisibleIf { get; set; }
+    public string? VisibleIf { get; set; }
 
     /// <summary>
     ///     The rows of the detail grid expand to this same detail, one level further down, as deep
@@ -245,9 +247,10 @@ public class GridDetailTagHelper : TagHelper
     public bool Recursive { get; set; }
 
     /// <summary>Global function called after each detail grid rendered its rows.</summary>
-    public string OnDataBound { get; set; }
+    public string? OnDataBound { get; set; }
 
-    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; } = null!;
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -269,7 +272,7 @@ public class GridDetailTagHelper : TagHelper
         output.SuppressOutput();
     }
 
-    internal static IList<GridDetailParam> ParseParams(string param)
+    internal static IList<GridDetailParam>? ParseParams(string? param)
     {
         if (string.IsNullOrWhiteSpace(param))
             return null;
@@ -279,7 +282,7 @@ public class GridDetailTagHelper : TagHelper
             .ToList();
     }
 
-    private string ResolveUrl()
+    private string? ResolveUrl()
     {
         if (!string.IsNullOrEmpty(ReadUrl) || string.IsNullOrEmpty(ReadAction))
             return ReadUrl;

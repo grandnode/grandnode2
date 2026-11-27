@@ -14,7 +14,7 @@ public interface IProviderSignOut
     ///     Signs out locally; returns the URL to redirect to so the session at the identity provider ends too, or null
     ///     when the sign-in did not come from a provider (or the provider cannot end it)
     /// </summary>
-    Task<string> SignOut();
+    Task<string?> SignOut();
 }
 
 public class ProviderSignOut(
@@ -25,9 +25,9 @@ public class ProviderSignOut(
     IHttpContextAccessor httpContextAccessor,
     ILogger<ProviderSignOut> logger) : IProviderSignOut
 {
-    public async Task<string> SignOut()
+    public async Task<string?> SignOut()
     {
-        string providerUrl = null;
+        string? providerUrl = null;
         try
         {
             //the cookie is what tells whether the sign-in came from the provider: look before it is removed
@@ -52,7 +52,7 @@ public class ProviderSignOut(
         return !string.IsNullOrEmpty(site) && site != "same-origin" && site != "none";
     }
 
-    private async Task<string> GetProviderUrl()
+    private async Task<string?> GetProviderUrl()
     {
         //the canonical store address, never the Host header
         var postLogoutRedirectUri = contextAccessor.StoreContext.CurrentStore.Url.TrimEnd('/') + "/";

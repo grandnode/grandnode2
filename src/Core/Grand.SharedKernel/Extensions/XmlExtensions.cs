@@ -11,16 +11,19 @@ public static class XmlExtensions
         schemas.Add("", XmlReader.Create(new StringReader(LanguageSchema.SchemaXsd)));
 
         var xmlDoc = new XmlDocument { Schemas = schemas, XmlResolver = null };
-        xmlDoc.LoadXml(xml);
+        //a language file has no DTD; refusing one also refuses entity expansion (e.g. "billion laughs")
+        using (var reader = XmlReader.Create(new StringReader(xml),
+                   new XmlReaderSettings { DtdProcessing = DtdProcessing.Prohibit, XmlResolver = null }))
+            xmlDoc.Load(reader);
 
         // Validate XML.
         xmlDoc.Validate((_, e) => throw new XmlException("XML data does not conform to the schema", e.Exception));
         return xmlDoc;
     }
 
-    public static List<(string Name, string Value, string Area)> ParseTranslationResources(XmlDocument xmlDoc)
+    public static List<(string Name, string Value, string? Area)> ParseTranslationResources(XmlDocument xmlDoc)
     {
-        var resources = new List<(string Name, string Value, string Area)>();
+        var resources = new List<(string Name, string Value, string? Area)>();
         var nodes = xmlDoc.SelectNodes("//Language/Resource");
 
         if (nodes != null)

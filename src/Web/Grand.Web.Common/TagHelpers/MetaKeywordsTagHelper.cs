@@ -16,7 +16,7 @@ public class MetaKeywordsTagHelper : TagHelper
         _pageHeadBuilder = pageHeadBuilder;
     }
 
-    [HtmlAttributeName(PartAttributeName)] public string Attribute { get; set; }
+    [HtmlAttributeName(PartAttributeName)] public string? Attribute { get; set; }
 
     public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {

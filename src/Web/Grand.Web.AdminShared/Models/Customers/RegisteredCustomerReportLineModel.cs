@@ -6,7 +6,7 @@ namespace Grand.Web.AdminShared.Models.Customers;
 public class RegisteredCustomerReportLineModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Reports.Customers.RegisteredCustomers.Fields.Period")]
-    public string Period { get; set; }
+    public string? Period { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.Customers.RegisteredCustomers.Fields.Customers")]
     public int Customers { get; set; }

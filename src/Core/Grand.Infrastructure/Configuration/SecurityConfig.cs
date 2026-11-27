@@ -17,12 +17,12 @@ public class SecurityConfig
     /// <summary>
     ///     Gets or sets a value for allowedHosts, is used for host filtering to bind your app to specific hostnames
     /// </summary>
-    public string AllowedHosts { get; set; }
+    public string? AllowedHosts { get; set; }
 
     /// <summary>
     ///     Gets or sets a value for Key persistence location
     /// </summary>
-    public string KeyPersistenceLocation { get; set; }
+    public string? KeyPersistenceLocation { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating for cookie expires in hours - default 24 * 365 = 8760
@@ -32,7 +32,7 @@ public class SecurityConfig
     /// <summary>
     ///     Gets or sets a value for Cookie prefix
     /// </summary>
-    public string CookiePrefix { get; set; }
+    public string? CookiePrefix { get; set; }
 
     /// <summary>
     ///     Gets or sets a value for Cookie SameSite
@@ -47,7 +47,7 @@ public class SecurityConfig
     /// <summary>
     ///     Gets or sets a value for Cookie claim issuer
     /// </summary>
-    public string CookieClaimsIssuer { get; set; }
+    public string? CookieClaimsIssuer { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of "Cookie SecurePolicy Always"
@@ -86,7 +86,7 @@ public class SecurityConfig
     ///     IMPORTANT: changing this value invalidates all existing PBKDF2 hashes (affected customers must reset their
     ///     password); legacy SHA hashes are unaffected. Set it once, before going live.
     /// </summary>
-    public string PasswordHashKey { get; set; }
+    public string? PasswordHashKey { get; set; }
 
     /// <summary>
     ///     PBKDF2 (HMAC-SHA256) iteration count for newly created/upgraded password hashes. Default 210000 (OWASP 2023).
@@ -100,7 +100,17 @@ public class SecurityConfig
     ///     Matching is case-insensitive on the host only; a leading "*." matches any subdomain.
     ///     Leave empty to fall back to the built-in video-embed defaults; set to a single empty entry to block every iframe.
     /// </summary>
-    public string[] SanitizerAllowedIframeHosts { get; set; }
+    public string[]? SanitizerAllowedIframeHosts { get; set; }
+
+    /// <summary>
+    ///     Attributes allowed in rich-text content on top of the HtmlSanitizer defaults (href, src, alt, title, style
+    ///     and the other formatting attributes). Event handlers (on*), data-* and Vue directives must never be listed:
+    ///     the content is rendered unencoded inside Vue islands.
+    ///     Leave unset to fall back to the built-in defaults (class and the iframe embed attributes); set to [] to allow
+    ///     none of them. "id" is not a default: the storefront scripts look elements and globals up by id, and content
+    ///     can take those names over.
+    /// </summary>
+    public string[]? SanitizerAllowedAttributes { get; set; }
 
     /// <summary>
     ///     Hosts on the internal network that picture URLs in Excel imports may point to. Any other host must resolve to
@@ -108,7 +118,7 @@ public class SecurityConfig
     ///     reach services only the server can see. A listed host may also use a port other than 80/443.
     ///     Matching is case-insensitive on the host only; a leading "*." matches any subdomain. Empty by default.
     /// </summary>
-    public string[] PictureImportAllowedPrivateHosts { get; set; }
+    public string[]? PictureImportAllowedPrivateHosts { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether [SanitizeHtml] and [NoHtml] reject markup on save. Default true.
@@ -118,4 +128,25 @@ public class SecurityConfig
     ///     goes back to accepting raw, unsanitized HTML the moment this is false. Re-enable as soon as possible.
     /// </summary>
     public bool EnableHtmlSanitization { get; set; } = true;
+
+    /// <summary>
+    ///     How many times one IP address may ask for the link to a guest order within the window. Default 5; 0 = no limit
+    /// </summary>
+    public int GuestOrderRateLimitPermits { get; set; } = 5;
+
+    /// <summary>
+    ///     The window of the guest-order limit, in minutes. Default 10
+    /// </summary>
+    public int GuestOrderRateLimitWindowMinutes { get; set; } = 10;
+
+    /// <summary>
+    ///     How many times one IP address may send one storefront form (contact, reviews, comments, newsletter,
+    ///     password recovery, attribute uploads) within the window. Default 10; 0 = no limit
+    /// </summary>
+    public int StorefrontFormRateLimitPermits { get; set; } = 10;
+
+    /// <summary>
+    ///     The window of the storefront form limit, in minutes. Default 10
+    /// </summary>
+    public int StorefrontFormRateLimitWindowMinutes { get; set; } = 10;
 }

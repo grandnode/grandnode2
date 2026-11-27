@@ -19,6 +19,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Localization;
+using Grand.Domain.Media;
 using Grand.Domain.Orders;
 using Grand.Domain.Permissions;
 using Grand.Domain.Shipping;
@@ -70,7 +71,7 @@ public class MerchandiseReturnViewModelServiceTests
 
         var storeContextMock = new Mock<IStoreContext>();
         storeContextMock.Setup(s => s.CurrentStore).Returns(new Grand.Domain.Stores.Store { Id = "store-1" });
-        var contextAccessorMock = new Mock<IContextAccessor>();
+        var contextAccessorMock = new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock };
         contextAccessorMock.Setup(c => c.StoreContext).Returns(storeContextMock.Object);
 
         var service = Build(customerServiceMock.Object, contextAccessorMock.Object);
@@ -99,7 +100,7 @@ public class MerchandiseReturnViewModelServiceTests
                 It.IsAny<string>(), It.IsAny<bool>()))
             .ReturnsAsync(new PagedList<MerchandiseReturn>());
 
-        var contextAccessorMock = new Mock<IContextAccessor>();
+        var contextAccessorMock = new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock };
         var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
         scopeMock.Setup(s => s.DefaultStoreId).Returns("store-42");
         scopeMock.Setup(s => s.DefaultVendorId).Returns("vendor-99");
@@ -129,6 +130,7 @@ public class MerchandiseReturnViewModelServiceTests
         public Mock<IVendorService> Vendors { get; } = new();
         public Mock<IReturnShippingService> ReturnShipping { get; } = new();
         public Mock<IAdminDataScope<MerchandiseReturn>> Scope { get; } = new();
+        public Customer CurrentCustomer { get; } = new();
     }
 
     private static (MerchandiseReturnViewModelService service, ListMocks mocks) BuildForList()
@@ -138,7 +140,7 @@ public class MerchandiseReturnViewModelServiceTests
             .Setup(m => m.SearchMerchandiseReturns(It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(),
                 It.IsAny<string>(), It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus?>(), It.IsAny<int>(),
                 It.IsAny<int>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<string>(),
-                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>()))
+                It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), It.IsAny<string>()))
             .ReturnsAsync(new PagedList<MerchandiseReturn>());
         mocks.MerchandiseReturns.Setup(m => m.GetAllMerchandiseReturnReasons(It.IsAny<string>()))
             .ReturnsAsync(new List<MerchandiseReturnReason>());
@@ -152,7 +154,8 @@ public class MerchandiseReturnViewModelServiceTests
         dateTimeService.Setup(d => d.CurrentTimeZone).Returns(TimeZoneInfo.Utc);
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.WorkingLanguage).Returns(new Language { Id = "en" });
-        var contextAccessor = new Mock<IContextAccessor>();
+        workContext.Setup(x => x.CurrentCustomer).Returns(mocks.CurrentCustomer);
+        var contextAccessor = new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock };
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         var enumTranslation = new Mock<IEnumTranslationService>();
         enumTranslation.Setup(x => x.ToSelectList(It.IsAny<MerchandiseReturnStatus>(), It.IsAny<bool>(),
@@ -242,6 +245,21 @@ public class MerchandiseReturnViewModelServiceTests
         VerifySearch(mocks, vendorId: "v1");
     }
 
+    //a sales employee sees the returns of their own orders, as in the order list
+    [TestMethod]
+    public async Task List_SalesEmployee_TheirReturnsOnly()
+    {
+        var (service, mocks) = BuildForList();
+        mocks.CurrentCustomer.SeId = "se-1";
+
+        await service.PrepareMerchandiseReturnModel(new MerchandiseReturnListModel(), 1, 10);
+
+        mocks.MerchandiseReturns.Verify(m => m.SearchMerchandiseReturns(It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<MerchandiseReturnStatus?>(),
+            It.IsAny<int>(), It.IsAny<int>(), It.IsAny<DateTime?>(), It.IsAny<DateTime?>(), It.IsAny<string>(),
+            It.IsAny<string>(), It.IsAny<string>(), It.IsAny<bool>(), "se-1"), Times.Once);
+    }
+
     [TestMethod]
     public async Task List_StoreScope_StoreForced()
     {
@@ -300,7 +318,8 @@ public class MerchandiseReturnViewModelServiceTests
     }
 
     private static MerchandiseReturnViewModelService Build(ICustomerService customerService,
-        IContextAccessor contextAccessor)
+        IContextAccessor contextAccessor, IDownloadService downloadService = null,
+        IMerchandiseReturnService merchandiseReturnService = null)
     {
         var orderServiceMock = new Mock<IOrderService>();
         var productServiceMock = new Mock<IProductService>();
@@ -335,13 +354,13 @@ public class MerchandiseReturnViewModelServiceTests
             dateTimeServiceMock.Object,
             translationServiceMock.Object,
             merchandiseReturnMessageProviderServiceMock.Object,
-            merchandiseReturnServiceMock.Object,
+            merchandiseReturnService ?? merchandiseReturnServiceMock.Object,
             priceFormatterMock.Object,
             addressSettings,
             countryServiceMock.Object,
             addressAttributeServiceMock.Object,
             addressAttributeParserMock.Object,
-            downloadServiceMock.Object,
+            downloadService ?? downloadServiceMock.Object,
             orderSettings,
             enumTranslationServiceMock.Object,
             contextAccessor,
@@ -441,7 +460,7 @@ public class MerchandiseReturnViewModelServiceTests
         var workContext = new Mock<IWorkContext>();
         //the staff member the status change is noted for
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Id = "staff", Email = "john@shop.com" });
-        var contextAccessor = new Mock<IContextAccessor>();
+        var contextAccessor = new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock };
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         var workflowMock = new Mock<IMerchandiseReturnWorkflowService>();
         workflowMock.Setup(x => x.Update(It.IsAny<string>(), It.IsAny<Action<MerchandiseReturn>>()))
@@ -767,7 +786,7 @@ public class MerchandiseReturnViewModelServiceTests
             .ReturnsAsync(new PagedList<Warehouse>());
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.WorkingCurrency).Returns(new Currency());
-        var contextAccessor = new Mock<IContextAccessor>();
+        var contextAccessor = new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock };
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
 
         var service = new MerchandiseReturnViewModelService(
@@ -1001,7 +1020,7 @@ public class MerchandiseReturnViewModelServiceTests
         orderServiceMock.Setup(x => x.GetOrderById("o1"))
             .ReturnsAsync(new Order { Id = "o1", CustomerCurrencyCode = "EUR" });
         var workContext = new Mock<IWorkContext>();
-        var contextAccessor = new Mock<IContextAccessor>();
+        var contextAccessor = new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock };
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
         scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Vendor");
@@ -1230,7 +1249,7 @@ public class MerchandiseReturnViewModelServiceTests
         currencyMock.Setup(x => x.GetCurrencyByCode("EUR")).ReturnsAsync(new Currency { CurrencyCode = "EUR" });
         var workContext = new Mock<IWorkContext>();
         workContext.Setup(x => x.CurrentCustomer).Returns(new Customer { Email = "john@shop.com" });
-        var contextAccessor = new Mock<IContextAccessor>();
+        var contextAccessor = new Mock<IContextAccessor> { DefaultValue = DefaultValue.Mock };
         contextAccessor.Setup(x => x.WorkContext).Returns(workContext.Object);
         var scopeMock = new Mock<IAdminDataScope<MerchandiseReturn>>();
         scopeMock.Setup(s => s.ResourceKeyPrefix).Returns("Admin");
@@ -1468,4 +1487,27 @@ public class MerchandiseReturnViewModelServiceTests
 
         mocks.Refunds.Verify(x => x.ResolveRefund("r1", false, "john@shop.com"), Times.Once);
     }
+
+    [TestMethod]
+    [DataRow(DownloadType.MerchandiseReturn, "mr1", true)]
+    [DataRow(DownloadType.MerchandiseReturn, "mr2", false)]
+    [DataRow(DownloadType.Order, "mr1", false)]
+    public async Task InsertMerchandiseReturnNote_SavesOnlyAFileUploadedForThisReturn(DownloadType type,
+        string referenceId, bool saved)
+    {
+        var downloads = new Mock<IDownloadService>();
+        downloads.Setup(d => d.GetDownloadById("d1"))
+            .ReturnsAsync(new Download { DownloadType = type, ReferenceId = referenceId });
+        var returns = new Mock<IMerchandiseReturnService>();
+        var service = Build(new Mock<ICustomerService>().Object, new Mock<IContextAccessor>().Object,
+            downloads.Object, returns.Object);
+
+        var result = await service.InsertMerchandiseReturnNote(new MerchandiseReturn { Id = "mr1" }, new Order(),
+            "d1", false, "msg");
+
+        Assert.AreEqual(saved, result);
+        returns.Verify(r => r.InsertMerchandiseReturnNote(It.IsAny<MerchandiseReturnNote>()),
+            saved ? Times.Once() : Times.Never());
+    }
 }
+

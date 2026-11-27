@@ -344,17 +344,18 @@ public class KnowledgebaseController : BasePublicController
         //used to prevent circular references
         var alreadyProcessedCategoryIds = new List<string>();
 
-        while (category != null && //not null                
-               (showHidden || category.Published) && //published
-               (showHidden || _aclService.Authorize(category, _contextAccessor.WorkContext.CurrentCustomer)) && //ACL
-               (showHidden || _aclService.Authorize(category, _contextAccessor.StoreContext.CurrentStore.Id)) && //Store acl
-               !alreadyProcessedCategoryIds.Contains(category.Id)) //prevent circular references
+        KnowledgebaseCategory? current = category;
+        while (current != null && //not null                
+               (showHidden || current.Published) && //published
+               (showHidden || _aclService.Authorize(current, _contextAccessor.WorkContext.CurrentCustomer)) && //ACL
+               (showHidden || _aclService.Authorize(current, _contextAccessor.StoreContext.CurrentStore.Id)) && //Store acl
+               !alreadyProcessedCategoryIds.Contains(current.Id)) //prevent circular references
         {
-            result.Add(category);
+            result.Add(current);
 
-            alreadyProcessedCategoryIds.Add(category.Id);
+            alreadyProcessedCategoryIds.Add(current.Id);
 
-            category = await _knowledgebaseService.GetKnowledgebaseCategory(category.ParentCategoryId);
+            current = await _knowledgebaseService.GetKnowledgebaseCategory(current.ParentCategoryId);
         }
 
         result.Reverse();

@@ -12,6 +12,7 @@
   HideNotesTab: false,
   AllowUsersToDeleteAccount: false,
   AllowUsersToExportData: false,
+  SignOutOnAllDevices: false,
   NewsletterEnabled: true,
   NewsletterTickedByDefault: false,
   HideNewsletterBlock: false,
@@ -44,5 +45,6 @@
   HideCoursesTab: false,
   TwoFactorAuthenticationEnabled: false,
   HideSubAccountsTab: false,
+  HideRecurringPaymentsTab: false,
   HideDocumentsTab: false
 }

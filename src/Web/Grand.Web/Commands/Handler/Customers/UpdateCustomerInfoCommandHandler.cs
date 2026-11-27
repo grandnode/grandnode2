@@ -42,10 +42,15 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
 
     public async Task<bool> Handle(UpdateCustomerInfoCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires it
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.Email);
+
         //username - stored lowercased like every other write, or the lowercased sign-in lookup misses it
         //(a value differing only in case is the stored one, so this repairs rows older edits stored as typed)
         if (_customerSettings.UsernamesEnabled && _customerSettings.AllowUsersToChangeUsernames)
         {
+            //the validator requires it while usernames can be changed
+            ArgumentException.ThrowIfNullOrEmpty(request.Model.Username);
             var username = request.Model.Username.Trim().ToLowerInvariant();
             if (request.Customer.Username != username)
             {
@@ -153,6 +158,9 @@ public class UpdateCustomerInfoCommandHandler : IRequestHandler<UpdateCustomerIn
 
     private async Task UpdateNewsletter(UpdateCustomerInfoCommand request)
     {
+        //Handle has set the e-mail from the form, which requires it
+        ArgumentException.ThrowIfNullOrEmpty(request.Customer.Email);
+
         var categories = request.Model.SelectedNewsletterCategory?.ToList();
         //save newsletter value
         var newsletter =

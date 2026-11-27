@@ -2595,4 +2595,247 @@
 	<Resource Name="Admin.PaymentTransaction.Fields.BillingName" Area="Admin">
 		<Value>Billed to</Value>
 	</Resource>
+	<Resource Name="ShoppingCart.RecurringProductsRequireAccount" Area="Front">
+		<Value>Log in or register to buy a product billed in cycles: you will manage and cancel it in your account.</Value>
+	</Resource>
+	<Resource Name="Checkout.RecurringPayment.NoPaymentMethod" Area="Front">
+		<Value>None of the available payment methods can charge in cycles, so this order cannot be paid.</Value>
+	</Resource>
+	<Resource Name="Checkout.RecurringPayment.PaymentMethodNotSupported" Area="Front">
+		<Value>The selected payment method cannot charge in cycles. Choose another payment method.</Value>
+	</Resource>
+	<Resource Name="Checkout.RecurringPayment.NothingToPay" Area="Front">
+		<Value>An order billed in cycles must have something to pay.</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Days" Area="Common">
+		<Value>Days</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Months" Area="Common">
+		<Value>Months</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Weeks" Area="Common">
+		<Value>Weeks</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Catalog.RecurringCyclePeriod.Years" Area="Common">
+		<Value>Years</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Day" Area="Common">
+		<Value>Every day</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Days" Area="Common">
+		<Value>Every {0} days</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Week" Area="Common">
+		<Value>Every week</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Weeks" Area="Common">
+		<Value>Every {0} weeks</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Month" Area="Common">
+		<Value>Every month</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Months" Area="Common">
+		<Value>Every {0} months</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Year" Area="Common">
+		<Value>Every year</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle.Years" Area="Common">
+		<Value>Every {0} years</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Pending" Area="Common">
+		<Value>Waiting for the first payment</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Active" Area="Common">
+		<Value>Active</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.PastDue" Area="Common">
+		<Value>Payment failed</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Cancelled" Area="Common">
+		<Value>Cancelled</Value>
+	</Resource>
+	<Resource Name="Enums.Grand.Domain.Orders.RecurringPaymentStatus.Completed" Area="Common">
+		<Value>Completed</Value>
+	</Resource>
+	<Resource Name="Account.RecurringPayments" Area="Front">
+		<Value>Recurring payments</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Customer.HideRecurringPaymentsTab" Area="Admin">
+		<Value>Hide 'Recurring payments' tab</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Products" Area="Front">
+		<Value>Products</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cycle" Area="Front">
+		<Value>Billed</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid" Area="Front">
+		<Value>Payments</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid.Of" Area="Front">
+		<Value>{0} of {1}</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.CyclesPaid.UntilCancelled" Area="Front">
+		<Value>{0}, until cancelled</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.NextPayment" Area="Front">
+		<Value>Next payment</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Status" Area="Front">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.InitialOrder" Area="Front">
+		<Value>Order</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.PastDue.Hint" Area="Front">
+		<Value>The last payment failed. The payment provider will try again; check the card you pay with.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.NoRecurringPayments" Area="Front">
+		<Value>You have no recurring payments.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel" Area="Front">
+		<Value>Cancel</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Confirm" Area="Front">
+		<Value>Cancel this recurring payment? No further payments will be taken, and it cannot be resumed.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Success" Area="Front">
+		<Value>The recurring payment has been cancelled.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Refused" Area="Front">
+		<Value>This recurring payment cannot be cancelled.</Value>
+	</Resource>
+	<Resource Name="RecurringPayment.Cancel.Failed" Area="Front">
+		<Value>The payment provider could not cancel this recurring payment. Please try again later or contact us.</Value>
+	</Resource>
+	<Resource Name="Order.RecurringCycle" Area="Front">
+		<Value>Payment {0} of a recurring order</Value>
+	</Resource>
+	<Resource Name="Order.RecurringCycle.InitialOrder" Area="Front">
+		<Value>placed as order</Value>
+	</Resource>
+	<Resource Name="Order.RecurringPayment.Manage" Area="Front">
+		<Value>Manage the recurring payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments" Area="Admin">
+		<Value>Recurring payments</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Details" Area="Admin">
+		<Value>Recurring payment details</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.BackToList" Area="Admin">
+		<Value>back to the recurring payments list</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.List.SearchCustomerEmail" Area="Admin">
+		<Value>Search by customer email</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.List.SearchStatus" Area="Admin">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.List.SearchStore" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.Customer" Area="Admin">
+		<Value>Customer</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.Store" Area="Admin">
+		<Value>Store</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.Status" Area="Admin">
+		<Value>Status</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.Cycle" Area="Admin">
+		<Value>Billed</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.CyclesPaid" Area="Admin">
+		<Value>Payments</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.NextPaymentDate" Area="Admin">
+		<Value>Next payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.PaymentMethod" Area="Admin">
+		<Value>Payment method</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.ProviderReference" Area="Admin">
+		<Value>Provider reference</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.InitialOrder" Area="Admin">
+		<Value>Initial order</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.CreatedOn" Area="Admin">
+		<Value>Created on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.LastError" Area="Admin">
+		<Value>Last error</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.LastErrorDate" Area="Admin">
+		<Value>Failed on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.CancelledOn" Area="Admin">
+		<Value>Cancelled on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Fields.CancelledBy" Area="Admin">
+		<Value>Cancelled by</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles" Area="Admin">
+		<Value>Paid cycles</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.Empty" Area="Admin">
+		<Value>The payment provider has not reported a paid cycle yet.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.CycleNumber" Area="Admin">
+		<Value>Cycle</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.Order" Area="Admin">
+		<Value>Order</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.Amount" Area="Admin">
+		<Value>Amount</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cycles.PaidOn" Area="Admin">
+		<Value>Paid on</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cancel" Area="Admin">
+		<Value>Cancel recurring payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cancel.Confirm" Area="Admin">
+		<Value>Cancel this recurring payment? The payment provider will take no further payments, and it cannot be resumed.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cancel.Success" Area="Admin">
+		<Value>The recurring payment has been cancelled.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.RecurringPayments.Cancel.Ended" Area="Admin">
+		<Value>This recurring payment has already ended.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.RecurringPayment" Area="Admin">
+		<Value>Recurring payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.RecurringPayment.View" Area="Admin">
+		<Value>View the recurring payment</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.InitialOrder" Area="Admin">
+		<Value>Recurring payment of order</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Fields.RecurringCycleNumber" Area="Admin">
+		<Value>Cycle</Value>
+	</Resource>
+	<Resource Name="Admin.Customers.Customers.CustomerNotes.DownloadNotOfCustomer" Area="Admin">
+		<Value>The attached file was not uploaded for this customer. Upload it again here.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.Shipments.ShipmentNotes.DownloadNotOfShipment" Area="Admin">
+		<Value>The attached file was not uploaded for this shipment. Upload it again here.</Value>
+	</Resource>
+	<Resource Name="Admin.Orders.MerchandiseReturns.MerchandiseReturnNotes.DownloadNotOfMerchandiseReturn" Area="Admin">
+		<Value>The attached file was not uploaded for this merchandise return. Upload it again here.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.Customer.SignOutOnAllDevices" Area="Admin">
+		<Value>Sign out on all devices</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Permissions.CantRemoveOwnAccess" Area="Admin">
+		<Value>You can't take away your own access to the admin panel or to the permissions. Another administrator can change them.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.AdminAreaAllowedIpAddresses.WithoutOwn" Area="Admin">
+		<Value>The allowed IP addresses were not changed: they don't include your address ({0}), so you would be shut out of the admin panel.</Value>
+	</Resource>
 </Language>

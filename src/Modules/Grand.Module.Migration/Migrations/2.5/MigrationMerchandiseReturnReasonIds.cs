@@ -73,7 +73,7 @@ public class MigrationMerchandiseReturnReasonIds : IMigration
         return true;
     }
 
-    private static string Key(string name)
+    private static string Key(string? name)
     {
         return name?.Trim().ToLowerInvariant() ?? "";
     }

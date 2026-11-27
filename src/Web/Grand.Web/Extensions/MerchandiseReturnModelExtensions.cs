@@ -22,7 +22,7 @@ public static class MerchandiseReturnModelExtensions
     /// <param name="postedForm">The fields posted, of which the chosen return method's form is read</param>
     /// <param name="orderSettings">The settings of the store</param>
     public static async Task<MerchandiseReturnSubmitRequest> ToSubmitRequest(this MerchandiseReturnModel model,
-        Order order, Customer customer, IGroupService groupService, string languageId, Address pickupAddress,
+        Order order, Customer customer, IGroupService groupService, string languageId, Address? pickupAddress,
         IDictionary<string, string> postedForm, OrderSettings orderSettings)
     {
         return new MerchandiseReturnSubmitRequest {
@@ -36,9 +36,12 @@ public static class MerchandiseReturnModelExtensions
             PickupAddress = pickupAddress,
             PickupDate = model.PickupDate,
             //a store that does not ask for the requested action saves none, whatever was posted
-            Items = model.Items.Select(x => new MerchandiseReturnSubmitItem(x.Id, x.Quantity,
-                x.MerchandiseReturnReasonId,
-                orderSettings.MerchandiseReturns_HideRequestedAction ? null : x.MerchandiseReturnActionId)).ToList(),
+            //an item posted without its order item cannot be returned
+            Items = model.Items.Select(x => x.Id is { } orderItemId
+                    ? new MerchandiseReturnSubmitItem(orderItemId, x.Quantity, x.MerchandiseReturnReasonId,
+                        orderSettings.MerchandiseReturns_HideRequestedAction ? null : x.MerchandiseReturnActionId)
+                    : null)
+                .OfType<MerchandiseReturnSubmitItem>().ToList(),
             ReturnShipping = ReturnShippingChoice(model, postedForm)
         };
     }
@@ -46,7 +49,7 @@ public static class MerchandiseReturnModelExtensions
     /// <summary>
     ///     The return method chosen, with the fields of its form, prefix stripped; null when none was chosen
     /// </summary>
-    private static ReturnShippingChoice ReturnShippingChoice(MerchandiseReturnModel model,
+    private static ReturnShippingChoice? ReturnShippingChoice(MerchandiseReturnModel model,
         IDictionary<string, string> postedForm)
     {
         if (string.IsNullOrEmpty(model.ReturnShippingProvider))

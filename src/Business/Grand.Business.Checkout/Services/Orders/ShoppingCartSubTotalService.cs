@@ -168,31 +168,28 @@ public class ShoppingCartSubTotalService : IShoppingCartSubTotalService
         }
 
         //checkout attributes
-        if (customer != null)
+        var checkoutAttributes = customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, store.Id);
+        var attributeValues = await _checkoutAttributeParser.ParseCheckoutAttributeValue(checkoutAttributes);
+        foreach (var attributeValue in attributeValues)
         {
-            var checkoutAttributes = customer.GetUserFieldFromEntity<List<CustomAttribute>>(SystemCustomerFieldNames.CheckoutAttributes, store.Id);
-            var attributeValues = await _checkoutAttributeParser.ParseCheckoutAttributeValue(checkoutAttributes);
-            foreach (var attributeValue in attributeValues)
-            {
-                var checkoutAttributePriceExclTax = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false, customer, store);
-                
-                var caExclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutAttributePriceExclTax.checkoutPrice,
-                    context.Currency);
-                var (checkoutPrice, taxRate) = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, true, customer, store);
-                var caInclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutPrice,
-                    context.Currency);
+            var checkoutAttributePriceExclTax = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, false, customer, store);
+            
+            var caExclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutAttributePriceExclTax.checkoutPrice,
+                context.Currency);
+            var (checkoutPrice, taxRate) = await _taxService.GetCheckoutAttributePrice(attributeValue.ca, attributeValue.cav, true, customer, store);
+            var caInclTax = await _currencyService.ConvertFromPrimaryStoreCurrency(checkoutPrice,
+                context.Currency);
 
-                subTotalExclTaxWithoutDiscount += caExclTax;
-                subTotalInclTaxWithoutDiscount += caInclTax;
+            subTotalExclTaxWithoutDiscount += caExclTax;
+            subTotalInclTaxWithoutDiscount += caInclTax;
 
-                //tax rates
-                var caTax = caInclTax - caExclTax;
-                if (!(taxRate > 0) || !(caTax > 0)) continue;
-                if (!taxRates.ContainsKey(taxRate))
-                    taxRates.Add(taxRate, caTax);
-                else
-                    taxRates[taxRate] += caTax;
-            }
+            //tax rates
+            var caTax = caInclTax - caExclTax;
+            if (!(taxRate > 0) || !(caTax > 0)) continue;
+            if (!taxRates.ContainsKey(taxRate))
+                taxRates.Add(taxRate, caTax);
+            else
+                taxRates[taxRate] += caTax;
         }
 
         //subtotal without discount

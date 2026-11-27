@@ -47,7 +47,7 @@ public class TranslationService : ITranslationService
     /// </summary>
     /// <param name="translateResourceId">Translate resource identifier</param>
     /// <returns>Translate resource</returns>
-    public virtual Task<TranslationResource> GetTranslateResourceById(string translateResourceId)
+    public virtual Task<TranslationResource?> GetTranslateResourceById(string? translateResourceId)
     {
         return _translationRepository.GetByIdAsync(translateResourceId);
     }
@@ -58,7 +58,7 @@ public class TranslationService : ITranslationService
     /// <param name="name">A string representing a name</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Translate resource</returns>
-    public virtual async Task<TranslationResource> GetTranslateResourceByName(string name, string languageId)
+    public virtual async Task<TranslationResource?> GetTranslateResourceByName(string? name, string? languageId)
     {
         var query = from lsr in _translationRepository.Table
                     orderby lsr.Name
@@ -86,7 +86,7 @@ public class TranslationService : ITranslationService
     {
         ArgumentNullException.ThrowIfNull(translateResource);
 
-        translateResource.Name = translateResource.Name.ToLowerInvariant();
+        translateResource.Name = translateResource.Name?.ToLowerInvariant();
         await _translationRepository.InsertAsync(translateResource);
 
         await RefreshCachedResources(translateResource.LanguageId);
@@ -103,7 +103,7 @@ public class TranslationService : ITranslationService
     {
         ArgumentNullException.ThrowIfNull(translateResource);
 
-        translateResource.Name = translateResource.Name.ToLowerInvariant();
+        translateResource.Name = translateResource.Name?.ToLowerInvariant();
         await _translationRepository.UpdateAsync(translateResource);
 
         //cache
@@ -142,9 +142,11 @@ public class TranslationService : ITranslationService
     ///     found and default value is set to empty string
     /// </param>
     /// <returns>A string representing the requested resource string.</returns>
-    public virtual string GetResource(string name, string languageId, string defaultValue = "",
+    public virtual string GetResource(string name, string? languageId, string? defaultValue = "",
         bool returnEmptyIfNotFound = false)
     {
+        //a record without a language (an order placed before it was stored) reads the untranslated text
+        languageId ??= string.Empty;
         name ??= string.Empty;
         name = name.Trim().ToLowerInvariant();
 
@@ -155,7 +157,7 @@ public class TranslationService : ITranslationService
 
         if (!string.IsNullOrEmpty(defaultValue)) result = defaultValue;
         else if (!returnEmptyIfNotFound) result = name;
-        return result;
+        return result ?? string.Empty;
     }
 
     /// <summary>
@@ -274,7 +276,7 @@ public class TranslationService : ITranslationService
         await RefreshCachedResources(language.Id);
     }
 
-    private string GetOrAddToStaticCache(string languageId, string name)
+    private string? GetOrAddToStaticCache(string languageId, string name)
     {
         if (_cachedResources.TryGetValue(languageId, out var languageResources))
         {
@@ -288,8 +290,12 @@ public class TranslationService : ITranslationService
         return result;
     }
 
-    private Task RefreshCachedResources(string languageId)
+    private Task RefreshCachedResources(string? languageId)
     {
+        //a resource without a language belongs to no cached dictionary
+        if (languageId == null)
+            return Task.CompletedTask;
+
         if (_cachedResources.ContainsKey(languageId)) _cachedResources.TryRemove(languageId, out _);
         _cachedResources.TryAdd(languageId, CreateLanguageResourcesDictionary(languageId));
 
@@ -299,10 +305,10 @@ public class TranslationService : ITranslationService
     private Dictionary<string, string> CreateLanguageResourcesDictionary(string languageId)
     {
         return GetAllResources(languageId)
-            .GroupBy(r => r.Name)
+            .GroupBy(r => r.Name ?? string.Empty)
             .ToDictionary(
                 g => g.Key,
-                g => g.First().Value);
+                g => g.First().Value ?? string.Empty);
     }
 
     #endregion

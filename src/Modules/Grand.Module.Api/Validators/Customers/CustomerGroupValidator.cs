@@ -37,7 +37,7 @@ public class CustomerGroupValidator : BaseGrandValidator<CustomerGroupDto>
             if (!string.IsNullOrEmpty(x.Id))
             {
                 var customerGroup = await groupService.GetCustomerGroupById(x.Id);
-                if (customerGroup.IsSystem && !x.Active) return false;
+                if (customerGroup is { IsSystem: true } && !x.Active) return false;
             }
 
             return true;
@@ -47,8 +47,8 @@ public class CustomerGroupValidator : BaseGrandValidator<CustomerGroupDto>
             if (!string.IsNullOrEmpty(x.Id))
             {
                 var customerGroup = await groupService.GetCustomerGroupById(x.Id);
-                if (customerGroup.IsSystem &&
-                    !customerGroup.SystemName.Equals(x.SystemName, StringComparison.OrdinalIgnoreCase)) return false;
+                if (customerGroup is { IsSystem: true } &&
+                    !string.Equals(customerGroup.SystemName, x.SystemName, StringComparison.OrdinalIgnoreCase)) return false;
             }
 
             return true;

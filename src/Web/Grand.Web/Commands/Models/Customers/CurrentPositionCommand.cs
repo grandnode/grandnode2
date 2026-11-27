@@ -6,6 +6,6 @@ namespace Grand.Web.Commands.Models.Customers;
 
 public class CurrentPositionCommand : IRequest<bool>
 {
-    public Customer Customer { get; set; }
-    public LocationModel Model { get; set; }
+    public required Customer Customer { get; set; }
+    public required LocationModel Model { get; set; }
 }

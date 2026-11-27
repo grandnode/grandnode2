@@ -8,12 +8,12 @@ namespace Grand.Business.Messages.DotLiquidDrops;
 public class LiquidMerchandiseReturnItem : Drop
 {
     private readonly MerchandiseReturnItem _item;
-    private readonly string _languageId;
+    private readonly string? _languageId;
     private readonly OrderItem _orderItem;
-    private readonly Product _product;
+    private readonly Product? _product;
 
-    public LiquidMerchandiseReturnItem(MerchandiseReturnItem item, OrderItem orderItem, Product product,
-        string languageid)
+    public LiquidMerchandiseReturnItem(MerchandiseReturnItem item, OrderItem orderItem, Product? product,
+        string? languageid)
     {
         _item = item;
         _orderItem = orderItem;
@@ -23,7 +23,7 @@ public class LiquidMerchandiseReturnItem : Drop
     }
 
 
-    public string ProductName {
+    public string? ProductName {
         get {
             var name = "";
 
@@ -34,7 +34,7 @@ public class LiquidMerchandiseReturnItem : Drop
         }
     }
 
-    public string ProductSeName {
+    public string? ProductSeName {
         get {
             var name = "";
 
@@ -44,7 +44,7 @@ public class LiquidMerchandiseReturnItem : Drop
         }
     }
 
-    public string ProductShortDescription {
+    public string? ProductShortDescription {
         get {
             var desc = "";
 
@@ -55,7 +55,7 @@ public class LiquidMerchandiseReturnItem : Drop
         }
     }
 
-    public string ProductFullDescription {
+    public string? ProductFullDescription {
         get {
             var desc = "";
 
@@ -67,13 +67,13 @@ public class LiquidMerchandiseReturnItem : Drop
     }
 
 
-    public string ProductId => _product.Id;
+    public string? ProductId => _product?.Id;
 
     public int Quantity => _item.Quantity;
 
-    public string ReasonForReturn => _item.ReasonForReturn;
+    public string? ReasonForReturn => _item.ReasonForReturn;
 
-    public string RequestedAction => _item.RequestedAction;
+    public string? RequestedAction => _item.RequestedAction;
 
     public double UnitPriceWithoutDiscInclTax => _orderItem.UnitPriceWithoutDiscInclTax;
 
@@ -93,7 +93,7 @@ public class LiquidMerchandiseReturnItem : Drop
 
     public double OriginalProductCost => _orderItem.OriginalProductCost;
 
-    public string AttributeDescription => _orderItem.AttributeDescription;
+    public string? AttributeDescription => _orderItem.AttributeDescription;
 
 
     public IDictionary<string, string> AdditionalTokens { get; set; }

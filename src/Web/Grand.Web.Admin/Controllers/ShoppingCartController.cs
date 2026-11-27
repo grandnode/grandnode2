@@ -98,7 +98,8 @@ public class ShoppingCartController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> GetCartDetails(string customerId)
     {
-        var customer = await _customerService.GetCustomerById(customerId);
+        var customer = await _customerService.GetCustomerById(customerId)
+            ?? throw new ArgumentException("No customer found with the specified id");
         var cart = customer.ShoppingCartItems.Where(x => x.ShoppingCartTypeId == ShoppingCartType.ShoppingCart)
             .ToList();
         var items = new List<ShoppingCartItemModel>();
@@ -107,6 +108,8 @@ public class ShoppingCartController : BaseAdminController
             var store = await _storeService.GetStoreById(sci.StoreId);
             var priceStore = store ?? _contextAccessor.StoreContext.CurrentStore;
             var product = await _productService.GetProductById(sci.ProductId);
+            //a line of a product deleted meanwhile is not shown
+            if (product == null) continue;
             var sciModel = new ShoppingCartItemModel {
                 Id = sci.Id,
                 Store = store != null ? store.Shortcut : "Unknown",
@@ -173,7 +176,8 @@ public class ShoppingCartController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> GetWishlistDetails(string customerId)
     {
-        var customer = await _customerService.GetCustomerById(customerId);
+        var customer = await _customerService.GetCustomerById(customerId)
+            ?? throw new ArgumentException("No customer found with the specified id");
         var cart = customer.ShoppingCartItems.Where(x => x.ShoppingCartTypeId == ShoppingCartType.Wishlist).ToList();
         var items = new List<ShoppingCartItemModel>();
         foreach (var sci in cart)
@@ -181,6 +185,8 @@ public class ShoppingCartController : BaseAdminController
             var store = await _storeService.GetStoreById(sci.StoreId);
             var priceStore = store ?? _contextAccessor.StoreContext.CurrentStore;
             var product = await _productService.GetProductById(sci.ProductId);
+            //a line of a product deleted meanwhile is not shown
+            if (product == null) continue;
             var sciModel = new ShoppingCartItemModel {
                 Id = sci.Id,
                 Store = store != null ? store.Shortcut : "Unknown",

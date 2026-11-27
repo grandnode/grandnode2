@@ -243,6 +243,37 @@ public class BaseMessageTemplateControllerTests
     }
 
     [TestMethod]
+    public async Task EditPost_InvalidModel_Admin_CanCopy()
+    {
+        var template = new MessageTemplate { Id = "mt-1", Name = "N", LimitedToStores = true, Stores = ["store-1"] };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+
+        var controller = CreateController();
+        controller.ModelState.AddModelError("Subject", "required");
+        var result = await controller.Edit(new MessageTemplateModel { Id = "mt-1" }, false) as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsTrue(((MessageTemplateModel)result.Model).CanCopy);
+    }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_Store_OwnTemplate_CannotCopy()
+    {
+        var template = new MessageTemplate { Id = "mt-1", Name = "N", LimitedToStores = true, Stores = ["store-1"] };
+        _scope.Setup(s => s.DefaultStoreId).Returns("store-1");
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+
+        var controller = CreateController();
+        controller.ModelState.AddModelError("Subject", "required");
+        var result = await controller.Edit(new MessageTemplateModel { Id = "mt-1" }, false) as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsFalse(((MessageTemplateModel)result.Model).CanCopy);
+    }
+
+    [TestMethod]
     public async Task EditPost_Store_ForcesLimitedToStoresRegardlessOfSubmittedModel()
     {
         var template = new MessageTemplate { Id = "mt-1", LimitedToStores = true, Stores = ["store-1"], Name = "N" };
@@ -281,6 +312,41 @@ public class BaseMessageTemplateControllerTests
 
         Assert.IsNotNull(saved);
         Assert.IsFalse(saved.LimitedToStores);
+    }
+
+    [TestMethod]
+    public async Task EditPost_KeepsStoredNameRegardlessOfSubmittedModel()
+    {
+        var template = new MessageTemplate { Id = "mt-1", Name = "OrderPlaced.CustomerNotification" };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+
+        MessageTemplate saved = null;
+        _messageTemplateService.Setup(s => s.UpdateMessageTemplate(It.IsAny<MessageTemplate>()))
+            .Callback<MessageTemplate>(t => saved = t)
+            .Returns(Task.CompletedTask);
+
+        var model = new MessageTemplateModel { Id = "mt-1", Name = "Customer.PasswordRecovery" };
+        await CreateController().Edit(model, false);
+
+        Assert.IsNotNull(saved);
+        Assert.AreEqual("OrderPlaced.CustomerNotification", saved.Name);
+    }
+
+    [TestMethod]
+    public async Task EditPost_InvalidModel_KeepsSubmittedAttachmentSwitch()
+    {
+        var template = new MessageTemplate { Id = "mt-1", Name = "N", AttachedDownloadId = "dl-1" };
+        _messageTemplateService.Setup(s => s.GetMessageTemplateById("mt-1")).ReturnsAsync(template);
+        _scope.Setup(s => s.HasAccess(template)).ReturnsAsync(true);
+
+        var controller = CreateController();
+        controller.ModelState.AddModelError("Subject", "required");
+        var model = new MessageTemplateModel { Id = "mt-1", AttachedDownloadId = "dl-1", HasAttachedDownload = false };
+        var result = await controller.Edit(model, false) as ViewResult;
+
+        Assert.IsNotNull(result);
+        Assert.IsFalse(((MessageTemplateModel)result.Model).HasAttachedDownload);
     }
 
     [TestMethod]

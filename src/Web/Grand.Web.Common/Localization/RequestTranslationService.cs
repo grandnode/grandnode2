@@ -14,7 +14,7 @@ public class RequestTranslationService(
 {
     public string GetResource(string name)
     {
-        var language = contextAccessor.WorkContext?.WorkingLanguage;
+        var language = contextAccessor.CurrentWorkContext?.WorkingLanguage;
         return language != null ? GetResource(name, language.Id) : "";
     }
 }

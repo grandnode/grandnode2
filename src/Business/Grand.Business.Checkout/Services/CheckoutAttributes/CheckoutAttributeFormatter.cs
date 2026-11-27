@@ -47,7 +47,7 @@ public class CheckoutAttributeFormatter : ICheckoutAttributeFormatter
     /// <param name="renderPrices">A value indicating whether to render prices</param>
     /// <param name="allowHyperlinks">A value indicating whether to HTML hyperlink tags could be rendered (if required)</param>
     /// <returns>Attributes</returns>
-    public virtual async Task<string> FormatAttributes(IList<CustomAttribute> customAttributes,
+    public virtual async Task<string> FormatAttributes(IList<CustomAttribute>? customAttributes,
         CalculationContext context,
         Language language,
         DomainHost host,

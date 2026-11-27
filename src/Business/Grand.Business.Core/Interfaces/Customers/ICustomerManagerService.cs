@@ -17,7 +17,7 @@ public interface ICustomerManagerService
     /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
     /// <param name="surface">Where the password is used: the sign-in policy decides per surface</param>
     /// <returns>Result</returns>
-    Task<CustomerLoginResults> LoginCustomer(string usernameOrEmail, string password, string storeId = "",
+    Task<CustomerLoginResults> LoginCustomer(string? usernameOrEmail, string? password, string storeId = "",
         SignInSurface surface = SignInSurface.Storefront);
 
     /// <summary>
@@ -34,14 +34,14 @@ public interface ICustomerManagerService
     /// <param name="newPassword"></param>
     /// <param name="passwordSalt"></param>
     /// <returns></returns>
-    bool PasswordMatch(PasswordFormat passwordFormat, string oldPassword, string newPassword, string passwordSalt);
+    bool PasswordMatch(PasswordFormat passwordFormat, string? oldPassword, string? newPassword, string? passwordSalt);
 
     /// <summary>
     ///     Change password
     /// </summary>
     /// <param name="request">Request</param>
     /// <param name="storeId">Store identifier - used to resolve the customer when per-store customer identity is enabled</param>
-    Task ChangePassword(ChangePasswordRequest request, string storeId = "");
+    Task ChangePassword(ChangePasswordRequest request, string? storeId = "");
 
     /// <summary>
     ///     Change password of this customer, without resolving the account by e-mail

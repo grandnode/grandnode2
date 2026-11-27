@@ -54,6 +54,9 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
 
     public async Task<bool> Handle(CustomerRegisteredCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires it
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.Email);
+
         //VAT number
         if (_taxSettings.EuVatEnabled)
         {
@@ -170,7 +173,7 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
             FaxNumber = request.Customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Fax)
         };
 
-        if (await IsAddressValid(defaultAddress, request.Store?.Id))
+        if (await IsAddressValid(defaultAddress, request.Store.Id))
         {
             //set default address
             request.Customer.Addresses.Add(defaultAddress);
@@ -199,7 +202,7 @@ public class CustomerRegisteredCommandHandler : IRequestHandler<CustomerRegister
     /// <param name="address">Address to validate</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Result</returns>
-    private async Task<bool> IsAddressValid(Address address, string storeId)
+    private async Task<bool> IsAddressValid(Address address, string? storeId)
     {
         ArgumentNullException.ThrowIfNull(address);
 

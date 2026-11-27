@@ -25,7 +25,7 @@ public class MenuViewModelService : IMenuViewModelService
         }).ToList();
     }
 
-    public virtual async Task<AdminSiteMap> GetMenuById(string id)
+    public virtual async Task<AdminSiteMap?> GetMenuById(string? id)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(id);
 
@@ -33,7 +33,7 @@ public class MenuViewModelService : IMenuViewModelService
         return sitemap.Select(rootNode => FindAdminSiteMapById(rootNode, id)).FirstOrDefault(result => result != null);
     }
 
-    public virtual async Task<AdminSiteMap> FindParentNodeById(string id)
+    public virtual async Task<AdminSiteMap?> FindParentNodeById(string? id)
     {
         var node = await GetMenuById(id);
         if (node == null) return null;
@@ -54,8 +54,10 @@ public class MenuViewModelService : IMenuViewModelService
         async Task<AdminSiteMap> AddChildNodeSiteMap()
         {
             var sitemap = await _adminSiteMapService.GetSiteMap();
-            var parentEntity = FindTopLevelNodeById(sitemap, parentId);
-            var adminSiteMap = FindAdminSiteMapById(parentEntity, parentId);
+            var parentEntity = FindTopLevelNodeById(sitemap, parentId)
+                               ?? throw new ArgumentException("No menu item found with the specified id");
+            var adminSiteMap = FindAdminSiteMapById(parentEntity, parentId)
+                               ?? throw new ArgumentException("No menu item found with the specified id");
             var siteMap = model.ToEntity();
             adminSiteMap.ChildNodes.Add(siteMap);
             await _adminSiteMapService.UpdateSiteMap(parentEntity);
@@ -68,8 +70,10 @@ public class MenuViewModelService : IMenuViewModelService
         ArgumentNullException.ThrowIfNull(model);
 
         var sitemap = await _adminSiteMapService.GetSiteMap();
-        var parentEntity = FindTopLevelNodeById(sitemap, model.Id);
-        var adminSiteMap = FindAdminSiteMapById(parentEntity, model.Id);
+        var parentEntity = FindTopLevelNodeById(sitemap, model.Id)
+                           ?? throw new ArgumentException("No menu item found with the specified id");
+        var adminSiteMap = FindAdminSiteMapById(parentEntity, model.Id)
+                           ?? throw new ArgumentException("No menu item found with the specified id");
 
         adminSiteMap = model.ToEntity(adminSiteMap);
         await _adminSiteMapService.UpdateSiteMap(parentEntity);
@@ -87,20 +91,20 @@ public class MenuViewModelService : IMenuViewModelService
         {
             await _adminSiteMapService.DeleteSiteMap(parentEntity);
         }
-        else
+        else if (parentEntity != null)
         {
             var adminSiteMap = FindParentNodeById(parentEntity, id);
-            if (adminSiteMap != null)
+            if (adminSiteMap?.ChildNodes.FirstOrDefault(y => y.Id == id) is { } childNode)
             {
-                adminSiteMap.ChildNodes.Remove(adminSiteMap.ChildNodes.FirstOrDefault(y => y.Id == id));
+                adminSiteMap.ChildNodes.Remove(childNode);
                 await _adminSiteMapService.UpdateSiteMap(parentEntity);
             }
         }
     }
 
-    private static AdminSiteMap FindTopLevelNodeById(IList<AdminSiteMap> adminSiteMaps, string targetId)
+    private static AdminSiteMap? FindTopLevelNodeById(IList<AdminSiteMap> adminSiteMaps, string? targetId)
     {
-        return adminSiteMaps.FirstOrDefault(adminSiteMap => GetAllIdsFromChildren(adminSiteMap).Contains(targetId));
+        return adminSiteMaps.FirstOrDefault(adminSiteMap => targetId != null && GetAllIdsFromChildren(adminSiteMap).Contains(targetId));
     }
 
     private static List<string> GetAllIdsFromChildren(AdminSiteMap rootNode)
@@ -121,7 +125,7 @@ public class MenuViewModelService : IMenuViewModelService
                 GetAllIdsFromChildrenRecursive(childNode, allIds);
     }
 
-    private static AdminSiteMap FindAdminSiteMapById(AdminSiteMap rootNode, string id)
+    private static AdminSiteMap? FindAdminSiteMapById(AdminSiteMap? rootNode, string? id)
     {
         if (rootNode == null) return null;
         return rootNode.Id == id
@@ -130,7 +134,7 @@ public class MenuViewModelService : IMenuViewModelService
                 .FirstOrDefault(result => result != null);
     }
 
-    private static AdminSiteMap FindParentNodeById(AdminSiteMap rootNode, string childId)
+    private static AdminSiteMap? FindParentNodeById(AdminSiteMap? rootNode, string? childId)
     {
         if (rootNode == null) return null;
         if (rootNode.Id == childId) return rootNode;

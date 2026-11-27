@@ -5,6 +5,7 @@ using Grand.Infrastructure.Plugins;
 using Grand.Module.Installer.Interfaces;
 using Grand.Module.Installer.Models;
 using Grand.SharedKernel.Extensions;
+using Grand.SharedKernel;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
@@ -121,7 +122,7 @@ public class InstallController : Controller
         return View(installed ? new InstallModel { Installed = true, AdminEmail = "", AdminPassword = "", ConfirmPassword = "" } : PrepareModel(null));
     }
 
-    private string BuildConnectionString(IInstallationLocalizedService locService, InstallModel model)
+    private string? BuildConnectionString(IInstallationLocalizedService locService, InstallModel model)
     {
         var connectionString = "";
 
@@ -249,14 +250,15 @@ public class InstallController : Controller
 
             await PluginManager.ClearPlugins();
 
-            var pluginsInfo = PluginManager.ReferencedPlugins.ToList();
+            var pluginsInfo = PluginManager.ReferencedPlugins?.ToList() ?? [];
 
             foreach (var pluginInfo in pluginsInfo)
                 try
                 {
-                    var plugin = pluginInfo.Instance<IPlugin>(HttpContext.RequestServices.CreateScope().ServiceProvider);
+                    var plugin = pluginInfo.Instance<IPlugin>(HttpContext.RequestServices.CreateScope().ServiceProvider) ??
+                                 throw new GrandException($"Plugin {pluginInfo.SystemName} could not be created");
                     await plugin.Install();
-                    _logger.LogInformation($"Plugin {plugin.PluginInfo.FriendlyName} has been installed");
+                    _logger.LogInformation($"Plugin {pluginInfo.FriendlyName} has been installed");
                 }
                 catch (Exception ex)
                 {

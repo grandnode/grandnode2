@@ -2,10 +2,10 @@ namespace Grand.Web.AdminShared.Models.Orders;
 
 public class PaymentTransactionEntryModel
 {
-    public string Operation { get; set; }
+    public string? Operation { get; set; }
     public double Amount { get; set; }
     public DateTime CreatedOn { get; set; }
-    public string RecordedBy { get; set; }
-    public string Reference { get; set; }
-    public string Note { get; set; }
+    public string? RecordedBy { get; set; }
+    public string? Reference { get; set; }
+    public string? Note { get; set; }
 }

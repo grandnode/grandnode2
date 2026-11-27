@@ -72,7 +72,7 @@ public class CheckoutAttributeParser : ICheckoutAttributeParser
     /// <param name="customAttributes">Attributes</param>
     /// <returns>Checkout attribute values with checkout attribute </returns>
     public virtual async Task<IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>> ParseCheckoutAttributeValue(
-        IList<CustomAttribute> customAttributes)
+        IList<CustomAttribute>? customAttributes)
     {
         var values = new List<(CheckoutAttribute ca, CheckoutAttributeValue cav)>();
         if (customAttributes == null || !customAttributes.Any())
@@ -130,7 +130,7 @@ public class CheckoutAttributeParser : ICheckoutAttributeParser
 
         foreach (var attr in checkoutAttributeIdsToRemove
                      .Select(id => customAttributes.FirstOrDefault(x => x.Key == id))
-                     .Where(attr => attr != null)) customAttributes.Remove(attr);
+                     .OfType<CustomAttribute>()) customAttributes.Remove(attr);
 
         return customAttributes;
     }

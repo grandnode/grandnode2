@@ -65,7 +65,7 @@ public class BackgroundServiceTask : BackgroundService
     /// <param name="machineName">Name of the machine (container hostname, pod name)</param>
     /// <param name="instanceName">Configured Application:InstanceName, empty when not set</param>
     /// <param name="utcNow">Current time</param>
-    internal static ScheduleDecision Decide(ScheduleTask task, string machineName, string instanceName,
+    internal static ScheduleDecision Decide(ScheduleTask? task, string machineName, string? instanceName,
         DateTime utcNow)
     {
         if (task == null)
@@ -99,7 +99,7 @@ public class BackgroundServiceTask : BackgroundService
     /// change on every deployment, so the configured instance name is accepted too - and it can be
     /// shared by several instances, which then compete for the run like unpinned ones.
     /// </summary>
-    private static bool IsPinnedToThisInstance(string leasedByMachineName, string machineName, string instanceName)
+    private static bool IsPinnedToThisInstance(string? leasedByMachineName, string machineName, string? instanceName)
     {
         if (string.IsNullOrEmpty(leasedByMachineName))
             return true;
@@ -113,7 +113,7 @@ public class BackgroundServiceTask : BackgroundService
     {
         //resolved once from the root provider (not the per-iteration scope) so it also
         //survives to log failures raised before/around a scope, e.g. in the outer catch
-        var logger = _serviceProvider.GetService<ILogger<BackgroundServiceTask>>();
+        var logger = _serviceProvider.GetRequiredService<ILogger<BackgroundServiceTask>>();
         var instanceName = _serviceProvider.GetService<AppConfig>()?.InstanceName;
 
         while (!stoppingToken.IsCancellationRequested)
@@ -121,7 +121,7 @@ public class BackgroundServiceTask : BackgroundService
             {
                 using var scope = _serviceProvider.CreateScope();
                 var serviceProvider = scope.ServiceProvider;
-                var scheduleTaskService = serviceProvider.GetService<IScheduleTaskService>();
+                var scheduleTaskService = serviceProvider.GetRequiredService<IScheduleTaskService>();
                 var task = await scheduleTaskService.GetTaskByName(Name);
                 var decision = Decide(task, Environment.MachineName, instanceName, DateTime.UtcNow);
 

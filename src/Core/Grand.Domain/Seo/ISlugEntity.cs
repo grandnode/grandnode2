@@ -5,5 +5,5 @@ namespace Grand.Domain.Seo;
 /// </summary>
 public interface ISlugEntity
 {
-    string SeName { get; set; }
+    string? SeName { get; set; }
 }

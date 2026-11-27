@@ -15,7 +15,7 @@ public interface IPictureService
     /// </summary>
     /// <param name="picture">Picture</param>
     /// <returns>Picture binary</returns>
-    Task<byte[]> LoadPictureBinary(Picture picture);
+    Task<byte[]?> LoadPictureBinary(Picture picture);
 
     /// <summary>
     ///     Gets the loaded picture binary depending on picture storage settings
@@ -23,14 +23,14 @@ public interface IPictureService
     /// <param name="picture">Picture</param>
     /// <param name="fromDb">Load from database; otherwise, from file system</param>
     /// <returns>Picture binary</returns>
-    Task<byte[]> LoadPictureBinary(Picture picture, bool fromDb);
+    Task<byte[]?> LoadPictureBinary(Picture picture, bool fromDb);
 
     /// <summary>
     ///     Get picture SEO friendly name
     /// </summary>
     /// <param name="name">Name</param>
     /// <returns>Result</returns>
-    string GetPictureSeName(string name);
+    string? GetPictureSeName(string? name);
 
     /// <summary>
     ///     Gets the default picture URL
@@ -38,7 +38,7 @@ public interface IPictureService
     /// <param name="targetSize">The target picture size (longest side)</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Picture URL</returns>
-    Task<string> GetDefaultPictureUrl(int targetSize = 0, string storeLocation = null);
+    Task<string?> GetDefaultPictureUrl(int targetSize = 0, string? storeLocation = null);
 
     /// <summary>
     ///     Get a picture URL
@@ -48,10 +48,10 @@ public interface IPictureService
     /// <param name="showDefaultPicture">A value indicating whether the default picture is shown</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Picture URL</returns>
-    Task<string> GetPictureUrl(string pictureId,
+    Task<string?> GetPictureUrl(string? pictureId,
         int targetSize = 0,
         bool showDefaultPicture = true,
-        string storeLocation = null);
+        string? storeLocation = null);
 
     /// <summary>
     ///     Get a picture URL
@@ -61,10 +61,10 @@ public interface IPictureService
     /// <param name="showDefaultPicture">A value indicating whether the default picture is shown</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Picture URL</returns>
-    Task<string> GetPictureUrl(Picture picture,
+    Task<string?> GetPictureUrl(Picture? picture,
         int targetSize = 0,
         bool showDefaultPicture = true,
-        string storeLocation = null);
+        string? storeLocation = null);
 
     /// <summary>
     ///     Get a picture local path
@@ -73,14 +73,14 @@ public interface IPictureService
     /// <param name="targetSize">The target picture size (longest side)</param>
     /// <param name="showDefaultPicture">A value indicating whether the default picture is shown</param>
     /// <returns></returns>
-    Task<string> GetThumbPhysicalPath(Picture picture, int targetSize = 0, bool showDefaultPicture = true);
+    Task<string?> GetThumbPhysicalPath(Picture? picture, int targetSize = 0, bool showDefaultPicture = true);
 
     /// <summary>
     ///     Gets a picture
     /// </summary>
     /// <param name="pictureId">Picture identifier</param>
     /// <returns>Picture</returns>
-    Task<Picture> GetPictureById(string pictureId);
+    Task<Picture?> GetPictureById(string? pictureId);
 
     /// <summary>
     ///     Deletes a picture
@@ -100,7 +100,7 @@ public interface IPictureService
     /// <param name="pictureId">Picture identifier</param>
     /// <param name="pictureBinary">Picture binary</param>
     /// <param name="mimeType">MIME type</param>
-    Task SavePictureInFile(string pictureId, byte[] pictureBinary, string mimeType);
+    Task SavePictureInFile(string pictureId, byte[] pictureBinary, string? mimeType);
 
     /// <summary>
     ///     Clear Pictures stored in Assets/Images/Thumbs
@@ -128,9 +128,9 @@ public interface IPictureService
     /// <param name="objectId">Object id for reference</param>
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
-    Task<Picture> InsertPicture(byte[] pictureBinary, string mimeType, string seoFilename,
-        string altAttribute = null, string titleAttribute = null,
-        bool isNew = true, Reference reference = Reference.None, string objectId = "", bool validateBinary = false);
+    Task<Picture> InsertPicture(byte[] pictureBinary, string? mimeType, string? seoFilename,
+        string? altAttribute = null, string? titleAttribute = null,
+        bool isNew = true, Reference reference = Reference.None, string? objectId = "", bool validateBinary = false);
 
     /// <summary>
     ///     Updates the picture
@@ -146,9 +146,9 @@ public interface IPictureService
     /// <param name="isNew">A value indicating whether the picture is new</param>
     /// <param name="validateBinary">A value indicating whether to validated provided picture binary</param>
     /// <returns>Picture</returns>
-    Task<Picture> UpdatePicture(string pictureId, byte[] pictureBinary, string mimeType,
-        string seoFilename, string altAttribute = null, string titleAttribute = null,
-        string style = null, string extraField = null,
+    Task<Picture?> UpdatePicture(string pictureId, byte[]? pictureBinary, string? mimeType,
+        string? seoFilename, string? altAttribute = null, string? titleAttribute = null,
+        string? style = null, string? extraField = null,
         bool isNew = true, bool validateBinary = true);
 
     /// <summary>
@@ -173,7 +173,7 @@ public interface IPictureService
     /// <param name="picture">The picture</param>
     /// <param name="seoFilename">The SEO filename</param>
     /// <returns>Picture</returns>
-    Task<Picture> SetSeoFilename(Picture picture, string seoFilename);
+    Task<Picture> SetSeoFilename(Picture picture, string? seoFilename);
 
     /// <summary>
     ///     Validates input picture dimensions

@@ -115,8 +115,7 @@ public class ScimUserService(
     {
         ArgumentNullException.ThrowIfNull(data);
 
-        var (customer, record) = await Load(id);
-        if (customer == null)
+        if (await Load(id) is not (var customer, var record))
             return new ScimUserResult(ScimOutcome.NotFound);
 
         //every check before the first write: a refused replace changes nothing
@@ -169,13 +168,12 @@ public class ScimUserService(
 
     public virtual async Task<ScimUserResult> Get(string id)
     {
-        var (customer, record) = await Load(id);
-        return customer == null
-            ? new ScimUserResult(ScimOutcome.NotFound)
-            : new ScimUserResult(ScimOutcome.Ok, await View(customer, record));
+        return await Load(id) is (var customer, var record)
+            ? new ScimUserResult(ScimOutcome.Ok, await View(customer, record))
+            : new ScimUserResult(ScimOutcome.NotFound);
     }
 
-    public virtual async Task<ScimPage<ScimUserView>> List(string userName, string externalId, int skip, int take)
+    public virtual async Task<ScimPage<ScimUserView>> List(string? userName, string? externalId, int skip, int take)
     {
         var query = users.Table.Where(x => !x.Deprovisioned);
         if (!string.IsNullOrEmpty(externalId))
@@ -211,8 +209,7 @@ public class ScimUserService(
     /// </summary>
     public virtual async Task<ScimOutcome> Delete(string id)
     {
-        var (customer, record) = await Load(id);
-        if (customer == null)
+        if (await Load(id) is not (var customer, var record))
             return ScimOutcome.NotFound;
 
         //an account may have become a break-glass account since it was provisioned
@@ -357,7 +354,7 @@ public class ScimUserService(
     }
 
     /// <param name="mustBeStaff">False for a user the provider deleted and creates again: it was managed already</param>
-    private async Task<string> TakeOverRefusal(Customer customer, string externalId, bool mustBeStaff)
+    private async Task<string?> TakeOverRefusal(Customer customer, string externalId, bool mustBeStaff)
     {
         var refusal = ScimProtection.Refusal(customer, loginConfig);
         if (refusal != null)
@@ -387,19 +384,19 @@ public class ScimUserService(
     }
 
     //a deprovisioned user keeps its externalId for a re-creation, so it does not block another user
-    private async Task<bool> ExternalIdTaken(string externalId, string exceptId) =>
+    private async Task<bool> ExternalIdTaken(string externalId, string? exceptId) =>
         externalId != "" &&
         await users.GetOneAsync(x => x.ExternalId == externalId && !x.Deprovisioned && x.Id != exceptId) != null;
 
-    private async Task<(Customer Customer, ScimUser Record)> Load(string id)
+    private async Task<(Customer Customer, ScimUser Record)?> Load(string id)
     {
         if (string.IsNullOrEmpty(id))
-            return (null, null);
+            return null;
         var record = await users.GetByIdAsync(id);
         if (record is not { Deprovisioned: false })
-            return (null, null);
+            return null;
         var customer = await customerService.GetCustomerById(id);
-        return customer is { Deleted: false } ? (customer, record) : (null, null);
+        return customer is { Deleted: false } ? (customer, record) : null;
     }
 
     private async Task<ScimUserView> View(Customer customer, ScimUser record)
@@ -419,10 +416,10 @@ public class ScimUserService(
             record.UpdatedOnUtc ?? record.CreatedOnUtc);
     }
 
-    private static bool OwnedByOther(Customer found, Customer customer) => found != null && found.Id != customer.Id;
+    private static bool OwnedByOther(Customer? found, Customer customer) => found != null && found.Id != customer.Id;
 
     //the first of userName and the e-mails that is an e-mail address, lower-cased
-    private static string EmailOf(ScimUserData data) =>
+    private static string? EmailOf(ScimUserData data) =>
         new[] { data.UserName, data.Email }
             .Select(x => x?.Trim())
             .FirstOrDefault(x => !string.IsNullOrEmpty(x) && CommonHelper.IsValidEmail(x))

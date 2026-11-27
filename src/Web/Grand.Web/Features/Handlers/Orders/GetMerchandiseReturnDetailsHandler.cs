@@ -93,7 +93,9 @@ public class
             if (orderItem == null)
                 continue;
 
-            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            //archived products are kept, so a missing one is a broken record
+            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId)
+                          ?? throw new InvalidOperationException($"Product {orderItem.ProductId} of order item {orderItem.Id} is missing");
 
             var unitPrice = _priceFormatter.FormatPrice(
                 request.Order.CustomerTaxDisplayTypeId == TaxDisplayType.IncludingTax
@@ -174,7 +176,7 @@ public class
             model.Timeline.Add(entry);
     }
 
-    private async Task<MerchandiseReturnDetailsModel.ReturnShippingModel> PrepareReturnShipping(
+    private async Task<MerchandiseReturnDetailsModel.ReturnShippingModel?> PrepareReturnShipping(
         GetMerchandiseReturnDetails request)
     {
         var merchandiseReturn = request.MerchandiseReturn;
@@ -221,7 +223,7 @@ public class
         MerchandiseReturnDetailsModel.ReturnShippingModel model)
     {
         var tracker = _returnShippingService.LoadProviderBySystemName(shipping.ProviderSystemName)?.ShipmentTracker;
-        if (tracker == null)
+        if (tracker == null || string.IsNullOrEmpty(shipping.TrackingNumber))
             return;
 
         try
@@ -256,22 +258,9 @@ public class
                 Id = merchandiseReturnNote.Id,
                 MerchandiseReturnId = merchandiseReturnNote.MerchandiseReturnId,
                 HasDownload = !string.IsNullOrEmpty(merchandiseReturnNote.DownloadId),
-                Note = NoteHtml(merchandiseReturnNote),
+                Note = _htmlSanitizationService.NoteHtml(merchandiseReturnNote.Note, merchandiseReturnNote.CreatedByCustomer),
                 CreatedByCustomer = merchandiseReturnNote.CreatedByCustomer,
                 CreatedOn = _dateTimeService.ConvertToUserTime(merchandiseReturnNote.CreatedOnUtc, DateTimeKind.Utc)
             });
-    }
-
-    /// <summary>
-    ///     What the customer typed is text, as the e-mails and the panels show it. A staff note is text too, unless it
-    ///     is markup the rich-text allowlist keeps whole, e.g. a link to a form: such notes were shown as HTML before
-    /// </summary>
-    private string NoteHtml(MerchandiseReturnNote note)
-    {
-        if (!note.CreatedByCustomer && _htmlSanitizationService.ContainsMarkup(note.Note) &&
-            !_htmlSanitizationService.ContainsDisallowedRichText(note.Note))
-            return note.Note;
-
-        return FormatText.ConvertText(note.Note);
     }
 }

@@ -32,10 +32,10 @@ public class VendorController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Vendors, CurrentCustomer)) return Forbid();
 
-        var vendor = await _mediator.Send(new GetGenericQuery<VendorDto, Vendor>(key));
-        if (!vendor.Any()) return NotFound();
+        var vendor = (await _mediator.Send(new GetGenericQuery<VendorDto, Vendor>(key))).FirstOrDefault();
+        if (vendor == null) return NotFound();
 
-        return Ok(vendor.FirstOrDefault());
+        return Ok(vendor);
     }
 
     [EndpointDescription("Get entities from Vendor")]

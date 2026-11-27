@@ -10,7 +10,7 @@ public static class RoundingHelper
     /// <param name="value">Value to round</param>
     /// <param name="currency">Currency</param>
     /// <returns>Rounded value</returns>
-    public static double RoundPrice(double value, Currency currency)
+    public static double RoundPrice(double value, Currency? currency)
     {
         return currency != null
             ? value.Round(currency.NumberDecimal, currency.RoundingTypeId, currency.MidpointRoundId)

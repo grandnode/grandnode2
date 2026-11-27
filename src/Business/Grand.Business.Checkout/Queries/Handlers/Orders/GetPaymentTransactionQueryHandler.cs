@@ -51,7 +51,8 @@ public class
         if (!string.IsNullOrEmpty(request.PaymentMethodSystemName))
             query = query.Where(rr => rr.PaymentMethodSystemName == request.PaymentMethodSystemName);
 
-        if (!string.IsNullOrWhiteSpace(request.PurchaseOrderNumber) || request.OverdueOnly)
+        if (!string.IsNullOrWhiteSpace(request.PurchaseOrderNumber) || request.OverdueOnly ||
+            !string.IsNullOrEmpty(request.SalesEmployeeId))
         {
             var orderGuids = await MatchingOrderGuids(request, cancellationToken);
             query = query.Where(rr => orderGuids.Contains(rr.OrderGuid));
@@ -63,7 +64,8 @@ public class
     }
 
     /// <summary>
-    ///     The purchase order number and the due date live on the order, so the orders matching them are found first
+    ///     The purchase order number, the due date and the sales employee live on the order, so the orders matching them
+    ///     are found first
     /// </summary>
     private Task<IList<Guid>> MatchingOrderGuids(GetPaymentTransactionQuery request,
         CancellationToken cancellationToken)
@@ -78,6 +80,9 @@ public class
 
         if (request.OverdueOnly)
             orders = orders.WherePaymentOverdue(DateTime.UtcNow);
+
+        if (!string.IsNullOrEmpty(request.SalesEmployeeId))
+            orders = orders.Where(o => o.SeId == request.SalesEmployeeId);
 
         return _orderRepository.ToListAsync(orders.Select(o => o.OrderGuid), cancellationToken);
     }

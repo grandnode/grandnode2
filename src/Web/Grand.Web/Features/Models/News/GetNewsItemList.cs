@@ -5,5 +5,5 @@ namespace Grand.Web.Features.Models.News;
 
 public class GetNewsItemList : IRequest<NewsItemListModel>
 {
-    public NewsPagingFilteringModel Command { get; set; }
+    public required NewsPagingFilteringModel Command { get; set; }
 }

@@ -40,7 +40,7 @@ public abstract class BaseProductUnitController(
     ISettingService settingService,
     IWarehouseLocationService locationService) : BaseController
 {
-    private InventorySettings _inventorySettings;
+    private InventorySettings? _inventorySettings;
 
     [PermissionAuthorizeAction(PermissionActionName.List)]
     [HttpGet]
@@ -234,7 +234,7 @@ public abstract class BaseProductUnitController(
     /// <summary>
     ///     The location when it is a place in the unit's warehouse; any other is dropped
     /// </summary>
-    private async Task<string> LocationIn(string warehouseId, string locationId)
+    private async Task<string?> LocationIn(string? warehouseId, string? locationId)
     {
         if (string.IsNullOrEmpty(locationId))
             return null;
@@ -242,7 +242,7 @@ public abstract class BaseProductUnitController(
         return location != null && location.WarehouseId == (warehouseId ?? "") ? location.Id : null;
     }
 
-    private async Task AddLocations(IList<SelectListItem> list, string warehouseId, string selectedId)
+    private async Task AddLocations(IList<SelectListItem> list, string? warehouseId, string? selectedId)
     {
         list.Add(new SelectListItem { Text = "", Value = "" });
         if (string.IsNullOrEmpty(warehouseId))
@@ -270,7 +270,7 @@ public abstract class BaseProductUnitController(
         return value is { Kind: DateTimeKind.Local } ? value.Value.ToUniversalTime() : value;
     }
 
-    private static string Text(string value)
+    private static string? Text(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }
@@ -361,7 +361,7 @@ public abstract class BaseProductUnitController(
     /// <summary>
     ///     A CSV field, quoted, and never read as a formula by a spreadsheet
     /// </summary>
-    private static string Csv(string value)
+    private static string Csv(string? value)
     {
         value ??= "";
         if (value.Length > 0 && "=+-@".Contains(value[0]))
@@ -369,7 +369,7 @@ public abstract class BaseProductUnitController(
         return $"\"{value.Replace("\"", "\"\"")}\"";
     }
 
-    private async Task<bool> CanSee(string unitStoreId)
+    private async Task<bool> CanSee(string? unitStoreId)
     {
         var storeId = await productScope.GetDefaultStoreIdAsync();
         return storeId == null || (unitStoreId ?? "") == storeId;
@@ -393,7 +393,7 @@ public abstract class BaseProductUnitController(
             list.Add(new SelectListItem { Text = warehouse.Name, Value = warehouse.Id });
     }
 
-    private async Task<string> WarehouseName(string warehouseId)
+    private async Task<string> WarehouseName(string? warehouseId)
     {
         return string.IsNullOrEmpty(warehouseId)
             ? ""

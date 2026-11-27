@@ -8,13 +8,13 @@ public class DiscountCoupon : BaseEntity
     ///     Gets or sets the coupon code
     /// </summary>
     [AuditName]
-    public string CouponCode { get; set; }
+    public string? CouponCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the discount id
     /// </summary>
     [AuditReference(typeof(Discount))]
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
 
     /// <summary>
     ///     Gets or sets discount used

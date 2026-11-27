@@ -1,7 +1,7 @@
 ﻿@model RegisterModel
 @inject IPageHeadBuilder pagebuilder
 @{
-    Layout = "_SingleColumn";
+    Layout = "_GuestAccount";
     //title
     pagebuilder.AddTitleParts(Loc["Title.Register"]);
 }
@@ -476,7 +476,7 @@
 </validation-observer>
 </div>
 @{
-    var customerVmData = new Dictionary<string, object> {
+    var customerVmData = new Dictionary<string, object?> {
         ["FirstName"] = Model.FirstName,
         ["LastName"] = Model.LastName,
         ["Company"] = Model.Company,

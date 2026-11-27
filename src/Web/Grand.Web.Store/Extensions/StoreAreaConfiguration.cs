@@ -18,7 +18,7 @@ public static class StoreAreaConfiguration
 {
     //plugin assemblies never change within a process lifetime, so the reflection cost is paid once
     private static readonly ConcurrentDictionary<Assembly, bool> Cache = new();
-    private static readonly ConcurrentDictionary<Assembly, string> UrlCache = new();
+    private static readonly ConcurrentDictionary<Assembly, string?> UrlCache = new();
 
     /// <summary>
     ///     Whether the provider's plugin exposes at least one controller in the Store area.
@@ -39,7 +39,7 @@ public static class StoreAreaConfiguration
     ///         ships, which by convention exposes a Configure action.
     ///     </para>
     /// </summary>
-    public static string GetConfigurationUrl(object provider)
+    public static string? GetConfigurationUrl(object provider)
     {
         if (provider == null) return null;
         var controller = UrlCache.GetOrAdd(provider.GetType().Assembly, FindStoreAreaConfigurationController);
@@ -51,7 +51,7 @@ public static class StoreAreaConfiguration
         return GetLoadableTypes(assembly).Any(IsStoreAreaController);
     }
 
-    private static string FindStoreAreaConfigurationController(Assembly assembly)
+    private static string? FindStoreAreaConfigurationController(Assembly assembly)
     {
         //a configuration screen has a GET and a POST Configure, so the overloads are enumerated
         //rather than asked for by name - GetMethod would throw on the ambiguity
@@ -82,7 +82,7 @@ public static class StoreAreaConfiguration
         }
         catch (ReflectionTypeLoadException ex)
         {
-            return ex.Types.Where(type => type != null);
+            return ex.Types.OfType<Type>();
         }
     }
 }

@@ -8,13 +8,13 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 
 public class AddRequiredProductsCommand : IRequest<bool>
 {
-    public Customer Customer { get; set; }
+    public required Customer Customer { get; set; }
     public ShoppingCartType ShoppingCartType { get; set; }
-    public Product Product { get; set; }
-    public string StoreId { get; set; }
+    public required Product Product { get; set; }
+    public required string? StoreId { get; set; }
 
     /// <summary>
     ///     Language the cart warnings are written in
     /// </summary>
-    public Language Language { get; set; }
+    public required Language Language { get; set; }
 }

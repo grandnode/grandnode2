@@ -9,12 +9,12 @@ public class HomePageBlogItemsModel : BaseModel
 
     public class BlogItemModel : BaseModel
     {
-        public string SeName { get; set; }
-        public string Title { get; set; }
-        public PictureModel PictureModel { get; set; }
-        public string Short { get; set; }
-        public string Full { get; set; }
-        public string Category { get; set; }
+        public string? SeName { get; set; }
+        public string? Title { get; set; }
+        public PictureModel? PictureModel { get; set; }
+        public string? Short { get; set; }
+        public string? Full { get; set; }
+        public string? Category { get; set; }
         public DateTime CreatedOn { get; set; }
     }
 }

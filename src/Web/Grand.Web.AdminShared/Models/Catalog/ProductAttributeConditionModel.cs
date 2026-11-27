@@ -13,25 +13,25 @@ public class ProductAttributeConditionModel : BaseModel
     public bool EnableCondition { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.ProductAttributes.Attributes.Condition.Attributes")]
-    public string SelectedProductAttributeId { get; set; }
+    public string? SelectedProductAttributeId { get; set; }
 
     public IList<ProductAttributeModel> ProductAttributes { get; set; } = new List<ProductAttributeModel>();
 
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
-    public IList<CustomAttributeModel> SelectedAttributes { get; set; }
+    public IList<CustomAttributeModel> SelectedAttributes { get; set; } = new List<CustomAttributeModel>();
 
-    public string ProductAttributeMappingId { get; set; }
-    public string ProductId { get; set; }
+    public string? ProductAttributeMappingId { get; set; }
+    public string? ProductId { get; set; }
 
     #region Nested classes
 
     public class ProductAttributeModel : BaseEntityModel
     {
-        public string ProductAttributeId { get; set; }
+        public string? ProductAttributeId { get; set; }
 
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
-        public string TextPrompt { get; set; }
+        public string? TextPrompt { get; set; }
 
         public bool IsRequired { get; set; }
 
@@ -42,7 +42,7 @@ public class ProductAttributeConditionModel : BaseModel
 
     public class ProductAttributeValueModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public bool IsPreSelected { get; set; }
     }

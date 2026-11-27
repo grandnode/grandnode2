@@ -8,7 +8,7 @@ namespace Grand.Business.Messages.DotLiquidDrops;
 
 public class LiquidShipment : Drop
 {
-    private readonly DomainHost _host;
+    private readonly DomainHost? _host;
     private readonly Language _language;
     private readonly Order _order;
     private readonly Shipment _shipment;
@@ -33,7 +33,7 @@ public class LiquidShipment : Drop
 
     public string ShipmentNumber => _shipment.ShipmentNumber.ToString();
 
-    public string TrackingNumber => _shipment.TrackingNumber;
+    public string? TrackingNumber => _shipment.TrackingNumber;
 
     public DateTime? ShippedDateUtc => _shipment.ShippedDateUtc;
 
@@ -41,7 +41,7 @@ public class LiquidShipment : Drop
 
     public DateTime CreatedOnUtc => _shipment.CreatedOnUtc;
 
-    public string AdminComment => _shipment.AdminComment;
+    public string? AdminComment => _shipment.AdminComment;
 
     public string URLForCustomer => $"{url}/orderdetails/shipment/{_shipment.Id}";
 

@@ -6,35 +6,35 @@ namespace Grand.Web.AdminShared.Models.Plugins;
 public class PluginModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Plugins.Fields.Group")]
-    public string Group { get; set; }
+    public string? Group { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.FriendlyName")]
-    public string FriendlyName { get; set; }
+    public string? FriendlyName { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.SystemName")]
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
-    public string FolderName { get; set; }
+    public string? FolderName { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.Version")]
-    public string Version { get; set; }
+    public string? Version { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.Author")]
-    public string Author { get; set; }
+    public string? Author { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.Configure")]
-    public string ConfigurationUrl { get; set; }
+    public string? ConfigurationUrl { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.Installed")]
     public bool Installed { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.LoadError")]
-    public string LoadError { get; set; }
+    public string? LoadError { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Plugins.Fields.Logo")]
-    public string LogoUrl { get; set; }
+    public string? LogoUrl { get; set; }
 }

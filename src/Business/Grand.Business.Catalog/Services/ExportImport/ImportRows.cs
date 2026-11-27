@@ -24,7 +24,7 @@ internal static class ImportRows
     ///     spreadsheet import leaves it off, so its error still reaches the panel.
     /// </summary>
     public static async Task<ImportBatchResult> RunBatch<TDto>(IReadOnlyList<TDto> rows, bool dryRun,
-        Func<TDto, string> id, Func<TDto, string> key, Func<int, TDto, Task<ImportRowResult>> importRow,
+        Func<TDto, string?> id, Func<TDto, string> key, Func<int, TDto, Task<ImportRowResult>> importRow,
         bool isolateFailures, ILogger logger, CancellationToken cancellationToken)
     {
         var results = new List<ImportRowResult>(rows.Count);
@@ -58,8 +58,8 @@ internal static class ImportRows
     ///     The entity a slug points to, when it is of <paramref name="entityName" />. A slug - active or a past one - is
     ///     reserved for one entity (ISeNameService.ValidateSeName), so it never resolves to two.
     /// </summary>
-    public static async Task<T> FindBySlug<T>(ISlugService slugService, string slug, string entityName,
-        Func<string, Task<T>> getById) where T : class
+    public static async Task<T?> FindBySlug<T>(ISlugService slugService, string slug, string entityName,
+        Func<string, Task<T?>> getById) where T : class
     {
         var url = await slugService.GetBySlug(slug);
         if (url == null || url.EntityName != entityName || string.IsNullOrEmpty(url.EntityId))
@@ -73,7 +73,7 @@ internal static class ImportRows
     ///     "name contains" filter, so a de-duplicated slug (apple-2) does not hide the entity. More than one is an error:
     ///     the row has to name the entity by Id or SeName.
     /// </summary>
-    public static (T match, string error) SingleByName<T>(IEnumerable<T> candidates, Func<T, string> name,
+    public static (T? match, string? error) SingleByName<T>(IEnumerable<T> candidates, Func<T, string?> name,
         string wanted, string entity) where T : class
     {
         var matches = candidates.Where(c => string.Equals(name(c), wanted, StringComparison.OrdinalIgnoreCase))

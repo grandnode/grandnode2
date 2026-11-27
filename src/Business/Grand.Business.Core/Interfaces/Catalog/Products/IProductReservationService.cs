@@ -44,7 +44,7 @@ public interface IProductReservationService
     /// </summary>
     /// <param name="id">Product Id</param>
     /// <returns>Product reservation</returns>
-    Task<ProductReservation> GetProductReservation(string id);
+    Task<ProductReservation?> GetProductReservation(string? id);
 
     /// <summary>
     ///     Adds customer reservations helper
@@ -69,7 +69,7 @@ public interface IProductReservationService
     /// </summary>
     /// <param name="id"></param>
     /// <returns>CustomerReservationsHelper</returns>
-    Task<CustomerReservationsHelper> GetCustomerReservationsHelperById(string id);
+    Task<CustomerReservationsHelper?> GetCustomerReservationsHelperById(string id);
 
     /// <summary>
     ///     Gets customer reservations helpers

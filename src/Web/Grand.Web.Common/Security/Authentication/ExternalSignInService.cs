@@ -15,17 +15,18 @@ public class ExternalSignInService(
     ITranslationService translationService) : IExternalSignInService
 {
     public virtual async Task<IActionResult> Authenticate(ExternalAuthParam parameters, Customer customer,
-        Store store, Language language, string returnUrl = null)
+        Store store, Language language, string? returnUrl = null)
     {
         //the logged-in or registered event is already published; sign in after it, as before
         var result = await externalAuthenticationService.Authenticate(parameters, customer, store, language);
         switch (result.Status)
         {
-            case ExternalAuthStatus.LoggedIn:
-                await authenticationService.SignIn(result.Customer, false);
+            //a logged-in or registered result carries its customer
+            case ExternalAuthStatus.LoggedIn when result.Customer is { } loggedIn:
+                await authenticationService.SignIn(loggedIn, false);
                 return ReturnUrl(returnUrl);
-            case ExternalAuthStatus.Registered:
-                await authenticationService.SignIn(result.Customer, false);
+            case ExternalAuthStatus.Registered when result.Customer is { } registered:
+                await authenticationService.SignIn(registered, false);
                 return RegisterResult(UserRegistrationType.Standard);
             case ExternalAuthStatus.Associated:
                 return ReturnUrl(returnUrl);
@@ -59,7 +60,7 @@ public class ExternalSignInService(
         }
     }
 
-    protected virtual IActionResult ReturnUrl(string returnUrl)
+    protected virtual IActionResult ReturnUrl(string? returnUrl)
     {
         //the return URL comes from the query string of the login request; never leave the store with it
         if (string.IsNullOrEmpty(returnUrl) || !RedirectHttpResult.IsLocalUrl(returnUrl))

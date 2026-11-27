@@ -2,9 +2,9 @@ namespace Grand.Web.Store.Models;
 
 public class StoreCurrencyModel
 {
-    public string Id { get; set; }
-    public string Name { get; set; }
-    public string CurrencyCode { get; set; }
+    public string? Id { get; set; }
+    public string? Name { get; set; }
+    public string? CurrencyCode { get; set; }
     public bool Published { get; set; }
     public int DisplayOrder { get; set; }
     public bool LimitedToStores { get; set; }

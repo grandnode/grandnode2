@@ -15,47 +15,47 @@ public enum ScimOutcome
 }
 
 /// <summary>The attributes of a SCIM user that GrandNode keeps</summary>
-public record ScimUserData(string UserName, string ExternalId, string Email, string GivenName, string FamilyName, bool Active);
+public record ScimUserData(string? UserName, string? ExternalId, string? Email, string? GivenName, string? FamilyName, bool Active);
 
-public record ScimGroupRef(string Id, string DisplayName);
+public record ScimGroupRef(string Id, string? DisplayName);
 
 /// <summary>A SCIM user as the endpoint returns it (id = customer id)</summary>
 public record ScimUserView(
     string Id,
-    string ExternalId,
-    string UserName,
-    string Email,
-    string GivenName,
-    string FamilyName,
+    string? ExternalId,
+    string? UserName,
+    string? Email,
+    string? GivenName,
+    string? FamilyName,
     bool Active,
     IList<ScimGroupRef> Groups,
     DateTime Created,
     DateTime? LastModified);
 
 /// <param name="Detail">Why the operation was refused, for the SCIM error; never an e-mail or another personal value</param>
-public record ScimUserResult(ScimOutcome Outcome, ScimUserView User = null, string Detail = null);
+public record ScimUserResult(ScimOutcome Outcome, ScimUserView? User = null, string? Detail = null);
 
 /// <summary>The attributes of a SCIM group that GrandNode keeps; members are SCIM user ids (customer ids)</summary>
-public record ScimGroupData(string DisplayName, string ExternalId, IList<string> MemberIds);
+public record ScimGroupData(string? DisplayName, string? ExternalId, IList<string> MemberIds);
 
 public record ScimGroupView(
     string Id,
-    string DisplayName,
-    string ExternalId,
+    string? DisplayName,
+    string? ExternalId,
     IList<string> MemberIds,
     DateTime Created,
     DateTime? LastModified);
 
 /// <param name="Detail">Why the operation was refused, for the SCIM error</param>
-public record ScimGroupResult(ScimOutcome Outcome, ScimGroupView Group = null, string Detail = null);
+public record ScimGroupResult(ScimOutcome Outcome, ScimGroupView? Group = null, string? Detail = null);
 
 public record ScimPage<T>(IList<T> Items, int Total);
 
 /// <summary>A group received from the identity provider and the role an administrator mapped to it</summary>
 public record ScimGroupMapping(
     string GroupId,
-    string DisplayName,
+    string? DisplayName,
     int MemberCount,
-    string CustomerGroupId,
-    string StaffStoreId,
-    string VendorId);
+    string? CustomerGroupId,
+    string? StaffStoreId,
+    string? VendorId);

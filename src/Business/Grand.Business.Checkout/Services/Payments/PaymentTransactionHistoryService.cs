@@ -14,9 +14,9 @@ public class PaymentTransactionHistoryService(
     IOrderService orderService,
     ICurrencyService currencyService) : IPaymentTransactionHistoryService
 {
-    public async Task<PaymentTransactionEntry> Record(PaymentTransaction paymentTransaction, Order order,
-        PaymentTransactionEntryType entryType, double amount, string recordedBy, string reference = null,
-        string note = null)
+    public async Task<PaymentTransactionEntry> Record(PaymentTransaction paymentTransaction, Order? order,
+        PaymentTransactionEntryType entryType, double amount, string? recordedBy, string? reference = null,
+        string? note = null)
     {
         ArgumentNullException.ThrowIfNull(paymentTransaction);
 
@@ -54,7 +54,7 @@ public class PaymentTransactionHistoryService(
     ///     The order note that records the same operation, e.g. "Payment of 1,250.00 EUR recorded by staff@shop.com.
     ///     Reference: TR-881"
     /// </summary>
-    private static string ToOrderNote(PaymentTransactionEntry entry, int decimals, string currencyCode)
+    private static string ToOrderNote(PaymentTransactionEntry entry, int decimals, string? currencyCode)
     {
         var note = new StringBuilder();
         note.Append(CultureInfo.InvariantCulture,
@@ -68,7 +68,7 @@ public class PaymentTransactionHistoryService(
         return note.ToString();
     }
 
-    private static string Clean(string value)
+    private static string? Clean(string? value)
     {
         return string.IsNullOrWhiteSpace(value) ? null : value.Trim();
     }

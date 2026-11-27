@@ -20,7 +20,10 @@ public class UpdateProductCategoryCommandHandler : IRequestHandler<UpdateProduct
 
     public async Task<bool> Handle(UpdateProductCategoryCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productService.GetProductById(request.Product.Id, true);
+        //the validator requires an existing category
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.CategoryId);
+        var product = await _productService.GetProductById(request.Product.Id, true) ??
+            throw new ArgumentException("No product has the id", nameof(request));
         var productCategory = product.ProductCategories.FirstOrDefault(x => x.CategoryId == request.Model.CategoryId);
         if (productCategory == null)
             throw new ArgumentException("No product category mapping found with the specified id");

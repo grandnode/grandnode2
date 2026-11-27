@@ -13,6 +13,7 @@ using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Vendors;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Filters;
+using Grand.Web.Common.Startup;
 using Grand.Web.Features.Models.Catalog;
 using Grand.Web.Features.Models.Vendors;
 using Grand.Web.Models.Catalog;
@@ -21,6 +22,7 @@ using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Attributes;
 using Grand.Web.Common.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Grand.Web.Controllers;
 
@@ -317,6 +319,7 @@ public class CatalogController : BasePublicController
 
     #region Vendor reviews
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> VendorReviews(VendorReviewsModel model)

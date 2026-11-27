@@ -13,13 +13,13 @@ public class ProductCombinationTierPrices : SubBaseEntity
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer group identifier
     /// </summary>
     [AuditReference(typeof(CustomerGroup))]
-    public string CustomerGroupId { get; set; }
+    public string? CustomerGroupId { get; set; }
 
     /// <summary>
     ///     Gets or sets the quantity

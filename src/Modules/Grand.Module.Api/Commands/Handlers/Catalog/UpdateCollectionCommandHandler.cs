@@ -8,7 +8,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Handlers.Catalog;
 
-public class UpdateCollectionCommandHandler : IRequestHandler<UpdateCollectionCommand, CollectionDto>
+public class UpdateCollectionCommandHandler : IRequestHandler<UpdateCollectionCommand, CollectionDto?>
 {
     private readonly ICollectionService _collectionService;
     private readonly IPictureService _pictureService;
@@ -26,9 +26,11 @@ public class UpdateCollectionCommandHandler : IRequestHandler<UpdateCollectionCo
         _seNameService = seNameService;
     }
 
-    public async Task<CollectionDto> Handle(UpdateCollectionCommand request, CancellationToken cancellationToken)
+    public async Task<CollectionDto?> Handle(UpdateCollectionCommand request, CancellationToken cancellationToken)
     {
         var collection = await _collectionService.GetCollectionById(request.Model.Id);
+        if (collection == null)
+            return null;
         var prevPictureId = collection.PictureId;
         collection = request.Model.ToEntity(collection);
         request.Model.SeName = await _seNameService.ValidateSeName(collection, request.Model.SeName, collection.Name, true);

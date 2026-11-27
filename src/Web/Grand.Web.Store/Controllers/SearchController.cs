@@ -22,5 +22,5 @@ public class SearchController(
     IContextAccessor contextAccessor)
     : BaseSearchController(categoryService, brandService, collectionService, adminSearchSettings, contextAccessor)
 {
-    protected override string PickerStoreId => CurrentCustomer.StaffStoreId;
+    protected override string? PickerStoreId => CurrentCustomer.StaffStoreId;
 }

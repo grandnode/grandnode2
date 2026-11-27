@@ -2,5 +2,5 @@
 
 public class GiftVoucherCouponModel
 {
-    public string GiftVoucherCouponCode { get; set; }
+    public string? GiftVoucherCouponCode { get; set; }
 }

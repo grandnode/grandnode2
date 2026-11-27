@@ -5,7 +5,7 @@ namespace Grand.Web.AdminShared.Models.Settings;
 
 public class ContentSettingsModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
     public BlogSettingsModel BlogSettings { get; set; } = new();
     public NewsSettingsModel NewsSettings { get; set; } = new();
     public KnowledgebaseSettingsModel KnowledgebaseSettings { get; set; } = new();

@@ -15,10 +15,12 @@ public class DeleteProductTierPriceCommandHandler : IRequestHandler<DeleteProduc
 
     public async Task<bool> Handle(DeleteProductTierPriceCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productService.GetProductById(request.Product.Id, true);
+        var product = await _productService.GetProductById(request.Product.Id, true) ??
+            throw new ArgumentException("No product has the id", nameof(request));
         var tierPrice = product.TierPrices.FirstOrDefault(x => x.Id == request.Id);
 
-        await _productService.DeleteTierPrice(tierPrice, product.Id);
+        if (tierPrice != null)
+            await _productService.DeleteTierPrice(tierPrice, product.Id);
 
         return true;
     }

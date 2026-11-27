@@ -13,11 +13,11 @@ public class CheckoutClaim
     /// <summary>
     ///     The identifier the order is inserted with
     /// </summary>
-    public string OrderId { get; init; }
+    public required string OrderId { get; init; }
 
-    public string OrderCode { get; init; }
-    public string CustomerId { get; init; }
-    public string StoreId { get; init; }
+    public required string OrderCode { get; init; }
+    public required string CustomerId { get; init; }
+    public required string StoreId { get; init; }
 
     /// <summary>
     ///     Everything the order spends was taken; when false, nothing is held
@@ -33,4 +33,4 @@ public class CheckoutClaim
 /// <summary>
 ///     A quantity reserved for one cart line
 /// </summary>
-public record ClaimedStock(Product Product, int Quantity, IList<CustomAttribute> Attributes, string WarehouseId);
+public record ClaimedStock(Product Product, int Quantity, IList<CustomAttribute> Attributes, string? WarehouseId);

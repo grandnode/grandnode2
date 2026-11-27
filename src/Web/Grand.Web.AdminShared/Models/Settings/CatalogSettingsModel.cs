@@ -14,7 +14,7 @@ public class CatalogSettingsModel : BaseModel
     }
 
 
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.AllowViewUnpublishedProductPage")]
@@ -60,7 +60,7 @@ public class CatalogSettingsModel : BaseModel
     public bool ShowShareButton { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.PageShareCode")]
-    public string PageShareCode { get; set; }
+    public string? PageShareCode { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.ProductReviewsMustBeApproved")]
     public bool ProductReviewsMustBeApproved { get; set; }
@@ -78,7 +78,7 @@ public class CatalogSettingsModel : BaseModel
     public bool NotifyStoreOwnerAboutNewProductReviews { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.FilterProductRating")]
-    public string FilterProductRating { get; set; }
+    public string? FilterProductRating { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.EmailAFriendEnabled")]
     public bool EmailAFriendEnabled { get; set; }
@@ -141,7 +141,7 @@ public class CatalogSettingsModel : BaseModel
     public bool SearchPageAllowCustomersToSelectPageSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.SearchPagePageSizeOptions")]
-    public string SearchPagePageSizeOptions { get; set; }
+    public string? SearchPagePageSizeOptions { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.ProductSearchAutoCompleteEnabled")]
     public bool ProductSearchAutoCompleteEnabled { get; set; }
@@ -171,7 +171,7 @@ public class CatalogSettingsModel : BaseModel
     public bool ProductsByTagAllowCustomersToSelectPageSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.ProductsByTagPageSizeOptions")]
-    public string ProductsByTagPageSizeOptions { get; set; }
+    public string? ProductsByTagPageSizeOptions { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.IncludeShortDescriptionInCompareProducts")]
     public bool IncludeShortDescriptionInCompareProducts { get; set; }
@@ -237,12 +237,12 @@ public class CatalogSettingsModel : BaseModel
     public int NumberOfReview { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultViewMode")]
-    public string DefaultViewMode { get; set; }
+    public string? DefaultViewMode { get; set; }
 
     public IList<SelectListItem> DefaultViewModes { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultPageSizeOptions")]
-    public string DefaultPageSizeOptions { get; set; }
+    public string? DefaultPageSizeOptions { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Catalog.DefaultPageSize")]
     public int DefaultPageSize { get; set; }
@@ -268,22 +268,22 @@ public class CatalogSettingsModel : BaseModel
         public bool StockChangesOnlyThroughDocuments { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.ReceiptNumberPrefix")]
-        public string ReceiptNumberPrefix { get; set; }
+        public string? ReceiptNumberPrefix { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.TransferNumberPrefix")]
-        public string TransferNumberPrefix { get; set; }
+        public string? TransferNumberPrefix { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.AdjustmentNumberPrefix")]
-        public string AdjustmentNumberPrefix { get; set; }
+        public string? AdjustmentNumberPrefix { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.StockCountNumberPrefix")]
-        public string StockCountNumberPrefix { get; set; }
+        public string? StockCountNumberPrefix { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.ReturnReceiptNumberPrefix")]
-        public string ReturnReceiptNumberPrefix { get; set; }
+        public string? ReturnReceiptNumberPrefix { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.AssignmentNumberPrefix")]
-        public string AssignmentNumberPrefix { get; set; }
+        public string? AssignmentNumberPrefix { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Catalog.Inventory.ExpiryWarningDays")]
         public int ExpiryWarningDays { get; set; }

@@ -20,7 +20,7 @@ public interface IAuditTracker
     ///     flush; <paramref name="writtenPaths" /> null means every field.
     /// </summary>
     Task BeforeWriteAsync<T>(string id, bool isInsert, Func<IReadOnlyCollection<string>, Task<IList<T>>> loadMany,
-        IReadOnlyCollection<string> writtenPaths = null) where T : BaseEntity;
+        IReadOnlyCollection<string>? writtenPaths = null) where T : BaseEntity;
 
     /// <summary>
     ///     Keeps the entity of a full update as its "after" state, so a later change by someone else before the flush
@@ -35,7 +35,7 @@ public interface IAuditTracker
     ///     their count (an import of thousands of records) instead of one entry each; updates and deletes stay single
     ///     entries. With <paramref name="owner" />, the entry shows in that record's change history.
     /// </summary>
-    IDisposable CountInserts<T>(string operation, string details, BaseEntity owner = null) where T : BaseEntity;
+    IDisposable CountInserts<T>(string operation, string details, BaseEntity? owner = null) where T : BaseEntity;
 
     Task FlushAsync();
 

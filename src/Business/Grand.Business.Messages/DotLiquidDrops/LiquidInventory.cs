@@ -31,10 +31,10 @@ public class LiquidBatch : Drop
         _batch = batch;
     }
 
-    public string ProductName => _batch.ProductName;
-    public string Sku => _batch.Sku;
+    public string? ProductName => _batch.ProductName;
+    public string? Sku => _batch.Sku;
     public string Warehouse => _batch.WarehouseName;
-    public string Number => _batch.Batch.Number;
+    public string? Number => _batch.Batch.Number;
 
     public string ExpiryDate =>
         _batch.Batch.ExpiryDateUtc?.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture) ?? "";

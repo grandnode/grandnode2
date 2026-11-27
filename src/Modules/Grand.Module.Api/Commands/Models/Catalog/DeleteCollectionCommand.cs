@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class DeleteCollectionCommand : IRequest<bool>
 {
-    public CollectionDto Model { get; set; }
+    public required CollectionDto Model { get; set; }
 }

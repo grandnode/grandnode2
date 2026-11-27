@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Permissions;
 using Grand.Domain.Courses;
 using Grand.Domain.Customers;
+using Grand.Domain.Media;
 using Grand.Infrastructure;
 using Grand.Web.Commands.Models.Courses;
 using Grand.Web.Common.Controllers;
@@ -155,7 +156,7 @@ public class CourseController : BasePublicController
             return Content("No download record found with the specified id");
 
         if (download.UseDownloadUrl)
-            return new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //use stored data
         if (download.DownloadBinary == null)
@@ -191,7 +192,7 @@ public class CourseController : BasePublicController
             return Content("No download record found with the specified id");
 
         if (download.UseDownloadUrl)
-            return new RedirectResult(download.DownloadUrl);
+            return RedirectToDownloadUrl(download);
 
         //use stored data
         if (download.DownloadBinary == null)
@@ -226,5 +227,12 @@ public class CourseController : BasePublicController
             { Course = course, Lesson = lesson, Customer = _contextAccessor.WorkContext.CurrentCustomer });
 
         return Json(new { result = true });
+    }
+
+    private IActionResult RedirectToDownloadUrl(Download download)
+    {
+        return string.IsNullOrEmpty(download.DownloadUrl)
+            ? Content("Download data is not available any more.")
+            : new RedirectResult(download.DownloadUrl);
     }
 }

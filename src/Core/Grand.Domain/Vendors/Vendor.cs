@@ -12,8 +12,8 @@ namespace Grand.Domain.Vendors;
 /// </summary>
 public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
 {
-    private ICollection<string> _appliedDiscounts;
-    private ICollection<VendorNote> _vendorNotes;
+    private ICollection<string>? _appliedDiscounts;
+    private ICollection<VendorNote>? _vendorNotes;
 
     public Vendor()
     {
@@ -24,33 +24,33 @@ public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the picture identifier
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the email
     /// </summary>
-    public string Email { get; set; }
+    public string Email { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the admin comment
     /// </summary>
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is active
@@ -71,17 +71,17 @@ public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     /// <summary>
     ///     Gets or sets the meta keywords
     /// </summary>
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta description
     /// </summary>
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta title
     /// </summary>
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets the page size
@@ -96,7 +96,7 @@ public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     /// <summary>
     ///     Gets or sets the available customer selectable page size options
     /// </summary>
-    public string PageSizeOptions { get; set; }
+    public string? PageSizeOptions { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the vendor allows customer reviews
@@ -136,7 +136,7 @@ public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     /// <summary>
     ///     Gets or sets the coordinates
     /// </summary>
-    public GeoCoordinates Coordinates { get; set; }
+    public GeoCoordinates? Coordinates { get; set; }
 
     /// <summary>
     ///     Gets or sets vendor notes
@@ -158,7 +158,7 @@ public class Vendor : BaseEntity, ITranslationEntity, ISlugEntity
     /// <summary>
     ///     Gets or sets the sename
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets the collection of locales

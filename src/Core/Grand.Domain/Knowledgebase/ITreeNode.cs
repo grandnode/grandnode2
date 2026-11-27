@@ -6,5 +6,5 @@ public interface ITreeNode
 
     string Name { get; set; }
 
-    string ParentCategoryId { get; set; }
+    string? ParentCategoryId { get; set; }
 }

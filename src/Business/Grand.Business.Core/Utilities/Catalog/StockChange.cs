@@ -13,12 +13,12 @@ namespace Grand.Business.Core.Utilities.Catalog;
 /// <param name="CustomerId">who caused it; empty for the system</param>
 /// <param name="Comment">the comment of the entry</param>
 public sealed record StockSource(
-    string ObjectType = "",
-    string ObjectId = "",
-    string PositionId = "",
-    string Reference = "",
+    string? ObjectType = "",
+    string? ObjectId = "",
+    string? PositionId = "",
+    string? Reference = "",
     string CustomerId = "",
-    string Comment = "");
+    string? Comment = "");
 
 /// <summary>
 ///     A change of one stock bucket: the product, its combination, or either of them in one warehouse
@@ -31,7 +31,7 @@ public sealed record StockSource(
 /// <param name="Source">the source the journal entry names</param>
 public sealed record StockChange(
     IList<CustomAttribute> Attributes,
-    string WarehouseId,
+    string? WarehouseId,
     int Quantity,
     bool SetTo,
     InventoryMovementType MovementType,
@@ -51,7 +51,7 @@ public sealed record StockChange(
     ///     A batch-tracked product: the batch the change moves; empty for the stock without a batch. For a
     ///     <see cref="InventoryMovementType.TrackingAssignment" /> the quantity is what the batch takes from that stock
     /// </summary>
-    public string BatchNumber { get; init; }
+    public string? BatchNumber { get; init; }
 
     /// <summary>
     ///     A batch received: its expiry date
@@ -67,11 +67,11 @@ public sealed record StockChange(
     ///     A stock count of a serial-tracked bucket: every serial number found in it. The change is worked out under the
     ///     lock against the units stored then; null for any other change
     /// </summary>
-    public IReadOnlyList<string> CountedSerialNumbers { get; init; }
+    public IReadOnlyList<string>? CountedSerialNumbers { get; init; }
 
     /// <summary>
     ///     The idempotency key of the change, from the stock integration API. A change with a key writes exactly one
     ///     journal entry, and a retried call with the same key is not applied again
     /// </summary>
-    public string IdempotencyKey { get; init; }
+    public string? IdempotencyKey { get; init; }
 }

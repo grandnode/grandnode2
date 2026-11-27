@@ -14,7 +14,7 @@
 @if (area == "Store")
 {
     <input asp-for="StoreId" type="hidden"/>
-    @foreach (var item in Model.CustomerGroups.Select((value, index) => new { value, index }))
+    @foreach (var item in (Model.CustomerGroups ?? []).Select((value, index) => new { value, index }))
     {
         <input type="hidden"
                name="CustomerGroups[@item.index]"

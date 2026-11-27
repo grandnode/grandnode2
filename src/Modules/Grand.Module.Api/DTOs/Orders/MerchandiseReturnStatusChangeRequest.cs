@@ -7,5 +7,5 @@ namespace Grand.Module.Api.DTOs.Orders;
 public class MerchandiseReturnStatusChangeRequest
 {
     public int? Status { get; set; }
-    public string CustomerNote { get; set; }
+    public string? CustomerNote { get; set; }
 }

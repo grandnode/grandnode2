@@ -75,7 +75,8 @@ public class StartupApplication : IStartupApplication
         {
             //AbortOnConnectFail=false lets the multiplexer keep retrying in the background
             //instead of crashing the instance when Redis is temporarily unavailable at startup
-            var options = ConfigurationOptions.Parse(config.RedisPubSubConnectionString);
+            var options = ConfigurationOptions.Parse(config.RedisPubSubConnectionString ??
+                throw new InvalidOperationException("Redis:RedisPubSubConnectionString is not set"));
             options.AbortOnConnectFail = false;
             var redis = ConnectionMultiplexer.Connect(options);
             serviceCollection.AddSingleton<IConnectionMultiplexer>(redis);
@@ -138,6 +139,7 @@ public class StartupApplication : IStartupApplication
 
         serviceCollection.AddScoped<IRequestTranslationService, RequestTranslationService>();
         serviceCollection.AddScoped<IRequestPermissionService, RequestPermissionService>();
+        serviceCollection.AddScoped<IStoreAccessService, StoreAccessService>();
         serviceCollection.AddScoped<IAuditEventRecorder, AuditEventRecorder>();
         serviceCollection.AddScoped<IGrandAuthenticationService, CookieAuthenticationService>();
         serviceCollection.AddScoped<IExternalSignInService, ExternalSignInService>();

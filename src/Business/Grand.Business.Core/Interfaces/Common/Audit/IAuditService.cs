@@ -14,7 +14,7 @@ public interface IAuditService
     /// </summary>
     Task<IPagedList<AuditEntry>> GetEntries(AuditEntrySearch search, int pageIndex = 0, int pageSize = int.MaxValue);
 
-    Task<AuditEntry> GetById(string id);
+    Task<AuditEntry?> GetById(string id);
 
     /// <summary>
     ///     Yields every entry matching the search, newest first, a page at a time (for exports)

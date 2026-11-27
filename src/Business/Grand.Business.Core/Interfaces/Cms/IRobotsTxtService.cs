@@ -9,7 +9,7 @@ public interface IRobotsTxtService
     /// </summary>
     /// <param name="storeId">Store identifier</param>
     /// <returns>RobotsTxt</returns>
-    Task<RobotsTxt> GetRobotsTxt(string storeId = "");
+    Task<RobotsTxt?> GetRobotsTxt(string storeId = "");
 
     /// <summary>
     ///     Insert a RobotsTxt

@@ -36,7 +36,7 @@ public class RobotsTxtService : IRobotsTxtService
     /// </summary>
     /// <param name="storeId"></param>
     /// <returns></returns>
-    public virtual async Task<RobotsTxt> GetRobotsTxt(string storeId = "")
+    public virtual async Task<RobotsTxt?> GetRobotsTxt(string storeId = "")
     {
         var key = string.Format(CacheKey.ROBOTS_BY_STORE, storeId);
 

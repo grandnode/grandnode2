@@ -47,8 +47,8 @@ public class CurrencyService : ICurrencyService
     private readonly ICacheBase _cacheBase;
     private readonly IMediator _mediator;
     private readonly CurrencySettings _currencySettings;
-    private Currency _primaryCurrency;
-    private Currency _primaryExchangeRateCurrency;
+    private Currency? _primaryCurrency;
+    private Currency? _primaryExchangeRateCurrency;
 
     #endregion
 
@@ -59,7 +59,7 @@ public class CurrencyService : ICurrencyService
     /// </summary>
     /// <param name="currencyId">Currency identifier</param>
     /// <returns>Currency</returns>
-    public virtual Task<Currency> GetCurrencyById(string currencyId)
+    public virtual Task<Currency?> GetCurrencyById(string? currencyId)
     {
         var key = string.Format(CacheKey.CURRENCIES_BY_ID_KEY, currencyId);
         return _cacheBase.GetAsync(key, () => _currencyRepository.GetByIdAsync(currencyId));
@@ -69,7 +69,7 @@ public class CurrencyService : ICurrencyService
     ///     Gets primary store currency
     /// </summary>
     /// <returns>Currency</returns>
-    public async Task<Currency> GetPrimaryStoreCurrency()
+    public async Task<Currency?> GetPrimaryStoreCurrency()
     {
         return _primaryCurrency ??= await GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId);
     }
@@ -78,7 +78,7 @@ public class CurrencyService : ICurrencyService
     ///     Gets primary exchange currency
     /// </summary>
     /// <returns>Currency</returns>
-    public async Task<Currency> GetPrimaryExchangeRateCurrency()
+    public async Task<Currency?> GetPrimaryExchangeRateCurrency()
     {
         return _primaryExchangeRateCurrency ??= await GetCurrencyById(_currencySettings.PrimaryExchangeRateCurrencyId);
     }
@@ -88,7 +88,7 @@ public class CurrencyService : ICurrencyService
     /// </summary>
     /// <param name="currencyCode">Currency code</param>
     /// <returns>Currency</returns>
-    public virtual async Task<Currency> GetCurrencyByCode(string currencyCode)
+    public virtual async Task<Currency?> GetCurrencyByCode(string? currencyCode)
     {
         if (string.IsNullOrEmpty(currencyCode))
             return null;
@@ -109,7 +109,7 @@ public class CurrencyService : ICurrencyService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="storeId">Load records allowed only in a specified store; pass "" to load all records</param>
     /// <returns>Currencies</returns>
-    public virtual async Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string storeId = "")
+    public virtual async Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string? storeId = "")
     {
         var key = string.Format(CacheKey.CURRENCIES_ALL_KEY, showHidden);
         var currencies = await _cacheBase.GetAsync(key, async () =>
@@ -266,7 +266,8 @@ public class CurrencyService : ICurrencyService
     {
         ArgumentNullException.ThrowIfNull(sourceCurrencyCode);
 
-        var primaryStoreCurrency = await GetPrimaryStoreCurrency();
+        var primaryStoreCurrency = await GetPrimaryStoreCurrency() ??
+                                   throw new GrandException("The primary store currency is not set");
         var result = await ConvertCurrency(amount, sourceCurrencyCode, primaryStoreCurrency);
 
         return result;
@@ -278,12 +279,14 @@ public class CurrencyService : ICurrencyService
     /// <param name="amount">Amount</param>
     /// <param name="targetCurrencyCode">Target currency code</param>
     /// <returns>Converted value</returns>
-    public virtual async Task<double> ConvertFromPrimaryStoreCurrency(double amount, Currency targetCurrencyCode)
+    public virtual async Task<double> ConvertFromPrimaryStoreCurrency(double amount, Currency? targetCurrencyCode)
     {
         if (targetCurrencyCode == null)
             return amount;
 
-        var result = await ConvertCurrency(amount, await GetPrimaryStoreCurrency(), targetCurrencyCode);
+        var primaryStoreCurrency = await GetPrimaryStoreCurrency() ??
+                                   throw new GrandException("The primary store currency is not set");
+        var result = await ConvertCurrency(amount, primaryStoreCurrency, targetCurrencyCode);
         return result;
     }
 

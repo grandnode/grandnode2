@@ -15,7 +15,7 @@ public class Page : BaseEntity, ITranslationEntity, ISlugEntity, IStoreLinkEntit
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the value indicating whether this page should be included in sitemap
@@ -60,39 +60,39 @@ public class Page : BaseEntity, ITranslationEntity, ISlugEntity, IStoreLinkEntit
     /// <summary>
     ///     Gets or sets the password
     /// </summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     /// <summary>
     ///     Gets or sets the title
     /// </summary>
     [AuditName]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     /// <summary>
     ///     Gets or sets the body
     /// </summary>
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of used page layout identifier
     /// </summary>
     [AuditReference(typeof(PageLayout))]
-    public string PageLayoutId { get; set; }
+    public string? PageLayoutId { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta keywords
     /// </summary>
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta description
     /// </summary>
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta title
     /// </summary>
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is published
@@ -121,7 +121,7 @@ public class Page : BaseEntity, ITranslationEntity, ISlugEntity, IStoreLinkEntit
     /// <summary>
     ///     Gets or sets the sename
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores

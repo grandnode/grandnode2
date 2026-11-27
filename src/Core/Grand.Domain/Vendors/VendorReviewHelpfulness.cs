@@ -8,7 +8,7 @@ public class VendorReviewHelpfulness : SubBaseEntity
     /// <summary>
     ///     Gets or sets the vendor review identifier
     /// </summary>
-    public string VendorReviewId { get; set; }
+    public string VendorReviewId { get; set; } = null!;
 
     /// <summary>
     ///     A value indicating whether a review a helpful
@@ -18,5 +18,5 @@ public class VendorReviewHelpfulness : SubBaseEntity
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
-    public string CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 }

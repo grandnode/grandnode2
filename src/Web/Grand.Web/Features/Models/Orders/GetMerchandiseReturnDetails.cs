@@ -7,7 +7,7 @@ namespace Grand.Web.Features.Models.Orders;
 
 public class GetMerchandiseReturnDetails : IRequest<MerchandiseReturnDetailsModel>
 {
-    public MerchandiseReturn MerchandiseReturn { get; set; }
-    public Order Order { get; set; }
-    public Language Language { get; set; }
+    public required MerchandiseReturn MerchandiseReturn { get; set; }
+    public required Order Order { get; set; }
+    public required Language Language { get; set; }
 }

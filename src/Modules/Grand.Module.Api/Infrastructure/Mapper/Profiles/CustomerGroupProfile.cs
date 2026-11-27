@@ -10,7 +10,8 @@ public class CustomerGroupProfile : Profile, IAutoMapperProfile
     public CustomerGroupProfile()
     {
         CreateMap<CustomerGroupDto, CustomerGroup>()
-            .ForMember(dest => dest.UserFields, mo => mo.Ignore());
+            .ForMember(dest => dest.UserFields, mo => mo.Ignore())
+            .ForMember(dest => dest.IsSystem, mo => mo.Ignore());
 
         CreateMap<CustomerGroup, CustomerGroupDto>();
     }

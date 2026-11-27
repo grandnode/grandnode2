@@ -62,7 +62,7 @@ public class CategoryLayoutService : ICategoryLayoutService
     /// </summary>
     /// <param name="categoryLayoutId">Category layout identifier</param>
     /// <returns>Category layout</returns>
-    public virtual Task<CategoryLayout> GetCategoryLayoutById(string categoryLayoutId)
+    public virtual Task<CategoryLayout?> GetCategoryLayoutById(string? categoryLayoutId)
     {
         var key = string.Format(CacheKey.CATEGORY_LAYOUT_BY_ID_KEY, categoryLayoutId);
         return _cacheBase.GetAsync(key, () => _categoryLayoutRepository.GetByIdAsync(categoryLayoutId));

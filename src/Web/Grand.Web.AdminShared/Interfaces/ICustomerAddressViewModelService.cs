@@ -9,7 +9,7 @@ public interface ICustomerAddressViewModelService
 {
     Task<IEnumerable<AddressModel>> PrepareAddressModel(Customer customer);
     Task DeleteAddress(Customer customer, Address address);
-    Task PrepareAddressModel(CustomerAddressModel model, Address address, Customer customer, bool excludeProperties);
+    Task PrepareAddressModel(CustomerAddressModel model, Address? address, Customer customer, bool excludeProperties);
 
     Task<Address> InsertAddressModel(Customer customer, CustomerAddressModel model,
         List<CustomAttribute> customAttributes);

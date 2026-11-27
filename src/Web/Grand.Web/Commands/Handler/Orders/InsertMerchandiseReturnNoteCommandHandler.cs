@@ -20,9 +20,9 @@ public class InsertMerchandiseReturnNoteCommandHandler(
     LanguageSettings languageSettings,
     OrderSettings orderSettings,
     ILogger<InsertMerchandiseReturnNoteCommandHandler> logger)
-    : IRequestHandler<InsertMerchandiseReturnNoteCommand, string>
+    : IRequestHandler<InsertMerchandiseReturnNoteCommand, string?>
 {
-    public async Task<string> Handle(InsertMerchandiseReturnNoteCommand request, CancellationToken cancellationToken)
+    public async Task<string?> Handle(InsertMerchandiseReturnNoteCommand request, CancellationToken cancellationToken)
     {
         //a store that takes no files saves none, whatever was posted
         var file = orderSettings.MerchandiseReturns_AllowToUploadFiles ? request.File : null;
@@ -49,7 +49,7 @@ public class InsertMerchandiseReturnNoteCommandHandler(
         if (customerNotes.Any(x => x.CreatedOnUtc > DateTime.UtcNow - MerchandiseReturnUploads.NoteInterval))
             return "MerchandiseReturns.Notes.TooSoon";
 
-        string downloadId = null;
+        string? downloadId = null;
         if (file != null)
         {
             var download = MerchandiseReturnUploads.ToDownload(file, request.Customer.Id,

@@ -1,4 +1,5 @@
 using Microsoft.AspNetCore.StaticFiles;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Web.Common.Infrastructure;
 
@@ -24,7 +25,7 @@ public static class PluginAssetContentTypes
     ///     their deps.json and pdb files, which are never served, whatever the configuration says.
     /// </summary>
     /// <param name="additionalExtensions">Extensions to serve on top of the built-in ones, with or without the dot</param>
-    public static IContentTypeProvider Create(IEnumerable<string> additionalExtensions)
+    public static IContentTypeProvider Create(IEnumerable<string>? additionalExtensions)
     {
         var defaults = new FileExtensionContentTypeProvider().Mappings;
         var mappings = new Dictionary<string, string>(StringComparer.OrdinalIgnoreCase);
@@ -49,7 +50,7 @@ public static class PluginAssetContentTypes
 
     private sealed class PluginContentTypeProvider(IContentTypeProvider inner) : IContentTypeProvider
     {
-        public bool TryGetContentType(string subpath, out string contentType)
+        public bool TryGetContentType(string subpath, [MaybeNullWhen(false)] out string contentType)
         {
             if (NeverServedFileSuffixes.Any(suffix => subpath.EndsWith(suffix, StringComparison.OrdinalIgnoreCase)))
             {

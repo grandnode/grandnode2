@@ -7,7 +7,7 @@ namespace Grand.Web.AdminShared.Models.Affiliates;
 
 public class AffiliatedOrderListModel : BaseModel
 {
-    public string AffliateId { get; set; }
+    public string? AffliateId { get; set; }
 
     [GrandResourceDisplayName("Admin.Affiliates.Orders.StartDate")]
     [UIHint("DateNullable")]

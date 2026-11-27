@@ -17,12 +17,12 @@ public class ShipmentListModel : BaseModel
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.List.TrackingNumber")]
 
-    public string TrackingNumber { get; set; }
+    public string? TrackingNumber { get; set; }
 
     public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.List.Country")]
-    public string CountryId { get; set; }
+    public string? CountryId { get; set; }
 
     public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
 
@@ -31,17 +31,17 @@ public class ShipmentListModel : BaseModel
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.List.City")]
 
-    public string City { get; set; }
+    public string? City { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.List.LoadNotShipped")]
     public bool LoadNotShipped { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.List.Warehouse")]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     public IList<SelectListItem> AvailableWarehouses { get; set; } = new List<SelectListItem>();
 
-    public string StoreId { get; set; }
-    public string VendorId { get; set; }
+    public string? StoreId { get; set; }
+    public string? VendorId { get; set; }
 }

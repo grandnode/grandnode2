@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Messages;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Extensions;
@@ -30,7 +28,8 @@ public class StoreMessageTemplateDataScope(IContextAccessor contextAccessor) : I
     public Task<bool> CanView(MessageTemplate entity) =>
         Task.FromResult(entity is not null &&
             (!entity.LimitedToStores ||
-             entity.Stores.Contains(contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)));
+             contextAccessor.WorkContext.CurrentCustomer.StaffStoreId is { } staffStoreId &&
+             entity.Stores.Contains(staffStoreId)));
 
     public string? DefaultStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
     public string ResourceKeyPrefix => "Admin";

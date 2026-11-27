@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class AddProductAttributeMappingCommand : IRequest<ProductAttributeMappingDto>
 {
-    public ProductDto Product { get; set; }
-    public ProductAttributeMappingDto Model { get; set; }
+    public required ProductDto Product { get; set; }
+    public required ProductAttributeMappingDto Model { get; set; }
 }

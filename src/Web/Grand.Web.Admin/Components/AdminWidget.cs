@@ -20,7 +20,7 @@ public class AdminWidgetViewComponent : BaseAdminViewComponent
 
     #region Invoker
 
-    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
+    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object? additionalData = null)
     {
         var model = new List<AdminWidgetModel>();
 

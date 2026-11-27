@@ -10,8 +10,8 @@ public class ResourceManager : IResourceManager
     private readonly List<(IHtmlContent content, int order)> _headerScripts = new();
     private readonly List<(IHtmlContent content, int order)> _headScripts = new();
     private readonly List<LinkEntry> _links = new();
-    private List<IHtmlContent> _templatesFooter;
-    private List<IHtmlContent> _templatesHeader;
+    private List<IHtmlContent>? _templatesFooter;
+    private List<IHtmlContent>? _templatesHeader;
 
     public IEnumerable<IHtmlContent> GetRegisteredHeadScripts()
     {

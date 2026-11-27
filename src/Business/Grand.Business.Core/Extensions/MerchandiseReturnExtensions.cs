@@ -75,7 +75,7 @@ public static class MerchandiseReturnExtensions
     ///     How the staff note of a status change names the staff member who made it: the e-mail, else the full name,
     ///     else the customer id; null when no one did, and the note says the system
     /// </summary>
-    public static string StatusChangedBy(this Customer staff)
+    public static string? StatusChangedBy(this Customer staff)
     {
         if (staff == null)
             return null;

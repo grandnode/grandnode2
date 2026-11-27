@@ -1,3 +1,5 @@
+using System.Diagnostics.CodeAnalysis;
+
 namespace Grand.Infrastructure.Caching;
 
 /// <summary>
@@ -8,7 +10,7 @@ public interface ICacheBase
     /// <summary>
     ///     Gets a cached value without loading it on a miss
     /// </summary>
-    bool TryGet<T>(string key, out T value);
+    bool TryGet<T>(string key, [MaybeNullWhen(false)] out T value);
 
     Task<T> GetAsync<T>(string key, Func<Task<T>> acquire);
     Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime);

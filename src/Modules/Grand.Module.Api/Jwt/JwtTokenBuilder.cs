@@ -7,10 +7,10 @@ namespace Grand.Module.Api.Jwt;
 public sealed class JwtTokenBuilder
 {
     private readonly Dictionary<string, string> claims = new();
-    private string audience = "";
+    private string? audience;
     private int expiryInMinutes = 5;
-    private string issuer = "";
-    private SecurityKey securityKey;
+    private string? issuer;
+    private SecurityKey? securityKey;
     private bool useaudience;
     private bool useissuer;
 
@@ -27,14 +27,14 @@ public sealed class JwtTokenBuilder
         return this;
     }
 
-    public JwtTokenBuilder AddIssuer(string issuer)
+    public JwtTokenBuilder AddIssuer(string? issuer)
     {
         this.issuer = issuer;
         useissuer = true;
         return this;
     }
 
-    public JwtTokenBuilder AddAudience(string audience)
+    public JwtTokenBuilder AddAudience(string? audience)
     {
         this.audience = audience;
         useaudience = true;
@@ -47,7 +47,7 @@ public sealed class JwtTokenBuilder
         return this;
     }
 
-    public JwtTokenBuilder AddClaims(Dictionary<string, string> claims)
+    public JwtTokenBuilder AddClaims(Dictionary<string, string?> claims)
     {
         foreach (var item in claims)
             if (!this.claims.ContainsKey(item.Key) && !string.IsNullOrEmpty(item.Value))

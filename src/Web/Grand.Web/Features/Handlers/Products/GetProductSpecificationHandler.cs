@@ -45,12 +45,12 @@ public class GetProductSpecificationHandler : IRequestHandler<GetProductSpecific
                             specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x =>
                                 x.Id == item.SpecificationAttributeOptionId) != null
                                 ? specificationAttribute.SpecificationAttributeOptions.FirstOrDefault(x =>
-                                    x.Id == item.SpecificationAttributeOptionId)!.ColorSquaresRgb
+                                    x.Id == item.SpecificationAttributeOptionId)?.ColorSquaresRgb
                                 : "";
                         m.UserFields = specificationAttribute.UserFields;
                         m.ValueRaw = WebUtility.HtmlEncode(specificationAttribute.SpecificationAttributeOptions
                             .FirstOrDefault(x => x.Id == item.SpecificationAttributeOptionId)
-                            .GetTranslation(x => x.Name, request.Language.Id));
+                            ?.GetTranslation(x => x.Name, request.Language.Id));
                     }
 
                     break;

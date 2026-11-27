@@ -11,12 +11,12 @@ namespace Grand.Business.Messages.DotLiquidDrops;
 public class LiquidCustomer : Drop
 {
     private readonly Customer _customer;
-    private readonly CustomerNote _customerNote;
-    private readonly DomainHost _host;
+    private readonly CustomerNote? _customerNote;
+    private readonly DomainHost? _host;
     private readonly Store _store;
     private readonly string url;
 
-    public LiquidCustomer(Customer customer, Store store, DomainHost host, CustomerNote customerNote = null)
+    public LiquidCustomer(Customer customer, Store store, DomainHost host, CustomerNote? customerNote = null)
     {
         _customer = customer;
         _customerNote = customerNote;
@@ -26,35 +26,35 @@ public class LiquidCustomer : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string Email => _customer.Email;
+    public string? Email => WebUtility.HtmlEncode(_customer.Email);
 
-    public string Username => _customer.Username;
+    public string? Username => WebUtility.HtmlEncode(_customer.Username);
 
-    public string FullName => _customer.GetFullName();
+    public string FullName => WebUtility.HtmlEncode(_customer.GetFullName());
 
-    public string FirstName => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName);
+    public string? FirstName => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.FirstName));
 
-    public string LastName => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName);
+    public string? LastName => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.LastName));
 
-    public string Gender => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Gender);
+    public string? Gender => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Gender));
 
-    public string DateOfBirth => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.DateOfBirth);
+    public string? DateOfBirth => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.DateOfBirth));
 
-    public string Company => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Company);
+    public string? Company => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Company));
 
-    public string StreetAddress => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StreetAddress);
+    public string? StreetAddress => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StreetAddress));
 
-    public string StreetAddress2 => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StreetAddress2);
+    public string? StreetAddress2 => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.StreetAddress2));
 
-    public string ZipPostalCode => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ZipPostalCode);
+    public string? ZipPostalCode => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.ZipPostalCode));
 
-    public string City => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.City);
+    public string? City => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.City));
 
-    public string Phone => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Phone);
+    public string? Phone => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Phone));
 
-    public string Fax => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Fax);
+    public string? Fax => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.Fax));
 
-    public string VatNumber => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber);
+    public string? VatNumber => WebUtility.HtmlEncode(_customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.VatNumber));
 
     public string VatNumberStatus =>
         ((VatNumberStatus)_customer.GetUserFieldFromEntity<int>(SystemCustomerFieldNames.VatNumberStatusId)).ToString();
@@ -76,13 +76,13 @@ public class LiquidCustomer : Drop
 
     public string WishlistURLForCustomer => $"{url}/wishlist/{_customer.CustomerGuid}";
 
-    public string NewNoteText => FormatText.ConvertText(_customerNote.Note);
+    public string NewNoteText => FormatText.ConvertText(_customerNote?.Note);
 
-    public string NewTitleText => _customerNote.Title;
+    public string? NewTitleText => WebUtility.HtmlEncode(_customerNote?.Title);
 
-    public string CustomerNoteAttachmentUrl => $"{url}/download/customernotefile/{_customerNote.Id}";
+    public string CustomerNoteAttachmentUrl => $"{url}/download/customernotefile/{_customerNote?.Id}";
 
-    public string Token => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
+    public string? Token => _customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.TwoFactorValidCode);
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

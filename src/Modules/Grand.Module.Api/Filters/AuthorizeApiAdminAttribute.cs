@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Common.Security;
+﻿using Grand.Business.Core.Interfaces.Common.Directory;
+using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Permissions;
 using Grand.Data;
 using Grand.Domain.Security;
@@ -33,7 +34,7 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
     ///     Represents a filter that confirms access to the admin panel
     /// </summary>
     private class AuthorizeApiAdminFilter(bool ignoreFilter, IPermissionService permissionService,
-        IContextAccessor contextAccessor, SecuritySettings securitySettings, BackendAPIConfig backendApiConfig) : IAsyncAuthorizationFilter
+        IContextAccessor contextAccessor, IGroupService groupService, SecuritySettings securitySettings, BackendAPIConfig backendApiConfig) : IAsyncAuthorizationFilter
     {
 
         #region Ctor
@@ -74,9 +75,22 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
             if (filterContext.Filters.Any(filter => filter is AuthorizeApiAdminFilter))
             {
                 //authorize permission of access to the admin area
-                if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel,
-                        contextAccessor.WorkContext?.CurrentCustomer))
+                var customer = contextAccessor.WorkContext.CurrentCustomer;
+                if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer))
+                {
                     filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
+                    return;
+                }
+
+                //the API works on all data, so the scoped panel roles stay out, as they do in the admin panel;
+                //a sales manager is turned away too, because the API has no sales employee scope
+                if (await groupService.IsVendor(customer) || !string.IsNullOrEmpty(customer.VendorId) ||
+                    await groupService.IsStoreManager(customer) || !string.IsNullOrEmpty(customer.StaffStoreId) ||
+                    await groupService.IsSalesManager(customer))
+                {
+                    filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);
+                    return;
+                }
 
                 //get allowed IP addresses
                 var ipAddresses = securitySettings.AdminAreaAllowedIpAddresses;

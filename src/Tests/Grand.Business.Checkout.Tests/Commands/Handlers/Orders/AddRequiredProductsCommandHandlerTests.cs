@@ -35,15 +35,15 @@ public class AddRequiredProductsCommandHandlerTests
     {
         //Arrange
         var command = new AddRequiredProductsCommand {
-            Customer = new Customer()
+            Customer = new Customer(),
+            Product = new Product
+                { Id = "1", RequireOtherProducts = true, RequiredProductIds = "2,3", AutoAddRequiredProducts = true },
+            ShoppingCartType = ShoppingCartType.ShoppingCart,
+            StoreId = "",
+            Language = new Language { Id = "lang1" }
         };
         command.Customer.ShoppingCartItems.Add(new ShoppingCartItem
             { ProductId = "1", ShoppingCartTypeId = ShoppingCartType.ShoppingCart, StoreId = "" });
-        command.Product = new Product
-            { Id = "1", RequireOtherProducts = true, RequiredProductIds = "2,3", AutoAddRequiredProducts = true };
-        command.ShoppingCartType = ShoppingCartType.ShoppingCart;
-        command.StoreId = "";
-        command.Language = new Language { Id = "lang1" };
 
         _productServiceMock.Setup(a => a.GetProductById("2", false)).Returns(() =>
             Task.FromResult(new Product { Id = "2", Published = true, Price = 10 }));

@@ -2,22 +2,23 @@
 using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.SharedKernel.Extensions;
+using System.Net;
 
 namespace Grand.Business.Messages.DotLiquidDrops;
 
 public class LiquidMerchandiseReturn : Drop
 {
-    private readonly DomainHost _host;
+    private readonly DomainHost? _host;
     private readonly MerchandiseReturn _merchandiseReturn;
 
-    private readonly MerchandiseReturnNote _merchandiseReturnNote;
+    private readonly MerchandiseReturnNote? _merchandiseReturnNote;
     private readonly Order _order;
     private readonly Store _store;
 
     private readonly string url;
 
     public LiquidMerchandiseReturn(MerchandiseReturn merchandiseReturn, Store store, DomainHost host,
-        Order order, MerchandiseReturnNote merchandiseReturnNote = null)
+        Order order, MerchandiseReturnNote? merchandiseReturnNote = null)
     {
         _merchandiseReturn = merchandiseReturn;
         _order = order;
@@ -35,19 +36,19 @@ public class LiquidMerchandiseReturn : Drop
 
     public int ReturnNumber => _merchandiseReturn.ReturnNumber;
 
-    public string ExternalId => _merchandiseReturn.ExternalId;
+    public string? ExternalId => _merchandiseReturn.ExternalId;
 
     public string OrderId => _order.Id;
 
     public string OrderNumber => _order.OrderNumber.ToString();
 
-    public string OrderCode => _order.Code;
+    public string? OrderCode => _order.Code;
 
     public string CustomerComment => FormatText.ConvertText(_merchandiseReturn.CustomerComments);
 
     public string StaffNotes => FormatText.ConvertText(_merchandiseReturn.StaffNotes);
 
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
     public ICollection<LiquidMerchandiseReturnItem> Items { get; }
 
@@ -60,31 +61,31 @@ public class LiquidMerchandiseReturn : Drop
 
     public DateTime PickupDateUtc => _merchandiseReturn.PickupDate;
 
-    public string PickupAddressFirstName => _merchandiseReturn.PickupAddress.FirstName;
+    public string? PickupAddressFirstName => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.FirstName);
 
-    public string PickupAddressLastName => _merchandiseReturn.PickupAddress.LastName;
+    public string? PickupAddressLastName => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.LastName);
 
-    public string PickupAddressPhoneNumber => _merchandiseReturn.PickupAddress.PhoneNumber;
+    public string? PickupAddressPhoneNumber => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.PhoneNumber);
 
-    public string PickupAddressEmail => _merchandiseReturn.PickupAddress.Email;
+    public string? PickupAddressEmail => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.Email);
 
-    public string PickupAddressFaxNumber => _merchandiseReturn.PickupAddress.FaxNumber;
+    public string? PickupAddressFaxNumber => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.FaxNumber);
 
-    public string PickupAddressCompany => _merchandiseReturn.PickupAddress.Company;
+    public string? PickupAddressCompany => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.Company);
 
-    public string PickupAddressVatNumber => _merchandiseReturn.PickupAddress.VatNumber;
+    public string? PickupAddressVatNumber => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.VatNumber);
 
-    public string PickupAddressAddress1 => _merchandiseReturn.PickupAddress.Address1;
+    public string? PickupAddressAddress1 => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.Address1);
 
-    public string PickupAddressAddress2 => _merchandiseReturn.PickupAddress.Address2;
+    public string? PickupAddressAddress2 => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.Address2);
 
-    public string PickupAddressCity => _merchandiseReturn.PickupAddress.City;
+    public string? PickupAddressCity => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.City);
 
-    public string PickupAddressStateProvince { get; set; }
+    public string? PickupAddressStateProvince { get; set; }
 
-    public string PickupAddressZipPostalCode => _merchandiseReturn.PickupAddress.ZipPostalCode;
+    public string? PickupAddressZipPostalCode => WebUtility.HtmlEncode(_merchandiseReturn.PickupAddress?.ZipPostalCode);
 
-    public string PickupAddressCountry { get; set; }
+    public string? PickupAddressCountry { get; set; }
 
     public string NewNoteText => FormatText.ConvertText(_merchandiseReturnNote?.Note);
 

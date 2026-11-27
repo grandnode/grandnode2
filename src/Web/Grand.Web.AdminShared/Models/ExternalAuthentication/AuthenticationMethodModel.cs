@@ -6,10 +6,10 @@ namespace Grand.Web.AdminShared.Models.ExternalAuthentication;
 public class AuthenticationMethodModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Plugins.ExternalAuthenticationMethods.Fields.FriendlyName")]
-    public string FriendlyName { get; set; }
+    public string? FriendlyName { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.ExternalAuthenticationMethods.Fields.SystemName")]
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.ExternalAuthenticationMethods.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -18,5 +18,5 @@ public class AuthenticationMethodModel : BaseModel
     public bool IsActive { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.ExternalAuthenticationMethods.Fields.Configure")]
-    public string ConfigurationUrl { get; set; }
+    public string? ConfigurationUrl { get; set; }
 }

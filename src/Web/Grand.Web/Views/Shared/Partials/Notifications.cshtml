@@ -4,24 +4,24 @@
     var successMessages = new List<string>();
     if (TempData[$"Grand.notifications.{NotifyType.Success}"] != null)
     {
-        successMessages.AddRange(TempData[$"Grand.notifications.{NotifyType.Success}"] as IList<string>);
+        successMessages.AddRange(TempData[$"Grand.notifications.{NotifyType.Success}"] as IList<string> ?? []);
     }
 
     if (ViewData[$"Grand.notifications.{NotifyType.Success}"] != null)
     {
-        successMessages.AddRange(ViewData[$"Grand.notifications.{NotifyType.Success}"] as IList<string>);
+        successMessages.AddRange(ViewData[$"Grand.notifications.{NotifyType.Success}"] as IList<string> ?? []);
     }
 
     //error messages
     var errorMessages = new List<string>();
     if (TempData[$"Grand.notifications.{NotifyType.Error}"] != null)
     {
-        errorMessages.AddRange(TempData[$"Grand.notifications.{NotifyType.Error}"] as IList<string>);
+        errorMessages.AddRange(TempData[$"Grand.notifications.{NotifyType.Error}"] as IList<string> ?? []);
     }
 
     if (ViewData[$"Grand.notifications.{NotifyType.Error}"] != null)
     {
-        errorMessages.AddRange(ViewData[$"Grand.notifications.{NotifyType.Error}"] as IList<string>);
+        errorMessages.AddRange(ViewData[$"Grand.notifications.{NotifyType.Error}"] as IList<string> ?? []);
     }
 }
 @{

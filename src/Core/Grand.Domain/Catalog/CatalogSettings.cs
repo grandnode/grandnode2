@@ -71,7 +71,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     ///     Gets or sets a value indicating whether customers are allowed to change product view mode
     /// </summary>
-    public string DefaultViewMode { get; set; }
+    public string? DefaultViewMode { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether a category details page should include products from subcategories
@@ -106,7 +106,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     ///     Gets or sets a share code (e.g. AddThis button code)
     /// </summary>
-    public string PageShareCode { get; set; }
+    public string? PageShareCode { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating product reviews must be approved
@@ -131,7 +131,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     ///     Gets or sets a value the filtering by product review
     /// </summary>
-    public string FilterProductRating { get; set; }
+    public string? FilterProductRating { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether product 'Email a friend' feature is enabled
@@ -297,7 +297,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     ///     Gets or sets the available customer selectable page size options on the search products page
     /// </summary>
-    public string SearchPagePageSizeOptions { get; set; }
+    public string? SearchPagePageSizeOptions { get; set; }
 
     /// <summary>
     ///     Gets or sets "List of products purchased by other customers who purchased the above" option is enable
@@ -327,7 +327,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     ///     Gets or sets the available customer selectable page size options for 'products by tag'
     /// </summary>
-    public string ProductsByTagPageSizeOptions { get; set; }
+    public string? ProductsByTagPageSizeOptions { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to include "Short description" in compare products
@@ -387,7 +387,7 @@ public class CatalogSettings : ISettings
     /// <summary>
     ///     Gets or sets the default value to use for Category page size options (for new categories)
     /// </summary>
-    public string DefaultPageSizeOptions { get; set; }
+    public string? DefaultPageSizeOptions { get; set; }
 
     /// <summary>
     ///     Gets or sets the default value to use for Category page size (for new categories)

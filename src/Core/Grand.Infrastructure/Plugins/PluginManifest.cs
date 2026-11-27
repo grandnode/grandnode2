@@ -8,8 +8,8 @@ namespace Grand.Infrastructure.Plugins;
 /// </param>
 public sealed record PluginManifest(
     string SystemName,
-    string FriendlyName,
-    string Group,
-    string Author,
-    string Version,
-    string SupportedVersion);
+    string? FriendlyName,
+    string? Group,
+    string? Author,
+    string? Version,
+    string? SupportedVersion);

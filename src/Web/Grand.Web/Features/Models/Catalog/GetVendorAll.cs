@@ -6,6 +6,6 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetVendorAll : IRequest<VendorListModel>
 {
-    public Language Language { get; set; }
-    public VendorPagingModel Command { get; set; }
+    public required Language Language { get; set; }
+    public required VendorPagingModel Command { get; set; }
 }

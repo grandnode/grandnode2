@@ -28,7 +28,9 @@ public class DownloadController : BaseAdminController
             return Content("No download record found with the specified id");
 
         if (download.UseDownloadUrl)
-            return new RedirectResult(download.DownloadUrl);
+            return string.IsNullOrEmpty(download.DownloadUrl)
+                ? Content("The download record has no url")
+                : new RedirectResult(download.DownloadUrl);
 
         //use stored data
         if (download.DownloadBinary == null)

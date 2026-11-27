@@ -4,5 +4,5 @@ namespace Grand.Business.Core.Utilities.System;
 
 public class ProductsAttributeCombination : ProductAttributeCombination
 {
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 }

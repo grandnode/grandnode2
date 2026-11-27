@@ -1,4 +1,5 @@
 ﻿using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
@@ -12,21 +13,30 @@ public class PasswordRecoverySendCommandHandler : IRequestHandler<PasswordRecove
     private readonly ICustomerMessageProviderService _customerMessageProviderService;
     private readonly ICustomerService _customerService;
     private readonly IExternalSignInPolicy _externalSignInPolicy;
+    private readonly IGroupService _groupService;
 
     public PasswordRecoverySendCommandHandler(
         ICustomerService customerService,
         ICustomerMessageProviderService customerMessageProviderService,
-        IExternalSignInPolicy externalSignInPolicy)
+        IExternalSignInPolicy externalSignInPolicy,
+        IGroupService groupService)
     {
         _externalSignInPolicy = externalSignInPolicy;
+        _groupService = groupService;
         _customerService = customerService;
         _customerMessageProviderService = customerMessageProviderService;
     }
 
     public async Task<bool> Handle(PasswordRecoverySendCommand request, CancellationToken cancellationToken)
     {
-        //an account that signs in only with the identity provider has no password to recover; the page answers as usual
-        if (request.Customer == null || !(await _externalSignInPolicy.PasswordSignIn(request.Customer, SignInSurface.Storefront)).Allowed)
+        //no message for an address without an account that may sign in, nor for an account that signs in only with the
+        //identity provider (no password to recover); the page answers as usual, so it does not tell which addresses have one
+        if (request.Customer is not { Deleted: false, Active: true })
+            return true;
+        if (request.Customer.CannotLoginUntilDateUtc.HasValue && request.Customer.CannotLoginUntilDateUtc.Value > DateTime.UtcNow)
+            return true;
+        if (!await _groupService.IsRegistered(request.Customer) ||
+            !(await _externalSignInPolicy.PasswordSignIn(request.Customer, SignInSurface.Storefront)).Allowed)
             return true;
 
         //save token and current date

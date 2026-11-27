@@ -34,6 +34,7 @@ public static class SystemCustomerFieldNames
     public static string TwoFactorSecretKey => "TwoFactorSecretKey";
     public static string TwoFactorValidCode => "TwoFactorValidCode";
     public static string TwoFactorCodeValidUntil => "TwoFactorValidCodeUntil";
+    public static string TwoFactorWrongCodes => "TwoFactorWrongCodes";
 
     public static string CurrencyId => "CurrencyId";
     public static string LanguageId => "LanguageId";

@@ -105,7 +105,7 @@ public class InventoryManageService : IInventoryManageService
     /// <summary>
     ///     The journal entries of a shipment item: its bookings and their reversals, for every product it touched
     /// </summary>
-    private async Task<IList<InventoryJournal>> ShipmentEntries(string positionId, string productId = null)
+    private async Task<IList<InventoryJournal>> ShipmentEntries(string positionId, string? productId = null)
     {
         var query = _inventoryJournalRepository.Table.Where(j =>
             j.PositionId == positionId && j.ObjectType == nameof(Shipment));
@@ -145,16 +145,17 @@ public class InventoryManageService : IInventoryManageService
     ///     The keys of every product a stock write for this product touches: its bundle products and the products
     ///     associated with the chosen attribute values
     /// </summary>
-    private static IEnumerable<string> ProductKeys(Product product, IList<CustomAttribute> attributes)
+    private static IEnumerable<string> ProductKeys(Product product, IList<CustomAttribute>? attributes)
     {
         yield return LockKey(product.Id);
 
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
             foreach (var item in product.BundleProducts)
-                yield return LockKey(item.ProductId);
+                if (item.ProductId != null)
+                    yield return LockKey(item.ProductId);
 
         foreach (var attributeValue in product.ParseProductAttributeValues(attributes))
-            if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)
+            if (attributeValue.AttributeValueTypeId == AttributeValueType.AssociatedToProduct && attributeValue.AssociatedProductId != null)
                 yield return LockKey(attributeValue.AssociatedProductId);
     }
 
@@ -167,7 +168,7 @@ public class InventoryManageService : IInventoryManageService
     ///     The warehouse to count the stock of: a product kept in one warehouse has all its stock there, also when the
     ///     order item names the store's default warehouse
     /// </summary>
-    private static string StockWarehouse(Product product, string warehouseId)
+    private static string? StockWarehouse(Product product, string? warehouseId)
     {
         return product.UseMultipleWarehouses ? warehouseId : "";
     }
@@ -176,7 +177,7 @@ public class InventoryManageService : IInventoryManageService
     ///     Whether the stored stock covers the quantity, by the rule the shopping cart applies
     /// </summary>
     private async Task<bool> IsAvailable(Product product, int quantity, IList<CustomAttribute> attributes,
-        string warehouseId)
+        string? warehouseId)
     {
         if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStockByBundleProducts)
             return _stockQuantityService.CheckStock(product, quantity, attributes, StockWarehouse(product, warehouseId))
@@ -207,7 +208,7 @@ public class InventoryManageService : IInventoryManageService
     /// <param name="attributes">Attributes</param>
     /// <param name="warehouseId">Warehouse ident</param>
     public virtual async Task AdjustReserved(Product product, int quantityToChange,
-        IList<CustomAttribute> attributes = null, string warehouseId = "")
+        IList<CustomAttribute>? attributes = null, string? warehouseId = "")
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -225,7 +226,7 @@ public class InventoryManageService : IInventoryManageService
     }
 
     public virtual async Task<bool> TryReserve(Product product, int quantity, IList<CustomAttribute> attributes,
-        string warehouseId)
+        string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -240,7 +241,7 @@ public class InventoryManageService : IInventoryManageService
     }
 
     public virtual async Task CancelReservation(Product product, int quantity, IList<CustomAttribute> attributes,
-        string warehouseId)
+        string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -260,8 +261,8 @@ public class InventoryManageService : IInventoryManageService
     ///     Adjusts the reserved inventory of a product read under the lock; never takes the lock itself
     /// </summary>
     /// <param name="restoreLowStock">The reservation is given back for an order that was never placed</param>
-    private async Task AdjustReservedCore(Product product, int quantityToChange, IList<CustomAttribute> attributes,
-        string warehouseId, bool restoreLowStock = false)
+    private async Task AdjustReservedCore(Product product, int quantityToChange, IList<CustomAttribute>? attributes,
+        string? warehouseId, bool restoreLowStock = false)
     {
         if (quantityToChange == 0)
             return;
@@ -353,7 +354,7 @@ public class InventoryManageService : IInventoryManageService
     /// <param name="product">Product</param>
     /// <param name="quantity">Quantity, must be negative</param>
     /// <param name="warehouseId"></param>
-    protected virtual async Task ReserveInventory(Product product, int quantity, string warehouseId)
+    protected virtual async Task ReserveInventory(Product product, int quantity, string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -395,7 +396,7 @@ public class InventoryManageService : IInventoryManageService
     /// <param name="quantity">Quantity, must be negative</param>
     /// <param name="warehouseId">Warehouse ident</param>
     protected virtual async Task ReserveInventoryCombination(Product product, ProductAttributeCombination combination,
-        int quantity, string warehouseId)
+        int quantity, string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
         ArgumentNullException.ThrowIfNull(combination);
@@ -449,7 +450,7 @@ public class InventoryManageService : IInventoryManageService
     /// <param name="product">Product</param>
     /// <param name="quantity">Quantity, must be positive</param>
     /// <param name="warehouseId">Warehouse ident</param>
-    protected virtual async Task UnblockReservedInventory(Product product, int quantity, string warehouseId)
+    protected virtual async Task UnblockReservedInventory(Product product, int quantity, string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -493,7 +494,7 @@ public class InventoryManageService : IInventoryManageService
     /// <param name="quantity">Quantity, must be positive</param>
     /// <param name="warehouseId">Warehouse ident</param>
     protected virtual async Task UnblockReservedInventoryCombination(Product product,
-        ProductAttributeCombination combination, int quantity, string warehouseId)
+        ProductAttributeCombination combination, int quantity, string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 

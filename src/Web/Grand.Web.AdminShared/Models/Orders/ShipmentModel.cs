@@ -10,23 +10,23 @@ namespace Grand.Web.AdminShared.Models.Orders;
 public class ShipmentModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Orders.Shipments.ID")]
-    public override string Id { get; set; }
+    public override string? Id { get; set; }
 
     public int ShipmentNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.OrderID")]
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     public int OrderNumber { get; set; }
-    public string OrderCode { get; set; }
+    public string? OrderCode { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.TotalWeight")]
-    public string TotalWeight { get; set; }
+    public string? TotalWeight { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.TrackingNumber")]
-    public string TrackingNumber { get; set; }
+    public string? TrackingNumber { get; set; }
 
-    public string TrackingNumberUrl { get; set; }
+    public string? TrackingNumberUrl { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.ShippedDate")]
     //nullable: without the hint the DateTime template renders an unset date as 01/01/0001
@@ -45,7 +45,7 @@ public class ShipmentModel : BaseEntityModel
     public DateTime? DeliveryDateUtc { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.AdminComment")]
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     public List<ShipmentItemModel> Items { get; set; } = new();
 
@@ -57,36 +57,36 @@ public class ShipmentModel : BaseEntityModel
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.ShipmentNotes.Fields.Note")]
     [NoHtml]
-    public string AddShipmentNoteMessage { get; set; }
+    public string? AddShipmentNoteMessage { get; set; }
 
     public bool AddShipmentNoteHasDownload { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Shipments.ShipmentNotes.Fields.Download")]
     [UIHint("Download")]
-    public string AddShipmentNoteDownloadId { get; set; }
+    public string? AddShipmentNoteDownloadId { get; set; }
 
 
     #region Nested classes
 
     public class ShipmentItemModel : BaseEntityModel
     {
-        public string OrderItemId { get; set; }
-        public string ProductId { get; set; }
+        public string? OrderItemId { get; set; }
+        public string? ProductId { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.Shipments.Products.ProductName")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
-        public string Sku { get; set; }
-        public string AttributeInfo { get; set; }
-        public string RentalInfo { get; set; }
+        public string? Sku { get; set; }
+        public string? AttributeInfo { get; set; }
+        public string? RentalInfo { get; set; }
         public bool ShipSeparately { get; set; }
 
         //weight of one item (product)
         [GrandResourceDisplayName("Admin.Orders.Shipments.Products.ItemWeight")]
-        public string ItemWeight { get; set; }
+        public string? ItemWeight { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.Shipments.Products.ItemDimensions")]
-        public string ItemDimensions { get; set; }
+        public string? ItemDimensions { get; set; }
 
         public int QuantityToAdd { get; set; }
         public int QuantityOrdered { get; set; }
@@ -96,13 +96,13 @@ public class ShipmentModel : BaseEntityModel
 
         public int QuantityInAllShipments { get; set; }
 
-        public string ShippedFromWarehouse { get; set; }
+        public string? ShippedFromWarehouse { get; set; }
 
         public bool AllowToChooseWarehouse { get; set; }
 
         //used before a shipment is created
         public List<WarehouseInfo> AvailableWarehouses { get; set; } = new();
-        public string WarehouseId { get; set; }
+        public string? WarehouseId { get; set; }
 
         /// <summary>
         ///     The units the product tracks; None for a product tracking none
@@ -124,12 +124,12 @@ public class ShipmentModel : BaseEntityModel
 
         public class BatchProposalModel
         {
-            public string WarehouseId { get; set; }
+            public string? WarehouseId { get; set; }
 
             /// <summary>
             ///     The batch; empty for the stock without one
             /// </summary>
-            public string Number { get; set; }
+            public string? Number { get; set; }
 
             public DateTime? ExpiryDate { get; set; }
             public BatchExpiryStatus? ExpiryStatus { get; set; }
@@ -139,9 +139,9 @@ public class ShipmentModel : BaseEntityModel
 
         public class WarehouseInfo : BaseModel
         {
-            public string WarehouseId { get; set; }
-            public string WarehouseCode { get; set; }
-            public string WarehouseName { get; set; }
+            public string? WarehouseId { get; set; }
+            public string? WarehouseCode { get; set; }
+            public string? WarehouseName { get; set; }
             public int StockQuantity { get; set; }
             public int ReservedQuantity { get; set; }
         }
@@ -151,16 +151,16 @@ public class ShipmentModel : BaseEntityModel
 
     public class ShipmentNote : BaseEntityModel
     {
-        public string ShipmentId { get; set; }
+        public string? ShipmentId { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.Shipments.ShipmentNotes.Fields.DisplayToCustomer")]
         public bool DisplayToCustomer { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.Shipments.ShipmentNotes.Fields.Note")]
-        public string Note { get; set; }
+        public string? Note { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.Shipments.ShipmentNotes.Fields.Download")]
-        public string DownloadId { get; set; }
+        public string? DownloadId { get; set; }
 
         [GrandResourceDisplayName("Admin.Orders.Shipments.ShipmentNotes.Fields.Download")]
         public Guid DownloadGuid { get; set; }
@@ -174,9 +174,9 @@ public class ShipmentModel : BaseEntityModel
 
     public class ShipmentStatusEventModel : BaseModel
     {
-        public string EventName { get; set; }
-        public string Location { get; set; }
-        public string Country { get; set; }
+        public string? EventName { get; set; }
+        public string? Location { get; set; }
+        public string? Country { get; set; }
         public DateTime? Date { get; set; }
     }
 

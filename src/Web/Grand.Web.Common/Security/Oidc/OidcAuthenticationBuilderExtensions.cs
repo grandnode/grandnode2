@@ -29,7 +29,7 @@ public static class OidcAuthenticationBuilderExtensions
     /// <param name="config">Resource server configuration</param>
     /// <param name="configure">Applied last when enabled (tests inject a static OpenID configuration)</param>
     public static AuthenticationBuilder AddOidcResourceServer(this AuthenticationBuilder builder,
-        OidcResourceServerConfig config, Action<JwtBearerOptions> configure = null)
+        OidcResourceServerConfig config, Action<JwtBearerOptions>? configure = null)
     {
         ArgumentNullException.ThrowIfNull(config);
         var enabled = config.Enabled;

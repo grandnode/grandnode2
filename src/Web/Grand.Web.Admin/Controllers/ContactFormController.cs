@@ -65,7 +65,8 @@ public class ContactFormController : BaseAdminController
     [PermissionAuthorizeAction(PermissionActionName.Delete)]
     public async Task<IActionResult> Delete(ContactFormDeleteModel model)
     {
-        var contactForm = await _contactUsService.GetContactUsById(model.Id);
+        var contactForm = await _contactUsService.GetContactUsById(model.Id)
+            ?? throw new ArgumentException("No contact us found with the specified id");
         if (ModelState.IsValid)
         {
             await _contactUsService.DeleteContactUs(contactForm);

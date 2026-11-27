@@ -8,7 +8,7 @@ public class ProductPicture : SubBaseEntity
     /// <summary>
     ///     Gets or sets the picture identifier
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order

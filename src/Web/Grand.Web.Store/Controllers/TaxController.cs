@@ -11,6 +11,7 @@ using Grand.Infrastructure.Plugins;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Extensions.Mapping.Settings;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Common;
 using Grand.Web.AdminShared.Models.Tax;
@@ -47,7 +48,7 @@ public class TaxController(
     IAdminDataScope<TaxCategory> scope)
     : BaseTaxCategoryController(taxCategoryService, storeService, translationService, scope)
 {
-    private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => contextAccessor.WorkContext.PanelStoreId();
 
     #region Tax Providers
 
@@ -67,12 +68,11 @@ public class TaxController(
             var tmp = tax.ToModel();
             var url = tax.ConfigurationUrl;
             if (string.IsNullOrEmpty(url))
-                url = PluginManager.ReferencedPlugins.FirstOrDefault(x =>
-                        x.SystemName.Equals(tax.SystemName, StringComparison.OrdinalIgnoreCase))
+                url = PluginManager.ReferencedPlugins?.FirstOrDefault(x =>
+                        string.Equals(x.SystemName, tax.SystemName, StringComparison.OrdinalIgnoreCase))
                     ?.Instance<IPlugin>(serviceProvider)?.ConfigurationUrl();
             tmp.ConfigurationUrl = url;
-            tmp.IsPrimaryTaxProvider = tmp.SystemName.Equals(taxProviderSettings.ActiveTaxProviderSystemName,
-                StringComparison.OrdinalIgnoreCase);
+            tmp.IsPrimaryTaxProvider = string.Equals(tmp.SystemName, taxProviderSettings.ActiveTaxProviderSystemName, StringComparison.OrdinalIgnoreCase);
             taxProvidersModel.Add(tmp);
         }
 

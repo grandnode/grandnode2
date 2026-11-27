@@ -1,4 +1,5 @@
-﻿using Grand.Business.Core.Interfaces.Customers;
+﻿using Grand.Business.Core.Interfaces.Checkout.Orders;
+using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Orders;
 using Grand.Domain.Vendors;
@@ -16,6 +17,7 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
     private readonly OidcLoginConfig _loginConfig;
     private readonly OrderSettings _orderSettings;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly VendorSettings _vendorSettings;
 
     public GetNavigationHandler(
@@ -24,7 +26,8 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
         OrderSettings orderSettings,
         VendorSettings vendorSettings,
         OidcLoginConfig loginConfig,
-        ICustomerService customerService)
+        ICustomerService customerService,
+        IRecurringPaymentService recurringPaymentService)
     {
         _customerSettings = customerSettings;
         _loyaltyPointsSettings = loyaltyPointsSettings;
@@ -32,6 +35,7 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
         _vendorSettings = vendorSettings;
         _loginConfig = loginConfig;
         _customerService = customerService;
+        _recurringPaymentService = recurringPaymentService;
     }
 
     public async Task<CustomerNavigationModel> Handle(GetNavigation request, CancellationToken cancellationToken)
@@ -50,6 +54,8 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
             HideCourses = _customerSettings.HideCoursesTab,
             HideSubAccounts = _customerSettings.HideSubAccountsTab || !string.IsNullOrEmpty(request.Customer.OwnerId),
             HideOrderApprovals = _customerSettings.HideSubAccountsTab || !await IsInCompany(request.Customer),
+            HideRecurringPayments = _customerSettings.HideRecurringPaymentsTab ||
+                                    !await HasRecurringPayments(request.Customer, request.Store),
             SelectedTab = (AccountNavigationEnum)request.SelectedTabId
         };
 
@@ -66,5 +72,17 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
 
         var subAccounts = await _customerService.GetAllCustomers(ownerId: customer.Id, pageSize: 1);
         return subAccounts.TotalCount > 0;
+    }
+
+    /// <summary>
+    ///     Recurring products cannot be bought until a payment provider charges in cycles, so a tab every customer
+    ///     would find empty is shown only to those who have a recurring payment
+    /// </summary>
+    private async Task<bool> HasRecurringPayments(Customer customer, Domain.Stores.Store? store)
+    {
+        if (store == null)
+            return false;
+
+        return await _recurringPaymentService.HasCustomerRecurringPayments(customer.Id, store.Id);
     }
 }

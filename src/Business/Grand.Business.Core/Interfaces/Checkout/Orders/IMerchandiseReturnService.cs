@@ -13,7 +13,7 @@ public interface IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnId">Merchandise return identifier</param>
     /// <returns>Merchandise return</returns>
-    Task<MerchandiseReturn> GetMerchandiseReturnById(string merchandiseReturnId);
+    Task<MerchandiseReturn?> GetMerchandiseReturnById(string? merchandiseReturnId);
 
     /// <summary>
     ///     Gets a merchandise return
@@ -21,7 +21,7 @@ public interface IMerchandiseReturnService
     /// <param name="id">Merchandise return number</param>
     /// t
     /// <returns>Merchandise return</returns>
-    Task<MerchandiseReturn> GetMerchandiseReturnById(int id);
+    Task<MerchandiseReturn?> GetMerchandiseReturnById(int id);
 
     /// <summary>
     ///     Search merchandise returns
@@ -40,11 +40,13 @@ public interface IMerchandiseReturnService
     /// <param name="returnShippingProvider">System name of the return shipping provider; empty for any</param>
     /// <param name="reasonId">A return reason one of the items has; empty for any</param>
     /// <param name="openOnly">Only the returns still handled: pending, accepted or received</param>
+    /// <param name="salesEmployeeId">Only the returns of this sales employee's orders; empty for any</param>
     /// <returns>Merchandise returns</returns>
     Task<IPagedList<MerchandiseReturn>> SearchMerchandiseReturns(string storeId = "", string customerId = "",
         string orderItemId = "", string vendorId = "", string ownerId = "", MerchandiseReturnStatus? rs = null,
         int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
-        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false);
+        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false,
+        string salesEmployeeId = "");
 
     /// <summary>
     ///     Inserts a merchandise return
@@ -76,14 +78,14 @@ public interface IMerchandiseReturnService
     /// </summary>
     /// <param name="storeId">Store identifier; empty to load all entries</param>
     /// <returns>Merchandise return actions</returns>
-    Task<IList<MerchandiseReturnAction>> GetAllMerchandiseReturnActions(string storeId = "");
+    Task<IList<MerchandiseReturnAction>> GetAllMerchandiseReturnActions(string? storeId = "");
 
     /// <summary>
     ///     Gets a merchandise return action
     /// </summary>
     /// <param name="merchandiseReturnActionId">Merchandise return action identifier</param>
     /// <returns>Merchandise return action</returns>
-    Task<MerchandiseReturnAction> GetMerchandiseReturnActionById(string merchandiseReturnActionId);
+    Task<MerchandiseReturnAction?> GetMerchandiseReturnActionById(string? merchandiseReturnActionId);
 
     /// <summary>
     ///     Inserts a merchandise return action
@@ -108,14 +110,14 @@ public interface IMerchandiseReturnService
     /// </summary>
     /// <param name="storeId">Store identifier; empty to load all entries</param>
     /// <returns>Merchandise return reasons</returns>
-    Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons(string storeId = "");
+    Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons(string? storeId = "");
 
     /// <summary>
     ///     Gets a merchandise return reasons
     /// </summary>
     /// <param name="merchandiseReturnReasonId">Merchandise return reason identifier</param>
     /// <returns>Merchandise return reasons</returns>
-    Task<MerchandiseReturnReason> GetMerchandiseReturnReasonById(string merchandiseReturnReasonId);
+    Task<MerchandiseReturnReason?> GetMerchandiseReturnReasonById(string? merchandiseReturnReasonId);
 
     /// <summary>
     ///     Inserts a merchandise return reasons
@@ -161,7 +163,7 @@ public interface IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnNoteId">Merchandise return note identifier</param>
     /// <returns>MerchandiseReturnNote</returns>
-    Task<MerchandiseReturnNote> GetMerchandiseReturnNote(string merchandiseReturnNoteId);
+    Task<MerchandiseReturnNote?> GetMerchandiseReturnNote(string merchandiseReturnNoteId);
 
     #endregion
 }

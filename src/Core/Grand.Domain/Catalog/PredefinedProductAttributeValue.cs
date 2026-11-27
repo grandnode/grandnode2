@@ -10,7 +10,7 @@ public class PredefinedProductAttributeValue : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the product attribute name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the price adjustment

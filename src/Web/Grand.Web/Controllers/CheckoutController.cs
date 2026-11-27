@@ -55,6 +55,7 @@ public class CheckoutController : BasePublicController
         IShoppingCartValidator shoppingCartValidator,
         IOrderApprovalService orderApprovalService,
         IOrderPlacementService orderPlacementService,
+        IRecurringPaymentService recurringPaymentService,
         OrderSettings orderSettings,
         OidcLoginConfig oidcLoginConfig,
         LoyaltyPointsSettings loyaltyPointsSettings,
@@ -78,6 +79,7 @@ public class CheckoutController : BasePublicController
         _shoppingCartValidator = shoppingCartValidator;
         _orderApprovalService = orderApprovalService;
         _orderPlacementService = orderPlacementService;
+        _recurringPaymentService = recurringPaymentService;
         _orderSettings = orderSettings;
         _oidcLoginConfig = oidcLoginConfig;
         _loyaltyPointsSettings = loyaltyPointsSettings;
@@ -99,7 +101,7 @@ public class CheckoutController : BasePublicController
         if (!cart.Any())
             return RedirectToRoute("ShoppingCart");
 
-        if (await _groupService.IsGuest(customer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
+        if (await _groupService.IsGuest(customer) && !await GuestCanCheckOut(cart))
             return Challenge();
 
         //reset checkout data
@@ -116,6 +118,9 @@ public class CheckoutController : BasePublicController
         foreach (var sci in cart)
         {
             var product = await _productService.GetProductById(sci.ProductId);
+            //a line of a product deleted meanwhile cannot be checked out
+            if (product == null)
+                return RedirectToRoute("ShoppingCart");
             var sciWarnings =
                 await _shoppingCartValidator.GetShoppingCartItemWarnings(customer, sci, product,
                     new ShoppingCartValidatorOptions(), _contextAccessor.WorkContext.WorkingLanguage);
@@ -136,7 +141,7 @@ public class CheckoutController : BasePublicController
         if (!cart.Any())
             return RedirectToRoute("ShoppingCart");
 
-        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
+        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !await GuestCanCheckOut(cart))
             return Challenge();
 
         //validation (checkout attributes)
@@ -157,6 +162,9 @@ public class CheckoutController : BasePublicController
         foreach (var sci in cart)
         {
             var product = await _productService.GetProductById(sci.ProductId);
+            //a line of a product deleted meanwhile cannot be checked out
+            if (product == null)
+                return RedirectToRoute("ShoppingCart");
             var sciWarnings = await _shoppingCartValidator.GetShoppingCartItemWarnings(_contextAccessor.WorkContext.CurrentCustomer,
                 sci, product, new ShoppingCartValidatorOptions(), _contextAccessor.WorkContext.WorkingLanguage);
             if (sciWarnings.Any())
@@ -496,7 +504,10 @@ public class CheckoutController : BasePublicController
                 "", store.Id);
 
             //validate customer's input
-            var warnings = (await ValidateShippingForm(model)).ToList();
+            var shippingMethod =
+                _shippingService.LoadShippingRateCalculationProviderBySystemName(shippingRateProviderSystemName)
+                ?? throw new Exception("Shipping method is not selected");
+            var warnings = (await shippingMethod.ValidateShippingForm(model.ShippingOption, model.Data)).ToList();
 
             //find it
             //performance optimization. try cache first
@@ -511,8 +522,7 @@ public class CheckoutController : BasePublicController
             else
                 //loaded cached results. filter result by a chosen Shipping rate  method
                 shippingOptions = shippingOptions.Where(so =>
-                        so.ShippingRateProviderSystemName.Equals(shippingRateProviderSystemName,
-                            StringComparison.OrdinalIgnoreCase))
+                        string.Equals(so.ShippingRateProviderSystemName, shippingRateProviderSystemName, StringComparison.OrdinalIgnoreCase))
                     .ToList();
 
             var shippingOption = shippingOptions
@@ -542,7 +552,11 @@ public class CheckoutController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> GetShippingFormPartialView(string shippingOption)
     {
-        var routeName = await GetShippingComputation(shippingOption).GetControllerRouteName();
+        var shippingMethod = GetShippingComputation(shippingOption);
+        if (shippingMethod == null)
+            return Content("");
+
+        var routeName = await shippingMethod.GetControllerRouteName();
         if (string.IsNullOrEmpty(routeName))
             return Content("");
 
@@ -686,7 +700,7 @@ public class CheckoutController : BasePublicController
         if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) && !_orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig))
             return Challenge();
 
-        Order order = null;
+        Order? order = null;
         if (!string.IsNullOrEmpty(orderId)) order = await _orderService.GetOrderById(orderId);
 
         order ??= (await _orderService.SearchOrders(_contextAccessor.StoreContext.CurrentStore.Id,
@@ -739,10 +753,10 @@ public class CheckoutController : BasePublicController
             });
             if (placeOrderResult.Success)
             {
+                var paymentTransaction = placeOrderResult.PaymentTransaction;
                 var paymentMethod =
-                    _paymentService.LoadPaymentMethodBySystemName(placeOrderResult.PaymentTransaction
-                        .PaymentMethodSystemName);
-                if (paymentMethod == null)
+                    _paymentService.LoadPaymentMethodBySystemName(paymentTransaction?.PaymentMethodSystemName);
+                if (paymentMethod == null || paymentTransaction == null)
                     //payment method could be null if order total is 0
                     //success
                     return Json(new { success = 1 });
@@ -754,11 +768,11 @@ public class CheckoutController : BasePublicController
                     //redirect
                     return Json(new {
                         redirect =
-                            $"{storeLocation}/checkout/CompleteRedirectionPayment?paymentTransactionId={placeOrderResult.PaymentTransaction.Id}"
+                            $"{storeLocation}/checkout/CompleteRedirectionPayment?paymentTransactionId={paymentTransaction.Id}"
                     });
                 }
 
-                await _paymentService.PostProcessPayment(placeOrderResult.PaymentTransaction);
+                await _paymentService.PostProcessPayment(paymentTransaction);
                 //success
                 return Json(new { success = 1 });
             }
@@ -849,6 +863,7 @@ public class CheckoutController : BasePublicController
     private readonly IShoppingCartValidator _shoppingCartValidator;
     private readonly IOrderApprovalService _orderApprovalService;
     private readonly IOrderPlacementService _orderPlacementService;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
     private readonly LoyaltyPointsSettings _loyaltyPointsSettings;
@@ -861,35 +876,37 @@ public class CheckoutController : BasePublicController
     #region Utilities
 
     [NonAction]
-    protected IShippingRateCalculationProvider GetShippingComputation(string input)
+    protected IShippingRateCalculationProvider? GetShippingComputation(string? input)
     {
-        var shippingMethodName = input.Split([":"], StringSplitOptions.RemoveEmptyEntries)[1];
-        var shippingMethod = _shippingService.LoadShippingRateCalculationProviderBySystemName(shippingMethodName);
-        if (shippingMethod == null)
-            throw new Exception("Shipping method is not selected");
-
-        return shippingMethod;
-    }
-
-    [NonAction]
-    private async Task<IList<string>> ValidateShippingForm(CheckoutShippingMethodModel model)
-    {
-        var warnings = (await GetShippingComputation(model.ShippingOption)
-            .ValidateShippingForm(model.ShippingOption, model.Data)).ToList();
-        return warnings;
+        //the option is posted as "name:provider"
+        var parts = input?.Split([":"], StringSplitOptions.RemoveEmptyEntries);
+        return parts is { Length: >= 2 }
+            ? _shippingService.LoadShippingRateCalculationProviderBySystemName(parts[1])
+            : null;
     }
 
     private static IList<string> SerializeModelState(ModelStateDictionary modelState)
     {
         var errors = new List<string>();
-        var valuerrors = modelState.Where(entry => entry.Value.Errors.Any());
-        foreach (var item in valuerrors) errors.AddRange(item.Value.Errors.Select(er => er.ErrorMessage));
+        foreach (var (_, entry) in modelState)
+            if (entry != null)
+                errors.AddRange(entry.Errors.Select(er => er.ErrorMessage));
 
         return errors;
     }
     #endregion
 
     #region Private methods
+
+    /// <summary>
+    ///     A guest is sent to log in when the store has no guest checkout, or when the cart holds a recurring product:
+    ///     a recurring payment is cancelled from My account
+    /// </summary>
+    private async Task<bool> GuestCanCheckOut(IList<ShoppingCartItem> cart)
+    {
+        return _orderSettings.AnonymousCheckoutAllowed(_oidcLoginConfig) &&
+               !await _recurringPaymentService.HasRecurringProducts(cart);
+    }
 
     private async Task CartValidate(IList<ShoppingCartItem> cart)
     {
@@ -1016,7 +1033,7 @@ public class CheckoutController : BasePublicController
     ///     one that needs an approval may only use the payment methods the admin chose.
     /// </summary>
     [NonAction]
-    private async Task<string> GetPaymentMethodRefusal(IList<ShoppingCartItem> cart, string paymentMethod)
+    private async Task<string?> GetPaymentMethodRefusal(IList<ShoppingCartItem> cart, string? paymentMethod)
     {
         var evaluation = await _orderPlacementService.Evaluate(cart, _contextAccessor.CalculationContext(),
             _contextAccessor.WorkContext.WorkingLanguage, paymentMethod, HttpContext.RequestAborted);

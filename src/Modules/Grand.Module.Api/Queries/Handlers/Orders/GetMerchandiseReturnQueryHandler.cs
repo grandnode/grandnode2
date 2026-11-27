@@ -5,7 +5,7 @@ using Grand.Module.Api.Queries.Models.Orders;
 
 namespace Grand.Module.Api.Queries.Handlers.Orders;
 
-public class GetMerchandiseReturnQueryHandler : IRequestHandler<GetMerchandiseReturnQuery, MerchandiseReturn>
+public class GetMerchandiseReturnQueryHandler : IRequestHandler<GetMerchandiseReturnQuery, MerchandiseReturn?>
 {
     private readonly IMerchandiseReturnService _merchandiseReturnService;
 
@@ -14,7 +14,7 @@ public class GetMerchandiseReturnQueryHandler : IRequestHandler<GetMerchandiseRe
         _merchandiseReturnService = merchandiseReturnService;
     }
 
-    public async Task<MerchandiseReturn> Handle(GetMerchandiseReturnQuery request,
+    public async Task<MerchandiseReturn?> Handle(GetMerchandiseReturnQuery request,
         CancellationToken cancellationToken)
     {
         return await _merchandiseReturnService.GetMerchandiseReturnById(request.Id);

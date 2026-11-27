@@ -6,5 +6,5 @@ namespace Grand.Web.Features.Models.Checkout;
 
 public class GetPaymentInfo : IRequest<CheckoutPaymentInfoModel>
 {
-    public IPaymentProvider PaymentMethod { get; set; }
+    public required IPaymentProvider PaymentMethod { get; set; }
 }

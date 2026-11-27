@@ -12,11 +12,11 @@ public class NewsletterCategoryModel : BaseEntityModel, ILocalizedModel<Newslett
 {
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.Description")]
     [SanitizeHtml]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.Selected")]
     public bool Selected { get; set; }
@@ -28,18 +28,18 @@ public class NewsletterCategoryModel : BaseEntityModel, ILocalizedModel<Newslett
 
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }
 
 public class NewsletterCategoryLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.NewsletterCategory.Fields.Description")]
     [SanitizeHtml]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

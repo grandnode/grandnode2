@@ -33,7 +33,7 @@ public class CourseViewModelService(
     IEnumTranslationService enumTranslationService)
     : ICourseViewModelService
 {
-    public virtual async Task<CourseModel> PrepareCourseModel(CourseModel model = null)
+    public virtual async Task<CourseModel> PrepareCourseModel(CourseModel? model = null)
     {
         model ??= new CourseModel {
             Published = true
@@ -113,7 +113,7 @@ public class CourseViewModelService(
     }
 
     public virtual async Task<CourseLessonModel> PrepareCourseLessonModel(string courseId,
-        CourseLessonModel model = null)
+        CourseLessonModel? model = null)
     {
         model ??= new CourseLessonModel {
             Published = true

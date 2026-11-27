@@ -18,7 +18,7 @@ public class AddCrossSellProductModelValidator : BaseStoreAccessValidator<Produc
         _productService = productService;
     }
 
-    protected override async Task<Product> GetEntity(ProductModel.AddCrossSellProductModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.AddCrossSellProductModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

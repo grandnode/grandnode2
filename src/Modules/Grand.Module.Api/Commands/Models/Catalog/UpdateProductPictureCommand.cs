@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class UpdateProductPictureCommand : IRequest<bool>
 {
-    public ProductDto Product { get; set; }
-    public ProductPictureDto Model { get; set; }
+    public required ProductDto Product { get; set; }
+    public required ProductPictureDto Model { get; set; }
 }

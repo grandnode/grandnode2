@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Marketing.Customers;
 using Grand.Domain.Customers;
@@ -26,8 +24,7 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+            if ((await LoadAuthorizedCustomer(customerId)).IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
 
         var (productPriceModels, totalCount) =
@@ -42,8 +39,7 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Json(new DataSourceResult { Data = null, Total = 0 });
+            if ((await LoadAuthorizedCustomer(customerId)).IsDenied) return Json(new DataSourceResult { Data = null, Total = 0 });
         }
 
         var (productModels, totalCount) =
@@ -57,8 +53,7 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return denied;
+            if (!(await LoadAuthorizedCustomer(customerId)).TryGet(out _, out var denied)) return denied;
         }
 
         var model = await customerProductViewModelService.PrepareCustomerModelAddProductModel();
@@ -81,8 +76,7 @@ public abstract class BaseCustomerProductController(
     {
         if (Scope.DefaultStoreId is not null)
         {
-            var (_, denied) = await LoadAuthorizedCustomer(customerId);
-            if (denied != null) return Content("");
+            if ((await LoadAuthorizedCustomer(customerId)).IsDenied) return Content("");
         }
 
         if (model.SelectedProductIds != null)

@@ -9,7 +9,7 @@ public class InventoryDocument : BaseEntity
     /// <summary>
     ///     The number people read: prefix, year and sequence, e.g. PZ/2026/0001
     /// </summary>
-    public string Number { get; set; }
+    public string? Number { get; set; }
 
     public int Year { get; set; }
 
@@ -19,38 +19,38 @@ public class InventoryDocument : BaseEntity
 
     public InventoryDocumentStatus StatusId { get; set; }
 
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     A transfer: the warehouse the stock moves to
     /// </summary>
-    public string TargetWarehouseId { get; set; }
+    public string? TargetWarehouseId { get; set; }
 
     /// <summary>
     ///     The store of the warehouse
     /// </summary>
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<InventoryDocumentLine> Lines { get; set; } = new List<InventoryDocumentLine>();
 
     /// <summary>
     ///     A receipt: the supplier's name
     /// </summary>
-    public string SupplierName { get; set; }
+    public string? SupplierName { get; set; }
 
     /// <summary>
     ///     A receipt: the supplier's invoice or delivery note number
     /// </summary>
-    public string ExternalReference { get; set; }
+    public string? ExternalReference { get; set; }
 
     /// <summary>
     ///     A return receipt: the merchandise return it receives
     /// </summary>
-    public string MerchandiseReturnId { get; set; }
+    public string? MerchandiseReturnId { get; set; }
 
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 
     public DateTime? PostedOnUtc { get; set; }
 
-    public string PostedBy { get; set; }
+    public string? PostedBy { get; set; }
 }

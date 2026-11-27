@@ -3,9 +3,11 @@ using Grand.Business.Core.Events.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Checkout.Payments;
 using Grand.Business.Core.Interfaces.Messages;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Business.Core.Utilities.Checkout;
 using Grand.Domain.Localization;
 using Grand.Domain.Payments;
+using Grand.SharedKernel;
 using Grand.Mediator;
 using Microsoft.Extensions.Logging;
 
@@ -48,11 +50,16 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
         var paymentTransaction = command.PaymentTransaction;
         ArgumentNullException.ThrowIfNull(paymentTransaction);
 
-        var request = new RefundPaymentRequest();
-        RefundPaymentResult result = null;
+        //the whole paid amount is refunded, so nothing may have been refunded before
+        var canRefund = await _mediator.Send(new CanRefundQuery { PaymentTransaction = paymentTransaction },
+            cancellationToken);
+        if (!canRefund)
+            throw new GrandException("You can't refund this payment transaction");
+
+        var request = new RefundPaymentRequest { PaymentTransaction = paymentTransaction };
+        RefundPaymentResult? result = null;
         try
         {
-            request.PaymentTransaction = paymentTransaction;
             request.AmountToRefund = paymentTransaction.PaidAmount;
             request.IsPartialRefund = false;
             result = await _paymentService.Refund(request);

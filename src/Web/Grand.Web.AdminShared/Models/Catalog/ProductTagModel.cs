@@ -8,7 +8,7 @@ public class ProductTagModel : BaseEntityModel, ILocalizedModel<ProductTagLocali
 {
     [GrandResourceDisplayName("Admin.Catalog.ProductTags.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.ProductTags.Fields.ProductCount")]
     public int ProductCount { get; set; }
@@ -20,7 +20,7 @@ public class ProductTagLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Catalog.ProductTags.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

@@ -6,6 +6,6 @@ namespace Grand.Web.Features.Models.Courses;
 
 public class GetCheckOrder : IRequest<bool>
 {
-    public Customer Customer { get; set; }
-    public Course Course { get; set; }
+    public required Customer Customer { get; set; }
+    public required Course Course { get; set; }
 }

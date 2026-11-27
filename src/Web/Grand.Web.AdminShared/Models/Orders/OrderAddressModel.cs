@@ -5,7 +5,7 @@ namespace Grand.Web.AdminShared.Models.Orders;
 
 public class OrderAddressModel : BaseModel
 {
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
     public bool BillingAddress { get; set; }
-    public AddressModel Address { get; set; }
+    public AddressModel Address { get; set; } = new();
 }

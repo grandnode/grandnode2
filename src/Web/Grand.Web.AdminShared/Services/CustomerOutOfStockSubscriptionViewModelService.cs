@@ -37,7 +37,7 @@ public class CustomerOutOfStockSubscriptionViewModelService(
                     StoreName = store != null ? store.Shortcut : "Unknown",
                     ProductId = x.ProductId,
                     ProductName = product != null ? product.Name : "Unknown",
-                    AttributeDescription = x.Attributes == null || !x.Attributes.Any()
+                    AttributeDescription = product == null || x.Attributes == null || !x.Attributes.Any()
                         ? ""
                         : await productAttributeFormatter.FormatAttributes(product, x.Attributes,
                             contextAccessor.CalculationContext(), contextAccessor.WorkContext.WorkingLanguage,

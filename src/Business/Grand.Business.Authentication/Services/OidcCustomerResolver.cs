@@ -102,8 +102,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             //a link made by e-mail proves no more than the e-mail: it stops serving an account that has since
             //become one that connects only with its password
             if (linkedResult.Succeeded && link.LinkedByEmail && !_loginConfig.ProviderOnly &&
-                await RequiresPassword(linkedCustomer, storeId))
-                return AccountConnectionRequired(linkedCustomer, sub);
+                await RequiresPassword(linkedResult.Customer, storeId))
+                return AccountConnectionRequired(linkedResult.Customer, sub);
             return linkedResult;
         }
 
@@ -159,8 +159,9 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         if (link != null)
         {
             var linked = await _customerService.GetCustomerById(link.CustomerId);
+            //Check answers Missing for no customer
             var reason = await Check(linked, sub, storeId);
-            if (reason != Unusable.None)
+            if (linked == null || reason != Unusable.None)
                 return OidcLoginResult.Refused(ToRefusal(reason));
 
             //a link made by e-mail (by an access token or an earlier sign-in) is held to the rules of a first link;
@@ -281,9 +282,10 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         var (outcome, customer, winner) = await CreateLinkedAccount(sub, email, storeId, null);
         return outcome switch {
             Provisioning.UserNameTaken => OidcCustomerResult.Forbidden("The user name is already taken"),
-            Provisioning.LinkedToOtherIdentity => LinkedToOtherIdentity(customer, sub),
+            Provisioning.LinkedToOtherIdentity when customer != null => LinkedToOtherIdentity(customer, sub),
             Provisioning.LostRace => await Usable(winner, sub, storeId),
-            _ => OidcCustomerResult.Success(customer)
+            Provisioning.Created when customer != null => OidcCustomerResult.Success(customer),
+            _ => OidcCustomerResult.Forbidden("The customer account could not be created")
         };
     }
 
@@ -300,7 +302,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
             Provisioning.LinkedToOtherIdentity => OidcLoginResult.Refused(OidcLoginRefusal.LinkedToOtherIdentity),
             //another request of the same user created the account first: its link answers now
             Provisioning.LostRace => await ResolveForLogin(sub, email, emailVerified, storeId, language),
-            _ => OidcLoginResult.SignIn(customer)
+            Provisioning.Created when customer != null => OidcLoginResult.SignIn(customer),
+            _ => OidcLoginResult.Refused(OidcLoginRefusal.AccountUnusable)
         };
     }
 
@@ -316,8 +319,8 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     ///     Creates an active account with the Registered group for the subject and links it (not by e-mail). The store's
     ///     e-mail validation / admin approval does not apply: access comes from the provider and from permissions an admin grants
     /// </summary>
-    private async Task<(Provisioning Outcome, Customer Customer, Customer Winner)> CreateLinkedAccount(string sub,
-        string email, string storeId, Language language)
+    private async Task<(Provisioning Outcome, Customer? Customer, Customer? Winner)> CreateLinkedAccount(string sub,
+        string email, string storeId, Language? language)
     {
         //the e-mail becomes the user name - another account may hold it as its user name without that e-mail
         var normalizedEmail = email.ToLowerInvariant();
@@ -361,7 +364,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     ///     subject from linking this store's customer; without per-store identity: any link.
     ///     Subjects are case-sensitive - exact comparison.
     /// </summary>
-    private async Task<ExternalAuthentication> GetLink(string sub, string storeId)
+    private async Task<ExternalAuthentication?> GetLink(string sub, string storeId)
     {
         if (!_customerConfig.RegisterCustomersPerStore)
             return await _externalAuthenticationRepository.GetOneAsync(x =>
@@ -414,7 +417,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
     ///     first: the link of another subject now holding this customer (OtherLink), or the customer the subject's
     ///     winning link points to (Customer). Rethrows when the insert failed for another reason.
     /// </summary>
-    private async Task<(Customer Customer, ExternalAuthentication OtherLink)> LinkOrGetWinner(Customer customer,
+    private async Task<(Customer? Customer, ExternalAuthentication? OtherLink)> LinkOrGetWinner(Customer customer,
         string sub, string email, string storeId, bool byEmail)
     {
         var linkId = OidcLinkId(customer.Id);
@@ -468,7 +471,7 @@ public class OidcCustomerResolver : IOidcCustomerResolver
 
     //the checks every other login path applies: an active, registered, non-system account, and with per-store
     //identity one of the request's store (or of no store)
-    private async Task<Unusable> Check(Customer customer, string sub, string storeId)
+    private async Task<Unusable> Check(Customer? customer, string sub, string storeId)
     {
         if (customer == null)
         {
@@ -498,8 +501,10 @@ public class OidcCustomerResolver : IOidcCustomerResolver
         return Unusable.None;
     }
 
-    private async Task<OidcCustomerResult> Usable(Customer customer, string sub, string storeId) =>
+    private async Task<OidcCustomerResult> Usable(Customer? customer, string sub, string storeId) =>
         await Check(customer, sub, storeId) switch {
+            //Check answers Missing for no customer
+            _ when customer == null => OidcCustomerResult.Forbidden("The customer account no longer exists"),
             Unusable.None => OidcCustomerResult.Success(customer),
             Unusable.Missing => OidcCustomerResult.Forbidden("The customer account no longer exists"),
             Unusable.Inactive => OidcCustomerResult.Forbidden("The customer account is inactive"),

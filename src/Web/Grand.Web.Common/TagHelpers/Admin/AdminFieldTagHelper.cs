@@ -39,7 +39,8 @@ public class AdminFieldTagHelper : TagHelper
         _translationService = translationService;
     }
 
-    [HtmlAttributeName(ForAttributeName)] public ModelExpression For { get; set; }
+    //the element matches only with asp-for, so it is always set
+    [HtmlAttributeName(ForAttributeName)] public ModelExpression For { get; set; } = null!;
 
     /// <summary>
     ///     The property whose display name (and hint) labels the field, when it is not the bound
@@ -47,11 +48,11 @@ public class AdminFieldTagHelper : TagHelper
     ///     property that carries the resource.
     /// </summary>
     [HtmlAttributeName("asp-label-for")]
-    public ModelExpression LabelFor { get; set; }
+    public ModelExpression? LabelFor { get; set; }
 
     /// <summary>The control's width: sm, md, lg, or full (the default).</summary>
     [HtmlAttributeName("size")]
-    public string Size { get; set; }
+    public string? Size { get; set; }
 
     /// <summary>Marks the label with an asterisk.</summary>
     [HtmlAttributeName("asp-required")]
@@ -61,15 +62,15 @@ public class AdminFieldTagHelper : TagHelper
     /// IEnumerable, because a SelectList - what EnumTranslationService.ToSelectList returns -
     /// is not an IList.</summary>
     [HtmlAttributeName("asp-items")]
-    public IEnumerable<SelectListItem> Items { get; set; }
+    public IEnumerable<SelectListItem>? Items { get; set; }
 
     /// <summary>An editor template name, when the metadata's own choice is not wanted.</summary>
     [HtmlAttributeName("asp-template")]
-    public string Template { get; set; }
+    public string? Template { get; set; }
 
     /// <summary>Text under the control, in place of the field's <c>.Hint</c> resource.</summary>
     [HtmlAttributeName("hint")]
-    public string Hint { get; set; }
+    public string? Hint { get; set; }
 
     /// <summary>
     ///     The unit the value is in, shown at the end of the control: a currency code, kg, %. The
@@ -77,9 +78,10 @@ public class AdminFieldTagHelper : TagHelper
     ///     field.
     /// </summary>
     [HtmlAttributeName("suffix")]
-    public string Suffix { get; set; }
+    public string? Suffix { get; set; }
 
-    [HtmlAttributeNotBound] [ViewContext] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [HtmlAttributeNotBound] [ViewContext] public ViewContext ViewContext { get; set; } = null!;
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -156,7 +158,7 @@ public class AdminFieldTagHelper : TagHelper
     }
 
     /// <summary>The hint given on the element, else the field's <c>.Hint</c> resource.</summary>
-    private string HintText()
+    private string? HintText()
     {
         if (!string.IsNullOrEmpty(Hint)) return Hint;
         var displayName = (LabelFor ?? For).Metadata.GetDisplayName();
@@ -180,11 +182,13 @@ public class AdminFieldTagHelper : TagHelper
         if (Items != null)
             return _htmlHelper.DropDownList(For.Name, Items, new { @class = "form-select" });
 
-        var viewEngine = GetPrivateFieldValue(_htmlHelper, "_viewEngine") as IViewEngine;
-        var bufferScope = GetPrivateFieldValue(_htmlHelper, "_bufferScope") as IViewBufferScope;
+        var viewEngine = GetPrivateFieldValue(_htmlHelper, "_viewEngine") as IViewEngine ??
+                         throw new InvalidOperationException("The html helper has no view engine");
+        var bufferScope = GetPrivateFieldValue(_htmlHelper, "_bufferScope") as IViewBufferScope ??
+                          throw new InvalidOperationException("The html helper has no buffer scope");
 
         var isString = For.Metadata.ModelType == typeof(string);
-        object htmlAttributes = isString ? new { @class = "form-control" } : null;
+        object? htmlAttributes = isString ? new { @class = "form-control" } : null;
 
         var templateBuilder = new TemplateBuilder(
             viewEngine,
@@ -195,12 +199,12 @@ public class AdminFieldTagHelper : TagHelper
             For.Name,
             Template,
             false,
-            new { htmlAttributes, postfix = (string)null });
+            new { htmlAttributes, postfix = (string?)null });
 
         return await templateBuilder.Build();
     }
 
-    private static object GetPrivateFieldValue(object target, string fieldName)
+    private static object? GetPrivateFieldValue(object target, string fieldName)
     {
         var type = target.GetType();
         while (type != null)

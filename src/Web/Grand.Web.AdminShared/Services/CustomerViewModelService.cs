@@ -14,6 +14,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Messages;
 using Grand.Domain.Orders;
+using Grand.Domain.Stores;
 using Grand.Domain.Tax;
 using Grand.Infrastructure;
 using Grand.Infrastructure.Configuration;
@@ -112,7 +113,8 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     public virtual async Task<CustomerListModel> PrepareCustomerListModel()
     {
-        var registered = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered);
+        var registered = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)
+                         ?? throw new InvalidOperationException("The Registered customer group is missing");
         var customerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
         var model = new CustomerListModel {
             UsernamesEnabled = _customerSettings.UsernamesEnabled,
@@ -123,14 +125,14 @@ public class CustomerViewModelService : ICustomerViewModelService
                 { Text = cr.Name, Value = cr.Id.ToString(), Selected = cr.Id == registered.Id }).ToList(),
             AvailableCustomerTags = (await _customerTagService.GetAllCustomerTags())
                 .Select(ct => new SelectListItem { Text = ct.Name, Value = ct.Id.ToString() }).ToList(),
-            SearchCustomerGroupIds = new List<string> { customerGroups.FirstOrDefault(x => x.Id == registered.Id)?.Id }
+            SearchCustomerGroupIds = customerGroups.Where(x => x.Id == registered.Id).Select(x => x.Id).Take(1).ToList()
         };
         return model;
     }
 
     public virtual async Task<(IEnumerable<CustomerModel> customerModelList, int totalCount)> PrepareCustomerList(
         CustomerListModel model,
-        string[] searchCustomerGroupIds, string[] searchCustomerTagIds, int pageIndex, int pageSize,
+        string[] searchCustomerGroupIds, string[]? searchCustomerTagIds, int pageIndex, int pageSize,
         string storeId = "")
     {
         var salesEmployeeId = _contextAccessor.WorkContext.CurrentCustomer.SeId;
@@ -169,10 +171,14 @@ public class CustomerViewModelService : ICustomerViewModelService
         return (customermodellist, customers.TotalCount);
     }
 
-    public virtual async Task PrepareCustomerModel(CustomerModel model, Customer customer, bool excludeProperties)
+    public virtual async Task PrepareCustomerModel(CustomerModel model, Customer? customer, bool excludeProperties)
     {
         var hasStaffStore = !string.IsNullOrEmpty(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId);
-        var allStores = hasStaffStore ? [await _storeService.GetStoreById(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId)] : await _storeService.GetAllStores();
+        IList<Store> allStores = hasStaffStore
+            ? await _storeService.GetStoreById(_contextAccessor.WorkContext.CurrentCustomer.StaffStoreId) is { } staffStore
+                ? [staffStore]
+                : []
+            : await _storeService.GetAllStores();
         if (customer != null)
         {
             model.Id = customer.Id;
@@ -202,6 +208,7 @@ public class CustomerViewModelService : ICustomerViewModelService
                 foreach (var item in customer.CustomerTags)
                 {
                     var ct = await _customerTagService.GetCustomerTagById(item);
+                    if (ct == null) continue;
                     result.Append(ct.Name);
                     result.Append(", ");
                 }
@@ -371,7 +378,7 @@ public class CustomerViewModelService : ICustomerViewModelService
     ///     The owner id the posted owner email stands for. The owner already linked is kept when its email is
     ///     posted back unchanged; otherwise the email is looked up in the same store scope the validator used.
     /// </summary>
-    private async Task<string> ResolveOwnerId(Customer customer, CustomerModel model)
+    private async Task<string> ResolveOwnerId(Customer? customer, CustomerModel model)
     {
         if (string.IsNullOrWhiteSpace(model.Owner))
             return string.Empty;
@@ -763,7 +770,7 @@ public class CustomerViewModelService : ICustomerViewModelService
 
     #region Utilities
 
-    protected virtual string[] ParseCustomerTags(string customerTags)
+    protected virtual string[] ParseCustomerTags(string? customerTags)
     {
         var result = new List<string>();
         if (!string.IsNullOrWhiteSpace(customerTags))
@@ -788,8 +795,10 @@ public class CustomerViewModelService : ICustomerViewModelService
         {
             var found = false;
             var existingCustomerTagName = await _customerTagService.GetCustomerTagById(existingCustomerTag);
+            //a tag deleted meanwhile has nothing left to remove
+            if (existingCustomerTagName == null) continue;
             foreach (var newCustomerTag in customerTags)
-                if (existingCustomerTagName.Name.Equals(newCustomerTag, StringComparison.OrdinalIgnoreCase))
+                if (string.Equals(existingCustomerTagName.Name, newCustomerTag, StringComparison.OrdinalIgnoreCase))
                 {
                     found = true;
                     break;
@@ -918,7 +927,7 @@ public class CustomerViewModelService : ICustomerViewModelService
             });
     }
 
-    protected virtual async Task PrepareCustomerAttributeModel(CustomerModel model, Customer customer)
+    protected virtual async Task PrepareCustomerAttributeModel(CustomerModel model, Customer? customer)
     {
         var customerAttributes = await _customerAttributeService.GetAllCustomerAttributes();
         foreach (var attribute in customerAttributes)

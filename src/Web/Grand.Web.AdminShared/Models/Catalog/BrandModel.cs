@@ -17,39 +17,39 @@ public class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>,
     }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.BottomDescription")]
-    public string BottomDescription { get; set; }
+    public string? BottomDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.BrandLayout")]
-    public string BrandLayoutId { get; set; }
+    public string? BrandLayoutId { get; set; }
 
     public IList<SelectListItem> AvailableBrandLayouts { get; set; } = [];
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [UIHint("Picture")]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Picture")]
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.PageSize")]
     public int PageSize { get; set; }
@@ -58,7 +58,7 @@ public class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>,
     public bool AllowCustomersToSelectPageSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.PageSizeOptions")]
-    public string PageSizeOptions { get; set; }
+    public string? PageSizeOptions { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.ShowOnHomePage")]
     public bool ShowOnHomePage { get; set; }
@@ -67,7 +67,7 @@ public class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>,
     public bool IncludeInMenu { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Icon")]
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.DefaultSort")]
     public int DefaultSort { get; set; }
@@ -81,7 +81,7 @@ public class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>,
     public int DisplayOrder { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.ExternalId")]
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     //discounts
     public List<DiscountModel> AvailableDiscounts { get; set; } = [];
@@ -90,43 +90,43 @@ public class BrandModel : BaseEntityModel, ILocalizedModel<BrandLocalizedModel>,
     //ACL
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.LimitedToGroups")]
-    public string[] CustomerGroups { get; set; } = [];
+    public string[]? CustomerGroups { get; set; } = [];
 
     public IList<BrandLocalizedModel> Locales { get; set; } = [];
 
     //Store acl
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; } = [];
+    public string[]? Stores { get; set; } = [];
 }
 
 public class BrandLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 {
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.BottomDescription")]
-    public string BottomDescription { get; set; }
+    public string? BottomDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Brands.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

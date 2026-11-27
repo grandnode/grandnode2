@@ -16,28 +16,28 @@ public class SiteMapNode
     /// <summary>
     ///     Gets or sets the system name.
     /// </summary>
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the resource name.
     /// </summary>
-    public string ResourceName { get; set; }
+    public string? ResourceName { get; set; }
 
     /// <summary>
     ///     Gets or sets the name of the controller.
     /// </summary>
-    public string ControllerName { get; set; }
+    public string? ControllerName { get; set; }
 
     /// <summary>
     ///     Gets or sets the name of the action.
     /// </summary>
-    public string ActionName { get; set; }
+    public string? ActionName { get; set; }
 
 
     /// <summary>
     ///     Gets or sets the URL.
     /// </summary>
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>
     ///     Gets or sets the child nodes.
@@ -47,7 +47,7 @@ public class SiteMapNode
     /// <summary>
     ///     Gets or sets the icon class (bootstrap-icons: https://icons.getbootstrap.com/, e.g. "bi bi-house")
     /// </summary>
-    public string IconClass { get; set; }
+    public string? IconClass { get; set; }
 
     /// <summary>
     ///     Gets or sets the item is visible

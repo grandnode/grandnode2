@@ -73,7 +73,8 @@ public class CampaignController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Customers(string campaignId, DataSourceRequest command)
     {
-        var campaign = await _campaignService.GetCampaignById(campaignId);
+        var campaign = await _campaignService.GetCampaignById(campaignId)
+            ?? throw new ArgumentException("No campaign found with the specified id");
         var customers = await _campaignService.CustomerSubscriptions(campaign, command.Page - 1, command.PageSize);
 
         var gridModel = new DataSourceResult {
@@ -87,7 +88,8 @@ public class CampaignController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> History(string campaignId, DataSourceRequest command)
     {
-        var campaign = await _campaignService.GetCampaignById(campaignId);
+        var campaign = await _campaignService.GetCampaignById(campaignId)
+            ?? throw new ArgumentException("No campaign found with the specified id");
         var history = await _campaignService.GetCampaignHistory(campaign, command.Page - 1, command.PageSize);
 
         var gridModel = new DataSourceResult {
@@ -106,7 +108,8 @@ public class CampaignController : BaseAdminController
     {
         try
         {
-            var campaign = await _campaignService.GetCampaignById(campaignId);
+            var campaign = await _campaignService.GetCampaignById(campaignId)
+                ?? throw new ArgumentException("No campaign found with the specified id");
             var customers = await _campaignService.CustomerSubscriptions(campaign);
 
             var sb = new StringBuilder();
@@ -204,6 +207,7 @@ public class CampaignController : BaseAdminController
                 await _emailAccountService.GetEmailAccountById(_emailAccountSettings.DefaultEmailAccountId);
             if (emailAccount == null)
                 throw new GrandException("Email account could not be loaded");
+            ArgumentException.ThrowIfNullOrWhiteSpace(model.TestEmail);
 
             var subscription =
                 await _newsLetterSubscriptionService.GetNewsLetterSubscriptionByEmailAndStoreId(model.TestEmail,

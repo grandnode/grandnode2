@@ -19,7 +19,7 @@ public class ExtensionsConfig
     /// <summary>
     ///     A list of plugins to be ignored during start application - pattern
     /// </summary>
-    public string PluginSkipLoadingPattern { get; set; }
+    public string? PluginSkipLoadingPattern { get; set; }
 
     /// <summary>
     ///     Enable scripting C# applications to execute code.
@@ -29,7 +29,7 @@ public class ExtensionsConfig
     /// <summary>
     ///     List of installed plugins (comma separated)
     /// </summary>
-    public string InstalledPlugins { get; set; }
+    public string? InstalledPlugins { get; set; }
 
     /// <summary>
     ///     Stop the application when an installed plugin, or a module enabled under FeatureManagement, fails to

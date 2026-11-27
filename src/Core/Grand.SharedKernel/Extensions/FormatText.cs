@@ -4,7 +4,7 @@ namespace Grand.SharedKernel.Extensions;
 
 public static class FormatText
 {
-    public static string ConvertText(string text)
+    public static string ConvertText(string? text)
     {
         if (string.IsNullOrEmpty(text))
             return string.Empty;

@@ -14,7 +14,7 @@ public class AllowAnonymousCustomerResolver(
 {
     public int Order => RequestCustomerResolverOrder.AllowAnonymous;
 
-    public async Task<Customer> Resolve()
+    public async Task<Customer?> Resolve()
     {
         var endpoint = httpContextAccessor.HttpContext?.GetEndpoint();
         if (endpoint?.Metadata.GetMetadata<IAllowAnonymous>() == null) return null;

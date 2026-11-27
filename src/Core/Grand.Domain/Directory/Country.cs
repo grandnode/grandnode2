@@ -9,12 +9,12 @@ namespace Grand.Domain.Directory;
 /// </summary>
 public class Country : BaseEntity, ITranslationEntity, IStoreLinkEntity
 {
-    private ICollection<StateProvince> _stateProvinces;
+    private ICollection<StateProvince>? _stateProvinces;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether billing is allowed to this country
@@ -29,12 +29,12 @@ public class Country : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the two letter ISO code
     /// </summary>
-    public string TwoLetterIsoCode { get; set; }
+    public string TwoLetterIsoCode { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the three letter ISO code
     /// </summary>
-    public string ThreeLetterIsoCode { get; set; }
+    public string ThreeLetterIsoCode { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the numeric ISO code

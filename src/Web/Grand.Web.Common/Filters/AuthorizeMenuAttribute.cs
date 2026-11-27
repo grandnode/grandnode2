@@ -94,8 +94,8 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
         }
 
         private async Task ValidateMenuSiteMapPermissions(AuthorizationFilterContext filterContext,
-            string controllerName,
-            string actionName)
+            string? controllerName,
+            string? actionName)
         {
             var menuSiteMap = await FindSiteMap(controllerName, actionName);
             if (menuSiteMap != null && menuSiteMap.PermissionNames.Any())
@@ -115,8 +115,8 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
             }
         }
 
-        private async Task<AdminSiteMap> FindSiteMap(string controllerName,
-            string actionName)
+        private async Task<AdminSiteMap?> FindSiteMap(string? controllerName,
+            string? actionName)
         {
             var adminSiteMap = await _adminSiteMapService.GetSiteMap();
             return adminSiteMap.Select(siteMap =>
@@ -124,8 +124,8 @@ public class AuthorizeMenuAttribute : TypeFilterAttribute
                 .FirstOrDefault(siteMap => siteMap != null);
         }
 
-        private static AdminSiteMap FindSiteMapByControllerAndActionName(AdminSiteMap siteMap,
-            string controllerName, string actionName)
+        private static AdminSiteMap? FindSiteMapByControllerAndActionName(AdminSiteMap siteMap,
+            string? controllerName, string? actionName)
         {
             if (siteMap.ControllerName == controllerName && siteMap.ActionName == actionName)
                 return siteMap;

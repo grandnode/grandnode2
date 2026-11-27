@@ -45,7 +45,7 @@ public class SlugService : ISlugService
     /// </summary>
     /// <param name="urlEntityId">URL Entity identifier</param>
     /// <returns>URL Entity</returns>
-    public virtual Task<EntityUrl> GetEntityUrlById(string urlEntityId)
+    public virtual Task<EntityUrl?> GetEntityUrlById(string urlEntityId)
     {
         return _urlEntityRepository.GetByIdAsync(urlEntityId);
     }
@@ -98,7 +98,7 @@ public class SlugService : ISlugService
     /// </summary>
     /// <param name="slug">Slug</param>
     /// <returns>Found URL Entity</returns>
-    public virtual async Task<EntityUrl> GetBySlug(string slug)
+    public virtual async Task<EntityUrl?> GetBySlug(string? slug)
     {
         if (string.IsNullOrEmpty(slug))
             return null;
@@ -117,7 +117,7 @@ public class SlugService : ISlugService
     /// </summary>
     /// <param name="slug">Slug</param>
     /// <returns>Found URL Entity</returns>
-    public virtual async Task<EntityUrl> GetBySlugCached(string slug)
+    public virtual async Task<EntityUrl?> GetBySlugCached(string? slug)
     {
         if (string.IsNullOrEmpty(slug))
             return null;
@@ -142,14 +142,14 @@ public class SlugService : ISlugService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>URL Entity</returns>
-    public virtual async Task<IPagedList<EntityUrl>> GetAllEntityUrl(string slug = "", bool? active = null,
+    public virtual async Task<IPagedList<EntityUrl>> GetAllEntityUrl(string? slug = "", bool? active = null,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = from p in _urlEntityRepository.Table
             select p;
 
         if (!string.IsNullOrWhiteSpace(slug))
-            query = query.Where(ur => ur.Slug.Contains(slug.ToLowerInvariant()));
+            query = query.Where(ur => ur.Slug != null && ur.Slug.Contains(slug.ToLowerInvariant()));
 
         if (active.HasValue)
             query = query.Where(ur => ur.IsActive == active.Value);
@@ -165,7 +165,7 @@ public class SlugService : ISlugService
     /// <param name="entityName">Entity name</param>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Found slug</returns>
-    public virtual async Task<string> GetActiveSlug(string entityId, string entityName, string languageId)
+    public virtual async Task<string> GetActiveSlug(string? entityId, string? entityName, string? languageId)
     {
         var key = string.Format(CacheKey.URLEntity_ACTIVE_BY_ID_NAME_LANGUAGE_KEY, entityId, entityName, languageId);
         return await _cacheBase.GetAsync(key, async () =>
@@ -189,7 +189,7 @@ public class SlugService : ISlugService
     /// <param name="entity">Entity</param>
     /// <param name="slug">Slug</param>
     /// <param name="languageId">Language ID</param>
-    public virtual async Task SaveSlug<T>(T entity, string slug, string languageId)
+    public virtual async Task SaveSlug<T>(T entity, string? slug, string languageId)
         where T : BaseEntity, ISlugEntity
     {
         ArgumentNullException.ThrowIfNull(entity);
@@ -213,7 +213,7 @@ public class SlugService : ISlugService
         {
             //find in non-active records with the specified slug
             var nonActiveRecordWithSpecifiedSlug = allUrlEntity
-                .FirstOrDefault(x => x.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase) && !x.IsActive);
+                .FirstOrDefault(x => string.Equals(x.Slug, slug, StringComparison.OrdinalIgnoreCase) && !x.IsActive);
             if (nonActiveRecordWithSpecifiedSlug != null)
             {
                 //mark non-active record as active
@@ -241,11 +241,11 @@ public class SlugService : ISlugService
         }
 
         if (activeUrlEntity != null && !string.IsNullOrWhiteSpace(slug))
-            if (!activeUrlEntity.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase))
+            if (!string.Equals(activeUrlEntity.Slug, slug, StringComparison.OrdinalIgnoreCase))
             {
                 //find in non-active records with the specified slug
                 var nonActiveRecordWithSpecifiedSlug = allUrlEntity
-                    .FirstOrDefault(x => x.Slug.Equals(slug, StringComparison.OrdinalIgnoreCase) && !x.IsActive);
+                    .FirstOrDefault(x => string.Equals(x.Slug, slug, StringComparison.OrdinalIgnoreCase) && !x.IsActive);
                 if (nonActiveRecordWithSpecifiedSlug != null)
                 {
                     nonActiveRecordWithSpecifiedSlug.IsActive = true;

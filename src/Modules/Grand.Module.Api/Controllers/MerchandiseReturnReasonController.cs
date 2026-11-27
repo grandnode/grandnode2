@@ -46,10 +46,10 @@ public class MerchandiseReturnReasonController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
 
-        var reason = await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key));
-        if (!reason.Any()) return NotFound();
+        var reason = (await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key))).FirstOrDefault();
+        if (reason == null) return NotFound();
 
-        return Ok(reason.FirstOrDefault());
+        return Ok(reason);
     }
 
     [EndpointDescription("Add new entity to MerchandiseReturnReason")]
@@ -60,7 +60,7 @@ public class MerchandiseReturnReasonController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] MerchandiseReturnReasonDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddMerchandiseReturnReasonCommand { Model = model });
         return Ok(model);
@@ -72,12 +72,16 @@ public class MerchandiseReturnReasonController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(MerchandiseReturnReasonDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] MerchandiseReturnReasonDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        model = await _mediator.Send(new UpdateMerchandiseReturnReasonCommand { Model = model });
-        return Ok(model);
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
+        var updated = await _mediator.Send(new UpdateMerchandiseReturnReasonCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Delete entity in MerchandiseReturnReason")]
@@ -88,12 +92,12 @@ public class MerchandiseReturnReasonController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Settings, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Settings, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var reason = await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key));
-        if (!reason.Any()) return NotFound();
+        var reason = (await _mediator.Send(new GetGenericQuery<MerchandiseReturnReasonDto, MerchandiseReturnReason>(key))).FirstOrDefault();
+        if (reason == null) return NotFound();
 
-        await _mediator.Send(new DeleteMerchandiseReturnReasonCommand { Model = reason.FirstOrDefault() });
+        await _mediator.Send(new DeleteMerchandiseReturnReasonCommand { Model = reason });
         return Ok();
     }
 }

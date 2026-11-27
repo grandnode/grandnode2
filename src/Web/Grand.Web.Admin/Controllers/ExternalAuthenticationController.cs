@@ -154,18 +154,17 @@ public class ExternalAuthenticationController : BaseAdminController
     public async Task<IActionResult> ScimGroupEdit(string id, [FromServices] IScimGroupService scimGroupService,
         [FromServices] IStoreService storeService, [FromServices] IVendorService vendorService)
     {
-        var group = await scimGroupService.Get(id);
-        if (group.Outcome != ScimOutcome.Ok)
+        if (await scimGroupService.Get(id) is not { Outcome: ScimOutcome.Ok, Group: { } group })
             return RedirectToAction("Scim");
 
         var mapping = (await scimGroupService.GetMappings()).FirstOrDefault(x => x.GroupId == id);
         var model = new ScimGroupMappingModel {
-            Id = group.Group.Id,
+            Id = group.Id,
             CustomerGroupId = mapping?.CustomerGroupId,
             StaffStoreId = mapping?.StaffStoreId,
             VendorId = mapping?.VendorId
         };
-        await PrepareScimGroupMapping(model, group.Group, scimGroupService, storeService, vendorService);
+        await PrepareScimGroupMapping(model, group, scimGroupService, storeService, vendorService);
         return View(model);
     }
 
@@ -176,8 +175,7 @@ public class ExternalAuthenticationController : BaseAdminController
         [FromServices] IVendorService vendorService, [FromServices] IRequestTranslationService translationService,
         [FromServices] IGroupService groupService, [FromServices] IContextAccessor contextAccessor)
     {
-        var group = await scimGroupService.Get(model.Id);
-        if (group.Outcome != ScimOutcome.Ok)
+        if (await scimGroupService.Get(model.Id) is not { Outcome: ScimOutcome.Ok, Group: { } group })
             return RedirectToAction("Scim");
 
         //as on the customer screens, only an administrator gives (or takes away) the Administrators role
@@ -185,11 +183,13 @@ public class ExternalAuthenticationController : BaseAdminController
         {
             var current = (await scimGroupService.GetMappings()).FirstOrDefault(x => x.GroupId == model.Id)?.CustomerGroupId;
             if (await IsAdministrators(groupService, model.CustomerGroupId) || await IsAdministrators(groupService, current))
-                return await ScimGroupEditError(model, group.Group, "Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.AdministratorsOnly",
+                return await ScimGroupEditError(model, group, "Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.AdministratorsOnly",
                     scimGroupService, storeService, vendorService, translationService);
         }
 
-        var outcome = await scimGroupService.SetMapping(model.Id, model.CustomerGroupId, model.StaffStoreId, model.VendorId);
+        //the service reads "" as no store and no vendor
+        var outcome = await scimGroupService.SetMapping(group.Id, model.CustomerGroupId, model.StaffStoreId ?? "",
+            model.VendorId ?? "");
         if (outcome == ScimOutcome.Ok)
         {
             Success(translationService.GetResource("Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Saved"));
@@ -198,7 +198,7 @@ public class ExternalAuthenticationController : BaseAdminController
 
         if (outcome == ScimOutcome.NotFound)
             return RedirectToAction("Scim");
-        return await ScimGroupEditError(model, group.Group, "Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Invalid",
+        return await ScimGroupEditError(model, group, "Admin.Plugins.ExternalAuthenticationMethods.Scim.Mapping.Invalid",
             scimGroupService, storeService, vendorService, translationService);
     }
 
@@ -211,7 +211,7 @@ public class ExternalAuthenticationController : BaseAdminController
         return View(model);
     }
 
-    private static async Task<bool> IsAdministrators(IGroupService groupService, string customerGroupId)
+    private static async Task<bool> IsAdministrators(IGroupService groupService, string? customerGroupId)
     {
         if (string.IsNullOrEmpty(customerGroupId))
             return false;
@@ -244,8 +244,8 @@ public class ExternalAuthenticationController : BaseAdminController
             var url = method.ConfigurationUrl;
 
             if (string.IsNullOrEmpty(url))
-                url = PluginManager.ReferencedPlugins.FirstOrDefault(x =>
-                        x.SystemName.Equals(method.SystemName, StringComparison.OrdinalIgnoreCase))
+                url = PluginManager.ReferencedPlugins?.FirstOrDefault(x =>
+                        string.Equals(x.SystemName, method.SystemName, StringComparison.OrdinalIgnoreCase))
                     ?.Instance<IPlugin>(_serviceProvider)?.ConfigurationUrl();
             tmp.ConfigurationUrl = url;
             methodsModel.Add(tmp);
@@ -263,7 +263,8 @@ public class ExternalAuthenticationController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> MethodUpdate(AuthenticationMethodModel model)
     {
-        var eam = _openAuthenticationService.LoadAuthenticationProviderBySystemName(model.SystemName);
+        var eam = _openAuthenticationService.LoadAuthenticationProviderBySystemName(model.SystemName)
+                  ?? throw new ArgumentException("No authentication method found with the specified system name");
         if (eam.IsMethodActive(_externalAuthenticationSettings))
         {
             if (!model.IsActive)

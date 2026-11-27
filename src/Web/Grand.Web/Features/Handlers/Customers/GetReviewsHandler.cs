@@ -31,11 +31,9 @@ public class GetReviewsHandler : IRequestHandler<GetReviews, CustomerProductRevi
     {
         var reviewsModel = new CustomerProductReviewsModel {
             CustomerId = request.Customer.Id,
-            CustomerInfo = request.Customer != null
-                ? !string.IsNullOrEmpty(request.Customer.Email)
-                    ? request.Customer.Email
-                    : _translationService.GetResource("Admin.Customers.Guest")
-                : ""
+            CustomerInfo = !string.IsNullOrEmpty(request.Customer.Email)
+                ? request.Customer.Email
+                : _translationService.GetResource("Admin.Customers.Guest")
         };
 
         var productReviews = await _productReviewService.GetAllProductReviews(request.Customer.Id);
@@ -46,8 +44,8 @@ public class GetReviewsHandler : IRequestHandler<GetReviews, CustomerProductRevi
             var reviewModel = new CustomerProductReviewModel {
                 Id = productReview.Id,
                 ProductId = productReview.ProductId,
-                ProductName = product.Name,
-                ProductSeName = product.GetSeName(request.Language.Id),
+                ProductName = product?.Name,
+                ProductSeName = product?.GetSeName(request.Language.Id),
                 Rating = productReview.Rating,
                 CreatedOn = _dateTimeService.ConvertToUserTime(productReview.CreatedOnUtc, DateTimeKind.Utc),
                 Signature = productReview.Signature,

@@ -8,6 +8,7 @@ using Grand.Business.Core.Interfaces.Common.Pdf;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Data;
 using Grand.Domain.Localization;
 using Grand.Domain.Orders;
 using Grand.Domain.Payments;
@@ -28,6 +29,7 @@ public class MarkAsPaidCommandHandlerTests
 
     private Mock<IPaymentTransactionService> _paymentTransactionMock;
     private Mock<IPaymentTransactionHistoryService> _historyMock;
+    private Mock<IResourceLock> _resourceLockMock;
 
     [TestInitialize]
     public void Init()
@@ -36,9 +38,37 @@ public class MarkAsPaidCommandHandlerTests
         _orderServiceMock = new Mock<IOrderService>();
         _paymentTransactionMock = new Mock<IPaymentTransactionService>();
         _historyMock = new Mock<IPaymentTransactionHistoryService>();
+        _resourceLockMock = new Mock<IResourceLock>();
+        _resourceLockMock.Setup(x => x.Acquire(It.IsAny<IEnumerable<string>>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(Mock.Of<IAsyncDisposable>());
 
         _handler = new MarkAsPaidCommandHandler(_mediatorMock.Object, _orderServiceMock.Object,
-            _paymentTransactionMock.Object, _historyMock.Object);
+            _paymentTransactionMock.Object, _historyMock.Object, _resourceLockMock.Object);
+    }
+
+    //a second delivery of the same gateway event, read before the first one marked the payment paid
+    [TestMethod]
+    public async Task Handle_StoredPaymentPaidMeanwhile_Refused()
+    {
+        //Arrange
+        var stale = new PaymentTransaction { Id = "pt1", TransactionAmount = 100, TransactionStatus = TransactionStatus.Pending };
+        var stored = new PaymentTransaction { Id = "pt1", TransactionAmount = 100, TransactionStatus = TransactionStatus.Paid };
+        _paymentTransactionMock.Setup(x => x.GetById("pt1")).ReturnsAsync(stored);
+        _mediatorMock.Setup(x => x.Send(It.Is<CanMarkPaymentTransactionAsPaidQuery>(q => q.PaymentTransaction == stale),
+            default)).ReturnsAsync(true);
+        _mediatorMock.Setup(x => x.Send(It.Is<CanMarkPaymentTransactionAsPaidQuery>(q => q.PaymentTransaction == stored),
+            It.IsAny<CancellationToken>())).ReturnsAsync(false);
+
+        //Act
+        await Assert.ThrowsExactlyAsync<GrandException>(() =>
+            _handler.Handle(new MarkAsPaidCommand { PaymentTransaction = stale }, default));
+
+        //Assert
+        _paymentTransactionMock.Verify(c => c.UpdatePaymentTransaction(It.IsAny<PaymentTransaction>()), Times.Never);
+        _mediatorMock.Verify(x => x.Send(It.IsAny<ProcessOrderPaidCommand>(), It.IsAny<CancellationToken>()),
+            Times.Never);
+        _resourceLockMock.Verify(x => x.Acquire(new[] { "PaymentTransaction:pt1" }, It.IsAny<CancellationToken>()),
+            Times.Once);
     }
 
     [TestMethod]

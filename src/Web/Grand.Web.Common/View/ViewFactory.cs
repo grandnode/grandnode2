@@ -1,5 +1,4 @@
-﻿#nullable enable
-namespace Grand.Web.Common.View;
+﻿namespace Grand.Web.Common.View;
 
 public class ViewFactory : IViewFactory
 {

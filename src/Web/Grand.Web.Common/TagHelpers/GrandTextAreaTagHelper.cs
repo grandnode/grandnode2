@@ -13,7 +13,7 @@ public class GrandTextAreaTagHelper : TextAreaTagHelper
     {
     }
 
-    [HtmlAttributeName("asp-disabled")] public string IsDisabled { set; get; }
+    [HtmlAttributeName("asp-disabled")] public string? IsDisabled { set; get; }
 
     public override void Process(TagHelperContext context, TagHelperOutput output)
     {

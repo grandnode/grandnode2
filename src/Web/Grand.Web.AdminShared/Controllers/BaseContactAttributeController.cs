@@ -116,7 +116,6 @@ public abstract class BaseContactAttributeController(
             return RedirectToAction("List");
         }
 
-        model.IsReadOnly = false;
         await contactAttributeViewModelService.PrepareConditionAttributes(model, contactAttribute);
         return View(model);
     }

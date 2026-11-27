@@ -11,7 +11,7 @@ public class VendorSettings : ISettings
     /// <summary>
     ///     Gets or sets the default value to use for Vendor page size options (for new vendors)
     /// </summary>
-    public string DefaultVendorPageSizeOptions { get; set; }
+    public string? DefaultVendorPageSizeOptions { get; set; }
 
     /// <summary>
     ///     Gets or sets the value indicating how many vendors to display in vendors block

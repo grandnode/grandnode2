@@ -61,7 +61,7 @@ public class MeasureService : IMeasureService
     /// </summary>
     /// <param name="measureDimensionId">Measure dimension identifier</param>
     /// <returns>Measure dimension</returns>
-    public virtual Task<MeasureDimension> GetMeasureDimensionById(string measureDimensionId)
+    public virtual Task<MeasureDimension?> GetMeasureDimensionById(string? measureDimensionId)
     {
         var key = string.Format(CacheKey.MEASUREDIMENSIONS_BY_ID_KEY, measureDimensionId);
         return _cacheBase.GetAsync(key, () => _measureDimensionRepository.GetByIdAsync(measureDimensionId));
@@ -72,7 +72,7 @@ public class MeasureService : IMeasureService
     /// </summary>
     /// <param name="systemKeyword">The system keyword</param>
     /// <returns>Measure dimension</returns>
-    public virtual async Task<MeasureDimension> GetMeasureDimensionBySystemKeyword(string systemKeyword)
+    public virtual async Task<MeasureDimension?> GetMeasureDimensionBySystemKeyword(string systemKeyword)
     {
         if (string.IsNullOrEmpty(systemKeyword))
             return null;
@@ -179,7 +179,7 @@ public class MeasureService : IMeasureService
 
         var result = value;
         var baseDimensionIn = await GetMeasureDimensionById(_measureSettings.BaseDimensionId);
-        if (sourceMeasureDimension.Id == baseDimensionIn.Id) return result;
+        if (sourceMeasureDimension.Id == baseDimensionIn?.Id) return result;
         result /= sourceMeasureDimension.Ratio;
         return result;
     }
@@ -197,7 +197,7 @@ public class MeasureService : IMeasureService
 
         var result = value;
         var baseDimensionIn = await GetMeasureDimensionById(_measureSettings.BaseDimensionId);
-        if (targetMeasureDimension.Id == baseDimensionIn.Id) return result;
+        if (targetMeasureDimension.Id == baseDimensionIn?.Id) return result;
         result *= targetMeasureDimension.Ratio;
         return result;
     }
@@ -211,7 +211,7 @@ public class MeasureService : IMeasureService
     /// </summary>
     /// <param name="measureWeightId">Measure weight identifier</param>
     /// <returns>Measure weight</returns>
-    public virtual Task<MeasureWeight> GetMeasureWeightById(string measureWeightId)
+    public virtual Task<MeasureWeight?> GetMeasureWeightById(string? measureWeightId)
     {
         var key = string.Format(CacheKey.MEASUREWEIGHTS_BY_ID_KEY, measureWeightId);
         return _cacheBase.GetAsync(key, () => _measureWeightRepository.GetByIdAsync(measureWeightId));
@@ -222,7 +222,7 @@ public class MeasureService : IMeasureService
     /// </summary>
     /// <param name="systemKeyword">The system keyword</param>
     /// <returns>Measure weight</returns>
-    public virtual async Task<MeasureWeight> GetMeasureWeightBySystemKeyword(string systemKeyword)
+    public virtual async Task<MeasureWeight?> GetMeasureWeightBySystemKeyword(string systemKeyword)
     {
         if (string.IsNullOrEmpty(systemKeyword))
             return null;
@@ -328,7 +328,7 @@ public class MeasureService : IMeasureService
 
         var result = value;
         var baseWeightIn = await GetMeasureWeightById(_measureSettings.BaseWeightId);
-        if (sourceMeasureWeight.Id == baseWeightIn.Id) return result;
+        if (sourceMeasureWeight.Id == baseWeightIn?.Id) return result;
         result /= sourceMeasureWeight.Ratio;
         return result;
     }
@@ -346,7 +346,7 @@ public class MeasureService : IMeasureService
 
         var result = value;
         var baseWeightIn = await GetMeasureWeightById(_measureSettings.BaseWeightId);
-        if (targetMeasureWeight.Id == baseWeightIn.Id) return result;
+        if (targetMeasureWeight.Id == baseWeightIn?.Id) return result;
         result *= targetMeasureWeight.Ratio;
         return result;
     }
@@ -360,7 +360,7 @@ public class MeasureService : IMeasureService
     /// </summary>
     /// <param name="measureUnitId">Measure unit identifier</param>
     /// <returns>Measure dimension</returns>
-    public virtual Task<MeasureUnit> GetMeasureUnitById(string measureUnitId)
+    public virtual Task<MeasureUnit?> GetMeasureUnitById(string? measureUnitId)
     {
         var key = string.Format(CacheKey.MEASUREUNITS_BY_ID_KEY, measureUnitId);
         return _cacheBase.GetAsync(key, () => _measureUnitRepository.GetByIdAsync(measureUnitId));

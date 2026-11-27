@@ -35,7 +35,7 @@ public class StockController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Apply([FromBody] StockApplyRequestDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.StockIntegration, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.StockIntegration, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
         if (model?.Lines == null || model.Lines.Count > MaxLines || model.Lines.Any(x => x == null))
             return BadRequest($"A stock write holds at most {MaxLines} lines, none of them empty.");
@@ -53,8 +53,8 @@ public class StockController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StockJournalResultDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Journal([FromQuery] string after, [FromQuery] int take = 100,
-        [FromQuery] string warehouseId = null, [FromQuery] string warehouseCode = null,
-        [FromQuery] string movementTypes = null, [FromQuery] bool excludeOwn = false)
+        [FromQuery] string? warehouseId = null, [FromQuery] string? warehouseCode = null,
+        [FromQuery] string? movementTypes = null, [FromQuery] bool excludeOwn = false)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.StockIntegration, CurrentCustomer)) return Forbid();
 

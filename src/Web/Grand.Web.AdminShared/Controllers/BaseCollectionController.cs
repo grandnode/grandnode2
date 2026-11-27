@@ -314,7 +314,7 @@ public abstract class BaseCollectionController(
     public async Task<IActionResult> ProductList(DataSourceRequest command, string collectionId)
     {
         var collection = await collectionService.GetCollectionById(collectionId);
-        if (!await scope.CanView(collection)) return ErrorForKendoGridJson("This is not your collection");
+        if (collection == null || !await scope.CanView(collection)) return ErrorForKendoGridJson("This is not your collection");
 
         var (collectionProductModels, totalCount) = await collectionViewModelService.PrepareCollectionProductModel(
             collectionId, scope.DefaultStoreId ?? string.Empty, command.Page, command.PageSize);

@@ -60,7 +60,7 @@ public class GetCustomerOrderListHandlerTests
     }
 
     private Task<CustomerOrderListModel> Handle() =>
-        _handler.Handle(new GetCustomerOrderList {
+        _handler.Handle(new GetCustomerOrderList { Language = new Grand.Domain.Localization.Language(),
             Customer = _customer, Currency = _currency, Store = new Grand.Domain.Stores.Store { Id = "s1" }
         }, CancellationToken.None);
 

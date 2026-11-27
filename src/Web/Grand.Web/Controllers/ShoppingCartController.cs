@@ -20,12 +20,15 @@ using Grand.Web.Common.Controllers;
 using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Filters;
 using Grand.Web.Common.Security.Authorization;
+using Grand.Web.Common.Startup;
 using Grand.Web.Features.Models.ShoppingCart;
 using Grand.Web.Models.ShoppingCart;
 using Grand.Mediator;
+using Microsoft.AspNetCore.Authentication;
 using Microsoft.AspNetCore.Mvc;
 using Grand.SharedKernel.Extensions;
 using Grand.Web.Common.Localization;
+using Microsoft.AspNetCore.RateLimiting;
 
 namespace Grand.Web.Controllers;
 
@@ -45,6 +48,7 @@ public class ShoppingCartController : BasePublicController
         IRequestPermissionService permissionService,
         IMediator mediator,
         IShoppingCartValidator shoppingCartValidator,
+        IRecurringPaymentService recurringPaymentService,
         ShoppingCartSettings shoppingCartSettings,
         OrderSettings orderSettings,
         OidcLoginConfig oidcLoginConfig)
@@ -59,6 +63,7 @@ public class ShoppingCartController : BasePublicController
         _permissionService = permissionService;
         _mediator = mediator;
         _shoppingCartValidator = shoppingCartValidator;
+        _recurringPaymentService = recurringPaymentService;
         _shoppingCartSettings = shoppingCartSettings;
         _orderSettings = orderSettings;
         _oidcLoginConfig = oidcLoginConfig;
@@ -110,6 +115,7 @@ public class ShoppingCartController : BasePublicController
     private readonly IRequestPermissionService _permissionService;
     private readonly IMediator _mediator;
     private readonly IShoppingCartValidator _shoppingCartValidator;
+    private readonly IRecurringPaymentService _recurringPaymentService;
     private readonly ShoppingCartSettings _shoppingCartSettings;
     private readonly OrderSettings _orderSettings;
     private readonly OidcLoginConfig _oidcLoginConfig;
@@ -189,6 +195,7 @@ public class ShoppingCartController : BasePublicController
         });
     }
 
+    [EnableRateLimiting(GrandCommonStartup.StorefrontFormRateLimitPolicy)]
     [DenySystemAccount]
     [HttpPost]
     public virtual async Task<IActionResult> UploadFileCheckoutAttribute(string attributeId, IFormFile file,
@@ -342,7 +349,7 @@ public class ShoppingCartController : BasePublicController
         });
     }
 
-    [HttpGet]
+    [HttpPost]
     [DenySystemAccount]
     public virtual async Task<IActionResult> ClearCart()
     {
@@ -458,7 +465,7 @@ public class ShoppingCartController : BasePublicController
     {
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
-        List<CustomAttribute> checkoutAttributes;
+        List<CustomAttribute>? checkoutAttributes;
         //parse and save checkout attributes
         if (model?.Attributes is { Count: > 0 })
             checkoutAttributes = (await _mediator.Send(new SaveCheckoutAttributesCommand {
@@ -471,6 +478,12 @@ public class ShoppingCartController : BasePublicController
             checkoutAttributes =
                 _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<CustomAttribute>>(
                     SystemCustomerFieldNames.CheckoutAttributes, _contextAccessor.StoreContext.CurrentStore.Id);
+
+        //a recurring payment is cancelled from My account: a guest logs in or registers first and comes back to the cart,
+        //where the cart warning stops a guest who did not
+        if (await _groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) &&
+            await _recurringPaymentService.HasRecurringProducts(cart))
+            return Challenge(new AuthenticationProperties { RedirectUri = Url.RouteUrl("ShoppingCart") });
 
         var checkoutAttributeWarnings =
             await _shoppingCartValidator.GetShoppingCartWarnings(cart, checkoutAttributes,
@@ -496,7 +509,8 @@ public class ShoppingCartController : BasePublicController
 
         if (ModelState.IsValid)
         {
-            //valid
+            //valid; the validator requires the code
+            ArgumentException.ThrowIfNullOrEmpty(model.DiscountCouponCode);
             var applyCouponCode =
                 _contextAccessor.WorkContext.CurrentCustomer.ApplyCouponCode(SystemCustomerFieldNames.DiscountCoupons,
                     model.DiscountCouponCode);
@@ -532,6 +546,8 @@ public class ShoppingCartController : BasePublicController
 
         if (ModelState.IsValid)
         {
+            //the validator requires the code
+            ArgumentException.ThrowIfNullOrEmpty(model.GiftVoucherCouponCode);
             model.GiftVoucherCouponCode = model.GiftVoucherCouponCode.Trim();
 
             var result = _contextAccessor.WorkContext.CurrentCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons,
@@ -578,7 +594,7 @@ public class ShoppingCartController : BasePublicController
     }
 
     [DenySystemAccount]
-    [HttpGet]
+    [HttpPost]
     public virtual async Task<IActionResult> RemoveDiscountCoupon(string discountId)
     {
         var discount = await _discountService.GetDiscountById(discountId);
@@ -589,7 +605,7 @@ public class ShoppingCartController : BasePublicController
             foreach (var item in coupons)
             {
                 var dd = await _discountService.GetDiscountByCouponCode(item);
-                if (dd.Id != discount.Id) continue;
+                if (dd == null || dd.Id != discount.Id) continue;
 
                 //remove coupon
                 var result =
@@ -609,7 +625,7 @@ public class ShoppingCartController : BasePublicController
     }
 
     [DenySystemAccount]
-    [HttpGet]
+    [HttpPost]
     public virtual async Task<IActionResult> RemoveGiftVoucherCode(string giftVoucherId,
         [FromServices] IGiftVoucherService giftVoucherService)
     {

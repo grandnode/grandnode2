@@ -385,6 +385,64 @@ public class CookieAuthenticationServiceTests
         _oidcSessionService.Verify(x => x.End("session-1", OidcSessionEndReason.SignOut), Times.Once);
     }
 
+    //a copy of the cookie taken before the sign-out is not accepted after it
+    [TestMethod]
+    public async Task SignOut_OnAllDevices_ReplacesThePasswordToken()
+    {
+        _customerSettings.SignOutOnAllDevices = true;
+        var customer = RegisteredCustomer();
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket());
+
+        await _cookieAuthService.SignOut();
+
+        _customerServiceMock.Verify(x => x.UpdateUserField(customer, SystemCustomerFieldNames.PasswordToken,
+            It.Is<string>(v => !string.IsNullOrEmpty(v) && v != "token"), It.IsAny<string>()), Times.Once);
+    }
+
+    //a cookie whose token was replaced already does not end the sign-ins made after it
+    [TestMethod]
+    public async Task SignOut_OldCookie_PasswordTokenKept()
+    {
+        _customerSettings.SignOutOnAllDevices = true;
+        var customer = RegisteredCustomer();
+        customer.UserFields.Single(f => f.Key == SystemCustomerFieldNames.PasswordToken).Value = "newer";
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket());
+
+        await _cookieAuthService.SignOut();
+
+        _customerServiceMock.Verify(x => x.UpdateUserField(It.IsAny<Customer>(), SystemCustomerFieldNames.PasswordToken,
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    //by default the other devices stay signed in
+    [TestMethod]
+    public async Task SignOut_ThisDeviceOnly_PasswordTokenKept()
+    {
+        RegisteredCustomer();
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(Ticket());
+
+        await _cookieAuthService.SignOut();
+
+        _customerServiceMock.Verify(x => x.UpdateUserField(It.IsAny<Customer>(), SystemCustomerFieldNames.PasswordToken,
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task SignOut_NotSignedIn_PasswordTokenKept()
+    {
+        _customerSettings.SignOutOnAllDevices = true;
+        _authServiceMock.Setup(x => x.AuthenticateAsync(It.IsAny<HttpContext>(), GrandCookieAuthenticationDefaults.AuthenticationScheme))
+            .ReturnsAsync(AuthenticateResult.NoResult());
+
+        await _cookieAuthService.SignOut();
+
+        _customerServiceMock.Verify(x => x.UpdateUserField(It.IsAny<Customer>(), SystemCustomerFieldNames.PasswordToken,
+            It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+    }
+
     [TestMethod]
     public async Task HasOidcSession_SessionCookie_True()
     {

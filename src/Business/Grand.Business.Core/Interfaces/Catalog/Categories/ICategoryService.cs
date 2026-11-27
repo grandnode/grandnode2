@@ -16,7 +16,7 @@ public interface ICategoryService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Categories</returns>
-    Task<IPagedList<Category>> GetAllCategories(string parentId, string categoryName, CatalogAccess access,
+    Task<IPagedList<Category>> GetAllCategories(string? parentId, string? categoryName, CatalogAccess access,
         int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
@@ -64,7 +64,7 @@ public interface ICategoryService
     /// <param name="category">Category</param>
     /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Category breadcrumb </returns>
-    Task<IList<Category>> GetCategoryBreadCrumb(Category category, CatalogAccess access);
+    Task<IList<Category>> GetCategoryBreadCrumb(Category? category, CatalogAccess access);
 
     /// <summary>
     ///     Get category breadcrumb
@@ -73,7 +73,7 @@ public interface ICategoryService
     /// <param name="allCategories">All categories</param>
     /// <param name="access">Whose view of the categories to return, and the store whose limitations apply</param>
     /// <returns>Category breadcrumb </returns>
-    IList<Category> GetCategoryBreadCrumb(Category category, IList<Category> allCategories, CatalogAccess access);
+    IList<Category> GetCategoryBreadCrumb(Category? category, IList<Category> allCategories, CatalogAccess access);
 
     /// <summary>
     ///     Get formatted category breadcrumb
@@ -82,7 +82,7 @@ public interface ICategoryService
     /// <param name="separator">Separator</param>
     /// <param name="languageId">Language id for localization</param>
     /// <returns>Formatted breadcrumb</returns>
-    Task<string> GetFormattedBreadCrumb(Category category, string separator = ">>", string languageId = "");
+    Task<string?> GetFormattedBreadCrumb(Category? category, string separator = ">>", string languageId = "");
 
     /// <summary>
     ///     Get formatted category breadcrumb
@@ -92,7 +92,7 @@ public interface ICategoryService
     /// <param name="separator">Separator</param>
     /// <param name="languageId">Language id for localization</param>
     /// <returns>Formatted breadcrumb</returns>
-    string GetFormattedBreadCrumb(Category category,
+    string? GetFormattedBreadCrumb(Category category,
         IList<Category> allCategories, string separator = ">>", string languageId = "");
 
     /// <summary>
@@ -106,7 +106,7 @@ public interface ICategoryService
     /// </summary>
     /// <param name="categoryId">Category identifier</param>
     /// <returns>Category</returns>
-    Task<Category> GetCategoryById(string categoryId);
+    Task<Category?> GetCategoryById(string? categoryId);
 
     /// <summary>
     ///     Inserts the new category

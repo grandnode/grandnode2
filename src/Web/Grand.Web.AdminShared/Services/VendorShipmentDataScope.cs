@@ -1,8 +1,7 @@
-#nullable enable
-
 using Grand.Domain.Orders;
 using Grand.Domain.Shipping;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 
 namespace Grand.Web.AdminShared.Services;
@@ -24,15 +23,15 @@ public class VendorShipmentDataScope(IContextAccessor contextAccessor) : IAdminD
 {
     public Task<bool> HasAccess(Shipment entity) =>
         Task.FromResult(entity is not null &&
-            !string.IsNullOrEmpty(contextAccessor.WorkContext.CurrentVendor.Id) &&
-            entity.VendorId == contextAccessor.WorkContext.CurrentVendor.Id);
+            !string.IsNullOrEmpty(contextAccessor.WorkContext.PanelVendor().Id) &&
+            entity.VendorId == contextAccessor.WorkContext.PanelVendor().Id);
 
     public IEnumerable<OrderItem> FilterOrderItems(IEnumerable<OrderItem> orderItems) =>
-        orderItems.Where(i => i.VendorId == contextAccessor.WorkContext.CurrentVendor.Id);
+        orderItems.Where(i => i.VendorId == contextAccessor.WorkContext.PanelVendor().Id);
 
     public string? DefaultStoreId => null;
     public string ResourceKeyPrefix => "Vendor";
     public bool ShowStoreSelector => false;
-    public string? DefaultVendorId => contextAccessor.WorkContext.CurrentVendor.Id;
+    public string? DefaultVendorId => contextAccessor.WorkContext.PanelVendor().Id;
     public bool CanFeatureOnHomepage => false;
 }

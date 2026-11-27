@@ -151,8 +151,12 @@ public abstract class BaseWarehouseLocationController(
 
     private static WarehouseLocation Apply(WarehouseLocation location, WarehouseLocationModel model)
     {
+        //the validator requires both
+        ArgumentException.ThrowIfNullOrEmpty(model.WarehouseId);
+        ArgumentException.ThrowIfNullOrWhiteSpace(model.Code);
+
         location.WarehouseId = model.WarehouseId;
-        location.Code = model.Code?.Trim();
+        location.Code = model.Code.Trim();
         location.Name = model.Name?.Trim();
         location.DisplayOrder = model.DisplayOrder;
         return location;
@@ -166,7 +170,7 @@ public abstract class BaseWarehouseLocationController(
         return await warehouseService.GetAllWarehouses(await warehouseScope.GetDefaultStoreIdAsync() ?? "");
     }
 
-    private async Task<bool> CanUse(string warehouseId)
+    private async Task<bool> CanUse(string? warehouseId)
     {
         var warehouse = string.IsNullOrEmpty(warehouseId) ? null : await warehouseService.GetWarehouseById(warehouseId);
         return warehouse != null && await warehouseScope.HasAccess(warehouse);

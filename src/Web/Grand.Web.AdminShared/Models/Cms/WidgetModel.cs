@@ -7,11 +7,11 @@ public class WidgetModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.FriendlyName")]
 
-    public string FriendlyName { get; set; }
+    public string? FriendlyName { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.SystemName")]
 
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -20,5 +20,5 @@ public class WidgetModel : BaseModel
     public bool IsActive { get; set; }
 
     [GrandResourceDisplayName("Admin.Plugins.Widgets.Fields.Configure")]
-    public string ConfigurationUrl { get; set; }
+    public string? ConfigurationUrl { get; set; }
 }

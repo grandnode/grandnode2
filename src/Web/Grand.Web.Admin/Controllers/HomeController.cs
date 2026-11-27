@@ -81,7 +81,8 @@ public class HomeController : BaseHomeControllerWithSetLanguage
             (await _mediator.Send(new GetCustomerQuery {
                 StoreId = storeId,
                 CustomerGroupIds = [
-                    (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)).Id
+                    (await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Registered)
+                     ?? throw new InvalidOperationException("The Registered customer group is missing")).Id
                 ],
                 CreatedFromUtc = DateTime.UtcNow.Date,
                 PageSize = 1
@@ -143,7 +144,7 @@ public class HomeController : BaseHomeControllerWithSetLanguage
 
         //home page
         if (!Url.IsLocalUrl(returnUrl))
-            returnUrl = Url.Action("Index", "Home", new { area = Constants.AreaAdmin });
+            return RedirectToAction("Index", "Home", new { area = Constants.AreaAdmin });
 
         return Redirect(returnUrl);
     }

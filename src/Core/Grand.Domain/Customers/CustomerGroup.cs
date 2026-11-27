@@ -8,7 +8,7 @@ public class CustomerGroup : BaseEntity
     /// <summary>
     ///     Gets or sets the customer group name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether the customer group is marked as free shiping
@@ -38,7 +38,7 @@ public class CustomerGroup : BaseEntity
     /// <summary>
     ///     Gets or sets the customer group system name
     /// </summary>
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the customers must change passwords after a specified time

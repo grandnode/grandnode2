@@ -700,7 +700,7 @@ public partial class InstallationService
     // Builds a Color attribute mapping whose values carry a picture (one of the product's own
     // pictures), for products where the manifest calls out per-color-value pictures.
     private ProductAttributeMapping ColorAttributeWithPictures(int displayOrder, bool combination,
-        params (string Name, string Hex, string PictureId)[] values)
+        params (string Name, string Hex, string? PictureId)[] values)
     {
         var mapping = new ProductAttributeMapping {
             ProductAttributeId = ProductAttributeId("Color"),

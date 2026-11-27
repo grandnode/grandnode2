@@ -53,12 +53,12 @@ public abstract class BaseShipmentController(
     /// not authorized" pattern found in all 3 original controllers. Not a behavior change — every
     /// call site below still individually returns RedirectToAction("List") exactly as the
     /// originals did.</summary>
-    protected async Task<(Shipment shipment, IActionResult denied)> LoadAuthorizedShipment(string id)
+    protected async Task<Access<Shipment>> LoadAuthorizedShipment(string id)
     {
         var shipment = await shipmentService.GetShipmentById(id);
-        if (shipment == null) return (null, RedirectToAction("List"));
-        if (!await scope.HasAccess(shipment)) return (null, RedirectToAction("List"));
-        return (shipment, null);
+        if (shipment == null) return Access<Shipment>.Deny(RedirectToAction("List"));
+        if (!await scope.HasAccess(shipment)) return Access<Shipment>.Deny(RedirectToAction("List"));
+        return Access<Shipment>.Allow(shipment);
     }
 
     #region Shipments
@@ -156,7 +156,7 @@ public abstract class BaseShipmentController(
     ///     An order awaiting approval may still be rejected or withdrawn, and a shipment would block the cancel
     ///     that both run; nothing ships before the approver decides
     /// </summary>
-    private IActionResult RefuseOrderAwaitingApproval(Order order)
+    private IActionResult? RefuseOrderAwaitingApproval(Order order)
     {
         if (order.OrderStatusId != (int)OrderStatusSystem.AwaitingApproval)
             return null;
@@ -242,8 +242,7 @@ public abstract class BaseShipmentController(
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     public async Task<IActionResult> ShipmentDetails(string id)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(id)).TryGet(out var shipment, out var denied)) return denied;
 
         var order = await orderService.GetOrderById(shipment.OrderId);
         if (order == null)
@@ -258,8 +257,7 @@ public abstract class BaseShipmentController(
     [HttpPost]
     public async Task<IActionResult> DeleteShipment(string id)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(id)).TryGet(out var shipment, out var denied)) return denied;
 
         var order = await orderService.GetOrderById(shipment.OrderId);
         if (order == null)
@@ -284,8 +282,7 @@ public abstract class BaseShipmentController(
     [HttpPost]
     public async Task<IActionResult> SetTrackingNumber(ShipmentTrackingModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(model.Id)).TryGet(out var shipment, out var denied)) return denied;
 
         shipment.TrackingNumber = model.TrackingNumber;
         await shipmentService.UpdateShipment(shipment);
@@ -297,8 +294,7 @@ public abstract class BaseShipmentController(
     [HttpPost]
     public async Task<IActionResult> SetShipmentAdminComment(ShipmentAdminCommentModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(model.Id)).TryGet(out var shipment, out var denied)) return denied;
 
         shipment.AdminComment = model.AdminComment;
         await shipmentService.UpdateShipment(shipment);
@@ -314,8 +310,7 @@ public abstract class BaseShipmentController(
     [HttpPost]
     public async Task<IActionResult> SaveShipmentInfo(ShipmentInfoModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(model.Id)).TryGet(out var shipment, out var denied)) return denied;
 
         try
         {
@@ -351,8 +346,7 @@ public abstract class BaseShipmentController(
     /// before a shipment is shipped - is the date to stamp. An empty one means now.</summary>
     public async Task<IActionResult> SetAsShipped(ShipmentInfoModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(model.Id)).TryGet(out var shipment, out var denied)) return denied;
 
         try
         {
@@ -373,8 +367,7 @@ public abstract class BaseShipmentController(
     [HttpPost]
     public async Task<IActionResult> EditShippedDate(ShipmentShippedDateModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(model.Id)).TryGet(out var shipment, out var denied)) return denied;
 
         try
         {
@@ -397,8 +390,7 @@ public abstract class BaseShipmentController(
     /// and an empty one means now.</summary>
     public async Task<IActionResult> SetAsDelivered(ShipmentInfoModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(model.Id)).TryGet(out var shipment, out var denied)) return denied;
 
         try
         {
@@ -419,8 +411,7 @@ public abstract class BaseShipmentController(
     [HttpPost]
     public async Task<IActionResult> EditDeliveryDate(ShipmentDeliveryDateModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(model.Id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(model.Id)).TryGet(out var shipment, out var denied)) return denied;
 
         try
         {
@@ -443,8 +434,7 @@ public abstract class BaseShipmentController(
     [HttpPost]
     public async Task<IActionResult> EditUserFields(string id, ShipmentModel model)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(id);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(id)).TryGet(out var shipment, out var denied)) return denied;
 
         shipment.UserFields = model.UserFields;
         await shipmentService.UpdateShipment(shipment);
@@ -463,8 +453,7 @@ public abstract class BaseShipmentController(
     [AuditExport("Shipment")]
     public async Task<IActionResult> PdfPackagingSlip(string shipmentId)
     {
-        var (shipment, denied) = await LoadAuthorizedShipment(shipmentId);
-        if (denied != null) return denied;
+        if (!(await LoadAuthorizedShipment(shipmentId)).TryGet(out var shipment, out var denied)) return denied;
 
         var order = await orderService.GetOrderById(shipment.OrderId);
         if (order == null)
@@ -634,7 +623,11 @@ public abstract class BaseShipmentController(
         if (shipment == null || !await scope.HasAccess(shipment))
             return Json(new { Result = false });
 
-        await shipmentViewModelService.InsertShipmentNote(shipment, downloadId, displayToCustomer, message);
+        if (!await shipmentViewModelService.InsertShipmentNote(shipment, downloadId, displayToCustomer, message))
+            return Json(new {
+                Result = false,
+                Message = translationService.GetResource("Admin.Orders.Shipments.ShipmentNotes.DownloadNotOfShipment")
+            });
 
         return Json(new { Result = true });
     }

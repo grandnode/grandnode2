@@ -158,12 +158,12 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRelatedProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRelatedProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddRelatedProductModel();
         var result = await _controller.RelatedProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("store-1", model.SearchStoreId);
@@ -174,12 +174,12 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRelatedProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRelatedProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddRelatedProductModel { SearchStoreId = "explicit" };
         var result = await _controller.RelatedProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("explicit", model.SearchStoreId);
@@ -361,12 +361,12 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddSimilarProductModel();
         var result = await _controller.SimilarProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("store-1", model.SearchStoreId);
@@ -377,12 +377,12 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddSimilarProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddSimilarProductModel { SearchStoreId = "explicit" };
         var result = await _controller.SimilarProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("explicit", model.SearchStoreId);
@@ -558,12 +558,12 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddCrossSellProductModel();
         var result = await _controller.CrossSellProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("store-1", model.SearchStoreId);
@@ -574,12 +574,12 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddCrossSellProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddCrossSellProductModel { SearchStoreId = "explicit" };
         var result = await _controller.CrossSellProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("explicit", model.SearchStoreId);
@@ -756,12 +756,12 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns("store-1");
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddRecommendedProductModel();
         var result = await _controller.RecommendedProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("store-1", model.SearchStoreId);
@@ -772,12 +772,12 @@ public class BaseProductRelatedControllerTests : ProductControllerTestsBase<Base
     {
         _scopeMock.Setup(s => s.DefaultStoreId).Returns((string)null);
         _productAddPopupViewModelServiceMock
-            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 0, 10))
+            .Setup(s => s.PrepareProductModel(It.IsAny<ProductModel.AddRecommendedProductModel>(), 1, 10))
             .ReturnsAsync((new List<ProductModel>(), 0));
 
         var model = new ProductModel.AddRecommendedProductModel { SearchStoreId = "explicit" };
         var result = await _controller.RecommendedProductAddPopupList(
-            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 0, PageSize = 10 }, model);
+            new Grand.Web.Common.DataSource.DataSourceRequest { Page = 1, PageSize = 10 }, model);
 
         Assert.IsInstanceOfType<JsonResult>(result);
         Assert.AreEqual("explicit", model.SearchStoreId);

@@ -43,7 +43,7 @@ public class CustomerSettings : ISettings
     /// <summary>
     ///     Gets or sets a regular expression for password validation
     /// </summary>
-    public string PasswordRegularExpression { get; set; }
+    public string? PasswordRegularExpression { get; set; }
 
     /// <summary>
     ///     Gets or sets a number of passwords that should not be the same as the previous one; 0 if the customer can use the
@@ -95,6 +95,11 @@ public class CustomerSettings : ISettings
     ///     Gets or sets a value indicating whether to hide 'Subaccounts' tab on 'My account' page
     /// </summary>
     public bool HideSubAccountsTab { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether to hide 'Recurring payments' tab on 'My account' page
+    /// </summary>
+    public bool HideRecurringPaymentsTab { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to validate user when downloading products
@@ -164,6 +169,11 @@ public class CustomerSettings : ISettings
     /// <summary>
     /// </summary>
     public int FailedPasswordLockoutMinutes { get; set; }
+
+    /// <summary>
+    ///     Gets or sets a value indicating whether signing out ends every sign-in of the account, on other devices too
+    /// </summary>
+    public bool SignOutOnAllDevices { get; set; }
 
     /// <summary>
     ///     Gets or sets a number of days for password expiration

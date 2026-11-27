@@ -15,13 +15,13 @@ public class OutOfStockSubscription : BaseEntity
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string StoreId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the product identifier
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the attribute
@@ -31,17 +31,17 @@ public class OutOfStockSubscription : BaseEntity
     /// <summary>
     ///     Gets or sets the attribute info (format)
     /// </summary>
-    public string AttributeInfo { get; set; }
+    public string? AttributeInfo { get; set; }
 
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
     [AuditReference(typeof(Warehouse))]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 }

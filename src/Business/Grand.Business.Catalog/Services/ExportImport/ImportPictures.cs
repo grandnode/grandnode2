@@ -14,16 +14,16 @@ internal static class ImportPictures
     ///     any file on the server
     /// </summary>
     /// <returns>The image, or null when there is no URL or it could not be downloaded</returns>
-    public static Task<DownloadedImage> Download(string url, string[] allowedPrivateHosts,
+    public static Task<DownloadedImage?> Download(string? url, string[]? allowedPrivateHosts,
         CancellationToken cancellationToken)
     {
         return string.IsNullOrEmpty(url)
-            ? Task.FromResult<DownloadedImage>(null)
+            ? Task.FromResult<DownloadedImage?>(null)
             : DownloadUrl.DownloadImage(url, allowedPrivateHosts, cancellationToken);
     }
 
     /// <summary>Whether the stored picture has the image's content, as sent or after validation (like in database)</summary>
-    public static async Task<bool> IsStored(IPictureService pictureService, string pictureId, DownloadedImage image)
+    public static async Task<bool> IsStored(IPictureService pictureService, string? pictureId, DownloadedImage image)
     {
         if (string.IsNullOrEmpty(pictureId))
             return false;
@@ -39,8 +39,8 @@ internal static class ImportPictures
 
     /// <summary>Stores the image as the entity's picture</summary>
     /// <returns>The new picture, or null when there is no image or the current picture already has its content</returns>
-    public static async Task<Picture> Save(IPictureService pictureService, DownloadedImage image, string name,
-        string currentPictureId)
+    public static async Task<Picture?> Save(IPictureService pictureService, DownloadedImage? image, string? name,
+        string? currentPictureId)
     {
         if (image == null || await IsStored(pictureService, currentPictureId, image))
             return null;

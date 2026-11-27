@@ -209,7 +209,7 @@ public class ContactAttributeParser : IContactAttributeParser
                                 if (allowHyperlinks)
                                 {
                                     var textPrompt = attribute.GetTranslation(a => a.TextPrompt, language.Id);
-                                    if (host != null)
+                                    if (host?.Url != null)
                                     {
                                         var downloadLink =
                                             $"{host.Url.TrimEnd('/')}/download/getfileupload/?downloadId={downloadGuid}";

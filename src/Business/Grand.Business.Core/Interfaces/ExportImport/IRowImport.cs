@@ -16,7 +16,7 @@ public sealed record ImportRowResult(int Row, ImportRowStatus Status, string Id,
     public const string NotProcessedError = "Not processed: the batch time limit was reached; send these rows again.";
 
     /// <summary>A row the import did not reach because its cancellation token fired; nothing was written for it</summary>
-    public static ImportRowResult NotProcessed(int row, string id, string key)
+    public static ImportRowResult NotProcessed(int row, string? id, string key)
     {
         return new ImportRowResult(row, ImportRowStatus.Rejected, id ?? "", key, [NotProcessedError], []);
     }
@@ -25,7 +25,7 @@ public sealed record ImportRowResult(int Row, ImportRowStatus Status, string Id,
         "The row failed while it was being saved and may be partly written; the error is in the log. Send the row again.";
 
     /// <summary>A row that threw; the batch went on with the next row</summary>
-    public static ImportRowResult Failed(int row, string id, string key)
+    public static ImportRowResult Failed(int row, string? id, string key)
     {
         return new ImportRowResult(row, ImportRowStatus.Rejected, id ?? "", key, [FailedError], []);
     }

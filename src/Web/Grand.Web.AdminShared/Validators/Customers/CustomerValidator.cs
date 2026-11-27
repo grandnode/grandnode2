@@ -204,7 +204,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
 
         //sub-accounts are one level deep: an owner is never a sub-account itself and a customer with
         //sub-accounts never becomes one, so the owner's access to their orders cannot chain further
-        async Task ValidateOwner(CustomerModel x, Customer customer, ValidationContext<CustomerModel> context)
+        async Task ValidateOwner(CustomerModel x, Customer? customer, ValidationContext<CustomerModel> context)
         {
             if (string.IsNullOrWhiteSpace(x.Owner))
                 return;
@@ -316,6 +316,13 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
 
                     var customer = await customerService.GetCustomerById(x.Id);
                     await ValidateOwner(x, customer, context);
+
+                    //only administrators manage an administrator: taking the role away would let anyone else
+                    //change the account, its password included
+                    if (customer != null && newCustomerGroups.All(g => g.SystemName != SystemCustomerGroupNames.Administrators) &&
+                        await groupService.IsAdmin(customer) &&
+                        !await groupService.IsAdmin(contextAccessor.WorkContext.CurrentCustomer))
+                        context.AddFailure("Only administrators can remove role 'Administrators'");
 
                     if (await groupService.IsSalesManager(contextAccessor.WorkContext.CurrentCustomer) &&
                         customer?.Id == contextAccessor.WorkContext.CurrentCustomer.Id)

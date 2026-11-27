@@ -9,7 +9,7 @@ public class AdminThemeContext : ThemeContextBase
 {
     private readonly IHttpContextAccessor _contextAccessor;
     private readonly StoreInformationSettings _storeInformationSettings;
-    private string _themeName;
+    private string? _themeName;
 
     public AdminThemeContext(IHttpContextAccessor contextAccessor, ICookieOptionsFactory cookieOptionsFactory,StoreInformationSettings storeInformationSettings) : 
         base(contextAccessor, cookieOptionsFactory)
@@ -20,7 +20,7 @@ public class AdminThemeContext : ThemeContextBase
 
     public override string AreaName => Constants.AreaAdmin;
 
-    public override string GetCurrentTheme()
+    public override string? GetCurrentTheme()
     {
         if (!string.IsNullOrEmpty(_themeName))
             return _themeName;

@@ -28,9 +28,9 @@ public class GetAuctionTokensCommandHandler : IRequestHandler<GetAuctionTokensCo
         var liquidAuctions = new LiquidAuctions(request.Product, request.Bid);
         var defaultCurrency = await _currencyService.GetPrimaryStoreCurrency();
         liquidAuctions.Price = _priceFormatter.FormatPrice(request.Bid.Amount, defaultCurrency);
-        liquidAuctions.EndTime = _dateTimeService
-            .ConvertToUserTime(request.Product.AvailableEndDateTimeUtc.Value, DateTimeKind.Utc)
-            .ToString(CultureInfo.InvariantCulture);
+        liquidAuctions.EndTime = request.Product.AvailableEndDateTimeUtc is { } endTime
+            ? _dateTimeService.ConvertToUserTime(endTime, DateTimeKind.Utc).ToString(CultureInfo.InvariantCulture)
+            : "";
         return liquidAuctions;
     }
 }

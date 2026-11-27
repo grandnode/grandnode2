@@ -63,7 +63,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnId">Merchandise return identifier</param>
     /// <returns>Merchandise return</returns>
-    public virtual Task<MerchandiseReturn> GetMerchandiseReturnById(string merchandiseReturnId)
+    public virtual Task<MerchandiseReturn?> GetMerchandiseReturnById(string? merchandiseReturnId)
     {
         return _merchandiseReturnRepository.GetByIdAsync(merchandiseReturnId);
     }
@@ -73,7 +73,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="id">Merchandise return identifier</param>
     /// <returns>Merchandise return</returns>
-    public virtual async Task<MerchandiseReturn> GetMerchandiseReturnById(int id)
+    public virtual async Task<MerchandiseReturn?> GetMerchandiseReturnById(int id)
     {
         return await _merchandiseReturnRepository.FirstOrDefaultAsync(
             _merchandiseReturnRepository.Table.Where(x => x.ReturnNumber == id));
@@ -97,7 +97,8 @@ public class MerchandiseReturnService : IMerchandiseReturnService
         string customerId = "",
         string orderItemId = "", string vendorId = "", string ownerId = "", MerchandiseReturnStatus? rs = null,
         int pageIndex = 0, int pageSize = int.MaxValue, DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
-        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false)
+        string orderId = "", string returnShippingProvider = "", string reasonId = "", bool openOnly = false,
+        string salesEmployeeId = "")
     {
         var model = new GetMerchandiseReturnQuery {
             CreatedFromUtc = createdFromUtc,
@@ -113,7 +114,8 @@ public class MerchandiseReturnService : IMerchandiseReturnService
             OrderId = orderId,
             ReturnShippingProvider = returnShippingProvider,
             ReasonId = reasonId,
-            OpenOnly = openOnly
+            OpenOnly = openOnly,
+            SalesEmployeeId = salesEmployeeId
         };
 
         return await _mediator.Send(model);
@@ -124,7 +126,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="storeId">Store identifier; empty to load all entries</param>
     /// <returns>Merchandise return actions</returns>
-    public virtual async Task<IList<MerchandiseReturnAction>> GetAllMerchandiseReturnActions(string storeId = "")
+    public virtual async Task<IList<MerchandiseReturnAction>> GetAllMerchandiseReturnActions(string? storeId = "")
     {
         var key = string.Format(CacheKey.MERCHANDISE_RETURN_ACTIONS_ALL_KEY, storeId);
         return await _cacheBase.GetAsync(key, async () =>
@@ -144,7 +146,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnActionId">Merchandise return action identifier</param>
     /// <returns>Merchandise return action</returns>
-    public virtual Task<MerchandiseReturnAction> GetMerchandiseReturnActionById(string merchandiseReturnActionId)
+    public virtual Task<MerchandiseReturnAction?> GetMerchandiseReturnActionById(string? merchandiseReturnActionId)
     {
         return _merchandiseReturnActionRepository.GetByIdAsync(merchandiseReturnActionId);
     }
@@ -275,7 +277,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="storeId">Store identifier; empty to load all entries</param>
     /// <returns>Merchandise return reasons</returns>
-    public virtual async Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons(string storeId = "")
+    public virtual async Task<IList<MerchandiseReturnReason>> GetAllMerchandiseReturnReasons(string? storeId = "")
     {
         var key = string.Format(CacheKey.MERCHANDISE_RETURN_REASONS_ALL_KEY, storeId);
         return await _cacheBase.GetAsync(key, async () =>
@@ -295,7 +297,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnReasonId">Merchandise return reasons identifier</param>
     /// <returns>Merchandise return reasons</returns>
-    public virtual Task<MerchandiseReturnReason> GetMerchandiseReturnReasonById(string merchandiseReturnReasonId)
+    public virtual Task<MerchandiseReturnReason?> GetMerchandiseReturnReasonById(string? merchandiseReturnReasonId)
     {
         return _merchandiseReturnReasonRepository.GetByIdAsync(merchandiseReturnReasonId);
     }
@@ -378,7 +380,7 @@ public class MerchandiseReturnService : IMerchandiseReturnService
     /// </summary>
     /// <param name="merchandiseReturnNoteId">The merchandise return note identifier</param>
     /// <returns>MerchandiseReturnNote</returns>
-    public virtual async Task<MerchandiseReturnNote> GetMerchandiseReturnNote(string merchandiseReturnNoteId)
+    public virtual async Task<MerchandiseReturnNote?> GetMerchandiseReturnNote(string merchandiseReturnNoteId)
     {
         return await _merchandiseReturnNoteRepository.FirstOrDefaultAsync(
             _merchandiseReturnNoteRepository.Table.Where(x => x.Id == merchandiseReturnNoteId));

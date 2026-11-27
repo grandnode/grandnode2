@@ -12,39 +12,39 @@ public class ExternalAuthentication : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the external email
     /// </summary>
     [AuditName]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     ///     Gets or sets the external identifier
     /// </summary>
-    public string ExternalIdentifier { get; set; }
+    public string? ExternalIdentifier { get; set; }
 
     /// <summary>
     ///     Gets or sets the external display identifier
     /// </summary>
-    public string ExternalDisplayIdentifier { get; set; }
+    public string? ExternalDisplayIdentifier { get; set; }
 
     /// <summary>
     ///     Gets or sets the OAuthAccessToken
     /// </summary>
-    public string OAuthAccessToken { get; set; }
+    public string? OAuthAccessToken { get; set; }
 
     /// <summary>
     ///     Gets or sets the provider
     /// </summary>
-    public string ProviderSystemName { get; set; }
+    public string? ProviderSystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the store of the linked customer when customers are registered per store; empty otherwise
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the link was made by the e-mail address alone, without the account's password

@@ -37,7 +37,9 @@
 
 @if (Model.UserCanCancelUnpaidOrder)
 {
-    <a href="@Url.RouteUrl("CancelOrder", new { orderId = Model.Id })" class="btn btn-danger btn-sm cancel-unpaid-order-button float-end" onclick="return confirm('@Loc["Admin.Common.AreYouSure"]');">@Loc["Order.CancelOrder"]</a>
+    <form asp-route="CancelOrder" asp-route-orderId="@Model.Id" method="post" class="float-end" onsubmit="return confirm('@Loc["Admin.Common.AreYouSure"]');">
+        <button type="submit" class="btn btn-danger btn-sm cancel-unpaid-order-button">@Loc["Order.CancelOrder"]</button>
+    </form>
 }
 @await Component.InvokeAsync("Widget", new { widgetZone = "orderdetails_page_top", additionalData = Model.Id })
 
@@ -91,6 +93,30 @@
                         <li class="order-status d-flex">
                             <span class="mx-1">@Loc["Order.OrderStatus"]:</span><span>@Model.OrderStatus</span>
                         </li>
+                        @if (Model.RecurringCycleNumber > 1)
+                        {
+                            <li class="order-recurring-cycle d-flex">
+                                <span class="mx-1">@string.Format(Loc["Order.RecurringCycle"].Value, Model.RecurringCycleNumber)</span>
+                                @if (Model.InitialOrderNumber > 0)
+                                {
+                                    <span class="me-1">@Loc["Order.RecurringCycle.InitialOrder"]</span>
+                                    @if (!string.IsNullOrEmpty(Model.InitialOrderId))
+                                    {
+                                        <a class="order-recurring-initial-order" href="@Url.RouteUrl("OrderDetails", new { orderId = Model.InitialOrderId })">@Model.InitialOrderNumber</a>
+                                    }
+                                    else
+                                    {
+                                        <span>@Model.InitialOrderNumber</span>
+                                    }
+                                }
+                            </li>
+                        }
+                        @if (Model.ShowRecurringPaymentsLink && !Model.GuestLink)
+                        {
+                            <li class="order-recurring-payment d-flex">
+                                <a class="mx-1" href="@Url.RouteUrl("CustomerRecurringPayments")">@Loc["Order.RecurringPayment.Manage"]</a>
+                            </li>
+                        }
                         @if (Model.OrderApprovalReasons.Any())
                         {
                             <li class="order-approval-reasons d-flex">

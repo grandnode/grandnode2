@@ -44,6 +44,7 @@ public class GetSiteStructuredDataHandler : IRequestHandler<GetSiteStructuredDat
                     _storeInformationSettings.LinkedInLink,
                     _storeInformationSettings.PinterestLink
                 }
+                .OfType<string>()
                 .Where(x => !string.IsNullOrWhiteSpace(x))
                 .ToList()
         };

@@ -9,7 +9,7 @@ public class PaymentTransaction : BaseEntity
     /// <summary>
     ///     Gets or sets payment method system name
     /// </summary>
-    public string PaymentMethodSystemName { get; set; }
+    public string? PaymentMethodSystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets transaction status
@@ -20,7 +20,7 @@ public class PaymentTransaction : BaseEntity
     ///     Gets or sets store ident
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets order guid
@@ -31,23 +31,23 @@ public class PaymentTransaction : BaseEntity
     ///     Gets or sets order code
     /// </summary>
     [AuditName]
-    public string OrderCode { get; set; }
+    public string? OrderCode { get; set; }
 
     /// <summary>
     ///     Gets or sets customer ident
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets customer email
     /// </summary>
-    public string CustomerEmail { get; set; }
+    public string? CustomerEmail { get; set; }
 
     /// <summary>
     ///     Gets or sets currency code
     /// </summary>
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     public double CurrencyRate { get; set; }
 
@@ -66,42 +66,42 @@ public class PaymentTransaction : BaseEntity
     /// <summary>
     ///     Gets or sets id transaction
     /// </summary>
-    public string IPAddress { get; set; }
+    public string? IPAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets authorization transaction id
     /// </summary>
-    public string AuthorizationTransactionId { get; set; }
+    public string? AuthorizationTransactionId { get; set; }
 
     /// <summary>
     ///     Gets or sets authorization transaction code
     /// </summary>
-    public string AuthorizationTransactionCode { get; set; }
+    public string? AuthorizationTransactionCode { get; set; }
 
     /// <summary>
     ///     Gets or sets authorization transaction result
     /// </summary>
-    public string AuthorizationTransactionResult { get; set; }
+    public string? AuthorizationTransactionResult { get; set; }
 
     /// <summary>
     ///     Gets or sets capture transaction id
     /// </summary>
-    public string CaptureTransactionId { get; set; }
+    public string? CaptureTransactionId { get; set; }
 
     /// <summary>
     ///     Gets or sets capture transaction result
     /// </summary>
-    public string CaptureTransactionResult { get; set; }
+    public string? CaptureTransactionResult { get; set; }
 
     /// <summary>
     ///     Gets or sets description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     Gets or sets additional info
     /// </summary>
-    public string AdditionalInfo { get; set; }
+    public string? AdditionalInfo { get; set; }
 
     /// <summary>
     ///     Gets or sets custom values

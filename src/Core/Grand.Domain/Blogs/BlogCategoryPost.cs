@@ -6,5 +6,5 @@ public class BlogCategoryPost : SubBaseEntity
 {
     [AuditReference(typeof(BlogPost))]
     [AuditName]
-    public string BlogPostId { get; set; }
+    public string? BlogPostId { get; set; }
 }

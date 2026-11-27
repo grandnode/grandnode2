@@ -54,12 +54,11 @@ public class SubAccountEditValidator : BaseGrandValidator<SubAccountEditModel>
                 return;
             }
 
-            switch (customer)
+            if (!await groupService.IsRegistered(customer))
             {
-                case not null when !await groupService.IsRegistered(customer):
-                    context.AddFailure(
-                        translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
-                    return;
+                context.AddFailure(
+                    translationService.GetResource("Account.Login.WrongCredentials.NotRegistered"));
+                return;
             }
 
             //an empty email is already reported by the NotEmpty rule

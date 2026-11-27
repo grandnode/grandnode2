@@ -18,56 +18,56 @@ public static class ScimSchemas
 
 public class ScimMeta
 {
-    public string ResourceType { get; set; }
+    public string? ResourceType { get; set; }
     public DateTime? Created { get; set; }
     public DateTime? LastModified { get; set; }
-    public string Location { get; set; }
+    public string? Location { get; set; }
 }
 
 public class ScimName
 {
-    public string GivenName { get; set; }
-    public string FamilyName { get; set; }
-    public string Formatted { get; set; }
+    public string? GivenName { get; set; }
+    public string? FamilyName { get; set; }
+    public string? Formatted { get; set; }
 }
 
 /// <summary>A multi-valued attribute item: an e-mail, a group of a user, a member of a group</summary>
 public class ScimMultiValue
 {
-    public string Value { get; set; }
-    public string Type { get; set; }
+    public string? Value { get; set; }
+    public string? Type { get; set; }
     public bool? Primary { get; set; }
-    public string Display { get; set; }
+    public string? Display { get; set; }
 
     [JsonPropertyName("$ref")]
-    public string Ref { get; set; }
+    public string? Ref { get; set; }
 }
 
 public class ScimUserResource
 {
-    public List<string> Schemas { get; set; }
-    public string Id { get; set; }
-    public string ExternalId { get; set; }
-    public string UserName { get; set; }
-    public ScimName Name { get; set; }
-    public string DisplayName { get; set; }
-    public List<ScimMultiValue> Emails { get; set; }
+    public List<string>? Schemas { get; set; }
+    public string? Id { get; set; }
+    public string? ExternalId { get; set; }
+    public string? UserName { get; set; }
+    public ScimName? Name { get; set; }
+    public string? DisplayName { get; set; }
+    public List<ScimMultiValue>? Emails { get; set; }
 
     [JsonConverter(typeof(ScimBooleanConverter))]
     public bool? Active { get; set; }
 
-    public List<ScimMultiValue> Groups { get; set; }
-    public ScimMeta Meta { get; set; }
+    public List<ScimMultiValue>? Groups { get; set; }
+    public ScimMeta? Meta { get; set; }
 }
 
 public class ScimGroupResource
 {
-    public List<string> Schemas { get; set; }
-    public string Id { get; set; }
-    public string ExternalId { get; set; }
-    public string DisplayName { get; set; }
-    public List<ScimMultiValue> Members { get; set; }
-    public ScimMeta Meta { get; set; }
+    public List<string>? Schemas { get; set; }
+    public string? Id { get; set; }
+    public string? ExternalId { get; set; }
+    public string? DisplayName { get; set; }
+    public List<ScimMultiValue>? Members { get; set; }
+    public ScimMeta? Meta { get; set; }
 }
 
 public class ScimListResponse<T>
@@ -86,21 +86,21 @@ public class ScimError
     public List<string> Schemas { get; set; } = [ScimSchemas.Error];
 
     /// <summary>The HTTP status as a string (RFC 7644, 3.12)</summary>
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
-    public string ScimType { get; set; }
-    public string Detail { get; set; }
+    public string? ScimType { get; set; }
+    public string? Detail { get; set; }
 }
 
 public class ScimPatchRequest
 {
-    public List<string> Schemas { get; set; }
+    public List<string>? Schemas { get; set; }
     public List<ScimPatchOperation> Operations { get; set; } = [];
 }
 
 public class ScimPatchOperation
 {
-    public string Op { get; set; }
-    public string Path { get; set; }
+    public string? Op { get; set; }
+    public string? Path { get; set; }
     public JsonElement? Value { get; set; }
 }

@@ -19,7 +19,7 @@ public class ProductCollectionViewModelService(
         foreach (var x in product.ProductCollections.OrderBy(x => x.DisplayOrder))
             items.Add(new ProductModel.ProductCollectionModel {
                 Id = x.Id,
-                Collection = (await collectionService.GetCollectionById(x.CollectionId)).Name,
+                Collection = (await collectionService.GetCollectionById(x.CollectionId))?.Name,
                 ProductId = product.Id,
                 CollectionId = x.CollectionId,
                 IsFeaturedProduct = x.IsFeaturedProduct,
@@ -30,6 +30,9 @@ public class ProductCollectionViewModelService(
 
     public virtual async Task InsertProductCollection(ProductModel.ProductCollectionModel model)
     {
+        if (string.IsNullOrEmpty(model.CollectionId))
+            throw new ArgumentException("No collection is selected");
+
         var collectionId = model.CollectionId;
         var product = await productService.GetProductById(model.ProductId, true);
         if (product != null && product.ProductCollections.All(x => x.CollectionId != collectionId))
@@ -39,13 +42,17 @@ public class ProductCollectionViewModelService(
                 DisplayOrder = model.DisplayOrder,
                 IsFeaturedProduct = model.IsFeaturedProduct
             };
-            await productCollectionService.InsertProductCollection(productCollection, model.ProductId);
+            await productCollectionService.InsertProductCollection(productCollection, product.Id);
         }
     }
 
     public virtual async Task UpdateProductCollection(ProductModel.ProductCollectionModel model)
     {
-        var product = await productService.GetProductById(model.ProductId, true);
+        if (string.IsNullOrEmpty(model.CollectionId))
+            throw new ArgumentException("No collection is selected");
+
+        var product = await productService.GetProductById(model.ProductId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == model.Id);
         if (productCollection == null)
             throw new ArgumentException("No product collection mapping found with the specified id");
@@ -60,9 +67,10 @@ public class ProductCollectionViewModelService(
         await productCollectionService.UpdateProductCollection(productCollection, product.Id);
     }
 
-    public virtual async Task DeleteProductCollection(string id, string productId)
+    public virtual async Task DeleteProductCollection(string? id, string? productId)
     {
-        var product = await productService.GetProductById(productId, true);
+        var product = await productService.GetProductById(productId, true)
+                      ?? throw new ArgumentException("No product found with the specified id");
         var productCollection = product.ProductCollections.FirstOrDefault(x => x.Id == id);
         if (productCollection == null)
             throw new ArgumentException("No product collection mapping found with the specified id");

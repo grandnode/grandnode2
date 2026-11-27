@@ -17,18 +17,18 @@ public class OrderApprovalListModel : BaseModel
     {
         public DateTime CreatedOn { get; set; }
         public int StatusId { get; set; }
-        public string Status { get; set; }
+        public string? Status { get; set; }
         public bool IsPending { get; set; }
 
         /// <summary>
         ///     The buyer's name or e-mail; filled for the company list
         /// </summary>
-        public string Buyer { get; set; }
+        public string? Buyer { get; set; }
 
         /// <summary>
         ///     The placed order awaiting the decision
         /// </summary>
-        public string OrderId { get; set; }
+        public string? OrderId { get; set; }
 
         public int OrderNumber { get; set; }
 
@@ -38,6 +38,6 @@ public class OrderApprovalListModel : BaseModel
         public bool CanViewOrder { get; set; }
 
         public int ItemCount { get; set; }
-        public string Total { get; set; }
+        public string? Total { get; set; }
     }
 }

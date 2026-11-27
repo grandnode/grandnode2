@@ -1,3 +1,4 @@
+using System.Diagnostics.CodeAnalysis;
 using System.Text.RegularExpressions;
 
 namespace Grand.Module.Scim.Protocol;
@@ -15,7 +16,7 @@ public partial record ScimFilter(string Attribute, string Value)
     [GeneratedRegex("""\\(.)""")]
     private static partial Regex Escape();
 
-    public static bool TryParse(string filter, out ScimFilter result)
+    public static bool TryParse(string filter, [NotNullWhen(true)] out ScimFilter? result)
     {
         result = null;
         if (string.IsNullOrWhiteSpace(filter))

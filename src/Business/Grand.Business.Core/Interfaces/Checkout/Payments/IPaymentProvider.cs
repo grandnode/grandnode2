@@ -16,8 +16,8 @@ public interface IPaymentProvider : IProvider
     /// <summary>
     ///     Init a process a payment transaction
     /// </summary>
-    /// <returns>Payment transaction</returns>
-    Task<PaymentTransaction> InitPaymentTransaction();
+    /// <returns>Payment transaction, or null when the method keeps none before the order is placed</returns>
+    Task<PaymentTransaction?> InitPaymentTransaction();
 
     /// <summary>
     ///     Process a payment
@@ -98,8 +98,8 @@ public interface IPaymentProvider : IProvider
     ///     Get payment information
     /// </summary>
     /// <param name="model">Dictionary</param>
-    /// <returns>Payment info holder</returns>
-    Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model);
+    /// <returns>Payment info holder, or null when the method keeps none before the order is placed</returns>
+    Task<PaymentTransaction?> SavePaymentInfo(IDictionary<string, string> model);
 
     /// <summary>
     ///     Gets a route url for displaying plugin in public store ("payment info" checkout step)
@@ -161,6 +161,25 @@ public interface IPaymentProvider : IProvider
     ///     Gets a value indicating whether void is supported
     /// </summary>
     Task<bool> SupportVoid();
+
+    /// <summary>
+    ///     Gets a value indicating whether the provider runs recurring payments: it starts the gateway's schedule in its
+    ///     payment flow, charges every cycle and reports each one to the shop, the first one (the initial order's
+    ///     payment) included
+    /// </summary>
+    Task<bool> SupportRecurringPayment() => Task.FromResult(false);
+
+    /// <summary>
+    ///     Cancels a recurring payment at the gateway, so no further cycle is charged
+    /// </summary>
+    /// <param name="recurringPayment">Recurring payment</param>
+    /// <returns>Result</returns>
+    Task<CancelRecurringPaymentResult> CancelRecurringPayment(RecurringPayment recurringPayment)
+    {
+        var result = new CancelRecurringPaymentResult();
+        result.AddError("Recurring payment method not supported");
+        return Task.FromResult(result);
+    }
 
     #endregion
 }

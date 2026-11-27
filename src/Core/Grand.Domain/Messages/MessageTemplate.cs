@@ -12,22 +12,22 @@ public class MessageTemplate : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the BCC Email addresses
     /// </summary>
-    public string BccEmailAddresses { get; set; }
+    public string? BccEmailAddresses { get; set; }
 
     /// <summary>
     ///     Gets or sets the subject
     /// </summary>
-    public string Subject { get; set; }
+    public string Subject { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the body
     /// </summary>
-    public string Body { get; set; }
+    public string Body { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether the template is active
@@ -47,13 +47,13 @@ public class MessageTemplate : BaseEntity, ITranslationEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the download identifier of attached file
     /// </summary>
-    public string AttachedDownloadId { get; set; }
+    public string? AttachedDownloadId { get; set; }
 
     /// <summary>
     ///     Gets or sets the used email account identifier
     /// </summary>
     [AuditReference(typeof(EmailAccount))]
-    public string EmailAccountId { get; set; }
+    public string? EmailAccountId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores

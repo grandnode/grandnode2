@@ -73,7 +73,7 @@
                         {
                             <div class="d-inline-flex flex-wrap justify-content-center">
                                 <label class="ended-label">@Loc["ShoppingCart.Auctionends"]:</label>
-                                <div class="count-date">@Model.EndTimeLocalTime.Value.ToString(CultureInfo.InvariantCulture)</div>
+                                <div class="count-date">@Model.EndTimeLocalTime?.ToString(CultureInfo.InvariantCulture)</div>
                             </div>
                         }
                     </div>

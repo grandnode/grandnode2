@@ -12,12 +12,12 @@ public class ShoppingCartItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the shopping cart type identifier
@@ -29,7 +29,7 @@ public class ShoppingCartItem : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Product))]
     [AuditName]
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the custom attributes (see "ProductAttribute" entity for more info)
@@ -94,20 +94,20 @@ public class ShoppingCartItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the reservation identifier
     /// </summary>
-    public string ReservationId { get; set; }
+    public string? ReservationId { get; set; }
 
     /// <summary>
     ///     Gets or sets parameter of reservation
     /// </summary>
-    public string Parameter { get; set; }
+    public string? Parameter { get; set; }
 
     /// <summary>
     ///     Gets or sets Duration of reservation
     /// </summary>
-    public string Duration { get; set; }
+    public string? Duration { get; set; }
 
     /// <summary>
     ///     Gets or sets owner cid
     /// </summary>
-    public string cId { get; set; }
+    public string? cId { get; set; }
 }

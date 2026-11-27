@@ -24,6 +24,7 @@ using Grand.Web.Models.Common;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
+using System.Diagnostics.CodeAnalysis;
 using System.Net;
 
 namespace Grand.Web.Controllers;
@@ -54,7 +55,11 @@ public class CommonController : BasePublicController
 
     #region Utilities
 
-    private static string RemoveLanguageSeoCode(string url, PathString pathBase)
+    //the home page route always resolves; ~/ is the same address
+    private string HomePageUrl => Url.RouteUrl("HomePage") ?? Url.Content("~/");
+
+    [return: NotNullIfNotNull(nameof(url))]
+    private static string? RemoveLanguageSeoCode(string? url, PathString pathBase)
     {
         if (string.IsNullOrEmpty(url))
             return url;
@@ -69,7 +74,7 @@ public class CommonController : BasePublicController
         return result;
     }
 
-    private async Task<bool> IsLocalized(string url, PathString pathBase)
+    private async Task<bool> IsLocalized(string? url, PathString pathBase)
     {
         _ = new PathString(url).StartsWithSegments(pathBase, out var result);
         url = WebUtility.UrlDecode(result);
@@ -87,7 +92,7 @@ public class CommonController : BasePublicController
         return language?.Published ?? false;
     }
 
-    private static string AddLanguageSeo(string url, Language language)
+    private static string AddLanguageSeo(string? url, Language language)
     {
         ArgumentNullException.ThrowIfNull(language);
 
@@ -141,8 +146,10 @@ public class CommonController : BasePublicController
         return View(errors);
     }
 
+    //the language selector is on the sign-in screens of a closed store too
     [HttpGet]
     [PublicStore(true)]
+    [ClosedStore(true)]
     [DenySystemAccount]
     [PersistGuestCustomer]
     public virtual async Task<IActionResult> SetLanguage(
@@ -159,7 +166,7 @@ public class CommonController : BasePublicController
 
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
+            returnUrl = HomePageUrl;
 
         //language part in URL
         if (config.SeoFriendlyUrlsForLanguagesEnabled)
@@ -186,21 +193,21 @@ public class CommonController : BasePublicController
         if (HttpContext.Items["grand.RedirectFromGenericPathRoute"] == null ||
             !Convert.ToBoolean(HttpContext.Items["grand.RedirectFromGenericPathRoute"]))
         {
-            url = Url.RouteUrl("HomePage");
+            url = HomePageUrl;
             permanentRedirect = false;
         }
 
         //home page
         if (string.IsNullOrEmpty(url))
         {
-            url = Url.RouteUrl("HomePage");
+            url = HomePageUrl;
             permanentRedirect = false;
         }
 
         //prevent open redirection attack
         if (!Url.IsLocalUrl(url))
         {
-            url = Url.RouteUrl("HomePage");
+            url = HomePageUrl;
             permanentRedirect = false;
         }
 
@@ -230,11 +237,12 @@ public class CommonController : BasePublicController
         await customerService.UpdateUserField(_contextAccessor.WorkContext.CurrentCustomer, SystemCustomerFieldNames.GiftVoucherCoupons, "");
 
         //notification
-        await _mediator.Publish(new ChangeCurrencyEvent(_contextAccessor.WorkContext.CurrentCustomer, currency));
+        if (currency != null)
+            await _mediator.Publish(new ChangeCurrencyEvent(_contextAccessor.WorkContext.CurrentCustomer, currency));
 
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
+            returnUrl = HomePageUrl;
 
         return Redirect(returnUrl);
     }
@@ -268,7 +276,7 @@ public class CommonController : BasePublicController
             }
 
         //prevent open redirection attack
-        var redirectUrl = Url.RouteUrl("HomePage");
+        var redirectUrl = HomePageUrl;
         if (Url.IsLocalUrl(returnUrl))
             redirectUrl = returnUrl;
 
@@ -299,7 +307,7 @@ public class CommonController : BasePublicController
     {
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
+            returnUrl = HomePageUrl;
 
         var taxDisplayType = (TaxDisplayType)Enum.ToObject(typeof(TaxDisplayType), customerTaxType);
 
@@ -325,7 +333,7 @@ public class CommonController : BasePublicController
     {
         //prevent open redirection attack
         if (!Url.IsLocalUrl(returnUrl))
-            returnUrl = Url.RouteUrl("HomePage");
+            returnUrl = HomePageUrl;
 
         if (!storeInformationSettings.AllowCustomerToSelectTheme) return Redirect(returnUrl);
 

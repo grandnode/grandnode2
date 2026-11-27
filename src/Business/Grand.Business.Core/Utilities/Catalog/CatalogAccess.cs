@@ -1,5 +1,6 @@
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Business.Core.Utilities.Catalog;
 
@@ -11,7 +12,7 @@ namespace Grand.Business.Core.Utilities.Catalog;
 /// </summary>
 public sealed record CatalogAccess
 {
-    private CatalogAccess(Customer customer, string storeId)
+    private CatalogAccess(Customer? customer, string? storeId)
     {
         Customer = customer;
         StoreId = storeId ?? "";
@@ -20,7 +21,7 @@ public sealed record CatalogAccess
     /// <summary>
     ///     Gets the customer whose groups limit the records; null when hidden records are included
     /// </summary>
-    public Customer Customer { get; }
+    public Customer? Customer { get; }
 
     /// <summary>
     ///     Gets the store whose limitations apply; empty when no store limits the records
@@ -30,6 +31,7 @@ public sealed record CatalogAccess
     /// <summary>
     ///     Gets a value indicating whether unpublished and group-limited records are included
     /// </summary>
+    [MemberNotNullWhen(false, nameof(Customer))]
     public bool ShowHidden => Customer == null;
 
     /// <summary>
@@ -44,7 +46,7 @@ public sealed record CatalogAccess
     /// <summary>
     ///     The published records the customer's groups may see in the store
     /// </summary>
-    public static CatalogAccess For(Customer customer, string storeId)
+    public static CatalogAccess For(Customer customer, string? storeId)
     {
         ArgumentNullException.ThrowIfNull(customer);
         return new CatalogAccess(customer, storeId);
@@ -53,7 +55,7 @@ public sealed record CatalogAccess
     /// <summary>
     ///     Every record, hidden and group-limited ones included; a store id leaves out those limited to other stores
     /// </summary>
-    public static CatalogAccess IncludingHidden(string storeId = "")
+    public static CatalogAccess IncludingHidden(string? storeId = "")
     {
         return new CatalogAccess(null, storeId);
     }

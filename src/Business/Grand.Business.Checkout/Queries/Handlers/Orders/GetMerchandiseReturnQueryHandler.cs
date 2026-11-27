@@ -37,6 +37,10 @@ public class
         if (!string.IsNullOrEmpty(request.OrderId))
             query = query.Where(rr => request.OrderId == rr.OrderId);
 
+        //the sales employee of the order, copied to the return when it was made
+        if (!string.IsNullOrEmpty(request.SalesEmployeeId))
+            query = query.Where(rr => rr.SeId == request.SalesEmployeeId);
+
         if (request.Rs.HasValue)
         {
             var returnStatusId = (int)request.Rs.Value;

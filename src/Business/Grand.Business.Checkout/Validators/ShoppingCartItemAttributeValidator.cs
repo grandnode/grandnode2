@@ -61,7 +61,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
                             value with {
                                 Product = associatedProduct, ShoppingCartItem = new ShoppingCartItem {
                                     ShoppingCartTypeId = value.ShoppingCartItem.ShoppingCartTypeId,
-                                    StoreId = value.ShoppingCartItem.Id,
+                                    StoreId = value.ShoppingCartItem.StoreId,
                                     Quantity = totalQty,
                                     WarehouseId = value.ShoppingCartItem.WarehouseId,
                                     Attributes = value.ShoppingCartItem.Attributes
@@ -72,7 +72,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
                             var productAttribute =
                                 await productAttributeService.GetProductAttributeById(productAttributeMapping
                                     .ProductAttributeId);
-                            var attributeName = productAttribute.Name;
+                            var attributeName = productAttribute?.Name;
                             var attributeValueName = attributeValue.Name;
                             warnings.Add(string.Format(
                                 translationService.GetResource("ShoppingCart.AssociatedAttributeWarning", value.Language.Id),
@@ -204,7 +204,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
                         var productAttribute =
                             await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
                         warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMinimumLength", value.Language.Id),
-                            productAttribute.Name, pam.ValidationMinLength.Value));
+                            productAttribute?.Name, pam.ValidationMinLength.Value));
                     }
                 }
 
@@ -220,7 +220,7 @@ public class ShoppingCartItemAttributeValidator : AbstractValidator<ShoppingCart
                 if (pam.ValidationMaxLength.Value >= enteredTextLength) continue;
                 var productAttribute = await _productAttributeService.GetProductAttributeById(pam.ProductAttributeId);
                 warnings.Add(string.Format(_translationService.GetResource("ShoppingCart.TextboxMaximumLength", value.Language.Id),
-                    productAttribute.Name, pam.ValidationMaxLength.Value));
+                    productAttribute?.Name, pam.ValidationMaxLength.Value));
             }
         }
 

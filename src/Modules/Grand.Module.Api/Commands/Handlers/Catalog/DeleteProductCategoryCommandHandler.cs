@@ -20,7 +20,8 @@ public class DeleteProductCategoryCommandHandler : IRequestHandler<DeleteProduct
 
     public async Task<bool> Handle(DeleteProductCategoryCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productService.GetProductById(request.Product.Id, true);
+        var product = await _productService.GetProductById(request.Product.Id, true) ??
+            throw new ArgumentException("No product has the id", nameof(request));
         var productCategory = product.ProductCategories.FirstOrDefault(x => x.CategoryId == request.CategoryId);
         if (productCategory == null)
             throw new ArgumentException("No product category mapping found with the specified id");

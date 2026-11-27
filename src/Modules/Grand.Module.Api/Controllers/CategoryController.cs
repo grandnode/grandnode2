@@ -36,10 +36,10 @@ public class CategoryController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
 
-        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
-        if (!category.Any()) return NotFound();
+        var category = (await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key))).FirstOrDefault();
+        if (category == null) return NotFound();
 
-        return Ok(category.FirstOrDefault());
+        return Ok(category);
     }
 
     [EndpointDescription("Get entities from Category")]
@@ -63,7 +63,7 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Post([FromBody] CategoryDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Create, CurrentCustomer)) return Forbid();
 
         model = await _mediator.Send(new AddCategoryCommand { Model = model });
         return Ok(model);
@@ -75,12 +75,16 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status403Forbidden)]
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(CategoryDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Put([FromBody] CategoryDto model)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        model = await _mediator.Send(new UpdateCategoryCommand { Model = model });
-        return Ok(model);
+        if (string.IsNullOrEmpty(model.Id))
+            return BadRequest("Key is null or empty");
+
+        var updated = await _mediator.Send(new UpdateCategoryCommand { Model = model });
+        return updated == null ? NotFound() : Ok(updated);
     }
 
     [EndpointDescription("Update entity in Category (delta)")]
@@ -95,12 +99,12 @@ public class CategoryController : BaseApiController
         if (string.IsNullOrEmpty(key))
             return BadRequest("Key is null or empty");
 
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Edit, CurrentCustomer)) return Forbid();
 
-        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
-        if (!category.Any()) return NotFound();
+        var category = (await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key))).FirstOrDefault();
+        if (category == null) return NotFound();
 
-        var cat = category.FirstOrDefault();
+        var cat = category;
         model.ApplyTo(cat);
         await _mediator.Send(new UpdateCategoryCommand { Model = cat });
         return Ok();
@@ -114,12 +118,12 @@ public class CategoryController : BaseApiController
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<IActionResult> Delete([FromRoute] string key)
     {
-        if (!await _permissionService.Authorize(PermissionSystemName.Categories, CurrentCustomer)) return Forbid();
+        if (!await _permissionService.AuthorizeAction(PermissionSystemName.Categories, PermissionActionName.Delete, CurrentCustomer)) return Forbid();
 
-        var category = await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key));
-        if (!category.Any()) return NotFound();
+        var category = (await _mediator.Send(new GetGenericQuery<CategoryDto, Category>(key))).FirstOrDefault();
+        if (category == null) return NotFound();
 
-        await _mediator.Send(new DeleteCategoryCommand { Model = category.FirstOrDefault() });
+        await _mediator.Send(new DeleteCategoryCommand { Model = category });
         return Ok();
     }
 }

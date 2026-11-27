@@ -10,18 +10,18 @@ namespace Grand.Domain.Shipping;
 /// </summary>
 public class ShippingMethod : BaseEntity, ITranslationEntity
 {
-    private ICollection<Country> _restrictedCountries;
-    private ICollection<string> _restrictedGroups;
+    private ICollection<Country>? _restrictedCountries;
+    private ICollection<string>? _restrictedGroups;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order
@@ -53,5 +53,5 @@ public class ShippingMethod : BaseEntity, ITranslationEntity
     ///     Gets or sets the store identifier. Empty means available to all stores.
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 }

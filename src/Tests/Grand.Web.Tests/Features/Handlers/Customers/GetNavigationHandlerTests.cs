@@ -1,3 +1,4 @@
+using Grand.Business.Core.Interfaces.Checkout.Orders;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain;
 using Grand.Domain.Customers;
@@ -28,11 +29,18 @@ public class GetNavigationHandlerTests
         return customers;
     }
 
+    private static Mock<IRecurringPaymentService> RecurringPaymentsWith(int recurringPayments)
+    {
+        var recurring = new Mock<IRecurringPaymentService>();
+        recurring.Setup(x => x.HasCustomerRecurringPayments("c1", "s1")).ReturnsAsync(recurringPayments > 0);
+        return recurring;
+    }
+
     private static async Task<bool> HideChangePassword(OidcLoginConfig config)
     {
         var handler = new GetNavigationHandler(new CustomerSettings(), new LoyaltyPointsSettings(),
-            new OrderSettings(), new VendorSettings(), config, CustomerServiceWith(0).Object);
-        var model = await handler.Handle(new GetNavigation { Customer = new Customer() }, CancellationToken.None);
+            new OrderSettings(), new VendorSettings(), config, CustomerServiceWith(0).Object, RecurringPaymentsWith(0).Object);
+        var model = await handler.Handle(new GetNavigation { Language = new Grand.Domain.Localization.Language(), Store = new Grand.Domain.Stores.Store(), Customer = new Customer() }, CancellationToken.None);
         return model.HideChangePassword;
     }
 
@@ -54,8 +62,8 @@ public class GetNavigationHandlerTests
         var customers = CustomerServiceWith(subAccounts);
         var handler = new GetNavigationHandler(new CustomerSettings { HideSubAccountsTab = featureOff },
             new LoyaltyPointsSettings(), new OrderSettings(), new VendorSettings(), new OidcLoginConfig(),
-            customers.Object);
-        var model = await handler.Handle(new GetNavigation { Customer = customer }, CancellationToken.None);
+            customers.Object, RecurringPaymentsWith(0).Object);
+        var model = await handler.Handle(new GetNavigation { Language = new Grand.Domain.Localization.Language(), Store = new Grand.Domain.Stores.Store(), Customer = customer }, CancellationToken.None);
         return model.HideOrderApprovals;
     }
 
@@ -81,5 +89,42 @@ public class GetNavigationHandlerTests
     public async Task Navigation_FeatureOff_HidesOrderApprovals()
     {
         Assert.IsTrue(await HideOrderApprovals(new Customer { Id = "sub", OwnerId = "owner" }, 0, true));
+    }
+
+    private static async Task<bool> HideRecurringPayments(int recurringPayments, bool featureOff = false,
+        bool withStore = true)
+    {
+        var handler = new GetNavigationHandler(new CustomerSettings { HideRecurringPaymentsTab = featureOff },
+            new LoyaltyPointsSettings(), new OrderSettings(), new VendorSettings(), new OidcLoginConfig(),
+            CustomerServiceWith(0).Object, RecurringPaymentsWith(recurringPayments).Object);
+        var model = await handler.Handle(new GetNavigation { Language = new Grand.Domain.Localization.Language(),
+            Customer = new Customer { Id = "c1" },
+            Store = withStore ? new Grand.Domain.Stores.Store { Id = "s1" } : null
+        }, CancellationToken.None);
+        return model.HideRecurringPayments;
+    }
+
+    [TestMethod]
+    public async Task Navigation_CustomerWithRecurringPayment_ShowsRecurringPayments()
+    {
+        Assert.IsFalse(await HideRecurringPayments(1));
+    }
+
+    [TestMethod]
+    public async Task Navigation_CustomerWithoutRecurringPayments_HidesRecurringPayments()
+    {
+        Assert.IsTrue(await HideRecurringPayments(0));
+    }
+
+    [TestMethod]
+    public async Task Navigation_RecurringPaymentsTabOff_HidesRecurringPayments()
+    {
+        Assert.IsTrue(await HideRecurringPayments(1, featureOff: true));
+    }
+
+    [TestMethod]
+    public async Task Navigation_NoStore_HidesRecurringPayments()
+    {
+        Assert.IsTrue(await HideRecurringPayments(1, withStore: false));
     }
 }

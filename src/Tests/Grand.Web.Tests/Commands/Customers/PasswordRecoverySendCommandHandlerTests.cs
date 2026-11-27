@@ -1,5 +1,6 @@
 using Grand.Business.Core.Utilities.Authentication;
 using Grand.Business.Core.Interfaces.Authentication;
+using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Customers;
@@ -14,50 +15,105 @@ namespace Grand.Web.Tests.Commands.Customers;
 [TestClass]
 public class PasswordRecoverySendCommandHandlerTests
 {
+    private readonly Customer _customer = new() { Id = "c1", Active = true };
+    private Mock<ICustomerService> _customerService;
+    private Mock<IGroupService> _groupService;
+    private PasswordRecoverySendCommandHandler _handler;
+    private Mock<ICustomerMessageProviderService> _messages;
+    private Mock<IExternalSignInPolicy> _policy;
+
+    [TestInitialize]
+    public void Init()
+    {
+        _customerService = new Mock<ICustomerService>();
+        _messages = new Mock<ICustomerMessageProviderService>();
+        _policy = new Mock<IExternalSignInPolicy>();
+        _policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))
+            .ReturnsAsync(PasswordSignInDecision.Password);
+        _groupService = new Mock<IGroupService>();
+        _groupService.Setup(x => x.IsRegistered(_customer)).ReturnsAsync(true);
+        _handler = new PasswordRecoverySendCommandHandler(_customerService.Object, _messages.Object, _policy.Object,
+            _groupService.Object);
+    }
+
+    private Task<bool> Send(Customer customer) =>
+        _handler.Handle(new PasswordRecoverySendCommand { Host = new Grand.Domain.Stores.DomainHost(), Model = new Grand.Web.Models.Customer.PasswordRecoveryModel(),
+            Customer = customer, Store = new Grand.Domain.Stores.Store(), Language = new Language { Id = "l1" }
+        }, CancellationToken.None);
+
+    private void VerifyNoMessage()
+    {
+        _messages.Verify(x => x.SendCustomerPasswordRecoveryMessage(It.IsAny<Customer>(),
+            It.IsAny<Grand.Domain.Stores.Store>(), It.IsAny<string>()), Times.Never);
+        _customerService.Verify(x => x.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(),
+            It.IsAny<string>()), Times.Never);
+    }
+
     [TestMethod]
     public async Task ExternalSignInRequired_NoMessage_NoToken()
     {
-        var customerService = new Mock<ICustomerService>();
-        var messages = new Mock<ICustomerMessageProviderService>();
-        var policy = new Mock<IExternalSignInPolicy>();
-        var customer = new Customer { Id = "c1" };
-        policy.Setup(x => x.PasswordSignIn(customer, It.IsAny<SignInSurface>())).ReturnsAsync(new PasswordSignInDecision(false, new Mock<IExternalAuthenticationProvider>().Object));
-        var handler = new PasswordRecoverySendCommandHandler(customerService.Object, messages.Object, policy.Object);
+        _policy.Setup(x => x.PasswordSignIn(_customer, It.IsAny<SignInSurface>()))
+            .ReturnsAsync(new PasswordSignInDecision(false, new Mock<IExternalAuthenticationProvider>().Object));
 
-        Assert.IsTrue(await handler.Handle(new PasswordRecoverySendCommand {
-            Customer = customer, Store = new Grand.Domain.Stores.Store(), Language = new Language { Id = "l1" }
-        }, CancellationToken.None));
+        Assert.IsTrue(await Send(_customer));
 
-        messages.Verify(x => x.SendCustomerPasswordRecoveryMessage(It.IsAny<Customer>(), It.IsAny<Grand.Domain.Stores.Store>(), It.IsAny<string>()), Times.Never);
-        customerService.Verify(x => x.UpdateUserField(It.IsAny<Customer>(), It.IsAny<string>(), It.IsAny<string>(), It.IsAny<string>()), Times.Never);
+        VerifyNoMessage();
     }
 
     [TestMethod]
     public async Task NullCustomer_NoMessage()
     {
-        var messages = new Mock<ICustomerMessageProviderService>();
-        var handler = new PasswordRecoverySendCommandHandler(new Mock<ICustomerService>().Object, messages.Object,
-            new Mock<IExternalSignInPolicy>().Object);
+        Assert.IsTrue(await Send(null));
 
-        Assert.IsTrue(await handler.Handle(new PasswordRecoverySendCommand {
-            Store = new Grand.Domain.Stores.Store(), Language = new Language { Id = "l1" }
-        }, CancellationToken.None));
+        VerifyNoMessage();
+    }
 
-        messages.Verify(x => x.SendCustomerPasswordRecoveryMessage(It.IsAny<Customer>(), It.IsAny<Grand.Domain.Stores.Store>(), It.IsAny<string>()), Times.Never);
+    [TestMethod]
+    public async Task InactiveCustomer_NoMessage()
+    {
+        _customer.Active = false;
+
+        Assert.IsTrue(await Send(_customer));
+
+        VerifyNoMessage();
+    }
+
+    [TestMethod]
+    public async Task DeletedCustomer_NoMessage()
+    {
+        _customer.Deleted = true;
+
+        Assert.IsTrue(await Send(_customer));
+
+        VerifyNoMessage();
+    }
+
+    [TestMethod]
+    public async Task LockedOutCustomer_NoMessage()
+    {
+        _customer.CannotLoginUntilDateUtc = DateTime.UtcNow.AddMinutes(10);
+
+        Assert.IsTrue(await Send(_customer));
+
+        VerifyNoMessage();
+    }
+
+    [TestMethod]
+    public async Task NotRegistered_NoMessage()
+    {
+        _groupService.Setup(x => x.IsRegistered(_customer)).ReturnsAsync(false);
+
+        Assert.IsTrue(await Send(_customer));
+
+        VerifyNoMessage();
     }
 
     [TestMethod]
     public async Task PasswordAllowed_MessageSent()
     {
-        var messages = new Mock<ICustomerMessageProviderService>();
-        var policy = new Mock<IExternalSignInPolicy>();
-        policy.Setup(x => x.PasswordSignIn(It.IsAny<Customer>(), SignInSurface.Storefront))
-            .ReturnsAsync(PasswordSignInDecision.Password);
-        var handler = new PasswordRecoverySendCommandHandler(new Mock<ICustomerService>().Object, messages.Object,
-            policy.Object);
-        await handler.Handle(new PasswordRecoverySendCommand {
-            Customer = new Customer { Id = "c1" }, Store = new Grand.Domain.Stores.Store(), Language = new Language { Id = "l1" }
-        }, CancellationToken.None);
-        messages.Verify(x => x.SendCustomerPasswordRecoveryMessage(It.IsAny<Customer>(), It.IsAny<Grand.Domain.Stores.Store>(), "l1"), Times.Once);
+        await Send(_customer);
+
+        _messages.Verify(x => x.SendCustomerPasswordRecoveryMessage(_customer, It.IsAny<Grand.Domain.Stores.Store>(),
+            "l1", It.IsAny<Grand.Domain.Stores.DomainHost>()), Times.Once);
     }
 }

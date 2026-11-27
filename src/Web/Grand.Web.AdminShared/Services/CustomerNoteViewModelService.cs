@@ -3,7 +3,9 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Customers;
+using Grand.Domain.Media;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Customers;
 
@@ -42,9 +44,14 @@ public class CustomerNoteViewModelService(
         return customerNoteModels;
     }
 
-    public virtual async Task<CustomerNote> InsertCustomerNote(string customerId, string downloadId,
+    public virtual async Task<bool> InsertCustomerNote(string customerId, string downloadId,
         bool displayToCustomer, string title, string message)
     {
+        //the id comes from the request; a file uploaded for another customer is refused
+        if (!string.IsNullOrEmpty(downloadId) &&
+            !(await downloadService.GetDownloadById(downloadId)).IsAttachmentOf(DownloadType.Customer, customerId))
+            return false;
+
         var customerNote = new CustomerNote {
             DisplayToCustomer = displayToCustomer,
             Title = title,
@@ -55,15 +62,13 @@ public class CustomerNoteViewModelService(
         await customerNoteService.InsertCustomerNote(customerNote);
 
         //new customer note notification
-        if (displayToCustomer)
-        {
+        if (displayToCustomer && await customerService.GetCustomerById(customerId) is { } customer)
             //email
             await customerMessageProviderService.SendNewCustomerNoteMessage(customerNote,
-                await customerService.GetCustomerById(customerId), contextAccessor.StoreContext.CurrentStore,
+                customer, contextAccessor.StoreContext.CurrentStore,
                 contextAccessor.WorkContext.WorkingLanguage.Id);
-        }
 
-        return customerNote;
+        return true;
     }
 
     public virtual async Task DeleteCustomerNote(string id, string customerId)
@@ -78,7 +83,7 @@ public class CustomerNoteViewModelService(
         if (!string.IsNullOrEmpty(customerNote.DownloadId))
         {
             var attachment = await downloadService.GetDownloadById(customerNote.DownloadId);
-            if (attachment != null)
+            if (attachment.IsAttachmentOf(DownloadType.Customer, customerId))
                 await downloadService.DeleteDownload(attachment);
         }
     }

@@ -53,7 +53,7 @@ public class PaymentService : IPaymentService
     /// <param name="storeId">Store ident</param>
     /// <param name="filterByCountryId">Specified country</param>
     /// <returns>Payment methods</returns>
-    public virtual async Task<IList<IPaymentProvider>> LoadActivePaymentMethods(Customer customer = null,
+    public virtual async Task<IList<IPaymentProvider>> LoadActivePaymentMethods(Customer? customer = null,
         string storeId = "", string filterByCountryId = "")
     {
         var pm = (await LoadAllPaymentMethods(customer, storeId, filterByCountryId))
@@ -70,7 +70,8 @@ public class PaymentService : IPaymentService
         for (var i = pm.Count - 1; i >= 0; i--)
         {
             var restrictedGroupIds =await  GetRestrictedShippingIds(pm[i], storeId);
-            if (restrictedGroupIds.Contains(selectedShippingOption.Name)) pm.Remove(pm[i]);
+            if (selectedShippingOption.Name != null && restrictedGroupIds.Contains(selectedShippingOption.Name))
+                pm.Remove(pm[i]);
         }
 
         return await Task.FromResult(pm);
@@ -81,7 +82,7 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found payment provider</returns>
-    public virtual IPaymentProvider LoadPaymentMethodBySystemName(string systemName)
+    public virtual IPaymentProvider? LoadPaymentMethodBySystemName(string? systemName)
     {
         return _paymentProviders.FirstOrDefault(
             x => x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
@@ -94,7 +95,7 @@ public class PaymentService : IPaymentService
     /// <param name="customer">Customer</param>
     /// <param name="filterByCountryId">Load records allowed only in a specified country; pass "" to load all records</param>
     /// <returns>Payment providers</returns>
-    public virtual async Task<IList<IPaymentProvider>> LoadAllPaymentMethods(Customer customer = null, string storeId = "",
+    public virtual async Task<IList<IPaymentProvider>> LoadAllPaymentMethods(Customer? customer = null, string storeId = "",
         string filterByCountryId = "")
     {
         var paymentMethods = _paymentProviders
@@ -289,7 +290,7 @@ public class PaymentService : IPaymentService
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>Additional handling fee</returns>
     public virtual async Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart,
-        string paymentMethodSystemName)
+        string? paymentMethodSystemName)
     {
         if (string.IsNullOrEmpty(paymentMethodSystemName))
             return 0;
@@ -311,7 +312,7 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>A value indicating whether capture is supported</returns>
-    public virtual async Task<bool> SupportCapture(string paymentMethodSystemName)
+    public virtual async Task<bool> SupportCapture(string? paymentMethodSystemName)
     {
         var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
         if (paymentMethod == null)
@@ -340,7 +341,7 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>A value indicating whether partial refund is supported</returns>
-    public virtual async Task<bool> SupportPartiallyRefund(string paymentMethodSystemName)
+    public virtual async Task<bool> SupportPartiallyRefund(string? paymentMethodSystemName)
     {
         var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
         if (paymentMethod == null)
@@ -353,7 +354,7 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>A value indicating whether refund is supported</returns>
-    public virtual async Task<bool> SupportRefund(string paymentMethodSystemName)
+    public virtual async Task<bool> SupportRefund(string? paymentMethodSystemName)
     {
         var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
         if (paymentMethod == null)
@@ -381,12 +382,45 @@ public class PaymentService : IPaymentService
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>A value indicating whether void is supported</returns>
-    public virtual async Task<bool> SupportVoid(string paymentMethodSystemName)
+    public virtual async Task<bool> SupportVoid(string? paymentMethodSystemName)
     {
         var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
         if (paymentMethod == null)
             return false;
         return await paymentMethod.SupportVoid();
+    }
+
+    /// <summary>
+    ///     Gets a value indicating whether recurring payments are supported by payment method
+    /// </summary>
+    /// <param name="paymentMethodSystemName">Payment method system name</param>
+    /// <returns>A value indicating whether recurring payments are supported</returns>
+    public virtual async Task<bool> SupportRecurringPayment(string paymentMethodSystemName)
+    {
+        var paymentMethod = LoadPaymentMethodBySystemName(paymentMethodSystemName);
+        if (paymentMethod == null)
+            return false;
+        return await paymentMethod.SupportRecurringPayment();
+    }
+
+    /// <summary>
+    ///     Asks the payment method to stop the gateway schedule of a recurring payment
+    /// </summary>
+    /// <param name="recurringPayment">Recurring payment</param>
+    /// <returns>Result; an error when the payment method could not be loaded</returns>
+    public virtual async Task<CancelRecurringPaymentResult> CancelRecurringPayment(RecurringPayment recurringPayment)
+    {
+        ArgumentNullException.ThrowIfNull(recurringPayment);
+
+        var paymentMethod = LoadPaymentMethodBySystemName(recurringPayment.PaymentMethodSystemName);
+        if (paymentMethod == null)
+        {
+            var result = new CancelRecurringPaymentResult();
+            result.AddError("Payment method couldn't be loaded");
+            return result;
+        }
+
+        return await paymentMethod.CancelRecurringPayment(recurringPayment);
     }
 
     /// <summary>

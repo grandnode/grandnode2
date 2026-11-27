@@ -137,6 +137,7 @@ public class CustomerGroupController : BaseAdminController
             }
 
             //If we got this far, something failed, redisplay form
+            model.IsSystem = customerGroup.IsSystem;
             return View(model);
         }
         catch (Exception exc)
@@ -150,7 +151,8 @@ public class CustomerGroupController : BaseAdminController
     [HttpPost]
     public async Task<IActionResult> Delete(CustomerGroupDeleteModel model)
     {
-        var customerGroup = await _groupService.GetCustomerGroupById(model.Id);
+        var customerGroup = await _groupService.GetCustomerGroupById(model.Id)
+            ?? throw new ArgumentException("No customer group found with the specified id");
         try
         {
             if (ModelState.IsValid)
@@ -282,7 +284,8 @@ public class CustomerGroupController : BaseAdminController
     {
         if (ModelState.IsValid)
         {
-            var permissionRecord = await _permissionService.GetPermissionById(model.Id);
+            var permissionRecord = await _permissionService.GetPermissionById(model.Id)
+                ?? throw new ArgumentException("No permission found with the specified id");
             if (model.Access)
             {
                 if (!permissionRecord.CustomerGroups.Contains(model.CustomerGroupId))

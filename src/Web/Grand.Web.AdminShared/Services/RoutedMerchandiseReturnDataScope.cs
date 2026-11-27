@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Orders;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;
@@ -17,7 +15,7 @@ namespace Grand.Web.AdminShared.Services;
 /// </summary>
 public class RoutedMerchandiseReturnDataScope(
     IHttpContextAccessor httpContextAccessor,
-    GlobalAdminDataScope<MerchandiseReturn> adminScope,
+    AdminMerchandiseReturnDataScope adminScope,
     StoreMerchandiseReturnDataScope storeScope,
     VendorMerchandiseReturnDataScope vendorScope) : IAdminDataScope<MerchandiseReturn>
 {

@@ -5,14 +5,14 @@ namespace Grand.Web.Models.Catalog;
 
 public class CollectionModel : BaseEntityModel
 {
-    public string Name { get; set; }
-    public string Description { get; set; }
-    public string BottomDescription { get; set; }
-    public string MetaKeywords { get; set; }
-    public string MetaDescription { get; set; }
-    public string MetaTitle { get; set; }
-    public string SeName { get; set; }
-    public string Icon { get; set; }
+    public string? Name { get; set; }
+    public string? Description { get; set; }
+    public string? BottomDescription { get; set; }
+    public string? MetaKeywords { get; set; }
+    public string? MetaDescription { get; set; }
+    public string? MetaTitle { get; set; }
+    public string? SeName { get; set; }
+    public string? Icon { get; set; }
     public PictureModel PictureModel { get; set; } = new();
     public CatalogPagingFilteringModel PagingFilteringContext { get; set; } = new();
     public IList<ProductOverviewModel> FeaturedProducts { get; set; } = new List<ProductOverviewModel>();

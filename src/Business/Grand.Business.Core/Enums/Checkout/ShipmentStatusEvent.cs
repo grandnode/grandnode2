@@ -8,17 +8,17 @@ public class ShipmentStatusEvent
     /// <summary>
     ///     Event name
     /// </summary>
-    public string EventName { get; set; }
+    public string? EventName { get; set; }
 
     /// <summary>
     ///     Location
     /// </summary>
-    public string Location { get; set; }
+    public string? Location { get; set; }
 
     /// <summary>
     ///     two-letter country code
     /// </summary>
-    public string CountryCode { get; set; }
+    public string? CountryCode { get; set; }
 
     /// <summary>
     ///     Date
