@@ -270,6 +270,7 @@ public abstract class BaseLoginController : BaseController
     }
 
     [HttpPost]
+    [AutoValidateAntiforgeryToken]
     public async Task<IActionResult> TwoFactorAuthorization(string token,
         [FromServices] ITwoFactorSignInService twoFactorSignInService)
     {
