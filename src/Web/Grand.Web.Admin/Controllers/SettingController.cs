@@ -38,6 +38,7 @@ using Grand.Web.Common.Themes;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text.Json;
 using OperatingSystem = Grand.Infrastructure.OperatingSystem;
 
 namespace Grand.Web.Admin.Controllers;
@@ -804,16 +805,22 @@ public class SettingController(
     {
         for (var i = 0; i < lines.Length; i++)
         {
-            if (lines[i].Contains("apiKey")) lines[i] = $"apiKey: \"{model.PushApiKey}\",";
-            if (lines[i].Contains("authDomain")) lines[i] = $"authDomain: \"{model.AuthDomain}\",";
-            if (lines[i].Contains("databaseURL")) lines[i] = $"databaseURL: \"{model.DatabaseUrl}\",";
-            if (lines[i].Contains("projectId")) lines[i] = $"projectId: \"{model.ProjectId}\",";
-            if (lines[i].Contains("storageBucket")) lines[i] = $"storageBucket: \"{model.StorageBucket}\",";
-            if (lines[i].Contains("messagingSenderId")) lines[i] = $"messagingSenderId: \"{model.SenderId}\",";
-            if (lines[i].Contains("appId")) lines[i] = $"appId: \"{model.AppId}\",";
+            if (IsKeyLine(lines[i], "apiKey")) lines[i] = $"apiKey: {JsString(model.PushApiKey)},";
+            if (IsKeyLine(lines[i], "authDomain")) lines[i] = $"authDomain: {JsString(model.AuthDomain)},";
+            if (IsKeyLine(lines[i], "databaseURL")) lines[i] = $"databaseURL: {JsString(model.DatabaseUrl)},";
+            if (IsKeyLine(lines[i], "projectId")) lines[i] = $"projectId: {JsString(model.ProjectId)},";
+            if (IsKeyLine(lines[i], "storageBucket")) lines[i] = $"storageBucket: {JsString(model.StorageBucket)},";
+            if (IsKeyLine(lines[i], "messagingSenderId")) lines[i] = $"messagingSenderId: {JsString(model.SenderId)},";
+            if (IsKeyLine(lines[i], "appId")) lines[i] = $"appId: {JsString(model.AppId)},";
         }
         return lines;
     }
+
+    //the line of the template that sets the key, not any line whose value mentions it
+    private static bool IsKeyLine(string line, string key) => line.TrimStart().StartsWith(key + ":", StringComparison.Ordinal);
+
+    //a JavaScript string literal: a quote, a backslash or a line break typed in a setting must not end it
+    private static string JsString(string value) => JsonSerializer.Serialize(value ?? "");
 
     public async Task<IActionResult> AdminSearch()
     {
