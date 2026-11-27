@@ -115,7 +115,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
                 Name = x.GetTranslation(y => y.Name, languageId),
                 SeName = x.GetSeName(languageId),
                 Description = x.GetTranslation(y => y.Description, languageId),
-                Flag = x.Flag,
+                Flag = x.GetTranslation(y => y.Flag, languageId),
                 FlagStyle = x.FlagStyle
             };
             //prepare picture model

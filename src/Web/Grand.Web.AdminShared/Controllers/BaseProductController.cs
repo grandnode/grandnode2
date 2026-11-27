@@ -147,6 +147,7 @@ public abstract class BaseProductController(
             locale.MetaKeywords = product.GetTranslation(x => x.MetaKeywords, languageId, false);
             locale.MetaDescription = product.GetTranslation(x => x.MetaDescription, languageId, false);
             locale.MetaTitle = product.GetTranslation(x => x.MetaTitle, languageId, false);
+            locale.Flag = product.GetTranslation(x => x.Flag, languageId, false);
             locale.SeName = product.GetSeName(languageId, false);
         });
 
