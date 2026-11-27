@@ -820,7 +820,7 @@ public class SettingController(
     private static bool IsKeyLine(string line, string key) => line.TrimStart().StartsWith(key + ":", StringComparison.Ordinal);
 
     //a JavaScript string literal: a quote, a backslash or a line break typed in a setting must not end it
-    private static string JsString(string value) => JsonSerializer.Serialize(value ?? "");
+    private static string JsString(string? value) => JsonSerializer.Serialize(value ?? "");
 
     public async Task<IActionResult> AdminSearch()
     {
