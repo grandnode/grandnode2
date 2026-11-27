@@ -2838,4 +2838,7 @@
 	<Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute.Required" Area="Admin">
 		<Value>Please select an attribute.</Value>
 	</Resource>
+	<Resource Name="Admin.Configuration.Currencies.CantDeleteUsedByOrders" Area="Admin">
+		<Value>Orders were placed in this currency, so it can't be deleted. Unpublish it instead.</Value>
+	</Resource>
 </Language>
