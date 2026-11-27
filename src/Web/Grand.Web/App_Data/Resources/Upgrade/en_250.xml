@@ -2835,4 +2835,7 @@
 	<Resource Name="Admin.Settings.GeneralCommon.AdminAreaAllowedIpAddresses.WithoutOwn" Area="Admin">
 		<Value>The allowed IP addresses were not changed: they don't include your address ({0}), so you would be shut out of the admin panel.</Value>
 	</Resource>
+	<Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute.Required" Area="Admin">
+		<Value>Please select an attribute.</Value>
+	</Resource>
 </Language>
