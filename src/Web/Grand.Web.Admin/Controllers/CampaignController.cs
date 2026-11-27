@@ -200,6 +200,12 @@ public class CampaignController : BaseAdminController
             //No campaign found with the specified id
             return RedirectToAction("List");
 
+        if (!CommonHelper.IsValidEmail(model.TestEmail))
+        {
+            Error(_translationService.GetResource("Admin.Common.WrongEmail"));
+            return RedirectToAction("Edit", new { id = campaign.Id });
+        }
+
         model = await _campaignViewModelService.PrepareCampaignModel(model);
         try
         {
