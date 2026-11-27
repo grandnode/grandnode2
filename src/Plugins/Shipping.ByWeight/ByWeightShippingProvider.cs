@@ -48,7 +48,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
     #region Utilities
 
     private async Task<double?> GetRate(double subTotal, double weight, string shippingMethodId,
-        string storeId, string warehouseId, string countryId, string stateProvinceId, string zip)
+        string storeId, string? warehouseId, string? countryId, string? stateProvinceId, string? zip)
     {
         var shippingByWeightRecord = await _shippingByWeightService.FindRecord(shippingMethodId,
             storeId, warehouseId, countryId, stateProvinceId, zip, weight);
@@ -292,7 +292,7 @@ public class ByWeightShippingCalcPlugin : IShippingRateCalculationProvider
     /// <summary>
     ///     Gets a shipment tracker
     /// </summary>
-    public IShipmentTracker ShipmentTracker => null;
+    public IShipmentTracker? ShipmentTracker => null;
 
     public ShippingRateCalculationType ShippingRateCalculationType => ShippingRateCalculationType.Off;
 

@@ -171,7 +171,7 @@
             </div>
         </div>
         <div class="footer-lower nordic-footer__lower">
-            <span class="footer-disclaimer copyright">@Html.Raw(Loc["Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName])</span>
+            <span class="footer-disclaimer copyright">@Html.Raw(Loc["Content.CopyrightNotice", DateTime.Now.Year, Model.StoreName ?? ""])</span>
             <span><span>Shopping cart software by </span><a class="pe-1" href="https://grandnode.com/">GrandNode</a>™</span>
         </div>
     </div>

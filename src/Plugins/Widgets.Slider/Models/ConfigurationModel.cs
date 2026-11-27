@@ -11,10 +11,10 @@ public class ConfigurationModel : BaseModel
 
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Widgets.Slider.Fields.LimitedToGroups")]
-    public string[] CustomerGroups { get; set; }
+    public string[]? CustomerGroups { get; set; }
 
     //Store acl
     [GrandResourceDisplayName("Widgets.Slider.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }

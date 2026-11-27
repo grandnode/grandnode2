@@ -1,11 +1,11 @@
 using Grand.Infrastructure;
 
-namespace Grand.Web.AdminShared.Extensions;
+namespace Grand.Web.Common.Extensions;
 
 public static class StorePanelExtensions
 {
     /// <summary>
-    ///     The store the store panel works for: AuthorizeStoreAttribute lets in only a customer with a staff store
+    ///     The store the store panel works for: <see cref="Filters.AuthorizeStoreAttribute" /> lets in only a customer with a staff store
     /// </summary>
     public static string PanelStoreId(this IWorkContext workContext)
     {

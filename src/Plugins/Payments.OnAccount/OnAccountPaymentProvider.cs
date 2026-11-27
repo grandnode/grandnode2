@@ -62,9 +62,9 @@ public class OnAccountPaymentProvider : IPaymentProvider
 
     public IList<string> LimitedToGroups => new List<string>();
 
-    public Task<PaymentTransaction> InitPaymentTransaction()
+    public Task<PaymentTransaction?> InitPaymentTransaction()
     {
-        return Task.FromResult<PaymentTransaction>(null);
+        return Task.FromResult<PaymentTransaction?>(null);
     }
 
     public async Task<ProcessPaymentResult> ProcessPayment(PaymentTransaction paymentTransaction)
@@ -77,7 +77,7 @@ public class OnAccountPaymentProvider : IPaymentProvider
         var credit = customer != null ? await _companyCreditService.GetCompanyCredit(customer) : null;
         //the transaction amount is in the order's currency, the credit limit in the primary store currency
         var rate = paymentTransaction.CurrencyRate > 0 ? paymentTransaction.CurrencyRate : 1;
-        if (credit == null ||
+        if (credit is not { PaymentTermDays: { } paymentTermDays } ||
             !credit.Covers(paymentTransaction.TransactionAmount / rate, _onAccountPaymentSettings.BlockWhenOverdue))
         {
             result.AddError(_translationService.GetResource("Plugins.Payments.OnAccount.CreditExceeded"));
@@ -85,7 +85,7 @@ public class OnAccountPaymentProvider : IPaymentProvider
         }
 
         //the due date is a calendar date, counted from the day the order is placed
-        result.PaymentDueDateUtc = DateTime.UtcNow.Date.AddDays(credit.PaymentTermDays!.Value);
+        result.PaymentDueDateUtc = DateTime.UtcNow.Date.AddDays(paymentTermDays);
         return result;
     }
 
@@ -130,9 +130,9 @@ public class OnAccountPaymentProvider : IPaymentProvider
         return Task.FromResult<IList<string>>(new List<string>());
     }
 
-    public Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
+    public Task<PaymentTransaction?> SavePaymentInfo(IDictionary<string, string> model)
     {
-        return Task.FromResult<PaymentTransaction>(null);
+        return Task.FromResult<PaymentTransaction?>(null);
     }
 
     public Task<string> GetControllerRouteName()

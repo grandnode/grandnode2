@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Directory;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
+using Grand.Web.Common.Extensions;
 using Grand.Web.Common.Controllers;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -73,7 +74,7 @@ public class ShippingByWeightController : BaseController
     /// <summary>
     ///     The store the current staff/store-manager is bound to.
     /// </summary>
-    private string CurrentStoreId => _contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => _contextAccessor.WorkContext.PanelStoreId();
 
     public async Task<IActionResult> Configure()
     {
@@ -196,7 +197,7 @@ public class ShippingByWeightController : BaseController
             //CurrencySettings is resolved per current store, so this already honours a store override
             PrimaryStoreCurrencyCode =
                 (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
-            BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name,
+            BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId))?.Name,
             To = 1000000
         };
 
@@ -261,7 +262,7 @@ public class ShippingByWeightController : BaseController
             //CurrencySettings is resolved per current store, so this already honours a store override
             PrimaryStoreCurrencyCode =
                 (await _currencyService.GetCurrencyById(_currencySettings.PrimaryStoreCurrencyId))?.CurrencyCode,
-            BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId)).Name
+            BaseWeightIn = (await _measureService.GetMeasureWeightById(_measureSettings.BaseWeightId))?.Name
         };
 
         var shippingMethods = await _shippingMethodService.GetAllShippingMethods(storeId: CurrentStoreId);
@@ -311,8 +312,8 @@ public class ShippingByWeightController : BaseController
     [NonAction]
     private async Task PrepareSelectLists(ShippingByWeightModel model,
         IList<Grand.Domain.Shipping.ShippingMethod> shippingMethods,
-        string selectedWarehouseId, string selectedShippingMethodId, string selectedCountryId,
-        string selectedStateProvinceId = null)
+        string? selectedWarehouseId, string? selectedShippingMethodId, string? selectedCountryId,
+        string? selectedStateProvinceId = null)
     {
         //warehouses
         model.AvailableWarehouses.Add(new SelectListItem { Text = "*", Value = "" });
@@ -342,7 +343,7 @@ public class ShippingByWeightController : BaseController
         var selectedCountry = countries.FirstOrDefault(x => x.Id == selectedCountryId);
         if (selectedCountry == null) return;
 
-        foreach (var s in await _countryService.GetStateProvincesByCountryId(selectedCountry.Id))
+        foreach (var s in await _countryService.GetStateProvincesByCountryId(selectedCountry.Id) ?? [])
             model.AvailableStates.Add(new SelectListItem {
                 Text = s.Name, Value = s.Id,
                 Selected = s.Id == selectedStateProvinceId

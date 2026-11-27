@@ -21,14 +21,14 @@ public interface ITaxRateService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Tax rates</returns>
-    Task<IPagedList<TaxRate>> GetAllTaxRates(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<TaxRate>> GetAllTaxRates(string? storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets a tax rate
     /// </summary>
     /// <param name="taxRateId">Tax rate identifier</param>
     /// <returns>Tax rate</returns>
-    Task<TaxRate> GetTaxRateById(string taxRateId);
+    Task<TaxRate?> GetTaxRateById(string? taxRateId);
 
     /// <summary>
     ///     Inserts a tax rate

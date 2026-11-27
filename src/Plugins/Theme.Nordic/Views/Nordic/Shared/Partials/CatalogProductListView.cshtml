@@ -11,7 +11,7 @@
 @{
     @* Nordic: one badge, in this priority. Client twin: Catalog/Partials/Client/CatalogProductGridView *@
     var onSale = !string.IsNullOrEmpty(Model.ProductPrice.OldPrice);
-    string badge = null, badgeClass = null;
+    string? badge = null, badgeClass = null;
     if (Model.ProductType == ProductType.Auction) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Auction"); badgeClass = "auction"; }
     else if (onSale) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Sale"); badgeClass = "sale"; }
     else if (Model.ProductType == ProductType.BundledProduct) { badge = NordicText.Get(Loc, "Theme.Nordic.Badge.Bundle"); badgeClass = "bundle"; }
@@ -107,7 +107,7 @@
                         {
                             <div class="d-inline-flex flex-wrap">
                                 <label class="ended-label">@Loc["ShoppingCart.Auctionends"]:</label>
-                                <div class="count-date">@Model.EndTimeLocalTime.Value.ToString(CultureInfo.InvariantCulture)</div>
+                                <div class="count-date">@Model.EndTimeLocalTime?.ToString(CultureInfo.InvariantCulture)</div>
                             </div>
                         }
                     </div>

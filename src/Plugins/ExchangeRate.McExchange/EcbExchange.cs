@@ -24,8 +24,9 @@ internal class EcbExchange : IRateProvider
         nameTable.AddNamespace("ns", "http://www.ecb.int/vocabulary/2002-08-01/eurofxref");
         nameTable.AddNamespace("gesmes", "http://www.gesmes.org/xml/2002-08-01");
 
-        var node = document.SelectSingleNode("gesmes:Envelope/ns:Cube/ns:Cube", nameTable);
-        var updateDate = DateTime.ParseExact(node.Attributes["time"].Value, "yyyy-MM-dd", null);
+        var node = document.SelectSingleNode("gesmes:Envelope/ns:Cube/ns:Cube", nameTable)
+                   ?? throw new InvalidDataException("The ECB response has no rates");
+        var updateDate = DateTime.ParseExact(Attribute(node, "time"), "yyyy-MM-dd", null);
 
         var provider = new NumberFormatInfo {
             NumberDecimalSeparator = ".",
@@ -35,11 +36,17 @@ internal class EcbExchange : IRateProvider
         var exchangeRates = new List<Grand.Domain.Directory.ExchangeRate>();
         foreach (XmlNode node2 in node.ChildNodes)
             exchangeRates.Add(new Grand.Domain.Directory.ExchangeRate {
-                    CurrencyCode = node2.Attributes["currency"].Value,
-                    Rate = double.Parse(node2.Attributes["rate"].Value, provider),
+                    CurrencyCode = Attribute(node2, "currency"),
+                    Rate = double.Parse(Attribute(node2, "rate"), provider),
                     UpdatedOn = updateDate
                 }
             );
         return exchangeRates;
+    }
+
+    private static string Attribute(XmlNode node, string name)
+    {
+        return node.Attributes?[name]?.Value
+               ?? throw new InvalidDataException($"The ECB response has an element without the {name} attribute");
     }
 }

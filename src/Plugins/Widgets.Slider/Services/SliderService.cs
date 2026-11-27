@@ -49,7 +49,7 @@ public class SliderService : ISliderService
     ///     Gets by type
     /// </summary>
     /// <returns>Picture Sliders</returns>
-    public virtual async Task<IList<PictureSlider>> GetPictureSliders(SliderType sliderType, string objectEntry = "")
+    public virtual async Task<IList<PictureSlider>> GetPictureSliders(SliderType sliderType, string? objectEntry = "")
     {
         var cacheKey = string.Format(SLIDERS_MODEL_KEY, _contextAccessor.StoreContext.CurrentStore.Id, sliderType.ToString(),
             objectEntry);
@@ -74,7 +74,7 @@ public class SliderService : ISliderService
     /// </summary>
     /// <param name="slideId">Slide identifier</param>
     /// <returns>Tax rate</returns>
-    public virtual Task<PictureSlider> GetById(string slideId)
+    public virtual Task<PictureSlider?> GetById(string? slideId)
     {
         return _repositoryPictureSlider.GetByIdAsync(slideId);
     }

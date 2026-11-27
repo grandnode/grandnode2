@@ -41,7 +41,7 @@ public class ShippingPointReturnProvider(
     public string ConfigurationUrl => ShippingPointRateDefaults.ConfigurationUrl;
     public IList<string> LimitedToStores => new List<string>();
     public IList<string> LimitedToGroups => new List<string>();
-    public IShipmentTracker ShipmentTracker => null;
+    public IShipmentTracker? ShipmentTracker => null;
 
     public async Task<IList<ReturnShippingOption>> GetReturnOptions(ReturnShippingRequest request)
     {
@@ -133,7 +133,7 @@ public class ShippingPointReturnProvider(
         return Math.Max(0, returnFee);
     }
 
-    private Task<string> Place(ReturnDropOffPoint point)
+    private Task<string> Place(ReturnDropOffPoint? point)
     {
         return point == null
             ? Task.FromResult("")

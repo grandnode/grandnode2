@@ -21,11 +21,11 @@ public class FacebookPixelConsentCookie : IConsentCookie
 
     public Task<string> FullDescription()
     {
-        return Task.FromResult(_facebookPixelSettings.ConsentDescription);
+        return Task.FromResult(_facebookPixelSettings.ConsentDescription ?? "");
     }
 
     public Task<string> Name()
     {
-        return Task.FromResult(_facebookPixelSettings.ConsentName);
+        return Task.FromResult(_facebookPixelSettings.ConsentName ?? "");
     }
 }

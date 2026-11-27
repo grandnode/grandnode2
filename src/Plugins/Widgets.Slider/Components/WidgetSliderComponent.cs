@@ -25,7 +25,7 @@ public class WidgetSliderComponent : ViewComponent
         _contextAccessor = contextAccessor;
     }
 
-    private async Task<string> GetPictureUrl(string pictureId)
+    private async Task<string> GetPictureUrl(string? pictureId)
     {
         var url = await _pictureService.GetPictureUrl(pictureId, showDefaultPicture: false) ?? "";
 
@@ -53,7 +53,7 @@ public class WidgetSliderComponent : ViewComponent
         }
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
+    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object? additionalData = null)
     {
         var model = new PublicInfoModel();
         if (widgetZone == SliderWidgetDefaults.WidgetZoneHomePage)

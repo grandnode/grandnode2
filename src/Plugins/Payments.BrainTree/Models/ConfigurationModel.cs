@@ -12,13 +12,13 @@ public class ConfigurationModel : BaseModel
     public bool UseSandBox { get; set; }
 
     [GrandResourceDisplayName("Plugins.Payments.BrainTree.Fields.MerchantId")]
-    public string MerchantId { get; set; }
+    public string? MerchantId { get; set; }
 
     [GrandResourceDisplayName("Plugins.Payments.BrainTree.Fields.PublicKey")]
-    public string PublicKey { get; set; }
+    public string? PublicKey { get; set; }
 
     [GrandResourceDisplayName("Plugins.Payments.BrainTree.Fields.PrivateKey")]
-    public string PrivateKey { get; set; }
+    public string? PrivateKey { get; set; }
 
     [GrandResourceDisplayName("Plugins.Payments.BrainTree.Fields.AdditionalFee")]
     public double AdditionalFee { get; set; }

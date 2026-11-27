@@ -49,6 +49,10 @@ public class BrainTreePaymentProvider : IPaymentProvider
         _brainTreePaymentSettings = brainTreePaymentSettings;
     }
 
+    //the card is entered and paid for within the storefront's checkout requests
+    private ISession Session => _httpContextAccessor.HttpContext?.Session
+                                ?? throw new InvalidOperationException("BrainTree keeps the card in the session of a checkout request");
+
     public Task<string> GetControllerRouteName()
     {
         return Task.FromResult("Plugin.PaymentBrainTree");
@@ -58,9 +62,9 @@ public class BrainTreePaymentProvider : IPaymentProvider
     ///     Init a process a payment transaction
     /// </summary>
     /// <returns>Payment transaction</returns>
-    public async Task<PaymentTransaction> InitPaymentTransaction()
+    public async Task<PaymentTransaction?> InitPaymentTransaction()
     {
-        return await Task.FromResult<PaymentTransaction>(null);
+        return await Task.FromResult<PaymentTransaction?>(null);
     }
 
     public async Task<IList<string>> ValidatePaymentForm(IDictionary<string, string> model)
@@ -88,28 +92,28 @@ public class BrainTreePaymentProvider : IPaymentProvider
         return await Task.FromResult(warnings);
     }
 
-    public async Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
+    public async Task<PaymentTransaction?> SavePaymentInfo(IDictionary<string, string> model)
     {
         if (model.TryGetValue("CardNonce", out var cardNonce) && !StringValues.IsNullOrEmpty(cardNonce))
-            _httpContextAccessor.HttpContext!.Session.SetString("CardNonce", cardNonce);
+            Session.SetString("CardNonce", cardNonce);
 
         if (model.TryGetValue("CardholderName", out var cardholderName) &&
             !StringValues.IsNullOrEmpty(cardholderName))
-            _httpContextAccessor.HttpContext!.Session.SetString("CardholderName", cardholderName);
+            Session.SetString("CardholderName", cardholderName);
 
         if (model.TryGetValue("CardNumber", out var cardNumber) && !StringValues.IsNullOrEmpty(cardNumber))
-            _httpContextAccessor.HttpContext!.Session.SetString("CardNumber", cardNumber);
+            Session.SetString("CardNumber", cardNumber);
 
         if (model.TryGetValue("ExpireMonth", out var expireMonth) && !StringValues.IsNullOrEmpty(expireMonth))
-            _httpContextAccessor.HttpContext!.Session.SetString("ExpireMonth", expireMonth);
+            Session.SetString("ExpireMonth", expireMonth);
 
         if (model.TryGetValue("ExpireYear", out var expireYear) && !StringValues.IsNullOrEmpty(expireYear))
-            _httpContextAccessor.HttpContext!.Session.SetString("ExpireYear", expireYear);
+            Session.SetString("ExpireYear", expireYear);
 
         if (model.TryGetValue("CardCode", out var creditCardCvv2) && !StringValues.IsNullOrEmpty(creditCardCvv2))
-            _httpContextAccessor.HttpContext!.Session.SetString("CardCode", creditCardCvv2);
+            Session.SetString("CardCode", creditCardCvv2);
 
-        return await Task.FromResult<PaymentTransaction>(null);
+        return await Task.FromResult<PaymentTransaction?>(null);
     }
 
     /// <summary>
@@ -121,7 +125,10 @@ public class BrainTreePaymentProvider : IPaymentProvider
         var processPaymentResult = new ProcessPaymentResult();
 
         //get customer
-        var customer = await _customerService.GetCustomerById(paymentTransaction.CustomerId);
+        var customer = await _customerService.GetCustomerById(paymentTransaction.CustomerId)
+                       ?? throw new InvalidOperationException("The customer of the payment transaction does not exist");
+        var billingAddress = customer.BillingAddress
+                             ?? throw new InvalidOperationException("BrainTree needs the customer's billing address");
 
         //get settings
         var useSandBox = _brainTreePaymentSettings.UseSandBox;
@@ -142,18 +149,18 @@ public class BrainTreePaymentProvider : IPaymentProvider
             Amount = Convert.ToDecimal(paymentTransaction.TransactionAmount)
         };
 
-        var session = _httpContextAccessor.HttpContext!.Session;
+        var session = Session;
         if (_brainTreePaymentSettings.Use3DS)
         {
-            transactionRequest.PaymentMethodNonce = session.GetString("CardNonce")!;
+            transactionRequest.PaymentMethodNonce = session.GetString("CardNonce");
         }
         else
         {
             //transaction credit card request
             var transactionCreditCardRequest = new TransactionCreditCardRequest {
-                Number = session.GetString("CardNumber")!,
-                CVV = session.GetString("CardCode")!,
-                ExpirationDate = session.GetString("ExpireMonth")! + "/" + session.GetString("ExpireYear")!
+                Number = session.GetString("CardNumber"),
+                CVV = session.GetString("CardCode"),
+                ExpirationDate = session.GetString("ExpireMonth") + "/" + session.GetString("ExpireYear")
             };
             transactionRequest.CreditCard = transactionCreditCardRequest;
         }
@@ -164,10 +171,10 @@ public class BrainTreePaymentProvider : IPaymentProvider
 
         //address request
         var addressRequest = new AddressRequest {
-            FirstName = customer.BillingAddress.FirstName,
-            LastName = customer.BillingAddress.LastName,
-            StreetAddress = customer.BillingAddress.Address1,
-            PostalCode = customer.BillingAddress.ZipPostalCode
+            FirstName = billingAddress.FirstName,
+            LastName = billingAddress.LastName,
+            StreetAddress = billingAddress.Address1,
+            PostalCode = billingAddress.ZipPostalCode
         };
         transactionRequest.BillingAddress = addressRequest;
         transactionRequest.CurrencyIsoCode = paymentTransaction.CurrencyCode;

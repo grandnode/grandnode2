@@ -54,9 +54,9 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
     ///     Init a process a payment transaction
     /// </summary>
     /// <returns>Payment transaction</returns>
-    public async Task<PaymentTransaction> InitPaymentTransaction()
+    public async Task<PaymentTransaction?> InitPaymentTransaction()
     {
-        return await Task.FromResult<PaymentTransaction>(null);
+        return await Task.FromResult<PaymentTransaction?>(null);
     }
 
     public async Task<ProcessPaymentResult> ProcessPayment(PaymentTransaction paymentTransaction)
@@ -116,9 +116,9 @@ public class CashOnDeliveryPaymentProvider : IPaymentProvider
         return await Task.FromResult(warnings);
     }
 
-    public async Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model)
+    public async Task<PaymentTransaction?> SavePaymentInfo(IDictionary<string, string> model)
     {
-        return await Task.FromResult<PaymentTransaction>(null);
+        return await Task.FromResult<PaymentTransaction?>(null);
     }
 
     public Task<string> GetControllerRouteName()

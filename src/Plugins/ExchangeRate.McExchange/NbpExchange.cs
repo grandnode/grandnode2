@@ -1,4 +1,3 @@
-using System.Diagnostics;
 using System.Globalization;
 using System.Net.Mime;
 using System.Xml;
@@ -26,14 +25,15 @@ internal class NbpExchange : IRateProvider
         var document = new XmlDocument();
         document.LoadXml(response);
 
-        var node = document.SelectNodes("//EffectiveDate")
-            .Cast<XmlElement>()
-            .OrderByDescending(x => x.InnerText)
-            .First();
+        var node = document.SelectNodes("//EffectiveDate")?
+                       .Cast<XmlElement>()
+                       .OrderByDescending(x => x.InnerText)
+                       .FirstOrDefault()
+                   ?? throw new InvalidDataException("The NBP response has no effective date");
 
         var updateDate = DateTime.ParseExact(node.InnerText, "yyyy-MM-dd", null);
-        Debug.Assert(node.ParentNode != null, "node.ParentNode != null");
-        var ratesNode = node.ParentNode.SelectSingleNode("Rates");
+        var ratesNode = node.ParentNode?.SelectSingleNode("Rates")
+                        ?? throw new InvalidDataException("The NBP response has no rates");
 
         var provider = new NumberFormatInfo {
             CurrencyDecimalSeparator = ".",
@@ -43,14 +43,20 @@ internal class NbpExchange : IRateProvider
         var exchangeRates = new List<Grand.Domain.Directory.ExchangeRate>();
         foreach (XmlNode node2 in ratesNode.ChildNodes)
         {
-            var rate = double.Parse(node2.SelectSingleNode("Mid").InnerText, provider);
+            var rate = double.Parse(Text(node2, "Mid"), provider);
             exchangeRates.Add(new Grand.Domain.Directory.ExchangeRate {
-                CurrencyCode = node2.SelectSingleNode("Code").InnerText,
+                CurrencyCode = Text(node2, "Code"),
                 Rate = Math.Round(1 / rate, 4, MidpointRounding.AwayFromZero),
                 UpdatedOn = updateDate
             });
         }
 
         return exchangeRates;
+    }
+
+    private static string Text(XmlNode node, string name)
+    {
+        return node.SelectSingleNode(name)?.InnerText
+               ?? throw new InvalidDataException($"The NBP response has a rate without {name}");
     }
 }

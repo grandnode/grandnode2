@@ -21,11 +21,11 @@ public class GoogleAnalyticsConsentCookie : IConsentCookie
 
     public Task<string> FullDescription()
     {
-        return Task.FromResult(_googleAnalyticsEcommerceSettings.ConsentDescription);
+        return Task.FromResult(_googleAnalyticsEcommerceSettings.ConsentDescription ?? "");
     }
 
     public Task<string> Name()
     {
-        return Task.FromResult(_googleAnalyticsEcommerceSettings.ConsentName);
+        return Task.FromResult(_googleAnalyticsEcommerceSettings.ConsentName ?? "");
     }
 }

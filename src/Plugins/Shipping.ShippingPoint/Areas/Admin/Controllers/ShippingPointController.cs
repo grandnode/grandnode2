@@ -111,6 +111,9 @@ public class ShippingPointController : BaseShippingController
     public async Task<IActionResult> Edit(string id)
     {
         var shippingPoints = await _shippingPointService.GetStoreShippingPointById(id);
+        if (shippingPoints == null)
+            return RedirectToAction("Configure");
+
         var model = shippingPoints.ToModel();
         await PrepareShippingPointModel(model);
         return View(model);
@@ -140,7 +143,8 @@ public class ShippingPointController : BaseShippingController
     public async Task<IActionResult> Delete(string id)
     {
         var model = await _shippingPointService.GetStoreShippingPointById(id);
-        await _shippingPointService.DeleteStoreShippingPoint(model);
+        if (model != null)
+            await _shippingPointService.DeleteStoreShippingPoint(model);
 
         return new JsonResult("");
     }

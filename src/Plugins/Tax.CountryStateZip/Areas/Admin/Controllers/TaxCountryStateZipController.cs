@@ -57,7 +57,7 @@ public class TaxCountryStateZipController : BaseAdminPluginController
         if (defaultCountry != null)
         {
             var states = await _countryService.GetStateProvincesByCountryId(defaultCountry.Id);
-            foreach (var s in states)
+            foreach (var s in states ?? [])
                 model.AvailableStates.Add(new SelectListItem { Text = s.Name, Value = s.Id });
         }
 
@@ -111,6 +111,9 @@ public class TaxCountryStateZipController : BaseAdminPluginController
     public async Task<IActionResult> RateUpdate(TaxRateModel model)
     {
         var taxRate = await _taxRateService.GetTaxRateById(model.Id);
+        if (taxRate == null)
+            return new JsonResult("");
+
         taxRate.Zip = model.Zip == "*" ? null : model.Zip;
         taxRate.Percentage = model.Percentage;
         await _taxRateService.UpdateTaxRate(taxRate);

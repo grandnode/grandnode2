@@ -33,10 +33,14 @@ public class PaymentStripeCheckoutController : BasePaymentController
     [HttpPost]
     public async Task<IActionResult> WebHook()
     {
+        var stripeSignature = Request.Headers["Stripe-Signature"].ToString();
+        if (string.IsNullOrEmpty(stripeSignature))
+            return BadRequest("The request has no Stripe-Signature header");
+
         var json = await new StreamReader(Request.Body).ReadToEndAsync();
         try
         {
-            await _stripeCheckoutService.WebHookProcessPayment(Request.Headers["Stripe-Signature"], json);
+            await _stripeCheckoutService.WebHookProcessPayment(stripeSignature, json);
             return Ok();
         }
         catch (Exception e)

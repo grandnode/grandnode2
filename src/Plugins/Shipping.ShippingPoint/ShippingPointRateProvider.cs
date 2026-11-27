@@ -110,6 +110,10 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
 
         //override price 
         var offeredShippingOptions = _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<List<ShippingOption>>(SystemCustomerFieldNames.OfferedShippingOptions, _contextAccessor.StoreContext.CurrentStore.Id);
+        //the options are offered on the shipping step, which comes before this one
+        if (offeredShippingOptions == null)
+            return new List<string> { _translationService.GetResource("Shipping.ShippingPoint.SelectBeforeProceed") };
+
         offeredShippingOptions.First(x => x.Name == shippingMethodName).Rate =
             await _currencyService.ConvertFromPrimaryStoreCurrency(chosenShippingOption.PickupFee,
                 _contextAccessor.WorkContext.WorkingCurrency);
@@ -166,7 +170,7 @@ public class ShippingPointRateProvider : IShippingRateCalculationProvider
 
     public ShippingRateCalculationType ShippingRateCalculationType => ShippingRateCalculationType.Off;
 
-    public IShipmentTracker ShipmentTracker => null;
+    public IShipmentTracker? ShipmentTracker => null;
 
     public string ConfigurationUrl => ShippingPointRateDefaults.ConfigurationUrl;
 

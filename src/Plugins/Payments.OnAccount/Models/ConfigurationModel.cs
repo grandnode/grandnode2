@@ -6,7 +6,7 @@ namespace Payments.OnAccount.Models;
 
 public class ConfigurationModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
     [GrandResourceDisplayName("Plugins.Payments.OnAccount.BlockWhenOverdue")]
     public bool BlockWhenOverdue { get; set; }

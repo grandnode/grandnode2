@@ -8,11 +8,11 @@ namespace DiscountRules.Standard.Models;
 public class RequirementCustomerGroupsModel
 {
     [GrandResourceDisplayName("Plugins.DiscountRules.CustomerGroups.Fields.CustomerGroup")]
-    public string CustomerGroupId { get; set; }
+    public string? CustomerGroupId { get; set; }
 
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
 
-    public string RequirementId { get; set; }
+    public string? RequirementId { get; set; }
 
     public IList<SelectListItem> AvailableCustomerGroups { get; set; } = new List<SelectListItem>();
 }
@@ -22,40 +22,40 @@ public class RequirementSpentAmountModel
     [GrandResourceDisplayName("Plugins.DiscountRules.Standard.HadSpentAmount.Fields.Amount")]
     public double SpentAmount { get; set; }
 
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
 
-    public string RequirementId { get; set; }
+    public string? RequirementId { get; set; }
 }
 
 public class RequirementAllProductsModel
 {
     [GrandResourceDisplayName("Plugins.DiscountRules.HasAllProducts.Fields.Products")]
-    public string Products { get; set; }
+    public string? Products { get; set; }
 
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
 
-    public string RequirementId { get; set; }
+    public string? RequirementId { get; set; }
 
     #region Nested classes
 
     public class AddProductModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-        public string SearchProductName { get; set; }
+        public string? SearchProductName { get; set; }
 
         [UIHint("Category")]
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-        public string SearchCategoryId { get; set; }
+        public string? SearchCategoryId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
         [UIHint("Collection")]
-        public string SearchCollectionId { get; set; }
+        public string? SearchCollectionId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-        public string SearchStoreId { get; set; }
+        public string? SearchStoreId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-        public string SearchVendorId { get; set; }
+        public string? SearchVendorId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
@@ -71,7 +71,7 @@ public class RequirementAllProductsModel
 
     public class ProductModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public bool Published { get; set; }
     }
@@ -82,32 +82,32 @@ public class RequirementAllProductsModel
 public class RequirementOneProductModel
 {
     [GrandResourceDisplayName("Plugins.DiscountRules.HasOneProduct.Fields.Products")]
-    public string Products { get; set; }
+    public string? Products { get; set; }
 
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
 
-    public string RequirementId { get; set; }
+    public string? RequirementId { get; set; }
 
     #region Nested classes
 
     public class AddProductModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
-        public string SearchProductName { get; set; }
+        public string? SearchProductName { get; set; }
 
         [UIHint("Category")]
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-        public string SearchCategoryId { get; set; }
+        public string? SearchCategoryId { get; set; }
 
         [UIHint("Collection")]
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
-        public string SearchCollectionId { get; set; }
+        public string? SearchCollectionId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-        public string SearchStoreId { get; set; }
+        public string? SearchStoreId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-        public string SearchVendorId { get; set; }
+        public string? SearchVendorId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
@@ -122,7 +122,7 @@ public class RequirementOneProductModel
 
     public class ProductModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         public bool Published { get; set; }
     }
@@ -135,7 +135,7 @@ public class RequirementShoppingCartModel
     [GrandResourceDisplayName("Plugins.DiscountRules.ShoppingCart.Fields.Amount")]
     public double SpentAmount { get; set; }
 
-    public string DiscountId { get; set; }
+    public string? DiscountId { get; set; }
 
-    public string RequirementId { get; set; }
+    public string? RequirementId { get; set; }
 }

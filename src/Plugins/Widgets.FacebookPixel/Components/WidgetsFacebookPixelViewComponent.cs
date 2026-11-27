@@ -29,7 +29,7 @@ public class WidgetsFacebookPixelViewComponent : ViewComponent
         _facebookPixelSettings = facebookPixelSettings;
     }
 
-    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object additionalData = null)
+    public async Task<IViewComponentResult> InvokeAsync(string widgetZone, object? additionalData = null)
     {
         if (_facebookPixelSettings.AllowToDisableConsentCookie)
         {

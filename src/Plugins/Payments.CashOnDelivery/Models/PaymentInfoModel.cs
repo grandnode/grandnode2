@@ -4,5 +4,5 @@ namespace Payments.CashOnDelivery.Models;
 
 public class PaymentInfoModel : BaseModel
 {
-    public string DescriptionText { get; set; }
+    public string? DescriptionText { get; set; }
 }

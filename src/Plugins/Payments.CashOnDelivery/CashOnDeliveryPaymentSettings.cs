@@ -6,7 +6,7 @@ public class CashOnDeliveryPaymentSettings : ISettings
 {
     public int DisplayOrder { get; set; }
 
-    public string DescriptionText { get; set; }
+    public string? DescriptionText { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to "additional fee" is specified as percentage. true - percentage, false -
