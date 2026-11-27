@@ -20,14 +20,13 @@ public class KnowledgebaseArticleModelValidator : BaseGrandValidator<Knowledgeba
         RuleFor(x => x.ParentCategoryId).NotEmpty().WithMessage(
             translationService.GetResource(
                 "Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.ParentCategoryId.Required"));
-        RuleFor(x => x.ParentCategoryId).Must(x =>
+        RuleFor(x => x.ParentCategoryId).MustAsync(async (x, _) =>
         {
-            var category = knowledgebaseService.GetKnowledgebaseCategory(x);
-            if (category != null) return true;
-
-            return false;
+            var category = await knowledgebaseService.GetKnowledgebaseCategory(x);
+            return category != null;
         }).WithMessage(
             translationService.GetResource(
-                "Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.ParentCategoryId.MustExist"));
+                "Admin.Content.Knowledgebase.KnowledgebaseArticle.Fields.ParentCategoryId.MustExist"))
+            .When(x => !string.IsNullOrEmpty(x.ParentCategoryId));
     }
 }
