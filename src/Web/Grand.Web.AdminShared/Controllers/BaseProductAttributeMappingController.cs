@@ -80,8 +80,15 @@ public abstract class BaseProductAttributeMappingController(
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> ProductAttributeMappingPopup(ProductModel.ProductAttributeMappingModel model)
+    public async Task<IActionResult> ProductAttributeMappingPopup(ProductModel.ProductAttributeMappingModel model,
+        [FromServices] IProductAttributeService productAttributeService)
     {
+        //checked here, not in the validator: the validation rules popup posts this model without an attribute
+        if (string.IsNullOrEmpty(model.ProductAttributeId) ||
+            await productAttributeService.GetProductAttributeById(model.ProductAttributeId) == null)
+            ModelState.AddModelError(nameof(model.ProductAttributeId), translationService.GetResource(
+                "Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute.Required"));
+
         if (ModelState.IsValid)
         {
             var product = await productService.GetProductById(model.ProductId);

@@ -2829,4 +2829,7 @@
 	<Resource Name="Admin.Settings.Customer.SignOutOnAllDevices" Area="Admin">
 		<Value>Sign out on all devices</Value>
 	</Resource>
+	<Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute.Required" Area="Admin">
+		<Value>Please select an attribute.</Value>
+	</Resource>
 </Language>
