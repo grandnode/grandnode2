@@ -4,13 +4,16 @@ using Grand.Infrastructure.Validators;
 using Grand.Web.AdminShared.Models.Customers;
 using Grand.Web.Common.Localization;
 
+#pragma warning disable CS0618 //API users stay supported until removed
+
 namespace Grand.Web.AdminShared.Validators.Customers;
 
 public class UserApiCreateValidator : BaseGrandValidator<UserApiCreateModel>
 {
     public UserApiCreateValidator(
         IEnumerable<IValidatorConsumer<UserApiCreateModel>> validators,
-        IRequestTranslationService translationService, ICustomerService customerService)
+        IRequestTranslationService translationService, ICustomerService customerService,
+        IUserApiService userApiService)
         : base(validators)
     {
         RuleFor(x => x.Password).NotEmpty()
@@ -28,5 +31,8 @@ public class UserApiCreateValidator : BaseGrandValidator<UserApiCreateModel>
 
             return false;
         }).WithMessage(translationService.GetResource("Admin.System.UserApi.Email.CustomerNotExist"));
+        RuleFor(x => x.Email).MustAsync(async (email, _) =>
+                string.IsNullOrEmpty(email) || await userApiService.GetUserByEmail(email) == null)
+            .WithMessage(translationService.GetResource("Admin.System.UserApi.Email.Registered"));
     }
 }

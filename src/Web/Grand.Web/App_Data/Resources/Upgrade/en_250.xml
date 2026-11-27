@@ -2841,4 +2841,7 @@
 	<Resource Name="Admin.Configuration.Currencies.CantDeleteUsedByOrders" Area="Admin">
 		<Value>Orders were placed in this currency, so it can't be deleted. Unpublish it instead.</Value>
 	</Resource>
+	<Resource Name="Admin.System.UserApi.Email.Registered" Area="Admin">
+		<Value>An API user with this e-mail already exists</Value>
+	</Resource>
 </Language>
