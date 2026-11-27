@@ -2829,4 +2829,7 @@
 	<Resource Name="Admin.Settings.Customer.SignOutOnAllDevices" Area="Admin">
 		<Value>Sign out on all devices</Value>
 	</Resource>
+	<Resource Name="Admin.System.UserApi.Email.Registered" Area="Admin">
+		<Value>An API user with this e-mail already exists</Value>
+	</Resource>
 </Language>

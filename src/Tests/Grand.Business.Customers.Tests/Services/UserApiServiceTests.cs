@@ -41,6 +41,22 @@ public class UserApiServiceTests
     }
 
     [TestMethod]
+    public async Task InsertUserApi_StoresTheEmailInLowerCase()
+    {
+        var user = new UserApi { Email = "Api@Shop.com" };
+        await _userApiService.InsertUserApi(user);
+        _repositoryMock.Verify(c => c.InsertAsync(It.Is<UserApi>(u => u.Email == "api@shop.com")), Times.Once);
+    }
+
+    [TestMethod]
+    public async Task UpdateUserApi_StoresTheEmailInLowerCase()
+    {
+        var user = new UserApi { Email = "Api@Shop.com" };
+        await _userApiService.UpdateUserApi(user);
+        _repositoryMock.Verify(c => c.UpdateAsync(It.Is<UserApi>(u => u.Email == "api@shop.com")), Times.Once);
+    }
+
+    [TestMethod]
     public async Task DeleteUserApi_ValidArguments_InvokeRepositoryAndPublishEvent()
     {
         await _userApiService.DeleteUserApi(new UserApi());

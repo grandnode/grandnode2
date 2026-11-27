@@ -42,6 +42,9 @@ public class UserApiService : IUserApiService
     /// <param name="userApi">User api</param>
     public virtual async Task InsertUserApi(UserApi userApi)
     {
+        //stored as GetUserByEmail looks it up, so the unique e-mail index and the lookup agree
+        if (!string.IsNullOrEmpty(userApi.Email))
+            userApi.Email = userApi.Email.ToLowerInvariant();
         await _userRepository.InsertAsync(userApi);
 
         //event notification
@@ -54,6 +57,8 @@ public class UserApiService : IUserApiService
     /// <param name="userApi">User api</param>
     public virtual async Task UpdateUserApi(UserApi userApi)
     {
+        if (!string.IsNullOrEmpty(userApi.Email))
+            userApi.Email = userApi.Email.ToLowerInvariant();
         await _userRepository.UpdateAsync(userApi);
 
         //event notification
