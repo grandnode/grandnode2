@@ -672,9 +672,10 @@ public class ProductController : BasePublicController
         [FromServices] IGroupService groupService,
         [FromServices] IProductReviewService productReviewService)
     {
+        //the review may have been deleted while the page was open
         var productReview = await productReviewService.GetProductReviewById(productReviewId);
         if (productReview == null)
-            throw new ArgumentException("No product review found with the specified id");
+            return NotFound();
 
         if (await groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) &&
             !_catalogSettings.AllowAnonymousUsersToReviewProduct)

@@ -232,9 +232,12 @@ public class CountryService : ICountryService
         if (string.IsNullOrEmpty(countryId))
             return new List<StateProvince>();
 
+        //a country deleted meanwhile has no states either, as a country not chosen yet
         var country = await GetCountryById(countryId);
+        if (country == null)
+            return new List<StateProvince>();
 
-        return country?.StateProvinces.OrderBy(c => c.DisplayOrder)
+        return country.StateProvinces.OrderBy(c => c.DisplayOrder)
             .ThenBy(c => c.GetTranslation(x => x.Name, languageId))
             .ToList();
     }
