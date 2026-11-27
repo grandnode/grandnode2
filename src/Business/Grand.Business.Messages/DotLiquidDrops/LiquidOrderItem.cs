@@ -11,17 +11,17 @@ namespace Grand.Business.Messages.DotLiquidDrops;
 
 public class LiquidOrderItem : Drop
 {
-    private readonly DomainHost _host;
-    private readonly Language _language;
+    private readonly DomainHost? _host;
+    private readonly Language? _language;
     private readonly OrderItem _orderItem;
-    private readonly Product _product;
+    private readonly Product? _product;
     private readonly Store _store;
-    private readonly Vendor _vendor;
+    private readonly Vendor? _vendor;
 
     private readonly string url;
 
-    public LiquidOrderItem(OrderItem orderItem, Product product, Language language, Store store, DomainHost host,
-        Vendor vendor)
+    public LiquidOrderItem(OrderItem orderItem, Product? product, Language? language, Store store, DomainHost host,
+        Vendor? vendor)
     {
         _orderItem = orderItem;
         _store = store;
@@ -35,13 +35,13 @@ public class LiquidOrderItem : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string UnitPrice { get; set; }
+    public string? UnitPrice { get; set; }
     public bool UnitPriceWithTax { get; set; }
 
-    public string TotalPrice { get; set; }
+    public string? TotalPrice { get; set; }
     public bool TotalPriceWithTax { get; set; }
 
-    public string ProductSku { get; set; }
+    public string? ProductSku { get; set; }
 
     public bool IsDownloadAllowed { get; set; }
 
@@ -63,56 +63,56 @@ public class LiquidOrderItem : Drop
 
     public Guid OrderItemGuid => _orderItem.OrderItemGuid;
 
-    public string ProductName {
+    public string? ProductName {
         get {
             var name = "";
 
             if (_product != null)
-                name = WebUtility.HtmlEncode(_product.GetTranslation(x => x.Name, _language.Id));
+                name = WebUtility.HtmlEncode(_product.GetTranslation(x => x.Name, _language?.Id));
 
             return name;
         }
     }
 
-    public string ProductSeName {
+    public string? ProductSeName {
         get {
             var name = "";
 
             if (_product != null)
-                name = _product.GetTranslation(x => x.SeName, _language.Id);
+                name = _product.GetTranslation(x => x.SeName, _language?.Id);
             return name;
         }
     }
 
-    public string ProductShortDescription {
+    public string? ProductShortDescription {
         get {
             var desc = "";
 
             if (_product != null)
-                desc = WebUtility.HtmlEncode(_product.GetTranslation(x => x.ShortDescription, _language.Id));
+                desc = WebUtility.HtmlEncode(_product.GetTranslation(x => x.ShortDescription, _language?.Id));
 
             return desc;
         }
     }
 
-    public string ProductFullDescription {
+    public string? ProductFullDescription {
         get {
             var desc = "";
 
             if (_product != null)
-                desc = WebUtility.HtmlDecode(_product.GetTranslation(x => x.FullDescription, _language.Id));
+                desc = WebUtility.HtmlDecode(_product.GetTranslation(x => x.FullDescription, _language?.Id));
 
             return desc;
         }
     }
 
-    public string ProductId => _orderItem.ProductId;
+    public string? ProductId => _orderItem.ProductId;
 
-    public string VendorId => _orderItem.VendorId;
+    public string? VendorId => _orderItem.VendorId;
 
-    public string VendorName => _vendor?.Name;
+    public string? VendorName => _vendor?.Name;
 
-    public string WarehouseId => _orderItem.WarehouseId;
+    public string? WarehouseId => _orderItem.WarehouseId;
 
     public int Quantity => _orderItem.Quantity;
 
@@ -142,29 +142,29 @@ public class LiquidOrderItem : Drop
 
     public double OriginalProductCost => _orderItem.OriginalProductCost;
 
-    public string AttributeDescription => _orderItem.AttributeDescription;
+    public string? AttributeDescription => _orderItem.AttributeDescription;
 
     public int DownloadCount => _orderItem.DownloadCount;
 
     public bool IsDownloadActivated => _orderItem.IsDownloadActivated;
 
-    public string LicenseDownloadId => _orderItem.LicenseDownloadId;
+    public string? LicenseDownloadId => _orderItem.LicenseDownloadId;
 
     public double? ItemWeight => _orderItem.ItemWeight;
 
-    public double ProductWeight => _product.Weight;
+    public double ProductWeight => _product?.Weight ?? 0;
 
-    public double ProductLength => _product.Length;
+    public double ProductLength => _product?.Length ?? 0;
 
-    public double ProductWidth => _product.Width;
+    public double ProductWidth => _product?.Width ?? 0;
 
-    public double ProductHeight => _product.Height;
+    public double ProductHeight => _product?.Height ?? 0;
 
-    public double ProductCatalogPrice => _product.CatalogPrice;
+    public double ProductCatalogPrice => _product?.CatalogPrice ?? 0;
 
-    public double ProductOldPrice => _product.OldPrice;
+    public double ProductOldPrice => _product?.OldPrice ?? 0;
 
-    public string ProductFlag => _product.Flag;
+    public string? ProductFlag => _product?.Flag;
 
     public DateTime? RentalStartDateUtc => _orderItem.RentalStartDateUtc;
 

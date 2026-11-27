@@ -54,7 +54,7 @@ internal static class ReturnableQuantities
     ///     Whether the customer may return the product: not one marked not returnable, nor one in neither the catalog
     ///     nor its archive
     /// </summary>
-    public static bool MayBeReturned(Product product)
+    public static bool MayBeReturned(Product? product)
     {
         return product is { NotReturnable: false };
     }

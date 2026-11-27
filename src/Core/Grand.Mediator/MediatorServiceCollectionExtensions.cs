@@ -75,7 +75,7 @@ public static class MediatorServiceCollectionExtensions
         }
         catch (ReflectionTypeLoadException ex)
         {
-            return ex.Types.Where(type => type != null);
+            return ex.Types.OfType<Type>();
         }
     }
 }

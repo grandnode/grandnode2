@@ -12,26 +12,26 @@ public interface ICurrencyService
     /// </summary>
     /// <param name="currencyId">Currency identifier</param>
     /// <returns>Currency</returns>
-    Task<Currency> GetCurrencyById(string currencyId);
+    Task<Currency?> GetCurrencyById(string? currencyId);
 
     /// <summary>
     ///     Gets primary store currency
     /// </summary>
     /// <returns>Currency</returns>
-    Task<Currency> GetPrimaryStoreCurrency();
+    Task<Currency?> GetPrimaryStoreCurrency();
 
     /// <summary>
     ///     Gets primary exchange currency
     /// </summary>
     /// <returns>Currency</returns>
-    Task<Currency> GetPrimaryExchangeRateCurrency();
+    Task<Currency?> GetPrimaryExchangeRateCurrency();
 
     /// <summary>
     ///     Gets a currency by code
     /// </summary>
     /// <param name="currencyCode">Currency code</param>
     /// <returns>Currency</returns>
-    Task<Currency> GetCurrencyByCode(string currencyCode);
+    Task<Currency?> GetCurrencyByCode(string? currencyCode);
 
     /// <summary>
     ///     Gets all currencies
@@ -39,7 +39,7 @@ public interface ICurrencyService
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <param name="storeId">Load records allowed only in a specified store; pass "" to load all records</param>
     /// <returns>Currencies</returns>
-    Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string storeId = "");
+    Task<IList<Currency>> GetAllCurrencies(bool showHidden = false, string? storeId = "");
 
     /// <summary>
     ///     Inserts a currency
@@ -106,5 +106,5 @@ public interface ICurrencyService
     /// <param name="amount">Amount</param>
     /// <param name="targetCurrencyCode">Target currency code</param>
     /// <returns>Converted value</returns>
-    Task<double> ConvertFromPrimaryStoreCurrency(double amount, Currency targetCurrencyCode);
+    Task<double> ConvertFromPrimaryStoreCurrency(double amount, Currency? targetCurrencyCode);
 }

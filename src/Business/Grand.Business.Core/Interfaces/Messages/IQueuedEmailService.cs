@@ -28,7 +28,7 @@ public interface IQueuedEmailService
     /// </summary>
     /// <param name="invoiceDownloadId">Download identifier of the invoice</param>
     /// <returns>Download identifier of the copy; null when there is no invoice to copy</returns>
-    Task<string> CopyInvoiceDownload(string invoiceDownloadId);
+    Task<string?> CopyInvoiceDownload(string? invoiceDownloadId);
 
     /// <summary>
     ///     Deleted a customer emails and their invoices
@@ -47,7 +47,7 @@ public interface IQueuedEmailService
     /// </summary>
     /// <param name="queuedEmailId">Queued email identifier</param>
     /// <returns>Queued email</returns>
-    Task<QueuedEmail> GetQueuedEmailById(string queuedEmailId);
+    Task<QueuedEmail?> GetQueuedEmailById(string? queuedEmailId);
 
     /// <summary>
     ///     Get queued emails by identifiers
@@ -73,10 +73,10 @@ public interface IQueuedEmailService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Queued emails</returns>
-    Task<IPagedList<QueuedEmail>> SearchEmails(string fromEmail,
-        string toEmail, string text, DateTime? createdFromUtc, DateTime? createdToUtc,
+    Task<IPagedList<QueuedEmail>> SearchEmails(string? fromEmail,
+        string? toEmail, string? text, DateTime? createdFromUtc, DateTime? createdToUtc,
         bool loadNotSentItemsOnly, bool loadOnlyItemsToBeSent, int maxSendTries,
-        bool loadNewest, int referenceId = -1, string objectId = "",
+        bool loadNewest, int referenceId = -1, string? objectId = "",
         int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>

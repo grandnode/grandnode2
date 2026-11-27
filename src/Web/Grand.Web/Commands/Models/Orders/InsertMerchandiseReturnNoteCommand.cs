@@ -10,12 +10,12 @@ namespace Grand.Web.Commands.Models.Orders;
 ///     A message the customer writes to the store on their merchandise return, with an image when they add one; the
 ///     reason it was refused, as a resource key, or null
 /// </summary>
-public class InsertMerchandiseReturnNoteCommand : IRequest<string>
+public class InsertMerchandiseReturnNoteCommand : IRequest<string?>
 {
-    public MerchandiseReturn MerchandiseReturn { get; set; }
-    public Order Order { get; set; }
-    public string Note { get; set; }
-    public IFormFile File { get; set; }
-    public Customer Customer { get; set; }
-    public DomainHost Host { get; set; }
+    public required MerchandiseReturn MerchandiseReturn { get; set; }
+    public required Order Order { get; set; }
+    public string? Note { get; set; }
+    public required IFormFile File { get; set; }
+    public required Customer Customer { get; set; }
+    public required DomainHost Host { get; set; }
 }

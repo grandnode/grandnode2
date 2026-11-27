@@ -9,12 +9,12 @@ namespace Grand.Web.Features.Models.ShoppingCart;
 
 public class GetEstimateShippingResult : IRequest<EstimateShippingResultModel>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Currency Currency { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Currency Currency { get; set; }
 
-    public IList<ShoppingCartItem> Cart { get; set; }
-    public string CountryId { get; set; }
-    public string StateProvinceId { get; set; }
-    public string ZipPostalCode { get; set; }
+    public required IList<ShoppingCartItem> Cart { get; set; }
+    public string? CountryId { get; set; }
+    public string? StateProvinceId { get; set; }
+    public string? ZipPostalCode { get; set; }
 }

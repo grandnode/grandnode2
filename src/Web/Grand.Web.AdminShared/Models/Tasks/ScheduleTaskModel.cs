@@ -7,10 +7,10 @@ namespace Grand.Web.AdminShared.Models.Tasks;
 public class ScheduleTaskModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.System.ScheduleTasks.ScheduleTaskName")]
-    public string ScheduleTaskName { get; set; }
+    public string? ScheduleTaskName { get; set; }
 
     [GrandResourceDisplayName("Admin.System.ScheduleTasks.LeasedByMachineName")]
-    public string LeasedByMachineName { get; set; }    
+    public string? LeasedByMachineName { get; set; }    
 
     [GrandResourceDisplayName("Admin.System.ScheduleTasks.Enabled")]
     public bool Enabled { get; set; }
@@ -31,7 +31,7 @@ public class ScheduleTaskModel : BaseEntityModel
     public int TimeInterval { get; set; }
 
     [GrandResourceDisplayName("Admin.System.ScheduleTasks.StoreId")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 }

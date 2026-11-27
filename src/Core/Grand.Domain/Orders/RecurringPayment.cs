@@ -15,24 +15,24 @@ public class RecurringPayment : BaseEntity
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the order the customer placed
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string InitialOrderId { get; set; }
+    public string InitialOrderId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the system name of the payment method that runs the schedule
     /// </summary>
-    public string PaymentMethodSystemName { get; set; }
+    public string? PaymentMethodSystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the cycle length
@@ -63,7 +63,7 @@ public class RecurringPayment : BaseEntity
     /// <summary>
     ///     Gets or sets the gateway's subscription identifier
     /// </summary>
-    public string ProviderReference { get; set; }
+    public string? ProviderReference { get; set; }
 
     /// <summary>
     ///     Gets or sets the next payment date as reported by the provider; informational only
@@ -73,7 +73,7 @@ public class RecurringPayment : BaseEntity
     /// <summary>
     ///     Gets or sets the reason the last cycle failed
     /// </summary>
-    public string LastError { get; set; }
+    public string? LastError { get; set; }
 
     /// <summary>
     ///     Gets or sets the date and time the last cycle failed
@@ -88,7 +88,7 @@ public class RecurringPayment : BaseEntity
     /// <summary>
     ///     Gets or sets who cancelled: the customer, a staff name or the provider
     /// </summary>
-    public string CancelledBy { get; set; }
+    public string? CancelledBy { get; set; }
 
     /// <summary>
     ///     Gets or sets the paid cycles

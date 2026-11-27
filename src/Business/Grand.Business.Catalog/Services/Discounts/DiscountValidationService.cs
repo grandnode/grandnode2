@@ -39,10 +39,9 @@ public class DiscountValidationService : IDiscountValidationService
         Currency currency)
     {
         ArgumentNullException.ThrowIfNull(discount);
+        ArgumentNullException.ThrowIfNull(customer);
 
-        string[] couponCodesToValidate = null;
-        if (customer != null)
-            couponCodesToValidate = customer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
+        var couponCodesToValidate = customer.ParseAppliedCouponCodes(SystemCustomerFieldNames.DiscountCoupons);
 
         return await ValidateDiscount(discount, customer, store, currency, couponCodesToValidate);
     }
@@ -78,7 +77,7 @@ public class DiscountValidationService : IDiscountValidationService
     /// <returns>Discount validation result</returns>
     public virtual async Task<DiscountValidationResult> ValidateDiscount(Discount discount, Customer customer,
         Store store,
-        Currency currency, string[] couponCodesToValidate)
+        Currency currency, string[]? couponCodesToValidate)
     {
         ArgumentNullException.ThrowIfNull(discount);
         ArgumentNullException.ThrowIfNull(customer);
@@ -218,7 +217,7 @@ public class DiscountValidationService : IDiscountValidationService
     /// <summary>
     ///     Counts the usage history of a discount, of one customer when customerId is set
     /// </summary>
-    private Task<int> GetUsedTimes(string discountId, string customerId)
+    private Task<int> GetUsedTimes(string discountId, string? customerId)
     {
         var query = _discountUsageHistoryRepository.Table.Where(x => x.DiscountId == discountId);
         if (!string.IsNullOrEmpty(customerId))

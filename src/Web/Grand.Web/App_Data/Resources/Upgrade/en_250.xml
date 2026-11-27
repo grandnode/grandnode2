@@ -2829,4 +2829,16 @@
 	<Resource Name="Admin.Settings.Customer.SignOutOnAllDevices" Area="Admin">
 		<Value>Sign out on all devices</Value>
 	</Resource>
+	<Resource Name="Admin.Configuration.Permissions.CantRemoveOwnAccess" Area="Admin">
+		<Value>You can't take away your own access to the admin panel or to the permissions. Another administrator can change them.</Value>
+	</Resource>
+	<Resource Name="Admin.Settings.GeneralCommon.AdminAreaAllowedIpAddresses.WithoutOwn" Area="Admin">
+		<Value>The allowed IP addresses were not changed: they don't include your address ({0}), so you would be shut out of the admin panel.</Value>
+	</Resource>
+	<Resource Name="Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute.Required" Area="Admin">
+		<Value>Please select an attribute.</Value>
+	</Resource>
+	<Resource Name="Admin.Configuration.Currencies.CantDeleteUsedByOrders" Area="Admin">
+		<Value>Orders were placed in this currency, so it can't be deleted. Unpublish it instead.</Value>
+	</Resource>
 </Language>

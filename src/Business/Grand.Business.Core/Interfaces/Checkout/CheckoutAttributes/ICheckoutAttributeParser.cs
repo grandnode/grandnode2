@@ -28,7 +28,7 @@ public interface ICheckoutAttributeParser
     /// <param name="customAttributes">Attributes</param>
     /// <returns>Checkout attribute values with checkout attribute </returns>
     Task<IList<(CheckoutAttribute ca, CheckoutAttributeValue cav)>> ParseCheckoutAttributeValue(
-        IList<CustomAttribute> customAttributes);
+        IList<CustomAttribute>? customAttributes);
 
     /// <summary>
     ///     Adds an attribute

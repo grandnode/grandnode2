@@ -13,17 +13,18 @@ namespace Grand.Web.Common.TagHelpers;
 
 public class LocalizedEditorTagHelper : TagHelper
 {
-    [HtmlAttributeName("name")] public string Name { get; set; }
+    [HtmlAttributeName("name")] public string? Name { get; set; }
 
     [HtmlAttributeName("ignore-if-severa-stores")]
     public bool IgnoreIfSeveralStores { get; set; } = false;
 
-    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; } = null!;
 
     [HtmlAttributeName("localized-template")]
-    public Func<int, HelperResult> LocalizedTemplate { get; set; }
+    public Func<int, HelperResult>? LocalizedTemplate { get; set; }
 
-    [HtmlAttributeName("language-ids")] public List<string> LanguagesIds { get; set; }
+    [HtmlAttributeName("language-ids")] public List<string?>? LanguagesIds { get; set; }
 
     private static TagBuilder Item(IHtmlContent label, bool active)
     {
@@ -43,7 +44,8 @@ public class LocalizedEditorTagHelper : TagHelper
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        var localizationSupported = LanguagesIds.Count > 1;
+        var languageIds = LanguagesIds ?? [];
+        var localizationSupported = languageIds.Count > 1;
         var standardContent = (await output.GetChildContentAsync()).GetContent();
         if (IgnoreIfSeveralStores)
         {
@@ -70,12 +72,12 @@ public class LocalizedEditorTagHelper : TagHelper
 
             var languageService = ViewContext.HttpContext.RequestServices.GetRequiredService<ILanguageService>();
             var urlHelper = new UrlHelper(ViewContext);
-            foreach (var locale in LanguagesIds)
+            foreach (var locale in languageIds)
             {
                 var language = await languageService.GetLanguageById(locale);
                 var label = new HtmlContentBuilder();
                 //a language without a flag file shows its name only - an img pointing at the flags folder 404s
-                if (!string.IsNullOrEmpty(language.FlagImageFileName))
+                if (!string.IsNullOrEmpty(language?.FlagImageFileName))
                 {
                     var icon = new TagBuilder("img") { TagRenderMode = TagRenderMode.SelfClosing };
                     icon.AddCssClass("k-image");
@@ -84,7 +86,8 @@ public class LocalizedEditorTagHelper : TagHelper
                     label.AppendHtml(icon);
                     label.Append(" ");
                 }
-                label.Append(language.Name);
+                //a language deleted meanwhile keeps its tab, named by its id
+                label.Append(language?.Name ?? locale);
                 items.InnerHtml.AppendHtml(Item(label, false));
             }
 
@@ -93,8 +96,8 @@ public class LocalizedEditorTagHelper : TagHelper
             var content = new TagBuilder("div");
             content.AddCssClass("tab-content");
             content.InnerHtml.AppendHtml(AdminTabStripTagHelper.Pane(standardContent, true));
-            for (var i = 0; i < LanguagesIds.Count; i++)
-                content.InnerHtml.AppendHtml(AdminTabStripTagHelper.Pane(LocalizedTemplate(i), false));
+            for (var i = 0; i < languageIds.Count; i++)
+                content.InnerHtml.AppendHtml(AdminTabStripTagHelper.Pane(LocalizedTemplate?.Invoke(i) ?? (IHtmlContent)HtmlString.Empty, false));
             strip.InnerHtml.AppendHtml(content);
 
             output.TagName = null;

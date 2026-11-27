@@ -53,7 +53,7 @@ public class ContactAttributeChangeCommandHandler : IRequestHandler<ContactAttri
                 case AttributeControlType.ColorSquares:
                 case AttributeControlType.ImageSquares:
                     {
-                        var ctrlAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        var ctrlAttributes = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(ctrlAttributes))
                             customAttributes = _contactAttributeParser.AddContactAttribute(customAttributes,
                                 attribute, ctrlAttributes).ToList();
@@ -61,7 +61,7 @@ public class ContactAttributeChangeCommandHandler : IRequestHandler<ContactAttri
                     break;
                 case AttributeControlType.Checkboxes:
                     {
-                        var cblAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        var cblAttributes = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(cblAttributes))
                             foreach (var item in cblAttributes.Split(','))
                                 customAttributes = _contactAttributeParser
@@ -84,7 +84,7 @@ public class ContactAttributeChangeCommandHandler : IRequestHandler<ContactAttri
                 case AttributeControlType.MultilineTextbox:
                 case AttributeControlType.FileUpload:
                     {
-                        var ctrlAttributes = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id)?.Value;
+                        var ctrlAttributes = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id)?.Value;
                         if (!string.IsNullOrEmpty(ctrlAttributes))
                         {
                             var enteredText = ctrlAttributes.Trim();
@@ -94,9 +94,9 @@ public class ContactAttributeChangeCommandHandler : IRequestHandler<ContactAttri
                     break;
                 case AttributeControlType.Datepicker:
                     {
-                        var date = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id + "_day")?.Value;
-                        var month = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id + "_month")?.Value;
-                        var year = request.Attributes.FirstOrDefault(x => x.Key == attribute.Id + "_year")?.Value;
+                        var date = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id + "_day")?.Value;
+                        var month = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id + "_month")?.Value;
+                        var year = (request.Attributes ?? []).FirstOrDefault(x => x.Key == attribute.Id + "_year")?.Value;
                         if (int.TryParse(year, out var y) && y is >= 1 and <= 9999 &&
                             int.TryParse(month, out var m) && m is >= 1 and <= 12 &&
                             int.TryParse(date, out var d) && d >= 1 && d <= DateTime.DaysInMonth(y, m))

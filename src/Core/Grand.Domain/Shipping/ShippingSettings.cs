@@ -44,7 +44,7 @@ public class ShippingSettings : ISettings
     /// <summary>
     ///     Gets or sets shipping origin address
     /// </summary>
-    public Address ShippingOriginAddress { get; set; }
+    public Address? ShippingOriginAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether we should skip 'select shipping method' page if we have only one shipping

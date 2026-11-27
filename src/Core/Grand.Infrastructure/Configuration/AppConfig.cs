@@ -15,14 +15,14 @@ public class AppConfig
     /// <summary>
     ///     Gets or sets a value of "Cache-Control" header value for static content
     /// </summary>
-    public string StaticFilesCacheControl { get; set; }
+    public string? StaticFilesCacheControl { get; set; }
 
     /// <summary>
     ///     Gets or sets the file extensions served from the Plugins folder on top of the built-in css, js, images,
     ///     fonts and pdf (e.g. ".mp4"). The folder also holds the plugin assemblies and their build files - add only
     ///     extensions that are safe to publish; .dll, .pdb, .exe and .config are never served.
     /// </summary>
-    public string[] PluginStaticFileExtensions { get; set; }
+    public string[]? PluginStaticFileExtensions { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to display the full error in production environment.
@@ -52,7 +52,7 @@ public class AppConfig
     ///     thumbnails, sitemap xml files). Empty keeps them in wwwroot. With more than one instance, point every
     ///     instance at the same shared volume. A relative path is resolved against the content root.
     /// </summary>
-    public string MediaPath { get; set; }
+    public string? MediaPath { get; set; }
 
     /// <summary>
     ///     Gets or sets the name this instance answers to when a scheduled task is pinned to a machine
@@ -60,5 +60,5 @@ public class AppConfig
     ///     hostname and changes on every deployment. Several instances may share the name - one of them
     ///     runs each due task.
     /// </summary>
-    public string InstanceName { get; set; }
+    public string? InstanceName { get; set; }
 }

@@ -5,6 +5,7 @@ using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.FileManager;
 using Microsoft.AspNetCore.StaticFiles;
 using Microsoft.Extensions.Configuration;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Web.AdminShared.Services;
 
@@ -104,13 +105,13 @@ public class FileManagerService : IFileManagerService
                 await _mediaFileStore.CreateFileFromStream(StorePath(targetSegments), stream);
             }
 
-            uploaded.Add(ToEntry(targetSegments, await _mediaFileStore.GetFileInfo(StorePath(targetSegments))));
+            uploaded.Add(ToEntry(targetSegments, Written(await _mediaFileStore.GetFileInfo(StorePath(targetSegments)))));
         }
 
         return new FileManagerUploadResult(FileManagerError.None, uploaded, rejected);
     }
 
-    public virtual async Task<FileManagerResult> CreateFolder(string path, string name)
+    public virtual async Task<FileManagerResult> CreateFolder(string path, string? name)
     {
         if (!TryGetSegments(path, out var segments))
             return new FileManagerResult(FileManagerError.InvalidPath);
@@ -127,10 +128,11 @@ public class FileManagerService : IFileManagerService
             return new FileManagerResult(FileManagerError.AlreadyExists);
 
         _mediaFileStore.TryCreateDirectory(StorePath(target));
-        return new FileManagerResult(FileManagerError.None, ToEntry(target, _mediaFileStore.GetDirectoryInfo(StorePath(target))));
+        return new FileManagerResult(FileManagerError.None,
+            ToEntry(target, Written(_mediaFileStore.GetDirectoryInfo(StorePath(target)))));
     }
 
-    public virtual async Task<FileManagerResult> Rename(string path, string name)
+    public virtual async Task<FileManagerResult> Rename(string path, string? name)
     {
         if (!TryGetSegments(path, out var segments))
             return new FileManagerResult(FileManagerError.InvalidPath);
@@ -143,7 +145,8 @@ public class FileManagerService : IFileManagerService
         var storePath = StorePath(segments);
         var folder = _mediaFileStore.GetDirectoryInfo(storePath);
         var file = folder == null ? await _mediaFileStore.GetFileInfo(storePath) : null;
-        if (folder == null && file == null)
+        var entry = folder ?? file;
+        if (entry == null)
             return new FileManagerResult(FileManagerError.NotFound);
 
         //a file keeps an allowed type: renaming must not turn a picture into a script the site serves
@@ -152,7 +155,7 @@ public class FileManagerService : IFileManagerService
 
         var target = segments[..^1].Append(name).ToArray();
         if (string.Equals(segments[^1], name, StringComparison.Ordinal))
-            return new FileManagerResult(FileManagerError.None, ToEntry(target, folder ?? file));
+            return new FileManagerResult(FileManagerError.None, ToEntry(target, entry));
         //a change of case only is a rename of the same entry; a case-insensitive file system sees the new name as taken,
         //so that rename goes through a temporary name
         var caseOnly = string.Equals(segments[^1], name, StringComparison.OrdinalIgnoreCase);
@@ -168,8 +171,8 @@ public class FileManagerService : IFileManagerService
 
         await RenameEntry(folder != null, storePath, name);
         return new FileManagerResult(FileManagerError.None, folder != null
-            ? ToEntry(target, _mediaFileStore.GetDirectoryInfo(StorePath(target)))
-            : ToEntry(target, await _mediaFileStore.GetFileInfo(StorePath(target))));
+            ? ToEntry(target, Written(_mediaFileStore.GetDirectoryInfo(StorePath(target))))
+            : ToEntry(target, Written(await _mediaFileStore.GetFileInfo(StorePath(target)))));
     }
 
     private Task RenameEntry(bool isFolder, string storePath, string name)
@@ -216,7 +219,7 @@ public class FileManagerService : IFileManagerService
     }
 
     /// <summary>A single file or folder name the store can hold on any platform and the site can serve</summary>
-    public static bool IsValidName(string name)
+    public static bool IsValidName([NotNullWhen(true)] string? name)
     {
         if (string.IsNullOrWhiteSpace(name) || name.Length > MaxNameLength)
             return false;
@@ -259,6 +262,11 @@ public class FileManagerService : IFileManagerService
         for (var i = 1; await Exists(folder.Append(candidate).ToArray()); i++)
             candidate = $"{baseName} ({i}){extension}";
         return candidate;
+    }
+
+    private static IFileStoreEntry Written(IFileStoreEntry? entry)
+    {
+        return entry ?? throw new InvalidOperationException("The entry just written could not be read back");
     }
 
     private FileManagerEntry ToEntry(string[] segments, IFileStoreEntry entry)

@@ -5,7 +5,7 @@ namespace Grand.Web.Models.Customer;
 
 public class CustomerAttributeModel : BaseEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public bool IsRequired { get; set; }
 
@@ -14,7 +14,7 @@ public class CustomerAttributeModel : BaseEntityModel
     /// <summary>
     ///     Default value for textboxes
     /// </summary>
-    public string DefaultValue { get; set; }
+    public string? DefaultValue { get; set; }
 
     public AttributeControlType AttributeControlType { get; set; }
 
@@ -23,7 +23,7 @@ public class CustomerAttributeModel : BaseEntityModel
 
 public class CustomerAttributeValueModel : BaseEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public bool IsPreSelected { get; set; }
 }

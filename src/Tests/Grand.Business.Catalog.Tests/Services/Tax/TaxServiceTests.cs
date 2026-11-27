@@ -336,4 +336,13 @@ public class TaxServiceTests
         Assert.AreEqual(discountAmountInclTax, result02.DiscountAmountInclTax, "discount including tax");
         Assert.AreEqual(discountAmountExclTax, result02.DiscountAmountExclTax, "discount excluding tax");
     }
+
+    [TestMethod]
+    public async Task IsVatExempt_CountryNoLongerExists_IsNotExempt()
+    {
+        _taxSettings.EuVatEnabled = true;
+        var address = new Address { CountryId = "deleted-country" };
+
+        Assert.IsFalse(await _taxService.IsVatExempt(address, new Customer()));
+    }
 }

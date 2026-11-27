@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Customers;
 
 public class DeleteCustomerAddressCommand : IRequest<bool>
 {
-    public CustomerDto Customer { get; set; }
-    public AddressDto Address { get; set; }
+    public required CustomerDto Customer { get; set; }
+    public required AddressDto Address { get; set; }
 }

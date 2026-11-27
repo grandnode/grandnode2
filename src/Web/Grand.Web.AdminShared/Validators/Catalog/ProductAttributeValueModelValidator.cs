@@ -33,7 +33,7 @@ public class ProductAttributeValueModelValidator : BaseStoreAccessValidator<Prod
         {
             var product = await productService.GetProductById(x.ProductId);
             var productAttributeMapping =
-                product.ProductAttributeMappings.FirstOrDefault(y => y.Id == x.ProductAttributeMappingId);
+                product?.ProductAttributeMappings.FirstOrDefault(y => y.Id == x.ProductAttributeMappingId);
             switch (productAttributeMapping?.AttributeControlTypeId)
             {
                 case AttributeControlType.ColorSquares:
@@ -51,7 +51,7 @@ public class ProductAttributeValueModelValidator : BaseStoreAccessValidator<Prod
         });
 
     }
-    protected override async Task<Product> GetEntity(ProductModel.ProductAttributeValueModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.ProductAttributeValueModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

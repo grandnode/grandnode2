@@ -5,12 +5,12 @@ namespace Grand.Web.AdminShared.Interfaces;
 
 public interface IVendorViewModelService
 {
-    Task PrepareDiscountModel(VendorModel model, Vendor vendor, bool excludeProperties);
+    Task PrepareDiscountModel(VendorModel model, Vendor? vendor, bool excludeProperties);
 
     Task PrepareVendorReviewModel(VendorReviewModel model,
         VendorReview vendorReview, bool excludeProperties, bool formatReviewText);
 
-    Task PrepareVendorAddressModel(VendorModel model, Vendor vendor);
+    Task PrepareVendorAddressModel(VendorModel model, Vendor? vendor);
     Task PrepareStore(VendorModel model);
     Task<IList<VendorModel.AssociatedCustomerInfo>> AssociatedCustomers(string vendorId);
     Task<VendorModel> PrepareVendorModel();

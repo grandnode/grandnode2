@@ -50,7 +50,7 @@ public class LoyaltyPointsService : ILoyaltyPointsService
     /// <param name="customerId">Customer Id</param>
     /// <param name="storeId">Store ident</param>
     /// <returns>PointsBalance</returns>
-    public virtual async Task<int> GetLoyaltyPointsBalance(string customerId, string storeId)
+    public virtual async Task<int> GetLoyaltyPointsBalance(string customerId, string? storeId)
     {
         var query = from p in _rphRepository.Table
             select p;
@@ -77,7 +77,7 @@ public class LoyaltyPointsService : ILoyaltyPointsService
     /// <param name="usedAmount">Used amount</param>
     /// <returns>LoyaltyPointsHistory</returns>
     public virtual async Task<LoyaltyPointsHistory> AddLoyaltyPointsHistory(string customerId, int points,
-        string storeId, string message = "",
+        string? storeId, string message = "",
         string usedWithOrderId = "", double usedAmount = 0)
     {
         //each record carries the balance after it, read from the record before it
@@ -86,8 +86,8 @@ public class LoyaltyPointsService : ILoyaltyPointsService
         return await InsertLoyaltyPointsHistory(customerId, points, storeId, message, usedWithOrderId, usedAmount);
     }
 
-    public virtual async Task<LoyaltyPointsHistory> TryRedeemLoyaltyPoints(string customerId, int points,
-        string storeId, string message, string usedWithOrderId, double usedAmount)
+    public virtual async Task<LoyaltyPointsHistory?> TryRedeemLoyaltyPoints(string customerId, int points,
+        string? storeId, string message, string usedWithOrderId, double usedAmount)
     {
         await using var _ = await _resourceLock.Acquire([LockKey(customerId, storeId)]);
 
@@ -98,7 +98,7 @@ public class LoyaltyPointsService : ILoyaltyPointsService
     }
 
     public virtual async Task<IList<LoyaltyPointsHistory>> GetLoyaltyPointsHistory(string customerId = "",
-        string storeId = "", bool showAll = false)
+        string? storeId = "", bool showAll = false)
     {
         var query = from p in _rphRepository.Table
             select p;
@@ -122,7 +122,7 @@ public class LoyaltyPointsService : ILoyaltyPointsService
     ///     Inserts a record; the caller holds the balance's lock
     /// </summary>
     private async Task<LoyaltyPointsHistory> InsertLoyaltyPointsHistory(string customerId, int points,
-        string storeId, string message, string usedWithOrderId, double usedAmount)
+        string? storeId, string message, string usedWithOrderId, double usedAmount)
     {
         var loyaltyPointsHistory = new LoyaltyPointsHistory {
             CustomerId = customerId,
@@ -144,7 +144,7 @@ public class LoyaltyPointsService : ILoyaltyPointsService
     /// <summary>
     ///     One key per balance: shared by all stores, or one per store
     /// </summary>
-    private string LockKey(string customerId, string storeId)
+    private string LockKey(string customerId, string? storeId)
     {
         return _loyaltyPointsSettings.PointsAccumulatedForAllStores
             ? $"LoyaltyPoints:{customerId}"

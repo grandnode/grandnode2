@@ -61,7 +61,7 @@ public class AclService : IAclService
     /// <param name="entity">Entity</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>true - authorized; otherwise, false</returns>
-    public virtual bool Authorize<T>(T entity, string storeId) where T : BaseEntity, IStoreLinkEntity
+    public virtual bool Authorize<T>(T entity, string? storeId) where T : BaseEntity, IStoreLinkEntity
     {
         if (entity == null)
             return false;

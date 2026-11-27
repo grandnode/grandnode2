@@ -9,11 +9,11 @@ namespace Grand.Web.Features.Models.Common;
 
 public class GetVendorAddress : IRequest<VendorAddressModel>
 {
-    public VendorAddressModel Model { get; set; }
-    public Address Address { get; set; }
+    public VendorAddressModel? Model { get; set; }
+    public Address? Address { get; set; }
     public bool ExcludeProperties { get; set; }
-    public Func<IList<Country>> LoadCountries { get; set; }
+    public Func<IList<Country>>? LoadCountries { get; set; }
     public bool PrePopulateWithCustomerFields { get; set; }
-    public Customer Customer { get; set; }
-    public Language Language { get; set; }
+    public Customer? Customer { get; set; }
+    public required Language Language { get; set; }
 }

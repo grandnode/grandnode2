@@ -69,7 +69,7 @@ internal class TemplateRenderer
 
     private readonly IViewBufferScope _bufferScope;
     private readonly bool _readOnly;
-    private readonly string _templateName;
+    private readonly string? _templateName;
     private readonly ViewContext _viewContext;
     private readonly ViewDataDictionary _viewData;
 
@@ -80,7 +80,7 @@ internal class TemplateRenderer
         IViewBufferScope bufferScope,
         ViewContext viewContext,
         ViewDataDictionary viewData,
-        string templateName,
+        string? templateName,
         bool readOnly)
     {
         ArgumentNullException.ThrowIfNull(viewEngine);
@@ -147,7 +147,7 @@ internal class TemplateRenderer
             metadata.DataTypeName
         };
 
-        foreach (var templateHint in templateHints.Where(s => !string.IsNullOrEmpty(s))) yield return templateHint;
+        foreach (var templateHint in templateHints.OfType<string>().Where(s => s.Length > 0)) yield return templateHint;
 
         // We don't want to search for Nullable<T>, we want to search for T (which should handle both T and
         // Nullable<T>).

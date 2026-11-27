@@ -12,7 +12,7 @@ public class ProductCollection : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Collection))]
     [AuditName]
-    public string CollectionId { get; set; }
+    public string CollectionId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value indicating whether the product is featured

@@ -9,7 +9,7 @@ public class CustomerGroupModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Fields.FreeShipping")]
 
@@ -30,7 +30,7 @@ public class CustomerGroupModel : BaseEntityModel
     public bool IsSystem { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Fields.SystemName")]
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Fields.EnablePasswordLifetime")]
     public bool EnablePasswordLifetime { get; set; }

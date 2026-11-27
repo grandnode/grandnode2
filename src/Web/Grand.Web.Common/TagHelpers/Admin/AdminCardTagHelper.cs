@@ -15,17 +15,17 @@ public class AdminCardTagHelper : TagHelper
 {
     internal static readonly object ActionsKey = typeof(CardActionsTagHelper);
 
-    [HtmlAttributeName("title")] public string Title { get; set; }
+    [HtmlAttributeName("title")] public string? Title { get; set; }
 
     /// <summary>A bootstrap-icons name ("bi-box-seam") shown before the title.</summary>
     [HtmlAttributeName("icon")]
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     /// <summary>A link at the end of the header ("see all"), with <see cref="ActionText" />.</summary>
     [HtmlAttributeName("action-url")]
-    public string ActionUrl { get; set; }
+    public string? ActionUrl { get; set; }
 
-    [HtmlAttributeName("action-text")] public string ActionText { get; set; }
+    [HtmlAttributeName("action-text")] public string? ActionText { get; set; }
 
     /// <summary>Drops the body padding, for a card holding nothing but a grid.</summary>
     [HtmlAttributeName("flush")]

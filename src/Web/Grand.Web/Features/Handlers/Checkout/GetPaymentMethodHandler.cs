@@ -94,7 +94,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
 
         //filter by country
         var paymentMethods = (await _paymentService
-                .LoadActivePaymentMethods(request.Customer, request.Store.Id, request.FilterByCountryId))
+                .LoadActivePaymentMethods(request.Customer, request.Store.Id, request.FilterByCountryId ?? ""))
             .Where(pm => pm.PaymentMethodType is PaymentMethodType.Standard or PaymentMethodType.Redirection).ToList();
         var availablepaymentMethods = new List<IPaymentProvider>();
         foreach (var pm in paymentMethods)
@@ -160,8 +160,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         if (!string.IsNullOrEmpty(selectedPaymentMethodSystemName))
         {
             var paymentMethodToSelect = model.PaymentMethods
-                .FirstOrDefault(pm => pm.PaymentMethodSystemName.Equals(selectedPaymentMethodSystemName,
-                    StringComparison.OrdinalIgnoreCase));
+                .FirstOrDefault(pm => string.Equals(pm.PaymentMethodSystemName, selectedPaymentMethodSystemName, StringComparison.OrdinalIgnoreCase));
             if (paymentMethodToSelect != null)
                 paymentMethodToSelect.Selected = true;
         }
@@ -177,7 +176,7 @@ public class GetPaymentMethodHandler : IRequestHandler<GetPaymentMethod, Checkou
         return model;
     }
 
-    private async Task<string> GetTradeCreditNotice(GetPaymentMethod request)
+    private async Task<string?> GetTradeCreditNotice(GetPaymentMethod request)
     {
         var credit = await _companyCreditService.GetCompanyCredit(request.Customer);
         if (!credit.Enabled)

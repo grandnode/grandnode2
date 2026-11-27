@@ -29,5 +29,5 @@ public interface IRequestCustomerResolver
     ///     null when the request is not this resolver's, so the next resolver is asked. A customer stops the chain
     ///     (for example the Anonymous system customer when the credential is recognised but rejected).
     /// </returns>
-    Task<Customer> Resolve();
+    Task<Customer?> Resolve();
 }

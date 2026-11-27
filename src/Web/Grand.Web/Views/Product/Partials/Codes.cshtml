@@ -31,7 +31,7 @@
         </div>
     }
 
-    @if (Model.ShowVendor)
+    @if (Model.ShowVendor && Model.VendorModel != null)
     {
         <div class="product-vendor generalMarginSupporter">
             <span class="label">@Loc["Products.Vendor"]:</span>

@@ -71,8 +71,8 @@ public class OutOfStockSubscriptionService : IOutOfStockSubscriptionService
     /// <param name="storeId">Store identifier</param>
     /// <param name="warehouseId">Warehouse identifier</param>
     /// <returns>Subscriptions</returns>
-    public virtual async Task<OutOfStockSubscription> FindSubscription(string customerId, string productId,
-        IList<CustomAttribute> attributes, string storeId, string warehouseId)
+    public virtual async Task<OutOfStockSubscription?> FindSubscription(string customerId, string productId,
+        IList<CustomAttribute>? attributes, string storeId, string? warehouseId)
     {
         var query = from biss in _outOfStockSubscriptionRepository.Table
             orderby biss.CreatedOnUtc descending
@@ -95,7 +95,7 @@ public class OutOfStockSubscriptionService : IOutOfStockSubscriptionService
     /// </summary>
     /// <param name="subscriptionId">Subscription identifier</param>
     /// <returns>Subscription</returns>
-    public virtual async Task<OutOfStockSubscription> GetSubscriptionById(string subscriptionId)
+    public virtual async Task<OutOfStockSubscription?> GetSubscriptionById(string subscriptionId)
     {
         var subscription = await _outOfStockSubscriptionRepository.GetByIdAsync(subscriptionId);
         return subscription;

@@ -8,7 +8,7 @@ namespace Grand.Business.Messages.DotLiquidDrops;
 
 public class LiquidProduct : Drop
 {
-    private readonly DomainHost _host;
+    private readonly DomainHost? _host;
     private readonly Language _language;
     private readonly Product _product;
     private readonly Store _store;
@@ -27,17 +27,17 @@ public class LiquidProduct : Drop
 
     public string Id => _product.Id;
 
-    public string Name => _product.GetTranslation(x => x.Name, _language.Id);
+    public string? Name => _product.GetTranslation(x => x.Name, _language.Id);
 
-    public string ShortDescription => _product.GetTranslation(x => x.ShortDescription, _language.Id);
+    public string? ShortDescription => _product.GetTranslation(x => x.ShortDescription, _language.Id);
 
-    public string SKU => _product.Sku;
+    public string? SKU => _product.Sku;
 
-    public string ExternalId => _product.ExternalId;
+    public string? ExternalId => _product.ExternalId;
 
-    public string Mpn => _product.Mpn;
+    public string? Mpn => _product.Mpn;
 
-    public string Gtin => _product.Gtin;
+    public string? Gtin => _product.Gtin;
 
     public double AdditionalShippingCharge => _product.AdditionalShippingCharge;
 
@@ -50,7 +50,7 @@ public class LiquidProduct : Drop
 
     public double OldPrice => _product.OldPrice;
 
-    public string Flag => _product.Flag;
+    public string? Flag => _product.Flag;
 
     public string ProductURLForCustomer => $"{url}/{_product.GetSeName(_language.Id)}";
 

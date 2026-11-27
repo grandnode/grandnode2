@@ -5,7 +5,7 @@ namespace Grand.Web.Models.Cms;
 
 public class WidgetModel : BaseModel
 {
-    public string WidgetZone { get; set; }
-    public string ViewComponentName { get; set; }
-    public object AdditionalData { get; set; }
+    public string? WidgetZone { get; set; }
+    public required string ViewComponentName { get; set; }
+    public object? AdditionalData { get; set; }
 }

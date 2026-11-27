@@ -17,7 +17,7 @@ public interface IScimUserService
     Task<ScimUserResult> Get(string id);
 
     /// <summary>The managed users, optionally those with the user name or the externalId (exact, user name case-insensitive)</summary>
-    Task<ScimPage<ScimUserView>> List(string userName, string externalId, int skip, int take);
+    Task<ScimPage<ScimUserView>> List(string? userName, string? externalId, int skip, int take);
 
     Task<ScimOutcome> Delete(string id);
 

@@ -7,6 +7,7 @@ using Grand.Domain.Catalog;
 using Grand.Domain.Orders;
 using Grand.Domain.Tax;
 using Grand.Mediator;
+using Grand.SharedKernel;
 
 namespace Grand.Business.Checkout.Commands.Handlers.Orders;
 
@@ -35,7 +36,8 @@ public class ReOrderCommandHandler : IRequestHandler<ReOrderCommand, IList<strin
         ArgumentNullException.ThrowIfNull(request.Language);
 
         var warnings = new List<string>();
-        var customer = await _customerService.GetCustomerById(request.Order.CustomerId);
+        var customer = await _customerService.GetCustomerById(request.Order.CustomerId) ??
+                       throw new GrandException("The customer of the order does not exist");
 
         foreach (var orderItem in request.Order.OrderItems)
         {

@@ -15,63 +15,63 @@ public class QueuedEmail : BaseEntity
     /// <summary>
     ///     Gets or sets the From property
     /// </summary>
-    public string From { get; set; }
+    public string? From { get; set; }
 
     /// <summary>
     ///     Gets or sets the FromName property
     /// </summary>
-    public string FromName { get; set; }
+    public string? FromName { get; set; }
 
     /// <summary>
     ///     Gets or sets the To property
     /// </summary>
-    public string To { get; set; }
+    public string? To { get; set; }
 
     /// <summary>
     ///     Gets or sets the ToName property
     /// </summary>
-    public string ToName { get; set; }
+    public string? ToName { get; set; }
 
     /// <summary>
     ///     Gets or sets the ReplyTo property
     /// </summary>
-    public string ReplyTo { get; set; }
+    public string? ReplyTo { get; set; }
 
     /// <summary>
     ///     Gets or sets the ReplyToName property
     /// </summary>
-    public string ReplyToName { get; set; }
+    public string? ReplyToName { get; set; }
 
     /// <summary>
     ///     Gets or sets the CC
     /// </summary>
-    public string CC { get; set; }
+    public string? CC { get; set; }
 
     /// <summary>
     ///     Gets or sets the Bcc
     /// </summary>
-    public string Bcc { get; set; }
+    public string? Bcc { get; set; }
 
     /// <summary>
     ///     Gets or sets the subject
     /// </summary>
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     /// <summary>
     ///     Gets or sets the body
     /// </summary>
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     /// <summary>
     ///     Gets or sets the attachment file path (full file path)
     /// </summary>
-    public string AttachmentFilePath { get; set; }
+    public string? AttachmentFilePath { get; set; }
 
     /// <summary>
     ///     Gets or sets the attachment file name. If specified, then this file name will be sent to a recipient. Otherwise,
     ///     "AttachmentFilePath" name will be used.
     /// </summary>
-    public string AttachmentFileName { get; set; }
+    public string? AttachmentFileName { get; set; }
 
     /// <summary>
     ///     Gets or sets the download identifiers of attached file
@@ -82,7 +82,7 @@ public class QueuedEmail : BaseEntity
     ///     Gets or sets the download identifier of the order invoice generated for this email.
     ///     Unlike AttachedDownloads, the email owns this download and it is deleted together with the email
     /// </summary>
-    public string InvoiceDownloadId { get; set; }
+    public string? InvoiceDownloadId { get; set; }
 
     /// <summary>
     ///     Gets or sets the date and time in UTC before which this email should not be sent
@@ -107,7 +107,7 @@ public class QueuedEmail : BaseEntity
     /// <summary>
     ///     Gets or sets the used email account identifier
     /// </summary>
-    public string EmailAccountId { get; set; }
+    public string? EmailAccountId { get; set; }
 
     /// <summary>
     ///     Gets or sets an reference identifier
@@ -117,5 +117,5 @@ public class QueuedEmail : BaseEntity
     /// <summary>
     ///     Gets or sets an object reference identifier
     /// </summary>
-    public string ObjectId { get; set; }
+    public string? ObjectId { get; set; }
 }

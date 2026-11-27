@@ -16,22 +16,22 @@ public class DefaultMediaFileStore : IMediaFileStore
     }
 
 
-    public virtual Task<IFileStoreEntry> GetFileInfo(string path)
+    public virtual Task<IFileStoreEntry?> GetFileInfo(string path)
     {
         return _fileStore.GetFileInfo(path);
     }
 
-    public virtual IFileStoreEntry GetDirectoryInfo(string path)
+    public virtual IFileStoreEntry? GetDirectoryInfo(string path)
     {
         return _fileStore.GetDirectoryInfo(path);
     }
 
-    public virtual Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath)
+    public virtual Task<PhysicalDirectoryInfo?> GetPhysicalDirectoryInfo(string directoryPath)
     {
         return _fileStore.GetPhysicalDirectoryInfo(directoryPath);
     }
 
-    public virtual IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false,
+    public virtual IList<IFileStoreEntry> GetDirectoryContent(string? path = null, bool includeSubDirectories = false,
         bool listDirectories = true, bool listFiles = true)
     {
         return _fileStore.GetDirectoryContent(path, includeSubDirectories, listDirectories, listFiles);

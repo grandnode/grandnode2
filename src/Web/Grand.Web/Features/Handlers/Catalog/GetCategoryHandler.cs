@@ -150,7 +150,7 @@ public class GetCategoryHandler : IRequestHandler<GetCategory, CategoryModel>
         if (!_catalogSettings.IgnoreFeaturedProducts)
         {
             //We cache a value indicating whether we have featured products
-            IPagedList<Product> featuredProducts = null;
+            IPagedList<Product>? featuredProducts = null;
             var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, request.Category.Id,
                 _accessControlConfig.GetCustomerGroupsCacheKey(customer), storeId);
 

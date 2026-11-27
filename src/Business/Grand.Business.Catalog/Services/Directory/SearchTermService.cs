@@ -52,7 +52,7 @@ public class SearchTermService : ISearchTermService
     /// </summary>
     /// <param name="searchTermId">Search term identifier</param>
     /// <returns>Search term</returns>
-    public virtual Task<SearchTerm> GetSearchTermById(string searchTermId)
+    public virtual Task<SearchTerm?> GetSearchTermById(string searchTermId)
     {
         return _searchTermRepository.GetByIdAsync(searchTermId);
     }
@@ -63,7 +63,7 @@ public class SearchTermService : ISearchTermService
     /// <param name="keyword">Search term keyword</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Search term</returns>
-    public virtual async Task<SearchTerm> GetSearchTermByKeyword(string keyword, string storeId)
+    public virtual async Task<SearchTerm?> GetSearchTermByKeyword(string keyword, string storeId)
     {
         if (string.IsNullOrEmpty(keyword))
             return null;

@@ -13,7 +13,7 @@ public class ReturnShippingProviderSettings : ISettings
     /// <summary>
     ///     Gets or sets the address the returned parcels are sent to
     /// </summary>
-    public Address ReturnAddress { get; set; }
+    public Address? ReturnAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets the cost of a return the customer sends back on their own

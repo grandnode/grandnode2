@@ -80,7 +80,8 @@ public class CourseController : BaseAdminController
     {
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-        var level = await _courseLevelService.GetById(model.Id);
+        var level = await _courseLevelService.GetById(model.Id)
+            ?? throw new ArgumentException("No level found with the specified id");
         level = model.ToEntity(level);
         await _courseLevelService.Update(level);
 
@@ -299,7 +300,8 @@ public class CourseController : BaseAdminController
     {
         if (!ModelState.IsValid) return Json(new DataSourceResult { Errors = ModelState.SerializeErrors() });
 
-        var subject = await _courseSubjectService.GetById(model.Id);
+        var subject = await _courseSubjectService.GetById(model.Id)
+            ?? throw new ArgumentException("No subject found with the specified id");
         subject = model.ToEntity(subject);
         await _courseSubjectService.Update(subject);
 
@@ -383,6 +385,8 @@ public class CourseController : BaseAdminController
         }
 
         //If we got this far, something failed, redisplay form
+        //a lesson is added on its course's page, which posts the course id
+        ArgumentException.ThrowIfNullOrEmpty(model.CourseId);
         model = await _courseViewModelService.PrepareCourseLessonModel(model.CourseId, model);
 
         return View(model);

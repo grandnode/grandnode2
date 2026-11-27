@@ -23,14 +23,14 @@ public interface IProductAttributeService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Product attributes</returns>
-    Task<IPagedList<ProductAttribute>> GetAllProductAttributes(string storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
+    Task<IPagedList<ProductAttribute>> GetAllProductAttributes(string? storeId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets a product attribute
     /// </summary>
     /// <param name="productAttributeId">Product attribute identifier</param>
     /// <returns>Product attribute </returns>
-    Task<ProductAttribute> GetProductAttributeById(string productAttributeId);
+    Task<ProductAttribute?> GetProductAttributeById(string? productAttributeId);
 
     /// <summary>
     ///     Inserts a product attribute

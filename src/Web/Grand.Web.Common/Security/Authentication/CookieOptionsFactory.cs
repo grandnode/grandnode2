@@ -8,7 +8,7 @@ namespace Grand.Web.Common.Security.Authentication;
 /// </summary>
 public class CookieOptionsFactory(SecurityConfig securityConfig) : ICookieOptionsFactory
 {
-    public string CookiePrefix => securityConfig.CookiePrefix;
+    public string? CookiePrefix => securityConfig.CookiePrefix;
 
     /// <summary>
     /// Creates cookie options with proper security settings

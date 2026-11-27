@@ -28,7 +28,7 @@ public class AdminBulkBarTagHelper : TagHelper
 
     /// <summary>Id of the grid whose selection drives the bar.</summary>
     [HtmlAttributeName("grid-id")]
-    public string GridId { get; set; }
+    public string? GridId { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {

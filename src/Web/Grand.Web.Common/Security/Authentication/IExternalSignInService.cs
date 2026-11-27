@@ -21,5 +21,5 @@ public interface IExternalSignInService
     /// <param name="returnUrl">Defines the URL of user return, when successfully authenticated</param>
     /// <returns>Result of an authentication</returns>
     Task<IActionResult> Authenticate(ExternalAuthParam parameters, Customer customer, Store store, Language language,
-        string returnUrl = null);
+        string? returnUrl = null);
 }

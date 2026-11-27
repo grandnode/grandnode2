@@ -59,7 +59,7 @@ public class InventoryDocumentController(
     [HttpPost]
     [PermissionAuthorizeAction(PermissionActionName.Create)]
     public Task<IActionResult> CreateReturnReceipt(string merchandiseReturnId,
-        ReturnReceiptInspectionModel inspection = null) =>
+        ReturnReceiptInspectionModel? inspection = null) =>
         CreateReturnReceiptCore(merchandiseReturnId, inspection);
 
     [HttpGet]

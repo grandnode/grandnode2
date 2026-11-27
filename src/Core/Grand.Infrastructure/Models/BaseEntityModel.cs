@@ -8,5 +8,5 @@ public class BaseEntityModel : BaseModel
     /// <summary>
     ///     Gets or sets model identifier
     /// </summary>
-    public virtual string Id { get; set; }
+    public virtual string? Id { get; set; }
 }

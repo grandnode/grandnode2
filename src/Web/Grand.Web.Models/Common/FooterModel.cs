@@ -4,19 +4,19 @@ namespace Grand.Web.Models.Common;
 
 public class FooterModel : BaseModel
 {
-    public string StoreName { get; set; }
-    public string CompanyName { get; set; }
-    public string CompanyEmail { get; set; }
-    public string CompanyHours { get; set; }
-    public string CompanyAddress { get; set; }
-    public string CompanyPhone { get; set; }
+    public string? StoreName { get; set; }
+    public string? CompanyName { get; set; }
+    public string? CompanyEmail { get; set; }
+    public string? CompanyHours { get; set; }
+    public string? CompanyAddress { get; set; }
+    public string? CompanyPhone { get; set; }
 
-    public string FacebookLink { get; set; }
-    public string TwitterLink { get; set; }
-    public string YoutubeLink { get; set; }
-    public string InstagramLink { get; set; }
-    public string LinkedInLink { get; set; }
-    public string PinterestLink { get; set; }
+    public string? FacebookLink { get; set; }
+    public string? TwitterLink { get; set; }
+    public string? YoutubeLink { get; set; }
+    public string? InstagramLink { get; set; }
+    public string? LinkedInLink { get; set; }
+    public string? PinterestLink { get; set; }
     public bool PrivacyPreference { get; set; }
     public bool WishlistEnabled { get; set; }
     public bool ShoppingCartEnabled { get; set; }
@@ -30,7 +30,7 @@ public class FooterModel : BaseModel
     public bool InclTax { get; set; }
     public bool KnowledgebaseEnabled { get; set; }
 
-    public string WorkingLanguageId { get; set; }
+    public string? WorkingLanguageId { get; set; }
 
     public IList<FooterPageModel> Pages { get; set; } = new List<FooterPageModel>();
 
@@ -38,8 +38,8 @@ public class FooterModel : BaseModel
 
     public class FooterPageModel : BaseEntityModel
     {
-        public string Name { get; set; }
-        public string SeName { get; set; }
+        public string? Name { get; set; }
+        public string? SeName { get; set; }
 
         public bool IncludeInFooterRow1 { get; set; }
         public bool IncludeInFooterRow2 { get; set; }

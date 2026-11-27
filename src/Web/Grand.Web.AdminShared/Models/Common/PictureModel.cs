@@ -6,34 +6,34 @@ namespace Grand.Web.AdminShared.Models.Common;
 
 public class PictureModel : BaseEntityModel, ILocalizedModel<PictureModel.PictureLocalizedModel>
 {
-    public string ObjectId { get; set; }
+    public string? ObjectId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Picture")]
-    public string PictureUrl { get; set; }
+    public string? PictureUrl { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.AltAttribute")]
-    public string AltAttribute { get; set; }
+    public string? AltAttribute { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.TitleAttribute")]
-    public string TitleAttribute { get; set; }
+    public string? TitleAttribute { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.Style")]
-    public string Style { get; set; }
+    public string? Style { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.ExtraField")]
-    public string ExtraField { get; set; }
+    public string? ExtraField { get; set; }
 
     public IList<PictureLocalizedModel> Locales { get; set; } = new List<PictureLocalizedModel>();
 
     public class PictureLocalizedModel : ILocalizedModelLocal
     {
         [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.AltAttribute")]
-        public string AltAttribute { get; set; }
+        public string? AltAttribute { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Picture.Fields.TitleAttribute")]
-        public string TitleAttribute { get; set; }
+        public string? TitleAttribute { get; set; }
 
-        public string LanguageId { get; set; }
+        public string? LanguageId { get; set; }
     }
 }

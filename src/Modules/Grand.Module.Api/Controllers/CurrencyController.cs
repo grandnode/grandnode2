@@ -32,10 +32,10 @@ public class CurrencyController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Currencies, CurrentCustomer)) return Forbid();
 
-        var currency = await _mediator.Send(new GetGenericQuery<CurrencyDto, Currency>(key));
-        if (!currency.Any()) return NotFound();
+        var currency = (await _mediator.Send(new GetGenericQuery<CurrencyDto, Currency>(key))).FirstOrDefault();
+        if (currency == null) return NotFound();
 
-        return Ok(currency.FirstOrDefault());
+        return Ok(currency);
     }
 
     [EndpointDescription("Get entities from Currency")]

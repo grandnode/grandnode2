@@ -21,6 +21,7 @@ public partial class InstallationService
             CountryId = country?.Id
         };
         var affiliate = new Affiliate {
+            Name = "Bennett Digital Media",
             Active = true,
             Address = affiliateAddress
         };

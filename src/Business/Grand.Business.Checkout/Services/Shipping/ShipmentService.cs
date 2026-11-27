@@ -59,12 +59,12 @@ public class ShipmentService : IShipmentService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Shipments</returns>
-    public virtual async Task<IPagedList<Shipment>> GetAllShipments(string storeId = "", string vendorId = "",
-        string warehouseId = "",
-        string shippingCountryId = "",
+    public virtual async Task<IPagedList<Shipment>> GetAllShipments(string? storeId = "", string? vendorId = "",
+        string? warehouseId = "",
+        string? shippingCountryId = "",
         int shippingStateId = 0,
-        string shippingCity = null,
-        string trackingNumber = null,
+        string? shippingCity = null,
+        string? trackingNumber = null,
         bool loadNotShipped = false,
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int pageIndex = 0, int pageSize = int.MaxValue)
@@ -75,7 +75,7 @@ public class ShipmentService : IShipmentService
         if (!string.IsNullOrEmpty(storeId)) query = query.Where(x => x.StoreId == storeId);
         if (!string.IsNullOrEmpty(vendorId)) query = query.Where(x => x.VendorId == vendorId);
         if (!string.IsNullOrEmpty(trackingNumber))
-            query = query.Where(s => s.TrackingNumber.Contains(trackingNumber));
+            query = query.Where(s => s.TrackingNumber != null && s.TrackingNumber.Contains(trackingNumber));
 
         if (loadNotShipped)
             query = query.Where(s => !s.ShippedDateUtc.HasValue);
@@ -117,7 +117,7 @@ public class ShipmentService : IShipmentService
     /// </summary>
     /// <param name="shipmentId">Shipment identifier</param>
     /// <returns>Shipment</returns>
-    public virtual Task<Shipment> GetShipmentById(string shipmentId)
+    public virtual Task<Shipment?> GetShipmentById(string? shipmentId)
     {
         return _shipmentRepository.GetByIdAsync(shipmentId);
     }
@@ -210,7 +210,7 @@ public class ShipmentService : IShipmentService
     /// </summary>
     /// <param name="shipmentNoteId">Shipment note identifier</param>
     /// <returns>shipmentNote</returns>
-    public virtual async Task<ShipmentNote> GetShipmentNote(string shipmentNoteId)
+    public virtual async Task<ShipmentNote?> GetShipmentNote(string shipmentNoteId)
     {
         return await _shipmentNoteRepository.FirstOrDefaultAsync(
             _shipmentNoteRepository.Table.Where(x => x.Id == shipmentNoteId));

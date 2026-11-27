@@ -26,7 +26,7 @@ public static class StockBuckets
 
         var entries = new List<InventoryJournal>();
 
-        void Add(string combinationId, IList<CustomAttribute> attributes, string warehouseId, int stock)
+        void Add(string combinationId, IList<CustomAttribute> attributes, string? warehouseId, int stock)
         {
             if (stock == 0)
                 return;
@@ -125,7 +125,7 @@ public static class StockBuckets
     ///     of its batches and serial numbers: a product kept in one warehouse has all its stock there, whatever
     ///     warehouse a shipment or order item names
     /// </summary>
-    public static string UnitWarehouse(Product product, string warehouseId)
+    public static string UnitWarehouse(Product product, string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -136,7 +136,7 @@ public static class StockBuckets
     ///     The product is kept in one warehouse other than this one, so its stock is not booked here; a product naming
     ///     no warehouse is booked anywhere
     /// </summary>
-    public static bool KeptElsewhere(Product product, string warehouseId)
+    public static bool KeptElsewhere(Product product, string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -155,7 +155,8 @@ public static class StockBuckets
             .Concat(product.ProductWarehouseInventory.Select(x => x.WarehouseId))
             .Concat(product.ProductAttributeCombinations.SelectMany(x => x.WarehouseInventory)
                 .Select(x => x.WarehouseId))
-            .Where(x => !string.IsNullOrEmpty(x))
+            .OfType<string>()
+            .Where(x => x.Length > 0)
             .Distinct();
     }
 }

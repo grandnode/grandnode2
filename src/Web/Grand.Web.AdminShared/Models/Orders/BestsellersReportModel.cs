@@ -8,7 +8,7 @@ namespace Grand.Web.AdminShared.Models.Orders;
 public class BestsellersReportModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Reports.Bestsellers.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.Bestsellers.StartDate")]
     [UIHint("DateNullable")]
@@ -26,10 +26,10 @@ public class BestsellersReportModel : BaseModel
     public int PaymentStatusId { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.Bestsellers.BillingCountry")]
-    public string BillingCountryId { get; set; }
+    public string? BillingCountryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.Bestsellers.Vendor")]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 

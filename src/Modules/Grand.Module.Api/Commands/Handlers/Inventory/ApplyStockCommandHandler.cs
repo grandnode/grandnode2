@@ -41,9 +41,10 @@ public class ApplyStockCommandHandler(
     /// </summary>
     private async Task<Targets> ReadTargets(IList<StockApplyLineDto> lines)
     {
-        static List<string> Trimmed(IEnumerable<string> values)
+        static List<string> Trimmed(IEnumerable<string?> values)
         {
-            return values.Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).Distinct().ToList();
+            return values.OfType<string>().Where(x => !string.IsNullOrWhiteSpace(x)).Select(x => x.Trim()).Distinct()
+                .ToList();
         }
 
         var productIds = Trimmed(lines.Select(x => x.ProductId));
@@ -55,11 +56,11 @@ public class ApplyStockCommandHandler(
             : await productRepository.ToListAsync(productRepository.Table.Where(x => productIds.Contains(x.Id)));
         var bySku = skus.Count == 0
             ? []
-            : await productRepository.ToListAsync(productRepository.Table.Where(x => skus.Contains(x.Sku)));
+            : await productRepository.ToListAsync(productRepository.Table.Where(x => x.Sku != null && skus.Contains(x.Sku)));
         var byCombinationSku = skus.Count == 0
             ? []
             : await productRepository.ToListAsync(productRepository.Table
-                .Where(x => x.ProductAttributeCombinations.Any(c => skus.Contains(c.Sku))));
+                .Where(x => x.ProductAttributeCombinations.Any(c => c.Sku != null && skus.Contains(c.Sku))));
         var warehouses = codes.Count == 0
             ? []
             : await warehouseRepository.ToListAsync(warehouseRepository.Table.Where(x => codes.Contains(x.Code)));
@@ -87,9 +88,10 @@ public class ApplyStockCommandHandler(
         if (!string.IsNullOrWhiteSpace(line.WarehouseId) && !string.IsNullOrWhiteSpace(line.WarehouseCode))
             return Rejected(line, StockErrors.WarehouseTargetBoth);
 
+        //Resolve gives the product or an error
         var (product, combination, warehouseId, error) = Resolve(line, hasProductId, targets);
-        if (error != null)
-            return Rejected(line, error);
+        if (product == null)
+            return Rejected(line, error ?? StockErrors.ProductNotFound);
 
         //the stock of a batch- or serial-tracked product names its units; a target is the whole bucket, not one unit
         if (InventoryTracking.Tracked(product) && setTo)
@@ -135,14 +137,14 @@ public class ApplyStockCommandHandler(
         };
     }
 
-    private static (Product Product, ProductAttributeCombination Combination, string WarehouseId, string Error)
+    private static (Product? Product, ProductAttributeCombination? Combination, string? WarehouseId, string? Error)
         Resolve(StockApplyLineDto line, bool hasProductId, Targets targets)
     {
-        Product product;
-        ProductAttributeCombination combination = null;
+        Product? product;
+        ProductAttributeCombination? combination = null;
         if (hasProductId)
         {
-            product = targets.ProductsById.GetValueOrDefault(line.ProductId.Trim());
+            product = targets.ProductsById.GetValueOrDefault((line.ProductId ?? "").Trim());
             if (product == null)
                 return (null, null, null, StockErrors.ProductNotFound);
 
@@ -157,9 +159,9 @@ public class ApplyStockCommandHandler(
         }
         else
         {
-            var sku = line.Sku.Trim();
+            var sku = (line.Sku ?? "").Trim();
             var matches = targets.BySku.Where(x => x.Sku == sku)
-                .Select(x => (Product: x, Combination: (ProductAttributeCombination)null))
+                .Select(x => (Product: x, Combination: (ProductAttributeCombination?)null))
                 .ToList();
             foreach (var owner in targets.ByCombinationSku)
             foreach (var ownerCombination in owner.ProductAttributeCombinations.Where(c => c.Sku == sku))
@@ -173,7 +175,7 @@ public class ApplyStockCommandHandler(
             (product, combination) = matches[0];
         }
 
-        string warehouseId = null;
+        string? warehouseId = null;
         if (!string.IsNullOrWhiteSpace(line.WarehouseId))
             warehouseId = line.WarehouseId.Trim();
         else if (!string.IsNullOrWhiteSpace(line.WarehouseCode))
@@ -207,7 +209,7 @@ public class ApplyStockCommandHandler(
         return (product, combination, warehouseId, null);
     }
 
-    private static int? StockAfter(Product product, ProductAttributeCombination combination, string warehouseId)
+    private static int? StockAfter(Product? product, ProductAttributeCombination? combination, string? warehouseId)
     {
         if (product == null)
             return null;

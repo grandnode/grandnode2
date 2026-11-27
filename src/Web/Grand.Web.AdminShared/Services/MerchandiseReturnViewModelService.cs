@@ -135,14 +135,14 @@ public class MerchandiseReturnViewModelService(
     ///     Whether the staff may mark the return received: the vendor panel has no inventory documents, so no receipt
     ///     can take the goods in there; elsewhere the rule every staff surface shares
     /// </summary>
-    private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order order)
+    private async Task<bool> CanMarkReceived(MerchandiseReturn merchandiseReturn, Order? order)
     {
         return scope.DefaultVendorId != null ||
-               await merchandiseReturnWorkflowService.CanMarkReceived(merchandiseReturn, order);
+               order != null && await merchandiseReturnWorkflowService.CanMarkReceived(merchandiseReturn, order);
     }
 
-    private async Task<MerchandiseReturnModel.ReturnShippingModel> PrepareReturnShipping(
-        MerchandiseReturn merchandiseReturn, Order order)
+    private async Task<MerchandiseReturnModel.ReturnShippingModel?> PrepareReturnShipping(
+        MerchandiseReturn merchandiseReturn, Order? order)
     {
         var shipping = merchandiseReturn.ReturnShipping;
         if (string.IsNullOrEmpty(shipping?.ProviderSystemName))
@@ -201,7 +201,7 @@ public class MerchandiseReturnViewModelService(
         return model;
     }
 
-    private static string NormalizeTrackingNumber(string trackingNumber)
+    private static string? NormalizeTrackingNumber(string? trackingNumber)
     {
         trackingNumber = trackingNumber?.Trim();
         if (string.IsNullOrEmpty(trackingNumber))
@@ -233,11 +233,12 @@ public class MerchandiseReturnViewModelService(
             : dateTimeService.ConvertToUtcTime(model.EndDate.Value, dateTimeService.CurrentTimeZone);
 
         //open longer than N days: still handled, and created before N days ago
-        var openOnly = model.OpenLongerThanDays > 0;
+        var openLongerThanDays = model.OpenLongerThanDays ?? 0;
+        var openOnly = openLongerThanDays > 0;
         if (openOnly)
         {
             //capped at a year so a huge posted value cannot push the date below DateTime.MinValue
-            var openSince = DateTime.UtcNow.AddDays(-Math.Min(model.OpenLongerThanDays.Value, 365));
+            var openSince = DateTime.UtcNow.AddDays(-Math.Min(openLongerThanDays, 365));
             endDateValue = endDateValue == null || endDateValue > openSince ? openSince : endDateValue;
         }
 
@@ -279,7 +280,7 @@ public class MerchandiseReturnViewModelService(
         return (merchandiseReturnModels, merchandiseReturns.TotalCount);
     }
 
-    public virtual async Task<AddressModel> PrepareAddressModel(AddressModel model, Address address,
+    public virtual async Task<AddressModel> PrepareAddressModel(AddressModel model, Address? address,
         bool excludeProperties)
     {
         if (address != null)
@@ -375,7 +376,8 @@ public class MerchandiseReturnViewModelService(
     public virtual async Task<IList<MerchandiseReturnModel.MerchandiseReturnItemModel>>
         PrepareMerchandiseReturnItemModel(string merchandiseReturnId)
     {
-        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
+        var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId)
+                                ?? throw new ArgumentException("No merchandise return found with the specified id");
         var items = new List<MerchandiseReturnModel.MerchandiseReturnItemModel>();
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
         //what was found on receipt, read from the posted receipts in every panel, the vendor's too
@@ -383,14 +385,14 @@ public class MerchandiseReturnViewModelService(
 
         foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
-            var orderItem = order.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
+            var orderItem = order?.OrderItems.FirstOrDefault(x => x.Id == item.OrderItemId);
             ArgumentNullException.ThrowIfNull(orderItem);
             var found = inspected.FirstOrDefault(x => x.ReturnItemId == item.Id);
             items.Add(new MerchandiseReturnModel.MerchandiseReturnItemModel {
                 Restocked = found?.Restocked,
                 Scrapped = found?.Scrapped,
                 ProductId = orderItem.ProductId,
-                ProductName = (await productService.GetProductByIdIncludeArch(orderItem.ProductId)).Name,
+                ProductName = (await productService.GetProductByIdIncludeArch(orderItem.ProductId))?.Name,
                 ProductSku = orderItem.Sku,
                 Quantity = item.Quantity,
                 UnitPrice = priceFormatter.FormatPrice(orderItem.UnitPriceInclTax, contextAccessor.WorkContext.WorkingCurrency),
@@ -520,7 +522,7 @@ public class MerchandiseReturnViewModelService(
         model.RefundAmount = quote.MaxAmount;
     }
 
-    public virtual async Task<string> RefundMerchandiseReturn(MerchandiseReturn merchandiseReturn, double amount,
+    public virtual async Task<string?> RefundMerchandiseReturn(MerchandiseReturn merchandiseReturn, double amount,
         bool offline)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
@@ -532,7 +534,7 @@ public class MerchandiseReturnViewModelService(
             contextAccessor.WorkContext.CurrentCustomer.StatusChangedBy());
     }
 
-    public virtual async Task<string> ResolveRefund(MerchandiseReturn merchandiseReturn, bool wentBack)
+    public virtual async Task<string?> ResolveRefund(MerchandiseReturn merchandiseReturn, bool wentBack)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
@@ -549,7 +551,7 @@ public class MerchandiseReturnViewModelService(
     /// </summary>
     private async Task<bool> RefundsPayments()
     {
-        var customer = contextAccessor.WorkContext?.CurrentCustomer;
+        var customer = contextAccessor.WorkContext.CurrentCustomer;
         return customer != null && await actionPermissionService.AuthorizeAction(
             PermissionSystemName.PaymentTransactions, PermissionActionName.Edit, customer);
     }
@@ -557,7 +559,7 @@ public class MerchandiseReturnViewModelService(
     /// <summary>
     ///     Whether the panel books the warehouse; none chosen yet on a draft is allowed
     /// </summary>
-    private async Task<bool> CanUse(string warehouseId)
+    private async Task<bool> CanUse(string? warehouseId)
     {
         if (string.IsNullOrEmpty(warehouseId))
             return true;
@@ -566,7 +568,7 @@ public class MerchandiseReturnViewModelService(
         return warehouse != null && await warehouseScope.HasAccess(warehouse);
     }
 
-    public virtual async Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(
+    public virtual async Task<(MerchandiseReturn? MerchandiseReturn, string? Error)> UpdateMerchandiseReturnModel(
         MerchandiseReturn merchandiseReturn, MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes)
     {
         //received by hand where a receipt takes the goods in is refused before anything is saved: no button offers it
@@ -586,7 +588,7 @@ public class MerchandiseReturnViewModelService(
                 stored.PickupDate = model.PickupDate;
             if (orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress)
             {
-                stored.PickupAddress = model.PickupAddress.ToEntity();
+                stored.PickupAddress = model.PickupAddress?.ToEntity();
                 if (stored.PickupAddress != null)
                     stored.PickupAddress.Attributes = customAddressAttributes;
             }
@@ -630,7 +632,7 @@ public class MerchandiseReturnViewModelService(
         return (merchandiseReturn, error);
     }
 
-    public virtual Task<string> DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn)
+    public virtual Task<string?> DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn)
     {
         return merchandiseReturnWorkflowService.Delete(merchandiseReturn.Id);
     }

@@ -7,7 +7,7 @@ public static class ProductReservationExtensions
     /// <summary>
     ///     Finds the first resource whose reservations cover the whole rental period, or null when none is free
     /// </summary>
-    public static IGrouping<string, ProductReservation> FindGroupToBook(
+    public static IGrouping<string?, ProductReservation>? FindGroupToBook(
         this IEnumerable<ProductReservation> reservations, Product product, DateTime rentalStartDate,
         DateTime rentalEndDate)
     {

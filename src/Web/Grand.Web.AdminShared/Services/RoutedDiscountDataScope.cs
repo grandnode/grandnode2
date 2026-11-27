@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Discounts;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;

@@ -1,9 +1,13 @@
 using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Queries.Checkout.Orders;
+using Grand.Domain;
 using Grand.Domain.Directory;
+using Grand.Domain.Orders;
 using Grand.Domain.Stores;
 using Grand.Infrastructure.Caching;
+using Grand.Mediator;
 using Grand.Web.AdminShared.Models.Directory;
 using Grand.Web.AdminShared.Services;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -22,6 +26,7 @@ public class CurrencyViewModelServiceTests
     private Mock<ISettingService> _settingServiceMock;
     private Mock<IRequestTranslationService> _translationServiceMock;
     private Mock<ICacheBase> _cacheBaseMock;
+    private Mock<IMediator> _mediatorMock;
     private CurrencyViewModelService _service;
 
     [TestInitialize]
@@ -33,6 +38,9 @@ public class CurrencyViewModelServiceTests
         _settingServiceMock = new Mock<ISettingService>();
         _translationServiceMock = new Mock<IRequestTranslationService>();
         _cacheBaseMock = new Mock<ICacheBase>();
+        _mediatorMock = new Mock<IMediator>();
+        _mediatorMock.Setup(m => m.Send(It.IsAny<GetOrderQuery>(), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedList<Order>());
 
         _service = new CurrencyViewModelService(
             _currencyServiceMock.Object,
@@ -40,7 +48,8 @@ public class CurrencyViewModelServiceTests
             _currencySettings,
             _settingServiceMock.Object,
             _translationServiceMock.Object,
-            _cacheBaseMock.Object);
+            _cacheBaseMock.Object,
+            _mediatorMock.Object);
     }
 
     [TestMethod]
@@ -206,5 +215,21 @@ public class CurrencyViewModelServiceTests
 
         Assert.IsTrue(canDelete);
         Assert.AreEqual(string.Empty, message);
+    }
+
+    [TestMethod]
+    public async Task ValidateCurrencyDelete_UsedByOrders_CannotDelete()
+    {
+        _currencyServiceMock.Setup(c => c.GetAllCurrencies(It.IsAny<bool>(), It.IsAny<string>()))
+            .ReturnsAsync(new List<Currency> { new() { Id = "currency-1" }, new() { Id = "currency-2" } });
+        _mediatorMock.Setup(m => m.Send(It.Is<GetOrderQuery>(q => q.CustomerCurrencyCode == "EUR"), It.IsAny<CancellationToken>()))
+            .ReturnsAsync(new PagedList<Order>(new[] { new Order() }, 0, 1));
+        _translationServiceMock.Setup(t => t.GetResource("Admin.Configuration.Currencies.CantDeleteUsedByOrders"))
+            .Returns("Used by orders");
+
+        var (canDelete, message) = await _service.ValidateCurrencyDelete(new Currency { Id = "currency-1", CurrencyCode = "EUR" });
+
+        Assert.IsFalse(canDelete);
+        Assert.AreEqual("Used by orders", message);
     }
 }

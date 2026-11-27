@@ -8,12 +8,14 @@ public static class GrandVersion
     /// <summary>
     ///     Gets the major version
     /// </summary>
-    public static readonly string MajorVersion = Assembly.GetExecutingAssembly().GetName().Version?.Major.ToString();
+    public static readonly string MajorVersion =
+        Assembly.GetExecutingAssembly().GetName().Version?.Major.ToString() ?? string.Empty;
 
     /// <summary>
     ///     Gets the minor version
     /// </summary>
-    public static readonly string MinorVersion = Assembly.GetExecutingAssembly().GetName().Version?.Minor.ToString();
+    public static readonly string MinorVersion =
+        Assembly.GetExecutingAssembly().GetName().Version?.Minor.ToString() ?? string.Empty;
 
     /// <summary>
     ///     Gets the full version
@@ -33,7 +35,7 @@ public static class GrandVersion
     /// <summary>
     ///     Gets the git branch
     /// </summary>
-    public static readonly string GitBranch = GetGitBranch();
+    public static readonly string? GitBranch = GetGitBranch();
 
     /// <summary>
     ///     Gets the git commit
@@ -57,9 +59,9 @@ public static class GrandVersion
         }
     }
 
-    private static string _gitHash { get; set; }
+    private static string? _gitHash { get; set; }
 
-    private static string _gitBranch { get; set; }
+    private static string? _gitBranch { get; set; }
 
     private static string GetGitHash()
     {
@@ -67,14 +69,14 @@ public static class GrandVersion
 
         var version = "1.0.0+LOCALBUILD";
         var appAssembly = typeof(GrandVersion).Assembly;
-        var infoVerAttr = (AssemblyInformationalVersionAttribute)appAssembly
+        var infoVerAttr = (AssemblyInformationalVersionAttribute?)appAssembly
             .GetCustomAttributes(typeof(AssemblyInformationalVersionAttribute)).FirstOrDefault();
         if (infoVerAttr is { InformationalVersion.Length: > 6 }) version = infoVerAttr.InformationalVersion;
         _gitHash = version[(version.IndexOf('+') + 1)..];
         return _gitHash;
     }
 
-    private static string GetGitBranch()
+    private static string? GetGitBranch()
     {
         if (!string.IsNullOrEmpty(_gitBranch)) return _gitBranch;
 

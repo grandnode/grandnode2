@@ -17,5 +17,5 @@ public interface ICookieOptionsFactory
     /// <summary>
     /// Gets the cookie prefix
     /// </summary>
-    string CookiePrefix { get; }
+    string? CookiePrefix { get; }
 }

@@ -8,9 +8,9 @@
     ViewBag.Title = Loc["Admin.Configuration.Menu.Edit"];
     var parent = await MenuViewModelService.FindParentNodeById(Model.Id);
     //a child item goes back to its parent, a top-level one to the list
-    var hasParent = parent != null && parent.Id != Model.Id;
-    var backUrl = hasParent ? Url.Action("Edit", new { parent.Id, area = Constants.AreaAdmin }) : Url.Action("Index");
-    var backText = hasParent ? Loc[parent.ResourceName].Value : Loc["Admin.Configuration.Menu.BackToList"].Value;
+    var parentItem = parent != null && parent.Id != Model.Id ? parent : null;
+    var backUrl = parentItem != null ? Url.Action("Edit", new { parentItem.Id, area = Constants.AreaAdmin }) : Url.Action("Index");
+    var backText = parentItem != null ? Loc[parentItem.ResourceName ?? ""].Value : Loc["Admin.Configuration.Menu.BackToList"].Value;
 }
 
 <form asp-area="@Constants.AreaAdmin" asp-controller="Menu" asp-action="Edit" method="post" id="menu-edit">

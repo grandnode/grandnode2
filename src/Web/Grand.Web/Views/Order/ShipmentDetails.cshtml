@@ -64,67 +64,67 @@
             }
         </ul>
         <ul class="shipping-address col-md-6 col-12">
-            @if (!Model.Order.PickUpInStore)
+            @if (!Model.Order.PickUpInStore && Model.Order.ShippingAddress is { } shippingAddress)
             {
                 <li class="title">
                     <h5 class="generalTitle"> @Loc["Order.Shipments.ShippingAddress"] </h5>
                 </li>
                 <li class="name">
-                    @Model.Order.ShippingAddress.FirstName @Model.Order.ShippingAddress.LastName
+                    @shippingAddress.FirstName @shippingAddress.LastName
                 </li>
                 <li class="email">
-                    <span>@Loc["Order.Shipments.Email"]:</span> @Model.Order.ShippingAddress.Email
+                    <span>@Loc["Order.Shipments.Email"]:</span> @shippingAddress.Email
                 </li>
                 <li class="phone">
-                    <span>@Loc["Order.Shipments.Phone"]:</span> @Model.Order.ShippingAddress.PhoneNumber
+                    <span>@Loc["Order.Shipments.Phone"]:</span> @shippingAddress.PhoneNumber
                 </li>
                 <li class="fax">
-                    <span>@Loc["Order.Shipments.Fax"]:</span> @Model.Order.ShippingAddress.FaxNumber
+                    <span>@Loc["Order.Shipments.Fax"]:</span> @shippingAddress.FaxNumber
                 </li>
-                if (!string.IsNullOrEmpty(Model.Order.ShippingAddress.Company))
+                if (!string.IsNullOrEmpty(shippingAddress.Company))
                 {
                     <li class="company">
-                        @Model.Order.ShippingAddress.Company
+                        @shippingAddress.Company
                     </li>
                 }
 
                 <li class="address1">
-                    @Model.Order.ShippingAddress.Address1
+                    @shippingAddress.Address1
                 </li>
-                if (!string.IsNullOrEmpty(Model.Order.ShippingAddress.Address2))
+                if (!string.IsNullOrEmpty(shippingAddress.Address2))
                 {
                     <li class="address2">
-                        @Model.Order.ShippingAddress.Address2
+                        @shippingAddress.Address2
                     </li>
                 }
 
                 <li class="city-state-zip">
-                    @Model.Order.ShippingAddress.City, @Model.Order.ShippingAddress.StateProvinceName
-                    @Model.Order.ShippingAddress.ZipPostalCode
+                    @shippingAddress.City, @shippingAddress.StateProvinceName
+                    @shippingAddress.ZipPostalCode
                 </li>
-                if (!string.IsNullOrEmpty(Model.Order.ShippingAddress.CountryName))
+                if (!string.IsNullOrEmpty(shippingAddress.CountryName))
                 {
                     <li class="country">
-                        @Model.Order.ShippingAddress.CountryName
+                        @shippingAddress.CountryName
                     </li>
                 }
             }
-            else
+            else if (Model.Order.PickUpInStore && Model.Order.PickupAddress is { } pickupAddress)
             {
                 <li class="title">
                     <h5 class="generalTitle">@Loc["Order.Shipments.PickupAddress"]</h5>
                 </li>
                 <li class="address1">
-                    @Model.Order.PickupAddress.Address1
+                    @pickupAddress.Address1
                 </li>
                 <li class="city-state-zip">
-                    @Model.Order.PickupAddress.City,
-                    @Model.Order.PickupAddress.ZipPostalCode
+                    @pickupAddress.City,
+                    @pickupAddress.ZipPostalCode
                 </li>
-                if (!string.IsNullOrEmpty(Model.Order.PickupAddress.CountryName))
+                if (!string.IsNullOrEmpty(pickupAddress.CountryName))
                 {
                     <li class="country">
-                        @Model.Order.PickupAddress.CountryName
+                        @pickupAddress.CountryName
                     </li>
                 }
             }

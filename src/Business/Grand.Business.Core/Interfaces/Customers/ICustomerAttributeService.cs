@@ -25,7 +25,7 @@ public interface ICustomerAttributeService
     /// </summary>
     /// <param name="customerAttributeId">Customer attribute identifier</param>
     /// <returns>Customer attribute</returns>
-    Task<CustomerAttribute> GetCustomerAttributeById(string customerAttributeId);
+    Task<CustomerAttribute?> GetCustomerAttributeById(string? customerAttributeId);
 
     /// <summary>
     ///     Inserts a customer attribute

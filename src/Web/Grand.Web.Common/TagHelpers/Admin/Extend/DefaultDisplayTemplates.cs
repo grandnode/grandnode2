@@ -140,9 +140,7 @@ internal static class DefaultDisplayTemplates
     {
         var uriString = "mailto:" +
                         (htmlHelper.ViewData.Model == null ? string.Empty : htmlHelper.ViewData.Model.ToString());
-        var linkedText = htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null
-            ? string.Empty
-            : htmlHelper.ViewData.TemplateInfo.FormattedModelValue.ToString();
+        var linkedText = htmlHelper.ViewData.TemplateInfo.FormattedModelValue?.ToString() ?? string.Empty;
 
         return await Task.FromResult(HyperlinkTemplate(uriString, linkedText));
     }
@@ -233,21 +231,19 @@ internal static class DefaultDisplayTemplates
     {
         var value = htmlHelper.ViewData.TemplateInfo.FormattedModelValue;
         if (value == null) return HtmlString.Empty;
-        return await Task.FromResult(new StringHtmlContent(value.ToString()));
+        return await Task.FromResult(new StringHtmlContent(value.ToString() ?? string.Empty));
     }
 
     public static async Task<IHtmlContent> UrlTemplate(IHtmlHelper htmlHelper)
     {
         var uriString = htmlHelper.ViewData.Model == null ? string.Empty : htmlHelper.ViewData.Model.ToString();
-        var linkedText = htmlHelper.ViewData.TemplateInfo.FormattedModelValue == null
-            ? string.Empty
-            : htmlHelper.ViewData.TemplateInfo.FormattedModelValue.ToString();
+        var linkedText = htmlHelper.ViewData.TemplateInfo.FormattedModelValue?.ToString() ?? string.Empty;
 
         return await Task.FromResult(HyperlinkTemplate(uriString, linkedText));
     }
 
     // Neither uriString nor linkedText need be encoded prior to calling this method.
-    private static IHtmlContent HyperlinkTemplate(string uriString, string linkedText)
+    private static IHtmlContent HyperlinkTemplate(string? uriString, string linkedText)
     {
         var hyperlinkTag = new TagBuilder("a");
         hyperlinkTag.MergeAttribute("href", uriString);

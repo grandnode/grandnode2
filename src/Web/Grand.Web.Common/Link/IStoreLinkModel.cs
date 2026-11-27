@@ -2,5 +2,5 @@
 
 public interface IStoreLinkModel
 {
-    string[] Stores { get; set; }
+    string[]? Stores { get; set; }
 }

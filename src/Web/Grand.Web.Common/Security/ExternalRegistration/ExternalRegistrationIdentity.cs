@@ -9,5 +9,5 @@ public record ExternalRegistrationIdentity(
     string Subject,
     string Email,
     bool EmailVerified,
-    string FirstName,
-    string LastName);
+    string? FirstName,
+    string? LastName);

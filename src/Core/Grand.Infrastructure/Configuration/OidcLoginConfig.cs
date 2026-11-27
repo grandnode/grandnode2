@@ -17,8 +17,8 @@ public class OidcLoginConfig
     private const int DefaultStaffMaxSessionHours = 10;
     private const int DefaultRevalidationMinutes = 10;
 
-    public string ClientId { get; set; }
-    public string ClientSecret { get; set; }
+    public string? ClientId { get; set; }
+    public string? ClientSecret { get; set; }
     public string Scopes { get; set; } = "openid profile email offline_access";
 
     /// <summary>Order of the sign-in button among the external authentication methods</summary>
@@ -61,7 +61,7 @@ public class OidcLoginConfig
 
     public bool ProviderOnly => SignInMode == OidcSignInMode.ProviderOnly;
 
-    public bool IsBreakGlass(string email)
+    public bool IsBreakGlass(string? email)
     {
         if (string.IsNullOrWhiteSpace(email) || BreakGlassAccounts == null)
             return false;

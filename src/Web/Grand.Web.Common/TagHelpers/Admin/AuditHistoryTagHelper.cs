@@ -22,16 +22,17 @@ public class AuditHistoryTagHelper(
 {
     private const string AdminArea = "Admin";
 
-    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] [HtmlAttributeNotBound] public ViewContext ViewContext { get; set; } = null!;
 
-    [HtmlAttributeName("entity-type")] public string EntityType { get; set; }
+    [HtmlAttributeName("entity-type")] public string? EntityType { get; set; }
 
-    [HtmlAttributeName("entity-id")] public string EntityId { get; set; }
+    [HtmlAttributeName("entity-id")] public string? EntityId { get; set; }
 
     /// <summary>
     ///     Comma-separated entity names to limit a per-type history to, e.g. the setting classes of a settings page
     /// </summary>
-    [HtmlAttributeName("entity-names")] public string EntityNames { get; set; }
+    [HtmlAttributeName("entity-names")] public string? EntityNames { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {

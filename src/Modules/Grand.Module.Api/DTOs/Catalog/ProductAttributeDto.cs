@@ -5,9 +5,9 @@ namespace Grand.Module.Api.DTOs.Catalog;
 
 public class ProductAttributeDto : BaseApiEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     [SanitizeHtml]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public IList<PredefinedProductAttributeValueDto> PredefinedProductAttributeValues { get; set; } =
         new List<PredefinedProductAttributeValueDto>();
@@ -15,7 +15,7 @@ public class ProductAttributeDto : BaseApiEntityModel
 
 public class PredefinedProductAttributeValueDto : BaseApiEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public double PriceAdjustment { get; set; }
     public double WeightAdjustment { get; set; }
     public double Cost { get; set; }

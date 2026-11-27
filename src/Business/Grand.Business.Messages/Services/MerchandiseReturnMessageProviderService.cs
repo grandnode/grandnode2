@@ -47,7 +47,7 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendNewMerchandiseReturnStoreOwnerMessage(MerchandiseReturn merchandiseReturn,
-        Order order, string languageId, DomainHost host = null)
+        Order order, string? languageId, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
@@ -106,7 +106,7 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
     /// <param name="languageId">Message language identifier</param>
     /// <param name="statusNote">The note shown to the customer with the change</param>
     public virtual async Task<int> SendMerchandiseReturnStatusChangedCustomerMessage(
-        MerchandiseReturn merchandiseReturn, Order order, string languageId, string statusNote = null)
+        MerchandiseReturn merchandiseReturn, Order order, string? languageId, string? statusNote = null)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
@@ -137,8 +137,8 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
-        var toEmail = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress.Email : customer.Email;
-        var toName = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress.FirstName : customer.GetFullName();
+        var toEmail = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress?.Email : customer.Email;
+        var toName = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress?.FirstName : customer.GetFullName();
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             languageId, liquidObject,
             toEmail, toName,
@@ -155,7 +155,7 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendNewMerchandiseReturnCustomerMessage(MerchandiseReturn merchandiseReturn,
-        Order order, string languageId, DomainHost host = null)
+        Order order, string? languageId, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
 
@@ -182,8 +182,8 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
-        var toEmail = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress.Email : customer.Email;
-        var toName = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress.FirstName : customer.GetFullName();
+        var toEmail = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress?.Email : customer.Email;
+        var toName = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress?.FirstName : customer.GetFullName();
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             languageId, liquidObject,
             toEmail, toName,
@@ -226,8 +226,8 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
         //event notification
         await _mediator.MessageTokensAdded(messageTemplate, liquidObject);
 
-        var toEmail = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress.Email : customer.Email;
-        var toName = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress.FirstName : customer.GetFullName();
+        var toEmail = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress?.Email : customer.Email;
+        var toName = string.IsNullOrEmpty(customer?.Email) ? order.BillingAddress?.FirstName : customer.GetFullName();
         return await _messageProviderService.SendNotification(messageTemplate, emailAccount,
             language.Id, liquidObject,
             toEmail, toName,
@@ -246,7 +246,7 @@ public class MerchandiseReturnMessageProviderService : IMerchandiseReturnMessage
     /// </param>
     public virtual async Task<int> SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(
         MerchandiseReturn merchandiseReturn, MerchandiseReturnNote merchandiseReturnNote, Order order,
-        string languageId, DomainHost host = null)
+        string? languageId, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(merchandiseReturn);
         ArgumentNullException.ThrowIfNull(merchandiseReturnNote);

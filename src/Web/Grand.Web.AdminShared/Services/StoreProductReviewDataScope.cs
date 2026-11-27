@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;

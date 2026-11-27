@@ -28,8 +28,8 @@ internal static class RecurringPaymentGateway
     ///     not charge the customer
     /// </summary>
     public static async Task StopOtherReference(IPaymentService paymentService, IOrderService orderService,
-        ILogger logger, RecurringPayment recurringPayment, string providerReference, string reported,
-        string advice = null)
+        ILogger logger, RecurringPayment recurringPayment, string? providerReference, string reported,
+        string? advice = null)
     {
         logger.LogWarning("Recurring payment {RecurringPaymentId} runs on {ProviderReference}, but the payment gateway reported {Reported} on {ReportedReference}",
             recurringPayment.Id, recurringPayment.ProviderReference, reported, providerReference);
@@ -76,7 +76,8 @@ internal static class RecurringPaymentGateway
     {
         try
         {
-            if (once && (await orderService.GetOrderNotes(recurringPayment.InitialOrderId)).Any(x => x.Note == note))
+            if (once &&
+                (await orderService.GetOrderNotes(recurringPayment.InitialOrderId)).Any(x => x.Note == note))
                 return;
 
             await orderService.InsertOrderNote(new OrderNote {

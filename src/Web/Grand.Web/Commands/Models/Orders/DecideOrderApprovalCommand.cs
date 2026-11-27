@@ -11,11 +11,11 @@ namespace Grand.Web.Commands.Models.Orders;
 /// </summary>
 public class DecideOrderApprovalCommand : IRequest<bool>
 {
-    public Customer Approver { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public string ApprovalId { get; set; }
+    public required Customer Approver { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required string ApprovalId { get; set; }
     public bool Approve { get; set; }
-    public string Comment { get; set; }
-    public Language Language { get; set; }
-    public DomainHost Host { get; set; }
+    public string? Comment { get; set; }
+    public required Language Language { get; set; }
+    public required DomainHost Host { get; set; }
 }

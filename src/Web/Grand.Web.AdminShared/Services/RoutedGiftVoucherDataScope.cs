@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Orders;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;

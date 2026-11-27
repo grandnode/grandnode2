@@ -32,14 +32,14 @@ public interface IProductService
     /// <param name="productId">Product identifier</param>
     /// <param name="fromDb">get data from db (not from cache)</param>
     /// <returns>Product</returns>
-    Task<Product> GetProductById(string productId, bool fromDb = false);
+    Task<Product?> GetProductById(string? productId, bool fromDb = false);
 
     /// <summary>
     ///     Gets product from product or product deleted
     /// </summary>
     /// <param name="productId">Product identifier</param>
     /// <returns>Product</returns>
-    Task<Product> GetProductByIdIncludeArch(string productId);
+    Task<Product?> GetProductByIdIncludeArch(string? productId);
 
     /// <summary>
     ///     Gets products by identifier
@@ -110,7 +110,7 @@ public interface IProductService
     /// <param name="ignoreAcl">Ignore acl</param>
     /// <param name="ignoreStore">Ignore store</param>
     /// <returns>Product number</returns>
-    int GetCategoryProductNumber(Customer customer, IList<string> categoryIds = null, string storeId = "",
+    int GetCategoryProductNumber(Customer customer, IList<string>? categoryIds = null, string storeId = "",
         bool ignoreAcl = true, bool ignoreStore = true);
 
     /// <summary>
@@ -162,11 +162,11 @@ public interface IProductService
         bool loadFilterableSpecificationAttributeOptionIds = false,
         int pageIndex = 0,
         int pageSize = int.MaxValue,
-        IList<string> categoryIds = null,
-        string brandId = "",
-        string collectionId = "",
-                string vendorId = "",
-        string warehouseId = "",
+        IList<string>? categoryIds = null,
+        string? brandId = "",
+        string? collectionId = "",
+                string? vendorId = "",
+        string? warehouseId = "",
         ProductType? productType = null,
         bool visibleIndividuallyOnly = false,
         bool markedAsNewOnly = false,
@@ -174,14 +174,14 @@ public interface IProductService
         bool? featuredProducts = null,
         double? priceMin = null,
         double? priceMax = null,
-        string productTag = "",
-        string keywords = null,
+        string? productTag = "",
+        string? keywords = null,
         bool searchDescriptions = false,
         bool searchSku = true,
         bool searchProductTags = false,
         string languageId = "",
-        IList<string> filteredSpecs = null,
-        IList<string> specificationOptions = null,
+        IList<string>? filteredSpecs = null,
+        IList<string>? specificationOptions = null,
         ProductSortingEnum orderBy = ProductSortingEnum.Position,
                 bool? overridePublished = null);
 
@@ -217,7 +217,7 @@ public interface IProductService
     /// </summary>
     /// <param name="sku">SKU</param>
     /// <returns>Product</returns>
-    Task<Product> GetProductBySku(string sku);
+    Task<Product?> GetProductBySku(string? sku);
 
     #endregion
 

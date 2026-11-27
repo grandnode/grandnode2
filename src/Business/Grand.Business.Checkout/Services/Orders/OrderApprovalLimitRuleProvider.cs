@@ -26,7 +26,7 @@ public class OrderApprovalLimitRuleProvider : IOrderPlacementRuleProvider
         _translationService = translationService;
     }
 
-    public string ConfigurationUrl => null;
+    public string? ConfigurationUrl => null;
     public string SystemName => "OrderPlacementRule.ApprovalLimit";
     public string FriendlyName => SystemName;
     public int Priority => 0;
@@ -54,7 +54,7 @@ public class OrderApprovalLimitRuleProvider : IOrderPlacementRuleProvider
         return OrderPlacementRuleResult.RequireApproval(await LimitExceededText(limit.Value, context));
     }
 
-    private async Task<string> LimitExceededText(double limit, OrderPlacementContext context)
+    private async Task<string?> LimitExceededText(double limit, OrderPlacementContext context)
     {
         var currency = context.Calculation.Currency;
         var message = _translationService.GetResource("Checkout.OrderApproval.LimitExceeded", context.Language.Id);

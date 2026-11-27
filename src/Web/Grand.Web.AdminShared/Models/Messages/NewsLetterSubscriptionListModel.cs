@@ -8,10 +8,10 @@ namespace Grand.Web.AdminShared.Models.Messages;
 public class NewsLetterSubscriptionListModel : BaseModel
 {
     [GrandResourceDisplayName("admin.marketing.NewsLetterSubscriptions.List.SearchEmail")]
-    public string SearchEmail { get; set; }
+    public string? SearchEmail { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.NewsLetterSubscriptions.List.SearchStore")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 

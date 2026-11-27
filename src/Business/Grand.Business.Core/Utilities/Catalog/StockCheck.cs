@@ -1,5 +1,3 @@
-#nullable enable
-
 namespace Grand.Business.Core.Utilities.Catalog;
 
 /// <summary>

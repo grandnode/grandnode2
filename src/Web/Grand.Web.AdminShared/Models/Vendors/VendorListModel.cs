@@ -7,5 +7,5 @@ public class VendorListModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Vendors.List.SearchName")]
 
-    public string SearchName { get; set; }
+    public string? SearchName { get; set; }
 }

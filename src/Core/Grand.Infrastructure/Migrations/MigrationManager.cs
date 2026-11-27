@@ -21,8 +21,9 @@ public class MigrationManager
     {
         return _migrationConfigurations
             .Where(PluginExtensions.OnlyInstalledPlugins)
-            .Select(mg => (IMigration)Activator.CreateInstance(mg))
-            .OrderBy(mg => mg!.Priority);
+            .Select(mg => Activator.CreateInstance(mg))
+            .OfType<IMigration>()
+            .OrderBy(mg => mg.Priority);
     }
 
     /// <summary>

@@ -8,5 +8,8 @@
   AttributeControlTypeId: 4,
   DisplayOrder: 1,
   ConditionAllowed: false,
+  ConditionModel: {
+    EnableCondition: false
+  },
   Id: ca-001
 }

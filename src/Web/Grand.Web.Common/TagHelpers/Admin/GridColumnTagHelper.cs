@@ -15,19 +15,19 @@ public class GridColumnTagHelper : TagHelper
 {
     internal static readonly object ContextKey = typeof(GridColumnDefinition);
 
-    public string Field { get; set; }
-    public string Title { get; set; }
+    public string? Field { get; set; }
+    public string? Title { get; set; }
     public int? Width { get; set; }
 
     /// <summary>Kendo-style format: {0:G}, {0:0}, {0:n2}, n8, c2, HH:mm.</summary>
-    public string Format { get; set; }
+    public string? Format { get; set; }
 
     /// <summary>Inline editor; None (default) leaves the column read-only in edit mode.</summary>
     /// <remarks>Not nullable: Razor only accepts bare enum names (editor="Numeric") for enum properties.</remarks>
     public GridEditor Editor { get; set; } = GridEditor.None;
 
     /// <summary>Name registered with GrandAdmin.grids.editors.register for editor="Custom".</summary>
-    public string EditorName { get; set; }
+    public string? EditorName { get; set; }
 
     public bool Editable { get; set; } = true;
     public bool Required { get; set; }
@@ -37,26 +37,26 @@ public class GridColumnTagHelper : TagHelper
     public int? MaxLength { get; set; }
 
     /// <summary>Options of a Select editor; the display text is looked up from them too.</summary>
-    public IEnumerable<SelectListItem> Options { get; set; }
+    public IEnumerable<SelectListItem>? Options { get; set; }
 
     /// <summary>Remote options of a Select editor: JSON array or DataSourceResult, loaded with GET.</summary>
-    public string OptionsUrl { get; set; }
+    public string? OptionsUrl { get; set; }
 
-    public string OptionTextField { get; set; }
-    public string OptionValueField { get; set; }
-    public string OptionLabel { get; set; }
+    public string? OptionTextField { get; set; }
+    public string? OptionValueField { get; set; }
+    public string? OptionLabel { get; set; }
 
     /// <summary>
     ///     Remote Select only: what is typed in the cell reloads options-url filtered on the option
     ///     text field with this operator (startswith, contains), the query a Kendo DropDownList
     ///     with serverFiltering sends. Without it the list is read once and searched in the browser.
     /// </summary>
-    public string OptionsFilter { get; set; }
+    public string? OptionsFilter { get; set; }
 
     /// <summary>Field of the row holding the display text of a Select value (e.g. StoreName for StoreId).</summary>
-    public string TextField { get; set; }
+    public string? TextField { get; set; }
 
-    public string DefaultValue { get; set; }
+    public string? DefaultValue { get; set; }
     public GridAlign Align { get; set; } = GridAlign.Default;
     public GridAlign HeaderAlign { get; set; } = GridAlign.Default;
 
@@ -68,7 +68,7 @@ public class GridColumnTagHelper : TagHelper
     /// <summary>false renders the field value as HTML (Kendo encoded: false). Server-built markup only.</summary>
     public bool Encoded { get; set; } = true;
 
-    public string CssClass { get; set; }
+    public string? CssClass { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {

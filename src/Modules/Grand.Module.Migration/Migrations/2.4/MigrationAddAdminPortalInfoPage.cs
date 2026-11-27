@@ -41,7 +41,7 @@ public class MigrationAddAdminPortalInfoPage : IMigration
             var entityUrlRepository = serviceProvider.GetRequiredService<IRepository<EntityUrl>>();
 
             var systemName = PageSystemName.ToLowerInvariant();
-            var page = await pageRepository.FirstOrDefaultAsync(pageRepository.Table.Where(x => x.SystemName.ToLower() == systemName));
+            var page = await pageRepository.FirstOrDefaultAsync(pageRepository.Table.Where(x => x.SystemName != null && x.SystemName.ToLower() == systemName));
             if (page == null)
             {
                 var defaultPageLayout = await pageLayoutRepository.FirstOrDefaultAsync(pageLayoutRepository.Table.Where(x => x.Name == "Default layout"));

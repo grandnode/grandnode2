@@ -29,7 +29,7 @@ public interface IPaymentTransactionService
     /// </summary>
     /// <param name="id">The identifier</param>
     /// <returns>PaymentTransaction</returns>
-    Task<PaymentTransaction> GetById(string id);
+    Task<PaymentTransaction?> GetById(string id);
 
     /// <summary>
     ///     Gets an payment transactions for order Ident
@@ -43,7 +43,7 @@ public interface IPaymentTransactionService
     /// </summary>
     /// <param name="orderGuid">The order guid</param>
     /// <returns>PaymentTransaction</returns>
-    Task<PaymentTransaction> GetOrderByGuid(Guid orderGuid);
+    Task<PaymentTransaction?> GetOrderByGuid(Guid orderGuid);
 
     /// <summary>
     ///     Get an payment transactions by authorization transaction ID and payment method system name

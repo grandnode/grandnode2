@@ -23,19 +23,20 @@ public class RecordRecurringPaymentReferenceCommandHandler(
         var report = await recurringPaymentService.RecordProviderReference(request.RecurringPaymentId,
             request.ProviderReference);
 
-        switch (report.Outcome)
+        //a payment is reported with every outcome but NotFound
+        switch (report)
         {
-            case RecurringReportOutcome.Recorded:
+            case { Outcome: RecurringReportOutcome.Recorded, RecurringPayment: { } recorded }:
                 // cancelled before the reference was known, so the cancel could not stop the gateway: it is stopped
                 // now, once, as a resend finds the reference recorded
-                if (report.RecurringPayment.Status.HasEnded())
-                    await RecurringPaymentGateway.Stop(paymentService, orderService, logger, report.RecurringPayment);
+                if (recorded.Status.HasEnded())
+                    await RecurringPaymentGateway.Stop(paymentService, orderService, logger, recorded);
                 return true;
-            case RecurringReportOutcome.Duplicate:
+            case { Outcome: RecurringReportOutcome.Recorded or RecurringReportOutcome.Duplicate }:
                 return true;
-            case RecurringReportOutcome.OtherReference:
+            case { Outcome: RecurringReportOutcome.OtherReference, RecurringPayment: { } otherPayment }:
                 await RecurringPaymentGateway.StopOtherReference(paymentService, orderService, logger,
-                    report.RecurringPayment, request.ProviderReference, "a second subscription");
+                    otherPayment, request.ProviderReference, "a second subscription");
                 return false;
             default:
                 return false;

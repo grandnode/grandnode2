@@ -14,14 +14,14 @@ public interface IOrderApprovalService
     /// <param name="id">Approval identifier</param>
     /// <param name="companyOwnerId">Identifier of the company owner the approval must belong to</param>
     /// <returns>Approval; null when it does not exist or belongs to another company</returns>
-    Task<OrderApproval> GetById(string id, string companyOwnerId);
+    Task<OrderApproval?> GetById(string? id, string companyOwnerId);
 
     /// <summary>
     ///     Gets the approval request of an order
     /// </summary>
     /// <param name="orderId">Order identifier</param>
     /// <returns>Approval; null when the order has none</returns>
-    Task<OrderApproval> GetByOrderId(string orderId);
+    Task<OrderApproval?> GetByOrderId(string orderId);
 
     /// <summary>
     ///     Gets the company's requests in the store, pending first and then the newest
@@ -57,8 +57,8 @@ public interface IOrderApprovalService
     /// <param name="decidedByCustomerId">Who decided; null when nobody did</param>
     /// <param name="decisionComment">The approver's comment</param>
     /// <returns>Whether this call closed the request</returns>
-    Task<bool> Close(OrderApproval approval, OrderApprovalStatus status, string decidedByCustomerId = null,
-        string decisionComment = null);
+    Task<bool> Close(OrderApproval approval, OrderApprovalStatus status, string? decidedByCustomerId = null,
+        string? decisionComment = null);
 
     /// <summary>
     ///     Makes a request closed by <see cref="Close" /> pending again, when what should follow the close has failed
@@ -70,5 +70,5 @@ public interface IOrderApprovalService
     ///     Gets a value indicating whether the payment method may be used for an order that needs an approval
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
-    bool IsPaymentMethodAllowed(string paymentMethodSystemName);
+    bool IsPaymentMethodAllowed(string? paymentMethodSystemName);
 }

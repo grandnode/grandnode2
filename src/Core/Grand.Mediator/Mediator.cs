@@ -50,7 +50,7 @@ public sealed class Mediator : IMediator
         return wrapper.HandleVoid(request, _provider, cancellationToken);
     }
 
-    public Task<object> Send(object request, CancellationToken cancellationToken = default)
+    public Task<object?> Send(object request, CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(request);
 
@@ -104,7 +104,7 @@ public sealed class Mediator : IMediator
     /// <summary>
     ///     Returns the response type of a request, or null when the request returns none.
     /// </summary>
-    private static Type ResponseTypeOf(Type requestType)
+    private static Type? ResponseTypeOf(Type requestType)
     {
         foreach (var contract in requestType.GetInterfaces())
             if (contract.IsGenericType && contract.GetGenericTypeDefinition() == typeof(IRequest<>))

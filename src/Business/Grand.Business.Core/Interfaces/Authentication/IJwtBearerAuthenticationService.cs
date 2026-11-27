@@ -9,11 +9,11 @@ public interface IJwtBearerAuthenticationService
     ///     Valid email
     /// </summary>
     /// <param name="principal">Principal of the validated token</param>
-    Task<bool> Valid(ClaimsPrincipal principal);
+    Task<bool> Valid(ClaimsPrincipal? principal);
 
     /// <summary>
     ///     Get error message
     /// </summary>
     /// <returns></returns>
-    Task<string> ErrorMessage();
+    Task<string?> ErrorMessage();
 }

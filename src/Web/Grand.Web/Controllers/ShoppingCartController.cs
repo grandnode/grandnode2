@@ -465,7 +465,7 @@ public class ShoppingCartController : BasePublicController
     {
         var cart = await _shoppingCartService.GetCurrentCart(_contextAccessor,
             ShoppingCartType.ShoppingCart, ShoppingCartType.Auctions);
-        List<CustomAttribute> checkoutAttributes;
+        List<CustomAttribute>? checkoutAttributes;
         //parse and save checkout attributes
         if (model?.Attributes is { Count: > 0 })
             checkoutAttributes = (await _mediator.Send(new SaveCheckoutAttributesCommand {
@@ -509,7 +509,8 @@ public class ShoppingCartController : BasePublicController
 
         if (ModelState.IsValid)
         {
-            //valid
+            //valid; the validator requires the code
+            ArgumentException.ThrowIfNullOrEmpty(model.DiscountCouponCode);
             var applyCouponCode =
                 _contextAccessor.WorkContext.CurrentCustomer.ApplyCouponCode(SystemCustomerFieldNames.DiscountCoupons,
                     model.DiscountCouponCode);
@@ -545,6 +546,8 @@ public class ShoppingCartController : BasePublicController
 
         if (ModelState.IsValid)
         {
+            //the validator requires the code
+            ArgumentException.ThrowIfNullOrEmpty(model.GiftVoucherCouponCode);
             model.GiftVoucherCouponCode = model.GiftVoucherCouponCode.Trim();
 
             var result = _contextAccessor.WorkContext.CurrentCustomer.ApplyCouponCode(SystemCustomerFieldNames.GiftVoucherCoupons,
@@ -602,7 +605,7 @@ public class ShoppingCartController : BasePublicController
             foreach (var item in coupons)
             {
                 var dd = await _discountService.GetDiscountByCouponCode(item);
-                if (dd.Id != discount.Id) continue;
+                if (dd == null || dd.Id != discount.Id) continue;
 
                 //remove coupon
                 var result =

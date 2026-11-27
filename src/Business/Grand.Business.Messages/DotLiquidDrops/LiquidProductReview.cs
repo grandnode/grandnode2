@@ -15,9 +15,9 @@ public class LiquidProductReview : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string ProductName => _product.Name;
+    public string? ProductName => _product.Name;
 
-    public string ProductReviewReplyText => _productReview.ReplyText;
+    public string? ProductReviewReplyText => _productReview.ReplyText;
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

@@ -5,7 +5,7 @@ namespace Grand.Web.AdminShared.Models.Settings;
 
 public class VendorSettingsModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Vendor.VendorsBlockItemsToDisplay")]
     public int VendorsBlockItemsToDisplay { get; set; }
@@ -58,7 +58,7 @@ public class VendorSettingsModel : BaseModel
     public bool VendorReviewPossibleOnlyOnce { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Vendor.DefaultVendorPageSizeOptions")]
-    public string DefaultVendorPageSizeOptions { get; set; }
+    public string? DefaultVendorPageSizeOptions { get; set; }
 
     public AddressSettingsModel AddressSettings { get; set; } = new();
 

@@ -40,7 +40,7 @@ public interface IExternalAuthenticationService
     /// </summary>
     /// <param name="parameters">External authentication parameters</param>
     /// <returns>Customer</returns>
-    Task<Customer> GetCustomer(ExternalAuthParam parameters);
+    Task<Customer?> GetCustomer(ExternalAuthParam parameters);
 
 
     Task<IList<ExternalAuthentication>> GetExternalIdentifiers(Customer customer);
@@ -66,7 +66,7 @@ public interface IExternalAuthenticationService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found external authentication method</returns>
-    IExternalAuthenticationProvider LoadAuthenticationProviderBySystemName(string systemName);
+    IExternalAuthenticationProvider? LoadAuthenticationProviderBySystemName(string? systemName);
 
     /// <summary>
     ///     Load all external authentication providers independently from status
@@ -81,7 +81,7 @@ public interface IExternalAuthenticationService
     /// <param name="customer">Customer whose groups the provider may be limited to</param>
     /// <param name="store">Store the provider may be limited to</param>
     /// <returns>True if is available; otherwise false</returns>
-    bool AuthenticationProviderIsAvailable(string systemName, Customer customer, Store store);
+    bool AuthenticationProviderIsAvailable(string? systemName, Customer customer, Store store);
 
     #endregion
 }

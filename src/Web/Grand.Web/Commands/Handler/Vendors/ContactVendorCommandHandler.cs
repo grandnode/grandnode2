@@ -27,12 +27,16 @@ public class ContactVendorCommandHandler : IRequestHandler<ContactVendorSendComm
 
     public async Task<ContactVendorModel> Handle(ContactVendorSendCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires them
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.Email);
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.FullName);
+
         var subject = _commonSettings.SubjectFieldOnContactUsForm ? request.Model.Subject : null;
         var body = FormatText.ConvertText(request.Model.Enquiry);
 
         await _vendorMessageProviderService.SendContactVendorMessage(_contextAccessor.WorkContext.CurrentCustomer, request.Store,
             request.Vendor, _contextAccessor.WorkContext.WorkingLanguage.Id,
-            request.Model.Email.Trim(), request.Model.FullName, subject, body, request.IpAddress,
+            request.Model.Email.Trim(), request.Model.FullName, subject ?? "", body, request.IpAddress ?? "",
             host: _contextAccessor.StoreContext.CurrentHost);
 
         request.Model.SuccessfullySent = true;

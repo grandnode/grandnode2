@@ -49,7 +49,7 @@ public class CatalogPagingFilteringModel : BasePageableModel
     /// <summary>
     ///     View mode
     /// </summary>
-    public string ViewMode { get; set; }
+    public string? ViewMode { get; set; }
 
     #endregion
 
@@ -63,15 +63,17 @@ public class CatalogPagingFilteringModel : BasePageableModel
 
         #region Utilities
 
-        protected virtual string ExcludeQueryStringParams(string url)
+        protected virtual string ExcludeQueryStringParams(string? url)
         {
             //comma separated list of parameters to exclude
             const string excludedQueryStringParams = "pagenumber";
             var excludedQueryStringParamsSplitted =
                 excludedQueryStringParams.Split([','], StringSplitOptions.RemoveEmptyEntries);
+            //ModifyQueryString answers a missing url with ""
+            var result = url ?? "";
             foreach (var exclude in excludedQueryStringParamsSplitted)
-                url = CommonExtensions.ModifyQueryString(url, exclude, null);
-            return url;
+                result = CommonExtensions.ModifyQueryString(result, exclude, null);
+            return result;
         }
 
         protected virtual string GenerateFilteredSpecQueryParam(IList<string> optionIds)
@@ -88,16 +90,18 @@ public class CatalogPagingFilteringModel : BasePageableModel
         #region Methods
 
         public virtual async Task<List<string>> GetAlreadyFilteredSpecOptionIds
-            (IQueryCollection query, ISpecificationAttributeService specificationAttributeService)
+            (IQueryCollection? query, ISpecificationAttributeService specificationAttributeService)
         {
             var result = new List<string>();
+            if (query == null)
+                return result;
 
             foreach (var item in query)
             {
                 var spec = await specificationAttributeService.GetSpecificationAttributeBySeName(item.Key);
                 if (spec == null) continue;
                 foreach (var value in item.Value)
-                foreach (var option in value.Split(","))
+                foreach (var option in value?.Split(",") ?? [])
                 {
                     var opt = spec.SpecificationAttributeOptions.FirstOrDefault(x =>
                         x.SeName == option.ToLowerInvariant());
@@ -113,7 +117,7 @@ public class CatalogPagingFilteringModel : BasePageableModel
         public virtual async Task PrepareSpecsFilters(IList<string> alreadyFilteredSpecOptionIds,
             IEnumerable<string> filterableSpecificationAttributeOptionIds,
             ISpecificationAttributeService specificationAttributeService,
-            string url, string langId)
+            string? url, string langId)
         {
             Enabled = false;
 
@@ -121,22 +125,21 @@ public class CatalogPagingFilteringModel : BasePageableModel
             foreach (var sao in filterableSpecificationAttributeOptionIds.Union(alreadyFilteredSpecOptionIds))
             {
                 var sa = await specificationAttributeService.GetSpecificationAttributeByOptionId(sao);
-                if (sa != null)
-                    allFilters.Add(new SpecificationAttributeOptionFilter {
-                        SpecificationAttributeId = sa.Id,
-                        SpecificationAttributeName = sa.GetTranslation(x => x.Name, langId),
-                        SpecificationAttributeSeName = sa.SeName,
-                        SpecificationAttributeDisplayOrder = sa.DisplayOrder,
-                        SpecificationAttributeOptionId = sao,
-                        SpecificationAttributeOptionName = sa.SpecificationAttributeOptions
-                            .FirstOrDefault(x => x.Id == sao).GetTranslation(x => x.Name, langId),
-                        SpecificationAttributeOptionSeName =
-                            sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao)!.SeName,
-                        SpecificationAttributeOptionDisplayOrder =
-                            sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao)!.DisplayOrder,
-                        SpecificationAttributeOptionColorRgb =
-                            sa.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao)!.ColorSquaresRgb
-                    });
+                var option = sa?.SpecificationAttributeOptions.FirstOrDefault(x => x.Id == sao);
+                if (sa == null || option == null)
+                    continue;
+
+                allFilters.Add(new SpecificationAttributeOptionFilter {
+                    SpecificationAttributeId = sa.Id,
+                    SpecificationAttributeName = sa.GetTranslation(x => x.Name, langId),
+                    SpecificationAttributeSeName = sa.SeName,
+                    SpecificationAttributeDisplayOrder = sa.DisplayOrder,
+                    SpecificationAttributeOptionId = sao,
+                    SpecificationAttributeOptionName = option.GetTranslation(x => x.Name, langId),
+                    SpecificationAttributeOptionSeName = option.SeName,
+                    SpecificationAttributeOptionDisplayOrder = option.DisplayOrder,
+                    SpecificationAttributeOptionColorRgb = option.ColorSquaresRgb
+                });
             }
 
             if (!allFilters.Any())
@@ -157,13 +160,13 @@ public class CatalogPagingFilteringModel : BasePageableModel
 
             //get already filtered specification options
             var alreadyFilteredOptions =
-                allFilters.Where(x => alreadyFilteredSpecOptionIds.Contains(x.SpecificationAttributeOptionId));
+                allFilters.Where(x => x.SpecificationAttributeOptionId != null && alreadyFilteredSpecOptionIds.Contains(x.SpecificationAttributeOptionId));
             AlreadyFilteredItems = alreadyFilteredOptions.Select(x =>
             {
                 var alreadyFiltered = alreadyFilteredOptions
                     .Where(y => y.SpecificationAttributeId == x.SpecificationAttributeId)
                     .Select(z => z.SpecificationAttributeOptionSeName)
-                    .Except(new List<string> { x.SpecificationAttributeOptionSeName }).ToList();
+                    .Except([x.SpecificationAttributeOptionSeName]).OfType<string>().ToList();
 
                 var filterUrl = CommonExtensions.ModifyQueryString(url, x.SpecificationAttributeSeName,
                     GenerateFilteredSpecQueryParam(alreadyFiltered));
@@ -185,7 +188,7 @@ public class CatalogPagingFilteringModel : BasePageableModel
                 var alreadyFiltered = alreadyFilteredOptions
                     .Where(y => y.SpecificationAttributeId == x.SpecificationAttributeId)
                     .Select(s => s.SpecificationAttributeOptionSeName)
-                    .Concat(new List<string> { x.SpecificationAttributeOptionSeName });
+                    .Concat([x.SpecificationAttributeOptionSeName]).OfType<string>();
 
                 var filterUrl = CommonExtensions.ModifyQueryString(url, x.SpecificationAttributeSeName,
                     GenerateFilteredSpecQueryParam(alreadyFiltered.ToList()));
@@ -207,19 +210,19 @@ public class CatalogPagingFilteringModel : BasePageableModel
         public bool Enabled { get; set; }
         public IList<SpecificationFilterItem> AlreadyFilteredItems { get; set; } = new List<SpecificationFilterItem>();
         public IList<SpecificationFilterItem> NotFilteredItems { get; set; } = new List<SpecificationFilterItem>();
-        public string RemoveFilterUrl { get; set; }
+        public string? RemoveFilterUrl { get; set; }
 
         #endregion
     }
 
     public class SpecificationFilterItem : BaseModel
     {
-        public string SpecificationAttributeName { get; set; }
-        public string SpecificationAttributeSeName { get; set; }
-        public string SpecificationAttributeOptionName { get; set; }
-        public string SpecificationAttributeOptionSeName { get; set; }
-        public string SpecificationAttributeOptionColorRgb { get; set; }
-        public string FilterUrl { get; set; }
+        public string? SpecificationAttributeName { get; set; }
+        public string? SpecificationAttributeSeName { get; set; }
+        public string? SpecificationAttributeOptionName { get; set; }
+        public string? SpecificationAttributeOptionSeName { get; set; }
+        public string? SpecificationAttributeOptionColorRgb { get; set; }
+        public string? FilterUrl { get; set; }
     }
 
     #endregion

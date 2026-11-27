@@ -6,23 +6,23 @@ namespace Grand.Web.Models.Catalog;
 
 public class SearchModel : BaseModel
 {
-    public string Warning { get; set; }
+    public string? Warning { get; set; }
 
     public bool NoResults { get; set; }
 
-    public string SearchCategoryId { get; set; }
+    public string? SearchCategoryId { get; set; }
 
     /// <summary>
     ///     Query string
     /// </summary>
     [GrandResourceDisplayName("Search.SearchTerm")]
-    public string q { get; set; }
+    public string? q { get; set; }
 
     /// <summary>
     ///     Category ID
     /// </summary>
     [GrandResourceDisplayName("Search.Category")]
-    public string cid { get; set; }
+    public string? cid { get; set; }
 
     [GrandResourceDisplayName("Search.IncludeSubCategories")]
     public bool isc { get; set; }
@@ -31,25 +31,25 @@ public class SearchModel : BaseModel
     ///     Collection ID
     /// </summary>
     [GrandResourceDisplayName("Search.Collection")]
-    public string mid { get; set; }
+    public string? mid { get; set; }
 
     /// <summary>
     ///     Vendor ID
     /// </summary>
     [GrandResourceDisplayName("Search.Vendor")]
-    public string vid { get; set; }
+    public string? vid { get; set; }
 
     /// <summary>
     ///     Price - From
     /// </summary>
     [GrandResourceDisplayName("Search.PriceRange.From")]
-    public string pf { get; set; }
+    public string? pf { get; set; }
 
     /// <summary>
     ///     Price - To
     /// </summary>
     [GrandResourceDisplayName("Search.PriceRange.To")]
-    public string pt { get; set; }
+    public string? pt { get; set; }
 
     /// <summary>
     ///     A value indicating whether to search in descriptions
@@ -81,7 +81,7 @@ public class SearchModel : BaseModel
 
     public class CategoryModel : BaseEntityModel
     {
-        public string Breadcrumb { get; set; }
+        public string? Breadcrumb { get; set; }
     }
 
     #endregion

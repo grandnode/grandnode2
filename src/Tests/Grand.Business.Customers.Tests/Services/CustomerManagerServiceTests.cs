@@ -232,7 +232,7 @@ public class CustomerManagerServiceTests
         //Arrange
         var changepassword = new ChangePasswordRequest("nobody@x.com", PasswordFormat.Clear, "zxcvbn");
         //Act + Assert
-        await Assert.ThrowsExactlyAsync<ArgumentNullException>(() =>
+        await Assert.ThrowsExactlyAsync<GrandException>(() =>
             _customerManagerService.ChangePassword(changepassword, "store-1"));
     }
 

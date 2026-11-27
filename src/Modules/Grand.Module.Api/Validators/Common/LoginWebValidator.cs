@@ -35,7 +35,7 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
             RuleFor(x => x.Password).NotEmpty().WithMessage("Password is required");
             RuleFor(x => x).MustAsync(async (x, cancellationToken) =>
             {
-                if (!string.IsNullOrEmpty(x.Email))
+                if (!string.IsNullOrEmpty(x.Email) && !string.IsNullOrEmpty(x.Password))
                 {
                     var customer = await customerService.GetCustomerByEmail(x.Email.ToLowerInvariant(), storeId);
                     //a locked-out account cannot sign in here either, as on the storefront login page
@@ -45,7 +45,7 @@ public class LoginWebValidator : BaseGrandValidator<LoginWebModel>
                         string password;
                         try
                         {
-                            password = Encoding.UTF8.GetString(Convert.FromBase64String(x.Password));
+                            password = Encoding.UTF8.GetString(Convert.FromBase64String(x.Password ?? ""));
                         }
                         catch (FormatException)
                         {

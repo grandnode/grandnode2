@@ -33,6 +33,7 @@ public class AdminCultureTagHelperTests
         workContextMock.Setup(x => x.WorkingLanguage).Returns(() => _workingLanguage);
         _contextAccessorMock = new Mock<IContextAccessor>();
         _contextAccessorMock.Setup(x => x.WorkContext).Returns(workContextMock.Object);
+        _contextAccessorMock.Setup(x => x.CurrentWorkContext).Returns(workContextMock.Object);
         _translationServiceMock = new Mock<ITranslationService>();
         _translationServiceMock
             .Setup(x => x.GetResource(It.IsAny<string>(), "lang1", string.Empty, true))

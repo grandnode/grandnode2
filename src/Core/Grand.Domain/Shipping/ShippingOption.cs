@@ -8,7 +8,7 @@ public class ShippingOption
     /// <summary>
     ///     Gets or sets the system name of shipping rate provider
     /// </summary>
-    public string ShippingRateProviderSystemName { get; set; }
+    public string? ShippingRateProviderSystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets a shipping rate (without discounts, additional shipping charges, etc)
@@ -18,10 +18,10 @@ public class ShippingOption
     /// <summary>
     ///     Gets or sets a shipping option name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets a shipping option description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 }

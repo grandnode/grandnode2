@@ -8,25 +8,25 @@ namespace Grand.Web.AdminShared.Models.Catalog;
 public class BulkEditListModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Catalog.BulkEdit.List.SearchProductName")]
-    public string SearchProductName { get; set; }
+    public string? SearchProductName { get; set; }
 
     [UIHint("Category")]
     [GrandResourceDisplayName("Admin.Catalog.BulkEdit.List.SearchCategory")]
-    public string SearchCategoryId { get; set; }
+    public string? SearchCategoryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
     [UIHint("Brand")]
-    public string SearchBrandId { get; set; }
+    public string? SearchBrandId { get; set; }
 
     [UIHint("Collection")]
     [GrandResourceDisplayName("Admin.Catalog.BulkEdit.List.SearchCollection")]
-    public string SearchCollectionId { get; set; }
+    public string? SearchCollectionId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
     public int SearchProductTypeId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-    public string SearchStoreId { get; set; }
+    public string? SearchStoreId { get; set; }
 
     public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();

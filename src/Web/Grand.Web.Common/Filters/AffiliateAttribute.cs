@@ -83,7 +83,7 @@ public class AffiliateAttribute : TypeFilterAttribute
         ///     Set the affiliate identifier of current customer
         /// </summary>
         /// <param name="affiliate">Affiliate</param>
-        private async Task SetCustomerAffiliateId(Affiliate affiliate)
+        private async Task SetCustomerAffiliateId(Affiliate? affiliate)
         {
             if (affiliate is not { Active: true })
                 return;

@@ -18,7 +18,7 @@ public interface IProductLayoutService
     /// </summary>
     /// <param name="productLayoutId">Product layout identifier</param>
     /// <returns>Product layout</returns>
-    Task<ProductLayout> GetProductLayoutById(string productLayoutId);
+    Task<ProductLayout?> GetProductLayoutById(string? productLayoutId);
 
     /// <summary>
     ///     Inserts product layout

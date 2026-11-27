@@ -65,7 +65,7 @@ public class TokenWebController : ControllerBase
 
         customer = await _customerService.InsertGuestCustomer(customer);
 
-        var claims = new Dictionary<string, string> {
+        var claims = new Dictionary<string, string?> {
             { "Guid", customer.CustomerGuid.ToString() }
         };
 
@@ -83,8 +83,9 @@ public class TokenWebController : ControllerBase
 
         try
         {
-            var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id);
-            var claims = new Dictionary<string, string> {
+            var customer = await _customerService.GetCustomerByEmail(model.Email, _contextAccessor.StoreContext.CurrentStore.Id) ??
+                           throw new ArgumentException("No customer has the e-mail", nameof(model));
+            var claims = new Dictionary<string, string?> {
                 { "CustomerId", customer.Id },
                 { "Email", model.Email },
                 { "Token", customer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.PasswordToken) }
@@ -106,15 +107,15 @@ public class TokenWebController : ControllerBase
         if (!_apiConfig.Enabled)
             return BadRequest("API is disabled");
 
-        Customer customer = null;
-        var claims = new Dictionary<string, string>();
+        Customer? customer = null;
+        var claims = new Dictionary<string, string?>();
         ClaimsPrincipal principal;
-        string customerId;
-        string email;
-        string guid;
+        string? customerId;
+        string? email;
+        string? guid;
         try
         {
-            principal = _refreshTokenService.GetPrincipalFromToken(tokenDto.AccessToken);
+            principal = _refreshTokenService.GetPrincipalFromToken(tokenDto.AccessToken ?? "");
             customerId = principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
             email = principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
             guid = principal.Claims.FirstOrDefault(x => x.Type == "Guid")?.Value;
@@ -155,7 +156,7 @@ public class TokenWebController : ControllerBase
         }
 
         var customerRefreshToken = await _refreshTokenService.GetCustomerRefreshToken(customer);
-        if (customerRefreshToken is null || !customerRefreshToken.Token.Equals(tokenDto.RefreshToken))
+        if (customerRefreshToken is null || !string.Equals(customerRefreshToken.Token, tokenDto.RefreshToken))
             return BadRequest("Invalid refresh token");
 
         if (customerRefreshToken.ValidTo.CompareTo(DateTime.UtcNow) < 0) return BadRequest("Token expired");
@@ -174,7 +175,7 @@ public class TokenWebController : ControllerBase
         return Ok(token);
     }
 
-    private async Task<TokenDto> GetToken(Dictionary<string, string> claims, Customer customer)
+    private async Task<TokenDto> GetToken(Dictionary<string, string?> claims, Customer customer)
     {
         var refreshTokenValue = _refreshTokenService.GenerateRefreshToken();
         var refreshToken = await _refreshTokenService.SaveRefreshTokenToCustomer(customer, refreshTokenValue);

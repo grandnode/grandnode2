@@ -7,11 +7,11 @@ public class BulkEditProductModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.SKU")]
 
-    public string Sku { get; set; }
+    public string? Sku { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.Price")]
     public double Price { get; set; }
@@ -22,7 +22,7 @@ public class BulkEditProductModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.ManageInventoryMethod")]
     public int ManageInventoryMethodId { get; set; }
 
-    public string ManageInventoryMethod { get; set; }
+    public string? ManageInventoryMethod { get; set; }
 
 
     [GrandResourceDisplayName("Admin.Catalog.BulkEdit.Fields.StockQuantity")]

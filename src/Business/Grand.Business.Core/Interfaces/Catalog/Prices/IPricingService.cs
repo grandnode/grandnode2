@@ -24,7 +24,7 @@ public interface IPricingService
     /// <param name="includeDiscounts">A value indicating whether include discounts or not for final price computation</param>
     /// <param name="quantity">Shopping cart item quantity</param>
     /// <returns>Final price</returns>
-    Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)>
+    Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice? preferredTierPrice)>
         GetFinalPrice(
             Product product,
             Customer customer,
@@ -47,7 +47,7 @@ public interface IPricingService
     /// <param name="rentalStartDate">Rental period start date (for rental products)</param>
     /// <param name="rentalEndDate">Rental period end date (for rental products)</param>
     /// <returns>Final price</returns>
-    Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice preferredTierPrice)>
+    Task<(double finalPrice, double discountAmount, List<ApplyDiscount> appliedDiscounts, TierPrice? preferredTierPrice)>
         GetFinalPrice(Product product,
             Customer customer,
             Store store,

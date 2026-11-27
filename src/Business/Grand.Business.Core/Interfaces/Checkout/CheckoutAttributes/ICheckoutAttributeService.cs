@@ -24,7 +24,7 @@ public interface ICheckoutAttributeService
     /// </summary>
     /// <param name="checkoutAttributeId">Checkout attribute identifier</param>
     /// <returns>Checkout attribute</returns>
-    Task<CheckoutAttribute> GetCheckoutAttributeById(string checkoutAttributeId);
+    Task<CheckoutAttribute?> GetCheckoutAttributeById(string? checkoutAttributeId);
 
     /// <summary>
     ///     Inserts a checkout attribute

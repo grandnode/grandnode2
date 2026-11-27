@@ -9,7 +9,7 @@ public interface ISalesEmployeeService
     /// </summary>
     /// <param name="salesEmployeeId">The sales employee identifier</param>
     /// <returns>SalesEmployee</returns>
-    Task<SalesEmployee> GetSalesEmployeeById(string salesEmployeeId);
+    Task<SalesEmployee?> GetSalesEmployeeById(string? salesEmployeeId);
 
     /// <summary>
     ///     Gets all sales employees

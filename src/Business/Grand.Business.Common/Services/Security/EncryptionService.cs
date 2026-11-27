@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Security;
 using Grand.Domain.Customers;
 using Grand.Infrastructure.Configuration;
+using System.Diagnostics.CodeAnalysis;
 using System.Security.Cryptography;
 
 namespace Grand.Business.Common.Services.Security;
@@ -14,7 +15,7 @@ public class EncryptionService : IEncryptionService
 
     private readonly SecurityConfig _securityConfig;
 
-    public EncryptionService(SecurityConfig securityConfig = null)
+    public EncryptionService(SecurityConfig? securityConfig = null)
     {
         _securityConfig = securityConfig ?? new SecurityConfig();
     }
@@ -46,7 +47,7 @@ public class EncryptionService : IEncryptionService
     /// <param name="saltKey">Salk key</param>
     /// <param name="passwordFormat"></param>
     /// <returns>Password hash</returns>
-    public virtual string CreatePasswordHash(string password, string saltKey,
+    public virtual string CreatePasswordHash(string password, string? saltKey,
         HashedPasswordFormat passwordFormat = HashedPasswordFormat.SHA1)
     {
         var saltAndPassword = string.Concat(password, saltKey);
@@ -70,7 +71,7 @@ public class EncryptionService : IEncryptionService
     /// <param name="plainText">Text to encrypt</param>
     /// <param name="privateKey">Encryption private key</param>
     /// <returns>Encrypted text</returns>
-    public virtual string EncryptText(string plainText, string privateKey)
+    public virtual string EncryptText(string plainText, string? privateKey)
     {
         if (string.IsNullOrEmpty(plainText))
             return plainText;
@@ -93,7 +94,7 @@ public class EncryptionService : IEncryptionService
     /// <param name="cipherText">Text to decrypt</param>
     /// <param name="encryptionPrivateKey">Encryption private key</param>
     /// <returns>Decrypted text</returns>
-    public virtual string DecryptText(string cipherText, string encryptionPrivateKey)
+    public virtual string? DecryptText(string cipherText, string encryptionPrivateKey)
     {
         if (string.IsNullOrEmpty(cipherText))
             return cipherText;
@@ -126,8 +127,8 @@ public class EncryptionService : IEncryptionService
             Pbkdf2Prefix, "1", iterations.ToString(), Convert.ToBase64String(salt), Convert.ToBase64String(hash));
     }
 
-    public virtual bool VerifyPassword(string enteredPassword, PasswordFormat passwordFormat, string storedPassword,
-        string storedSalt, HashedPasswordFormat legacyHashedFormat)
+    public virtual bool VerifyPassword(string? enteredPassword, PasswordFormat passwordFormat, string? storedPassword,
+        string? storedSalt, HashedPasswordFormat legacyHashedFormat)
     {
         if (enteredPassword == null || storedPassword == null)
             return false;
@@ -148,7 +149,7 @@ public class EncryptionService : IEncryptionService
         }
     }
 
-    public virtual bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string storedPassword)
+    public virtual bool PasswordHashNeedsUpgrade(PasswordFormat passwordFormat, string? storedPassword)
     {
         //up to date only if it is a PBKDF2 hash whose embedded cost meets the currently configured iteration count;
         //everything else (Clear/Encrypted, legacy SHA, or a weaker/unparseable PBKDF2 hash) is upgraded on next login
@@ -159,12 +160,12 @@ public class EncryptionService : IEncryptionService
         return parts.Length != 5 || !int.TryParse(parts[2], out var iterations) || iterations < Iterations;
     }
 
-    public virtual bool IsHashedPassword(string storedPassword)
+    public virtual bool IsHashedPassword(string? storedPassword)
     {
         return IsPbkdf2Hash(storedPassword);
     }
 
-    private static bool IsPbkdf2Hash(string storedPassword)
+    private static bool IsPbkdf2Hash([NotNullWhen(true)] string? storedPassword)
     {
         return storedPassword != null && storedPassword.StartsWith(Pbkdf2Prefix + "$", StringComparison.Ordinal);
     }
@@ -223,7 +224,7 @@ public class EncryptionService : IEncryptionService
         return ms.ToArray();
     }
 
-    private static string DecryptTextFromMemory(byte[] data, byte[] key, byte[] iv)
+    private static string? DecryptTextFromMemory(byte[] data, byte[] key, byte[] iv)
     {
         using var ms = new MemoryStream(data);
         using var cs = new CryptoStream(ms, TripleDES.Create().CreateDecryptor(key, iv), CryptoStreamMode.Read);

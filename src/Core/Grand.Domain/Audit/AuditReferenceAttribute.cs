@@ -7,19 +7,19 @@ namespace Grand.Domain.Audit;
 ///     target record is given by the sibling property named in <see cref="Owner" />.
 /// </summary>
 [AttributeUsage(AttributeTargets.Property)]
-public sealed class AuditReferenceAttribute(Type target, string list = null) : Attribute
+public sealed class AuditReferenceAttribute(Type target, string? list = null) : Attribute
 {
     public Type Target { get; } = target;
 
-    public string List { get; } = list;
+    public string? List { get; } = list;
 
     /// <summary>
     ///     The sibling property holding the id of the target record that contains <see cref="List" />
     /// </summary>
-    public string Owner { get; set; }
+    public string? Owner { get; set; }
 
     /// <summary>
     ///     The property of the target that the value matches, when it is not the id (an order status number)
     /// </summary>
-    public string Key { get; set; }
+    public string? Key { get; set; }
 }

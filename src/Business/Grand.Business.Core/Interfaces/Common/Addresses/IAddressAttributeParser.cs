@@ -56,8 +56,8 @@ public interface IAddressAttributeParser
     /// <param name="htmlEncode">A value indicating whether to encode (HTML) values</param>
     /// <returns>Attributes</returns>
     Task<string> FormatAttributes(
-        Language language,
-        IList<CustomAttribute> customAttributes,
+        Language? language,
+        IList<CustomAttribute>? customAttributes,
         string separator = "<br />",
         bool htmlEncode = true);
 }

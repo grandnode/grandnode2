@@ -4,6 +4,7 @@ using Grand.Domain.Common;
 using Grand.Domain.Customers;
 using Grand.Domain.Security;
 using Grand.Infrastructure.Configuration;
+using Grand.SharedKernel;
 using Microsoft.IdentityModel.Tokens;
 using System.IdentityModel.Tokens.Jwt;
 using System.Security.Claims;
@@ -42,7 +43,7 @@ public class RefreshTokenService : IRefreshTokenService
         return token;
     }
 
-    public Task<RefreshToken> GetCustomerRefreshToken(Customer customer)
+    public Task<RefreshToken?> GetCustomerRefreshToken(Customer customer)
     {
         return Task.FromResult(customer.GetUserFieldFromEntity<RefreshToken>(SystemCustomerFieldNames.RefreshToken));
     }
@@ -53,7 +54,8 @@ public class RefreshTokenService : IRefreshTokenService
             ValidateAudience = _apiConfig.ValidateAudience,
             ValidateIssuer = _apiConfig.ValidateIssuer,
             ValidateIssuerSigningKey = _apiConfig.ValidateIssuerSigningKey,
-            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_apiConfig.SecretKey)),
+            IssuerSigningKey = new SymmetricSecurityKey(Encoding.ASCII.GetBytes(_apiConfig.SecretKey ??
+                throw new GrandException("The API secret key is not configured"))),
             ValidateLifetime = _apiConfig.ValidateLifetime
         };
 

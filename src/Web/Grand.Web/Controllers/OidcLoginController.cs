@@ -73,7 +73,7 @@ public class OidcLoginController : BaseController
 
     #region Methods
 
-    public async Task<IActionResult> Login(string returnUrl)
+    public async Task<IActionResult> Login(string? returnUrl)
     {
         if (!IsAvailable())
             return RedirectToRoute("OidcLoginFailed");
@@ -92,7 +92,7 @@ public class OidcLoginController : BaseController
         return Challenge(properties, OidcLoginDefaults.AuthenticationScheme);
     }
 
-    public async Task<IActionResult> Callback(string returnUrl)
+    public async Task<IActionResult> Callback(string? returnUrl)
     {
         var pending = await _externalRegistrationContext.GetPending();
         if (pending == null)
@@ -124,31 +124,31 @@ public class OidcLoginController : BaseController
 
         switch (result.Outcome)
         {
-            case OidcLoginOutcome.SignIn:
+            case OidcLoginOutcome.SignIn when result.Customer is { } signedIn:
             {
                 //the profile never blocks the sign-in; the pending identity is still needed here
                 try
                 {
-                    await _profileSynchronizer.Sync(result.Customer, pending, _contextAccessor.StoreContext.CurrentStore.Id);
+                    await _profileSynchronizer.Sync(signedIn, pending, _contextAccessor.StoreContext.CurrentStore.Id);
                 }
                 catch (Exception e)
                 {
-                    _logger.LogWarning(e, "OpenID Connect profile sync failed for customer {CustomerId}", result.Customer.Id);
+                    _logger.LogWarning(e, "OpenID Connect profile sync failed for customer {CustomerId}", signedIn.Id);
                 }
 
                 //read before the pending identity is cleared: the same cookie carries them
                 var (refreshToken, sid) = await OidcLoginSessionData.Read(HttpContext);
                 await _externalRegistrationContext.Clear();
-                var sessionId = await _oidcSessionService.Start(result.Customer, pending.Subject, sid, refreshToken,
+                var sessionId = await _oidcSessionService.Start(signedIn, pending.Subject, sid, refreshToken,
                     _contextAccessor.StoreContext.CurrentStore.Id);
                 if (sessionId == null)
                     return RedirectToRoute("OidcLoginFailed", new { session = true });
 
                 //the identity provider is the sign-in: its multi-factor policy applies, not the store's two-factor code
-                await _mediator.Publish(new CustomerLoggedInEvent(result.Customer,
+                await _mediator.Publish(new CustomerLoggedInEvent(signedIn,
                     _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id,
                     _contextAccessor.WorkContext.WorkingLanguage));
-                await _authenticationService.SignIn(result.Customer, false, sessionId);
+                await _authenticationService.SignIn(signedIn, false, sessionId);
                 return RedirectLocal(returnUrl);
             }
             case OidcLoginOutcome.RegistrationRequired:
@@ -161,7 +161,7 @@ public class OidcLoginController : BaseController
         }
     }
 
-    public async Task<IActionResult> Link(string returnUrl)
+    public async Task<IActionResult> Link(string? returnUrl)
     {
         if (await RefuseLinkInProviderOnly() is { } refused)
             return refused;
@@ -194,7 +194,7 @@ public class OidcLoginController : BaseController
         });
     }
 
-    public async Task<IActionResult> LinkComplete(string returnUrl)
+    public async Task<IActionResult> LinkComplete(string? returnUrl)
     {
         if (await RefuseLinkInProviderOnly() is { } refused)
             return refused;
@@ -252,7 +252,7 @@ public class OidcLoginController : BaseController
     #region Utilities
 
     //ProviderOnly has no password path: a stale link URL must not open one
-    private async Task<IActionResult> RefuseLinkInProviderOnly()
+    private async Task<IActionResult?> RefuseLinkInProviderOnly()
     {
         if (!_loginConfig.ProviderOnly)
             return null;
@@ -264,12 +264,12 @@ public class OidcLoginController : BaseController
         _externalAuthenticationService.AuthenticationProviderIsAvailable(OidcLoginDefaults.ProviderSystemName,
             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore);
 
-    private static bool TryReadMarker(string marker, out long shown, out string subject)
+    private static bool TryReadMarker(string? marker, out long shown, out string? subject)
     {
         shown = 0;
         subject = null;
         var separator = marker?.IndexOf(':') ?? -1;
-        if (separator <= 0 ||
+        if (marker == null || separator <= 0 ||
             !long.TryParse(marker.AsSpan(0, separator), NumberStyles.None, CultureInfo.InvariantCulture, out shown))
             return false;
         subject = marker[(separator + 1)..];
@@ -285,10 +285,10 @@ public class OidcLoginController : BaseController
         return issued.HasValue && issued.Value.ToUnixTimeSeconds() >= shown;
     }
 
-    private string LocalOrNull(string returnUrl) =>
+    private string? LocalOrNull(string? returnUrl) =>
         !string.IsNullOrEmpty(returnUrl) && Url.IsLocalUrl(returnUrl) ? returnUrl : null;
 
-    private IActionResult RedirectLocal(string returnUrl) =>
+    private IActionResult RedirectLocal(string? returnUrl) =>
         returnUrl != null ? Redirect(returnUrl) : RedirectToRoute("HomePage");
 
     #endregion

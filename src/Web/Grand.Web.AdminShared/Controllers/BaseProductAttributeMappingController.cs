@@ -43,7 +43,7 @@ public abstract class BaseProductAttributeMappingController(
         // all - a store/vendor user could edit an attribute mapping's name/values or its validation rules on
         // any product (not just their own/in-scope one) by posting a known productId. Vendor's
         // ProductAttributeMappingPopup(POST) had no check either, despite its own GET sibling checking.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var attributesModel = await productAttributeMappingViewModelService.PrepareProductAttributeMappingModels(product);
@@ -61,7 +61,7 @@ public abstract class BaseProductAttributeMappingController(
         var product = await productService.GetProductById(productId);
 
         // See the List-action comment above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (string.IsNullOrEmpty(productAttributeMappingId))
@@ -71,7 +71,8 @@ public abstract class BaseProductAttributeMappingController(
         }
 
         var productAttributeMapping =
-            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
+            product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId)
+            ?? throw new ArgumentException("No product attribute mapping found with the specified id");
         var editModel = await productAttributeMappingViewModelService.PrepareProductAttributeMappingModel(product,
             productAttributeMapping);
         return View(editModel);
@@ -79,8 +80,15 @@ public abstract class BaseProductAttributeMappingController(
 
     [PermissionAuthorizeAction(PermissionActionName.Edit)]
     [HttpPost]
-    public async Task<IActionResult> ProductAttributeMappingPopup(ProductModel.ProductAttributeMappingModel model)
+    public async Task<IActionResult> ProductAttributeMappingPopup(ProductModel.ProductAttributeMappingModel model,
+        [FromServices] IProductAttributeService productAttributeService)
     {
+        //checked here, not in the validator: the validation rules popup posts this model without an attribute
+        if (string.IsNullOrEmpty(model.ProductAttributeId) ||
+            await productAttributeService.GetProductAttributeById(model.ProductAttributeId) == null)
+            ModelState.AddModelError(nameof(model.ProductAttributeId), translationService.GetResource(
+                "Admin.Catalog.Products.ProductAttributes.Attributes.Fields.Attribute.Required"));
+
         if (ModelState.IsValid)
         {
             var product = await productService.GetProductById(model.ProductId);
@@ -136,7 +144,7 @@ public abstract class BaseProductAttributeMappingController(
         // See the List-action comment above. Store's original used ErrorForKendoGridJson here even though
         // this action returns a View (not a grid), which would have rendered raw JSON as page content on
         // denial - using Content(...) instead, consistent with the other popup GET action in this region.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productAttributeMapping = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == id);
@@ -189,7 +197,7 @@ public abstract class BaseProductAttributeMappingController(
         // HasAccess applied uniformly across this region (Admin's Global scope is a no-op). Admin's original
         // had no ownership check on either action of this region. See the "Product attributes" region above
         // for the same pattern.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productAttributeMapping =
@@ -265,7 +273,7 @@ public abstract class BaseProductAttributeMappingController(
         var model = new ProductModel.ProductAttributeValueListModel {
             ProductName = product.Name,
             ProductId = product.Id,
-            ProductAttributeName = productAttribute.Name,
+            ProductAttributeName = productAttribute?.Name,
             ProductAttributeMappingId = productAttributeMappingId
         };
 
@@ -280,7 +288,7 @@ public abstract class BaseProductAttributeMappingController(
         var product = await productService.GetProductById(productId);
 
         // See the EditAttributeValues comment above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(
                 translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
@@ -309,7 +317,7 @@ public abstract class BaseProductAttributeMappingController(
         // though this action returns a View (not a grid), which would have rendered raw JSON as page
         // content on denial - using Content(...) instead, consistent with the sibling GET popup actions
         // in this region and elsewhere in this file.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productAttributeMapping =
@@ -376,7 +384,7 @@ public abstract class BaseProductAttributeMappingController(
         var product = await productService.GetProductById(productId);
 
         // See the EditAttributeValues comment above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var pa = product.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);

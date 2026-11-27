@@ -57,7 +57,7 @@ public static class DownloadUrl
     /// <see cref="OperationCanceledException" />, so the caller does not go on as if the picture were missing</param>
     /// <returns>Image binary with the MIME type detected from its content, or null when the URL is not allowed,
     /// the download fails or the content is not a supported image</returns>
-    public static async Task<DownloadedImage> DownloadImage(string url, string[] allowedPrivateHosts = null,
+    public static async Task<DownloadedImage?> DownloadImage(string url, string[]? allowedPrivateHosts = null,
         CancellationToken cancellationToken = default)
     {
         if (!Uri.TryCreate(url, UriKind.Absolute, out var uri) ||
@@ -95,7 +95,7 @@ public static class DownloadUrl
     /// <summary>
     ///     Returns the MIME type of a JPEG, PNG, GIF or WebP image based on its signature, or null for any other content
     /// </summary>
-    public static string DetectImageMimeType(ReadOnlySpan<byte> binary)
+    public static string? DetectImageMimeType(ReadOnlySpan<byte> binary)
     {
         if (binary.StartsWith((ReadOnlySpan<byte>)[0xFF, 0xD8, 0xFF]))
             return "image/jpeg";
@@ -168,7 +168,7 @@ public static class DownloadUrl
         return string.Equals(host, allowed, StringComparison.OrdinalIgnoreCase);
     }
 
-    private static async Task<byte[]> ReadLimited(HttpContent content, CancellationToken cancellationToken)
+    private static async Task<byte[]?> ReadLimited(HttpContent content, CancellationToken cancellationToken)
     {
         await using var stream = await content.ReadAsStreamAsync(cancellationToken);
         using var buffer = new MemoryStream();

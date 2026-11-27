@@ -85,12 +85,12 @@ public class CourseService : ICourseService
             .SelectMany(x => x.OrderItems, (p, pr) => pr.ProductId).Distinct().ToList();
 
         //courses assigned to products
-        var q2 = query.Where(x => pl.Contains(x.ProductId)).ToList();
+        var q2 = query.Where(x => x.ProductId != null && pl.Contains(x.ProductId)).ToList();
 
         return await Task.FromResult(q1.Concat(q2).ToList());
     }
 
-    public virtual Task<Course> GetById(string id)
+    public virtual Task<Course?> GetById(string? id)
     {
         return _courseRepository.GetByIdAsync(id);
     }

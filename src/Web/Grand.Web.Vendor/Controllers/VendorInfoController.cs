@@ -6,6 +6,7 @@ using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Directory;
 using Grand.Domain.Vendors;
 using Grand.Infrastructure;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.Vendor.Extensions;
 using Grand.Web.Vendor.Models.Common;
 using Grand.Web.Vendor.Models.Vendor;
@@ -122,7 +123,7 @@ public class VendorInfoController : BaseVendorController
         if (!_vendorSettings.AllowVendorsToEditInfo)
             return RedirectToAction("AccessDenied", "Home", new { area = Constants.AreaVendor });
 
-        var vendor = await _vendorService.GetVendorById(_contextAccessor.WorkContext.CurrentVendor.Id);
+        var vendor = await _vendorService.GetVendorById(_contextAccessor.WorkContext.PanelVendor().Id);
         if (vendor == null || vendor.Deleted)
             throw new ArgumentNullException(nameof(vendor));
 
@@ -152,7 +153,7 @@ public class VendorInfoController : BaseVendorController
             return RedirectToAction("AccessDenied", "Home", new { area = Constants.AreaVendor });
 
         var vendor = await _vendorService.GetVendorById(model.Id);
-        if (vendor == null || vendor.Deleted || vendor.Id != _contextAccessor.WorkContext.CurrentVendor.Id)
+        if (vendor == null || vendor.Deleted || vendor.Id != _contextAccessor.WorkContext.PanelVendor().Id)
             throw new ArgumentNullException(nameof(vendor));
 
         if (ModelState.IsValid)

@@ -29,9 +29,8 @@ public class MigrationUpdateMediaSettings : IMigration
         try
         {
             var mediaSettings = await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.Name == "mediasettings"));
-            if (mediaSettings != null)
+            if (mediaSettings is { Metadata: { } metadata })
             {
-                var metadata = mediaSettings.Metadata;
                 var settingsLogo = JsonSerializer.Deserialize<SettingsMedia>(metadata);
                 if (settingsLogo != null)
                 {

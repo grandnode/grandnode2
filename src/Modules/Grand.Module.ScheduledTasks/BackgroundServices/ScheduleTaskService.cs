@@ -29,7 +29,7 @@ public class ScheduleTaskService : IScheduleTaskService
     /// </summary>
     /// <param name="taskId">Task identifier</param>
     /// <returns>Task</returns>
-    public virtual Task<ScheduleTask> GetTaskById(string taskId)
+    public virtual Task<ScheduleTask?> GetTaskById(string? taskId)
     {
         return _taskRepository.GetByIdAsync(taskId);
     }
@@ -38,7 +38,7 @@ public class ScheduleTaskService : IScheduleTaskService
     ///     Gets a task by its name
     /// </summary>
     /// <returns>Task</returns>
-    public virtual async Task<ScheduleTask> GetTaskByName(string name)
+    public virtual async Task<ScheduleTask?> GetTaskByName(string name)
     {
         if (string.IsNullOrWhiteSpace(name))
             return null;

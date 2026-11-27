@@ -55,8 +55,9 @@ public abstract class BaseProductStockHistoryController(
 
         var warehouses = (await warehouseService.GetAllWarehouses()).ToDictionary(x => x.Id, x => x.Name);
         var customers = new Dictionary<string, string>();
-        foreach (var customerId in entries.Select(x => x.CustomerId).Where(x => !string.IsNullOrEmpty(x)).Distinct())
-            customers[customerId] = (await customerService.GetCustomerById(customerId))?.Email ?? "";
+        foreach (var customerId in entries.Select(x => x.CustomerId).Distinct())
+            if (!string.IsNullOrEmpty(customerId))
+                customers[customerId] = (await customerService.GetCustomerById(customerId))?.Email ?? "";
 
         var rows = entries.Select(x => new StockHistoryRowModel {
             Date = dateTimeService.ConvertToUserTime(x.CreateDateUtc, DateTimeKind.Utc),

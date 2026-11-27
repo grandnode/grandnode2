@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain;
 using Grand.Domain.Stores;
 using Grand.Infrastructure;
@@ -25,7 +23,7 @@ public class StoreAdminDataScope<TEntity>(IContextAccessor contextAccessor) : IA
     {
         if (entity is null) return Task.FromResult(false);
         var staffStoreId = contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
-        var allowed = !entity.LimitedToStores || entity.Stores.Contains(staffStoreId);
+        var allowed = !entity.LimitedToStores || staffStoreId != null && entity.Stores.Contains(staffStoreId);
         return Task.FromResult(allowed);
     }
 

@@ -11,7 +11,7 @@ public class ShippingMethodRestrictionModel : BaseModel
     public IList<CountryModel> AvailableCountries { get; set; } = new List<CountryModel>();
     public IList<CustomerGroupModel> AvailableCustomerGroups { get; set; } = new List<CustomerGroupModel>();
 
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
     //[country id] / [shipping method id] / [restricted]

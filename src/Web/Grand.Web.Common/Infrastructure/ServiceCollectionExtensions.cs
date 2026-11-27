@@ -104,7 +104,8 @@ public static class ServiceCollectionExtensions
         if (redisConfig.PersistKeysToRedis)
         {
             services.AddDataProtection(opt => opt.ApplicationDiscriminator = "grandnode")
-                .PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(redisConfig.PersistKeysToRedisUrl));
+                .PersistKeysToStackExchangeRedis(ConnectionMultiplexer.Connect(redisConfig.PersistKeysToRedisUrl ??
+                    throw new InvalidOperationException("Redis:PersistKeysToRedisUrl is not set")));
         }
         else if (azureConfig.PersistKeysToAzureKeyVault || azureConfig.PersistKeysToAzureBlobStorage)
         {
@@ -113,7 +114,8 @@ public static class ServiceCollectionExtensions
                     // This blob must already exist before the application is run
                     .PersistKeysToAzureBlobStorage(azureConfig.PersistKeysAzureBlobStorageConnectionString,
                         azureConfig.DataProtectionContainerName, azureConfig.DataProtectionBlobName)
-                    .ProtectKeysWithAzureKeyVault(new Uri(azureConfig.KeyIdentifier),
+                    .ProtectKeysWithAzureKeyVault(new Uri(azureConfig.KeyIdentifier ??
+                            throw new InvalidOperationException("Azure:KeyIdentifier is not set")),
                         new DefaultAzureCredential());
             else
                 services.AddDataProtection()
@@ -190,8 +192,9 @@ public static class ServiceCollectionExtensions
         var externalAuthConfigurations = typeSearcher.ClassesOfType<IAuthenticationBuilder>();
         var externalAuthInstances = externalAuthConfigurations
             .Where(PluginExtensions.OnlyInstalledPlugins)
-            .Select(x => (IAuthenticationBuilder)Activator.CreateInstance(x))
-            .OrderBy(x => x?.Priority);
+            .Select(x => Activator.CreateInstance(x))
+            .OfType<IAuthenticationBuilder>()
+            .OrderBy(x => x.Priority);
 
         //add new Authentication
         foreach (var instance in externalAuthInstances)
@@ -264,16 +267,17 @@ public static class ServiceCollectionExtensions
     {
         var typeSearcher = new TypeSearcher();
         var settings = typeSearcher.ClassesOfType<ISettings>();
-        var instances = settings.Select(x => (ISettings)Activator.CreateInstance(x));
+        var instances = settings.Select(x => Activator.CreateInstance(x)).OfType<ISettings>();
         foreach (var item in instances)
-            services.AddScoped(item!.GetType(), x =>
+            services.AddScoped(item.GetType(), x =>
             {
                 var type = item.GetType();
                 var storeId = "";
                 var settingService = x.GetRequiredService<ISettingService>();
                 var contextAccessor = x.GetRequiredService<IContextAccessor>();
-                if (contextAccessor.StoreContext != null)
-                    storeId = contextAccessor.StoreContext.CurrentStore.Id;
+                //settings are also resolved outside a request, where no store context is set
+                if (contextAccessor.CurrentStoreContext is { } storeContext)
+                    storeId = storeContext.CurrentStore.Id;
 
                 return settingService.LoadSetting(type, storeId);
             });

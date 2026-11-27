@@ -51,7 +51,7 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
             if (vendorSettings.VendorReviewPossibleOnlyAfterPurchasing &&
                 (await mediator.Send(new GetOrderQuery {
                     CustomerId = contextAccessor.WorkContext.CurrentCustomer.Id,
-                    VendorId = x.VendorId,
+                    VendorId = x.VendorId ?? "",
                     Os = (int)OrderStatusSystem.Complete,
                     PageSize = 1
                 }, _)).TotalCount == 0)
@@ -59,7 +59,7 @@ public class VendorReviewsValidator : BaseGrandValidator<VendorReviewsModel>
                     translationService.GetResource("VendorReviews.VendorReviewPossibleOnlyAfterPurchasing"));
 
 
-            if (vendorSettings.VendorReviewPossibleOnlyOnce)
+            if (vendorSettings.VendorReviewPossibleOnlyOnce && vendor != null)
                 if ((await vendorService.GetAllVendorReviews(
                         contextAccessor.WorkContext.CurrentCustomer.Id,
                         null,

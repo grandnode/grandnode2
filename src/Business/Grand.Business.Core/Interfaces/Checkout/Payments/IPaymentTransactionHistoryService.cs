@@ -19,9 +19,9 @@ public interface IPaymentTransactionHistoryService
     /// <param name="recordedBy">A staff e-mail or a payment method system name</param>
     /// <param name="reference">The bank transfer title, receipt or gateway number the money can be matched with</param>
     /// <param name="note">Anything else the staff want to keep with it</param>
-    Task<PaymentTransactionEntry> Record(PaymentTransaction paymentTransaction, Order order,
-        PaymentTransactionEntryType entryType, double amount, string recordedBy, string reference = null,
-        string note = null);
+    Task<PaymentTransactionEntry> Record(PaymentTransaction paymentTransaction, Order? order,
+        PaymentTransactionEntryType entryType, double amount, string? recordedBy, string? reference = null,
+        string? note = null);
 
     /// <summary>
     ///     Gets the operations recorded on the transaction, oldest first

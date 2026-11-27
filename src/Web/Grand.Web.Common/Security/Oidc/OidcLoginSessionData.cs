@@ -15,7 +15,7 @@ public static class OidcLoginSessionData
     public const string RefreshTokenItem = ".Grand.OidcLogin.RefreshToken";
     public const string SidItem = ".Grand.OidcLogin.Sid";
 
-    public static void Capture(AuthenticationProperties properties, OpenIdConnectMessage tokenResponse)
+    public static void Capture(AuthenticationProperties? properties, OpenIdConnectMessage? tokenResponse)
     {
         if (properties == null || tokenResponse == null)
             return;
@@ -27,7 +27,7 @@ public static class OidcLoginSessionData
     }
 
     /// <summary>The sid claim of an ID token already validated by the handler; null when absent or unreadable</summary>
-    public static string Sid(string idToken)
+    public static string? Sid(string idToken)
     {
         if (string.IsNullOrEmpty(idToken))
             return null;
@@ -44,11 +44,11 @@ public static class OidcLoginSessionData
         }
     }
 
-    public static async Task<(string RefreshToken, string Sid)> Read(HttpContext context)
+    public static async Task<(string? RefreshToken, string? Sid)> Read(HttpContext context)
     {
         var result = await context.AuthenticateAsync(GrandCookieAuthenticationDefaults.ExternalAuthenticationScheme);
         var items = result?.Succeeded == true ? result.Properties?.Items : null;
-        string refreshToken = null, sid = null;
+        string? refreshToken = null, sid = null;
         items?.TryGetValue(RefreshTokenItem, out refreshToken);
         items?.TryGetValue(SidItem, out sid);
         return (refreshToken, sid);

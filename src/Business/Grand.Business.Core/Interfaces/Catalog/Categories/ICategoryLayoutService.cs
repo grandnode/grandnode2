@@ -15,7 +15,7 @@ public interface ICategoryLayoutService
     /// </summary>
     /// <param name="categoryLayoutId">Category layout id</param>
     /// <returns>Category layout</returns>
-    Task<CategoryLayout> GetCategoryLayoutById(string categoryLayoutId);
+    Task<CategoryLayout?> GetCategoryLayoutById(string? categoryLayoutId);
 
     /// <summary>
     ///     Inserts new category layout

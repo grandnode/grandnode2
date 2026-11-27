@@ -8,15 +8,15 @@ public class TranslationEntity : SubBaseEntity
     /// <summary>
     ///     Gets or sets the language identifier
     /// </summary>
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     /// <summary>
     ///     Gets or sets the locale key
     /// </summary>
-    public string LocaleKey { get; set; }
+    public string? LocaleKey { get; set; }
 
     /// <summary>
     ///     Gets or sets the locale value
     /// </summary>
-    public string LocaleValue { get; set; }
+    public string? LocaleValue { get; set; }
 }

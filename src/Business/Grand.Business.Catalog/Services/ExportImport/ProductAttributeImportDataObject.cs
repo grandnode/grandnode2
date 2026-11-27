@@ -78,7 +78,7 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
                 existing?.Id ?? "", key, errors, warnings);
 
         var isNew = existing == null;
-        var attribute = existing ?? new ProductAttribute { Name = dto.Name };
+        var attribute = existing ?? new ProductAttribute { Name = dto.Name ?? "" };
         if (!string.IsNullOrEmpty(dto.Name)) attribute.Name = dto.Name;
         if (dto.Description != null) attribute.Description = dto.Description;
         if (seName != null) attribute.SeName = seName;
@@ -90,7 +90,7 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
                 .FirstOrDefault(v => string.Equals(v.Name, valueDto.Name, StringComparison.OrdinalIgnoreCase));
             if (value == null)
             {
-                value = new PredefinedProductAttributeValue { Name = valueDto.Name };
+                value = new PredefinedProductAttributeValue { Name = valueDto.Name ?? "" };
                 attribute.PredefinedProductAttributeValues.Add(value);
             }
 
@@ -124,7 +124,7 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
     ///     By Id, else by SeName normalized as a new attribute's is, else (best effort) by the SeName its Name would get,
     ///     accepted only when the stored name is the same (any case)
     /// </summary>
-    private async Task<(ProductAttribute attribute, bool matchedByName)> Find(ProductAttributeDto dto,
+    private async Task<(ProductAttribute? attribute, bool matchedByName)> Find(ProductAttributeDto dto,
         List<ProductAttribute> all)
     {
         if (!string.IsNullOrEmpty(dto.Id))
@@ -142,7 +142,7 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
             : (null, false);
     }
 
-    private static ProductAttribute FindBySeName(List<ProductAttribute> all, string seName)
+    private static ProductAttribute? FindBySeName(List<ProductAttribute> all, string seName)
     {
         return string.IsNullOrEmpty(seName)
             ? null
@@ -150,9 +150,9 @@ public class ProductAttributeImportDataObject : IRowImport<ProductAttributeDto>
     }
 
     //same normalization as the panel's product attribute controller
-    private string GetSeName(string name)
+    private string GetSeName(string? name)
     {
-        return SeoExtensions.GetSeName(name, _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
+        return SeoExtensions.GetSeName(name ?? "", _seoSettings.ConvertNonWesternChars, _seoSettings.AllowUnicodeCharsInUrls,
             _seoSettings.SeoCharConversion);
     }
 }

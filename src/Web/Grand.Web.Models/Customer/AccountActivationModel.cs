@@ -4,5 +4,5 @@ namespace Grand.Web.Models.Customer;
 
 public class AccountActivationModel : BaseModel
 {
-    public string Result { get; set; }
+    public string? Result { get; set; }
 }

@@ -9,5 +9,5 @@ namespace Grand.Domain.Customers;
 public class OidcLinkSettings : ISettings
 {
     /// <summary>Authority the links were made with; empty until the first use, which adopts the configured one</summary>
-    public string Authority { get; set; }
+    public string? Authority { get; set; }
 }

@@ -13,7 +13,8 @@ public class ProductBundleViewModelService(
 {
     public virtual async Task InsertBundleProductModel(ProductModel.AddBundleProductModel model)
     {
-        var productId1 = await productService.GetProductById(model.ProductId, true);
+        var productId1 = await productService.GetProductById(model.ProductId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
 
         foreach (var id in model.SelectedProductIds)
         {
@@ -32,14 +33,17 @@ public class ProductBundleViewModelService(
                         Quantity = 1
                     };
                     productId1.BundleProducts.Add(bundle);
-                    await productService.InsertBundleProduct(bundle, model.ProductId);
+                    await productService.InsertBundleProduct(bundle, productId1.Id);
                 }
         }
     }
 
     public virtual async Task UpdateBundleProductModel(ProductModel.BundleProductModel model)
     {
-        var product = await productService.GetProductById(model.ProductBundleId, true);
+        //the bundle grid posts the product of the row
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+        var product = await productService.GetProductById(model.ProductBundleId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);
         if (bundleProduct == null)
             throw new ArgumentException("No bundle product found with the specified id");
@@ -51,16 +55,17 @@ public class ProductBundleViewModelService(
         bundleProduct.ProductId = model.ProductId;
         bundleProduct.Quantity = model.Quantity > 0 ? model.Quantity : 1;
         bundleProduct.DisplayOrder = model.DisplayOrder;
-        await productService.UpdateBundleProduct(bundleProduct, model.ProductBundleId);
+        await productService.UpdateBundleProduct(bundleProduct, product.Id);
     }
 
     public virtual async Task DeleteBundleProductModel(ProductModel.BundleProductModel model)
     {
-        var product = await productService.GetProductById(model.ProductBundleId, true);
+        var product = await productService.GetProductById(model.ProductBundleId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);
         if (bundleProduct == null)
             throw new ArgumentException("No bundle product found with the specified id");
 
-        await productService.DeleteBundleProduct(bundleProduct, model.ProductBundleId);
+        await productService.DeleteBundleProduct(bundleProduct, product.Id);
     }
 }

@@ -8,8 +8,8 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetCollectionNavigation : IRequest<CollectionNavigationModel>
 {
-    public string CurrentCollectionId { get; set; }
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Language Language { get; set; }
+    public required string CurrentCollectionId { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Language Language { get; set; }
 }

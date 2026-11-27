@@ -16,7 +16,7 @@ public interface IMerchandiseReturnMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendNewMerchandiseReturnStoreOwnerMessage(MerchandiseReturn merchandiseReturn, Order order,
-        string languageId, DomainHost host = null);
+        string? languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends the customer the message of the status the merchandise return reached (accepted, received, rejected,
@@ -29,7 +29,7 @@ public interface IMerchandiseReturnMessageProviderService
     /// <param name="statusNote">The note shown to the customer with the change, e.g. why the return was rejected</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendMerchandiseReturnStatusChangedCustomerMessage(MerchandiseReturn merchandiseReturn, Order order,
-        string languageId, string statusNote = null);
+        string? languageId, string? statusNote = null);
 
     /// <summary>
     ///     Sends 'New Merchandise Return' message to a customer
@@ -42,7 +42,7 @@ public interface IMerchandiseReturnMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendNewMerchandiseReturnCustomerMessage(MerchandiseReturn merchandiseReturn, Order order,
-        string languageId, DomainHost host = null);
+        string? languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends a new merchandise return note added notification to a customer
@@ -66,5 +66,5 @@ public interface IMerchandiseReturnMessageProviderService
     /// </param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendNewMerchandiseReturnNoteAddedStoreOwnerMessage(MerchandiseReturn merchandiseReturn,
-        MerchandiseReturnNote merchandiseReturnNote, Order order, string languageId, DomainHost host = null);
+        MerchandiseReturnNote merchandiseReturnNote, Order order, string? languageId, DomainHost? host = null);
 }

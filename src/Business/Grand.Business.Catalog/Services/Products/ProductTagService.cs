@@ -83,7 +83,7 @@ public class ProductTagService : IProductTagService
     /// </summary>
     /// <param name="productTagId">Product tag identifier</param>
     /// <returns>Product tag</returns>
-    public virtual Task<ProductTag> GetProductTagById(string productTagId)
+    public virtual Task<ProductTag?> GetProductTagById(string? productTagId)
     {
         return _productTagRepository.GetByIdAsync(productTagId);
     }
@@ -93,7 +93,7 @@ public class ProductTagService : IProductTagService
     /// </summary>
     /// <param name="name">Product tag name</param>
     /// <returns>Product tag</returns>
-    public virtual Task<ProductTag> GetProductTagByName(string name)
+    public virtual Task<ProductTag?> GetProductTagByName(string name)
     {
         return _productTagRepository.GetOneAsync(x => x.Name == name);
     }
@@ -103,7 +103,7 @@ public class ProductTagService : IProductTagService
     /// </summary>
     /// <param name="sename">Product tag se-name</param>
     /// <returns>Product tag</returns>
-    public virtual Task<ProductTag> GetProductTagBySeName(string sename)
+    public virtual Task<ProductTag?> GetProductTagBySeName(string sename)
     {
         return _productTagRepository.GetOneAsync(x => x.SeName == sename);
     }
@@ -134,12 +134,15 @@ public class ProductTagService : IProductTagService
 
         await _productTagRepository.UpdateAsync(productTag);
 
-        //update on products
-        var products = _productRepository.Table.Where(x => x.ProductTags.Contains(previous.Name)).ToList();
-        foreach (var product in products)
+        //update on products; a tag that was not stored has no products to rename it on
+        if (previous != null)
         {
-            var tags = product.ProductTags.Select(t => t == previous.Name ? productTag.Name : t).ToList();
-            await _productRepository.UpdateField(product.Id, x => x.ProductTags, tags);
+            var products = _productRepository.Table.Where(x => x.ProductTags.Contains(previous.Name)).ToList();
+            foreach (var product in products)
+            {
+                var tags = product.ProductTags.Select(t => t == previous.Name ? productTag.Name : t).ToList();
+                await _productRepository.UpdateField(product.Id, x => x.ProductTags, tags);
+            }
         }
 
         //event notification

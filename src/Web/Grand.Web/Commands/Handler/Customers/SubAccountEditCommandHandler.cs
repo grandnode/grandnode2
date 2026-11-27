@@ -24,6 +24,9 @@ public class SubAccountEditCommandHandler : IRequestHandler<SubAccountEditComman
 
     public async Task<bool> Handle(SubAccountEditCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires it
+        ArgumentException.ThrowIfNullOrEmpty(request.EditModel.Email);
+
         ArgumentNullException.ThrowIfNull(request.CurrentCustomer);
         var customer = await _customerService.GetCustomerById(request.EditModel.Id);
         if (customer == null || customer.Deleted || customer.OwnerId != request.CurrentCustomer.Id)

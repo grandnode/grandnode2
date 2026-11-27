@@ -10,9 +10,9 @@ public class GuestCustomerPersistence(
     IGroupService groupService,
     ILogger<GuestCustomerPersistence> logger) : IGuestCustomerPersistence
 {
-    private Task _persisting;
+    private Task? _persisting;
 
-    public Customer Transient { get; private set; }
+    public Customer? Transient { get; private set; }
 
     public async Task SetTransient(Customer customer)
     {
@@ -47,7 +47,7 @@ public class GuestCustomerPersistence(
         Transient = null;
     }
 
-    public async Task<Customer> Promote(Customer guest)
+    public async Task<Customer?> Promote(Customer guest)
     {
         try
         {

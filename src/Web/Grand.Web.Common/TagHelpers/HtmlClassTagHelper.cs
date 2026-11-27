@@ -16,7 +16,7 @@ public class HtmlClassTagHelper : TagHelper
         _pageHeadBuilder = pageHeadBuilder;
     }
 
-    [HtmlAttributeName(ForAttributeName)] public string Part { set; get; }
+    [HtmlAttributeName(ForAttributeName)] public string? Part { set; get; }
 
     public override Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {

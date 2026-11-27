@@ -28,6 +28,8 @@ public class ActiveVendorCommandHandler : IRequestHandler<ActiveVendorCommand, b
 
     public async Task<bool> Handle(ActiveVendorCommand request, CancellationToken cancellationToken)
     {
+        ArgumentNullException.ThrowIfNull(request.Vendor);
+
         //update vendor - set active
         request.Vendor.Active = request.Active;
         await _vendorService.UpdateVendor(request.Vendor);

@@ -116,7 +116,7 @@ public class OidcLinkService(
 
     private Task<bool> HasLinks() => externalAuthenticationRepository.AnyAsync(OidcLinks());
 
-    private void LogMismatch(string linkedAuthority)
+    private void LogMismatch(string? linkedAuthority)
     {
         var now = DateTime.UtcNow.Ticks;
         var last = Interlocked.Read(ref _lastMismatchLogTicks);

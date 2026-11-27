@@ -205,6 +205,13 @@ public class ShipmentViewModelService : IShipmentViewModelService
         foreach (var item in product.BundleProducts)
         {
             var p1 = await _productService.GetProductById(item.ProductId);
+            //a bundle is not shipped without one of its products
+            if (p1 == null)
+            {
+                _qty.Add(0);
+                continue;
+            }
+
             if (p1.UseMultipleWarehouses)
             {
                 var stock = p1.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
@@ -225,7 +232,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         foreach (var item in product.BundleProducts)
         {
             var p1 = await _productService.GetProductById(item.ProductId);
-            if (p1.UseMultipleWarehouses)
+            if (p1 is { UseMultipleWarehouses: true })
             {
                 var stock = p1.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
                 if (stock != null) _qty.Add(stock.ReservedQuantity / item.Quantity);
@@ -364,7 +371,7 @@ public class ShipmentViewModelService : IShipmentViewModelService
         {
             var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
             //we can ship only shippable products
-            if (!product.IsShipEnabled)
+            if (product is not { IsShipEnabled: true })
                 continue;
 
             //quantities
@@ -553,6 +560,8 @@ public class ShipmentViewModelService : IShipmentViewModelService
         foreach (var item in shipment.ShipmentItems)
         {
             var product = await _productService.GetProductById(item.ProductId);
+            //a product deleted meanwhile has no stock to change
+            if (product == null) continue;
             switch (product.ManageInventoryMethodId)
             {
                 case ManageInventoryMethod.ManageStock:
@@ -581,10 +590,10 @@ public class ShipmentViewModelService : IShipmentViewModelService
         return (true, string.Empty);
     }
 
-    public virtual async Task<(Shipment shipment, double? totalWeight)> PrepareShipment(Order order,
+    public virtual async Task<(Shipment? shipment, double? totalWeight)> PrepareShipment(Order order,
         IEnumerable<OrderItem> orderItems, AddShipmentModel model)
     {
-        Shipment shipment = null;
+        Shipment? shipment = null;
         double? totalWeight = null;
         foreach (var orderItem in orderItems)
         {
@@ -661,7 +670,8 @@ public class ShipmentViewModelService : IShipmentViewModelService
                     shipmentItem.Batches = shipmentItemModel.Batches
                         .Where(x => x.Quantity > 0 && !string.IsNullOrWhiteSpace(x.Number) &&
                                     (!product.UseMultipleWarehouses || x.WarehouseId == warehouseId))
-                        .Select(x => new ShipmentItemBatch { Number = x.Number.Trim(), Quantity = x.Quantity })
+                        //the Where above keeps only batches with a number
+                        .Select(x => new ShipmentItemBatch { Number = x.Number!.Trim(), Quantity = x.Quantity })
                         .ToList();
             }
 

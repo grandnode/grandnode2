@@ -8,7 +8,7 @@ public class MerchandiseReturnRefundQuote
     /// <summary>
     ///     Why the return cannot be refunded now, as a key of MerchandiseReturnErrors; null when it can
     /// </summary>
-    public string Error { get; set; }
+    public string? Error { get; set; }
 
     /// <summary>
     ///     What was paid for the items of the return: their price with the item discounts and the tax
@@ -30,7 +30,7 @@ public class MerchandiseReturnRefundQuote
     /// </summary>
     public double MaxAmount { get; set; }
 
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     /// <summary>
     ///     Whether the payment provider gives the money back itself

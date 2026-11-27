@@ -33,10 +33,10 @@ public class BlogPagingFilteringModel : BasePageableModel
 
     #region Properties
 
-    public string Month { get; set; }
-    public string Tag { get; set; }
-    public string CategorySeName { get; set; }
-    public string SearchKeyword { get; set; }
+    public string? Month { get; set; }
+    public string? Tag { get; set; }
+    public string? CategorySeName { get; set; }
+    public string? SearchKeyword { get; set; }
 
     #endregion
 }

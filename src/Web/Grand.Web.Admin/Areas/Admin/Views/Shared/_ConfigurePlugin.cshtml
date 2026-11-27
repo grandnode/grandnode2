@@ -2,9 +2,11 @@
 @using Microsoft.AspNetCore.Mvc.Controllers
 @inject IServiceProvider ServiceProvider
 @{
-    var plugin = PluginManager.FindPlugin((ViewContext.ActionDescriptor as ControllerActionDescriptor)?.ControllerTypeInfo.AsType()).Instance(ServiceProvider);
+    //a plugin's configuration view is rendered only by its controller
+    var controllerType = ((ControllerActionDescriptor)ViewContext.ActionDescriptor).ControllerTypeInfo.AsType();
+    var plugin = PluginManager.FindPlugin(controllerType)?.Instance(ServiceProvider);
     //friendly name
-    var friendlyName = plugin?.PluginInfo.FriendlyName;
+    var friendlyName = plugin?.PluginInfo?.FriendlyName;
     Layout = "_AdminLayout";
     //page title
     ViewBag.Title = friendlyName;

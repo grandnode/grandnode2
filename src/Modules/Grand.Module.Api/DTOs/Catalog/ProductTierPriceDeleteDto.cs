@@ -2,5 +2,5 @@
 
 public class ProductTierPriceDeleteDto
 {
-    public string Id { get; set; }
+    public string? Id { get; set; }
 }

@@ -8,8 +8,8 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetCategorySimple : IRequest<IList<CategorySimpleModel>>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Language Language { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Language Language { get; set; }
     public string CurrentCategoryId { get; set; } = "";
 }

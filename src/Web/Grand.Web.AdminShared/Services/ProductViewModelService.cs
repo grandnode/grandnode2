@@ -74,7 +74,7 @@ public class ProductViewModelService(
             CustomerId: contextAccessor.WorkContext.CurrentCustomer.Id);
     }
 
-    public virtual async Task<string> StockChangeRefused(ProductModel model)
+    public virtual async Task<string?> StockChangeRefused(ProductModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -92,7 +92,7 @@ public class ProductViewModelService(
     /// <summary>
     ///     Why the form's stock cannot change: an external system owns it, or stock changes only through documents
     /// </summary>
-    private async Task<string> StockChangeRefusedMessage(ProductModel model)
+    private async Task<string?> StockChangeRefusedMessage(ProductModel model)
     {
         var stored = !string.IsNullOrEmpty(model.Id) ? await productService.GetProductById(model.Id) : null;
         var externallyManagedWarehouseIds = await warehouseService.ExternallyManagedWarehouseIds();
@@ -100,7 +100,7 @@ public class ProductViewModelService(
         if ((stored != null && InventoryTracking.ExternallyManaged(stored, externallyManagedWarehouseIds)) ||
             (model.UseMultipleWarehouses
                 ? model.ProductWarehouseInventoryModels.Any(x =>
-                    x.WarehouseUsed && externallyManagedWarehouseIds.Contains(x.WarehouseId))
+                    x.WarehouseUsed && x.WarehouseId != null && externallyManagedWarehouseIds.Contains(x.WarehouseId))
                 : externallyManagedWarehouseIds.Contains(model.WarehouseId ?? "")))
             return "Admin.Catalog.Products.StockChangesThroughExternalSystem";
 
@@ -135,7 +135,7 @@ public class ProductViewModelService(
                InventoryTracking.Tracked(stored);
     }
 
-    public virtual async Task<string> TrackingChangeRefused(Product product, ProductModel model)
+    public virtual async Task<string?> TrackingChangeRefused(Product? product, ProductModel model)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -188,7 +188,7 @@ public class ProductViewModelService(
                 { ProductId = product.Id, Status = SerialNumberStatus.InStock, StoreId = storeId });
 
         //the units shown that are kept in a location, named once all of them are known
-        var located = new List<(UnitInBucketModel Unit, string LocationId, string WarehouseId)>();
+        var located = new List<(UnitInBucketModel Unit, string LocationId, string? WarehouseId)>();
 
         foreach (var bucket in (await productUnitService.Buckets(product))
                  .Where(x => ownWarehouseIds == null || ownWarehouseIds.Contains(x.WarehouseId ?? "")))
@@ -240,7 +240,7 @@ public class ProductViewModelService(
                 unit.Location = location.Code;
     }
 
-    public virtual async Task PrepareProductModel(ProductModel model, Product product,
+    public virtual async Task PrepareProductModel(ProductModel model, Product? product,
         bool setPredefinedValues, bool excludeProperties)
     {
         ArgumentNullException.ThrowIfNull(model);
@@ -495,7 +495,7 @@ public class ProductViewModelService(
         model.Id = productReview.Id;
         model.StoreName = store != null ? store.Shortcut : "";
         model.ProductId = productReview.ProductId;
-        model.ProductName = product.Name;
+        model.ProductName = product?.Name;
         model.CustomerId = productReview.CustomerId;
         model.CustomerInfo = customer != null
             ? !string.IsNullOrEmpty(customer.Email)
@@ -635,8 +635,8 @@ public class ProductViewModelService(
         var items = new List<ProductModel>();
         //the brand and the first category of every row on the page, each looked up once: both
         //services read through the cache, and a page is 15 rows of mostly repeating ids
-        var brandNames = new Dictionary<string, string>();
-        var categoryNames = new Dictionary<string, string>();
+        var brandNames = new Dictionary<string, string?>();
+        var categoryNames = new Dictionary<string, string?>();
         foreach (var x in products)
         {
             var productModel = x.ToModel(dateTimeService);
@@ -990,7 +990,8 @@ public class ProductViewModelService(
                 product.Price = pModel.Price;
                 product.OldPrice = pModel.OldPrice;
                 product.Published = pModel.Published;
-                product.Name = pModel.Name;
+                //a product keeps a name: a blank cell in the grid leaves it as it is
+                if (!string.IsNullOrEmpty(pModel.Name)) product.Name = pModel.Name;
                 product.ManageInventoryMethodId = (ManageInventoryMethod)pModel.ManageInventoryMethodId;
                 //a product that tracks no stock keeps it as a plain value
                 if (product.ManageInventoryMethodId is not (ManageInventoryMethod.ManageStock
@@ -1079,7 +1080,7 @@ public class ProductViewModelService(
         return categoriesIds;
     }
 
-    protected virtual string[] ParseProductTags(string productTags)
+    protected virtual string[] ParseProductTags(string? productTags)
     {
         var result = new List<string>();
         if (!string.IsNullOrWhiteSpace(productTags))
@@ -1113,7 +1114,7 @@ public class ProductViewModelService(
                         break;
                     }
 
-            if (!found) productTagsToRemove.Add(existingProductTagText);
+            if (!found && existingProductTagText != null) productTagsToRemove.Add(existingProductTagText);
         }
 
         foreach (var productTag in productTagsToRemove)

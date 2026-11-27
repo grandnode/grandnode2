@@ -307,7 +307,7 @@ public class ExternalAuthenticationServiceTests
     {
         //Act
         await _externalAuthenticationService.AssociateCustomer(new Customer(),
-            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest" });
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "1" });
         //Assert
         Assert.IsTrue(_externalAuthenticationRecordRepository.Table.Any());
     }

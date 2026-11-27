@@ -231,7 +231,7 @@ public class VendorController : BaseAdminController
         var activate = await _mediator.Send(new ActiveVendorCommand {
             Vendor = vendor,
             Active = activatevendor == "active",
-            CustomerIds = associatedCustomers.Select(x => x.Id).ToList()
+            CustomerIds = associatedCustomers.Select(x => x.Id).OfType<string>().ToList()
         });
 
         if (activate)

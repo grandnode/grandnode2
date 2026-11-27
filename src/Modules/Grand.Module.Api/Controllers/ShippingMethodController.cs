@@ -32,10 +32,10 @@ public class ShippingMethodController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings, CurrentCustomer)) return Forbid();
 
-        var shipping = await _mediator.Send(new GetGenericQuery<ShippingMethodDto, ShippingMethod>(key));
-        if (!shipping.Any()) return NotFound();
+        var shipping = (await _mediator.Send(new GetGenericQuery<ShippingMethodDto, ShippingMethod>(key))).FirstOrDefault();
+        if (shipping == null) return NotFound();
 
-        return Ok(shipping.FirstOrDefault());
+        return Ok(shipping);
     }
 
     [EndpointDescription("Get entities from ShippingMethod")]

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Interfaces.Customers;
 using Grand.Domain.Customers;
 using Grand.Domain.Permissions;
@@ -20,7 +18,7 @@ public abstract class BaseCustomerLoyaltyPointsController(
     [HttpPost]
     public async Task<IActionResult> LoyaltyPointsHistorySelect(string customerId)
     {
-        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        var customer = (await LoadAuthorizedCustomer(customerId)).Entity;
         if (customer is null) throw new ArgumentException("No customer found with the specified id");
 
         var model = (await customerLoyaltyPointsViewModelService.PrepareLoyaltyPointsHistoryModel(customerId)).ToList();
@@ -32,7 +30,7 @@ public abstract class BaseCustomerLoyaltyPointsController(
     public async Task<IActionResult> LoyaltyPointsHistoryAdd(string customerId, string storeId,
         int addLoyaltyPointsValue, string addLoyaltyPointsMessage)
     {
-        var (customer, _) = await LoadAuthorizedCustomer(customerId);
+        var customer = (await LoadAuthorizedCustomer(customerId)).Entity;
         if (customer is null) return Json(new { Result = false });
 
         // Store scope always forces its own StaffStoreId, ignoring the caller-supplied storeId —

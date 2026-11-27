@@ -22,7 +22,7 @@ public class AuditEventRecorder(
         return RecordSignInEvent(AuditKind.SignIn, customer, null);
     }
 
-    public Task SignInFailed(Customer customer, string reason)
+    public Task SignInFailed(Customer customer, string? reason)
     {
         return RecordSignInEvent(AuditKind.SignInFailed, customer, reason);
     }
@@ -70,7 +70,7 @@ public class AuditEventRecorder(
             entry => entry.Details = $"filter: {filterSummary}; rows: {rowCount}");
     }
 
-    public Task AccessDenied(string permission, string permissionAction)
+    public Task AccessDenied(string permission, string? permissionAction)
     {
         var details = string.IsNullOrEmpty(permissionAction)
             ? $"permission: {permission}"
@@ -88,7 +88,7 @@ public class AuditEventRecorder(
         });
     }
 
-    private async Task RecordSignInEvent(AuditKind kind, Customer customer, string reason)
+    private async Task RecordSignInEvent(AuditKind kind, Customer? customer, string? reason)
     {
         try
         {
@@ -119,9 +119,9 @@ public class AuditEventRecorder(
     }
 
     //the staff member behind the request, also while impersonating a customer
-    private Customer CurrentStaff()
+    private Customer? CurrentStaff()
     {
-        var workContext = contextAccessor.WorkContext;
+        var workContext = contextAccessor.CurrentWorkContext;
         return workContext?.OriginalCustomerIfImpersonated ?? workContext?.CurrentCustomer;
     }
 
@@ -133,7 +133,7 @@ public class AuditEventRecorder(
         entry.ImpersonatedCustomerId = target?.Id;
     }
 
-    private async Task Record(AuditKind kind, Customer actor, Action<AuditEntry> fill)
+    private async Task Record(AuditKind kind, Customer? actor, Action<AuditEntry>? fill)
     {
         try
         {

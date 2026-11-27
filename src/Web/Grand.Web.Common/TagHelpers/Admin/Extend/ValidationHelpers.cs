@@ -21,7 +21,7 @@ internal static class ValidationHelpers
 
     public static string GetModelErrorMessageOrDefault(
         ModelError modelError,
-        ModelStateEntry containingEntry,
+        ModelStateEntry? containingEntry,
         ModelExplorer modelExplorer)
     {
         Debug.Assert(modelError != null);
@@ -77,6 +77,8 @@ internal static class ValidationHelpers
             for (var i = 0; i < metadata.Properties.Count; i++)
             {
                 var propertyMetadata = metadata.Properties[i];
+                //a property's metadata always names it
+                if (propertyMetadata.PropertyName == null) continue;
                 var propertyModelStateEntry = modelStateEntry.GetModelStateForProperty(propertyMetadata.PropertyName);
                 if (propertyModelStateEntry != null)
                     Visit(propertyModelStateEntry, propertyMetadata, orderedModelStateEntries);

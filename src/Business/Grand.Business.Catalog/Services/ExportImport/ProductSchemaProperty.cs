@@ -129,13 +129,13 @@ public class ProductSchemaProperty : ISchemaProperty<Product>
         return properties;
     }
 
-    private async Task<string> GetPicture(string pictureId)
+    private async Task<string?> GetPicture(string pictureId)
     {
         var picture = await _pictureService.GetPictureById(pictureId);
         return await _pictureService.GetThumbPhysicalPath(picture);
     }
 
-    private static string GetPicturePath(Dictionary<string, string> pictures, Product product, int index)
+    private static string? GetPicturePath(Dictionary<string, string?> pictures, Product product, int index)
     {
         var productPicture = product.ProductPictures.ElementAtOrDefault(index);
         return productPicture != null ? pictures.GetValueOrDefault(productPicture.PictureId ?? "") : null;

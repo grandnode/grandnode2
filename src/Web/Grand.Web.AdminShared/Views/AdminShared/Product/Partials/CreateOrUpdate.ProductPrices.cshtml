@@ -4,7 +4,7 @@
 @{
     var currencies = await currencyService.GetAllCurrencies();
     var defaultCurrency = await currencyService.GetPrimaryStoreCurrency();
-    currencies = currencies.Where(x => x.Id != defaultCurrency.Id).ToList();
+    currencies = currencies.Where(x => x.Id != defaultCurrency?.Id).ToList();
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     //a product the store may see but not change (see BaseProductController.Edit)
     bool readOnly = Model.IsReadOnly;

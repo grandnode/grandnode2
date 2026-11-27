@@ -39,7 +39,7 @@ public class AuditExportAttribute : TypeFilterAttribute
                 await recorder.Export(entityType, summary, null);
         }
 
-        private static string Summarize(IDictionary<string, object> arguments)
+        private static string Summarize(IDictionary<string, object?> arguments)
         {
             var parts = new List<string>();
             foreach (var (name, value) in arguments)
@@ -58,7 +58,7 @@ public class AuditExportAttribute : TypeFilterAttribute
             return summary.Length > MaxSummaryLength ? summary[..MaxSummaryLength] : summary;
         }
 
-        private static void Add(List<string> parts, string name, object value)
+        private static void Add(List<string> parts, string name, object? value)
         {
             if (value == null || AuditDiff.IsSensitive(name))
                 return;

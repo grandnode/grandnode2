@@ -29,7 +29,7 @@ public class MigrationReturnShippingMenu : IMigration
             var configuration =
                 await repository.FirstOrDefaultAsync(repository.Table.Where(x => x.SystemName == "Configuration"));
             var shipping = configuration?.ChildNodes.FirstOrDefault(x => x.SystemName == "Shipping");
-            if (shipping == null || shipping.ChildNodes.Any(x => x.SystemName == NodeName))
+            if (configuration == null || shipping == null || shipping.ChildNodes.Any(x => x.SystemName == NodeName))
                 return true;
 
             //the display order of the shipping providers; the menu's ordering is stable, so it follows them

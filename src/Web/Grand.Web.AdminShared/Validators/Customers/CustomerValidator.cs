@@ -204,7 +204,7 @@ public class CustomerValidator : BaseGrandValidator<CustomerModel>
 
         //sub-accounts are one level deep: an owner is never a sub-account itself and a customer with
         //sub-accounts never becomes one, so the owner's access to their orders cannot chain further
-        async Task ValidateOwner(CustomerModel x, Customer customer, ValidationContext<CustomerModel> context)
+        async Task ValidateOwner(CustomerModel x, Customer? customer, ValidationContext<CustomerModel> context)
         {
             if (string.IsNullOrWhiteSpace(x.Owner))
                 return;

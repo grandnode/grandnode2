@@ -17,7 +17,7 @@ public class CategoryProductModelValidator : BaseStoreAccessValidator<CategoryMo
     {
         _categoryService = categoryService;
     }
-    protected override async Task<Category> GetEntity(CategoryModel.CategoryProductModel model)
+    protected override async Task<Category?> GetEntity(CategoryModel.CategoryProductModel model)
     {
         return await _categoryService.GetCategoryById(model.CategoryId);
     }

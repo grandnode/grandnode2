@@ -58,7 +58,7 @@ public class WarehouseDeletedEventHandler : INotificationHandler<EntityDeleted<W
 
         var product = await _productRepository.GetByIdAsync(productId);
         var row = product?.ProductWarehouseInventory.FirstOrDefault(x => x.WarehouseId == warehouseId);
-        if (row == null)
+        if (product == null || row == null)
             return;
 
         if (product.ManageInventoryMethodId != ManageInventoryMethod.ManageStock || !product.UseMultipleWarehouses)

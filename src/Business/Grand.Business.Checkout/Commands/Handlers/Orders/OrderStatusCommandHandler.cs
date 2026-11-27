@@ -73,7 +73,7 @@ public class OrderStatusCommandHandler : IRequestHandler<SetOrderStatusCommand, 
         {
             //notification
 
-            string invoiceDownloadId = null;
+            string? invoiceDownloadId = null;
 
             try
             {

@@ -8,7 +8,7 @@ public class BestCustomerReportLine
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the order total

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Catalog;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;
@@ -14,7 +12,7 @@ namespace Grand.Web.AdminShared.Services;
 /// </summary>
 public class StoreReportDataScope(IContextAccessor contextAccessor) : IReportDataScope
 {
-    public string StoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    public string? StoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
     public string VendorId => "";
     public bool ShowStoreSelector => false;
     public bool ShowVendorSelector => false;

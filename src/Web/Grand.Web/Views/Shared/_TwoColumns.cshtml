@@ -3,35 +3,35 @@
 
     //current category ID
     var currentCategoryId = "";
-    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
-        Url.ActionContext.RouteData.Values["action"].ToString().Equals("category", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(Url.ActionContext.RouteData.Values["controller"]?.ToString(), "catalog", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(Url.ActionContext.RouteData.Values["action"]?.ToString(), "category", StringComparison.OrdinalIgnoreCase))
     {
-        currentCategoryId = Url.ActionContext.RouteData.Values["categoryId"].ToString();
+        currentCategoryId = Url.ActionContext.RouteData.Values["categoryId"]?.ToString() ?? "";
     }
 
 
     //current collection ID
     var currentCollectionId = "";
-    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
-        Url.ActionContext.RouteData.Values["action"].ToString().Equals("collection", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(Url.ActionContext.RouteData.Values["controller"]?.ToString(), "catalog", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(Url.ActionContext.RouteData.Values["action"]?.ToString(), "collection", StringComparison.OrdinalIgnoreCase))
     {
-        currentCollectionId = Url.ActionContext.RouteData.Values["collectionId"].ToString();
+        currentCollectionId = Url.ActionContext.RouteData.Values["collectionId"]?.ToString() ?? "";
     }
 
     //current brand ID
     var currentBrandId = "";
-    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("catalog", StringComparison.OrdinalIgnoreCase) &&
-        Url.ActionContext.RouteData.Values["action"].ToString().Equals("brand", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(Url.ActionContext.RouteData.Values["controller"]?.ToString(), "catalog", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(Url.ActionContext.RouteData.Values["action"]?.ToString(), "brand", StringComparison.OrdinalIgnoreCase))
     {
-        currentBrandId = Url.ActionContext.RouteData.Values["brandId"].ToString();
+        currentBrandId = Url.ActionContext.RouteData.Values["brandId"]?.ToString() ?? "";
     }
 
     //current product ID
     var currentProductId = "";
-    if (Url.ActionContext.RouteData.Values["controller"].ToString().Equals("product", StringComparison.OrdinalIgnoreCase) &&
-        Url.ActionContext.RouteData.Values["action"].ToString().Equals("productdetails", StringComparison.OrdinalIgnoreCase))
+    if (string.Equals(Url.ActionContext.RouteData.Values["controller"]?.ToString(), "product", StringComparison.OrdinalIgnoreCase) &&
+        string.Equals(Url.ActionContext.RouteData.Values["action"]?.ToString(), "productdetails", StringComparison.OrdinalIgnoreCase))
     {
-        currentProductId = Url.ActionContext.RouteData.Values["productId"].ToString();
+        currentProductId = Url.ActionContext.RouteData.Values["productId"]?.ToString() ?? "";
     }
 }
 @if (IsSectionDefined("Breadcrumb"))

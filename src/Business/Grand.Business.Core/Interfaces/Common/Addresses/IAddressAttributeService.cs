@@ -25,7 +25,7 @@ public interface IAddressAttributeService
     /// </summary>
     /// <param name="addressAttributeId">Address attribute identifier</param>
     /// <returns>Address attribute</returns>
-    Task<AddressAttribute> GetAddressAttributeById(string addressAttributeId);
+    Task<AddressAttribute?> GetAddressAttributeById(string? addressAttributeId);
 
     /// <summary>
     ///     Inserts an address attribute

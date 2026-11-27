@@ -42,7 +42,7 @@ public class AuditTracker(
     //set in the flow of the AuditEntryCreated handlers: what a handler writes (e.g. a forwarding outbox) is not a
     //staff change, and recording it would publish again
     private readonly AsyncLocal<bool> _publishing = new();
-    private AuditActor _actor;
+    private AuditActor? _actor;
 
     public bool IsActive => _actor != null && !_publishing.Value;
 
@@ -57,7 +57,7 @@ public class AuditTracker(
     }
 
     public async Task BeforeWriteAsync<T>(string id, bool isInsert,
-        Func<IReadOnlyCollection<string>, Task<IList<T>>> loadMany, IReadOnlyCollection<string> writtenPaths = null)
+        Func<IReadOnlyCollection<string>, Task<IList<T>>> loadMany, IReadOnlyCollection<string>? writtenPaths = null)
         where T : BaseEntity
     {
         if (!IsActive || string.IsNullOrEmpty(id))
@@ -90,7 +90,7 @@ public class AuditTracker(
         if (flush)
             await FlushAsync();
 
-        IDictionary<string, string> before = null;
+        IDictionary<string, string>? before = null;
         if (!isInsert)
             try
             {
@@ -100,7 +100,7 @@ public class AuditTracker(
             catch (Exception ex)
             {
                 logger.LogError(ex, "Audit could not read {EntityType} {EntityId} before operation {OperationId}",
-                    typeof(T).Name, id, _actor.OperationId);
+                    typeof(T).Name, id, _actor?.OperationId);
                 return;
             }
 
@@ -141,7 +141,7 @@ public class AuditTracker(
         catch (Exception ex)
         {
             logger.LogError(ex, "Audit could not keep {EntityType} {EntityId} after operation {OperationId}",
-                typeof(T).Name, entity.Id, _actor.OperationId);
+                typeof(T).Name, entity.Id, _actor?.OperationId);
         }
     }
 
@@ -160,7 +160,7 @@ public class AuditTracker(
         }
     }
 
-    public IDisposable CountInserts<T>(string operation, string details, BaseEntity owner = null)
+    public IDisposable CountInserts<T>(string operation, string details, BaseEntity? owner = null)
         where T : BaseEntity
     {
         if (!IsActive)
@@ -194,7 +194,7 @@ public class AuditTracker(
         });
     }
 
-    private sealed class Scope(Action end) : IDisposable
+    private sealed class Scope(Action? end) : IDisposable
     {
         public void Dispose()
         {
@@ -271,8 +271,8 @@ public class AuditTracker(
         AuditReferences references)
     {
         //an entry of null: its changes could not be computed
-        var built = new List<(Type Type, string Id, AuditEntry Entry, IDictionary<string, string> Before,
-            IDictionary<string, string> After)>();
+        var built = new List<(Type Type, string Id, AuditEntry? Entry, IDictionary<string, string>? Before,
+            IDictionary<string, string>? After)>();
         foreach (var group in pending.GroupBy(p => p.Key.Type))
         {
             var toRead = group.Where(p => p.Value.AfterHint == null).Select(p => p.Key.Id).ToList();
@@ -297,7 +297,11 @@ public class AuditTracker(
         }
 
         //the names of all entries in a few reads, instead of one read per referenced record
-        await references.Prefetch(built.Where(b => b.Entry != null).Select(b => (b.Type, b.Entry, b.Before, b.After)));
+        var described = new List<(Type, AuditEntry, IDictionary<string, string>?, IDictionary<string, string>?)>();
+        foreach (var b in built)
+            if (b.Entry != null)
+                described.Add((b.Type, b.Entry, b.Before, b.After));
+        await references.Prefetch(described);
 
         var entries = new List<AuditEntry>();
         foreach (var item in built)
@@ -324,8 +328,8 @@ public class AuditTracker(
         return entries;
     }
 
-    private static AuditEntry Build(Type type, string entityId, Pending pending,
-        IDictionary<string, string> after)
+    private static AuditEntry? Build(Type type, string entityId, Pending pending,
+        IDictionary<string, string>? after)
     {
         var entityType = type.Name;
         var before = pending.Before;
@@ -352,8 +356,8 @@ public class AuditTracker(
             return entry;
         }
 
-        if (pending.Paths != null)
-            changes = changes.Where(c => pending.Paths.Any(p => Touches(c.Path, p))).ToList();
+        if (pending.Paths is { } paths)
+            changes = changes.Where(c => c.Path != null && paths.Any(p => Touches(c.Path, p))).ToList();
         if (changes.Count == 0)
             return null;
 
@@ -362,7 +366,7 @@ public class AuditTracker(
         return entry;
     }
 
-    private static string NameOf(Type type, IDictionary<string, string> snapshot)
+    private static string? NameOf(Type type, IDictionary<string, string>? snapshot)
     {
         //a name can be a note or a comment: kept to the length of a stored value
         var property = AuditReferences.NameProperty(type);
@@ -372,7 +376,7 @@ public class AuditTracker(
     }
 
     //"" is a record of all stores, null one without a store
-    private static string StoreIdOf(IDictionary<string, string> snapshot)
+    private static string? StoreIdOf(IDictionary<string, string>? snapshot)
     {
         return snapshot != null && snapshot.TryGetValue("StoreId", out var storeId) ? storeId : null;
     }
@@ -384,21 +388,21 @@ public class AuditTracker(
                || changePath.StartsWith(writtenPath + "[", StringComparison.Ordinal);
     }
 
-    private sealed class Pending(IDictionary<string, string> before, IReadOnlyCollection<string> paths)
+    private sealed class Pending(IDictionary<string, string>? before, IReadOnlyCollection<string>? paths)
     {
-        public IDictionary<string, string> Before { get; } = before;
+        public IDictionary<string, string>? Before { get; } = before;
 
         /// <summary>
         ///     The paths written in this scope; null means every field
         /// </summary>
-        public HashSet<string> Paths { get; private set; } = paths == null ? null : [..paths];
+        public HashSet<string>? Paths { get; private set; } = paths == null ? null : [..paths];
 
         /// <summary>
         ///     The state a full update wrote, so the flush does not re-read it
         /// </summary>
-        public IDictionary<string, string> AfterHint { get; set; }
+        public IDictionary<string, string>? AfterHint { get; set; }
 
-        public void Merge(IReadOnlyCollection<string> writtenPaths)
+        public void Merge(IReadOnlyCollection<string>? writtenPaths)
         {
             //any later write changes the stored document again, so the kept "after" is stale; a full update
             //sets it again right after its write

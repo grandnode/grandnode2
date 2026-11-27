@@ -2,5 +2,5 @@
 
 public interface IThemeContextFactory
 {
-    IThemeContext GetThemeContext(string areaName);
+    IThemeContext? GetThemeContext(string areaName);
 }

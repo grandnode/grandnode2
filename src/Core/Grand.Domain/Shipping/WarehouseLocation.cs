@@ -8,15 +8,15 @@ namespace Grand.Domain.Shipping;
 public class WarehouseLocation : BaseEntity
 {
     [AuditReference(typeof(Warehouse))]
-    public string WarehouseId { get; set; }
+    public string WarehouseId { get; set; } = null!;
 
     /// <summary>
     ///     The code written on the place, such as A-01-03
     /// </summary>
     [AuditName]
-    public string Code { get; set; }
+    public string Code { get; set; } = null!;
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public int DisplayOrder { get; set; }
 }

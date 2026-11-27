@@ -37,47 +37,49 @@ public class AdminInputTagHelper : TagHelper
     /// <summary>
     ///     An expression to be evaluated against the current model
     /// </summary>
+    //the element matches only with asp-for, so it is always set
     [HtmlAttributeName(ForAttributeName)]
-    public ModelExpression For { get; set; }
+    public ModelExpression For { get; set; } = null!;
 
     /// <summary>
     ///     Indicates whether the field is disabled
     /// </summary>
     [HtmlAttributeName(DisabledAttributeName)]
-    public string IsDisabled { set; get; }
+    public string? IsDisabled { set; get; }
 
     /// <summary>
     ///     Indicates whether the field is required
     /// </summary>
     [HtmlAttributeName(RequiredAttributeName)]
-    public string IsRequired { set; get; }
+    public string? IsRequired { set; get; }
 
     /// <summary>
     ///     Indicates whether the "form-control" class shold be added to the input
     /// </summary>
     [HtmlAttributeName(RenderFormControlClassAttributeName)]
-    public string RenderFormControlClass { set; get; }
+    public string? RenderFormControlClass { set; get; }
 
     /// <summary>
     ///     Editor template for the field
     /// </summary>
     [HtmlAttributeName(TemplateAttributeName)]
-    public string Template { set; get; }
+    public string? Template { set; get; }
 
-    [HtmlAttributeName(PostSelectItem)] public IList<SelectListItem> SelectItems { set; get; }
+    [HtmlAttributeName(PostSelectItem)] public IList<SelectListItem>? SelectItems { set; get; }
 
     /// <summary>
     ///     Postfix
     /// </summary>
     [HtmlAttributeName(PostfixAttributeName)]
-    public string Postfix { set; get; }
+    public string? Postfix { set; get; }
 
     /// <summary>
     ///     ViewContext
     /// </summary>
     [HtmlAttributeNotBound]
+    //set by the framework before the tag helper runs
     [ViewContext]
-    public ViewContext ViewContext { get; set; }
+    public ViewContext ViewContext { get; set; } = null!;
 
     /// <summary>
     ///     Process
@@ -108,7 +110,7 @@ public class AdminInputTagHelper : TagHelper
 
         //add form-control class
         bool.TryParse(RenderFormControlClass, out var renderFormControlClass);
-        object htmlAttributes = null;
+        object? htmlAttributes = null;
         if ((string.IsNullOrEmpty(RenderFormControlClass) && For.Metadata.ModelType.Name.Equals("String")) ||
             renderFormControlClass)
             htmlAttributes = new { @class = "form-control" };
@@ -123,8 +125,10 @@ public class AdminInputTagHelper : TagHelper
                 htmlAttributes = new { @class = "form-control", disabled = "disabled" };
         }
 
-        var viewEngine = GetPrivateFieldValue(_htmlHelper, "_viewEngine") as IViewEngine;
-        var bufferScope = GetPrivateFieldValue(_htmlHelper, "_bufferScope") as IViewBufferScope;
+        var viewEngine = GetPrivateFieldValue(_htmlHelper, "_viewEngine") as IViewEngine ??
+                         throw new InvalidOperationException("The html helper has no view engine");
+        var bufferScope = GetPrivateFieldValue(_htmlHelper, "_bufferScope") as IViewBufferScope ??
+                          throw new InvalidOperationException("The html helper has no buffer scope");
         if (SelectItems != null)
         {
             if (SelectItems.Any())
@@ -156,13 +160,13 @@ public class AdminInputTagHelper : TagHelper
     }
 
 
-    private static object GetPrivateFieldValue(object target, string fieldName)
+    private static object? GetPrivateFieldValue(object target, string fieldName)
     {
         ArgumentNullException.ThrowIfNull(target);
         ArgumentNullException.ThrowIfNullOrEmpty(fieldName);
 
         var t = target.GetType();
-        FieldInfo fi = null;
+        FieldInfo? fi = null;
 
         while (t != null)
         {

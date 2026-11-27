@@ -39,7 +39,7 @@ public abstract class BaseInventoryDocumentController(
     /// <summary>
     ///     Whether the warehouse may be put on a document; none chosen yet is allowed on a draft
     /// </summary>
-    private async Task<bool> CanUse(string warehouseId)
+    private async Task<bool> CanUse(string? warehouseId)
     {
         if (string.IsNullOrEmpty(warehouseId))
             return true;
@@ -51,7 +51,7 @@ public abstract class BaseInventoryDocumentController(
     private async Task<bool> HasAccess(InventoryDocument document)
     {
         var storeId = await warehouseScope.GetDefaultStoreIdAsync();
-        return document != null && (storeId == null || document.StoreId == storeId) &&
+        return (storeId == null || document.StoreId == storeId) &&
                await CanUse(document.WarehouseId) && await CanUse(document.TargetWarehouseId) &&
                (await inventoryDocumentViewModelService.InaccessibleLines(document)).Count == 0;
     }
@@ -102,6 +102,10 @@ public abstract class BaseInventoryDocumentController(
 
     protected virtual async Task<IActionResult> CreateGetCore(InventoryDocumentType type)
     {
+        //the list links each type; a link without one, or with a number no type has, has no form to show
+        if (!Enum.IsDefined(type))
+            return RedirectToAction("List");
+
         var model = new InventoryDocumentModel { DocumentTypeId = (int)type };
         await inventoryDocumentViewModelService.PrepareModel(model, null);
         return View("Create", model);
@@ -109,6 +113,10 @@ public abstract class BaseInventoryDocumentController(
 
     protected virtual async Task<IActionResult> CreatePostCore(InventoryDocumentModel model)
     {
+        var type = (InventoryDocumentType)model.DocumentTypeId;
+        if (!Enum.IsDefined(type))
+            return RedirectToAction("List");
+
         if (string.IsNullOrEmpty(model.WarehouseId))
         {
             Error(translationService.GetResource(InventoryDocumentErrors.WarehouseNotFound));
@@ -119,7 +127,6 @@ public abstract class BaseInventoryDocumentController(
         if (!await CanUse(model.WarehouseId) || !await CanUse(model.TargetWarehouseId))
             return Denied();
 
-        var type = (InventoryDocumentType)model.DocumentTypeId;
         if (type == InventoryDocumentType.StockCount)
         {
             var (count, refused) = await inventoryDocumentService.CreateStockCount(model.WarehouseId,
@@ -150,7 +157,7 @@ public abstract class BaseInventoryDocumentController(
     }
 
     protected virtual async Task<IActionResult> CreateReturnReceiptCore(string merchandiseReturnId,
-        ReturnReceiptInspectionModel inspection = null)
+        ReturnReceiptInspectionModel? inspection = null)
     {
         var merchandiseReturn = await merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
         if (merchandiseReturn == null || !await merchandiseReturnScope.HasAccess(merchandiseReturn))
@@ -199,7 +206,7 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> EditGetCore(string id, int page)
     {
         var document = await inventoryDocumentService.GetById(id);
-        if (!await HasAccess(document))
+        if (document == null || !await HasAccess(document))
             return Denied();
 
         var model = new InventoryDocumentModel();
@@ -210,7 +217,7 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> EditPostCore(InventoryDocumentModel model, bool continueEditing)
     {
         var document = await inventoryDocumentService.GetById(model.Id);
-        if (!await HasAccess(document))
+        if (document == null || !await HasAccess(document))
             return Denied();
 
         if (string.IsNullOrEmpty(model.WarehouseId))
@@ -247,7 +254,7 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> SearchProductsCore(string id, DataSourceRequestFilter model)
     {
         var document = await inventoryDocumentService.GetById(id);
-        if (!await HasAccess(document))
+        if (document == null || !await HasAccess(document))
             return Json(new DataSourceResult { Data = Array.Empty<InventoryDocumentProductModel>() });
 
         return Json(new DataSourceResult {
@@ -258,7 +265,7 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> ProductCombinationsCore(string id, string productId)
     {
         var document = await inventoryDocumentService.GetById(id);
-        if (!await HasAccess(document))
+        if (document == null || !await HasAccess(document))
             return Json(Array.Empty<InventoryDocumentCombinationModel>());
 
         return Json(await inventoryDocumentViewModelService.ProductCombinations(document, productId));
@@ -271,7 +278,7 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> AddLinesCore(InventoryDocumentModel model)
     {
         var document = await inventoryDocumentService.GetById(model.Id);
-        if (!await HasAccess(document) || !await CanUse(model.WarehouseId) || !await CanUse(model.TargetWarehouseId))
+        if (document == null || !await HasAccess(document) || !await CanUse(model.WarehouseId) || !await CanUse(model.TargetWarehouseId))
             return new ContentResult {
                 StatusCode = StatusCodes.Status403Forbidden,
                 Content = translationService.GetResource("Admin.Inventory.Documents.AccessDenied")
@@ -279,7 +286,7 @@ public abstract class BaseInventoryDocumentController(
 
         IList<string> errors = [];
         IList<string> notices = [];
-        string lineId = null;
+        string? lineId = null;
         if (document.StatusId == InventoryDocumentStatus.Posted)
             errors = [translationService.GetResource(InventoryDocumentErrors.Posted)];
         if (errors.Count == 0)
@@ -300,7 +307,8 @@ public abstract class BaseInventoryDocumentController(
         //a draft that could not be saved is drawn as it is stored
         if (errors.Count > 0)
         {
-            document = await inventoryDocumentService.GetById(document.Id);
+            document = await inventoryDocumentService.GetById(document.Id)
+                       ?? throw new InvalidOperationException($"Inventory document {document.Id} was deleted meanwhile");
             lineId = null;
         }
 
@@ -325,7 +333,7 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> ProductAddPopupCore(string id)
     {
         var document = await inventoryDocumentService.GetById(id);
-        if (!await HasAccess(document))
+        if (document == null || !await HasAccess(document))
             return Content(translationService.GetResource("Admin.Inventory.Documents.AccessDenied"));
 
         var model = await productAddPopupViewModelService.PrepareAddProductModel<InventoryDocumentProductAddModel>();
@@ -347,7 +355,7 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> PostCore(string id)
     {
         var document = await inventoryDocumentService.GetById(id);
-        if (!await HasAccess(document))
+        if (document == null || !await HasAccess(document))
             return Denied();
 
         var errors = await inventoryDocumentService.Post(document.Id, CustomerId);
@@ -362,7 +370,7 @@ public abstract class BaseInventoryDocumentController(
     protected virtual async Task<IActionResult> DeleteCore(string id)
     {
         var document = await inventoryDocumentService.GetById(id);
-        if (!await HasAccess(document))
+        if (document == null || !await HasAccess(document))
             return Denied();
 
         var errors = await inventoryDocumentService.DeleteDraft(document.Id);

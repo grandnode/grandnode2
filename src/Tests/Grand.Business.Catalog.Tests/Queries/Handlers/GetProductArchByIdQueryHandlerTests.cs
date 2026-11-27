@@ -26,7 +26,7 @@ public class GetProductArchByIdQueryHandlerTests
     public async Task HandleTest()
     {
         //Act
-        var result = await handler.Handle(new GetProductArchByIdQuery(), CancellationToken.None);
+        var result = await handler.Handle(new GetProductArchByIdQuery { Id = "missing" }, CancellationToken.None);
         //Assert
         Assert.IsNull(result);
     }

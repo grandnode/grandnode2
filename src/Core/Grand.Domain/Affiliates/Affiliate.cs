@@ -10,17 +10,17 @@ public class Affiliate : BaseEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the admin comment
     /// </summary>
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     Gets or sets the friendly url name for affiliate
     /// </summary>
-    public string FriendlyUrlName { get; set; }
+    public string? FriendlyUrlName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is active
@@ -30,5 +30,5 @@ public class Affiliate : BaseEntity
     /// <summary>
     ///     Gets or sets the address
     /// </summary>
-    public virtual Address Address { get; set; }
+    public virtual Address? Address { get; set; }
 }

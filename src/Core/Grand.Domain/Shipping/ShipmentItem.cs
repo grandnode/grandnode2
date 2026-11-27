@@ -12,14 +12,14 @@ public class ShipmentItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the order item identifier
     /// </summary>
-    public string OrderItemId { get; set; }
+    public string OrderItemId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the product
     /// </summary>
     [AuditReference(typeof(Product))]
     [AuditName]
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the product attribute xml
@@ -35,7 +35,7 @@ public class ShipmentItem : SubBaseEntity
     ///     Gets or sets the warehouse identifier
     /// </summary>
     [AuditReference(typeof(Warehouse))]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     A batch-tracked product: the batches shipped; the rest of the quantity is stock without a batch

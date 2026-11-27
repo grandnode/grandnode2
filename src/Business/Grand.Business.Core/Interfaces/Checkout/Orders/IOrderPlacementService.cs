@@ -18,5 +18,5 @@ public interface IOrderPlacementService
     /// <param name="paymentMethodSystemName">Chosen payment method; null until the buyer has chosen one</param>
     /// <param name="cancellationToken">Cancellation token, passed on to every rule</param>
     Task<OrderPlacementEvaluation> Evaluate(IList<ShoppingCartItem> cart, CalculationContext calculation,
-        Language language, string paymentMethodSystemName, CancellationToken cancellationToken = default);
+        Language language, string? paymentMethodSystemName, CancellationToken cancellationToken = default);
 }

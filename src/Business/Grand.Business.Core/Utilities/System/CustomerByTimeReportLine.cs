@@ -2,7 +2,7 @@
 
 public class CustomerByTimeReportLine
 {
-    public string Time { get; set; }
+    public string? Time { get; set; }
 
     public int Registered { get; set; }
 }

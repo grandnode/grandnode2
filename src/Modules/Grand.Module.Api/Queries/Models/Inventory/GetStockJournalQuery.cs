@@ -12,13 +12,13 @@ public class GetStockJournalQuery : IRequest<StockJournalResultDto>
     /// <summary>
     ///     The cursor: the id of the last entry of the previous page; empty for the beginning
     /// </summary>
-    public string After { get; set; }
+    public string? After { get; set; }
 
     public int Take { get; set; } = 100;
 
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
-    public string WarehouseCode { get; set; }
+    public string? WarehouseCode { get; set; }
 
     /// <summary>
     ///     The inventory movement types to include; empty for all
@@ -30,5 +30,5 @@ public class GetStockJournalQuery : IRequest<StockJournalResultDto>
     /// </summary>
     public bool ExcludeOwn { get; set; }
 
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 }

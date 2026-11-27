@@ -35,5 +35,5 @@ public class MediaSettings : ISettings
     /// </summary>
     public int ImageQuality { get; set; } = 80;
 
-    public string AllowedFileTypes { get; set; }
+    public string? AllowedFileTypes { get; set; }
 }

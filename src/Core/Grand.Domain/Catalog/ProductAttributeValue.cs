@@ -17,22 +17,22 @@ public class ProductAttributeValue : SubBaseEntity, ITranslationEntity
     ///     Gets or sets the associated product identifier (used only with AttributeValueType.AssociatedToProduct)
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string AssociatedProductId { get; set; }
+    public string? AssociatedProductId { get; set; }
 
     /// <summary>
     ///     Gets or sets the product attribute name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the color RGB value (used with "Color squares" attribute type)
     /// </summary>
-    public string ColorSquaresRgb { get; set; }
+    public string? ColorSquaresRgb { get; set; }
 
     /// <summary>
     ///     Gets or sets the picture ID for image square (used with "Image squares" attribute type)
     /// </summary>
-    public string ImageSquaresPictureId { get; set; }
+    public string? ImageSquaresPictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the price adjustment (used only with AttributeValueType.Simple)
@@ -68,7 +68,7 @@ public class ProductAttributeValue : SubBaseEntity, ITranslationEntity
     ///     Gets or sets the picture (identifier) associated with this value. This picture should replace a product main
     ///     picture once clicked (selected).
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the collection of locales

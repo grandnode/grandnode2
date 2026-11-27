@@ -53,8 +53,8 @@ public class StockController : BaseApiController
     [ProducesResponseType(StatusCodes.Status200OK, Type = typeof(StockJournalResultDto))]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<IActionResult> Journal([FromQuery] string after, [FromQuery] int take = 100,
-        [FromQuery] string warehouseId = null, [FromQuery] string warehouseCode = null,
-        [FromQuery] string movementTypes = null, [FromQuery] bool excludeOwn = false)
+        [FromQuery] string? warehouseId = null, [FromQuery] string? warehouseCode = null,
+        [FromQuery] string? movementTypes = null, [FromQuery] bool excludeOwn = false)
     {
         if (!await _permissionService.Authorize(PermissionSystemName.StockIntegration, CurrentCustomer)) return Forbid();
 

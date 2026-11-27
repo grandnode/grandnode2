@@ -65,7 +65,7 @@ public class WithdrawOrderApprovalCommandHandler : IRequestHandler<WithdrawOrder
     /// <summary>
     ///     A company's request is withdrawn through the company's approvals screen, which also checks the company
     /// </summary>
-    private async Task<OrderApproval> GetStoreDecidedRequest(string orderId)
+    private async Task<OrderApproval?> GetStoreDecidedRequest(string orderId)
     {
         var approval = await _orderApprovalService.GetByOrderId(orderId);
         return approval is { Decider: OrderApprovalDecider.Store } ? approval : null;

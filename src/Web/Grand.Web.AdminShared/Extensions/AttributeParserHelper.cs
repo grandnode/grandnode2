@@ -10,7 +10,7 @@ namespace Grand.Web.AdminShared.Extensions;
 /// </summary>
 public static class AttributeParserHelper
 {
-    public static async Task<List<CustomAttribute>> ParseCustomAddressAttributes(this AddressModel address,
+    public static async Task<List<CustomAttribute>> ParseCustomAddressAttributes(this AddressModel? address,
         IAddressAttributeParser addressAttributeParser,
         IAddressAttributeService addressAttributeService)
     {

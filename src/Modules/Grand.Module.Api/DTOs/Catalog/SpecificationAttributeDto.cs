@@ -4,7 +4,7 @@ namespace Grand.Module.Api.DTOs.Catalog;
 
 public class SpecificationAttributeDto : BaseApiEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public int DisplayOrder { get; set; }
 
     public IList<SpecificationAttributeOptionDto> SpecificationAttributeOptions { get; set; } =
@@ -13,7 +13,7 @@ public class SpecificationAttributeDto : BaseApiEntityModel
 
 public class SpecificationAttributeOptionDto : BaseApiEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
     public int DisplayOrder { get; set; }
-    public string ColorSquaresRgb { get; set; }
+    public string? ColorSquaresRgb { get; set; }
 }

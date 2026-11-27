@@ -50,7 +50,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         }
     }
 
-    public virtual void AddTitleParts(string part)
+    public virtual void AddTitleParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -66,9 +66,9 @@ public class PageHeadBuilder : IPageHeadBuilder
         _title.Insert(0, part);
     }
 
-    public virtual string GenerateTitle(bool addDefaultTitle)
+    public virtual string? GenerateTitle(bool addDefaultTitle)
     {
-        string result;
+        string? result;
         var titleParts = string.Join(_seoSettings.PageTitleSeparator, _title.AsEnumerable().Reverse().ToList());
         if (!string.IsNullOrEmpty(titleParts))
         {
@@ -87,7 +87,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result;
     }
 
-    public virtual void AddMetaDescriptionParts(string part)
+    public virtual void AddMetaDescriptionParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -103,14 +103,14 @@ public class PageHeadBuilder : IPageHeadBuilder
         _metaDescription.Insert(0, part);
     }
 
-    public virtual string GenerateMetaDescription()
+    public virtual string? GenerateMetaDescription()
     {
         var description = string.Join(", ", _metaDescription.AsEnumerable().Reverse().ToList());
         var result = !string.IsNullOrEmpty(description) ? description : _seoSettings.DefaultMetaDescription;
         return result;
     }
 
-    public virtual void AddMetaKeywordParts(string part)
+    public virtual void AddMetaKeywordParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -126,14 +126,14 @@ public class PageHeadBuilder : IPageHeadBuilder
         _metaKeyword.Insert(0, part);
     }
 
-    public virtual string GenerateMetaKeywords()
+    public virtual string? GenerateMetaKeywords()
     {
         var keyword = string.Join(", ", _metaKeyword.AsEnumerable().Reverse().ToList());
         var result = !string.IsNullOrEmpty(keyword) ? keyword : _seoSettings.DefaultMetaKeywords;
         return result;
     }
 
-    public virtual void AddCanonicalUrlParts(string part)
+    public virtual void AddCanonicalUrlParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -161,7 +161,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result.ToString();
     }
 
-    public virtual void AddHeadCustomParts(string part)
+    public virtual void AddHeadCustomParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -193,7 +193,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result.ToString();
     }
 
-    public virtual void AddPageCssClassParts(string part)
+    public virtual void AddPageCssClassParts(string? part)
     {
         if (string.IsNullOrEmpty(part))
             return;
@@ -215,7 +215,7 @@ public class PageHeadBuilder : IPageHeadBuilder
         return result;
     }
 
-    public virtual string EditPageUrl { get; set; }
+    public virtual string? EditPageUrl { get; set; }
 
     #endregion
 }

@@ -18,9 +18,9 @@ public class RecordRecurringPaymentEndedCommandHandler(
         var report = await recurringPaymentService.RecordEnded(request.RecurringPaymentId, request.ProviderReference);
 
         // another subscription that ended charges nothing more, typically one the shop stopped: nothing for staff to do
-        if (report.Outcome == RecurringReportOutcome.OtherReference)
+        if (report is { Outcome: RecurringReportOutcome.OtherReference, RecurringPayment: { } otherPayment })
             logger.LogInformation("Recurring payment {RecurringPaymentId} runs on {ProviderReference}; {ReportedReference} ended at the payment gateway",
-                report.RecurringPayment.Id, report.RecurringPayment.ProviderReference, request.ProviderReference);
+                otherPayment.Id, otherPayment.ProviderReference, request.ProviderReference);
 
         return report.Outcome == RecurringReportOutcome.Recorded;
     }

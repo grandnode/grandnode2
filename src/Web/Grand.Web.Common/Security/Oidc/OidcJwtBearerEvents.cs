@@ -90,7 +90,7 @@ public class OidcJwtBearerEvents : JwtBearerEvents
         var result = await services.GetRequiredService<IOidcCustomerResolver>().Resolve(context.Principal!, storeId);
         if (!result.Succeeded)
         {
-            Reject(context, result.Failure ?? OidcFailureKind.InvalidToken, result.Description);
+            Reject(context, result.Failure ?? OidcFailureKind.InvalidToken, result.Description ?? "The token is not accepted");
             return false;
         }
 
@@ -174,7 +174,7 @@ public class OidcJwtBearerEvents : JwtBearerEvents
         await OidcChallengeWriter.Write(http, failure, metadataUrl, scope);
     }
 
-    protected void Reject(TokenValidatedContext context, OidcFailureKind kind, string description, string scope = null)
+    protected void Reject(TokenValidatedContext context, OidcFailureKind kind, string description, string? scope = null)
     {
         var principal = context.Principal;
         Logger(context.HttpContext).LogWarning("Access token refused for subject {Subject} of {Issuer}: {Reason}",

@@ -5,9 +5,9 @@
 @{
     var area = ViewContext.RouteData.Values["area"]?.ToString();
     var warnings = true;
-    if (ViewData["DisableIgnoreStoreWarnings"] != null)
+    if (ViewData["DisableIgnoreStoreWarnings"] is bool disableWarnings)
     {
-        warnings = !(bool)ViewData["DisableIgnoreStoreWarnings"];
+        warnings = !disableWarnings;
     }
     //GrandAdmin.select (adminapp/src/ui/select.js, Tom Select) in place of the Kendo
     //MultiSelect: this list box keeps its name, so the form posts what it posted before

@@ -32,6 +32,15 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         IAdminDataScope<Product> scope)
         : BaseProductAttributeMappingController(productAddPopupViewModelService, productAttributeMappingViewModelService, productService, languageService, translationService, scope);
 
+    private readonly Mock<IProductAttributeService> _productAttributeServiceMock = AttributeService();
+
+    private static Mock<IProductAttributeService> AttributeService()
+    {
+        var mock = new Mock<IProductAttributeService>();
+        mock.Setup(x => x.GetProductAttributeById("pa1")).ReturnsAsync(new ProductAttribute { Id = "pa1" });
+        return mock;
+    }
+
     protected override TestProductAttributeMappingController CreateController() => new(
         _productAddPopupViewModelServiceMock.Object,
         _productAttributeMappingViewModelServiceMock.Object,
@@ -156,9 +165,9 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(false);
-        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "p1" };
+        var model = new ProductModel.ProductAttributeMappingModel { ProductAttributeId = "pa1", ProductId = "p1" };
 
-        var result = await _controller.ProductAttributeMappingPopup(model);
+        var result = await _controller.ProductAttributeMappingPopup(model, _productAttributeServiceMock.Object);
 
         var content = result as ContentResult;
         Assert.IsNotNull(content);
@@ -177,9 +186,9 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "p1" };
+        var model = new ProductModel.ProductAttributeMappingModel { ProductAttributeId = "pa1", ProductId = "p1" };
 
-        var result = await _controller.ProductAttributeMappingPopup(model);
+        var result = await _controller.ProductAttributeMappingPopup(model, _productAttributeServiceMock.Object);
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _productAttributeMappingViewModelServiceMock.Verify(s => s.InsertProductAttributeMappingModel(model), Times.Once);
@@ -194,9 +203,9 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
         var product = new Product { Id = "p1" };
         _productServiceMock.Setup(p => p.GetProductById("p1", false)).ReturnsAsync(product);
         _scopeMock.Setup(s => s.HasAccess(product)).ReturnsAsync(true);
-        var model = new ProductModel.ProductAttributeMappingModel { Id = "pam1", ProductId = "p1" };
+        var model = new ProductModel.ProductAttributeMappingModel { Id = "pam1", ProductAttributeId = "pa1", ProductId = "p1" };
 
-        var result = await _controller.ProductAttributeMappingPopup(model);
+        var result = await _controller.ProductAttributeMappingPopup(model, _productAttributeServiceMock.Object);
 
         Assert.IsInstanceOfType<ContentResult>(result);
         _productAttributeMappingViewModelServiceMock.Verify(s => s.UpdateProductAttributeMappingModel(model), Times.Once);
@@ -206,23 +215,39 @@ public class BaseProductAttributeMappingControllerTests : ProductControllerTests
     public async Task ProductAttributeMappingPopup_Post_MissingProduct_Throws()
     {
         _productServiceMock.Setup(p => p.GetProductById("missing", false)).ReturnsAsync((Product)null);
-        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "missing" };
+        var model = new ProductModel.ProductAttributeMappingModel { ProductAttributeId = "pa1", ProductId = "missing" };
 
-        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ProductAttributeMappingPopup(model));
+        await Assert.ThrowsExactlyAsync<ArgumentException>(() => _controller.ProductAttributeMappingPopup(model, _productAttributeServiceMock.Object));
     }
 
     [TestMethod]
     public async Task ProductAttributeMappingPopup_Post_InvalidModelState_ReturnsView_DoesNotCheckAccess()
     {
         _controller.ModelState.AddModelError("x", "err");
-        var model = new ProductModel.ProductAttributeMappingModel { ProductId = "p1" };
+        var model = new ProductModel.ProductAttributeMappingModel { ProductAttributeId = "pa1", ProductId = "p1" };
         _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(model)).ReturnsAsync(model);
 
-        var result = await _controller.ProductAttributeMappingPopup(model);
+        var result = await _controller.ProductAttributeMappingPopup(model, _productAttributeServiceMock.Object);
 
         Assert.IsInstanceOfType<ViewResult>(result);
         _productServiceMock.Verify(p => p.GetProductById(It.IsAny<string>(), It.IsAny<bool>()), Times.Never);
         _scopeMock.Verify(s => s.HasAccess(It.IsAny<Product>()), Times.Never);
+    }
+
+    [TestMethod]
+    [DataRow("")]
+    [DataRow("missing")]
+    public async Task ProductAttributeMappingPopup_Post_NoSuchAttribute_ReturnsView_DoesNotInsert(string attributeId)
+    {
+        var model = new ProductModel.ProductAttributeMappingModel { ProductAttributeId = attributeId, ProductId = "p1" };
+        _productAttributeMappingViewModelServiceMock.Setup(s => s.PrepareProductAttributeMappingModel(model)).ReturnsAsync(model);
+
+        var result = await _controller.ProductAttributeMappingPopup(model, _productAttributeServiceMock.Object);
+
+        Assert.IsInstanceOfType<ViewResult>(result);
+        Assert.IsTrue(_controller.ModelState.ContainsKey(nameof(model.ProductAttributeId)));
+        _productAttributeMappingViewModelServiceMock.Verify(
+            s => s.InsertProductAttributeMappingModel(It.IsAny<ProductModel.ProductAttributeMappingModel>()), Times.Never);
     }
 
     // --- ProductAttributeMappingDelete -----------------------------------------------------------

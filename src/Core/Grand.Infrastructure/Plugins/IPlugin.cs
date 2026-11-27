@@ -9,12 +9,12 @@ public interface IPlugin
     /// <summary>
     ///     Gets or sets the plugin info
     /// </summary>
-    PluginInfo PluginInfo { get; set; }
+    PluginInfo? PluginInfo { get; set; }
 
     /// <summary>
     ///     Gets a configuration URL
     /// </summary>
-    string ConfigurationUrl();
+    string? ConfigurationUrl();
 
     /// <summary>
     ///     Install plugin

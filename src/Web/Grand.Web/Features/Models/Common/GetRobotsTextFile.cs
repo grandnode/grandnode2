@@ -4,5 +4,5 @@ namespace Grand.Web.Features.Models.Common;
 
 public class GetRobotsTextFile : IRequest<string>
 {
-    public string StoreId { get; set; }
+    public required string StoreId { get; set; }
 }

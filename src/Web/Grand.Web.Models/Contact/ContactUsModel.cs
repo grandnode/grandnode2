@@ -11,36 +11,36 @@ namespace Grand.Web.Models.Contact;
 public class ContactUsModel : BaseModel
 {
     [GrandResourceDisplayName("ContactUs.Email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     [GrandResourceDisplayName("ContactUs.Subject")]
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     public bool SubjectEnabled { get; set; }
 
     [GrandResourceDisplayName("ContactUs.Enquiry")]
-    public string Enquiry { get; set; }
+    public string? Enquiry { get; set; }
 
     [GrandResourceDisplayName("ContactUs.FullName")]
-    public string FullName { get; set; }
+    public string? FullName { get; set; }
 
     public bool SuccessfullySent { get; set; }
-    public string Result { get; set; }
+    public string? Result { get; set; }
     public bool DisplayCaptcha { get; set; }
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();
 
     [ModelBinder(BinderType = typeof(CustomAttributesBinder))]
     public IList<CustomAttributeModel> Attributes { get; set; } = new List<CustomAttributeModel>();
 
-    public string ContactAttributeInfo { get; set; }
+    public string? ContactAttributeInfo { get; set; }
     public IList<CustomAttribute> ContactAttribute { get; set; } = new List<CustomAttribute>();
     public IList<ContactAttributeModel> ContactAttributes { get; set; } = new List<ContactAttributeModel>();
 
     public class ContactAttributeModel : BaseEntityModel
     {
-        public string Name { get; set; }
-        public string DefaultValue { get; set; }
-        public string TextPrompt { get; set; }
+        public string? Name { get; set; }
+        public string? DefaultValue { get; set; }
+        public string? TextPrompt { get; set; }
         public bool IsRequired { get; set; }
 
         /// <summary>
@@ -69,9 +69,9 @@ public class ContactUsModel : BaseModel
 
     public class ContactAttributeValueModel : BaseEntityModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
         public int DisplayOrder { get; set; }
-        public string ColorSquaresRgb { get; set; }
+        public string? ColorSquaresRgb { get; set; }
         public bool IsPreSelected { get; set; }
     }
 }

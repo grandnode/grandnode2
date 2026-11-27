@@ -6,7 +6,7 @@ namespace Grand.Web.Commands.Models.Customers;
 
 public class SubAccountAddCommand : IRequest
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public SubAccountCreateModel Model { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required SubAccountCreateModel Model { get; set; }
 }

@@ -7,11 +7,11 @@ public class CollectionLayoutModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.ViewPath")]
 
-    public string ViewPath { get; set; }
+    public string? ViewPath { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Layouts.Collection.DisplayOrder")]
     public int DisplayOrder { get; set; }

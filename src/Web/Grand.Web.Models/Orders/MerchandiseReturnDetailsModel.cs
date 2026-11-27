@@ -6,16 +6,16 @@ namespace Grand.Web.Models.Orders;
 
 public class MerchandiseReturnDetailsModel : BaseModel
 {
-    public string MerchandiseReturnId { get; set; }
+    public string? MerchandiseReturnId { get; set; }
 
     public IList<MerchandiseReturnItemModel> MerchandiseReturnItems { get; set; } =
         new List<MerchandiseReturnItemModel>();
 
-    public string Comments { get; set; }
+    public string? Comments { get; set; }
 
     public int ReturnNumber { get; set; }
 
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     /// <summary>
     ///     Shown to a visitor without an account, who has no account pages to go to
@@ -41,7 +41,7 @@ public class MerchandiseReturnDetailsModel : BaseModel
     /// <summary>
     ///     How the items are sent back; null when the return has no return method
     /// </summary>
-    public ReturnShippingModel ReturnShipping { get; set; }
+    public ReturnShippingModel? ReturnShipping { get; set; }
 
     /// <summary>
     ///     What happened to the return, oldest first
@@ -72,7 +72,7 @@ public class MerchandiseReturnDetailsModel : BaseModel
 
     public class TimelineEntryModel
     {
-        public string Name { get; set; }
+        public string? Name { get; set; }
 
         /// <summary>
         ///     When, in the customer's time; null for a status reached before the dates were recorded
@@ -87,44 +87,44 @@ public class MerchandiseReturnDetailsModel : BaseModel
         /// <summary>
         ///     The note's text, encoded already: it is put in the page as it is
         /// </summary>
-        public string Note { get; set; }
+        public string? Note { get; set; }
 
         public bool CreatedByCustomer { get; set; }
         public DateTime CreatedOn { get; set; }
-        public string MerchandiseReturnId { get; set; }
+        public string? MerchandiseReturnId { get; set; }
     }
 
     public class MerchandiseReturnItemModel : BaseModel
     {
-        public string OrderItemId { get; set; }
+        public string? OrderItemId { get; set; }
 
-        public string ReasonForReturn { get; set; }
+        public string? ReasonForReturn { get; set; }
 
         public int Quantity { get; set; }
 
-        public string RequestedAction { get; set; }
+        public string? RequestedAction { get; set; }
 
-        public string ProductSeName { get; set; }
+        public string? ProductSeName { get; set; }
 
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
-        public string ProductPrice { get; set; }
+        public string? ProductPrice { get; set; }
     }
 
     public class ReturnShippingModel
     {
-        public string MethodName { get; set; }
+        public string? MethodName { get; set; }
 
         /// <summary>
         ///     What the customer pays, formatted in the order's currency; "Free" when nothing
         /// </summary>
-        public string Cost { get; set; }
+        public string? Cost { get; set; }
 
-        public string DropOffPointName { get; set; }
-        public string DropOffPointAddress { get; set; }
-        public string DropOffPointOpeningHours { get; set; }
-        public string Instructions { get; set; }
-        public string ReturnCode { get; set; }
+        public string? DropOffPointName { get; set; }
+        public string? DropOffPointAddress { get; set; }
+        public string? DropOffPointOpeningHours { get; set; }
+        public string? Instructions { get; set; }
+        public string? ReturnCode { get; set; }
         public bool HasLabel { get; set; }
 
         /// <summary>
@@ -133,7 +133,7 @@ public class MerchandiseReturnDetailsModel : BaseModel
         public bool LabelPending { get; set; }
 
         public bool CanRetryLabel { get; set; }
-        public string TrackingNumber { get; set; }
+        public string? TrackingNumber { get; set; }
         public bool CanEnterTrackingNumber { get; set; }
 
         public IList<TrackingEventModel> TrackingEvents { get; set; } = new List<TrackingEventModel>();
@@ -141,8 +141,8 @@ public class MerchandiseReturnDetailsModel : BaseModel
 
     public class TrackingEventModel
     {
-        public string EventName { get; set; }
-        public string Location { get; set; }
+        public string? EventName { get; set; }
+        public string? Location { get; set; }
         public DateTime? Date { get; set; }
     }
 

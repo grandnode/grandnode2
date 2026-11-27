@@ -12,14 +12,14 @@ public interface IDownloadService
     /// </summary>
     /// <param name="downloadId">Download identifier</param>
     /// <returns>Download</returns>
-    Task<Download> GetDownloadById(string downloadId);
+    Task<Download?> GetDownloadById(string? downloadId);
 
     /// <summary>
     ///     Gets a download by GUID
     /// </summary>
     /// <param name="downloadGuid">Download GUID</param>
     /// <returns>Download</returns>
-    Task<Download> GetDownloadByGuid(Guid downloadGuid);
+    Task<Download?> GetDownloadByGuid(Guid downloadGuid);
 
     /// <summary>
     ///     Inserts a download
@@ -43,5 +43,5 @@ public interface IDownloadService
     ///     Deletes a download by identifier, without loading its file. Does nothing when it no longer exists
     /// </summary>
     /// <param name="downloadId">Download identifier</param>
-    Task DeleteDownloadById(string downloadId);
+    Task DeleteDownloadById(string? downloadId);
 }

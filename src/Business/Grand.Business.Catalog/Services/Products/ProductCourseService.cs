@@ -21,12 +21,12 @@ public class ProductCourseService : IProductCourseService
         _mediator = mediator;
     }
 
-    public virtual async Task<Course> GetCourseByProductId(string productId)
+    public virtual async Task<Course?> GetCourseByProductId(string productId)
     {
         return await _courseRepository.GetOneAsync(p => p.ProductId == productId);
     }
 
-    public virtual async Task<Product> GetProductByCourseId(string courseId)
+    public virtual async Task<Product?> GetProductByCourseId(string courseId)
     {
         return await _productRepository.GetOneAsync(p => p.CourseId == courseId);
     }

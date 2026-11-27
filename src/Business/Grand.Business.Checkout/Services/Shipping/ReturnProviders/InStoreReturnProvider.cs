@@ -46,7 +46,7 @@ public class InStoreReturnProvider : IReturnShippingProvider
     public string ConfigurationUrl => "";
     public IList<string> LimitedToStores => new List<string>();
     public IList<string> LimitedToGroups => new List<string>();
-    public IShipmentTracker ShipmentTracker => null;
+    public IShipmentTracker? ShipmentTracker => null;
 
     public async Task<IList<ReturnShippingOption>> GetReturnOptions(ReturnShippingRequest request)
     {

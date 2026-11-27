@@ -10,10 +10,10 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetCategory : IRequest<CategoryModel>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Language Language { get; set; }
-    public Currency Currency { get; set; }
-    public Category Category { get; set; }
-    public CatalogPagingFilteringModel Command { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Language Language { get; set; }
+    public required Currency Currency { get; set; }
+    public required Category Category { get; set; }
+    public required CatalogPagingFilteringModel Command { get; set; }
 }

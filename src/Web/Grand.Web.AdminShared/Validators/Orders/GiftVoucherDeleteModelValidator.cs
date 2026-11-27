@@ -16,7 +16,7 @@ public class GiftVoucherDeleteModelValidator : BaseGrandValidator<GiftVoucherDel
         RuleFor(x => x).CustomAsync(async (x, context, _) =>
         {
             var giftVoucher = await giftVoucherService.GetGiftVoucherById(x.Id);
-            if (giftVoucher.GiftVoucherUsageHistory.Any())
+            if (giftVoucher != null && giftVoucher.GiftVoucherUsageHistory.Any())
                 context.AddFailure(translationService.GetResource("Admin.GiftVouchers.PreventDeleted"));
         });
     }

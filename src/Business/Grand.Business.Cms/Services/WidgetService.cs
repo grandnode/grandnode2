@@ -40,7 +40,7 @@ public class WidgetService : IWidgetService
     /// <param name="storeId">Store ident</param>
     /// <param name="customer">Customer</param>
     /// <returns>Widgets</returns>
-    public virtual IList<IWidgetProvider> LoadActiveWidgets(string storeId = "", Customer customer = null)
+    public virtual IList<IWidgetProvider> LoadActiveWidgets(string storeId = "", Customer? customer = null)
     {
         return LoadAllWidgets(storeId, customer)
             .Where(x =>
@@ -56,7 +56,7 @@ public class WidgetService : IWidgetService
     /// <param name="customer">Customer</param>
     /// <returns>Widgets</returns>
     public virtual async Task<IList<IWidgetProvider>> LoadActiveWidgetsByWidgetZone(string widgetZone,
-        string storeId = "", Customer customer = null)
+        string storeId = "", Customer? customer = null)
     {
         if (string.IsNullOrWhiteSpace(widgetZone))
             return new List<IWidgetProvider>();
@@ -78,7 +78,7 @@ public class WidgetService : IWidgetService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found widget</returns>
-    public virtual IWidgetProvider LoadWidgetBySystemName(string systemName)
+    public virtual IWidgetProvider? LoadWidgetBySystemName(string? systemName)
     {
         return _widgetProviders.FirstOrDefault(x =>
             x.SystemName.Equals(systemName, StringComparison.OrdinalIgnoreCase));
@@ -90,7 +90,7 @@ public class WidgetService : IWidgetService
     /// <param name="storeId">Store ident</param>
     /// <param name="customer">Customer</param>
     /// <returns>Widgets</returns>
-    public virtual IList<IWidgetProvider> LoadAllWidgets(string storeId = "", Customer customer = null)
+    public virtual IList<IWidgetProvider> LoadAllWidgets(string storeId = "", Customer? customer = null)
     {
         return _widgetProviders
             .Where(x =>

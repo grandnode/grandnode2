@@ -6,7 +6,7 @@ namespace Grand.Web.Common.Security.ExternalRegistration;
 public interface IExternalRegistrationContext
 {
     /// <summary>The pending identity of this browser, or null</summary>
-    Task<ExternalRegistrationIdentity> GetPending();
+    Task<ExternalRegistrationIdentity?> GetPending();
 
     Task Clear();
 

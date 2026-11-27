@@ -12,34 +12,34 @@ public class PickupPoint : BaseEntity
     /// <summary>
     ///     Gets or sets the point name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     Gets or sets the admin comment
     /// </summary>
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     Gets or sets the address identifier
     /// </summary>
-    public Address Address { get; set; }
+    public Address? Address { get; set; }
 
     /// <summary>
     ///     Gets or sets the warehouse identifier
     /// </summary>
     [AuditReference(typeof(Warehouse))]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets a store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the pickup fee

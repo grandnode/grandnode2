@@ -51,7 +51,8 @@
                         </td>
                         @foreach (var sm in Model.AvailableShippingMethods)
                         {
-                            var restricted = Model.RestictedGroup.TryGetValue(c.Id, out var shippingRestrictions) &&
+                            var restricted = c.Id != null && sm.Id != null &&
+                                             Model.RestictedGroup.TryGetValue(c.Id, out var shippingRestrictions) &&
                                              shippingRestrictions.TryGetValue(sm.Id, out var isRestricted) &&
                                              isRestricted;
                             <td class="text-center">

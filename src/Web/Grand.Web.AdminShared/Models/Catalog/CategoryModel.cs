@@ -20,43 +20,43 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
     }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.BottomDescription")]
-    public string BottomDescription { get; set; }
+    public string? BottomDescription { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.CategoryLayout")]
-    public string CategoryLayoutId { get; set; }
+    public string? CategoryLayoutId { get; set; }
 
     public IList<SelectListItem> AvailableCategoryLayouts { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [UIHint("Category")]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Parent")]
-    public string ParentCategoryId { get; set; }
+    public string? ParentCategoryId { get; set; }
 
     [UIHint("Picture")]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Picture")]
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.PageSize")]
     public int PageSize { get; set; }
@@ -65,7 +65,7 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
     public bool AllowCustomersToSelectPageSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.PageSizeOptions")]
-    public string PageSizeOptions { get; set; }
+    public string? PageSizeOptions { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.ShowOnHomePage")]
     public bool ShowOnHomePage { get; set; }
@@ -83,16 +83,16 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
     public int DisplayOrder { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.ExternalId")]
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Flag")]
-    public string Flag { get; set; }
+    public string? Flag { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.FlagStyle")]
-    public string FlagStyle { get; set; }
+    public string? FlagStyle { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Icon")]
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.HideOnCatalog")]
     public bool HideOnCatalog { get; set; }
@@ -102,7 +102,7 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
 
     public IList<SelectListItem> AvailableSortOptions { get; set; }
 
-    public string Breadcrumb { get; set; }
+    public string? Breadcrumb { get; set; }
 
     //seach box
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.ShowOnSearchBox")]
@@ -112,13 +112,13 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
     public int SearchBoxDisplayOrder { get; set; }
 
     //discounts
-    public List<DiscountModel> AvailableDiscounts { get; set; }
-    public string[] SelectedDiscountIds { get; set; }
+    public List<DiscountModel>? AvailableDiscounts { get; set; }
+    public string[] SelectedDiscountIds { get; set; } = [];
 
     //ACL
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.LimitedToGroups")]
-    public string[] CustomerGroups { get; set; }
+    public string[]? CustomerGroups { get; set; }
 
 
     public IList<CategoryLocalizedModel> Locales { get; set; }
@@ -126,19 +126,19 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
     //Store acl
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
 
     #region Nested classes
 
     public class CategoryProductModel : BaseEntityModel
     {
-        public string CategoryId { get; set; }
+        public string? CategoryId { get; set; }
 
-        public string ProductId { get; set; }
+        public string? ProductId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Products.Fields.Product")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Categories.Products.Fields.IsFeaturedProduct")]
         public bool IsFeaturedProduct { get; set; }
@@ -151,25 +151,25 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
     {
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductName")]
 
-        public string SearchProductName { get; set; }
+        public string? SearchProductName { get; set; }
 
         [UIHint("Category")]
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCategory")]
-        public string SearchCategoryId { get; set; }
+        public string? SearchCategoryId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.Brand")]
         [UIHint("Brand")]
-        public string SearchBrandId { get; set; }
+        public string? SearchBrandId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchCollection")]
         [UIHint("Collection")]
-        public string SearchCollectionId { get; set; }
+        public string? SearchCollectionId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchStore")]
-        public string SearchStoreId { get; set; }
+        public string? SearchStoreId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchVendor")]
-        public string SearchVendorId { get; set; }
+        public string? SearchVendorId { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Products.List.SearchProductType")]
         public int SearchProductTypeId { get; set; }
@@ -178,9 +178,9 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
         public IList<SelectListItem> AvailableVendors { get; set; } = new List<SelectListItem>();
         public IList<SelectListItem> AvailableProductTypes { get; set; } = new List<SelectListItem>();
 
-        public string CategoryId { get; set; }
+        public string? CategoryId { get; set; }
 
-        public string[] SelectedProductIds { get; set; }
+        public string[] SelectedProductIds { get; set; } = [];
     }
 
     #endregion
@@ -189,33 +189,33 @@ public class CategoryModel : BaseEntityModel, ILocalizedModel<CategoryLocalizedM
 public class CategoryLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 {
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.BottomDescription")]
-    public string BottomDescription { get; set; }
+    public string? BottomDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Flag")]
-    public string Flag { get; set; }
+    public string? Flag { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

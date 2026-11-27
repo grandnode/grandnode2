@@ -32,10 +32,10 @@ public class WarehouseController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.ShippingSettings, CurrentCustomer)) return Forbid();
 
-        var warehouse = await _mediator.Send(new GetGenericQuery<WarehouseDto, Warehouse>(key));
-        if (!warehouse.Any()) return NotFound();
+        var warehouse = (await _mediator.Send(new GetGenericQuery<WarehouseDto, Warehouse>(key))).FirstOrDefault();
+        if (warehouse == null) return NotFound();
 
-        return Ok(warehouse.FirstOrDefault());
+        return Ok(warehouse);
     }
 
     [EndpointDescription("Get entities from Warehouse")]

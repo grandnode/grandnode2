@@ -7,7 +7,7 @@ namespace Grand.Web.AdminShared.Models.Common;
 public class UrlEntityListModel : BaseModel
 {
     [GrandResourceDisplayName("admin.configuration.senames.Name")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [GrandResourceDisplayName("admin.configuration.senames.Active")]
     public int SearchActiveId { get; set; }

@@ -8,7 +8,7 @@ namespace Grand.Infrastructure.Plugins;
 
 public sealed class PluginPaths
 {
-    private static PluginPaths _instance;
+    private static PluginPaths? _instance;
     private static readonly Lock _lock = new();
     public static PluginPaths Instance => _instance ?? throw new InvalidOperationException("PluginPaths has not been initialized. Call Initialize first.");
     private readonly string _pluginPath;

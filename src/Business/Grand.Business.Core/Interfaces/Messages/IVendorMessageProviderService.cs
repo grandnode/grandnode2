@@ -19,7 +19,7 @@ public interface IVendorMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     Task<int> SendNewVendorAccountApplyStoreOwnerMessage(Customer customer, Vendor vendor, Store store,
-        string languageId, DomainHost host = null);
+        string? languageId, DomainHost? host = null);
 
     /// <summary>
     ///     Sends 'Vendor information change' message to a store owner
@@ -28,7 +28,7 @@ public interface IVendorMessageProviderService
     /// <param name="store">Store</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendVendorInformationChangeMessage(Vendor vendor, Store store, string languageId);
+    Task<int> SendVendorInformationChangeMessage(Vendor vendor, Store store, string? languageId);
 
     /// <summary>
     ///     Sends a vendor review notification message to a store owner
@@ -40,8 +40,8 @@ public interface IVendorMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendVendorReviewMessage(VendorReview vendorReview, Store store, string languageId,
-        DomainHost host = null);
+    Task<int> SendVendorReviewMessage(VendorReview vendorReview, Store store, string? languageId,
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends "contact vendor" message
@@ -59,6 +59,6 @@ public interface IVendorMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string languageId,
-        string senderEmail, string senderName, string subject, string body, string ipaddress, DomainHost host = null);
+    Task<int> SendContactVendorMessage(Customer customer, Store store, Vendor vendor, string? languageId,
+        string senderEmail, string senderName, string subject, string body, string ipaddress, DomainHost? host = null);
 }

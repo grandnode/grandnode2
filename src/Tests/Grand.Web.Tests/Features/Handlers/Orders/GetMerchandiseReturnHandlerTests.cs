@@ -43,7 +43,7 @@ public class GetMerchandiseReturnHandlerTests
             returnShipping.Object);
 
         //Act
-        var model = await handler.Handle(new GetMerchandiseReturn {
+        var model = await handler.Handle(new GetMerchandiseReturn { Language = new Grand.Domain.Localization.Language(), Store = new Grand.Domain.Stores.Store(),
             Order = new Order { Id = "o1", StoreId = "s1" }, Customer = new Customer { Id = "c1" }
         }, CancellationToken.None);
 

@@ -154,8 +154,8 @@ public class OrderViewModelService : IOrderViewModelService
         int? paymentStatusId = null,
         int? shippingStatusId = null,
         DateTime? startDate = null,
-        string storeId = null,
-        string code = null)
+        string? storeId = null,
+        string? code = null)
     {
         //order statuses
         var statuses = await _orderStatusService.GetAll();
@@ -366,7 +366,7 @@ public class OrderViewModelService : IOrderViewModelService
         model.CanDecideApproval = CanDecideApproval(approval, order);
     }
 
-    public virtual async Task<OrderApprovalDecisionModel> PrepareOrderApprovalDecisionModel(Order order)
+    public virtual async Task<OrderApprovalDecisionModel?> PrepareOrderApprovalDecisionModel(Order order)
     {
         if (_scope.DefaultVendorId is not null)
             return null;
@@ -499,7 +499,7 @@ public class OrderViewModelService : IOrderViewModelService
                 foreach (var item in order.OrderTags)
                 {
                     var tag = await _orderTagService.GetOrderTagById(item);
-                    if (tag != null)
+                    if (tag is { Name: not null })
                         tagsName.Add(tag.Name);
                 }
 
@@ -711,36 +711,41 @@ public class OrderViewModelService : IOrderViewModelService
 
         #region Billing & shipping info
 
-        model.BillingAddress = await order.BillingAddress.ToModel(_countryService);
-        model.BillingAddress.FormattedCustomAddressAttributes =
-            await _addressAttributeParser.FormatAttributes(_contextAccessor.WorkContext.WorkingLanguage,
-                order.BillingAddress.Attributes);
-        model.BillingAddress.NameEnabled = _addressSettings.NameEnabled;
-        model.BillingAddress.FirstNameEnabled = true;
-        model.BillingAddress.FirstNameRequired = true;
-        model.BillingAddress.LastNameEnabled = true;
-        model.BillingAddress.LastNameRequired = true;
-        model.BillingAddress.EmailEnabled = true;
-        model.BillingAddress.EmailRequired = true;
-        model.BillingAddress.CompanyEnabled = _addressSettings.CompanyEnabled;
-        model.BillingAddress.CompanyRequired = _addressSettings.CompanyRequired;
-        model.BillingAddress.VatNumberEnabled = _addressSettings.VatNumberEnabled;
-        model.BillingAddress.VatNumberRequired = _addressSettings.VatNumberRequired;
-        model.BillingAddress.CountryEnabled = _addressSettings.CountryEnabled;
-        model.BillingAddress.StateProvinceEnabled = _addressSettings.StateProvinceEnabled;
-        model.BillingAddress.CityEnabled = _addressSettings.CityEnabled;
-        model.BillingAddress.CityRequired = _addressSettings.CityRequired;
-        model.BillingAddress.StreetAddressEnabled = _addressSettings.StreetAddressEnabled;
-        model.BillingAddress.StreetAddressRequired = _addressSettings.StreetAddressRequired;
-        model.BillingAddress.StreetAddress2Enabled = _addressSettings.StreetAddress2Enabled;
-        model.BillingAddress.StreetAddress2Required = _addressSettings.StreetAddress2Required;
-        model.BillingAddress.ZipPostalCodeEnabled = _addressSettings.ZipPostalCodeEnabled;
-        model.BillingAddress.ZipPostalCodeRequired = _addressSettings.ZipPostalCodeRequired;
-        model.BillingAddress.PhoneEnabled = _addressSettings.PhoneEnabled;
-        model.BillingAddress.PhoneRequired = _addressSettings.PhoneRequired;
-        model.BillingAddress.FaxEnabled = _addressSettings.FaxEnabled;
-        model.BillingAddress.FaxRequired = _addressSettings.FaxRequired;
-        model.BillingAddress.NoteEnabled = _addressSettings.NoteEnabled;
+        //an order placed without a billing address shows none
+        if (order.BillingAddress != null)
+        {
+            var billingAddress = await order.BillingAddress.ToModel(_countryService);
+            billingAddress.FormattedCustomAddressAttributes =
+                await _addressAttributeParser.FormatAttributes(_contextAccessor.WorkContext.WorkingLanguage,
+                    order.BillingAddress.Attributes);
+            billingAddress.NameEnabled = _addressSettings.NameEnabled;
+            billingAddress.FirstNameEnabled = true;
+            billingAddress.FirstNameRequired = true;
+            billingAddress.LastNameEnabled = true;
+            billingAddress.LastNameRequired = true;
+            billingAddress.EmailEnabled = true;
+            billingAddress.EmailRequired = true;
+            billingAddress.CompanyEnabled = _addressSettings.CompanyEnabled;
+            billingAddress.CompanyRequired = _addressSettings.CompanyRequired;
+            billingAddress.VatNumberEnabled = _addressSettings.VatNumberEnabled;
+            billingAddress.VatNumberRequired = _addressSettings.VatNumberRequired;
+            billingAddress.CountryEnabled = _addressSettings.CountryEnabled;
+            billingAddress.StateProvinceEnabled = _addressSettings.StateProvinceEnabled;
+            billingAddress.CityEnabled = _addressSettings.CityEnabled;
+            billingAddress.CityRequired = _addressSettings.CityRequired;
+            billingAddress.StreetAddressEnabled = _addressSettings.StreetAddressEnabled;
+            billingAddress.StreetAddressRequired = _addressSettings.StreetAddressRequired;
+            billingAddress.StreetAddress2Enabled = _addressSettings.StreetAddress2Enabled;
+            billingAddress.StreetAddress2Required = _addressSettings.StreetAddress2Required;
+            billingAddress.ZipPostalCodeEnabled = _addressSettings.ZipPostalCodeEnabled;
+            billingAddress.ZipPostalCodeRequired = _addressSettings.ZipPostalCodeRequired;
+            billingAddress.PhoneEnabled = _addressSettings.PhoneEnabled;
+            billingAddress.PhoneRequired = _addressSettings.PhoneRequired;
+            billingAddress.FaxEnabled = _addressSettings.FaxEnabled;
+            billingAddress.FaxRequired = _addressSettings.FaxRequired;
+            billingAddress.NoteEnabled = _addressSettings.NoteEnabled;
+            model.BillingAddress = billingAddress;
+        }
 
         // Vendor's original service never populated ShippingStatus - same gate as the totals
         // block above (final review I2).
@@ -987,7 +992,7 @@ public class OrderViewModelService : IOrderViewModelService
     /// <param name="order">Order identifier</param>
     /// <param name="orderTags">Order's tag identifier</param>
     /// <returns>Order's tag</returns>
-    public virtual async Task SaveOrderTags(Order order, string orderTags)
+    public virtual async Task SaveOrderTags(Order order, string? orderTags)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -996,7 +1001,7 @@ public class OrderViewModelService : IOrderViewModelService
         foreach (var item in order.OrderTags)
         {
             var tag = await _orderTagService.GetOrderTagById(item);
-            if (tag != null)
+            if (tag is { Name: not null })
                 existingOrderTags.Add(tag.Name);
         }
 
@@ -1031,7 +1036,7 @@ public class OrderViewModelService : IOrderViewModelService
         }
     }
 
-    private static IList<string> ParseOrderTagsToList(string orderTags)
+    private static IList<string> ParseOrderTagsToList(string? orderTags)
     {
         var result = new List<string>();
         if (!string.IsNullOrWhiteSpace(orderTags))
@@ -1045,11 +1050,11 @@ public class OrderViewModelService : IOrderViewModelService
         return result;
     }
 
-    private async Task<Picture> GetProductPicture(Product product, IList<CustomAttribute> attributes)
+    private async Task<Picture?> GetProductPicture(Product product, IList<CustomAttribute> attributes)
     {
         ArgumentNullException.ThrowIfNull(product);
 
-        Picture picture = null;
+        Picture? picture = null;
 
         if (attributes != null && attributes.Any())
         {

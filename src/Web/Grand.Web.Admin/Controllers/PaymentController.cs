@@ -74,7 +74,7 @@ public class PaymentController : BaseAdminController
             var tmp = await paymentMethod.ToModel();
             tmp.IsActive = paymentMethod.IsPaymentMethodActive(_paymentSettings);
             var pluginInfo =
-                PluginManager.ReferencedPlugins.FirstOrDefault(x => x.SystemName == paymentMethod.SystemName);
+                PluginManager.ReferencedPlugins?.FirstOrDefault(x => x.SystemName == paymentMethod.SystemName);
             if (pluginInfo != null)
             {
                 var plugin = pluginInfo.Instance<IPlugin>(_serviceProvider);
@@ -100,7 +100,8 @@ public class PaymentController : BaseAdminController
         var storeScope = await GetActiveStore();
         var _paymentSettings = await _settingService.LoadSetting<PaymentSettings>(storeScope);
 
-        var pm = _paymentService.LoadPaymentMethodBySystemName(model.SystemName);
+        var pm = _paymentService.LoadPaymentMethodBySystemName(model.SystemName)
+                 ?? throw new ArgumentException("No payment method found with the specified system name");
         if (pm.IsPaymentMethodActive(_paymentSettings))
         {
             if (!model.IsActive)

@@ -8,7 +8,7 @@ namespace Grand.Web.AdminShared.Models.Orders;
 public class MerchandiseReturnReportModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Reports.MerchandiseReturns.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     [GrandResourceDisplayName("Admin.Reports.MerchandiseReturns.StartDate")]
     [UIHint("DateNullable")]

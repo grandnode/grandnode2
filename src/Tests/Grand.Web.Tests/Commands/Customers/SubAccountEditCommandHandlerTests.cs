@@ -56,6 +56,7 @@ public class SubAccountEditCommandHandlerTests
 
     private static SubAccountEditCommand Command(string email = "sub@x.com", string password = null,
         SubAccountRole role = SubAccountRole.Buyer, string limit = null) => new() {
+        Store = new Grand.Domain.Stores.Store(),
         CurrentCustomer = new Customer { Id = "owner" },
         EditModel = new SubAccountEditModel {
             Id = "c1", Email = email, Password = password, Active = true, FirstName = "John", LastName = "Doe",

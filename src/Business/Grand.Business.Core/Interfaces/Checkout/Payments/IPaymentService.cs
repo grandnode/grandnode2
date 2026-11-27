@@ -18,7 +18,7 @@ public interface IPaymentService
     /// <param name="storeId">Store ident</param>
     /// <param name="filterByCountryId">Specified country</param>
     /// <returns>Payment methods</returns>
-    Task<IList<IPaymentProvider>> LoadActivePaymentMethods(Customer customer = null, string storeId = "",
+    Task<IList<IPaymentProvider>> LoadActivePaymentMethods(Customer? customer = null, string storeId = "",
         string filterByCountryId = "");
 
     /// <summary>
@@ -26,7 +26,7 @@ public interface IPaymentService
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found payment provider</returns>
-    IPaymentProvider LoadPaymentMethodBySystemName(string systemName);
+    IPaymentProvider? LoadPaymentMethodBySystemName(string? systemName);
 
     /// <summary>
     ///     Load all payment providers
@@ -35,7 +35,7 @@ public interface IPaymentService
     /// <param name="customer">Customer</param>
     /// <param name="filterByCountryId">Specified country</param>
     /// <returns>Payment providers</returns>
-    Task<IList<IPaymentProvider>> LoadAllPaymentMethods(Customer customer = null, string storeId = "",
+    Task<IList<IPaymentProvider>> LoadAllPaymentMethods(Customer? customer = null, string storeId = "",
         string filterByCountryId = "");
 
     /// <summary>
@@ -103,14 +103,14 @@ public interface IPaymentService
     /// <param name="cart">Shopping cart</param>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>Additional handling fee</returns>
-    Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string paymentMethodSystemName);
+    Task<double> GetAdditionalHandlingFee(IList<ShoppingCartItem> cart, string? paymentMethodSystemName);
 
     /// <summary>
     ///     Gets a value indicating whether capture is supported by payment method
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>A value indicating whether capture is supported</returns>
-    Task<bool> SupportCapture(string paymentMethodSystemName);
+    Task<bool> SupportCapture(string? paymentMethodSystemName);
 
     /// <summary>
     ///     Captures payment
@@ -124,14 +124,14 @@ public interface IPaymentService
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>A value indicating whether partial refund is supported</returns>
-    Task<bool> SupportPartiallyRefund(string paymentMethodSystemName);
+    Task<bool> SupportPartiallyRefund(string? paymentMethodSystemName);
 
     /// <summary>
     ///     Gets a value indicating whether refund is supported by payment method
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>A value indicating whether refund is supported</returns>
-    Task<bool> SupportRefund(string paymentMethodSystemName);
+    Task<bool> SupportRefund(string? paymentMethodSystemName);
 
     /// <summary>
     ///     Refunds a payment
@@ -145,7 +145,7 @@ public interface IPaymentService
     /// </summary>
     /// <param name="paymentMethodSystemName">Payment method system name</param>
     /// <returns>A value indicating whether void is supported</returns>
-    Task<bool> SupportVoid(string paymentMethodSystemName);
+    Task<bool> SupportVoid(string? paymentMethodSystemName);
 
     /// <summary>
     ///     Gets a value indicating whether recurring payments are supported by payment method

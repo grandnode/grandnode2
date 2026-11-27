@@ -56,7 +56,7 @@ public class GetOrderApprovalHandlersTests
 
     private Task<Grand.Web.Models.Orders.OrderApprovalModel> Details(Customer who, string id = "a1")
     {
-        return _detailsHandler.Handle(new GetOrderApproval { Customer = who, Store = _store, Id = id },
+        return _detailsHandler.Handle(new GetOrderApproval { Language = new Grand.Domain.Localization.Language(), Customer = who, Store = _store, Id = id },
             CancellationToken.None);
     }
 
@@ -144,7 +144,7 @@ public class GetOrderApprovalHandlersTests
         _customers.Setup(c => c.GetCustomersByIds(It.IsAny<string[]>()))
             .ReturnsAsync([new Customer { Id = "buyer", Email = "b@x.test" }]);
 
-        var model = await _listHandler.Handle(new GetOrderApprovals {
+        var model = await _listHandler.Handle(new GetOrderApprovals { Language = new Grand.Domain.Localization.Language(),
             Customer = new Customer { Id = "owner" }, Store = _store
         }, CancellationToken.None);
 
@@ -223,7 +223,7 @@ public class GetOrderApprovalHandlersTests
         _customers.Setup(c => c.GetCustomersByIds(It.IsAny<string[]>()))
             .ReturnsAsync([new Customer { Id = "buyer", Email = "b@x.test" }]);
 
-        var model = await _listHandler.Handle(new GetOrderApprovals {
+        var model = await _listHandler.Handle(new GetOrderApprovals { Language = new Grand.Domain.Localization.Language(),
             Customer = new Customer { Id = "owner" }, Store = _store
         }, CancellationToken.None);
 
@@ -242,7 +242,7 @@ public class GetOrderApprovalHandlersTests
     {
         _approvals.Setup(a => a.GetForCompany("owner", "s1", 0, 10)).ReturnsAsync(Page());
 
-        var model = await _listHandler.Handle(new GetOrderApprovals {
+        var model = await _listHandler.Handle(new GetOrderApprovals { Language = new Grand.Domain.Localization.Language(),
             Customer = new Customer { Id = "appr", OwnerId = "owner", SubAccountRole = SubAccountRole.Approver },
             Store = _store
         }, CancellationToken.None);
@@ -256,7 +256,7 @@ public class GetOrderApprovalHandlersTests
     {
         _approvals.Setup(a => a.GetForCustomer("buyer", "s1", 1, 10)).ReturnsAsync(Page(Approval()));
 
-        var model = await _listHandler.Handle(new GetOrderApprovals {
+        var model = await _listHandler.Handle(new GetOrderApprovals { Language = new Grand.Domain.Localization.Language(),
             Customer = new Customer { Id = "buyer", OwnerId = "owner" }, Store = _store,
             Command = new Grand.Web.Models.Orders.OrderPagingModel { PageNumber = 2 }
         }, CancellationToken.None);
@@ -273,7 +273,7 @@ public class GetOrderApprovalHandlersTests
     {
         _approvals.Setup(a => a.GetForCompany("owner", "s1", 0, 50)).ReturnsAsync(Page());
 
-        await _listHandler.Handle(new GetOrderApprovals {
+        await _listHandler.Handle(new GetOrderApprovals { Language = new Grand.Domain.Localization.Language(),
             Customer = new Customer { Id = "owner" }, Store = _store,
             Command = new Grand.Web.Models.Orders.OrderPagingModel { PageSize = 100000 }
         }, CancellationToken.None);

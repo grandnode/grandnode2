@@ -20,14 +20,14 @@ public interface ILanguageService
     /// </summary>
     /// <param name="languageId">Language identifier</param>
     /// <returns>Language</returns>
-    Task<Language> GetLanguageById(string languageId);
+    Task<Language?> GetLanguageById(string? languageId);
 
     /// <summary>
     ///     Gets a language
     /// </summary>
     /// <param name="languageCode">Language code</param>
     /// <returns>Language</returns>
-    Task<Language> GetLanguageByCode(string languageCode);
+    Task<Language?> GetLanguageByCode(string languageCode);
 
     /// <summary>
     ///     Inserts a language

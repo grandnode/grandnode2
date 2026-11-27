@@ -19,7 +19,8 @@ public class DeleteProductCollectionCommandHandler : IRequestHandler<DeleteProdu
 
     public async Task<bool> Handle(DeleteProductCollectionCommand request, CancellationToken cancellationToken)
     {
-        var product = await _productService.GetProductById(request.Product.Id, true);
+        var product = await _productService.GetProductById(request.Product.Id, true) ??
+            throw new ArgumentException("No product has the id", nameof(request));
         var productCollection = product.ProductCollections.FirstOrDefault(x => x.CollectionId == request.CollectionId);
         if (productCollection == null)
             throw new ArgumentException("No product collection mapping found with the specified id");

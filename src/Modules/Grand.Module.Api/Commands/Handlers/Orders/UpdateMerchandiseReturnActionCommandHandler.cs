@@ -7,7 +7,7 @@ using Grand.Module.Api.Extensions;
 namespace Grand.Module.Api.Commands.Handlers.Orders;
 
 public class UpdateMerchandiseReturnActionCommandHandler
-    : IRequestHandler<UpdateMerchandiseReturnActionCommand, MerchandiseReturnActionDto>
+    : IRequestHandler<UpdateMerchandiseReturnActionCommand, MerchandiseReturnActionDto?>
 {
     private readonly IMerchandiseReturnService _merchandiseReturnService;
 
@@ -16,10 +16,12 @@ public class UpdateMerchandiseReturnActionCommandHandler
         _merchandiseReturnService = merchandiseReturnService;
     }
 
-    public async Task<MerchandiseReturnActionDto> Handle(UpdateMerchandiseReturnActionCommand request,
+    public async Task<MerchandiseReturnActionDto?> Handle(UpdateMerchandiseReturnActionCommand request,
         CancellationToken cancellationToken)
     {
         var action = await _merchandiseReturnService.GetMerchandiseReturnActionById(request.Model.Id);
+        if (action == null)
+            return null;
         action = request.Model.ToEntity(action);
         await _merchandiseReturnService.UpdateMerchandiseReturnAction(action);
         return action.ToModel();

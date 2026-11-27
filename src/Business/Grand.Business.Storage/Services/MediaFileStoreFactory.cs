@@ -20,7 +20,7 @@ public static class MediaFileStoreFactory
     ///     Runs once per request scope, so it does not touch the file system; the media directory is created
     ///     at startup (MediaRootFileProvider.Apply)
     /// </remarks>
-    public static IFileStore Create(string webRootPath, string mediaRootPath, string directory)
+    public static IFileStore Create(string webRootPath, string? mediaRootPath, string? directory)
     {
         var webRootStore = new FileSystemStore(Path.Combine(webRootPath, directory ?? ""));
         if (string.IsNullOrEmpty(mediaRootPath)) return webRootStore;

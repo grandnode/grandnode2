@@ -6,6 +6,7 @@ using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
 using Grand.Web.AdminShared.Extensions.Mapping;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -33,7 +34,7 @@ public class MessageTemplateController(
     : BaseMessageTemplateController(messageTemplateService, emailAccountService, languageService,
         translationService, messageTokenProvider, downloadService, scope, emailAccountSettings)
 {
-    private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => contextAccessor.WorkContext.PanelStoreId();
 
     public IActionResult List() => View();
 

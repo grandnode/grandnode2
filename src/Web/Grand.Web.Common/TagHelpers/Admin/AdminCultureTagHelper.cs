@@ -74,7 +74,7 @@ public class AdminCultureTagHelper : TagHelper
     /// </summary>
     private IDictionary<string, string> Texts()
     {
-        var languageId = _contextAccessor.WorkContext?.WorkingLanguage?.Id;
+        var languageId = _contextAccessor.CurrentWorkContext?.WorkingLanguage?.Id;
         var texts = new Dictionary<string, string>();
         if (languageId is null) return texts;
         foreach (var (name, key) in TextResources)

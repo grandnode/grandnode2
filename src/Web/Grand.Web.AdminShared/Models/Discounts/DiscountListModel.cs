@@ -8,11 +8,11 @@ public class DiscountListModel : BaseModel
 {
     [GrandResourceDisplayName("admin.marketing.Discounts.List.SearchDiscountCouponCode")]
 
-    public string SearchDiscountCouponCode { get; set; }
+    public string? SearchDiscountCouponCode { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.List.SearchDiscountName")]
 
-    public string SearchDiscountName { get; set; }
+    public string? SearchDiscountName { get; set; }
 
     [GrandResourceDisplayName("admin.marketing.Discounts.List.SearchDiscountType")]
     public int SearchDiscountTypeId { get; set; }

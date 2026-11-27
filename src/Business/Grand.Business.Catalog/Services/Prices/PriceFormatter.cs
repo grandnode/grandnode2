@@ -17,7 +17,7 @@ public class PriceFormatter : IPriceFormatter
     /// <param name="amount">Amount</param>
     /// <param name="targetCurrency">Target currency</param>
     /// <returns>Currency string without exchange rate</returns>
-    protected virtual string GetCurrencyString(double amount, Currency targetCurrency)
+    protected virtual string GetCurrencyString(double amount, Currency? targetCurrency)
     {
         if (targetCurrency == null)
             return amount.ToString("C");
@@ -56,7 +56,7 @@ public class PriceFormatter : IPriceFormatter
     /// <param name="price">Price</param>
     /// <param name="targetCurrency">Target currency</param>
     /// <returns>Price</returns>
-    public string FormatPrice(double price, Currency targetCurrency)
+    public string FormatPrice(double price, Currency? targetCurrency)
     {
         var currencyString = GetCurrencyString(price, targetCurrency);
         return currencyString;

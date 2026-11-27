@@ -31,8 +31,8 @@ public interface IMerchandiseReturnWorkflowService
     /// <param name="status">The new status</param>
     /// <param name="customerNote">A note shown to the customer with the change, e.g. why the return was rejected</param>
     /// <param name="changedBy">Who changed it, as the staff note names them (e.g. the e-mail); null for the system</param>
-    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string customerNote = null,
-        string changedBy = null);
+    Task<string?> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string? customerNote = null,
+        string? changedBy = null);
 
     /// <summary>
     ///     Changes the status as the other overload does, when allowed says yes to the return as stored
@@ -45,8 +45,8 @@ public interface IMerchandiseReturnWorkflowService
     ///     Checked on the return as stored, under the lock: when it says no, nothing is saved, e.g. a customer's cancel
     ///     of a return the staff accepted since the page was loaded (StatusChangeNotAllowed)
     /// </param>
-    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string customerNote,
-        string changedBy, Func<MerchandiseReturn, bool> allowed);
+    Task<string?> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string? customerNote,
+        string? changedBy, Func<MerchandiseReturn, bool> allowed);
 
     /// <summary>
     ///     Changes the status as the overload with allowed does
@@ -60,18 +60,18 @@ public interface IMerchandiseReturnWorkflowService
     ///     The caller can post no return receipt (the vendor panel has no inventory documents): Received is allowed
     ///     where a receipt would take the goods in
     /// </param>
-    Task<string> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string customerNote,
-        string changedBy, Func<MerchandiseReturn, bool> allowed, bool withoutReturnReceipts);
+    Task<string?> ChangeStatus(string merchandiseReturnId, MerchandiseReturnStatus status, string? customerNote,
+        string? changedBy, Func<MerchandiseReturn, bool>? allowed, bool withoutReturnReceipts);
 
     /// <summary>
     ///     Saves the fields set by apply; the status stays as stored, it changes only through ChangeStatus
     /// </summary>
-    Task<string> Update(string merchandiseReturnId, Action<MerchandiseReturn> apply);
+    Task<string?> Update(string merchandiseReturnId, Action<MerchandiseReturn> apply);
 
     /// <summary>
     ///     Deletes the merchandise return
     /// </summary>
-    Task<string> Delete(string merchandiseReturnId);
+    Task<string?> Delete(string merchandiseReturnId);
 
     /// <summary>
     ///     A return receipt of the return was posted: a pending or accepted return becomes received, any other one
@@ -79,7 +79,7 @@ public interface IMerchandiseReturnWorkflowService
     /// </summary>
     /// <param name="merchandiseReturnId">Merchandise return identifier</param>
     /// <param name="changedBy">Who posted the receipt, as the staff note names them; null for the system</param>
-    Task MarkReceived(string merchandiseReturnId, string changedBy = null);
+    Task MarkReceived(string merchandiseReturnId, string? changedBy = null);
 
     /// <summary>
     ///     Whether staff may mark the return received by hand: a posted return receipt took the goods in already (it

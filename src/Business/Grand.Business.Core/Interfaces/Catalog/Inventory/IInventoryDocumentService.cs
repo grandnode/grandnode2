@@ -10,19 +10,19 @@ public sealed record InventoryDocumentSearch
 {
     public InventoryDocumentType? Type { get; init; }
     public InventoryDocumentStatus? Status { get; init; }
-    public string WarehouseId { get; init; }
+    public string? WarehouseId { get; init; }
 
     /// <summary>
     ///     The store of the documents' warehouses; null for every store
     /// </summary>
-    public string StoreId { get; init; }
+    public string? StoreId { get; init; }
 
-    public string Number { get; init; }
+    public string? Number { get; init; }
 
     /// <summary>
     ///     Only the return receipts of this merchandise return
     /// </summary>
-    public string MerchandiseReturnId { get; init; }
+    public string? MerchandiseReturnId { get; init; }
     public DateTime? FromUtc { get; init; }
     public DateTime? ToUtc { get; init; }
 }
@@ -34,10 +34,10 @@ public sealed record InventoryDocumentSearch
 /// <param name="WarehouseId">The warehouse the goods are received to; empty while the draft names none</param>
 public sealed record ReturnReceiptSummary(
     string Id,
-    string Number,
+    string? Number,
     InventoryDocumentStatus Status,
-    string StoreId,
-    string WarehouseId);
+    string? StoreId,
+    string? WarehouseId);
 
 /// <summary>
 ///     The return receipts of a merchandise return, posted or draft, oldest first
@@ -56,26 +56,26 @@ public sealed record MerchandiseReturnReceipts(
 /// <summary>
 ///     What a merchandise return gives back of a product and no return receipt takes in yet
 /// </summary>
-public sealed record ReturnReceiptLeft(string ReturnItemId, string ProductId, int Quantity);
+public sealed record ReturnReceiptLeft(string ReturnItemId, string? ProductId, int Quantity);
 
 /// <summary>
 ///     The units of a merchandise return item the posted return receipts put back on stock, and those they wrote off
 /// </summary>
-public sealed record ReturnItemInspected(string ReturnItemId, int Restocked, int Scrapped);
+public sealed record ReturnItemInspected(string? ReturnItemId, int Restocked, int Scrapped);
 
 /// <summary>
 ///     What the staff found when the goods came back: how many units of a product of a return item are scrapped,
 ///     the rest goes back on stock
 /// </summary>
 /// <param name="Comment">Why, written on every line of the item and product; null for none</param>
-public sealed record ReturnReceiptInspection(string ReturnItemId, string ProductId, int ScrapQuantity, string Comment);
+public sealed record ReturnReceiptInspection(string? ReturnItemId, string? ProductId, int ScrapQuantity, string? Comment);
 
 /// <summary>
 ///     Inventory documents: drafts that are edited freely, and posting, which books their stock and freezes them
 /// </summary>
 public interface IInventoryDocumentService
 {
-    Task<InventoryDocument> GetById(string id);
+    Task<InventoryDocument?> GetById(string? id);
 
     Task<IPagedList<InventoryDocument>> Search(InventoryDocumentSearch search, int pageIndex = 0,
         int pageSize = int.MaxValue);
@@ -112,7 +112,7 @@ public interface IInventoryDocumentService
     /// <param name="brandIds">Only products of these brands; empty for all</param>
     /// <param name="customerId">Who creates it</param>
     /// <returns>The draft, or null and the keys of the errors</returns>
-    Task<(InventoryDocument Document, IList<string> Errors)> CreateStockCount(string warehouseId,
+    Task<(InventoryDocument? Document, IList<string> Errors)> CreateStockCount(string warehouseId,
         IList<string> categoryIds, IList<string> brandIds, string customerId);
 
     /// <summary>
@@ -123,14 +123,14 @@ public interface IInventoryDocumentService
     ///     The units scrapped of each item and product; the rest is restocked. An entry naming what is not left to
     ///     receive, named twice, or scrapping less than none or more than is left refuses the whole receipt
     /// </param>
-    Task<(InventoryDocument Document, IList<string> Errors)> CreateReturnReceipt(string merchandiseReturnId,
-        string customerId, IList<ReturnReceiptInspection> inspection = null);
+    Task<(InventoryDocument? Document, IList<string> Errors)> CreateReturnReceipt(string merchandiseReturnId,
+        string customerId, IList<ReturnReceiptInspection>? inspection = null);
 
     /// <summary>
     ///     The return receipts of a merchandise return, and whether CreateReturnReceipt has anything left to put on a
     ///     new one
     /// </summary>
-    Task<MerchandiseReturnReceipts> GetReturnReceipts(string merchandiseReturnId);
+    Task<MerchandiseReturnReceipts> GetReturnReceipts(string? merchandiseReturnId);
 
     /// <summary>
     ///     Whether goods of the merchandise return came in: a return receipt of it is posted, or a posting of one

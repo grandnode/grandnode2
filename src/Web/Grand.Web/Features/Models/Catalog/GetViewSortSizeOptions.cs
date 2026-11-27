@@ -7,10 +7,10 @@ namespace Grand.Web.Features.Models.Catalog;
 public class GetViewSortSizeOptions : IRequest<(CatalogPagingFilteringModel pagingFilteringModel,
     CatalogPagingFilteringModel command)>
 {
-    public Language Language { get; set; }
-    public CatalogPagingFilteringModel PagingFilteringModel { get; set; }
-    public CatalogPagingFilteringModel Command { get; set; }
+    public required Language Language { get; set; }
+    public required CatalogPagingFilteringModel PagingFilteringModel { get; set; }
+    public required CatalogPagingFilteringModel Command { get; set; }
     public bool AllowCustomersToSelectPageSize { get; set; }
-    public string PageSizeOptions { get; set; }
+    public string? PageSizeOptions { get; set; }
     public int PageSize { get; set; }
 }

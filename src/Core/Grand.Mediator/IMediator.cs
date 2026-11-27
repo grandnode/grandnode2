@@ -28,7 +28,7 @@ public interface IMediator
     /// <param name="request">Request</param>
     /// <param name="cancellationToken">Cancellation token</param>
     /// <returns>Response from the handler, or null for a request returning no response</returns>
-    Task<object> Send(object request, CancellationToken cancellationToken = default);
+    Task<object?> Send(object request, CancellationToken cancellationToken = default);
 
     /// <summary>
     ///     Publishes a notification to all of its handlers, sequentially

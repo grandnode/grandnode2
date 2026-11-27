@@ -10,7 +10,7 @@ public interface IShippingMethodService
     /// </summary>
     /// <param name="shippingMethodId">The shipping method identifier</param>
     /// <returns>Shipping method</returns>
-    Task<ShippingMethod> GetShippingMethodById(string shippingMethodId);
+    Task<ShippingMethod?> GetShippingMethodById(string? shippingMethodId);
 
 
     /// <summary>
@@ -20,7 +20,7 @@ public interface IShippingMethodService
     /// <param name="customer"></param>
     /// <param name="storeId">The store identifier to filter by</param>
     /// <returns>Shipping methods</returns>
-    Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "", Customer customer = null, string storeId = "");
+    Task<IList<ShippingMethod>> GetAllShippingMethods(string? filterByCountryId = "", Customer? customer = null, string? storeId = "");
 
     /// <summary>
     ///     Inserts a shipping method

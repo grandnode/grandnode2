@@ -5,7 +5,7 @@ namespace Grand.Infrastructure.TypeConverters.Converter;
 
 public class BoolTypeConverter : BooleanConverter
 {
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
     {
         try
         {

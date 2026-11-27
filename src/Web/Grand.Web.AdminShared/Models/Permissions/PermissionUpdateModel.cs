@@ -9,23 +9,23 @@ public class PermissionUpdateModel : BaseEntityModel
     ///     Gets or sets the permission name
     /// </summary>
     [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the permission system name
     /// </summary>
     [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.SystemName")]
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the area name
     /// </summary>
     [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.Area")]
-    public string Area { get; set; }
+    public string? Area { get; set; }
 
     /// <summary>
     ///     Gets or sets the permission category
     /// </summary>
     [GrandResourceDisplayName("Admin.Configuration.Permissions.Fields.Category")]
-    public string Category { get; set; }
+    public string? Category { get; set; }
 }

@@ -17,7 +17,7 @@ public class AuditLogListModel : BaseModel
     public DateTime? ToUtc { get; set; }
 
     [GrandResourceDisplayName("Admin.System.AuditLog.Fields.SearchText")]
-    public string SearchText { get; set; }
+    public string? SearchText { get; set; }
 
     [GrandResourceDisplayName("Admin.System.AuditLog.Fields.Source")]
     public AuditSource? Source { get; set; }
@@ -26,16 +26,16 @@ public class AuditLogListModel : BaseModel
     public AuditKind? Kind { get; set; }
 
     [GrandResourceDisplayName("Admin.System.AuditLog.Fields.EntityType")]
-    public string EntityType { get; set; }
+    public string? EntityType { get; set; }
 
     [GrandResourceDisplayName("Admin.System.AuditLog.Fields.EntityId")]
-    public string EntityId { get; set; }
+    public string? EntityId { get; set; }
 
     [GrandResourceDisplayName("Admin.System.AuditLog.Fields.StoreId")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     [GrandResourceDisplayName("Admin.System.AuditLog.Fields.OperationId")]
-    public string OperationId { get; set; }
+    public string? OperationId { get; set; }
 
     public IList<SelectListItem> AvailableEntityTypes { get; set; } = new List<SelectListItem>();
     public IList<SelectListItem> AvailableSources { get; set; } = new List<SelectListItem>();

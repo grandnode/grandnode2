@@ -34,7 +34,7 @@ public class GetRecurringPaymentTokensCommandHandler : IRequestHandler<GetRecurr
         return Task.FromResult(liquidRecurringPayment);
     }
 
-    private static string Encode(string value)
+    private static string Encode(string? value)
     {
         return WebUtility.HtmlEncode(value ?? string.Empty);
     }

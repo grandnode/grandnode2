@@ -12,7 +12,7 @@ public class RelatedProduct : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Product))]
     [AuditName]
-    public string ProductId2 { get; set; }
+    public string? ProductId2 { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order

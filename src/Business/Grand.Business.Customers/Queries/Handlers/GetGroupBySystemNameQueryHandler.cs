@@ -5,7 +5,7 @@ using Grand.Mediator;
 
 namespace Grand.Business.Customers.Queries.Handlers;
 
-public class GetGroupBySystemNameQueryHandler : IRequestHandler<GetGroupBySystemNameQuery, CustomerGroup>
+public class GetGroupBySystemNameQueryHandler : IRequestHandler<GetGroupBySystemNameQuery, CustomerGroup?>
 {
     private readonly IGroupService _groupService;
 
@@ -14,7 +14,7 @@ public class GetGroupBySystemNameQueryHandler : IRequestHandler<GetGroupBySystem
         _groupService = groupService;
     }
 
-    public async Task<CustomerGroup> Handle(GetGroupBySystemNameQuery request, CancellationToken cancellationToken)
+    public async Task<CustomerGroup?> Handle(GetGroupBySystemNameQuery request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(request.SystemName);
 

@@ -12,7 +12,7 @@ public class StoreInformationSettings : ISettings
     /// <summary>
     ///     Gets or sets a default store theme
     /// </summary>
-    public string DefaultStoreTheme { get; set; }
+    public string? DefaultStoreTheme { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether customers are allowed to select a theme
@@ -27,7 +27,7 @@ public class StoreInformationSettings : ISettings
     /// <summary>
     ///     Gets or sets a logo
     /// </summary>
-    public string LogoPictureId { get; set; }
+    public string? LogoPictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether we should display info about the cookie
@@ -42,32 +42,32 @@ public class StoreInformationSettings : ISettings
     /// <summary>
     ///     Gets or sets a value of Facebook page URL of the site
     /// </summary>
-    public string FacebookLink { get; set; }
+    public string? FacebookLink { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of Twitter page URL of the site
     /// </summary>
-    public string TwitterLink { get; set; }
+    public string? TwitterLink { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of YouTube channel URL of the site
     /// </summary>
-    public string YoutubeLink { get; set; }
+    public string? YoutubeLink { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of Instagram page URL of the site
     /// </summary>
-    public string InstagramLink { get; set; }
+    public string? InstagramLink { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of LinkedIn page URL of the site
     /// </summary>
-    public string LinkedInLink { get; set; }
+    public string? LinkedInLink { get; set; }
 
     /// <summary>
     ///     Gets or sets a value of Pinterest page URL of the site
     /// </summary>
-    public string PinterestLink { get; set; }
+    public string? PinterestLink { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether we enable voice navigation

@@ -7,22 +7,22 @@ namespace Grand.Web.AdminShared.Models.Messages;
 public class EmailAccountModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.Email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.DisplayName")]
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.Host")]
-    public string Host { get; set; }
+    public string? Host { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.Port")]
     public int Port { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.Username")]
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.Password")]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.UseServerCertificateValidation")]
     public bool UseServerCertificateValidation { get; set; }
@@ -34,10 +34,10 @@ public class EmailAccountModel : BaseEntityModel
     public bool IsDefaultEmailAccount { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.SendTestEmailTo")]
-    public string SendTestEmailTo { get; set; }
+    public string? SendTestEmailTo { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.EmailAccounts.Fields.Store")]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 }

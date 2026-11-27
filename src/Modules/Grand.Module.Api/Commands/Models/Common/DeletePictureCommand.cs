@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Common;
 
 public class DeletePictureCommand : IRequest<bool>
 {
-    public PictureDto PictureDto { get; set; }
+    public required PictureDto PictureDto { get; set; }
 }

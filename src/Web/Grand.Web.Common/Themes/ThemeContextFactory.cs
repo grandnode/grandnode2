@@ -9,7 +9,7 @@ public class ThemeContextFactory : IThemeContextFactory
         _themeContexts = themeContexts.ToDictionary(f => f.AreaName, f => f);
     }
 
-    public IThemeContext GetThemeContext(string areaName)
+    public IThemeContext? GetThemeContext(string areaName)
     {
         return _themeContexts.TryGetValue(areaName, out var themeContext) ? themeContext : null;
     }

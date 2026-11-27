@@ -21,7 +21,7 @@ public class OidcResourceAccess
     }
 
     /// <returns>null when allowed, otherwise a fixed description</returns>
-    public async Task<string> Refusal(OidcProtectedResource resource, Customer customer)
+    public async Task<string?> Refusal(OidcProtectedResource resource, Customer customer)
     {
         if (resource.DenyVendors && (!string.IsNullOrEmpty(customer.VendorId) || await _groupService.IsVendor(customer)))
             return "Vendor accounts cannot use this resource";

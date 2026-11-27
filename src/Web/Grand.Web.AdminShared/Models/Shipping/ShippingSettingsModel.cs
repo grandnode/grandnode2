@@ -6,7 +6,7 @@ namespace Grand.Web.AdminShared.Models.Shipping;
 
 public class ShippingSettingsModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.AllowPickUpInStore")]
     public bool AllowPickUpInStore { get; set; }
@@ -51,5 +51,5 @@ public class ShippingSettingsModel : BaseModel
     public int? TransitTimeMaxDays { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Settings.ShippingOriginAddress")]
-    public AddressModel ShippingOriginAddress { get; set; }
+    public AddressModel? ShippingOriginAddress { get; set; }
 }

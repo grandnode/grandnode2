@@ -10,23 +10,23 @@ namespace Grand.Web.AdminShared.Models.Messages;
 public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemplateLocalizedModel>, IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.AllowedTokens")]
-    public string[] AllowedTokens { get; set; }
+    public string[] AllowedTokens { get; set; } = [];
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.BccEmailAddresses")]
 
-    public string BccEmailAddresses { get; set; }
+    public string? BccEmailAddresses { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Subject")]
 
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Body")]
 
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.IsActive")]
 
@@ -45,24 +45,24 @@ public class MessageTemplateModel : BaseEntityModel, ILocalizedModel<MessageTemp
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.AttachedDownload")]
     [UIHint("Download")]
-    public string AttachedDownloadId { get; set; }
+    public string? AttachedDownloadId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.EmailAccount")]
-    public string EmailAccountId { get; set; }
+    public string? EmailAccountId { get; set; }
 
     public IList<EmailAccountModel> AvailableEmailAccounts { get; set; } = new List<EmailAccountModel>();
-    public List<StoreModel> AvailableStores { get; set; }
+    public List<StoreModel>? AvailableStores { get; set; }
 
     //comma-separated list of stores used on the list page
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
-    public string ListOfStores { get; set; }
+    public string? ListOfStores { get; set; }
 
     public IList<MessageTemplateLocalizedModel> Locales { get; set; } = new List<MessageTemplateLocalizedModel>();
 
     //Store acl
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     /// <summary>
     /// True when the caller can only preview the template (global, or shared with other
@@ -92,18 +92,18 @@ public class MessageTemplateLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.BccEmailAddresses")]
 
-    public string BccEmailAddresses { get; set; }
+    public string? BccEmailAddresses { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Subject")]
 
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.Body")]
 
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.MessageTemplates.Fields.EmailAccount")]
-    public string EmailAccountId { get; set; }
+    public string? EmailAccountId { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

@@ -11,7 +11,7 @@ public class JsonBodyModelBinderProvider : IModelBinderProvider
         _overriddenModelBinderProvider = overriddenModelBinderProvider;
     }
 
-    public IModelBinder GetBinder(ModelBinderProviderContext context)
+    public IModelBinder? GetBinder(ModelBinderProviderContext context)
     {
         var modelBinder = _overriddenModelBinderProvider.GetBinder(context);
         return modelBinder == null ? null : new JsonBodyModelBinder(modelBinder);

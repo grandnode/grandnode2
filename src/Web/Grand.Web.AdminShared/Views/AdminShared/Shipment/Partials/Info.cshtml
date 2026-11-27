@@ -33,7 +33,7 @@
             @Loc["Admin.Orders.Shipments.ShippedDate"]:
             @if (isShipped)
             {
-                @Model.ShippedDate.Value.ToString("g")
+                @Model.ShippedDate?.ToString("g")
             }
             else
             {
@@ -45,7 +45,7 @@
             @Loc["Admin.Orders.Shipments.DeliveryDate"]:
             @if (isDelivered)
             {
-                @Model.DeliveryDate.Value.ToString("g")
+                @Model.DeliveryDate?.ToString("g")
             }
             else
             {

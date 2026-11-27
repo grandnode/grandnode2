@@ -5,6 +5,6 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class UpdateProductTierPriceCommand : IRequest<bool>
 {
-    public ProductDto Product { get; set; }
-    public ProductTierPriceDto Model { get; set; }
+    public required ProductDto Product { get; set; }
+    public required ProductTierPriceDto Model { get; set; }
 }

@@ -34,9 +34,11 @@ public abstract class BaseProductSpecificationController(
         if (string.IsNullOrEmpty(attributeId))
             return Json("");
 
-        var options =
-            (await specificationAttributeService.GetSpecificationAttributeById(attributeId))
-            .SpecificationAttributeOptions.OrderBy(x => x.DisplayOrder);
+        var attribute = await specificationAttributeService.GetSpecificationAttributeById(attributeId);
+        if (attribute == null)
+            return Json("");
+
+        var options = attribute.SpecificationAttributeOptions.OrderBy(x => x.DisplayOrder);
         var result = (from o in options
             select new { id = o.Id, name = o.Name }).ToList();
         return Json(result);
@@ -56,7 +58,7 @@ public abstract class BaseProductSpecificationController(
         // is a no-op for Admin's scope). Vendor's original signature also dropped the DataSourceRequest
         // command parameter entirely (unused by the body on any host either way) - kept here for parity
         // with Admin/Store.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var productrSpecsModel = await productSpecificationViewModelService.PrepareProductSpecificationAttributeModel(product);
@@ -77,7 +79,7 @@ public abstract class BaseProductSpecificationController(
         // HasAccess (strict): mirrors Store's CanAccessProduct and Vendor's CheckAccessToProduct check on
         // this action. Admin's original ProductSpecAttrPopup(GET) had no check at all - closed the same
         // way as ProductSpecAttrList above.
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return Content(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         var model = new ProductModel.AddProductSpecificationAttributeModel {

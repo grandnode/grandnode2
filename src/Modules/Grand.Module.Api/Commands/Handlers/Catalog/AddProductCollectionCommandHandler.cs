@@ -16,6 +16,9 @@ public class AddProductCollectionCommandHandler : IRequestHandler<AddProductColl
 
     public async Task<bool> Handle(AddProductCollectionCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires an existing collection
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.CollectionId);
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
         var productCollection = new ProductCollection {
             CollectionId = request.Model.CollectionId,
             IsFeaturedProduct = request.Model.IsFeaturedProduct

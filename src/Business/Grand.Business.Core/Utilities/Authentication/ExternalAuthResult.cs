@@ -41,7 +41,7 @@ public enum ExternalAuthStatus
 /// </summary>
 public class ExternalAuthResult
 {
-    private ExternalAuthResult(ExternalAuthStatus status, Customer customer, IReadOnlyList<string> errors)
+    private ExternalAuthResult(ExternalAuthStatus status, Customer? customer, IReadOnlyList<string> errors)
     {
         Status = status;
         Customer = customer;
@@ -51,7 +51,7 @@ public class ExternalAuthResult
     public ExternalAuthStatus Status { get; }
 
     /// <summary>The customer to sign in (LoggedIn, Registered) or the one the account was associated with</summary>
-    public Customer Customer { get; }
+    public Customer? Customer { get; }
 
     /// <summary>Technical reasons of an Error result; empty for every other status</summary>
     public IReadOnlyList<string> Errors { get; }

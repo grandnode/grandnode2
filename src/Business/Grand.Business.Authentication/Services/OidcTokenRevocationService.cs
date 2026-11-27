@@ -15,7 +15,7 @@ namespace Grand.Business.Authentication.Services;
 public class OidcTokenRevocationService(IRepository<OidcTokenRevocation> revocationRepository)
     : IOidcTokenRevocationService
 {
-    public async Task RevokeTokens(string subject)
+    public async Task RevokeTokens(string? subject)
     {
         ArgumentException.ThrowIfNullOrEmpty(subject);
         var id = RevocationId(subject);
@@ -42,7 +42,7 @@ public class OidcTokenRevocationService(IRepository<OidcTokenRevocation> revocat
             UpdateBuilder<OidcTokenRevocation>.Create().Set(x => x.RevokedBeforeUtc, now));
     }
 
-    public async Task<bool> IsRevoked(string subject, DateTime issuedUtc)
+    public async Task<bool> IsRevoked(string? subject, DateTime issuedUtc)
     {
         if (string.IsNullOrEmpty(subject))
             return false;

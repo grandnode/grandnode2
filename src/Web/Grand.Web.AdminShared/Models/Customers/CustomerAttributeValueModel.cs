@@ -6,11 +6,11 @@ namespace Grand.Web.AdminShared.Models.Customers;
 
 public class CustomerAttributeValueModel : BaseEntityModel, ILocalizedModel<CustomerAttributeValueLocalizedModel>
 {
-    public string CustomerAttributeId { get; set; }
+    public string? CustomerAttributeId { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Values.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Values.Fields.IsPreSelected")]
     public bool IsPreSelected { get; set; }
@@ -26,7 +26,7 @@ public class CustomerAttributeValueLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerAttributes.Values.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

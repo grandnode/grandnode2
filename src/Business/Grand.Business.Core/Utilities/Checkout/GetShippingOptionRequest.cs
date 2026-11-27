@@ -52,7 +52,7 @@ public class GetShippingOptionRequest
     /// <summary>
     ///     Gets or sets a customer
     /// </summary>
-    public virtual Customer Customer { get; set; }
+    public virtual Customer? Customer { get; set; }
 
     /// <summary>
     ///     Gets or sets a shopping cart items
@@ -62,37 +62,37 @@ public class GetShippingOptionRequest
     /// <summary>
     ///     Gets or sets a shipping address (where we ship to)
     /// </summary>
-    public Address ShippingAddress { get; set; }
+    public Address? ShippingAddress { get; set; }
 
     /// <summary>
     ///     Shipped from country
     /// </summary>
-    public Country CountryFrom { get; set; }
+    public Country? CountryFrom { get; set; }
 
     /// <summary>
     ///     Shipped from state/province
     /// </summary>
-    public StateProvince StateProvinceFrom { get; set; }
+    public StateProvince? StateProvinceFrom { get; set; }
 
     /// <summary>
     ///     Shipped from zip/postal code
     /// </summary>
-    public string ZipPostalCodeFrom { get; set; }
+    public string? ZipPostalCodeFrom { get; set; }
 
     /// <summary>
     ///     Shipped from city
     /// </summary>
-    public string CityFrom { get; set; }
+    public string? CityFrom { get; set; }
 
     /// <summary>
     ///     Shipped from address
     /// </summary>
-    public string AddressFrom { get; set; }
+    public string? AddressFrom { get; set; }
 
     /// <summary>
     ///     Limit to store (identifier)
     /// </summary>
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     #endregion
 }

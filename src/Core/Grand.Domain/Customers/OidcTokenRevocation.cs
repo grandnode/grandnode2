@@ -10,7 +10,7 @@ public class OidcTokenRevocation : BaseEntity
     /// <summary>
     ///     Gets or sets the subject (sub claim) at the identity provider
     /// </summary>
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     /// <summary>
     ///     Gets or sets the time before which the subject's access tokens are refused

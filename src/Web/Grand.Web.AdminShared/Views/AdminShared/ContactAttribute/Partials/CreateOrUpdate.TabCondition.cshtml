@@ -30,7 +30,7 @@
                 @if (Model.ConditionModel.ConditionAttributes.Count > 0)
                 {
                     <div class="grand-fields grand-fields--2col">
-                        <admin-field asp-for="ConditionModel.SelectedAttributeId" asp-items="Model.ConditionModel.ConditionAttributes.Select(x => new SelectListItem { Text = x.Name, Value = x.Id.ToString() })"/>
+                        <admin-field asp-for="ConditionModel.SelectedAttributeId" asp-items="Model.ConditionModel.ConditionAttributes.Select(x => new SelectListItem { Text = x.Name, Value = x.Id })"/>
                         <script>
                             $(document).ready(function() {
                                 $("#@Html.IdFor(model => model.ConditionModel.SelectedAttributeId)").change(toggleConditionAttributes);

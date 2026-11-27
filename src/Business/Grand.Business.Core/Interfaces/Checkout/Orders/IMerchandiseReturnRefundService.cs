@@ -39,7 +39,7 @@ public interface IMerchandiseReturnRefundService
     /// <param name="offline">Whether the money was given back outside the payment provider</param>
     /// <param name="refundedBy">Who refunded, as the staff notes name them; null for the system</param>
     /// <returns>null when refunded, else a key of MerchandiseReturnErrors</returns>
-    Task<string> Refund(string merchandiseReturnId, double amount, bool offline, string refundedBy = null);
+    Task<string?> Refund(string merchandiseReturnId, double amount, bool offline, string? refundedBy = null);
 
     /// <summary>
     ///     Records what the staff found when they checked the payment of a refund that waits for it: the money went
@@ -49,5 +49,5 @@ public interface IMerchandiseReturnRefundService
     /// <param name="wentBack">Whether the money went back</param>
     /// <param name="checkedBy">Who checked, as the staff notes name them; null for the system</param>
     /// <returns>null when recorded, else a key of MerchandiseReturnErrors</returns>
-    Task<string> ResolveRefund(string merchandiseReturnId, bool wentBack, string checkedBy = null);
+    Task<string?> ResolveRefund(string merchandiseReturnId, bool wentBack, string? checkedBy = null);
 }

@@ -31,7 +31,8 @@ public class RecommendedProductsViewComponent : BaseViewComponent
 
     public async Task<IViewComponentResult> InvokeAsync(string productId, int? productThumbPictureSize)
     {
-        var productIds = (await _productService.GetProductById(productId)).RecommendedProduct.ToArray();
+        //a product deleted meanwhile has none
+        var productIds = ((await _productService.GetProductById(productId))?.RecommendedProduct ?? []).ToArray();
         if (!productIds.Any())
             return Content("");
 

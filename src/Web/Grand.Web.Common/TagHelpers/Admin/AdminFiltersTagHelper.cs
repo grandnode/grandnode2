@@ -34,7 +34,7 @@ public class AdminFiltersTagHelper : TagHelper
 
     /// <summary>The id the search button gets, so a view's script can click it.</summary>
     [HtmlAttributeName("submit-id")]
-    public string SubmitId { get; set; }
+    public string? SubmitId { get; set; }
 
     /// <summary>Opens the advanced panel on load, for a screen arriving with filters applied.</summary>
     [HtmlAttributeName("expanded")]

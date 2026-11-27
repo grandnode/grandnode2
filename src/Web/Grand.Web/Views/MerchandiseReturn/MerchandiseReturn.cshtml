@@ -115,7 +115,7 @@
                                                 var reasonsSelectList = Model.AvailableReturnReasons.Select(x => new SelectListItem
                                                 {
                                                     Text = x.Name,
-                                                    Value = x.Id.ToString()
+                                                    Value = x.Id
                                                 }).ToList();
                                             }
                                             @* nothing chosen at first: the first reason may ship free, and taken
@@ -139,7 +139,7 @@
                                                     var actionsSelectList = Model.AvailableReturnActions.Select(x => new SelectListItem
                                                     {
                                                         Text = x.Name,
-                                                        Value = x.Id.ToString()
+                                                        Value = x.Id
                                                     }).ToList();
                                                 }
                                                 @* optional: left empty, the return names no action; it never changes the cost *@

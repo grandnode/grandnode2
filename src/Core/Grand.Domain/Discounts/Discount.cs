@@ -8,12 +8,12 @@ namespace Grand.Domain.Discounts;
 /// </summary>
 public class Discount : BaseEntity, IStoreLinkEntity
 {
-    private ICollection<DiscountRule> _discountRules;
+    private ICollection<DiscountRule>? _discountRules;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the discount type identifier
@@ -38,7 +38,7 @@ public class Discount : BaseEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the discount currency
     /// </summary>
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to calculate by plugin
@@ -48,7 +48,7 @@ public class Discount : BaseEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets a value indicating whether to calculate by plugin
     /// </summary>
-    public string DiscountPluginName { get; set; }
+    public string? DiscountPluginName { get; set; }
 
     /// <summary>
     ///     Gets or sets the maximum discount amount (used with "UsePercentage")

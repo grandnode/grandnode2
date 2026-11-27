@@ -70,7 +70,7 @@ public class LanguageAttribute : TypeFilterAttribute
             }
 
             //check whether current page URL is already localized URL
-            var pageUrl = context.HttpContext.Request?.GetEncodedPathAndQuery();
+            var pageUrl = context.HttpContext.Request.GetEncodedPathAndQuery();
             if (await IsLocalized(pageUrl, context.HttpContext.Request.PathBase))
             {
                 await next();
@@ -81,7 +81,7 @@ public class LanguageAttribute : TypeFilterAttribute
             context.Result = new RedirectResult(pageUrl, false);
         }
 
-        private async Task<bool> IsLocalized(string url, PathString pathBase)
+        private async Task<bool> IsLocalized(string? url, PathString pathBase)
         {
             _ = new PathString(url).StartsWithSegments(pathBase, out var result);
             url = WebUtility.UrlDecode(result);
@@ -99,7 +99,7 @@ public class LanguageAttribute : TypeFilterAttribute
             return language?.Published ?? false;
         }
 
-        private static string AddLanguageSeo(string url, Language language)
+        private static string AddLanguageSeo(string? url, Language language)
         {
             ArgumentNullException.ThrowIfNull(language);
 

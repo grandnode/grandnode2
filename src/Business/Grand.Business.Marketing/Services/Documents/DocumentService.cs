@@ -29,9 +29,9 @@ public class DocumentService : IDocumentService
         await _mediator.EntityDeleted(document);
     }
 
-    public virtual async Task<IPagedList<Document>> GetAll(string name = "", string number = "", string email = "",
+    public virtual async Task<IPagedList<Document>> GetAll(string? name = "", string? number = "", string? email = "",
         string username = "",
-        Reference reference = Reference.None, string objectId = "", string seId = "", int status = -1,
+        Reference reference = Reference.None, string? objectId = "", string seId = "", int status = -1,
         int pageIndex = 0, int pageSize = int.MaxValue)
     {
         var query = from d in _documentRepository.Table
@@ -65,7 +65,7 @@ public class DocumentService : IDocumentService
     }
 
 
-    public virtual Task<Document> GetById(string id)
+    public virtual Task<Document?> GetById(string? id)
     {
         return _documentRepository.GetByIdAsync(id);
     }

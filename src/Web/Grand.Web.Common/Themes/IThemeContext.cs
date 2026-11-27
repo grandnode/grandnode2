@@ -13,7 +13,7 @@ public interface IThemeContext
     /// <summary>
     ///     Get current theme system name
     /// </summary>
-    string GetCurrentTheme();
+    string? GetCurrentTheme();
 
     /// <summary>
     ///     Set current theme system name

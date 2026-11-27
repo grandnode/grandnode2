@@ -28,7 +28,7 @@ public interface IEmailAccountService
     /// </summary>
     /// <param name="emailAccountId">The email account identifier</param>
     /// <returns>Email account</returns>
-    Task<EmailAccount> GetEmailAccountById(string emailAccountId);
+    Task<EmailAccount?> GetEmailAccountById(string? emailAccountId);
 
     /// <summary>
     ///     Gets all email accounts, optionally filtered by store, with pagination support.

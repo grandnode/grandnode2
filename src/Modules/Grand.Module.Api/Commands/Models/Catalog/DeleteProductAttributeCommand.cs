@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class DeleteProductAttributeCommand : IRequest<bool>
 {
-    public ProductAttributeDto Model { get; set; }
+    public required ProductAttributeDto Model { get; set; }
 }

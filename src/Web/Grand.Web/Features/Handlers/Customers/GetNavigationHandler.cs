@@ -78,7 +78,7 @@ public class GetNavigationHandler : IRequestHandler<GetNavigation, CustomerNavig
     ///     Recurring products cannot be bought until a payment provider charges in cycles, so a tab every customer
     ///     would find empty is shown only to those who have a recurring payment
     /// </summary>
-    private async Task<bool> HasRecurringPayments(Customer customer, Domain.Stores.Store store)
+    private async Task<bool> HasRecurringPayments(Customer customer, Domain.Stores.Store? store)
     {
         if (store == null)
             return false;

@@ -15,7 +15,7 @@ public class SearchEngineCustomerResolver(
 {
     public int Order => RequestCustomerResolverOrder.SearchEngine;
 
-    public async Task<Customer> Resolve()
+    public async Task<Customer?> Resolve()
     {
         //an authenticated API client is never treated as a crawler
         var request = httpContextAccessor.HttpContext?.Request;

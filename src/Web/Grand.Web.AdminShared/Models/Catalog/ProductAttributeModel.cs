@@ -10,28 +10,28 @@ namespace Grand.Web.AdminShared.Models.Catalog;
 public class ProductAttributeModel : BaseEntityModel, ILocalizedModel<ProductAttributeLocalizedModel>, IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     public IList<ProductAttributeLocalizedModel> Locales { get; set; } = new List<ProductAttributeLocalizedModel>();
 
     //Store acl
     [GrandResourceDisplayName("Admin.Catalog.Categories.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 
     #region Nested classes
 
     public class UsedByProductModel : BaseEntityModel
     {
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.UsedByProducts.Product")]
-        public string ProductName { get; set; }
+        public string? ProductName { get; set; }
 
         [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.UsedByProducts.Published")]
         public bool Published { get; set; }
@@ -44,37 +44,37 @@ public class ProductAttributeLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.Fields.Description")]
     [SanitizeHtml]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }
 
 public class PredefinedProductAttributeValueModel : BaseEntityModel,
     ILocalizedModel<PredefinedProductAttributeValueLocalizedModel>
 {
-    public string ProductAttributeId { get; set; }
+    public string? ProductAttributeId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment")]
     public double PriceAdjustment { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.PriceAdjustment")]
     //used only on the values list page
-    public string PriceAdjustmentStr { get; set; }
+    public string? PriceAdjustmentStr { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.WeightAdjustment")]
     public double WeightAdjustment { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.WeightAdjustment")]
     //used only on the values list page
-    public string WeightAdjustmentStr { get; set; }
+    public string? WeightAdjustmentStr { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Cost")]
     public double Cost { get; set; }
@@ -93,7 +93,7 @@ public class PredefinedProductAttributeValueLocalizedModel : ILocalizedModelLoca
 {
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ProductAttributes.PredefinedValues.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

@@ -42,7 +42,7 @@ public class BlogController(
     protected override void EditWarningCheck(BlogPost blogPost)
     {
         if (!blogPost.LimitedToStores ||
-            (blogPost.Stores.Contains(PostScope.DefaultStoreId) &&
+            (PostScope.DefaultStoreId is { } defaultStoreId && blogPost.Stores.Contains(defaultStoreId) &&
              blogPost.Stores.Count > 1))
             Warning(TranslationService.GetResource("Admin.Content.Blog.BlogPosts.Permissions"));
     }

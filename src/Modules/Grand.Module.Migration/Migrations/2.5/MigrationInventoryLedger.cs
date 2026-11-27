@@ -183,7 +183,7 @@ public class MigrationInventoryLedger : IMigration
                 yield return ("", [], warehouseId, product.StockQuantity);
             else
                 foreach (var row in product.ProductWarehouseInventory)
-                    yield return ("", [], row.WarehouseId, row.StockQuantity);
+                    yield return ("", [], row.WarehouseId ?? "", row.StockQuantity);
             yield break;
         }
 
@@ -192,7 +192,7 @@ public class MigrationInventoryLedger : IMigration
                 yield return (combination.Id, combination.Attributes, warehouseId, combination.StockQuantity);
             else
                 foreach (var row in combination.WarehouseInventory)
-                    yield return (combination.Id, combination.Attributes, row.WarehouseId, row.StockQuantity);
+                    yield return (combination.Id, combination.Attributes, row.WarehouseId ?? "", row.StockQuantity);
     }
 
     private static async Task AddPermission(IServiceProvider serviceProvider)

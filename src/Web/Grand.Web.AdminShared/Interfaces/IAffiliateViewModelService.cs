@@ -5,7 +5,7 @@ namespace Grand.Web.AdminShared.Interfaces;
 
 public interface IAffiliateViewModelService
 {
-    Task PrepareAffiliateModel(AffiliateModel model, Affiliate affiliate, bool excludeProperties,
+    Task PrepareAffiliateModel(AffiliateModel model, Affiliate? affiliate, bool excludeProperties,
         bool prepareEntireAddressModel = true);
 
     Task<(IEnumerable<AffiliateModel> affiliateModels, int totalCount)> PrepareAffiliateModelList(

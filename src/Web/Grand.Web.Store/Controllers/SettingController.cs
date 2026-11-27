@@ -53,7 +53,7 @@ public class SettingController(
         await cacheBase.Clear();
     }
 
-    private string GetStoreScope() => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string GetStoreScope() => contextAccessor.WorkContext.PanelStoreId();
 
     /// <summary>
     /// Returns true if the store owner is allowed to access (edit/delete) the given store-linked item.
@@ -63,7 +63,7 @@ public class SettingController(
     /// editable/deletable by a single store owner - editing/deleting would silently affect every
     /// other store the item is also assigned to.
     /// </summary>
-    private static bool IsStoreOwnerAccessAllowed(string storeId, bool limitedToStores, ICollection<string> stores)
+    private static bool IsStoreOwnerAccessAllowed(string? storeId, bool limitedToStores, ICollection<string> stores)
         => string.IsNullOrEmpty(storeId) || (limitedToStores && stores.Count == 1 && stores.Contains(storeId));
 
     #endregion

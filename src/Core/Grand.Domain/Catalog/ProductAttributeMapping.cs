@@ -9,19 +9,19 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class ProductAttributeMapping : SubBaseEntity, ITranslationEntity
 {
-    private ICollection<ProductAttributeValue> _productAttributeValues;
+    private ICollection<ProductAttributeValue>? _productAttributeValues;
 
     /// <summary>
     ///     Gets or sets the product attribute identifier
     /// </summary>
     [AuditReference(typeof(ProductAttribute))]
     [AuditName]
-    public string ProductAttributeId { get; set; }
+    public string ProductAttributeId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value a text prompt
     /// </summary>
-    public string TextPrompt { get; set; }
+    public string? TextPrompt { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is required
@@ -61,7 +61,7 @@ public class ProductAttributeMapping : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the validation rule for file allowed extensions (for file upload)
     /// </summary>
-    public string ValidationFileAllowedExtensions { get; set; }
+    public string? ValidationFileAllowedExtensions { get; set; }
 
     /// <summary>
     ///     Gets or sets the validation rule for file maximum size in kilobytes (for file upload)
@@ -71,7 +71,7 @@ public class ProductAttributeMapping : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the default value (for textbox and multiline textbox)
     /// </summary>
-    public string DefaultValue { get; set; }
+    public string? DefaultValue { get; set; }
 
     /// <summary>
     ///     Gets or sets the custom attributes (see "ProductAttribute" entity for more info)

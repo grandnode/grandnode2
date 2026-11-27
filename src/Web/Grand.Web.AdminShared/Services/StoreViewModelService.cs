@@ -129,7 +129,7 @@ public class StoreViewModelService : IStoreViewModelService
             });
     }
 
-    public virtual async Task<bool> IsOwnerCandidate(string storeId, string customerId)
+    public virtual async Task<bool> IsOwnerCandidate(string? storeId, string customerId)
     {
         return (await GetOwnerCandidates(storeId)).Any(x => x.Id == customerId);
     }
@@ -137,10 +137,12 @@ public class StoreViewModelService : IStoreViewModelService
     /// <summary>
     ///     Accounts that can reach this store's orders in a panel: active administrators and the store's managers
     /// </summary>
-    private async Task<List<Customer>> GetOwnerCandidates(string storeId)
+    private async Task<List<Customer>> GetOwnerCandidates(string? storeId)
     {
-        var administrators = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Administrators);
-        var managers = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.StoreManager);
+        var administrators = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.Administrators)
+                             ?? throw new InvalidOperationException("The Administrators customer group is missing");
+        var managers = await _groupService.GetCustomerGroupBySystemName(SystemCustomerGroupNames.StoreManager)
+                       ?? throw new InvalidOperationException("The StoreManager customer group is missing");
 
         var candidates = (await _customerService.GetAllCustomers(customerGroupIds: [administrators.Id])).ToList();
         if (!string.IsNullOrEmpty(storeId))
@@ -236,6 +238,8 @@ public class StoreViewModelService : IStoreViewModelService
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(model);
+        //the validator requires the url
+        ArgumentException.ThrowIfNullOrEmpty(model.Url);
 
         if (!model.Url.EndsWith("/"))
             model.Url += "/";
@@ -253,6 +257,8 @@ public class StoreViewModelService : IStoreViewModelService
     {
         ArgumentNullException.ThrowIfNull(store);
         ArgumentNullException.ThrowIfNull(model);
+        //the validator requires the url
+        ArgumentException.ThrowIfNullOrEmpty(model.Url);
 
         if (!model.Url.EndsWith("/"))
             model.Url += "/";

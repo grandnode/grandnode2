@@ -30,22 +30,23 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
         _twoFactorAuthentication = new TwoFactorAuthenticator();
     }
 
-    public virtual async Task<bool> AuthenticateTwoFactor(string secretKey, string token, Customer customer,
+    public virtual async Task<bool> AuthenticateTwoFactor(string? secretKey, string? token, Customer customer,
         TwoFactorAuthenticationType twoFactorAuthenticationType)
     {
         switch (twoFactorAuthenticationType)
         {
             case TwoFactorAuthenticationType.AppVerification:
-                return _twoFactorAuthentication.ValidateTwoFactorPIN(secretKey, token.Trim());
+                //an account without a secret key has no authenticator app set up; no code proves nothing
+                return secretKey != null && token != null &&
+                       _twoFactorAuthentication.ValidateTwoFactorPIN(secretKey, token.Trim());
 
             case TwoFactorAuthenticationType.EmailVerification:
                 return await UseEmailCode(customer, token?.Trim());
 
             case TwoFactorAuthenticationType.SMSVerification:
-                if (!_smsVerificationService.Any())
-                    throw new Exception("ISMSVerificationService not registered in DI container");
-                var smsVerificationService = _smsVerificationService.FirstOrDefault();
-                return await smsVerificationService!.Authenticate(secretKey, token.Trim(), customer);
+                var smsVerificationService = _smsVerificationService.FirstOrDefault() ??
+                                             throw new Exception("ISMSVerificationService not registered in DI container");
+                return await smsVerificationService.Authenticate(secretKey, token?.Trim(), customer);
             default:
                 return false;
         }
@@ -87,7 +88,7 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
     }
 
     //a code signs in once: it is read again and cleared under a lock, so two requests with it cannot both pass
-    private async Task<bool> UseEmailCode(Customer customer, string token)
+    private async Task<bool> UseEmailCode(Customer customer, string? token)
     {
         await using var _ = await _resourceLock.Acquire([$"TwoFactorCode:{customer.Id}"]);
 
@@ -111,7 +112,7 @@ public class TwoFactorAuthenticationService : ITwoFactorAuthenticationService
         return RandomNumberGenerator.GetInt32(1_000_000).ToString("D6");
     }
 
-    private static bool CodesMatch(string expected, string given)
+    private static bool CodesMatch(string expected, string? given)
     {
         return given != null &&
                CryptographicOperations.FixedTimeEquals(Encoding.UTF8.GetBytes(expected), Encoding.UTF8.GetBytes(given));

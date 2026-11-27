@@ -58,7 +58,7 @@ public class ShippingMethodService : IShippingMethodService
     /// </summary>
     /// <param name="shippingMethodId">The shipping method identifier</param>
     /// <returns>Shipping method</returns>
-    public virtual Task<ShippingMethod> GetShippingMethodById(string shippingMethodId)
+    public virtual Task<ShippingMethod?> GetShippingMethodById(string? shippingMethodId)
     {
         var key = string.Format(CacheKey.SHIPPINGMETHOD_BY_ID_KEY, shippingMethodId);
         return _cacheBase.GetAsync(key, () => _shippingMethodRepository.GetByIdAsync(shippingMethodId));
@@ -71,8 +71,8 @@ public class ShippingMethodService : IShippingMethodService
     /// <param name="customer"></param>
     /// <param name="storeId">The store identifier to filter by</param>
     /// <returns>Shipping methods</returns>
-    public virtual async Task<IList<ShippingMethod>> GetAllShippingMethods(string filterByCountryId = "",
-        Customer customer = null, string storeId = "")
+    public virtual async Task<IList<ShippingMethod>> GetAllShippingMethods(string? filterByCountryId = "",
+        Customer? customer = null, string? storeId = "")
     {
         var query = _shippingMethodRepository.Table;
 

@@ -42,7 +42,7 @@ public class CheckoutClaimService : ICheckoutClaimService
         ArgumentNullException.ThrowIfNull(details);
 
         var claim = new CheckoutClaim {
-            OrderId = details.OrderId,
+            OrderId = details.OrderId ?? throw new ArgumentException("The order id is not set", nameof(details)),
             OrderCode = orderCode,
             CustomerId = details.Customer.Id,
             StoreId = details.Store.Id
@@ -104,6 +104,9 @@ public class CheckoutClaimService : ICheckoutClaimService
         foreach (var sc in details.Cart)
         {
             var product = await _productService.GetProductById(sc.ProductId);
+            //a product deleted meanwhile cannot be ordered, so nothing is claimed for the order
+            if (product == null)
+                return false;
             var warehouseId = OrderItemWarehouse.Resolve(sc, product, details.Store.DefaultWarehouseId);
             if (!await _inventoryManageService.TryReserve(product, sc.Quantity, sc.Attributes, warehouseId))
                 return false;
@@ -143,7 +146,7 @@ public class CheckoutClaimService : ICheckoutClaimService
         foreach (var appliedGiftVoucher in details.AppliedGiftVouchers ?? [])
         {
             if (!await _giftVoucherService.TryRedeem(appliedGiftVoucher.GiftVoucher.Id,
-                    appliedGiftVoucher.AmountCanBeUsed, details.OrderId))
+                    appliedGiftVoucher.AmountCanBeUsed, claim.OrderId))
                 return false;
 
             claim.GiftVoucherIds.Add(appliedGiftVoucher.GiftVoucher.Id);
@@ -159,7 +162,7 @@ public class CheckoutClaimService : ICheckoutClaimService
 
         var redeemed = await _loyaltyPointsService.TryRedeemLoyaltyPoints(details.Customer.Id,
             details.RedeemedLoyaltyPoints, details.Store.Id, $"Loyalty points redeemed for order {claim.OrderCode}",
-            details.OrderId, details.RedeemedLoyaltyPointsAmount);
+            claim.OrderId, details.RedeemedLoyaltyPointsAmount);
         if (redeemed == null)
             return false;
 

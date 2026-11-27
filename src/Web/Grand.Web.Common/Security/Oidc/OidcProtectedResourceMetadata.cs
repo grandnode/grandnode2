@@ -36,19 +36,19 @@ public static class OidcProtectedResourceMetadata
         }).AllowAnonymous();
     }
 
-    private static bool HasPath(string url) =>
+    private static bool HasPath(string? url) =>
         Uri.TryCreate(url, UriKind.Absolute, out var uri) && uri.AbsolutePath.TrimEnd('/').Length > 0;
 
     /// <summary>
     ///     The resource whose canonical URI has the requested path: a protected resource, or the store base URL itself
     ///     (null resource). When several have that path, the one on the authority the request reached.
     /// </summary>
-    private static (bool Found, OidcProtectedResource Resource) Find(HttpContext context, string path, string baseUrl)
+    private static (bool Found, OidcProtectedResource? Resource) Find(HttpContext context, string path, string? baseUrl)
     {
         var registry = context.RequestServices.GetRequiredService<IOidcProtectedResourceRegistry>();
         var wanted = path.TrimEnd('/');
         var candidates = registry.Resources
-            .Select(r => (Resource: r, Uri: OidcCanonicalUri.ResourceFor(r, baseUrl)))
+            .Select(r => (Resource: (OidcProtectedResource?)r, Uri: OidcCanonicalUri.ResourceFor(r, baseUrl)))
             .Append((Resource: null, Uri: baseUrl))
             .Select(x => (x.Resource, Uri: Uri.TryCreate(x.Uri, UriKind.Absolute, out var uri) ? uri : null))
             .ToList();
@@ -67,7 +67,7 @@ public static class OidcProtectedResourceMetadata
         if (matches.Count > 1)
         {
             var authority = OidcCanonicalUri.Normalize($"{context.Request.Scheme}://{context.Request.Host}");
-            matches = matches.Where(x => OidcCanonicalUri.Equal(x.Uri.GetLeftPart(UriPartial.Authority), authority))
+            matches = matches.Where(x => x.Uri != null && OidcCanonicalUri.Equal(x.Uri.GetLeftPart(UriPartial.Authority), authority))
                 .ToList();
         }
 
@@ -79,7 +79,7 @@ public static class OidcProtectedResourceMetadata
     ///     audience to match). A warning when a store serves the host but has no URL (a configuration to fix); only a
     ///     debug message when no store serves the host, which any anonymous request can cause with its Host header.
     /// </summary>
-    private static async Task<IResult> Document(HttpContext context, OidcProtectedResource resource, string baseUrl)
+    private static async Task<IResult> Document(HttpContext context, OidcProtectedResource? resource, string? baseUrl)
     {
         var config = context.RequestServices.GetRequiredService<OidcResourceServerConfig>();
         var resourceUri = resource != null ? OidcCanonicalUri.ResourceFor(resource, baseUrl) : baseUrl;
@@ -110,7 +110,7 @@ public static class OidcProtectedResourceMetadata
     /// </summary>
     /// <param name="resourceUri">Canonical resource URI (<see cref="OidcCanonicalUri.ResourceFor" />)</param>
     /// <returns>Null when the resource URI is not an absolute http(s) URI</returns>
-    public static string MetadataUrl(string resourceUri)
+    public static string? MetadataUrl(string? resourceUri)
     {
         if (!Uri.TryCreate(resourceUri, UriKind.Absolute, out var uri) ||
             (uri.Scheme != Uri.UriSchemeHttps && uri.Scheme != Uri.UriSchemeHttp))
@@ -120,11 +120,11 @@ public static class OidcProtectedResourceMetadata
     }
 
     public static object Build(OidcResourceServerConfig config, IReadOnlyList<OidcProtectedResource> all,
-        OidcProtectedResource resource, string baseUrl) =>
+        OidcProtectedResource? resource, string? baseUrl) =>
         new MetadataDocument {
             Resource = resource != null ? OidcCanonicalUri.ResourceFor(resource, baseUrl) : baseUrl,
             ResourceName = resource?.Name,
-            AuthorizationServers = [config.Authority],
+            AuthorizationServers = config.Authority is { } authority ? [authority] : [],
             ScopesSupported = OidcTokenChecks.PublicScopes(resource != null
                 ? resource.ScopesSupported
                 : all.SelectMany(r => r.ScopesSupported ?? [])),
@@ -133,13 +133,13 @@ public static class OidcProtectedResourceMetadata
 
     private sealed class MetadataDocument
     {
-        [JsonPropertyName("resource")] public string Resource { get; init; }
-        [JsonPropertyName("authorization_servers")] public string[] AuthorizationServers { get; init; }
-        [JsonPropertyName("scopes_supported")] public string[] ScopesSupported { get; init; }
-        [JsonPropertyName("bearer_methods_supported")] public string[] BearerMethodsSupported { get; init; }
+        [JsonPropertyName("resource")] public string? Resource { get; init; }
+        [JsonPropertyName("authorization_servers")] public string[]? AuthorizationServers { get; init; }
+        [JsonPropertyName("scopes_supported")] public string[]? ScopesSupported { get; init; }
+        [JsonPropertyName("bearer_methods_supported")] public string[]? BearerMethodsSupported { get; init; }
 
         [JsonPropertyName("resource_name")]
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
-        public string ResourceName { get; init; }
+        public string? ResourceName { get; init; }
     }
 }

@@ -4,7 +4,7 @@ namespace Grand.Web.Vendor.Models.Cms;
 
 public class VendorWidgetModel : BaseModel
 {
-    public string WidgetZone { get; set; }
-    public string ViewComponentName { get; set; }
-    public object AdditionalData { get; set; }
+    public string? WidgetZone { get; set; }
+    public required string ViewComponentName { get; set; }
+    public object? AdditionalData { get; set; }
 }

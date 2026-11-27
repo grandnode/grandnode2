@@ -3,6 +3,7 @@ using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Queries.Catalog;
 using Grand.Mediator;
+using Grand.SharedKernel;
 
 namespace Grand.Business.Catalog.Queries.Handlers;
 
@@ -28,7 +29,8 @@ public class GetShoppingCartItemsSubTotalQueryHandler : IRequestHandler<GetShopp
         ArgumentNullException.ThrowIfNull(request.Store);
 
         //priced for the customer of the request, not the ambient one, in the currency the requirement is entered in
-        var currency = await _currencyService.GetPrimaryStoreCurrency();
+        var currency = await _currencyService.GetPrimaryStoreCurrency() ??
+                       throw new GrandException("The primary store currency is not set");
 
         double subTotal = 0;
         foreach (var item in request.Items)

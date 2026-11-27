@@ -118,7 +118,7 @@ public class CountryService : ICountryService
     /// </summary>
     /// <param name="countryId">Country identifier</param>
     /// <returns>Country</returns>
-    public virtual async Task<Country> GetCountryById(string countryId)
+    public virtual async Task<Country?> GetCountryById(string? countryId)
     {
         if (string.IsNullOrEmpty(countryId))
             return null;
@@ -143,7 +143,7 @@ public class CountryService : ICountryService
         var countries = await _countryRepository.ToListAsync(query);
         //sort by passed identifiers
         return countryIds.Select(id => countries.FirstOrDefault(country => country.Id == id))
-            .Where(country => country != null)
+            .OfType<Country>()
             .ToList();
     }
 
@@ -152,7 +152,7 @@ public class CountryService : ICountryService
     /// </summary>
     /// <param name="twoLetterIsoCode">Country two letter ISO code</param>
     /// <returns>Country</returns>
-    public virtual async Task<Country> GetCountryByTwoLetterIsoCode(string twoLetterIsoCode)
+    public virtual async Task<Country?> GetCountryByTwoLetterIsoCode(string? twoLetterIsoCode)
     {
         var key = string.Format(CacheKey.COUNTRIES_BY_TWOLETTER, twoLetterIsoCode);
         return await _cacheBase.GetAsync(key, async () =>
@@ -166,7 +166,7 @@ public class CountryService : ICountryService
     /// </summary>
     /// <param name="threeLetterIsoCode">Country three letter ISO code</param>
     /// <returns>Country</returns>
-    public virtual async Task<Country> GetCountryByThreeLetterIsoCode(string threeLetterIsoCode)
+    public virtual async Task<Country?> GetCountryByThreeLetterIsoCode(string threeLetterIsoCode)
     {
         var key = string.Format(CacheKey.COUNTRIES_BY_THREELETTER, threeLetterIsoCode);
         return await _cacheBase.GetAsync(key, async () =>
@@ -226,15 +226,18 @@ public class CountryService : ICountryService
     /// <param name="countryId">Country identifier</param>
     /// <param name="languageId">Language identifier.</param>
     /// <returns>States</returns>
-    public virtual async Task<IList<StateProvince>> GetStateProvincesByCountryId(string countryId,
-        string languageId = "")
+    public virtual async Task<IList<StateProvince>?> GetStateProvincesByCountryId(string? countryId,
+        string? languageId = "")
     {
         if (string.IsNullOrEmpty(countryId))
             return new List<StateProvince>();
 
+        //a country deleted meanwhile has no states either, as a country not chosen yet
         var country = await GetCountryById(countryId);
+        if (country == null)
+            return new List<StateProvince>();
 
-        return country?.StateProvinces.OrderBy(c => c.DisplayOrder)
+        return country.StateProvinces.OrderBy(c => c.DisplayOrder)
             .ThenBy(c => c.GetTranslation(x => x.Name, languageId))
             .ToList();
     }
@@ -297,7 +300,8 @@ public class CountryService : ICountryService
         ArgumentNullException.ThrowIfNull(country);
 
         var state = country.StateProvinces.FirstOrDefault(x => x.Id == stateProvince.Id);
-        country.StateProvinces.Remove(state);
+        if (state != null)
+            country.StateProvinces.Remove(state);
 
         await UpdateCountry(country);
     }

@@ -56,7 +56,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         model.Id = productReview.Id;
         model.StoreName = store != null ? store.Shortcut : "";
         model.ProductId = productReview.ProductId;
-        model.ProductName = product.Name;
+        model.ProductName = product?.Name;
         model.CustomerId = productReview.CustomerId;
         model.CustomerInfo = customer != null
             ? !string.IsNullOrEmpty(customer.Email)
@@ -132,7 +132,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
         var product = await _productService.GetProductById(productReview.ProductId);
 
         //update product totals
-        await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
+        if (product != null) await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
 
         return productReview;
     }
@@ -143,7 +143,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
 
         var product = await _productService.GetProductById(productReview.ProductId);
         //update product totals
-        await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
+        if (product != null) await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
     }
 
     public virtual async Task ApproveSelected(IEnumerable<string> selectedIds, string storeId = "")
@@ -159,7 +159,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
                 await _productReviewService.UpdateProductReview(productReview);
                 //update product totals
                 var product = await _productService.GetProductById(productReview.ProductId);
-                await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
+                if (product != null) await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
 
 
                 //raise event (only if it wasn't approved before)
@@ -181,7 +181,7 @@ public class ProductReviewViewModelService : IProductReviewViewModelService
                 await _productReviewService.UpdateProductReview(productReview);
                 //update product totals
                 var product = await _productService.GetProductById(productReview.ProductId);
-                await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
+                if (product != null) await _mediator.Send(new UpdateProductReviewTotalsCommand { Product = product });
             }
         }
     }

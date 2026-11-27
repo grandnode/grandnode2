@@ -18,7 +18,7 @@
                             $(document).ready(function () {
                                 @foreach (var pm in Model.AvailablePaymentMethods)
                                 {
-                                    var systemNameWithoutDot = pm.SystemName.Replace(".", "");
+                                    var systemNameWithoutDot = (pm.SystemName ?? "").Replace(".", "");
                                     <text>
                                     $('#selectshipall-@(systemNameWithoutDot)').click(function () {
                                         $('.restrictship_@(systemNameWithoutDot)').prop('checked', $(this).is(':checked')).change();
@@ -37,7 +37,7 @@
                     </th>
                     @foreach (var pm in Model.AvailablePaymentMethods)
                     {
-                        var systemNameWithoutDot = pm.SystemName.Replace(".", "");
+                        var systemNameWithoutDot = (pm.SystemName ?? "").Replace(".", "");
                         <th scope="col" class="text-center">
                             <strong>@pm.FriendlyName</strong>
                             <br/>
@@ -53,8 +53,8 @@
                         </td>
                         @foreach (var pm in Model.AvailablePaymentMethods)
                         {
-                            var resticted = Model.RestictedShipping.ContainsKey(pm.SystemName) && Model.RestictedShipping[pm.SystemName][c.Name];
-                            var systemNameWithoutDot = pm.SystemName.Replace(".", "");
+                            var resticted = pm.SystemName != null && c.Name != null && Model.RestictedShipping.TryGetValue(pm.SystemName, out var byMethod) && byMethod[c.Name];
+                            var systemNameWithoutDot = (pm.SystemName ?? "").Replace(".", "");
                             <td class="text-center">
                                 <input class="restrictship_@(systemNameWithoutDot) form-check-input" type="checkbox" value="@(c.Name)" name="restrictship_@(systemNameWithoutDot)" @(resticted ? " checked=checked" : null)/>
                             </td>

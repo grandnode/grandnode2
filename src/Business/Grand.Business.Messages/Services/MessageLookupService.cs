@@ -5,6 +5,7 @@ using Grand.Business.Core.Interfaces.Messages;
 using Grand.Domain.Localization;
 using Grand.Domain.Messages;
 using Grand.Domain.Stores;
+using Grand.SharedKernel;
 
 namespace Grand.Business.Messages.Services;
 
@@ -40,12 +41,13 @@ public class MessageLookupService : IMessageLookupService
 
     #region Methods
 
-    public virtual async Task<Store> GetStore(string storeId)
+    public virtual async Task<Store> GetStore(string? storeId)
     {
-        return await _storeService.GetStoreById(storeId) ?? (await _storeService.GetAllStores()).FirstOrDefault();
+        return await _storeService.GetStoreById(storeId) ?? (await _storeService.GetAllStores()).FirstOrDefault() ??
+            throw new GrandException("No store is configured to send messages from");
     }
 
-    public virtual async Task<MessageTemplate> GetMessageTemplate(string messageTemplateName, string storeId)
+    public virtual async Task<MessageTemplate?> GetMessageTemplate(string messageTemplateName, string? storeId)
     {
         var messageTemplate = await _messageTemplateService.GetMessageTemplateByName(messageTemplateName, storeId);
 
@@ -65,10 +67,10 @@ public class MessageLookupService : IMessageLookupService
         var emailAccount = await _emailAccountService.GetEmailAccountById(emailAccounId);
         emailAccount ??= await _emailAccountService.GetEmailAccountById(_emailAccountSettings.DefaultEmailAccountId);
         emailAccount ??= (await _emailAccountService.GetAllEmailAccounts()).FirstOrDefault();
-        return emailAccount;
+        return emailAccount ?? throw new GrandException("No email account is configured to send messages with");
     }
 
-    public virtual async Task<Language> EnsureLanguageIsActive(string languageId, string storeId)
+    public virtual async Task<Language> EnsureLanguageIsActive(string? languageId, string storeId)
     {
         //load language by specified ID
         var language = await _languageService.GetLanguageById(languageId);

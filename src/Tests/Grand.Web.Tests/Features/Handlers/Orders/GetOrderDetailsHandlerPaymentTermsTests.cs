@@ -56,7 +56,7 @@ public class GetOrderDetailsHandlerPaymentTermsTests
 
     private Task<OrderDetailsModel> Details(Order order)
     {
-        return _handler.Handle(new GetOrderDetails { Order = order, Language = new Language { Id = "en" } },
+        return _handler.Handle(new GetOrderDetails { Customer = new Grand.Domain.Customers.Customer(), Order = order, Language = new Language { Id = "en" } },
             CancellationToken.None);
     }
 

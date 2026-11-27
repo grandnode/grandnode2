@@ -7,6 +7,6 @@ namespace Grand.Business.Messages.Commands.Tokens;
 
 public class GetRecurringPaymentTokensCommand : IRequest<LiquidRecurringPayment>
 {
-    public RecurringPayment RecurringPayment { get; set; }
-    public Language Language { get; set; }
+    public required RecurringPayment RecurringPayment { get; set; }
+    public required Language Language { get; set; }
 }

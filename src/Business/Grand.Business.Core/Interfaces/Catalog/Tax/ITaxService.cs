@@ -18,14 +18,14 @@ public interface ITaxService
     /// <param name="customer">Customer whose groups limit the fallback providers</param>
     /// <param name="storeId">Store whose providers are the fallback</param>
     /// <returns>Active tax provider</returns>
-    ITaxProvider LoadActiveTaxProvider(Customer customer, string storeId);
+    ITaxProvider? LoadActiveTaxProvider(Customer customer, string? storeId);
 
     /// <summary>
     ///     Load tax provider by system name
     /// </summary>
     /// <param name="systemName">System name</param>
     /// <returns>Found tax provider</returns>
-    ITaxProvider LoadTaxProviderBySystemName(string systemName);
+    ITaxProvider? LoadTaxProviderBySystemName(string systemName);
 
     /// <summary>
     ///     Load all tax providers
@@ -33,7 +33,7 @@ public interface ITaxService
     /// <param name="customer">Customer</param>
     /// <param name="storeId">Store ident</param>
     /// <returns>Tax providers</returns>
-    IList<ITaxProvider> LoadAllTaxProviders(Customer customer = null, string storeId = "");
+    IList<ITaxProvider> LoadAllTaxProviders(Customer? customer = null, string? storeId = "");
 
 
     /// <summary>
@@ -124,7 +124,7 @@ public interface ITaxService
     /// <param name="product">Product</param>
     /// <param name="customer">Customer</param>
     /// <returns>A value indicating whether a product is tax exempt</returns>
-    Task<bool> IsTaxExempt(Product product, Customer customer);
+    Task<bool> IsTaxExempt(Product? product, Customer? customer);
 
     /// <summary>
     ///     Gets a value indicating whether EU VAT exempt (the European Union Value Added Tax)

@@ -10,22 +10,22 @@ public class CurrencyModel : BaseEntityModel, ILocalizedModel<CurrencyLocalizedM
 {
     [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CurrencyCode")]
 
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.DisplayLocale")]
 
-    public string DisplayLocale { get; set; }
+    public string? DisplayLocale { get; set; }
 
     [UIHint("DoubleN4")]
     [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Rate")]
     public double Rate { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.CustomFormatting")]
-    public string CustomFormatting { get; set; }
+    public string? CustomFormatting { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.NumberDecimal")]
     public int NumberDecimal { get; set; }
@@ -56,14 +56,14 @@ public class CurrencyModel : BaseEntityModel, ILocalizedModel<CurrencyLocalizedM
     //Store acl
     [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }
 
 public class CurrencyLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Configuration.Currencies.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

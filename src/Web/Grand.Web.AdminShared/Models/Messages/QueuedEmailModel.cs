@@ -8,58 +8,58 @@ namespace Grand.Web.AdminShared.Models.Messages;
 public class QueuedEmailModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.Id")]
-    public override string Id { get; set; }
+    public override string? Id { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.Priority")]
-    public string PriorityName { get; set; }
+    public string? PriorityName { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.From")]
 
-    public string From { get; set; }
+    public string? From { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.FromName")]
 
-    public string FromName { get; set; }
+    public string? FromName { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.To")]
 
-    public string To { get; set; }
+    public string? To { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.ToName")]
 
-    public string ToName { get; set; }
+    public string? ToName { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.ReplyTo")]
 
-    public string ReplyTo { get; set; }
+    public string? ReplyTo { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.ReplyToName")]
 
-    public string ReplyToName { get; set; }
+    public string? ReplyToName { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.CC")]
 
-    public string CC { get; set; }
+    public string? CC { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.Bcc")]
 
-    public string Bcc { get; set; }
+    public string? Bcc { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.Subject")]
 
-    public string Subject { get; set; }
+    public string? Subject { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.Body")]
 
-    public string Body { get; set; }
+    public string? Body { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.AttachmentFilePath")]
 
-    public string AttachmentFilePath { get; set; }
+    public string? AttachmentFilePath { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.AttachedDownload")]
     [UIHint("Download")]
-    public string AttachedDownloadId { get; set; }
+    public string? AttachedDownloadId { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.CreatedOn")]
     public DateTime CreatedOn { get; set; }
@@ -81,10 +81,10 @@ public class QueuedEmailModel : BaseEntityModel
     public DateTime? ReadOn { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.EmailAccountName")]
-    public string EmailAccountName { get; set; }
+    public string? EmailAccountName { get; set; }
 
     [GrandResourceDisplayName("Admin.System.QueuedEmails.Fields.Reference")]
     public Reference Reference { get; set; }
 
-    public string ObjectId { get; set; }
+    public string? ObjectId { get; set; }
 }
