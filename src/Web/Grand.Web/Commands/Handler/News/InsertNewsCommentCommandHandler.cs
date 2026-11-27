@@ -39,7 +39,8 @@ public class InsertNewsCommentCommandHandler : IRequestHandler<InsertNewsComment
             CustomerId = _contextAccessor.WorkContext.CurrentCustomer.Id,
             StoreId = _contextAccessor.StoreContext.CurrentStore.Id,
             CommentTitle = request.Model.CommentTitle,
-            CommentText = request.Model.CommentText
+            CommentText = request.Model.CommentText,
+            CreatedOnUtc = DateTime.UtcNow
         };
         request.NewsItem.NewsComments.Add(comment);
 
