@@ -63,7 +63,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderId">The order identifier</param>
     /// <returns>Order</returns>
-    public virtual Task<Order> GetOrderById(string orderId)
+    public virtual Task<Order?> GetOrderById(string? orderId)
     {
         return _orderRepository.GetByIdAsync(orderId);
     }
@@ -74,7 +74,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderItemId">The order item identifier</param>
     /// <returns>Order</returns>
-    public virtual async Task<Order> GetOrderByOrderItemId(string orderItemId)
+    public virtual async Task<Order?> GetOrderByOrderItemId(string orderItemId)
     {
         var query = from o in _orderRepository.Table
             where o.OrderItems.Any(x => x.Id == orderItemId)
@@ -88,7 +88,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderNumber">The order number</param>
     /// <returns>Order</returns>
-    public virtual async Task<Order> GetOrderByNumber(int orderNumber)
+    public virtual async Task<Order?> GetOrderByNumber(int orderNumber)
     {
         return await _orderRepository.FirstOrDefaultAsync(
             _orderRepository.Table.Where(x => x.OrderNumber == orderNumber));
@@ -99,7 +99,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="code">The order code</param>
     /// <returns>Order</returns>
-    public virtual async Task<IList<Order>> GetOrdersByCode(string code)
+    public virtual async Task<IList<Order>> GetOrdersByCode(string? code)
     {
         if (string.IsNullOrEmpty(code))
             return new List<Order>();
@@ -125,7 +125,7 @@ public class OrderService : IOrderService
         var orders = await _orderRepository.ToListAsync(query);
         //sort by passed identifiers
         return orderIds.Select(id => orders.FirstOrDefault(order => order.Id == id))
-            .Where(order => order != null)
+            .OfType<Order>()
             .ToList();
     }
 
@@ -134,7 +134,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderGuid">The order identifier</param>
     /// <returns>Order</returns>
-    public virtual async Task<Order> GetOrderByGuid(Guid orderGuid)
+    public virtual async Task<Order?> GetOrderByGuid(Guid orderGuid)
     {
         var query = from o in _orderRepository.Table
             where o.OrderGuid == orderGuid
@@ -174,40 +174,40 @@ public class OrderService : IOrderService
     /// <param name="pageSize">Page size</param>
     /// <param name="orderTagId">Order tag identifier</param>
     /// <returns>Orders</returns>
-    public virtual async Task<IPagedList<Order>> SearchOrders(string storeId = "",
-        string vendorId = "", string customerId = "",
-        string productId = "", string affiliateId = "", string warehouseId = "",
-        string billingCountryId = "", string ownerId = "", string salesEmployeeId = "",
-        string paymentMethodSystemName = null,
+    public virtual async Task<IPagedList<Order>> SearchOrders(string? storeId = "",
+        string? vendorId = "", string? customerId = "",
+        string? productId = "", string? affiliateId = "", string? warehouseId = "",
+        string? billingCountryId = "", string? ownerId = "", string? salesEmployeeId = "",
+        string? paymentMethodSystemName = null,
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int? os = null, PaymentStatus? ps = null, ShippingStatus? ss = null,
-        string billingEmail = null, string billingLastName = "", string orderGuid = null,
-        string orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string orderTagId = "",
-        string purchaseOrderNumber = null, bool overdueOnly = false)
+        string? billingEmail = null, string? billingLastName = "", string? orderGuid = null,
+        string? orderCode = null, int pageIndex = 0, int pageSize = int.MaxValue, string? orderTagId = "",
+        string? purchaseOrderNumber = null, bool overdueOnly = false)
     {
         var queryModel = new GetOrderQuery {
-            AffiliateId = affiliateId,
-            BillingCountryId = billingCountryId,
+            AffiliateId = affiliateId ?? "",
+            BillingCountryId = billingCountryId ?? "",
             BillingEmail = billingEmail,
-            BillingLastName = billingLastName,
+            BillingLastName = billingLastName ?? "",
             CreatedFromUtc = createdFromUtc,
             CreatedToUtc = createdToUtc,
-            CustomerId = customerId,
+            CustomerId = customerId ?? "",
             OrderGuid = orderGuid,
             OrderCode = orderCode,
             Os = os,
             PageIndex = pageIndex,
             PageSize = pageSize,
             PaymentMethodSystemName = paymentMethodSystemName,
-            ProductId = productId,
+            ProductId = productId ?? "",
             Ps = ps,
             Ss = ss,
-            StoreId = storeId,
-            VendorId = vendorId,
-            WarehouseId = warehouseId,
-            OrderTagId = orderTagId,
-            OwnerId = ownerId,
-            SalesEmployeeId = salesEmployeeId,
+            StoreId = storeId ?? "",
+            VendorId = vendorId ?? "",
+            WarehouseId = warehouseId ?? "",
+            OrderTagId = orderTagId ?? "",
+            OwnerId = ownerId ?? "",
+            SalesEmployeeId = salesEmployeeId ?? "",
             PurchaseOrderNumber = purchaseOrderNumber,
             OverdueOnly = overdueOnly
         };
@@ -264,7 +264,7 @@ public class OrderService : IOrderService
     /// <param name="order">The order</param>
     /// <param name="purchaseOrderNumber">Purchase order number</param>
     /// <param name="paymentDueDateUtc">Payment due date (a calendar day, UTC), or null when the order is paid at once</param>
-    public virtual async Task UpdatePaymentTerms(Order order, string purchaseOrderNumber, DateTime? paymentDueDateUtc)
+    public virtual async Task UpdatePaymentTerms(Order order, string? purchaseOrderNumber, DateTime? paymentDueDateUtc)
     {
         ArgumentNullException.ThrowIfNull(order);
 
@@ -314,7 +314,7 @@ public class OrderService : IOrderService
         var orderIds = orders.Select(o => o.Id).ToList();
         var approvedRecently = orderIds.Count > 0
             ? _orderApprovalRepository.Table
-                .Where(a => orderIds.Contains(a.OrderId) && a.Status == OrderApprovalStatus.Approved &&
+                .Where(a => a.OrderId != null && orderIds.Contains(a.OrderId) && a.Status == OrderApprovalStatus.Approved &&
                             a.DecidedOnUtc >= expirationDateUtc)
                 .Select(a => a.OrderId)
                 .ToList()
@@ -336,7 +336,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderItemGuid">Order identifier</param>
     /// <returns>Order item</returns>
-    public virtual async Task<OrderItem> GetOrderItemByGuid(Guid orderItemGuid)
+    public virtual async Task<OrderItem?> GetOrderItemByGuid(Guid orderItemGuid)
     {
         var query = from order in _orderRepository.Table
             from orderItem in order.OrderItems
@@ -396,7 +396,7 @@ public class OrderService : IOrderService
     /// </summary>
     /// <param name="orderNoteId">Order note identifier</param>
     /// <returns>OrderNote</returns>
-    public virtual async Task<OrderNote> GetOrderNote(string orderNoteId)
+    public virtual async Task<OrderNote?> GetOrderNote(string orderNoteId)
     {
         return await _orderNoteRepository.FirstOrDefaultAsync(
             _orderNoteRepository.Table.Where(x => x.Id == orderNoteId));

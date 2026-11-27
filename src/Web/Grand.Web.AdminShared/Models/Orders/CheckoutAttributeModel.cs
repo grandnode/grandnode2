@@ -13,11 +13,11 @@ public class CheckoutAttributeModel : BaseEntityModel, ILocalizedModel<CheckoutA
 {
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.TextPrompt")]
 
-    public string TextPrompt { get; set; }
+    public string? TextPrompt { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.IsRequired")]
     public bool IsRequired { get; set; }
@@ -29,7 +29,7 @@ public class CheckoutAttributeModel : BaseEntityModel, ILocalizedModel<CheckoutA
     public bool IsTaxExempt { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.TaxCategory")]
-    public string TaxCategoryId { get; set; }
+    public string? TaxCategoryId { get; set; }
 
     public IList<SelectListItem> AvailableTaxCategories { get; set; } = new List<SelectListItem>();
 
@@ -38,7 +38,7 @@ public class CheckoutAttributeModel : BaseEntityModel, ILocalizedModel<CheckoutA
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.AttributeControlType")]
 
-    public string AttributeControlTypeName { get; set; }
+    public string? AttributeControlTypeName { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -53,31 +53,31 @@ public class CheckoutAttributeModel : BaseEntityModel, ILocalizedModel<CheckoutA
     public int? ValidationMaxLength { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.FileAllowedExtensions")]
-    public string ValidationFileAllowedExtensions { get; set; }
+    public string? ValidationFileAllowedExtensions { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.FileMaximumSize")]
     [UIHint("Int32Nullable")]
     public int? ValidationFileMaximumSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.DefaultValue")]
-    public string DefaultValue { get; set; }
+    public string? DefaultValue { get; set; }
 
     //condition
     public bool ConditionAllowed { get; set; }
 
-    public ConditionModel ConditionModel { get; set; }
+    public ConditionModel ConditionModel { get; set; } = new();
 
     //ACL
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.LimitedToGroups")]
-    public string[] CustomerGroups { get; set; }
+    public string[]? CustomerGroups { get; set; }
 
     public IList<CheckoutAttributeLocalizedModel> Locales { get; set; } = new List<CheckoutAttributeLocalizedModel>();
 
     //Store acl
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }
 
 public class ConditionModel : BaseEntityModel
@@ -86,31 +86,31 @@ public class ConditionModel : BaseEntityModel
     public bool EnableCondition { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Condition.Attributes")]
-    public string SelectedAttributeId { get; set; }
+    public string? SelectedAttributeId { get; set; }
 
-    public IList<AttributeConditionModel> ConditionAttributes { get; set; }
+    public IList<AttributeConditionModel> ConditionAttributes { get; set; } = new List<AttributeConditionModel>();
 }
 
 public class AttributeConditionModel : BaseEntityModel
 {
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public AttributeControlType AttributeControlType { get; set; }
 
-    public IList<SelectListItem> Values { get; set; }
+    public IList<SelectListItem> Values { get; set; } = new List<SelectListItem>();
 
-    public string SelectedValueId { get; set; }
+    public string? SelectedValueId { get; set; }
 }
 
 public class CheckoutAttributeLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.CheckoutAttributes.Fields.TextPrompt")]
 
-    public string TextPrompt { get; set; }
+    public string? TextPrompt { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

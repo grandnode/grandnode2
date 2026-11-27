@@ -107,7 +107,9 @@ public class GetShipmentDetailsHandler : IRequestHandler<GetShipmentDetails, Shi
             var orderItem = request.Order.OrderItems.FirstOrDefault(x => x.Id == shipmentItem.OrderItemId);
             if (orderItem == null)
                 continue;
-            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId);
+            //archived products are kept, so a missing one is a broken record
+            var product = await _productService.GetProductByIdIncludeArch(orderItem.ProductId)
+                          ?? throw new InvalidOperationException($"Product {orderItem.ProductId} of order item {orderItem.Id} is missing");
             var shipmentItemModel = new ShipmentDetailsModel.ShipmentItemModel {
                 Id = shipmentItem.Id,
                 Sku = product.FormatSku(orderItem.Attributes),

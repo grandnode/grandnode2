@@ -38,7 +38,7 @@ public class SystemSettingsModel : BaseModel
     public int DefaultGridPageSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.System.GridPageSizes")]
-    public string GridPageSizes { get; set; }
+    public string? GridPageSizes { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.System.UseIsoDateTimeConverterInJson")]
     public bool UseIsoDateTimeConverterInJson { get; set; }
@@ -51,7 +51,7 @@ public class SystemSettingsModel : BaseModel
     #region Language settings
 
     [GrandResourceDisplayName("Admin.Settings.System.DefaultAdminLanguageId")]
-    public string DefaultAdminLanguageId { get; set; }
+    public string? DefaultAdminLanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.System.AutomaticallyDetectLanguage")]
     public bool AutomaticallyDetectLanguage { get; set; }

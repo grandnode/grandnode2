@@ -3,7 +3,7 @@ using Grand.Mediator;
 
 namespace Grand.Module.Api.Commands.Models.Catalog;
 
-public class UpdateCategoryCommand : IRequest<CategoryDto>
+public class UpdateCategoryCommand : IRequest<CategoryDto?>
 {
-    public CategoryDto Model { get; set; }
+    public required CategoryDto Model { get; set; }
 }

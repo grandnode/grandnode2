@@ -99,7 +99,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
             model.SubTotalDiscount =
                 _priceFormatter.FormatPrice(-shoppingCartSubTotal.DiscountAmount, request.Currency);
             model.SubTotalDiscountValue = -shoppingCartSubTotal.DiscountAmount;
-            shoppingCartSubTotal.AppliedDiscounts.ForEach(x => model.Discounts.Add(x.DiscountId));
+            model.Discounts.UnionWith(shoppingCartSubTotal.AppliedDiscounts.Select(x => x.DiscountId).OfType<string>());
         }
     }
 
@@ -200,7 +200,7 @@ public class GetOrderTotalsHandler : IRequestHandler<GetOrderTotals, OrderTotals
         {
             model.OrderTotalDiscount = _priceFormatter.FormatPrice(-orderTotalDiscountAmountBase, request.Currency);
             model.OrderTotalDiscountValue = -orderTotalDiscountAmountBase;
-            carttotal.AppliedDiscounts.ForEach(x => model.Discounts.Add(x.DiscountId));
+            model.Discounts.UnionWith(carttotal.AppliedDiscounts.Select(x => x.DiscountId).OfType<string>());
         }
 
         //gift vouchers

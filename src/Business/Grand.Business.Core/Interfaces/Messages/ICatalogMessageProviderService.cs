@@ -21,8 +21,8 @@ public interface ICatalogMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendProductEmailAFriendMessage(Customer customer, Store store, string languageId,
-        Product product, string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null);
+    Task<int> SendProductEmailAFriendMessage(Customer customer, Store store, string? languageId,
+        Product product, string customerEmail, string friendsEmail, string personalMessage, DomainHost? host = null);
 
     /// <summary>
     ///     Sends wishlist "email a friend" message
@@ -37,8 +37,8 @@ public interface ICatalogMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendWishlistEmailAFriendMessage(Customer customer, Store store, string languageId,
-        string customerEmail, string friendsEmail, string personalMessage, DomainHost host = null);
+    Task<int> SendWishlistEmailAFriendMessage(Customer customer, Store store, string? languageId,
+        string customerEmail, string friendsEmail, string personalMessage, DomainHost? host = null);
 
     /// <summary>
     ///     Sends "email a friend" message
@@ -47,9 +47,9 @@ public interface ICatalogMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendProductQuestionMessage(Customer customer, Store store, string languageId,
+    Task<int> SendProductQuestionMessage(Customer customer, Store store, string? languageId,
         Product product, string customerEmail, string fullName, string phone, string message, string ipaddress,
-        DomainHost host = null);
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends a product review notification message to a store owner
@@ -62,8 +62,8 @@ public interface ICatalogMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    Task<int> SendProductReviewMessage(Product product, ProductReview productReview, Store store, string languageId,
-        DomainHost host = null);
+    Task<int> SendProductReviewMessage(Product product, ProductReview productReview, Store store, string? languageId,
+        DomainHost? host = null);
 
     /// <summary>
     ///     Sends a "quantity below" notification to a store owner
@@ -71,13 +71,13 @@ public interface ICatalogMessageProviderService
     /// <param name="product">Product</param>
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendQuantityBelowStoreOwnerMessage(Product product, string languageId);
+    Task<int> SendQuantityBelowStoreOwnerMessage(Product product, string? languageId);
 
     /// <summary>
     ///     Sends the store owner the batches of the store that became expiring or expired
     /// </summary>
     /// <returns>Queued email identifier; 0 without the message template</returns>
-    Task<int> SendBatchesExpiringStoreOwnerMessage(Store store, IList<ExpiringBatch> batches, string languageId);
+    Task<int> SendBatchesExpiringStoreOwnerMessage(Store store, IList<ExpiringBatch> batches, string? languageId);
 
     /// <summary>
     ///     Sends a "quantity below" notification to a store owner
@@ -87,7 +87,7 @@ public interface ICatalogMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendQuantityBelowStoreOwnerMessage(Product product, ProductAttributeCombination combination,
-        string languageId);
+        string? languageId);
 
     /// <summary>
     ///     Sends a 'Back in stock' notification message to a customer
@@ -98,7 +98,7 @@ public interface ICatalogMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
     Task<int> SendBackInStockMessage(Customer customer, Product product, OutOfStockSubscription subscription,
-        string languageId);
+        string? languageId);
 
     /// <summary>
     ///     Sends auction ended notification to a customer (winner)
@@ -107,7 +107,7 @@ public interface ICatalogMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <param name="bid">Bid</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendAuctionWinEndedCustomerMessage(Product product, string languageId, Bid bid);
+    Task<int> SendAuctionWinEndedCustomerMessage(Product product, string? languageId, Bid bid);
 
     /// <summary>
     ///     Sends auction ended notification to a customer (loser)
@@ -116,7 +116,7 @@ public interface ICatalogMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <param name="bid"></param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendAuctionEndedLostCustomerMessage(Product product, string languageId, Bid bid);
+    Task<int> SendAuctionEndedLostCustomerMessage(Product product, string? languageId, Bid bid);
 
     /// <summary>
     ///     Sends auction ended notification to a customer (loser - bin)
@@ -126,7 +126,7 @@ public interface ICatalogMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendAuctionEndedBinCustomerMessage(Product product, string customerId, string languageId, string storeId);
+    Task<int> SendAuctionEndedBinCustomerMessage(Product product, string? customerId, string? languageId, string? storeId);
 
     /// <summary>
     ///     Sends auction ended notification to a store owner
@@ -135,7 +135,7 @@ public interface ICatalogMessageProviderService
     /// <param name="product">Auction</param>
     /// <param name="bid">Bid</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string languageId, Bid bid);
+    Task<int> SendAuctionEndedStoreOwnerMessage(Product product, string? languageId, Bid? bid);
 
     /// <summary>
     ///     Send outbid notification to a customer
@@ -144,5 +144,5 @@ public interface ICatalogMessageProviderService
     /// <param name="product">Product</param>
     /// <param name="bid">Bid</param>
     /// <returns>Queued email identifier</returns>
-    Task<int> SendOutBidCustomerMessage(Product product, string languageId, Bid bid);
+    Task<int> SendOutBidCustomerMessage(Product product, string? languageId, Bid bid);
 }

@@ -16,10 +16,10 @@ public class GoogleRecaptchaControl
         _version = version;
     }
 
-    public string Id { get; set; }
-    public string Theme { get; set; }
-    public string PublicKey { get; set; }
-    public string Language { get; set; }
+    public string? Id { get; set; }
+    public string? Theme { get; set; }
+    public string? PublicKey { get; set; }
+    public string? Language { get; set; }
 
     public string RenderControl()
     {

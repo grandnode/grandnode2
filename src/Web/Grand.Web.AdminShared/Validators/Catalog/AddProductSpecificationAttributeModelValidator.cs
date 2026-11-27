@@ -46,7 +46,7 @@ public class AddProductSpecificationAttributeModelValidator : BaseStoreAccessVal
             return true;
         }).WithMessage(translationService.GetResource("Admin.Catalog.Products.SpecificationAttributes.Validate"));
     }
-    protected override async Task<Product> GetEntity(ProductModel.AddProductSpecificationAttributeModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.AddProductSpecificationAttributeModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

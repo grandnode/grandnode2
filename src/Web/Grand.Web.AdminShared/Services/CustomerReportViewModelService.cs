@@ -84,7 +84,7 @@ public class CustomerReportViewModelService : ICustomerReportViewModelService
     /// The only caller (<see cref="Controllers.BaseFullReportsController.ReportRegisteredCustomersList" />) is Full-tier/Admin-Store
     /// only, where <c>scope.VendorId</c> is always "" anyway, so this is currently a documented no-op, not a bug.</param>
     public virtual async Task<IList<RegisteredCustomerReportLineModel>> GetReportRegisteredCustomersModel(
-        string storeId, string vendorId = "")
+        string? storeId, string vendorId = "")
     {
         var report = new List<RegisteredCustomerReportLineModel> {
             new() {

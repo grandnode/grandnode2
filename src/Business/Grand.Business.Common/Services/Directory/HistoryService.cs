@@ -31,8 +31,8 @@ public class HistoryService : IHistoryService
         ArgumentNullException.ThrowIfNull(entity);
 
         var history = await _historyRepository.ToListAsync(_historyRepository.Table
-            .Where(x => x.Object.Id == entity.Id).Select(x => (T)x.Object));
-        return history;
+            .Where(x => x.Object != null && x.Object.Id == entity.Id).Select(x => x.Object));
+        return history.OfType<T>().ToList();
     }
 
     public virtual async Task<IList<HistoryObject>> GetHistoryObjectForEntity(BaseEntity entity)
@@ -40,7 +40,7 @@ public class HistoryService : IHistoryService
         ArgumentNullException.ThrowIfNull(entity);
 
         var history = await _historyRepository.ToListAsync(
-            _historyRepository.Table.Where(x => x.Object.Id == entity.Id));
+            _historyRepository.Table.Where(x => x.Object != null && x.Object.Id == entity.Id));
         return history;
     }
 }

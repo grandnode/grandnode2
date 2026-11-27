@@ -4,6 +4,7 @@ using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Domain.Permissions;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Controllers;
+using Grand.Web.AdminShared.Extensions;
 using Grand.Web.AdminShared.Models.Shipping;
 using Grand.Web.Common.DataSource;
 using Grand.Web.Common.Filters;
@@ -30,11 +31,11 @@ public class ReturnShippingController(
     IContextAccessor contextAccessor)
     : BaseReturnShippingController(returnShippingService, settingService, countryService, translationService)
 {
-    private string CurrentStoreId => contextAccessor.WorkContext.CurrentCustomer.StaffStoreId;
+    private string CurrentStoreId => contextAccessor.WorkContext.PanelStoreId();
 
     //a provider whose plugin is not multi-store has no Store-area configuration screen - its relative url would
     //resolve under /Store/ and 404, so offer no link at all
-    protected override string ConfigurationUrl(IReturnShippingProvider provider) =>
+    protected override string? ConfigurationUrl(IReturnShippingProvider provider) =>
         StoreAreaConfiguration.Exists(provider) ? provider.ConfigurationUrl : null;
 
     [HttpGet]

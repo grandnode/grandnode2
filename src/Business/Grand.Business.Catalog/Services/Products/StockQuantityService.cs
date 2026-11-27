@@ -1,6 +1,4 @@
-﻿#nullable enable
-
-using Grand.Business.Core.Interfaces.Catalog.Products;
+﻿using Grand.Business.Core.Interfaces.Catalog.Products;
 using Grand.Business.Core.Utilities.Catalog;
 using Grand.Domain.Catalog;
 using Grand.Domain.Common;
@@ -10,7 +8,7 @@ namespace Grand.Business.Catalog.Services.Products;
 public class StockQuantityService : IStockQuantityService
 {
     public virtual int GetTotalStockQuantity(Product product, bool useReservedQuantity = true,
-        string warehouseId = "", bool total = false)
+        string? warehouseId = "", bool total = false)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -41,7 +39,7 @@ public class StockQuantityService : IStockQuantityService
     }
 
     public virtual int GetTotalStockQuantityForCombination(Product product, ProductAttributeCombination combination,
-        bool useReservedQuantity = true, string warehouseId = "")
+        bool useReservedQuantity = true, string? warehouseId = "")
     {
         ArgumentNullException.ThrowIfNull(product);
         ArgumentNullException.ThrowIfNull(combination);
@@ -67,7 +65,7 @@ public class StockQuantityService : IStockQuantityService
         return 0;
     }
 
-    public virtual (string resource, object? arg0) FormatStockMessage(Product product, string warehouseId,
+    public virtual (string resource, object? arg0) FormatStockMessage(Product product, string? warehouseId,
         IList<CustomAttribute> attributes)
     {
         var status = GetStockStatus(product, warehouseId, attributes);
@@ -75,7 +73,7 @@ public class StockQuantityService : IStockQuantityService
     }
 
     public virtual StockCheck CheckStock(Product product, int quantity, IList<CustomAttribute>? attributes,
-        string warehouseId)
+        string? warehouseId)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -104,7 +102,7 @@ public class StockQuantityService : IStockQuantityService
         }
     }
 
-    public virtual StockStatus GetStockStatus(Product product, string warehouseId,
+    public virtual StockStatus GetStockStatus(Product product, string? warehouseId,
         IList<CustomAttribute> attributes)
     {
         ArgumentNullException.ThrowIfNull(product);
@@ -129,7 +127,7 @@ public class StockQuantityService : IStockQuantityService
         return status;
     }
 
-    private StockStatus StockByAttributesStatus(Product product, string warehouseId,
+    private StockStatus StockByAttributesStatus(Product product, string? warehouseId,
         IList<CustomAttribute> attributes)
     {
         var combination = product.FindProductAttributeCombination(attributes);
@@ -155,7 +153,7 @@ public class StockQuantityService : IStockQuantityService
         };
     }
 
-    private StockStatus StockInventoryStatus(Product product, string warehouseId)
+    private StockStatus StockInventoryStatus(Product product, string? warehouseId)
     {
         var stockQuantity = GetTotalStockQuantity(product, warehouseId: warehouseId);
         if (stockQuantity > 0)

@@ -6,13 +6,13 @@ namespace Grand.Web.AdminShared.Models.Messages;
 
 public class ContactAttributeValueModel : BaseEntityModel, ILocalizedModel<ContactAttributeValueLocalizedModel>
 {
-    public string ContactAttributeId { get; set; }
+    public string? ContactAttributeId { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Values.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Values.Fields.ColorSquaresRgb")]
-    public string ColorSquaresRgb { get; set; }
+    public string? ColorSquaresRgb { get; set; }
 
     public bool DisplayColorSquaresRgb { get; set; }
 
@@ -29,7 +29,7 @@ public class ContactAttributeValueModel : BaseEntityModel, ILocalizedModel<Conta
 public class ContactAttributeValueLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Catalog.Attributes.ContactAttributes.Values.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

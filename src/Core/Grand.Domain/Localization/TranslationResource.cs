@@ -12,17 +12,17 @@ public class TranslationResource : BaseEntity
     /// </summary>
     [AuditReference(typeof(Language))]
     [AuditOwner]
-    public string LanguageId { get; set; }
+    public string LanguageId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the translation name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the translation value
     /// </summary>
-    public string Value { get; set; }
+    public string? Value { get; set; }
 
     /// <summary>
     ///     Gets or sets the translation area

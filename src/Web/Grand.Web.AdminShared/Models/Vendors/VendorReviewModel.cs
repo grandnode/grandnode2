@@ -6,24 +6,24 @@ namespace Grand.Web.AdminShared.Models.Vendors;
 public class VendorReviewModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.VendorReviews.Fields.Vendor")]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     [GrandResourceDisplayName("Admin.VendorReviews.Fields.Vendor")]
-    public string VendorName { get; set; }
+    public string? VendorName { get; set; }
 
     public string Ids => Id + ":" + VendorId;
 
     [GrandResourceDisplayName("Admin.VendorReviews.Fields.Customer")]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [GrandResourceDisplayName("Admin.VendorReviews.Fields.Customer")]
-    public string CustomerInfo { get; set; }
+    public string? CustomerInfo { get; set; }
 
     [GrandResourceDisplayName("Admin.VendorReviews.Fields.Title")]
-    public string Title { get; set; }
+    public string? Title { get; set; }
 
     [GrandResourceDisplayName("Admin.VendorReviews.Fields.ReviewText")]
-    public string ReviewText { get; set; }
+    public string? ReviewText { get; set; }
 
     [GrandResourceDisplayName("Admin.VendorReviews.Fields.Rating")]
     public int Rating { get; set; }

@@ -147,7 +147,7 @@ public class ExternalAuthenticationControllerScimTests
     [TestMethod]
     public async Task ScimGroupEdit_Post_Valid_SavesAndRedirects()
     {
-        _groups.Setup(x => x.SetMapping("sg1", "g-admin", null, null)).ReturnsAsync(ScimOutcome.Ok);
+        _groups.Setup(x => x.SetMapping("sg1", "g-admin", "", "")).ReturnsAsync(ScimOutcome.Ok);
         _groups.Setup(x => x.Get("sg1")).ReturnsAsync(new ScimGroupResult(ScimOutcome.Ok,
             new ScimGroupView("sg1", "Shop admins", null, [], DateTime.UtcNow, null)));
 
@@ -155,7 +155,7 @@ public class ExternalAuthenticationControllerScimTests
             _groups.Object, _stores.Object, _vendors.Object, _translation.Object, _customerGroups.Object, _context.Object);
 
         Assert.AreEqual("Scim", ((RedirectToActionResult)result).ActionName);
-        _groups.Verify(x => x.SetMapping("sg1", "g-admin", null, null), Times.Once);
+        _groups.Verify(x => x.SetMapping("sg1", "g-admin", "", ""), Times.Once);
     }
 
     //only an administrator gives the Administrators role, as on the customer edit screen

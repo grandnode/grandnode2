@@ -98,7 +98,8 @@ public class ShippingController : BaseAdminController
 
         var _shippingProviderSettings = await _settingService.LoadSetting<ShippingProviderSettings>(storeScope);
 
-        var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(model.SystemName);
+        var srcm = _shippingService.LoadShippingRateCalculationProviderBySystemName(model.SystemName)
+                   ?? throw new ArgumentException("No shipping rate method found with the specified system name");
         if (srcm.IsShippingRateMethodActive(_shippingProviderSettings))
         {
             if (!model.IsActive)
@@ -152,7 +153,7 @@ public class ShippingController : BaseAdminController
         if (states?.Count > 0)
             foreach (var s in states)
                 model.ShippingOriginAddress.AvailableStates.Add(new SelectListItem
-                    { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress.StateProvinceId });
+                    { Text = s.Name, Value = s.Id, Selected = s.Id == originAddress?.StateProvinceId });
 
         model.ShippingOriginAddress.CountryEnabled = true;
         model.ShippingOriginAddress.StateProvinceEnabled = true;
@@ -306,10 +307,9 @@ public class ShippingController : BaseAdminController
                 }
                 else
                 {
-                    if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) != null)
+                    if (shippingMethod.RestrictedCountries.FirstOrDefault(c => c.Id == country.Id) is { } restrictedCountry)
                     {
-                        shippingMethod.RestrictedCountries.Remove(
-                            shippingMethod.RestrictedCountries.FirstOrDefault(x => x.Id == country.Id));
+                        shippingMethod.RestrictedCountries.Remove(restrictedCountry);
                         await _shippingMethodService.UpdateShippingMethod(shippingMethod);
                     }
                 }

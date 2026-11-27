@@ -4,102 +4,105 @@
    them. *@
 <vc:vendor-widget widget-zone="vendor_order_details_address_top" additional-data="Model"/>
 <div class="grand-fields grand-fields--2col">
-<admin-card title="@Loc["Vendor.Orders.BillingInfo"]">
-    <table class="table table-sm mb-0">
-        @if (Model.BillingAddress.FirstNameEnabled || Model.BillingAddress.LastNameEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.FullName"]</td>
-                <td>@Model.BillingAddress.FirstName @Model.BillingAddress.LastName</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.EmailEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Email"]</td>
-                <td>@Model.BillingAddress.Email</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.PhoneEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Phone"]</td>
-                <td>@Model.BillingAddress.PhoneNumber</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.FaxEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Fax"]</td>
-                <td>@Model.BillingAddress.FaxNumber</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.CompanyEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Company"]</td>
-                <td>@Model.BillingAddress.Company</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.VatNumberEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.VatNumber"]</td>
-                <td>@Model.BillingAddress.VatNumber</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.StreetAddressEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Address1"]</td>
-                <td>@Model.BillingAddress.Address1</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.StreetAddress2Enabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Address2"]</td>
-                <td>@Model.BillingAddress.Address2</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.CityEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.City"]</td>
-                <td>@Model.BillingAddress.City</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.StateProvinceEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.StateProvince"]</td>
-                <td>@Model.BillingAddress.StateProvinceName</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.ZipPostalCodeEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.ZipPostalCode"]</td>
-                <td>@Model.BillingAddress.ZipPostalCode</td>
-            </tr>
-        }
-        @if (Model.BillingAddress.CountryEnabled)
-        {
-            <tr>
-                <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Country"]</td>
-                <td>@Model.BillingAddress.CountryName</td>
-            </tr>
-        }
-        @if (!string.IsNullOrEmpty(Model.BillingAddress.FormattedCustomAddressAttributes))
-        {
-            <tr class="custom-attributes-view">
-                <td colspan="2">
-                    @Html.Raw(Model.BillingAddress.FormattedCustomAddressAttributes)
-                </td>
-            </tr>
-        }
-    </table>
-</admin-card>
+@if (Model.BillingAddress is { } billingAddress)
+{
+    <admin-card title="@Loc["Vendor.Orders.BillingInfo"]">
+        <table class="table table-sm mb-0">
+            @if (billingAddress.FirstNameEnabled || billingAddress.LastNameEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.FullName"]</td>
+                    <td>@billingAddress.FirstName @billingAddress.LastName</td>
+                </tr>
+            }
+            @if (billingAddress.EmailEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Email"]</td>
+                    <td>@billingAddress.Email</td>
+                </tr>
+            }
+            @if (billingAddress.PhoneEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Phone"]</td>
+                    <td>@billingAddress.PhoneNumber</td>
+                </tr>
+            }
+            @if (billingAddress.FaxEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Fax"]</td>
+                    <td>@billingAddress.FaxNumber</td>
+                </tr>
+            }
+            @if (billingAddress.CompanyEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Company"]</td>
+                    <td>@billingAddress.Company</td>
+                </tr>
+            }
+            @if (billingAddress.VatNumberEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.VatNumber"]</td>
+                    <td>@billingAddress.VatNumber</td>
+                </tr>
+            }
+            @if (billingAddress.StreetAddressEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Address1"]</td>
+                    <td>@billingAddress.Address1</td>
+                </tr>
+            }
+            @if (billingAddress.StreetAddress2Enabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Address2"]</td>
+                    <td>@billingAddress.Address2</td>
+                </tr>
+            }
+            @if (billingAddress.CityEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.City"]</td>
+                    <td>@billingAddress.City</td>
+                </tr>
+            }
+            @if (billingAddress.StateProvinceEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.StateProvince"]</td>
+                    <td>@billingAddress.StateProvinceName</td>
+                </tr>
+            }
+            @if (billingAddress.ZipPostalCodeEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.ZipPostalCode"]</td>
+                    <td>@billingAddress.ZipPostalCode</td>
+                </tr>
+            }
+            @if (billingAddress.CountryEnabled)
+            {
+                <tr>
+                    <td class="grand-fact__label">@Loc["Vendor.Orders.Address.Country"]</td>
+                    <td>@billingAddress.CountryName</td>
+                </tr>
+            }
+            @if (!string.IsNullOrEmpty(billingAddress.FormattedCustomAddressAttributes))
+            {
+                <tr class="custom-attributes-view">
+                    <td colspan="2">
+                        @Html.Raw(billingAddress.FormattedCustomAddressAttributes)
+                    </td>
+                </tr>
+            }
+        </table>
+    </admin-card>
+}
 
 @if (Model.IsShippable)
 {

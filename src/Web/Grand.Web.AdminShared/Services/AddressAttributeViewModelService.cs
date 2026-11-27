@@ -56,7 +56,7 @@ public class AddressAttributeViewModelService(
         PrepareAddressAttributeValues(string addressAttributeId)
     {
         var values = (await addressAttributeService.GetAddressAttributeById(addressAttributeId))
-            .AddressAttributeValues;
+            ?.AddressAttributeValues ?? [];
         return (values.Select(x => x.ToModel()), values.Count);
     }
 

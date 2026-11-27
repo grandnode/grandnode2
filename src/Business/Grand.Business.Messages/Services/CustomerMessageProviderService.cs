@@ -54,8 +54,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    protected virtual async Task<int> SendCustomerMessage(Customer customer, Store store, string languageId,
-        string templateName, bool toEmailAccount = false, CustomerNote customerNote = null, DomainHost host = null)
+    protected virtual async Task<int> SendCustomerMessage(Customer customer, Store store, string? languageId,
+        string templateName, bool toEmailAccount = false, CustomerNote? customerNote = null, DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -88,8 +88,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     ///     Send an order approval message; the recipient also provides the customer tokens
     /// </summary>
     protected virtual async Task<int> SendOrderApprovalMessage(OrderApproval approval, Customer buyer,
-        Customer recipient, Store store, string languageId, string templateName, DomainHost host,
-        string toEmail = null)
+        Customer recipient, Store store, string? languageId, string templateName, DomainHost? host,
+        string? toEmail = null)
     {
         ArgumentNullException.ThrowIfNull(approval);
         ArgumentNullException.ThrowIfNull(buyer);
@@ -129,7 +129,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendOrderApprovalRequestedMessage(OrderApproval approval, Customer buyer,
-        Customer approver, Store store, string languageId, DomainHost host = null)
+        Customer approver, Store store, string? languageId, DomainHost? host = null)
     {
         return await SendOrderApprovalMessage(approval, buyer, approver, store, languageId,
             MessageTemplateNames.OrderApprovalRequested, host);
@@ -146,7 +146,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendOrderApprovalDecidedMessage(OrderApproval approval, Customer buyer,
-        Store store, string languageId, DomainHost host = null)
+        Store store, string? languageId, DomainHost? host = null)
     {
         return await SendOrderApprovalMessage(approval, buyer, buyer, store, languageId,
             MessageTemplateNames.OrderApprovalDecided, host);
@@ -164,7 +164,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// </param>
     /// <param name="toEmail">Recipient</param>
     public virtual async Task<int> SendOrderApprovalDecidedMessage(OrderApproval approval, Customer buyer,
-        Store store, string languageId, DomainHost host, string toEmail)
+        Store store, string? languageId, DomainHost? host, string toEmail)
     {
         return await SendOrderApprovalMessage(approval, buyer, buyer, store, languageId,
             MessageTemplateNames.OrderApprovalDecided, host, toEmail);
@@ -181,7 +181,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// <param name="panelArea">The back office panel the recipient works in</param>
     /// <param name="languageId">Message language identifier</param>
     public virtual async Task<int> SendOrderApprovalStaffMessage(OrderApproval approval, Customer buyer, Store store,
-        string toEmail, string toName, string panelArea, string languageId)
+        string? toEmail, string? toName, string panelArea, string? languageId)
     {
         ArgumentNullException.ThrowIfNull(approval);
         ArgumentNullException.ThrowIfNull(buyer);
@@ -219,8 +219,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string languageId,
-        DomainHost host = null)
+    public virtual async Task<int> SendCustomerRegisteredMessage(Customer customer, Store store, string? languageId,
+        DomainHost? host = null)
     {
         return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerRegistered, true,
             host: host);
@@ -235,8 +235,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendCustomerWelcomeMessage(Customer customer, Store store, string languageId,
-        DomainHost host = null)
+    public virtual async Task<int> SendCustomerWelcomeMessage(Customer customer, Store store, string? languageId,
+        DomainHost? host = null)
     {
         return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerWelcome, host: host);
     }
@@ -250,8 +250,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendCustomerEmailValidationMessage(Customer customer, Store store, string languageId,
-        DomainHost host = null)
+    public virtual async Task<int> SendCustomerEmailValidationMessage(Customer customer, Store store, string? languageId,
+        DomainHost? host = null)
     {
         return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerEmailValidation,
             host: host);
@@ -267,7 +267,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendCustomerPasswordRecoveryMessage(Customer customer, Store store,
-        string languageId, DomainHost host = null)
+        string? languageId, DomainHost? host = null)
     {
         return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerPasswordRecovery,
             host: host);
@@ -282,7 +282,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier</returns>
     public virtual async Task<int> SendNewCustomerNoteMessage(CustomerNote customerNote, Customer customer, Store store,
-        string languageId)
+        string? languageId)
     {
         return await SendCustomerMessage(customer, store, languageId, MessageTemplateNames.CustomerNewCustomerNote,
             customerNote: customerNote);
@@ -298,7 +298,7 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
     public virtual async Task<int> SendCustomerEmailTokenValidationMessage(Customer customer, Store store,
-        string languageId, DomainHost host = null)
+        string? languageId, DomainHost? host = null)
     {
         return await SendCustomerMessage(customer, store, languageId,
             MessageTemplateNames.CustomerEmailTokenValidationMessage, host: host);
@@ -312,8 +312,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string languageId,
-        DomainHost host = null)
+    public virtual async Task<int> SendCustomerDeleteStoreOwnerMessage(Customer customer, string? languageId,
+        DomainHost? host = null)
     {
         ArgumentNullException.ThrowIfNull(customer);
 
@@ -360,10 +360,10 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
     /// <param name="host">
     ///     Host of the storefront request; links use it when it is one of the store's domains, else the primary domain
     /// </param>
-    public virtual async Task<int> SendContactUsMessage(Customer customer, Store store, string languageId,
+    public virtual async Task<int> SendContactUsMessage(Customer customer, Store store, string? languageId,
         string senderEmail,
         string senderName, string subject, string body, string attrInfo, IList<CustomAttribute> customAttributes,
-        string ipaddress, DomainHost host = null)
+        string ipaddress, DomainHost? host = null)
     {
         var language = await _messageLookupService.EnsureLanguageIsActive(languageId, store.Id);
         var messageTemplate = await _messageLookupService.GetMessageTemplate("Service.ContactUs", store.Id);
@@ -373,8 +373,8 @@ public class CustomerMessageProviderService : ICustomerMessageProviderService
         //email account
         var emailAccount = await _messageLookupService.GetEmailAccountOfMessageTemplate(messageTemplate, language.Id);
 
-        string fromEmail;
-        string fromName;
+        string? fromEmail;
+        string? fromName;
         senderName = WebUtility.HtmlEncode(senderName);
         senderEmail = WebUtility.HtmlEncode(senderEmail);
         //required for some SMTP servers

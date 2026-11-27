@@ -9,23 +9,23 @@ public class KnowledgebaseArticleComment : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the comment text
     /// </summary>
     [AuditName]
-    public string CommentText { get; set; }
+    public string? CommentText { get; set; }
 
     /// <summary>
     ///     Gets or sets the blog post title
     /// </summary>
-    public string ArticleTitle { get; set; }
+    public string? ArticleTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets the blog post identifier
     /// </summary>
     [AuditReference(typeof(KnowledgebaseArticle))]
     [AuditOwner]
-    public string ArticleId { get; set; }
+    public string ArticleId { get; set; } = null!;
 }

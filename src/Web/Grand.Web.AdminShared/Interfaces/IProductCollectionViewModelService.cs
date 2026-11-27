@@ -11,5 +11,5 @@ public interface IProductCollectionViewModelService
 
     Task UpdateProductCollection(ProductModel.ProductCollectionModel model);
 
-    Task DeleteProductCollection(string id, string productId);
+    Task DeleteProductCollection(string? id, string? productId);
 }

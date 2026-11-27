@@ -20,6 +20,7 @@ public class
     public async Task<ProductAttributeMappingDto> Handle(AddProductAttributeMappingCommand request,
         CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
         //insert mapping
         var productAttributeMapping = request.Model.ToEntity();
         await _productAttributeService.InsertProductAttributeMapping(productAttributeMapping, request.Product.Id);

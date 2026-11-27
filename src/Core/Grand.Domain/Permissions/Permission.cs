@@ -8,28 +8,28 @@ namespace Grand.Domain.Permissions;
 /// </summary>
 public class Permission : BaseEntity
 {
-    private ICollection<string> _actions;
-    private ICollection<string> _customerGroups;
+    private ICollection<string>? _actions;
+    private ICollection<string>? _customerGroups;
 
     /// <summary>
     ///     Gets or sets the permission name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the permission system name
     /// </summary>
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the area name
     /// </summary>
-    public string Area { get; set; }
+    public string? Area { get; set; }
 
     /// <summary>
     ///     Gets or sets the permission category
     /// </summary>
-    public string Category { get; set; }
+    public string? Category { get; set; }
 
     /// <summary>
     ///     Gets or sets customer groups

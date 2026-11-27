@@ -8,13 +8,13 @@ namespace Grand.Web.AdminShared.Models.Orders;
 public class PaymentTransactionModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PaymentMethodSystemName")]
-    public string PaymentMethodSystemName { get; set; }
+    public string? PaymentMethodSystemName { get; set; }
 
     /// <summary>
     ///     The payment method's friendly name, or its system name when the plugin is gone
     /// </summary>
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.PaymentMethodSystemName")]
-    public string PaymentMethodName { get; set; }
+    public string? PaymentMethodName { get; set; }
 
     /// <summary>
     ///     A checkout whose payment never went through: failed, abandoned or still in progress at the gateway
@@ -24,40 +24,40 @@ public class PaymentTransactionModel : BaseEntityModel
     public TransactionStatus TransactionStatus { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Status")]
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Store")]
-    public string StoreName { get; set; }
+    public string? StoreName { get; set; }
 
     public Guid OrderGuid { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Order")]
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     public int? OrderNumber { get; set; }
-    public string OrderCode { get; set; }
+    public string? OrderCode { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Fields.OrderStatus")]
-    public string OrderStatus { get; set; }
+    public string? OrderStatus { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Fields.PaymentStatus")]
-    public string OrderPaymentStatus { get; set; }
+    public string? OrderPaymentStatus { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Fields.OrderTotal")]
     public double? OrderTotal { get; set; }
 
-    public string OrderCurrencyCode { get; set; }
+    public string? OrderCurrencyCode { get; set; }
 
     /// <summary>
     ///     The billing company, or the billing first and last name when there is none
     /// </summary>
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.BillingName")]
-    public string BillingName { get; set; }
+    public string? BillingName { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Fields.PurchaseOrderNumber")]
-    public string PurchaseOrderNumber { get; set; }
+    public string? PurchaseOrderNumber { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.Fields.PaymentDueDate")]
     [UIHint("DateNullable")]
@@ -75,13 +75,13 @@ public class PaymentTransactionModel : BaseEntityModel
     /// </summary>
     public bool CanEditPaymentTerms { get; set; }
 
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Customer")]
-    public string CustomerEmail { get; set; }
+    public string? CustomerEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.CurrencyCode")]
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.CurrencyRate")]
     public double CurrencyRate { get; set; }
@@ -108,28 +108,28 @@ public class PaymentTransactionModel : BaseEntityModel
     public Dictionary<string, object> CustomValues { get; set; } = new();
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.IPAddress")]
-    public string IPAddress { get; set; }
+    public string? IPAddress { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.AuthorizationTransactionId")]
-    public string AuthorizationTransactionId { get; set; }
+    public string? AuthorizationTransactionId { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.AuthorizationTransactionCode")]
-    public string AuthorizationTransactionCode { get; set; }
+    public string? AuthorizationTransactionCode { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.AuthorizationTransactionResult")]
-    public string AuthorizationTransactionResult { get; set; }
+    public string? AuthorizationTransactionResult { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.CaptureTransactionId")]
-    public string CaptureTransactionId { get; set; }
+    public string? CaptureTransactionId { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.CaptureTransactionResult")]
-    public string CaptureTransactionResult { get; set; }
+    public string? CaptureTransactionResult { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.AdditionalInfo")]
-    public string AdditionalInfo { get; set; }
+    public string? AdditionalInfo { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.CreatedOn")]
     public DateTime CreatedOn { get; set; }
@@ -161,10 +161,10 @@ public class PaymentTransactionModel : BaseEntityModel
     public double AmountToPaid { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Reference")]
-    public string Reference { get; set; }
+    public string? Reference { get; set; }
 
     [GrandResourceDisplayName("Admin.PaymentTransaction.Fields.Note")]
-    public string Note { get; set; }
+    public string? Note { get; set; }
 
     public IList<PaymentTransactionEntryModel> Entries { get; set; } = new List<PaymentTransactionEntryModel>();
 

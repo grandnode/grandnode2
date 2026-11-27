@@ -12,13 +12,13 @@ public class LiquidShipmentItem : Drop
 {
     private readonly Language _language;
     private readonly Order _order;
-    private readonly OrderItem _orderItem;
-    private readonly Product _product;
+    private readonly OrderItem? _orderItem;
+    private readonly Product? _product;
     private readonly Shipment _shipment;
     private readonly ShipmentItem _shipmentItem;
 
-    public LiquidShipmentItem(ShipmentItem shipmentItem, Shipment shipment, Order order, OrderItem orderItem,
-        Product product, Language language)
+    public LiquidShipmentItem(ShipmentItem shipmentItem, Shipment shipment, Order order, OrderItem? orderItem,
+        Product? product, Language language)
     {
         _shipmentItem = shipmentItem;
         _language = language;
@@ -32,7 +32,7 @@ public class LiquidShipmentItem : Drop
 
     public bool ShowSkuOnProductDetailsPage { get; set; }
 
-    public string ProductName {
+    public string? ProductName {
         get {
             var name = "";
             if (_product != null)
@@ -42,9 +42,9 @@ public class LiquidShipmentItem : Drop
         }
     }
 
-    public string ProductSku => _orderItem.Sku;
+    public string? ProductSku => _orderItem?.Sku;
 
-    public string AttributeDescription {
+    public string? AttributeDescription {
         get {
             var attDesc = "";
 
@@ -57,13 +57,13 @@ public class LiquidShipmentItem : Drop
 
     public string ShipmentId => _shipment.Id;
 
-    public string OrderItemId => _shipmentItem.OrderItemId;
+    public string? OrderItemId => _shipmentItem.OrderItemId;
 
-    public string ProductId => _shipmentItem.ProductId;
+    public string? ProductId => _shipmentItem.ProductId;
 
     public int Quantity => _shipmentItem.Quantity;
 
-    public string WarehouseId => _shipmentItem.WarehouseId;
+    public string? WarehouseId => _shipmentItem.WarehouseId;
 
     /// <summary>
     ///     The serial numbers shipped, comma separated; empty for a product tracking none

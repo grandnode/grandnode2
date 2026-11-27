@@ -114,7 +114,9 @@ public class AccountControllerExternalRegisterTests
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = verified });
         RegistrationRequest request = null;
         _manager.Setup(x => x.RegisterCustomer(It.IsAny<RegistrationRequest>())).Callback<RegistrationRequest>(r => request = r);
-        await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        //an unconnected registration types a password, as the validator asks
+        await _controller.Register(new RegisterModel { Password = "Passw0rd!" }, null, _external.Object, _externalAuth.Object,
+            new OidcLoginConfig());
         Assert.AreEqual(approved, request.IsApproved);
     }
 
@@ -123,7 +125,8 @@ public class AccountControllerExternalRegisterTests
     {
         _settings.UserRegistrationType = UserRegistrationType.Standard;
         _external.Setup(x => x.GetPending()).ReturnsAsync(Pending with { EmailVerified = false });
-        var result = await _controller.Register(new RegisterModel(), null, _external.Object, _externalAuth.Object, new OidcLoginConfig());
+        var result = await _controller.Register(new RegisterModel { Password = "Passw0rd!" }, null, _external.Object,
+            _externalAuth.Object, new OidcLoginConfig());
         _messages.Verify(x => x.SendCustomerEmailValidationMessage(_guest, It.IsAny<Grand.Domain.Stores.Store>(), "l1"), Times.Once);
         Assert.AreEqual((int)UserRegistrationType.EmailValidation, ((RedirectToRouteResult)result).RouteValues["resultId"]);
     }

@@ -13,12 +13,12 @@ public class RecurringPaymentCycle : SubBaseEntity
     /// <summary>
     ///     Gets or sets the order the cycle was paid with
     /// </summary>
-    public string OrderId { get; set; }
+    public string OrderId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the gateway's invoice or charge identifier
     /// </summary>
-    public string ProviderReference { get; set; }
+    public string? ProviderReference { get; set; }
 
     /// <summary>
     ///     Gets or sets the amount the gateway charged

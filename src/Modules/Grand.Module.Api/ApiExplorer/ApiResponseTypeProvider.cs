@@ -2,8 +2,6 @@
 // The .NET Foundation licenses this file to you under the MIT license.
 //https://github.com/dotnet/aspnetcore/blob/main/src/Mvc/Mvc.ApiExplorer/src/ApiResponseTypeProvider.cs
 
-#nullable enable
-
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Metadata;
 using Microsoft.AspNetCore.Mvc;

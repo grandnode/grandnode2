@@ -17,7 +17,7 @@ public abstract class ThemeContextBase : IThemeContext
     public string CookiesName => $"{_cookieOptionsFactory.CookiePrefix}.{AreaName}.Theme";
 
     public abstract string AreaName { get; }
-    public abstract string GetCurrentTheme();
+    public abstract string? GetCurrentTheme();
 
     public Task SetTheme(string themeName)
     {

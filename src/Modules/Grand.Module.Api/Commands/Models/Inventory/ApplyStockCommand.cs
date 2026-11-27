@@ -13,5 +13,5 @@ public class ApplyStockCommand : IRequest<IList<StockApplyResultDto>>
     /// <summary>
     ///     The API customer the entries are booked for
     /// </summary>
-    public string CustomerId { get; set; }
+    public required string CustomerId { get; set; }
 }

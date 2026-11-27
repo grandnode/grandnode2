@@ -43,4 +43,8 @@
         <OutputPath>..\..\Web\Grand.Web\Modules\Grand.Module.Scim\</OutputPath>
         <OutDir>$(OutputPath)</OutDir>
     </PropertyGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
 </Project>

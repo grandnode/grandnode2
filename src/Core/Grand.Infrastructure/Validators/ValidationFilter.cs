@@ -46,7 +46,7 @@ public class ValidationFilter : IAsyncActionFilter
             foreach (var interfaceType in implementedInterfaces)
             {
                 var genericType = typeof(IValidator<>).MakeGenericType(interfaceType);
-                var validator = (IValidator)_serviceProvider.GetService(genericType);
+                var validator = (IValidator?)_serviceProvider.GetService(genericType);
                 if (validator is null) continue;
 
                 var contextValidator = new ValidationContext<object>(argument.Value);

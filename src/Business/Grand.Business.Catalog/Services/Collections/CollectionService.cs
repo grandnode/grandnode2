@@ -57,7 +57,7 @@ public class CollectionService : ICollectionService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Collections</returns>
-    public virtual async Task<IPagedList<Collection>> GetAllCollections(string collectionName,
+    public virtual async Task<IPagedList<Collection>> GetAllCollections(string? collectionName,
         CatalogAccess access,
         int pageIndex = 0,
         int pageSize = int.MaxValue)
@@ -120,7 +120,7 @@ public class CollectionService : ICollectionService
     /// </summary>
     /// <param name="collectionId">Collection id</param>
     /// <returns>Collection</returns>
-    public virtual Task<Collection> GetCollectionById(string collectionId)
+    public virtual Task<Collection?> GetCollectionById(string? collectionId)
     {
         var key = string.Format(CacheKey.COLLECTIONS_BY_ID_KEY, collectionId);
         return _cacheBase.GetAsync(key, () => _collectionRepository.GetByIdAsync(collectionId));

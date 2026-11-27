@@ -15,6 +15,7 @@ public class DeleteCustomerAddressCommandHandler : IRequestHandler<DeleteCustome
 
     public async Task<bool> Handle(DeleteCustomerAddressCommand request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Customer.Id);
         var customer = await _customerService.GetCustomerById(request.Customer.Id);
         if (customer != null)
         {

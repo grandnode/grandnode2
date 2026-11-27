@@ -83,7 +83,7 @@ public class PlaceRecurringCycleOrderCommandHandlerTests
 
         _customer = new Customer { Id = "c1" };
         _recurringPayment = new RecurringPayment {
-            Id = "rp1", InitialOrderId = "o1", PaymentMethodSystemName = "Payments.Stripe"
+            Id = "rp1", CustomerId = "c1", InitialOrderId = "o1", PaymentMethodSystemName = "Payments.Stripe"
         };
         _cycle = new RecurringPaymentCycle {
             OrderId = "cycle-order", CycleNumber = 2, ProviderReference = "in_2", Amount = 100

@@ -2,6 +2,7 @@
 using Grand.Business.Core.Interfaces.System.ScheduleTasks;
 using Grand.Domain.Directory;
 using Grand.Domain.Tasks;
+using Grand.SharedKernel;
 
 namespace Grand.Module.ScheduledTasks.BackgroundServices;
 
@@ -32,7 +33,9 @@ public class UpdateExchangeRateScheduleTask : ScheduleTask, IScheduleTask
         if (!_currencySettings.AutoUpdateEnabled)
             return;
 
-        var primaryCurrencyCode = (await _currencyService.GetPrimaryExchangeRateCurrency()).CurrencyCode;
+        var primaryCurrency = await _currencyService.GetPrimaryExchangeRateCurrency() ??
+                              throw new GrandException("The primary exchange rate currency is not set");
+        var primaryCurrencyCode = primaryCurrency.CurrencyCode;
         var exchangeRates = await _exchangeRateService.GetCurrencyLiveRates(primaryCurrencyCode, cancellationToken);
 
         foreach (var exchangeRate in exchangeRates)

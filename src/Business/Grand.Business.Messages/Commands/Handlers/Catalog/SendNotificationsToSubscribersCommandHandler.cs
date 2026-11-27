@@ -59,7 +59,7 @@ public class
     /// for multi-warehouse products; for single-warehouse products it retains the legacy all-records behavior.</param>
     /// <returns>Subscriptions</returns>
     private async Task<IList<OutOfStockSubscription>> GetAllSubscriptionsByProductId(Product product,
-        IList<CustomAttribute> attributes, string warehouseId)
+        IList<CustomAttribute>? attributes, string? warehouseId)
     {
         var query = _outOfStockSubscriptionRepository.Table
             .Where(biss => biss.ProductId == product.Id)

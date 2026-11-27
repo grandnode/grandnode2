@@ -10,7 +10,7 @@ public class SearchBoxModel : BaseModel
     public bool VoiceNavigatioEnabled { get; set; }
     public bool ShowProductImagesInSearchAutoComplete { get; set; }
     public int SearchTermMinimumLength { get; set; }
-    public string SearchCategoryId { get; set; }
+    public string? SearchCategoryId { get; set; }
     public bool Box { get; set; }
     public IList<SelectListItem> AvailableCategories { get; set; } = new List<SelectListItem>();
 }

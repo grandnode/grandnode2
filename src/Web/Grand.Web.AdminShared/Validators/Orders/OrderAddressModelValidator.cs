@@ -28,7 +28,7 @@ public class OrderAddressModelValidator : BaseGrandValidator<OrderAddressModel>
             var order = await orderService.GetOrderById(x.OrderId);
             if (order != null)
             {
-                Address address = null;
+                Address? address = null;
                 switch (x.BillingAddress)
                 {
                     case true when order.BillingAddress != null:

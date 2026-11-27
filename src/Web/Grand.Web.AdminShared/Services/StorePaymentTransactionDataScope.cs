@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Payments;
 using Grand.Infrastructure;
 using Grand.Web.AdminShared.Interfaces;

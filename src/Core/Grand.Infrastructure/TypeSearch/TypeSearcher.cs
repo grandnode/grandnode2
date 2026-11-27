@@ -23,12 +23,12 @@ public class TypeSearcher : ITypeSearcher
 
     private sealed record AssemblySnapshot(
         int AppDomainAssemblyCount,
-        IEnumerable<PluginInfo> ReferencedPlugins,
-        IEnumerable<ResultCompiler> ReferencedScripts,
+        IEnumerable<PluginInfo>? ReferencedPlugins,
+        IEnumerable<ResultCompiler>? ReferencedScripts,
         IList<Assembly> Assemblies);
 
     //Replaced as a whole, never mutated. A race only costs one redundant recomputation.
-    private static volatile AssemblySnapshot _snapshot;
+    private static volatile AssemblySnapshot? _snapshot;
 
     private static IList<Assembly> CachedAssemblies()
     {
@@ -51,7 +51,7 @@ public class TypeSearcher : ITypeSearcher
     {
         //one assembly per load context: plugins shipping the same library each load their own copy, and each
         //plugin's code uses the types of its own
-        var addedAssemblies = new HashSet<(AssemblyLoadContext, string)>();
+        var addedAssemblies = new HashSet<(AssemblyLoadContext?, string?)>();
         var assemblies = new List<Assembly>();
         var currentAssem = Assembly.GetExecutingAssembly();
         foreach (var assembly in AppDomain.CurrentDomain.GetAssemblies())
@@ -74,10 +74,11 @@ public class TypeSearcher : ITypeSearcher
         if (RoslynCompiler.ReferencedScripts == null) return assemblies;
         foreach (var scripts in RoslynCompiler.ReferencedScripts)
         {
-            if (string.IsNullOrEmpty(scripts.ReferencedAssembly.FullName)) continue;
-            var key = (AssemblyLoadContext.GetLoadContext(scripts.ReferencedAssembly), scripts.ReferencedAssembly.FullName);
+            var scriptAssembly = scripts.ReferencedAssembly;
+            if (scriptAssembly == null || string.IsNullOrEmpty(scriptAssembly.FullName)) continue;
+            var key = (AssemblyLoadContext.GetLoadContext(scriptAssembly), scriptAssembly.FullName);
             if (addedAssemblies.Contains(key)) continue;
-            assemblies.Add(scripts.ReferencedAssembly);
+            assemblies.Add(scriptAssembly);
             addedAssemblies.Add(key);
         }
 

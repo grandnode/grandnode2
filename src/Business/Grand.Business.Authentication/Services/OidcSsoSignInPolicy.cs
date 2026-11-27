@@ -30,7 +30,7 @@ public class OidcSsoSignInPolicy(
 {
     private const string UnavailableLogKey = "Grand.OidcSignInMode.Unavailable";
 
-    private async Task<IExternalAuthenticationProvider> RequiredProvider(Customer customer)
+    private async Task<IExternalAuthenticationProvider?> RequiredProvider(Customer customer)
     {
         if (customer == null || !config.SsoOnly)
             return null;
@@ -66,7 +66,7 @@ public class OidcSsoSignInPolicy(
         return new PasswordSignInDecision(false, provider);
     }
 
-    private IExternalAuthenticationProvider AvailableProvider()
+    private IExternalAuthenticationProvider? AvailableProvider()
     {
         if (!config.IsConfigured(resourceServerConfig))
             return null;

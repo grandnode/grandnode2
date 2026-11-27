@@ -4,7 +4,7 @@ namespace Grand.Web.AdminShared.Extensions;
 
 public static class UpdatePicture
 {
-    public static async Task UpdatePictureSeoNames(this IPictureService pictureService, string pictureId, string name)
+    public static async Task UpdatePictureSeoNames(this IPictureService pictureService, string? pictureId, string name)
     {
         if (!string.IsNullOrEmpty(pictureId))
         {

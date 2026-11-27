@@ -40,8 +40,8 @@ public class OidcLoginStartup : IStartupApplication
 
     public void Configure(WebApplication application, IWebHostEnvironment webHostEnvironment)
     {
-        var problem = OidcSignInModeCheck.Problem(application.Services.GetService<OidcLoginConfig>(),
-            application.Services.GetService<OidcResourceServerConfig>());
+        var problem = OidcSignInModeCheck.Problem(application.Services.GetRequiredService<OidcLoginConfig>(),
+            application.Services.GetRequiredService<OidcResourceServerConfig>());
         if (problem != null)
             application.Services.GetRequiredService<ILogger<OidcSsoSignInPolicy>>().LogError(
                 "ProviderOnly sign-in mode without a working OpenID Connect login ({Problem}): only break-glass accounts can sign in",

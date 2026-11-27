@@ -25,12 +25,15 @@ public class CountryImportDataObject : IImportDataObject<CountryStatesDto>
 
     private async Task Import(CountryStatesDto countryStatesDtoDto)
     {
+        //a state needs a name, as it does in the admin panel
+        if (string.IsNullOrEmpty(countryStatesDtoDto.Country) || string.IsNullOrEmpty(countryStatesDtoDto.StateProvinceName))
+            return;
         var country = await _countryService.GetCountryByTwoLetterIsoCode(countryStatesDtoDto.Country);
         if (country == null)
             return;
 
         var state = country.StateProvinces.FirstOrDefault(x =>
-            x.Abbreviation.Equals(countryStatesDtoDto.Abbreviation, StringComparison.OrdinalIgnoreCase));
+            string.Equals(x.Abbreviation, countryStatesDtoDto.Abbreviation, StringComparison.OrdinalIgnoreCase));
         if (state != null)
         {
             state.Name = countryStatesDtoDto.StateProvinceName;

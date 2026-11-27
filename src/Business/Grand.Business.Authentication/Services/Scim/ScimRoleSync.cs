@@ -48,7 +48,7 @@ public class ScimRoleSync(
 
         var customerId = customer.Id;
         var memberOf = await groups.ToListAsync(groups.Table.Where(x => x.Members.Contains(customerId)));
-        var targetIds = memberOf.Select(x => x.CustomerGroupId).Where(x => !string.IsNullOrEmpty(x)).Distinct().ToArray();
+        var targetIds = memberOf.Select(x => x.CustomerGroupId).OfType<string>().Where(x => x.Length > 0).Distinct().ToArray();
         var targets = targetIds.Length == 0
             ? new Dictionary<string, CustomerGroup>()
             : (await groupService.GetAllByIds(targetIds)).Where(IsMappable).ToDictionary(x => x.Id);
@@ -90,9 +90,9 @@ public class ScimRoleSync(
         ArgumentNullException.ThrowIfNull(customer);
         ArgumentNullException.ThrowIfNull(record);
 
-        var managed = new HashSet<string>(await groups.ToListAsync(groups.Table
+        var managed = new HashSet<string>((await groups.ToListAsync(groups.Table
             .Where(x => x.CustomerGroupId != null && x.CustomerGroupId != "")
-            .Select(x => x.CustomerGroupId)));
+            .Select(x => x.CustomerGroupId))).OfType<string>());
         foreach (var systemName in BackOfficeGroups)
         {
             var group = await groupService.GetCustomerGroupBySystemName(systemName);
@@ -168,8 +168,8 @@ public class ScimRoleSync(
     }
 
     //sets the wanted value, or clears the value SCIM set when nothing is wanted; returns what SCIM granted now
-    private async Task<string> ApplyField(string customerId, string current, string granted, string wanted,
-        Expression<Func<Customer, string>> field)
+    private async Task<string?> ApplyField(string customerId, string? current, string? granted, string? wanted,
+        Expression<Func<Customer, string?>> field)
     {
         if (!string.IsNullOrEmpty(wanted))
         {

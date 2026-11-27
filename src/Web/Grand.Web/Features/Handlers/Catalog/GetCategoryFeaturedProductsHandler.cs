@@ -101,8 +101,10 @@ public class GetCategoryFeaturedProductsHandler : IRequestHandler<GetCategoryFea
 
         foreach (var item in model)
         {
+            //a category without an id has nothing to search by
+            if (item.Id == null) continue;
             //We cache a value indicating whether we have featured products
-            IPagedList<Product> featuredProducts = null;
+            IPagedList<Product>? featuredProducts = null;
             var cacheKey = string.Format(CacheKeyConst.CATEGORY_HAS_FEATURED_PRODUCTS_KEY, item.Id,
                 _accessControlConfig.GetCustomerGroupsCacheKey(request.Customer), request.Store.Id);
 

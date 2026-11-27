@@ -7,6 +7,6 @@ namespace Grand.Business.Core.Queries.Catalog;
 public class GetPersonalizedProductsQuery : IRequest<IList<Product>>
 {
     public int ProductsNumber { get; set; }
-    public Customer Customer { get; set; }
-    public string StoreId { get; set; }
+    public required Customer Customer { get; set; }
+    public required string StoreId { get; set; }
 }

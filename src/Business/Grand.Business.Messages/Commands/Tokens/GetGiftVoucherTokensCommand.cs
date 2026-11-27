@@ -7,6 +7,6 @@ namespace Grand.Business.Messages.Commands.Tokens;
 
 public class GetGiftVoucherTokensCommand : IRequest<LiquidGiftVoucher>
 {
-    public GiftVoucher GiftVoucher { get; set; }
-    public Language Language { get; set; }
+    public required GiftVoucher GiftVoucher { get; set; }
+    public Language? Language { get; set; }
 }

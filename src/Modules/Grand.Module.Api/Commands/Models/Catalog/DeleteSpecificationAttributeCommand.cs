@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class DeleteSpecificationAttributeCommand : IRequest<bool>
 {
-    public SpecificationAttributeDto Model { get; set; }
+    public required SpecificationAttributeDto Model { get; set; }
 }

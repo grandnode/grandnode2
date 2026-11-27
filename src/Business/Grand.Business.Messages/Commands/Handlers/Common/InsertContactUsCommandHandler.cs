@@ -26,7 +26,7 @@ public class InsertContactUsCommandHandler : IRequestHandler<InsertContactUsComm
             Subject = request.Subject,
             Enquiry = request.Enquiry,
             EmailAccountId = request.EmailAccountId,
-            Attributes = request.ContactAttributes,
+            Attributes = request.ContactAttributes ?? [],
             ContactAttributeDescription = request.ContactAttributeDescription,
             IpAddress = request.RemoteIpAddress
         };

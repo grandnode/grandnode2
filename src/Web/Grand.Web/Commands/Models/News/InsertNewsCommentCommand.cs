@@ -6,6 +6,6 @@ namespace Grand.Web.Commands.Models.News;
 
 public class InsertNewsCommentCommand : IRequest<NewsComment>
 {
-    public NewsItem NewsItem { get; set; }
-    public AddNewsCommentModel Model { get; set; }
+    public required NewsItem NewsItem { get; set; }
+    public required AddNewsCommentModel Model { get; set; }
 }

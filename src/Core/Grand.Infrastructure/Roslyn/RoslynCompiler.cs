@@ -15,14 +15,14 @@ public static class RoslynCompiler
 {
     #region Fields
 
-    private static DirectoryInfo _shadowCopyScriptPath;
+    private static DirectoryInfo? _shadowCopyScriptPath;
 
     #endregion
 
     /// <summary>
     ///     Returns a collection of all referenced assemblies
     /// </summary>
-    public static IEnumerable<ResultCompiler> ReferencedScripts { get; set; }
+    public static IEnumerable<ResultCompiler>? ReferencedScripts { get; set; }
 
     public static void Load(ApplicationPartManager applicationPartManager, IConfiguration configuration, IWebHostEnvironment webHostEnvironment)
     {

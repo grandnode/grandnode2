@@ -7,17 +7,17 @@ public class CourseLesson : BaseEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the short description
     /// </summary>
-    public string ShortDescription { get; set; }
+    public string? ShortDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order
@@ -28,28 +28,28 @@ public class CourseLesson : BaseEntity
     ///     Gets or sets the course ident
     /// </summary>
     [AuditReference(typeof(Course))]
-    public string CourseId { get; set; }
+    public string CourseId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the subject ident
     /// </summary>
     [AuditReference(typeof(CourseSubject))]
-    public string SubjectId { get; set; }
+    public string SubjectId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the video file
     /// </summary>
-    public string VideoFile { get; set; }
+    public string? VideoFile { get; set; }
 
     /// <summary>
     ///     Gets or sets the attachment ident
     /// </summary>
-    public string AttachmentId { get; set; }
+    public string? AttachmentId { get; set; }
 
     /// <summary>
     ///     Gets or sets the picture
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is published

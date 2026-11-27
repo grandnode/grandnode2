@@ -18,21 +18,21 @@ public interface IProductTagService
     /// </summary>
     /// <param name="productTagId">Product tag identifier</param>
     /// <returns>Product tag</returns>
-    Task<ProductTag> GetProductTagById(string productTagId);
+    Task<ProductTag?> GetProductTagById(string? productTagId);
 
     /// <summary>
     ///     Gets product tag by name
     /// </summary>
     /// <param name="name">Product tag name</param>
     /// <returns>Product tag</returns>
-    Task<ProductTag> GetProductTagByName(string name);
+    Task<ProductTag?> GetProductTagByName(string name);
 
     /// <summary>
     ///     Gets product tag by se-name
     /// </summary>
     /// <param name="sename">Product tag se-name</param>
     /// <returns>Product tag</returns>
-    Task<ProductTag> GetProductTagBySeName(string sename);
+    Task<ProductTag?> GetProductTagBySeName(string sename);
 
     /// <summary>
     ///     Inserts a product tag

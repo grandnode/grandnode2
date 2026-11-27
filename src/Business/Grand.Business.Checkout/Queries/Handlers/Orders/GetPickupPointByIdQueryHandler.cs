@@ -5,7 +5,7 @@ using Grand.Mediator;
 
 namespace Grand.Business.Checkout.Queries.Handlers.Orders;
 
-public class GetPickupPointByIdQueryHandler : IRequestHandler<GetPickupPointById, PickupPoint>
+public class GetPickupPointByIdQueryHandler : IRequestHandler<GetPickupPointById, PickupPoint?>
 {
     private readonly IPickupPointService _pickupPointService;
 
@@ -14,7 +14,7 @@ public class GetPickupPointByIdQueryHandler : IRequestHandler<GetPickupPointById
         _pickupPointService = pickupPointService;
     }
 
-    public async Task<PickupPoint> Handle(GetPickupPointById request, CancellationToken cancellationToken)
+    public async Task<PickupPoint?> Handle(GetPickupPointById request, CancellationToken cancellationToken)
     {
         return await _pickupPointService.GetPickupPointById(request.Id);
     }

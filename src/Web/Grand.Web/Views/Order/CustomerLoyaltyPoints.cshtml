@@ -15,10 +15,10 @@
 <section class="page account-page loyalty-points-page ps-lg-3 pt-3 pt-lg-0">
     <h1 class="h2 generalTitle">@Loc["Account.MyAccount"] - @Loc["Account.LoyaltyPoints"]</h1>
     <div class="loyalty-points-overview">
-        <div class="current-balance alert alert-success">@Loc["LoyaltyPoints.CurrentBalance", Model.LoyaltyPointsBalance, Model.LoyaltyPointsAmount]</div>
+        <div class="current-balance alert alert-success">@Loc["LoyaltyPoints.CurrentBalance", Model.LoyaltyPointsBalance, Model.LoyaltyPointsAmount ?? ""]</div>
         @if (Model.MinimumLoyaltyPointsBalance > 0)
         {
-            <div class="min-balance alert alert-danger">@Loc["LoyaltyPoints.MinimumBalance", Model.MinimumLoyaltyPointsBalance, Model.MinimumLoyaltyPointsAmount]</div>
+            <div class="min-balance alert alert-danger">@Loc["LoyaltyPoints.MinimumBalance", Model.MinimumLoyaltyPointsBalance, Model.MinimumLoyaltyPointsAmount ?? ""]</div>
         }
     </div>
     <div class="loyalty-points-history">

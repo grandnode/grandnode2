@@ -25,17 +25,16 @@ public abstract class ScimControllerBase : ControllerBase
 
     protected string BaseUrl => $"{Request.Scheme}://{Request.Host}{Request.PathBase}/scim/v2";
 
-    /// <summary>The body, or the 400 response to return when it is missing or is not JSON of the expected shape</summary>
-    protected async Task<(T Body, IActionResult Error)> ReadBody<T>() where T : class
+    /// <summary>The body, or null when it is missing or is not JSON of the expected shape</summary>
+    protected async Task<T?> ReadBody<T>() where T : class
     {
         try
         {
-            var body = await JsonSerializer.DeserializeAsync<T>(Request.Body, ScimJson.Options, HttpContext.RequestAborted);
-            return body == null ? (null, InvalidSyntax()) : (body, null);
+            return await JsonSerializer.DeserializeAsync<T>(Request.Body, ScimJson.Options, HttpContext.RequestAborted);
         }
         catch (JsonException)
         {
-            return (null, InvalidSyntax());
+            return null;
         }
     }
 
@@ -46,7 +45,7 @@ public abstract class ScimControllerBase : ControllerBase
         return (start, start - 1, config.PageSize(count));
     }
 
-    protected static IActionResult Refused(ScimOutcome outcome, string detail) => outcome switch {
+    protected static IActionResult Refused(ScimOutcome outcome, string? detail) => outcome switch {
         ScimOutcome.NotFound => ScimResponse.Error(StatusCodes.Status404NotFound, null, detail ?? "Resource not found"),
         ScimOutcome.Conflict => ScimResponse.Error(StatusCodes.Status409Conflict, "uniqueness", detail),
         _ => ScimResponse.Error(StatusCodes.Status400BadRequest, "invalidValue", detail)
@@ -55,6 +54,6 @@ public abstract class ScimControllerBase : ControllerBase
     protected static IActionResult InvalidFilter(string detail) =>
         ScimResponse.Error(StatusCodes.Status400BadRequest, "invalidFilter", detail);
 
-    private static IActionResult InvalidSyntax() =>
+    protected static IActionResult InvalidSyntax() =>
         ScimResponse.Error(StatusCodes.Status400BadRequest, "invalidSyntax", "The request body is not valid SCIM JSON");
 }

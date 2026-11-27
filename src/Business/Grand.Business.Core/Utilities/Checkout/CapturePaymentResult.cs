@@ -28,12 +28,12 @@ public class CapturePaymentResult
     /// <summary>
     ///     Gets or sets the capture transaction identifier
     /// </summary>
-    public string CaptureTransactionId { get; set; }
+    public string? CaptureTransactionId { get; set; }
 
     /// <summary>
     ///     Gets or sets the capture transaction result
     /// </summary>
-    public string CaptureTransactionResult { get; set; }
+    public string? CaptureTransactionResult { get; set; }
 
     /// <summary>
     ///     Gets or sets a payment transaction status after processing

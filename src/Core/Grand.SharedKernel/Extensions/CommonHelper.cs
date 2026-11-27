@@ -1,4 +1,5 @@
 using System.ComponentModel;
+using System.Diagnostics.CodeAnalysis;
 using System.Globalization;
 using System.Security.Cryptography;
 using System.Text.RegularExpressions;
@@ -17,7 +18,7 @@ public static class CommonHelper
     /// </summary>
     /// <param name="email">The email.</param>
     /// <returns></returns>
-    public static string EnsureSubscriberEmailOrThrow(string email)
+    public static string EnsureSubscriberEmailOrThrow(string? email)
     {
         var output = EnsureNotNull(email);
         output = output.Trim();
@@ -33,7 +34,7 @@ public static class CommonHelper
     /// </summary>
     /// <param name="email">Email to verify</param>
     /// <returns>true if the string is a valid e-mail address and false if it's not</returns>
-    public static bool IsValidEmail(string email)
+    public static bool IsValidEmail([NotNullWhen(true)] string? email)
     {
         if (string.IsNullOrEmpty(email))
             return false;
@@ -82,7 +83,8 @@ public static class CommonHelper
     /// <param name="maxLength">Maximum length</param>
     /// <param name="postfix">A string to add to the end if the original string was shorten</param>
     /// <returns>Input string if its lengh is OK; otherwise, truncated input string</returns>
-    public static string EnsureMaximumLength(string str, int maxLength, string postfix = null)
+    [return: NotNullIfNotNull(nameof(str))]
+    public static string? EnsureMaximumLength(string? str, int maxLength, string? postfix = null)
     {
         if (string.IsNullOrEmpty(str))
             return str;
@@ -107,7 +109,7 @@ public static class CommonHelper
     /// </summary>
     /// <param name="str">Input string</param>
     /// <returns>Result</returns>
-    public static string EnsureNotNull(string str)
+    public static string EnsureNotNull(string? str)
     {
         return str ?? string.Empty;
     }
@@ -142,7 +144,7 @@ public static class CommonHelper
     /// </summary>
     /// <param name="type"></param>
     /// <returns></returns>
-    public static bool IsSimpleType(Type type)
+    public static bool IsSimpleType(Type? type)
     {
         if (type == null)
             return true;
@@ -170,7 +172,7 @@ public static class CommonHelper
     /// <param name="value">The value to convert.</param>
     /// <param name="destinationType">The type to convert the value to.</param>
     /// <returns>The converted value.</returns>
-    public static object To(object value, Type destinationType)
+    public static object? To(object? value, Type destinationType)
     {
         return To(value, destinationType, CultureInfo.InvariantCulture);
     }
@@ -182,7 +184,7 @@ public static class CommonHelper
     /// <param name="destinationType">The type to convert the value to.</param>
     /// <param name="culture">Culture</param>
     /// <returns>The converted value.</returns>
-    public static object To(object value, Type destinationType, CultureInfo culture)
+    public static object? To(object? value, Type destinationType, CultureInfo culture)
     {
         if (value != null)
         {
@@ -212,9 +214,9 @@ public static class CommonHelper
     /// <param name="value">The value to convert.</param>
     /// <typeparam name="T">The type to convert the value to.</typeparam>
     /// <returns>The converted value.</returns>
-    public static T To<T>(object value)
+    public static T? To<T>(object? value)
     {
-        return (T)To(value, typeof(T));
+        return (T?)To(value, typeof(T));
     }
 
     /// <summary>

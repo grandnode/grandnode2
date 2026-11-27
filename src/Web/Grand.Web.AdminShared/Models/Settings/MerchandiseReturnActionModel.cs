@@ -11,7 +11,7 @@ public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<Mer
 {
     [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -21,14 +21,14 @@ public class MerchandiseReturnActionModel : BaseEntityModel, ILocalizedModel<Mer
 
     [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }
 
 public class MerchandiseReturnActionLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Settings.Order.MerchandiseReturnActions.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

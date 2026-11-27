@@ -36,7 +36,7 @@ public class CourseLevelService : ICourseLevelService
         return await _courseLevelRepository.ToListAsync(query);
     }
 
-    public virtual Task<CourseLevel> GetById(string id)
+    public virtual Task<CourseLevel?> GetById(string? id)
     {
         return _courseLevelRepository.GetByIdAsync(id);
     }

@@ -32,7 +32,7 @@ public static class AddressMappingExtensions
     }
 
     public static async Task PrepareCustomAddressAttributes(this AddressModel model,
-        Address address,
+        Address? address,
         IAddressAttributeService addressAttributeService,
         IAddressAttributeParser addressAttributeParser)
     {

@@ -34,7 +34,7 @@ public class GetMerchandiseReturnEstimateHandler(
 
         var model = new MerchandiseReturnEstimateModel();
         //resource keys, or texts the provider translated already, which are shown as they are
-        foreach (var error in new[] { preview.Error }.Concat(preview.ShippingErrors).Where(x => x != null))
+        foreach (var error in new[] { preview.Error }.Concat(preview.ShippingErrors).OfType<string>())
             model.Errors.Add(translationService.GetResource(error, request.Language.Id, error));
         if (model.Errors.Count > 0)
             return model;

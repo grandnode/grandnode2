@@ -17,12 +17,12 @@ public interface IHtmlSanitizationService
     ///     allowlist would reformat it (e.g. an implied &lt;tbody&gt; made explicit).
     /// </summary>
     /// <param name="html">Untrusted markup; may be null</param>
-    bool ContainsDisallowedRichText(string html);
+    bool ContainsDisallowedRichText(string? html);
 
     /// <summary>
     ///     True when <paramref name="text" /> contains any HTML markup at all. For fields that are never rich
     ///     text: meta titles, meta keywords, meta descriptions, admin comments, attribute names.
     /// </summary>
     /// <param name="text">Untrusted text; may be null</param>
-    bool ContainsMarkup(string text);
+    bool ContainsMarkup(string? text);
 }

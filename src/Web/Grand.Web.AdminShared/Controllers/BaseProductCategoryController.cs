@@ -37,7 +37,7 @@ public abstract class BaseProductCategoryController(
         // action on their respective hosts. Applying it uniformly also closes a real gap: Vendor's
         // original ProductCategoryInsert/Update/Delete (below) had no ownership check at all, letting
         // any vendor mutate another vendor's product-category mappings by id.
-        if (!await scope.CanView(product))
+        if (product == null || !await scope.CanView(product))
             // Templated, not the literal "Admin.Catalog.Products.Permissions": Task 6's audit (the header
             // comment above) only covered the files under migration (the 2 ProductControllers + 2
             // ProductViewModelServices) and found no "Permissions"-suffixed GetResource call in Vendor's
@@ -61,7 +61,7 @@ public abstract class BaseProductCategoryController(
     public async Task<IActionResult> ProductCategoryInsert(ProductModel.ProductCategoryModel model)
     {
         var product = await productService.GetProductById(model.ProductId);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -83,7 +83,7 @@ public abstract class BaseProductCategoryController(
     public async Task<IActionResult> ProductCategoryUpdate(ProductModel.ProductCategoryModel model)
     {
         var product = await productService.GetProductById(model.ProductId);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)
@@ -105,7 +105,7 @@ public abstract class BaseProductCategoryController(
     public async Task<IActionResult> ProductCategoryDelete(ProductModel.ProductCategoryModel model)
     {
         var product = await productService.GetProductById(model.ProductId);
-        if (!await scope.HasAccess(product))
+        if (product == null || !await scope.HasAccess(product))
             return ErrorForKendoGridJson(translationService.GetResource($"{scope.ResourceKeyPrefix}.Catalog.Products.Permissions"));
 
         if (ModelState.IsValid)

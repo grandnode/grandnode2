@@ -58,7 +58,7 @@ public class CheckoutAttributeService : ICheckoutAttributeService
         ArgumentNullException.ThrowIfNull(access);
 
         var applyAcl = !access.ShowHidden && !_accessControlConfig.IgnoreAcl;
-        var allowedCustomerGroupsIds = applyAcl ? access.Customer.GetCustomerGroupIds() : [];
+        var allowedCustomerGroupsIds = applyAcl ? access.Customer?.GetCustomerGroupIds() ?? [] : [];
         var key = string.Format(CacheKey.CHECKOUTATTRIBUTES_ALL_KEY, access.StoreId, excludeShippableAttributes,
             access.ShowHidden, string.Join(",", allowedCustomerGroupsIds));
         return await _cacheBase.GetAsync(key, async () =>
@@ -89,7 +89,7 @@ public class CheckoutAttributeService : ICheckoutAttributeService
     /// </summary>
     /// <param name="checkoutAttributeId">Checkout attribute identifier</param>
     /// <returns>Checkout attribute</returns>
-    public virtual Task<CheckoutAttribute> GetCheckoutAttributeById(string checkoutAttributeId)
+    public virtual Task<CheckoutAttribute?> GetCheckoutAttributeById(string? checkoutAttributeId)
     {
         var key = string.Format(CacheKey.CHECKOUTATTRIBUTES_BY_ID_KEY, checkoutAttributeId);
         return _cacheBase.GetAsync(key, () => _checkoutAttributeRepository.GetByIdAsync(checkoutAttributeId));

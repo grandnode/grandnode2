@@ -20,12 +20,12 @@ public interface IWorkContext
     /// <summary>
     ///     Gets or sets the original customer (in case the current one is impersonated)
     /// </summary>
-    Customer OriginalCustomerIfImpersonated { get; }
+    Customer? OriginalCustomerIfImpersonated { get; }
 
     /// <summary>
     ///     Gets the current vendor (logged-in manager)
     /// </summary>
-    Vendor CurrentVendor { get; }
+    Vendor? CurrentVendor { get; }
 
     /// <summary>
     ///     Get or set current user working language
@@ -40,7 +40,7 @@ public interface IWorkContext
     /// <summary>
     ///     Get the store manager
     /// </summary>
-    Store StoreManager { get; }
+    Store? StoreManager { get; }
 
     /// <summary>
     ///     Get current tax display type
@@ -54,5 +54,5 @@ public interface IWorkContextSetter
     ///    Initialize the work context
     /// </summary>
     /// <returns></returns>
-    Task<IWorkContext> InitializeWorkContext(string storeId = null);
+    Task<IWorkContext> InitializeWorkContext(string? storeId = null);
 }

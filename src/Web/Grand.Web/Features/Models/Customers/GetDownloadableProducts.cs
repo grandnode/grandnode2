@@ -8,7 +8,7 @@ namespace Grand.Web.Features.Models.Customers;
 
 public class GetDownloadableProducts : IRequest<CustomerDownloadableProductsModel>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Language Language { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Language Language { get; set; }
 }

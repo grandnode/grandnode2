@@ -6,12 +6,12 @@ namespace Grand.Web.AdminShared.Models.Catalog;
 public class LowStockProductModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string Attributes { get; set; }
+    public string? Attributes { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.ManageInventoryMethod")]
-    public string ManageInventoryMethod { get; set; }
+    public string? ManageInventoryMethod { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Products.Fields.StockQuantity")]
     public int StockQuantity { get; set; }

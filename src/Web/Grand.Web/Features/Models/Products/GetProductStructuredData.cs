@@ -8,12 +8,12 @@ namespace Grand.Web.Features.Models.Products;
 
 public class GetProductStructuredData : IRequest<ProductStructuredDataModel>
 {
-    public Product Product { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Customer Customer { get; set; }
+    public required Product Product { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Customer Customer { get; set; }
 
     /// <summary>
     ///     The currency the offer's price is published in
     /// </summary>
-    public Currency Currency { get; set; }
+    public required Currency Currency { get; set; }
 }

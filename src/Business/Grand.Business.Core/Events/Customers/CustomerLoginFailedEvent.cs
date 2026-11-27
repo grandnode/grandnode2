@@ -29,5 +29,5 @@ public class CustomerLoginFailedEvent : INotification
     /// <summary>
     ///     Why the sign-in failed, e.g. wrong credentials or a wrong two-factor code
     /// </summary>
-    public string Reason { get; }
+    public string? Reason { get; }
 }

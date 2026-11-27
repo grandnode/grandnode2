@@ -54,7 +54,7 @@ public class AzurePictureService : PictureService
 
     #region Fields
 
-    private static BlobContainerClient _container;
+    private readonly BlobContainerClient _container;
     private readonly AzureConfig _config;
     private readonly IMimeMappingService _mimeMappingService;
 
@@ -79,7 +79,7 @@ public class AzurePictureService : PictureService
     /// </summary>
     /// <param name="thumbFileName">Filename</param>
     /// <returns>Local picture thumb path</returns>
-    protected override async Task<string> GetThumbPhysicalPath(string thumbFileName)
+    protected override async Task<string?> GetThumbPhysicalPath(string thumbFileName)
     {
         var thumbFilePath =
             $"{_config.AzureBlobStorageEndPoint}{_config.AzureBlobStorageContainerName}/{thumbFileName}";
@@ -94,7 +94,7 @@ public class AzurePictureService : PictureService
     /// <param name="thumbFileName">Filename</param>
     /// <param name="storeLocation">Store location URL; null to use determine the current store location automatically</param>
     /// <returns>Local picture thumb path</returns>
-    protected override string GetThumbUrl(string thumbFileName, string storeLocation = null)
+    protected override string GetThumbUrl(string thumbFileName, string? storeLocation = null)
     {
         var url = _config.AzureBlobStorageEndPoint + _config.AzureBlobStorageContainerName + "/";
         url += thumbFileName;
@@ -106,9 +106,9 @@ public class AzurePictureService : PictureService
     /// </summary>
     /// <param name="thumbFileName">Thumb file name</param>
     /// <param name="binary">Picture binary</param>
-    protected override Task SaveThumb(string thumbFileName, byte[] binary)
+    protected override Task SaveThumb(string thumbFileName, byte[]? binary)
     {
-        Stream stream = new MemoryStream(binary);
+        Stream stream = new MemoryStream(binary ?? []);
         _container.UploadBlob(thumbFileName, stream);
 
         //Update content type and other properties 

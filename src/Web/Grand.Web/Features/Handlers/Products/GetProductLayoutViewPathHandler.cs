@@ -15,8 +15,7 @@ public class GetProductLayoutViewPathHandler : IRequestHandler<GetProductLayoutV
 
     public async Task<string> Handle(GetProductLayoutViewPath request, CancellationToken cancellationToken)
     {
-        ArgumentNullException.ThrowIfNullOrEmpty(request.ProductLayoutId);
-
+        //a product without a layout (made through the API or an import) shows in the default one
         var layout = await _productLayoutService.GetProductLayoutById(request.ProductLayoutId) ??
                      (await _productLayoutService.GetAllProductLayouts()).FirstOrDefault();
         if (layout == null)

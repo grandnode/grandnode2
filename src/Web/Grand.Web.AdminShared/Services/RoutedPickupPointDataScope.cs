@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Shipping;
 using Grand.Web.AdminShared.Interfaces;
 using Microsoft.AspNetCore.Http;

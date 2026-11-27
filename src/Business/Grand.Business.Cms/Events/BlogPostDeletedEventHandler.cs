@@ -16,7 +16,9 @@ public class BlogPostDeletedEventHandler : INotificationHandler<EntityDeleted<Bl
 
     public async Task Handle(EntityDeleted<BlogPost> notification, CancellationToken cancellationToken)
     {
+        //a post saved without a slug has no url to delete
         var urlToDelete = await _slugService.GetBySlug(notification.Entity.SeName);
-        await _slugService.DeleteEntityUrl(urlToDelete);
+        if (urlToDelete != null)
+            await _slugService.DeleteEntityUrl(urlToDelete);
     }
 }

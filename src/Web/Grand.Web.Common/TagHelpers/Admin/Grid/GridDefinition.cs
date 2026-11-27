@@ -57,11 +57,11 @@ public enum GridAlign
 /// </summary>
 public class GridDefinition
 {
-    public string Id { get; set; }
-    public string Key { get; set; }
+    public string? Id { get; set; }
+    public string? Key { get; set; }
     public GridTransport Transport { get; set; } = new();
     public int? PageSize { get; set; }
-    public IList<int> PageSizes { get; set; }
+    public IList<int>? PageSizes { get; set; }
     public GridPager Pager { get; set; } = GridPager.Full;
     public bool? ServerPaging { get; set; }
     public bool? AutoBind { get; set; }
@@ -69,21 +69,21 @@ public class GridDefinition
     public bool? ReloadAfterSave { get; set; }
     public bool? ConfirmDestroy { get; set; }
     public GridSelectable Selectable { get; set; } = GridSelectable.None;
-    public string SelectionName { get; set; }
-    public string BatchPrefix { get; set; }
+    public string? SelectionName { get; set; }
+    public string? BatchPrefix { get; set; }
 
     /// <summary>Local rows for a grid without a read URL, serialized with their own property names.</summary>
     public JsonElement? Data { get; set; }
 
-    public string AdditionalData { get; set; }
-    public string SearchForm { get; set; }
-    public GridToolbar Toolbar { get; set; }
+    public string? AdditionalData { get; set; }
+    public string? SearchForm { get; set; }
+    public GridToolbar? Toolbar { get; set; }
     public IList<GridColumnDefinition> Columns { get; set; } = new List<GridColumnDefinition>();
-    public GridCommands Commands { get; set; }
-    public GridDetailDefinition Detail { get; set; }
-    public IDictionary<string, string> Events { get; set; }
-    public IDictionary<string, string> Texts { get; set; }
-    public GridCulture Culture { get; set; }
+    public GridCommands? Commands { get; set; }
+    public GridDetailDefinition? Detail { get; set; }
+    public IDictionary<string, string>? Events { get; set; }
+    public IDictionary<string, string>? Texts { get; set; }
+    public GridCulture? Culture { get; set; }
     public bool? Rtl { get; set; }
 
     internal static readonly JsonSerializerOptions JsonOptions = new() {
@@ -102,54 +102,54 @@ public class GridDefinition
 
 public class GridTransport
 {
-    public string Read { get; set; }
-    public string Create { get; set; }
-    public string Update { get; set; }
-    public string Destroy { get; set; }
+    public string? Read { get; set; }
+    public string? Create { get; set; }
+    public string? Update { get; set; }
+    public string? Destroy { get; set; }
 }
 
 public class GridToolbar
 {
-    public string Create { get; set; }
-    public string Save { get; set; }
-    public string Cancel { get; set; }
+    public string? Create { get; set; }
+    public string? Save { get; set; }
+    public string? Cancel { get; set; }
 }
 
 public class GridColumnDefinition
 {
-    public string Field { get; set; }
-    public string Title { get; set; }
+    public string? Field { get; set; }
+    public string? Title { get; set; }
     public int? Width { get; set; }
-    public string Format { get; set; }
+    public string? Format { get; set; }
     public GridEditor? Editor { get; set; }
-    public string EditorName { get; set; }
+    public string? EditorName { get; set; }
     public bool? Editable { get; set; }
     public bool? Required { get; set; }
     public int? Decimals { get; set; }
     public decimal? Min { get; set; }
     public decimal? Max { get; set; }
     public int? MaxLength { get; set; }
-    public IList<GridOption> Options { get; set; }
-    public string OptionsUrl { get; set; }
-    public string OptionTextField { get; set; }
-    public string OptionValueField { get; set; }
-    public string OptionLabel { get; set; }
-    public string OptionsFilter { get; set; }
-    public string TextField { get; set; }
-    public string DefaultValue { get; set; }
+    public IList<GridOption>? Options { get; set; }
+    public string? OptionsUrl { get; set; }
+    public string? OptionTextField { get; set; }
+    public string? OptionValueField { get; set; }
+    public string? OptionLabel { get; set; }
+    public string? OptionsFilter { get; set; }
+    public string? TextField { get; set; }
+    public string? DefaultValue { get; set; }
     public GridAlign? Align { get; set; }
     public GridAlign? HeaderAlign { get; set; }
     public int? MinScreenWidth { get; set; }
     public bool? Hidden { get; set; }
     public bool? Encoded { get; set; }
-    public string CssClass { get; set; }
-    public string Template { get; set; }
+    public string? CssClass { get; set; }
+    public string? Template { get; set; }
 }
 
 public class GridOption
 {
-    public string Value { get; set; }
-    public string Text { get; set; }
+    public string? Value { get; set; }
+    public string? Text { get; set; }
 }
 
 public class GridCommands
@@ -157,30 +157,30 @@ public class GridCommands
     public bool Edit { get; set; }
     public bool Destroy { get; set; }
     public int? Width { get; set; }
-    public string Title { get; set; }
-    public string VisibleIf { get; set; }
-    public string EditVisibleIf { get; set; }
-    public string DestroyVisibleIf { get; set; }
-    public string EmptyText { get; set; }
-    public IList<GridCommand> Custom { get; set; }
+    public string? Title { get; set; }
+    public string? VisibleIf { get; set; }
+    public string? EditVisibleIf { get; set; }
+    public string? DestroyVisibleIf { get; set; }
+    public string? EmptyText { get; set; }
+    public IList<GridCommand>? Custom { get; set; }
 }
 
 public class GridCommand
 {
-    public string Name { get; set; }
-    public string Text { get; set; }
-    public string Click { get; set; }
-    public string Icon { get; set; }
-    public string ClassName { get; set; }
-    public string VisibleIf { get; set; }
+    public string? Name { get; set; }
+    public string? Text { get; set; }
+    public string? Click { get; set; }
+    public string? Icon { get; set; }
+    public string? ClassName { get; set; }
+    public string? VisibleIf { get; set; }
 }
 
 public class GridDetailDefinition : GridDefinition
 {
-    public IList<GridDetailParam> Params { get; set; }
+    public IList<GridDetailParam>? Params { get; set; }
 
     /// <summary>Condition (admin.grid.js expression syntax) that shows the expander of a master row.</summary>
-    public string VisibleIf { get; set; }
+    public string? VisibleIf { get; set; }
 
     /// <summary>The rows of the detail grid expand to this same detail, to any depth.</summary>
     public bool? Recursive { get; set; }
@@ -188,6 +188,6 @@ public class GridDetailDefinition : GridDefinition
 
 public class GridDetailParam
 {
-    public string Name { get; set; }
-    public string Field { get; set; }
+    public string? Name { get; set; }
+    public string? Field { get; set; }
 }

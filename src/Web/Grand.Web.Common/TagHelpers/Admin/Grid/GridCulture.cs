@@ -9,9 +9,9 @@ namespace Grand.Web.Common.TagHelpers.Admin.Grid;
 /// </summary>
 public class GridCulture
 {
-    public string Name { get; set; }
-    public GridNumberFormat NumberFormat { get; set; }
-    public GridCalendar Calendar { get; set; }
+    public string? Name { get; set; }
+    public GridNumberFormat? NumberFormat { get; set; }
+    public GridCalendar? Calendar { get; set; }
 
     public static GridCulture From(CultureInfo culture)
     {
@@ -81,29 +81,29 @@ public class GridCulture
 
 public class GridNumberFormat
 {
-    public string Decimal { get; set; }
-    public string Group { get; set; }
-    public int[] GroupSizes { get; set; }
-    public string NegativeSign { get; set; }
+    public string? Decimal { get; set; }
+    public string? Group { get; set; }
+    public int[]? GroupSizes { get; set; }
+    public string? NegativeSign { get; set; }
     public int Decimals { get; set; }
-    public GridCurrencyFormat Currency { get; set; }
-    public GridPercentFormat Percent { get; set; }
+    public GridCurrencyFormat? Currency { get; set; }
+    public GridPercentFormat? Percent { get; set; }
 }
 
 public class GridCurrencyFormat
 {
-    public string Symbol { get; set; }
+    public string? Symbol { get; set; }
     public int Decimals { get; set; }
-    public string Decimal { get; set; }
-    public string Group { get; set; }
-    public int[] GroupSizes { get; set; }
+    public string? Decimal { get; set; }
+    public string? Group { get; set; }
+    public int[]? GroupSizes { get; set; }
     public int PositivePattern { get; set; }
     public int NegativePattern { get; set; }
 }
 
 public class GridPercentFormat
 {
-    public string Symbol { get; set; }
+    public string? Symbol { get; set; }
     public int Decimals { get; set; }
     public int PositivePattern { get; set; }
     public int NegativePattern { get; set; }
@@ -111,26 +111,26 @@ public class GridPercentFormat
 
 public class GridCalendar
 {
-    public string ShortDate { get; set; }
-    public string LongDate { get; set; }
-    public string ShortTime { get; set; }
-    public string LongTime { get; set; }
-    public string DateSeparator { get; set; }
-    public string TimeSeparator { get; set; }
-    public string Am { get; set; }
-    public string Pm { get; set; }
+    public string? ShortDate { get; set; }
+    public string? LongDate { get; set; }
+    public string? ShortTime { get; set; }
+    public string? LongTime { get; set; }
+    public string? DateSeparator { get; set; }
+    public string? TimeSeparator { get; set; }
+    public string? Am { get; set; }
+    public string? Pm { get; set; }
     /// <summary>Month names as a date is written with them (genitive where a culture has one).</summary>
-    public string[] Months { get; set; }
+    public string[]? Months { get; set; }
 
     /// <summary>
     ///     Month names on their own, which is what a calendar heading shows. Several cultures
     ///     write the two differently - Polish has "stycznia" in a date and "styczeń" alone.
     /// </summary>
-    public string[] MonthsStandalone { get; set; }
+    public string[]? MonthsStandalone { get; set; }
 
-    public string[] MonthsAbbr { get; set; }
-    public string[] Days { get; set; }
-    public string[] DaysAbbr { get; set; }
+    public string[]? MonthsAbbr { get; set; }
+    public string[]? Days { get; set; }
+    public string[]? DaysAbbr { get; set; }
 
     /// <summary>Day the calendar week starts on: 0 = Sunday ... 6 = Saturday.</summary>
     public int FirstDayOfWeek { get; set; }

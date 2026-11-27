@@ -15,7 +15,7 @@ public class ScimUsersController(IScimUserService userService, ScimConfig config
     [HttpGet("Users")]
     public async Task<IActionResult> List([FromQuery] string filter, [FromQuery] int? startIndex, [FromQuery] int? count)
     {
-        string userName = null, externalId = null;
+        string? userName = null, externalId = null;
         if (!string.IsNullOrWhiteSpace(filter))
         {
             if (!ScimFilter.TryParse(filter, out var parsed) || parsed.Attribute is not ("username" or "externalid"))
@@ -44,62 +44,62 @@ public class ScimUsersController(IScimUserService userService, ScimConfig config
     public async Task<IActionResult> Get(string id)
     {
         var result = await userService.Get(id);
-        return result.Outcome == ScimOutcome.Ok ? ScimResponse.Json(ToResource(result.User)) : Refused(result.Outcome, null);
+        return result is { Outcome: ScimOutcome.Ok, User: { } okUser } ? ScimResponse.Json(ToResource(okUser)) : Refused(result.Outcome, null);
     }
 
     [HttpPost("Users")]
     public async Task<IActionResult> Create()
     {
-        var (body, error) = await ReadBody<ScimUserResource>();
-        if (error != null)
-            return error;
+        var body = await ReadBody<ScimUserResource>();
+        if (body == null)
+            return InvalidSyntax();
 
         var result = await userService.Create(ToData(body, true));
-        if (result.Outcome != ScimOutcome.Created)
+        if (result is not { Outcome: ScimOutcome.Created, User: { } created })
             return Refused(result.Outcome, result.Detail);
 
-        var resource = ToResource(result.User);
-        Response.Headers.Location = resource.Meta.Location;
+        var resource = ToResource(created);
+        Response.Headers.Location = resource.Meta?.Location;
         return ScimResponse.Json(resource, StatusCodes.Status201Created);
     }
 
     [HttpPut("Users/{id}")]
     public async Task<IActionResult> Replace(string id)
     {
-        var (body, error) = await ReadBody<ScimUserResource>();
-        if (error != null)
-            return error;
+        var body = await ReadBody<ScimUserResource>();
+        if (body == null)
+            return InvalidSyntax();
 
         var current = await userService.Get(id);
-        if (current.Outcome != ScimOutcome.Ok)
+        if (current is not { Outcome: ScimOutcome.Ok, User: { } currentUser })
             return Refused(current.Outcome, null);
 
         //a replace without active keeps the state: it must not activate a deactivated account
-        var result = await userService.Replace(id, ToData(body, current.User.Active));
-        return result.Outcome == ScimOutcome.Ok
-            ? ScimResponse.Json(ToResource(result.User))
+        var result = await userService.Replace(id, ToData(body, currentUser.Active));
+        return result is { Outcome: ScimOutcome.Ok, User: { } okUser }
+            ? ScimResponse.Json(ToResource(okUser))
             : Refused(result.Outcome, result.Detail);
     }
 
     [HttpPatch("Users/{id}")]
     public async Task<IActionResult> Patch(string id)
     {
-        var (body, error) = await ReadBody<ScimPatchRequest>();
-        if (error != null)
-            return error;
+        var body = await ReadBody<ScimPatchRequest>();
+        if (body == null)
+            return InvalidSyntax();
 
         var current = await userService.Get(id);
-        if (current.Outcome != ScimOutcome.Ok)
+        if (current is not { Outcome: ScimOutcome.Ok, User: { } currentUser })
             return Refused(current.Outcome, null);
 
-        var user = current.User;
+        var user = currentUser;
         var data = new ScimUserData(user.UserName, user.ExternalId, user.Email, user.GivenName, user.FamilyName, user.Active);
-        if (!ScimUserPatch.TryApply(data, body.Operations, out var patched, out var patchError))
+        if (!ScimUserPatch.TryApply(data, body.Operations ?? [], out var patched, out var patchError))
             return Refused(ScimOutcome.Invalid, patchError);
 
         var result = await userService.Replace(id, patched);
-        return result.Outcome == ScimOutcome.Ok
-            ? ScimResponse.Json(ToResource(result.User))
+        return result is { Outcome: ScimOutcome.Ok, User: { } okUser }
+            ? ScimResponse.Json(ToResource(okUser))
             : Refused(result.Outcome, result.Detail);
     }
 
@@ -115,7 +115,7 @@ public class ScimUsersController(IScimUserService userService, ScimConfig config
             body.Active ?? activeWhenMissing);
 
     //the primary e-mail, else the work e-mail, else the first one
-    private static string PickEmail(List<ScimMultiValue> emails) =>
+    private static string? PickEmail(List<ScimMultiValue>? emails) =>
         (emails?.FirstOrDefault(x => x.Primary == true) ??
          emails?.FirstOrDefault(x => string.Equals(x.Type, "work", StringComparison.OrdinalIgnoreCase)) ??
          emails?.FirstOrDefault())?.Value;

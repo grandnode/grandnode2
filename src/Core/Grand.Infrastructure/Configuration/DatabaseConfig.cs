@@ -10,7 +10,7 @@ public class DatabaseConfig
     /// <summary>
     ///     Gets or sets a value indicating whether use LiteDB database (only for installation process)
     /// </summary>
-    public string LiteDbConnectionString { get; set; }
+    public string? LiteDbConnectionString { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether storefront product keyword search uses a text index (whole

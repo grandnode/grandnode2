@@ -18,7 +18,7 @@ public interface IShippingRateCalculationProvider : IProvider
     /// <summary>
     ///     Gets a shipment tracker
     /// </summary>
-    IShipmentTracker ShipmentTracker { get; }
+    IShipmentTracker? ShipmentTracker { get; }
 
     /// <summary>
     ///     Gets available shipping options

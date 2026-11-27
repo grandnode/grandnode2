@@ -78,8 +78,10 @@ public class OrderController : BasePublicController
     ///     The order and the customer acting on it: the current customer when it is theirs, else the order's guest
     ///     when the browser holds the grant the link sent to the order's e-mail left; nulls otherwise
     /// </summary>
-    private async Task<(Order Order, Customer Customer, bool GuestLink)> CustomerOrder(Order order)
+    private async Task<(Order? Order, Customer? Customer, bool GuestLink)> CustomerOrder(Order? order)
     {
+        if (order == null)
+            return (null, null, false);
         var (customer, guestLink) = await _guestOrderGrantService.OrderCustomer(order,
             _contextAccessor.WorkContext.CurrentCustomer, _contextAccessor.StoreContext.CurrentStore.Id);
         return customer != null ? (order, customer, guestLink) : (null, null, false);
@@ -109,7 +111,7 @@ public class OrderController : BasePublicController
     public virtual async Task<ActionResult<OrderDetailsModel>> Details(string orderId)
     {
         var (order, customer, guestLink) = await CustomerOrder(await _orderService.GetOrderById(orderId));
-        if (order == null)
+        if (order == null || customer == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetOrderDetails
@@ -135,7 +137,7 @@ public class OrderController : BasePublicController
     public virtual async Task<IActionResult> WithdrawApproval(string orderId)
     {
         var (order, customer, _) = await CustomerOrder(await _orderService.GetOrderById(orderId));
-        if (order == null)
+        if (order == null || customer == null)
             return Challenge();
 
         var withdrawn = await _mediator.Send(new WithdrawOrderApprovalCommand {
@@ -264,7 +266,7 @@ public class OrderController : BasePublicController
             return Challenge();
 
         var (order, customer, _) = await CustomerOrder(await _orderService.GetOrderById(shipment.OrderId));
-        if (order == null)
+        if (order == null || customer == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetShipmentDetails {
@@ -340,7 +342,8 @@ public class OrderController : BasePublicController
         var storeId = _contextAccessor.StoreContext.CurrentStore.Id;
         var orderId = _guestOrderGrantService.LinkOrderId(token, storeId);
         var order = orderId != null ? await _orderService.GetOrderById(orderId) : null;
-        if (await _guestOrderGrantService.GuestOfOrder(order, storeId) == null)
+        //GuestOfOrder answers no order with no guest
+        if (order == null || await _guestOrderGrantService.GuestOfOrder(order, storeId) == null)
         {
             Error(_translationService.GetResource("Order.Guest.InvalidLink"));
             return RedirectToRoute("GuestOrder");

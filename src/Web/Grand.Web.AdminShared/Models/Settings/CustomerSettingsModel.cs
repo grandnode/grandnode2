@@ -60,7 +60,7 @@ public class CustomerSettingsModel : BaseModel
         public int CustomerNameFormat { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Customer.PasswordRegularExpression")]
-        public string PasswordRegularExpression { get; set; }
+        public string? PasswordRegularExpression { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.Customer.UnduplicatedPasswordsNumber")]
         public int UnduplicatedPasswordsNumber { get; set; }

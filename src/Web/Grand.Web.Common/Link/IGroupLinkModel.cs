@@ -2,5 +2,5 @@
 
 public interface IGroupLinkModel
 {
-    string[] CustomerGroups { get; set; }
+    string[]? CustomerGroups { get; set; }
 }

@@ -29,15 +29,15 @@ public interface IOutOfStockSubscriptionService
     /// <param name="storeId">Store identifier</param>
     /// <param name="warehouseId">Warehouse identifier</param>
     /// <returns>Subscriptions</returns>
-    Task<OutOfStockSubscription> FindSubscription(string customerId, string productId,
-        IList<CustomAttribute> attributes, string storeId, string warehouseId);
+    Task<OutOfStockSubscription?> FindSubscription(string customerId, string productId,
+        IList<CustomAttribute>? attributes, string storeId, string? warehouseId);
 
     /// <summary>
     ///     Gets a subscription
     /// </summary>
     /// <param name="subscriptionId">Subscription identifier</param>
     /// <returns>Subscription</returns>
-    Task<OutOfStockSubscription> GetSubscriptionById(string subscriptionId);
+    Task<OutOfStockSubscription?> GetSubscriptionById(string subscriptionId);
 
     /// <summary>
     ///     Inserts subscription

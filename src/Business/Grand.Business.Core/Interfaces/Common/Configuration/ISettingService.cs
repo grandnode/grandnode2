@@ -31,7 +31,7 @@ public interface ISettingService
     /// </summary>
     /// <param name="settingId">Setting ident</param>
     /// <returns>Setting</returns>
-    Task<Setting> GetSettingById(string settingId);
+    Task<Setting?> GetSettingById(string settingId);
 
     /// <summary>
     ///     Get setting value by key
@@ -41,7 +41,7 @@ public interface ISettingService
     /// <param name="storeId">Store identifier</param>
     /// <param name="defaultValue">Default value</param>
     /// <returns>Setting value</returns>
-    Task<T> GetSettingByKey<T>(string key, T defaultValue = default, string storeId = "");
+    Task<T?> GetSettingByKey<T>(string key, T? defaultValue = default, string storeId = "");
 
     /// <summary>
     ///     Set setting value
@@ -63,7 +63,7 @@ public interface ISettingService
     /// </summary>
     /// <typeparam name="T">Type</typeparam>
     /// <param name="storeId">Store identifier for which settings should be loaded</param>
-    Task<T> LoadSetting<T>(string storeId = "") where T : ISettings, new();
+    Task<T> LoadSetting<T>(string? storeId = "") where T : ISettings, new();
 
     /// <summary>
     ///     Reads the settings of a store, and the global ones, into the cache, so that settings resolved from the container need no query
@@ -77,7 +77,7 @@ public interface ISettingService
     /// <param name="type"></param>
     /// <param name="storeId"></param>
     /// <returns></returns>
-    ISettings LoadSetting(Type type, string storeId = "");
+    ISettings LoadSetting(Type type, string? storeId = "");
 
     /// <summary>
     ///     Save settings object

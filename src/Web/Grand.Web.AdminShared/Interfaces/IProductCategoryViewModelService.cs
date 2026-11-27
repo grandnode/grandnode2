@@ -11,5 +11,5 @@ public interface IProductCategoryViewModelService
 
     Task UpdateProductCategoryModel(ProductModel.ProductCategoryModel model);
 
-    Task DeleteProductCategory(string id, string productId);
+    Task DeleteProductCategory(string? id, string? productId);
 }

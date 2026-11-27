@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Orders;
 
 public class AddMerchandiseReturnReasonCommand : IRequest<MerchandiseReturnReasonDto>
 {
-    public MerchandiseReturnReasonDto Model { get; set; }
+    public required MerchandiseReturnReasonDto Model { get; set; }
 }

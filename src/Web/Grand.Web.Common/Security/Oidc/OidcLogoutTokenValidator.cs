@@ -26,7 +26,7 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
         string.IsNullOrEmpty(typ) || typ.Equals("logout+jwt", StringComparison.OrdinalIgnoreCase) ||
         typ.Equals("JWT", StringComparison.OrdinalIgnoreCase);
 
-    public async Task<OidcLogoutToken> Validate(string token, OpenIdConnectConfiguration configuration, string clientId,
+    public async Task<OidcLogoutToken> Validate(string token, OpenIdConnectConfiguration configuration, string? clientId,
         TimeSpan clockSkew)
     {
         if (string.IsNullOrEmpty(token) || configuration == null || string.IsNullOrEmpty(clientId))
@@ -68,7 +68,7 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
         if (subject == null && sid == null)
             return OidcLogoutToken.Invalid("The logout token names no subject and no session");
 
-        string key = null;
+        string? key = null;
         if (!string.IsNullOrEmpty(jwt.Id))
         {
             key = "Grand.OidcLogin.LogoutJti." + jwt.Issuer + "|" + jwt.Id;
@@ -84,7 +84,7 @@ public class OidcLogoutTokenValidator(IMemoryCache cache)
     }
 
     /// <summary>Lets a token be validated again, when the work it asked for failed and the provider retries</summary>
-    public void Release(string replayKey)
+    public void Release(string? replayKey)
     {
         if (replayKey != null)
             cache.Remove(replayKey);

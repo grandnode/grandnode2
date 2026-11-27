@@ -58,7 +58,7 @@ public static class MerchandiseReturnUploads
     /// <param name="photos">The photos posted, by order item id</param>
     /// <param name="reasons">The store's reasons, which say whether they need a photo</param>
     /// <param name="allowedTypes">The extensions allowed</param>
-    public static string PhotosError(IEnumerable<MerchandiseReturnModel.OrderItemModel> items,
+    public static string? PhotosError(IEnumerable<MerchandiseReturnModel.OrderItemModel> items,
         IDictionary<string, IList<IFormFile>> photos, IList<MerchandiseReturnReason> reasons,
         IList<string> allowedTypes)
     {
@@ -74,7 +74,8 @@ public static class MerchandiseReturnUploads
 
         var photoReasons = reasons.Where(x => x.PhotoRequired).Select(x => x.Id).ToHashSet();
         return returned.Any(item => photoReasons.Contains(item.MerchandiseReturnReasonId ?? "") &&
-                                    (!photos.TryGetValue(item.Id, out var itemPhotos) || itemPhotos.Count == 0))
+                                    (item.Id == null || !photos.TryGetValue(item.Id, out var itemPhotos) ||
+                                     itemPhotos.Count == 0))
             ? PhotosRequired
             : null;
     }

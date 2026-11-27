@@ -146,6 +146,15 @@ public class InventoryDocumentControllerTests
     }
 
     [TestMethod]
+    public async Task Create_NoSuchType_BackToTheList()
+    {
+        AssertRedirectedTo(await _controller.Create((InventoryDocumentType)0), "List");
+        AssertRedirectedTo(await _controller.Create(new InventoryDocumentModel { DocumentTypeId = 0, WarehouseId = "w-own" }),
+            "List");
+        _documentService.Verify(x => x.CreateDraft(It.IsAny<InventoryDocument>()), Times.Never);
+    }
+
+    [TestMethod]
     public async Task Create_NoWarehouseChosen_FormShownAgain()
     {
         var result = await _controller.Create(new InventoryDocumentModel

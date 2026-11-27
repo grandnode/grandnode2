@@ -1,6 +1,8 @@
 @model MerchandiseReturnModel
 @{
     var refund = Model.Refund;
+    //TabInfo renders this partial only for a return with a refund
+    if (refund == null) return;
     var prefix = Scope.ResourceKeyPrefix;
     var area = ViewContext.RouteData.Values["area"]?.ToString();
 }

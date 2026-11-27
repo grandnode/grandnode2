@@ -4,11 +4,13 @@ namespace Grand.Web.Common.Filters;
 
 public class ArgumentNameFilterAttribute : ActionFilterAttribute
 {
-    public string KeyName { get; set; }
-    public string Argument { get; set; }
+    public string? KeyName { get; set; }
+    public string? Argument { get; set; }
 
     public override void OnActionExecuting(ActionExecutingContext context)
     {
+        if (string.IsNullOrEmpty(Argument))
+            return;
         context.ActionArguments[Argument] = context.HttpContext.Request.Form.Keys.Any(key => key.Equals(KeyName));
     }
 }

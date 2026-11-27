@@ -7,9 +7,9 @@ namespace Grand.Web.Commands.Models.Customers;
 
 public class UpdateCustomerInfoCommand : IRequest<bool>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public CustomerInfoModel Model { get; set; }
-    public IList<CustomAttribute> CustomerAttributes { get; set; }
-    public Customer OriginalCustomerIfImpersonated { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required CustomerInfoModel Model { get; set; }
+    public required IList<CustomAttribute> CustomerAttributes { get; set; }
+    public Customer? OriginalCustomerIfImpersonated { get; set; }
 }

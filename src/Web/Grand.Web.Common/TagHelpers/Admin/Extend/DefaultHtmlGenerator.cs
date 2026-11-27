@@ -23,7 +23,8 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     private const string HiddenListItem = @"<li style=""display:none""></li>";
 
     private static readonly MethodInfo ConvertEnumFromStringMethod =
-        typeof(DefaultHtmlGenerator).GetTypeInfo().GetDeclaredMethod(nameof(ConvertEnumFromString));
+        typeof(DefaultHtmlGenerator).GetTypeInfo().GetDeclaredMethod(nameof(ConvertEnumFromString)) ??
+        throw new InvalidOperationException("ConvertEnumFromString is not declared");
 
     // See: (http://www.w3.org/TR/html5/forms.html#the-input-element)
     private static readonly string[] _placeholderInputTypes =
@@ -105,11 +106,11 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     /// <inheritdoc />
     public string Encode(object value)
     {
-        return value != null ? _htmlEncoder.Encode(value.ToString()) : string.Empty;
+        return value?.ToString() is { } text ? _htmlEncoder.Encode(text) : string.Empty;
     }
 
     /// <inheritdoc />
-    public string FormatValue(object value, string format)
+    public string? FormatValue(object value, string? format)
     {
         return ViewDataDictionary.FormatValue(value, format);
     }
@@ -248,7 +249,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
             defaultMethod = true;
         else if (string.Equals(method, "post", StringComparison.OrdinalIgnoreCase)) defaultMethod = true;
 
-        string action;
+        string? action;
         if (actionName == null && controllerName == null && routeValues == null && defaultMethod)
         {
             // Submit to the original URL in the special case that user called the BeginForm() overload without
@@ -354,8 +355,8 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         var fullName = NameAndIdProvider.GetFullHtmlFieldName(viewContext, expression);
         var idString = NameAndIdProvider.CreateSanitizedId(viewContext, fullName, IdAttributeDotReplacement);
         tagBuilder.Attributes.Add("for", idString);
-        tagBuilder.InnerHtml.SetContent(resolvedLabelText);
-        tagBuilder.MergeAttributes(GetHtmlAttributeDictionaryOrNull(htmlAttributes), true);
+        tagBuilder.InnerHtml.SetContent(resolvedLabelText ?? string.Empty);
+        MergeAttributes(tagBuilder, GetHtmlAttributeDictionaryOrNull(htmlAttributes), true);
 
         return tagBuilder;
     }
@@ -496,7 +497,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         string optionLabel,
         string expression,
         IEnumerable<SelectListItem> selectList,
-        ICollection<string> currentValues,
+        ICollection<string>? currentValues,
         bool allowMultiple,
         object htmlAttributes)
     {
@@ -518,7 +519,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
 
         var tagBuilder = new TagBuilder("select");
         tagBuilder.InnerHtml.SetHtmlContent(listItemBuilder);
-        tagBuilder.MergeAttributes(htmlAttributeDictionary);
+        MergeAttributes(tagBuilder, htmlAttributeDictionary);
         NameAndIdProvider.GenerateId(viewContext, tagBuilder, fullName, IdAttributeDotReplacement);
         if (!string.IsNullOrEmpty(fullName)) tagBuilder.MergeAttribute("name", fullName, true);
 
@@ -562,7 +563,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
 
         var tagBuilder = new TagBuilder("textarea");
         NameAndIdProvider.GenerateId(viewContext, tagBuilder, fullName, IdAttributeDotReplacement);
-        tagBuilder.MergeAttributes(htmlAttributeDictionary, true);
+        MergeAttributes(tagBuilder, htmlAttributeDictionary, true);
         if (rows > 0) tagBuilder.MergeAttribute("rows", rows.ToString(CultureInfo.InvariantCulture), true);
 
         if (columns > 0)
@@ -583,7 +584,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         // The first newline is always trimmed when a TextArea is rendered, so we add an extra one
         // in case the value being rendered is something like "\r\nHello"
         tagBuilder.InnerHtml.AppendLine();
-        tagBuilder.InnerHtml.Append(value);
+        tagBuilder.InnerHtml.Append(value ?? string.Empty);
 
         return tagBuilder;
     }
@@ -615,7 +616,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     }
 
     /// <inheritdoc />
-    public virtual TagBuilder GenerateValidationMessage(
+    public virtual TagBuilder? GenerateValidationMessage(
         ViewContext viewContext,
         ModelExplorer modelExplorer,
         string expression,
@@ -633,10 +634,9 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         var formContext = viewContext.ClientValidationEnabled ? viewContext.FormContext : null;
         if (!viewContext.ViewData.ModelState.ContainsKey(fullName) && formContext == null) return null;
 
-        var tryGetModelStateResult = viewContext.ViewData.ModelState.TryGetValue(fullName, out var entry);
-        var modelErrors = tryGetModelStateResult ? entry.Errors : null;
+        var modelErrors = viewContext.ViewData.ModelState.TryGetValue(fullName, out var entry) ? entry.Errors : null;
 
-        ModelError modelError = null;
+        ModelError? modelError = null;
         if (modelErrors != null && modelErrors.Count != 0)
             modelError = modelErrors.FirstOrDefault(m => !string.IsNullOrEmpty(m.ErrorMessage)) ?? modelErrors[0];
 
@@ -647,7 +647,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         if (string.IsNullOrEmpty(tag)) tag = viewContext.ValidationMessageElement;
 
         var tagBuilder = new TagBuilder(tag);
-        tagBuilder.MergeAttributes(htmlAttributeDictionary);
+        MergeAttributes(tagBuilder, htmlAttributeDictionary);
 
         // Only the style of the span is changed according to the errors if message is null or empty.
         // Otherwise the content and style is handled by the client-side validation.
@@ -683,7 +683,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     }
 
     /// <inheritdoc />
-    public virtual TagBuilder GenerateValidationSummary(
+    public virtual TagBuilder? GenerateValidationSummary(
         ViewContext viewContext,
         bool excludePropertyErrors,
         string message,
@@ -703,7 +703,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
             // Client-side validation (if enabled) will not affect the generated element and element will be empty.
             return null;
 
-        TagBuilder messageTag;
+        TagBuilder? messageTag;
         if (string.IsNullOrEmpty(message))
         {
             messageTag = null;
@@ -745,7 +745,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         }
 
         var tagBuilder = new TagBuilder("div");
-        tagBuilder.MergeAttributes(GetHtmlAttributeDictionaryOrNull(htmlAttributes));
+        MergeAttributes(tagBuilder, GetHtmlAttributeDictionaryOrNull(htmlAttributes));
 
         tagBuilder.AddCssClass(viewData.ModelState.IsValid
             ? HtmlHelper.ValidationSummaryValidCssClassName
@@ -763,7 +763,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     }
 
     /// <inheritdoc />
-    public virtual ICollection<string> GetCurrentValues(
+    public virtual ICollection<string>? GetCurrentValues(
         ViewContext viewContext,
         ModelExplorer modelExplorer,
         string expression,
@@ -797,7 +797,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         }
 
         // Convert raw value to a collection.
-        IEnumerable rawValues;
+        IEnumerable? rawValues;
         if (allowMultiple)
         {
             rawValues = rawValue as IEnumerable;
@@ -813,7 +813,8 @@ public class DefaultHtmlGenerator : IHtmlGenerator
                         ExpressionMetadataProvider.FromStringExpression(expression, viewContext.ViewData,
                             _metadataProvider);
         var metadata = modelExplorer.Metadata;
-        if (allowMultiple && metadata.IsEnumerableType) metadata = metadata.ElementMetadata;
+        //an enumerable type always has the metadata of its elements
+        if (allowMultiple && metadata.IsEnumerableType) metadata = metadata.ElementMetadata ?? metadata;
 
         var enumNames = metadata.EnumNamesAndValues;
         var isTargetEnum = metadata.IsEnum;
@@ -828,7 +829,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         foreach (var value in rawValues)
         {
             // Add original or converted string.
-            var stringValue = value as string ?? Convert.ToString(value, CultureInfo.CurrentCulture);
+            var stringValue = value as string ?? Convert.ToString(value, CultureInfo.CurrentCulture) ?? string.Empty;
 
             // Do not add simple names of enum properties here because whitespace isn't relevant for their binding.
             // Will add matching names just below.
@@ -849,7 +850,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
                 {
                     // E.g. got a string from ModelState.
                     var methodInfo = ConvertEnumFromStringMethod.MakeGenericMethod(innerType);
-                    enumValue = (Enum)methodInfo.Invoke(null, [stringValue]);
+                    enumValue = (Enum?)methodInfo.Invoke(null, [stringValue]);
                 }
             }
 
@@ -861,7 +862,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
 
                 // isTargetEnum may be false when raw value has a different type than the target e.g. ViewData
                 // contains enum values and property has type int or string.
-                if (isTargetEnum)
+                if (isTargetEnum && enumNames != null)
                 {
                     // Add all simple names for this value.
                     var matchingNames = enumNames
@@ -881,7 +882,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         return GenerateGroupsAndOptions(optionLabel, selectList, null);
     }
 
-    internal static string EvalString(ViewContext viewContext, string key, string format)
+    internal static string? EvalString(ViewContext viewContext, string key, string? format)
     {
         return Convert.ToString(viewContext.ViewData.Eval(key, format), CultureInfo.CurrentCulture);
     }
@@ -908,7 +909,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         return tagBuilder;
     }
 
-    internal static object GetModelStateValue(ViewContext viewContext, string key, Type destinationType)
+    internal static object? GetModelStateValue(ViewContext viewContext, string key, Type destinationType)
     {
         //if (viewContext.ViewData.ModelState.TryGetValue(key, out var entry) && entry.RawValue != null)
         //{
@@ -933,14 +934,14 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     /// </returns>
     protected virtual TagBuilder GenerateFormCore(
         ViewContext viewContext,
-        string action,
+        string? action,
         string method,
         object htmlAttributes)
     {
         ArgumentNullException.ThrowIfNull(viewContext);
 
         var tagBuilder = new TagBuilder("form");
-        tagBuilder.MergeAttributes(GetHtmlAttributeDictionaryOrNull(htmlAttributes));
+        MergeAttributes(tagBuilder, GetHtmlAttributeDictionaryOrNull(htmlAttributes));
 
         // action is implicitly generated from other parameters, so htmlAttributes take precedence.
         tagBuilder.MergeAttribute("action", action);
@@ -959,15 +960,15 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     protected virtual TagBuilder GenerateInput(
         ViewContext viewContext,
         InputType inputType,
-        ModelExplorer modelExplorer,
+        ModelExplorer? modelExplorer,
         string expression,
         object value,
         bool useViewData,
         bool isChecked,
         bool setId,
         bool isExplicitValue,
-        string format,
-        IDictionary<string, object> htmlAttributes)
+        string? format,
+        IDictionary<string, object?>? htmlAttributes)
     {
         ArgumentNullException.ThrowIfNull(viewContext);
 
@@ -983,7 +984,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
             TagRenderMode = TagRenderMode.SelfClosing
         };
 
-        tagBuilder.MergeAttributes(htmlAttributes);
+        MergeAttributes(tagBuilder, htmlAttributes);
         tagBuilder.MergeAttribute("type", inputTypeString);
         if (!string.IsNullOrEmpty(fullName)) tagBuilder.MergeAttribute("name", fullName, true);
 
@@ -1030,14 +1031,13 @@ public class DefaultHtmlGenerator : IHtmlGenerator
 
             case InputType.Text:
             default:
-                var attributeValue = (string)GetModelStateValue(viewContext, fullName, typeof(string)) ??
+                var attributeValue = (string?)GetModelStateValue(viewContext, fullName, typeof(string)) ??
                                      (useViewData ? EvalString(viewContext, expression, format) : valueParameter);
 
                 var addValue = true;
-                object typeAttributeValue;
-                if (htmlAttributes != null && htmlAttributes.TryGetValue("type", out typeAttributeValue))
+                if (htmlAttributes != null && htmlAttributes.TryGetValue("type", out var typeAttributeValue))
                 {
-                    var typeAttributeString = typeAttributeValue.ToString();
+                    var typeAttributeString = typeAttributeValue?.ToString();
                     if (string.Equals(typeAttributeString, "file", StringComparison.OrdinalIgnoreCase) ||
                         string.Equals(typeAttributeString, "image", StringComparison.OrdinalIgnoreCase))
                         // 'value' attribute is not needed for 'file' and 'image' input types.
@@ -1062,7 +1062,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
 
     protected virtual TagBuilder GenerateLink(
         string linkText,
-        string url,
+        string? url,
         object htmlAttributes)
     {
         ArgumentNullException.ThrowIfNull(linkText);
@@ -1070,7 +1070,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         var tagBuilder = new TagBuilder("a");
         tagBuilder.InnerHtml.SetContent(linkText);
 
-        tagBuilder.MergeAttributes(GetHtmlAttributeDictionaryOrNull(htmlAttributes));
+        MergeAttributes(tagBuilder, GetHtmlAttributeDictionaryOrNull(htmlAttributes));
         tagBuilder.MergeAttribute("href", url);
 
         return tagBuilder;
@@ -1086,7 +1086,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     protected virtual void AddPlaceholderAttribute(
         ViewDataDictionary viewData,
         TagBuilder tagBuilder,
-        ModelExplorer modelExplorer,
+        ModelExplorer? modelExplorer,
         string expression)
     {
         modelExplorer = modelExplorer ?? ExpressionMetadataProvider.FromStringExpression(
@@ -1108,7 +1108,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     protected virtual void AddMaxLengthAttribute(
         ViewDataDictionary viewData,
         TagBuilder tagBuilder,
-        ModelExplorer modelExplorer,
+        ModelExplorer? modelExplorer,
         string expression)
     {
         modelExplorer = modelExplorer ?? ExpressionMetadataProvider.FromStringExpression(
@@ -1139,7 +1139,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     protected virtual void AddValidationAttributes(
         ViewContext viewContext,
         TagBuilder tagBuilder,
-        ModelExplorer modelExplorer,
+        ModelExplorer? modelExplorer,
         string expression)
     {
         modelExplorer = modelExplorer ?? ExpressionMetadataProvider.FromStringExpression(
@@ -1154,7 +1154,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
             tagBuilder.Attributes);
     }
 
-    private static Enum ConvertEnumFromInteger(object value, Type targetType)
+    private static Enum? ConvertEnumFromInteger(object value, Type targetType)
     {
         try
         {
@@ -1168,7 +1168,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         }
     }
 
-    private static object ConvertEnumFromString<TEnum>(string value) where TEnum : struct
+    private static object? ConvertEnumFromString<TEnum>(string value) where TEnum : struct
     {
         if (Enum.TryParse(value, out TEnum enumValue)) return enumValue;
 
@@ -1181,20 +1181,28 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         return Convert.ToBoolean(viewContext.ViewData.Eval(key), CultureInfo.InvariantCulture);
     }
 
-    private static string EvalString(ViewContext viewContext, string key)
+    private static string? EvalString(ViewContext viewContext, string key)
     {
         return Convert.ToString(viewContext.ViewData.Eval(key), CultureInfo.CurrentCulture);
     }
 
     // Only need a dictionary if htmlAttributes is non-null. TagBuilder.MergeAttributes() is fine with null.
-    private static IDictionary<string, object> GetHtmlAttributeDictionaryOrNull(object htmlAttributes)
+    private static IDictionary<string, object?>? GetHtmlAttributeDictionaryOrNull(object htmlAttributes)
     {
-        IDictionary<string, object> htmlAttributeDictionary = null;
+        IDictionary<string, object?>? htmlAttributeDictionary = null;
         if (htmlAttributes != null)
-            htmlAttributeDictionary = htmlAttributes as IDictionary<string, object> ??
+            htmlAttributeDictionary = htmlAttributes as IDictionary<string, object?> ??
                                       HtmlHelper.AnonymousObjectToHtmlAttributes(htmlAttributes);
 
         return htmlAttributeDictionary;
+    }
+
+    //the attributes may be missing; TagBuilder.MergeAttributes takes none
+    private static void MergeAttributes(TagBuilder tagBuilder, IDictionary<string, object?>? attributes,
+        bool replaceExisting = false)
+    {
+        if (attributes != null)
+            tagBuilder.MergeAttributes(attributes, replaceExisting);
     }
 
     private static string GetInputTypeString(InputType inputType)
@@ -1238,14 +1246,14 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         return selectList;
     }
 
-    private static bool IsFullNameValid(string fullName, IDictionary<string, object> htmlAttributeDictionary)
+    private static bool IsFullNameValid(string? fullName, IDictionary<string, object?>? htmlAttributeDictionary)
     {
         return IsFullNameValid(fullName, htmlAttributeDictionary, "name");
     }
 
     private static bool IsFullNameValid(
-        string fullName,
-        IDictionary<string, object> htmlAttributeDictionary,
+        string? fullName,
+        IDictionary<string, object?>? htmlAttributeDictionary,
         string fallbackAttributeName)
     {
         if (string.IsNullOrEmpty(fullName))
@@ -1266,7 +1274,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
     private IHtmlContent GenerateGroupsAndOptions(
         string optionLabel,
         IEnumerable<SelectListItem> selectList,
-        ICollection<string> currentValues)
+        ICollection<string>? currentValues)
     {
         if (!(selectList is IList<SelectListItem> itemsList)) itemsList = selectList.ToList();
 
@@ -1330,7 +1338,7 @@ public class DefaultHtmlGenerator : IHtmlGenerator
         return listItemBuilder;
     }
 
-    private static IHtmlContent GenerateOption(SelectListItem item, ICollection<string> currentValues)
+    private static IHtmlContent GenerateOption(SelectListItem item, ICollection<string>? currentValues)
     {
         var selected = item.Selected;
         if (currentValues != null)

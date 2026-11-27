@@ -6,5 +6,5 @@ namespace Grand.Web.Features.Models.News;
 
 public class GetNewsItem : IRequest<NewsItemModel>
 {
-    public NewsItem NewsItem { get; set; }
+    public required NewsItem NewsItem { get; set; }
 }

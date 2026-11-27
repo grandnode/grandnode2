@@ -141,17 +141,23 @@ public abstract class BaseController : Controller
 
         if (persistNextRequest)
         {
-            if (TempData[dataKey] == null || TempData[dataKey] is not List<string>)
-                TempData[dataKey] = new List<string>();
-            ((List<string>)TempData[dataKey]).Add(message);
+            if (TempData[dataKey] is not List<string> list)
+            {
+                list = new List<string>();
+                TempData[dataKey] = list;
+            }
+            list.Add(message);
         }
         else
         {
             //1. Compare with null (first usage)
             //2. For some unknown reasons sometimes List<string> is converted to string[]. And it throws exceptions. That's why we reset it
-            if (ViewData[dataKey] == null || ViewData[dataKey] is not List<string>)
-                ViewData[dataKey] = new List<string>();
-            ((List<string>)ViewData[dataKey]).Add(message);
+            if (ViewData[dataKey] is not List<string> list)
+            {
+                list = new List<string>();
+                ViewData[dataKey] = list;
+            }
+            list.Add(message);
         }
     }
 
@@ -186,7 +192,7 @@ public abstract class BaseController : Controller
     ///     Display "Edit" (manage) link (in public store)
     /// </summary>
     /// <param name="editPageUrl">Edit page URL</param>
-    protected virtual void DisplayEditLink(string editPageUrl)
+    protected virtual void DisplayEditLink(string? editPageUrl)
     {
         HttpContext.RequestServices.GetRequiredService<IPageHeadBuilder>().EditPageUrl = editPageUrl;
     }
@@ -216,7 +222,7 @@ public abstract class BaseController : Controller
     /// <param name="configure">Configure action</param>
     /// https://github.com/smartstore/Smartstore/blob/98494cd31f5a376bf67010264e10c37a657f6ee9/src/Smartstore.Web.Common/Controllers/ManageController.cs
     protected virtual async Task AddLocales<TLocalizedModelLocal>(ILanguageService languageService,
-        IList<TLocalizedModelLocal> locales, Action<TLocalizedModelLocal, string> configure)
+        IList<TLocalizedModelLocal> locales, Action<TLocalizedModelLocal, string>? configure)
         where TLocalizedModelLocal : ILocalizedModelLocal
     {
         foreach (var language in await languageService.GetAllLanguages(true))

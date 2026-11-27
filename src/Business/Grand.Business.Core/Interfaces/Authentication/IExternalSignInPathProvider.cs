@@ -10,5 +10,5 @@ public interface IExternalSignInPathProvider : IExternalAuthenticationProvider
     ///     Path (from the application root, starting with "/") that signs in and returns to <paramref name="returnUrl" />;
     ///     null when the provider cannot sign in now (for example, not configured)
     /// </summary>
-    Task<string> GetSignInPath(string returnUrl);
+    Task<string?> GetSignInPath(string? returnUrl);
 }

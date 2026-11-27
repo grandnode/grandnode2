@@ -15,6 +15,6 @@ public interface ICopyProductService
     /// <param name="isPublished">A value indicating whether the product duplicate should be published</param>
     /// <param name="copyAssociatedProducts">A value indicating whether the copy associated products</param>
     /// <returns>Product copy</returns>
-    Task<Product> CopyProduct(Product product, string newName,
+    Task<Product> CopyProduct(Product product, string? newName,
         bool isPublished = true, bool copyAssociatedProducts = true);
 }

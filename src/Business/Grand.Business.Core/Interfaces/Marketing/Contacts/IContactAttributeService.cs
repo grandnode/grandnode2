@@ -28,7 +28,7 @@ public interface IContactAttributeService
     /// </summary>
     /// <param name="contactAttributeId">Contact attribute identifier</param>
     /// <returns>Contact attribute</returns>
-    Task<ContactAttribute> GetContactAttributeById(string contactAttributeId);
+    Task<ContactAttribute?> GetContactAttributeById(string? contactAttributeId);
 
     /// <summary>
     ///     Inserts a Contact attribute

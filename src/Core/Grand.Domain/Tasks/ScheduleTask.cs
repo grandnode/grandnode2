@@ -6,16 +6,16 @@ namespace Grand.Domain.Tasks;
 public class ScheduleTask : BaseEntity
 {
     [AuditName]
-    public string ScheduleTaskName { get; set; }    
+    public string? ScheduleTaskName { get; set; }    
     public bool Enabled { get; set; }
     public bool StopOnError { get; set; }
     public DateTime? LastStartUtc { get; set; }
     public DateTime? LastNonSuccessEndUtc { get; set; }
     public DateTime? LastSuccessUtc { get; set; }
-    public string LeasedByMachineName { get; set; }
+    public string? LeasedByMachineName { get; set; }
     public DateTime? LeasedUntilUtc { get; set; }
-    public string LeasedByInstance { get; set; }
+    public string? LeasedByInstance { get; set; }
     public int TimeInterval { get; set; }
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 }

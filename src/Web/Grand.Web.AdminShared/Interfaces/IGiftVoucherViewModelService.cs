@@ -6,14 +6,14 @@ namespace Grand.Web.AdminShared.Interfaces;
 public interface IGiftVoucherViewModelService
 {
     GiftVoucherListModel PrepareGiftVoucherListModel();
-    Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel model = null);
+    Task<GiftVoucherModel> PrepareGiftVoucherModel(GiftVoucherModel? model = null);
 
     Task<(IEnumerable<GiftVoucherModel> giftVoucherModels, int totalCount)> PrepareGiftVoucherModel(
         GiftVoucherListModel model, int pageIndex, int pageSize, string storeId = "");
 
     Task<GiftVoucherModel> FillGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
     Task NotifyRecipient(GiftVoucher giftVoucher);
-    Task<Order> GetOrderFromGiftVoucher(GiftVoucher giftVoucher);
+    Task<Order?> GetOrderFromGiftVoucher(GiftVoucher giftVoucher);
     Task<GiftVoucher> InsertGiftVoucherModel(GiftVoucherModel model);
     Task<GiftVoucher> UpdateGiftVoucherModel(GiftVoucher giftVoucher, GiftVoucherModel model);
     Task DeleteGiftVoucher(GiftVoucher giftVoucher);

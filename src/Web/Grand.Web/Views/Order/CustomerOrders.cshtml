@@ -60,7 +60,7 @@
                             <span>@order.OrderNumber</span>
                         </td>
                         <td>
-                            <span class="@order.OrderStatus.ToLower() badge status order-status">@order.OrderStatus</span>
+                            <span class="@order.OrderStatus?.ToLower() badge status order-status">@order.OrderStatus</span>
                         </td>
                         @if (supportRtl)
                         {

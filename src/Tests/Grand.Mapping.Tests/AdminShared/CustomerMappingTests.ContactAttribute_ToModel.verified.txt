@@ -5,6 +5,9 @@
   AttributeControlTypeId: 1,
   DisplayOrder: 1,
   ConditionAllowed: false,
+  ConditionModel: {
+    EnableCondition: false
+  },
   IsReadOnly: false,
   Id: coa-001
 }

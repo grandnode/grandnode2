@@ -12,7 +12,7 @@ public class PluginTranslateResource(ITranslationService translationService, ILa
     /// <param name="value">Value</param>
     /// <param name="area">Area</param>
     /// <param name="languageCulture">Language culture code. If null or empty, then a resource will be added for all languages</param>
-    public virtual async Task AddOrUpdatePluginTranslateResource(string name, string value, TranslationResourceArea area = TranslationResourceArea.Common, string languageCulture = null)
+    public virtual async Task AddOrUpdatePluginTranslateResource(string name, string value, TranslationResourceArea area = TranslationResourceArea.Common, string? languageCulture = null)
     {
         if (!string.IsNullOrEmpty(name))
             name = name.ToLowerInvariant();

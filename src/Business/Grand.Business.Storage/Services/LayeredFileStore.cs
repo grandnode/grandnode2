@@ -26,13 +26,13 @@ public class LayeredFileStore : IFileStore
         _primaryOnlyPaths = primaryOnlyPaths.Select(p => this.NormalizePath(p)).ToArray();
     }
 
-    public async Task<IFileStoreEntry> GetFileInfo(string path)
+    public async Task<IFileStoreEntry?> GetFileInfo(string path)
     {
         return await _primary.GetFileInfo(path)
                ?? (IsPrimaryOnly(path) ? null : await _fallback.GetFileInfo(path));
     }
 
-    public IFileStoreEntry GetDirectoryInfo(string path)
+    public IFileStoreEntry? GetDirectoryInfo(string path)
     {
         var entry = _primary.GetDirectoryInfo(path);
         if (entry != null) return entry;
@@ -44,14 +44,14 @@ public class LayeredFileStore : IFileStore
         return _primary.GetDirectoryInfo(path);
     }
 
-    public Task<PhysicalDirectoryInfo> GetPhysicalDirectoryInfo(string directoryPath)
+    public Task<PhysicalDirectoryInfo?> GetPhysicalDirectoryInfo(string directoryPath)
     {
         return GetDirectoryInfo(directoryPath) == null
-            ? Task.FromResult<PhysicalDirectoryInfo>(null)
+            ? Task.FromResult<PhysicalDirectoryInfo?>(null)
             : _primary.GetPhysicalDirectoryInfo(directoryPath);
     }
 
-    public IList<IFileStoreEntry> GetDirectoryContent(string path = null, bool includeSubDirectories = false,
+    public IList<IFileStoreEntry> GetDirectoryContent(string? path = null, bool includeSubDirectories = false,
         bool listDirectories = true, bool listFiles = true)
     {
         var primaryEntries = _primary.GetDirectoryContent(path, includeSubDirectories, listDirectories, listFiles);
@@ -96,7 +96,7 @@ public class LayeredFileStore : IFileStore
         return IsPrimaryOnly(path) || await _primary.GetFileInfo(path) != null ? _primary : _fallback;
     }
 
-    private bool IsPrimaryOnly(string path)
+    private bool IsPrimaryOnly(string? path)
     {
         var normalized = this.NormalizePath(path) ?? "";
         return _primaryOnlyPaths.Any(p =>

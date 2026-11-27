@@ -138,7 +138,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by its stored
     ///     name (any case) - under the row's parent when it names one; more than one category of that name is an error
     /// </summary>
-    private async Task<(Category category, bool matchedByName, string error)> FindCategory(CategoryDto dto,
+    private async Task<(Category? category, bool matchedByName, string? error)> FindCategory(CategoryDto dto,
         ImportMode mode)
     {
         if (!string.IsNullOrEmpty(dto.Id))
@@ -161,7 +161,7 @@ public class CategoryImportDataObject : IImportDataObject<CategoryDto>, IRowImpo
     }
 
     private async Task UpdateCategoryData(CategoryDto categoryDto, Category category, bool parentMissing,
-        DownloadedImage image)
+        DownloadedImage? image)
     {
         if (string.IsNullOrEmpty(category.CategoryLayoutId))
         {

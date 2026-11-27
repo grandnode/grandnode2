@@ -8,32 +8,32 @@ public class CheckoutPaymentMethodModel : BaseModel
 
     public bool DisplayLoyaltyPoints { get; set; }
     public int LoyaltyPointsBalance { get; set; }
-    public string LoyaltyPointsAmount { get; set; }
+    public string? LoyaltyPointsAmount { get; set; }
     public bool LoyaltyPointsEnoughToPayForOrder { get; set; }
     public bool UseLoyaltyPoints { get; set; }
-    public string PaymentMethod { get; set; }
+    public string? PaymentMethod { get; set; }
 
     /// <summary>
     ///     Set when the order needs an approval and no payment method is allowed for such orders
     /// </summary>
-    public string NoPaymentMethodMessage { get; set; }
+    public string? NoPaymentMethodMessage { get; set; }
 
     /// <summary>
     ///     Set when the customer's company buys on trade credit: what is still available, so that a hidden
     ///     pay by invoice method explains itself
     /// </summary>
-    public string TradeCreditNotice { get; set; }
+    public string? TradeCreditNotice { get; set; }
 
     #region Nested classes
 
     public class PaymentMethodModel : BaseModel
     {
-        public string PaymentMethodSystemName { get; set; }
-        public string Name { get; set; }
-        public string Description { get; set; }
-        public string Fee { get; set; }
+        public string? PaymentMethodSystemName { get; set; }
+        public string? Name { get; set; }
+        public string? Description { get; set; }
+        public string? Fee { get; set; }
         public bool Selected { get; set; }
-        public string LogoUrl { get; set; }
+        public string? LogoUrl { get; set; }
     }
 
     #endregion

@@ -9,12 +9,12 @@ public class BlogCategory : BaseEntity, IStoreLinkEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the blog category name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the blog category sename
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets display order

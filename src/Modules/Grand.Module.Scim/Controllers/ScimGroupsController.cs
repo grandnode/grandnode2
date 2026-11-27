@@ -16,7 +16,7 @@ public class ScimGroupsController(IScimGroupService groupService, ScimConfig con
     public async Task<IActionResult> List([FromQuery] string filter, [FromQuery] int? startIndex, [FromQuery] int? count,
         [FromQuery] string excludedAttributes)
     {
-        string displayName = null, externalId = null;
+        string? displayName = null, externalId = null;
         if (!string.IsNullOrWhiteSpace(filter))
         {
             if (!ScimFilter.TryParse(filter, out var parsed) || parsed.Attribute is not ("displayname" or "externalid"))
@@ -45,48 +45,48 @@ public class ScimGroupsController(IScimGroupService groupService, ScimConfig con
     public async Task<IActionResult> Get(string id, [FromQuery] string excludedAttributes)
     {
         var result = await groupService.Get(id);
-        return result.Outcome == ScimOutcome.Ok
-            ? ScimResponse.Json(ToResource(result.Group, !ExcludesMembers(excludedAttributes)))
+        return result is { Outcome: ScimOutcome.Ok, Group: { } okGroup }
+            ? ScimResponse.Json(ToResource(okGroup, !ExcludesMembers(excludedAttributes)))
             : Refused(result.Outcome, null);
     }
 
     [HttpPost("Groups")]
     public async Task<IActionResult> Create()
     {
-        var (body, error) = await ReadBody<ScimGroupResource>();
-        if (error != null)
-            return error;
+        var body = await ReadBody<ScimGroupResource>();
+        if (body == null)
+            return InvalidSyntax();
 
         var result = await groupService.Create(ToData(body));
-        if (result.Outcome != ScimOutcome.Created)
+        if (result is not { Outcome: ScimOutcome.Created, Group: { } created })
             return Refused(result.Outcome, result.Detail);
 
-        var resource = ToResource(result.Group, true);
-        Response.Headers.Location = resource.Meta.Location;
+        var resource = ToResource(created, true);
+        Response.Headers.Location = resource.Meta?.Location;
         return ScimResponse.Json(resource, StatusCodes.Status201Created);
     }
 
     [HttpPut("Groups/{id}")]
     public async Task<IActionResult> Replace(string id)
     {
-        var (body, error) = await ReadBody<ScimGroupResource>();
-        if (error != null)
-            return error;
+        var body = await ReadBody<ScimGroupResource>();
+        if (body == null)
+            return InvalidSyntax();
 
         var result = await groupService.Replace(id, ToData(body));
-        return result.Outcome == ScimOutcome.Ok
-            ? ScimResponse.Json(ToResource(result.Group, true))
+        return result is { Outcome: ScimOutcome.Ok, Group: { } okGroup }
+            ? ScimResponse.Json(ToResource(okGroup, true))
             : Refused(result.Outcome, result.Detail);
     }
 
     [HttpPatch("Groups/{id}")]
     public async Task<IActionResult> Patch(string id)
     {
-        var (body, error) = await ReadBody<ScimPatchRequest>();
-        if (error != null)
-            return error;
+        var body = await ReadBody<ScimPatchRequest>();
+        if (body == null)
+            return InvalidSyntax();
 
-        if (!ScimGroupPatch.TryApply(body.Operations, out var changes, out var patchError))
+        if (!ScimGroupPatch.TryApply(body.Operations ?? [], out var changes, out var patchError))
             return Refused(ScimOutcome.Invalid, patchError);
 
         var result = await groupService.Get(id);
@@ -95,8 +95,8 @@ public class ScimGroupsController(IScimGroupService groupService, ScimConfig con
         if (result.Outcome == ScimOutcome.Ok && changes.MembersChanged)
             result = await groupService.ModifyMembers(id, changes.Add, changes.Remove, changes.ReplaceAll);
 
-        return result.Outcome == ScimOutcome.Ok
-            ? ScimResponse.Json(ToResource(result.Group, true))
+        return result is { Outcome: ScimOutcome.Ok, Group: { } okGroup }
+            ? ScimResponse.Json(ToResource(okGroup, true))
             : Refused(result.Outcome, result.Detail);
     }
 
@@ -113,7 +113,7 @@ public class ScimGroupsController(IScimGroupService groupService, ScimConfig con
 
     private static ScimGroupData ToData(ScimGroupResource body) =>
         new(body.DisplayName, body.ExternalId,
-            body.Members?.Select(x => x.Value).Where(x => !string.IsNullOrEmpty(x)).ToList() ?? []);
+            body.Members?.Select(x => x.Value).OfType<string>().Where(x => x.Length > 0).ToList() ?? []);
 
     private ScimGroupResource ToResource(ScimGroupView group, bool withMembers) =>
         new() {

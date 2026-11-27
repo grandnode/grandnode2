@@ -43,8 +43,8 @@ public class GetShoppingCartTokensCommandHandler : IRequestHandler<GetShoppingCa
                     pictureUrl = await _pictureService.GetPictureUrl(
                         product.ProductPictures.OrderByDescending(p => p.IsDefault)  
                             .ThenBy(p => p.DisplayOrder) 
-                            .FirstOrDefault()?.PictureId, 100,
-                        storeLocation: request.Context.Store.Url);
+                            .FirstOrDefault()?.PictureId ?? "", 100,
+                        storeLocation: request.Context.Store.Url) ?? "";
 
                 //attributes
                 if (item.Attributes != null && item.Attributes.Any())

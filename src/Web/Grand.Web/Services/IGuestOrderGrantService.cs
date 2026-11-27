@@ -32,13 +32,13 @@ public interface IGuestOrderGrantService
     /// <summary>
     ///     The order a link's token opens in the store; null when it expired, was changed or is of another store
     /// </summary>
-    string LinkOrderId(string token, string storeId);
+    string? LinkOrderId(string token, string storeId);
 
     /// <summary>
     ///     The customer of an order the guest flow serves: an order of the store placed without an account. A
     ///     customer who has registered since logs in instead
     /// </summary>
-    Task<Customer> GuestOfOrder(Order order, string storeId);
+    Task<Customer?> GuestOfOrder(Order? order, string storeId);
 
     /// <summary>
     ///     Leaves the grant for the order in the browser, until it is closed and for the grant's lifetime at most
@@ -48,18 +48,18 @@ public interface IGuestOrderGrantService
     /// <summary>
     ///     The order the browser holds a grant for in the store; null without one
     /// </summary>
-    string GrantedOrderId(string storeId);
+    string? GrantedOrderId(string storeId);
 
     /// <summary>
     ///     The guest of an order placed without an account, when the browser holds the grant a link sent to the
     ///     order's e-mail address left for it; null otherwise. A visitor logged in acts on the orders of their account
     ///     only, whatever the browser holds
     /// </summary>
-    Task<Customer> GrantedGuest(Order order, Customer visitor, string storeId);
+    Task<Customer?> GrantedGuest(Order? order, Customer? visitor, string storeId);
 
     /// <summary>
     ///     The customer acting on the order: the visitor when it is theirs, else the order's guest when the browser
     ///     holds the grant a link sent to the order's e-mail address left for it; a null customer otherwise
     /// </summary>
-    Task<(Customer Customer, bool GuestLink)> OrderCustomer(Order order, Customer visitor, string storeId);
+    Task<(Customer? Customer, bool GuestLink)> OrderCustomer(Order order, Customer visitor, string storeId);
 }

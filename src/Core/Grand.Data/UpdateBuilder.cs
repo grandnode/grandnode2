@@ -5,14 +5,14 @@ namespace Grand.Data;
 
 public class UpdateBuilder<T>
 {
-    private readonly List<ExpressionFieldDefinition<T, object>> _expressionFieldDefinitions = new();
+    private readonly List<ExpressionFieldDefinition<T, object?>> _expressionFieldDefinitions = new();
     private readonly List<UpdateDefinition<T>> _list = new();
 
     protected UpdateBuilder() { }
 
     public IEnumerable<UpdateDefinition<T>> Fields => _list;
 
-    public IEnumerable<ExpressionFieldDefinition<T, object>> ExpressionFields => _expressionFieldDefinitions;
+    public IEnumerable<ExpressionFieldDefinition<T, object?>> ExpressionFields => _expressionFieldDefinitions;
 
     public static UpdateBuilder<T> Create()
     {
@@ -25,7 +25,7 @@ public class UpdateBuilder<T>
         _list.Add(Builders<T>.Update.Set(selector, value));
 
         //for other Db
-        _expressionFieldDefinitions.Add(new ExpressionFieldDefinition<T, object>(selector, value));
+        _expressionFieldDefinitions.Add(new ExpressionFieldDefinition<T, object?>(selector, value));
 
         return this;
     }

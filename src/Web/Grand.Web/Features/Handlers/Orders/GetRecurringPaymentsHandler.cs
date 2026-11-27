@@ -53,7 +53,7 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
         model.PagingContext.LoadPagedList(recurringPayments);
 
         var orders = new Dictionary<string, Order>();
-        var orderIds = recurringPayments.Select(x => x.InitialOrderId).Where(x => !string.IsNullOrEmpty(x))
+        var orderIds = recurringPayments.Select(x => x.InitialOrderId).Where(x => x.Length > 0)
             .Distinct().ToArray();
         if (orderIds.Length > 0)
             foreach (var order in await _orderService.GetOrdersByIds(orderIds))
@@ -69,8 +69,8 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
 
         foreach (var recurringPayment in recurringPayments)
         {
-            var order = orders.GetValueOrDefault(recurringPayment.InitialOrderId ?? "");
-            var canViewOrder = order is { Deleted: false };
+            var order = orders.GetValueOrDefault(recurringPayment.InitialOrderId);
+            var viewableOrder = order is { Deleted: false } ? order : null;
             //the date the provider reported means nothing once it stopped charging
             var charging = recurringPayment.Status is RecurringPaymentStatus.Active or RecurringPaymentStatus.PastDue;
 
@@ -94,11 +94,9 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
                     : null,
                 InitialOrderId = recurringPayment.InitialOrderId,
                 InitialOrderNumber = order?.OrderNumber ?? 0,
-                CanViewInitialOrder = canViewOrder,
-                Products = canViewOrder
-                    ? order.OrderItems.Where(x => products.ContainsKey(x.ProductId))
-                        .Select(x => products[x.ProductId].GetTranslation(p => p.Name, request.Language.Id)).ToList()
-                    : []
+                CanViewInitialOrder = viewableOrder != null,
+                Products = viewableOrder?.OrderItems.Select(x => x.ProductId).Where(products.ContainsKey)
+                    .Select(id => products[id].GetTranslation(p => p.Name, request.Language.Id)).OfType<string>().ToList() ?? []
             });
         }
 

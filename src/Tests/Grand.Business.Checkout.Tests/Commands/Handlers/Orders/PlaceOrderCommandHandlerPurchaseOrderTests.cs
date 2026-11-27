@@ -56,6 +56,8 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
             Host = new DomainHost { Url = "https://shop.example/" }
         };
         _details = new PlaceOrderContainer {
+            Host = new DomainHost(),
+            WorkingLanguage = new Language(),
             Context = context,
             Customer = customer,
             Store = store,
@@ -184,14 +186,14 @@ public class PlaceOrderCommandHandlerPurchaseOrderTests
         {
             var claims = new Mock<ICheckoutClaimService>();
             claims.Setup(x => x.Claim(It.IsAny<PlaceOrderContainer>(), It.IsAny<string>()))
-                .ReturnsAsync(new CheckoutClaim { Succeeded = true });
+                .ReturnsAsync(new CheckoutClaim { CustomerId = "", OrderCode = "", OrderId = "", StoreId = "", Succeeded = true });
             return claims.Object;
         }
 
         protected override Task<PaymentTransaction> PreparePaymentTransaction(PlaceOrderContainer details)
         {
             return Task.FromResult(new PaymentTransaction {
-                Id = "tx", StoreId = "store", PaymentMethodSystemName = details.PaymentMethodSystemName
+                Id = "tx", StoreId = "store", OrderCode = "code", PaymentMethodSystemName = details.PaymentMethodSystemName
             });
         }
 

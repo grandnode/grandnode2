@@ -28,10 +28,10 @@ public class GoogleReCaptchaValidator : IGoogleReCaptchaValidator
         _logger = logger;
     }
 
-    public async Task<GoogleReCaptchaResponse> Validate(string response,
+    public async Task<GoogleReCaptchaResponse?> Validate(string response,
         CancellationToken cancellationToken = default)
     {
-        GoogleReCaptchaResponse result;
+        GoogleReCaptchaResponse? result;
         if (_httpContextAccessor.HttpContext == null) return null;
         var requestUri = string.Format(RecaptchaVerifyUrl, _captchaSettings.ReCaptchaPrivateKey, response,
             _httpContextAccessor.HttpContext.Connection.RemoteIpAddress);
@@ -54,11 +54,11 @@ public class GoogleReCaptchaValidator : IGoogleReCaptchaValidator
         return result;
     }
 
-    private GoogleReCaptchaResponse ParseResponseResult(string responseString)
+    private GoogleReCaptchaResponse? ParseResponseResult(string responseString)
     {
         var result = JsonSerializer.Deserialize<GoogleReCaptchaResponse>(responseString,
             ProviderExtensions.JsonSerializerOptionsProvider.Options);
-        if (_captchaSettings.ReCaptchaVersion != GoogleReCaptchaVersion.V3) return result;
+        if (result == null || _captchaSettings.ReCaptchaVersion != GoogleReCaptchaVersion.V3) return result;
 
         if (_captchaSettings.ReCaptchaScore > 0)
             result.Success = result.Success && result.Score >= _captchaSettings.ReCaptchaScore;

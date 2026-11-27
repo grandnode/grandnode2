@@ -60,7 +60,8 @@ public class UpdateProductReviewTotalsCommandHandlerTest
     [TestMethod]
     public async Task InsertProduct_NullArgument_ThrowException()
     {
-        var request = new UpdateProductReviewTotalsCommand();
+        //null! only here: the handler's guard against a caller outside nullable checking is what is tested
+        var request = new UpdateProductReviewTotalsCommand { Product = null! };
 
         await Assert.ThrowsExactlyAsync<ArgumentNullException>(
             async () => await _updateProductReviewTotalsCommandHandler.Handle(request, default));

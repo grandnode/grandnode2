@@ -14,38 +14,38 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the document number
     /// </summary>
-    public string Number { get; set; }
+    public string Number { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the sales employee identifier
     /// </summary>
-    public string SeId { get; set; }
+    public string? SeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     Gets or sets the parent document identifier
     /// </summary>
     [AuditReference(typeof(Document))]
-    public string ParentDocumentId { get; set; }
+    public string? ParentDocumentId { get; set; }
 
     /// <summary>
     ///     Gets or sets the picture identifier
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the download identifier
     /// </summary>
-    public string DownloadId { get; set; }
+    public string? DownloadId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is published
@@ -60,18 +60,18 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets the flag
     /// </summary>
-    public string Flag { get; set; }
+    public string? Flag { get; set; }
 
     /// <summary>
     ///     Gets or sets the lik
     /// </summary>
-    public string Link { get; set; }
+    public string? Link { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets an document status identifier
@@ -86,28 +86,28 @@ public class Document : BaseEntity, IGroupLinkEntity, IStoreLinkEntity
     /// <summary>
     ///     Gets or sets an object reference identifier
     /// </summary>
-    public string ObjectId { get; set; }
+    public string? ObjectId { get; set; }
 
     /// <summary>
     ///     Gets or sets an document type identifier (DocumentType)
     /// </summary>
     [AuditReference(typeof(DocumentType))]
-    public string DocumentTypeId { get; set; }
+    public string? DocumentTypeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer email
     /// </summary>
-    public string CustomerEmail { get; set; }
+    public string? CustomerEmail { get; set; }
 
     /// <summary>
     ///     Gets or sets the user name
     /// </summary>
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     /// <summary>
     ///     Gets or sets the currency code
     /// </summary>
-    public string CurrencyCode { get; set; }
+    public string? CurrencyCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the total amount

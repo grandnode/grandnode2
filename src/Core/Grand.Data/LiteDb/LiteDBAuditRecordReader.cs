@@ -9,8 +9,8 @@ namespace Grand.Data.LiteDb;
 public class LiteDBAuditRecordReader(Func<LiteDatabase> database) : IAuditRecordReader
 {
     //the embedded database reads the whole document either way, so the field is not projected
-    public Task<IDictionary<string, string>> Read(Type entityType, string value, string key = null,
-        string field = null)
+    public Task<IDictionary<string, string>?> Read(Type entityType, string value, string? key = null,
+        string? field = null)
     {
         var db = database();
         var collection = db.GetCollection(entityType.Name);
@@ -25,7 +25,7 @@ public class LiteDBAuditRecordReader(Func<LiteDatabase> database) : IAuditRecord
 
     //an embedded database has no round trip to save, so each record is read on its own
     public async Task<IDictionary<string, IDictionary<string, string>>> ReadMany(Type entityType,
-        IReadOnlyCollection<string> values, string key = null, string field = null)
+        IReadOnlyCollection<string> values, string? key = null, string? field = null)
     {
         var records = new Dictionary<string, IDictionary<string, string>>();
         foreach (var value in values.Distinct())

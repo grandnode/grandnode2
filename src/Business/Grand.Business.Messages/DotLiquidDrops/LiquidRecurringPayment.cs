@@ -18,7 +18,7 @@ public class LiquidRecurringPayment : Drop
     /// <summary>
     ///     The cycle period, translated
     /// </summary>
-    public string CyclePeriod { get; set; }
+    public string? CyclePeriod { get; set; }
 
     public int CyclesPaid { get; set; }
 
@@ -30,12 +30,12 @@ public class LiquidRecurringPayment : Drop
     /// <summary>
     ///     The reason the last cycle failed, as the gateway reported it; HTML-encoded
     /// </summary>
-    public string LastError { get; set; }
+    public string? LastError { get; set; }
 
     /// <summary>
     ///     Who cancelled: the customer, a staff name or the provider; HTML-encoded
     /// </summary>
-    public string CancelledBy { get; set; }
+    public string? CancelledBy { get; set; }
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

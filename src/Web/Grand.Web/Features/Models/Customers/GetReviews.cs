@@ -7,6 +7,6 @@ namespace Grand.Web.Features.Models.Customers;
 
 public class GetReviews : IRequest<CustomerProductReviewsModel>
 {
-    public Customer Customer { get; set; }
-    public Language Language { get; set; }
+    public required Customer Customer { get; set; }
+    public required Language Language { get; set; }
 }

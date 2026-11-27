@@ -18,8 +18,8 @@ internal class ViewBuffer : IHtmlContentBuilder
     private readonly IViewBufferScope _bufferScope;
     private readonly string _name;
     private readonly int _pageSize;
-    private ViewBufferPage _currentPage; // Limits allocation if the ViewBuffer has only one page (frequent case).
-    private List<ViewBufferPage> _multiplePages; // Allocated only if necessary
+    private ViewBufferPage? _currentPage; // Limits allocation if the ViewBuffer has only one page (frequent case).
+    private List<ViewBufferPage>? _multiplePages; // Allocated only if necessary
 
     /// <summary>
     ///     Initializes a new instance of <see cref="ViewBuffer" />.
@@ -62,7 +62,7 @@ internal class ViewBuffer : IHtmlContentBuilder
     /// <inheritdoc />
     // Very common trivial method; nudge it to inline https://github.com/aspnet/Mvc/pull/8339
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IHtmlContentBuilder Append(string unencoded)
+    public IHtmlContentBuilder Append(string? unencoded)
     {
         if (unencoded != null)
             // Text that needs encoding is the uncommon case in views, which is why it
@@ -85,7 +85,7 @@ internal class ViewBuffer : IHtmlContentBuilder
     /// <inheritdoc />
     // Very common trivial method; nudge it to inline https://github.com/aspnet/Mvc/pull/8339
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public IHtmlContentBuilder AppendHtml(string encoded)
+    public IHtmlContentBuilder AppendHtml(string? encoded)
     {
         if (encoded != null) AppendValue(new ViewBufferValue(encoded));
 
@@ -135,8 +135,8 @@ internal class ViewBuffer : IHtmlContentBuilder
             {
                 var value = page.Buffer[j];
 
-                string valueAsString;
-                IHtmlContentContainer valueAsContainer;
+                string? valueAsString;
+                IHtmlContentContainer? valueAsContainer;
                 if ((valueAsString = value.Value as string) != null)
                     destination.AppendHtml(valueAsString);
                 else if ((valueAsContainer = value.Value as IHtmlContentContainer) != null)
@@ -166,8 +166,8 @@ internal class ViewBuffer : IHtmlContentBuilder
             {
                 var value = page.Buffer[j];
 
-                string valueAsString;
-                IHtmlContentContainer valueAsContainer;
+                string? valueAsString;
+                IHtmlContentContainer? valueAsContainer;
                 if ((valueAsString = value.Value as string) != null)
                     destination.AppendHtml(valueAsString);
                 else if ((valueAsContainer = value.Value as IHtmlContentContainer) != null)
@@ -211,8 +211,9 @@ internal class ViewBuffer : IHtmlContentBuilder
     [MethodImpl(MethodImplOptions.NoInlining)]
     private ViewBufferPage AppendNewPage()
     {
-        AddPage(new ViewBufferPage(_bufferScope.GetPage(_pageSize)));
-        return _currentPage;
+        var page = new ViewBufferPage(_bufferScope.GetPage(_pageSize));
+        AddPage(page);
+        return page;
     }
 
     private void AddPage(ViewBufferPage page)

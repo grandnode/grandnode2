@@ -6,13 +6,13 @@ namespace Grand.Infrastructure.Configuration;
 public class OidcProtectedResource
 {
     /// <summary>Unique name, also published as resource_name</summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>Path prefix, matched case-insensitively on a segment boundary ("/api" covers "/api/x", not "/apix")</summary>
-    public string PathPrefix { get; set; }
+    public string? PathPrefix { get; set; }
 
     /// <summary>Canonical resource URI (RFC 8707); empty = the Store URL of the request's store + PathPrefix</summary>
-    public string Resource { get; set; }
+    public string? Resource { get; set; }
 
     /// <summary>Additional accepted "aud" values, for providers that do not put the resource URI there</summary>
     public List<string> Audiences { get; set; } = [];

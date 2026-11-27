@@ -12,10 +12,10 @@ public class CustomerOutOfStockSubscriptionsModel
 
     public class OutOfStockSubscriptionModel : BaseEntityModel
     {
-        public string ProductId { get; set; }
-        public string ProductName { get; set; }
-        public string AttributeDescription { get; set; }
-        public string SeName { get; set; }
+        public string? ProductId { get; set; }
+        public string? ProductName { get; set; }
+        public string? AttributeDescription { get; set; }
+        public string? SeName { get; set; }
     }
 
     #endregion

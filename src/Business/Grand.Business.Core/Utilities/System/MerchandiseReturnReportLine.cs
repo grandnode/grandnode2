@@ -19,12 +19,12 @@ public class MerchandiseReturnReportLine
     ///     Gets or sets what the line counts: a reason identifier (or the reason's text for a return item without
     ///     one), a product identifier, or a vendor identifier ("" for the store's own items)
     /// </summary>
-    public string Key { get; set; }
+    public string? Key { get; set; }
 
     /// <summary>
     ///     Gets or sets the reason's text as the customer chose it, for a reason no longer found; null otherwise
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the number of returns

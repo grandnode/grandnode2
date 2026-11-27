@@ -18,6 +18,7 @@ public class DomainHostValidator : BaseGrandValidator<DomainHostModel>
         {
             try
             {
+                if (x.Url == null) return false;
                 var uri = new Uri(x.Url);
                 return uri != null;
             }

@@ -16,7 +16,7 @@ public static class ScimResponse
         };
 
     /// <param name="scimType">RFC 7644 error type (invalidFilter, uniqueness, invalidValue...), null for none</param>
-    public static ContentResult Error(int status, string scimType, string detail) =>
+    public static ContentResult Error(int status, string? scimType, string? detail) =>
         Json(new ScimError {
             Status = status.ToString(CultureInfo.InvariantCulture),
             ScimType = scimType,

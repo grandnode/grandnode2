@@ -27,7 +27,7 @@ public class
                 await _newsLetterSubscriptionService.GetNewsLetterSubscriptionById(newsletterEmailId);
             if (subscription != null)
             {
-                foreach (var category in request.Model.Category) subscription.Categories.Add(category);
+                foreach (var category in request.Model.Category ?? []) subscription.Categories.Add(category);
 
                 success = true;
                 await _newsLetterSubscriptionService.UpdateNewsLetterSubscription(subscription, false);

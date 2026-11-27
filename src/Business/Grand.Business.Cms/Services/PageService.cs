@@ -50,7 +50,7 @@ public class PageService : IPageService
     /// </summary>
     /// <param name="pageId">The page identifier</param>
     /// <returns>Page</returns>
-    public virtual Task<Page> GetPageById(string pageId)
+    public virtual Task<Page?> GetPageById(string? pageId)
     {
         var key = string.Format(CacheKey.PAGES_BY_ID_KEY, pageId);
         return _cacheBase.GetAsync(key, () => _pageRepository.GetByIdAsync(pageId));
@@ -64,7 +64,7 @@ public class PageService : IPageService
     /// <returns>
     ///     The page a store overrode this system name with, if it has one; otherwise the page shared by every store
     /// </returns>
-    public virtual async Task<Page> GetPageBySystemName(string systemName, string storeId)
+    public virtual async Task<Page?> GetPageBySystemName(string? systemName, string storeId)
     {
         if (string.IsNullOrEmpty(systemName))
             return null;
@@ -75,7 +75,7 @@ public class PageService : IPageService
             var query = from p in _pageRepository.Table
                 select p;
 
-            query = query.Where(t => t.SystemName.ToLower() == systemName.ToLower());
+            query = query.Where(t => t.SystemName != null && t.SystemName.ToLower() == systemName.ToLower());
             query = query.OrderBy(t => t.Id);
             IEnumerable<Page> pages = await _pageRepository.ToListAsync(query);
             if (!string.IsNullOrEmpty(storeId))
@@ -100,7 +100,9 @@ public class PageService : IPageService
 
         var storeId = access.StoreId;
         var ignoreAcl = access.ShowHidden || _accessControlConfig.IgnoreAcl;
-        var allowedCustomerGroupsIds = ignoreAcl ? Array.Empty<string>() : access.Customer.GetCustomerGroupIds();
+        var allowedCustomerGroupsIds = !ignoreAcl && access.Customer is { } customer
+            ? customer.GetCustomerGroupIds()
+            : Array.Empty<string>();
         var key = string.Format(CacheKey.PAGES_ALL_KEY, storeId, access.ShowHidden,
             string.Join(",", allowedCustomerGroupsIds));
         return await _cacheBase.GetAsync(key, async () =>

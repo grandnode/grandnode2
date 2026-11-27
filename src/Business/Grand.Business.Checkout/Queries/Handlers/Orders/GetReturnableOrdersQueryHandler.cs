@@ -70,14 +70,15 @@ public class GetReturnableOrdersQueryHandler : IRequestHandler<GetReturnableOrde
 
         var products = (await _productRepository.ToListAsync(_productRepository.Table
                 .Where(x => productIds.Contains(x.Id)), cancellationToken))
-            .ToDictionary(x => x.Id);
+            .ToDictionary(x => x.Id, Product? (x) => x);
         //a product not in the catalog any more may be in its archive
         foreach (var productId in productIds.Where(x => !products.ContainsKey(x)))
             products[productId] = await _productService.GetProductByIdIncludeArch(productId);
 
         foreach (var order in orders)
             if (order.OrderItems.Any(item =>
-                    left[order.Id][item.Id] > 0 && ReturnableQuantities.MayBeReturned(products[item.ProductId])))
+                    left[order.Id][item.Id] > 0 &&
+                    ReturnableQuantities.MayBeReturned(products.GetValueOrDefault(item.ProductId))))
                 returnable.Add(order.Id);
 
         return returnable;

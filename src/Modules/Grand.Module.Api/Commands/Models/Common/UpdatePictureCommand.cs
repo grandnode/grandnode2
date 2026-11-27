@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Common;
 
 public class UpdatePictureCommand : IRequest<bool>
 {
-    public PictureDto Model { get; set; }
+    public required PictureDto Model { get; set; }
 }

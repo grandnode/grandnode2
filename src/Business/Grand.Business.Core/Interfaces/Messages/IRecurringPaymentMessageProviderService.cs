@@ -17,7 +17,7 @@ public interface IRecurringPaymentMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier; 0 when nothing was queued</returns>
     Task<int> SendRecurringPaymentCancelledCustomerMessage(RecurringPayment recurringPayment, Order initialOrder,
-        Customer customer, string languageId);
+        Customer? customer, string? languageId);
 
     /// <summary>
     ///     Sends a 'Recurring payment cancelled' message to the store owner
@@ -28,7 +28,7 @@ public interface IRecurringPaymentMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier; 0 when nothing was queued</returns>
     Task<int> SendRecurringPaymentCancelledStoreOwnerMessage(RecurringPayment recurringPayment, Order initialOrder,
-        Customer customer, string languageId);
+        Customer? customer, string? languageId);
 
     /// <summary>
     ///     Sends a 'Recurring payment failed' message to the customer
@@ -39,7 +39,7 @@ public interface IRecurringPaymentMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier; 0 when nothing was queued</returns>
     Task<int> SendRecurringPaymentFailedCustomerMessage(RecurringPayment recurringPayment, Order initialOrder,
-        Customer customer, string languageId);
+        Customer? customer, string? languageId);
 
     /// <summary>
     ///     Sends a 'Recurring payment failed' message to the store owner
@@ -50,5 +50,5 @@ public interface IRecurringPaymentMessageProviderService
     /// <param name="languageId">Message language identifier</param>
     /// <returns>Queued email identifier; 0 when nothing was queued</returns>
     Task<int> SendRecurringPaymentFailedStoreOwnerMessage(RecurringPayment recurringPayment, Order initialOrder,
-        Customer customer, string languageId);
+        Customer? customer, string? languageId);
 }

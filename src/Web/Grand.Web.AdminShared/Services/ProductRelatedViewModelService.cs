@@ -13,7 +13,8 @@ public class ProductRelatedViewModelService(
 {
     public virtual async Task InsertRelatedProductModel(ProductModel.AddRelatedProductModel model)
     {
-        var productId1 = await productService.GetProductById(model.ProductId, true);
+        var productId1 = await productService.GetProductById(model.ProductId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
 
         foreach (var id in model.SelectedProductIds)
         {
@@ -31,14 +32,15 @@ public class ProductRelatedViewModelService(
                         DisplayOrder = 1
                     };
                     productId1.RelatedProducts.Add(related);
-                    await productService.InsertRelatedProduct(related, model.ProductId);
+                    await productService.InsertRelatedProduct(related, productId1.Id);
                 }
         }
     }
 
     public virtual async Task UpdateRelatedProductModel(ProductModel.RelatedProductModel model)
     {
-        var product1 = await productService.GetProductById(model.ProductId1, true);
+        var product1 = await productService.GetProductById(model.ProductId1, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         var relatedProduct = product1.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
         if (relatedProduct == null)
             throw new ArgumentException("No related product found with the specified id");
@@ -48,22 +50,24 @@ public class ProductRelatedViewModelService(
             throw new ArgumentException("No product found with the specified id");
 
         relatedProduct.DisplayOrder = model.DisplayOrder;
-        await productService.UpdateRelatedProduct(relatedProduct, model.ProductId1);
+        await productService.UpdateRelatedProduct(relatedProduct, product1.Id);
     }
 
     public virtual async Task DeleteRelatedProductModel(ProductModel.RelatedProductModel model)
     {
-        var product = await productService.GetProductById(model.ProductId1, true);
+        var product = await productService.GetProductById(model.ProductId1, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         var relatedProduct = product.RelatedProducts.FirstOrDefault(x => x.Id == model.Id);
         if (relatedProduct == null)
             throw new ArgumentException("No related product found with the specified id");
 
-        await productService.DeleteRelatedProduct(relatedProduct, model.ProductId1);
+        await productService.DeleteRelatedProduct(relatedProduct, product.Id);
     }
 
     public virtual async Task InsertSimilarProductModel(ProductModel.AddSimilarProductModel model)
     {
-        var productId1 = await productService.GetProductById(model.ProductId, true);
+        var productId1 = await productService.GetProductById(model.ProductId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
 
         foreach (var id in model.SelectedProductIds)
         {
@@ -88,7 +92,8 @@ public class ProductRelatedViewModelService(
 
     public virtual async Task UpdateSimilarProductModel(ProductModel.SimilarProductModel model)
     {
-        var product1 = await productService.GetProductById(model.ProductId1, true);
+        var product1 = await productService.GetProductById(model.ProductId1, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         var similarProduct = product1.SimilarProducts.FirstOrDefault(x => x.Id == model.Id);
         if (similarProduct == null)
             throw new ArgumentException("No similar product found with the specified id");
@@ -104,7 +109,8 @@ public class ProductRelatedViewModelService(
 
     public virtual async Task DeleteSimilarProductModel(ProductModel.SimilarProductModel model)
     {
-        var product = await productService.GetProductById(model.ProductId1, true);
+        var product = await productService.GetProductById(model.ProductId1, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         var similarProduct = product.SimilarProducts.FirstOrDefault(x => x.Id == model.Id);
         if (similarProduct == null)
             throw new ArgumentException("No similar product found with the specified id");
@@ -115,7 +121,8 @@ public class ProductRelatedViewModelService(
 
     public virtual async Task InsertCrossSellProductModel(ProductModel.AddCrossSellProductModel model)
     {
-        var crossSellProduct = await productService.GetProductById(model.ProductId, true);
+        var crossSellProduct = await productService.GetProductById(model.ProductId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
@@ -143,7 +150,8 @@ public class ProductRelatedViewModelService(
 
     public virtual async Task InsertRecommendedProductModel(ProductModel.AddRecommendedProductModel model)
     {
-        var mainproduct = await productService.GetProductById(model.ProductId, true);
+        var mainproduct = await productService.GetProductById(model.ProductId, true)
+            ?? throw new ArgumentException("No product found with the specified id");
         foreach (var id in model.SelectedProductIds)
         {
             var product = await productService.GetProductById(id);
@@ -152,7 +160,7 @@ public class ProductRelatedViewModelService(
 
             if (!mainproduct.RecommendedProduct.Any(x => x == id))
                 if (model.ProductId != id)
-                    await productService.InsertRecommendedProduct(model.ProductId, id);
+                    await productService.InsertRecommendedProduct(mainproduct.Id, id);
         }
     }
 

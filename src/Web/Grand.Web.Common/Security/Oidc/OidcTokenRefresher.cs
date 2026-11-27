@@ -38,7 +38,7 @@ public class OidcTokenRefresher(
                 return OidcRefreshResult.Unavailable();
             }
 
-            var form = new Dictionary<string, string> {
+            var form = new Dictionary<string, string?> {
                 ["grant_type"] = "refresh_token", ["refresh_token"] = refreshToken, ["client_id"] = config.ClientId
             };
             if (!string.IsNullOrEmpty(config.ClientSecret))
@@ -78,7 +78,7 @@ public class OidcTokenRefresher(
         }
     }
 
-    private static string ErrorCode(string body)
+    private static string? ErrorCode(string body)
     {
         try
         {

@@ -17,7 +17,7 @@ public class TitleTagHelper : TagHelper
         _pageHeadBuilder = pageHeadBuilder;
     }
 
-    [HtmlAttributeName(PartAttributeName)] public string Attribute { get; set; }
+    [HtmlAttributeName(PartAttributeName)] public string? Attribute { get; set; }
 
     [HtmlAttributeName(DefaultAttributeName)]
     public bool DefaultTitle { get; set; } = true;

@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Business.Core.Extensions;
 using Grand.Business.Core.Interfaces.Catalog.Directory;
 using Grand.Business.Core.Interfaces.Catalog.Prices;
@@ -337,6 +335,7 @@ public abstract class BaseReportsController(
         foreach (var combination in lowStockProducts.combinations)
         {
             var product = await productService.GetProductById(combination.ProductId);
+            if (product == null) continue;
             models.Add(new LowStockProductModel {
                 Id = product.Id,
                 Name = product.Name,
@@ -463,7 +462,7 @@ public abstract class BaseReportsController(
         var result = new List<MerchandiseReturnReportLineModel>();
         foreach (var line in lines)
         {
-            string name;
+            string? name;
             switch (groupBy)
             {
                 case MerchandiseReturnReportGrouping.Product:

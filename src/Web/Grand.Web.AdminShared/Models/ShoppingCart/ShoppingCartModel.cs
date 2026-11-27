@@ -6,10 +6,10 @@ namespace Grand.Web.AdminShared.Models.ShoppingCart;
 public class ShoppingCartModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.CurrentCarts.Customer")]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [GrandResourceDisplayName("Admin.CurrentCarts.Customer")]
-    public string CustomerEmail { get; set; }
+    public string? CustomerEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.CurrentCarts.TotalItems")]
     public int TotalItems { get; set; }

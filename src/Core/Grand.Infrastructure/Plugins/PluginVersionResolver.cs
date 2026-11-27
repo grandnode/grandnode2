@@ -20,7 +20,7 @@ public static class PluginVersionResolver
     ///     such a plugin cannot be matched against <see cref="GrandVersion.SupportedPluginVersion" /> and is
     ///     therefore treated as incompatible.
     /// </returns>
-    public static string ResolveSupportedVersion(Assembly pluginAssembly, string declaredVersion)
+    public static string? ResolveSupportedVersion(Assembly pluginAssembly, string declaredVersion)
     {
         var coreReference = pluginAssembly?.GetReferencedAssemblies()
             .FirstOrDefault(x => string.Equals(x.Name, CoreAssemblyName, StringComparison.OrdinalIgnoreCase));
@@ -33,7 +33,7 @@ public static class PluginVersionResolver
     /// </summary>
     /// <param name="coreReference">The version of the plugin's Grand.Infrastructure reference, if it has one</param>
     /// <param name="declaredVersion">The version declared on <see cref="PluginInfoAttribute" />, if any</param>
-    public static string ResolveSupportedVersion(Version coreReference, string declaredVersion)
+    public static string? ResolveSupportedVersion(Version? coreReference, string? declaredVersion)
     {
         if (!string.IsNullOrWhiteSpace(declaredVersion))
             return declaredVersion.Trim();

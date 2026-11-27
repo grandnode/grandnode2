@@ -28,7 +28,7 @@ public class AdminActionMenuTagHelper : TagHelper
 
     /// <summary>The trigger's text. Empty leaves the icon alone, as an overflow button.</summary>
     [HtmlAttributeName("text")]
-    public string Text { get; set; }
+    public string? Text { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
@@ -68,23 +68,23 @@ public class AdminActionMenuTagHelper : TagHelper
 [HtmlTargetElement("admin-action", ParentTag = "admin-action-menu")]
 public class AdminActionTagHelper : TagHelper
 {
-    [HtmlAttributeName("text")] public string Text { get; set; }
+    [HtmlAttributeName("text")] public string? Text { get; set; }
 
     /// <summary>A bootstrap-icons name ("bi-download").</summary>
     [HtmlAttributeName("icon")]
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     /// <summary>Where the entry goes: an href, or the form action when <see cref="Submit" />.</summary>
     [HtmlAttributeName("url")]
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>Posts the surrounding form to <see cref="Url" /> instead of following it.</summary>
     [HtmlAttributeName("submit")]
     public bool Submit { get; set; }
 
-    [HtmlAttributeName("name")] public string Name { get; set; }
+    [HtmlAttributeName("name")] public string? Name { get; set; }
 
-    [HtmlAttributeName("id")] public string Id { get; set; }
+    [HtmlAttributeName("id")] public string? Id { get; set; }
 
     /// <summary>Draws the entry as destructive.</summary>
     [HtmlAttributeName("destructive")]

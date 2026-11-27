@@ -7,11 +7,11 @@ public class ShippingRateComputationMethodModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Providers.Fields.FriendlyName")]
 
-    public string FriendlyName { get; set; }
+    public string? FriendlyName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Providers.Fields.SystemName")]
 
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Providers.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -20,5 +20,5 @@ public class ShippingRateComputationMethodModel : BaseModel
     public bool IsActive { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Providers.Configure")]
-    public string ConfigurationUrl { get; set; }
+    public string? ConfigurationUrl { get; set; }
 }

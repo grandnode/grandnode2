@@ -24,12 +24,12 @@ public class ProductStructuredDataModel
     ///     Business days from order to handover to the carrier, as the store declares them
     ///     (ShippingSettings); null when the product does not ship or nothing usable is declared
     /// </summary>
-    public DayRangeModel HandlingTime { get; set; }
+    public DayRangeModel? HandlingTime { get; set; }
 
     /// <summary>
     ///     Business days the carrier needs, as the store declares them (ShippingSettings)
     /// </summary>
-    public DayRangeModel TransitTime { get; set; }
+    public DayRangeModel? TransitTime { get; set; }
 
     /// <summary>
     ///     Merchandise returns are on for the store, but this product is excluded from them -

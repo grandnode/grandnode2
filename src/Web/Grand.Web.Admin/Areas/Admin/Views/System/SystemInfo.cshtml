@@ -66,11 +66,11 @@
             </div>
             <div>
                 <admin-label asp-for="RequestScheme" asp-display-hint="false" class="grand-fact__label"/>
-                <div class="grand-fact__value text-break">@httpContextAccessor.HttpContext.Request.Scheme</div>
+                <div class="grand-fact__value text-break">@httpContextAccessor.HttpContext?.Request.Scheme</div>
             </div>
             <div>
                 <admin-label asp-for="IsHttps" asp-display-hint="false" class="grand-fact__label"/>
-                <div class="grand-fact__value text-break">@httpContextAccessor.HttpContext.Request.IsHttps</div>
+                <div class="grand-fact__value text-break">@httpContextAccessor.HttpContext?.Request.IsHttps</div>
             </div>
         </div>
         @* the two paths are long, so they get a row of their own and half the width each *@

@@ -32,10 +32,10 @@ public class StoreController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Stores, CurrentCustomer)) return Forbid();
 
-        var store = await _mediator.Send(new GetGenericQuery<StoreDto, Store>(key));
-        if (!store.Any()) return NotFound();
+        var store = (await _mediator.Send(new GetGenericQuery<StoreDto, Store>(key))).FirstOrDefault();
+        if (store == null) return NotFound();
 
-        return Ok(store.FirstOrDefault());
+        return Ok(store);
     }
 
     [EndpointDescription("Get entities from Store")]

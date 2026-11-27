@@ -9,10 +9,10 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetSearchAutoComplete : IRequest<IList<SearchAutoCompleteModel>>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Language Language { get; set; }
-    public Currency Currency { get; set; }
-    public string Term { get; set; }
-    public string CategoryId { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Language Language { get; set; }
+    public required Currency Currency { get; set; }
+    public string? Term { get; set; }
+    public string? CategoryId { get; set; }
 }

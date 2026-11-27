@@ -1,5 +1,3 @@
-#nullable enable
-
 using Grand.Domain.Stores;
 
 namespace Grand.Business.Core.Interfaces.Common.Stores;
@@ -20,7 +18,7 @@ public interface IStoreService
     /// </summary>
     /// <param name="storeId">Store identifier</param>
     /// <returns>Store</returns>
-    Task<Store> GetStoreById(string storeId);
+    Task<Store?> GetStoreById(string? storeId);
 
     /// <summary>
     ///     Inserts a store

@@ -5,9 +5,9 @@ namespace Grand.Web.AdminShared.Models.Orders;
 public class MerchandiseReturnReportLineModel : BaseModel
 {
     //the reason, product or vendor identifier the line counts
-    public string Key { get; set; }
+    public string? Key { get; set; }
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     public int ReturnCount { get; set; }
 

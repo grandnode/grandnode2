@@ -11,13 +11,13 @@ namespace Grand.Web.Features.Models.Checkout;
 
 public class GetBillingAddress : IRequest<CheckoutBillingAddressModel>
 {
-    public IList<ShoppingCartItem> Cart { get; set; }
+    public required IList<ShoppingCartItem> Cart { get; set; }
 
-    public string SelectedCountryId { get; set; }
+    public string? SelectedCountryId { get; set; }
     public bool PrePopulateNewAddressWithCustomerFields { get; set; }
-    public IList<CustomAttribute> OverrideAttributes { get; set; }
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Currency Currency { get; set; }
-    public Language Language { get; set; }
+    public IList<CustomAttribute>? OverrideAttributes { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Currency Currency { get; set; }
+    public required Language Language { get; set; }
 }

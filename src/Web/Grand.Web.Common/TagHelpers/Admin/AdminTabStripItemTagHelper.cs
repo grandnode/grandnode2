@@ -7,9 +7,10 @@ namespace Grand.Web.Common.TagHelpers.Admin;
 [HtmlTargetElement("tabstrip-item")]
 public class AdminTabStripItemTagHelper : TagHelper
 {
-    [ViewContext] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] public ViewContext ViewContext { get; set; } = null!;
 
-    [HtmlAttributeName("Text")] public string Text { get; set; }
+    [HtmlAttributeName("Text")] public string? Text { get; set; }
 
     [HtmlAttributeName("tab-index")] public int CurrentIndex { set; get; }
 
@@ -17,8 +18,8 @@ public class AdminTabStripItemTagHelper : TagHelper
     {
         var index = 0;
         var dataKey = "Grand.selected-tab-index";
-        if (ViewContext.ViewData[dataKey] is int) index = (int)ViewContext.ViewData[dataKey];
-        if (ViewContext.TempData[dataKey] is int) index = (int)ViewContext.TempData[dataKey];
+        if (ViewContext.ViewData[dataKey] is int viewDataIndex) index = viewDataIndex;
+        if (ViewContext.TempData[dataKey] is int tempDataIndex) index = tempDataIndex;
 
         if (index < 0)
             index = 0;
@@ -52,7 +53,7 @@ public class AdminTabStripItemTagHelper : TagHelper
         link.Attributes["aria-selected"] = selected ? "true" : "false";
         link.Attributes["tabindex"] = selected ? "0" : "-1";
         //Text is view-authored (a localized resource), rendered as it was before
-        link.InnerHtml.AppendHtml(Text);
+        link.InnerHtml.AppendHtml(Text ?? "");
         output.Content.AppendHtml(link);
     }
 }

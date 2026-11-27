@@ -9,8 +9,8 @@ namespace Grand.Web.Commands.Models.Orders;
 /// </summary>
 public class SendGuestOrderLinkCommand : IRequest<bool>
 {
-    public string OrderNumberOrCode { get; set; }
-    public string Email { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public DomainHost Host { get; set; }
+    public string? OrderNumberOrCode { get; set; }
+    public string? Email { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required DomainHost Host { get; set; }
 }

@@ -17,7 +17,7 @@
     var homeUrl = Url.RouteUrl("HomePage", null, request.Scheme);
     var searchUrl = Url.RouteUrl("ProductSearch", null, request.Scheme);
 
-    var organization = new Dictionary<string, object> {
+    var organization = new Dictionary<string, object?> {
         ["@type"] = "Organization",
         ["name"] = Model.StoreName,
         ["url"] = homeUrl
@@ -29,7 +29,7 @@
     //store-wide; a product excluded from returns overrides it on its Offer (Partials/ProductStructuredData)
     if (Model.ReturnPolicy is { } returns)
     {
-        var policy = new Dictionary<string, object> {
+        var policy = new Dictionary<string, object?> {
             ["@type"] = "MerchantReturnPolicy",
             ["returnPolicyCategory"] = returns.UnlimitedWindow
                 ? "https://schema.org/MerchantReturnUnlimitedWindow"
@@ -42,14 +42,14 @@
         organization["hasMerchantReturnPolicy"] = policy;
     }
 
-    var website = new Dictionary<string, object> {
+    var website = new Dictionary<string, object?> {
         ["@type"] = "WebSite",
         ["name"] = Model.StoreName,
         ["url"] = homeUrl,
-        ["potentialAction"] = new Dictionary<string, object> {
+        ["potentialAction"] = new Dictionary<string, object?> {
             ["@type"] = "SearchAction",
             //the search box posts its term as `q` - see Components/SearchBox
-            ["target"] = new Dictionary<string, object> {
+            ["target"] = new Dictionary<string, object?> {
                 ["@type"] = "EntryPoint",
                 ["urlTemplate"] = $"{searchUrl}?q={{search_term_string}}"
             },
@@ -57,7 +57,7 @@
         }
     };
 
-    var graph = new Dictionary<string, object> {
+    var graph = new Dictionary<string, object?> {
         ["@context"] = "https://schema.org",
         ["@graph"] = new object[] { organization, website }
     };

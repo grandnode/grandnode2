@@ -12,7 +12,7 @@ public class AdminAreaSettings : ISettings
     /// <summary>
     ///     A comma-separated list of available grid page sizes
     /// </summary>
-    public string GridPageSizes { get; set; }
+    public string? GridPageSizes { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether to use IsoDateTimeConverter in Json results (used for avoiding issue with

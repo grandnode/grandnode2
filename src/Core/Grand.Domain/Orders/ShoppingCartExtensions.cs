@@ -16,7 +16,7 @@ public static class ShoppingCartExtensions
     }
 
     public static IEnumerable<ShoppingCartItem> LimitPerStore(this IEnumerable<ShoppingCartItem> cart,
-        bool cartsSharedBetweenStores, string storeId)
+        bool cartsSharedBetweenStores, string? storeId)
     {
         return cartsSharedBetweenStores ? cart : cart.Where(x => x.StoreId == storeId);
     }

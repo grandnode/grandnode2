@@ -23,7 +23,7 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         _registry = registry;
     }
 
-    public void PostConfigure(string name, JwtBearerOptions options)
+    public void PostConfigure(string? name, JwtBearerOptions options)
     {
         //registered only while the resource server is enabled (OidcAuthenticationBuilderExtensions); only the Web
         //API's scheme: other JwtBearer schemes (FrontendAPI, plugins) keep their own validation and challenge
@@ -39,7 +39,7 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
     ///     Decided once per request (the selector runs for every authenticate, challenge and forbid, and the work
     ///     context asks too) and kept in HttpContext.Items with the path it was made for.
     /// </summary>
-    public string Select(HttpContext context)
+    public string? Select(HttpContext context)
     {
         var path = context.Request.Path;
         if (context.Items.TryGetValue(OidcResourceServerDefaults.RouteItemKey, out var cached) &&
@@ -59,7 +59,7 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
     /// </summary>
     private static bool IsOidcRequest(HttpRequest request)
     {
-        string authorization = request.Headers[HeaderNames.Authorization];
+        string? authorization = request.Headers[HeaderNames.Authorization];
         if (string.IsNullOrEmpty(authorization) ||
             !authorization.StartsWith("Bearer ", StringComparison.OrdinalIgnoreCase))
             return true;
@@ -85,5 +85,5 @@ public class OidcSchemeSelector : IPostConfigureOptions<JwtBearerOptions>
         return algorithm != null && OidcAuthenticationBuilderExtensions.AsymmetricAlgorithms.Contains(algorithm);
     }
 
-    private sealed record Route(PathString Path, string Scheme);
+    private sealed record Route(PathString Path, string? Scheme);
 }

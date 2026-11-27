@@ -19,11 +19,11 @@ public static class AddressExtensions
     /// <param name="zipPostalCode">Zip postal code</param>
     /// <param name="countryId">Country identifier</param>
     /// <returns>Address</returns>
-    public static Address FindAddress(this IEnumerable<Address> source,
-        string firstName, string lastName, string phoneNumber,
-        string email, string faxNumber, string company, string address1,
-        string address2, string city, string stateProvinceId,
-        string zipPostalCode, string countryId)
+    public static Address? FindAddress(this IEnumerable<Address> source,
+        string? firstName, string? lastName, string? phoneNumber,
+        string? email, string? faxNumber, string? company, string? address1,
+        string? address2, string? city, string? stateProvinceId,
+        string? zipPostalCode, string? countryId)
     {
         return source.FirstOrDefault(a =>
             ((string.IsNullOrEmpty(a.FirstName) && string.IsNullOrEmpty(firstName)) || a.FirstName == firstName) &&

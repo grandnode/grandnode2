@@ -157,7 +157,7 @@ public class MerchandiseReturnController : BaseApiController
         return Ok(await Load(key));
     }
 
-    private async Task<MerchandiseReturnDto> Load(string id)
+    private async Task<MerchandiseReturnDto?> Load(string id)
     {
         var merchandiseReturn = await _mediator.Send(new GetMerchandiseReturnQuery { Id = id });
         return merchandiseReturn == null ? null : Map(merchandiseReturn, await ReceivedByHand(merchandiseReturn));

@@ -8,35 +8,35 @@ namespace Grand.Web.AdminShared.Models.Orders;
 /// </summary>
 public class RecurringPaymentModel : BaseEntityModel
 {
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.Customer")]
-    public string CustomerEmail { get; set; }
+    public string? CustomerEmail { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.Store")]
-    public string StoreName { get; set; }
+    public string? StoreName { get; set; }
 
     public int StatusId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.Status")]
-    public string Status { get; set; }
+    public string? Status { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.Cycle")]
-    public string Cycle { get; set; }
+    public string? Cycle { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.CyclesPaid")]
-    public string CyclesPaid { get; set; }
+    public string? CyclesPaid { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.NextPaymentDate")]
     public DateTime? NextPaymentDate { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.PaymentMethod")]
-    public string PaymentMethodName { get; set; }
+    public string? PaymentMethodName { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.ProviderReference")]
-    public string ProviderReference { get; set; }
+    public string? ProviderReference { get; set; }
 
-    public string InitialOrderId { get; set; }
+    public string? InitialOrderId { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.InitialOrder")]
     public int InitialOrderNumber { get; set; }
@@ -50,7 +50,7 @@ public class RecurringPaymentModel : BaseEntityModel
     public DateTime CreatedOn { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.LastError")]
-    public string LastError { get; set; }
+    public string? LastError { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.LastErrorDate")]
     public DateTime? LastErrorDate { get; set; }
@@ -59,7 +59,7 @@ public class RecurringPaymentModel : BaseEntityModel
     public DateTime? CancelledOn { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.RecurringPayments.Fields.CancelledBy")]
-    public string CancelledBy { get; set; }
+    public string? CancelledBy { get; set; }
 
     public bool CanCancel { get; set; }
 
@@ -68,7 +68,7 @@ public class RecurringPaymentModel : BaseEntityModel
     public class CycleModel
     {
         public int CycleNumber { get; set; }
-        public string OrderId { get; set; }
+        public string? OrderId { get; set; }
         public int OrderNumber { get; set; }
 
         /// <summary>
@@ -76,8 +76,8 @@ public class RecurringPaymentModel : BaseEntityModel
         /// </summary>
         public bool CanViewOrder { get; set; }
 
-        public string Amount { get; set; }
+        public string? Amount { get; set; }
         public DateTime PaidOn { get; set; }
-        public string ProviderReference { get; set; }
+        public string? ProviderReference { get; set; }
     }
 }

@@ -18,11 +18,11 @@ namespace Grand.Web.Common.TagHelpers.Admin;
 [HtmlTargetElement("admin-popup")]
 public class AdminPopupTagHelper : TagHelper
 {
-    [HtmlAttributeName("title")] public string Title { get; set; }
+    [HtmlAttributeName("title")] public string? Title { get; set; }
 
     /// <summary>A bootstrap-icons name ("bi-image") shown before the title.</summary>
     [HtmlAttributeName("icon")]
-    public string Icon { get; set; }
+    public string? Icon { get; set; }
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {

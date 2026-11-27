@@ -14,8 +14,8 @@ public static class AffiliateExtensions
     {
         ArgumentNullException.ThrowIfNull(affiliate);
 
-        var firstName = affiliate.Address.FirstName;
-        var lastName = affiliate.Address.LastName;
+        var firstName = affiliate.Address?.FirstName;
+        var lastName = affiliate.Address?.LastName;
 
         var fullName = "";
         if (!string.IsNullOrWhiteSpace(firstName) && !string.IsNullOrWhiteSpace(lastName))

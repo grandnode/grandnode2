@@ -28,7 +28,7 @@ public class AuditService(
         return repository.PagedAsync(Query(search), pageIndex, pageSize);
     }
 
-    public Task<AuditEntry> GetById(string id)
+    public Task<AuditEntry?> GetById(string id)
     {
         return repository.GetByIdAsync(id);
     }
@@ -130,14 +130,14 @@ public class AuditService(
             if (types.Count == 1)
                 query = query.Where(x => x.EntityType == types[0]);
             else if (types.Count > 1)
-                query = query.Where(x => types.Contains(x.EntityType));
+                query = query.Where(x => x.EntityType != null && types.Contains(x.EntityType));
             if (!string.IsNullOrEmpty(search.EntityId))
                 query = query.Where(x => x.EntityId == search.EntityId);
         }
         if (search.EntityNames is { Count: > 0 })
         {
             var names = search.EntityNames.ToList();
-            query = query.Where(x => names.Contains(x.EntityName));
+            query = query.Where(x => x.EntityName != null && names.Contains(x.EntityName));
         }
 
         if (!string.IsNullOrEmpty(search.StoreId))

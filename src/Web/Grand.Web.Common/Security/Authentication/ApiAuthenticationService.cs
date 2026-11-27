@@ -30,12 +30,12 @@ public class ApiAuthenticationService : IApiAuthenticationService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public virtual async Task<Customer> GetAuthenticatedCustomer()
+    public virtual async Task<Customer?> GetAuthenticatedCustomer()
     {
-        Customer customer = null;
+        Customer? customer = null;
         if (_httpContextAccessor.HttpContext == null) return null;
 
-        string authHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.Authorization];
+        string? authHeader = _httpContextAccessor.HttpContext.Request.Headers[HeaderNames.Authorization];
         if (string.IsNullOrEmpty(authHeader))
             return null;
 
@@ -81,7 +81,7 @@ public class ApiAuthenticationService : IApiAuthenticationService
     }
     private bool IsApiFrontAuthenticated()
     {
-        var endpoint = _httpContextAccessor.HttpContext.GetEndpoint();
+        var endpoint = _httpContextAccessor.HttpContext?.GetEndpoint();
         if (endpoint == null) return false;
 
         var apiGroupAttr = endpoint.Metadata.GetOrderedMetadata<ApiGroupAttribute>();
@@ -89,9 +89,9 @@ public class ApiAuthenticationService : IApiAuthenticationService
     }
     
 
-    private async Task<Customer> ApiCustomer()
+    private async Task<Customer?> ApiCustomer()
     {
-        Customer customer = null;
+        Customer? customer = null;
         var authResult = await _httpContextAccessor.HttpContext!.AuthenticateAsync(FrontendAPIConfig.AuthenticationScheme);
         if (!authResult.Succeeded)
             return await _customerService.GetCustomerBySystemName(SystemCustomerNames.Anonymous);

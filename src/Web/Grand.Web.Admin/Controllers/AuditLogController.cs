@@ -199,7 +199,7 @@ public class AuditLogController(
         return (await storeService.GetAllStores()).ToDictionary(s => s.Id, s => s.Shortcut ?? s.Name);
     }
 
-    private string AppliesTo(AuditEntry entry, IDictionary<string, string> stores)
+    private string? AppliesTo(AuditEntry entry, IDictionary<string, string> stores)
     {
         if (entry.EntityStoreId == null)
             return null;
@@ -226,7 +226,7 @@ public class AuditLogController(
         };
     }
 
-    private AuditChangeModel ToChange(string entityType, AuditChange change)
+    private AuditChangeModel ToChange(string? entityType, AuditChange change)
     {
         var label = new AuditChangeText(translationService.GetResource).Label(entityType, change);
         if (change.Masked)
@@ -259,7 +259,7 @@ public class AuditLogController(
     private static string FilterSummary(AuditLogListModel model)
     {
         var parts = new List<string>();
-        void Add(string name, object value)
+        void Add(string name, object? value)
         {
             if (value != null && value.ToString() != "")
                 parts.Add($"{name}={value}");
@@ -277,9 +277,9 @@ public class AuditLogController(
         return parts.Count == 0 ? "none" : string.Join("; ", parts);
     }
 
-    private static string CsvRow(AuditEntry entry, AuditChange change)
+    private static string CsvRow(AuditEntry entry, AuditChange? change)
     {
-        string[] values = [
+        string?[] values = [
             entry.CreatedOnUtc.ToString("o"), entry.Kind.ToString(), entry.Source.ToString(), entry.ActorEmail,
             entry.ActorCustomerId, entry.ImpersonatedCustomerId, entry.StoreId, entry.VendorId, entry.IpAddress,
             entry.UserAgent, entry.Action, entry.OperationId, entry.EntityType, entry.EntityId, entry.EntityName,
@@ -292,7 +292,7 @@ public class AuditLogController(
     }
 
     //RFC 4180 quoting, and a leading quote mark so a spreadsheet never runs a cell as a formula
-    private static string CsvCell(string value)
+    private static string CsvCell(string? value)
     {
         if (string.IsNullOrEmpty(value))
             return "";

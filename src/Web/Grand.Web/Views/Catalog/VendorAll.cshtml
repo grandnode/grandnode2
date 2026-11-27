@@ -14,10 +14,10 @@
             @foreach (var item in Model.VendorsModel)
             {
                 <div class="col-md-4 col-6">
-                    <a class="mb-2" href="@Url.RouteUrl("Vendor", new { item.SeName })" title="@item.PictureModel.Title">
+                    <a class="mb-2" href="@Url.RouteUrl("Vendor", new { item.SeName })" title="@item.PictureModel?.Title">
                         <div class="card">
                             <article>
-                                <img class="img-fluid" src="@item.PictureModel.ImageUrl" alt="@item.PictureModel.AlternateText">
+                                <img class="img-fluid" src="@item.PictureModel?.ImageUrl" alt="@item.PictureModel?.AlternateText">
                                 <div class="card-body">
                                     <h5>@item.Name</h5>
                                 </div>

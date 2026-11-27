@@ -3,4 +3,8 @@
   <ItemGroup>
     <PackageReference Include="Microsoft.Extensions.DependencyInjection" />
   </ItemGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
 </Project>

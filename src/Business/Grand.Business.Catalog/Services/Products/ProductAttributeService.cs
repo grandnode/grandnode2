@@ -70,7 +70,7 @@ public class ProductAttributeService : IProductAttributeService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Product attributes</returns>
-    public virtual async Task<IPagedList<ProductAttribute>> GetAllProductAttributes(string storeId = "", int pageIndex = 0,
+    public virtual async Task<IPagedList<ProductAttribute>> GetAllProductAttributes(string? storeId = "", int pageIndex = 0,
         int pageSize = int.MaxValue)
     {
         var key = string.Format(CacheKey.PRODUCTATTRIBUTES_ALL_KEY, storeId, pageIndex, pageSize);
@@ -98,7 +98,7 @@ public class ProductAttributeService : IProductAttributeService
     /// </summary>
     /// <param name="productAttributeId">Product attribute identifier</param>
     /// <returns>Product attribute </returns>
-    public virtual Task<ProductAttribute> GetProductAttributeById(string productAttributeId)
+    public virtual Task<ProductAttribute?> GetProductAttributeById(string? productAttributeId)
     {
         var key = string.Format(CacheKey.PRODUCTATTRIBUTES_BY_ID_KEY, productAttributeId);
         return _cacheBase.GetAsync(key, () => _productAttributeRepository.GetByIdAsync(productAttributeId));
@@ -229,7 +229,7 @@ public class ProductAttributeService : IProductAttributeService
         {
             var pavs = p.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
             var pav = pavs?.ProductAttributeValues.FirstOrDefault(x => x.Id == productAttributeValue.Id);
-            if (pav != null)
+            if (pavs != null && pav != null)
             {
                 pavs.ProductAttributeValues.Remove(pav);
                 await _productRepository.UpdateCollectionFieldItem(productId, x => x.ProductAttributeMappings, z => z.Id == productAttributeMappingId, pavs);
@@ -283,7 +283,7 @@ public class ProductAttributeService : IProductAttributeService
         var p = await _productRepository.GetByIdAsync(productId);
         var pavs = p?.ProductAttributeMappings.FirstOrDefault(x => x.Id == productAttributeMappingId);
         var pav = pavs?.ProductAttributeValues.FirstOrDefault(x => x.Id == productAttributeValue.Id);
-        if (pav != null)
+        if (pavs != null && pav != null)
         {
             pav.AttributeValueTypeId = productAttributeValue.AttributeValueTypeId;
             pav.AssociatedProductId = productAttributeValue.AssociatedProductId;

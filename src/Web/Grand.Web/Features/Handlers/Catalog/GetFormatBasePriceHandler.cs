@@ -6,7 +6,7 @@ using Grand.Web.Common.Localization;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
-public class GetFormatBasePriceHandler : IRequestHandler<GetFormatBasePrice, string>
+public class GetFormatBasePriceHandler : IRequestHandler<GetFormatBasePrice, string?>
 {
     private readonly IMeasureService _measureService;
     private readonly IPriceFormatter _priceFormatter;
@@ -22,7 +22,7 @@ public class GetFormatBasePriceHandler : IRequestHandler<GetFormatBasePrice, str
         _priceFormatter = priceFormatter;
     }
 
-    public async Task<string> Handle(GetFormatBasePrice request, CancellationToken cancellationToken)
+    public async Task<string?> Handle(GetFormatBasePrice request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNull(request.Product);
 

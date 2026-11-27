@@ -37,25 +37,25 @@ public interface IMerchandiseReturnViewModelService
     ///     Gives back the amount for the return through the payment of its order, online or offline; the reason it
     ///     was not, as a resource key without the panel's prefix, or null
     /// </summary>
-    Task<string> RefundMerchandiseReturn(MerchandiseReturn merchandiseReturn, double amount, bool offline);
+    Task<string?> RefundMerchandiseReturn(MerchandiseReturn merchandiseReturn, double amount, bool offline);
 
     /// <summary>
     ///     Records whether the money of a refund that waits for its check went back, as the staff who checked the
     ///     payment say; the reason it was not recorded, as a resource key without the panel's prefix, or null
     /// </summary>
-    Task<string> ResolveRefund(MerchandiseReturn merchandiseReturn, bool wentBack);
+    Task<string?> ResolveRefund(MerchandiseReturn merchandiseReturn, bool wentBack);
 
     /// <summary>
     ///     Saves the edit form, then changes the status when a status button posted it (ChangeStatusTo). Error is
     ///     why the form or the status was not saved, as a resource key without the panel's prefix
     /// </summary>
-    Task<(MerchandiseReturn MerchandiseReturn, string Error)> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
+    Task<(MerchandiseReturn? MerchandiseReturn, string? Error)> UpdateMerchandiseReturnModel(MerchandiseReturn merchandiseReturn,
         MerchandiseReturnModel model, List<CustomAttribute> customAddressAttributes);
 
     /// <summary>
     ///     Deletes the return; the reason it was not, as a resource key without the panel's prefix, or null
     /// </summary>
-    Task<string> DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn);
+    Task<string?> DeleteMerchandiseReturn(MerchandiseReturn merchandiseReturn);
 
     Task<IList<MerchandiseReturnModel.MerchandiseReturnNote>> PrepareMerchandiseReturnNotes(
         MerchandiseReturn merchandiseReturn);

@@ -2,6 +2,6 @@
 
 public class ProductUpdateStock
 {
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
     public int Stock { get; set; }
 }

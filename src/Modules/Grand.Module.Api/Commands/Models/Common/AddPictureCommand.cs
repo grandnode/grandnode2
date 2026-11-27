@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Common;
 
 public class AddPictureCommand : IRequest<PictureDto>
 {
-    public PictureDto PictureDto { get; set; }
+    public required PictureDto PictureDto { get; set; }
 }

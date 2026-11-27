@@ -91,19 +91,19 @@ public class GetCustomerQueryHandler : IRequestHandler<GetCustomerQuery, IPagedL
         }
         else
         {
-            var propName = GetName(request.OrderBySelector);
+            var propName = GetName(request.OrderBySelector) ??
+                           throw new ArgumentException("OrderBySelector selects no property", nameof(request));
             query = OrderingHelper(query, propName);
         }
 
         return await _customerRepository.PagedAsync(query, request.PageIndex, request.PageSize, cancellationToken);
     }
 
-    private static string GetName(Expression<Func<Customer, object>> exp)
+    private static string? GetName(Expression<Func<Customer, object?>> exp)
     {
         if (exp.Body is MemberExpression body) return body.Member.Name;
         var expBody = (UnaryExpression)exp.Body;
-        body = expBody.Operand as MemberExpression;
-        return body?.Member.Name;
+        return (expBody.Operand as MemberExpression)?.Member.Name;
     }
 
     private static IOrderedQueryable<T> OrderingHelper<T>(IQueryable<T> source, string propertyName)

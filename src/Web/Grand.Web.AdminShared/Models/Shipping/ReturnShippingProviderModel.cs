@@ -9,10 +9,10 @@ namespace Grand.Web.AdminShared.Models.Shipping;
 public class ReturnShippingProviderModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Shipping.ReturnMethods.Fields.FriendlyName")]
-    public string FriendlyName { get; set; }
+    public string? FriendlyName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.ReturnMethods.Fields.SystemName")]
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.ReturnMethods.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
@@ -20,5 +20,5 @@ public class ReturnShippingProviderModel : BaseModel
     [GrandResourceDisplayName("Admin.Configuration.Shipping.ReturnMethods.Fields.IsActive")]
     public bool IsActive { get; set; }
 
-    public string ConfigurationUrl { get; set; }
+    public string? ConfigurationUrl { get; set; }
 }

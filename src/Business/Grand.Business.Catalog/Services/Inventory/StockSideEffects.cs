@@ -208,7 +208,7 @@ public class StockSideEffects(
     /// <summary>
     ///     Tells the store owner the stock of the product, or of its combination, fell below the quantity to notify at
     /// </summary>
-    public Task QuantityBelow(Product product, ProductAttributeCombination combination = null)
+    public Task QuantityBelow(Product product, ProductAttributeCombination? combination = null)
     {
         return mediator.Send(new SendQuantityBelowStoreOwnerCommand {
             Product = product,

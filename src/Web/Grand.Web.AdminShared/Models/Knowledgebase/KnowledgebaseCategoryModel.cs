@@ -12,17 +12,17 @@ public class KnowledgebaseCategoryModel : BaseEntityModel, ILocalizedModel<Knowl
     IGroupLinkModel, IStoreLinkModel
 {
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.ParentCategoryId")]
-    public string ParentCategoryId { get; set; }
+    public string? ParentCategoryId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.DisplayOrder")]
     public int DisplayOrder { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Published")]
     public bool Published { get; set; }
@@ -31,24 +31,24 @@ public class KnowledgebaseCategoryModel : BaseEntityModel, ILocalizedModel<Knowl
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     public bool LimitedToStores { get; set; }
 
     [UIHint("CustomerGroups")]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.LimitedToGroups")]
-    public string[] CustomerGroups { get; set; }
+    public string[]? CustomerGroups { get; set; }
 
     public IList<KnowledgebaseCategoryLocalizedModel> Locales { get; set; } =
         new List<KnowledgebaseCategoryLocalizedModel>();
@@ -56,32 +56,32 @@ public class KnowledgebaseCategoryModel : BaseEntityModel, ILocalizedModel<Knowl
     //Store acl
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.LimitedToStores")]
     [UIHint("Stores")]
-    public string[] Stores { get; set; }
+    public string[]? Stores { get; set; }
 }
 
 public class KnowledgebaseCategoryLocalizedModel : ILocalizedModelLocal, ISlugModelLocal
 {
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [SanitizeHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.Description")]
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.MetaKeywords")]
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.MetaDescription")]
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     [NoHtml]
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.MetaTitle")]
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 
     [GrandResourceDisplayName("Admin.Content.Knowledgebase.KnowledgebaseCategory.Fields.SeName")]
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 }

@@ -13,7 +13,7 @@ public class ProductWarehouseInventory : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Warehouse))]
     [AuditName]
-    public string WarehouseId { get; set; }
+    public string? WarehouseId { get; set; }
 
     /// <summary>
     ///     Gets or sets the stock quantity

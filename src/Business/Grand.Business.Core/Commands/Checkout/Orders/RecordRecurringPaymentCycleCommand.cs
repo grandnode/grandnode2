@@ -12,17 +12,17 @@ public class RecordRecurringPaymentCycleCommand : IRequest<bool>
     /// <summary>
     ///     The recurring payment the provider was given as gateway metadata
     /// </summary>
-    public string RecurringPaymentId { get; set; }
+    public required string RecurringPaymentId { get; set; }
 
     /// <summary>
     ///     The provider's reference of the subscription
     /// </summary>
-    public string ProviderReference { get; set; }
+    public string? ProviderReference { get; set; }
 
     /// <summary>
     ///     The provider's reference of the cycle (the invoice or charge), so a resent report is recorded once
     /// </summary>
-    public string CycleReference { get; set; }
+    public string? CycleReference { get; set; }
 
     /// <summary>
     ///     The amount paid, in the units of <see cref="MarkAsPaidCommand.Amount" />

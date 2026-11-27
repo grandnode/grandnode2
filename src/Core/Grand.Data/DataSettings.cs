@@ -8,7 +8,7 @@ public class DataSettings
     /// <summary>
     ///     Connection string
     /// </summary>
-    public string ConnectionString { get; set; }
+    public string? ConnectionString { get; set; }
 
     /// <summary>
     ///     Database type

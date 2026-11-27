@@ -139,6 +139,9 @@ public class VendorController : BasePublicController
 
         if (ModelState.IsValid)
         {
+            //the validator requires them
+            ArgumentException.ThrowIfNullOrEmpty(model.Name);
+            ArgumentException.ThrowIfNullOrEmpty(model.Email);
             var description = FormatText.ConvertText(model.Description);
             //disabled by default
             var vendor = new Domain.Vendors.Vendor {

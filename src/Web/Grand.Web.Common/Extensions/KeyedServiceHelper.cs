@@ -9,11 +9,9 @@ public static class KeyedServiceHelper
         ArgumentNullException.ThrowIfNull(services);
 
         return services
-            .Where(service =>
-                service.ServiceType == typeof(TInterface) &&
-                service.IsKeyedService &&
-                service.ServiceKey != null)
-            .Select(service => service.ServiceKey.ToString())
+            .Where(service => service.ServiceType == typeof(TInterface) && service.IsKeyedService)
+            .Select(service => service.ServiceKey?.ToString())
+            .OfType<string>()
             .ToList();
     }
 }

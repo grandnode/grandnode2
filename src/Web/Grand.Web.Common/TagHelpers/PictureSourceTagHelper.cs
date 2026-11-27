@@ -13,7 +13,7 @@ public class PictureSourceTagHelper : TagHelper
         _pictureService = pictureService;
     }
 
-    [HtmlAttributeName("picture-id")] public string PictureId { set; get; }
+    [HtmlAttributeName("picture-id")] public string? PictureId { set; get; }
 
     [HtmlAttributeName("picture-size")] public int PictureSize { set; get; }
 

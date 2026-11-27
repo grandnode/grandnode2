@@ -7,7 +7,7 @@ namespace Grand.Web.AdminShared.Models.Orders;
 public class OrderTagModel : BaseEntityModel, ILocalizedModel<OrderTagLocalizedModel>
 {
     [GrandResourceDisplayName("Admin.Orders.OrderTags.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Orders.OrderTags.Fields.OrderCount")]
     public int OrderCount { get; set; }
@@ -18,7 +18,7 @@ public class OrderTagModel : BaseEntityModel, ILocalizedModel<OrderTagLocalizedM
 public class OrderTagLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Orders.OrderTags.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

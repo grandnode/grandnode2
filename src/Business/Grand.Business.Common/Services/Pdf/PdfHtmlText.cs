@@ -9,7 +9,7 @@ namespace Grand.Business.Common.Services.Pdf;
 /// </summary>
 internal static partial class PdfHtmlText
 {
-    public static string ToPlainText(string html)
+    public static string ToPlainText(string? html)
     {
         if (string.IsNullOrWhiteSpace(html)) return string.Empty;
 

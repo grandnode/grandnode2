@@ -5,5 +5,5 @@ namespace Grand.Web.Features.Models.Common;
 
 public class GetSiteStructuredData : IRequest<SiteStructuredDataModel>
 {
-    public Domain.Stores.Store Store { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
 }

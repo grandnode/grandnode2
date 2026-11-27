@@ -4,9 +4,9 @@ namespace Grand.Web.Models.Catalog;
 
 public class OutOfStockSubscribeModel : BaseModel
 {
-    public string ProductId { get; set; }
-    public string ProductName { get; set; }
-    public string ProductSeName { get; set; }
+    public string? ProductId { get; set; }
+    public string? ProductName { get; set; }
+    public string? ProductSeName { get; set; }
 
     public bool IsCurrentCustomerRegistered { get; set; }
     public bool SubscriptionAllowed { get; set; }

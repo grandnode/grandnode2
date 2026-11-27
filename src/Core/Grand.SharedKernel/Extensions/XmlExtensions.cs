@@ -21,9 +21,9 @@ public static class XmlExtensions
         return xmlDoc;
     }
 
-    public static List<(string Name, string Value, string Area)> ParseTranslationResources(XmlDocument xmlDoc)
+    public static List<(string Name, string Value, string? Area)> ParseTranslationResources(XmlDocument xmlDoc)
     {
-        var resources = new List<(string Name, string Value, string Area)>();
+        var resources = new List<(string Name, string Value, string? Area)>();
         var nodes = xmlDoc.SelectNodes("//Language/Resource");
 
         if (nodes != null)

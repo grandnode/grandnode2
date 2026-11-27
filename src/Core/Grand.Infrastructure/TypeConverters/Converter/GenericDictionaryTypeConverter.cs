@@ -8,7 +8,7 @@ namespace Grand.Infrastructure.TypeConverters.Converter;
 /// </summary>
 /// <typeparam name="K">Key type (simple)</typeparam>
 /// <typeparam name="V">Value type (simple)</typeparam>
-public class GenericDictionaryTypeConverter<K, V> : TypeConverter
+public class GenericDictionaryTypeConverter<K, V> : TypeConverter where K : notnull
 {
     private readonly TypeConverter _typeConverterKey;
     private readonly TypeConverter _typeConverterValue;
@@ -34,7 +34,7 @@ public class GenericDictionaryTypeConverter<K, V> : TypeConverter
     /// <param name="context">Context</param>
     /// <param name="sourceType">Source type</param>
     /// <returns>Result</returns>
-    public override bool CanConvertFrom(ITypeDescriptorContext context, Type sourceType)
+    public override bool CanConvertFrom(ITypeDescriptorContext? context, Type sourceType)
     {
         return sourceType == typeof(string) || base.CanConvertFrom(context, sourceType);
     }
@@ -46,7 +46,7 @@ public class GenericDictionaryTypeConverter<K, V> : TypeConverter
     /// <param name="culture">Culture</param>
     /// <param name="value">Value</param>
     /// <returns>Result</returns>
-    public override object ConvertFrom(ITypeDescriptorContext context, CultureInfo culture, object value)
+    public override object? ConvertFrom(ITypeDescriptorContext? context, CultureInfo? culture, object value)
     {
         if (value is not string input) return base.ConvertFrom(context, culture, value);
         var items = string.IsNullOrEmpty(input)
@@ -79,7 +79,7 @@ public class GenericDictionaryTypeConverter<K, V> : TypeConverter
     /// <param name="value">Value</param>
     /// <param name="destinationType">Destination type</param>
     /// <returns>Result</returns>
-    public override object ConvertTo(ITypeDescriptorContext context, CultureInfo culture, object value,
+    public override object? ConvertTo(ITypeDescriptorContext? context, CultureInfo? culture, object? value,
         Type destinationType)
     {
         if (destinationType != typeof(string)) return base.ConvertTo(context, culture, value, destinationType);

@@ -33,9 +33,11 @@ internal sealed class PdfComposer : IDisposable
     private readonly Dictionary<(bool Bold, int Rune), bool> _glyphs = new();
     private readonly Dictionary<byte[], PdfPageBuilder.AddedImage> _images = new(ReferenceEqualityComparer.Instance);
 
-    private PdfPageBuilder _page;
+    private PdfPageBuilder? _page;
+
+    private PdfPageBuilder Page => _page ?? throw new InvalidOperationException("NewPage has not been called");
     private double _y;
-    private string _footerText;
+    private string? _footerText;
     private IReadOnlyList<string> _footer = [];
 
     //a right-aligned image narrows the text beside it down to this y
@@ -60,7 +62,7 @@ internal sealed class PdfComposer : IDisposable
     /// <summary>
     ///     Starts a new page. The footer is repeated on the pages a table or text overflows to.
     /// </summary>
-    public void NewPage(string footer = null)
+    public void NewPage(string? footer = null)
     {
         _page = _builder.AddPage(PageWidth, PageHeight);
         _y = PageHeight - Margin;
@@ -77,7 +79,7 @@ internal sealed class PdfComposer : IDisposable
         _y -= height;
     }
 
-    public void Text(string text, double size = 10, bool bold = false, PdfAlign align = PdfAlign.Left,
+    public void Text(string? text, double size = 10, bool bold = false, PdfAlign align = PdfAlign.Left,
         byte gray = 0)
     {
         if (string.IsNullOrWhiteSpace(text)) return;
@@ -98,9 +100,9 @@ internal sealed class PdfComposer : IDisposable
     public void HorizontalRule(byte gray = 0, double width = 0.5)
     {
         ClearImage();
-        _page.SetStrokeColor(gray, gray, gray);
-        _page.DrawLine(new PdfPoint(Margin, _y), new PdfPoint(PageWidth - Margin, _y), width);
-        _page.ResetColor();
+        Page.SetStrokeColor(gray, gray, gray);
+        Page.DrawLine(new PdfPoint(Margin, _y), new PdfPoint(PageWidth - Margin, _y), width);
+        Page.ResetColor();
     }
 
     /// <summary>
@@ -118,9 +120,9 @@ internal sealed class PdfComposer : IDisposable
         var rectangle = new PdfRectangle(x, _y - h, x + w, _y);
         //the image is written into the document once and every later page refers to it
         if (_images.TryGetValue(png, out var added))
-            _page.AddImage(added, rectangle);
+            Page.AddImage(added, rectangle);
         else
-            _images[png] = _page.AddPng(png, rectangle);
+            _images[png] = Page.AddPng(png, rectangle);
 
         if (align != PdfAlign.Right) return;
         _asideBottom = _y - h;
@@ -142,7 +144,7 @@ internal sealed class PdfComposer : IDisposable
     ///     the page moves to the next one, repeating the header; a row taller than a whole page is split
     ///     between its lines.
     /// </summary>
-    public void Table(IReadOnlyList<PdfColumn> columns, IReadOnlyList<string> header,
+    public void Table(IReadOnlyList<PdfColumn> columns, IReadOnlyList<string>? header,
         IEnumerable<IReadOnlyList<PdfCell>> rows, double size = 10, bool rowLines = true)
     {
         ClearImage();
@@ -248,14 +250,14 @@ internal sealed class PdfComposer : IDisposable
         }
     }
 
-    private void NewTablePage(IReadOnlyList<PdfColumn> columns, double[] widths, IReadOnlyList<string> header,
+    private void NewTablePage(IReadOnlyList<PdfColumn> columns, double[] widths, IReadOnlyList<string>? header,
         double size)
     {
         NewPage(_footerText);
         if (header != null) DrawHeader(columns, widths, header, size);
     }
 
-    private static double HeaderHeight(IReadOnlyList<string> header, double size)
+    private static double HeaderHeight(IReadOnlyList<string>? header, double size)
     {
         return header == null ? 0 : size * LineSpacing + 2 * CellPadding;
     }
@@ -265,10 +267,10 @@ internal sealed class PdfComposer : IDisposable
     {
         var height = HeaderHeight(header, size);
         EnsureSpace(height);
-        _page.SetStrokeColor(128, 128, 128);
-        _page.SetTextAndFillColor(128, 128, 128);
-        _page.DrawRectangle(new PdfPoint(Margin, _y - height), ContentWidth, height, 0.5, true);
-        _page.ResetColor();
+        Page.SetStrokeColor(128, 128, 128);
+        Page.SetTextAndFillColor(128, 128, 128);
+        Page.DrawRectangle(new PdfPoint(Margin, _y - height), ContentWidth, height, 0.5, true);
+        Page.ResetColor();
 
         var x = Margin;
         for (var i = 0; i < columns.Count; i++)
@@ -301,22 +303,22 @@ internal sealed class PdfComposer : IDisposable
     /// <summary>
     ///     Draws one already wrapped line with its top at <paramref name="top" />.
     /// </summary>
-    private void DrawLine(string text, double size, PdfDocumentBuilder.AddedFont font, double x, double top,
+    private void DrawLine(string? text, double size, PdfDocumentBuilder.AddedFont font, double x, double top,
         double width, PdfAlign align, byte gray)
     {
         if (string.IsNullOrEmpty(text)) return;
 
         if (align == PdfAlign.Right) x += width - Measure(text, size, font);
-        if (gray != 0) _page.SetTextAndFillColor(gray, gray, gray);
-        _page.AddText(text, size, new PdfPoint(x, top - size), font);
-        if (gray != 0) _page.ResetColor();
+        if (gray != 0) Page.SetTextAndFillColor(gray, gray, gray);
+        Page.AddText(text, size, new PdfPoint(x, top - size), font);
+        if (gray != 0) Page.ResetColor();
     }
 
     /// <summary>
     ///     Breaks text into lines, <paramref name="width" /> giving the width of the n-th line. Each word is
     ///     measured once and a line is as wide as its words and the spaces between them.
     /// </summary>
-    private List<string> Wrap(string text, double size, PdfDocumentBuilder.AddedFont font, Func<int, double> width)
+    private List<string> Wrap(string? text, double size, PdfDocumentBuilder.AddedFont font, Func<int, double> width)
     {
         var lines = new List<string>();
         if (string.IsNullOrEmpty(text)) return lines;
@@ -360,7 +362,7 @@ internal sealed class PdfComposer : IDisposable
     private (string Tail, double Width) BreakWord(string word, double size, PdfDocumentBuilder.AddedFont font,
         Func<int, double> width, List<string> lines)
     {
-        var letters = _page.MeasureText(word, size, new PdfPoint(0, 0), font);
+        var letters = Page.MeasureText(word, size, new PdfPoint(0, 0), font);
         //one letter per rune; charEnds[i] is where rune i ends in the string
         var charEnds = new List<int>(word.Length);
         foreach (var rune in word.EnumerateRunes())
@@ -385,7 +387,7 @@ internal sealed class PdfComposer : IDisposable
     private double Measure(string text, double size, PdfDocumentBuilder.AddedFont font)
     {
         if (string.IsNullOrEmpty(text)) return 0;
-        var letters = _page.MeasureText(text, size, new PdfPoint(0, 0), font);
+        var letters = Page.MeasureText(text, size, new PdfPoint(0, 0), font);
         return letters.Count == 0 ? 0 : letters[^1].EndBaseLine.X;
     }
 
@@ -409,7 +411,7 @@ internal sealed class PdfComposer : IDisposable
             {
                 try
                 {
-                    _page.MeasureText(rune.ToString(), 10, new PdfPoint(0, 0), font);
+                    Page.MeasureText(rune.ToString(), 10, new PdfPoint(0, 0), font);
                     supported = true;
                 }
                 catch (InvalidOperationException)
@@ -457,13 +459,13 @@ internal enum PdfAlign
 
 internal sealed record PdfColumn(double Weight, PdfAlign Align = PdfAlign.Left);
 
-internal sealed record PdfLine(string Text, bool Bold = false, bool Small = false);
+internal sealed record PdfLine(string? Text, bool Bold = false, bool Small = false);
 
 internal sealed record PdfCell(IReadOnlyList<PdfLine> Lines)
 {
     public static readonly PdfCell Empty = new([]);
 
-    public static PdfCell Of(string text, bool bold = false)
+    public static PdfCell Of(string? text, bool bold = false)
     {
         return new PdfCell([new PdfLine(text ?? string.Empty, bold)]);
     }

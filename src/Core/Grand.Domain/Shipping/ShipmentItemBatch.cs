@@ -5,7 +5,7 @@ namespace Grand.Domain.Shipping;
 /// </summary>
 public class ShipmentItemBatch
 {
-    public string Number { get; set; }
+    public string? Number { get; set; }
 
     public int Quantity { get; set; }
 }

@@ -16,9 +16,9 @@ namespace Grand.Domain.Orders;
 /// </summary>
 public class Order : BaseEntity
 {
-    private ICollection<OrderItem> _orderItems;
-    private ICollection<string> _orderTags;
-    private ICollection<OrderTax> _orderTaxes;
+    private ICollection<OrderItem>? _orderItems;
+    private ICollection<string>? _orderTags;
+    private ICollection<OrderTax>? _orderTaxes;
 
     #region Properties
 
@@ -36,35 +36,35 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the order code
     /// </summary>
-    public string Code { get; set; }
+    public string? Code { get; set; }
 
     /// <summary>
     ///     Gets or sets the buyer's own purchase order number
     /// </summary>
-    public string PurchaseOrderNumber { get; set; }
+    public string? PurchaseOrderNumber { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string CustomerId { get; set; }
+    public string? CustomerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the owner identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string OwnerId { get; set; }
+    public string? OwnerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the sales employee identifier
     /// </summary>
-    public string SeId { get; set; }
+    public string? SeId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether a customer chose "pick up in store" shipping option
@@ -90,19 +90,19 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the payment method system name
     /// </summary>
-    public string PaymentMethodSystemName { get; set; }
+    public string? PaymentMethodSystemName { get; set; }
 
-    public string PaymentOptionAttribute { get; set; }
+    public string? PaymentOptionAttribute { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer currency code (at the moment of order placing)
     /// </summary>
-    public string CustomerCurrencyCode { get; set; }
+    public string? CustomerCurrencyCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the primary currency code (at the moment of order placing)
     /// </summary>
-    public string PrimaryCurrencyCode { get; set; }
+    public string? PrimaryCurrencyCode { get; set; }
 
     /// <summary>
     ///     Gets or sets the currency rate
@@ -122,7 +122,7 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the VAT number
     /// </summary>
-    public string VatNumber { get; set; }
+    public string? VatNumber { get; set; }
 
     /// <summary>
     ///     Gets or sets the VAT number status id
@@ -132,22 +132,22 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the Company name
     /// </summary>
-    public string CompanyName { get; set; }
+    public string? CompanyName { get; set; }
 
     /// <summary>
     ///     Gets or sets the CustomerEmail
     /// </summary>
-    public string CustomerEmail { get; set; }
+    public string? CustomerEmail { get; set; }
 
     /// <summary>
     ///     Gets or sets the FirstName
     /// </summary>
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
 
     /// <summary>
     ///     Gets or sets the LastName
     /// </summary>
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
 
     /// <summary>
     ///     Gets or sets the order subtotal (incl tax)
@@ -249,7 +249,7 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the checkout attribute description
     /// </summary>
-    public string CheckoutAttributeDescription { get; set; }
+    public string? CheckoutAttributeDescription { get; set; }
 
     public IList<CustomAttribute> CheckoutAttributes { get; set; } = new List<CustomAttribute>();
 
@@ -257,28 +257,28 @@ public class Order : BaseEntity
     ///     Gets or sets the customer language identifier
     /// </summary>
     [AuditReference(typeof(Language))]
-    public string CustomerLanguageId { get; set; }
+    public string? CustomerLanguageId { get; set; }
 
     /// <summary>
     ///     Gets or sets the affiliate identifier
     /// </summary>
     [AuditReference(typeof(Affiliate))]
-    public string AffiliateId { get; set; }
+    public string? AffiliateId { get; set; }
 
     /// <summary>
     ///     Gets or sets the customer IP address
     /// </summary>
-    public string CustomerIp { get; set; }
+    public string? CustomerIp { get; set; }
 
     /// <summary>
     ///     Gets or sets the shipping method
     /// </summary>
-    public string ShippingMethod { get; set; }
+    public string? ShippingMethod { get; set; }
 
     /// <summary>
     ///     Gets or sets the Shipping rate  method identifier
     /// </summary>
-    public string ShippingRateProviderSystemName { get; set; }
+    public string? ShippingRateProviderSystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity has been deleted
@@ -318,7 +318,7 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the order the customer placed, on an order paying a later cycle of its recurring payment
     /// </summary>
-    public string InitialOrderId { get; set; }
+    public string? InitialOrderId { get; set; }
 
     /// <summary>
     ///     Gets or sets the recurring payment cycle the order pays: 1 on the initial order, 0 when not recurring
@@ -328,12 +328,12 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the Shipping Option description (customer friendly string)
     /// </summary>
-    public string ShippingOptionAttributeDescription { get; set; }
+    public string? ShippingOptionAttributeDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the Shipping Option (developer friendly string)
     /// </summary>
-    public string ShippingOptionAttribute { get; set; }
+    public string? ShippingOptionAttribute { get; set; }
 
     #endregion
 
@@ -342,17 +342,17 @@ public class Order : BaseEntity
     /// <summary>
     ///     Gets or sets the billing address
     /// </summary>
-    public virtual Address BillingAddress { get; set; }
+    public virtual Address? BillingAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets the shipping address
     /// </summary>
-    public virtual Address ShippingAddress { get; set; }
+    public virtual Address? ShippingAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets the pickup point
     /// </summary>
-    public virtual PickupPoint PickupPoint { get; set; }
+    public virtual PickupPoint? PickupPoint { get; set; }
 
     /// <summary>
     ///     Gets or sets order items

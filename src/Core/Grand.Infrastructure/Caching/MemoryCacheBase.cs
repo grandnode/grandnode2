@@ -4,6 +4,7 @@ using Grand.Mediator;
 using Microsoft.Extensions.Caching.Memory;
 using Microsoft.Extensions.Primitives;
 using System.Collections.Concurrent;
+using System.Diagnostics.CodeAnalysis;
 
 namespace Grand.Infrastructure.Caching;
 
@@ -37,7 +38,7 @@ public class MemoryCacheBase : ICacheBase, IDisposable
 
     #region Methods
 
-    public virtual bool TryGet<T>(string key, out T value)
+    public virtual bool TryGet<T>(string key, [MaybeNullWhen(false)] out T value)
     {
         return _cache.TryGetValue(key, out value);
     }
@@ -49,7 +50,8 @@ public class MemoryCacheBase : ICacheBase, IDisposable
 
     public virtual async Task<T> GetAsync<T>(string key, Func<Task<T>> acquire, int cacheTime)
     {
-        if (_cache.TryGetValue(key, out T cacheEntry)) return cacheEntry;
+        //an entry is only ever stored under its key by this class, from the acquire of the same T, so a hit is a T
+        if (_cache.TryGetValue(key, out T? cacheEntry)) return cacheEntry!;
         var semaphore = CacheEntries.GetOrAdd(key, _ => new SemaphoreSlim(1, 1));
         await semaphore.WaitAsync();
         try
@@ -66,7 +68,7 @@ public class MemoryCacheBase : ICacheBase, IDisposable
             semaphore.Release();
         }
 
-        return cacheEntry;
+        return cacheEntry!;
     }
 
     public virtual Task<T> SetAsync<T>(string key, Func<Task<T>> acquire)
@@ -179,13 +181,13 @@ public class MemoryCacheBase : ICacheBase, IDisposable
         return options;
     }
 
-    private void PostEvictionCallback(object key, object value, EvictionReason reason, object state)
+    private void PostEvictionCallback(object key, object? value, EvictionReason reason, object? state)
     {
         if (reason == EvictionReason.Replaced) return;
 
         //MemoryCache runs this callback on the thread pool, often after the same key has been stored
         //again; the newer entry must stay tracked, or RemoveByPrefix would never remove it
-        var cacheKey = key.ToString();
+        if (key.ToString() is not { } cacheKey) return;
         CacheEntries.TryRemove(cacheKey, out _);
         if (_cache.TryGetValue(cacheKey, out _))
             CacheEntries.GetOrAdd(cacheKey, _ => new SemaphoreSlim(1, 1));

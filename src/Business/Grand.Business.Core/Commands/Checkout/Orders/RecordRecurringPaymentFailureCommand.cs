@@ -8,18 +8,18 @@ namespace Grand.Business.Core.Commands.Checkout.Orders;
 /// </summary>
 public class RecordRecurringPaymentFailureCommand : IRequest<bool>
 {
-    public string RecurringPaymentId { get; set; }
+    public required string RecurringPaymentId { get; set; }
 
     /// <summary>
     ///     The provider's reference of the recurring payment (for example the subscription id), used to stop the
     ///     gateway when the failure arrives for a payment the shop cancelled before learning it
     /// </summary>
-    public string ProviderReference { get; set; }
+    public string? ProviderReference { get; set; }
 
     /// <summary>
     ///     The provider's reference of the cycle that failed
     /// </summary>
-    public string CycleReference { get; set; }
+    public string? CycleReference { get; set; }
 
-    public string Reason { get; set; }
+    public string? Reason { get; set; }
 }

@@ -18,7 +18,7 @@ public interface IShipmentViewModelService
     Task<ShipmentListModel> PrepareShipmentListModel();
     Task<ShipmentModel> PrepareShipmentModel(Order order);
 
-    Task<(Shipment shipment, double? totalWeight)> PrepareShipment(Order order, IEnumerable<OrderItem> orderItems,
+    Task<(Shipment? shipment, double? totalWeight)> PrepareShipment(Order order, IEnumerable<OrderItem> orderItems,
         AddShipmentModel model);
 
     Task<(bool valid, string message)> ValidStockShipment(Shipment shipment);

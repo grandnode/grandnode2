@@ -7,7 +7,7 @@ namespace Grand.Mediator.Internal;
 /// </summary>
 internal abstract class RequestHandlerBase
 {
-    public abstract Task<object> Handle(object request, IServiceProvider provider,
+    public abstract Task<object?> Handle(object request, IServiceProvider provider,
         CancellationToken cancellationToken);
 }
 
@@ -29,7 +29,7 @@ internal sealed class RequestHandlerWrapperImpl<TRequest, TResponse> : RequestHa
         return Resolve(provider).Handle((TRequest)request, cancellationToken);
     }
 
-    public override async Task<object> Handle(object request, IServiceProvider provider,
+    public override async Task<object?> Handle(object request, IServiceProvider provider,
         CancellationToken cancellationToken)
     {
         return await Resolve(provider).Handle((TRequest)request, cancellationToken);
@@ -58,7 +58,7 @@ internal sealed class VoidRequestHandlerWrapperImpl<TRequest> : VoidRequestHandl
         return Resolve(provider).Handle((TRequest)request, cancellationToken);
     }
 
-    public override async Task<object> Handle(object request, IServiceProvider provider,
+    public override async Task<object?> Handle(object request, IServiceProvider provider,
         CancellationToken cancellationToken)
     {
         await Resolve(provider).Handle((TRequest)request, cancellationToken);

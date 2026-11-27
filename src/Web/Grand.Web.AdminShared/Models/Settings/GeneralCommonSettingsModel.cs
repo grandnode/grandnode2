@@ -9,7 +9,7 @@ namespace Grand.Web.AdminShared.Models.Settings;
 
 public class GeneralCommonSettingsModel : BaseModel
 {
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
     public StoreInformationSettingsModel StoreInformationSettings { get; set; } = new();
     public CommonSettingsModel CommonSettings { get; set; } = new();
     public DateTimeSettingsModel DateTimeSettings { get; set; } = new();
@@ -28,7 +28,7 @@ public class GeneralCommonSettingsModel : BaseModel
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DefaultStoreTheme")]
 
-        public string DefaultStoreTheme { get; set; }
+        public string? DefaultStoreTheme { get; set; }
 
         public IList<ThemeConfigurationModel> AvailableStoreThemes { get; set; } = new List<ThemeConfigurationModel>();
 
@@ -40,7 +40,7 @@ public class GeneralCommonSettingsModel : BaseModel
 
         [UIHint("Picture")]
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.Logo")]
-        public string LogoPictureId { get; set; }
+        public string? LogoPictureId { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DisplayCookieInformation")]
         public bool DisplayCookieInformation { get; set; }
@@ -49,22 +49,22 @@ public class GeneralCommonSettingsModel : BaseModel
         public bool DisplayPrivacyPreference { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.FacebookLink")]
-        public string FacebookLink { get; set; }
+        public string? FacebookLink { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.TwitterLink")]
-        public string TwitterLink { get; set; }
+        public string? TwitterLink { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.YoutubeLink")]
-        public string YoutubeLink { get; set; }
+        public string? YoutubeLink { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.InstagramLink")]
-        public string InstagramLink { get; set; }
+        public string? InstagramLink { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.LinkedInLink")]
-        public string LinkedInLink { get; set; }
+        public string? LinkedInLink { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PinterestLink")]
-        public string PinterestLink { get; set; }
+        public string? PinterestLink { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.VoiceNavigation")]
         public bool VoiceNavigation { get; set; }
@@ -73,10 +73,10 @@ public class GeneralCommonSettingsModel : BaseModel
 
         public class ThemeConfigurationModel
         {
-            public string ThemeName { get; set; }
-            public string ThemeTitle { get; set; }
-            public string PreviewImageUrl { get; set; }
-            public string PreviewText { get; set; }
+            public string? ThemeName { get; set; }
+            public string? ThemeTitle { get; set; }
+            public string? PreviewImageUrl { get; set; }
+            public string? PreviewText { get; set; }
             public bool SupportRtl { get; set; }
             public bool Selected { get; set; }
         }
@@ -120,7 +120,7 @@ public class GeneralCommonSettingsModel : BaseModel
     public class DateTimeSettingsModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DefaultStoreTimeZone")]
-        public string DefaultStoreTimeZoneId { get; set; }
+        public string? DefaultStoreTimeZoneId { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DefaultStoreTimeZone")]
         public IList<SelectListItem> AvailableTimeZones { get; set; } = new List<SelectListItem>();
@@ -130,22 +130,22 @@ public class GeneralCommonSettingsModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PageTitleSeparator")]
 
-        public string PageTitleSeparator { get; set; }
+        public string? PageTitleSeparator { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PageTitleSeoAdjustment")]
         public bool PageTitleSeoAdjustment { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DefaultTitle")]
 
-        public string DefaultTitle { get; set; }
+        public string? DefaultTitle { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DefaultMetaKeywords")]
 
-        public string DefaultMetaKeywords { get; set; }
+        public string? DefaultMetaKeywords { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DefaultMetaDescription")]
 
-        public string DefaultMetaDescription { get; set; }
+        public string? DefaultMetaDescription { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.GenerateProductMetaDescription")]
         public bool GenerateProductMetaDescription { get; set; }
@@ -154,7 +154,7 @@ public class GeneralCommonSettingsModel : BaseModel
         public bool ConvertNonWesternChars { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.SeoCharConversion")]
-        public string SeoCharConversion { get; set; }
+        public string? SeoCharConversion { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CanonicalUrlsEnabled")]
         public bool CanonicalUrlsEnabled { get; set; }
@@ -167,7 +167,7 @@ public class GeneralCommonSettingsModel : BaseModel
 
         [UIHint("Picture")]
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.StorePicture")]
-        public string StorePictureId { get; set; }
+        public string? StorePictureId { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.AllowSlashChar")]
         public bool AllowSlashChar { get; set; }
@@ -176,16 +176,16 @@ public class GeneralCommonSettingsModel : BaseModel
         public bool AllowUnicodeCharsInUrls { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CustomHeadTags")]
-        public string CustomHeadTags { get; set; }
+        public string? CustomHeadTags { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.ReservedEntityUrlSlugs")]
-        public List<string> ReservedEntityUrlSlugs { get; set; }
+        public List<string>? ReservedEntityUrlSlugs { get; set; }
     }
 
     public class SecuritySettingsModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.AdminAreaAllowedIpAddresses")]
-        public string AdminAreaAllowedIpAddresses { get; set; }
+        public string? AdminAreaAllowedIpAddresses { get; set; }
 
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.CaptchaEnabled")]
@@ -235,13 +235,13 @@ public class GeneralCommonSettingsModel : BaseModel
         public bool CaptchaShowOnVendorReviewPage { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.reCaptchaPublicKey")]
-        public string ReCaptchaPublicKey { get; set; }
+        public string? ReCaptchaPublicKey { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.reCaptchaPrivateKey")]
-        public string ReCaptchaPrivateKey { get; set; }
+        public string? ReCaptchaPrivateKey { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.ReCaptchaTheme")]
-        public string ReCaptchaTheme { get; set; }
+        public string? ReCaptchaTheme { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.ReCaptchaScore")]
         public decimal ReCaptchaScore { get; set; }
@@ -256,16 +256,16 @@ public class GeneralCommonSettingsModel : BaseModel
     {
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.PdfLogo")]
         [UIHint("Picture")]
-        public string LogoPictureId { get; set; }
+        public string? LogoPictureId { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.DisablePdfInvoicesForPendingOrders")]
         public bool DisablePdfInvoicesForPendingOrders { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.InvoiceHeaderText")]
-        public string InvoiceHeaderText { get; set; }
+        public string? InvoiceHeaderText { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.InvoiceFooterText")]
-        public string InvoiceFooterText { get; set; }
+        public string? InvoiceFooterText { get; set; }
 
         [GrandResourceDisplayName("Admin.Settings.GeneralCommon.ShowUnitNumbersOnInvoices")]
         public bool ShowUnitNumbersOnInvoices { get; set; }

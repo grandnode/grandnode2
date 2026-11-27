@@ -9,37 +9,37 @@ public class MenuModel : BaseEntityModel
     ///     Gets or sets the system name.
     /// </summary>
     [GrandResourceDisplayName("admin.configuration.menu.fields.systemname")]
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the resource name.
     /// </summary>
     [GrandResourceDisplayName("admin.configuration.menu.fields.resourcename")]
-    public string ResourceName { get; set; }
+    public string? ResourceName { get; set; }
 
     /// <summary>
     ///     Gets or sets the name of the controller.
     /// </summary>
     [GrandResourceDisplayName("admin.configuration.menu.fields.controllername")]
-    public string ControllerName { get; set; }
+    public string? ControllerName { get; set; }
 
     /// <summary>
     ///     Gets or sets the name of the action.
     /// </summary>
     [GrandResourceDisplayName("admin.configuration.menu.fields.actionname")]
-    public string ActionName { get; set; }
+    public string? ActionName { get; set; }
 
     /// <summary>
     ///     Gets or sets the URL.
     /// </summary>
     [GrandResourceDisplayName("admin.configuration.menu.fields.url")]
-    public string Url { get; set; }
+    public string? Url { get; set; }
 
     /// <summary>
     ///     Gets or sets the icon class
     /// </summary>
     [GrandResourceDisplayName("admin.configuration.menu.fields.iconclass")]
-    public string IconClass { get; set; }
+    public string? IconClass { get; set; }
 
     /// <summary>
     ///     Gets or sets the display order

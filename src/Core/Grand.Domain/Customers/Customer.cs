@@ -12,10 +12,10 @@ namespace Grand.Domain.Customers;
 /// </summary>
 public class Customer : BaseEntity
 {
-    private ICollection<Address> _addresses;
-    private ICollection<string> _customerTags;
-    private ICollection<string> _groups;
-    private ICollection<ShoppingCartItem> _shoppingCartItems;
+    private ICollection<Address>? _addresses;
+    private ICollection<string>? _customerTags;
+    private ICollection<string>? _groups;
+    private ICollection<ShoppingCartItem>? _shoppingCartItems;
 
     /// <summary>
     ///     Ctor
@@ -35,18 +35,18 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the username
     /// </summary>
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     /// <summary>
     ///     Gets or sets the email
     /// </summary>
     [AuditName]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     ///     Gets or sets the password
     /// </summary>
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     /// <summary>
     ///     Gets or sets the password format
@@ -56,12 +56,12 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the password salt
     /// </summary>
-    public string PasswordSalt { get; set; }
+    public string? PasswordSalt { get; set; }
 
     /// <summary>
     ///     Gets or sets the admin comment
     /// </summary>
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the customer is tax exempt
@@ -77,31 +77,31 @@ public class Customer : BaseEntity
     ///     Gets or sets the affiliate identifier
     /// </summary>
     [AuditReference(typeof(Affiliate))]
-    public string AffiliateId { get; set; }
+    public string? AffiliateId { get; set; }
 
     /// <summary>
     ///     Gets or sets the vendor identifier with which this customer is associated (manager)
     /// </summary>
     [AuditReference(typeof(Vendor))]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 
     /// <summary>
     ///     Gets or sets the store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the staff store identifier
     /// </summary>
     [AuditReference(typeof(Store))]
-    public string StaffStoreId { get; set; }
+    public string? StaffStoreId { get; set; }
 
     /// <summary>
     ///     Gets or sets the owner identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string OwnerId { get; set; }
+    public string? OwnerId { get; set; }
 
     /// <summary>
     ///     Gets or sets the purchasing role of a sub-account; meaningful only when <see cref="OwnerId" /> is set
@@ -129,7 +129,7 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the sales employee identifier
     /// </summary>
-    public string SeId { get; set; }
+    public string? SeId { get; set; }
 
     /// <summary>
     ///     Gets or sets the custom attributes (see "CustomerAttribute" entity for more info)
@@ -169,17 +169,17 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Gets or sets the customer system name
     /// </summary>
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets the last IP address
     /// </summary>
-    public string LastIpAddress { get; set; }
+    public string? LastIpAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets the last visited page
     /// </summary>
-    public string LastVisitedPage { get; set; }
+    public string? LastVisitedPage { get; set; }
     
     /// <summary>
     ///     Gets or sets the date and time of last login
@@ -233,17 +233,17 @@ public class Customer : BaseEntity
     /// <summary>
     ///     Default billing address
     /// </summary>
-    public virtual Address BillingAddress { get; set; }
+    public virtual Address? BillingAddress { get; set; }
 
     /// <summary>
     ///     Default shipping address
     /// </summary>
-    public virtual Address ShippingAddress { get; set; }
+    public virtual Address? ShippingAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets the coordinates
     /// </summary>
-    public GeoCoordinates Coordinates { get; set; }
+    public GeoCoordinates? Coordinates { get; set; }
 
     /// <summary>
     ///     Gets or sets customer addresses

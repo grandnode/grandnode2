@@ -15,45 +15,45 @@ public class RegisterModel : BaseModel
     [MaxLength(FieldSizeLimits.EmailMaxLength)]
     [DataType(DataType.EmailAddress)]
     [GrandResourceDisplayName("Account.Fields.Email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     public bool UsernamesEnabled { get; set; }
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.Username")]
-    public string Username { get; set; }
+    public string? Username { get; set; }
 
     public bool CheckUsernameAvailabilityEnabled { get; set; }
 
     /// <summary>Display only: the server decides external mode from the pending identity, never from this value</summary>
     public bool ExternalRegistration { get; set; }
 
-    public string ExternalProviderName { get; set; }
+    public string? ExternalProviderName { get; set; }
 
     /// <summary>Display only: the provider identity is connected on registration and no password is asked for</summary>
     public bool ExternalConnects { get; set; }
 
     [DataType(DataType.Password)]
     [GrandResourceDisplayName("Account.Fields.Password")]
-    public string Password { get; set; }
+    public string? Password { get; set; }
 
     [DataType(DataType.Password)]
     [GrandResourceDisplayName("Account.Fields.ConfirmPassword")]
-    public string ConfirmPassword { get; set; }
+    public string? ConfirmPassword { get; set; }
 
     //form fields & properties
     public bool GenderEnabled { get; set; }
 
     [GrandResourceDisplayName("Account.Fields.Gender")]
-    public string Gender { get; set; }
+    public string? Gender { get; set; }
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.FirstName")]
-    public string FirstName { get; set; }
+    public string? FirstName { get; set; }
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.LastName")]
-    public string LastName { get; set; }
+    public string? LastName { get; set; }
 
     public bool FirstLastNameRequired { get; set; }
 
@@ -75,41 +75,41 @@ public class RegisterModel : BaseModel
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.Company")]
-    public string Company { get; set; }
+    public string? Company { get; set; }
 
     public bool StreetAddressEnabled { get; set; }
     public bool StreetAddressRequired { get; set; }
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.StreetAddress")]
-    public string StreetAddress { get; set; }
+    public string? StreetAddress { get; set; }
 
     public bool StreetAddress2Enabled { get; set; }
     public bool StreetAddress2Required { get; set; }
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.StreetAddress2")]
-    public string StreetAddress2 { get; set; }
+    public string? StreetAddress2 { get; set; }
 
     public bool ZipPostalCodeEnabled { get; set; }
     public bool ZipPostalCodeRequired { get; set; }
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.ZipPostalCode")]
-    public string ZipPostalCode { get; set; }
+    public string? ZipPostalCode { get; set; }
 
     public bool CityEnabled { get; set; }
     public bool CityRequired { get; set; }
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.City")]
-    public string City { get; set; }
+    public string? City { get; set; }
 
     public bool CountryEnabled { get; set; }
     public bool CountryRequired { get; set; }
 
     [GrandResourceDisplayName("Account.Fields.Country")]
-    public string CountryId { get; set; }
+    public string? CountryId { get; set; }
 
     public IList<SelectListItem> AvailableCountries { get; set; } = new List<SelectListItem>();
 
@@ -117,7 +117,7 @@ public class RegisterModel : BaseModel
     public bool StateProvinceRequired { get; set; }
 
     [GrandResourceDisplayName("Account.Fields.StateProvince")]
-    public string StateProvinceId { get; set; }
+    public string? StateProvinceId { get; set; }
 
     public IList<SelectListItem> AvailableStates { get; set; } = new List<SelectListItem>();
 
@@ -127,27 +127,27 @@ public class RegisterModel : BaseModel
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [DataType(DataType.PhoneNumber)]
     [GrandResourceDisplayName("Account.Fields.Phone")]
-    public string Phone { get; set; }
+    public string? Phone { get; set; }
 
     public bool FaxEnabled { get; set; }
     public bool FaxRequired { get; set; }
 
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.Fax")]
-    public string Fax { get; set; }
+    public string? Fax { get; set; }
 
     public bool NewsletterEnabled { get; set; }
 
     [GrandResourceDisplayName("Account.Fields.Newsletter")]
     public bool Newsletter { get; set; }
 
-    public string[] SelectedNewsletterCategory { get; set; }
+    public string[]? SelectedNewsletterCategory { get; set; }
     public bool AcceptPrivacyPolicyEnabled { get; set; }
 
     //EU VAT
     [MaxLength(FieldSizeLimits.NameMaxLength)]
     [GrandResourceDisplayName("Account.Fields.VatNumber")]
-    public string VatNumber { get; set; }
+    public string? VatNumber { get; set; }
 
     public bool DisplayVatNumber { get; set; }
 

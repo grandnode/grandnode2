@@ -10,27 +10,27 @@ public class ExternalAuthParam
     /// <summary>
     ///     Gets or sets the external authentication provider's system name
     /// </summary>
-    public string ProviderSystemName { get; set; }
+    public required string ProviderSystemName { get; set; }
 
     /// <summary>
     ///     Gets or sets user id
     /// </summary>
-    public string Identifier { get; set; }
+    public required string Identifier { get; set; }
 
     /// <summary>
     ///     Gets or sets user name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets access token
     /// </summary>
-    public string AccessToken { get; set; }
+    public string? AccessToken { get; set; }
 
     /// <summary>
     ///     Gets or sets user email
     /// </summary>
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     /// <summary>
     ///     Gets or sets the additional user info as a list of a custom claims

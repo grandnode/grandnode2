@@ -16,8 +16,8 @@ public interface IPaymentProvider : IProvider
     /// <summary>
     ///     Init a process a payment transaction
     /// </summary>
-    /// <returns>Payment transaction</returns>
-    Task<PaymentTransaction> InitPaymentTransaction();
+    /// <returns>Payment transaction, or null when the method keeps none before the order is placed</returns>
+    Task<PaymentTransaction?> InitPaymentTransaction();
 
     /// <summary>
     ///     Process a payment
@@ -98,8 +98,8 @@ public interface IPaymentProvider : IProvider
     ///     Get payment information
     /// </summary>
     /// <param name="model">Dictionary</param>
-    /// <returns>Payment info holder</returns>
-    Task<PaymentTransaction> SavePaymentInfo(IDictionary<string, string> model);
+    /// <returns>Payment info holder, or null when the method keeps none before the order is placed</returns>
+    Task<PaymentTransaction?> SavePaymentInfo(IDictionary<string, string> model);
 
     /// <summary>
     ///     Gets a route url for displaying plugin in public store ("payment info" checkout step)

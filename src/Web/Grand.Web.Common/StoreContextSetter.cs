@@ -20,14 +20,13 @@ public class StoreContextSetter : IStoreContextSetter
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<IStoreContext> InitializeStoreContext(string storeId = null)
+    public async Task<IStoreContext> InitializeStoreContext(string? storeId = null)
     {
         var store = await CurrentStore(storeId);
 
         //the settings injected for this store are resolved by the container, which cannot wait for a query,
         //so they are read here; the work context setter is the first to resolve them
-        if (store != null)
-            await _settingService.LoadStoreSettings(store.Id);
+        await _settingService.LoadStoreSettings(store.Id);
 
         var storeContext = new CurrentStoreContext {
             CurrentStore = store,
@@ -36,7 +35,7 @@ public class StoreContextSetter : IStoreContextSetter
 
         return storeContext;
     }
-    protected async Task<Store> CurrentStore(string id = null)
+    protected async Task<Store> CurrentStore(string? id = null)
     {
         var httpContext = _httpContextAccessor.HttpContext;
 
@@ -67,7 +66,8 @@ public class StoreContextSetter : IStoreContextSetter
         }
 
         // Fallback: return the first available store
-        return (await _storeService.GetAllStores()).FirstOrDefault();
+        return (await _storeService.GetAllStores()).FirstOrDefault() ??
+               throw new Exception("No store could be loaded");
     }
 
     /// <summary>
@@ -77,24 +77,17 @@ public class StoreContextSetter : IStoreContextSetter
     {
         //try to determine the current HOST header
         var host = _httpContextAccessor.HttpContext?.Request.GetTypedHeaders().Host.ToString();
-        if (store != null)
-            return store.HostValue(host) ?? new DomainHost {
-                Id = int.MinValue.ToString(),
-                Url = store.Url,
-                HostName = "temporary-store"
-            };
-
-        return new DomainHost {
+        return store.HostValue(host) ?? new DomainHost {
             Id = int.MinValue.ToString(),
-            Url = host,
-            HostName = "temporary"
+            Url = store.Url,
+            HostName = "temporary-store"
         };
     }
     private sealed class CurrentStoreContext : IStoreContext
     {
-        public Store CurrentStore { get; set; }
+        public required Store CurrentStore { get; init; }
 
-        public DomainHost CurrentHost { get; set; }
+        public required DomainHost CurrentHost { get; init; }
     }
 }
 

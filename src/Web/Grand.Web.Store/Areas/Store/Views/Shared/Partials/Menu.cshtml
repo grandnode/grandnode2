@@ -9,7 +9,8 @@
 @{
     //load sitemap
     var siteMap = new SiteMap(adminSiteMapService, permissionService);
-    await siteMap.Load();
+    //standard (default) items
+    var rootNode = await siteMap.Load();
 }
 <button type="button" id="sidebar-button" class="sidebar_button" onclick="sidebarToggle()" aria-controls="sidebar-menu" aria-expanded="true" aria-label="@Loc["Admin.AdminSearch.Menu"]">
     <span></span>
@@ -28,8 +29,6 @@
             <div class="menu_section">
                 <ul class="nav side-menu page-sidebar-menu">
                     @{
-                        //standard (default) items
-                        var rootNode = siteMap.RootNode;
 
                         //plugins
                         foreach (var adminMenuPlugin in _adminMenuProviders.ToList())

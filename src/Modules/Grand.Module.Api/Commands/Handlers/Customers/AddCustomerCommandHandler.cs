@@ -73,7 +73,7 @@ public class AddCustomerCommandHandler : IRequestHandler<AddCustomerCommand, Cus
             var group = await _groupService.GetCustomerGroupById(item);
             if (group != null)
             {
-                customer.Groups.Remove(customer.Groups.FirstOrDefault(x => x == item));
+                customer.Groups.Remove(item);
                 await _customerService.DeleteCustomerGroupInCustomer(group, customer.Id);
             }
         }

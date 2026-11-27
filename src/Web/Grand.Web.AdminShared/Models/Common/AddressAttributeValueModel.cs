@@ -6,11 +6,11 @@ namespace Grand.Web.AdminShared.Models.Common;
 
 public class AddressAttributeValueModel : BaseEntityModel, ILocalizedModel<AddressAttributeValueLocalizedModel>
 {
-    public string AddressAttributeId { get; set; }
+    public string? AddressAttributeId { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Values.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Values.Fields.IsPreSelected")]
     public bool IsPreSelected { get; set; }
@@ -26,7 +26,7 @@ public class AddressAttributeValueLocalizedModel : ILocalizedModelLocal
 {
     [GrandResourceDisplayName("Admin.Address.AddressAttributes.Values.Fields.Name")]
 
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string LanguageId { get; set; }
+    public string? LanguageId { get; set; }
 }

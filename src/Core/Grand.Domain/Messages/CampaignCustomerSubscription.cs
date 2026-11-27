@@ -2,6 +2,6 @@
 
 public class CampaignCustomerSubscription
 {
-    public string CustomerId { get; set; }
-    public string Email { get; set; }
+    public string? CustomerId { get; set; }
+    public string? Email { get; set; }
 }

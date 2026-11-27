@@ -56,11 +56,10 @@ public class RefundCommandHandler : IRequestHandler<RefundCommand, IList<string>
         if (!canRefund)
             throw new GrandException("You can't refund this payment transaction");
 
-        var request = new RefundPaymentRequest();
-        RefundPaymentResult result = null;
+        var request = new RefundPaymentRequest { PaymentTransaction = paymentTransaction };
+        RefundPaymentResult? result = null;
         try
         {
-            request.PaymentTransaction = paymentTransaction;
             request.AmountToRefund = paymentTransaction.PaidAmount;
             request.IsPartialRefund = false;
             result = await _paymentService.Refund(request);

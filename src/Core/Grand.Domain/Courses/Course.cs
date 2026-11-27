@@ -13,17 +13,17 @@ public class Course : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEnt
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string Description { get; set; }
+    public string? Description { get; set; }
 
     /// <summary>
     ///     Gets or sets the description
     /// </summary>
-    public string ShortDescription { get; set; }
+    public string? ShortDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is published
@@ -38,34 +38,34 @@ public class Course : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEnt
     /// <summary>
     ///     Gets or sets the picture
     /// </summary>
-    public string PictureId { get; set; }
+    public string? PictureId { get; set; }
 
     /// <summary>
     ///     Gets or sets the product ident
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string ProductId { get; set; }
+    public string? ProductId { get; set; }
 
     /// <summary>
     ///     Gets or sets the level ident
     /// </summary>
     [AuditReference(typeof(CourseLevel))]
-    public string LevelId { get; set; }
+    public string? LevelId { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta keywords
     /// </summary>
-    public string MetaKeywords { get; set; }
+    public string? MetaKeywords { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta description
     /// </summary>
-    public string MetaDescription { get; set; }
+    public string? MetaDescription { get; set; }
 
     /// <summary>
     ///     Gets or sets the meta title
     /// </summary>
-    public string MetaTitle { get; set; }
+    public string? MetaTitle { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is subject to ACL
@@ -78,7 +78,7 @@ public class Course : BaseEntity, ITranslationEntity, ISlugEntity, IGroupLinkEnt
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string SeName { get; set; }
+    public string? SeName { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is limited/restricted to certain stores

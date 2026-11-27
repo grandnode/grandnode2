@@ -10,10 +10,10 @@ namespace Grand.Web.Features.Models.Catalog;
 
 public class GetBrand : IRequest<BrandModel>
 {
-    public Customer Customer { get; set; }
-    public Domain.Stores.Store Store { get; set; }
-    public Language Language { get; set; }
-    public Currency Currency { get; set; }
-    public Brand Brand { get; set; }
-    public CatalogPagingFilteringModel Command { get; set; }
+    public required Customer Customer { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
+    public required Language Language { get; set; }
+    public required Currency Currency { get; set; }
+    public required Brand Brand { get; set; }
+    public required CatalogPagingFilteringModel Command { get; set; }
 }

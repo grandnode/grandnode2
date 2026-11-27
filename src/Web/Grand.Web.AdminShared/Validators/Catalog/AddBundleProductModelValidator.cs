@@ -17,7 +17,7 @@ public class AddBundleProductModelValidator : BaseStoreAccessValidator<ProductMo
     {
         _productService = productService;
     }
-    protected override async Task<Product> GetEntity(ProductModel.AddBundleProductModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.AddBundleProductModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

@@ -33,7 +33,7 @@ public class
         ArgumentNullException.ThrowIfNull(request.Order);
 
         //were some points redeemed when placing an order?
-        if (request.Order.RedeemedLoyaltyPoints == 0)
+        if (request.Order.RedeemedLoyaltyPoints == 0 || request.Order.CustomerId == null)
             return false;
 
         //return back

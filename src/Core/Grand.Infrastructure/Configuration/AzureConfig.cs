@@ -5,23 +5,23 @@ public class AzureConfig
     /// <summary>
     ///     Connection string for Azure BLOB storage
     /// </summary>
-    public string AzureBlobStorageConnectionString { get; set; }
+    public string? AzureBlobStorageConnectionString { get; set; }
 
     /// <summary>
     ///     Container name for Azure BLOB storage
     /// </summary>
-    public string AzureBlobStorageContainerName { get; set; }
+    public string? AzureBlobStorageContainerName { get; set; }
 
     /// <summary>
     ///     End point for Azure BLOB storage
     /// </summary>
-    public string AzureBlobStorageEndPoint { get; set; }
+    public string? AzureBlobStorageEndPoint { get; set; }
 
 
     /// <summary>
     ///     Connection string for PersistKeys Azure BLOB storage
     /// </summary>
-    public string PersistKeysAzureBlobStorageConnectionString { get; set; }
+    public string? PersistKeysAzureBlobStorageConnectionString { get; set; }
 
     /// <summary>
     ///     Indicates whether we should use Azure Key Vault to store data protection keys
@@ -36,15 +36,15 @@ public class AzureConfig
     /// <summary>
     ///     Azure blob storage container name
     /// </summary>
-    public string DataProtectionContainerName { get; set; }
+    public string? DataProtectionContainerName { get; set; }
 
     /// <summary>
     ///     Azure blob storage blob name
     /// </summary>
-    public string DataProtectionBlobName { get; set; }
+    public string? DataProtectionBlobName { get; set; }
 
     /// <summary>
     ///     The keyIdentifier is the key vault key identifier used for key encryption.
     /// </summary>
-    public string KeyIdentifier { get; set; }
+    public string? KeyIdentifier { get; set; }
 }

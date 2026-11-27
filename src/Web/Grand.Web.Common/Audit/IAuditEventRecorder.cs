@@ -9,7 +9,7 @@ public interface IAuditEventRecorder
 {
     Task SignIn(Customer customer);
 
-    Task SignInFailed(Customer customer, string reason);
+    Task SignInFailed(Customer customer, string? reason);
 
     Task SignOut(Customer customer);
 
@@ -34,7 +34,7 @@ public interface IAuditEventRecorder
     /// <summary>
     ///     Records that the current staff member was refused an admin page or action for lack of a permission
     /// </summary>
-    Task AccessDenied(string permission, string permissionAction);
+    Task AccessDenied(string permission, string? permissionAction);
 
     /// <summary>
     ///     Records a plugin installed, uninstalled, removed or uploaded by the current staff member

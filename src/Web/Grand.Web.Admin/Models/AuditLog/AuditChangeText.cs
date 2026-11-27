@@ -36,7 +36,7 @@ public partial class AuditChangeText(Func<string, string> resource)
     ///     Every change with its values, one line per list element, e.g.
     ///     "Specification attributes › Color family: added (Specification attribute option: Black, Display order: 0)"
     /// </summary>
-    public string Text(string entityType, IEnumerable<AuditChange> changes)
+    public string Text(string? entityType, IEnumerable<AuditChange> changes)
     {
         var type = EntityTypes.Value.GetValueOrDefault(entityType ?? "");
         return Cut(string.Join(" · ", Lines(entityType, changes).Select(line => LineText(type, line))), TextLength);
@@ -55,7 +55,7 @@ public partial class AuditChangeText(Func<string, string> resource)
         if (entry.OwnerType == null)
             return text;
 
-        var what = Word(entry.EntityType, null);
+        var what = Word(entry.EntityType ?? "", null);
         if (text == "")
             return string.IsNullOrEmpty(entry.EntityName) ? what : $"{what} {Cut(entry.EntityName, ValueLength)}";
         return Cut($"{what}: {text}", TextLength);
@@ -64,7 +64,7 @@ public partial class AuditChangeText(Func<string, string> resource)
     /// <summary>
     ///     What changed without the values, for the audit log list
     /// </summary>
-    public string Summary(string entityType, IEnumerable<AuditChange> changes)
+    public string Summary(string? entityType, IEnumerable<AuditChange> changes)
     {
         return Cut(string.Join(" · ", Lines(entityType, changes).Select(line => line.Kind switch {
             LineKind.Added => $"{line.Label} ({resource("Admin.System.AuditLog.Added")})",
@@ -77,7 +77,7 @@ public partial class AuditChangeText(Func<string, string> resource)
     /// <summary>
     ///     The field name of one change, e.g. "Specification attributes › Color family › Display order"
     /// </summary>
-    public string Label(string entityType, AuditChange change)
+    public string Label(string? entityType, AuditChange change)
     {
         var line = Lines(entityType, [change]).Single();
         return line.Element ? $"{line.Label} › {line.Changes[0].Field}" : line.Label;
@@ -90,9 +90,9 @@ public partial class AuditChangeText(Func<string, string> resource)
         Removed
     }
 
-    private sealed record FieldChange(string Field, AuditChange Change);
+    private sealed record FieldChange(string? Field, AuditChange Change);
 
-    private sealed record Line(string Label, string ElementName, bool Element, List<FieldChange> Changes)
+    private sealed record Line(string Label, string? ElementName, bool Element, List<FieldChange> Changes)
     {
         public LineKind Kind =>
             !Element ? LineKind.Changed
@@ -102,13 +102,13 @@ public partial class AuditChangeText(Func<string, string> resource)
     }
 
     //the changes of one list element (the path up to its last [key]) go to one line, in the order they came
-    private static List<Line> Lines(string entityType, IEnumerable<AuditChange> changes)
+    private static List<Line> Lines(string? entityType, IEnumerable<AuditChange> changes)
     {
         var lines = new List<Line>();
         var byElement = new Dictionary<string, Line>();
         foreach (var change in changes)
         {
-            var segments = Segments(change.Path);
+            var segments = Segments(change.Path ?? "");
             var last = segments.FindLastIndex(s => s.Key != null);
             if (last < 0)
             {
@@ -133,11 +133,11 @@ public partial class AuditChangeText(Func<string, string> resource)
 
     //"ProductSpecificationAttributes[id=…]" -> "Specification attributes › Color family"; an element without a name
     //stays unnamed rather than shown by its id
-    private static (string Label, string Name) ElementLabel(List<Segment> segments, IList<string> names,
-        string entityType)
+    private static (string Label, string? Name) ElementLabel(List<Segment> segments, IList<string>? names,
+        string? entityType)
     {
         var parts = new List<string>();
-        string name = null;
+        string? name = null;
         var named = 0;
         foreach (var segment in segments)
         {
@@ -157,9 +157,9 @@ public partial class AuditChangeText(Func<string, string> resource)
         return (string.Join(" › ", parts), name);
     }
 
-    private string LineText(Type type, Line line)
+    private string LineText(Type? type, Line line)
     {
-        string Value(FieldChange field, string value) => ValueText(type, field.Change, value);
+        string Value(FieldChange field, string? value) => ValueText(type, field.Change, value);
 
         switch (line.Kind)
         {
@@ -182,13 +182,13 @@ public partial class AuditChangeText(Func<string, string> resource)
         }
     }
 
-    private string ValueText(Type type, AuditChange change, string value)
+    private string ValueText(Type? type, AuditChange change, string? value)
     {
         if (value == null)
             return "—";
         if (value is "true" or "false")
             return resource(value == "true" ? "Admin.Common.Yes" : "Admin.Common.No");
-        if (type != null && AuditReferences.HasNamedValues(type, change.Path))
+        if (type != null && change.Path != null && AuditReferences.HasNamedValues(type, change.Path))
             value = StoredIds().Replace(value, "");
         //a value cut when it was stored ends in "…" too
         var text = Cut(value, ValueLength);
@@ -200,7 +200,7 @@ public partial class AuditChangeText(Func<string, string> resource)
         return value.Length > length ? value[..length].TrimEnd() + "…" : value;
     }
 
-    private sealed record Segment(string Text, string Name, string Key);
+    private sealed record Segment(string Text, string Name, string? Key);
 
     //split on the dots outside [ ], so a key with a dot stays whole
     private static List<Segment> Segments(string path)
@@ -229,14 +229,14 @@ public partial class AuditChangeText(Func<string, string> resource)
         return segments;
     }
 
-    private static string Words(IEnumerable<Segment> segments, string entityType)
+    private static string Words(IEnumerable<Segment> segments, string? entityType)
     {
         return string.Join(" › ", segments.Select(s => Word(s.Name, entityType)));
     }
 
     //"ProductSpecificationAttributes" of a Product -> "Specification attributes", "SpecificationAttributeOptionId" ->
     //"Specification attribute option"
-    private static string Word(string name, string entityType)
+    private static string Word(string name, string? entityType)
     {
         var word = IdSuffix().Replace(name, "") is { Length: > 0 } withoutId ? withoutId : name;
         if (!string.IsNullOrEmpty(entityType) && word.Length > entityType.Length && word.StartsWith(entityType)

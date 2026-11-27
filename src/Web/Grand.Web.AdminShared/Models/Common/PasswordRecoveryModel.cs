@@ -8,10 +8,10 @@ public class PasswordRecoveryModel : BaseModel
 {
     [DataType(DataType.EmailAddress)]
     [GrandResourceDisplayName("Account.PasswordRecovery.Email")]
-    public string Email { get; set; }
+    public string? Email { get; set; }
 
     public bool Sent { get; set; }
-    public string Result { get; set; }
+    public string? Result { get; set; }
 
     public bool DisplayCaptcha { get; set; }
     public ICaptchaValidModel Captcha { get; set; } = new CaptchaModel();

@@ -3,5 +3,5 @@
 public class AddCartFromWishlistModel
 {
     public Guid? CustomerGuid { get; set; }
-    public string ShoppingCartId { get; set; }
+    public string? ShoppingCartId { get; set; }
 }

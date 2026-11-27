@@ -7,8 +7,8 @@ namespace Grand.Business.Common.Services.ExportImport;
 
 public class ExcelExportProvider : IExportProvider
 {
-    private MemoryStream _stream;
-    private IWorkbook _xlPackage;
+    private MemoryStream? _stream;
+    private IWorkbook? _xlPackage;
 
     public virtual byte[] ExportToByte<T>(PropertyByName<T>[] properties, IEnumerable<T> itemsToExport)
     {
@@ -46,6 +46,8 @@ public class ExcelExportProvider : IExportProvider
 
     public virtual byte[] BuilderExportToByte()
     {
+        if (_xlPackage == null || _stream == null)
+            throw new InvalidOperationException("Nothing was added to the export");
         _xlPackage.Write(_stream, false);
         return _stream.ToArray();
     }
@@ -74,7 +76,7 @@ public class ExcelExportProvider : IExportProvider
         var row = sheet.CreateRow(idrow);
         foreach (var prop in properties)
         {
-            var cellValue = prop.GetProperty(items)?.ToString();
+            var cellValue = prop.GetProperty?.Invoke(items)?.ToString();
             if (cellValue is { Length: >= 32767 }) // 32767 is the max char size of an excel cell
                 cellValue = cellValue[..32767]; //Truncate the content to max size.
             row.CreateCell(prop.PropertyOrderPosition).SetCellValue(cellValue);

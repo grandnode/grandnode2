@@ -17,7 +17,8 @@ public class UpdateCustomerGroupCommandHandler : IRequestHandler<UpdateCustomerG
 
     public async Task<CustomerGroupDto> Handle(UpdateCustomerGroupCommand request, CancellationToken cancellationToken)
     {
-        var customerGroup = await _groupService.GetCustomerGroupById(request.Model.Id);
+        var customerGroup = await _groupService.GetCustomerGroupById(request.Model.Id) ??
+            throw new ArgumentException("No customer group has the id", nameof(request));
         customerGroup = request.Model.ToEntity(customerGroup);
         await _groupService.UpdateCustomerGroup(customerGroup);
 

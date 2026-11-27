@@ -24,8 +24,12 @@ public class DbVersion : IComparable<DbVersion>
     /// </summary>
     /// <param name="otherVersion"></param>
     /// <returns></returns>
-    public int CompareTo(DbVersion otherVersion)
+    public int CompareTo(DbVersion? otherVersion)
     {
+        //by the IComparable convention every version follows null
+        if (otherVersion is null)
+            return 1;
+
         if (Major != otherVersion.Major)
             if (Major > otherVersion.Major)
                 return 1;

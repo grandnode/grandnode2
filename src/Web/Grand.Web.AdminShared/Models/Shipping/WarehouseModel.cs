@@ -2,23 +2,26 @@
 using Grand.Infrastructure.Models;
 using Grand.Web.AdminShared.Models.Common;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.ComponentModel.DataAnnotations;
 
 namespace Grand.Web.AdminShared.Models.Shipping;
 
 public class WarehouseModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Code")]
-    public string Code { get; set; }
+    public string? Code { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.AdminComment")]
-    public string AdminComment { get; set; }
+    public string? AdminComment { get; set; }
 
+    [UIHint("DoubleNullableN6")]
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Latitude")]
     public double? Latitude { get; set; }
 
+    [UIHint("DoubleNullableN6")]
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Longitude")]
     public double? Longitude { get; set; }
 
@@ -31,9 +34,9 @@ public class WarehouseModel : BaseEntityModel
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.Store")]
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 
-    public string StoreId { get; set; }
+    public string? StoreId { get; set; }
 
-    public string StoreName { get; set; }
+    public string? StoreName { get; set; }
 
     [GrandResourceDisplayName("Admin.Configuration.Shipping.Warehouses.Fields.ExternallyManaged")]
     public bool ExternallyManaged { get; set; }

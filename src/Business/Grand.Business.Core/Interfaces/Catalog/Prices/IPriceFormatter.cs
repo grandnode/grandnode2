@@ -10,7 +10,7 @@ public interface IPriceFormatter
     /// <param name="price">Price</param>
     /// <param name="targetCurrency">Target currency</param>
     /// <returns>Price</returns>
-    string FormatPrice(double price, Currency targetCurrency);
+    string FormatPrice(double price, Currency? targetCurrency);
 
     /// <summary>
     ///     Formats a tax rate

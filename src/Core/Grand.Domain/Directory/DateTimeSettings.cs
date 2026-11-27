@@ -7,5 +7,5 @@ public class DateTimeSettings : ISettings
     /// <summary>
     ///     Gets or sets a default store time zone ident
     /// </summary>
-    public string DefaultStoreTimeZoneId { get; set; }
+    public string? DefaultStoreTimeZoneId { get; set; }
 }

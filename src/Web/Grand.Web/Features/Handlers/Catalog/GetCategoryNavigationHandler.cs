@@ -29,16 +29,16 @@ public class GetCategoryNavigationHandler : IRequestHandler<GetCategoryNavigatio
         else if (!string.IsNullOrEmpty(request.CurrentProductId))
         {
             //product details page
-            var productCategories = (await _productService.GetProductById(request.CurrentProductId)).ProductCategories;
+            var productCategories = (await _productService.GetProductById(request.CurrentProductId))?.ProductCategories ?? [];
             if (productCategories.Any())
-                activeCategoryId = productCategories.MinBy(x => x.DisplayOrder).CategoryId;
+                activeCategoryId = productCategories.MinBy(x => x.DisplayOrder)?.CategoryId;
         }
 
         var cachedModel = await _mediator.Send(new GetCategorySimple {
             Customer = request.Customer,
             Language = request.Language,
             Store = request.Store,
-            CurrentCategoryId = request.CurrentCategoryId
+            CurrentCategoryId = request.CurrentCategoryId ?? ""
         }, cancellationToken);
 
         var model = new CategoryNavigationModel {

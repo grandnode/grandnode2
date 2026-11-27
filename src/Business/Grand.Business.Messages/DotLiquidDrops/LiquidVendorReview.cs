@@ -17,11 +17,11 @@ public class LiquidVendorReview : Drop
         AdditionalTokens = new Dictionary<string, string>();
     }
 
-    public string VendorName => WebUtility.HtmlEncode(_vendor.Name);
+    public string? VendorName => WebUtility.HtmlEncode(_vendor.Name);
 
-    public string Title => WebUtility.HtmlEncode(_vendorReview.Title);
+    public string? Title => WebUtility.HtmlEncode(_vendorReview.Title);
 
-    public string ReviewText => WebUtility.HtmlEncode(_vendorReview.ReviewText);
+    public string? ReviewText => WebUtility.HtmlEncode(_vendorReview.ReviewText);
 
     public IDictionary<string, string> AdditionalTokens { get; set; }
 }

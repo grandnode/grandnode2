@@ -14,16 +14,24 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     #region Fields
 
     private readonly IAuditInfoProvider _auditInfoProvider;
+    private readonly IMongoCollection<T>? _collection;
+    private readonly IMongoDatabase? _database;
 
     /// <summary>
     ///     Gets the collection
     /// </summary>
-    public IMongoCollection<T> Collection { get; protected init; }
+    public IMongoCollection<T> Collection {
+        get => _collection ?? throw NotConfigured();
+        protected init => _collection = value;
+    }
 
     /// <summary>
     ///     Mongo Database
     /// </summary>
-    protected IMongoDatabase Database { get; init; }
+    protected IMongoDatabase Database {
+        get => _database ?? throw NotConfigured();
+        init => _database = value;
+    }
 
     #endregion
 
@@ -37,7 +45,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     {
     }
 
-    public MongoRepository(string connectionString, IAuditInfoProvider auditInfoProvider)
+    public MongoRepository(string? connectionString, IAuditInfoProvider auditInfoProvider)
     {
         _auditInfoProvider = auditInfoProvider;
 
@@ -62,11 +70,19 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     #region Methods
 
     /// <summary>
+    ///     A repository created before the database was configured has no collection to work on
+    /// </summary>
+    private static InvalidOperationException NotConfigured()
+    {
+        return new InvalidOperationException($"The {typeof(T).Name} repository has no database - the connection string is not configured");
+    }
+
+    /// <summary>
     ///     Get entity by identifier
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    public virtual T GetById(string id)
+    public virtual T? GetById(string? id)
     {
         return Collection.Find(e => e.Id == id).FirstOrDefault();
     }
@@ -76,9 +92,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     /// <param name="id">Identifier</param>
     /// <returns>Entity</returns>
-    public virtual Task<T> GetByIdAsync(string id)
+    public virtual async Task<T?> GetByIdAsync(string? id)
     {
-        return Collection.Find(e => e.Id == id).FirstOrDefaultAsync();
+        return await Collection.Find(e => e.Id == id).FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -86,9 +102,9 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// </summary>
     /// <param name="predicate"></param>
     /// <returns>Entity</returns>
-    public virtual Task<T> GetOneAsync(Expression<Func<T, bool>> predicate)
+    public virtual async Task<T?> GetOneAsync(Expression<Func<T, bool>> predicate)
     {
-        return Collection.Find(predicate).FirstOrDefaultAsync();
+        return await Collection.Find(predicate).FirstOrDefaultAsync();
     }
 
     /// <summary>
@@ -404,7 +420,7 @@ public class MongoRepository<T> : IRepository<T> where T : BaseEntity
     /// <summary>
     ///     Executes the query and returns its first result, or the default value when nothing matches
     /// </summary>
-    public virtual async Task<TResult> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
+    public virtual async Task<TResult?> FirstOrDefaultAsync<TResult>(IQueryable<TResult> query,
         CancellationToken cancellationToken = default)
     {
         ArgumentNullException.ThrowIfNull(query);

@@ -13,7 +13,7 @@ public interface IVendorService
     /// </summary>
     /// <param name="vendorId">Vendor identifier</param>
     /// <returns>Vendor</returns>
-    Task<Vendor> GetVendorById(string vendorId);
+    Task<Vendor?> GetVendorById(string? vendorId);
 
     /// <summary>
     ///     Gets all vendors
@@ -23,7 +23,7 @@ public interface IVendorService
     /// <param name="pageSize">Page size</param>
     /// <param name="showHidden">A value indicating whether to show hidden records</param>
     /// <returns>Vendors</returns>
-    Task<IPagedList<Vendor>> GetAllVendors(string name = "",
+    Task<IPagedList<Vendor>> GetAllVendors(string? name = "",
         int pageIndex = 0, int pageSize = int.MaxValue, bool showHidden = false);
 
     /// <summary>
@@ -51,7 +51,7 @@ public interface IVendorService
     /// <param name="vendorId">The vendor identifier</param>
     /// <param name="vendorNoteId">The vendor note identifier</param>
     /// <returns>Vendor note</returns>
-    Task<VendorNote> GetVendorNoteById(string vendorId, string vendorNoteId);
+    Task<VendorNote?> GetVendorNoteById(string vendorId, string vendorNoteId);
 
     /// <summary>
     ///     Insert a vendor note
@@ -108,14 +108,14 @@ public interface IVendorService
     /// <returns>Reviews</returns>
     Task<IPagedList<VendorReview>> GetAllVendorReviews(string customerId, bool? approved,
         DateTime? fromUtc = null, DateTime? toUtc = null,
-        string message = null, string vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue);
+        string? message = null, string? vendorId = "", int pageIndex = 0, int pageSize = int.MaxValue);
 
     /// <summary>
     ///     Gets vendor review
     /// </summary>
     /// <param name="vendorReviewId">Vendor review identifier</param>
     /// <returns>Vendor review</returns>
-    Task<VendorReview> GetVendorReviewById(string vendorReviewId);
+    Task<VendorReview?> GetVendorReviewById(string? vendorReviewId);
 
     /// <summary>
     ///     Deletes a vendor review
@@ -129,7 +129,7 @@ public interface IVendorService
     /// <param name="vendorId">Vendor identifier; "" to load all records</param>
     /// <param name="keywords">Keywords</param>
     /// <returns>Vendors</returns>
-    Task<IList<Vendor>> SearchVendors(string vendorId = "", string keywords = null);
+    Task<IList<Vendor>> SearchVendors(string vendorId = "", string? keywords = null);
 
     #endregion
 }

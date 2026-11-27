@@ -3,6 +3,7 @@
 	<PropertyGroup>
 		<ImplicitUsings>enable</ImplicitUsings>
 		<Nullable>enable</Nullable>
+		<WarningsAsErrors>nullable</WarningsAsErrors>
 		<AddRazorSupportForMvc>true</AddRazorSupportForMvc>
 	</PropertyGroup>
 	<ItemGroup>

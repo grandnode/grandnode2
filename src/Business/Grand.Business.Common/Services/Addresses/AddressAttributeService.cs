@@ -88,7 +88,7 @@ public class AddressAttributeService : IAddressAttributeService
     /// </summary>
     /// <param name="addressAttributeId">Address attribute identifier</param>
     /// <returns>Address attribute</returns>
-    public virtual async Task<AddressAttribute> GetAddressAttributeById(string addressAttributeId)
+    public virtual async Task<AddressAttribute?> GetAddressAttributeById(string? addressAttributeId)
     {
         if (string.IsNullOrEmpty(addressAttributeId))
             return null;
@@ -146,6 +146,7 @@ public class AddressAttributeService : IAddressAttributeService
     public virtual async Task InsertAddressAttributeValue(AddressAttributeValue addressAttributeValue)
     {
         ArgumentNullException.ThrowIfNull(addressAttributeValue);
+        ArgumentException.ThrowIfNullOrEmpty(addressAttributeValue.AddressAttributeId);
 
         await _addressAttributeRepository.AddToCollectionField(addressAttributeValue.AddressAttributeId,
             x => x.AddressAttributeValues, addressAttributeValue);
@@ -161,6 +162,7 @@ public class AddressAttributeService : IAddressAttributeService
     public virtual async Task UpdateAddressAttributeValue(AddressAttributeValue addressAttributeValue)
     {
         ArgumentNullException.ThrowIfNull(addressAttributeValue);
+        ArgumentException.ThrowIfNullOrEmpty(addressAttributeValue.AddressAttributeId);
 
         await _addressAttributeRepository.UpdateCollectionFieldItem(addressAttributeValue.AddressAttributeId, x => x.AddressAttributeValues, z => z.Id == addressAttributeValue.Id, addressAttributeValue);
 
@@ -175,6 +177,7 @@ public class AddressAttributeService : IAddressAttributeService
     public virtual async Task DeleteAddressAttributeValue(AddressAttributeValue addressAttributeValue)
     {
         ArgumentNullException.ThrowIfNull(addressAttributeValue);
+        ArgumentException.ThrowIfNullOrEmpty(addressAttributeValue.AddressAttributeId);
 
         await _addressAttributeRepository.RemoveCollectionFieldItem(addressAttributeValue.AddressAttributeId, x => x.AddressAttributeValues, z => z.Id == addressAttributeValue.Id);
 

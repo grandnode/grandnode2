@@ -10,7 +10,7 @@ namespace Grand.Business.Checkout.Validators;
 public record ShoppingCartAuctionValidatorRecord(
     Customer Customer,
     Product Product,
-    ShoppingCartItem ShoppingCartItem,
+    ShoppingCartItem? ShoppingCartItem,
     double Bid,
     Language Language);
 

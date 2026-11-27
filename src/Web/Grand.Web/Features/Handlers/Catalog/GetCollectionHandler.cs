@@ -62,7 +62,7 @@ public class GetCollectionHandler : IRequestHandler<GetCollection, CollectionMod
         //featured products
         if (!_catalogSettings.IgnoreFeaturedProducts)
         {
-            IPagedList<Product> featuredProducts = null;
+            IPagedList<Product>? featuredProducts = null;
 
             //We cache a value indicating whether we have featured products
             var cacheKey = string.Format(CacheKeyConst.COLLECTION_HAS_FEATURED_PRODUCTS_KEY,

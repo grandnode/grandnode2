@@ -48,7 +48,7 @@ public class MerchandiseReturnQuantityEventHandler :
         return Recount(notification.Entity.OrderId, cancellationToken);
     }
 
-    private async Task Recount(string orderId, CancellationToken cancellationToken)
+    private async Task Recount(string? orderId, CancellationToken cancellationToken)
     {
         var order = await _orderService.GetOrderById(orderId);
         if (order == null)

@@ -7,7 +7,7 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class InventoryDocumentLine : SubBaseEntity
 {
-    public string ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     public IList<CustomAttribute> Attributes { get; set; } = new List<CustomAttribute>();
 
@@ -39,14 +39,14 @@ public class InventoryDocumentLine : SubBaseEntity
     /// <summary>
     ///     A return receipt: the merchandise return item the line receives
     /// </summary>
-    public string MerchandiseReturnItemId { get; set; }
+    public string? MerchandiseReturnItemId { get; set; }
 
-    public string Comment { get; set; }
+    public string? Comment { get; set; }
 
     /// <summary>
     ///     A batch-tracked product: the batch the line books; empty for the stock without a batch
     /// </summary>
-    public string BatchNumber { get; set; }
+    public string? BatchNumber { get; set; }
 
     /// <summary>
     ///     A receipt of a batch: its expiry date

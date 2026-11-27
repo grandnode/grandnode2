@@ -96,8 +96,9 @@ public class ProductController : BasePublicController
     [HttpGet]
     public virtual async Task<IActionResult> RelatedProducts(string productId, int? productThumbPictureSize)
     {
-        var productIds = (await _productService.GetProductById(productId)).RelatedProducts.OrderBy(x => x.DisplayOrder)
-            .Select(x => x.ProductId2).ToArray();
+        //a product deleted meanwhile has none
+        var productIds = ((await _productService.GetProductById(productId))?.RelatedProducts ?? []).OrderBy(x => x.DisplayOrder)
+            .Select(x => x.ProductId2).OfType<string>().ToArray();
 
         //load products
         var products = await _productService.GetProductsByIds(productIds, _contextAccessor.CatalogAccess());
@@ -671,9 +672,10 @@ public class ProductController : BasePublicController
         [FromServices] IGroupService groupService,
         [FromServices] IProductReviewService productReviewService)
     {
+        //the review may have been deleted while the page was open
         var productReview = await productReviewService.GetProductReviewById(productReviewId);
         if (productReview == null)
-            throw new ArgumentException("No product review found with the specified id");
+            return NotFound();
 
         if (await groupService.IsGuest(_contextAccessor.WorkContext.CurrentCustomer) &&
             !_catalogSettings.AllowAnonymousUsersToReviewProduct)

@@ -5,7 +5,7 @@
         {
             Text = store.Name,
             Value = Url.Action("ChangeStore", "Home", new { storeid = store.Id, returnurl = rawUrl, area = Constants.AreaAdmin }),
-            Selected = store.Id.Equals(Model.StoreId)
+            Selected = store.Id == Model.StoreId
         })
         .ToList();
 }

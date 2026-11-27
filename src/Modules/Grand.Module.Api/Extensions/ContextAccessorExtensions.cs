@@ -9,6 +9,6 @@ public static class ContextAccessorExtensions
     /// </summary>
     public static string WorkingLanguageId(this IContextAccessor contextAccessor)
     {
-        return contextAccessor.WorkContext?.WorkingLanguage?.Id ?? string.Empty;
+        return contextAccessor.CurrentWorkContext?.WorkingLanguage?.Id ?? string.Empty;
     }
 }

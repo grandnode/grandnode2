@@ -25,10 +25,10 @@ public class CustomerNoteService : ICustomerNoteService
     /// </summary>
     /// <param name="id">Note identifier</param>
     /// <returns>CustomerNote</returns>
-    public virtual Task<CustomerNote> GetCustomerNote(string id)
+    public virtual Task<CustomerNote?> GetCustomerNote(string id)
     {
         return string.IsNullOrWhiteSpace(id)
-            ? Task.FromResult<CustomerNote>(null)
+            ? Task.FromResult<CustomerNote?>(null)
             : _customerNoteRepository.GetByIdAsync(id);
     }
 

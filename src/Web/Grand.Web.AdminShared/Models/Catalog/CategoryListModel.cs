@@ -7,10 +7,10 @@ namespace Grand.Web.AdminShared.Models.Catalog;
 public class CategoryListModel : BaseModel
 {
     [GrandResourceDisplayName("Admin.Catalog.Categories.List.SearchCategoryName")]
-    public string SearchCategoryName { get; set; }
+    public string? SearchCategoryName { get; set; }
 
     [GrandResourceDisplayName("Admin.Catalog.Categories.List.SearchStore")]
-    public string SearchStoreId { get; set; }
+    public string? SearchStoreId { get; set; }
 
     public IList<SelectListItem> AvailableStores { get; set; } = new List<SelectListItem>();
 }

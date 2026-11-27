@@ -26,7 +26,7 @@ internal static class NameAndIdProvider
     /// <remarks>
     ///     Similar to <see cref="TagBuilder.CreateSanitizedId" /> but caches value for repeated invocations.
     /// </remarks>
-    public static string CreateSanitizedId(ViewContext viewContext, string fullName, string invalidCharReplacement)
+    public static string? CreateSanitizedId(ViewContext viewContext, string? fullName, string invalidCharReplacement)
     {
         ArgumentNullException.ThrowIfNull(viewContext);
         ArgumentNullException.ThrowIfNull(invalidCharReplacement);
@@ -35,10 +35,10 @@ internal static class NameAndIdProvider
 
         // Check cache to avoid whatever TagBuilder.CreateSanitizedId() may do.
         var items = viewContext.HttpContext.Items;
-        object previousNameAndIdObject;
-        PreviousNameAndId previousNameAndId = null;
+        object? previousNameAndIdObject;
+        PreviousNameAndId? previousNameAndId = null;
         if (items.TryGetValue(PreviousNameAndIdKey, out previousNameAndIdObject) &&
-            (previousNameAndId = (PreviousNameAndId)previousNameAndIdObject) != null &&
+            (previousNameAndId = previousNameAndIdObject as PreviousNameAndId) != null &&
             string.Equals(previousNameAndId.FullName, fullName, StringComparison.Ordinal))
             return previousNameAndId.SanitizedId;
 
@@ -80,7 +80,7 @@ internal static class NameAndIdProvider
     public static void GenerateId(
         ViewContext viewContext,
         TagBuilder tagBuilder,
-        string fullName,
+        string? fullName,
         string invalidCharReplacement)
     {
         ArgumentNullException.ThrowIfNull(viewContext);
@@ -108,7 +108,7 @@ internal static class NameAndIdProvider
     /// <remarks>
     ///     Similar to <see cref="TemplateInfo.GetFullHtmlFieldName" /> but caches value for repeated invocations.
     /// </remarks>
-    public static string GetFullHtmlFieldName(ViewContext viewContext, string expression)
+    public static string GetFullHtmlFieldName(ViewContext viewContext, string? expression)
     {
         var htmlFieldPrefix = viewContext.ViewData.TemplateInfo.HtmlFieldPrefix;
         if (string.IsNullOrEmpty(expression)) return htmlFieldPrefix;
@@ -117,10 +117,10 @@ internal static class NameAndIdProvider
 
         // Need to concatenate. See if we've already done that.
         var items = viewContext.HttpContext.Items;
-        object previousNameAndIdObject;
-        PreviousNameAndId previousNameAndId = null;
+        object? previousNameAndIdObject;
+        PreviousNameAndId? previousNameAndId = null;
         if (items.TryGetValue(PreviousNameAndIdKey, out previousNameAndIdObject) &&
-            (previousNameAndId = (PreviousNameAndId)previousNameAndIdObject) != null &&
+            (previousNameAndId = previousNameAndIdObject as PreviousNameAndId) != null &&
             string.Equals(previousNameAndId.HtmlFieldPrefix, htmlFieldPrefix, StringComparison.Ordinal) &&
             string.Equals(previousNameAndId.Expression, expression, StringComparison.Ordinal))
             return previousNameAndId.OutputFullName;
@@ -146,20 +146,20 @@ internal static class NameAndIdProvider
     {
         // Cached ambient input for NameAndIdProvider.GetFullHtmlFieldName(). TemplateInfo.HtmlFieldPrefix may
         // change during the lifetime of a ViewContext.
-        public string HtmlFieldPrefix { get; set; }
+        public string HtmlFieldPrefix { get; set; } = "";
 
         // Cached input for NameAndIdProvider.GetFullHtmlFieldName().
-        public string Expression { get; set; }
+        public string Expression { get; set; } = "";
 
         // Cached return value for NameAndIdProvider.GetFullHtmlFieldName().
-        public string OutputFullName { get; set; }
+        public string OutputFullName { get; set; } = "";
 
         // Cached input for NameAndIdProvider.CreateSanitizedId(). Since IHtmlHelper.GenerateIdFromName() is
         // available to all, there is no guarantee this is equal to OutputFullName when CreateSanitizedId() is
         // called.
-        public string FullName { get; set; }
+        public string? FullName { get; set; }
 
         // Cached return value for NameAndIdProvider.CreateSanitizedId().
-        public string SanitizedId { get; set; }
+        public string? SanitizedId { get; set; }
     }
 }

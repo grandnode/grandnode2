@@ -5,7 +5,7 @@ namespace Grand.Infrastructure.TypeConverters.JsonConverters;
 
 public class InterfaceConverter<TInterface, TConcrete> : JsonConverter<TInterface> where TConcrete : TInterface, new()
 {
-    public override TInterface Read(
+    public override TInterface? Read(
         ref Utf8JsonReader reader,
         Type typeToConvert,
         JsonSerializerOptions options)
@@ -21,7 +21,7 @@ public class InterfaceConverter<TInterface, TConcrete> : JsonConverter<TInterfac
         switch (value)
         {
             case null:
-                JsonSerializer.Serialize(writer, null, options);
+                writer.WriteNullValue();
                 break;
             default:
             {

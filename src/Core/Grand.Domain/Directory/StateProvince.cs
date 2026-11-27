@@ -10,12 +10,12 @@ public class StateProvince : SubBaseEntity, ITranslationEntity
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string Name { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the abbreviation
     /// </summary>
-    public string Abbreviation { get; set; }
+    public string? Abbreviation { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether the entity is published

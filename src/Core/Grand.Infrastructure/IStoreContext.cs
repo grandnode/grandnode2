@@ -21,5 +21,5 @@ public interface IStoreContextSetter
     ///    Initialize the store context
     /// </summary>
     /// <returns></returns>
-    Task<IStoreContext> InitializeStoreContext(string storeId = null);
+    Task<IStoreContext> InitializeStoreContext(string? storeId = null);
 }

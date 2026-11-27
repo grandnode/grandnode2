@@ -20,7 +20,7 @@ public static class OidcCanonicalUri
     ///     request. The store cookie and the ambient store context are never used: they can name another store than
     ///     the one whose host the request reached, and a token issued for that store would then pass the audience check.
     /// </summary>
-    public static async Task<Store> RequestStore(HttpContext context)
+    public static async Task<Store?> RequestStore(HttpContext context)
     {
         if (context.Items.TryGetValue(StoreItemKey, out var cached))
             return cached as Store;
@@ -44,7 +44,7 @@ public static class OidcCanonicalUri
     /// <summary>
     ///     Normalized URL of <see cref="RequestStore" />; null when no store is resolved or it has no URL
     /// </summary>
-    public static async Task<string> StoreBaseUrl(HttpContext context)
+    public static async Task<string?> StoreBaseUrl(HttpContext context)
     {
         var store = await RequestStore(context);
         return string.IsNullOrWhiteSpace(store?.Url) ? null : Normalize(store.Url.Trim());
@@ -52,7 +52,7 @@ public static class OidcCanonicalUri
 
     /// <param name="resource">Protected resource</param>
     /// <param name="baseUrl">Store base URL (<see cref="StoreBaseUrl" />), used when the resource has no configured URI</param>
-    public static string ResourceFor(OidcProtectedResource resource, string baseUrl)
+    public static string? ResourceFor(OidcProtectedResource resource, string? baseUrl)
     {
         if (!string.IsNullOrWhiteSpace(resource.Resource))
             return Normalize(resource.Resource.Trim());

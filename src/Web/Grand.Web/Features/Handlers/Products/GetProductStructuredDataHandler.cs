@@ -119,7 +119,7 @@ public class GetProductStructuredDataHandler : IRequestHandler<GetProductStructu
 
     //the settings screen does not validate these optional fields, so a pair that cannot be
     //true (a negative day count, min above max) is dropped rather than published
-    private static ProductStructuredDataModel.DayRangeModel DayRange(int? min, int? max)
+    private static ProductStructuredDataModel.DayRangeModel? DayRange(int? min, int? max)
     {
         if (min < 0 || max < 0 || min > max) return null;
         if (min == null && max == null) return null;

@@ -6,13 +6,13 @@ public class OrderApprovalModel : BaseEntityModel
 {
     public DateTime CreatedOn { get; set; }
     public int StatusId { get; set; }
-    public string Status { get; set; }
-    public string Buyer { get; set; }
+    public string? Status { get; set; }
+    public string? Buyer { get; set; }
 
     /// <summary>
     ///     The placed order awaiting the decision
     /// </summary>
-    public string OrderId { get; set; }
+    public string? OrderId { get; set; }
 
     public int OrderNumber { get; set; }
 
@@ -22,8 +22,8 @@ public class OrderApprovalModel : BaseEntityModel
     public bool CanViewOrder { get; set; }
 
     public DateTime? DecidedOn { get; set; }
-    public string DecidedBy { get; set; }
-    public string DecisionComment { get; set; }
+    public string? DecidedBy { get; set; }
+    public string? DecisionComment { get; set; }
 
     /// <summary>
     ///     Why the order needs an approval
@@ -45,21 +45,21 @@ public class OrderApprovalModel : BaseEntityModel
 
     public class OrderApprovalItemModel : BaseModel
     {
-        public string ProductName { get; set; }
-        public string Sku { get; set; }
+        public string? ProductName { get; set; }
+        public string? Sku { get; set; }
         public int Quantity { get; set; }
-        public string AttributeDescription { get; set; }
-        public string UnitPrice { get; set; }
-        public string LineTotal { get; set; }
+        public string? AttributeDescription { get; set; }
+        public string? UnitPrice { get; set; }
+        public string? LineTotal { get; set; }
     }
 
     public class OrderApprovalSummaryModel : BaseModel
     {
-        public string SubTotal { get; set; }
-        public string Discount { get; set; }
-        public string ShippingMethod { get; set; }
-        public string Shipping { get; set; }
-        public string Tax { get; set; }
-        public string Total { get; set; }
+        public string? SubTotal { get; set; }
+        public string? Discount { get; set; }
+        public string? ShippingMethod { get; set; }
+        public string? Shipping { get; set; }
+        public string? Tax { get; set; }
+        public string? Total { get; set; }
     }
 }

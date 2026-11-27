@@ -96,9 +96,10 @@ public class ScheduleTaskController : BaseAdminController
 
     [PermissionAuthorizeAction(PermissionActionName.Preview)]
     [HttpGet]
-    public async Task<IActionResult> EditScheduler(string id)
+    public async Task<IActionResult> EditScheduler(string? id)
     {
-        var task = await _scheduleTaskService.GetTaskById(id);
+        var task = await _scheduleTaskService.GetTaskById(id)
+            ?? throw new ArgumentException("No task found with the specified id");
         var model = task.ToModel(_dateTimeService);
         model = await PrepareStores(model);
         return View(model);
@@ -110,7 +111,8 @@ public class ScheduleTaskController : BaseAdminController
     [ArgumentNameFilter(KeyName = "save-continue", Argument = "continueEditing")]
     public async Task<IActionResult> EditScheduler(ScheduleTaskModel model, bool continueEditing)
     {
-        var scheduleTask = await _scheduleTaskService.GetTaskById(model.Id);
+        var scheduleTask = await _scheduleTaskService.GetTaskById(model.Id)
+            ?? throw new ArgumentException("No task found with the specified id");
         if (ModelState.IsValid)
         {
             scheduleTask = model.ToEntity(scheduleTask);

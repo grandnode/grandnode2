@@ -8,15 +8,15 @@ public class PasswordRecoveryConfirmModel : BaseModel
 {
     [DataType(DataType.Password)]
     [GrandResourceDisplayName("Account.PasswordRecovery.NewPassword")]
-    public string NewPassword { get; set; }
+    public string? NewPassword { get; set; }
 
     [DataType(DataType.Password)]
     [GrandResourceDisplayName("Account.PasswordRecovery.ConfirmNewPassword")]
-    public string ConfirmNewPassword { get; set; }
+    public string? ConfirmNewPassword { get; set; }
 
     public bool DisablePasswordChanging { get; set; }
-    public string Result { get; set; }
+    public string? Result { get; set; }
 
-    public string Token { get; set; }
-    public string Email { get; set; }
+    public string? Token { get; set; }
+    public string? Email { get; set; }
 }

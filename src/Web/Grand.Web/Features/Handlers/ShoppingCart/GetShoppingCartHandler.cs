@@ -438,9 +438,10 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
             if (sci.ShoppingCartTypeId == ShoppingCartType.Auctions)
             {
                 cartItemModel.DisableRemoval = true;
-                cartItemModel.AuctionInfo = _translationService.GetResource("ShoppingCart.auctionwonon") + " " +
-                                            _dateTimeService.ConvertToUserTime(product.AvailableEndDateTimeUtc.Value,
-                                                DateTimeKind.Utc);
+                //the product validator requires an auction's end date
+                if (product.AvailableEndDateTimeUtc is { } auctionEnd)
+                    cartItemModel.AuctionInfo = _translationService.GetResource("ShoppingCart.auctionwonon") + " " +
+                                                _dateTimeService.ConvertToUserTime(auctionEnd, DateTimeKind.Utc);
             }
 
             //unit prices
@@ -474,9 +475,9 @@ public class GetShoppingCartHandler : IRequestHandler<GetShoppingCart, ShoppingC
                 {
                     if (appliedDiscounts.Any(x => x.MaximumDiscountedQuantity.HasValue))
                     {
-                        cartItemModel.DiscountedQty = appliedDiscounts.Where(x => x.MaximumDiscountedQuantity.HasValue).Max(x => x.MaximumDiscountedQuantity.Value);
+                        cartItemModel.DiscountedQty = appliedDiscounts.Where(x => x.MaximumDiscountedQuantity.HasValue).Max(x => x.MaximumDiscountedQuantity ?? 0);
                     }
-                    appliedDiscounts.ForEach(x => cartItemModel.Discounts.Add(x.DiscountId));
+                    cartItemModel.Discounts.UnionWith(appliedDiscounts.Select(x => x.DiscountId).OfType<string>());
                 }
 
                 //sub total

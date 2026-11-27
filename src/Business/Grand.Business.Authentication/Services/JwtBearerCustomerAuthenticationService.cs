@@ -18,7 +18,7 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
     private readonly IRefreshTokenService _refreshTokenService;
     private readonly IExternalSignInPolicy _externalSignInPolicy;
     private readonly OidcLoginConfig _oidcLoginConfig;
-    private string _errorMessage;
+    private string? _errorMessage;
 
     public JwtBearerCustomerAuthenticationService(ICustomerService customerService,
         IPermissionService permissionService, IGroupService groupService, IRefreshTokenService refreshTokenService,
@@ -32,14 +32,14 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
         _oidcLoginConfig = oidcLoginConfig;
     }
 
-    public async Task<bool> Valid(ClaimsPrincipal principal)
+    public async Task<bool> Valid(ClaimsPrincipal? principal)
     {
         if (principal == null) return false;
         var customerId = principal.Claims.FirstOrDefault(x => x.Type == "CustomerId")?.Value;
         var email = principal.Claims.FirstOrDefault(x => x.Type == "Email")?.Value;
         var passwordToken = principal.Claims.FirstOrDefault(x => x.Type == "Token")?.Value;
         var refreshId = principal.Claims.FirstOrDefault(x => x.Type == "RefreshId")?.Value;
-        Customer customer = null;
+        Customer? customer = null;
         if (!string.IsNullOrEmpty(customerId))
         {
             //prefer the stable customer id - unambiguous with per-store identity
@@ -101,7 +101,7 @@ public class JwtBearerCustomerAuthenticationService : IJwtBearerCustomerAuthenti
     }
 
 
-    public Task<string> ErrorMessage()
+    public Task<string?> ErrorMessage()
     {
         return Task.FromResult(_errorMessage);
     }

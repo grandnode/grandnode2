@@ -33,10 +33,10 @@ public class CountryController : BaseApiController
         if (!await _permissionService.Authorize(PermissionSystemName.Countries, CurrentCustomer)) return Forbid();
 
         //Domain.Directory.Country
-        var country = await _mediator.Send(new GetGenericQuery<CountryDto, Country>(key));
-        if (!country.Any()) return NotFound();
+        var country = (await _mediator.Send(new GetGenericQuery<CountryDto, Country>(key))).FirstOrDefault();
+        if (country == null) return NotFound();
 
-        return Ok(country.FirstOrDefault());
+        return Ok(country);
     }
 
     [EndpointDescription("Get entities from Country")]

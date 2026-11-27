@@ -8,7 +8,7 @@ public class BlogPostTag
     /// <summary>
     ///     Gets or sets the name
     /// </summary>
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
     /// <summary>
     ///     Gets or sets the tagged product count

@@ -1,6 +1,7 @@
 ﻿using Grand.Business.Core.Interfaces.Messages;
 using Grand.Business.Core.Interfaces.Storage;
 using Grand.Domain.Messages;
+using Grand.SharedKernel;
 using MailKit.Net.Smtp;
 using MailKit.Security;
 using MimeKit;
@@ -46,11 +47,11 @@ public class EmailSender : IEmailSender
     ///     not cancelled: the server may already have accepted it
     /// </param>
     public virtual async Task SendEmail(EmailAccount emailAccount, string subject, string body,
-        string fromAddress, string fromName, string toAddress, string toName,
-        string replyToAddress = null, string replyToName = null,
-        IEnumerable<string> bccAddresses = null, IEnumerable<string> ccAddresses = null,
-        string attachmentFilePath = null, string attachmentFileName = null,
-        IEnumerable<string> attachedDownloads = null, CancellationToken cancellationToken = default)
+        string fromAddress, string? fromName, string toAddress, string? toName,
+        string? replyToAddress = null, string? replyToName = null,
+        IEnumerable<string>? bccAddresses = null, IEnumerable<string>? ccAddresses = null,
+        string? attachmentFilePath = null, string? attachmentFileName = null,
+        IEnumerable<string>? attachedDownloads = null, CancellationToken cancellationToken = default)
 
     {
         var message = new MimeMessage();
@@ -81,8 +82,9 @@ public class EmailSender : IEmailSender
         if (!string.IsNullOrEmpty(attachmentFilePath) &&
             File.Exists(attachmentFilePath))
         {
-            // TODO: should probably include a check for the attachmentFileName not being null or white space
-            var attachment = new MimePart(_mimeMappingService.Map(attachmentFileName)) {
+            //the type comes from the name the attachment is given, else from the file's own
+            var attachment = new MimePart(_mimeMappingService.Map(
+                string.IsNullOrWhiteSpace(attachmentFileName) ? Path.GetFileName(attachmentFilePath) : attachmentFileName)) {
                 Content = new MimeContent(File.OpenRead(attachmentFilePath)),
                 ContentDisposition = new ContentDisposition(ContentDisposition.Attachment) {
                     CreationDate = File.GetCreationTime(attachmentFilePath),
@@ -100,7 +102,7 @@ public class EmailSender : IEmailSender
             foreach (var attachedDownloadId in attachedDownloads)
             {
                 var download = await _downloadService.GetDownloadById(attachedDownloadId);
-                if (download == null || download.UseDownloadUrl) continue;
+                if (download?.DownloadBinary == null || download.UseDownloadUrl) continue;
                 var fileName = !string.IsNullOrWhiteSpace(download.Filename) ? download.Filename : download.Id;
                 fileName += download.Extension;
                 var ms = new MemoryStream(download.DownloadBinary);
@@ -123,9 +125,13 @@ public class EmailSender : IEmailSender
         using var smtpClient = new SmtpClient();
         smtpClient.ServerCertificateValidationCallback =
             (_, _, _, _) => emailAccount.UseServerCertificateValidation;
-        await smtpClient.ConnectAsync(emailAccount.Host, emailAccount.Port,
-            (SecureSocketOptions)emailAccount.SecureSocketOptionsId, cancellationToken);
-        await smtpClient.AuthenticateAsync(emailAccount.Username, emailAccount.Password, cancellationToken);
+        await smtpClient.ConnectAsync(
+            emailAccount.Host ?? throw new GrandException($"The email account {emailAccount.Id} has no host"),
+            emailAccount.Port, (SecureSocketOptions)emailAccount.SecureSocketOptionsId, cancellationToken);
+        await smtpClient.AuthenticateAsync(
+            emailAccount.Username ?? throw new GrandException($"The email account {emailAccount.Id} has no user name"),
+            emailAccount.Password ?? throw new GrandException($"The email account {emailAccount.Id} has no password"),
+            cancellationToken);
         //not cancellable: the server may accept the message before its reply arrives, and a cancelled
         //send would then be reported as not sent - and the message sent again on the next try
         await smtpClient.SendAsync(message, CancellationToken.None);

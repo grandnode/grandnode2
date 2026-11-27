@@ -5,5 +5,5 @@ namespace Grand.Module.Api.Commands.Models.Catalog;
 
 public class AddSpecificationAttributeCommand : IRequest<SpecificationAttributeDto>
 {
-    public SpecificationAttributeDto Model { get; set; }
+    public required SpecificationAttributeDto Model { get; set; }
 }

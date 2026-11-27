@@ -5,7 +5,7 @@ using Grand.Mediator;
 
 namespace Grand.Web.Features.Handlers.Catalog;
 
-public class GetProductAttributeHandler : IRequestHandler<GetProductAttribute, ProductAttribute>
+public class GetProductAttributeHandler : IRequestHandler<GetProductAttribute, ProductAttribute?>
 {
     private readonly IProductAttributeService _productAttributeService;
 
@@ -14,7 +14,7 @@ public class GetProductAttributeHandler : IRequestHandler<GetProductAttribute, P
         _productAttributeService = productAttributeService;
     }
 
-    public async Task<ProductAttribute> Handle(GetProductAttribute request, CancellationToken cancellationToken)
+    public async Task<ProductAttribute?> Handle(GetProductAttribute request, CancellationToken cancellationToken)
     {
         ArgumentNullException.ThrowIfNullOrEmpty(request.Id);
 

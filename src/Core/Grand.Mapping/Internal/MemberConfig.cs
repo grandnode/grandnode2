@@ -1,5 +1,3 @@
-#nullable enable
-
 using System.Linq.Expressions;
 
 namespace Grand.Mapping.Internal;

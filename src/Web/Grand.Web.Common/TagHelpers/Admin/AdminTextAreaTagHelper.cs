@@ -26,13 +26,13 @@ public class AdminTextAreaTagHelper : TextAreaTagHelper
     ///     Indicates whether the input is disabled
     /// </summary>
     [HtmlAttributeName(DisabledAttributeName)]
-    public string IsDisabled { set; get; }
+    public string? IsDisabled { set; get; }
 
     /// <summary>
     ///     Indicates whether the field is required
     /// </summary>
     [HtmlAttributeName(RequiredAttributeName)]
-    public string IsRequired { set; get; }
+    public string? IsRequired { set; get; }
 
     /// <summary>
     ///     Process

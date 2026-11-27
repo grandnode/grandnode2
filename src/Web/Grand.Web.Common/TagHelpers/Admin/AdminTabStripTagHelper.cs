@@ -31,15 +31,16 @@ public class AdminTabStripTagHelper : TagHelper
 
     [HtmlAttributeName("BindGrid")] public bool BindGrid { get; set; } = false;
 
-    [HtmlAttributeName("Name")] public string Name { get; set; }
+    [HtmlAttributeName("Name")] public string? Name { get; set; }
 
-    [ViewContext] public ViewContext ViewContext { get; set; }
+    //set by the framework before the tag helper runs
+    [ViewContext] public ViewContext ViewContext { get; set; } = null!;
 
     public override async Task ProcessAsync(TagHelperContext context, TagHelperOutput output)
     {
-        ViewContext.ViewData[typeof(AdminTabContentTagHelper).FullName] = new List<string>();
+        ViewContext.ViewData[AdminTabContentTagHelper.ContentsKey] = new List<string>();
         _ = await output.GetChildContentAsync();
-        var list = (List<string>)ViewContext.ViewData[typeof(AdminTabContentTagHelper).FullName];
+        var list = ViewContext.ViewData[AdminTabContentTagHelper.ContentsKey] as List<string> ?? [];
         if (_userAgentClassifier.IsMobileOrTablet)
             SetTabPos = false;
 
@@ -68,10 +69,11 @@ public class AdminTabStripTagHelper : TagHelper
         //literal, which broke on an apostrophe and let markup from a plugin run as script.
         //They are markup now, handed to the runtime in a <template> the same way
         //<admin-tab-append> does it.
-        var eventMessage = new AdminTabStripCreated(Name);
+        var stripName = Name ?? "";
+        var eventMessage = new AdminTabStripCreated(stripName);
         await _mediator.Publish(eventMessage);
         foreach (var (tabName, blockContent) in eventMessage.BlocksToRender)
-            output.PostElement.AppendHtml(AdminTabAppendTagHelper.Template(Name, tabName, blockContent));
+            output.PostElement.AppendHtml(AdminTabAppendTagHelper.Template(stripName, tabName, blockContent));
 
         output.PreElement.AppendHtml(SelectedTabIndexInput(selectedTabIndex));
     }
@@ -113,8 +115,8 @@ public class AdminTabStripTagHelper : TagHelper
     {
         var index = 0;
         var dataKey = "Grand.selected-tab-index";
-        if (ViewContext.ViewData[dataKey] is int) index = (int)ViewContext.ViewData[dataKey];
-        if (ViewContext.TempData[dataKey] is int) index = (int)ViewContext.TempData[dataKey];
+        if (ViewContext.ViewData[dataKey] is int viewDataIndex) index = viewDataIndex;
+        if (ViewContext.TempData[dataKey] is int tempDataIndex) index = tempDataIndex;
 
         //ensure it's not negative
         if (index < 0)

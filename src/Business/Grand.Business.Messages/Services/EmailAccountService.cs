@@ -118,7 +118,7 @@ public class EmailAccountService : IEmailAccountService
     /// </summary>
     /// <param name="emailAccountId">The email account identifier</param>
     /// <returns>Email account</returns>
-    public virtual async Task<EmailAccount> GetEmailAccountById(string emailAccountId)
+    public virtual async Task<EmailAccount?> GetEmailAccountById(string? emailAccountId)
     {
         var key = string.Format(CacheKey.EMAILACCOUNT_BY_ID_KEY, emailAccountId);
         return await _cacheBase.GetAsync(key, () => _emailAccountRepository.GetByIdAsync(emailAccountId));

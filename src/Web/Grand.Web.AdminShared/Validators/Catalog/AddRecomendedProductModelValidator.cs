@@ -18,7 +18,7 @@ public class AddRecomendedProductModelValidator : BaseStoreAccessValidator<Produ
         _productService = productService;
     }
 
-    protected override async Task<Product> GetEntity(ProductModel.AddRecommendedProductModel model)
+    protected override async Task<Product?> GetEntity(ProductModel.AddRecommendedProductModel model)
     {
         return await _productService.GetProductById(model.ProductId);
     }

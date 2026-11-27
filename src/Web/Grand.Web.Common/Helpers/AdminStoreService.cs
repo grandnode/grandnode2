@@ -25,7 +25,7 @@ public class AdminStoreService : IAdminStoreService
     {
         var stores = await _storeService.GetAllStores();
         if (stores.Count < 2)
-            return stores.FirstOrDefault()?.Id;
+            return stores.FirstOrDefault()?.Id ?? "";
 
         var storeId = _contextAccessor.WorkContext.CurrentCustomer.GetUserFieldFromEntity<string>(SystemCustomerFieldNames.AdminAreaStoreScopeConfiguration);
         //empty scope means "all stores" - settings are loaded from/saved to the global scope

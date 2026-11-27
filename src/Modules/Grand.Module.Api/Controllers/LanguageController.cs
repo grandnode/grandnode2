@@ -32,10 +32,10 @@ public class LanguageController : BaseApiController
     {
         if (!await _permissionService.Authorize(PermissionSystemName.Languages, CurrentCustomer)) return Forbid();
 
-        var language = await _mediator.Send(new GetGenericQuery<LanguageDto, Language>(key));
-        if (!language.Any()) return NotFound();
+        var language = (await _mediator.Send(new GetGenericQuery<LanguageDto, Language>(key))).FirstOrDefault();
+        if (language == null) return NotFound();
 
-        return Ok(language.FirstOrDefault());
+        return Ok(language);
     }
 
     [EndpointDescription("Get entities from Languages")]

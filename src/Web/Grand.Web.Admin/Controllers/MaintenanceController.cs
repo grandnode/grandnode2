@@ -72,12 +72,12 @@ public class MaintenanceController : BaseAdminController
             }
         };
 
-        if (TempData["NumberOfDeletedCustomers"] != null)
-            model.DeleteGuests.NumberOfDeletedCustomers = (int)TempData["NumberOfDeletedCustomers"];
+        if (TempData["NumberOfDeletedCustomers"] is int numberOfDeletedCustomers)
+            model.DeleteGuests.NumberOfDeletedCustomers = numberOfDeletedCustomers;
 
-        if (TempData["NumberOfConvertItems"] != null)
+        if (TempData["NumberOfConvertItems"] is int numberOfConvertItems)
             model.ConvertedPictureModel = new MaintenanceModel.ConvertPictureModel {
-                NumberOfConvertItems = (int)TempData["NumberOfConvertItems"]
+                NumberOfConvertItems = numberOfConvertItems
             };
         return View(model);
     }
@@ -128,6 +128,8 @@ public class MaintenanceController : BaseAdminController
             foreach (var picture in pictures)
                 try
                 {
+                    //a picture kept on disk has no binary here to convert
+                    if (picture.PictureBinary == null) continue;
                     var pictureConverted =
                         pictureService.ConvertPicture(picture.PictureBinary, mediaSettings.ImageQuality);
                     await pictureService.UpdatePicture(picture.Id, pictureConverted, "image/webp", picture.SeoFilename,
@@ -339,6 +341,8 @@ public class MaintenanceController : BaseAdminController
         if (ModelState.IsValid)
         {
             var storeScope = await GetActiveStore();
+            //the validator requires the name
+            ArgumentException.ThrowIfNullOrEmpty(model.Name);
 
             var robotsTxt = await _robotsTxtService.GetRobotsTxt(storeScope);
             if (robotsTxt == null)

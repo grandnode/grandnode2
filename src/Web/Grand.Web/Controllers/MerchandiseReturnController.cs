@@ -92,7 +92,7 @@ public class MerchandiseReturnController : BasePublicController
 
     #region Utilities
 
-    private async Task PrepareModelAddress(AddressModel addressModel, Address address, Customer customer)
+    private async Task PrepareModelAddress(AddressModel addressModel, Address? address, Customer customer)
     {
         var countries =
             await _countryService.GetAllCountries(_contextAccessor.WorkContext.WorkingLanguage.Id, _contextAccessor.StoreContext.CurrentStore.Id);
@@ -117,7 +117,7 @@ public class MerchandiseReturnController : BasePublicController
         return order.StoreId == _contextAccessor.StoreContext.CurrentStore.Id;
     }
 
-    private async Task<Address> PrepareAddress(MerchandiseReturnModel model, Customer customer)
+    private async Task<Address?> PrepareAddress(MerchandiseReturnModel model, Customer customer)
     {
         var address = new Address();
         if (!_orderSettings.MerchandiseReturns_AllowToSpecifyPickupAddress) return address;
@@ -142,7 +142,7 @@ public class MerchandiseReturnController : BasePublicController
     ///     The guest of an order placed without an account, when the browser holds the grant a link sent to the
     ///     order's e-mail address left for it; null otherwise
     /// </summary>
-    private async Task<Customer> GrantedGuest(Order order)
+    private async Task<Customer?> GrantedGuest(Order? order)
     {
         if (!_guestOrderGrantService.ReturnsAllowed)
             return null;
@@ -155,7 +155,7 @@ public class MerchandiseReturnController : BasePublicController
     ///     An order placed in the current store and the customer acting on it: the current customer when it is theirs,
     ///     the order's guest under a grant; nulls otherwise
     /// </summary>
-    private async Task<(Order Order, Customer Customer)> CustomerOrder(string orderId)
+    private async Task<(Order? Order, Customer? Customer)> CustomerOrder(string? orderId)
     {
         var order = await _orderService.GetOrderById(orderId);
         if (order == null || !OfCurrentStore(order))
@@ -172,7 +172,7 @@ public class MerchandiseReturnController : BasePublicController
     ///     A return, its order placed in the current store and the customer acting on it: the current customer when it
     ///     is theirs, the order's guest under a grant; nulls otherwise
     /// </summary>
-    private async Task<(MerchandiseReturn Return, Order Order, Customer Customer)> CustomerMerchandiseReturn(
+    private async Task<(MerchandiseReturn? Return, Order? Order, Customer? Customer)> CustomerMerchandiseReturn(
         string merchandiseReturnId)
     {
         var merchandiseReturn = await _merchandiseReturnService.GetMerchandiseReturnById(merchandiseReturnId);
@@ -181,7 +181,8 @@ public class MerchandiseReturnController : BasePublicController
 
         var customer = _contextAccessor.WorkContext.CurrentCustomer;
         var order = await _orderService.GetOrderById(merchandiseReturn.OrderId);
-        if (await merchandiseReturn.Access(customer, _groupService) && await order.Access(customer, _groupService) &&
+        if (await merchandiseReturn.Access(customer, _groupService) && order != null &&
+            await order.Access(customer, _groupService) &&
             OfCurrentStore(order))
             return (merchandiseReturn, order, customer);
 
@@ -246,7 +247,7 @@ public class MerchandiseReturnController : BasePublicController
             _guestOrderGrantService.GrantedOrderId(_contextAccessor.StoreContext.CurrentStore.Id);
         var order = grantedOrderId != null ? await _orderService.GetOrderById(grantedOrderId) : null;
         var guest = await GrantedGuest(order);
-        if (guest == null)
+        if (order == null || guest == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetMerchandiseReturns {
@@ -267,7 +268,7 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturn(string orderId)
     {
         var (order, customer) = await CustomerOrder(orderId);
-        if (order == null)
+        if (order == null || customer == null)
             return Challenge();
 
         if (!await _mediator.Send(new IsMerchandiseReturnAllowedQuery { Order = order }))
@@ -288,7 +289,7 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturn(MerchandiseReturnModel model)
     {
         var (order, customer) = await CustomerOrder(model.OrderId);
-        if (order == null)
+        if (order == null || customer == null)
             return Challenge();
 
         //what is left to return is checked once, when the return is saved
@@ -345,7 +346,7 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturnDetails(string merchandiseReturnId)
     {
         var (merchandiseReturn, order, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
-        if (merchandiseReturn == null)
+        if (merchandiseReturn == null || order == null)
             return Challenge();
 
         var model = await _mediator.Send(new GetMerchandiseReturnDetails {
@@ -366,7 +367,7 @@ public class MerchandiseReturnController : BasePublicController
         MerchandiseReturnModel model)
     {
         var (order, customer) = await CustomerOrder(orderId);
-        if (order == null)
+        if (order == null || customer == null)
             return NotFound("The order was not found.");
 
         if (!_orderSettings.MerchandiseReturnsEnabled)
@@ -378,7 +379,7 @@ public class MerchandiseReturnController : BasePublicController
             PickupAddress = await PrepareAddress(model, customer),
             Customer = customer,
             Language = _contextAccessor.WorkContext.WorkingLanguage,
-            FormUrl = (routeName, values) => Url.RouteUrl(routeName, new RouteValueDictionary(values))
+            FormUrl = (routeName, values) => Url.RouteUrl(routeName, new RouteValueDictionary(values)) ?? ""
         });
         return Json(offers);
     }
@@ -390,7 +391,7 @@ public class MerchandiseReturnController : BasePublicController
     public virtual async Task<IActionResult> MerchandiseReturnEstimate(string orderId, MerchandiseReturnModel model)
     {
         var (order, customer) = await CustomerOrder(orderId);
-        if (order == null)
+        if (order == null || customer == null)
             return NotFound("The order was not found.");
 
         if (!_orderSettings.MerchandiseReturnsEnabled)
@@ -417,7 +418,7 @@ public class MerchandiseReturnController : BasePublicController
         var shipping = merchandiseReturn?.ReturnShipping;
         //only while the parcel is still to be sent: a rejected or cancelled return's label may stay created when
         //the carrier did not cancel it
-        if (!merchandiseReturn.CustomerSendsBack() || shipping.LabelStatus != ReturnLabelStatus.Created ||
+        if (!merchandiseReturn.CustomerSendsBack() || shipping?.LabelStatus != ReturnLabelStatus.Created ||
             string.IsNullOrEmpty(shipping.LabelDownloadId))
             return NotFound("The label was not found.");
 
@@ -438,7 +439,7 @@ public class MerchandiseReturnController : BasePublicController
         [FromServices] IPdfService pdfService)
     {
         var (merchandiseReturn, order, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
-        if (!merchandiseReturn.CustomerPrintsDocument())
+        if (!merchandiseReturn.CustomerPrintsDocument() || order == null)
             return NotFound("The return was not found.");
 
         using var stream = new MemoryStream();
@@ -452,7 +453,7 @@ public class MerchandiseReturnController : BasePublicController
     /// </summary>
     [HttpPost]
     public virtual async Task<IActionResult> MerchandiseReturnTrackingNumber(string merchandiseReturnId,
-        string trackingNumber)
+        string? trackingNumber)
     {
         var (merchandiseReturn, _, _) = await CustomerMerchandiseReturn(merchandiseReturnId);
         if (!merchandiseReturn.CustomerEntersTrackingNumber())
@@ -508,7 +509,7 @@ public class MerchandiseReturnController : BasePublicController
 
         //pending as stored, under the lock: the staff may have accepted it since the page was loaded
         var error = await _merchandiseReturnWorkflowService.ChangeStatus(merchandiseReturn.Id,
-            MerchandiseReturnStatus.Cancelled, null, "customer " + (customer.Email ?? customer.Id),
+            MerchandiseReturnStatus.Cancelled, null, "customer " + (customer?.Email ?? customer?.Id),
             stored => stored.MerchandiseReturnStatus == MerchandiseReturnStatus.Pending);
         if (error == null)
             Success(_translationService.GetResource("MerchandiseReturns.Cancel.Done"));
@@ -528,7 +529,7 @@ public class MerchandiseReturnController : BasePublicController
         IFormFile file)
     {
         var (merchandiseReturn, order, customer) = await CustomerMerchandiseReturn(merchandiseReturnId);
-        if (merchandiseReturn == null)
+        if (merchandiseReturn == null || order == null || customer == null)
             return NotFound("The return was not found.");
 
         var error = await _mediator.Send(new InsertMerchandiseReturnNoteCommand {

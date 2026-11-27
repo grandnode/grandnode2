@@ -8,7 +8,7 @@ namespace Grand.Web.Features.Models.Products;
 
 public class GetProductReviewOverview : IRequest<ProductReviewOverviewModel>
 {
-    public Product Product { get; set; }
-    public Language Language { get; set; }
-    public Domain.Stores.Store Store { get; set; }
+    public required Product Product { get; set; }
+    public required Language Language { get; set; }
+    public required Domain.Stores.Store Store { get; set; }
 }

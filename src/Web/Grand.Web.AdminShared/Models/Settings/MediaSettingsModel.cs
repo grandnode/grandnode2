@@ -7,7 +7,7 @@ public class MediaSettingsModel : BaseModel
 {
     #region Standard Media Settings
 
-    public string ActiveStore { get; set; }
+    public string? ActiveStore { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Media.ProductThumbPictureSize")]
     public int ProductThumbPictureSize { get; set; }
@@ -76,7 +76,7 @@ public class MediaSettingsModel : BaseModel
     public int ProductBundlePictureSize { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Media.AllowedFileTypes")]
-    public string AllowedFileTypes { get; set; }
+    public string? AllowedFileTypes { get; set; }
 
     [GrandResourceDisplayName("Admin.Settings.Media.DefaultImageName")]
     public string DefaultImageName { get; set; } = "no-image.png";

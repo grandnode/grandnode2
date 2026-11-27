@@ -27,11 +27,11 @@ public interface IShipmentService
     /// <param name="pageIndex">Page index</param>
     /// <param name="pageSize">Page size</param>
     /// <returns>Shipments</returns>
-    Task<IPagedList<Shipment>> GetAllShipments(string storeId = "", string vendorId = "", string warehouseId = "",
-        string shippingCountryId = "",
+    Task<IPagedList<Shipment>> GetAllShipments(string? storeId = "", string? vendorId = "", string? warehouseId = "",
+        string? shippingCountryId = "",
         int shippingStateId = 0,
-        string shippingCity = null,
-        string trackingNumber = null,
+        string? shippingCity = null,
+        string? trackingNumber = null,
         bool loadNotShipped = false,
         DateTime? createdFromUtc = null, DateTime? createdToUtc = null,
         int pageIndex = 0, int pageSize = int.MaxValue);
@@ -50,7 +50,7 @@ public interface IShipmentService
     /// </summary>
     /// <param name="shipmentId">Shipment identifier</param>
     /// <returns>Shipment</returns>
-    Task<Shipment> GetShipmentById(string shipmentId);
+    Task<Shipment?> GetShipmentById(string? shipmentId);
 
     /// <summary>
     ///     Inserts a shipment
@@ -97,7 +97,7 @@ public interface IShipmentService
     /// </summary>
     /// <param name="shipmentNoteId">Shipment note identifier</param>
     /// <returns>ShipmentNote</returns>
-    Task<ShipmentNote> GetShipmentNote(string shipmentNoteId);
+    Task<ShipmentNote?> GetShipmentNote(string shipmentNoteId);
 
     #endregion
 }

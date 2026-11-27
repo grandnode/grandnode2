@@ -16,6 +16,7 @@ public class DeleteProductAttributeMappingCommandHandler : IRequestHandler<Delet
 
     public async Task<bool> Handle(DeleteProductAttributeMappingCommand request, CancellationToken cancellationToken)
     {
+        ArgumentException.ThrowIfNullOrEmpty(request.Product.Id);
         //insert mapping
         var productAttributeMapping = request.Model.ToEntity();
         await _productAttributeService.DeleteProductAttributeMapping(productAttributeMapping, request.Product.Id);

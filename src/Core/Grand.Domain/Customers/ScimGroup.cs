@@ -10,23 +10,23 @@ namespace Grand.Domain.Customers;
 /// </summary>
 public class ScimGroup : BaseEntity
 {
-    public string DisplayName { get; set; }
+    public string? DisplayName { get; set; }
 
     /// <summary>The identity provider's id of the group</summary>
-    public string ExternalId { get; set; }
+    public string? ExternalId { get; set; }
 
     /// <summary>Ids of the SCIM-managed customers in the group</summary>
     public List<string> Members { get; set; } = [];
 
     /// <summary>Customer group the members get; empty while the group is not mapped</summary>
     [AuditReference(typeof(CustomerGroup))]
-    public string CustomerGroupId { get; set; }
+    public string? CustomerGroupId { get; set; }
 
     /// <summary>Staff store of the members, with the StoreManager group</summary>
     [AuditReference(typeof(Store))]
-    public string StaffStoreId { get; set; }
+    public string? StaffStoreId { get; set; }
 
     /// <summary>Vendor of the members, with the Vendors group</summary>
     [AuditReference(typeof(Vendor))]
-    public string VendorId { get; set; }
+    public string? VendorId { get; set; }
 }

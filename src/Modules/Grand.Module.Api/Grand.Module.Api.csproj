@@ -51,4 +51,8 @@
         <PackageReference Include="Scalar.AspNetCore" />
         <PackageReference Include="System.Linq.Dynamic.Core" />
     </ItemGroup>
+  <PropertyGroup>
+    <Nullable>enable</Nullable>
+    <WarningsAsErrors>nullable</WarningsAsErrors>
+  </PropertyGroup>
 </Project>

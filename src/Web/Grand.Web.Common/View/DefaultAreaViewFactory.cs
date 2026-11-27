@@ -4,7 +4,7 @@ namespace Grand.Web.Common.View;
 
 public class DefaultAreaViewFactory : IAreaViewFactory
 {
-    private readonly IThemeContext _themeContext;
+    private readonly IThemeContext? _themeContext;
 
     private readonly IEnumerable<IThemeView> _themeFactories;
 

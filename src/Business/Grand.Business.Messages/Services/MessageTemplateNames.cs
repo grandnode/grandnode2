@@ -86,7 +86,7 @@ public static class MessageTemplateNames
     ///     The customer's message for a merchandise return that reached the status; null for a status told by the
     ///     generic status changed message (a return opened again, a cancelled one)
     /// </summary>
-    public static string MerchandiseReturnStatusTemplate(MerchandiseReturnStatus status)
+    public static string? MerchandiseReturnStatusTemplate(MerchandiseReturnStatus status)
     {
         return status switch {
             MerchandiseReturnStatus.Accepted => SendMerchandiseReturnAcceptedCustomerMessage,

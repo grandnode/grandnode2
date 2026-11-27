@@ -21,7 +21,7 @@ public interface IRecurringPaymentService
     ///     another provider reference than the one the recurring payment runs on). The first reported reference is
     ///     recorded
     /// </summary>
-    Task<RecurringCycleClaim> ClaimCycle(string recurringPaymentId, string providerReference, string cycleReference,
+    Task<RecurringCycleClaim> ClaimCycle(string recurringPaymentId, string? providerReference, string cycleReference,
         double amount, DateTime paidOnUtc, DateTime? nextPaymentDateUtc);
 
     /// <summary>
@@ -31,22 +31,22 @@ public interface IRecurringPaymentService
     ///     whose missing reference is still recorded so the gateway can be stopped. The first reported reference is
     ///     recorded
     /// </summary>
-    Task<RecurringReportResult> RecordFailure(string recurringPaymentId, string providerReference,
-        string cycleReference, string reason);
+    Task<RecurringReportResult> RecordFailure(string recurringPaymentId, string? providerReference,
+        string cycleReference, string? reason);
 
     /// <summary>
     ///     Cancels a recurring payment the provider reports as ended at the gateway, under the same lock. Nothing is
     ///     recorded for an unknown recurring payment, another provider reference than the one the recurring payment
     ///     runs on, or one that is Cancelled or Completed. The first reported reference is recorded
     /// </summary>
-    Task<RecurringReportResult> RecordEnded(string recurringPaymentId, string providerReference);
+    Task<RecurringReportResult> RecordEnded(string recurringPaymentId, string? providerReference);
 
     /// <summary>
     ///     Records the gateway's reference as soon as the provider learns it (at checkout), under the same lock, so a
     ///     cancel made before the first paid cycle stops the gateway. A reference recorded already is kept: the
     ///     outcome is Duplicate for the same one and OtherReference for another
     /// </summary>
-    Task<RecurringReportResult> RecordProviderReference(string recurringPaymentId, string providerReference);
+    Task<RecurringReportResult> RecordProviderReference(string recurringPaymentId, string? providerReference);
 
     /// <summary>
     ///     Cancels a recurring payment, writing it under the same lock on a fresh read. Unless it is Pending without a
@@ -60,12 +60,12 @@ public interface IRecurringPaymentService
     /// <summary>
     ///     Gets a recurring payment
     /// </summary>
-    Task<RecurringPayment> GetRecurringPaymentById(string id);
+    Task<RecurringPayment?> GetRecurringPaymentById(string id);
 
     /// <summary>
     ///     Gets the recurring payment of the order the customer placed; null when the order is not recurring
     /// </summary>
-    Task<RecurringPayment> GetRecurringPaymentByInitialOrderId(string initialOrderId);
+    Task<RecurringPayment?> GetRecurringPaymentByInitialOrderId(string initialOrderId);
 
     /// <summary>
     ///     Gets a customer's recurring payments in a store, newest first; nothing for an empty customer or store

@@ -53,7 +53,7 @@ public class UpdateProductStockCommandHandler : IRequestHandler<UpdateProductSto
         var errors = await _stockMovementService.Apply(product.Id, [
             new StockChange([], request.WarehouseId ?? "", request.Stock, true, InventoryMovementType.Api,
                 new StockSource("Api", product.Id, Reference: product.Sku ?? "",
-                    CustomerId: _contextAccessor.WorkContext?.CurrentCustomer?.Id ?? ""))
+                    CustomerId: _contextAccessor.WorkContext.CurrentCustomer.Id ?? ""))
         ]);
         if (errors.Count > 0)
             throw new ArgumentException(errors[0]);

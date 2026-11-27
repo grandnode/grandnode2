@@ -5,7 +5,7 @@ namespace Grand.Business.Core.Utilities.System;
 /// </summary>
 public class OrderByTimeReportLine
 {
-    public string Time { get; set; }
+    public string? Time { get; set; }
 
     public int TotalOrders { get; set; }
 

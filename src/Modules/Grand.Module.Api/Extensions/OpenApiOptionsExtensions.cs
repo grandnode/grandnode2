@@ -121,7 +121,7 @@ namespace Grand.Module.Api.Infrastructure.Extensions
         {
             options.AddDocumentTransformer((document, context, cancellationToken) =>
             {
-                document.Servers.Clear();
+                document.Servers?.Clear();
                 return Task.CompletedTask;
             });
         }

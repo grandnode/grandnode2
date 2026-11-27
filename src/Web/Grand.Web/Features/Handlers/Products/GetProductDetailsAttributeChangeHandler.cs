@@ -210,7 +210,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
             {
                 var x = combinationsStockUnavailable.SelectMany(x => x.Attributes)
                     .Where(x => x.Value != customAttribute.Value);
-                var notAvailable = x.Select(z => z.Value).Distinct().ToList();
+                var notAvailable = x.Select(z => z.Value).OfType<string>().Distinct().ToList();
                 notAvailable.ForEach(z =>
                 {
                     if (!model.Contains(z))
@@ -221,7 +221,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
             if (combinationsStockAvailable.Count <= 0) continue;
 
             combinationsStockAvailable.SelectMany(x => x.Attributes)
-                .Where(x => x.Value != customAttribute.Value).Select(x => x.Value).Distinct().ToList().ForEach(z =>
+                .Where(x => x.Value != customAttribute.Value).Select(x => x.Value).OfType<string>().Distinct().ToList().ForEach(z =>
                 {
                     if (model.Contains(z))
                         model.Remove(z);
@@ -268,7 +268,7 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
         {
             customAttributes.ToList().ForEach(x =>
             {
-                if (model.Contains(x.Value))
+                if (x.Value != null && model.Contains(x.Value))
                     model.Remove(x.Value);
             });
         }
@@ -278,11 +278,11 @@ public class GetProductDetailsAttributeChangeHandler : IRequestHandler<GetProduc
             var combinationsInStock = request.Product.ProductAttributeCombinations
                 .Where(x => x.StockQuantity - x.ReservedQuantity > 0)
                 .SelectMany(x => x.Attributes)
-                .Select(x => x.Value).Distinct();
+                .Select(x => x.Value).OfType<string>().Distinct();
             var combinationsOutofStock = request.Product.ProductAttributeCombinations
                 .Where(x => x.StockQuantity - x.ReservedQuantity <= 0)
                 .SelectMany(x => x.Attributes)
-                .Select(x => x.Value).Distinct();
+                .Select(x => x.Value).OfType<string>().Distinct();
             model = combinationsOutofStock.Except(combinationsInStock).ToList();
         }
 

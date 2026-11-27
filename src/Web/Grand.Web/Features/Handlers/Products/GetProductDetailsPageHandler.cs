@@ -150,7 +150,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     }
 
     private async Task<ProductDetailsModel> PrepareProductDetailsModel(Domain.Stores.Store store, Product product,
-        ShoppingCartItem updateCartItem, bool isAssociatedProduct)
+        ShoppingCartItem? updateCartItem, bool isAssociatedProduct)
     {
         ArgumentNullException.ThrowIfNull(product);
 
@@ -303,7 +303,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             {
                 var collect =
                     (await _collectionService.GetCollectionById(item.CollectionId)).ToModel(_contextAccessor.WorkContext.WorkingLanguage);
-                listCollection.Add(collect);
+                if (collect != null) listCollection.Add(collect);
             }
 
             return listCollection;
@@ -358,7 +358,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
 
 
     private async Task<ProductDetailsModel> PrepareStandardProperties(Product product,
-        ShoppingCartItem updateCartItem)
+        ShoppingCartItem? updateCartItem)
     {
         #region Standard properties
 
@@ -485,7 +485,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         return stockAvailability;
     }
 
-    private void SetStockAvailability(ProductDetailsModel model, Product product, string warehouseId)
+    private void SetStockAvailability(ProductDetailsModel model, Product product, string? warehouseId)
     {
         var stock = _stockQuantityService.GetStockStatus(product, warehouseId, []);
         model.StockAvailability = string.Format(_translationService.GetResource(stock.Resource), stock.Arg0);
@@ -507,7 +507,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         return await Task.FromResult(model);
     }
 
-    private async Task<BrandBriefInfoModel> PrepareBrandBriefInfoModel(Product product)
+    private async Task<BrandBriefInfoModel?> PrepareBrandBriefInfoModel(Product product)
     {
         if (string.IsNullOrEmpty(product.BrandId)) return null;
         var brand = await _brandService.GetBrandById(product.BrandId);
@@ -521,7 +521,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         return null;
     }
 
-    private async Task<VendorBriefInfoModel> PrepareVendorBriefInfoModel(Product product)
+    private async Task<VendorBriefInfoModel?> PrepareVendorBriefInfoModel(Product product)
     {
         if (string.IsNullOrEmpty(product.VendorId)) return null;
         var vendor = await _vendorService.GetVendorById(product.VendorId);
@@ -554,7 +554,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
             if (!productCategories.Any()) return breadcrumbModel;
 
             var category =
-                await _categoryService.GetCategoryById(productCategories.MinBy(x => x.DisplayOrder).CategoryId);
+                await _categoryService.GetCategoryById(productCategories.MinBy(x => x.DisplayOrder)?.CategoryId);
             if (category == null) return breadcrumbModel;
 
             foreach (var catBr in await _categoryService.GetCategoryBreadCrumb(category,
@@ -595,7 +595,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     }
 
     private async Task<(PictureModel defaultPictureModel, List<PictureModel> pictureModels)>
-        PrepareProductPictureModel(Product product, int defaultPictureSize, bool isAssociatedProduct, string name)
+        PrepareProductPictureModel(Product product, int defaultPictureSize, bool isAssociatedProduct, string? name)
     {
         var defaultPicture = product.ProductPictures.OrderByDescending(p => p.IsDefault)
             .ThenBy(p => p.DisplayOrder)
@@ -787,7 +787,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     }
 
     private async Task<ProductDetailsModel.AddToCartModel> PrepareAddToCartModel(Product product,
-        ShoppingCartItem updatecartitem = null)
+        ShoppingCartItem? updatecartitem = null)
     {
         var model = new ProductDetailsModel.AddToCartModel {
             ProductId = product.Id
@@ -801,7 +801,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
         //quantity
         model.EnteredQuantity = updatecartitem?.Quantity ?? product.OrderMinimumQuantity;
         model.MeasureUnit = !string.IsNullOrEmpty(product.UnitId)
-            ? (await _measureService.GetMeasureUnitById(product.UnitId)).Name
+            ? (await _measureService.GetMeasureUnitById(product.UnitId))?.Name
             : string.Empty;
 
         //allowed quantities
@@ -860,7 +860,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     }
 
     private ProductDetailsModel.GiftVoucherModel PrepareGiftVoucherModel(Product product,
-        ShoppingCartItem updatecartitem = null)
+        ShoppingCartItem? updatecartitem = null)
     {
         var model = new ProductDetailsModel.GiftVoucherModel {
             IsGiftVoucher = product.IsGiftVoucher
@@ -891,7 +891,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     }
 
     private async Task<IList<ProductDetailsModel.ProductAttributeModel>> PrepareProductAttributeModel(
-        Product product, int defaultPictureSize, ShoppingCartItem updatecartitem = null)
+        Product product, int defaultPictureSize, ShoppingCartItem? updatecartitem = null)
     {
         var model = new List<ProductDetailsModel.ProductAttributeModel>();
 
@@ -924,7 +924,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
                     .ToList();
 
             var urlselectedValues = !string.IsNullOrEmpty(productAttribute.SeName)
-                ? _httpContextAccessor.HttpContext.Request.Query[productAttribute.SeName].ToList()
+                ? _httpContextAccessor.HttpContext?.Request.Query[productAttribute.SeName].ToList() ?? []
                 : [];
 
             if (attribute.ShouldHaveValues())
@@ -1124,7 +1124,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     }
 
     private async Task PrepareProductReservation(ProductDetailsModel model, Product product,
-        ShoppingCartItem updateCartItem)
+        ShoppingCartItem? updateCartItem)
     {
         if (product.ProductTypeId == ProductType.Reservation)
         {
@@ -1168,7 +1168,7 @@ public class GetProductDetailsPageHandler : IRequestHandler<GetProductDetailsPag
     }
 
     private async Task<IList<ProductDetailsModel.ProductBundleModel>> PrepareProductBundleModel(Product product,
-        ShoppingCartItem updateCartItem)
+        ShoppingCartItem? updateCartItem)
     {
         var model = new List<ProductDetailsModel.ProductBundleModel>();
         var displayPrices = await _permissionService.Authorize(StandardPermission.DisplayPrices);

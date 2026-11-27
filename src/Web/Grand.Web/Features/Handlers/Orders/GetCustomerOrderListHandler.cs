@@ -71,7 +71,7 @@ public class GetCustomerOrderListHandler : IRequestHandler<GetCustomerOrderList,
         };
     }
 
-    private async Task<string> FormatCreditAmount(double amountInPrimaryCurrency, Currency currency)
+    private async Task<string> FormatCreditAmount(double amountInPrimaryCurrency, Currency? currency)
     {
         var amount = await _currencyService.ConvertFromPrimaryStoreCurrency(amountInPrimaryCurrency, currency);
         return _priceFormatter.FormatPrice(amount, currency);

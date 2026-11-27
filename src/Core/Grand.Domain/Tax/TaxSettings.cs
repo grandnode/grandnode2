@@ -18,7 +18,7 @@ public class TaxSettings : ISettings
     /// <summary>
     ///     Gets or sets default address used for tax calculation
     /// </summary>
-    public Address DefaultTaxAddress { get; set; }
+    public Address? DefaultTaxAddress { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether each tax rate should be displayed on separate line (shopping cart page)
@@ -55,7 +55,7 @@ public class TaxSettings : ISettings
     /// <summary>
     ///     Gets or sets a default tax category identifier for products
     /// </summary>
-    public string DefaultTaxCategoryId { get; set; }
+    public string? DefaultTaxCategoryId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether shipping price is taxable
@@ -70,7 +70,7 @@ public class TaxSettings : ISettings
     /// <summary>
     ///     Gets or sets a value indicating the shipping tax category identifier
     /// </summary>
-    public string ShippingTaxCategoryId { get; set; }
+    public string? ShippingTaxCategoryId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether payment method additional fee is taxable
@@ -85,7 +85,7 @@ public class TaxSettings : ISettings
     /// <summary>
     ///     Gets or sets a value indicating the payment method additional fee tax class identifier
     /// </summary>
-    public string PaymentMethodAdditionalFeeTaxCategoryId { get; set; }
+    public string? PaymentMethodAdditionalFeeTaxCategoryId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether EU VAT (Eupore Union Value Added Tax) is enabled
@@ -95,7 +95,7 @@ public class TaxSettings : ISettings
     /// <summary>
     ///     Gets or sets a shop country identifier
     /// </summary>
-    public string EuVatShopCountryId { get; set; }
+    public string? EuVatShopCountryId { get; set; }
 
     /// <summary>
     ///     Gets or sets a value indicating whether this store will exempt eligible VAT-registered customers from VAT

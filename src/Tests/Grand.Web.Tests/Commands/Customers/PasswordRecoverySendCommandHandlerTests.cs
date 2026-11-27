@@ -37,7 +37,7 @@ public class PasswordRecoverySendCommandHandlerTests
     }
 
     private Task<bool> Send(Customer customer) =>
-        _handler.Handle(new PasswordRecoverySendCommand {
+        _handler.Handle(new PasswordRecoverySendCommand { Host = new Grand.Domain.Stores.DomainHost(), Model = new Grand.Web.Models.Customer.PasswordRecoveryModel(),
             Customer = customer, Store = new Grand.Domain.Stores.Store(), Language = new Language { Id = "l1" }
         }, CancellationToken.None);
 
@@ -114,6 +114,6 @@ public class PasswordRecoverySendCommandHandlerTests
         await Send(_customer);
 
         _messages.Verify(x => x.SendCustomerPasswordRecoveryMessage(_customer, It.IsAny<Grand.Domain.Stores.Store>(),
-            "l1"), Times.Once);
+            "l1", It.IsAny<Grand.Domain.Stores.DomainHost>()), Times.Once);
     }
 }

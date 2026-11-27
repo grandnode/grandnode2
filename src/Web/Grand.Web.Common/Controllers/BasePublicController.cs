@@ -43,7 +43,7 @@ public abstract class BasePublicController : BaseController
         return base.View(viewName, model);
     }
 
-    public override RedirectToRouteResult RedirectToRoute(string routeName)
+    public override RedirectToRouteResult RedirectToRoute(string? routeName)
     {
         return IsJsonResponseView() ? RedirectToRoute("Route", new { routeName }) : base.RedirectToRoute(routeName);
     }

@@ -6,9 +6,9 @@ namespace Grand.Web.AdminShared.Models.Customers;
 public class CustomerGroupPermissionModel : BaseEntityModel
 {
     [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Name")]
-    public string Name { get; set; }
+    public string? Name { get; set; }
 
-    public string SystemName { get; set; }
+    public string? SystemName { get; set; }
 
     [GrandResourceDisplayName("Admin.Customers.CustomerGroups.Acl.Fields.Access")]
     public bool Access { get; set; }

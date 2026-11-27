@@ -120,7 +120,7 @@ public class DiscountViewModelService : IDiscountViewModelService
         return (items, discounts.Count);
     }
 
-    public virtual async Task PrepareDiscountModel(DiscountModel model, Discount discount)
+    public virtual async Task PrepareDiscountModel(DiscountModel model, Discount? discount)
     {
         ArgumentNullException.ThrowIfNull(model);
 
@@ -149,6 +149,8 @@ public class DiscountViewModelService : IDiscountViewModelService
             {
                 var discountPlugin =
                     _discountProviderLoader.LoadDiscountProviderByRuleSystemName(dr.DiscountRequirementRuleSystemName);
+                //a rule whose plugin is not installed has nothing to configure
+                if (discountPlugin == null) continue;
                 var discountRequirement = discountPlugin.GetRequirementRules()
                     .Single(x => x.SystemName == dr.DiscountRequirementRuleSystemName);
                 {
@@ -190,8 +192,7 @@ public class DiscountViewModelService : IDiscountViewModelService
                 //update "HasDiscountsApplied" property
                 foreach (var category in categories)
                 {
-                    var item = category.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
-                    category.AppliedDiscounts.Remove(item);
+                    category.AppliedDiscounts.Remove(discount.Id);
                 }
 
                 break;
@@ -203,8 +204,7 @@ public class DiscountViewModelService : IDiscountViewModelService
                 var collections = await _collectionService.GetAllCollectionsByDiscount(discount.Id);
                 foreach (var collection in collections)
                 {
-                    var item = collection.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
-                    collection.AppliedDiscounts.Remove(item);
+                    collection.AppliedDiscounts.Remove(discount.Id);
                 }
 
                 break;
@@ -217,9 +217,8 @@ public class DiscountViewModelService : IDiscountViewModelService
 
                 foreach (var p in products)
                 {
-                    var item = p.AppliedDiscounts.FirstOrDefault(x => x == discount.Id);
-                    p.AppliedDiscounts.Remove(item);
-                    await _productService.DeleteDiscount(item, p.Id);
+                    p.AppliedDiscounts.Remove(discount.Id);
+                    await _productService.DeleteDiscount(discount.Id, p.Id);
                 }
 
                 break;
@@ -292,6 +291,8 @@ public class DiscountViewModelService : IDiscountViewModelService
 
     public virtual async Task InsertProductToDiscountModel(DiscountModel.AddProductToDiscountModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.DiscountId);
+
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);
@@ -325,6 +326,8 @@ public class DiscountViewModelService : IDiscountViewModelService
 
     public virtual async Task InsertCategoryToDiscountModel(DiscountModel.AddCategoryToDiscountModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.DiscountId);
+
         foreach (var id in model.SelectedCategoryIds)
         {
             var category = await _categoryService.GetCategoryById(id);
@@ -349,6 +352,8 @@ public class DiscountViewModelService : IDiscountViewModelService
 
     public virtual async Task InsertBrandToDiscountModel(DiscountModel.AddBrandToDiscountModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.DiscountId);
+
         foreach (var id in model.SelectedBrandIds)
         {
             var brand = await _brandService.GetBrandById(id);
@@ -373,6 +378,8 @@ public class DiscountViewModelService : IDiscountViewModelService
 
     public virtual async Task InsertCollectionToDiscountModel(DiscountModel.AddCollectionToDiscountModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.DiscountId);
+
         foreach (var id in model.SelectedCollectionIds)
         {
             var collection = await _collectionService.GetCollectionById(id);
@@ -397,6 +404,8 @@ public class DiscountViewModelService : IDiscountViewModelService
 
     public virtual async Task InsertVendorToDiscountModel(DiscountModel.AddVendorToDiscountModel model)
     {
+        ArgumentException.ThrowIfNullOrEmpty(model.DiscountId);
+
         foreach (var id in model.SelectedVendorIds)
         {
             var vendor = await _vendorService.GetVendorById(id);

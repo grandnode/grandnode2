@@ -4,7 +4,7 @@ namespace Grand.Web.Common.Localization;
 
 public class LocService : StringLocalizer<string>
 {
-    private readonly IRequestTranslationService _translationService;
+    private readonly IRequestTranslationService? _translationService;
 
     public LocService(IStringLocalizerFactory factory) : base(factory)
     {
@@ -17,14 +17,14 @@ public class LocService : StringLocalizer<string>
 
     public override LocalizedString this[string name] {
         get {
-            var resFormat = _translationService.GetResource(name.ToLowerInvariant());
+            var resFormat = _translationService?.GetResource(name.ToLowerInvariant());
             return new LocalizedString(name, resFormat ?? name, resFormat == null);
         }
     }
 
     public override LocalizedString this[string name, params object[] arguments] {
         get {
-            var resFormat = _translationService.GetResource(name.ToLowerInvariant());
+            var resFormat = _translationService?.GetResource(name.ToLowerInvariant());
             if (string.IsNullOrEmpty(resFormat)) return new LocalizedString(name, string.Empty, resFormat == null);
             try
             {

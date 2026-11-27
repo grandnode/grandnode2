@@ -33,9 +33,9 @@ public class OpenApiStartup : IStartupApplication
 
     public void ConfigureServices(IServiceCollection services, IConfiguration configuration)
     {
-        var backendApiConfig = services.BuildServiceProvider().GetService<BackendAPIConfig>();
-        var frontApiConfig = services.BuildServiceProvider().GetService<FrontendAPIConfig>();
-        var webHostEnvironment = services.BuildServiceProvider().GetService<IWebHostEnvironment>();
+        var backendApiConfig = services.BuildServiceProvider().GetRequiredService<BackendAPIConfig>();
+        var frontApiConfig = services.BuildServiceProvider().GetRequiredService<FrontendAPIConfig>();
+        var webHostEnvironment = services.BuildServiceProvider().GetRequiredService<IWebHostEnvironment>();
 
         if (webHostEnvironment.IsDevelopment() && (backendApiConfig.Enabled || frontApiConfig.Enabled))
         {

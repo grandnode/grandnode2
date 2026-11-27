@@ -7,7 +7,7 @@ public class LanguageSettings : ISettings
     /// <summary>
     ///     Default admin area language identifier
     /// </summary>
-    public string DefaultAdminLanguageId { get; set; }
+    public string? DefaultAdminLanguageId { get; set; }
 
     /// <summary>
     ///     A value indicating whether we should detect the current language by a customer region (browser settings)

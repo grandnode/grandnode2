@@ -6,5 +6,5 @@ namespace Grand.Web.Features.Models.Customers;
 
 public class GetSubAccounts : IRequest<IList<SubAccountSimpleModel>>
 {
-    public Customer Customer { get; set; }
+    public required Customer Customer { get; set; }
 }

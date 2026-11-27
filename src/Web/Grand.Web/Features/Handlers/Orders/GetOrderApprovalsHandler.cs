@@ -57,7 +57,7 @@ public class GetOrderApprovalsHandler : IRequestHandler<GetOrderApprovals, Order
                 buyers[buyer.Id] = buyer;
 
         var orders = new Dictionary<string, Order>();
-        var orderIds = approvals.Where(x => !string.IsNullOrEmpty(x.OrderId)).Select(x => x.OrderId).Distinct()
+        var orderIds = approvals.Select(x => x.OrderId).OfType<string>().Where(x => x.Length > 0).Distinct()
             .ToArray();
         if (orderIds.Length > 0)
             foreach (var order in await _orderService.GetOrdersByIds(orderIds))

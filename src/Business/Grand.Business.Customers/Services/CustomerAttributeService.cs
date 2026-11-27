@@ -88,7 +88,7 @@ public class CustomerAttributeService : ICustomerAttributeService
     /// </summary>
     /// <param name="customerAttributeId">Customer attribute identifier</param>
     /// <returns>Customer attribute</returns>
-    public virtual Task<CustomerAttribute> GetCustomerAttributeById(string customerAttributeId)
+    public virtual Task<CustomerAttribute?> GetCustomerAttributeById(string? customerAttributeId)
     {
         var key = string.Format(CacheKey.CUSTOMERATTRIBUTES_BY_ID_KEY, customerAttributeId);
         return _cacheBase.GetAsync(key, () => _customerAttributeRepository.GetByIdAsync(customerAttributeId));
@@ -145,7 +145,8 @@ public class CustomerAttributeService : ICustomerAttributeService
     {
         ArgumentNullException.ThrowIfNull(customerAttributeValue);
 
-        var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId);
+        var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId) ??
+                 throw new ArgumentException("The value names no customer attribute", nameof(customerAttributeValue));
         ca.CustomerAttributeValues.Add(customerAttributeValue);
 
         await _customerAttributeRepository.UpdateAsync(ca);
@@ -162,9 +163,11 @@ public class CustomerAttributeService : ICustomerAttributeService
     {
         ArgumentNullException.ThrowIfNull(customerAttributeValue);
 
-        var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId);
-        ca.CustomerAttributeValues.Remove(
-            ca.CustomerAttributeValues.FirstOrDefault(c => c.Id == customerAttributeValue.Id));
+        var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId) ??
+                 throw new ArgumentException("The value names no customer attribute", nameof(customerAttributeValue));
+        var existing = ca.CustomerAttributeValues.FirstOrDefault(c => c.Id == customerAttributeValue.Id);
+        if (existing != null)
+            ca.CustomerAttributeValues.Remove(existing);
         ca.CustomerAttributeValues.Add(customerAttributeValue);
 
         await _customerAttributeRepository.UpdateAsync(ca);
@@ -181,9 +184,11 @@ public class CustomerAttributeService : ICustomerAttributeService
     {
         ArgumentNullException.ThrowIfNull(customerAttributeValue);
 
-        var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId);
-        ca.CustomerAttributeValues.Remove(
-            ca.CustomerAttributeValues.FirstOrDefault(c => c.Id == customerAttributeValue.Id));
+        var ca = await _customerAttributeRepository.GetByIdAsync(customerAttributeValue.CustomerAttributeId) ??
+                 throw new ArgumentException("The value names no customer attribute", nameof(customerAttributeValue));
+        var existing = ca.CustomerAttributeValues.FirstOrDefault(c => c.Id == customerAttributeValue.Id);
+        if (existing != null)
+            ca.CustomerAttributeValues.Remove(existing);
         await _customerAttributeRepository.UpdateAsync(ca);
 
         //event notification

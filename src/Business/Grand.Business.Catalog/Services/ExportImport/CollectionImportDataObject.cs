@@ -133,7 +133,7 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
     ///     Resolves the existing entity by Id; in Row mode, when no Id is given, by SeName, and with neither, by its stored
     ///     name (any case) - more than one collection of that name is an error
     /// </summary>
-    private async Task<(Collection collection, bool matchedByName, string error)> FindCollection(CollectionDto dto,
+    private async Task<(Collection? collection, bool matchedByName, string? error)> FindCollection(CollectionDto dto,
         ImportMode mode)
     {
         if (!string.IsNullOrEmpty(dto.Id))
@@ -154,7 +154,7 @@ public class CollectionImportDataObject : IImportDataObject<CollectionDto>, IRow
         return (found, found != null, error);
     }
 
-    private async Task UpdateCollectionData(Collection collection, DownloadedImage image)
+    private async Task UpdateCollectionData(Collection collection, DownloadedImage? image)
     {
         if (string.IsNullOrEmpty(collection.CollectionLayoutId))
         {

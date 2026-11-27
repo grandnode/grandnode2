@@ -20,7 +20,7 @@ public abstract class BaseSearchController(
     IContextAccessor contextAccessor)
     : BaseController
 {
-    protected virtual string PickerStoreId => "";
+    protected virtual string? PickerStoreId => "";
 
     protected Customer CurrentCustomer => contextAccessor.WorkContext.CurrentCustomer;
 
@@ -47,7 +47,7 @@ public abstract class BaseSearchController(
             pageIndex: 0,
             pageSize: adminSearchSettings.CollectionSizeLimit);
 
-        var gridModel = await DataSourceResultHelper.GetSearchResult(collectionId, collections, collection => Task.FromResult(collection.Name));
+        var gridModel = await DataSourceResultHelper.GetSearchResult(collectionId, collections, collection => Task.FromResult<string?>(collection.Name));
         return Json(gridModel);
     }
 
@@ -59,7 +59,7 @@ public abstract class BaseSearchController(
             access: CatalogAccess.For(CurrentCustomer, PickerStoreId),
             pageSize: adminSearchSettings.BrandSizeLimit);
 
-        var gridModel = await DataSourceResultHelper.GetSearchResult(brandId, brands, brand => Task.FromResult(brand.Name));
+        var gridModel = await DataSourceResultHelper.GetSearchResult(brandId, brands, brand => Task.FromResult<string?>(brand.Name));
         return Json(gridModel);
     }
 }

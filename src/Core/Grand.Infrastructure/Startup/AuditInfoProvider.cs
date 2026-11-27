@@ -13,7 +13,7 @@ public class AuditInfoProvider : IAuditInfoProvider
         _contextAccessor = contextAccessor;
     }
 
-    public string GetCurrentUser()
+    public string? GetCurrentUser()
     {
         return _contextAccessor.HttpContext?.User.FindFirst(ClaimTypes.Name)?.Value;
     }

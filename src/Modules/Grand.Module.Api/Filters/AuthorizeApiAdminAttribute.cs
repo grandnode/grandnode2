@@ -75,7 +75,7 @@ public class AuthorizeApiAdminAttribute : TypeFilterAttribute
             if (filterContext.Filters.Any(filter => filter is AuthorizeApiAdminFilter))
             {
                 //authorize permission of access to the admin area
-                var customer = contextAccessor.WorkContext?.CurrentCustomer;
+                var customer = contextAccessor.WorkContext.CurrentCustomer;
                 if (!await permissionService.Authorize(StandardPermission.ManageAccessAdminPanel, customer))
                 {
                     filterContext.Result = new ForbidResult(JwtBearerDefaults.AuthenticationScheme);

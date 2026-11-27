@@ -71,7 +71,7 @@ public class ContactAttributeService : IContactAttributeService
         ArgumentNullException.ThrowIfNull(access);
 
         var applyAcl = !access.ShowHidden && !_accessControlConfig.IgnoreAcl;
-        var allowedCustomerGroupsIds = applyAcl ? access.Customer.GetCustomerGroupIds() : [];
+        var allowedCustomerGroupsIds = applyAcl && !access.ShowHidden ? access.Customer.GetCustomerGroupIds() : [];
         var key = string.Format(CacheKey.CONTACTATTRIBUTES_ALL_KEY, access.StoreId, access.ShowHidden,
             string.Join(",", allowedCustomerGroupsIds));
         return await _cacheBase.GetAsync(key, async () =>
@@ -100,7 +100,7 @@ public class ContactAttributeService : IContactAttributeService
     /// </summary>
     /// <param name="contactAttributeId">Contact attribute identifier</param>
     /// <returns>Contact attribute</returns>
-    public virtual Task<ContactAttribute> GetContactAttributeById(string contactAttributeId)
+    public virtual Task<ContactAttribute?> GetContactAttributeById(string? contactAttributeId)
     {
         var key = string.Format(CacheKey.CONTACTATTRIBUTES_BY_ID_KEY, contactAttributeId);
         return _cacheBase.GetAsync(key, () => _contactAttributeRepository.GetByIdAsync(contactAttributeId));
