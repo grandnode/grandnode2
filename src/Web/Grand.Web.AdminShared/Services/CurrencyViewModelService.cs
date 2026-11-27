@@ -1,8 +1,10 @@
 ﻿using Grand.Business.Core.Interfaces.Common.Configuration;
 using Grand.Business.Core.Interfaces.Common.Directory;
 using Grand.Business.Core.Interfaces.Common.Stores;
+using Grand.Business.Core.Queries.Checkout.Orders;
 using Grand.Domain.Directory;
 using Grand.Infrastructure.Caching;
+using Grand.Mediator;
 using Grand.Web.AdminShared.Extensions.Mapping;
 using Grand.Web.AdminShared.Interfaces;
 using Grand.Web.AdminShared.Models.Directory;
@@ -20,6 +22,7 @@ public class CurrencyViewModelService : ICurrencyViewModelService
     private readonly ISettingService _settingService;
     private readonly IRequestTranslationService _translationService;
     private readonly ICacheBase _cacheBase;
+    private readonly IMediator _mediator;
 
     #endregion
 
@@ -30,7 +33,8 @@ public class CurrencyViewModelService : ICurrencyViewModelService
         CurrencySettings currencySettings,
         ISettingService settingService,
         IRequestTranslationService translationService,
-        ICacheBase cacheBase)
+        ICacheBase cacheBase,
+        IMediator mediator)
     {
         _currencyService = currencyService;
         _storeService = storeService;
@@ -38,6 +42,7 @@ public class CurrencyViewModelService : ICurrencyViewModelService
         _settingService = settingService;
         _translationService = translationService;
         _cacheBase = cacheBase;
+        _mediator = mediator;
     }
 
     #endregion
@@ -128,6 +133,11 @@ public class CurrencyViewModelService : ICurrencyViewModelService
 
         if (currency.Id == _currencySettings.PrimaryExchangeRateCurrencyId)
             return (false, _translationService.GetResource("Admin.Configuration.Currencies.CantDeleteExchange"));
+
+        //an order keeps the code of the currency it was placed in: its pages, refunds and loyalty points need it
+        if (!string.IsNullOrEmpty(currency.CurrencyCode) &&
+            (await _mediator.Send(new GetOrderQuery { CustomerCurrencyCode = currency.CurrencyCode, PageSize = 1 })).TotalCount > 0)
+            return (false, _translationService.GetResource("Admin.Configuration.Currencies.CantDeleteUsedByOrders"));
 
         var allCurrencies = await _currencyService.GetAllCurrencies();
         if (allCurrencies.Count == 1 && allCurrencies[0].Id == currency.Id)

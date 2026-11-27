@@ -44,6 +44,19 @@ public class GetOrderQueryHandlerTests
     }
 
     [TestMethod]
+    public async Task Handle_FiltersByCustomerCurrency()
+    {
+        await _repository.Collection.InsertOneAsync(new Order { CustomerCurrencyCode = "EUR", Code = "A" });
+        await _repository.Collection.InsertOneAsync(new Order { CustomerCurrencyCode = "USD", Code = "B" });
+
+        var result = await _handler.Handle(new GetOrderQuery { CustomerCurrencyCode = "EUR", PageSize = 1 },
+            CancellationToken.None);
+
+        Assert.AreEqual(1, result.TotalCount);
+        Assert.AreEqual("A", result[0].Code);
+    }
+
+    [TestMethod]
     public async Task Handle_FiltersByPurchaseOrderNumber()
     {
         await _repository.Collection.InsertOneAsync(new Order { PurchaseOrderNumber = "PO-1", Code = "A" });

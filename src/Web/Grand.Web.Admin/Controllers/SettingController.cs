@@ -38,6 +38,7 @@ using Grand.Web.Common.Themes;
 using Grand.Mediator;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.Rendering;
+using System.Text.Json;
 using OperatingSystem = Grand.Infrastructure.OperatingSystem;
 
 namespace Grand.Web.Admin.Controllers;
@@ -716,13 +717,14 @@ public class SettingController(
         //security settings
         var securitySettings = await settingService.LoadSetting<SecuritySettings>(storeScope);
 
-        securitySettings.AdminAreaAllowedIpAddresses ??= [];
-        securitySettings.AdminAreaAllowedIpAddresses.Clear();
-        if (!string.IsNullOrEmpty(model.SecuritySettings.AdminAreaAllowedIpAddresses))
-            foreach (var s in model.SecuritySettings.AdminAreaAllowedIpAddresses.Split([','],
-                         StringSplitOptions.RemoveEmptyEntries))
-                if (!string.IsNullOrWhiteSpace(s))
-                    securitySettings.AdminAreaAllowedIpAddresses.Add(s.Trim());
+        var allowedIpAddresses = (model.SecuritySettings.AdminAreaAllowedIpAddresses ?? "")
+            .Split([','], StringSplitOptions.RemoveEmptyEntries | StringSplitOptions.TrimEntries).ToList();
+        //a list without the address the admin saves from would shut them out of the admin panel at once: keep the old one
+        var currentIp = HttpContext.Connection.RemoteIpAddress?.ToString();
+        if (allowedIpAddresses.Count > 0 && !allowedIpAddresses.Contains(currentIp, StringComparer.OrdinalIgnoreCase))
+            Error(string.Format(translationService.GetResource("Admin.Settings.GeneralCommon.AdminAreaAllowedIpAddresses.WithoutOwn"), currentIp));
+        else
+            securitySettings.AdminAreaAllowedIpAddresses = allowedIpAddresses;
 
         await settingService.SaveSetting(securitySettings);
 
@@ -803,16 +805,22 @@ public class SettingController(
     {
         for (var i = 0; i < lines.Length; i++)
         {
-            if (lines[i].Contains("apiKey")) lines[i] = $"apiKey: \"{model.PushApiKey}\",";
-            if (lines[i].Contains("authDomain")) lines[i] = $"authDomain: \"{model.AuthDomain}\",";
-            if (lines[i].Contains("databaseURL")) lines[i] = $"databaseURL: \"{model.DatabaseUrl}\",";
-            if (lines[i].Contains("projectId")) lines[i] = $"projectId: \"{model.ProjectId}\",";
-            if (lines[i].Contains("storageBucket")) lines[i] = $"storageBucket: \"{model.StorageBucket}\",";
-            if (lines[i].Contains("messagingSenderId")) lines[i] = $"messagingSenderId: \"{model.SenderId}\",";
-            if (lines[i].Contains("appId")) lines[i] = $"appId: \"{model.AppId}\",";
+            if (IsKeyLine(lines[i], "apiKey")) lines[i] = $"apiKey: {JsString(model.PushApiKey)},";
+            if (IsKeyLine(lines[i], "authDomain")) lines[i] = $"authDomain: {JsString(model.AuthDomain)},";
+            if (IsKeyLine(lines[i], "databaseURL")) lines[i] = $"databaseURL: {JsString(model.DatabaseUrl)},";
+            if (IsKeyLine(lines[i], "projectId")) lines[i] = $"projectId: {JsString(model.ProjectId)},";
+            if (IsKeyLine(lines[i], "storageBucket")) lines[i] = $"storageBucket: {JsString(model.StorageBucket)},";
+            if (IsKeyLine(lines[i], "messagingSenderId")) lines[i] = $"messagingSenderId: {JsString(model.SenderId)},";
+            if (IsKeyLine(lines[i], "appId")) lines[i] = $"appId: {JsString(model.AppId)},";
         }
         return lines;
     }
+
+    //the line of the template that sets the key, not any line whose value mentions it
+    private static bool IsKeyLine(string line, string key) => line.TrimStart().StartsWith(key + ":", StringComparison.Ordinal);
+
+    //a JavaScript string literal: a quote, a backslash or a line break typed in a setting must not end it
+    private static string JsString(string? value) => JsonSerializer.Serialize(value ?? "");
 
     public async Task<IActionResult> AdminSearch()
     {

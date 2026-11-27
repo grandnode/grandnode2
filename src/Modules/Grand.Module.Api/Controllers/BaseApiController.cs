@@ -7,6 +7,7 @@ using Grand.Module.Api.Constants;
 using Grand.Module.Api.Filters;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
 using Microsoft.AspNetCore.Authorization;
+using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 
@@ -26,6 +27,16 @@ public abstract class BaseApiController : ControllerBase
     /// </summary>
     protected Customer CurrentCustomer =>
         HttpContext.RequestServices.GetRequiredService<IContextAccessor>().WorkContext.CurrentCustomer;
+
+    /// <summary>
+    ///     Applies the patch to the record; an operation it cannot apply, such as an unknown path or a value of the
+    ///     wrong type, becomes a model error and the record must not be saved
+    /// </summary>
+    protected bool TryApplyPatch<T>(JsonPatchDocument<T> patch, T record) where T : class
+    {
+        patch.ApplyTo(record, error => ModelState.AddModelError(error.Operation?.path ?? "", error.ErrorMessage));
+        return ModelState.IsValid;
+    }
 
     public override ForbidResult Forbid()
     {

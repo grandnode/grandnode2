@@ -125,6 +125,7 @@ public class CampaignService(
         IPagedList<NewsLetterSubscription> model;
         if (campaign.CustomerCreatedDateFrom.HasValue || campaign.CustomerCreatedDateTo.HasValue ||
             campaign.CustomerHasShoppingCart is not (CampaignCondition.All and CampaignCondition.All) ||
+            campaign.CustomerHasOrders != CampaignCondition.All ||
             campaign.CustomerLastActivityDateFrom.HasValue || campaign.CustomerLastActivityDateTo.HasValue ||
             campaign.CustomerLastPurchaseDateFrom.HasValue || campaign.CustomerLastPurchaseDateTo.HasValue ||
             campaign.CustomerTags.Count > 0 || campaign.CustomerGroups.Count > 0)
@@ -177,14 +178,15 @@ public class CampaignService(
                     break;
             }
 
+            //every order placed sets the customer's last purchase date
             switch (campaign.CustomerHasOrders)
             {
                 //customer has order
                 case CampaignCondition.True:
-                    query = query.Where(x => x.IsHasOrders);
+                    query = query.Where(x => x.LastPurchaseDateUtc != null);
                     break;
                 case CampaignCondition.False:
-                    query = query.Where(x => !x.IsHasOrders);
+                    query = query.Where(x => x.LastPurchaseDateUtc == null);
                     break;
             }
 
@@ -333,7 +335,6 @@ public class CampaignService(
         public DateTime LastActivityDateUtc { get; set; }
         public DateTime? LastPurchaseDateUtc { get; set; }
         public bool HasShoppingCartItems { get; set; }
-        public bool IsHasOrders { get; }
         public ICollection<string>? CustomerTags { get; set; }
         public ICollection<string>? NewsletterCategories { get; set; }
         public ICollection<string> CustomerGroups { get; set; } = new List<string>();

@@ -9,6 +9,8 @@ using Grand.Module.Api.Controllers;
 using Grand.Module.Api.DTOs.Catalog;
 using Grand.Module.Api.Queries.Models.Common;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.JsonPatch.SystemTextJson;
+using Microsoft.AspNetCore.JsonPatch.SystemTextJson.Operations;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
@@ -104,5 +106,36 @@ public class CollectionControllerTests
 
         Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
         _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateCollectionCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    private static JsonPatchDocument<CollectionDto> Replace(string path, object value)
+    {
+        var patch = new JsonPatchDocument<CollectionDto>();
+        patch.Operations.Add(new Operation<CollectionDto>("replace", path, null, value));
+        return patch;
+    }
+
+    [TestMethod]
+    public async Task Patch_UnknownPath_BadRequest_NothingSaved()
+    {
+        SetupStoredCollection(new CollectionDto { Id = "c-1", Name = "Summer" });
+
+        var result = await _controller.Patch("c-1", Replace("/NoSuchField", "x"));
+
+        Assert.IsInstanceOfType(result, typeof(BadRequestObjectResult));
+        _mediatorMock.Verify(m => m.Send(It.IsAny<UpdateCollectionCommand>(), It.IsAny<CancellationToken>()), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Patch_KnownPath_SavesTheChange()
+    {
+        var stored = new CollectionDto { Id = "c-1", Name = "Summer" };
+        SetupStoredCollection(stored);
+
+        var result = await _controller.Patch("c-1", Replace("/Name", "Winter"));
+
+        Assert.IsInstanceOfType(result, typeof(OkResult));
+        _mediatorMock.Verify(m => m.Send(It.Is<UpdateCollectionCommand>(c => c.Model.Name == "Winter"),
+            It.IsAny<CancellationToken>()), Times.Once);
     }
 }

@@ -94,6 +94,9 @@ public class GetOrderQueryHandler : IRequestHandler<GetOrderQuery, IPagedList<Or
         if (!string.IsNullOrEmpty(request.OrderTagId))
             query = query.Where(o => o.OrderTags.Any(y => y == request.OrderTagId));
 
+        if (!string.IsNullOrEmpty(request.CustomerCurrencyCode))
+            query = query.Where(o => o.CustomerCurrencyCode == request.CustomerCurrencyCode);
+
         if (!string.IsNullOrWhiteSpace(request.PurchaseOrderNumber))
             query = query.WherePurchaseOrderNumber(request.PurchaseOrderNumber);
 
