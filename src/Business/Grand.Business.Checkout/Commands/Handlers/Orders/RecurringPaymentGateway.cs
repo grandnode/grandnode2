@@ -76,7 +76,7 @@ internal static class RecurringPaymentGateway
     {
         try
         {
-            if (once && recurringPayment.InitialOrderId != null &&
+            if (once &&
                 (await orderService.GetOrderNotes(recurringPayment.InitialOrderId)).Any(x => x.Note == note))
                 return;
 

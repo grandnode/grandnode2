@@ -358,9 +358,9 @@ public class GetSearchProductsQueryHandler : IRequestHandler<GetSearchProductsQu
         if (request.CategoryIds != null && request.CategoryIds.Any())
         {
             if (request.FeaturedProducts.HasValue)
-                query = query.Where(x => x.ProductCategories.Any(y => y.CategoryId != null && request.CategoryIds.Contains(y.CategoryId) && y.IsFeaturedProduct == request.FeaturedProducts));
+                query = query.Where(x => x.ProductCategories.Any(y => request.CategoryIds.Contains(y.CategoryId) && y.IsFeaturedProduct == request.FeaturedProducts));
             else
-                query = query.Where(x => x.ProductCategories.Any(y => y.CategoryId != null && request.CategoryIds.Contains(y.CategoryId)));
+                query = query.Where(x => x.ProductCategories.Any(y => request.CategoryIds.Contains(y.CategoryId)));
         }
         return query;
     }

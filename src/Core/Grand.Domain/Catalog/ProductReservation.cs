@@ -12,7 +12,7 @@ public class ProductReservation : BaseEntity
     ///     Gets or sets the product identifier
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string? ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the reservation date

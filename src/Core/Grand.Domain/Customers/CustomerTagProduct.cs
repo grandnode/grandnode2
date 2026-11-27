@@ -18,7 +18,7 @@ public class CustomerTagProduct : BaseEntity
     ///     Gets or sets the product Id
     /// </summary>
     [AuditReference(typeof(Product))]
-    public string? ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the display order

@@ -40,6 +40,8 @@ public class ProductBundleViewModelService(
 
     public virtual async Task UpdateBundleProductModel(ProductModel.BundleProductModel model)
     {
+        //the bundle grid posts the product of the row
+        ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
         var product = await productService.GetProductById(model.ProductBundleId, true)
             ?? throw new ArgumentException("No product found with the specified id");
         var bundleProduct = product.BundleProducts.FirstOrDefault(x => x.Id == model.Id);

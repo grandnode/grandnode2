@@ -261,7 +261,7 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
                     //after the cart is cleared, so a failed write cannot lead to a second paid order; still before the
                     //provider's post-process step, which starts the gateway's schedule for it
                     if (details.IsRecurring)
-                        await InsertRecurringPayment(result.PlacedOrder);
+                        await InsertRecurringPayment(result.PlacedOrder, details.Customer.Id);
                     result.PaymentTransaction = paymentTransaction;
 
                     #endregion
@@ -331,11 +331,11 @@ public class PlaceOrderCommandHandler : IRequestHandler<PlaceOrderCommand, Place
         return result;
     }
 
-    private Task InsertRecurringPayment(Order order)
+    private Task InsertRecurringPayment(Order order, string customerId)
     {
         return _recurringPaymentService.InsertRecurringPayment(new RecurringPayment {
             StoreId = order.StoreId,
-            CustomerId = order.CustomerId,
+            CustomerId = customerId,
             InitialOrderId = order.Id,
             PaymentMethodSystemName = order.PaymentMethodSystemName,
             CycleLength = order.RecurringCycleLength,

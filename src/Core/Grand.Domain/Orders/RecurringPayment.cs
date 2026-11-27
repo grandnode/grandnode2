@@ -21,13 +21,13 @@ public class RecurringPayment : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the order the customer placed
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string? InitialOrderId { get; set; }
+    public string InitialOrderId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the system name of the payment method that runs the schedule

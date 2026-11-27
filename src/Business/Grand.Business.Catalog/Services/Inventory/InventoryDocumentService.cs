@@ -44,7 +44,7 @@ public class InventoryDocumentService(
 
         var query = productRepository.Table.Where(StockBuckets.KeptIn(warehouseId));
         if (categoryIds is { Count: > 0 })
-            query = query.Where(x => x.ProductCategories.Any(c => c.CategoryId != null && categoryIds.Contains(c.CategoryId)));
+            query = query.Where(x => x.ProductCategories.Any(c => categoryIds.Contains(c.CategoryId)));
         if (brandIds is { Count: > 0 })
             query = query.Where(x => x.BrandId != null && brandIds.Contains(x.BrandId));
         query = query.OrderBy(x => x.Id);
@@ -105,7 +105,7 @@ public class InventoryDocumentService(
         var shipped = new Dictionary<string, (int, List<string>, List<ShipmentItemBatch>)>();
         foreach (var item in (await shipmentService.GetShipmentsByOrder(orderId)).SelectMany(x => x.ShipmentItems))
         {
-            var orderItemId = item.OrderItemId ?? "";
+            var orderItemId = item.OrderItemId;
             var (quantity, serialNumbers, batches) = shipped.GetValueOrDefault(orderItemId,
                 (0, new List<string>(), new List<ShipmentItemBatch>()));
             serialNumbers.AddRange(item.SerialNumbers ?? []);
@@ -130,7 +130,8 @@ public class InventoryDocumentService(
         inspection ??= [];
         //what the form posted is checked against what is left, never trusted: another return's item, an item named
         //twice or more scrapped than came back refuses the receipt
-        var left = leftToReceive.GroupBy(x => ((string?)x.ReturnItemId, x.ProductId))
+        //keyed as the posted inspection is, whose ids may be missing
+        var left = leftToReceive.GroupBy(x => ((string?)x.ReturnItemId, (string?)x.ProductId))
             .ToDictionary(x => x.Key, x => x.Sum(y => y.Quantity));
         if (inspection.GroupBy(x => ((string?)x.ReturnItemId, x.ProductId)).Any(x => x.Count() > 1) ||
             inspection.Any(x => !left.TryGetValue((x.ReturnItemId, x.ProductId), out var quantity) ||
@@ -227,11 +228,11 @@ public class InventoryDocumentService(
     /// <summary>
     ///     What a merchandise return gives back, by product: a returned bundle gives back its products
     /// </summary>
-    private async Task<IList<(string ReturnItemId, string? ProductId, IList<CustomAttribute> Attributes, int Quantity,
+    private async Task<IList<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
             string? WarehouseId)>>
         Returned(MerchandiseReturn merchandiseReturn)
     {
-        var returned = new List<(string, string?, IList<CustomAttribute>, int, string?)>();
+        var returned = new List<(string, string, IList<CustomAttribute>, int, string?)>();
         var order = await orderService.GetOrderById(merchandiseReturn.OrderId);
         if (order == null)
             return returned;
@@ -261,7 +262,7 @@ public class InventoryDocumentService(
     /// </summary>
     /// <param name="merchandiseReturnId">The merchandise return</param>
     /// <param name="exceptDocumentId">A document left out</param>
-    private async Task<Dictionary<(string?, string?), int>> Received(string merchandiseReturnId,
+    private async Task<Dictionary<(string?, string), int>> Received(string merchandiseReturnId,
         string? exceptDocumentId)
     {
         var receipts = await inventoryDocumentRepository.ToListAsync(inventoryDocumentRepository.Table.Where(x =>
@@ -276,10 +277,10 @@ public class InventoryDocumentService(
     ///     What a merchandise return gives back and no return receipt of it takes in yet, posted or draft, with the
     ///     quantity left of each
     /// </summary>
-    private async Task<IList<(string ReturnItemId, string? ProductId, IList<CustomAttribute> Attributes, int Quantity,
+    private async Task<IList<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
             string? WarehouseId)>>
         LeftToReceive(string merchandiseReturnId,
-            IEnumerable<(string ReturnItemId, string? ProductId, IList<CustomAttribute> Attributes, int Quantity,
+            IEnumerable<(string ReturnItemId, string ProductId, IList<CustomAttribute> Attributes, int Quantity,
                 string? WarehouseId)> returned)
     {
         var received = await Received(merchandiseReturnId, null);

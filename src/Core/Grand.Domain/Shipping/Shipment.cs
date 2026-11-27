@@ -16,7 +16,7 @@ public class Shipment : BaseEntity
     ///     Gets or sets the order identifier
     /// </summary>
     [AuditReference(typeof(Order))]
-    public string? OrderId { get; set; }
+    public string OrderId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the store identifier

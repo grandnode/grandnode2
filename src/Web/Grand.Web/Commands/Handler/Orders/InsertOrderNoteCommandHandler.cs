@@ -22,7 +22,7 @@ public class InsertOrderNoteCommandHandler : IRequestHandler<InsertOrderNoteComm
         var orderNote = new OrderNote {
             DisplayToCustomer = true,
             Note = request.OrderNote.Note,
-            OrderId = request.OrderNote.OrderId,
+            OrderId = request.Order.Id,
             CreatedByCustomer = true
         };
         await _orderService.InsertOrderNote(orderNote);

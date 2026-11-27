@@ -528,7 +528,7 @@ public class OrderReportService : IOrderReportService
     ///     The product of each item returned, read from the orders of the returns
     /// </summary>
     private async Task<IEnumerable<(string Key, string? Name, string Return, int Quantity)>> ByProduct(
-        IList<(string OrderId, string? OrderItemId, string Return, int Quantity)> returned)
+        IList<(string OrderId, string OrderItemId, string Return, int Quantity)> returned)
     {
         var orderIds = returned.Select(x => x.OrderId).Distinct().ToList();
         var orders = await _orderRepository.ToListAsync(_orderRepository.Table
@@ -538,7 +538,7 @@ public class OrderReportService : IOrderReportService
             .ToDictionary(x => x.Key, x => x.First().ProductId);
         var keyed = new List<(string Key, string? Name, string Return, int Quantity)>();
         foreach (var x in returned)
-            if (x.OrderItemId != null && products.TryGetValue(x.OrderItemId, out var productId))
+            if (products.TryGetValue(x.OrderItemId, out var productId))
                 keyed.Add((productId ?? "", null, x.Return, x.Quantity));
         return keyed;
     }
@@ -557,7 +557,7 @@ public class OrderReportService : IOrderReportService
 
         var items = from o in orders
             from item in o.OrderItems
-            where item.ProductId != null && productIds.Contains(item.ProductId)
+            where productIds.Contains(item.ProductId)
             select new { item.ProductId, item.VendorId, item.Quantity };
         if (!string.IsNullOrEmpty(vendorId))
             items = items.Where(x => x.VendorId == vendorId);

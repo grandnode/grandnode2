@@ -111,7 +111,7 @@ public abstract class BaseRecurringPaymentController(
         var stores = await storeService.GetAllStores();
 
         var data = recurringPayments.Select(x => PrepareRecurringPaymentModel(x,
-            orders.GetValueOrDefault(x.InitialOrderId ?? ""), customers.GetValueOrDefault(x.CustomerId ?? ""),
+            orders.GetValueOrDefault(x.InitialOrderId), customers.GetValueOrDefault(x.CustomerId),
             stores)).ToList();
 
         return Json(new DataSourceResult { Data = data, Total = recurringPayments.TotalCount });

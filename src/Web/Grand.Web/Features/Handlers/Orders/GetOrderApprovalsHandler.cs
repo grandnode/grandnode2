@@ -53,7 +53,7 @@ public class GetOrderApprovalsHandler : IRequestHandler<GetOrderApprovals, Order
         var buyers = new Dictionary<string, Customer>();
         if (isCompanyList && approvals.Count > 0)
             foreach (var buyer in await _customerService.GetCustomersByIds(
-                         approvals.Select(x => x.CustomerId).OfType<string>().Distinct().ToArray()))
+                         approvals.Select(x => x.CustomerId).Distinct().ToArray()))
                 buyers[buyer.Id] = buyer;
 
         var orders = new Dictionary<string, Order>();
@@ -73,7 +73,7 @@ public class GetOrderApprovalsHandler : IRequestHandler<GetOrderApprovals, Order
                 Status = _enumTranslationService.GetTranslationEnum(approval.Status),
                 IsPending = approval.Status == OrderApprovalStatus.Pending,
                 Buyer = isCompanyList
-                    ? OrderApprovalBuyerName.For(approval.CustomerId != null ? buyers.GetValueOrDefault(approval.CustomerId) : null)
+                    ? OrderApprovalBuyerName.For(buyers.GetValueOrDefault(approval.CustomerId))
                     : null,
                 OrderId = order?.Id,
                 OrderNumber = order?.OrderNumber ?? 0,

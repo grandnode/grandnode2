@@ -5,7 +5,7 @@ public class MerchandiseReturnItem : BaseEntity
     /// <summary>
     ///     Gets or sets the order item identifier
     /// </summary>
-    public string? OrderItemId { get; set; }
+    public string OrderItemId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the merchandise return reason identifier; null when it is not known

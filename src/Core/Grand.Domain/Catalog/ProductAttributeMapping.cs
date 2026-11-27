@@ -16,7 +16,7 @@ public class ProductAttributeMapping : SubBaseEntity, ITranslationEntity
     /// </summary>
     [AuditReference(typeof(ProductAttribute))]
     [AuditName]
-    public string? ProductAttributeId { get; set; }
+    public string ProductAttributeId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets a value a text prompt

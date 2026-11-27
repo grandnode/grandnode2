@@ -117,7 +117,7 @@ public class OrderPlacedOrderApprovalHandler : INotificationHandler<OrderPlacedE
             StoreId = order.StoreId,
             Decider = companyDecides ? OrderApprovalDecider.Company : OrderApprovalDecider.Store,
             CompanyOwnerId = companyDecides ? buyer.OwnerId : null,
-            CustomerId = order.CustomerId,
+            CustomerId = buyer.Id,
             Status = OrderApprovalStatus.Pending,
             OrderId = order.Id,
             Amount = order.OrderTotal,

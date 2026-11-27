@@ -114,9 +114,9 @@ public abstract class BaseProductPriceController(
         if (ModelState.IsValid)
             try
             {
-                productPrice!.CurrencyCode = model.CurrencyCode;
+                productPrice.CurrencyCode = model.CurrencyCode;
                 productPrice.Price = model.Price;
-                productPrice.ProductId = model.ProductId;
+                productPrice.ProductId = product.Id;
 
                 await productService.UpdateProductPrice(productPrice);
 
@@ -147,7 +147,7 @@ public abstract class BaseProductPriceController(
 
         if (ModelState.IsValid)
         {
-            productPrice!.ProductId = model.ProductId;
+            productPrice.ProductId = product.Id;
             await productService.DeleteProductPrice(productPrice);
 
             return new JsonResult("");

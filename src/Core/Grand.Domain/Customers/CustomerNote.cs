@@ -12,7 +12,7 @@ public class CustomerNote : BaseEntity
     /// </summary>
     [AuditReference(typeof(Customer))]
     [AuditOwner]
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the title

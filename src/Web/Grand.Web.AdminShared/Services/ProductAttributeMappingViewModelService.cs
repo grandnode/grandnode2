@@ -174,6 +174,8 @@ public class ProductAttributeMappingViewModelService(
     public virtual async Task InsertProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model)
     {
         ArgumentException.ThrowIfNullOrEmpty(model.ProductId);
+        if (string.IsNullOrEmpty(model.ProductAttributeId))
+            throw new ArgumentException("No product attribute is selected");
 
         //insert mapping
         var productAttributeMapping = model.ToEntity();
@@ -202,6 +204,9 @@ public class ProductAttributeMappingViewModelService(
 
     public virtual async Task UpdateProductAttributeMappingModel(ProductModel.ProductAttributeMappingModel model)
     {
+        if (string.IsNullOrEmpty(model.ProductAttributeId))
+            throw new ArgumentException("No product attribute is selected");
+
         var product = await productService.GetProductById(model.ProductId, true);
         if (product != null)
         {

@@ -38,7 +38,7 @@ public class BlogPostProductsViewComponent : BaseViewComponent
         if (!blogproducts.Any())
             return Content("");
 
-        var products = await _productService.GetProductsByIds(blogproducts.Select(x => x.ProductId).OfType<string>().ToArray(),
+        var products = await _productService.GetProductsByIds(blogproducts.Select(x => x.ProductId).ToArray(),
             _contextAccessor.CatalogAccess());
 
         if (!products.Any())

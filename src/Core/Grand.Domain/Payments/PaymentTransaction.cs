@@ -37,7 +37,7 @@ public class PaymentTransaction : BaseEntity
     ///     Gets or sets customer ident
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets customer email

@@ -13,7 +13,7 @@ public class OrderApprovalItem : SubBaseEntity
     /// </summary>
     [AuditReference(typeof(Product))]
     [AuditName]
-    public string? ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the product name

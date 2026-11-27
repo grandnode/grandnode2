@@ -12,14 +12,14 @@ public class ShipmentItem : SubBaseEntity
     /// <summary>
     ///     Gets or sets the order item identifier
     /// </summary>
-    public string? OrderItemId { get; set; }
+    public string OrderItemId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the product
     /// </summary>
     [AuditReference(typeof(Product))]
     [AuditName]
-    public string? ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the product attribute xml

@@ -35,7 +35,7 @@ public class OrderApproval : BaseEntity
     ///     Gets or sets the buyer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the status

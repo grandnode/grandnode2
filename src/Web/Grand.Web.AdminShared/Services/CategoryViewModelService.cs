@@ -268,6 +268,8 @@ public class CategoryViewModelService : ICategoryViewModelService
 
     public virtual async Task InsertCategoryProductModel(CategoryModel.AddCategoryProductModel model)
     {
+        //the controller loaded the category by this id
+        ArgumentException.ThrowIfNullOrEmpty(model.CategoryId);
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);

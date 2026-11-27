@@ -53,7 +53,7 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
         model.PagingContext.LoadPagedList(recurringPayments);
 
         var orders = new Dictionary<string, Order>();
-        var orderIds = recurringPayments.Select(x => x.InitialOrderId).OfType<string>().Where(x => x.Length > 0)
+        var orderIds = recurringPayments.Select(x => x.InitialOrderId).Where(x => x.Length > 0)
             .Distinct().ToArray();
         if (orderIds.Length > 0)
             foreach (var order in await _orderService.GetOrdersByIds(orderIds))
@@ -62,14 +62,14 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
         //a deleted order is not opened, so its products are not listed either
         var products = new Dictionary<string, Product>();
         var productIds = orders.Values.Where(x => !x.Deleted).SelectMany(x => x.OrderItems)
-            .Select(x => x.ProductId).OfType<string>().Distinct().ToArray();
+            .Select(x => x.ProductId).Distinct().ToArray();
         if (productIds.Length > 0)
             foreach (var product in await _productService.GetProductsByIds(productIds, CatalogAccess.IncludingHidden()))
                 products[product.Id] = product;
 
         foreach (var recurringPayment in recurringPayments)
         {
-            var order = orders.GetValueOrDefault(recurringPayment.InitialOrderId ?? "");
+            var order = orders.GetValueOrDefault(recurringPayment.InitialOrderId);
             var viewableOrder = order is { Deleted: false } ? order : null;
             //the date the provider reported means nothing once it stopped charging
             var charging = recurringPayment.Status is RecurringPaymentStatus.Active or RecurringPaymentStatus.PastDue;
@@ -95,7 +95,7 @@ public class GetRecurringPaymentsHandler : IRequestHandler<GetRecurringPayments,
                 InitialOrderId = recurringPayment.InitialOrderId,
                 InitialOrderNumber = order?.OrderNumber ?? 0,
                 CanViewInitialOrder = viewableOrder != null,
-                Products = viewableOrder?.OrderItems.Select(x => x.ProductId).OfType<string>().Where(products.ContainsKey)
+                Products = viewableOrder?.OrderItems.Select(x => x.ProductId).Where(products.ContainsKey)
                     .Select(id => products[id].GetTranslation(p => p.Name, request.Language.Id)).OfType<string>().ToList() ?? []
             });
         }

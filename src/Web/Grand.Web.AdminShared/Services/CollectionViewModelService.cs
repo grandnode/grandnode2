@@ -268,6 +268,8 @@ public class CollectionViewModelService : ICollectionViewModelService
 
     public virtual async Task InsertCollectionProductModel(CollectionModel.AddCollectionProductModel model)
     {
+        //the controller loaded the collection by this id
+        ArgumentException.ThrowIfNullOrEmpty(model.CollectionId);
         foreach (var id in model.SelectedProductIds)
         {
             var product = await _productService.GetProductById(id);

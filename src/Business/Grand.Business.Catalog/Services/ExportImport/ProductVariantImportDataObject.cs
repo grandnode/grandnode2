@@ -185,7 +185,7 @@ public class ProductVariantImportDataObject : IRowImport<ProductVariantsDto>
         {
             var attribute = attributes.Values.FirstOrDefault(a => a.Id == mapping.ProductAttributeId) ??
                             await _productAttributeService.GetProductAttributeById(mapping.ProductAttributeId);
-            names[mapping.Id] = attribute?.Name ?? mapping.ProductAttributeId ?? "";
+            names[mapping.Id] = attribute?.Name ?? mapping.ProductAttributeId;
         }
 
         return names;

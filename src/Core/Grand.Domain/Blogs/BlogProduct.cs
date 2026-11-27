@@ -6,6 +6,6 @@ public class BlogProduct : BaseEntity
 {
     [AuditReference(typeof(BlogPost))]
     public string? BlogPostId { get; set; }
-    public string? ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
     public int DisplayOrder { get; set; }
 }

@@ -12,7 +12,7 @@ public class OrderNote : BaseEntity
     /// </summary>
     [AuditReference(typeof(Order))]
     [AuditOwner]
-    public string? OrderId { get; set; }
+    public string OrderId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the note

@@ -10,7 +10,7 @@ public class MerchandiseReturnSubmitRequest
 {
     public required Order Order { get; set; }
     public string? StoreId { get; set; }
-    public string? CustomerId { get; set; }
+    public required string CustomerId { get; set; }
     public string? OwnerId { get; set; }
 
     /// <summary>

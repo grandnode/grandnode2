@@ -19,6 +19,8 @@ public class UpdateProductCollectionCommandHandler : IRequestHandler<UpdateProdu
 
     public async Task<bool> Handle(UpdateProductCollectionCommand request, CancellationToken cancellationToken)
     {
+        //the validator requires an existing collection
+        ArgumentException.ThrowIfNullOrEmpty(request.Model.CollectionId);
         var product = await _productService.GetProductById(request.Product.Id, true) ??
             throw new ArgumentException("No product has the id", nameof(request));
         var productCollection =

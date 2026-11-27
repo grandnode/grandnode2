@@ -109,7 +109,7 @@ public class MerchandiseReturnSubmitCommandHandler
 
         foreach (var item in merchandiseReturn.MerchandiseReturnItems)
         {
-            if (item.OrderItemId == null || !request.Photos.TryGetValue(item.OrderItemId, out var photos))
+            if (!request.Photos.TryGetValue(item.OrderItemId, out var photos))
                 continue;
             string? productName = null;
             foreach (var photo in photos)

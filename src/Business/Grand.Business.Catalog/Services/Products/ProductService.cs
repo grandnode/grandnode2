@@ -500,7 +500,7 @@ public class ProductService : IProductService
 
         ////category filtering
         if (categoryIds != null && categoryIds.Any())
-            query = query.Where(p => p.ProductCategories.Any(x => x.CategoryId != null && categoryIds.Contains(x.CategoryId)));
+            query = query.Where(p => p.ProductCategories.Any(x => categoryIds.Contains(x.CategoryId)));
 
         if (!ignoreAcl)
         {
@@ -947,7 +947,7 @@ public class ProductService : IProductService
 
         var cartProductIds = new List<string>();
         foreach (var sci in cart)
-            if (sci.ProductId != null && !cartProductIds.Contains(sci.ProductId))
+            if (!cartProductIds.Contains(sci.ProductId))
                 cartProductIds.Add(sci.ProductId);
 
         foreach (var sci in cart)

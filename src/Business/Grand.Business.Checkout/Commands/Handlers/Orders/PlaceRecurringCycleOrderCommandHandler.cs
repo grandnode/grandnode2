@@ -51,7 +51,7 @@ public class PlaceRecurringCycleOrderCommandHandler(
             OrderGuid = order.OrderGuid,
             OrderCode = order.Code,
             StoreId = order.StoreId,
-            CustomerId = order.CustomerId,
+            CustomerId = recurringPayment.CustomerId,
             CustomerEmail = order.CustomerEmail,
             PaymentMethodSystemName = order.PaymentMethodSystemName,
             CurrencyCode = order.CustomerCurrencyCode,

@@ -234,7 +234,7 @@ public class ProductUnitService(
                 units.Add(new ShippedUnitView(number, true, 1, null, comment));
             }
 
-            var product = products.GetValueOrDefault(item.ProductId ?? "");
+            var product = products.GetValueOrDefault(item.ProductId);
             //the batch of the bucket the item shipped from: the same number in another warehouse is another batch
             var warehouseId = product == null ? null : StockBuckets.UnitWarehouse(product, item.WarehouseId);
             var combinationId = product?.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByAttributes
@@ -300,7 +300,7 @@ public class ProductUnitService(
         return new PagedList<BatchRecipient>(entries.Select(entry =>
         {
             var shipment = shipments.GetValueOrDefault(entry.ObjectId ?? "");
-            var order = shipment == null ? null : orders.GetValueOrDefault(shipment.OrderId ?? "");
+            var order = shipment == null ? null : orders.GetValueOrDefault(shipment.OrderId);
             return new BatchRecipient(entry.ObjectId, shipment?.ShipmentNumber ?? 0, shipment?.OrderId,
                 order?.OrderNumber ?? 0, order?.CustomerId, order?.CustomerEmail, entry.OutQty - entry.InQty,
                 shipment?.CreatedOnUtc ?? entry.CreateDateUtc, order?.StoreId);
@@ -522,7 +522,7 @@ public class ProductUnitService(
     {
         var children = new List<(string? ProductId, int Quantity)>();
         if (product.ManageInventoryMethodId == ManageInventoryMethod.ManageStockByBundleProducts)
-            children.AddRange(product.BundleProducts.Select(x => (x.ProductId, x.Quantity * item.Quantity)));
+            children.AddRange(product.BundleProducts.Select(x => ((string?)x.ProductId, x.Quantity * item.Quantity)));
         children.AddRange(product.ParseProductAttributeValues(item.Attributes ?? [])
             .Where(x => x.AttributeValueTypeId == AttributeValueType.AssociatedToProduct)
             .Select(x => (x.AssociatedProductId, x.Quantity * item.Quantity)));

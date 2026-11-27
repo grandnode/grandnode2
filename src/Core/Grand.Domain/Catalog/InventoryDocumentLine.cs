@@ -7,7 +7,7 @@ namespace Grand.Domain.Catalog;
 /// </summary>
 public class InventoryDocumentLine : SubBaseEntity
 {
-    public string? ProductId { get; set; }
+    public string ProductId { get; set; } = null!;
 
     public IList<CustomAttribute> Attributes { get; set; } = new List<CustomAttribute>();
 

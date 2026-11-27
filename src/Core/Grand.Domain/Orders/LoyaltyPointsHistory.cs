@@ -13,7 +13,7 @@ public class LoyaltyPointsHistory : BaseEntity
     ///     Gets or sets the customer identifier
     /// </summary>
     [AuditReference(typeof(Customer))]
-    public string? CustomerId { get; set; }
+    public string CustomerId { get; set; } = null!;
 
     /// <summary>
     ///     Gets or sets the store identifier in which these loyalty points were awarded or redeemed
