@@ -13,6 +13,8 @@ using Grand.Domain.Stores;
 using Grand.Infrastructure.Extensions;
 using Grand.SharedKernel.Extensions;
 using Grand.Mediator;
+using System.Security.Cryptography;
+using System.Text;
 
 namespace Grand.Business.Authentication.Services;
 
@@ -98,7 +100,35 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         //associate external account with logged-in user
         if (currentLoggedInUser != null)
         {
-            await AssociateCustomer(currentLoggedInUser, parameters);
+            //one account per provider: a second one of the same provider is refused
+            var existingLink = await _externalAuthenticationRecordRepository.FirstOrDefaultAsync(
+                LinksOfProvider(parameters.ProviderSystemName).Where(q => q.CustomerId == currentLoggedInUser.Id));
+            if (existingLink != null)
+            {
+                //the provider issued a new identifier for the customer's own account (a replaced app, rotated
+                //subject identifiers): refresh the stale link instead of locking the customer out
+                if (!IsOwnEmail(currentLoggedInUser, parameters.Email))
+                    return ExternalAuthResult.ProviderAlreadyConnected();
+
+                await RefreshLink(existingLink, parameters);
+                return ExternalAuthResult.Associated(currentLoggedInUser);
+            }
+
+            try
+            {
+                await AssociateCustomer(currentLoggedInUser, parameters);
+            }
+            catch (Exception)
+            {
+                //a concurrent request linked an account of this provider first: the link identifier is unique
+                //per customer and provider, so the second insert fails. Any other failure is rethrown
+                if (!await _externalAuthenticationRecordRepository.AnyAsync(
+                        LinksOfProvider(parameters.ProviderSystemName)
+                            .Where(q => q.CustomerId == currentLoggedInUser.Id)))
+                    throw;
+                return ExternalAuthResult.ProviderAlreadyConnected();
+            }
+
             return ExternalAuthResult.Associated(currentLoggedInUser);
         }
 
@@ -116,6 +146,53 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
             return ExternalAuthResult.EmailRequired();
 
         return await RegisterNewUser(parameters, customer, storeId, language);
+    }
+
+    /// <summary>
+    ///     The links of a provider, matched case-insensitively. A record without a provider name (old or imported
+    ///     data) matches no provider instead of throwing when LiteDB evaluates the query in memory
+    /// </summary>
+    private IQueryable<ExternalAuthentication> LinksOfProvider(string providerSystemName)
+    {
+        var name = providerSystemName.ToLowerInvariant();
+        return _externalAuthenticationRecordRepository.Table.Where(q =>
+            q.ProviderSystemName != null && q.ProviderSystemName.ToLowerInvariant() == name);
+    }
+
+    /// <summary>
+    ///     Identifier of a new link: the first 12 bytes of SHA-256 over "ExternalAuth:" + provider (lower case) + ":" +
+    ///     customer id, as 24 lower-case hex characters (shaped like an ObjectId). The primary key then lets one
+    ///     customer hold one link per provider, also when two requests link at the same time, on MongoDB and LiteDB
+    ///     without an extra index. Lookups go by identifier or customer, so links stored with a random identifier
+    ///     keep working.
+    /// </summary>
+    public static string LinkId(string providerSystemName, string customerId)
+    {
+        ArgumentException.ThrowIfNullOrEmpty(providerSystemName);
+        ArgumentException.ThrowIfNullOrEmpty(customerId);
+        var hash = SHA256.HashData(
+            Encoding.UTF8.GetBytes("ExternalAuth:" + providerSystemName.ToLowerInvariant() + ":" + customerId));
+        return Convert.ToHexStringLower(hash, 0, 12);
+    }
+
+    /// <summary>
+    ///     Whether the provider's e-mail is the customer's own e-mail
+    /// </summary>
+    private static bool IsOwnEmail(Customer customer, string? email)
+    {
+        return !string.IsNullOrEmpty(email) && string.Equals(customer.Email, email, StringComparison.OrdinalIgnoreCase);
+    }
+
+    /// <summary>
+    ///     Points an existing link of the provider at the identifier the provider now issues
+    /// </summary>
+    private async Task RefreshLink(ExternalAuthentication link, ExternalAuthParam parameters)
+    {
+        link.ExternalIdentifier = parameters.Identifier;
+        link.ExternalDisplayIdentifier = parameters.Name;
+        link.Email = parameters.Email;
+        link.OAuthAccessToken = parameters.AccessToken;
+        await _externalAuthenticationRecordRepository.UpdateAsync(link);
     }
 
     /// <summary>
@@ -302,6 +379,7 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
         ArgumentNullException.ThrowIfNull(customer);
 
         var externalAuthenticationRecord = new ExternalAuthentication {
+            Id = LinkId(parameters.ProviderSystemName, customer.Id),
             CustomerId = customer.Id,
             Email = parameters.Email,
             ExternalIdentifier = parameters.Identifier,
@@ -322,10 +400,8 @@ public class ExternalAuthenticationService : IExternalAuthenticationService
     {
         ArgumentNullException.ThrowIfNull(parameters);
 
-        var associationRecord = (from q in _externalAuthenticationRecordRepository.Table
-            where q.ExternalIdentifier == parameters.Identifier
-                  && q.ProviderSystemName != null && q.ProviderSystemName.ToLowerInvariant() == parameters.ProviderSystemName.ToLowerInvariant()
-            select q).FirstOrDefault();
+        var associationRecord = await _externalAuthenticationRecordRepository.FirstOrDefaultAsync(
+            LinksOfProvider(parameters.ProviderSystemName).Where(q => q.ExternalIdentifier == parameters.Identifier));
 
         if (associationRecord == null)
             return null;

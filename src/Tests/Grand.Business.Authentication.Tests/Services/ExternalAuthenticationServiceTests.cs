@@ -11,6 +11,7 @@ using Grand.Domain.Customers;
 using Grand.Domain.Localization;
 using Grand.Domain.Stores;
 using Grand.Mediator;
+using Grand.SharedKernel;
 using Microsoft.VisualStudio.TestTools.UnitTesting;
 using Moq;
 
@@ -273,6 +274,98 @@ public class ExternalAuthenticationServiceTests
         Assert.AreEqual(ExternalAuthStatus.Associated, result.Status);
         Assert.AreEqual("registered", _externalAuthenticationRecordRepository.Table.Single().CustomerId);
         _mediatorMock.Verify(m => m.Publish(It.IsAny<CustomerLoggedInEvent>(), default), Times.Never);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_SecondAccountOfSameProviderWhileLoggedIn_IsRefused()
+    {
+        var customer = new Customer { Id = "registered" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        await _externalAuthenticationService.AssociateCustomer(customer,
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "A" });
+        var parameters = new ExternalAuthParam { ProviderSystemName = "externalauthenticationprovidertest", Identifier = "B" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.ProviderAlreadyConnected, result.Status);
+        Assert.IsEmpty(result.Errors);
+        Assert.AreEqual("A", _externalAuthenticationRecordRepository.Table.Single().ExternalIdentifier);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_AccountOfAnotherProviderWhileLoggedIn_IsAssociated()
+    {
+        var customer = new Customer { Id = "registered" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        await _externalAuthenticationService.AssociateCustomer(customer,
+            new ExternalAuthParam { ProviderSystemName = "OtherProvider", Identifier = "A" });
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "B" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.Associated, result.Status);
+        Assert.AreEqual(2, _externalAuthenticationRecordRepository.Table.Count(r => r.CustomerId == "registered"));
+    }
+
+    [TestMethod]
+    public async Task Authenticate_SameProviderLinkedByAnotherCustomerWhileLoggedIn_IsAssociated()
+    {
+        var customer = new Customer { Id = "registered" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        await _externalAuthenticationService.AssociateCustomer(new Customer { Id = "other" },
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "A" });
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "B" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.Associated, result.Status);
+        Assert.AreEqual("B", _externalAuthenticationRecordRepository.Table.Single(r => r.CustomerId == "registered").ExternalIdentifier);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_NewIdentifierOfOwnAccountWhileLoggedIn_RefreshesTheLink()
+    {
+        var customer = new Customer { Id = "registered", Email = "me@test.com" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        await _externalAuthenticationService.AssociateCustomer(customer,
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "old", Email = "me@test.com" });
+        var parameters = new ExternalAuthParam {
+            ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "new", Email = "ME@test.com"
+        };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.Associated, result.Status);
+        Assert.AreEqual("new", _externalAuthenticationRecordRepository.Table.Single().ExternalIdentifier);
+    }
+
+    [TestMethod]
+    public async Task AssociateCustomer_SecondLinkOfSameProvider_IsRejectedByTheLinkIdentifier()
+    {
+        var customer = new Customer { Id = "registered" };
+        await _externalAuthenticationService.AssociateCustomer(customer,
+            new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "A" });
+
+        //what a concurrent request that passed the check at the same time would do
+        await Assert.ThrowsAsync<DuplicateKeyGrandException>(() => _externalAuthenticationService.AssociateCustomer(customer,
+            new ExternalAuthParam { ProviderSystemName = "externalauthenticationprovidertest", Identifier = "B" }), "duplicate key");
+        Assert.AreEqual(ExternalAuthenticationService.LinkId("ExternalAuthenticationProviderTest", "registered"),
+            _externalAuthenticationRecordRepository.Table.Single().Id);
+    }
+
+    [TestMethod]
+    public async Task Authenticate_RecordWithoutProviderNameWhileLoggedIn_IsIgnored()
+    {
+        var customer = new Customer { Id = "registered" };
+        _groupServiceMock.Setup(g => g.IsRegistered(customer)).ReturnsAsync(true);
+        await _externalAuthenticationRecordRepository.InsertAsync(new ExternalAuthentication {
+            CustomerId = "registered", ExternalIdentifier = "legacy", ProviderSystemName = null
+        });
+        var parameters = new ExternalAuthParam { ProviderSystemName = "ExternalAuthenticationProviderTest", Identifier = "B" };
+
+        var result = await _externalAuthenticationService.Authenticate(parameters, customer, new Store(), new Language());
+
+        Assert.AreEqual(ExternalAuthStatus.Associated, result.Status);
     }
 
     [TestMethod]
