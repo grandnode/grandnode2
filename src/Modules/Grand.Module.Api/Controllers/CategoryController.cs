@@ -105,7 +105,7 @@ public class CategoryController : BaseApiController
         if (category == null) return NotFound();
 
         var cat = category;
-        model.ApplyTo(cat);
+        if (!TryApplyPatch(model, cat)) return BadRequest(ModelState);
         await _mediator.Send(new UpdateCategoryCommand { Model = cat });
         return Ok();
     }
