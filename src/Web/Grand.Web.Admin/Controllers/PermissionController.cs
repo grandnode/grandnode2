@@ -118,6 +118,16 @@ public class PermissionController : BaseAdminController
         var permissionRecords = await _permissionService.GetAllPermissions();
         var customerGroups = await _groupService.GetAllCustomerGroups(showHidden: true);
 
+        //whoever saves keeps the admin panel and this page through one of their groups: nobody else may be left to give them back
+        var ownGroups = customerGroups.Where(g => g.Active && _contextAccessor.WorkContext.CurrentCustomer.Groups.Contains(g.Id)).ToList();
+        bool KeepsOwn(string permission) =>
+            ownGroups.Any(g => model.TryGetValue($"allow_{g.Id}", out var allowed) && allowed.Contains(permission));
+        if (!KeepsOwn(PermissionSystemName.AccessAdminPanel) || !KeepsOwn(PermissionSystemName.Acl))
+        {
+            Error(_translationService.GetResource("Admin.Configuration.Permissions.CantRemoveOwnAccess"));
+            return RedirectToAction("Index");
+        }
+
         foreach (var cr in customerGroups)
         {
             model.TryGetValue($"allow_{cr.Id}", out var permissionIds);
