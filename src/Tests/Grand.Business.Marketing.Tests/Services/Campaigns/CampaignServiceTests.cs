@@ -171,6 +171,28 @@ public class CampaignServiceTests
     }
 
     [TestMethod]
+    [DataRow(CampaignCondition.True, "buyer")]
+    [DataRow(CampaignCondition.False, "browser")]
+    public async Task CustomerSubscriptions_CustomerHasOrders_KeepsTheMatchingCustomers(CampaignCondition hasOrders, string expected)
+    {
+        await _customerRepository.InsertAsync(new Customer { Id = "buyer", LastPurchaseDateUtc = DateTime.UtcNow.AddDays(-1) });
+        await _customerRepository.InsertAsync(new Customer { Id = "browser" });
+        await _newsLetterSubscriptionRepository.InsertAsync(new NewsLetterSubscription { StoreId = "1", Active = true, CustomerId = "buyer", Email = "buyer@x.com" });
+        await _newsLetterSubscriptionRepository.InsertAsync(new NewsLetterSubscription { StoreId = "1", Active = true, CustomerId = "browser", Email = "browser@x.com" });
+
+        //alone, and next to another customer condition
+        foreach (var hasCart in new[] { CampaignCondition.All, CampaignCondition.False })
+        {
+            var campaign = new Campaign { StoreId = "1", CustomerHasOrders = hasOrders, CustomerHasShoppingCart = hasCart };
+
+            var result = await _campaignService.CustomerSubscriptions(campaign);
+
+            Assert.HasCount(1, result);
+            Assert.AreEqual(expected, result[0].CustomerId);
+        }
+    }
+
+    [TestMethod]
     public async Task SendCampaignTest()
     {
         //Arrange
