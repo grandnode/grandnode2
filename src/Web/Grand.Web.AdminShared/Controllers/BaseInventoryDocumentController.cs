@@ -102,6 +102,10 @@ public abstract class BaseInventoryDocumentController(
 
     protected virtual async Task<IActionResult> CreateGetCore(InventoryDocumentType type)
     {
+        //the list links each type; a link without one, or with a number no type has, has no form to show
+        if (!Enum.IsDefined(type))
+            return RedirectToAction("List");
+
         var model = new InventoryDocumentModel { DocumentTypeId = (int)type };
         await inventoryDocumentViewModelService.PrepareModel(model, null);
         return View("Create", model);
@@ -109,6 +113,10 @@ public abstract class BaseInventoryDocumentController(
 
     protected virtual async Task<IActionResult> CreatePostCore(InventoryDocumentModel model)
     {
+        var type = (InventoryDocumentType)model.DocumentTypeId;
+        if (!Enum.IsDefined(type))
+            return RedirectToAction("List");
+
         if (string.IsNullOrEmpty(model.WarehouseId))
         {
             Error(translationService.GetResource(InventoryDocumentErrors.WarehouseNotFound));
@@ -119,7 +127,6 @@ public abstract class BaseInventoryDocumentController(
         if (!await CanUse(model.WarehouseId) || !await CanUse(model.TargetWarehouseId))
             return Denied();
 
-        var type = (InventoryDocumentType)model.DocumentTypeId;
         if (type == InventoryDocumentType.StockCount)
         {
             var (count, refused) = await inventoryDocumentService.CreateStockCount(model.WarehouseId,
